@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Holo blue light: v11 -->
+    <color name="pressed_highlight_color">#660099cc</color>
+
+</resources>

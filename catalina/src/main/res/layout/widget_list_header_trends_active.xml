@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
+    android:orientation="vertical" >
+
+    <com.aircandi.ui.widgets.AirTextLight
+        android:id="@+id/content_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/backgroundCardField"
+        android:gravity="center_horizontal"
+        android:padding="16dp"
+        custom:textId="@string/label_trends_header_message_active" />
+
+</LinearLayout>

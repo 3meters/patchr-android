@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval" >
+
+    <gradient
+        android:angle="270"
+        android:endColor="@color/background_button_dark"
+        android:startColor="@color/background_button_dark" />
+
+    <corners android:radius="@dimen/button_corner_radius" />
+
+    <stroke
+        android:width="@dimen/button_stroke_width"
+        android:color="@color/stroke_button_dark" />
+
+    <padding
+        android:bottom="@dimen/button_padding"
+        android:left="@dimen/button_padding"
+        android:right="@dimen/button_padding"
+        android:top="@dimen/button_padding" />
+
+</shape>

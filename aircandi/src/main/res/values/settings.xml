@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="setting_user">[@string/id_package]_setting_user</string>
+    <string name="setting_user_session">[@string/id_package]_setting_user_session</string>
+    <string name="setting_picture_search_last">[@string/id_package]_setting_picture_search_last</string>
+    <string name="setting_invite_message_last">[@string/id_package]_setting_invite_message_last</string>
+    <string name="setting_picture_searches">[@string/id_package]_setting_picture_searches</string>
+    <string name="setting_place_searches">[@string/id_package]_setting_place_searches</string>
+    <string name="setting_last_email">[@string/id_package]_setting_last_email</string>
+    <string name="setting_gcm_registration_id">[@string/id_package]_setting_gcm_registration_id</string>
+    <string name="setting_gcm_version_code">[@string/id_package]_setting_gcm_version_code</string>
+    
+    <string name="setting_unique_id">[@string/id_package]_setting_unique_id</string>
+   	<string name="setting_unique_id_date">[@string/id_package]_setting_unique_id_date</string>
+    <string name="setting_unique_id_type">[@string/id_package]_setting_unique_id_type</string>
+                
+</resources>

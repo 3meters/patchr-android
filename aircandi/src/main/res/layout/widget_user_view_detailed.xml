@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/backgroundButtonLink"
+    android:descendantFocusability="blocksDescendants"
+    android:paddingBottom="5dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp" >
+
+    <LinearLayout
+        android:id="@+id/action_block"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical" >
+
+        <com.aircandi.ui.widgets.AirTextView
+            android:id="@+id/label"
+            style="@style/candi_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            custom:textId="@string/label_created_by" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" >
+
+            <com.aircandi.ui.widgets.AirTextView
+                android:id="@+id/timesince"
+                style="@style/candi_user"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lines="1"
+                custom:textId="@string/dummy_timesince" />
+
+            <ImageView
+                android:id="@+id/image_locked"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:gravity="center_vertical"
+                android:maxHeight="20dp"
+                android:maxWidth="20dp"
+                android:scaleType="fitCenter"
+                android:src="?attr/iconLocked"
+                android:visibility="invisible" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.aircandi.ui.widgets.AirImageView
+        android:id="@+id/widget_photo"
+        style="@style/selectable_image"
+        android:layout_width="@dimen/image_extra_small"
+        android:layout_height="@dimen/image_extra_small"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/action_block"
+        android:layout_marginBottom="5dp"
+        android:layout_marginRight="5dp"
+        android:scaleType="centerCrop"
+        custom:layout="@layout/widget_webimageview"
+        custom:sizeType="thumbnail"
+        custom:sizeHint="@dimen/image_extra_small" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/widget_photo"
+        android:layout_toRightOf="@+id/widget_photo"
+        android:orientation="vertical" >
+
+        <com.aircandi.ui.widgets.AirTextView
+            android:id="@+id/widget_name"
+            style="@style/candi_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="?attr/textColorButtonLink"
+            android:textStyle="bold"
+            custom:textId="@string/dummy_name" />
+
+        <com.aircandi.ui.widgets.AirTextView
+            android:id="@+id/area"
+            style="@style/candi_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/stats_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/widget_photo"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <ImageView
+            android:id="@+id/image_watched"
+            android:layout_width="@dimen/image_tiny"
+            android:layout_height="@dimen/image_tiny"
+            android:layout_marginRight="5dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="?attr/iconWatch" />
+
+        <com.aircandi.ui.widgets.AirTextView
+            android:id="@+id/watch_count"
+            style="@style/candi_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:ellipsize="end"
+            android:maxLines="1" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,49 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        applicationId 'com.aircandi.catalina'
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('aircandi.keystore')
+            keyAlias 'aircandi'
+            storePassword 'Doo.dah.1'
+            keyPassword 'Doo.dah.1'
+        }
+    }
+
+    buildTypes {
+        release {
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            signingConfig signingConfigs.release
+            zipAlign true
+            debuggable false
+            applicationVariants.all { variant ->
+                def file = variant.outputFile
+                variant.outputFile = new File(file.parent, file.name.replace(".apk", "-" + defaultConfig.versionName + ".apk"))
+            }
+        }
+
+        debug {
+            runProguard false
+            debuggable true
+        }
+    }
+}
+
+dependencies {
+    compile project(':aircandi')
+    compile 'com.android.support:support-v4:20.+'
+    compile 'com.google.android.gms:play-services:+'
+    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+}

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.aircandi.ui.widgets.AirScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/form_list"
+    style="@style/form_content_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    android:fillViewport="true" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <!-- Public Image -->
+
+        <com.aircandi.ui.widgets.AirImageView
+            android:id="@+id/entity_photo"
+            style="@style/picture_framed"
+            android:layout_width="@dimen/image_medium"
+            android:layout_height="@dimen/image_medium"
+            android:layout_gravity="left"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:minWidth="@dimen/image_medium"
+            android:scaleType="centerCrop"
+            custom:layout="@layout/widget_webimageview_candi_view"
+            custom:sizeHint="@dimen/image_medium"
+            custom:sizeType="thumbnail" />
+
+        <!-- Title and Content -->
+
+        <Spinner
+            android:id="@+id/category"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/form_field_height"
+            android:spinnerMode="dialog"
+            android:clickable="false"
+            android:visibility="invisible" />
+
+        <Spinner
+            android:id="@+id/sub_category"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/form_field_height"
+            android:spinnerMode="dialog"
+            android:clickable="false"
+            android:visibility="invisible" />
+
+        <Spinner
+            android:id="@+id/sub_sub_category"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/form_field_height"
+            android:spinnerMode="dialog"
+            android:clickable="false"
+            android:visibility="invisible" />
+    </LinearLayout>
+
+</com.aircandi.ui.widgets.AirScrollView>

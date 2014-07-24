@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ViewAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/animator_header"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/backgroundCardField"
+        android:clickable="true"
+        android:descendantFocusability="blocksDescendants"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:onClick="onHeaderClick"
+        android:orientation="vertical" >
+
+        <com.aircandi.ui.widgets.CandiView
+            android:id="@+id/candi_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            custom:layout="@layout/widget_candi_view_place" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/rule_divider_height"
+            android:layout_below="@+id/candi_view"
+            android:background="?attr/ruleColor" />
+
+        <RelativeLayout
+            android:id="@+id/button_holder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/candi_view"
+            android:paddingLeft="62dp" >
+
+            <LinearLayout
+                android:id="@+id/button_watchers"
+                style="@style/selectable_item"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/button_height"
+                android:layout_centerVertical="true"
+                android:onClick="onWatchersButtonClick"
+                android:orientation="horizontal"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp" >
+
+                <com.aircandi.ui.widgets.ComboButton
+                    style="@style/button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="4dp"
+                    custom:drawable="@drawable/ic_action_users_dark" />
+
+                <com.aircandi.ui.widgets.AirTextLight
+                    android:id="@+id/watchers_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?attr/textColorCandiView" />
+            </LinearLayout>
+
+            <com.aircandi.ui.widgets.ComboButton
+                android:id="@+id/button_watch"
+                style="@style/button"
+                android:layout_width="@dimen/button_height"
+                android:layout_height="@dimen/button_height"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/button_watchers"
+                android:onClick="onWatchButtonClick"
+                custom:drawable="@drawable/ic_action_show_dark" />
+
+            <com.aircandi.ui.widgets.ComboButton
+                android:id="@+id/button_share"
+                style="@style/button"
+                android:layout_width="@dimen/button_height"
+                android:layout_height="@dimen/button_height"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:onClick="onShareButtonClick"
+                custom:drawable="@drawable/ic_action_share_dark" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/backgroundCardField"
+        android:clickable="true"
+        android:descendantFocusability="blocksDescendants"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:onClick="onHeaderClick"
+        android:orientation="vertical"
+        android:padding="8dp" >
+
+        <com.aircandi.ui.widgets.CandiView
+            android:id="@+id/candi_view_info"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/backgroundCard"
+            custom:colorize="false"
+            custom:layout="@layout/widget_candi_view_place_info" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/candi_view_info"
+            android:layout_alignParentRight="true"
+            android:orientation="horizontal" >
+
+            <com.aircandi.ui.widgets.ComboButton
+                android:id="@+id/button_map"
+                style="@style/button"
+                android:layout_width="@dimen/button_height"
+                android:layout_height="@dimen/button_height"
+                android:onClick="onMapButtonClick"
+                custom:drawable="?attr/iconLocation" />
+        </LinearLayout>
+    </RelativeLayout>
+
+</ViewAnimator>

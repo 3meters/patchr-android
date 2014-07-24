@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/search_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal"
+        android:padding="5dp" >
+
+        <com.aircandi.ui.widgets.AirAutoCompleteTextView
+            android:id="@+id/search_text"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/form_field_height"
+            android:layout_weight="1"
+            android:completionThreshold="1"
+            android:drawableLeft="?attr/iconSearch"
+            android:drawablePadding="10dp"
+            android:drawableRight="?attr/iconClear"
+            android:gravity="center|left"
+            android:hint="@string/hint_picture_search"
+            android:imeOptions="actionSearch"
+            android:inputType="textAutoCorrect"
+            android:singleLine="true" />
+    </LinearLayout>
+
+    <com.aircandi.ui.widgets.AirGridView
+        android:id="@+id/grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/search_group"
+        android:layout_centerHorizontal="true"
+        android:clipToPadding="false"
+        android:listSelector="@null"
+        android:numColumns="auto_fit"
+        android:padding="@dimen/grid_padding"
+        android:scrollbars="none"
+        android:stretchMode="columnWidth" >
+    </com.aircandi.ui.widgets.AirGridView>
+
+    <com.aircandi.ui.widgets.AirSquareButton
+        android:id="@+id/button_special"
+        style="@style/button_round"
+        android:layout_width="@dimen/button_round_width"
+        android:layout_height="@dimen/button_round_height"
+        android:layout_centerInParent="true" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="@style/progress"
+        android:layout_width="@dimen/progress_width"
+        android:layout_height="@dimen/progress_height"
+        android:visibility="gone" />
+
+</RelativeLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <item name="holder_indicator_watching" type="id"/>
+    <item name="holder_indicator_pictures" type="id"/>
+    <item name="holder_indicator_comments" type="id"/>
+    
+    <item name="shortcut_holder" type="id"/>
+    <item name="footer_holder" type="id"/>
+    <item name="place_provider" type="id"/>
+    <item name="attribution_holder" type="id"/>
+    <item name="image_dismiss" type="id"/>
+    <item name="stats" type="id"/>
+    <item name="section_details" type="id"/>
+    <item name="chk_private" type="id"/>
+    <item name="holder_private" type="id"/>
+    <item name="chk_locked" type="id"/>
+    <item name="web_uri" type="id"/>
+   	<item name="bio" type="id"/>
+    <item name="button_remove" type="id"/>
+   	
+    <item name="applinks" type="id"/>
+    <item name="place" type="id"/>
+    <item name="name" type="id"/>
+    <item name="label_edit" type="id"/>
+    <item name="label_message" type="id"/>
+    <item name="place_name" type="id"/>
+    <!--  
+    <item name="item_create" type="id"/>
+    <item name="item_watch" type="id"/>
+    <item name="item_feed" type="id"/>
+    <item name="item_history" type="id"/>-->
+</resources>

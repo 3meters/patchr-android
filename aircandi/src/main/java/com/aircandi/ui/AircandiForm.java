@@ -1,0 +1,619 @@
+package com.aircandi.ui;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import android.content.res.Configuration;
+import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.aircandi.Aircandi;
+import com.aircandi.Constants;
+import com.aircandi.R;
+import com.aircandi.components.FontManager;
+import com.aircandi.components.LocationManager;
+import com.aircandi.components.Logger;
+import com.aircandi.components.MessagingManager;
+import com.aircandi.components.NetworkManager;
+import com.aircandi.components.StringManager;
+import com.aircandi.events.MessageEvent;
+import com.aircandi.monitors.EntityMonitor;
+import com.aircandi.objects.CacheStamp;
+import com.aircandi.objects.Entity;
+import com.aircandi.objects.Route;
+import com.aircandi.objects.Shortcut;
+import com.aircandi.objects.User;
+import com.aircandi.queries.ActivityByAffinityQuery;
+import com.aircandi.queries.ActivityByUserQuery;
+import com.aircandi.queries.ShortcutsQuery;
+import com.aircandi.ui.EntityListFragment.ViewType;
+import com.aircandi.ui.base.BaseActivity;
+import com.aircandi.ui.base.BaseFragment;
+import com.aircandi.ui.widgets.UserView;
+import com.aircandi.utilities.DateTime;
+import com.aircandi.utilities.Integers;
+import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
+
+/*
+ * Library Notes
+ * 
+ * - AWS: We are using the minimum libraries: core and S3. We could do the work to call AWS without their
+ * libraries which should give us the biggest savings.
+ */
+
+/*
+ * Threading Notes
+ * 
+ * - AsyncTasks: AsyncTask uses a static internal work queue with a hard-coded limit of 10 elements.
+ * Once we have 10 tasks going concurrently, task 11 causes a RejectedExecutionException. ThreadPoolExecutor is a way to
+ * get more control over thread pooling but it requires Android version 11/3.0 (we currently target 9/2.3 and higher).
+ * AsyncTasks are hard-coded with a low priority and continue their work even if the activity is paused.
+ */
+
+/*
+ * Lifecycle event sequences from Radar
+ * 
+ * First Launch: onCreate->onStart->onResume
+ * Home: Pause->Stop->||Restart->Start->Resume
+ * Back: Pause->Stop->Destroyed
+ * Other Candi Activity: Pause->Stop||Restart->Start->Resume
+ * 
+ * Alert Dialog: none
+ * Dialog Activity: Pause||Resume
+ * Overflow menu: none
+ * ProgressIndicator: none
+ * 
+ * Preferences: Pause->Stop->||Restart->Start->Resume
+ * Profile: Pause->Stop->||Restart->Start->Resume
+ * 
+ * Power off with Aircandi in foreground: Pause->Stop
+ * Power on with Aircandi in foreground: Nothing
+ * Unlock screen with Aircandi in foreground: Restart->Start->Resume
+ */
+
+public class AircandiForm extends BaseActivity {
+
+	protected Number					mPauseDate;
+	protected Map<String, BaseFragment>	mFragments	= new HashMap<String, BaseFragment>();
+	protected BaseFragment				mCurrentFragment;
+	protected String					mCurrentFragmentTag;
+	protected String					mRequestedFragmentTag;
+	protected View						mRequestedFragmentView;
+	protected Boolean					mConfiguredForAnonymous;
+
+	protected DrawerLayout				mDrawerLayout;
+	protected View						mDrawer;
+	protected ActionBarDrawerToggle		mDrawerToggle;
+	protected String					mDrawerTitle;
+
+	protected String					mTitle		= StringManager.getString(R.string.name_app);
+	protected UserView					mUserView;
+	protected CacheStamp				mCacheStamp;
+
+	protected View		mCurrentNavView;
+	protected String	mCurrentNavId	= Constants.FRAGMENT_TYPE_NEARBY; // NO_UCD (unused code)
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	public void initialize(Bundle savedInstanceState) {
+
+		if (!LocationManager.getInstance().isLocationAccessEnabled()) {
+			Aircandi.dispatch.route(this, Route.SETTINGS_LOCATION, null, null, null);
+			finish();
+			return;
+		}
+
+		/* Ui init */
+		Integer drawerIconResId = R.drawable.ic_drawer_dark;
+		if (mPrefTheme.equals("aircandi_theme_snow")) {
+			drawerIconResId = R.drawable.ic_drawer_light;
+		}
+
+		mUserView = (UserView) findViewById(R.id.user_current);
+		mUserView.setTag(Aircandi.getInstance().getCurrentUser());
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		mDrawer = findViewById(R.id.drawer);
+
+		mDrawerToggle = new ActionBarDrawerToggle(this
+				, mDrawerLayout
+				, drawerIconResId
+				, R.string.label_drawer_open
+				, R.string.label_drawer_close) {
+
+			/** Called when a drawer has settled in a completely closed state. */
+			@Override
+			public void onDrawerClosed(View view) {
+				super.onDrawerClosed(view);
+				if (!mRequestedFragmentTag.equals(mCurrentFragmentTag)) {
+					setCurrentFragment(mRequestedFragmentTag, mRequestedFragmentView);
+				}
+				else {
+					updateActionBar();
+				}
+				mActionBar.setTitle(mDrawerTitle);
+				onPrepareOptionsMenu(mMenu);
+			}
+
+			/** Called when a drawer has settled in a completely open state. */
+			@Override
+			public void onDrawerOpened(View drawerView) {
+				super.onDrawerOpened(drawerView);
+				mActionBar.setTitle(mTitle);
+				updateActionBar();
+				onPrepareOptionsMenu(mMenu);
+			}
+		};
+
+		// Set the drawer toggle as the DrawerListener
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+		//configureDrawer();
+
+		/* Check if the device is tethered */
+		tetherAlert();
+	}
+
+	protected void configureDrawer() {
+
+		Boolean configChange = mConfiguredForAnonymous == null
+				|| !Aircandi.getInstance().getCurrentUser().isAnonymous().equals(mConfiguredForAnonymous)
+				|| (mCacheStamp != null && !mCacheStamp.equals(Aircandi.getInstance().getCurrentUser().getCacheStamp()));
+
+		if (configChange) {
+			if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+				findViewById(R.id.item_feed).setVisibility(View.GONE);
+				findViewById(R.id.item_watch).setVisibility(View.GONE);
+				findViewById(R.id.item_create).setVisibility(View.GONE);
+				mConfiguredForAnonymous = true;
+			}
+			else {
+				mConfiguredForAnonymous = false;
+				findViewById(R.id.item_feed).setVisibility(View.VISIBLE);
+				findViewById(R.id.item_watch).setVisibility(View.VISIBLE);
+				findViewById(R.id.item_create).setVisibility(View.VISIBLE);
+				mUserView.databind(Aircandi.getInstance().getCurrentUser());
+				mCacheStamp = Aircandi.getInstance().getCurrentUser().getCacheStamp();
+			}
+		}
+	}
+
+	@Override
+	protected void configureActionBar() {
+		/*
+		 * Only called when form is created
+		 */
+		super.configureActionBar();
+		if (mActionBar != null) {
+			mActionBar.setDisplayShowTitleEnabled(true);
+			mActionBar.setDisplayShowHomeEnabled(true);
+			if (mDrawerLayout != null) {
+				mActionBar.setHomeButtonEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) == DrawerLayout.LOCK_MODE_LOCKED_CLOSED) ? false : true);
+				mActionBar.setDisplayHomeAsUpEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) == DrawerLayout.LOCK_MODE_LOCKED_CLOSED) ? false : true);
+			}
+		}
+		View view = findViewById(R.id.item_nearby);
+		mRequestedFragmentTag = Constants.FRAGMENT_TYPE_NEARBY;
+		setCurrentFragment(Constants.FRAGMENT_TYPE_NEARBY, view);
+		mActionBar.setTitle(mDrawerTitle);
+	}
+
+	// --------------------------------------------------------------------------------------------
+	// Events
+	// --------------------------------------------------------------------------------------------
+
+	@Override
+	public void onRefresh() {
+		if (mCurrentFragment != null) {
+			mCurrentFragment.onRefresh();
+		}
+	}
+
+	@SuppressWarnings("ucd")
+	public void onEntityClick(View view) {
+		Entity entity = (Entity) view.getTag();
+		if (!(entity.schema.equals(Constants.SCHEMA_ENTITY_USER) && ((User) entity).isAnonymous())) {
+			Aircandi.dispatch.route(this, Route.BROWSE, entity, null, null);
+		}
+		if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mDrawer)) {
+			mDrawerLayout.closeDrawer(mDrawer);
+		}
+	}
+
+	@SuppressWarnings("ucd")
+	public void onShortcutClick(View view) {
+		final Shortcut shortcut = (Shortcut) view.getTag();
+		Aircandi.dispatch.shortcut(this, shortcut, null, null, null);
+	}
+
+	@SuppressWarnings("ucd")
+	public void onDrawerItemClick(View view) {
+		mRequestedFragmentTag = (String) view.getTag();
+		mRequestedFragmentView = view;
+		mDrawerLayout.closeDrawer(mDrawer);
+	}
+
+	@SuppressWarnings("ucd")
+	public void onMoreButtonClick(View view) {
+		ActivityFragment fragment = (ActivityFragment) mCurrentFragment;
+		fragment.onMoreButtonClick(view);
+	}
+
+	@Override
+	public void onAdd(Bundle extras) {
+		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_PLACE);
+		super.onAdd(extras);
+	}
+
+	@Override
+	public void onHelp() {
+		if (mCurrentFragment != null) {
+			mCurrentFragment.onHelp();
+		}
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (!Constants.SUPPORTS_HONEYCOMB) {
+			if (event.getAction() == KeyEvent.ACTION_UP &&
+					keyCode == KeyEvent.KEYCODE_MENU) {
+				openOptionsMenu();
+				return true;
+			}
+		}
+		return super.onKeyUp(keyCode, event);
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		if (mDrawerToggle != null) {
+			mDrawerToggle.onConfigurationChanged(newConfig);
+		}
+	}
+
+	@Subscribe
+	@SuppressWarnings("ucd")
+	public void onMessage(final MessageEvent event) {
+
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (mCurrentFragment != null) {
+					mCurrentFragment.bind(BindingMode.AUTO);
+				}
+				updateActivityAlert();
+			}
+		});
+	}
+
+	// --------------------------------------------------------------------------------------------
+	// Methods
+	// --------------------------------------------------------------------------------------------
+
+	public void setCurrentFragment(String fragmentType, View view) {
+		/*
+		 * Fragment menu items are in addition to any menu items added by the parent activity.
+		 */
+		BaseFragment fragment = null;
+
+		if (mFragments.containsKey(fragmentType)) {
+			fragment = mFragments.get(fragmentType);
+		}
+		else {
+
+			if (fragmentType.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
+
+				fragment = new RadarListFragment()
+						.setListViewType(ViewType.LIST)
+						.setListLayoutResId(R.layout.radar_fragment)
+						.setListItemResId(R.layout.temp_listitem_radar)
+						.setSelfBindingEnabled(true)
+						.setTitleResId(R.string.label_radar_title);
+
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_beacons);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh_special);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_help);
+			}
+
+			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_FEED)) {
+
+				fragment = new ActivityFragment();
+				EntityMonitor monitor = new EntityMonitor(Aircandi.getInstance().getCurrentUser().id);
+				ActivityByAffinityQuery query = new ActivityByAffinityQuery()
+						.setEntityId(Aircandi.getInstance().getCurrentUser().id)
+						.setPageSize(Integers.getInteger(R.integer.page_size_activities));
+
+				((ActivityFragment) fragment)
+						.setMonitor(monitor)
+						.setQuery(query)
+						.setActivityStream(true)
+						.setSelfBindingEnabled(true)
+						.setTitleResId(R.string.label_feed_title);
+
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
+			}
+
+			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_HISTORY)) {
+
+				fragment = new ActivityFragment();
+				EntityMonitor monitor = new EntityMonitor(Aircandi.getInstance().getCurrentUser().id);
+				ActivityByUserQuery query = new ActivityByUserQuery()
+						.setEntityId(Aircandi.getInstance().getCurrentUser().id)
+						.setPageSize(Integers.getInteger(R.integer.page_size_activities));
+
+				((ActivityFragment) fragment)
+						.setMonitor(monitor)
+						.setQuery(query)
+						.setActivityStream(true)
+						.setSelfBindingEnabled(true)
+						.setTitleResId(R.string.label_history_title);
+
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
+			}
+
+			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_WATCH)) {
+
+				fragment = new ShortcutFragment();
+				EntityMonitor monitor = new EntityMonitor(Aircandi.getInstance().getCurrentUser().id);
+				ShortcutsQuery query = new ShortcutsQuery().setEntityId(Aircandi.getInstance().getCurrentUser().id);
+
+				((ShortcutFragment) fragment)
+						.setQuery(query)
+						.setMonitor(monitor)
+						.setShortcutType(Constants.TYPE_LINK_WATCH)
+						.setEmptyMessageResId(R.string.label_watching_empty)
+						.setSelfBindingEnabled(true)
+						.setTitleResId(R.string.label_watch_title);
+
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
+			}
+
+			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_CREATE)) {
+
+				fragment = new ShortcutFragment();
+				EntityMonitor monitor = new EntityMonitor(Aircandi.getInstance().getCurrentUser().id);
+				ShortcutsQuery query = new ShortcutsQuery().setEntityId(Aircandi.getInstance().getCurrentUser().id);
+
+				((ShortcutFragment) fragment)
+						.setQuery(query)
+						.setMonitor(monitor)
+						.setShortcutType(Constants.TYPE_LINK_CREATE)
+						.setEmptyMessageResId(R.string.label_created_empty)
+						.setSelfBindingEnabled(true)
+						.setTitleResId(R.string.label_create_title);
+
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
+			}
+
+			mFragments.put(fragmentType, fragment);
+		}
+
+		mDrawerTitle = StringManager.getString(fragment.getTitleResId());
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		ft.replace(R.id.fragment_holder, fragment);
+		ft.commit();
+		mCurrentFragment = (BaseFragment) fragment;
+		mCurrentFragmentTag = fragmentType;
+		updateActionBar();
+	}
+
+	public BaseFragment getCurrentFragment() {
+		return mCurrentFragment;
+	}
+
+	private void tetherAlert() {
+		/*
+		 * We alert that wifi isn't enabled. If the user ends up enabling wifi,
+		 * we will get that event and refresh radar with beacon support.
+		 */
+		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
+		if (tethered || (!NetworkManager.getInstance().isWifiEnabled() && !Aircandi.usingEmulator)) {
+			
+			UI.showToastNotification(StringManager.getString(tethered
+					? R.string.alert_wifi_tethered
+					: R.string.alert_wifi_disabled), Toast.LENGTH_SHORT);
+		}
+	}
+
+	public void updateActivityAlert() {
+		((ImageView) findViewById(R.id.indicator)).setVisibility(MessagingManager.getInstance().getNewActivity() ? View.VISIBLE : View.INVISIBLE);
+	}
+
+	protected void updateActionBar() {
+		
+	}
+
+	@SuppressWarnings("ucd")
+	protected void updateDrawer() {
+		if (mCurrentNavView != null) {
+			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_feed).findViewById(R.id.name));
+			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_nearby).findViewById(R.id.name));
+			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_watch).findViewById(R.id.name));
+			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_create).findViewById(R.id.name));
+			FontManager.getInstance().setTypefaceMedium((TextView) mCurrentNavView.findViewById(R.id.name));
+		}		
+	}
+
+	// --------------------------------------------------------------------------------------------
+	// Menus
+	// --------------------------------------------------------------------------------------------	
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == android.R.id.home) {
+			if (mDrawerLayout != null) {
+				if (mDrawerLayout.isDrawerOpen(mDrawer)) {
+					mDrawerLayout.closeDrawer(mDrawer);
+				}
+				else {
+					mDrawerLayout.openDrawer(mDrawer);
+				}
+			}
+			return true;
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+
+		if (mDrawerLayout != null) {
+			Boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawer);
+
+			MenuItem menuItemAdd = menu.findItem(R.id.add_place);
+			if (menuItemAdd != null) {
+				menuItemAdd.setVisible(!(drawerOpen));
+			}
+
+			final MenuItem refresh = menu.findItem(R.id.refresh);
+			if (refresh != null) {
+				refresh.setVisible(!(drawerOpen));
+			}
+
+			/* Don't need to show the user email in two places */
+			if (Aircandi.getInstance().getCurrentUser() != null && Aircandi.getInstance().getCurrentUser().name != null) {
+				String subtitle = null;
+				if (!drawerOpen) {
+					if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+						subtitle = Aircandi.getInstance().getCurrentUser().name.toUpperCase(Locale.US);
+					}
+					else {
+						subtitle = Aircandi.getInstance().getCurrentUser().email.toLowerCase(Locale.US);
+					}
+				}
+				mActionBar.setSubtitle(subtitle);
+			}
+		}
+
+		return true;
+	}
+
+	// --------------------------------------------------------------------------------------------
+	// Lifecycle
+	// --------------------------------------------------------------------------------------------
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		/*
+		 * Check for location service everytime we start. We won't continue
+		 * if location services are disabled.
+		 */
+		if (!LocationManager.getInstance().isLocationAccessEnabled()) {
+			Aircandi.dispatch.route(this, Route.SETTINGS_LOCATION, null, null, null);
+			finish();
+		}
+
+		/* Show current user */
+		if (mActionBar != null
+				&& Aircandi.getInstance().getCurrentUser() != null
+				&& Aircandi.getInstance().getCurrentUser().name != null) {
+			if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+				mActionBar.setSubtitle(Aircandi.getInstance().getCurrentUser().name.toUpperCase(Locale.US));
+			}
+			else {
+				mActionBar.setSubtitle(Aircandi.getInstance().getCurrentUser().email.toLowerCase(Locale.US));
+			}
+		}
+
+		/* Make sure we are configured properly depending on user status */
+		configureDrawer();
+
+		/* Manage activity alert */
+		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+			updateActivityAlert();
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		/*
+		 * Lifecycle ordering: (onCreate/onRestart)->onStart->onResume->onAttachedToWindow->onWindowFocusChanged
+		 * 
+		 * OnResume gets called after OnCreate (always) and whenever the activity is being brought back to the
+		 * foreground. Not guaranteed but is usually called just before the activity receives focus.
+		 */
+		Aircandi.getInstance().setCurrentPlace(null);
+		Logger.v(this, "Setting current place to null");
+		if (mPauseDate != null) {
+			final Long interval = DateTime.nowDate().getTime() - mPauseDate.longValue();
+			if (interval > Constants.INTERVAL_TETHER_ALERT) {
+				tetherAlert();
+			}
+		}
+
+		/* In case the user was edited from the drawer */
+		mUserView.databind(Aircandi.getInstance().getCurrentUser());
+	}
+
+	@Override
+	protected void onPause() {
+		/*
+		 * - Fires when we lose focus and have been moved into the background. This will
+		 * be followed by onStop if we are not visible. Does not fire if the activity window
+		 * loses focus but the activity is still active.
+		 */
+		mPauseDate = DateTime.nowDate().getTime();
+		super.onPause();
+	}
+
+	@Override
+	protected void onDestroy() {
+		/*
+		 * The activity is getting destroyed but the application level state
+		 * like singletons, statics, etc will continue as long as the application
+		 * is running.
+		 */
+		Logger.d(this, "Destroyed");
+		super.onDestroy();
+	}
+
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		/*
+		 * Sync the toggle state after onRestoreInstanceState has occurred.
+		 */
+		if (mDrawerToggle != null) {
+			mDrawerToggle.syncState();
+		}
+	}
+
+	// --------------------------------------------------------------------------------------------
+	// Misc
+	// --------------------------------------------------------------------------------------------
+
+	@Override
+	protected int getLayoutId() {
+		return R.layout.aircandi_form;
+	}
+
+	// --------------------------------------------------------------------------------------------
+	// Classes
+	// --------------------------------------------------------------------------------------------
+}

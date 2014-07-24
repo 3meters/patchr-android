@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto" >
+
+    <PreferenceCategory
+        android:key="Pref_General_Category"
+        android:title="@string/pref_category_title_general" >
+        
+        <com.aircandi.ui.widgets.AirListPreference
+            android:id="@+id/Pref_Theme"
+            android:defaultValue="@string/pref_theme_default"
+            android:dialogTitle="@string/pref_theme_dialog_title"
+            android:entries="@array/theme_entries"
+            android:entryValues="@array/theme_values"
+            android:negativeButtonText="@string/dialog_cancel"
+            android:positiveButtonText="@string/dialog_ok"
+            android:title="@string/pref_theme_title"
+            custom:keyId="@string/pref_theme" />
+
+        <PreferenceScreen
+            android:key="Pref_Notifications_Screen"
+            android:title="Notifications" >
+            
+            <com.aircandi.ui.widgets.AirCheckBoxPreference
+                android:id="@+id/Pref_Notifications_Nearby"
+                android:defaultValue="@bool/pref_notifications_nearby_default"
+                android:summary="@string/pref_notifications_nearby_summary"
+                android:title="@string/pref_notifications_nearby_title"
+                custom:keyId="@string/pref_messages_nearby" />
+            
+            <com.aircandi.ui.widgets.AirCheckBoxPreference
+                android:id="@+id/Pref_Notifications_Watch"
+                android:defaultValue="@bool/pref_notifications_watch_default"
+                android:summary="@string/pref_notifications_watch_summary"
+                android:title="@string/pref_notifications_watch_title"
+                custom:keyId="@string/pref_messages_watch" />
+            
+            <com.aircandi.ui.widgets.AirCheckBoxPreference
+                android:id="@+id/Pref_Notifications_Own"
+                android:defaultValue="@bool/pref_notifications_own_default"
+                android:summary="@string/pref_notifications_own_summary"
+                android:title="@string/pref_notifications_own_title"
+                custom:keyId="@string/pref_messages_own" />
+            
+            <com.aircandi.ui.widgets.AirCheckBoxPreference
+                android:id="@+id/Pref_Sound_Effects"
+                android:defaultValue="@bool/pref_sound_effects_default"
+                android:summary="@string/pref_sound_effects_summary"
+                android:title="@string/pref_sound_effects_title"
+                custom:keyId="@string/pref_sound_effects" />
+        </PreferenceScreen>
+
+        <Preference
+            android:key="Pref_Feedback"
+            android:title="Feedback" />        
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:key="Pref_About_Category"
+        android:title="@string/pref_category_title_about" >
+        
+        <Preference
+            android:key="Pref_About"
+            android:title="About" />    
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:key="Pref_Account_Category"
+        android:title="@string/pref_category_title_account" >
+        
+        <Preference
+            android:key="Pref_Signin_Signout"
+            android:summary="@string/pref_signout_title"
+            android:title="@string/pref_signout_summary" />
+    </PreferenceCategory>
+</PreferenceScreen>

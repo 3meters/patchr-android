@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Names -->
+
+    <string name="name_app">Candipatch</string>
+    <string name="name_app_lowercase">candipatch</string>
+    <string name="name_company">3meters LLC.</string>
+
+    <!-- 
+    	We get complete substitution with the following exceptions
+    	- strings for menu titles.
+    	- strings for activity titles in manifest. 
+    	- strings in array resources.     
+    	- strings embedded in ActivityDecorator.
+    	- strings for preferences in xml
+     -->
+     
+    <string name="container_singular">Patch</string>
+    <string name="container_plural">Patches</string>
+    <string name="container_singular_lowercase">patch</string>
+    <string name="container_plural_lowercase">patches</string>
+    
+    <!-- Identifiers -->
+
+    <string name="id_gcm_sender">657673071389</string>
+    <string name="id_package">com.aircandi.catalina</string>
+    <string name="id_referrer">com.aircandi.catalina</string>
+    <string name="uri_play_store">http://bit.ly/1wnySLm</string>
+    
+    <!-- Splash -->
+
+    <string name="splash_message">sharing reimagined</string>
+
+    <!-- Overrides strings in pull to refresh library -->
+    
+    <!-- Preference defaults -->
+
+    <string name="pref_theme_default">aircandi_theme_snow</string>
+
+    <!-- Tag manager -->
+
+    <string name="id_container">GTM-MV8KBB</string>
+
+    <!-- Service paging sizes -->
+
+    <integer name="page_size_messages">50</integer>
+    <integer name="page_size_replies">50</integer>    
+
+</resources>

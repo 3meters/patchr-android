@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="CandipatchTheme">
+        <attr name="iconPatch" format="reference"/>
+        <attr name="iconMessage" format="reference"/>
+        <attr name="iconStream" format="reference"/>
+    </declare-styleable>
+
+</resources>

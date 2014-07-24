@@ -1,0 +1,96 @@
+-------------------------------------------------------------------------------
+DATA TRACKING AND REFRESH
+-------------------------------------------------------------------------------
+
+
+Entity forms 
+------------
+
+We root on the root entity. We determine whether to refresh from the service based on 
+checking the form cache stamp saved from previous refresh. 
+
+Binding is triggered when: 
+- resuming (auto mode)
+- refresh command (manual mode but treated like auto)
+
+Binding leads to service refresh if:
+- entity not in the cache or
+- for entity, form cache stamp != service cache stamp 
+(inequality is forced with cache stamp override if entity parent is edited).
+
+Binding leads to draw if:
+- first draw and entity in cache or
+- service refresh successful or
+- no service refresh but invalidated == true.
+
+Invalidated is set to true if:
+- User declines app install option
+
+Form cache stamp is updated if:
+- Service refresh is successful.
+
+
+Radar list
+----------
+
+Refresh is rooted on EntityManager cache stamp (proxy for activity date) and triggered if 
+EntityManager cache stamp != RadarFragment cache stamp from last proximity service query.
+
+Binding is triggered when: 
+- resuming (auto mode)
+- refresh command (manual mode but treated like auto)
+
+Binding leads to service refresh if:
+- place count == 0 or
+- staleness timeout or
+- wifi state change or
+- change in beacon state or
+- entity manager cache stamp != fragment cache stamp from last proximity service query.
+
+Entity manager activity date is tickled if:
+- Any place entity is inserted, updated, or deleted.
+
+
+Activity, watching and created lists
+------------------------------------
+
+We root on the current user entity (Aircandi.getInstance().getCurrentUser()). Dependency on create/watch
+activity being mirrored locally on current user entity.
+
+Binding is triggered when: 
+- becomes visible (auto mode)
+- resumes and visible (auto mode)
+- refresh command (manual mode)
+
+ACTIVITY LIST
+
+Binding leads to service refresh if:
+- binding mode == manual or
+- first draw or
+- current user cache stamp != fragment cache stamp from last service refresh (activity list only)
+
+Binding leads to draw if:
+- service refresh
+
+SHORTCUTS
+
+Binding leads to service refresh if:
+- binding mode == manual or
+
+Binding leads to draw if:
+- service refresh or
+- first draw or
+- current user cache stamp != fragment cache stamp from last refresh or draw
+
+Current user activity date is tickled (which effects cache stamp) if:
+- any message is received via Gcm and passes the filter for desired message events/schemas.
+- any non-synthetic entity is inserted to service (create)
+- any link is inserted/deleted between entities at the service. (watch/like on/off) 
+
+Fragment cache stamp is updated if:
+- Service refresh is successful or
+- auto bind and redraw only needed (watching and created only).
+
+
+
+

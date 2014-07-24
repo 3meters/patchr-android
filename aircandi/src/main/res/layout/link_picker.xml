@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UnusedNamespace" >
+
+    <com.aircandi.ui.widgets.AirListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:cacheColorHint="#00000000"
+        android:divider="?attr/ruleColor"
+        android:dividerHeight="@dimen/rule_divider_height"
+        android:listSelector="#00000000" >
+
+        <!-- Preview: listitem=@layout/temp_listitem_source_picker -->
+    </com.aircandi.ui.widgets.AirListView>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="@style/progress"
+        android:layout_width="@dimen/progress_width"
+        android:layout_height="@dimen/progress_height"
+        android:visibility="gone" />
+
+    <com.aircandi.ui.widgets.SmoothProgressBar
+        android:id="@+id/progress_bar"
+        style="@style/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/progress_bar_height"
+        android:indeterminate="true"
+        android:visibility="gone"
+        custom:spb_color="@color/brand_progress_bar_color" />
+
+</RelativeLayout>

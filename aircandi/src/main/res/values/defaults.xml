@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="spb_default_color">@color/brand_progress_bar_color</color>
+
+    <dimen name="spb_default_stroke_separator_length">4dp</dimen>
+    <dimen name="spb_default_stroke_width">4dp</dimen>
+
+    <integer name="spb_default_sections_count">4</integer>
+    <integer name="spb_default_interpolator">0</integer>
+
+    <string name="spb_default_speed">0.5</string>
+
+    <bool name="spb_default_reversed">false</bool>
+    <bool name="spb_default_mirror_mode">false</bool>
+
+</resources>

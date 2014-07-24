@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_picture_detail"
+    android:orientation="vertical"
+    tools:context=".PictureDetail"
+    tools:ignore="Overdraw" >
+
+    <com.aircandi.ui.widgets.AirViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <ViewStub
+        android:id="@+id/stub_picture_detail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:inflatedId="@+id/picture_detail"
+        android:layout="@layout/temp_photo_form" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="@dimen/progress_width"
+        android:layout_height="@dimen/progress_height"
+        android:layout_centerInParent="true"
+        android:padding="8dp"
+        android:visibility="gone" />
+
+    <com.aircandi.ui.widgets.SmoothProgressBar
+        android:id="@+id/progress_bar"
+        style="@style/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/progress_bar_height"
+        android:indeterminate="true"
+        android:visibility="gone"
+        custom:spb_color="@color/brand_progress_bar_color" />
+
+</RelativeLayout>
