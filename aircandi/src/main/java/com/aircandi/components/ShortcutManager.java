@@ -24,6 +24,7 @@ public class ShortcutManager {
 					, Constants.TYPE_APP_POST
 					, Constants.ACTION_VIEW_AUTO
 					, StringManager.getString(R.string.label_link_pictures)
+                    , null
 					, "img_picture_temp"
 					, 10
 					, false
@@ -47,6 +48,7 @@ public class ShortcutManager {
 					, Constants.TYPE_APP_MAP
 					, Constants.ACTION_VIEW
 					, StringManager.getString(R.string.label_link_map)
+                    , null
 					, "img_map_temp"
 					, 30
 					, false
@@ -62,6 +64,7 @@ public class ShortcutManager {
 					, Constants.TYPE_APP_COMMENT
 					, Constants.ACTION_VIEW_FOR
 					, StringManager.getString(R.string.label_link_comments)
+                    , null
 					, "img_comment_temp"
 					, 20
 					, false
@@ -80,6 +83,7 @@ public class ShortcutManager {
 					, Constants.TYPE_APP_COMMENT
 					, Constants.ACTION_VIEW_FOR
 					, StringManager.getString(R.string.label_link_comments)
+                    , null
 					, "img_comment_temp"
 					, 20
 					, false

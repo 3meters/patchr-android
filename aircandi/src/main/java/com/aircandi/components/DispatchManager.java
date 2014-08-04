@@ -240,27 +240,6 @@ public class DispatchManager {
 			return;
 		}
 
-		else if (route == Route.INVITE) {
-
-			if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-				Dialogs.signinRequired(activity, R.string.alert_signin_message_invite);
-				return;
-			}
-
-			ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(activity);
-
-			builder.setSubject(String.format(StringManager.getString(R.string.label_invite_subject)
-					, Aircandi.getInstance().getCurrentUser().name
-					, StringManager.getString(R.string.name_app)));
-
-			builder.setType("text/plain");
-			builder.setText(StringManager.getString(R.string.label_invite_body));
-
-			builder.setChooserTitle(StringManager.getString(R.string.label_invite_share_title));
-			builder.startChooser();			
-			return;
-		}
-
 		else if (route == Route.FEEDBACK) {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, FeedbackEdit.class);

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     style="@style/selectable_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingBottom="2dp"
-    android:paddingTop="2dp" >
+    android:paddingTop="2dp">
 
     <ImageView
         android:id="@+id/indicator"
@@ -15,7 +17,7 @@
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:scaleType="centerCrop"
-        android:src="?attr/iconWatch" />
+        android:src="?attr/iconWatch"/>
 
     <LinearLayout
         android:id="@+id/holder_body"
@@ -24,7 +26,7 @@
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/entity_photo"
         android:layout_toRightOf="@+id/indicator"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <com.aircandi.ui.widgets.AirTextLight
             android:id="@+id/name"
@@ -32,7 +34,8 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"
-            custom:textId="@string/dummy_title_short" />
+            tools:text="@string/dummy_title_short"
+            custom:textId="@string/dummy_title_short"/>
 
         <com.aircandi.ui.widgets.AirTextView
             android:id="@+id/subtitle"
@@ -40,7 +43,8 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?attr/textColorSecondary"
-            custom:textId="@string/dummy_subtitle" />
+            tools:text="@string/dummy_subtitle"
+            custom:textId="@string/dummy_subtitle"/>
     </LinearLayout>
 
     <com.aircandi.ui.widgets.AirImageView
@@ -52,6 +56,6 @@
         android:layout_alignParentTop="true"
         custom:layout="@layout/widget_webimageview_candi_view"
         custom:sizeType="thumbnail"
-        custom:sizeHint="@dimen/image_small" />
+        custom:sizeHint="@dimen/image_small"/>
 
 </RelativeLayout>

@@ -133,8 +133,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 				Thread.currentThread().setName("AsyncGetEntity");
 				ModelResult result = new ModelResult();
 
-				if (mEntity != null && mEntity.synthetic) return result;
-
 				if (mEntityMonitor.isChanged()) {
 					refreshNeeded.set(true);
 				}
@@ -330,10 +328,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	protected void drawButtons() {
 
-		if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE) && ((Place) mEntity).synthetic) {
-			UI.setVisibility(findViewById(R.id.button_holder), View.GONE);
-		}
-		else if (mEntity.id.equals(Aircandi.getInstance().getCurrentUser().id)) {
+		if (mEntity.id.equals(Aircandi.getInstance().getCurrentUser().id)) {
 			UI.setVisibility(findViewById(R.id.button_holder), View.GONE);
 		}
 		else {
@@ -393,6 +388,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 					, Constants.TYPE_APP_INTENT
 					, null
 					, StringManager.getString(moreResId)
+                    , null
 					, "img_more"
 					, 10
 					, false
@@ -416,12 +412,12 @@ public abstract class BaseEntityForm extends BaseActivity {
 		final View parentView = (View) layout.getParent();
 		Integer layoutWidthPixels = metrics.widthPixels
 				- (parentView.getPaddingLeft() + parentView.getPaddingRight() + layout.getPaddingLeft() + layout.getPaddingRight());
-		final Integer bonusPadding = UI.getRawPixelsForDisplayPixels(this, 20f);
+		final Integer bonusPadding = UI.getRawPixelsForDisplayPixels(20f);
 		layoutWidthPixels -= bonusPadding;
 
 		final Integer spacing = 3;
-		final Integer spacingHorizontalPixels = UI.getRawPixelsForDisplayPixels(this, (float) spacing);
-		final Integer spacingVerticalPixels = UI.getRawPixelsForDisplayPixels(this, (float) spacing);
+		final Integer spacingHorizontalPixels = UI.getRawPixelsForDisplayPixels((float) spacing);
+		final Integer spacingVerticalPixels = UI.getRawPixelsForDisplayPixels((float) spacing);
 
 		Integer desiredWidthPixels = (int) (metrics.density * 75);
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {

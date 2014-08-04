@@ -126,6 +126,8 @@
     <string name="alert_removed">Removed</string>
     <string name="alert_updated">Updated</string>
     <string name="alert_inserted">Saved</string>
+    <string name="alert_shared">Shared</string>
+    <string name="alert_saved_and_shared">Saved and shared</string>
     <string name="alert_signed_in">Signed in as</string>
     <string name="alert_password_changed">You have been automatically signed in with your new password</string>
     <string name="alert_beacons_title">[@string/name_app] beacons</string>
@@ -157,10 +159,16 @@
     <!-- Alerts: confirm dirty -->
 
     <string name="alert_dirty_save">Save</string>
+    <string name="alert_dirty_share">Share</string>
     <string name="alert_dirty_discard">Discard</string>
     <string name="alert_dirty_exit_title">Editing</string>
     <string name="alert_dirty_exit_message">Do you want to save your editing changes?</string>
-    
+
+    <!-- Alerts: confirm dirty share -->
+
+    <string name="alert_dirty_share_exit_title">Sharing</string>
+    <string name="alert_dirty_share_exit_message">Do you want to share this?</string>
+
     <!-- Alerts: confirm delete -->
 
     <string name="alert_delete_title">Confirm delete</string>
@@ -249,6 +257,7 @@
 
     <string name="progress_signing_out">Signing out&#8230;</string>
     <string name="progress_saving">Saving&#8230;</string>
+    <string name="progress_sharing">Sharing&#8230;</string>
     <string name="progress_updating">Updating&#8230;</string>
     <string name="progress_sending">Sending&#8230;</string>
     <string name="progress_tuning">Tuning&#8230;</string>
@@ -386,30 +395,40 @@
     <string name="label_history_title">History</string>
     <string name="label_profile_title">Profile</string>
     
-    <string name="label_invite_share_title">Invite using&#8230;</string>
-    <string name="label_invite_subject">Invitation from %1$s to try %2$s</string>
-    <string name="label_invite_body">
-        "I enjoy [@string/name_app] and I thought you might like it too! \n
-		https://play.google.com/store/apps/details?id=com.aircandi.catalina\n"
-    </string>
-    
-    <string name="label_place_share_title">Share \'%1$s\' using&#8230;</string>
-    <string name="label_place_share_subject">\'%1$s\' [@string/name_app_lowercase]</string>
-    <string name="label_place_share_body_install">Get the [@string/name_app] app at\u0020</string>
-    <string name="label_place_share_body">
-        "A [@string/name_app_lowercase] has been shared with you! \n\nhttp://candipatch.com/patch/%1$s \n\n[@string/label_place_share_body_install][@string/uri_play_store]"
-    </string>
-    
-    <string name="label_photo_share_title">Share photo using&#8230;</string>
-    <string name="label_photo_share_subject">[@string/name_app] photo shared by %1$s</string>
-    
     <string name="label_place_private_flag">(Private)</string>
     <string name="label_place_public_flag">(Public)</string>
     <string name="label_place_hidden_flag">(Secret)</string>
     <string name="label_place_owner_flag">(Owner)</string>
     <string name="label_indicator_watching">Watchers</string>
     <string name="label_indicator_watch_requests">Requests</string>
-    
+
+    <!-- Labels: Sharing -->
+
+    <string name="label_place_share_title">Share \'%1$s\' using&#8230;</string>
+    <string name="label_place_share_subject">\'%1$s\' [@string/name_app_lowercase]</string>
+    <string name="label_place_share_body_install">Get the [@string/name_app] app at\u0020</string>
+    <string name="label_place_share_body">
+        "A [@string/name_app_lowercase] has been shared with you! \n\nhttp://candipatch.com/patch/%1$s \n\n[@string/label_place_share_body_install][@string/uri_play_store]"
+    </string>
+    <string name="label_place_share_body_self">"Checkout the \'%1$s\' [@string/name_app_lowercase]!"</string>
+    <string name="label_place_share_body_self_oncreate">"Checkout the \'%1$s\' [@string/name_app_lowercase] I just dropped!"</string>
+
+    <string name="label_message_share_title">Share message using&#8230;</string>
+    <string name="label_message_share_subject">[@string/name_app] message shared by %1$s</string>
+    <string name="label_message_share_body_install">Get the [@string/name_app] app at\u0020</string>
+    <string name="label_message_share_body">
+        "A message has been shared with you! \n\nhttp://candipatch.com/message/%1$s \n\n[@string/label_message_share_body_install][@string/uri_play_store]"
+    </string>
+    <string name="label_message_share_body_self">
+        "Checkout %1$s\'s message to \'%2$s\'!"
+    </string>
+
+    <string name="label_photo_share_title">Share photo using&#8230;</string>
+    <string name="label_photo_share_subject">[@string/name_app] photo shared by %1$s</string>
+    <string name="label_photo_share_body_self">
+        "Checkout this [@string/name_app] photo!"
+    </string>
+
     <!-- Labels: Navigation -->
 
     <string name="label_drawer_item_nearby">Nearby</string>
@@ -433,7 +452,13 @@
     <string name="label_radar_empty">No [@string/container_plural_lowercase] found nearby</string>
     <string name="label_photo_picker_empty">No photos found for</string>
     <string name="label_photo_missing">Unable to download photo</string>
-    
+
+    <!-- Labels: Misc -->
+
+    <string name="label_message_to_prefix">"To:  "</string>
+    <string name="label_patch_share_prefix">"To:  "</string>
+    <string name="label_message_share_prefix">"To:  "</string>
+
     <!-- Hints -->
 
     <string name="hint_applink_type">Type of link</string>

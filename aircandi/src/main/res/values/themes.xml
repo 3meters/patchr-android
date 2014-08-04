@@ -41,6 +41,7 @@
         <item name="android:textAppearanceLarge">@style/textAppearanceLarge</item>
         <item name="android:textAppearanceMedium">@style/textAppearanceMedium</item>
         <item name="android:textAppearanceSmall">@style/textAppearanceSmall</item>
+        <item name="textAppearanceMediumLarge">@style/textAppearanceMediumLarge</item>
         <item name="textAppearanceExtraLarge">@style/textAppearanceExtraLarge</item>
         <item name="textAppearanceExtraSmall">@style/textAppearanceExtraSmall</item>
         <item name="textAppearanceTiny">@style/textAppearanceTiny</item>
@@ -76,6 +77,7 @@
         <item name="backgroundButtonLink">@drawable/bg_button_link_dark</item>
         <item name="backgroundButtonRound">@drawable/selector_button_circle_dark</item>
         <item name="backgroundButtonRoundGlow">@drawable/selector_button_circle_glow_dark</item>
+        <item name="backgroundButtonShare">@drawable/selector_button_share_dark</item>
         <item name="backgroundBalloon">@drawable/bg_balloon_round_dark</item>
         <item name="backgroundBalloonOnGray">@drawable/bg_balloon_round_dark</item>
         <item name="backgroundHelp">@color/background_help_dark</item>
@@ -89,8 +91,9 @@
         <item name="backgroundProgress">@android:color/transparent</item>
         <item name="backgroundPlaceholder">@drawable/bg_placeholder_dark</item>
         <item name="backgroundSpinner">@drawable/abs__spinner_ab_holo_dark</item>
+        <item name="backgroundToken">@drawable/selector_token_dark</item>
 
-        <!-- Images and icons -->
+       <!-- Images and icons -->
 
         <item name="imgLogo">@drawable/img_logo_dark</item>
         <item name="iconAccept">@drawable/ic_action_tick_dark</item>
@@ -164,6 +167,7 @@
         <item name="android:textAppearanceLarge">@style/textAppearanceLarge</item>
         <item name="android:textAppearanceMedium">@style/textAppearanceMedium</item>
         <item name="android:textAppearanceSmall">@style/textAppearanceSmall</item>
+        <item name="textAppearanceMediumLarge">@style/textAppearanceMediumLarge</item>
         <item name="textAppearanceExtraLarge">@style/textAppearanceExtraLarge</item>
         <item name="textAppearanceExtraSmall">@style/textAppearanceExtraSmall</item>
         <item name="textAppearanceTiny">@style/textAppearanceTiny</item>
@@ -199,6 +203,7 @@
         <item name="backgroundButtonLink">@drawable/bg_button_link_light</item>
         <item name="backgroundButtonRound">@drawable/selector_button_circle_light</item>
         <item name="backgroundButtonRoundGlow">@drawable/selector_button_circle_glow_light</item>
+        <item name="backgroundButtonShare">@drawable/selector_button_share_light</item>
         <item name="backgroundBalloon">@drawable/bg_balloon_round_light</item>
         <item name="backgroundBalloonOnGray">@drawable/bg_balloon_round_gray</item>
         <item name="backgroundHelp">@color/background_help_light</item>
@@ -212,6 +217,7 @@
         <item name="backgroundProgress">@android:color/transparent</item>
         <item name="backgroundPlaceholder">@drawable/bg_placeholder_light</item>
         <item name="backgroundSpinner">@drawable/abs__spinner_ab_holo_dark</item>
+        <item name="backgroundToken">@drawable/selector_token_light</item>
 
         <!-- Images and icons -->
 

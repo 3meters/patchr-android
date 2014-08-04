@@ -25,24 +25,30 @@ public class Constants {
     public static final String EXTRA_URI = "com.aircandi.EXTRA_URI";                                                                //$NON-NLS-1$
 
     public static final String EXTRA_LAYOUT_RESID              = "com.aircandi.EXTRA_LAYOUT_RESID";                                                        //$NON-NLS-1$
-    public static final String EXTRA_MESSAGE                   = "com.aircandi.EXTRA_MESSAGE";                                                            //$NON-NLS-1$
+    public static final String EXTRA_MESSAGE                   = "com.aircandi.EXTRA_MESSAGE";                                                             //$NON-NLS-1$
     public static final String EXTRA_CATEGORY                  = "com.aircandi.EXTRA_CATEGORY";                                                            //$NON-NLS-1$
-    public static final String EXTRA_VERIFY_URI                = "com.aircandi.EXTRA_VERIFY_URI";                                                            //$NON-NLS-1$
-    public static final String EXTRA_SEARCH_PHRASE             = "com.aircandi.EXTRA_SEARCH_PHRASE";                                                        //$NON-NLS-1$
+    public static final String EXTRA_VERIFY_URI                = "com.aircandi.EXTRA_VERIFY_URI";                                                          //$NON-NLS-1$
+    public static final String EXTRA_SEARCH_PHRASE             = "com.aircandi.EXTRA_SEARCH_PHRASE";                                                       //$NON-NLS-1$
     public static final String EXTRA_PHOTO_SOURCE              = "com.aircandi.EXTRA_PHOTO_SOURCE";                                                        //$NON-NLS-1$
     public static final String EXTRA_UPSIZE_SYNTHETIC          = "com.aircandi.EXTRA_UPSIZE_SYNTHETIC";                                                    //$NON-NLS-1$
-    public static final String EXTRA_PAGING_ENABLED            = "com.aircandi.EXTRA_PAGING_ENABLED";                                                        //$NON-NLS-1$
-    public static final String EXTRA_PHOTO                     = "com.aircandi.EXTRA_PHOTO";                                                                //$NON-NLS-1$
-    public static final String EXTRA_REFRESH_FROM_SERVICE      = "com.aircandi.EXTRA_REFRESH_FORCE";                                                        //$NON-NLS-1$
-    public static final String EXTRA_HELP_ID                   = "com.aircandi.EXTRA_HELP_ID";                                                            //$NON-NLS-1$
-    public static final String EXTRA_SHORTCUTS                 = "com.aircandi.EXTRA_SHORTCUTS";                                                            //$NON-NLS-1$
-    public static final String EXTRA_MARKERS                   = "com.aircandi.EXTRA_MARKERS";                                                            //$NON-NLS-1$
-    public static final String EXTRA_SKIP_SAVE                 = "com.aircandi.EXTRA_EDIT_ONLY";                                                            //$NON-NLS-1$
+    public static final String EXTRA_PAGING_ENABLED            = "com.aircandi.EXTRA_PAGING_ENABLED";                                                      //$NON-NLS-1$
+    public static final String EXTRA_PHOTO                     = "com.aircandi.EXTRA_PHOTO";                                                               //$NON-NLS-1$
+    public static final String EXTRA_REFRESH_FROM_SERVICE      = "com.aircandi.EXTRA_REFRESH_FORCE";                                                       //$NON-NLS-1$
+    public static final String EXTRA_HELP_ID                   = "com.aircandi.EXTRA_HELP_ID";                                                             //$NON-NLS-1$
+    public static final String EXTRA_SHORTCUTS                 = "com.aircandi.EXTRA_SHORTCUTS";                                                           //$NON-NLS-1$
+    public static final String EXTRA_MARKERS                   = "com.aircandi.EXTRA_MARKERS";                                                             //$NON-NLS-1$
+    public static final String EXTRA_SKIP_SAVE                 = "com.aircandi.EXTRA_EDIT_ONLY";                                                           //$NON-NLS-1$
     public static final String EXTRA_TAB_POSITION              = "com.aircandi.EXTRA_TAB_POSITION";                                                        //$NON-NLS-1$
-    public static final String EXTRA_SHORTCUT_TYPE             = "com.aircandi.EXTRA_SHORTCUT_TYPE";                                                        //$NON-NLS-1$
-    public static final String EXTRA_TITLE                     = "com.aircandi.EXTRA_TITLE";                                                                //$NON-NLS-1$
-    public static final String EXTRA_FRAGMENT_TYPE             = "com.aircandi.EXTRA_FRAGMENT_TYPE";                                                        //$NON-NLS-1$
-    public static final String EXTRA_NOTIFICATIONS_CLEAR_COUNT = "com.aircandi.EXTRA_NOTIFICATIONS_CLEAR_COUNT";                                            //$NON-NLS-1$
+    public static final String EXTRA_SHORTCUT_TYPE             = "com.aircandi.EXTRA_SHORTCUT_TYPE";                                                       //$NON-NLS-1$
+    public static final String EXTRA_TITLE                     = "com.aircandi.EXTRA_TITLE";                                                               //$NON-NLS-1$
+    public static final String EXTRA_FRAGMENT_TYPE             = "com.aircandi.EXTRA_FRAGMENT_TYPE";                                                       //$NON-NLS-1$
+    public static final String EXTRA_NOTIFICATIONS_CLEAR_COUNT = "com.aircandi.EXTRA_NOTIFICATIONS_CLEAR_COUNT";                                           //$NON-NLS-1$
+    public static final String EXTRA_TO_MODE                   = "com.aircandi.EXTRA_TO_MODE";                                                     //$NON-NLS-1$
+    public static final String EXTRA_TO_EDITABLE               = "com.aircandi.EXTRA_TO_EDITABLE";                                                       //$NON-NLS-1$
+    public static final String EXTRA_SUGGEST_SCOPE             = "com.aircandi.EXTRA_SUGGEST_SCOPE";                                                       //$NON-NLS-1$
+    public static final String EXTRA_SHARE_SOURCE              = "com.aircandi.EXTRA_SHARE_SOURCE";                                                       //$NON-NLS-1$
+    public static final String EXTRA_SHARE_ID                  = "com.aircandi.EXTRA_SHARE_ID";                                                       //$NON-NLS-1$
+    public static final String EXTRA_SHARE_SCHEMA              = "com.aircandi.EXTRA_SHARE_SCHEMA";                                                       //$NON-NLS-1$
 
     /* Activity parameters: lists */
     public static final String EXTRA_LIST_LINK_TYPE            = "com.aircandi.EXTRA_LIST_LINK_TYPE";                                                        //$NON-NLS-1$
@@ -190,6 +196,7 @@ public class Constants {
     public static final String TYPE_LINK_WATCH     = "watch";                                                                                    //$NON-NLS-1$
     public static final String TYPE_LINK_CONTENT   = "content";                                                                                //$NON-NLS-1$
     public static final String TYPE_LINK_CREATE    = "create";                                                                                //$NON-NLS-1$
+    public static final String TYPE_LINK_SHARE     = "share";                                                                                //$NON-NLS-1$
 
     public static final String TYPE_COUNT_LINK_PROXIMITY       = "link_proximity";                                                                        //$NON-NLS-1$
     public static final String TYPE_COUNT_LINK_PROXIMITY_MINUS = "link_proximity_minus";                                                                    //$NON-NLS-1$

@@ -39,7 +39,7 @@ public class AirEditText extends EditText {
 	private void initialize(Context context) {
 
 		if (!isInEditMode()) {
-			FontManager.getInstance().setTypefaceDefault(this);
+			FontManager.getInstance().setTypefaceLight(this);
 			final Drawable[] drawables = getCompoundDrawables();
 			if (drawables != null && drawables.length == 4) {
 				mClearDrawable = drawables[2];
@@ -107,4 +107,5 @@ public class AirEditText extends EditText {
 			clearButtonHandler();
 		}
 	}
+
 }

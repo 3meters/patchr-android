@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.aircandi.ui.widgets.AirScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center_horizontal"
-    android:fillViewport="true" >
+    android:fillViewport="true"
+    tools:context=".ui.user.RegisterEdit">
 
     <!-- Content -->
 
@@ -13,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical|top"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <!-- User picture -->
 
@@ -22,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:gravity="left"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <com.aircandi.ui.widgets.AirImageView
                 android:id="@+id/entity_photo"
@@ -58,7 +60,7 @@
             android:drawableRight="?attr/iconClear"
             android:hint="@string/label_fullname"
             android:inputType="textCapWords|textPersonName|textNoSuggestions"
-            android:textSize="18sp" />
+            android:textAppearance="?attr/textAppearanceMediumLarge" />
 
         <com.aircandi.ui.widgets.AirEditText
             android:id="@+id/email"
@@ -67,7 +69,7 @@
             android:drawableRight="?attr/iconClear"
             android:hint="@string/label_email"
             android:inputType="textEmailAddress"
-            android:textSize="18sp" />
+            android:textAppearance="?attr/textAppearanceMediumLarge" />
 
         <com.aircandi.ui.widgets.AirEditText
             android:id="@+id/password"
@@ -76,7 +78,7 @@
             android:drawableRight="?attr/iconClear"
             android:hint="@string/label_password"
             android:inputType="textPassword"
-            android:textSize="18sp" />
+            android:textAppearance="?attr/textAppearanceMediumLarge" />
 
         <com.aircandi.ui.widgets.AirEditText
             android:id="@+id/password_confirm"
@@ -87,13 +89,13 @@
             android:hint="@string/label_password_confirm"
             android:imeOptions="actionGo"
             android:inputType="textPassword"
-            android:textSize="18sp" />
+            android:textAppearance="?attr/textAppearanceMediumLarge" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <com.aircandi.ui.widgets.AirTextView
                 android:id="@+id/terms"

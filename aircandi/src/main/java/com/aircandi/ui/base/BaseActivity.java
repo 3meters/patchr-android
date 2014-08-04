@@ -692,7 +692,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.REMOVE, mEntity));
 		}
 
-		menuItem = menu.findItem(R.id.signin);
+        menuItem = menu.findItem(R.id.signin);
 		if (menuItem != null) {
 			menuItem.setVisible(Aircandi.getInstance().getCurrentUser().isAnonymous());
 		}

@@ -55,7 +55,7 @@ public class RegisterEdit extends BaseEntityEdit {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
-					update();
+                    onAccept();
 					return true;
 				}
 				return false;

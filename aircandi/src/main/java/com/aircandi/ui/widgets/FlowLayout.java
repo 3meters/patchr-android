@@ -11,253 +11,268 @@ import android.view.View;
 import android.view.ViewGroup;
 
 @SuppressWarnings("ucd")
-public class FlowLayout extends ViewGroup
-{
+public class FlowLayout extends ViewGroup {
 
-	private int[]						mRowHeights;
-	private int[]						mRowWidths;
-	private int							mSpacingVertical	= 0;
-	private int							mSpacingHorizontal	= 0;
-	private final List<RowMeasurement>	mRows				= new ArrayList<RowMeasurement>();
-	protected ArrayList<View>			mCurrentViews;
+    private   int[]           mRowHeights;
+    private   int[]           mRowWidths;
+    protected ArrayList<View> mCurrentViews;
+    private       int                  mSpacingVertical   = 0;
+    private       int                  mSpacingHorizontal = 0;
+    private final List<RowMeasurement> mRows              = new ArrayList<RowMeasurement>();
 
-	public FlowLayout(Context context, AttributeSet attrs) {
-		super(context, attrs);
-	}
+    public FlowLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        setClickable(false);
+    }
 
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-		final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-		final int maxInternalWidth = MeasureSpec.getSize(widthMeasureSpec) - getHorizontalPadding();
-		final int maxInternalHeight = MeasureSpec.getSize(heightMeasureSpec) - getVerticalPadding();
+    /* ---------------------------------------------------------------------------------------------
+        Events
+       --------------------------------------------------------------------------------------------- */
 
-		mRows.clear();
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        final int maxInternalWidth = MeasureSpec.getSize(widthMeasureSpec) - horizontalPadding();
+        final int maxInternalHeight = MeasureSpec.getSize(heightMeasureSpec) - verticalPadding();
 
-		RowMeasurement currentRow = null;
+        mRows.clear();
 
-		for (View child : getLayoutChildren()) {
+        RowMeasurement currentRow = null;
 
-			LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        for (View child : getLayoutChildren()) {
 
-			int childWidthSpec = createChildMeasureSpec(lp.width, maxInternalWidth, widthMode);
-			int childHeightSpec = createChildMeasureSpec(lp.height, maxInternalHeight, heightMode);
-			child.measure(childWidthSpec, childHeightSpec);
+            LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
-			int childWidth = child.getMeasuredWidth();
-			int childHeight = child.getMeasuredHeight();
+            int childWidthSpec = createChildMeasureSpec(lp.width, maxInternalWidth, widthMode);
+            int childHeightSpec = createChildMeasureSpec(lp.height, maxInternalHeight, heightMode);
+            child.measure(childWidthSpec, childHeightSpec);
+
+            int childWidth = child.getMeasuredWidth();
+            int childHeight = child.getMeasuredHeight();
 
 			/* If child won't fit then create new row */
-			if (currentRow == null || currentRow.isWouldExceedMax(lp.leftMargin + childWidth + lp.rightMargin)) {
-				currentRow = new RowMeasurement(maxInternalWidth, widthMode);
-				mRows.add(currentRow);
-			}
+            if (currentRow == null || currentRow.isWouldExceedMax(lp.leftMargin + childWidth + lp.rightMargin)) {
+                currentRow = new RowMeasurement(maxInternalWidth, widthMode);
+                mRows.add(currentRow);
+            }
 
-			currentRow.addChildDimensions(lp.leftMargin + childWidth + lp.rightMargin + mSpacingHorizontal
-					, lp.topMargin + childHeight + lp.bottomMargin);
-		}
+            currentRow.addChildDimensions(lp.leftMargin + childWidth + lp.rightMargin + mSpacingHorizontal
+                    , lp.topMargin + childHeight + lp.bottomMargin);
+        }
 
-		int longestRowWidth = 0;
-		int totalRowHeight = 0;
-		final int rowCount = mRows.size();
-		mRowHeights = new int[rowCount];
-		mRowWidths = new int[rowCount];
+        int longestRowWidth = 0;
+        int totalRowHeight = 0;
+        final int rowCount = mRows.size();
+        mRowHeights = new int[rowCount];
+        mRowWidths = new int[rowCount];
 
-		RowMeasurement row;
-		int rowHeight;
-		int rowWidth;
-		for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-			row = mRows.get(rowIndex);
-			rowHeight = row.getHeight();
-			rowWidth = row.getWidth();
-			mRowHeights[rowIndex] = rowHeight;
-			mRowWidths[rowIndex] = rowWidth;
-			totalRowHeight = totalRowHeight + rowHeight + mSpacingVertical;
-			longestRowWidth = Math.max(longestRowWidth, row.getWidth());
-		}
+        RowMeasurement row;
+        int rowHeight;
+        int rowWidth;
+        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+            row = mRows.get(rowIndex);
+            rowHeight = row.getHeight();
+            rowWidth = row.getWidth();
+            mRowHeights[rowIndex] = rowHeight;
+            mRowWidths[rowIndex] = rowWidth;
+            totalRowHeight = totalRowHeight + rowHeight + mSpacingVertical;
+            longestRowWidth = Math.max(longestRowWidth, row.getWidth());
+        }
 
-		setMeasuredDimension((widthMode == MeasureSpec.EXACTLY) ? MeasureSpec.getSize(widthMeasureSpec) : (longestRowWidth + getHorizontalPadding())
-				, (heightMode == MeasureSpec.EXACTLY) ? MeasureSpec.getSize(heightMeasureSpec) : (totalRowHeight + getVerticalPadding()));
-	}
+        setMeasuredDimension((widthMode == MeasureSpec.EXACTLY) ? MeasureSpec.getSize(widthMeasureSpec) : (longestRowWidth + horizontalPadding())
+                , (heightMode == MeasureSpec.EXACTLY) ? MeasureSpec.getSize(heightMeasureSpec) : (totalRowHeight + verticalPadding()));
+    }
 
-	private int createChildMeasureSpec(int childLayoutParam, int max, int parentMode) {
-		int spec;
-		if (childLayoutParam == ViewGroup.LayoutParams.MATCH_PARENT) {
-			spec = MeasureSpec.makeMeasureSpec(max, MeasureSpec.EXACTLY);
-		}
-		else if (childLayoutParam == ViewGroup.LayoutParams.WRAP_CONTENT) {
-			spec = MeasureSpec.makeMeasureSpec(max, ((parentMode == MeasureSpec.UNSPECIFIED) ? MeasureSpec.UNSPECIFIED : MeasureSpec.AT_MOST));
-		}
-		else {
-			spec = MeasureSpec.makeMeasureSpec(childLayoutParam, MeasureSpec.EXACTLY);
-		}
-		return spec;
-	}
+    @Override
+    protected void onLayout(boolean changed, int leftPosition, int topPosition, int rightPosition, int bottomPosition) {
 
-	@Override
-	protected LayoutParams generateDefaultLayoutParams() {
-		return new LayoutParams();
-	}
+        final int widthOffset = getMeasuredWidth() - getPaddingRight();
+        int childLeft = getPaddingLeft();
+        int childTop = getPaddingTop();
 
-	@Override
-	protected boolean checkLayoutParams(ViewGroup.LayoutParams layoutParams) {
-		return layoutParams instanceof LayoutParams;
-	}
+        int rowIndex = 0;
+        for (View child : getLayoutChildren()) {
 
-	@Override
-	public LayoutParams generateLayoutParams(AttributeSet attrs) {
-		return new LayoutParams(getContext(), attrs);
-	}
+            int childWidth = child.getMeasuredWidth();
+            int childHeight = child.getMeasuredHeight();
 
-	@Override
-	protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-		return new LayoutParams(p);
-	}
+            LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            if ((childLeft + lp.leftMargin + childWidth + lp.rightMargin) > widthOffset) {
+                childLeft = getPaddingLeft();
+                childTop = childTop + mRowHeights[rowIndex] + mSpacingVertical;
+                rowIndex = rowIndex + 1;
+            }
 
-	@Override
-	protected void onLayout(boolean changed, int leftPosition, int topPosition, int rightPosition, int bottomPosition) {
+            int _y; // $codepro.audit.disable localVariableNamingConvention
+            if (lp.centerVertical) {
+                _y = childTop + ((mRowHeights[rowIndex] - childHeight) >> 1);
+            }
+            else {
+                _y = childTop;
+            }
 
-		final int widthOffset = getMeasuredWidth() - getPaddingRight();
-		int childLeft = getPaddingLeft();
-		int childTop = getPaddingTop();
+            int _x; // $codepro.audit.disable localVariableNamingConvention
+            if (lp.centerHorizontal) {
+                childLeft += lp.leftMargin;
+                _x = (((rightPosition - leftPosition) - mRowWidths[rowIndex]) >> 1) + childLeft;
+            }
+            else {
+                _x = childLeft += lp.leftMargin;
+            }
 
-		int rowIndex = 0;
-		for (View child : getLayoutChildren()) {
+            child.layout(_x, _y, _x + childWidth, _y + childHeight);
+            childLeft += childWidth + lp.rightMargin + mSpacingHorizontal;
+        }
+    }
 
-			int childWidth = child.getMeasuredWidth();
-			int childHeight = child.getMeasuredHeight();
+    /* ---------------------------------------------------------------------------------------------
+        Methods
+       --------------------------------------------------------------------------------------------- */
 
-			LayoutParams lp = (LayoutParams) child.getLayoutParams();
-			if ((childLeft + lp.leftMargin + childWidth + lp.rightMargin) > widthOffset) {
-				childLeft = getPaddingLeft();
-				childTop = childTop + mRowHeights[rowIndex] + mSpacingVertical;
-				rowIndex = rowIndex + 1;
-			}
+    private int createChildMeasureSpec(int childLayoutParam, int max, int parentMode) {
+        int spec;
+        if (childLayoutParam == ViewGroup.LayoutParams.MATCH_PARENT) {
+            spec = MeasureSpec.makeMeasureSpec(max, MeasureSpec.EXACTLY);
+        }
+        else if (childLayoutParam == ViewGroup.LayoutParams.WRAP_CONTENT) {
+            spec = MeasureSpec.makeMeasureSpec(max, ((parentMode == MeasureSpec.UNSPECIFIED) ? MeasureSpec.UNSPECIFIED : MeasureSpec.AT_MOST));
+        }
+        else {
+            spec = MeasureSpec.makeMeasureSpec(childLayoutParam, MeasureSpec.EXACTLY);
+        }
+        return spec;
+    }
 
-			int _y; // $codepro.audit.disable localVariableNamingConvention
-			if (lp.centerVertical) {
-				_y = childTop + ((mRowHeights[rowIndex] - childHeight) >> 1);
-			}
-			else {
-				_y = childTop;
-			}
+    @Override
+    protected LayoutParams generateDefaultLayoutParams() {
+        return new LayoutParams();
+    }
 
-			int _x; // $codepro.audit.disable localVariableNamingConvention
-			if (lp.centerHorizontal) {
-				childLeft += lp.leftMargin;
-				_x = (((rightPosition - leftPosition) - mRowWidths[rowIndex]) >> 1) + childLeft;
-			}
-			else {
-				_x = childLeft += lp.leftMargin;
-			}
+    @Override
+    protected boolean checkLayoutParams(ViewGroup.LayoutParams layoutParams) {
+        return layoutParams instanceof LayoutParams;
+    }
 
-			child.layout(_x, _y, _x + childWidth, _y + childHeight);
-			childLeft += childWidth + lp.rightMargin + mSpacingHorizontal;
-		}
-	}
+    @Override
+    public LayoutParams generateLayoutParams(AttributeSet attrs) {
+        return new LayoutParams(getContext(), attrs);
+    }
 
-	private Collection<View> getLayoutChildren() {
-		final int count = getChildCount();
-		final Collection<View> children = new ArrayList<View>(count);
-		View child;
-		for (int index = 0; index < count; index++) {
-			child = getChildAt(index);
-			if (child.getVisibility() != View.GONE) {
-				children.add(child);
-			}
-		}
-		return children;
-	}
+    @Override
+    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
+        return new LayoutParams(p);
+    }
 
-	private int getVerticalPadding() {
-		return getPaddingTop() + getPaddingBottom();
-	}
+    private Collection<View> getLayoutChildren() {
+        final int count = getChildCount();
+        final Collection<View> children = new ArrayList<View>(count);
+        View child;
+        for (int index = 0; index < count; index++) {
+            child = getChildAt(index);
+            if (child.getVisibility() != View.GONE) {
+                children.add(child);
+            }
+        }
+        return children;
+    }
 
-	private int getHorizontalPadding() {
-		return getPaddingLeft() + getPaddingRight();
-	}
+    private int verticalPadding() {
+        return getPaddingTop() + getPaddingBottom();
+    }
 
-	public void setSpacingVertical(int spacingVertical) {
-		mSpacingVertical = spacingVertical;
-	}
+    private int horizontalPadding() {
+        return getPaddingLeft() + getPaddingRight();
+    }
 
-	public void setSpacingHorizontal(int spacingHorizontal) {
-		mSpacingHorizontal = spacingHorizontal;
-	}
+    /* ---------------------------------------------------------------------------------------------
+        Properties
+       --------------------------------------------------------------------------------------------- */
 
-	@SuppressWarnings("ucd")
-	public static class LayoutParams extends MarginLayoutParams {
-		private boolean	centerVertical;
-		private boolean	centerHorizontal;
+    public void setSpacingVertical(int spacingVertical) {
+        mSpacingVertical = spacingVertical;
+    }
 
-		public LayoutParams() {
-			this(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-		}
+    public void setSpacingHorizontal(int spacingHorizontal) {
+        mSpacingHorizontal = spacingHorizontal;
+    }
 
-		public LayoutParams(int width, int height) {
-			super(width, height);
-			setCenterVertical(false);
-		}
+    /* ---------------------------------------------------------------------------------------------
+        Classes
+       --------------------------------------------------------------------------------------------- */
 
-		public LayoutParams(Context context, AttributeSet attrs) {
-			super(context, attrs);
-			final TypedArray attributes = context.obtainStyledAttributes(attrs, new int[] { android.R.attr.layout_centerVertical });
-			setCenterVertical(attributes.getBoolean(0, false));
-			attributes.recycle();
-		}
+    @SuppressWarnings("ucd")
+    public static class LayoutParams extends MarginLayoutParams {
+        private boolean centerVertical;
+        private boolean centerHorizontal;
 
-		public LayoutParams(ViewGroup.LayoutParams source) {
-			super(source);
-		}
+        public LayoutParams() {
+            this(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        }
 
-		public LayoutParams(MarginLayoutParams source) {
-			super(source);
-		}
+        public LayoutParams(int width, int height) {
+            super(width, height);
+            setCenterVertical(false);
+        }
 
-		public LayoutParams(LayoutParams source) {
-			this(source.width, source.height);
-		}
+        public LayoutParams(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            final TypedArray attributes = context.obtainStyledAttributes(attrs, new int[]{android.R.attr.layout_centerVertical});
+            setCenterVertical(attributes.getBoolean(0, false));
+            attributes.recycle();
+        }
 
-		public void setCenterVertical(boolean centerVertical) {
-			this.centerVertical = centerVertical;
-		}
+        public LayoutParams(ViewGroup.LayoutParams source) {
+            super(source);
+        }
 
-		public void setCenterHorizontal(boolean centerHorizontal) {
-			this.centerHorizontal = centerHorizontal;
-		}
-	}
+        public LayoutParams(MarginLayoutParams source) {
+            super(source);
+        }
 
-	private static class RowMeasurement
-	{
-		private final int	maxWidth;
-		private final int	widthMode;
-		private int			width;
-		private int			height;
+        public LayoutParams(LayoutParams source) {
+            this(source.width, source.height);
+        }
 
-		RowMeasurement(int maxWidth, int widthMode) {
-			this.maxWidth = maxWidth;
-			this.widthMode = widthMode;
-		}
+        public void setCenterVertical(boolean centerVertical) {
+            this.centerVertical = centerVertical;
+        }
 
-		int getWidth() {
-			return width;
-		}
+        public void setCenterHorizontal(boolean centerHorizontal) {
+            this.centerHorizontal = centerHorizontal;
+        }
+    }
 
-		int getHeight() {
-			return height;
-		}
+    private static class RowMeasurement {
+        private final int maxWidth;
+        private final int widthMode;
+        private       int width;
+        private       int height;
 
-		boolean isWouldExceedMax(int childWidth) {
-			return (widthMode != MeasureSpec.UNSPECIFIED) && (getNewWidth(childWidth) > maxWidth);
-		}
+        RowMeasurement(int maxWidth, int widthMode) {
+            this.maxWidth = maxWidth;
+            this.widthMode = widthMode;
+        }
 
-		void addChildDimensions(int childWidth, int childHeight) {
-			width = getNewWidth(childWidth);
-			height = Math.max(height, childHeight);
-		}
+        int getWidth() {
+            return width;
+        }
 
-		private int getNewWidth(int childWidth) {
-			return (width == 0) ? childWidth : (width + childWidth);
-		}
-	}
+        int getHeight() {
+            return height;
+        }
+
+        boolean isWouldExceedMax(int childWidth) {
+            return (widthMode != MeasureSpec.UNSPECIFIED) && (getNewWidth(childWidth) > maxWidth);
+        }
+
+        void addChildDimensions(int childWidth, int childHeight) {
+            width = getNewWidth(childWidth);
+            height = Math.max(height, childHeight);
+        }
+
+        private int getNewWidth(int childWidth) {
+            return (width == 0) ? childWidth : (width + childWidth);
+        }
+    }
 }

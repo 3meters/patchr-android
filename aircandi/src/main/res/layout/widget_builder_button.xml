@@ -6,7 +6,7 @@
         android:layout_height="match_parent"
         android:background="?attr/backgroundButtonLink" />
 
-    <com.aircandi.ui.widgets.AirTextView
+    <com.aircandi.ui.widgets.AirTextLight
         android:id="@+id/builder_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,7 +15,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:paddingLeft="8dp"
-        android:textAppearance="?android:attr/textAppearance" />
+        android:textAppearance="?attr/textAppearanceMediumLarge" />
 
     <ImageView
         android:id="@+id/image_more"

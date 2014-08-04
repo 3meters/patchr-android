@@ -36,7 +36,6 @@ public class Places extends EntityControllerBase {
 		
 		Entity entity = new Place();
 		entity.schema = mSchema;
-		entity.schema = mSchema;
 		entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME); // Temporary
 		entity.signalFence = -100.0f;
 		entity.visibility = Constants.VISIBILITY_PUBLIC;

@@ -106,7 +106,7 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 			list.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, colors));
 		}
 
-		list.setDividerHeight(UI.getRawPixelsForDisplayPixels(Aircandi.applicationContext, 0.5f));
+		list.setDividerHeight(UI.getRawPixelsForDisplayPixels(0.5f));
 
 		/* Configure action bar */
 

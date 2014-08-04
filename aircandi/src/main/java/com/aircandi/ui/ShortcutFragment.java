@@ -305,6 +305,7 @@ public class ShortcutFragment extends BaseFragment {
 					, Constants.TYPE_APP_INTENT
 					, null
 					, StringManager.getString(moreResId)
+                    , null
 					, "img_more"
 					, 10
 					, false
@@ -333,12 +334,12 @@ public class ShortcutFragment extends BaseFragment {
 		final View parentView = (View) layout.getParent();
 		Integer layoutWidthPixels = metrics.widthPixels
 				- (parentView.getPaddingLeft() + parentView.getPaddingRight() + layout.getPaddingLeft() + layout.getPaddingRight());
-		final Integer bonusPadding = UI.getRawPixelsForDisplayPixels(getSherlockActivity(), 20f);
+		final Integer bonusPadding = UI.getRawPixelsForDisplayPixels(20f);
 		layoutWidthPixels -= bonusPadding;
 
 		final Integer spacing = 3;
-		final Integer spacingHorizontalPixels = UI.getRawPixelsForDisplayPixels(getSherlockActivity(), (float) spacing);
-		final Integer spacingVerticalPixels = UI.getRawPixelsForDisplayPixels(getSherlockActivity(), (float) spacing);
+		final Integer spacingHorizontalPixels = UI.getRawPixelsForDisplayPixels((float) spacing);
+		final Integer spacingVerticalPixels = UI.getRawPixelsForDisplayPixels((float) spacing);
 
 		Integer desiredWidthPixels = (int) (metrics.density * 75);
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {

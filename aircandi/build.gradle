@@ -40,4 +40,5 @@ dependencies {
     compile files('libs/image-chooser-library.jar')
     compile files('libs/imageviewtouch.jar')
     compile files('libs/jsr305-1.3.9.jar')
+    compile files('libs/tokenautocomplete-1.2.1.jar')
 }

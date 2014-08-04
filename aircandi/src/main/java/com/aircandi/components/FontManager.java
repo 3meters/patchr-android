@@ -7,15 +7,15 @@ import com.aircandi.Aircandi;
 
 public class FontManager {
 
-	private static Typeface				fontRobotoThin;
-	private static Typeface				fontRobotoLight;
-	private static Typeface				fontRobotoRegular;
-	private static Typeface				fontRobotoMedium;
-	private static Typeface				fontRobotoBold;
+	public static Typeface				fontRobotoThin;
+    public static Typeface				fontRobotoLight;
+    public static Typeface				fontRobotoRegular;
+    public static Typeface				fontRobotoMedium;
+    public static Typeface				fontRobotoBold;
 
-	private static Typeface				fontRobotoCondensedLight;
-	private static Typeface				fontRobotoCondensedRegular;
-	private static Typeface				fontRobotoCondensedBold;
+    public static Typeface				fontRobotoCondensedLight;
+    public static Typeface				fontRobotoCondensedRegular;
+    public static Typeface				fontRobotoCondensedBold;
 
 	private static FontManager			instance;
 	private static FontManagerCreator	creator;

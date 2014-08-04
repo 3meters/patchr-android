@@ -25,8 +25,8 @@ public final class ServiceConstants {
 	public static final String	ADMIN_USER_ID											= "us.000000.00000.000.000000";										//$NON-NLS-1$
 	public static final String	ANONYMOUS_USER_ID										= "us.000000.00000.000.111111";										//$NON-NLS-1$
 
-	public static final String	__URL_PROXIBASE_SERVICE									= "http://ariseditions.com:8080/v1";									// local																					// $codepro.audit.disable constantNamingConvention //$NON-NLS-1$
-	public static final String	URL_PROXIBASE_SERVICE									= "https://api.aircandi.com/v1";										// production																					//$NON-NLS-1$
+	public static final String	URL_PROXIBASE_SERVICE									= "http://ariseditions.com:8080/v1";									// local																					// $codepro.audit.disable constantNamingConvention //$NON-NLS-1$
+	public static final String	__URL_PROXIBASE_SERVICE									= "https://api.aircandi.com/v1";										// production																					//$NON-NLS-1$
 	public static final String	_URL_PROXIBASE_SERVICE									= "https://api.aircandi.com:444/v1";									// staging																									//$NON-NLS-1$
 
 	public static final String	PATH_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS				= "/assets/img/applinks/";												//$NON-NLS-1$
@@ -38,6 +38,7 @@ public final class ServiceConstants {
 	public static final String	URL_PROXIBASE_SERVICE_METHOD							= URL_PROXIBASE_SERVICE + "/do/";										//$NON-NLS-1$
 	public static final String	URL_PROXIBASE_SERVICE_STATS								= URL_PROXIBASE_SERVICE + "/stats/";									//$NON-NLS-1$
 	public static final String	URL_PROXIBASE_SERVICE_PLACES							= URL_PROXIBASE_SERVICE + "/places/";									//$NON-NLS-1$
+    public static final String	URL_PROXIBASE_SERVICE_SUGGEST							= URL_PROXIBASE_SERVICE + "/suggest";									//$NON-NLS-1$
 	public static final String	URL_PROXIBASE_SERVICE_ACTIONS							= URL_PROXIBASE_SERVICE + "/actions/";									//$NON-NLS-1$
 	public static final String	URL_PROXIBASE_SERVICE_APPLINKS							= URL_PROXIBASE_SERVICE + "/applinks/";								//$NON-NLS-1$
 	public static final String	URL_PROXIBASE_SERVICE_AUTH								= URL_PROXIBASE_SERVICE + "/auth/";									//$NON-NLS-1$

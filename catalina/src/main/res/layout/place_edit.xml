@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center_horizontal"
-    android:fillViewport="true" >
+    android:fillViewport="true">
 
     <!-- Content -->
 
@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical|top"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <!-- Public Image -->
 
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:layout_marginTop="5dp" >
+            android:layout_marginTop="5dp">
 
             <FrameLayout
                 style="@style/selectable_image"
@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
                 android:clickable="true"
-                android:onClick="onChangePhotoButtonClick" >
+                android:onClick="onChangePhotoButtonClick">
 
                 <com.aircandi.ui.widgets.AirImageView
                     android:id="@+id/entity_photo"
@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/photo_holder"
             android:layout_marginBottom="8dp"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <com.aircandi.ui.widgets.AirEditText
                 android:id="@+id/name"
@@ -76,7 +76,7 @@
                 android:drawableRight="?attr/iconClear"
                 android:hint="@string/hint_place_title"
                 android:inputType="textCapSentences|textNoSuggestions"
-                android:textAppearance="?android:attr/textAppearance" />
+                android:textAppearance="?attr/textAppearanceMediumLarge" />
 
             <com.aircandi.ui.widgets.AirTextLight
                 android:id="@+id/name_title"
@@ -107,7 +107,7 @@
                 android:id="@+id/group_tune"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -115,7 +115,7 @@
                     android:layout_marginBottom="12dp"
                     android:layout_marginLeft="4dp"
                     android:layout_marginRight="4dp"
-                    android:orientation="horizontal" >
+                    android:orientation="horizontal">
 
                     <com.aircandi.ui.widgets.ComboButton
                         android:id="@+id/button_tune"
@@ -151,14 +151,27 @@
 
             <!-- Message -->
 
+            <com.aircandi.ui.widgets.AirTokenCompleteTextView
+                android:id="@+id/to"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:hint="@string/label_place_drop_to"
+                android:imeOptions="flagNoExtractUi"
+                android:minHeight="65dp"
+                android:textAppearance="?attr/textAppearanceMediumLarge"
+                android:textColorHint="?attr/textColorSecondary"
+                android:visibility="gone" />
+
             <com.aircandi.ui.widgets.AirTextLight
                 android:id="@+id/label_message"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:layout_marginLeft="2dp"
                 android:layout_marginRight="2dp"
+                android:layout_marginTop="8dp"
                 android:visibility="gone"
                 custom:textId="@string/label_place_create" />
 
@@ -169,7 +182,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginLeft="2dp"
                 android:layout_marginRight="2dp"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <com.aircandi.ui.widgets.AirCheckBox
                     android:id="@+id/chk_private"

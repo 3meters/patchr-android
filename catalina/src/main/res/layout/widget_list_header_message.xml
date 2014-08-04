@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/backgroundCard"
     android:focusable="false"
     android:focusableInTouchMode="false"
-    android:orientation="vertical" xmlns:tools="http://schemas.android.com/tools">
+    android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/holder_place"
@@ -16,7 +16,7 @@
         android:clickable="true"
         android:onClick="onPlaceClick"
         android:paddingLeft="@dimen/form_body_padding"
-        android:paddingRight="@dimen/form_body_padding" >
+        android:paddingRight="@dimen/form_body_padding">
 
         <com.aircandi.ui.widgets.AirTextLight
             android:id="@+id/place_name"
@@ -58,7 +58,7 @@
         android:onClick="onEntityClick"
         android:orientation="horizontal"
         android:paddingLeft="@dimen/form_body_padding"
-        android:paddingRight="@dimen/form_body_padding" >
+        android:paddingRight="@dimen/form_body_padding">
 
         <com.aircandi.ui.widgets.AirImageView
             android:id="@+id/user_photo"
@@ -78,7 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="2dp"
-            android:gravity="bottom" >
+            android:gravity="bottom">
 
             <com.aircandi.ui.widgets.AirTextView
                 android:id="@+id/user_name"
@@ -130,7 +130,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         android:paddingLeft="@dimen/form_body_padding"
-        android:paddingRight="@dimen/form_body_padding" >
+        android:paddingRight="@dimen/form_body_padding">
 
         <com.aircandi.ui.widgets.AirTextLight
             android:id="@+id/created_date"
@@ -140,6 +140,8 @@
             android:textAppearance="@style/textAppearanceSmall"
             android:textColor="?attr/textColorSecondary" />
     </RelativeLayout>
+
+    <!-- Photo -->
 
     <com.aircandi.ui.widgets.AirImageView
         android:id="@+id/entity_photo"
@@ -159,6 +161,67 @@
         custom:sizeHint="@dimen/image_super_large"
         custom:sizeType="fullsize_capped" />
 
+    <!-- Share entity -->
+
+    <RelativeLayout
+        android:id="@+id/share_holder"
+        android:layout_marginLeft="@dimen/form_body_padding"
+        android:layout_marginRight="@dimen/form_body_padding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <FrameLayout
+            android:id="@+id/share"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/backgroundButtonShare"
+            android:clickable="true"
+            android:onClick="onEntityClick" />
+
+        <View
+            android:id="@+id/highlight"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/rule_highlight_height"
+            android:layout_alignTop="@id/share"
+            android:background="?attr/cardHighlightColor" />
+
+        <View
+            android:id="@+id/shadow"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/rule_shadow_height"
+            android:layout_alignBottom="@id/share"
+            android:background="?attr/cardShadowColor" />
+
+    </RelativeLayout>
+
+    <!-- Share to -->
+
+    <LinearLayout
+        android:id="@+id/to_holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:paddingLeft="@dimen/form_body_padding"
+        android:paddingRight="@dimen/form_body_padding">
+
+        <com.aircandi.ui.widgets.AirTextLight
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:paddingTop="8dp"
+            android:text="@string/label_message_to_prefix"
+            android:textColor="?attr/textColorSecondary"
+            android:textAppearance="?attr/textAppearanceMediumLarge" />
+
+        <com.aircandi.ui.widgets.FlowLayout
+            android:id="@+id/flow_recipients"
+            android:layout_width="match_parent"
+            android:clickable="false"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
     <View
         android:id="@+id/divider_buttons"
         android:layout_width="match_parent"
@@ -170,7 +233,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/form_body_padding"
-        android:paddingRight="@dimen/form_body_padding" >
+        android:paddingRight="@dimen/form_body_padding">
 
         <com.aircandi.ui.widgets.ComboButton
             android:id="@+id/button_share"
@@ -182,6 +245,7 @@
     </RelativeLayout>
 
     <View
+        android:id="@+id/divider_replies"
         android:layout_width="match_parent"
         android:layout_height="@dimen/rule_header_height"
         android:background="@color/brand_primary" />

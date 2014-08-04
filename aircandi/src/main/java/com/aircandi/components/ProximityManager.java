@@ -229,7 +229,7 @@ public class ProximityManager {
 		 * Makes sure that the beacon collection is an accurate representation
 		 * of the latest wifi scan.
 		 */
-		mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null);
+		mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 		/*
 		 * insert beacons for the latest scan results.
 		 */
@@ -280,13 +280,13 @@ public class ProximityManager {
 
 		/* Construct string array of the beacon ids */
 		List<String> beaconIds = new ArrayList<String>();
-		List<Beacon> beacons = (List<Beacon>) mEntityCache.getCacheEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null, null);
+		List<Beacon> beacons = (List<Beacon>) mEntityCache.getCacheEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null);
 
 		for (Beacon beacon : beacons) {
 			beaconIds.add(beacon.id);
 		}
 
-		Integer removeCount = mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_PLACE, null, false, true);
+		Integer removeCount = mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_PLACE, null, true);
 		Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
 
 		/*
@@ -341,7 +341,7 @@ public class ProximityManager {
 	public synchronized ServiceResponse getEntitiesNearLocation(AirLocation location) {
 
 		/* Clean out all synthetics */
-		Integer removeCount = mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_PLACE, null, true, false);
+		Integer removeCount = mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_PLACE, null, false);
 		Logger.v(this, "Removed synthetic places from cache: count = " + String.valueOf(removeCount));
 
 		/*
@@ -435,7 +435,7 @@ public class ProximityManager {
 
 		final List<Beacon> beaconStrongest = new ArrayList<Beacon>();
 		int beaconCount = 0;
-		List<Beacon> beacons = (List<Beacon>) mEntityCache.getCacheEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null, null);
+		List<Beacon> beacons = (List<Beacon>) mEntityCache.getCacheEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null);
 		Collections.sort(beacons, new Beacon.SortBySignalLevel());
 
 		for (Beacon beacon : beacons) {

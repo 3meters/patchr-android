@@ -210,8 +210,8 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 					if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
 						RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(buttonSpecial.getLayoutParams());
 						params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-						int headerHeight = (header != null) ? header.getHeight() : UI.getRawPixelsForDisplayPixels(Aircandi.applicationContext, 150f);
-						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(Aircandi.applicationContext, 100f);
+						int headerHeight = (header != null) ? header.getHeight() : UI.getRawPixelsForDisplayPixels(150f);
+						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(100f);
 						buttonSpecial.setLayoutParams(params);
 					}
 					else {

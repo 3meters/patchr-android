@@ -54,102 +54,102 @@ import com.squareup.otto.Subscribe;
 
 public class PlaceForm extends BaseEntityForm {
 
-	private Boolean					mDoUpsize;
-	protected final PackageReceiver	mPackageReceiver	= new PackageReceiver();
-	protected final List<String>	mPackageInstalls	= new ArrayList<String>();
-	protected Boolean				mWaitForContent		= true;
+    private Boolean mDoUpsize;
+    protected final PackageReceiver mPackageReceiver = new PackageReceiver();
+    protected final List<String>    mPackageInstalls = new ArrayList<String>();
+    protected       Boolean         mWaitForContent  = true;
 
-	@Override
-	public void unpackIntent() {
-		super.unpackIntent();
+    @Override
+    public void unpackIntent() {
+        super.unpackIntent();
 
-		final Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			mDoUpsize = extras.getBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC);
-		}
-	}
+        final Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            mDoUpsize = extras.getBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC);
+        }
+    }
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-		mLinkProfile = LinkProfile.LINKS_FOR_PLACE;
+    @Override
+    public void initialize(Bundle savedInstanceState) {
+        super.initialize(savedInstanceState);
+        mLinkProfile = LinkProfile.LINKS_FOR_PLACE;
 
 		/* Package receiver */
-		final IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
-		filter.addDataScheme("package");
-		registerReceiver(mPackageReceiver, filter);
-	}
+        final IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
+        filter.addDataScheme("package");
+        registerReceiver(mPackageReceiver, filter);
+    }
 
-	@Override
-	public void afterDatabind(final BindingMode mode, ModelResult result) {
-		super.afterDatabind(mode, result);
+    @Override
+    public void afterDatabind(final BindingMode mode, ModelResult result) {
+        super.afterDatabind(mode, result);
 
-		if (mDoUpsize && mEntity != null) {
-			mDoUpsize = false;
-			upsize();
-		}
-	}
+        if (mDoUpsize && mEntity != null) {
+            mDoUpsize = false;
+            upsize();
+        }
+    }
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
+    // Events
+    // --------------------------------------------------------------------------------------------
 
-	@Override
-	public void onAdd(Bundle extras) {
-		Aircandi.dispatch.route(this, Route.NEW_PICKER, mEntity, null, null);
-	}
+    @Override
+    public void onAdd(Bundle extras) {
+        Aircandi.dispatch.route(this, Route.NEW_PICKER, mEntity, null, null);
+    }
 
-	@Override
-	public void onHelp() {
-		Bundle extras = new Bundle();
-		extras.putInt(Constants.EXTRA_HELP_ID, R.layout.place_help);
-		Aircandi.dispatch.route(this, Route.HELP, null, null, extras);
-	}
+    @Override
+    public void onHelp() {
+        Bundle extras = new Bundle();
+        extras.putInt(Constants.EXTRA_HELP_ID, R.layout.place_help);
+        Aircandi.dispatch.route(this, Route.HELP, null, null, extras);
+    }
 
-	@SuppressWarnings("ucd")
-	public void onTuneButtonClick(View view) {
+    @SuppressWarnings("ucd")
+    public void onTuneButtonClick(View view) {
 
-		if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			Integer messageResId = R.string.alert_signin_message_place_tune;
-			Dialogs.signinRequired(this, messageResId);
-			return;
-		}
+        if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+            Integer messageResId = R.string.alert_signin_message_place_tune;
+            Dialogs.signinRequired(this, messageResId);
+            return;
+        }
 
-		if (Aircandi.getInstance().getMenuManager().canUserAdd(mEntity)) {
-			Aircandi.dispatch.route(this, Route.TUNE, mEntity, null, null);
-			return;
-		}
+        if (Aircandi.getInstance().getMenuManager().canUserAdd(mEntity)) {
+            Aircandi.dispatch.route(this, Route.TUNE, mEntity, null, null);
+            return;
+        }
 
-		if (mEntity.locked) {
-			Dialogs.locked(this, mEntity);
-		}
-	}
+        if (mEntity.locked) {
+            Dialogs.locked(this, mEntity);
+        }
+    }
 
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onMessage(final MessageEvent event) {
-		/*
+    @Subscribe
+    @SuppressWarnings("ucd")
+    public void onMessage(final MessageEvent event) {
+        /*
 		 * Refresh the form because something new has been added to it
 		 * like a comment or picture.
 		 */
-		if (event.message.action.toEntity != null
-				&& mEntityId.equals(event.message.action.toEntity.id)) {
+        if (event.message.action.toEntity != null
+                && mEntityId.equals(event.message.action.toEntity.id)) {
 
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					onRefresh();
-				}
-			});
-		}
-	}
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    onRefresh();
+                }
+            });
+        }
+    }
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
+    // Methods
+    // --------------------------------------------------------------------------------------------
 
-	@Override
-	public void draw() {
+    @Override
+    public void draw() {
 		/*
 		 * For now, we assume that the candi form isn't recycled.
 		 * 
@@ -160,373 +160,371 @@ public class PlaceForm extends BaseEntityForm {
 		 * - Header views are visible by default
 		 */
 
-		mFirstDraw = false;
-		setActivityTitle(mEntity.name);
+        mFirstDraw = false;
+        setActivityTitle(mEntity.name);
 
 		/*
 		 * Drawing is broken up so sections can be selectively overridden.
 		 */
 
 		/* Photo overlayed with info */
-		drawBanner();
+        drawBanner();
 
 		/* Description and address */
-		drawBody();
+        drawBody();
 
 		/* Links to entities */
-		drawShortcuts();
+        drawShortcuts();
 
 		/* Creator and/or editor */
-		drawUsers();
+        drawUsers();
 
 		/* Buttons */
-		drawButtons();
+        drawButtons();
 
 		/* Visibility */
-		if (mScrollView != null) {
-			mScrollView.setVisibility(View.VISIBLE);
-		}
-	}
+        if (mScrollView != null) {
+            mScrollView.setVisibility(View.VISIBLE);
+        }
+    }
 
-	protected void drawBanner() {
+    protected void drawBanner() {
 
-		final CandiView candiView = (CandiView) findViewById(R.id.candi_view);
-		final AirImageView photoView = (AirImageView) findViewById(R.id.entity_photo);
-		final TextView name = (TextView) findViewById(R.id.name);
-		final TextView subtitle = (TextView) findViewById(R.id.subtitle);
+        final CandiView candiView = (CandiView) findViewById(R.id.candi_view);
+        final AirImageView photoView = (AirImageView) findViewById(R.id.entity_photo);
+        final TextView name = (TextView) findViewById(R.id.name);
+        final TextView subtitle = (TextView) findViewById(R.id.subtitle);
 
 		/* Primary candi image */
 
-		if (candiView != null) {
+        if (candiView != null) {
 			/*
 			 * This is a place entity with a fancy image widget
 			 */
-			IndicatorOptions options = new IndicatorOptions();
-			options.showIfZero = true;
-			options.imageSizePixels = 15;
-			options.iconsEnabled = false;
-			candiView.databind(mEntity, options);
-		}
-		else {
-			UI.setVisibility(photoView, View.GONE);
-			if (photoView != null) {
-				Photo photo = mEntity.getPhoto();
-				UI.drawPhoto(photoView, photo);
-				if (Type.isFalse(photo.usingDefault)) {
-					photoView.setClickable(true);
-				}
-				UI.setVisibility(photoView, View.VISIBLE);
-			}
+            IndicatorOptions options = new IndicatorOptions();
+            options.showIfZero = true;
+            options.imageSizePixels = 15;
+            options.iconsEnabled = false;
+            candiView.databind(mEntity, options);
+        }
+        else {
+            UI.setVisibility(photoView, View.GONE);
+            if (photoView != null) {
+                Photo photo = mEntity.getPhoto();
+                UI.drawPhoto(photoView, photo);
+                if (Type.isFalse(photo.usingDefault)) {
+                    photoView.setClickable(true);
+                }
+                UI.setVisibility(photoView, View.VISIBLE);
+            }
 
-			UI.setVisibility(name, View.GONE);
-			if (name != null) {
-				name.setText(null);
-				if (!TextUtils.isEmpty(mEntity.name)) {
-					name.setText(Html.fromHtml(mEntity.name));
-					UI.setVisibility(name, View.VISIBLE);
-				}
-			}
+            UI.setVisibility(name, View.GONE);
+            if (name != null) {
+                name.setText(null);
+                if (!TextUtils.isEmpty(mEntity.name)) {
+                    name.setText(Html.fromHtml(mEntity.name));
+                    UI.setVisibility(name, View.VISIBLE);
+                }
+            }
 
-			UI.setVisibility(subtitle, View.GONE);
-			if (subtitle != null) {
-				subtitle.setText(null);
-				if (mEntity.subtitle != null && !mEntity.subtitle.equals("")) {
-					subtitle.setText(Html.fromHtml(mEntity.subtitle));
-					UI.setVisibility(subtitle, View.VISIBLE);
-				}
-			}
-		}
+            UI.setVisibility(subtitle, View.GONE);
+            if (subtitle != null) {
+                subtitle.setText(null);
+                if (mEntity.subtitle != null && !mEntity.subtitle.equals("")) {
+                    subtitle.setText(Html.fromHtml(mEntity.subtitle));
+                    UI.setVisibility(subtitle, View.VISIBLE);
+                }
+            }
+        }
 
-	}
+    }
 
-	protected void drawBody() {
+    protected void drawBody() {
 
-		final TextView description = (TextView) findViewById(R.id.candi_form_description);
-		final TextView address = (TextView) findViewById(R.id.candi_form_address);
+        final TextView description = (TextView) findViewById(R.id.candi_form_description);
+        final TextView address = (TextView) findViewById(R.id.candi_form_address);
 
-		UI.setVisibility(findViewById(R.id.section_description), View.GONE);
-		if (description != null) {
-			description.setText(null);
-			if (!TextUtils.isEmpty(mEntity.description)) {
-				description.setText(Html.fromHtml(mEntity.description));
-				UI.setVisibility(findViewById(R.id.section_description), View.VISIBLE);
-			}
-		}
+        UI.setVisibility(findViewById(R.id.section_description), View.GONE);
+        if (description != null) {
+            description.setText(null);
+            if (!TextUtils.isEmpty(mEntity.description)) {
+                description.setText(Html.fromHtml(mEntity.description));
+                UI.setVisibility(findViewById(R.id.section_description), View.VISIBLE);
+            }
+        }
 
 		/* Place specific info */
-		final Place place = (Place) mEntity;
+        final Place place = (Place) mEntity;
 
-		UI.setVisibility(address, View.GONE);
-		if (address != null) {
-			String addressBlock = place.getAddressBlock();
+        UI.setVisibility(address, View.GONE);
+        if (address != null) {
+            String addressBlock = place.getAddressBlock();
 
-			if (place.phone != null) {
-				addressBlock += "<br/>" + place.getFormattedPhone();
-			}
+            if (place.phone != null) {
+                addressBlock += "<br/>" + place.getFormattedPhone();
+            }
 
-			if (!"".equals(addressBlock)) {
-				address.setText(Html.fromHtml(addressBlock));
-				UI.setVisibility(address, View.VISIBLE);
-			}
-		}
-	}
+            if (!"".equals(addressBlock)) {
+                address.setText(Html.fromHtml(addressBlock));
+                UI.setVisibility(address, View.VISIBLE);
+            }
+        }
+    }
 
-	protected void drawShortcuts() {
+    protected void drawShortcuts() {
 
 		/* Clear shortcut holder */
-		ViewGroup shortcutHolder = (ViewGroup) findViewById(R.id.shortcut_holder);
+        ViewGroup shortcutHolder = (ViewGroup) findViewById(R.id.shortcut_holder);
 
-		if (shortcutHolder != null) {
-			shortcutHolder.removeAllViews();
+        if (shortcutHolder != null) {
+            shortcutHolder.removeAllViews();
 
 			/* Synthetic applink shortcuts */
-			ShortcutSettings settings = new ShortcutSettings(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, Direction.in, true, true);
-			settings.appClass = Applink.class;
-			List<Shortcut> shortcuts = mEntity.getShortcuts(settings, null, null);
-			if (shortcuts.size() > 0) {
-				Collections.sort(shortcuts, new Shortcut.SortByPositionSortDate());
-				prepareShortcuts(shortcuts
-						, settings
-						, R.string.label_section_applinks
-						, R.string.label_link_links_more
-						, mResources.getInteger(R.integer.limit_shortcuts_flow)
-						, R.id.shortcut_holder
-						, R.layout.widget_shortcut);
-			}
+            ShortcutSettings settings = new ShortcutSettings(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, Direction.in, true, true);
+            settings.appClass = Applink.class;
+            List<Shortcut> shortcuts = mEntity.getShortcuts(settings, null, null);
+            if (shortcuts.size() > 0) {
+                Collections.sort(shortcuts, new Shortcut.SortByPositionSortDate());
+                prepareShortcuts(shortcuts
+                        , settings
+                        , R.string.label_section_applinks
+                        , R.string.label_link_links_more
+                        , mResources.getInteger(R.integer.limit_shortcuts_flow)
+                        , R.id.shortcut_holder
+                        , R.layout.widget_shortcut);
+            }
 
 			/* service applink shortcuts */
-			settings = new ShortcutSettings(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, Direction.in, false, true);
-			settings.appClass = Applink.class;
-			shortcuts = mEntity.getShortcuts(settings, null, new Shortcut.SortByPositionSortDate());
-			if (shortcuts.size() > 0) {
-				for (Shortcut shortcut : shortcuts) {
-					if (!shortcut.app.equals(Constants.TYPE_APP_WEBSITE)) {
-						shortcut.name = shortcut.app;
-					}
-					if (shortcut.app.equals(Constants.TYPE_APP_GOOGLEPLUS)) {
-						shortcut.name = shortcut.name.replaceFirst("plus", "+");
-					}
-				}
-				Collections.sort(shortcuts, new Shortcut.SortByPositionSortDate());
-				prepareShortcuts(shortcuts
-						, settings
-						, null
-						, R.string.label_link_links_more
-						, mResources.getInteger(R.integer.limit_shortcuts_flow)
-						, R.id.shortcut_holder
-						, R.layout.widget_shortcut);
-			}
-		}
-	}
+            settings = new ShortcutSettings(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, Direction.in, false, true);
+            settings.appClass = Applink.class;
+            shortcuts = mEntity.getShortcuts(settings, null, new Shortcut.SortByPositionSortDate());
+            if (shortcuts.size() > 0) {
+                for (Shortcut shortcut : shortcuts) {
+                    if (!shortcut.app.equals(Constants.TYPE_APP_WEBSITE)) {
+                        shortcut.name = shortcut.app;
+                    }
+                    if (shortcut.app.equals(Constants.TYPE_APP_GOOGLEPLUS)) {
+                        shortcut.name = shortcut.name.replaceFirst("plus", "+");
+                    }
+                }
+                Collections.sort(shortcuts, new Shortcut.SortByPositionSortDate());
+                prepareShortcuts(shortcuts
+                        , settings
+                        , null
+                        , R.string.label_link_links_more
+                        , mResources.getInteger(R.integer.limit_shortcuts_flow)
+                        , R.id.shortcut_holder
+                        , R.layout.widget_shortcut);
+            }
+        }
+    }
 
-	protected void drawUsers() {
+    protected void drawUsers() {
 
-		final UserView user_one = (UserView) findViewById(R.id.user_one);
-		final UserView user_two = (UserView) findViewById(R.id.user_two);
+        final UserView user_one = (UserView) findViewById(R.id.user_one);
+        final UserView user_two = (UserView) findViewById(R.id.user_two);
 
 		/* Creator block */
 
-		UI.setVisibility(user_one, View.GONE);
-		UI.setVisibility(user_two, View.GONE);
-		UserView userView = user_one;
+        UI.setVisibility(user_one, View.GONE);
+        UI.setVisibility(user_two, View.GONE);
+        UserView userView = user_one;
 
-		if (userView != null
-				&& mEntity.creator != null
-				&& !mEntity.creator.id.equals(ServiceConstants.ADMIN_USER_ID)
-				&& !mEntity.creator.id.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
+        if (userView != null
+                && mEntity.creator != null
+                && !mEntity.creator.id.equals(ServiceConstants.ADMIN_USER_ID)
+                && !mEntity.creator.id.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
 
-			if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-				if (((Place) mEntity).getProvider().type.equals("aircandi")) {
-					userView.setLabel(R.string.label_created_by);
-					userView.databind(mEntity.creator, mEntity.createdDate.longValue(), mEntity.locked);
-					UI.setVisibility(userView, View.VISIBLE);
-					userView = user_two;
-				}
-			}
-			else {
-				if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PICTURE)) {
-					userView.setLabel(R.string.label_added_by);
-				}
-				else {
-					userView.setLabel(R.string.label_created_by);
-				}
-				userView.databind(mEntity.creator, mEntity.createdDate.longValue(), mEntity.locked);
-				UI.setVisibility(user_one, View.VISIBLE);
-				userView = user_two;
-			}
+            if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+                if (((Place) mEntity).getProvider().type.equals("aircandi")) {
+                    userView.setLabel(R.string.label_created_by);
+                    userView.databind(mEntity.creator, mEntity.createdDate.longValue(), mEntity.locked);
+                    UI.setVisibility(userView, View.VISIBLE);
+                    userView = user_two;
+                }
+            }
+            else {
+                if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PICTURE)) {
+                    userView.setLabel(R.string.label_added_by);
+                }
+                else {
+                    userView.setLabel(R.string.label_created_by);
+                }
+                userView.databind(mEntity.creator, mEntity.createdDate.longValue(), mEntity.locked);
+                UI.setVisibility(user_one, View.VISIBLE);
+                userView = user_two;
+            }
 
-			if (userView != null && mEntity.modifier != null
-					&& !mEntity.modifier.id.equals(ServiceConstants.ADMIN_USER_ID)
-					&& !mEntity.modifier.id.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
+            if (userView != null && mEntity.modifier != null
+                    && !mEntity.modifier.id.equals(ServiceConstants.ADMIN_USER_ID)
+                    && !mEntity.modifier.id.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
 
-				if (mEntity.createdDate.longValue() != mEntity.modifiedDate.longValue()) {
-					userView.setLabel(R.string.label_edited_by);
-					userView.databind(mEntity.modifier, mEntity.modifiedDate.longValue(), null);
-					UI.setVisibility(userView, View.VISIBLE);
-				}
-			}
-		}
-	}
+                if (mEntity.createdDate.longValue() != mEntity.modifiedDate.longValue()) {
+                    userView.setLabel(R.string.label_edited_by);
+                    userView.databind(mEntity.modifier, mEntity.modifiedDate.longValue(), null);
+                    UI.setVisibility(userView, View.VISIBLE);
+                }
+            }
+        }
+    }
 
-	@Override
-	protected void drawStats() {
+    @Override
+    protected void drawStats() {
 
-		final CandiView candiView = (CandiView) findViewById(R.id.candi_view);
-		if (candiView != null) {
-			Count count = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, true, Direction.in);
-			if (count == null) {
-				count = new Count(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PLACE, null, 0);
-			}
-			candiView.updateIndicator(R.id.holder_indicator_watching, String.valueOf(count.count.intValue()) + " "
-					+ StringManager.getString(R.string.label_indicator_watching).toUpperCase(Locale.US));
-		}
-	}
+        final CandiView candiView = (CandiView) findViewById(R.id.candi_view);
+        if (candiView != null) {
+            Count count = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, true, Direction.in);
+            if (count == null) {
+                count = new Count(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PLACE, null, 0);
+            }
+            candiView.updateIndicator(R.id.holder_indicator_watching, String.valueOf(count.count.intValue()) + " "
+                    + StringManager.getString(R.string.label_indicator_watching).toUpperCase(Locale.US));
+        }
+    }
 
-	@Override
-	public void drawButtons() {
-		super.drawButtons();
+    @Override
+    public void drawButtons() {
+        super.drawButtons();
 
-		Place place = (Place) mEntity;
+        Place place = (Place) mEntity;
 
 		/* TUNE */
-		UI.setVisibility(findViewById(R.id.button_tune), View.GONE);
-		if (!place.synthetic) {
+        UI.setVisibility(findViewById(R.id.button_tune), View.GONE);
 
 			/* Tuning buttons */
-			final Boolean hasActiveProximityLink = place.hasActiveProximity();
-			if (hasActiveProximityLink) {
-				ComboButton button = (ComboButton) findViewById(R.id.button_tune);
-				if (button != null) {
-					button.setDrawableId(R.drawable.ic_action_signal_tuned);
-				}
-			}
+        final Boolean hasActiveProximityLink = place.hasActiveProximity();
+        if (hasActiveProximityLink) {
+            ComboButton button = (ComboButton) findViewById(R.id.button_tune);
+            if (button != null) {
+                button.setDrawableId(R.drawable.ic_action_signal_tuned);
+            }
+        }
 
-			UI.setVisibility(findViewById(R.id.button_tune), View.VISIBLE);
-		}
-	}
+        UI.setVisibility(findViewById(R.id.button_tune), View.VISIBLE);
+    }
 
-	protected void handlePackageInstalls() {
+    protected void handlePackageInstalls() {
 
-		for (String packageName : mPackageInstalls) {
-			final String publicName = AndroidManager.getInstance().getPublicName(packageName);
-			if (publicName != null) {
-				UI.showToastNotification(publicName + " " + getText(R.string.dialog_install_toast_package_installed)
-						, Toast.LENGTH_SHORT);
-			}
-		}
+        for (String packageName : mPackageInstalls) {
+            final String publicName = AndroidManager.getInstance().getPublicName(packageName);
+            if (publicName != null) {
+                UI.showToastNotification(publicName + " " + getText(R.string.dialog_install_toast_package_installed)
+                        , Toast.LENGTH_SHORT);
+            }
+        }
 
-		if (mPackageInstalls.size() > 0) {
-			mInvalidated = true;
-			Aircandi.mainThreadHandler.postDelayed(new Runnable() {
+        if (mPackageInstalls.size() > 0) {
+            mInvalidated = true;
+            Aircandi.mainThreadHandler.postDelayed(new Runnable() {
 
-				@Override
-				public void run() {
-					bind(BindingMode.AUTO);
-				}
-			}, 1500);
-		}
+                @Override
+                public void run() {
+                    bind(BindingMode.AUTO);
+                }
+            }, 1500);
+        }
 
-		mPackageInstalls.clear();
-	}
+        mPackageInstalls.clear();
+    }
 
-	protected void upsize() {
+    protected void upsize() {
 		/*
 		 * Upsized places do not automatically link to nearby beacons because
 		 * the browsing action isn't enough of an indicator of proximity.
 		 */
-		new AsyncTask() {
+        new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
-				mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_upsizing);
-			}
+            @Override
+            protected void onPreExecute() {
+                mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_upsizing);
+            }
 
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncUpsizeSynthetic");
-				final ModelResult result = Aircandi.getInstance().getEntityManager().upsizeSynthetic((Place) mEntity, mWaitForContent);
-				return result;
-			}
+            @Override
+            protected Object doInBackground(Object... params) {
+                Thread.currentThread().setName("AsyncUpsizeSynthetic");
+                final ModelResult result = Aircandi.getInstance().getEntityManager().upsizeSynthetic((Place) mEntity, mWaitForContent);
+                return result;
+            }
 
-			@Override
-			protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-				mBusy.hideBusy(false);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					final Entity upsizedEntity = (Entity) result.data;
-					mEntityId = upsizedEntity.id;
-					mEntity = null;
-					mEntityMonitor = new EntityMonitor(mEntityId);
-					//mCacheStamp = null;
-					mFirstDraw = true;
-					bind(BindingMode.AUTO);
-				}
-				else {
-					Errors.handleError(PlaceForm.this, result.serviceResponse);
-				}
-			}
-		}.execute();
-	}
+            @Override
+            protected void onPostExecute(Object response) {
+                final ModelResult result = (ModelResult) response;
+                mBusy.hideBusy(false);
+                if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+                    final Entity upsizedEntity = (Entity) result.data;
+                    mEntityId = upsizedEntity.id;
+                    mEntity = null;
+                    mEntityMonitor = new EntityMonitor(mEntityId);
+                    //mCacheStamp = null;
+                    mFirstDraw = true;
+                    bind(BindingMode.AUTO);
+                }
+                else {
+                    Errors.handleError(PlaceForm.this, result.serviceResponse);
+                }
+            }
+        }.execute();
+    }
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
+    // Lifecycle
+    // --------------------------------------------------------------------------------------------
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if (!this.isFinishing()) {
-			handlePackageInstalls();
-		}
-	}
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!this.isFinishing()) {
+            handlePackageInstalls();
+        }
+    }
 
-	@Override
-	protected void onDestroy() {
+    @Override
+    protected void onDestroy() {
 		/* This activity gets destroyed everytime we leave using back or finish(). */
-		Logger.d(this, "Activity destroying: contextId: " + this.hashCode());
-		try {
-			unregisterReceiver(mPackageReceiver);
-		}
-		catch (Exception ignore) {} // $codepro.audit.disable emptyCatchClause
-		super.onDestroy();
-	}
+        Logger.d(this, "Activity destroying: contextId: " + ((Object) this).hashCode());
+        try {
+            unregisterReceiver(mPackageReceiver);
+        }
+        catch (Exception ignore) {} // $codepro.audit.disable emptyCatchClause
+        super.onDestroy();
+    }
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
+    // Menus
+    // --------------------------------------------------------------------------------------------
 
-	@Override
-	protected int getLayoutId() {
-		return R.layout.place_form;
-	}
+    @Override
+    protected int getLayoutId() {
+        return R.layout.place_form;
+    }
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------
+    // Classes
+    // --------------------------------------------------------------------------------------------
 
-	private class PackageReceiver extends BroadcastReceiver {
+    private class PackageReceiver extends BroadcastReceiver {
 
-		@Override
-		public void onReceive(final Context context, Intent intent) {
+        @Override
+        public void onReceive(final Context context, Intent intent) {
 
 			/* This is on the main UI thread */
-			if (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)) {
+            if (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)) {
 
-				final String packageName = intent.getData().getEncodedSchemeSpecificPart();
-				if (packageName != null) {
+                final String packageName = intent.getData().getEncodedSchemeSpecificPart();
+                if (packageName != null) {
 
-					String appName = AndroidManager.getAppNameByPackageName(packageName);
-					if (appName != null && AndroidManager.hasIntentSupport(appName)) {
+                    String appName = AndroidManager.getAppNameByPackageName(packageName);
+                    if (appName != null && AndroidManager.hasIntentSupport(appName)) {
 						/*
 						 * It's an application we care about.
 						 */
-						mPackageInstalls.add(packageName);
-						if (Aircandi.isActivityVisible()) {
-							handlePackageInstalls();
-						}
-					}
-				}
-			}
-		}
-	}
+                        mPackageInstalls.add(packageName);
+                        if (Aircandi.isActivityVisible()) {
+                            handlePackageInstalls();
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

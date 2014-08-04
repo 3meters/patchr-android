@@ -17,7 +17,6 @@
             android:layout_height="match_parent"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:background="?attr/backgroundCard"
             android:cacheColorHint="#00000000"
             android:divider="?attr/ruleColor"
             android:dividerHeight="@dimen/rule_divider_height"

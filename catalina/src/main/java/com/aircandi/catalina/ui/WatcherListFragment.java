@@ -8,6 +8,8 @@ import com.aircandi.Aircandi;
 import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.R;
 import com.aircandi.components.Extras;
+import com.aircandi.controllers.IEntityController;
+import com.aircandi.controllers.ViewHolder;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.EntityListFragment;
@@ -45,23 +47,25 @@ public class WatcherListFragment extends EntityListFragment {
 	}
 
 	@Override
-	public ViewHolder bindHolder(View view, ViewHolder holder) {
+	protected void bindListItem(Entity entity, View view) {
 
-		if (holder == null) {
-			holder = new ViewHolderExtended();
-		}
+        IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
 
-		((ViewHolderExtended) holder).enable = (CompoundButton) view.findViewById(R.id.switch_enable);
-		((ViewHolderExtended) holder).delete = (ComboButton) view.findViewById(R.id.button_delete);
+        ViewHolder holder = (ViewHolder) view.getTag();
+        if (holder == null) {
+            holder = new ViewHolderExtended();
 
-		return super.bindHolder(view, holder);
-	}
+            ((ViewHolderExtended) holder).enable = (CompoundButton) view.findViewById(R.id.switch_enable);
+            ((ViewHolderExtended) holder).delete = (ComboButton) view.findViewById(R.id.button_delete);
 
-	@Override
-	protected void drawListItem(Entity entity, View view, final ViewHolder holder) {
-		super.drawListItem(entity, view, holder);
+            controller.bindHolder(view, holder);
+            view.setTag(holder);
+        }
+        holder.data = entity;
 
-		if (holder.candiView != null) {
+        controller.bind(entity, view);
+
+//		if (holder.candiView != null) {
 //			ViewGroup layout = holder.candiView.getLayout();
 //			Entity parent = ((BaseActivity) getSherlockActivity()).getEntity();
 //			Boolean isOwner = entity.id.equals(parent.ownerId);
@@ -72,7 +76,7 @@ public class WatcherListFragment extends EntityListFragment {
 //			((ViewHolderExtended) holder).delete.setTag(entity);
 //			((ViewHolderExtended) holder).enable.setTag(entity);
 //			((ViewHolderExtended) holder).enable.setChecked(entity.enabled);
-		}
+//		}
 	}
 
 	// --------------------------------------------------------------------------------------------

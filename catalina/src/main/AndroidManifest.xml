@@ -185,7 +185,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.aircandi.ui.edit.PlaceEdit"
+            android:name="com.aircandi.catalina.ui.edit.PlaceEdit"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/name_app_lowercase"
             android:windowSoftInputMode="stateHidden" />

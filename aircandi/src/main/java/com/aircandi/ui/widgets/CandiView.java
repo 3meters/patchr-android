@@ -147,7 +147,7 @@ public class CandiView extends RelativeLayout {
 			/*
 			 * If it is the same entity and it hasn't changed then nothing to do
 			 */
-			if (!entity.synthetic) {
+			if (!entity.synthetic) { // Leaving this in case we ever use a candiview to display a suggested place.
 				if (mEntity != null && entity.id.equals(mEntity.id) && mCacheStamp.equals(entity.getCacheStamp())) {
 					mEntity = entity;
 					showDistance(entity);
@@ -258,7 +258,7 @@ public class CandiView extends RelativeLayout {
 						Photo photo = category.photo.clone();
 						if (!Photo.same(mCategoryPhoto.getPhoto(), photo)) {
 							photo.colorize = false;
-							mCategoryPhoto.setSizeHint(UI.getRawPixelsForDisplayPixels(getContext(), 50f));
+							mCategoryPhoto.setSizeHint(UI.getRawPixelsForDisplayPixels(50f));
 							UI.drawPhoto(mCategoryPhoto, photo);
 						}
 						mCategoryPhoto.setVisibility(View.VISIBLE);
@@ -300,7 +300,7 @@ public class CandiView extends RelativeLayout {
 		if (mHolderShortcuts != null) {
 
 			mHolderShortcuts.removeAllViews();
-			final int sizePixels = UI.getRawPixelsForDisplayPixels(getContext(), (float) options.imageSizePixels);
+			final int sizePixels = UI.getRawPixelsForDisplayPixels((float) options.imageSizePixels);
 
 			if (options.watchingEnabled) {
 				Integer watching = 0;

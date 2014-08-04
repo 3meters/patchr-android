@@ -32,12 +32,12 @@ public class MessagesQuery implements IQuery {
 		 */
 		List<String> toSchemas = new ArrayList<String>();
 		toSchemas.add(Constants.SCHEMA_ENTITY_PLACE);
-		toSchemas.add(Constants.SCHEMA_ENTITY_MESSAGE);
 		toSchemas.add(Constants.SCHEMA_ENTITY_USER);
 
 		List<String> linkTypes = new ArrayList<String>();
 		linkTypes.add(Constants.TYPE_LINK_CREATE);
 		linkTypes.add(Constants.TYPE_LINK_WATCH);
+        linkTypes.add(Constants.TYPE_LINK_SHARE);
 
 		mCursor = new Cursor()
 				.setLimit((limit == null) ? mPageSize : limit)
@@ -49,6 +49,7 @@ public class MessagesQuery implements IQuery {
 		List<String> events = new ArrayList<String>();
 		events.add(EventType.INSERT_MESSAGE_TO_PLACE);
 		events.add(EventType.INSERT_MESSAGE_TO_MESSAGE);
+        events.add(EventType.INSERT_MESSAGE_TO_USER);
 
 		Links links = Aircandi.getInstance().getEntityManager().getLinks().build(LinkProfile.NO_LINKS);
 		if (mSchema != null) {

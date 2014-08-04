@@ -53,7 +53,11 @@
     <dimen name="list_max_width">640dp</dimen>
     <dimen name="form_max_width">640dp</dimen>
     <dimen name="grid_max_width">1000dp</dimen>
-    
+
+    <dimen name="button_share_stroke_width">0.5dp</dimen>
+    <dimen name="button_share_corner_radius">0dp</dimen>
+    <dimen name="button_share_padding">10dp</dimen>
+
     <!-- Widgets -->
     
     <dimen name="button_round_height">150dp</dimen>
@@ -74,7 +78,8 @@
     
     <!--
     	This controls how much extra room is added around buttons and
-    	images so selection feedback can show around the view     -->
+    	images so selection feedback can show around the view 
+    -->
     <dimen name="button_padding">2dp</dimen>
     <dimen name="widget_spacing">8dp</dimen>
     <dimen name="hint_indent_spinner">12dp</dimen>

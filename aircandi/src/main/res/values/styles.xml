@@ -38,8 +38,12 @@
         <item name="android:textSize">22sp</item>
     </style>
 
-    <style name="textAppearanceMedium" parent="textAppearance">
+    <style name="textAppearanceMediumLarge" parent="textAppearance">
         <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="textAppearanceMedium" parent="textAppearance">
+        <item name="android:textSize">18sp</item>
     </style>
 
     <style name="textAppearanceSmall" parent="textAppearance">
@@ -67,8 +71,6 @@
 
     <style name="picture">
         <item name="android:adjustViewBounds">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:focusableInTouchMode">true</item>
     </style>
 
     <style name="picture_framed" parent="picture">
@@ -220,19 +222,6 @@
     <style name="form_edit" parent="@android:style/Widget.EditText">
         <item name="android:textAppearance">?android:attr/textAppearance</item>
         <item name="android:textColorHint">?android:attr/textColorHint</item>
-    </style>
-
-    <style name="form_picture">
-        <item name="android:adjustViewBounds">true</item>
-        <item name="android:padding">3dp</item>
-        <item name="android:focusable">true</item>
-        <item name="android:focusableInTouchMode">true</item>
-        <item name="android:scaleType">centerInside</item>
-    </style>
-
-    <style name="form_picture_placeholder">
-        <item name="android:background">#33ffffff</item>
-        <item name="android:padding">3dp</item>
     </style>
 
     <style name="form_checkbox" parent="android:Widget.CompoundButton.CheckBox">

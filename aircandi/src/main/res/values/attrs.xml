@@ -32,6 +32,7 @@
     <attr name="hint" format="string"/>
     <attr name="checkAll" format="string"/>
     <attr name="separator" format="string"/>
+    <attr name="prefix" format="string"/>
 
     <!-- Fixed aspect ratio -->
     <attr name="aspectRatio" format="float"/>
@@ -62,6 +63,7 @@
     <declare-styleable name="AircandiTheme">
         <attr name="themeTone" format="string"/>
         <attr name="busy" format="reference"/>
+        <attr name="textAppearanceMediumLarge" format="reference"/>
         <attr name="textAppearanceExtraLarge" format="reference"/>
         <attr name="textAppearanceExtraSmall" format="reference"/>
         <attr name="textAppearanceTiny" format="reference"/>
@@ -94,6 +96,7 @@
         <attr name="backgroundButtonLink" format="color|reference"/>
         <attr name="backgroundButtonRound" format="color|reference"/>
         <attr name="backgroundButtonRoundGlow" format="color|reference"/>
+        <attr name="backgroundButtonShare" format="color|reference"/>
         <attr name="backgroundCandi" format="color|reference"/>
         <attr name="backgroundCard" format="color|reference"/>
         <attr name="backgroundCardField" format="color|reference"/>
@@ -105,6 +108,7 @@
         <attr name="backgroundPlaceholder" format="color|reference"/>
         <attr name="backgroundProgress" format="color|reference"/>
         <attr name="backgroundSpinner" format="color|reference"/>
+        <attr name="backgroundToken" format="color|reference"/>
         <attr name="badgeColor" format="color|reference"/>
         <attr name="badgeColorSynthetic" format="color|reference"/>
         <attr name="imgLogo" format="reference"/>
@@ -225,6 +229,9 @@
     </declare-styleable>
     <declare-styleable name="AirRelativeLayout">
         <attr name="maxWidth"/>
+    </declare-styleable>
+    <declare-styleable name="AirTokenCompleteTextView">
+        <attr name="prefix"/>
     </declare-styleable>
     <declare-styleable name="HorizontalScrollLayout">
         <attr name="layout"/>

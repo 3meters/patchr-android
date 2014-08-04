@@ -202,8 +202,8 @@ public class AircandiForm extends BaseActivity {
 			mActionBar.setDisplayShowTitleEnabled(true);
 			mActionBar.setDisplayShowHomeEnabled(true);
 			if (mDrawerLayout != null) {
-				mActionBar.setHomeButtonEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) == DrawerLayout.LOCK_MODE_LOCKED_CLOSED) ? false : true);
-				mActionBar.setDisplayHomeAsUpEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) == DrawerLayout.LOCK_MODE_LOCKED_CLOSED) ? false : true);
+				mActionBar.setHomeButtonEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) != DrawerLayout.LOCK_MODE_LOCKED_CLOSED));
+				mActionBar.setDisplayHomeAsUpEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) != DrawerLayout.LOCK_MODE_LOCKED_CLOSED));
 			}
 		}
 		View view = findViewById(R.id.item_nearby);

@@ -4,7 +4,8 @@
     <!--
 	   	Theme Colors
 	   	- light suffix means a theme where backgrounds are generally light in tone. 
-	   	- dark suffix means a theme where backgrounds are generally dark in tone.    -->
+	   	- dark suffix means a theme where backgrounds are generally dark in tone.
+    -->
     
     <!-- Branding colors -->
 
@@ -48,13 +49,15 @@
     <color name="stroke_button_dark">@color/gray_70_pcnt</color>
     <color name="stroke_button_round_dark">@color/gray_70_pcnt</color>
     <color name="stroke_balloon_dark">@color/brand_secondary</color>
-    
+    <color name="stroke_button_share_dark">@color/transparent</color>
+
     <!-- Borders light -->
     
     <color name="stroke_placeholder_light">@color/gray_10_pcnt</color>
     <color name="stroke_button_light">@color/gray_30_pcnt</color>
     <color name="stroke_button_round_light">@color/gray_30_pcnt</color>
     <color name="stroke_balloon_light">@color/gray_25_pcnt</color>
+    <color name="stroke_button_share_light">@color/transparent</color>
 
     <!-- Borders gray -->
     
@@ -71,7 +74,9 @@
     <color name="background_button_round_dark">@color/gray_80_pcnt</color>
     <color name="background_balloon_dark">@color/brand_secondary</color>
     <color name="background_help_dark">@color/overlay_help</color>
-    
+    <color name="background_token_dark">@color/overlay_help</color>
+    <color name="background_button_share_dark">@color/gray_90_pcnt</color>
+
     <!-- Backgrounds light -->
     
     <color name="background_light">@color/white</color>
@@ -83,7 +88,8 @@
     <color name="background_button_round_light">#33ff0000</color>
     <color name="background_balloon_light">@color/gray_10_pcnt</color>
     <color name="background_help_light">@color/overlay_help</color>
-    
+    <color name="background_button_share_light">@color/gray_05_pcnt</color>
+
     <!-- Backgrounds gray -->
 
     <color name="background_balloon_gray">@color/white</color>
@@ -94,7 +100,9 @@
     <color name="background_button_pressed">@color/brand_pressed</color>
     <color name="background_picture_detail">@color/gray_85_pcnt</color>
     <color name="pressed_highlight_color">#fffeaa0c</color> <!-- legacy -->
-    
+
+    <color name="background_token_selected">#880099CC</color>
+
     <!-- Semi transparent overlays -->
 
     <color name="overlay_start">#00000000</color>
@@ -106,10 +114,11 @@
     <color name="overlay_attribution">#88000000</color>
     <color name="overlay_help">#88000000</color>
 
-    <!-- Rules -->
+    <!-- Rules using alpha -->
 
     <color name="rule_60_dark">#99ffffff</color>
     <color name="rule_60_light">#99000000</color>
+    <color name="rule_45_dark">#66ffffff</color>
     <color name="rule_45_light">#66000000</color>
     <color name="rule_30_dark">#4dffffff</color>
     <color name="rule_30_light">#4d000000</color>

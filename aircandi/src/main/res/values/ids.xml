@@ -7,6 +7,7 @@
     
     <item name="shortcut_holder" type="id"/>
     <item name="footer_holder" type="id"/>
+    <item name="share_holder" type="id"/>
     <item name="place_provider" type="id"/>
     <item name="attribution_holder" type="id"/>
     <item name="image_dismiss" type="id"/>
@@ -18,6 +19,7 @@
     <item name="web_uri" type="id"/>
    	<item name="bio" type="id"/>
     <item name="button_remove" type="id"/>
+    <item name="label_to" type="id" />
    	
     <item name="applinks" type="id"/>
     <item name="place" type="id"/>

@@ -120,7 +120,7 @@ public class PictureForm extends BaseEntityForm {
 				int screenWidthDp = (int) UI.getScreenWidthDisplayPixels(this);
 				int widgetWidthDp = 122;
 				if (screenWidthDp - widgetWidthDp <= 264) {
-					int photoViewWidth = UI.getRawPixelsForDisplayPixels(this, (float) (screenWidthDp - widgetWidthDp));
+					int photoViewWidth = UI.getRawPixelsForDisplayPixels((float) (screenWidthDp - widgetWidthDp));
 					RelativeLayout.LayoutParams paramsImage = new RelativeLayout.LayoutParams(photoViewWidth, photoViewWidth);
 					photoView.setLayoutParams(paramsImage);
 				}

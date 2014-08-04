@@ -26,5 +26,6 @@
     <!-- Edit -->
 
     <string name="com.aircandi.catalina.ui.edit.MessageEdit">MessageEdit</string>
-    
+    <string name="com.aircandi.catalina.ui.edit.PlaceEdit">PlaceEdit</string>
+
 </resources>

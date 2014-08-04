@@ -1,12 +1,8 @@
 package com.aircandi.catalina.ui;
 
-import java.io.File;
-
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,13 +19,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.aircandi.Aircandi;
 import com.aircandi.ServiceConstants;
 import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.R;
 import com.aircandi.catalina.objects.Message.MessageType;
 import com.aircandi.components.Logger;
-import com.aircandi.components.MediaManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager.ModelResult;
 import com.aircandi.components.StringManager;
@@ -309,28 +306,17 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
 
 		builder.setSubject(String.format(StringManager.getString(R.string.label_place_share_subject)
-				, (mEntity.name != null) ? mEntity.name : "A"
-				, Aircandi.getInstance().getCurrentUser().name));
+				, (mEntity.name != null) ? mEntity.name : "A"));
 
 		builder.setType("text/plain");
 		builder.setText(String.format(StringManager.getString(R.string.label_place_share_body), mEntityId));
-
-		if (mEntity.photo != null) {
-			final AirImageView photoView = (AirImageView) findViewById(R.id.entity_photo);
-			if (photoView != null && photoView.getImageView().getDrawable() != null) {
-				Bitmap bitmap = ((BitmapDrawable) photoView.getImageView().getDrawable()).getBitmap();
-				File file = MediaManager.copyBitmapToSharePath(bitmap);
-				if (file != null) {
-					builder.setStream(MediaManager.getSharePathUri());
-				}
-				else {
-					UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
-				}
-			}
-		}
-
 		builder.setChooserTitle(String.format(StringManager.getString(R.string.label_place_share_title)
 				, (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase)));
+
+        builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+        builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
+        builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PLACE);
+
 		builder.startChooser();
 	}
 
@@ -492,9 +478,9 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 								? headerHeightProjected
 								: (header != null)
 										? header.getHeight()
-										: UI.getRawPixelsForDisplayPixels(Aircandi.applicationContext, 150f);
+										: UI.getRawPixelsForDisplayPixels(150f);
 
-						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(Aircandi.applicationContext, 100f);
+						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(100f);
 						buttonSpecial.setLayoutParams(params);
 					}
 					else {
@@ -548,6 +534,15 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 	// --------------------------------------------------------------------------------------------
 	// Menus
 	// --------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem menuItem = menu.findItem(com.aircandi.R.id.share);
+        if (menuItem != null) {
+            menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.SHARE, mEntity));
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
 
 	// --------------------------------------------------------------------------------------------
 	// Misc

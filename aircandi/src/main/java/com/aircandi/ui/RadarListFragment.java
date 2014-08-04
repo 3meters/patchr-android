@@ -37,6 +37,7 @@ import com.aircandi.components.ProximityManager.ScanReason;
 import com.aircandi.components.ProximityManager.WifiScanResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
+import com.aircandi.controllers.ViewHolder;
 import com.aircandi.events.BeaconsLockedEvent;
 import com.aircandi.events.BurstTimeoutEvent;
 import com.aircandi.events.EntitiesByProximityFinishedEvent;
@@ -167,7 +168,7 @@ public class RadarListFragment extends EntityListFragment {
 						UI.showToastNotification("Wifi disabled", Toast.LENGTH_SHORT);
 					}
 					ProximityManager.getInstance().getWifiList().clear();
-					EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null);
+					EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 					LocationManager.getInstance().setLocationLocked(null);
 				}
 				else if (NetworkManager.getInstance().getWifiState() == WifiManager.WIFI_STATE_ENABLED) {
@@ -256,13 +257,8 @@ public class RadarListFragment extends EntityListFragment {
 
 	@Override
 	public void onClick(View view) {
-
 		final Place entity = (Place) ((ViewHolder) view.getTag()).data;
 		Bundle extras = null;
-		if (entity.synthetic) {
-			extras = new Bundle();
-			extras.putBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC, true);
-		}
 		Aircandi.dispatch.route(getSherlockActivity(), Route.BROWSE, entity, null, extras);
 	}
 
@@ -477,7 +473,7 @@ public class RadarListFragment extends EntityListFragment {
 
 				Aircandi.stopwatch1.start("beacon_search", "Search for places by beacon");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
-				EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null);
+				EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 				if (NetworkManager.getInstance().isWifiEnabled()) {
 					ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
 				}

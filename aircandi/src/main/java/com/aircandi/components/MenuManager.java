@@ -187,6 +187,11 @@ public class MenuManager {
 		return true;
 	}
 
+    public Boolean canUserShare(Entity entity) {
+        if (entity == null || entity.shareable == null) return false;
+        return entity.shareable;
+    }
+
 	public Boolean showAction(Integer route, Entity entity) {
 
 		if (entity == null)
@@ -197,6 +202,8 @@ public class MenuManager {
 			return Aircandi.getInstance().getMenuManager().canUserDelete(entity);
 		else if (route == Route.REMOVE)
 			return Aircandi.getInstance().getMenuManager().canUserRemoveFromPlace(entity);
+        else if (route == Route.SHARE)
+            return Aircandi.getInstance().getMenuManager().canUserShare(entity);
 		else if (route == Route.ADD) {
 			if (entity != null && (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)
 					|| entity.schema.equals(Constants.SCHEMA_ENTITY_PICTURE)))

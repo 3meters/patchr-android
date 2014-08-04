@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
+<RelativeLayout
     android:id="@+id/candi_view_group"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="@dimen/image_medium">
 
-    <View
-        android:id="@+id/highlight"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/rule_highlight_height"
-        android:layout_alignParentTop="true"
-        android:background="?attr/cardHighlightColor" />
-    
     <com.aircandi.ui.widgets.AirImageView
         android:id="@+id/entity_photo"
         style="@style/selectable_image"
@@ -61,8 +55,8 @@
         android:layout_alignParentRight="true"
         android:layout_marginLeft="3dp"
         android:layout_marginRight="10dp"
-        android:textColor="?textColorSecondary"
-        android:textAppearance="?attr/textAppearanceSmall" />
+        android:textAppearance="?attr/textAppearanceSmall"
+        android:textColor="?textColorSecondary" />
 
     <com.aircandi.ui.widgets.AirTextView
         android:id="@+id/count"
@@ -72,8 +66,8 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"
         android:paddingBottom="8dp"
-        android:textColor="@color/brand_primary"
-        android:textAppearance="?attr/textAppearanceSmall" />
+        android:textAppearance="?attr/textAppearanceSmall"
+        android:textColor="@color/brand_primary" />
 
     <LinearLayout
         android:id="@+id/shortcuts"
@@ -85,12 +79,5 @@
         android:layout_marginRight="8dp"
         android:layout_toLeftOf="@+id/count"
         android:orientation="vertical" />
-
-    <View
-        android:id="@+id/shadow"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/rule_shadow_height"
-        android:layout_alignParentBottom="true"
-        android:background="?attr/cardShadowColor" />
 
 </RelativeLayout>

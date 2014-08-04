@@ -27,6 +27,8 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 	public String									id;
 	@Expose
 	public String									name;
+    @Expose
+    public String									subtitle;
 	@Expose
 	public String									description;
 	@Expose
@@ -77,6 +79,7 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		 */
 		shortcut.id = (String) map.get("id");
 		shortcut.name = (String) map.get("name");
+        shortcut.subtitle = (String) map.get("subtitle");
 		shortcut.description = (String) map.get("description");
 		shortcut.sortDate = (Number) map.get("sortDate");
 		shortcut.schema = (String) map.get("schema");
@@ -104,15 +107,15 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		return shortcut;
 	}
 
-	public static Shortcut builder(Entity entity, String schema, String type, String action, String name, String image, Integer position, Boolean content,
+	public static Shortcut builder(Entity entity, String schema, String type, String action, String name, String subtitle, String image, Integer position, Boolean content,
 			Boolean synthetic) {
 
 		Shortcut shortcut = new Shortcut()
 				.setAppId(entity.id)
-				//.setAppId(entity.id + "." + type)
 				.setSchema(schema)
 				.setApp(type)
 				.setName(name)
+                .setSubtitle(subtitle)
 				.setPhoto(new Photo(image, null, null, null, PhotoSource.resource))
 				.setPosition(position)
 				.setSynthetic(synthetic)
@@ -197,8 +200,11 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		entity.id = id;
 		entity.name = name;
 		entity.photo = photo;
+        entity.subtitle = subtitle;
 		entity.schema = schema;
 		entity.description = description;
+        entity.creator = creator;
+
 		return entity;
 	}
 
@@ -214,6 +220,15 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		this.name = name;
 		return this;
 	}
+
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public Shortcut setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+        return this;
+    }
 
 	public String getAppId() {
 		return appId;

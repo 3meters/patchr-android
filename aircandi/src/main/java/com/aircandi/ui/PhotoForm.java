@@ -146,7 +146,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 				}
 				else {
 					List<Entity> entities = (List<Entity>) EntityManager.getEntityCache().getCacheEntitiesForEntity(mForEntityId, mListLinkSchema, null,
-							null, null, null);
+                            null, null);
 					/*
 					 * We might get here just using a link without a downloaded entity. Treat it like paging
 					 * is not enabled.
@@ -217,7 +217,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 		UI.drawPhoto(holder.photoView, photo);
 
 		/* Sharing */
-		setShareIntent(photo);
+		share(photo);
 
 		return layout;
 	}
@@ -333,7 +333,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	// Methods
 	// --------------------------------------------------------------------------------------------
 
-	private void setShareIntent(Photo photo) {
+	private void share(Photo photo) {
 
 		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this)
 				.setSubject(String.format(StringManager.getString(R.string.label_photo_share_subject)
@@ -341,6 +341,9 @@ public class PhotoForm extends BaseActivity implements IBind {
 				.setType("image/jpeg").setStream(MediaManager.getSharePathUri());
 
 		Intent intent = builder.getIntent();
+
+        builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+        builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
 
 		if (mShareActionProvider != null) {
 			mShareActionProvider.setShareIntent(intent);
@@ -394,7 +397,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 		item.setActionProvider(mShareActionProvider);
 
 		if (mPhoto != null) {
-			setShareIntent(mPhoto);
+			share(mPhoto);
 		}
 
 		return true;

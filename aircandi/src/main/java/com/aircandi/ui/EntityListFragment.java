@@ -24,7 +24,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -44,6 +43,7 @@ import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
+import com.aircandi.controllers.ViewHolder;
 import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.monitors.IMonitor;
 import com.aircandi.monitors.SimpleMonitor;
@@ -510,7 +510,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 					@Override
 					public void run() {
 						if (Constants.SUPPORTS_HONEYCOMB) {
-							Integer offsetToShowHeader = UI.getRawPixelsForDisplayPixels(Aircandi.applicationContext, 100f);
+							Integer offsetToShowHeader = UI.getRawPixelsForDisplayPixels(100f);
 							((ListView) mListView).setSelectionFromTop(position.get() + 1, offsetToShowHeader);
 						}
 					}
@@ -630,53 +630,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 	protected ListAdapter getAdapter() {
 		return new ListAdapter(mEntities);
-	}
-
-	public ViewHolder bindHolder(View view, ViewHolder holder) {
-
-		if (holder == null) {
-			holder = new ViewHolder();
-		}
-
-		holder.candiView = (CandiView) view.findViewById(R.id.candi_view);
-		holder.photoView = (AirImageView) view.findViewById(R.id.entity_photo);
-		holder.name = (TextView) view.findViewById(R.id.name);
-		holder.subtitle = (TextView) view.findViewById(R.id.subtitle);
-		holder.type = (TextView) view.findViewById(R.id.type);
-		holder.description = (TextView) view.findViewById(R.id.description);
-		holder.creator = (UserView) view.findViewById(R.id.creator);
-		holder.area = (TextView) view.findViewById(R.id.area);
-		holder.createdDate = (TextView) view.findViewById(R.id.created_date);
-		holder.comments = (TextView) view.findViewById(R.id.comments);
-		holder.checked = (CheckBox) view.findViewById(R.id.checked);
-		holder.overflow = (ComboButton) view.findViewById(R.id.button_overflow);
-
-		if (holder.checked != null) {
-			holder.checked.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View view) {
-					final CheckBox checkBox = (CheckBox) view;
-					final Entity entity = (Entity) checkBox.getTag();
-					entity.checked = checkBox.isChecked();
-				}
-			});
-		}
-
-		holder.parent = (EntityView) view.findViewById(R.id.parent);
-		holder.userPhotoView = (AirImageView) view.findViewById(R.id.user_photo);
-		holder.userName = (TextView) view.findViewById(R.id.user_name);
-		holder.placeName = (TextView) view.findViewById(R.id.place_name);
-		holder.toName = (TextView) view.findViewById(R.id.to_name);
-
-		if (mListView instanceof GridView) {
-			Integer nudge = mResources.getDimensionPixelSize(R.dimen.grid_item_height_kick);
-			final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mPhotoWidthPixels, mPhotoWidthPixels - nudge);
-			holder.photoView.getImageView().setLayoutParams(params);
-			holder.photoView.getMissingMessage().setLayoutParams(params);
-		}
-
-		return holder;
 	}
 
 	@SuppressWarnings("ucd")
@@ -874,7 +827,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 			if (mListPagingEnabled && mQuery != null && mQuery.isMore() && position == mEntities.size()) return mLoadingView;
 
 			View view = convertView;
-			final ViewHolder holder;
 
 			if (mListPagingEnabled && position >= mEntities.size() && position < (mVisibleColumns * mVisibleRows)) {
 				if (view == null || view.findViewById(R.id.item_placeholder) == null) {
@@ -898,23 +850,17 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 					entity = EntityManager.getEntityCache().get(entity.id);
 				}
 
+                /*
+                 * Holder is created and bound to view elements by the controller in bindListItem.
+                 */
 				if (view == null
 						|| view.findViewById(R.id.animator_more) != null
 						|| view.findViewById(R.id.item_placeholder) != null) {
 					view = LayoutInflater.from(getSherlockActivity()).inflate(mListItemResId, null);
-					holder = bindHolder(view, null);
-					view.setTag(holder);
-				}
-				else {
-					holder = (ViewHolder) view.getTag();
 				}
 
 				if (entity != null) {
-
-					drawListItem(entity, view, holder);
-
-					holder.data = entity;
-					holder.position = position;
+					bindListItem(entity, view);
 					view.setClickable(true);
 					view.setOnClickListener(EntityListFragment.this);
 				}
@@ -955,272 +901,34 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		}
 	}
 
-	protected void drawListItem(Entity entity, View view, final ViewHolder holder) {
-
+	protected void bindListItem(Entity entity, View view) {
 		IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
-
-		/* Candi View */
-
-		UI.setVisibility(holder.candiView, View.GONE);
-		if (holder.candiView != null) {
-			holder.candiView.databind(entity, new IndicatorOptions());
-			UI.setVisibility(holder.candiView, View.VISIBLE);
-			return;
-		}
-
-		/* Checkbox */
-
-		UI.setVisibility(holder.checked, View.GONE);
-		if (holder.checked != null && entity.checked != null) {
-			holder.checked.setChecked(entity.checked);
-			holder.checked.setTag(entity);
-			UI.setVisibility(holder.checked, View.VISIBLE);
-		}
-
-		/* Overflow button */
-
-		UI.setVisibility(holder.overflow, View.GONE);
-		if (holder.overflow != null) {
-			holder.overflow.setTag(entity);
-			UI.setVisibility(holder.overflow, View.VISIBLE);
-		}
-
-		/* Name */
-
-		UI.setVisibility(holder.name, View.GONE);
-		if (holder.name != null && entity.name != null && entity.name.length() > 0) {
-			holder.name.setText(entity.name);
-			UI.setVisibility(holder.name, View.VISIBLE);
-		}
-
-		/* Subtitle */
-
-		UI.setVisibility(holder.subtitle, View.GONE);
-		if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-			Place place = (Place) entity;
-			if (holder.subtitle != null) {
-				if (place.subtitle != null) {
-					holder.subtitle.setText(place.subtitle);
-					UI.setVisibility(holder.subtitle, View.VISIBLE);
-				}
-				else {
-					if (place.category != null && !TextUtils.isEmpty(place.category.name)) {
-						holder.subtitle.setText(Html.fromHtml(place.category.name));
-						UI.setVisibility(holder.subtitle, View.VISIBLE);
-					}
-				}
-			}
-		}
-		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_APPLINK)) {
-			String subtitle = null;
-			if (entity.type.equals(Constants.TYPE_APP_WEBSITE)) {
-				subtitle = ((Applink) entity).appUrl;
-			}
-			else if (entity.type.equals(Constants.TYPE_APP_EMAIL)) {
-				subtitle = ((Applink) entity).appId;
-			}
-			else if (entity.type.equals(Constants.TYPE_APP_OPENTABLE)
-					|| entity.type.equals(Constants.TYPE_APP_URBANSPOON)
-					|| entity.type.equals(Constants.TYPE_APP_TRIPADVISOR)) {
-				subtitle = ((Applink) entity).appUrl;
-			}
-			else if (entity.type.equals(Constants.TYPE_APP_GOOGLEPLUS)) {
-				subtitle = ((Applink) entity).appUrl;
-			}
-
-			if (subtitle != null) {
-				holder.subtitle.setText(subtitle);
-				UI.setVisibility(holder.subtitle, View.VISIBLE);
-			}
-		}
-		else {
-			if (holder.subtitle != null && entity.subtitle != null && !entity.subtitle.equals("")) {
-				holder.subtitle.setText(entity.subtitle);
-				UI.setVisibility(holder.subtitle, View.VISIBLE);
-			}
-		}
-
-		/* Type */
-
-		UI.setVisibility(holder.type, View.GONE);
-		if (holder.type != null && entity.type != null && entity.type.length() > 0) {
-
-			String type = entity.type;
-			String typeVerbose = controller.getType(entity, true);
-			if (typeVerbose != null) {
-				type = typeVerbose;
-			}
-
-			if (type.equals(Constants.TYPE_APP_GOOGLEPLUS)) {
-				type = type.replaceFirst("plus", "+");
-			}
-
-			holder.type.setText(type);
-			UI.setVisibility(holder.type, View.VISIBLE);
-		}
-
-		/* Description */
-
-		UI.setVisibility(holder.description, View.GONE);
-		if (holder.description != null && entity.description != null && entity.description.length() > 0) {
-			holder.description.setText(entity.description);
-			UI.setVisibility(holder.description, View.VISIBLE);
-		}
-
-		/* Place context */
-
-		UI.setVisibility(holder.placeName, View.GONE);
-		if (holder.placeName != null) {
-			Entity parentEntity = entity.place;
-			if (parentEntity == null) {
-				parentEntity = EntityManager.getCacheEntity(entity.placeId);
-			}
-			if (parentEntity != null) {
-				holder.placeName.setText(parentEntity.name);
-				UI.setVisibility(holder.placeName, View.VISIBLE);
-			}
-		}
-
-		/* Comments */
-
-		UI.setVisibility(holder.comments, View.GONE);
-		if (holder.comments != null) {
-			Count count = entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_COMMENT, null, Direction.in);
-			Integer commentCount = (count != null) ? count.count.intValue() : 0;
-			if (commentCount != null && commentCount > 0) {
-				holder.comments.setText(String.valueOf(commentCount) + ((commentCount == 1) ? " Comment" : " Comments"));
-				holder.comments.setTag(entity);
-				UI.setVisibility(holder.comments, View.VISIBLE);
-			}
-		}
-
-		/* Creator */
-
-		UI.setVisibility(holder.creator, View.GONE);
-		if (holder.creator != null && entity.creator != null) {
-			if (!entity.ownerId.equals(ServiceConstants.ADMIN_USER_ID)
-					&& !entity.ownerId.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
-				holder.creator.databind(entity.creator, entity.modifiedDate.longValue(), entity.locked);
-				UI.setVisibility(holder.creator, View.VISIBLE);
-			}
-		}
-
-		/* User photo */
-
-		UI.setVisibility(holder.userPhotoView, View.GONE);
-		if (holder.userPhotoView != null && entity.creator != null) {
-			/*
-			 * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
-			 */
-			Photo photo = entity.creator.getPhoto();
-			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
-				holder.userPhotoView.setTag(entity.creator);
-				UI.drawPhoto(holder.userPhotoView, photo);
-			}
-			UI.setVisibility(holder.userPhotoView, View.VISIBLE);
-		}
-
-		/* User name */
-
-		UI.setVisibility(holder.userName, View.GONE);
-		if (holder.userName != null && entity.creator != null && entity.creator.name != null && entity.creator.name.length() > 0) {
-			holder.userName.setText(entity.creator.name);
-			UI.setVisibility(holder.userName, View.VISIBLE);
-		}
-
-		/* User area */
-
-		UI.setVisibility(holder.area, View.GONE);
-		if (holder.area != null && entity.creator != null && entity.creator.area != null && entity.creator.area.length() > 0) {
-			holder.area.setText(entity.creator.area);
-			UI.setVisibility(view.findViewById(R.id.separator), View.VISIBLE);
-			UI.setVisibility(holder.area, View.VISIBLE);
-		}
-		else {
-			UI.setVisibility(view.findViewById(R.id.separator), View.GONE);
-		}
-
-		/* Created date */
-
-		UI.setVisibility(holder.createdDate, View.GONE);
-		if (holder.createdDate != null && entity.createdDate != null) {
-			String compactAgo = DateTime.dateStringAt(entity.createdDate.longValue());
-			holder.createdDate.setText(compactAgo);
-			UI.setVisibility(holder.createdDate, View.VISIBLE);
-		}
-
-		/* Parent context */
-
-		UI.setVisibility(holder.parent, View.GONE);
-		if (entity.toId != null && holder.parent != null) {
-			Entity parentEntity = EntityManager.getCacheEntity(entity.toId);
-			if (parentEntity != null) {
-				holder.parent.databind(parentEntity);
-				UI.setVisibility(holder.parent, View.VISIBLE);
-			}
-		}
-
-		/* Photo */
-
-		UI.setVisibility(holder.photoView, View.GONE);
-		if (holder.photoView != null) {
-			final Photo photo = entity.schema.equals(Constants.SCHEMA_ENTITY_COMMENT) ? entity.creator.getPhoto() : entity.getPhoto();
-
-			if (photo != null) {
-				if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {
-					UI.drawPhoto(holder.photoView, photo);
-				}
-				UI.setVisibility(holder.photoView, View.VISIBLE);
-			}
-		}
+        controller.bind(entity, view);
 
 		/* Special highlighting */
 
-		if (mHighlightEntities.size() > 0) {
-			view.setBackgroundResource(mBackgroundResId);
-			if (mHighlightEntities.containsKey(entity.id)) {
-				Highlight highlight = mHighlightEntities.get(entity.id);
-				if (!highlight.isOneShot() || !highlight.hasFired()) {
-					if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
-						view.setBackgroundResource(R.drawable.selector_image_highlight_dark);
-					}
-					else {
-						view.setBackgroundResource(R.drawable.selector_image_highlight_light);
-					}
-					highlight.setFired(true);
-				}
-			}
-		}
+        if (mHighlightEntities.size() > 0) {
+            view.setBackgroundResource(mBackgroundResId);
+            if (mHighlightEntities.containsKey(entity.id)) {
+                Highlight highlight = mHighlightEntities.get(entity.id);
+                if (!highlight.isOneShot() || !highlight.hasFired()) {
+                    if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
+                        view.setBackgroundResource(R.drawable.selector_image_highlight_dark);
+                    }
+                    else {
+                        view.setBackgroundResource(R.drawable.selector_image_highlight_light);
+                    }
+                    highlight.setFired(true);
+                }
+            }
+        }
 	}
 
-	public static class ViewHolder {
+    public void drawHighlights(Entity entity, View view) {
 
-		public CandiView	candiView;
-		public AirImageView	photoView;
-		public TextView		name;
-		public TextView		subtitle;
-		public TextView		description;
-		public TextView		type;
-		public TextView		createdDate;
-		public UserView		creator;
-		public TextView		userName;
-		public AirImageView	userPhotoView;
-		public TextView		placeName;
-		public TextView		toName;		// NO_UCD (unused code)
-		public TextView		area;
-		public EntityView	parent;
+    }
 
-		public ComboButton	overflow;
-		public CheckBox		checked;
-		public Integer		position;		// Used to optimize item view rendering // NO_UCD (unused code)
-
-		public String		photoUri;		// Used for verification after fetching image // NO_UCD (unused code)
-		public Object		data;			// object binding to
-		public TextView		comments;
-
-	}
-
-	public static class ViewType {
+    public static class ViewType {
 		public static String	LIST	= "list";
 		public static String	GRID	= "grid";
 	}
