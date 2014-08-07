@@ -33,7 +33,7 @@ import com.aircandi.utilities.UI;
 @SuppressWarnings("ucd")
 public class WatcherList extends BaseActivity {
 
-	private EntityListFragment	mListFragment;
+	private EntityListFragment mListFragment;
 
 	@Override
 	public void unpackIntent() {
@@ -57,10 +57,10 @@ public class WatcherList extends BaseActivity {
 		WatchersQuery query = new WatchersQuery();
 
 		query.setEntityId(mEntityId)
-				.setLinkDirection(Direction.in.name())
-				.setLinkType(Constants.TYPE_LINK_WATCH)
-				.setPageSize(Integers.getInteger(R.integer.page_size_messages))
-				.setSchema(Constants.SCHEMA_ENTITY_USER);
+		     .setLinkDirection(Direction.in.name())
+		     .setLinkType(Constants.TYPE_LINK_WATCH)
+		     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
+		     .setSchema(Constants.SCHEMA_ENTITY_USER);
 
 		if (!mEntity.isOwnedByCurrentUser()) {
 			if (!mEntity.ownerId.equals(ServiceConstants.ADMIN_USER_ID)) {
@@ -69,16 +69,16 @@ public class WatcherList extends BaseActivity {
 		}
 
 		mListFragment.setQuery(query)
-				.setMonitor(monitor)
-				.setListViewType(ViewType.LIST)
-				.setListLayoutResId(R.layout.watcher_list_fragment)
-				.setListLoadingResId(R.layout.temp_list_item_loading)
-				.setListItemResId(R.layout.temp_listitem_watcher)
-				.setListEmptyMessageResId(R.string.button_list_watchers_share)
-				.setListButtonMessageResId(R.string.button_list_watchers_share)
-				.setSelfBindingEnabled(true)
-				.setTitleResId(R.string.form_title_watchers)
-				.setButtonSpecialClickable(true);
+		             .setMonitor(monitor)
+		             .setListViewType(ViewType.LIST)
+		             .setListLayoutResId(R.layout.watcher_list_fragment)
+		             .setListLoadingResId(R.layout.temp_list_item_loading)
+		             .setListItemResId(R.layout.temp_listitem_watcher)
+		             .setListEmptyMessageResId(R.string.button_list_watchers_share)
+		             .setListButtonMessageResId(R.string.button_list_watchers_share)
+		             .setSelfBindingEnabled(true)
+		             .setTitleResId(R.string.form_title_watchers)
+		             .setButtonSpecialClickable(true);
 
 		getSupportFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
 
@@ -96,12 +96,12 @@ public class WatcherList extends BaseActivity {
 	public void onShareButtonClick(View view) {
 		Aircandi.dispatch.route(this, Route.SHARE, mEntity, null, null);
 	}
-	
+
 	@SuppressWarnings("ucd")
 	public void onEnabledClick(View view) {
 		Entity fromEntity = (Entity) view.getTag();
 		CompoundButton enabled = (CompoundButton) view;
-		enableLink(fromEntity, fromEntity.id, mEntity.id, enabled.isChecked() ? true : false);
+		enableLink(fromEntity, fromEntity.id, mEntity.id, enabled.isChecked());
 	}
 
 	@SuppressWarnings("ucd")
@@ -109,17 +109,17 @@ public class WatcherList extends BaseActivity {
 
 		final Entity entity = (Entity) view.getTag();
 		Integer titleResId = entity.enabled
-				? R.string.dialog_decline_approved_private_title
-				: R.string.dialog_decline_requested_private_title;
+		                     ? R.string.dialog_decline_approved_private_title
+		                     : R.string.dialog_decline_requested_private_title;
 		Integer messageResId = entity.enabled
-				? R.string.dialog_decline_approved_private_message
-				: R.string.dialog_decline_requested_private_message;
+		                       ? R.string.dialog_decline_approved_private_message
+		                       : R.string.dialog_decline_requested_private_message;
 		Integer okResId = entity.enabled
-				? R.string.dialog_decline_approved_private_ok
-				: R.string.dialog_decline_requested_private_ok;
+		                  ? R.string.dialog_decline_approved_private_ok
+		                  : R.string.dialog_decline_requested_private_ok;
 		Integer cancelResId = entity.enabled
-				? R.string.dialog_decline_approved_private_cancel
-				: R.string.dialog_decline_requested_private_cancel;
+		                      ? R.string.dialog_decline_approved_private_cancel
+		                      : R.string.dialog_decline_requested_private_cancel;
 
 		/* Confirm a decline since the user won't be able to undo */
 		final AlertDialog declineDialog = Dialogs.alertDialog(R.drawable.ic_launcher
@@ -132,20 +132,20 @@ public class WatcherList extends BaseActivity {
 				, null
 				, new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (which == DialogInterface.BUTTON_POSITIVE) {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
 							/*
 							 * Need to change this to delete the link
 							 */
-							enableLink(entity, entity.id, mEntity.id, false);
-							dialog.dismiss();
-						}
-						else if (which == DialogInterface.BUTTON_NEGATIVE) {
-							dialog.dismiss();
-						}
-					}
+					enableLink(entity, entity.id, mEntity.id, false);
+					dialog.dismiss();
 				}
+				else if (which == DialogInterface.BUTTON_NEGATIVE) {
+					dialog.dismiss();
+				}
+			}
+		}
 				, null);
 
 		declineDialog.setCanceledOnTouchOutside(false);
@@ -170,17 +170,17 @@ public class WatcherList extends BaseActivity {
 					, null
 					, new DialogInterface.OnClickListener() {
 
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (which == DialogInterface.BUTTON_POSITIVE) {
-								//watch();
-								dialog.dismiss();
-							}
-							else if (which == DialogInterface.BUTTON_NEGATIVE) {
-								dialog.dismiss();
-							}
-						}
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (which == DialogInterface.BUTTON_POSITIVE) {
+						//watch();
+						dialog.dismiss();
 					}
+					else if (which == DialogInterface.BUTTON_NEGATIVE) {
+						dialog.dismiss();
+					}
+				}
+			}
 					, null);
 
 			unwatchDialog.setCanceledOnTouchOutside(false);
@@ -206,7 +206,8 @@ public class WatcherList extends BaseActivity {
 		new AsyncTask() {
 
 			@Override
-			protected void onPreExecute() {}
+			protected void onPreExecute() {
+			}
 
 			@Override
 			protected Object doInBackground(Object... params) {

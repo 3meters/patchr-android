@@ -21,29 +21,29 @@ import com.aircandi.R;
 @SuppressWarnings("ucd")
 public class AirListView extends ListView implements OnScrollListener {
 
-	private final Context			mContext;
-	private int						mMaxYOverscrollDistance;
-	private OnDragListener			mDragListener;
-	private float					mInitialTouchX;
-	private float					mInitialTouchY;
-	private float					mLastX;
-	private float					mLastY;
-	private float					mDragX;
-	private float					mDragY;
-	private DragDirection			mDragDirectionLast		= DragDirection.NONE;
-	private GestureDetectorCompat	mDetector;
-	private Integer					mMaxWidth;
+	private final Context        mContext;
+	private       int            mMaxYOverscrollDistance;
+	private       OnDragListener mDragListener;
+	private       float          mInitialTouchX;
+	private       float          mInitialTouchY;
+	private       float          mLastX;
+	private       float          mLastY;
+	private       float          mDragX;
+	private       float          mDragY;
+	private DragDirection mDragDirectionLast = DragDirection.NONE;
+	private GestureDetectorCompat mDetector;
+	private Integer               mMaxWidth;
 
-	private static final float		DEFAULT_PARALLAX_FACTOR	= 1.9F;
-	private static final boolean	DEFAULT_IS_CIRCULAR		= false;
-	private float					mParallaxFactor			= DEFAULT_PARALLAX_FACTOR;
-	private ParallaxedViewBase		mParallaxedHeaderView;
-	private ParallaxedViewBase		mParallaxedView;
-	private boolean					mIsCircular;
-	private OnScrollListener		mListener				= null;
-	private Drawable				mActionBarBackgroundDrawable;
-	private View					mHeaderView;
-	private ActionBar				mActionBar;
+	private static final float   DEFAULT_PARALLAX_FACTOR = 1.9F;
+	private static final boolean DEFAULT_IS_CIRCULAR     = false;
+	private              float   mParallaxFactor         = DEFAULT_PARALLAX_FACTOR;
+	private ParallaxedViewBase mParallaxedHeaderView;
+	private ParallaxedViewBase mParallaxedView;
+	private boolean            mIsCircular;
+	private OnScrollListener mListener = null;
+	private Drawable  mActionBarBackgroundDrawable;
+	private View      mHeaderView;
+	private ActionBar mActionBar;
 
 	public AirListView(Context context) {
 		super(context);
@@ -189,7 +189,7 @@ public class AirListView extends ListView implements OnScrollListener {
 						mLastX = x;
 						mLastY = y;
 
-						if (mDragDirectionLast != DragDirection.NONE && mDragListener != null) {
+						if (mDragListener != null) {
 							mDragListener.onDragEvent(DragEvent.DRAG, mDragX, mDragY);
 						}
 					}
@@ -230,7 +230,7 @@ public class AirListView extends ListView implements OnScrollListener {
 		if (mHeaderView == null) return;
 
 		View topChild = getChildAt(0);
-		Integer scrollPosition = 0;
+		Integer scrollPosition;
 		if (topChild == null) {
 			scrollPosition = 0;
 		}

@@ -9,8 +9,8 @@ import com.aircandi.R;
 @SuppressWarnings("ucd")
 public class AirSwipeRefreshLayout extends android.support.v4.widget.SwipeRefreshLayout {
 
-	private final Context	mContext;
-	private Integer			mMaxWidth;
+	private final Context mContext;
+	private       Integer mMaxWidth;
 
 	public AirSwipeRefreshLayout(Context context) {
 		super(context);

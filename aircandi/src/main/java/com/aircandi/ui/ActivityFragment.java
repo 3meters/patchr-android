@@ -37,15 +37,15 @@ import com.aircandi.utilities.UI;
 
 public class ActivityFragment extends BaseFragment implements OnClickListener {
 
-	protected ListView				mListView;
-	protected View					mLoading;
-	protected Integer				mLastViewedPosition; // NO_UCD (unused code)
-	protected Integer				mTopOffset; // NO_UCD (unused code)
+	protected ListView mListView;
+	protected View     mLoading;
+	protected Integer  mLastViewedPosition; // NO_UCD (unused code)
+	protected Integer  mTopOffset; // NO_UCD (unused code)
 
-	protected List<ServiceActivity>	mActivities	= new ArrayList<ServiceActivity>();
-	private IQuery					mQuery;
-	private SimpleMonitor			mMonitor;
-	protected ListAdapter			mAdapter;
+	protected List<ServiceActivity> mActivities = new ArrayList<ServiceActivity>();
+	private   IQuery        mQuery;
+	private   SimpleMonitor mMonitor;
+	protected ListAdapter   mAdapter;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -55,7 +55,7 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 		 * and create view. Probably falls into the buck of view properties that are
 		 * auto restored by android.
 		 */
-		if (view == null) return view;
+		if (view == null) return null;
 
 		mListView = (ListView) view.findViewById(R.id.list);
 		mLoading = LayoutInflater.from(getSherlockActivity()).inflate(R.layout.temp_list_item_loading, null);
@@ -79,7 +79,8 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 	}
 
 	@Override
-	protected void preBind() {}
+	protected void preBind() {
+	}
 
 	@Override
 	public void bind(final BindingMode mode) {
@@ -444,21 +445,21 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 
 	public static class ViewHolder {
 
-		public TextView		name;
-		public AirImageView	byPhotoView;
+		public TextView     name;
+		public AirImageView byPhotoView;
 
-		public TextView		subtitle;
-		public TextView		description;
-		public TextView		type; // NO_UCD (unused code)
-		public TextView		date;
+		public TextView subtitle;
+		public TextView description;
+		public TextView type; // NO_UCD (unused code)
+		public TextView date;
 
 		@SuppressWarnings("ucd")
-		public String		photoUri;		// Used for verification after fetching image
-		public Object		data;			// object binding to
+		public String photoUri;        // Used for verification after fetching image
+		public Object data;            // object binding to
 
-		public View			shortcutOne;
-		public AirImageView	photoViewOne;
-		public TextView		nameOne;
+		public View         shortcutOne;
+		public AirImageView photoViewOne;
+		public TextView     nameOne;
 
 	}
 

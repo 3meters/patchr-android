@@ -16,28 +16,29 @@ import com.aircandi.service.SerializedName;
 @SuppressWarnings("ucd")
 public class Install extends ServiceBase implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 694133954499515095L;
-	public static final String	collectionId		= "installs";
+	private static final long   serialVersionUID = 694133954499515095L;
+	public static final  String collectionId     = "installs";
 
 	@Expose
 	@SerializedName(name = "_user")
-	public String				userId;
+	public String       userId;
 	@Expose
-	public String				registrationId;
+	public String       registrationId;
 	@Expose
-	public String				installId;
+	public String       installId;
 	@Expose
-	public Number				clientVersionCode;
+	public Number       clientVersionCode;
 	@Expose
-	public String				clientVersionName;
+	public String       clientVersionName;
 	@Expose
-	public String				clientPackageName;
+	public String       clientPackageName;
 	@Expose
-	public List<Beacon>			beacons;
+	public List<Beacon> beacons;
 	@Expose
-	public Number				beaconsDate;
+	public Number       beaconsDate;
 
-	public Install() {}
+	public Install() {
+	}
 
 	public Install(String userId, String registrationId, String installId) {
 		this.userId = userId;

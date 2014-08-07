@@ -11,7 +11,7 @@ public interface IForm {
 	public void onHelp();
 
 	public void share();
-	
+
 	public void unpackIntent();
 
 	public void initialize(Bundle savedInstanceState);

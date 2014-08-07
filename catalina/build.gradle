@@ -43,6 +43,7 @@ android {
 
 dependencies {
     compile project(':aircandi')
+    //noinspection GradleDependency
     compile 'com.android.support:support-v4:20.+'
     compile 'com.google.android.gms:play-services:+'
     compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'

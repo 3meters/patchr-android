@@ -3,6 +3,7 @@ package com.aircandi.ui;
 import java.util.Collections;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
@@ -37,6 +38,7 @@ import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
+@SuppressLint("Registered")
 public class PictureForm extends BaseEntityForm {
 
 	@Override
@@ -260,7 +262,7 @@ public class PictureForm extends BaseEntityForm {
 			if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				if (((Place) mEntity).getProvider().type.equals("aircandi")) {
 					user.setLabel(R.string.label_created_by);
-					user.databind(mEntity.creator, mEntity.createdDate.longValue(), mEntity.locked);
+					user.databind(mEntity.creator, mEntity.createdDate.longValue());
 					UI.setVisibility(user, View.VISIBLE);
 					user = user_two;
 				}
@@ -272,7 +274,7 @@ public class PictureForm extends BaseEntityForm {
 				else {
 					user.setLabel(R.string.label_created_by);
 				}
-				user.databind(mEntity.creator, mEntity.createdDate.longValue(), mEntity.locked);
+				user.databind(mEntity.creator, mEntity.createdDate.longValue());
 				UI.setVisibility(user_one, View.VISIBLE);
 				user = user_two;
 			}
@@ -285,7 +287,7 @@ public class PictureForm extends BaseEntityForm {
 				&& !mEntity.modifier.id.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
 			if (mEntity.createdDate.longValue() != mEntity.modifiedDate.longValue()) {
 				user.setLabel(R.string.label_edited_by);
-				user.databind(mEntity.modifier, mEntity.modifiedDate.longValue(), null);
+				user.databind(mEntity.modifier, mEntity.modifiedDate.longValue());
 				UI.setVisibility(user, View.VISIBLE);
 			}
 		}

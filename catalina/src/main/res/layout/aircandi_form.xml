@@ -1,63 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/drawer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/drawer_layout"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
 
-        <FrameLayout
-            android:id="@+id/fragment_holder"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="?attr/backgroundCardField" />
+		<FrameLayout
+			android:id="@+id/fragment_holder"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="?attr/backgroundCardField" />
 
-        <ProgressBar
-            android:id="@+id/progress"
-            style="@style/progress"
-            android:layout_width="@dimen/progress_width"
-            android:layout_height="@dimen/progress_height"
-            android:visibility="gone" />
+		<ProgressBar
+			android:id="@+id/progress"
+			style="@style/progress"
+			android:layout_width="@dimen/progress_width"
+			android:layout_height="@dimen/progress_height"
+			android:visibility="gone" />
 
-        <LinearLayout
-            android:id="@+id/holder_progress_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:background="?attr/backgroundForm"
-            android:orientation="vertical" >
+		<LinearLayout
+			android:id="@+id/holder_progress_bar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:background="?attr/backgroundForm"
+			android:orientation="vertical">
 
-            <com.aircandi.ui.widgets.SmoothProgressBar
-                android:id="@+id/progress_bar"
-                style="@style/progress_bar"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/progress_bar_height"
-                android:indeterminate="true"
-                android:visibility="gone"
-                custom:spb_color="@color/brand_progress_bar_color" />
-        </LinearLayout>
+			<com.aircandi.ui.widgets.SmoothProgressBar
+				android:id="@+id/progress_bar"
+				style="@style/progress_bar"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/progress_bar_height"
+				android:indeterminate="true"
+				android:visibility="gone"
+				custom:spb_color="@color/brand_progress_bar_color" />
+		</LinearLayout>
 
-        <ImageButton
-            android:id="@+id/footer_holder"
-            style="@style/button_round_glow"
-            android:layout_width="@dimen/button_round_medium"
-            android:layout_height="@dimen/button_round_medium"
-            android:clickable="true"
-            android:onClick="onAddMessageButtonClick"
-            android:src="?attr/iconSend" />
-    </RelativeLayout>
+		<ImageButton
+			android:id="@+id/footer_holder"
+			style="@style/button_round_glow"
+			android:layout_width="@dimen/button_round_medium"
+			android:layout_height="@dimen/button_round_medium"
+			android:clickable="true"
+			android:onClick="onAddMessageButtonClick"
+			android:src="?attr/iconSend" />
+	</RelativeLayout>
 
-    <FrameLayout
-        android:id="@+id/drawer"
-        android:layout_width="240dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="?attr/backgroundForm" >
+	<FrameLayout
+		android:id="@+id/drawer"
+		android:layout_width="240dp"
+		android:layout_height="match_parent"
+		android:layout_gravity="start"
+		android:background="?attr/backgroundForm">
 
-        <include layout="@layout/widget_drawer_main" />
-    </FrameLayout>
+		<include layout="@layout/widget_drawer_main" />
+	</FrameLayout>
 
 </android.support.v4.widget.DrawerLayout>

@@ -29,15 +29,15 @@ import com.squareup.otto.Subscribe;
 
 public class TuningEdit extends BaseEntityEdit {
 
-	private ComboButton	mButtonTune;
-	private ComboButton	mButtonUntune;
-	private View		mHolderEditing;
+	private ComboButton mButtonTune;
+	private ComboButton mButtonUntune;
+	private View        mHolderEditing;
 
-	private Boolean		mTuned				= false;
-	private Boolean		mUntuned			= false;
-	private Boolean		mTuningInProcess	= false;
-	private Boolean		mUntuning			= false;
-	private Boolean		mFirstTune			= true;
+	private Boolean mTuned           = false;
+	private Boolean mUntuned         = false;
+	private Boolean mTuningInProcess = false;
+	private Boolean mUntuning        = false;
+	private Boolean mFirstTune       = true;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -54,7 +54,7 @@ public class TuningEdit extends BaseEntityEdit {
 
 			/* Edit or not */
 
-			mHolderEditing.setVisibility(Aircandi.getInstance().getMenuManager().showAction(Route.EDIT, mEntity) ? View.VISIBLE : View.GONE);
+			mHolderEditing.setVisibility(Aircandi.getInstance().getMenuManager().showAction(Route.EDIT, mEntity, mForId) ? View.VISIBLE : View.GONE);
 			if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
 				mHolderEditing.setVisibility(View.GONE);
 			}

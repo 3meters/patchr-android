@@ -30,8 +30,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapForm extends BaseEntityForm {
 
-	SupportMapFragment			mMapFragment;
-	private static final int	DEFAULT_ZOOM	= 16;
+	SupportMapFragment mMapFragment;
+	private static final int DEFAULT_ZOOM = 16;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -133,7 +133,6 @@ public class MapForm extends BaseEntityForm {
 					}
 					else {
 						Errors.handleError(MapForm.this, result.serviceResponse);
-						return;
 					}
 				}
 

@@ -12,9 +12,9 @@ import com.aircandi.R;
 @SuppressWarnings("ucd")
 public class AirGridView extends GridView {
 
-	private final Context	mContext;
-	private int				mMaxYOverscrollDistance;
-	private Integer			mMaxWidth;
+	private final Context mContext;
+	private       int     mMaxYOverscrollDistance;
+	private       Integer mMaxWidth;
 
 	public AirGridView(Context context) {
 		super(context);

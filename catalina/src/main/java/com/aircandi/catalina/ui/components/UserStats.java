@@ -18,10 +18,10 @@ public class UserStats implements RenderDelegate {
 	//@SuppressWarnings("unused")
 	@Override
 	public void draw(Entity entity, View view) {
-		
+
 		User user = (User) entity;
 		final TextView stats = (TextView) view.findViewById(R.id.stats);
-		
+
 		UI.setVisibility(stats, View.GONE);
 		
 		/* Watch stats */
@@ -34,6 +34,6 @@ public class UserStats implements RenderDelegate {
 			}
 			watchingStats.setText(String.valueOf(count.count));
 		}
-		
+
 	}
 }

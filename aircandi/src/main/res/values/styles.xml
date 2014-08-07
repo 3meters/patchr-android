@@ -1,285 +1,285 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Application text styles -->
+	<!-- Application text styles -->
 
-    <!--
-    	Android defaults
-    	
-    	textAppearance: 16sp
-    	textAppearanceLarge: 22sp
-    	textAppearanceMedium: 18sp
-    	textAppearanceSmall: 14sp 
-    	textAppearanceSearchResultTitle: 18sp
-    	textAppearanceSearchResultSubtitle: 14sp
-    	textAppearanceButton: 14sp
-    	
-    	dialogWindowTitle: 18sp
-    	tabWidget: 14sp
-    	popupMenu: 18sp
-    	popupMenuLarge: 22sp
-    	popupMenuSmall: 14sp
-    	dropDownHint: 14sp
-    	windowTitle: 14sp
-    	holoActionBarTabText: 12sp
-    	holoButtonBorderlessSmall: 14sp
-    -->
+	<!--
+		Android defaults
 
-    <style name="textAppearance" parent="@android:style/TextAppearance">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">?attr/textColor</item>
-    </style>
+		textAppearance: 16sp
+		textAppearanceLarge: 22sp
+		textAppearanceMedium: 18sp
+		textAppearanceSmall: 14sp
+		textAppearanceSearchResultTitle: 18sp
+		textAppearanceSearchResultSubtitle: 14sp
+		textAppearanceButton: 14sp
 
-    <style name="textAppearanceExtraLarge" parent="textAppearance">
-        <item name="android:textSize">24sp</item>
-    </style>
+		dialogWindowTitle: 18sp
+		tabWidget: 14sp
+		popupMenu: 18sp
+		popupMenuLarge: 22sp
+		popupMenuSmall: 14sp
+		dropDownHint: 14sp
+		windowTitle: 14sp
+		holoActionBarTabText: 12sp
+		holoButtonBorderlessSmall: 14sp
+	-->
 
-    <style name="textAppearanceLarge" parent="textAppearance">
-        <item name="android:textSize">22sp</item>
-    </style>
+	<style name="textAppearance" parent="@android:style/TextAppearance">
+		<item name="android:textSize">16sp</item>
+		<item name="android:textColor">?attr/textColor</item>
+	</style>
 
-    <style name="textAppearanceMediumLarge" parent="textAppearance">
-        <item name="android:textSize">20sp</item>
-    </style>
+	<style name="textAppearanceExtraLarge" parent="textAppearance">
+		<item name="android:textSize">24sp</item>
+	</style>
 
-    <style name="textAppearanceMedium" parent="textAppearance">
-        <item name="android:textSize">18sp</item>
-    </style>
+	<style name="textAppearanceLarge" parent="textAppearance">
+		<item name="android:textSize">22sp</item>
+	</style>
 
-    <style name="textAppearanceSmall" parent="textAppearance">
-        <item name="android:textSize">14sp</item>
-    </style>
+	<style name="textAppearanceMediumLarge" parent="textAppearance">
+		<item name="android:textSize">20sp</item>
+	</style>
 
-    <style name="textAppearanceExtraSmall" parent="textAppearance">
-        <item name="android:textSize">12sp</item>
-    </style>
+	<style name="textAppearanceMedium" parent="textAppearance">
+		<item name="android:textSize">18sp</item>
+	</style>
 
-    <style name="textAppearanceTiny" parent="textAppearance">
-        <item name="android:textSize">11sp</item>
-    </style>
+	<style name="textAppearanceSmall" parent="textAppearance">
+		<item name="android:textSize">14sp</item>
+	</style>
 
-    <!-- App wide styles -->
+	<style name="textAppearanceExtraSmall" parent="textAppearance">
+		<item name="android:textSize">12sp</item>
+	</style>
 
-    <style name="list_view" parent="@android:style/Widget.ListView">
-        <item name="android:background">?attr/backgroundForm</item>
-    </style>
+	<style name="textAppearanceTiny" parent="textAppearance">
+		<item name="android:textSize">11sp</item>
+	</style>
 
-    <style name="text_view" parent="android:Widget.TextView">
-        <item name="android:textAppearance">?android:attr/textAppearance</item>
-        <item name="android:paddingLeft">2dp</item>
-    </style>
+	<!-- App wide styles -->
 
-    <style name="picture">
-        <item name="android:adjustViewBounds">true</item>
-    </style>
+	<style name="list_view" parent="@android:style/Widget.ListView">
+		<item name="android:background">?attr/backgroundForm</item>
+	</style>
 
-    <style name="picture_framed" parent="picture">
-        <item name="android:background">?attr/backgroundPictureFramed</item>
-        <item name="android:padding">3dp</item>
-        <item name="android:cropToPadding">true</item>
-    </style>
+	<style name="text_view" parent="android:Widget.TextView">
+		<item name="android:textAppearance">?android:attr/textAppearance</item>
+		<item name="android:paddingLeft">2dp</item>
+	</style>
 
-    <style name="picture_framed_thick" parent="picture">
-        <item name="android:background">?attr/backgroundPictureFramed</item>
-        <item name="android:layout_margin">15dp</item>
-        <item name="android:cropToPadding">true</item>
-    </style>
+	<style name="picture">
+		<item name="android:adjustViewBounds">true</item>
+	</style>
 
-    <style name="progress">
-        <item name="android:layout_centerInParent">true</item>
-        <item name="android:padding">8dp</item>
-        <item name="android:background">?attr/backgroundProgress</item>
-    </style>
+	<style name="picture_framed" parent="picture">
+		<item name="android:background">?attr/backgroundPictureFramed</item>
+		<item name="android:padding">3dp</item>
+		<item name="android:cropToPadding">true</item>
+	</style>
 
-    <style name="progress_bar">
-        <item name="android:background">?attr/backgroundProgress</item>
-    </style>
+	<style name="picture_framed_thick" parent="picture">
+		<item name="android:background">?attr/backgroundPictureFramed</item>
+		<item name="android:layout_margin">15dp</item>
+		<item name="android:cropToPadding">true</item>
+	</style>
 
-    <style name="missing">
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:padding">20dp</item>
-        <item name="android:background">?attr/backgroundPlaceholder</item>
-        <item name="android:textColor">?attr/textColorSecondary</item>
-    </style>
+	<style name="progress">
+		<item name="android:layout_centerInParent">true</item>
+		<item name="android:padding">8dp</item>
+		<item name="android:background">?attr/backgroundProgress</item>
+	</style>
 
-    <style name="bullet">
-        <item name="android:textColor">?attr/textColorBullet</item>
-    </style>
+	<style name="progress_bar">
+		<item name="android:background">?attr/backgroundProgress</item>
+	</style>
 
-    <style name="notification_text">
-        <item name="android:textAppearance">?attr/textAppearanceExtraSmall</item>
-    </style>
+	<style name="missing">
+		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+		<item name="android:padding">20dp</item>
+		<item name="android:background">?attr/backgroundPlaceholder</item>
+		<item name="android:textColor">?attr/textColorSecondary</item>
+	</style>
 
-    <style name="notification_title">
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:textStyle">bold</item>
-    </style>
+	<style name="bullet">
+		<item name="android:textColor">?attr/textColorBullet</item>
+	</style>
 
-    <style name="dialog_content_layout">
-        <item name="android:paddingBottom">@dimen/dialog_body_padding</item>
-        <item name="android:paddingLeft">@dimen/dialog_body_padding</item>
-        <item name="android:paddingRight">@dimen/dialog_body_padding</item>
-        <item name="android:paddingTop">@dimen/dialog_body_padding_top</item>
-    </style>
+	<style name="notification_text">
+		<item name="android:textAppearance">?attr/textAppearanceExtraSmall</item>
+	</style>
 
-    <style name="selectable_item">
-        <item name="android:background">@android:drawable/list_selector_background</item>
-    </style>
+	<style name="notification_title">
+		<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+		<item name="android:textStyle">bold</item>
+	</style>
 
-    <style name="selectable_image">
-        <item name="android:foreground">@android:drawable/list_selector_background</item>
-    </style>
+	<style name="dialog_content_layout">
+		<item name="android:paddingBottom">@dimen/dialog_body_padding</item>
+		<item name="android:paddingLeft">@dimen/dialog_body_padding</item>
+		<item name="android:paddingRight">@dimen/dialog_body_padding</item>
+		<item name="android:paddingTop">@dimen/dialog_body_padding_top</item>
+	</style>
 
-    <!-- Edit forms -->
+	<style name="selectable_item">
+		<item name="android:background">@android:drawable/list_selector_background</item>
+	</style>
 
-    <style name="form_content_layout">
-        <item name="android:paddingBottom">@dimen/form_body_padding</item>
-        <item name="android:paddingLeft">@dimen/form_body_padding</item>
-        <item name="android:paddingRight">@dimen/form_body_padding</item>
-        <item name="android:paddingTop">@dimen/form_body_padding_top</item>
-    </style>
+	<style name="selectable_image">
+		<item name="android:foreground">@android:drawable/list_selector_background</item>
+	</style>
 
-    <style name="form_title" parent="android:Widget.TextView">
-        <item name="android:ellipsize">end</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
-        <item name="android:textColor">?attr/textColor</item>
-    </style>
+	<!-- Edit forms -->
 
-    <style name="form_label">
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:paddingLeft">2dp</item>
-    </style>
+	<style name="form_content_layout">
+		<item name="android:paddingBottom">@dimen/form_body_padding</item>
+		<item name="android:paddingLeft">@dimen/form_body_padding</item>
+		<item name="android:paddingRight">@dimen/form_body_padding</item>
+		<item name="android:paddingTop">@dimen/form_body_padding_top</item>
+	</style>
 
-    <style name="label_fancy">
-        <item name="android:textAppearance">?attr/textAppearanceTiny</item>
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:textColor">@color/brand_primary</item>
-        <item name="android:textStyle">bold</item>
-    </style>
+	<style name="form_title" parent="android:Widget.TextView">
+		<item name="android:ellipsize">end</item>
+		<item name="android:singleLine">true</item>
+		<item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+		<item name="android:textColor">?attr/textColor</item>
+	</style>
 
-    <style name="form_text">
-        <item name="android:paddingLeft">2dp</item>
-    </style>
+	<style name="form_label">
+		<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+		<item name="android:paddingLeft">2dp</item>
+	</style>
 
-    <style name="form_text_small">
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:paddingLeft">2dp</item>
-    </style>
+	<style name="label_fancy">
+		<item name="android:textAppearance">?attr/textAppearanceTiny</item>
+		<item name="android:paddingLeft">12dp</item>
+		<item name="android:textColor">@color/brand_primary</item>
+		<item name="android:textStyle">bold</item>
+	</style>
 
-    <style name="button" parent="selectable_item">
-        <item name="android:minHeight">@dimen/button_height</item>
-        <item name="layout">@layout/widget_combo_button</item>
-    </style>
+	<style name="form_text">
+		<item name="android:paddingLeft">2dp</item>
+	</style>
 
-    <style name="button_link" parent="selectable_item">
-        <item name="android:minHeight">@dimen/button_height</item>
-        <item name="layout">@layout/widget_combo_button_link</item>
-    </style>
+	<style name="form_text_small">
+		<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+		<item name="android:paddingLeft">2dp</item>
+	</style>
 
-    <style name="button_round" parent="button">
-        <item name="android:padding">10dp</item>
-        <item name="android:minWidth">200dp</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textColor">?attr/textColorButtonLink</item>
-        <item name="android:gravity">center</item>
-        <item name="android:background">?attr/backgroundButtonRound</item>
-    </style>
+	<style name="button" parent="selectable_item">
+		<item name="android:minHeight">@dimen/button_height</item>
+		<item name="layout">@layout/widget_combo_button</item>
+	</style>
 
-    <style name="button_round_glow" parent="button">
-        <item name="android:padding">10dp</item>
-        <item name="android:layout_margin">15dp</item>
-        <item name="android:layout_alignParentBottom">true</item>
-        <item name="android:layout_alignParentRight">true</item>
-        <item name="android:gravity">center</item>
-        <item name="android:tint">@color/brand_primary</item>
-        <item name="android:background">?attr/backgroundButtonRoundGlow</item>
-    </style>
+	<style name="button_link" parent="selectable_item">
+		<item name="android:minHeight">@dimen/button_height</item>
+		<item name="layout">@layout/widget_combo_button_link</item>
+	</style>
 
-    <style name="balloon">
-        <item name="android:gravity">center</item>
-        <item name="android:padding">20dp</item>
-        <item name="android:minWidth">200dp</item>
-        <item name="android:textStyle">italic</item>
-        <item name="android:background">?attr/backgroundBalloon</item>
-    </style>
+	<style name="button_round" parent="button">
+		<item name="android:padding">10dp</item>
+		<item name="android:minWidth">200dp</item>
+		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+		<item name="android:textColor">?attr/textColorButtonLink</item>
+		<item name="android:gravity">center</item>
+		<item name="android:background">?attr/backgroundButtonRound</item>
+	</style>
 
-    <style name="balloon.ongray">
-        <item name="android:textColor">?attr/textColor</item>
-        <item name="android:background">?attr/backgroundBalloonOnGray</item>
-    </style>
+	<style name="button_round_glow" parent="button">
+		<item name="android:padding">10dp</item>
+		<item name="android:layout_margin">15dp</item>
+		<item name="android:layout_alignParentBottom">true</item>
+		<item name="android:layout_alignParentRight">true</item>
+		<item name="android:gravity">center</item>
+		<item name="android:tint">@color/brand_primary</item>
+		<item name="android:background">?attr/backgroundButtonRoundGlow</item>
+	</style>
 
-    <style name="Widget.Sherlock.ActionButton" parent="Widget">
-        <item name="android:background">?attr/actionBarItemBackground</item>
-        <item name="android:minHeight">?attr/actionBarSize</item>
-        <item name="android:minWidth">@dimen/abs__action_button_min_width</item>
-        <item name="android:gravity">center</item>
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:paddingRight">12dp</item>
-        <item name="android:scaleType">center</item>
-    </style>
+	<style name="balloon">
+		<item name="android:gravity">center</item>
+		<item name="android:padding">20dp</item>
+		<item name="android:minWidth">200dp</item>
+		<item name="android:textStyle">italic</item>
+		<item name="android:background">?attr/backgroundBalloon</item>
+	</style>
 
-    <style name="form_edit" parent="@android:style/Widget.EditText">
-        <item name="android:textAppearance">?android:attr/textAppearance</item>
-        <item name="android:textColorHint">?android:attr/textColorHint</item>
-    </style>
+	<style name="balloon.ongray">
+		<item name="android:textColor">?attr/textColor</item>
+		<item name="android:background">?attr/backgroundBalloonOnGray</item>
+	</style>
 
-    <style name="form_checkbox" parent="android:Widget.CompoundButton.CheckBox">
-        <item name="android:textAppearance">?android:attr/textAppearance</item>
-    </style>
+	<style name="Widget.Sherlock.ActionButton" parent="Widget">
+		<item name="android:background">?attr/actionBarItemBackground</item>
+		<item name="android:minHeight">?attr/actionBarSize</item>
+		<item name="android:minWidth">@dimen/abs__action_button_min_width</item>
+		<item name="android:gravity">center</item>
+		<item name="android:paddingLeft">12dp</item>
+		<item name="android:paddingRight">12dp</item>
+		<item name="android:scaleType">center</item>
+	</style>
 
-    <style name="Widget.Sherlock"/>
+	<style name="form_edit" parent="@android:style/Widget.EditText">
+		<item name="android:textAppearance">?android:attr/textAppearance</item>
+		<item name="android:textColorHint">?android:attr/textColorHint</item>
+	</style>
 
-    <style name="Widget.Sherlock.DropDownItem"/>
+	<style name="form_checkbox" parent="android:Widget.CompoundButton.CheckBox">
+		<item name="android:textAppearance">?android:attr/textAppearance</item>
+	</style>
 
-    <style name="form_spinner_item" parent="Widget.Sherlock.DropDownItem.Spinner">
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
-    </style>
+	<style name="Widget.Sherlock" />
 
-    <style name="Widget.Sherlock.TextView"/>
+	<style name="Widget.Sherlock.DropDownItem" />
 
-    <style name="form_spinner" parent="Widget.Sherlock.TextView.SpinnerItem">
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:paddingLeft">4dp</item>
-        <item name="android:paddingRight">4dp</item>
-        <item name="android:background">#00000000</item>
-    </style>
+	<style name="form_spinner_item" parent="Widget.Sherlock.DropDownItem.Spinner">
+		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:paddingTop">8dp</item>
+		<item name="android:paddingBottom">8dp</item>
+		<item name="android:paddingLeft">8dp</item>
+		<item name="android:paddingRight">8dp</item>
+	</style>
 
-    <style name="form_text_placeholder">
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-    </style>
+	<style name="Widget.Sherlock.TextView" />
 
-    <!-- Candi forms -->
+	<style name="form_spinner" parent="Widget.Sherlock.TextView.SpinnerItem">
+		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:paddingLeft">4dp</item>
+		<item name="android:paddingRight">4dp</item>
+		<item name="android:background">#00000000</item>
+	</style>
 
-    <style name="candi_user" parent="android:Widget.TextView">
-        <item name="android:textAppearance">?attr/textAppearanceExtraSmall</item>
-    </style>
+	<style name="form_text_placeholder">
+		<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+	</style>
 
-    <style name="candi_form_section">
-        <item name="android:background">@android:color/transparent</item>
-    </style>
+	<!-- Candi forms -->
 
-    <!-- Actionbar -->
+	<style name="candi_user" parent="android:Widget.TextView">
+		<item name="android:textAppearance">?attr/textAppearanceExtraSmall</item>
+	</style>
 
-    <style name="actionbar_beacons">
-        <item name="android:ellipsize">end</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:gravity">center_vertical|left</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:textColor">?attr/textColor</item>
-    </style>
+	<style name="candi_form_section">
+		<item name="android:background">@android:color/transparent</item>
+	</style>
 
-    <style name="actionbar_debug">
-        <item name="android:singleLine">true</item>
-        <item name="android:gravity">center_vertical|left</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-        <item name="android:textColor">?attr/textColor</item>
-    </style>
+	<!-- Actionbar -->
+
+	<style name="actionbar_beacons">
+		<item name="android:ellipsize">end</item>
+		<item name="android:singleLine">true</item>
+		<item name="android:gravity">center_vertical|left</item>
+		<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+		<item name="android:textColor">?attr/textColor</item>
+	</style>
+
+	<style name="actionbar_debug">
+		<item name="android:singleLine">true</item>
+		<item name="android:gravity">center_vertical|left</item>
+		<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+		<item name="android:textColor">?attr/textColor</item>
+	</style>
 
 </resources>

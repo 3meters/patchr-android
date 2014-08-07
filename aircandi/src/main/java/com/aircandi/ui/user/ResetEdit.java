@@ -32,12 +32,12 @@ import com.aircandi.utilities.Utilities;
 
 public class ResetEdit extends BaseEdit {
 
-	private EditText	mEmail;
-	private EditText	mPassword;
-	private EditText	mPasswordConfirm;
-	private Boolean		mEmailConfirmed	= false;
-	private TextView	mMessage;
-	private User		mUser;
+	private EditText mEmail;
+	private EditText mPassword;
+	private EditText mPasswordConfirm;
+	private Boolean mEmailConfirmed = false;
+	private TextView mMessage;
+	private User     mUser;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -60,7 +60,7 @@ public class ResetEdit extends BaseEdit {
 				return false;
 			}
 		});
-		
+
 		final String email = Aircandi.settings.getString(StringManager.getString(R.string.setting_last_email), null);
 		if (email != null) {
 			mEmail.setText(email);

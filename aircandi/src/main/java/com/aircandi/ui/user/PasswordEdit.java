@@ -21,12 +21,12 @@ import com.aircandi.utilities.UI;
 @SuppressWarnings("ucd")
 public class PasswordEdit extends BaseEdit {
 
-	private EditText	mPasswordOld;
-	private EditText	mPassword;
-	private EditText	mPasswordConfirm;
+	private EditText mPasswordOld;
+	private EditText mPassword;
+	private EditText mPasswordConfirm;
 
 	/* Inputs */
-	protected String	mEntityId;
+	protected String mEntityId;
 
 	@Override
 	public void unpackIntent() {
@@ -92,9 +92,9 @@ public class PasswordEdit extends BaseEdit {
 							+ Aircandi.getInstance().getCurrentUser().name
 							+ " (" + Aircandi.getInstance().getCurrentUser().id
 							+ ")");
-					
+
 					UI.showToastNotification(StringManager.getString(R.string.alert_password_changed), Toast.LENGTH_SHORT);
-					
+
 					finish();
 				}
 				else {

@@ -1,134 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.SplashForm" >
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".ui.SplashForm">
 
-    <ImageView
-        android:id="@+id/image_background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        android:src="@drawable/img_splash_base_2" />
+	<ImageView
+		android:id="@+id/image_background"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:scaleType="fitXY"
+		android:src="@drawable/img_splash_base_2" />
 
-    <ProgressBar
-        android:id="@+id/progress"
-        style="@style/progress"
-        android:layout_width="@dimen/progress_width"
-        android:layout_height="@dimen/progress_height"
-        android:visibility="gone" />
+	<ProgressBar
+		android:id="@+id/progress"
+		style="@style/progress"
+		android:layout_width="@dimen/progress_width"
+		android:layout_height="@dimen/progress_height"
+		android:visibility="gone" />
 
-    <com.aircandi.ui.widgets.SmoothProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/progress_bar_height"
-        android:layout_above="@+id/dialog"
-        android:layout_alignLeft="@+id/dialog"
-        android:layout_alignRight="@+id/dialog"
-        android:indeterminate="true"
-        android:visibility="gone"
-        custom:spb_color="@color/brand_progress_bar_splash_color" />
+	<com.aircandi.ui.widgets.SmoothProgressBar
+		android:id="@+id/progress_bar"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/progress_bar_height"
+		android:layout_above="@+id/dialog"
+		android:layout_alignLeft="@+id/dialog"
+		android:layout_alignRight="@+id/dialog"
+		android:indeterminate="true"
+		android:visibility="gone"
+		custom:spb_color="@color/brand_progress_bar_splash_color" />
 
-    <LinearLayout
-        android:id="@+id/dialog"
-        android:layout_width="280dp"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:background="#aa111111"
-        android:orientation="vertical"
-        android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="25dp"
-        android:visibility="visible"
-        tools:ignore="UselessParent" >
+	<LinearLayout
+		android:id="@+id/dialog"
+		android:layout_width="280dp"
+		android:layout_height="wrap_content"
+		android:layout_centerInParent="true"
+		android:background="#aa111111"
+		android:orientation="vertical"
+		android:paddingBottom="10dp"
+		android:paddingLeft="10dp"
+		android:paddingRight="10dp"
+		android:paddingTop="25dp"
+		android:visibility="visible"
+		tools:ignore="UselessParent">
 
-        <LinearLayout
-            android:id="@+id/title_holder"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="20dp"
-            android:gravity="center_horizontal"
-            android:orientation="horizontal"
-            tools:ignore="UseCompoundDrawables" >
+		<LinearLayout
+			android:id="@+id/title_holder"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:layout_marginBottom="20dp"
+			android:gravity="center_horizontal"
+			android:orientation="horizontal"
+			tools:ignore="UseCompoundDrawables">
 
-            <ImageView
-            	android:id="@+id/logo"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="4dp"
-                android:src="?attr/imgLogo" />
+			<ImageView
+				android:id="@+id/logo"
+				android:layout_width="50dp"
+				android:layout_height="50dp"
+				android:layout_marginTop="4dp"
+				android:src="?attr/imgLogo" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
+			<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
 
-                <com.aircandi.ui.widgets.AirTextLight
-                    android:id="@+id/name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:textAppearance="?attr/textAppearanceExtraLarge"
-                    custom:textId="@string/name_app" />
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@+id/name"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:gravity="center_vertical"
+					android:textAppearance="?attr/textAppearanceExtraLarge"
+					custom:textId="@string/name_app" />
 
-                <com.aircandi.ui.widgets.AirTextLight
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="3.83"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?attr/textColorSecondary"
-                    custom:textId="@string/splash_message" />
-            </LinearLayout>
-        </LinearLayout>
+				<com.aircandi.ui.widgets.AirTextLight
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight="3.83"
+					android:textAppearance="?android:attr/textAppearanceMedium"
+					android:textColor="?attr/textColorSecondary"
+					custom:textId="@string/splash_message" />
+			</LinearLayout>
+		</LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/button_holder"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:visibility="gone" >
+		<LinearLayout
+			android:id="@+id/button_holder"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:visibility="gone">
 
-            <com.aircandi.ui.widgets.ComboButton
-                android:id="@+id/button_signin"
-                style="@style/button_link"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/button_height"
-                android:layout_marginRight="2dp"
-                android:layout_weight="1"
-                android:onClick="onSigninButtonClick"
-                custom:label="@string/splash_button_signin" />
+			<com.aircandi.ui.widgets.ComboButton
+				android:id="@+id/button_signin"
+				style="@style/button_link"
+				android:layout_width="wrap_content"
+				android:layout_height="@dimen/button_height"
+				android:layout_marginRight="2dp"
+				android:layout_weight="1"
+				android:onClick="onSigninButtonClick"
+				custom:label="@string/splash_button_signin" />
 
-            <com.aircandi.ui.widgets.ComboButton
-                android:id="@+id/button_start"
-                style="@style/button_link"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/button_height"
-                android:layout_marginLeft="2dp"
-                android:layout_weight="1"
-                android:onClick="onStartButtonClick"
-                custom:label="@string/splash_button_start" />
-        </LinearLayout>
+			<com.aircandi.ui.widgets.ComboButton
+				android:id="@+id/button_start"
+				style="@style/button_link"
+				android:layout_width="wrap_content"
+				android:layout_height="@dimen/button_height"
+				android:layout_marginLeft="2dp"
+				android:layout_weight="1"
+				android:onClick="onStartButtonClick"
+				custom:label="@string/splash_button_start" />
+		</LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/button_retry_holder"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:visibility="gone" >
+		<LinearLayout
+			android:id="@+id/button_retry_holder"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:visibility="gone">
 
-            <com.aircandi.ui.widgets.ComboButton
-                android:id="@+id/button_retry"
-                style="@style/button_link"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/button_height"
-                android:layout_marginRight="3dp"
-                android:onClick="onRetryButtonClick"
-                custom:label="@string/splash_button_retry" />
-        </LinearLayout>
-    </LinearLayout>
+			<com.aircandi.ui.widgets.ComboButton
+				android:id="@+id/button_retry"
+				style="@style/button_link"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/button_height"
+				android:layout_marginRight="3dp"
+				android:onClick="onRetryButtonClick"
+				custom:label="@string/splash_button_retry" />
+		</LinearLayout>
+	</LinearLayout>
 
 </RelativeLayout>

@@ -10,7 +10,7 @@ import com.aircandi.R;
 @SuppressWarnings("ucd")
 public class AirLinearLayout extends LinearLayout {
 
-	private Integer	mMaxWidth;
+	private Integer mMaxWidth;
 
 	public AirLinearLayout(Context context) {
 		super(context);

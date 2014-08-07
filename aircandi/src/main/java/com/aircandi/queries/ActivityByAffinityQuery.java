@@ -13,17 +13,17 @@ import com.aircandi.utilities.Maps;
 
 public class ActivityByAffinityQuery implements IQuery {
 
-	protected Boolean	mMore	= false;
-	protected Integer	mPageSize = 30;
-	protected String	mEntityId;
+	protected Boolean mMore     = false;
+	protected Integer mPageSize = 30;
+	protected String mEntityId;
 
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {
-		/*
+	    /*
 		 * - Should be called on a background thread.
 		 * - Sorting is applied to links not the entities on the service side.
 		 */
-		
+
 		List<String> schemas = new ArrayList<String>();
 		schemas.add(Constants.SCHEMA_ENTITY_PLACE);
 		schemas.add(Constants.SCHEMA_ENTITY_PICTURE);
@@ -47,7 +47,7 @@ public class ActivityByAffinityQuery implements IQuery {
 		events.add(EventType.INSERT_COMMENT_TO_PICTURE);
 
 		ModelResult result = Aircandi.getInstance().getEntityManager().loadActivities(mEntityId, cursor, events);
-		
+
 		if (result.data != null) {
 			mMore = ((ServiceData) result.serviceResponse.data).more;
 		}
@@ -72,5 +72,10 @@ public class ActivityByAffinityQuery implements IQuery {
 	@Override
 	public Integer getPageSize() {
 		return mPageSize;
+	}
+
+	@Override
+	public String getEntityId() {
+		return mEntityId;
 	}
 }

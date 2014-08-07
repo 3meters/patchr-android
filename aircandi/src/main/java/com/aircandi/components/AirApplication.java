@@ -2,13 +2,14 @@ package com.aircandi.components;
 
 public class AirApplication {
 
-	public Integer	iconResId;
-	public String	title;
+	public Integer iconResId;
+	public String  title;
 	@SuppressWarnings("ucd")
-	public String	description;
-	public String	schema;
+	public String  description;
+	public String  schema;
 
-	public AirApplication() {}
+	public AirApplication() {
+	}
 
 	public AirApplication(Integer iconResId, String title, String description, String schema) {
 		this.iconResId = iconResId;

@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
@@ -58,74 +59,74 @@ import com.google.tagmanager.TagManager.RefreshMode;
 
 public abstract class Aircandi extends Application {
 
-	public static BasicAWSCredentials				awsCredentials				= null;
+	public static BasicAWSCredentials awsCredentials = null;
 
-	private static Aircandi							singletonObject;
+	private static Aircandi singletonObject;
 
-	public static SharedPreferences					settings;
-	public static SharedPreferences.Editor			settingsEditor;
+	public static SharedPreferences        settings;
+	public static SharedPreferences.Editor settingsEditor;
 
-	public static Context							applicationContext;
+	public static Context applicationContext;
 
-	public static Handler							mainThreadHandler;
-	public static PackageManager					packageManager;
-	public static TrackerDelegate					tracker;
-	public static GoogleAnalytics					analytics;
-	public static DispatchManager					dispatch;
-	public static Map<String, IEntityController>	controllerMap				= new HashMap<String, IEntityController>();
+	public static Handler         mainThreadHandler;
+	public static PackageManager  packageManager;
+	public static TrackerDelegate tracker;
+	public static GoogleAnalytics analytics;
+	public static DispatchManager dispatch;
+	public static Map<String, IEntityController> controllerMap = new HashMap<String, IEntityController>();
 
-	public static DisplayMetrics					displayMetrics;
-	public static Integer							memoryClass;
+	public static DisplayMetrics displayMetrics;
+	public static Integer        memoryClass;
 
-	public static Stopwatch							stopwatch1;
-	public static Stopwatch							stopwatch2;
+	public static Stopwatch stopwatch1;
+	public static Stopwatch stopwatch2;
 
-	public static Boolean							firstStartApp				= true;
-	public static Boolean							DEBUG						= false;
-	public static Intent							firstStartIntent			= null;
-	private static Boolean							activityVisible				= false;
-	public static Boolean							usingEmulator				= false;
-	public static Integer							wifiCount					= 0;
+	public static  Boolean firstStartApp    = true;
+	public static  Boolean DEBUG            = false;
+	public static  Intent  firstStartIntent = null;
+	private static Boolean activityVisible  = false;
+	public static  Boolean usingEmulator    = false;
+	public static  Integer wifiCount        = 0;
 
-	public static String							themeTone;
+	public static String themeTone;
 
-	public static Boolean							applicationUpdateRequired	= false;
+	public static Boolean applicationUpdateRequired = false;
 
-	private static String							uniqueId					= null;
-	private static Long								uniqueDate					= null;
-	private static String							uniqueType					= null;
-	public static Integer							resultCode					= Activity.RESULT_OK;
+	private static String  uniqueId   = null;
+	private static Long    uniqueDate = null;
+	private static String  uniqueType = null;
+	public static  Integer resultCode = Activity.RESULT_OK;
 
 	/* Container values */
-	public static String							AWS_ACCESS_KEY				= "aws-access-key";
-	public static String							AWS_SECRET_KEY				= "aws-secret-key";
-	public static String							BING_ACCESS_KEY				= "bing-access-key";
-	public static String							USER_SECRET					= "user-secret";
+	public static String AWS_ACCESS_KEY  = "aws-access-key";
+	public static String AWS_SECRET_KEY  = "aws-secret-key";
+	public static String BING_ACCESS_KEY = "bing-access-key";
+	public static String USER_SECRET     = "user-secret";
 
 	/* Current objects */
-	private Entity									mCurrentPlace;
-	private Activity								mCurrentActivity;
-	private User									mCurrentUser;
+	private Entity   mCurrentPlace;
+	private Activity mCurrentActivity;
+	private User     mCurrentUser;
 
 	/* Common preferences */
-	private String									mPrefTheme;
-	private String									mPrefSearchRadius;
+	private String mPrefTheme;
+	private String mPrefSearchRadius;
 
 	/* Dev preferences */
-	private Boolean									mPrefEnableDev;
-	private Boolean									mPrefEntityFencing;
-	private String									mPrefTestingBeacons;
+	private Boolean mPrefEnableDev;
+	private Boolean mPrefEntityFencing;
+	private String  mPrefTestingBeacons;
 
 	/* Shared managers */
-	protected MenuManager							mMenuManager;
-	protected EntityManager							mEntityManager;
-	protected ActivityDecorator						mActivityDecorator;
-	protected ShortcutManager						mShortcutManager;
-	protected MediaManager							mMediaManager;
-	private AnimationManager						mAnimationManager;
+	protected MenuManager       mMenuManager;
+	protected EntityManager     mEntityManager;
+	protected ActivityDecorator mActivityDecorator;
+	protected ShortcutManager   mShortcutManager;
+	protected MediaManager      mMediaManager;
+	private   AnimationManager  mAnimationManager;
 
 	/* Injected configuration */
-	protected Container								mContainer;
+	protected Container mContainer;
 
 	public static Aircandi getInstance() {
 		return singletonObject;
@@ -143,6 +144,7 @@ public abstract class Aircandi extends Application {
 	// Methods
 	// --------------------------------------------------------------------------------------------	
 
+	@SuppressLint("CommitPrefEdits")
 	protected void initializeInstance() {
 
 		stopwatch1 = new Stopwatch(); // $codepro.audit.disable stringLiterals
@@ -385,8 +387,8 @@ public abstract class Aircandi extends Application {
 
 	public static class ThemeTone {
 
-		public static String	DARK	= "dark";
-		public static String	LIGHT	= "light";
+		public static String DARK  = "dark";
+		public static String LIGHT = "light";
 	}
 
 	// --------------------------------------------------------------------------------------------

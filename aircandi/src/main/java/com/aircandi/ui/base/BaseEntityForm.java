@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,22 +53,24 @@ import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.ComboButton;
 import com.aircandi.ui.widgets.FlowLayout;
 import com.aircandi.ui.widgets.SectionLayout;
+import com.aircandi.utilities.Booleans;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
+import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 
 public abstract class BaseEntityForm extends BaseActivity {
 
-	public ScrollView	mScrollView;
-	protected Integer	mLinkProfile;
+	public    ScrollView mScrollView;
+	protected Integer    mLinkProfile;
 
 	/* Inputs */
 	@SuppressWarnings("ucd")
-	public String		mParentId;
-	protected String	mListLinkType;
+	public    String mParentId;
+	protected String mListLinkType;
 
 	@Override
 	public void unpackIntent() {
@@ -92,8 +95,8 @@ public abstract class BaseEntityForm extends BaseActivity {
 	}
 
 	public void beforeDatabind(final BindingMode mode) {
-		/*
-		 * If cache entity is fresher than the one currently bound to or there is
+	    /*
+         * If cache entity is fresher than the one currently bound to or there is
 		 * a cache entity available, go ahead and draw before we check against the service.
 		 */
 		mEntity = EntityManager.getCacheEntity(mEntityId);
@@ -216,7 +219,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 
 		if (mEntity != null) {
-			watch();
+			watch(false);
 		}
 	}
 
@@ -229,7 +232,14 @@ public abstract class BaseEntityForm extends BaseActivity {
 	@SuppressWarnings("ucd")
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Aircandi.dispatch.route(this, Route.BROWSE, entity, null, null);
+		Bundle extras = new Bundle();
+		if (Type.isTrue(entity.autowatchable)) {
+			if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
+					, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
+				extras.putBoolean(Constants.EXTRA_AUTO_WATCH, true);
+			}
+		}
+		Aircandi.dispatch.route(this, Route.BROWSE, entity, null, extras);
 	}
 
 	@Override
@@ -296,7 +306,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		Logger.d(this, "Activity saving state");
 
 		if (mScrollView != null) {
-			outState.putIntArray("ARTICLE_SCROLL_POSITION", new int[] { mScrollView.getScrollX(), mScrollView.getScrollY() });
+			outState.putIntArray("ARTICLE_SCROLL_POSITION", new int[]{mScrollView.getScrollX(), mScrollView.getScrollY()});
 		}
 	}
 
@@ -324,7 +334,8 @@ public abstract class BaseEntityForm extends BaseActivity {
 	// UI
 	// --------------------------------------------------------------------------------------------
 
-	protected void drawStats() {}
+	protected void drawStats() {
+	}
 
 	protected void drawButtons() {
 
@@ -388,7 +399,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 					, Constants.TYPE_APP_INTENT
 					, null
 					, StringManager.getString(moreResId)
-                    , null
+					, null
 					, "img_more"
 					, 10
 					, false
@@ -557,7 +568,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	// Methods
 	// --------------------------------------------------------------------------------------------
 
-	public void watch() {
+	public void watch(final boolean autoWatch) {
 
 		new AsyncTask() {
 
@@ -569,7 +580,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncWatchEntity");
-				ModelResult result = new ModelResult();
+				ModelResult result;
 				Aircandi.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 				Boolean enabled = mEntity.visibleToCurrentUser();
 				if (!mEntity.byAppUser(Constants.TYPE_LINK_WATCH)) {
@@ -583,7 +594,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 							, enabled
 							, fromShortcut
 							, toShortcut
-							, "watch_entity_" + mEntity.schema + "_" + (enabled ? "approved" : "requested"));
+							, "watch_entity_" + mEntity.schema);
 				}
 				else {
 					result = Aircandi.getInstance().getEntityManager().deleteLink(Aircandi.getInstance().getCurrentUser().id
@@ -605,6 +616,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 						drawButtons();
 						drawStats();
+						if (autoWatch) {
+							UI.showToastNotification(StringManager.getString(R.string.alert_auto_watch), Toast.LENGTH_SHORT, Gravity.CENTER);
+						}
 					}
 					else {
 						if (result.serviceResponse.statusCodeService != null
@@ -663,7 +677,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
 
-			bind(BindingMode.AUTO);	// check to see if the cache stamp is stale
+			bind(BindingMode.AUTO);    // check to see if the cache stamp is stale
 		}
 	}
 

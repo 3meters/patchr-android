@@ -1,56 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content" >
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content">
 
-    <com.aircandi.ui.widgets.AirImageView
-        android:id="@+id/widget_photo"
-        style="@style/selectable_image"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_alignParentLeft="true"
-        android:layout_marginRight="10dp"
-        android:scaleType="centerCrop"
-        custom:layout="@layout/widget_webimageview"
-        custom:sizeHint="@dimen/drawer_item_height"
-        custom:sizeType="thumbnail" />
+	<com.aircandi.ui.widgets.AirImageView
+		android:id="@+id/widget_photo"
+		style="@style/selectable_image"
+		android:layout_width="60dp"
+		android:layout_height="60dp"
+		android:layout_alignParentLeft="true"
+		android:layout_marginRight="10dp"
+		android:scaleType="centerCrop"
+		custom:layout="@layout/widget_webimageview"
+		custom:sizeHint="@dimen/drawer_item_height"
+		custom:sizeType="thumbnail" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/widget_photo"
-        android:layout_toLeftOf="@+id/button_overflow"
-        android:orientation="vertical" >
+	<LinearLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerVertical="true"
+		android:layout_toRightOf="@+id/widget_photo"
+		android:layout_toLeftOf="@+id/button_overflow"
+		android:orientation="vertical">
 
-        <com.aircandi.ui.widgets.AirTextView
-            android:id="@+id/widget_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            custom:textId="@string/label_drawer_item_nearby" />
+		<com.aircandi.ui.widgets.AirTextView
+			android:id="@+id/widget_name"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ellipsize="end"
+			android:singleLine="true"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			custom:textId="@string/label_drawer_item_nearby" />
 
-        <com.aircandi.ui.widgets.AirTextLight
-            android:id="@+id/widget_email"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            custom:textId="@string/label_drawer_item_nearby" />
-    </LinearLayout>
+		<com.aircandi.ui.widgets.AirTextLight
+			android:id="@+id/widget_email"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ellipsize="end"
+			android:singleLine="true"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			custom:textId="@string/label_drawer_item_nearby" />
+	</LinearLayout>
 
-    <com.aircandi.ui.widgets.ComboButton
-        android:id="@+id/button_overflow"
-        style="@style/button"
-        android:layout_width="@dimen/button_height"
-        android:layout_height="@dimen/button_height"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:onClick="onOverflowButtonClick"
-        custom:drawable="?attr/iconOverflow" />
+	<com.aircandi.ui.widgets.ComboButton
+		android:id="@+id/button_overflow"
+		style="@style/button"
+		android:layout_width="@dimen/button_height"
+		android:layout_height="@dimen/button_height"
+		android:layout_alignParentRight="true"
+		android:layout_centerVertical="true"
+		android:onClick="onOverflowButtonClick"
+		custom:drawable="?attr/iconOverflow" />
 
 </RelativeLayout>

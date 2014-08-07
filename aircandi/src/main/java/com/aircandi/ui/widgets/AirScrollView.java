@@ -11,9 +11,9 @@ import com.aircandi.R;
 
 public class AirScrollView extends ScrollView {
 
-	private final Context	mContext;
-	private int				mMaxYOverscrollDistance;
-	private Integer			mMaxWidth;
+	private final Context mContext;
+	private       int     mMaxYOverscrollDistance;
+	private       Integer mMaxWidth;
 
 	public AirScrollView(Context context) {
 		super(context);

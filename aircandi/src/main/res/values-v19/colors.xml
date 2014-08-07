@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Holo gray light: v19 -->
-    <color name="pressed_highlight_color">#33999999</color>
+	<!-- Holo gray light: v19 -->
+	<color name="pressed_highlight_color">#33999999</color>
 
 </resources>

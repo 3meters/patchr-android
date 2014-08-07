@@ -36,7 +36,7 @@ public class AirTextView extends TextView {
 			}
 		}
 	}
-	
+
 	protected void setTypeface() {
 		FontManager.getInstance().setTypefaceDefault(this);
 	}

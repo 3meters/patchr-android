@@ -20,8 +20,8 @@ import com.aircandi.utilities.Json;
 
 public abstract class BasePicker extends Activity {
 
-	protected String	mPrefTheme;
-	protected Entity	mEntity;
+	protected String mPrefTheme;
+	protected Entity mEntity;
 
 	public void unpackIntent() {
 
@@ -41,7 +41,7 @@ public abstract class BasePicker extends Activity {
 
 		setTheme(true, false);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-		
+
 		super.setContentView(getLayoutId());
 		super.onCreate(savedInstanceState);
 
@@ -52,7 +52,8 @@ public abstract class BasePicker extends Activity {
 		}
 	}
 
-	public void initialize(Bundle savedInstanceState) {}
+	public void initialize(Bundle savedInstanceState) {
+	}
 
 	// --------------------------------------------------------------------------------------------
 	// Events
@@ -62,7 +63,7 @@ public abstract class BasePicker extends Activity {
 	public void onCancelButtonClick(View view) {
 		onCancel(true);
 	}
-	
+
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
@@ -82,7 +83,8 @@ public abstract class BasePicker extends Activity {
 	// Methods
 	// --------------------------------------------------------------------------------------------
 
-	public void bind(BindingMode mode) {}
+	public void bind(BindingMode mode) {
+	}
 
 	public void setTheme(Boolean isDialog, Boolean isTransparent) {
 		mPrefTheme = Aircandi.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));

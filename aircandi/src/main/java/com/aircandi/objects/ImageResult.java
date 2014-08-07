@@ -3,25 +3,23 @@ package com.aircandi.objects;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * The Class IMAGE_RESULT.
  * Used for bing image searches.
  */
-public class ImageResult
-{
-	private String		title;
-	private String		mediaUrl;
-	private String		url;
-	private String		displayUrl;
-	private Long		width;
-	private Long		height;
-	private Long		fileSize;
-	private String		contentType;
-	private Thumbnail	thumbnail;
+public class ImageResult {
+	private String    title;
+	private String    mediaUrl;
+	private String    url;
+	private String    displayUrl;
+	private Long      width;
+	private Long      height;
+	private Long      fileSize;
+	private String    contentType;
+	private Thumbnail thumbnail;
 
 	/* client only */
-	private Photo		photo;
+	private Photo photo;
 
 	public static ImageResult setPropertiesFromMap(ImageResult imageResult, Map map, Boolean nameMapping) {
 		/*
@@ -44,7 +42,7 @@ public class ImageResult
 
 	/**
 	 * Gets the title.
-	 * 
+	 *
 	 * @return the title
 	 */
 	public String getTitle() {
@@ -53,9 +51,8 @@ public class ImageResult
 
 	/**
 	 * Sets the title.
-	 * 
-	 * @param value
-	 *            the new title
+	 *
+	 * @param value the new title
 	 */
 	public void setTitle(String value) {
 		title = value;
@@ -63,7 +60,7 @@ public class ImageResult
 
 	/**
 	 * Gets the media url.
-	 * 
+	 *
 	 * @return the media url
 	 */
 	public String getMediaUrl() {
@@ -72,9 +69,8 @@ public class ImageResult
 
 	/**
 	 * Sets the media url.
-	 * 
-	 * @param value
-	 *            the new media url
+	 *
+	 * @param value the new media url
 	 */
 	public void setMediaUrl(String value) {
 		mediaUrl = value;
@@ -82,7 +78,7 @@ public class ImageResult
 
 	/**
 	 * Gets the url.
-	 * 
+	 *
 	 * @return the url
 	 */
 	public String getUrl() {
@@ -91,9 +87,8 @@ public class ImageResult
 
 	/**
 	 * Sets the url.
-	 * 
-	 * @param value
-	 *            the new url
+	 *
+	 * @param value the new url
 	 */
 	public void setUrl(String value) {
 		url = value;
@@ -101,7 +96,7 @@ public class ImageResult
 
 	/**
 	 * Gets the display url.
-	 * 
+	 *
 	 * @return the display url
 	 */
 	public String getDisplayUrl() {
@@ -110,9 +105,8 @@ public class ImageResult
 
 	/**
 	 * Sets the display url.
-	 * 
-	 * @param value
-	 *            the new display url
+	 *
+	 * @param value the new display url
 	 */
 	public void setDisplayUrl(String value) {
 		displayUrl = value;
@@ -120,7 +114,7 @@ public class ImageResult
 
 	/**
 	 * Gets the width.
-	 * 
+	 *
 	 * @return the width
 	 */
 	public Long getWidth() {
@@ -129,9 +123,8 @@ public class ImageResult
 
 	/**
 	 * Sets the width.
-	 * 
-	 * @param value
-	 *            the new width
+	 *
+	 * @param value the new width
 	 */
 	public void setWidth(Long value) {
 		width = value;
@@ -139,7 +132,7 @@ public class ImageResult
 
 	/**
 	 * Gets the height.
-	 * 
+	 *
 	 * @return the height
 	 */
 	public Long getHeight() {
@@ -148,9 +141,8 @@ public class ImageResult
 
 	/**
 	 * Sets the height.
-	 * 
-	 * @param value
-	 *            the new height
+	 *
+	 * @param value the new height
 	 */
 	public void setHeight(Long value) {
 		height = value;
@@ -158,7 +150,7 @@ public class ImageResult
 
 	/**
 	 * Gets the file size.
-	 * 
+	 *
 	 * @return the file size
 	 */
 	public Long getFileSize() {
@@ -167,9 +159,8 @@ public class ImageResult
 
 	/**
 	 * Sets the file size.
-	 * 
-	 * @param value
-	 *            the new file size
+	 *
+	 * @param value the new file size
 	 */
 	public void setFileSize(Long value) {
 		fileSize = value;
@@ -177,7 +168,7 @@ public class ImageResult
 
 	/**
 	 * Gets the content type.
-	 * 
+	 *
 	 * @return the content type
 	 */
 	public String getContentType() {
@@ -186,9 +177,8 @@ public class ImageResult
 
 	/**
 	 * Sets the content type.
-	 * 
-	 * @param value
-	 *            the new content type
+	 *
+	 * @param value the new content type
 	 */
 	public void setContentType(String value) {
 		contentType = value;
@@ -196,7 +186,7 @@ public class ImageResult
 
 	/**
 	 * Gets the thumbnail.
-	 * 
+	 *
 	 * @return the thumbnail
 	 */
 	public Thumbnail getThumbnail() {
@@ -205,9 +195,8 @@ public class ImageResult
 
 	/**
 	 * Sets the thumbnail.
-	 * 
-	 * @param value
-	 *            the new thumbnail
+	 *
+	 * @param value the new thumbnail
 	 */
 	public void setThumbnail(Thumbnail value) {
 		thumbnail = value;
@@ -225,15 +214,14 @@ public class ImageResult
 		this.photo = photo;
 	}
 
-	public static class Thumbnail
-	{
+	public static class Thumbnail {
 
-		private String	mediaUrl;
-		private String	contentType;
-		private Long	width;
-		private Long	height;
-		private Long	fileSize;
-		private Long	runTime;
+		private String mediaUrl;
+		private String contentType;
+		private Long   width;
+		private Long   height;
+		private Long   fileSize;
+		private Long   runTime;
 
 		private static Thumbnail setPropertiesFromMap(Thumbnail thumbnail, Map map) {
 			/*
@@ -253,7 +241,7 @@ public class ImageResult
 
 		/**
 		 * Gets the url.
-		 * 
+		 *
 		 * @return the url
 		 */
 		public String getUrl() {
@@ -262,9 +250,8 @@ public class ImageResult
 
 		/**
 		 * Sets the url.
-		 * 
-		 * @param value
-		 *            the new url
+		 *
+		 * @param value the new url
 		 */
 		public void setUrl(String value) {
 			mediaUrl = value;
@@ -272,7 +259,7 @@ public class ImageResult
 
 		/**
 		 * Gets the content type.
-		 * 
+		 *
 		 * @return the content type
 		 */
 		public String getContentType() {
@@ -281,9 +268,8 @@ public class ImageResult
 
 		/**
 		 * Sets the content type.
-		 * 
-		 * @param value
-		 *            the new content type
+		 *
+		 * @param value the new content type
 		 */
 		public void setContentType(String value) {
 			contentType = value;
@@ -291,7 +277,7 @@ public class ImageResult
 
 		/**
 		 * Gets the width.
-		 * 
+		 *
 		 * @return the width
 		 */
 		public Long getWidth() {
@@ -300,9 +286,8 @@ public class ImageResult
 
 		/**
 		 * Sets the WIDTH.
-		 * 
-		 * @param value
-		 *            the new WIDTH
+		 *
+		 * @param value the new WIDTH
 		 */
 		public void setWidth(Long value) {
 			width = value;
@@ -310,7 +295,7 @@ public class ImageResult
 
 		/**
 		 * Gets the height.
-		 * 
+		 *
 		 * @return the height
 		 */
 		public Long getHeight() {
@@ -319,9 +304,8 @@ public class ImageResult
 
 		/**
 		 * Sets the height.
-		 * 
-		 * @param value
-		 *            the new height
+		 *
+		 * @param value the new height
 		 */
 		public void setHeight(Long value) {
 			height = value;
@@ -329,7 +313,7 @@ public class ImageResult
 
 		/**
 		 * Gets the file size.
-		 * 
+		 *
 		 * @return the file size
 		 */
 		public Long getFileSize() {
@@ -338,9 +322,8 @@ public class ImageResult
 
 		/**
 		 * Sets the file size.
-		 * 
-		 * @param value
-		 *            the new file size
+		 *
+		 * @param value the new file size
 		 */
 		public void setFileSize(Long value) {
 			fileSize = value;
@@ -348,7 +331,7 @@ public class ImageResult
 
 		/**
 		 * Gets the run time.
-		 * 
+		 *
 		 * @return the run time
 		 */
 		public Long getRunTime() {
@@ -357,9 +340,8 @@ public class ImageResult
 
 		/**
 		 * Sets the run time.
-		 * 
-		 * @param value
-		 *            the new run time
+		 *
+		 * @param value the new run time
 		 */
 		public void setRunTime(Long value) {
 			runTime = value;

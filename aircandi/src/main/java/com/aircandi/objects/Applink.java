@@ -16,25 +16,25 @@ import com.aircandi.utilities.Json;
 @SuppressWarnings("ucd")
 public class Applink extends Entity implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 4362288672245819448L;
-	public static final String	collectionId		= "applinks";
+	private static final long   serialVersionUID = 4362288672245819448L;
+	public static final  String collectionId     = "applinks";
 
 	// --------------------------------------------------------------------------------------------
 	// service fields
 	// --------------------------------------------------------------------------------------------
 
 	@Expose
-	public String				appId;
+	public String appId;
 	@Expose
-	public String				appUrl;
+	public String appUrl;
 	@Expose
-	public String				origin;
+	public String origin;
 	@Expose
-	public String				originId;
+	public String originId;
 	@Expose
-	public Number				validatedDate;
+	public Number validatedDate;
 	@Expose
-	public Number				popularity;
+	public Number popularity;
 
 	// --------------------------------------------------------------------------------------------
 	// Set and get
@@ -50,8 +50,8 @@ public class Applink extends Entity implements Cloneable, Serializable {
 
 		Shortcut shortcut = super.getShortcut();
 		shortcut.setApp((type != null) ? type : null)
-				.setAppId((appId != null) ? appId : null)
-				.setAppUrl((appUrl != null) ? appUrl : null);
+		        .setAppId((appId != null) ? appId : null)
+		        .setAppUrl((appUrl != null) ? appUrl : null);
 
 		return shortcut;
 	}

@@ -20,13 +20,12 @@ import com.aircandi.components.Stopwatch;
 /**
  * Implements a basic connection object for ObaRequests.
  * These are created by the ObaConnectionFactory class.
- * 
+ * <p/>
  * Under normal circumstances this is always implemented by
  * the ObaDefaultConnection class. In the unit tests, it is
  * replaced by the ObaMockConnection class.
- * 
+ *
  * @author paulw
- * 
  */
 public interface IConnection {
 

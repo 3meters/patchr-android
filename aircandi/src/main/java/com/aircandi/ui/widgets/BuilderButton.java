@@ -16,10 +16,10 @@ import com.aircandi.R;
 @SuppressWarnings("ucd")
 public class BuilderButton extends RelativeLayout {
 
-	private TextView		mTextView;
-	private LinearLayout	mViewGroup;
-	private String			mHint;
-	private Integer			mLayoutId;
+	private TextView     mTextView;
+	private LinearLayout mViewGroup;
+	private String       mHint;
+	private Integer      mLayoutId;
 
 	public BuilderButton(Context context) {
 		this(context, null);

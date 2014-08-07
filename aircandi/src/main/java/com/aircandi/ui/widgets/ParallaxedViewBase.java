@@ -10,8 +10,8 @@ import com.aircandi.Constants;
 
 public abstract class ParallaxedViewBase {
 
-	protected WeakReference<View>	mView;
-	protected int					mLastOffset; // NO_UCD (unused code)
+	protected WeakReference<View> mView;
+	protected int                 mLastOffset; // NO_UCD (unused code)
 
 	abstract protected void translatePreICS(View view, float offset);
 

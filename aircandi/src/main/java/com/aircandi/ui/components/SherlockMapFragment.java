@@ -15,7 +15,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 
 public class SherlockMapFragment extends SupportMapFragment
 		implements OnCreateOptionsMenuListener, OnPrepareOptionsMenuListener, OnOptionsItemSelectedListener {
-	private SherlockFragmentActivity	mActivity;
+	private SherlockFragmentActivity mActivity;
 
 	public SherlockFragmentActivity getSherlockActivity() {
 		return mActivity;
@@ -67,4 +67,4 @@ public class SherlockMapFragment extends SupportMapFragment
 		//Nothing to see here.
 		return false;
 	}
-	}
+}

@@ -15,7 +15,7 @@ import com.aircandi.ui.EntityListFragment;
 
 public class TrendListFragment extends EntityListFragment {
 
-	private Integer	mCountLabelResId;
+	private Integer mCountLabelResId;
 
 	// --------------------------------------------------------------------------------------------
 	// Events
@@ -28,22 +28,22 @@ public class TrendListFragment extends EntityListFragment {
 	@Override
 	protected void bindListItem(Entity entity, View view) {
 
-        IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
+		IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
 
-        ViewHolder holder = (ViewHolder) view.getTag();
-        if (holder == null) {
-            holder = new ViewHolderExtended();
+		ViewHolder holder = (ViewHolder) view.getTag();
+		if (holder == null) {
+			holder = new ViewHolderExtended();
 
-            ((ViewHolderExtended) holder).countValue = (TextView) view.findViewById(R.id.count_value);
-            ((ViewHolderExtended) holder).countLabel = (TextView) view.findViewById(R.id.count_label);
-            ((ViewHolderExtended) holder).rank = (TextView) view.findViewById(R.id.rank);
+			((ViewHolderExtended) holder).countValue = (TextView) view.findViewById(R.id.count_value);
+			((ViewHolderExtended) holder).countLabel = (TextView) view.findViewById(R.id.count_label);
+			((ViewHolderExtended) holder).rank = (TextView) view.findViewById(R.id.rank);
 
-            controller.bindHolder(view, holder);
-            view.setTag(holder);
-        }
-        holder.data = entity;
+			controller.bindHolder(view, holder);
+			view.setTag(holder);
+		}
+		holder.data = entity;
 
-        controller.bind(entity, view);
+		controller.bind(entity, view);
 
 		/*
 		 * Trending data
@@ -85,8 +85,8 @@ public class TrendListFragment extends EntityListFragment {
 	// --------------------------------------------------------------------------------------------
 
 	public class ViewHolderExtended extends ViewHolder {
-		public TextView	countValue;
-		public TextView	countLabel;
-		public TextView	rank;
+		public TextView countValue;
+		public TextView countLabel;
+		public TextView rank;
 	}
 }

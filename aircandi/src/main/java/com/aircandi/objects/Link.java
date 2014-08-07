@@ -17,31 +17,32 @@ import com.aircandi.service.SerializedName;
 @SuppressWarnings("ucd")
 public class Link extends ServiceBase {
 
-	private static final long	serialVersionUID	= 8839291281700760437L;
-	public static final String	collectionId		= "links";
+	private static final long   serialVersionUID = 8839291281700760437L;
+	public static final  String collectionId     = "links";
 
 	@Expose
 	@SerializedName(name = "_from")
-	public String				fromId;
+	public String    fromId;
 	@Expose
 	@SerializedName(name = "_to")
-	public String				toId;
+	public String    toId;
 	@Expose
-	public Proximity			proximity;
+	public Proximity proximity;
 
 	@Expose(serialize = false, deserialize = true)
-	public String				fromSchema;
+	public String fromSchema;
 	@Expose(serialize = false, deserialize = true)
-	public String				toSchema;
+	public String toSchema;
 	@Expose(serialize = false, deserialize = true)
-	public String				targetSchema;								// Used when stored in linksIn or linksOut
+	public String targetSchema;                                // Used when stored in linksIn or linksOut
 
 	@Expose(serialize = false, deserialize = true)
-	public Shortcut				shortcut;
+	public Shortcut    shortcut;
 	@Expose(serialize = false, deserialize = true)
-	public List<Count>			stats;
+	public List<Count> stats;
 
-	public Link() {}
+	public Link() {
+	}
 
 	public Link(String toId, String type, String targetSchema) {
 		this.toId = toId;
@@ -87,7 +88,7 @@ public class Link extends ServiceBase {
 	}
 
 	public Count incrementStat(String type, String schema) {
-		Count count = null;
+		Count count;
 		if (this.stats == null) {
 			this.stats = new ArrayList<Count>();
 		}

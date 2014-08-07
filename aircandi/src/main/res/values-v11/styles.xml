@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="selectable_item">
-        <item name="android:background">?android:attr/selectableItemBackground</item>
-    </style>
+	<style name="selectable_item">
+		<item name="android:background">?android:attr/selectableItemBackground</item>
+	</style>
 
-    <style name="selectable_image">
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
-    </style>
-    
+	<style name="selectable_image">
+		<item name="android:foreground">?android:attr/selectableItemBackground</item>
+	</style>
+
 </resources>

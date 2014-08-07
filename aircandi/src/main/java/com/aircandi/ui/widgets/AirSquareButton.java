@@ -17,14 +17,15 @@ public class AirSquareButton extends AirButton {
 
 	public AirSquareButton(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		
+
 		if (!isInEditMode()) {
 			FontManager.getInstance().setTypefaceLight(this);
-		}		
+		}
 	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		//noinspection SuspiciousNameCombination
 		super.onMeasure(widthMeasureSpec, widthMeasureSpec);
 	}
 }

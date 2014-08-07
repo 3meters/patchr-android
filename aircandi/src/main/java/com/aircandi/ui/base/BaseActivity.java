@@ -67,44 +67,45 @@ import com.nineoldandroids.view.ViewHelper;
 
 public abstract class BaseActivity extends SherlockFragmentActivity implements OnRefreshListener, IForm, IBind {
 
-	protected ActionBar		mActionBar;
-	protected String		mActivityTitle;
-	protected Entity		mEntity;
-	protected String		mEntityId;
-	protected SimpleMonitor	mEntityMonitor;
+	protected ActionBar     mActionBar;
+	protected String        mActivityTitle;
+	protected Entity        mEntity;
+	protected String        mEntityId;
+	public    String        mForId;
+	protected SimpleMonitor mEntityMonitor;
 
 	/* Inputs */
-	protected Extras		mParams						= new Extras();
+	protected Extras mParams = new Extras();
 
 	/* Resources */
-	protected Integer		mDeleteProgressResId		= R.string.progress_deleting;
-	protected Integer		mDeletedResId				= R.string.alert_deleted;
-	protected Integer		mRemoveProgressResId		= R.string.progress_removing;
-	protected Integer		mRemovedResId				= R.string.alert_removed;
-	protected Integer		mLayoutResId;
+	protected Integer mDeleteProgressResId = R.string.progress_deleting;
+	protected Integer mDeletedResId        = R.string.alert_deleted;
+	protected Integer mRemoveProgressResId = R.string.progress_removing;
+	protected Integer mRemovedResId        = R.string.alert_removed;
+	protected Integer mLayoutResId;
 
-	protected Boolean		mPrefChangeNewSearchNeeded	= false;
-	protected Boolean		mPrefChangeRefreshUiNeeded	= false;
-	protected Boolean		mPrefChangeReloadNeeded		= false;
+	protected Boolean mPrefChangeNewSearchNeeded = false;
+	protected Boolean mPrefChangeRefreshUiNeeded = false;
+	protected Boolean mPrefChangeReloadNeeded    = false;
 
-	public Resources		mResources;
-	public BusyManager		mBusy;
-	public Boolean			mFirstDraw					= true;
-	protected Boolean		mInvalidated				= false;
-	protected Boolean		mClickEnabled				= false;						// NO_UCD (unused code)
-	protected Boolean		mLoaded						= false;
-	protected Button		mButtonSpecial;
+	public Resources   mResources;
+	public BusyManager mBusy;
+	public    Boolean mFirstDraw    = true;
+	protected Boolean mInvalidated  = false;
+	protected Boolean mClickEnabled = false;                        // NO_UCD (unused code)
+	protected Boolean mLoaded       = false;
+	protected Button mButtonSpecial;
 
 	/* Theme */
-	protected String		mPrefTheme;
+	protected String mPrefTheme;
 
 	/* Menus */
-	protected Menu			mMenu;
+	protected Menu mMenu;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		/*
-		 * We do all this here so the work is finished before subclasses start
+	    /*
+         * We do all this here so the work is finished before subclasses start
 		 * their create/initialize processing.
 		 */
 		Logger.d(this, "Activity created");
@@ -116,7 +117,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		}
 		else {
 			mResources = getResources();
-			/*
+            /*
 			 * Theme must be set before contentView is processed.
 			 */
 			setTheme(isDialog(), isTransparent());
@@ -159,7 +160,8 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	}
 
 	@Override
-	public void initialize(Bundle savedInstanceState) {}
+	public void initialize(Bundle savedInstanceState) {
+	}
 
 	@Override
 	public void unpackIntent() {
@@ -214,9 +216,11 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	}
 
 	@Override
-	public void onRefresh() {}
+	public void onRefresh() {
+	}
 
-	public void onAccept() {}
+	public void onAccept() {
+	}
 
 	@Override
 	public void onAdd(Bundle extras) {
@@ -252,10 +256,12 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	}
 
 	@Override
-	public void onHelp() {}
+	public void onHelp() {
+	}
 
 	@Override
-	public void onError() {}
+	public void onError() {
+	}
 
 	@Override
 	public void onLowMemory() {
@@ -266,13 +272,13 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
-//		if (requestCode == AndroidManager.PLAY_SERVICES_RESOLUTION_REQUEST) {
-//			if (resultCode == RESULT_CANCELED) {
-//				UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unavailable), Toast.LENGTH_LONG);
-//				finish();
-//				return;
-//			}
-//		}
+		//		if (requestCode == AndroidManager.PLAY_SERVICES_RESOLUTION_REQUEST) {
+		//			if (resultCode == RESULT_CANCELED) {
+		//				UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unavailable), Toast.LENGTH_LONG);
+		//				finish();
+		//				return;
+		//			}
+		//		}
 		Aircandi.resultCode = Activity.RESULT_OK;
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
@@ -334,10 +340,14 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	// --------------------------------------------------------------------------------------------
 
 	@Override
-	public void draw() {};
+	public void draw() {
+	}
+
+	;
 
 	@Override
-	public void bind(BindingMode mode) {}
+	public void bind(BindingMode mode) {
+	}
 
 	protected void showButtonSpecial(Boolean visible, String message) {
 		if (mButtonSpecial != null) {
@@ -405,13 +415,13 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 				, null
 				, new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (which == DialogInterface.BUTTON_POSITIVE) {
-							delete();
-						}
-					}
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					delete();
 				}
+			}
+		}
 				, null);
 		dialog.setCanceledOnTouchOutside(false);
 	}
@@ -434,13 +444,13 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 				, null
 				, new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (which == DialogInterface.BUTTON_POSITIVE) {
-							remove(toId);
-						}
-					}
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					remove(toId);
 				}
+			}
+		}
 				, null);
 		dialog.setCanceledOnTouchOutside(false);
 	}
@@ -522,7 +532,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRemoveEntity");
 				final ModelResult result = Aircandi.getInstance().getEntityManager()
-						.removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove");
+				                                   .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove");
 				return result;
 			}
 
@@ -558,7 +568,8 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	}
 
 	@Override
-	public void share() {}
+	public void share() {
+	}
 
 	public void setTheme(Boolean isDialog, Boolean isTransparent) {
 		mPrefTheme = Aircandi.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
@@ -617,7 +628,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		/* Dev prefs */
 
 		if (!Aircandi.getInstance().getPrefEnableDev()
-				.equals(Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false))) {
+		             .equals(Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false))) {
 			mPrefChangeRefreshUiNeeded = true;
 			Logger.d(this, "Pref change: dev ui");
 		}
@@ -632,7 +643,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 			Aircandi.getInstance().snapshotPreferences();
 		}
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 	// Menus
 	// --------------------------------------------------------------------------------------------
@@ -644,8 +655,8 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		 * Android 2.3 or lower: called when user hits the menu button for the first time.
 		 * 
 		 * Android 3.0 or higher:
-		 * 1) called when activity is first started,
-		 * 2) every time we tab to a new fragment.
+		 * 1) called when activity is first started.
+		 * 2) when switching fragments.
 		 * 
 		 * onCreate->onStart->onResume->onCreateOptionsMenu-
 		 */
@@ -667,32 +678,33 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		 * 1) called after every call to onCreateOptionsMenu,
 		 * 
 		 * Android 3.0 or higher:
-		 * 1) called after every call to onCreateOptionsMenu,
-		 * 2) every time overflow menu is opened,
-		 * 3) when invalidateOptionsMenu is called.
+		 * 1) after every call to onCreateOptionsMenu.
+		 * 2) after invalidateOptionsMenu->onCreateOptionsMenu.
+		 * 3) every time overflow menu is opened.
+		 * 4) when navigation drawer is opened.
 		 */
 		MenuItem menuItem = menu.findItem(R.id.edit);
 		if (menuItem != null) {
-			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.EDIT, mEntity));
+			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.EDIT, mEntity, mForId));
 		}
 
 		menuItem = menu.findItem(R.id.add);
 		if (menuItem != null && mEntity != null) {
-			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.ADD, mEntity));
+			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.ADD, mEntity, mForId));
 			menuItem.setTitle(StringManager.getString(R.string.menu_item_add_entity, mEntity.schema));
 		}
 
 		menuItem = menu.findItem(R.id.delete);
 		if (menuItem != null) {
-			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.DELETE, mEntity));
+			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.DELETE, mEntity, mForId));
 		}
 
 		menuItem = menu.findItem(R.id.remove);
 		if (menuItem != null) {
-			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.REMOVE, mEntity));
+			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.REMOVE, mEntity, mForId));
 		}
 
-        menuItem = menu.findItem(R.id.signin);
+		menuItem = menu.findItem(R.id.signin);
 		if (menuItem != null) {
 			menuItem.setVisible(Aircandi.getInstance().getCurrentUser().isAnonymous());
 		}
@@ -721,8 +733,13 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+
 		Bundle extras = null;
 		if (item.getItemId() == R.id.remove && mEntity.placeId != null) {
+            /*
+             * We use placeId instead of toId so we can removed replies where
+             * toId points to the root message.
+             */
 			extras = new Bundle();
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntity.placeId);
 		}
@@ -892,12 +909,15 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	public static class SimpleTextWatcher implements TextWatcher {
 
 		@Override
-		public void afterTextChanged(Editable s) {}
+		public void afterTextChanged(Editable s) {
+		}
 
 		@Override
-		public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+		}
 
 		@Override
-		public void onTextChanged(CharSequence s, int start, int before, int count) {}
+		public void onTextChanged(CharSequence s, int start, int before, int count) {
+		}
 	}
 }

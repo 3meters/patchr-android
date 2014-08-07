@@ -12,7 +12,7 @@ import com.google.android.gms.maps.UiSettings;
 
 public class MapFragment extends com.aircandi.ui.components.SherlockMapFragment {
 
-	private GoogleMap	mMap;
+	private GoogleMap mMap;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

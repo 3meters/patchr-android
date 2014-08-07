@@ -70,7 +70,7 @@ public class Debug {
 		log.label = label;
 		log.value = value;
 		log.data = new HashMap<String, Object>();
-		log.data.put("detail", ((ArrayList)logSet).clone());
+		log.data.put("detail", ((ArrayList) logSet).clone());
 
 		new AsyncTask() {
 

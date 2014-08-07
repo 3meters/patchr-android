@@ -33,7 +33,7 @@ public class Places extends EntityControllerBase {
 
 	@Override
 	public Entity makeNew() {
-		
+
 		Entity entity = new Place();
 		entity.schema = mSchema;
 		entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME); // Temporary
@@ -72,10 +72,10 @@ public class Places extends EntityControllerBase {
 
 		return listData;
 	}
-	
+
 	@Override
 	public Entity makeFromMap(Map<String, Object> map, Boolean nameMapping) {
 		return Place.setPropertiesFromMap(new Place(), map, nameMapping);
 	}
-	
+
 }

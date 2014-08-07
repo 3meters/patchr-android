@@ -26,7 +26,7 @@ import com.aircandi.utilities.UI;
 
 public class FeedbackEdit extends BaseEntityEdit {
 
-	private Document	mFeedback;
+	private Document mFeedback;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -43,10 +43,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 
 				@Override
 				public void afterTextChanged(Editable s) {
-					mDirty = false;
-					if (s.toString() != null || !s.toString().equals("")) {
-						mDirty = true;
-					}
+					mDirty = s.toString() != null || !s.toString().equals("");
 				}
 			});
 		}

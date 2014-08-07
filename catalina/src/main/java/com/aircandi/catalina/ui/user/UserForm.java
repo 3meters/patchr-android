@@ -22,7 +22,7 @@ import com.aircandi.utilities.UI;
 @SuppressWarnings("ucd")
 public class UserForm extends com.aircandi.ui.user.UserForm {
 
-	private EntityListFragment	mListFragment;
+	private EntityListFragment mListFragment;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -34,20 +34,20 @@ public class UserForm extends com.aircandi.ui.user.UserForm {
 		EntitiesQuery query = new EntitiesQuery();
 
 		query.setEntityId(mEntityId)
-				.setLinkDirection(Direction.out.name())
-				.setLinkType(Constants.TYPE_LINK_CREATE)
-				.setPageSize(Integers.getInteger(R.integer.page_size_messages))
-				.setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
+		     .setLinkDirection(Direction.out.name())
+		     .setLinkType(Constants.TYPE_LINK_CREATE)
+		     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
+		     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
 
 		mListFragment.setQuery(query)
-				.setMonitor(monitor)
-				.setListViewType(ViewType.LIST)
-				.setListLayoutResId(R.layout.entity_list_fragment)
-				.setListLoadingResId(R.layout.temp_list_item_loading)
-				.setListItemResId(R.layout.temp_listitem_message)
-				.setListEmptyMessageResId(R.string.label_sent_empty)
-				.setHeaderViewResId(R.layout.widget_list_header_user)
-				.setSelfBindingEnabled(false);
+		             .setMonitor(monitor)
+		             .setListViewType(ViewType.LIST)
+		             .setListLayoutResId(R.layout.entity_list_fragment)
+		             .setListLoadingResId(R.layout.temp_list_item_loading)
+		             .setListItemResId(R.layout.temp_listitem_message)
+		             .setListEmptyMessageResId(R.string.label_sent_empty)
+		             .setHeaderViewResId(R.layout.widget_list_header_user)
+		             .setSelfBindingEnabled(false);
 
 		getSupportFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
 
@@ -72,11 +72,11 @@ public class UserForm extends com.aircandi.ui.user.UserForm {
 	@Override
 	public void drawButtons() {
 		super.drawButtons();
-		
+
 		UI.setVisibility(findViewById(R.id.button_edit), View.GONE);
 		if (Aircandi.getInstance().getMenuManager().canUserEdit(mEntity)) {
 			UI.setVisibility(findViewById(R.id.button_edit), View.VISIBLE);
-		}		
+		}
 	}
 
 	// --------------------------------------------------------------------------------------------

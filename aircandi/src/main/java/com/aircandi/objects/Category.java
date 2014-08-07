@@ -15,19 +15,17 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class Category extends ServiceObject implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 455904759787968585L;
+	private static final long serialVersionUID = 455904759787968585L;
 
 	@Expose
-	public String				name;
+	public String name;
 	@Expose
-	public String				id;
+	public String id;
 	@Expose
-	public Photo				photo;
+	public Photo  photo;
 
 	@Expose(serialize = false, deserialize = true)
-	public List<Category>		categories;
-
-	
+	public List<Category> categories;
 
 	@Override
 	public Category clone() {

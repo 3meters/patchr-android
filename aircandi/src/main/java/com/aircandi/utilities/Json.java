@@ -87,7 +87,7 @@ public class Json {
 		 * false: Caller will get back either an array of objectType or a single objectType.
 		 */
 		try {
-			List<LinkedHashMap<String, Object>> maps = null;
+			List<LinkedHashMap<String, Object>> maps;
 
 			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
 			ContainerFactory containerFactory = new ContainerFactory() {
@@ -236,9 +236,6 @@ public class Json {
 			 * catch the exception, log it and keep going.
 			 */
 			Reporting.logException(exception);
-			if (Aircandi.DEBUG) {
-				//exception.printStackTrace();
-			}
 		}
 		return null;
 	}

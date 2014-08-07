@@ -12,7 +12,7 @@ import com.aircandi.ui.base.BaseActivity;
 public class HelpForm extends BaseActivity {
 
 	@SuppressWarnings("unused")
-	private Integer	mHelpResId;
+	private Integer mHelpResId;
 
 	// --------------------------------------------------------------------------------------------
 	// Events

@@ -2,7 +2,6 @@ package com.aircandi.catalina.components;
 
 // import static java.util.Arrays.asList;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.os.Bundle;
@@ -23,7 +22,7 @@ import com.aircandi.utilities.Json;
 
 public class EntityManager extends com.aircandi.components.EntityManager {
 
-	public synchronized ModelResult loadMessages(String entityId, Links linkOptions, Cursor cursor, List<String> events) {
+	public synchronized ModelResult loadMessages(String entityId, Links linkOptions, Cursor cursor) {
 
 		final ModelResult result = new ModelResult();
 
@@ -36,10 +35,6 @@ public class EntityManager extends com.aircandi.components.EntityManager {
 
 		if (cursor != null) {
 			parameters.putString("cursor", "object:" + Json.objectToJson(cursor));
-		}
-
-		if (events != null) {
-			parameters.putStringArrayList("events", (ArrayList<String>) events);
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
@@ -64,15 +59,15 @@ public class EntityManager extends com.aircandi.components.EntityManager {
 
 		return result;
 	}
-	
+
 	public ModelResult deleteMessage(String entityId, Boolean cacheOnly, String seedParentId) {
 		/*
 		 * We sequence calls to delete the message and if the message is a seed then
 		 * we add a second call to remove any links from replies to the patch.
-		 */		
+		 */
 		ModelResult result = deleteEntity(entityId, cacheOnly);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS && seedParentId != null) {
-			result = removeLinks(entityId, seedParentId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, "remove");			
+			result = removeLinks(entityId, seedParentId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, "remove");
 		}
 		return result;
 	}

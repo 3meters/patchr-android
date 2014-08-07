@@ -24,7 +24,7 @@ import com.aircandi.service.SerializedName;
 @SuppressWarnings("ucd")
 public abstract class ServiceBase extends ServiceObject {
 
-	private static final long	serialVersionUID	= -3650173415935365107L;
+	private static final long serialVersionUID = -3650173415935365107L;
 	/*
 	 * Annotation syntax:
 	 * 
@@ -38,62 +38,63 @@ public abstract class ServiceBase extends ServiceObject {
 	 */
 	@Expose
 	@SerializedName(name = "_id")
-	public String				id;
+	public String id;
 	@Expose
-	public String				schema;
+	public String schema;
 	@Expose
-	public String				type;
+	public String type;
 	@Expose
-	public String				name;
+	public String name;
 	@Expose
-	public Boolean				locked				= false;
+	public Boolean locked = false;
 	@Expose
-	public Number				position;
-	
+	public Number position;
+
 	@Expose(serialize = false, deserialize = true)
-	public String				namelc;
-	
+	public String namelc;
+
 	@Expose(serialize = false, deserialize = true)
-	public Boolean				enabled				= true;					// promoted from link for convenience
+	public Boolean enabled = true;                    // promoted from link for convenience
 
 	/* PropertyValue bags */
 
 	@Expose
-	public Map<String, Object>	data;
+	public Map<String, Object> data;
 
 	/* user ids */
 
 	@Expose(serialize = false, deserialize = true)
 	@SerializedName(name = "_owner")
-	public String				ownerId;
+	public String ownerId;
 	@Expose(serialize = false, deserialize = true)
 	@SerializedName(name = "_creator")
-	public String				creatorId;
+	public String creatorId;
 	@Expose(serialize = false, deserialize = true)
 	@SerializedName(name = "_modifier")
-	public String				modifierId;
+	public String modifierId;
 
 	/* Dates */
 
 	@Expose(serialize = false, deserialize = true)
-	public Number				createdDate;
+	public Number createdDate;
 	@Expose(serialize = false, deserialize = true)
-	public Number				modifiedDate;
+	public Number modifiedDate;
 	@Expose(serialize = false, deserialize = true)
-	public Number				activityDate;
+	public Number activityDate;
 	@Expose(serialize = false, deserialize = true)
-	public Number				sortDate;
+	public Number sortDate;
 
 	/* Users (synthesized for the client) */
 
 	@Expose(serialize = false, deserialize = true)
-	public User					owner;
+	public User owner;
 	@Expose(serialize = false, deserialize = true)
-	public User					creator;
+	public User creator;
 	@Expose(serialize = false, deserialize = true)
-	public User					modifier;
+	public User modifier;
 
-	protected ServiceBase() {}
+	protected ServiceBase() {
+	}
 
 	// --------------------------------------------------------------------------------------------
 	// Set and get
@@ -189,7 +190,7 @@ public abstract class ServiceBase extends ServiceObject {
 				else {
 					if (object1.sortDate.longValue() < object2.sortDate.longValue())
 						return 1;
-					else if (object1.sortDate.longValue() == object2.sortDate.longValue()) 
+					else if (object1.sortDate.longValue() == object2.sortDate.longValue())
 						return 0;
 					return -1;
 				}
@@ -210,7 +211,7 @@ public abstract class ServiceBase extends ServiceObject {
 				else {
 					if (object1.sortDate.longValue() > object2.sortDate.longValue())
 						return 1;
-					else if (object1.sortDate.longValue() == object2.sortDate.longValue()) 
+					else if (object1.sortDate.longValue() == object2.sortDate.longValue())
 						return 0;
 					return -1;
 				}
@@ -218,13 +219,12 @@ public abstract class ServiceBase extends ServiceObject {
 			return 1;
 		}
 	}
-	
+
 	/**
 	 * object: All properties are serialized including nulls.</br>
 	 * PropertyValue: Only non-null properties are serialized.</br>
-	 * 
+	 *
 	 * @author Jayma
-	 * 
 	 */
 	@SuppressWarnings("ucd")
 	public static enum UpdateScope {

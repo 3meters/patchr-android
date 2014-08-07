@@ -10,21 +10,22 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class CacheStamp extends ServiceObject {
 
-	private static final long	serialVersionUID	= 706592482666845156L;
+	private static final long serialVersionUID = 706592482666845156L;
 	@Expose
-	public Number				activityDate;
+	public Number activityDate;
 	@Expose
-	public Number				modifiedDate;
+	public Number modifiedDate;
 	@Expose
-	public Boolean				activity			= false;
+	public Boolean activity = false;
 	@Expose
-	public Boolean				modified			= false;
+	public Boolean modified = false;
 	@Expose
-	public Boolean				override			= false;
+	public Boolean override = false;
 	@Expose
-	public String				source;
+	public String source;
 
-	public CacheStamp() {}
+	public CacheStamp() {
+	}
 
 	public CacheStamp(Number activityDate, Number modifiedDate) {
 		this.activityDate = activityDate;
@@ -63,7 +64,7 @@ public class CacheStamp extends ServiceObject {
 
 	@Override
 	public CacheStamp clone() {
-		CacheStamp cacheStamp = null;
+		CacheStamp cacheStamp;
 		try {
 			cacheStamp = (CacheStamp) super.clone();
 		}

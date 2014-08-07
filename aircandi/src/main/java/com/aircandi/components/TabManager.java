@@ -13,11 +13,12 @@ import com.aircandi.R;
 
 public class TabManager implements ActionBar.TabListener {
 
-	private ActionBar	mActionBar;
-	private ViewFlipper	mViewFlipper;
-	private Integer		mTabsProfileId;
+	private ActionBar   mActionBar;
+	private ViewFlipper mViewFlipper;
+	private Integer     mTabsProfileId;
 
-	public TabManager() {}
+	public TabManager() {
+	}
 
 	public TabManager(Integer tabsProfileId, ActionBar actionBar, ViewFlipper viewFlipper) {
 		mTabsProfileId = tabsProfileId;
@@ -29,8 +30,7 @@ public class TabManager implements ActionBar.TabListener {
 		addTabsToActionBar(this, getTabsProfileId());
 	}
 
-	private void addTabsToActionBar(ActionBar.TabListener tabListener, int tabsId)
-	{
+	private void addTabsToActionBar(ActionBar.TabListener tabListener, int tabsId) {
 		mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
 		if (tabsId == Constants.TABS_ENTITY_FORM_ID) {
@@ -82,10 +82,12 @@ public class TabManager implements ActionBar.TabListener {
 	}
 
 	@Override
-	public void onTabUnselected(Tab tab, FragmentTransaction ft) {}
+	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+	}
 
 	@Override
-	public void onTabReselected(Tab tab, FragmentTransaction ft) {}
+	public void onTabReselected(Tab tab, FragmentTransaction ft) {
+	}
 
 	public void doSaveInstanceState(Bundle savedInstanceState) {
 		/*

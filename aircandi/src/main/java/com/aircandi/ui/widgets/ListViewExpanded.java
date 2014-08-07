@@ -18,10 +18,10 @@ public class ListViewExpanded extends LinearLayout {
 	 * setting the adapter and providing views chooses the item layout.
 	 */
 
-	private Integer		mLayoutItemId;
-	private Integer		mItemMaxCount;
-	private Boolean		mShowDivider;
-	private ListAdapter	mAdapter;
+	private Integer     mLayoutItemId;
+	private Integer     mItemMaxCount;
+	private Boolean     mShowDivider;
+	private ListAdapter mAdapter;
 
 	public ListViewExpanded(Context context) {
 		this(context, null);

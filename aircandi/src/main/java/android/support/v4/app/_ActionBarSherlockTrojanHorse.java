@@ -13,29 +13,37 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-/** I'm in ur package. Stealing ur variables. */
+/**
+ * I'm in ur package. Stealing ur variables.
+ */
 @SuppressWarnings("ucd")
 public abstract class _ActionBarSherlockTrojanHorse extends FragmentActivity implements OnCreatePanelMenuListener, OnPreparePanelListener,
-		OnMenuItemSelectedListener {
-	private static final boolean	DEBUG	= false;
-	private static final String		TAG		= "_ActionBarSherlockTrojanHorse";
+                                                                                        OnMenuItemSelectedListener {
+	private static final boolean DEBUG = false;
+	private static final String  TAG   = "_ActionBarSherlockTrojanHorse";
 
-	/** Fragment interface for menu creation callback. */
+	/**
+	 * Fragment interface for menu creation callback.
+	 */
 	public interface OnCreateOptionsMenuListener {
 		public void onCreateOptionsMenu(Menu menu, MenuInflater inflater);
 	}
 
-	/** Fragment interface for menu preparation callback. */
+	/**
+	 * Fragment interface for menu preparation callback.
+	 */
 	public interface OnPrepareOptionsMenuListener {
 		public void onPrepareOptionsMenu(Menu menu);
 	}
 
-	/** Fragment interface for menu item selection callback. */
+	/**
+	 * Fragment interface for menu item selection callback.
+	 */
 	public interface OnOptionsItemSelectedListener {
 		public boolean onOptionsItemSelected(MenuItem item);
 	}
 
-	private ArrayList<Fragment>	mCreatedMenus;
+	private ArrayList<Fragment> mCreatedMenus;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Sherlock menu handling
@@ -88,7 +96,8 @@ public abstract class _ActionBarSherlockTrojanHorse extends FragmentActivity imp
 
 	@Override
 	public boolean onPreparePanel(int featureId, View view, Menu menu) {
-		if (DEBUG) Log.d(TAG, "[onPreparePanel] featureId: " + featureId + ", view: " + view + " menu: " + menu);
+		if (DEBUG)
+			Log.d(TAG, "[onPreparePanel] featureId: " + featureId + ", view: " + view + " menu: " + menu);
 
 		if (featureId == Window.FEATURE_OPTIONS_PANEL) {
 			boolean result = onPrepareOptionsMenu(menu);

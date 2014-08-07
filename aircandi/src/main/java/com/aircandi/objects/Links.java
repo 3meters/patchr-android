@@ -18,14 +18,15 @@ import com.aircandi.utilities.Maps;
 @SuppressWarnings("ucd")
 public class Links extends ServiceObject {
 
-	private static final long	serialVersionUID	= -274203160211174564L;
+	private static final long serialVersionUID = -274203160211174564L;
 
 	@Expose
-	public Boolean				shortcuts;
+	public Boolean          shortcuts;
 	@Expose
-	public List<LinkParams>		active;
+	public List<LinkParams> active;
 
-	public Links() {}
+	public Links() {
+	}
 
 	public Links(Boolean shortcuts, List<LinkParams> active) {
 		setShortcuts(shortcuts);
@@ -56,10 +57,10 @@ public class Links extends ServiceObject {
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, true, true, limitProximity));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, true, true, limitApplinks));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_COMMENT, false, true, 0));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PICTURE, true, true, 1)); 					// for preview and photo picker
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PICTURE, true, true, 1));                    // for preview and photo picker
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 10));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
-						, Maps.asMap("_from", currentUser.id)));																						// Is current user watching
+						, Maps.asMap("_from", currentUser.id)));                                                                                        // Is current user watching
 			}
 			else if (linkProfile == LinkProfile.LINKS_FOR_PICTURE) {
 

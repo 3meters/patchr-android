@@ -3,6 +3,7 @@ package com.aircandi.ui.edit;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -38,16 +39,17 @@ import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
 
+@SuppressLint("Registered")
 public class ApplinkEdit extends BaseEntityEdit {
 
-	private Spinner			mTypePicker;
-	private TextView		mAppId;
-	private TextView		mAppUrl;
+	private Spinner  mTypePicker;
+	private TextView mAppId;
+	private TextView mAppUrl;
 
-	private Integer			mSpinnerItemResId;
-	private Integer			mMissingResId;
+	private Integer mSpinnerItemResId;
+	private Integer mMissingResId;
 
-	private List<String>	mApplinkSearchStrings;
+	private List<String> mApplinkSearchStrings;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -232,7 +234,8 @@ public class ApplinkEdit extends BaseEntityEdit {
 			}
 
 			@Override
-			public void onNothingSelected(AdapterView<?> parent) {}
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
 
 		});
 	}
@@ -297,7 +300,7 @@ public class ApplinkEdit extends BaseEntityEdit {
 			@Override
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
-				
+
 				mBusy.hideBusy(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					
@@ -307,7 +310,7 @@ public class ApplinkEdit extends BaseEntityEdit {
 					final List<Entity> applinks = (List<Entity>) result.data;
 					Long validatedDate = null;
 					if (applinks.size() > 0) {
-						
+
 						Applink validated = (Applink) applinks.get(0);
 						validatedDate = (Long) validated.validatedDate;
 						/*
@@ -334,7 +337,7 @@ public class ApplinkEdit extends BaseEntityEdit {
 					else {
 						final Intent intent = new Intent();
 						final List<String> jsonApplinks = new ArrayList<String>();
-						
+
 						for (Entity applink : applinks) {
 							jsonApplinks.add(Json.objectToJson(applink, Json.UseAnnotations.FALSE, Json.ExcludeNulls.TRUE));
 						}
@@ -374,7 +377,9 @@ public class ApplinkEdit extends BaseEntityEdit {
 	@Override
 	protected String getLinkType() {
 		return Constants.TYPE_LINK_CONTENT;
-	};
+	}
+
+	;
 
 	@Override
 	protected boolean validate() {

@@ -36,9 +36,9 @@ import com.aircandi.utilities.Utilities;
 
 public class SignInEdit extends BaseEdit {
 
-	private EditText	mEmail;
-	private EditText	mPassword;
-	private CheckBox	mPasswordUnmask;
+	private EditText mEmail;
+	private EditText mPassword;
+	private CheckBox mPasswordUnmask;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {

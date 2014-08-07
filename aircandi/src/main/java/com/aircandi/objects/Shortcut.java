@@ -20,54 +20,52 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 
-	private static final long						serialVersionUID	= 4979315562693226461L;
-	public static final Map<String, ShortcutMeta>	shortcutMeta		= Collections.synchronizedMap(new HashMap<String, ShortcutMeta>());
+	private static final long                      serialVersionUID = 4979315562693226461L;
+	public static final  Map<String, ShortcutMeta> shortcutMeta     = Collections.synchronizedMap(new HashMap<String, ShortcutMeta>());
 
 	@Expose
-	public String									id;
+	public String      id;
 	@Expose
-	public String									name;
-    @Expose
-    public String									subtitle;
+	public String      name;
 	@Expose
-	public String									description;
+	public String      subtitle;
 	@Expose
-	public String									schema;
+	public String      description;
 	@Expose
-	public String									app;																					// usually maps to type property (if exists) on polymorphic entity like applinks 
+	public String      schema;
 	@Expose
-	public String									appId;
+	public String      app;                                                                                    // usually maps to type property (if exists) on polymorphic entity like applinks
 	@Expose
-	public String									appUrl;
+	public String      appId;
 	@Expose
-	public Number									validatedDate;
+	public String      appUrl;
 	@Expose
-	public Number									position;
+	public Number      validatedDate;
 	@Expose
-	public Photo									photo;
+	public Number      position;
 	@Expose
-	public AirLocation								location;
+	public Photo       photo;
 	@Expose
-	public Boolean									content;
+	public AirLocation location;
 	@Expose
-	public String									action;
+	public Boolean     content;
 	@Expose
-	public Number									sortDate;
+	public String      action;
+	@Expose
+	public Number      sortDate;
 
 	/* Users (synthesized for the client) */
 
 	@Expose(serialize = false, deserialize = true)
-	public User										creator;
+	public User creator;
 
 	/* client only properties */
 
-	public Integer									count;
-	public List<Shortcut>							group;
-	public Boolean									synthetic			= false;
-	public String									linkType;																				// so we know if entity shortcut represents is targeted via like/watch/content etc.
-	public Intent									intent;
-
-	
+	public Integer        count;
+	public List<Shortcut> group;
+	public Boolean synthetic = false;
+	public String linkType;                                                                                // so we know if entity shortcut represents is targeted via like/watch/content etc.
+	public Intent intent;
 
 	// --------------------------------------------------------------------------------------------
 	// Copy and serialization
@@ -79,7 +77,7 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		 */
 		shortcut.id = (String) map.get("id");
 		shortcut.name = (String) map.get("name");
-        shortcut.subtitle = (String) map.get("subtitle");
+		shortcut.subtitle = (String) map.get("subtitle");
 		shortcut.description = (String) map.get("description");
 		shortcut.sortDate = (Number) map.get("sortDate");
 		shortcut.schema = (String) map.get("schema");
@@ -108,14 +106,14 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 	}
 
 	public static Shortcut builder(Entity entity, String schema, String type, String action, String name, String subtitle, String image, Integer position, Boolean content,
-			Boolean synthetic) {
+	                               Boolean synthetic) {
 
 		Shortcut shortcut = new Shortcut()
 				.setAppId(entity.id)
 				.setSchema(schema)
 				.setApp(type)
 				.setName(name)
-                .setSubtitle(subtitle)
+				.setSubtitle(subtitle)
 				.setPhoto(new Photo(image, null, null, null, PhotoSource.resource))
 				.setPosition(position)
 				.setSynthetic(synthetic)
@@ -150,8 +148,8 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		if (photo == null) {
 			photo = getDefaultPhoto();
 		}
-//		photo.photoPlaceholder = getPlaceholderPhoto();
-//		photo.photoBroken = getBrokenPhoto();
+		//		photo.photoPlaceholder = getPlaceholderPhoto();
+		//		photo.photoBroken = getBrokenPhoto();
 		return photo;
 	}
 
@@ -200,10 +198,10 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		entity.id = id;
 		entity.name = name;
 		entity.photo = photo;
-        entity.subtitle = subtitle;
+		entity.subtitle = subtitle;
 		entity.schema = schema;
 		entity.description = description;
-        entity.creator = creator;
+		entity.creator = creator;
 
 		return entity;
 	}
@@ -221,14 +219,14 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		return this;
 	}
 
-    public String getSubtitle() {
-        return subtitle;
-    }
+	public String getSubtitle() {
+		return subtitle;
+	}
 
-    public Shortcut setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
-        return this;
-    }
+	public Shortcut setSubtitle(String subtitle) {
+		this.subtitle = subtitle;
+		return this;
+	}
 
 	public String getAppId() {
 		return appId;
@@ -348,7 +346,7 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 			return 1;
 		}
 	}
-	
+
 	@SuppressWarnings("ucd")
 	public static enum InstallStatus {
 		NONE,

@@ -92,7 +92,7 @@ public abstract class BaseConnection implements IConnection {
 		/* We assume there is always a trailing comma */
 		requestBody.replace(requestBody.length() - 1, requestBody.length(), "");
 		requestBody.append('}');
-		
+
 		airHttpRequest.requestBody = requestBody.toString();
 
 		return airHttpRequest;
@@ -114,8 +114,7 @@ public abstract class BaseConnection implements IConnection {
 	}
 
 	protected static Boolean isContentType(String contentType, String target) {
-		if (contentType.contains(target)) return true;
-		return false;
+		return contentType.contains(target);
 	}
 
 	protected static String getContentType(HttpURLConnection connection, AirHttpRequest request) {
@@ -144,9 +143,9 @@ public abstract class BaseConnection implements IConnection {
 	}
 
 	public static class ContentType {
-		public static String	TEXT	= "text";
-		public static String	IMAGE	= "image";
-		public static String	JSON	= "json";
+		public static String TEXT  = "text";
+		public static String IMAGE = "image";
+		public static String JSON  = "json";
 	}
 
 }

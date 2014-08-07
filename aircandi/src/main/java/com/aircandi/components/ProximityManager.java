@@ -47,25 +47,25 @@ import com.squareup.otto.Subscribe;
 
 public class ProximityManager {
 
-	public Date							mLastWifiUpdate;
-	private Long						mLastBeaconLockedDate;
-	private Long						mLastBeaconLoadDate;
-	private Long						mLastBeaconInstallUpdate;
+	public  Date mLastWifiUpdate;
+	private Long mLastBeaconLockedDate;
+	private Long mLastBeaconLoadDate;
+	private Long mLastBeaconInstallUpdate;
 
-	private WifiManager					mWifiManager;
-	private EntityCache					mEntityCache;
+	private WifiManager mWifiManager;
+	private EntityCache mEntityCache;
 
 	/*
 	 * Continuously updated as we perform wifi scans. Beacons are only build from the wifi info on demand.
 	 */
-	private List<WifiScanResult>		mWifiList				= Collections.synchronizedList(new ArrayList<WifiScanResult>());
+	private List<WifiScanResult> mWifiList = Collections.synchronizedList(new ArrayList<WifiScanResult>());
 
-	private static final WifiScanResult	mWifiMassenaUpper		= new WifiScanResult("00:1c:b3:ae:bf:f0", "test_massena_upper", -50, true);
-	private static final WifiScanResult	mWifiMassenaLower		= new WifiScanResult("00:1c:b3:ae:bb:57", "test_massena_lower", -50, true);
-	private static final WifiScanResult	mWifiMassenaLowerStrong	= new WifiScanResult("00:1c:b3:ae:bb:57", "test_massena_lower_strong", -20, true);
-	private static final WifiScanResult	mWifiMassenaLowerWeak	= new WifiScanResult("00:1c:b3:ae:bb:57", "test_massena_lower_weak", -100, true);
-	private static final WifiScanResult	mWifiEmpty				= new WifiScanResult("aa:aa:bb:bb:cc:cc", "test_empty", -50, true);
-	private static final String			MockBssid				= "00:00:00:00:00:00";
+	private static final WifiScanResult mWifiMassenaUpper       = new WifiScanResult("00:1c:b3:ae:bf:f0", "test_massena_upper", -50, true);
+	private static final WifiScanResult mWifiMassenaLower       = new WifiScanResult("00:1c:b3:ae:bb:57", "test_massena_lower", -50, true);
+	private static final WifiScanResult mWifiMassenaLowerStrong = new WifiScanResult("00:1c:b3:ae:bb:57", "test_massena_lower_strong", -20, true);
+	private static final WifiScanResult mWifiMassenaLowerWeak   = new WifiScanResult("00:1c:b3:ae:bb:57", "test_massena_lower_weak", -100, true);
+	private static final WifiScanResult mWifiEmpty              = new WifiScanResult("aa:aa:bb:bb:cc:cc", "test_empty", -50, true);
+	private static final String         MockBssid               = "00:00:00:00:00:00";
 
 	private ProximityManager() {
 		if (!Aircandi.usingEmulator) {
@@ -76,7 +76,7 @@ public class ProximityManager {
 	}
 
 	private static class ProxiManagerHolder {
-		public static final ProximityManager	instance	= new ProximityManager();
+		public static final ProximityManager instance = new ProximityManager();
 	}
 
 	public static ProximityManager getInstance() {
@@ -234,7 +234,7 @@ public class ProximityManager {
 		 * insert beacons for the latest scan results.
 		 */
 		synchronized (mWifiList) {
-			WifiScanResult scanResult = null;
+			WifiScanResult scanResult;
 			for (int i = 0; i < mWifiList.size(); i++) {
 				scanResult = mWifiList.get(i);
 				Beacon beacon = new Beacon(scanResult.BSSID
@@ -330,8 +330,8 @@ public class ProximityManager {
 			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
 		}
 		else {
-			
-			Aircandi.stopwatch1.segmentTime("Entities for beacons: service call failed");			
+
+			Aircandi.stopwatch1.segmentTime("Entities for beacons: service call failed");
 			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 		}
 
@@ -404,7 +404,7 @@ public class ProximityManager {
 	}
 
 	public RefreshReason beaconRefreshNeeded(Location activeLocation) {
-		
+
 		if (mLastBeaconInstallUpdate != null) {
 			return RefreshReason.MOVE_RECOGNIZED;
 		}
@@ -482,16 +482,16 @@ public class ProximityManager {
 	// --------------------------------------------------------------------------------------------
 
 	public static class ModelResult {
-		public Object			data;
-		public ServiceResponse	serviceResponse	= new ServiceResponse();
+		public Object data;
+		public ServiceResponse serviceResponse = new ServiceResponse();
 	}
 
 	public static class WifiScanResult {
 
-		public String	BSSID;
-		public String	SSID;
-		public int		level	= 0;
-		public Boolean	test	= false;
+		public String BSSID;
+		public String SSID;
+		public int     level = 0;
+		public Boolean test  = false;
 
 		private WifiScanResult(String bssid, String ssid, int level, Boolean test) {
 			this.BSSID = bssid;
@@ -524,7 +524,7 @@ public class ProximityManager {
 		QUERY,
 		MONITORING
 	}
-	
+
 	public static enum RefreshReason {
 		NONE,
 		MOVE_RECOGNIZED,

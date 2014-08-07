@@ -17,15 +17,16 @@ import java.net.ConnectException;
  * which represent error responses returned by services. ProxibaseServiceExceptions
  * has much more information available for callers to appropriately deal with
  * different types of errors that can occur.
- * 
+ *
  * @see HttpServiceException
  */
 @SuppressWarnings("ucd")
 public class WalledGardenException extends ConnectException {
 
-	private static final long	serialVersionUID	= 12L;
+	private static final long serialVersionUID = 12L;
 
-	public WalledGardenException() {}
+	public WalledGardenException() {
+	}
 
 	public WalledGardenException(String message) {
 		super(message);

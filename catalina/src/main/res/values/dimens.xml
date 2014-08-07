@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Forms -->
+	<!-- Forms -->
 
-    <dimen name="message_field_height">60dp</dimen>
-    <dimen name="footer_button_height">50dp</dimen>
-    <dimen name="footer_label_max_width">300dp</dimen>
-    
-    <item name="aspect_ratio_place_image" format="float" type="dimen">0.5</item>
-    <item name="aspect_ratio_message_image" format="float" type="dimen">0.75</item>
-    <item name="aspect_ratio_message_item_image" format="float" type="dimen">0.5</item>
-    
-    
+	<dimen name="message_field_height">60dp</dimen>
+	<dimen name="footer_button_height">50dp</dimen>
+	<dimen name="footer_label_max_width">300dp</dimen>
+
+	<item name="aspect_ratio_place_image" format="float" type="dimen">0.5</item>
+	<item name="aspect_ratio_message_image" format="float" type="dimen">0.75</item>
+	<item name="aspect_ratio_message_item_image" format="float" type="dimen">0.5</item>
+
 </resources>

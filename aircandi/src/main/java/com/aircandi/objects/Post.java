@@ -9,10 +9,8 @@ import java.util.Map;
 @SuppressWarnings("ucd")
 public class Post extends Entity implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 4362288672244719448L;
-	public static final String	collectionId		= "posts";
-
-	
+	private static final long   serialVersionUID = 4362288672244719448L;
+	public static final  String collectionId     = "posts";
 
 	public static Post setPropertiesFromMap(Post entity, Map map, Boolean nameMapping) {
 		/*

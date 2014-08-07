@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/home"
-        android:orderInCategory="10"
-        android:showAsAction="never"
-        android:title="@string/menu_item_home"/>
+	<item
+		android:id="@+id/home"
+		android:orderInCategory="10"
+		android:showAsAction="never"
+		android:title="@string/menu_item_home" />
 
 </menu>

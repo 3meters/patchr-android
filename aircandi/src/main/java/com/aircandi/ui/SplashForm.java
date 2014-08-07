@@ -46,7 +46,7 @@ import com.aircandi.utilities.UI;
 @SuppressLint("Registered")
 public class SplashForm extends Activity {
 
-	public BusyManager	mBusy;
+	public BusyManager mBusy;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -174,12 +174,12 @@ public class SplashForm extends Activity {
 		 * Only called when app is first started
 		 */
 		Aircandi.getInstance()
-				.setMenuManager(new MenuManager())
-				.setActivityDecorator(new ActivityDecorator())
-				.setShortcutManager(new ShortcutManager())
-				.setEntityManager(new EntityManager().setLinks(new Links()))
-				.setMediaManager(new MediaManager().initSoundPool())
-				.setAnimationManager(new AnimationManager());
+		        .setMenuManager(new MenuManager())
+		        .setActivityDecorator(new ActivityDecorator())
+		        .setShortcutManager(new ShortcutManager())
+		        .setEntityManager(new EntityManager().setLinks(new Links()))
+		        .setMediaManager(new MediaManager().initSoundPool())
+		        .setAnimationManager(new AnimationManager());
 
 		Aircandi.controllerMap.put(Constants.SCHEMA_ENTITY_APPLINK, new Applinks());
 		Aircandi.controllerMap.put(Constants.SCHEMA_ENTITY_BEACON, new Beacons());

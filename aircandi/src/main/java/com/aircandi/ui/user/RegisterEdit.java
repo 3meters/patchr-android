@@ -36,9 +36,9 @@ import com.aircandi.utilities.Utilities;
 
 public class RegisterEdit extends BaseEntityEdit {
 
-	private EditText	mEmail;
-	private EditText	mPassword;
-	private EditText	mPasswordConfirm;
+	private EditText mEmail;
+	private EditText mPassword;
+	private EditText mPasswordConfirm;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -55,7 +55,7 @@ public class RegisterEdit extends BaseEntityEdit {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
-                    onAccept();
+					onAccept();
 					return true;
 				}
 				return false;
@@ -188,17 +188,17 @@ public class RegisterEdit extends BaseEntityEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertUser");
-				
+
 				Bitmap bitmap = null;
 				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
 					
 					/* Synchronous call to get the bitmap */
 					try {
 						bitmap = DownloadManager.with(Aircandi.applicationContext)
-								.load(mEntity.getPhoto().getUri())
-								.centerInside()
-								.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-								.get();
+						                        .load(mEntity.getPhoto().getUri())
+						                        .centerInside()
+						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+						                        .get();
 					}
 					catch (IOException ignore) {}
 				}

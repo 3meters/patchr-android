@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+	xmlns:tools="http://schemas.android.com/tools"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
-    <com.aircandi.ui.widgets.AirTextLight
-        android:id="@+id/name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:padding="15sp"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/brand_primary" />
+	<com.aircandi.ui.widgets.AirTextLight
+		android:id="@+id/name"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:padding="15sp"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:textColor="@color/brand_primary" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/rule_header_height"
-        android:layout_below="@+id/name"
-        android:background="@color/brand_primary" />
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/rule_header_height"
+		android:layout_below="@+id/name"
+		android:background="@color/brand_primary" />
 
-    <ListView
-        android:id="@+id/form_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/form_footer"
-        android:layout_below="@+id/name"
-        android:paddingTop="10dp" />
+	<ListView
+		android:id="@+id/form_list"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_above="@+id/form_footer"
+		android:layout_below="@+id/name"
+		android:paddingTop="10dp" />
 
-    <!-- Footer -->
+	<!-- Footer -->
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/rule_divider_height"
-        android:layout_above="@+id/form_footer"
-        android:background="?attr/ruleColor" />
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/rule_divider_height"
+		android:layout_above="@+id/form_footer"
+		android:background="?attr/ruleColor" />
 
-    <LinearLayout
-        android:id="@+id/form_footer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:gravity="center_horizontal" >
+	<LinearLayout
+		android:id="@+id/form_footer"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:gravity="center_horizontal">
 
-        <com.aircandi.ui.widgets.ComboButton
-            style="@style/button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onCancelButtonClick"
-            custom:label="@string/button_cancel" />
-    </LinearLayout>
+		<com.aircandi.ui.widgets.ComboButton
+			style="@style/button"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:onClick="onCancelButtonClick"
+			custom:label="@string/button_cancel" />
+	</LinearLayout>
 
 </RelativeLayout>

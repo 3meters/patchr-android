@@ -53,7 +53,7 @@ import com.squareup.otto.Subscribe;
 
 public class PlaceForm extends com.aircandi.ui.PlaceForm {
 
-	private EntityListFragment	mListFragment;
+	private EntityListFragment mListFragment;
 
 	@Override
 	public void unpackIntent() {
@@ -83,23 +83,23 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 		EntitiesQuery query = new EntitiesQuery();
 
 		query.setEntityId(mEntityId)
-				.setLinkDirection(Direction.in.name())
-				.setLinkType(Constants.TYPE_LINK_CONTENT)
-				.setPageSize(Integers.getInteger(R.integer.page_size_messages))
-				.setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
+		     .setLinkDirection(Direction.in.name())
+		     .setLinkType(Constants.TYPE_LINK_CONTENT)
+		     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
+		     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
 
 		mListFragment.setQuery(query)
-				.setMonitor(monitor)
-				.setListViewType(ViewType.LIST)
-				.setListLayoutResId(R.layout.message_list_place_fragment)
-				.setListLoadingResId(R.layout.temp_list_item_loading)
-				.setListItemResId(R.layout.temp_listitem_message)
-				.setListEmptyMessageResId(R.string.button_list_share)
-				.setListButtonMessageResId(R.string.button_list_share)
-				.setHeaderViewResId(R.layout.widget_list_header_place)
-				.setFooterViewResId(R.layout.widget_list_footer_message)
-				.setSelfBindingEnabled(false)
-				.setButtonSpecialClickable(true);
+		             .setMonitor(monitor)
+		             .setListViewType(ViewType.LIST)
+		             .setListLayoutResId(R.layout.message_list_place_fragment)
+		             .setListLoadingResId(R.layout.temp_list_item_loading)
+		             .setListItemResId(R.layout.temp_listitem_message)
+		             .setListEmptyMessageResId(R.string.button_list_share)
+		             .setListButtonMessageResId(R.string.button_list_share)
+		             .setHeaderViewResId(R.layout.widget_list_header_place)
+		             .setFooterViewResId(R.layout.widget_list_footer_message)
+		             .setSelfBindingEnabled(false)
+		             .setButtonSpecialClickable(true);
 
 		getSupportFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
 
@@ -109,7 +109,7 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 	public void afterDatabind(final BindingMode mode, ModelResult result) {
 		super.afterDatabind(mode, result);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			/*
+	        /*
 			 * In case upsizing has changed the id we original bound to.
 			 */
 			((EntityMonitor) mListFragment.getMonitor()).setEntityId(mEntityId);
@@ -158,7 +158,7 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 	//			Dialogs.signinRequired(this, message);
 	//			return;
 	//		}
-	//		
+	//
 	//		if (mEntity.visibility != null) {
 	//
 	//			/* Public place */
@@ -313,9 +313,9 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 		builder.setChooserTitle(String.format(StringManager.getString(R.string.label_place_share_title)
 				, (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase)));
 
-        builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-        builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
-        builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PLACE);
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PLACE);
 
 		builder.startChooser();
 	}
@@ -374,7 +374,7 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 				else {
 					userView.setTag(mEntity.creator);
 					userView.setLabel(R.string.label_owned_by);
-					userView.databind(mEntity.creator, mEntity.createdDate.longValue(), mEntity.locked);
+					userView.databind(mEntity.creator, mEntity.createdDate != null ? mEntity.createdDate.longValue() : null);
 				}
 				UI.setVisibility(userView, View.VISIBLE);
 			}
@@ -475,10 +475,10 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 						RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(buttonSpecial.getLayoutParams());
 						params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 						int headerHeight = (headerHeightProjected != null)
-								? headerHeightProjected
-								: (header != null)
-										? header.getHeight()
-										: UI.getRawPixelsForDisplayPixels(150f);
+						                   ? headerHeightProjected
+						                   : (header != null)
+						                     ? header.getHeight()
+						                     : UI.getRawPixelsForDisplayPixels(150f);
 
 						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(100f);
 						buttonSpecial.setLayoutParams(params);
@@ -535,14 +535,14 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 	// Menus
 	// --------------------------------------------------------------------------------------------
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem menuItem = menu.findItem(com.aircandi.R.id.share);
-        if (menuItem != null) {
-            menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.SHARE, mEntity));
-        }
-        return super.onPrepareOptionsMenu(menu);
-    }
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem menuItem = menu.findItem(com.aircandi.R.id.share);
+		if (menuItem != null) {
+			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.SHARE, mEntity, mForId));
+		}
+		return super.onPrepareOptionsMenu(menu);
+	}
 
 	// --------------------------------------------------------------------------------------------
 	// Misc

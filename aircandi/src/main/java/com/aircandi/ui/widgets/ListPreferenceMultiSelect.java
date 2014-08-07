@@ -17,28 +17,25 @@ import com.aircandi.R;
 import com.aircandi.components.StringManager;
 
 /**
- * 
  * @author declanshanaghy
  *         http://blog.350nice.com/wp/archives/240
  *         MultiChoice Preference Widget for Android
- * 
  * @contributor matiboy
- *              Added support for check all/NONE and custom separator defined in XML.
- *              IMPORTANT: The following attributes MUST be defined (probably inside attr.xml) for the code to even
- *              compile
- *              <declare-styleable name="ListPreferenceMultiSelect">
- *              <attr format="string" name="checkAll" />
- *              <attr format="string" name="separator" />
- *              </declare-styleable>
- *              Whether you decide to then use those attributes is up to you.
- * 
+ * Added support for check all/NONE and custom separator defined in XML.
+ * IMPORTANT: The following attributes MUST be defined (probably inside attr.xml) for the code to even
+ * compile
+ * <declare-styleable name="ListPreferenceMultiSelect">
+ * <attr format="string" name="checkAll" />
+ * <attr format="string" name="separator" />
+ * </declare-styleable>
+ * Whether you decide to then use those attributes is up to you.
  */
 @SuppressWarnings("ucd")
 public class ListPreferenceMultiSelect extends AirListPreference {
-	public static final String	DEFAULT_SEPARATOR	= "OV=I=XseparatorX=I=VO";
-	private String				mSeparator			= DEFAULT_SEPARATOR;
-	private String				mCheckAllKey		= null;
-	private boolean[]			mClickedDialogEntryIndices;
+	public static final String DEFAULT_SEPARATOR = "OV=I=XseparatorX=I=VO";
+	private             String mSeparator        = DEFAULT_SEPARATOR;
+	private             String mCheckAllKey      = null;
+	private boolean[] mClickedDialogEntryIndices;
 
 	public ListPreferenceMultiSelect(Context context) {
 		this(context, null);
@@ -93,7 +90,8 @@ public class ListPreferenceMultiSelect extends AirListPreference {
 						}
 						mClickedDialogEntryIndices[which] = val;
 					}
-				});
+				}
+		);
 	}
 
 	private boolean isCheckAllValue(int which) {
@@ -157,8 +155,7 @@ public class ListPreferenceMultiSelect extends AirListPreference {
 		}
 	}
 
-	private static String join(Iterable<? extends Object> pColl, String separator)
-	{
+	private static String join(Iterable<? extends Object> pColl, String separator) {
 		final Iterator<? extends Object> oIter;
 		if (pColl == null || (!(oIter = pColl.iterator()).hasNext())) return "";
 		final StringBuilder stringBuilder = new StringBuilder(String.valueOf(oIter.next()));
@@ -169,14 +166,11 @@ public class ListPreferenceMultiSelect extends AirListPreference {
 	}
 
 	// TODO: Would like to keep this static but separator then needs to be put in by hand or use default separator "OV=I=XseparatorX=I=VO"...
+
 	/**
-	 * 
-	 * @param straw
-	 *            String to be found
-	 * @param haystack
-	 *            Raw string that can be read direct from preferences
-	 * @param separator
-	 *            Separator string. If null, static default separator will be used
+	 * @param straw     String to be found
+	 * @param haystack  Raw string that can be read direct from preferences
+	 * @param separator Separator string. If null, static default separator will be used
 	 * @return boolean TRUE if the straw was found in the haystack
 	 */
 	public static boolean contains(String straw, String haystack, String separator) {

@@ -51,8 +51,8 @@ import com.aircandi.utilities.UI;
 @SuppressWarnings("deprecation")
 public class Preferences extends SherlockPreferenceActivity implements OnSharedPreferenceChangeListener {
 
-	protected BusyManager	mBusy;
-	protected ColorDrawable	mDivider; // NO_UCD (unused code)
+	protected BusyManager   mBusy;
+	protected ColorDrawable mDivider; // NO_UCD (unused code)
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -97,12 +97,12 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 
 		if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
 			int color = getResources().getColor(R.color.stroke_button_dark);
-			int[] colors = { color, color, color };
+			int[] colors = {color, color, color};
 			list.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, colors));
 		}
 		else {
 			int color = getResources().getColor(R.color.stroke_button_light);
-			int[] colors = { color, color, color };
+			int[] colors = {color, color, color};
 			list.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, colors));
 		}
 
@@ -412,7 +412,9 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 		}
 	}
 
-	/** Sets up the action bar for an {@link PreferenceScreen} */
+	/**
+	 * Sets up the action bar for an {@link PreferenceScreen}
+	 */
 	@SuppressLint("NewApi")
 	public static void initializeActionBar(PreferenceScreen preferenceScreen) {
 

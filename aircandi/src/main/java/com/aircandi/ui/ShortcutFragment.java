@@ -53,26 +53,26 @@ import com.aircandi.utilities.UI;
 @SuppressWarnings("ucd")
 public class ShortcutFragment extends BaseFragment {
 
-	protected static int		mScrollX		= 0;
-	protected static int		mScrollY		= -1;
+	protected static int mScrollX = 0;
+	protected static int mScrollY = -1;
 
-	protected ScrollView		mScrollView;
-	protected ViewGroup			mHolderShortcuts;
+	protected ScrollView mScrollView;
+	protected ViewGroup  mHolderShortcuts;
 
-	private Integer				mEmptyMessageResId;
+	private Integer mEmptyMessageResId;
 
-	protected String			mShortcutType;
-	protected Integer			mShortcutWidthPixels;
-	protected Integer			mShortcutHeightPixels;
-	protected Integer			mShortcutCount	= 0;
+	protected String  mShortcutType;
+	protected Integer mShortcutWidthPixels;
+	protected Integer mShortcutHeightPixels;
+	protected Integer mShortcutCount = 0;
 
-	protected List<View>		mCurrentScrap	= new ArrayList<View>();
-	protected List<FlowLayout>	mFlowLayouts	= new ArrayList<FlowLayout>();
+	protected List<View>       mCurrentScrap = new ArrayList<View>();
+	protected List<FlowLayout> mFlowLayouts  = new ArrayList<FlowLayout>();
 
-	protected Entity			mEntity;
-	private IQuery				mQuery;
+	protected Entity   mEntity;
+	private   IQuery   mQuery;
 	@SuppressWarnings("unused")
-	private IMonitor			mMonitor;
+	private   IMonitor mMonitor;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -305,7 +305,7 @@ public class ShortcutFragment extends BaseFragment {
 					, Constants.TYPE_APP_INTENT
 					, null
 					, StringManager.getString(moreResId)
-                    , null
+					, null
 					, "img_more"
 					, 10
 					, false
@@ -317,8 +317,8 @@ public class ShortcutFragment extends BaseFragment {
 
 		final FlowLayout flow = (FlowLayout) section.findViewById(R.id.flow_shortcuts);
 		flowShortcuts(flow, (shortcuts.size() > flowLimit)
-				? shortcuts.subList(0, flowLimit)
-				: shortcuts, flowItemResId);
+		                    ? shortcuts.subList(0, flowLimit)
+		                    : shortcuts, flowItemResId);
 
 		if (getView() != null) {
 			mFlowLayouts.add(flow);
@@ -389,19 +389,19 @@ public class ShortcutFragment extends BaseFragment {
 
 				if (shortcut.app.equals(Constants.TYPE_APP_FACEBOOK)) {
 					badgeLower.setBackgroundResource(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_facebook_light
-							: R.drawable.ic_action_facebook_dark);
+					                                                                            : R.drawable.ic_action_facebook_dark);
 				}
 				else if (shortcut.app.equals(Constants.TYPE_APP_TWITTER)) {
 					badgeLower.setBackgroundResource(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_twitter_light
-							: R.drawable.ic_action_twitter_dark);
+					                                                                            : R.drawable.ic_action_twitter_dark);
 				}
 				else if (shortcut.app.equals(Constants.TYPE_APP_WEBSITE)) {
 					badgeLower.setBackgroundResource(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_website_light
-							: R.drawable.ic_action_website_dark);
+					                                                                            : R.drawable.ic_action_website_dark);
 				}
 				else if (shortcut.app.equals(Constants.TYPE_APP_FOURSQUARE)) {
 					badgeLower.setBackgroundResource(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_foursquare_light
-							: R.drawable.ic_action_foursquare_dark);
+					                                                                            : R.drawable.ic_action_foursquare_dark);
 				}
 				badgeLower.setVisibility(View.VISIBLE);
 			}
@@ -466,7 +466,7 @@ public class ShortcutFragment extends BaseFragment {
 		super.onSaveInstanceState(outState);
 		Logger.d(this, "Fragment saving state");
 		if (mScrollView != null) {
-			outState.putIntArray("ARTICLE_SCROLL_POSITION", new int[] { mScrollView.getScrollX(), mScrollView.getScrollY() });
+			outState.putIntArray("ARTICLE_SCROLL_POSITION", new int[]{mScrollView.getScrollX(), mScrollView.getScrollY()});
 		}
 	}
 

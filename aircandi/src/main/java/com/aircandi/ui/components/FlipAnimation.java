@@ -1,23 +1,23 @@
 /**
  * Copyright (c) 2012 Ephraim Tekle genzeb@gmail.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction, including
  * without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
  * following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all copies or substantial
  * portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
  * LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
  * NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- * 
+ *
  * @author Ephraim A. Tekle
- * 
+ *
  */
 package com.aircandi.ui.components;
 
@@ -29,52 +29,45 @@ import android.view.animation.Transformation;
 /**
  * This class extends Animation to support a 3D flip view transition animation. Two instances of this class is
  * required: one for the "from" view and another for the "to" view.
- * 
+ * <p/>
  * NOTE: use {@link AnimationFactory} to use this class.
- * 
+ *
  * @author Ephraim A. Tekle
- * 
  */
 public class FlipAnimation extends Animation {
-	public static final int			ROTATION_X		= 0;
-	public static final int			ROTATION_Y		= 1;
-	private final float				mFromDegrees;
-	private final float				mToDegrees;
-	private final float				mCenterX;
-	private final float				mCenterY;
-	private Camera					mCamera;
-	private int						mDirection;
+	public static final int ROTATION_X = 0;
+	public static final int ROTATION_Y = 1;
+	private final float  mFromDegrees;
+	private final float  mToDegrees;
+	private final float  mCenterX;
+	private final float  mCenterY;
+	private       Camera mCamera;
+	private       int    mDirection;
 
-	private final ScaleUpDownEnum	scaleType;
+	private final ScaleUpDownEnum scaleType;
 
 	/**
 	 * How much to scale up/down. The default scale of 75% of full size seems optimal based on testing. Feel free to
 	 * experiment away, however.
 	 */
-	public static final float		SCALE_DEFAULT	= 0.75f;
+	public static final float SCALE_DEFAULT = 0.75f;
 
-	private float					scale;
+	private float scale;
 
 	/**
 	 * Constructs a new {@code FlipAnimation} object.Two {@code FlipAnimation} objects are needed for a complete
 	 * transition b/n two views.
-	 * 
-	 * @param fromDegrees
-	 *            the start angle in degrees for a rotation along the y-axis, i.e. in-and-out of the screen, i.e. 3D
-	 *            flip. This should really be multiple of 90 degrees.
-	 * @param toDegrees
-	 *            the end angle in degrees for a rotation along the y-axis, i.e. in-and-out of the screen, i.e. 3D flip.
-	 *            This should really be multiple of 90 degrees.
-	 * @param centerX
-	 *            the x-axis value of the center of rotation
-	 * @param centerY
-	 *            the y-axis value of the center of rotation
-	 * @param scale
-	 *            to get a 3D effect, the transition views need to be zoomed (scaled). This value must be b/n (0,1) or
-	 *            else the default scale {@link #SCALE_DEFAULT} is used.
-	 * @param scaleType
-	 *            flip view transition is broken down into two: the zoom-out of the "from" view and the zoom-in of the
-	 *            "to" view. This parameter is used to determine which is being done. See {@link ScaleUpDownEnum}.
+	 *
+	 * @param fromDegrees the start angle in degrees for a rotation along the y-axis, i.e. in-and-out of the screen, i.e. 3D
+	 *                    flip. This should really be multiple of 90 degrees.
+	 * @param toDegrees   the end angle in degrees for a rotation along the y-axis, i.e. in-and-out of the screen, i.e. 3D flip.
+	 *                    This should really be multiple of 90 degrees.
+	 * @param centerX     the x-axis value of the center of rotation
+	 * @param centerY     the y-axis value of the center of rotation
+	 * @param scale       to get a 3D effect, the transition views need to be zoomed (scaled). This value must be b/n (0,1) or
+	 *                    else the default scale {@link #SCALE_DEFAULT} is used.
+	 * @param scaleType   flip view transition is broken down into two: the zoom-out of the "from" view and the zoom-in of the
+	 *                    "to" view. This parameter is used to determine which is being done. See {@link ScaleUpDownEnum}.
 	 */
 	public FlipAnimation(float fromDegrees, float toDegrees, float centerX, float centerY, float scale, ScaleUpDownEnum scaleType) {
 		mFromDegrees = fromDegrees;
@@ -122,7 +115,7 @@ public class FlipAnimation extends Animation {
 
 	/**
 	 * Get the current direction, it can be {@link #ROTATION_X} or {#ROTATION_Y}
-	 * 
+	 *
 	 * @param direction
 	 */
 	public void setDirection(int direction) {
@@ -131,9 +124,8 @@ public class FlipAnimation extends Animation {
 
 	/**
 	 * This enumeration is used to determine the zoom (or scale) behavior of a {@link FlipAnimation}.
-	 * 
+	 *
 	 * @author Ephraim A. Tekle
-	 * 
 	 */
 	@SuppressWarnings("ucd")
 	public static enum ScaleUpDownEnum {
@@ -156,11 +148,9 @@ public class FlipAnimation extends Animation {
 
 		/**
 		 * The intermittent zoom level given the current or desired maximum zoom level for the specified iteration
-		 * 
-		 * @param max
-		 *            the maximum desired or current zoom level
-		 * @param iter
-		 *            the iteration (from 0..1).
+		 *
+		 * @param max  the maximum desired or current zoom level
+		 * @param iter the iteration (from 0..1).
 		 * @return the current zoom level
 		 */
 		public float getScale(float max, float iter) {

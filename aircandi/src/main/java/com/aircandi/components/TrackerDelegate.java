@@ -5,7 +5,7 @@ import android.support.v4.app.Fragment;
 
 @SuppressWarnings("ucd")
 public interface TrackerDelegate {
-	
+
 	public void sendEvent(String category, String action, String target, long value);
 
 	public void sendTiming(String category, Long timing, String name, String label);

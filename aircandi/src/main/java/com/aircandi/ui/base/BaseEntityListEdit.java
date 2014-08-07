@@ -36,17 +36,17 @@ import com.aircandi.utilities.UI;
 
 public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 
-	protected ListView		mList;
-	protected Integer		mListItemResId;
-	protected Integer		mListNewMessageResId;
-	protected Boolean		mListNewEnabled	= false;
-	protected Entity		mEntityEditing;
+	protected ListView mList;
+	protected Integer  mListItemResId;
+	protected Integer  mListNewMessageResId;
+	protected Boolean mListNewEnabled = false;
+	protected Entity mEntityEditing;
 
 	/* Inputs */
-	protected String		mEntityId;
-	protected List<Entity>	mEntities		= new ArrayList<Entity>();
-	protected String		mListSchema;
-	protected ArrayAdapter	mAdapter;
+	protected String mEntityId;
+	protected List<Entity> mEntities = new ArrayList<Entity>();
+	protected String       mListSchema;
+	protected ArrayAdapter mAdapter;
 
 	@Override
 	public void unpackIntent() {
@@ -320,8 +320,8 @@ public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 		}
 
 		message.setText((deleteCount == 1)
-				? R.string.alert_delete_applink_message_single
-				: R.string.alert_delete_applink_message_multiple);
+		                ? R.string.alert_delete_applink_message_single
+		                : R.string.alert_delete_applink_message_multiple);
 
 		final AlertDialog dialog = Dialogs.alertDialog(null
 				, StringManager.getString(R.string.alert_delete_applink_title)
@@ -333,20 +333,20 @@ public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 				, null
 				, new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (which == DialogInterface.BUTTON_POSITIVE) {
-							for (int i = mEntities.size() - 1; i >= 0; i--) {
-								if (mEntities.get(i).checked) {
-									Entity removed = mEntities.remove(i);
-									mAdapter.remove(removed);
-								}
-							}
-							mDirty = true;
-							mAdapter.notifyDataSetChanged();
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					for (int i = mEntities.size() - 1; i >= 0; i--) {
+						if (mEntities.get(i).checked) {
+							Entity removed = mEntities.remove(i);
+							mAdapter.remove(removed);
 						}
 					}
+					mDirty = true;
+					mAdapter.notifyDataSetChanged();
 				}
+			}
+		}
 				, null);
 		dialog.setCanceledOnTouchOutside(false);
 	}
@@ -362,13 +362,16 @@ public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 	}
 
 	@Override
-	protected void insert() {}
+	protected void insert() {
+	}
 
 	@Override
-	protected void update() {}
+	protected void update() {
+	}
 
 	@Override
-	protected void delete() {}
+	protected void delete() {
+	}
 
 	protected void rebuildPositions() {
 		Integer position = 0;
@@ -402,9 +405,9 @@ public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 
 	protected abstract static class EntityListAdapter extends ArrayAdapter<Entity> implements Filterable {
 
-		protected Integer				mItemLayoutId;
-		protected final List<Entity>	mListItems;
-		protected Context				mContext;
+		protected       Integer      mItemLayoutId;
+		protected final List<Entity> mListItems;
+		protected       Context      mContext;
 
 		protected EntityListAdapter(Context context, List<Entity> entities, Integer itemLayoutId) {
 			super(context, 0, entities);
@@ -514,11 +517,11 @@ public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 		}
 
 		private static class ViewHolder {
-			private AirImageView	photoView;
-			private TextView		name;
-			private TextView		subtitle;
-			private TextView		description;
-			private CheckBox		checked;
+			private AirImageView photoView;
+			private TextView     name;
+			private TextView     subtitle;
+			private TextView     description;
+			private CheckBox     checked;
 		}
 	}
 }

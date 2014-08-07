@@ -12,8 +12,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -23,18 +21,14 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import com.actionbarsherlock.view.Menu;
 import com.aircandi.Aircandi;
 import com.aircandi.Aircandi.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
@@ -48,10 +42,7 @@ import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.monitors.IMonitor;
 import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.Applink;
-import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Link.Direction;
-import com.aircandi.objects.Photo;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.queries.EntitiesQuery;
@@ -59,18 +50,11 @@ import com.aircandi.queries.IQuery;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.base.IBusy.BusyAction;
-import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.ui.widgets.AirListView.DragDirection;
 import com.aircandi.ui.widgets.AirListView.DragEvent;
 import com.aircandi.ui.widgets.AirListView.OnDragListener;
 import com.aircandi.ui.widgets.AirSwipeRefreshLayout;
-import com.aircandi.ui.widgets.CandiView;
-import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
-import com.aircandi.ui.widgets.ComboButton;
-import com.aircandi.ui.widgets.EntityView;
-import com.aircandi.ui.widgets.UserView;
-import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
 import com.nineoldandroids.animation.ObjectAnimator;
@@ -79,45 +63,45 @@ import com.nineoldandroids.view.ViewHelper;
 public class EntityListFragment extends BaseFragment implements OnClickListener {
 
 	/* Widgets */
-	protected AbsListView				mListView;
-	protected View						mLoadingView;
-	protected View						mHeaderView;
-	protected View						mHeaderCandiView;										// NO_UCD (unused code)
-	protected View						mFooterView;
-	protected View						mFooterHolder;
+	protected AbsListView mListView;
+	protected View        mLoadingView;
+	protected View        mHeaderView;
+	protected View        mHeaderCandiView;                                        // NO_UCD (unused code)
+	protected View        mFooterView;
+	protected View        mFooterHolder;
 
 	/* Resources */
-	protected Integer					mHeaderViewResId;
-	protected Integer					mFooterViewResId;
-	protected Integer					mBackgroundResId;
-	protected Integer					mListItemResId;
-	protected Integer					mListLayoutResId	= R.layout.entity_list_fragment;
-	protected Integer					mListLoadingResId;
-	protected Integer					mListButtonMessageResId;
-	protected Integer					mListEmptyMessageResId;
+	protected Integer mHeaderViewResId;
+	protected Integer mFooterViewResId;
+	protected Integer mBackgroundResId;
+	protected Integer mListItemResId;
+	protected Integer mListLayoutResId = R.layout.entity_list_fragment;
+	protected Integer mListLoadingResId;
+	protected Integer mListButtonMessageResId;
+	protected Integer mListEmptyMessageResId;
 
 	/* Configuration */
-	protected String					mListViewType;
-	protected Boolean					mListPagingEnabled	= true;
-	protected Boolean					mParallaxHeader		= false;
-	protected Boolean					mEntityCacheEnabled	= true;
-	protected Boolean					mFooterHolderHidden	= false;
-	protected Boolean					mFooterHolderLocked	= false;
-	protected Boolean					mReverseSort		= false;
+	protected String mListViewType;
+	protected Boolean mListPagingEnabled  = true;
+	protected Boolean mParallaxHeader     = false;
+	protected Boolean mEntityCacheEnabled = true;
+	protected Boolean mFooterHolderHidden = false;
+	protected Boolean mFooterHolderLocked = false;
+	protected Boolean mReverseSort        = false;
 
 	/* Runtime data */
-	protected Integer					mPhotoWidthPixels;
-	protected Integer					mVisibleColumns		= 1;
-	protected Integer					mVisibleRows		= 3;
-	protected Integer					mTopOffset;											// NO_UCD (unused code)
-	protected Integer					mLastViewedPosition;									// NO_UCD (unused code)
+	protected Integer mPhotoWidthPixels;
+	protected Integer mVisibleColumns = 1;
+	protected Integer mVisibleRows    = 3;
+	protected Integer mTopOffset;                                            // NO_UCD (unused code)
+	protected Integer mLastViewedPosition;                                    // NO_UCD (unused code)
 
 	/* Data binding */
-	protected List<Entity>				mEntities			= new ArrayList<Entity>();
-	protected Map<String, Highlight>	mHighlightEntities	= new HashMap<String, Highlight>();
-	protected IQuery					mQuery;
-	protected SimpleMonitor				mMonitor;
-	protected ListAdapter				mAdapter;
+	protected List<Entity>           mEntities          = new ArrayList<Entity>();
+	protected Map<String, Highlight> mHighlightEntities = new HashMap<String, Highlight>();
+	protected IQuery        mQuery;
+	protected SimpleMonitor mMonitor;
+	protected ListAdapter   mAdapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -259,7 +243,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	}
 
 	@Override
-	protected void preBind() {}
+	protected void preBind() {
+	}
 
 	@Override
 	public void bind(final BindingMode mode) {
@@ -805,12 +790,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		saveListPosition();
 	}
 
-	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
-		Logger.d(this, "Preparing options menu");
-	}
-
 	// --------------------------------------------------------------------------------------------
 	// Classes
 	// --------------------------------------------------------------------------------------------
@@ -824,7 +803,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 
-			if (mListPagingEnabled && mQuery != null && mQuery.isMore() && position == mEntities.size()) return mLoadingView;
+			if (mListPagingEnabled && mQuery != null && mQuery.isMore() && position == mEntities.size())
+				return mLoadingView;
 
 			View view = convertView;
 
@@ -903,39 +883,39 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 	protected void bindListItem(Entity entity, View view) {
 		IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
-        controller.bind(entity, view);
+		controller.bind(entity, view);
 
 		/* Special highlighting */
 
-        if (mHighlightEntities.size() > 0) {
-            view.setBackgroundResource(mBackgroundResId);
-            if (mHighlightEntities.containsKey(entity.id)) {
-                Highlight highlight = mHighlightEntities.get(entity.id);
-                if (!highlight.isOneShot() || !highlight.hasFired()) {
-                    if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
-                        view.setBackgroundResource(R.drawable.selector_image_highlight_dark);
-                    }
-                    else {
-                        view.setBackgroundResource(R.drawable.selector_image_highlight_light);
-                    }
-                    highlight.setFired(true);
-                }
-            }
-        }
+		if (mHighlightEntities.size() > 0) {
+			view.setBackgroundResource(mBackgroundResId);
+			if (mHighlightEntities.containsKey(entity.id)) {
+				Highlight highlight = mHighlightEntities.get(entity.id);
+				if (!highlight.isOneShot() || !highlight.hasFired()) {
+					if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
+						view.setBackgroundResource(R.drawable.selector_image_highlight_dark);
+					}
+					else {
+						view.setBackgroundResource(R.drawable.selector_image_highlight_light);
+					}
+					highlight.setFired(true);
+				}
+			}
+		}
 	}
 
-    public void drawHighlights(Entity entity, View view) {
+	public void drawHighlights(Entity entity, View view) {
 
-    }
+	}
 
-    public static class ViewType {
-		public static String	LIST	= "list";
-		public static String	GRID	= "grid";
+	public static class ViewType {
+		public static String LIST = "list";
+		public static String GRID = "grid";
 	}
 
 	public static class Highlight {
-		private Boolean	oneShot	= false;
-		private Boolean	fired	= false;
+		private Boolean oneShot = false;
+		private Boolean fired   = false;
 
 		@SuppressWarnings("ucd")
 		public Highlight(Boolean oneShot) {

@@ -8,10 +8,8 @@ import com.aircandi.utilities.Json;
 
 public class Extras {
 
-	protected Bundle	mExtras	= new Bundle();
-	protected Entity	mEntity;
-
-	
+	protected Bundle mExtras = new Bundle();
+	protected Entity mEntity;
 
 	// --------------------------------------------------------------------------------------------
 	// Setters
@@ -40,6 +38,13 @@ public class Extras {
 	public Extras setEntityParentId(String entityParentId) {
 		if (entityParentId != null) {
 			mExtras.putString(Constants.EXTRA_ENTITY_PARENT_ID, entityParentId);
+		}
+		return this;
+	}
+
+	public Extras setEntityForId(String entityForId) {
+		if (entityForId != null) {
+			mExtras.putString(Constants.EXTRA_ENTITY_FOR_ID, entityForId);
 		}
 		return this;
 	}

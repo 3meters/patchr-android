@@ -3,6 +3,7 @@ package com.aircandi.ui.edit;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -34,9 +35,10 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 
+@SuppressLint("Registered")
 public class ApplinkListEdit extends BaseEntityListEdit {
 
-	protected Boolean	mHelpDisplayed	= false;
+	protected Boolean mHelpDisplayed = false;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -147,8 +149,8 @@ public class ApplinkListEdit extends BaseEntityListEdit {
 					/* Did we get back extra entities? */
 					if (entities.size() > ((requestCode == Constants.ACTIVITY_ENTITY_INSERT) ? 1 : 0)) {
 						UI.showToastNotification(StringManager.getString((entities.size() == 1)
-								? R.string.alert_applinks_linked
-								: R.string.alert_applinks_linked), Toast.LENGTH_SHORT);
+						                                                 ? R.string.alert_applinks_linked
+						                                                 : R.string.alert_applinks_linked), Toast.LENGTH_SHORT);
 					}
 				}
 			}
@@ -227,8 +229,8 @@ public class ApplinkListEdit extends BaseEntityListEdit {
 							else {
 								mDirty = true;
 								UI.showToastNotification(StringManager.getString((applinks.size() == 1)
-										? R.string.alert_applinks_linked
-										: R.string.alert_applinks_linked), Toast.LENGTH_SHORT);
+								                                                 ? R.string.alert_applinks_linked
+								                                                 : R.string.alert_applinks_linked), Toast.LENGTH_SHORT);
 							}
 						}
 
@@ -402,13 +404,13 @@ public class ApplinkListEdit extends BaseEntityListEdit {
 		}
 
 		private static class ViewHolder {
-			private AirImageView	photoView;
-			private TextView		name;
-			private TextView		appId;
-			private TextView		alert;
-			private TextView		appUrl;
-			private TextView		type;
-			private CheckBox		checked;
+			private AirImageView photoView;
+			private TextView     name;
+			private TextView     appId;
+			private TextView     alert;
+			private TextView     appUrl;
+			private TextView     type;
+			private CheckBox     checked;
 		}
 	}
 }

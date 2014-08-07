@@ -16,7 +16,7 @@ public class AirCheckBoxPreference extends CheckBoxPreference {
 
 	public AirCheckBoxPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		
+
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.AirCheckBoxPreference, 0, 0);
 		Integer keyId = ta.getResourceId(R.styleable.AirCheckBoxPreference_keyId, 0);
 		ta.recycle();

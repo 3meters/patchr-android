@@ -1,280 +1,281 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <attr name="layout" format="integer"/>
-    <attr name="textId" format="integer"/>
-    <attr name="keyId" format="integer"/>
-    <attr name="label" format="integer|string"/>
-    <attr name="maxWidth" format="dimension"/>
-    <attr name="showBusy" format="boolean"/>
-    <attr name="colorize" format="boolean"/>
-    <attr name="drawable" format="reference"/>
-    <attr name="drawableScale" format="float"/>
-    <attr name="sizeHint" format="dimension"/>
-    <attr name="sizeType" format="enum">
-        <enum name="fullsize" value="0"/>
-        <enum name="preview" value="1"/>
-        <enum name="thumbnail" value="2"/>
-        <enum name="fullsize_capped" value="3"/>
-        <enum name="preview_large" value="4"/>
-    </attr>
-    <attr name="parallax_factor" format="float"/>
-    <attr name="inner_parallax_factor" format="float"/>
-    <attr name="parallax_views_num" format="integer"/>
-    <attr name="circular_parallax" format="boolean"/>
-    <attr name="layoutHeader" format="integer"/>
-    <attr name="layoutFooter" format="integer"/>
-    <attr name="headerTitle" format="string"/>
-    <attr name="layoutItems" format="integer"/>
-    <attr name="itemMaxCount" format="integer"/>
-    <attr name="showDivider" format="boolean"/>
-    <attr name="maxLines" format="integer"/>
-    <attr name="hint" format="string"/>
-    <attr name="checkAll" format="string"/>
-    <attr name="separator" format="string"/>
-    <attr name="prefix" format="string"/>
+	<attr name="layout" format="integer" />
+	<attr name="textId" format="integer" />
+	<attr name="keyId" format="integer" />
+	<attr name="label" format="integer|string" />
+	<attr name="maxWidth" format="dimension" />
+	<attr name="showBusy" format="boolean" />
+	<attr name="colorize" format="boolean" />
+	<attr name="drawable" format="reference" />
+	<attr name="drawableScale" format="float" />
+	<attr name="sizeHint" format="dimension" />
+	<attr name="sizeType" format="enum">
+		<enum name="fullsize" value="0" />
+		<enum name="preview" value="1" />
+		<enum name="thumbnail" value="2" />
+		<enum name="fullsize_capped" value="3" />
+		<enum name="preview_large" value="4" />
+	</attr>
+	<attr name="parallax_factor" format="float" />
+	<attr name="inner_parallax_factor" format="float" />
+	<attr name="parallax_views_num" format="integer" />
+	<attr name="circular_parallax" format="boolean" />
+	<attr name="layoutHeader" format="integer" />
+	<attr name="layoutFooter" format="integer" />
+	<attr name="headerTitle" format="string" />
+	<attr name="layoutItems" format="integer" />
+	<attr name="itemMaxCount" format="integer" />
+	<attr name="showDivider" format="boolean" />
+	<attr name="maxLines" format="integer" />
+	<attr name="hint" format="string" />
+	<attr name="checkAll" format="string" />
+	<attr name="separator" format="string" />
+	<attr name="prefix" format="string" />
 
-    <!-- Fixed aspect ratio -->
-    <attr name="aspectRatio" format="float"/>
-    <attr name="aspectRatioEnabled" format="boolean"/>
-    <attr name="dominantMeasurement">
-        <enum name="width" value="0"/>
-        <enum name="height" value="1"/>
-    </attr>
+	<!-- Fixed aspect ratio -->
+	<attr name="aspectRatio" format="float" />
+	<attr name="aspectRatioEnabled" format="boolean" />
+	<attr name="dominantMeasurement">
+		<enum name="width" value="0" />
+		<enum name="height" value="1" />
+	</attr>
 
-    <!-- Smooth progress bar -->
-    <attr name="spbStyle" format="reference"/>
-    <attr name="spb_color" format="color"/>
-    <attr name="spb_stroke_width" format="dimension"/>
-    <attr name="spb_stroke_separator_length" format="dimension"/>
-    <attr name="spb_sections_count" format="integer"/>
-    <attr name="spb_speed" format="float"/>
-    <attr name="spb_interpolator" format="enum">
-        <enum name="spb_interpolator_accelerate" value="0"/>
-        <enum name="spb_interpolator_linear" value="1"/>
-        <enum name="spb_interpolator_acceleratedecelerate" value="2"/>
-        <enum name="spb_interpolator_decelerate" value="3"/>
-    </attr>
-    <attr name="spb_reversed" format="boolean"/>
-    <attr name="spb_mirror_mode" format="boolean"/>
-    <attr name="spb_colors" format="reference"/>
+	<!-- Smooth progress bar -->
+	<attr name="spbStyle" format="reference" />
+	<attr name="spb_color" format="color" />
+	<attr name="spb_stroke_width" format="dimension" />
+	<attr name="spb_stroke_separator_length" format="dimension" />
+	<attr name="spb_sections_count" format="integer" />
+	<attr name="spb_speed" format="float" />
+	<attr name="spb_interpolator" format="enum">
+		<enum name="spb_interpolator_accelerate" value="0" />
+		<enum name="spb_interpolator_linear" value="1" />
+		<enum name="spb_interpolator_acceleratedecelerate" value="2" />
+		<enum name="spb_interpolator_decelerate" value="3" />
+	</attr>
+	<attr name="spb_reversed" format="boolean" />
+	<attr name="spb_mirror_mode" format="boolean" />
+	<attr name="spb_colors" format="reference" />
 
-    <!-- Theme attributes -->
-    <declare-styleable name="AircandiTheme">
-        <attr name="themeTone" format="string"/>
-        <attr name="busy" format="reference"/>
-        <attr name="textAppearanceMediumLarge" format="reference"/>
-        <attr name="textAppearanceExtraLarge" format="reference"/>
-        <attr name="textAppearanceExtraSmall" format="reference"/>
-        <attr name="textAppearanceTiny" format="reference"/>
-        <attr name="candiFormTitleStyle" format="reference"/>
-        <attr name="candiListTitleStyle" format="reference"/>
-        <attr name="ruleColor" format="color|reference"/>
-        <attr name="ruleColorStrong" format="color|reference"/>
-        <attr name="textColor" format="color|reference"/>
-        <attr name="textColorInverse" format="color|reference"/>
-        <attr name="textColorPure" format="color|reference"/>
-        <attr name="textColorSecondary" format="color|reference"/>
-        <attr name="textColorAlert" format="color|reference"/>
-        <attr name="textColorSpinner" format="color|reference"/>
-        <attr name="textColorUnfocused" format="color|reference"/>
-        <attr name="textColorButtonLink" format="color|reference"/>
-        <attr name="textColorBullet" format="color|reference"/>
-        <attr name="textColorBars" format="color|reference"/>
-        <attr name="textColorProgress" format="color|reference"/>
-        <attr name="textColorCandiView" format="color|reference"/>
-        <attr name="textColorCandiViewSynthetic" format="color|reference"/>
-        <attr name="textSelector" format="color|reference"/>
-        <attr name="highlightColor" format="color|reference"/>
-        <attr name="cardShadowColor" format="color|reference"/>
-        <attr name="cardHighlightColor" format="color|reference"/>
-        <attr name="textOutlineRadar" format="boolean"/>
-        <attr name="backgroundAccuracyNone" format="color|reference"/>
-        <attr name="backgroundBalloon" format="color|reference"/>
-        <attr name="backgroundBalloonOnGray" format="color|reference"/>
-        <attr name="backgroundButton" format="color|reference"/>
-        <attr name="backgroundButtonLink" format="color|reference"/>
-        <attr name="backgroundButtonRound" format="color|reference"/>
-        <attr name="backgroundButtonRoundGlow" format="color|reference"/>
-        <attr name="backgroundButtonShare" format="color|reference"/>
-        <attr name="backgroundCandi" format="color|reference"/>
-        <attr name="backgroundCard" format="color|reference"/>
-        <attr name="backgroundCardField" format="color|reference"/>
-        <attr name="backgroundDrawer" format="color|reference"/>
-        <attr name="backgroundForm" format="color|reference"/>
-        <attr name="backgroundFormSecondary" format="color|reference"/>
-        <attr name="backgroundHelp" format="color|reference"/>
-        <attr name="backgroundPictureFramed" format="color|reference"/>
-        <attr name="backgroundPlaceholder" format="color|reference"/>
-        <attr name="backgroundProgress" format="color|reference"/>
-        <attr name="backgroundSpinner" format="color|reference"/>
-        <attr name="backgroundToken" format="color|reference"/>
-        <attr name="badgeColor" format="color|reference"/>
-        <attr name="badgeColorSynthetic" format="color|reference"/>
-        <attr name="imgLogo" format="reference"/>
-        <attr name="iconAccept" format="reference"/>
-        <attr name="iconAdd" format="reference"/>
-        <attr name="iconAndroid" format="reference"/>
-        <attr name="iconCall" format="reference"/>
-        <attr name="iconCamera" format="reference"/>
-        <attr name="iconCancel" format="reference"/>
-        <attr name="iconClear" format="reference"/>
-        <attr name="iconDelete" format="reference"/>
-        <attr name="iconDrawer" format="reference"/>
-        <attr name="iconEdit" format="reference"/>
-        <attr name="iconExit" format="reference"/>
-        <attr name="iconGallery" format="reference"/>
-        <attr name="iconGooglePlay" format="reference"/>
-        <attr name="iconHelp" format="reference"/>
-        <attr name="iconHome" format="reference"/>
-        <attr name="iconInbox" format="reference"/>
-        <attr name="iconInfo" format="reference"/>
-        <attr name="iconKey" format="reference"/>
-        <attr name="iconLike" format="reference"/>
-        <attr name="iconLikeInvert" format="reference"/>
-        <attr name="iconList" format="reference"/>
-        <attr name="iconLocation" format="reference"/>
-        <attr name="iconLocked" format="reference"/>
-        <attr name="iconMap" format="reference"/>
-        <attr name="iconMore" format="reference"/>
-        <attr name="iconMoveUp" format="reference"/>
-        <attr name="iconMoveDown" format="reference"/>
-        <attr name="iconNewCandi" format="reference"/>
-        <attr name="iconOverflow" format="reference"/>
-        <attr name="iconPicture" format="reference"/>
-        <attr name="iconPlaceNew" format="reference"/>
-        <attr name="iconReload" format="reference"/>
-        <attr name="iconSave" format="reference"/>
-        <attr name="iconSearch" format="reference"/>
-        <attr name="iconSend" format="reference"/>
-        <attr name="iconSettings" format="reference"/>
-        <attr name="iconShare" format="reference"/>
-        <attr name="iconSignal" format="reference"/>
-        <attr name="iconStarOn" format="reference"/>
-        <attr name="iconStarOff" format="reference"/>
-        <attr name="iconTrend" format="reference"/>
-        <attr name="iconTune" format="reference"/>
-        <attr name="iconUser" format="reference"/>
-        <attr name="iconUsers" format="reference"/>
-        <attr name="iconWatch" format="reference"/>
-        <attr name="iconWatchInvert" format="reference"/>
-        <attr name="iconZoom" format="reference"/>
-        <attr name="iconZoomIn" format="reference"/>
-        <attr name="iconZoomOut" format="reference"/>
-    </declare-styleable>
+	<!-- Theme attributes -->
+	<declare-styleable name="AircandiTheme">
+		<attr name="themeTone" format="string" />
+		<attr name="busy" format="reference" />
+		<attr name="textAppearanceMediumLarge" format="reference" />
+		<attr name="textAppearanceExtraLarge" format="reference" />
+		<attr name="textAppearanceExtraSmall" format="reference" />
+		<attr name="textAppearanceTiny" format="reference" />
+		<attr name="candiFormTitleStyle" format="reference" />
+		<attr name="candiListTitleStyle" format="reference" />
+		<attr name="ruleColor" format="color|reference" />
+		<attr name="ruleColorStrong" format="color|reference" />
+		<attr name="textColor" format="color|reference" />
+		<attr name="textColorInverse" format="color|reference" />
+		<attr name="textColorPure" format="color|reference" />
+		<attr name="textColorSecondary" format="color|reference" />
+		<attr name="textColorAlert" format="color|reference" />
+		<attr name="textColorSpinner" format="color|reference" />
+		<attr name="textColorUnfocused" format="color|reference" />
+		<attr name="textColorButtonLink" format="color|reference" />
+		<attr name="textColorBullet" format="color|reference" />
+		<attr name="textColorBars" format="color|reference" />
+		<attr name="textColorProgress" format="color|reference" />
+		<attr name="textColorCandiView" format="color|reference" />
+		<attr name="textColorCandiViewSynthetic" format="color|reference" />
+		<attr name="textSelector" format="color|reference" />
+		<attr name="highlightColor" format="color|reference" />
+		<attr name="cardShadowColor" format="color|reference" />
+		<attr name="cardHighlightColor" format="color|reference" />
+		<attr name="textOutlineRadar" format="boolean" />
+		<attr name="backgroundAccuracyNone" format="color|reference" />
+		<attr name="backgroundBalloon" format="color|reference" />
+		<attr name="backgroundBalloonOnGray" format="color|reference" />
+		<attr name="backgroundButton" format="color|reference" />
+		<attr name="backgroundButtonLink" format="color|reference" />
+		<attr name="backgroundButtonRound" format="color|reference" />
+		<attr name="backgroundButtonRoundGlow" format="color|reference" />
+		<attr name="backgroundButtonShare" format="color|reference" />
+		<attr name="backgroundCandi" format="color|reference" />
+		<attr name="backgroundCard" format="color|reference" />
+		<attr name="backgroundCardField" format="color|reference" />
+		<attr name="backgroundDrawer" format="color|reference" />
+		<attr name="backgroundForm" format="color|reference" />
+		<attr name="backgroundFormSecondary" format="color|reference" />
+		<attr name="backgroundHelp" format="color|reference" />
+		<attr name="backgroundPictureFramed" format="color|reference" />
+		<attr name="backgroundPlaceholder" format="color|reference" />
+		<attr name="backgroundProgress" format="color|reference" />
+		<attr name="backgroundSpinner" format="color|reference" />
+		<attr name="backgroundToken" format="color|reference" />
+		<attr name="badgeColor" format="color|reference" />
+		<attr name="badgeColorSynthetic" format="color|reference" />
+		<attr name="imgLogo" format="reference" />
+		<attr name="iconAccept" format="reference" />
+		<attr name="iconAdd" format="reference" />
+		<attr name="iconAndroid" format="reference" />
+		<attr name="iconCall" format="reference" />
+		<attr name="iconCamera" format="reference" />
+		<attr name="iconCancel" format="reference" />
+		<attr name="iconClear" format="reference" />
+		<attr name="iconDelete" format="reference" />
+		<attr name="iconDrawer" format="reference" />
+		<attr name="iconEdit" format="reference" />
+		<attr name="iconExit" format="reference" />
+		<attr name="iconGallery" format="reference" />
+		<attr name="iconGooglePlay" format="reference" />
+		<attr name="iconHelp" format="reference" />
+		<attr name="iconHome" format="reference" />
+		<attr name="iconInbox" format="reference" />
+		<attr name="iconInfo" format="reference" />
+		<attr name="iconKey" format="reference" />
+		<attr name="iconLike" format="reference" />
+		<attr name="iconLikeInvert" format="reference" />
+		<attr name="iconList" format="reference" />
+		<attr name="iconLocation" format="reference" />
+		<attr name="iconLocked" format="reference" />
+		<attr name="iconMap" format="reference" />
+		<attr name="iconMore" format="reference" />
+		<attr name="iconMoveUp" format="reference" />
+		<attr name="iconMoveDown" format="reference" />
+		<attr name="iconNewCandi" format="reference" />
+		<attr name="iconOverflow" format="reference" />
+		<attr name="iconPicture" format="reference" />
+		<attr name="iconPlaceNew" format="reference" />
+		<attr name="iconReload" format="reference" />
+		<attr name="iconSave" format="reference" />
+		<attr name="iconSearch" format="reference" />
+		<attr name="iconSend" format="reference" />
+		<attr name="iconSettings" format="reference" />
+		<attr name="iconShare" format="reference" />
+		<attr name="iconSignal" format="reference" />
+		<attr name="iconStarOn" format="reference" />
+		<attr name="iconStarOff" format="reference" />
+		<attr name="iconStream" format="reference" />
+		<attr name="iconTrend" format="reference" />
+		<attr name="iconTune" format="reference" />
+		<attr name="iconUser" format="reference" />
+		<attr name="iconUsers" format="reference" />
+		<attr name="iconWatch" format="reference" />
+		<attr name="iconWatchInvert" format="reference" />
+		<attr name="iconZoom" format="reference" />
+		<attr name="iconZoomIn" format="reference" />
+		<attr name="iconZoomOut" format="reference" />
+	</declare-styleable>
 
-    <declare-styleable name="AirTextView">
-        <attr name="textId"/>
-    </declare-styleable>
-    <declare-styleable name="AirButton">
-        <attr name="textId"/>
-    </declare-styleable>
-    <declare-styleable name="AirRadioButton">
-        <attr name="textId"/>
-    </declare-styleable>
-    <declare-styleable name="AirCheckBox">
-        <attr name="textId"/>
-    </declare-styleable>
-    <declare-styleable name="AirTextLight">
-        <attr name="textId"/>
-    </declare-styleable>
-    <declare-styleable name="AirLabel">
-        <attr name="textId"/>
-    </declare-styleable>
-    <declare-styleable name="AirImageView">
-        <attr name="layout"/>
-        <attr name="showBusy"/>
-        <attr name="sizeHint"/>
-        <attr name="aspectRatio"/>
-        <attr name="aspectRatioEnabled"/>
-        <attr name="dominantMeasurement"/>
-        <attr name="sizeType"/>
-    </declare-styleable>
-    <declare-styleable name="CandiView">
-        <attr name="layout"/>
-        <attr name="colorize"/>
-        <attr name="aspectRatio"/>
-        <attr name="aspectRatioEnabled"/>
-        <attr name="dominantMeasurement"/>
-    </declare-styleable>
-    <declare-styleable name="ComboButton">
-        <attr name="layout"/>
-        <attr name="label"/>
-        <attr name="drawable"/>
-        <attr name="drawableScale"/>
-    </declare-styleable>
-    <declare-styleable name="UserView">
-        <attr name="layout"/>
-        <attr name="label"/>
-    </declare-styleable>
-    <declare-styleable name="EntityView">
-        <attr name="layout"/>
-        <attr name="label"/>
-    </declare-styleable>
-    <declare-styleable name="AirListView">
-        <attr name="maxWidth"/>
-        <attr name="parallax_factor"/>
-        <attr name="inner_parallax_factor"/>
-        <attr name="parallax_views_num"/>
-        <attr name="circular_parallax"/>
-    </declare-styleable>
-    <declare-styleable name="AirGridView">
-        <attr name="maxWidth"/>
-    </declare-styleable>
-    <declare-styleable name="AirScrollView">
-        <attr name="maxWidth"/>
-    </declare-styleable>
-    <declare-styleable name="AirLinearLayout">
-        <attr name="maxWidth"/>
-    </declare-styleable>
-    <declare-styleable name="AirRelativeLayout">
-        <attr name="maxWidth"/>
-    </declare-styleable>
-    <declare-styleable name="AirTokenCompleteTextView">
-        <attr name="prefix"/>
-    </declare-styleable>
-    <declare-styleable name="HorizontalScrollLayout">
-        <attr name="layout"/>
-    </declare-styleable>
-    <declare-styleable name="SectionLayout">
-        <attr name="layoutHeader"/>
-        <attr name="layoutFooter"/>
-        <attr name="headerTitle"/>
-    </declare-styleable>
-    <declare-styleable name="ListViewExpanded">
-        <attr name="layoutItems"/>
-        <attr name="itemMaxCount"/>
-        <attr name="showDivider"/>
-    </declare-styleable>
-    <declare-styleable name="TextViewEllipsizing">
-        <attr name="maxLines"/>
-    </declare-styleable>
-    <declare-styleable name="BuilderButton">
-        <attr name="layout"/>
-        <attr name="hint"/>
-    </declare-styleable>
-    <declare-styleable name="ListPreferenceMultiSelect">
-        <attr name="keyId"/>
-        <attr name="checkAll"/>
-        <attr name="separator"/>
-    </declare-styleable>
-    <declare-styleable name="AirListPreference">
-        <attr name="keyId"/>
-    </declare-styleable>
-    <declare-styleable name="AirCheckBoxPreference">
-        <attr name="keyId"/>
-    </declare-styleable>
-    <declare-styleable name="SmoothProgressBar">
-        <attr name="spbStyle"/>
-        <attr name="spb_color"/>
-        <attr name="spb_stroke_width"/>
-        <attr name="spb_stroke_separator_length"/>
-        <attr name="spb_sections_count"/>
-        <attr name="spb_speed"/>
-        <attr name="spb_interpolator"/>
-        <attr name="spb_reversed"/>
-        <attr name="spb_mirror_mode"/>
-        <attr name="spb_colors"/>
-    </declare-styleable>
+	<declare-styleable name="AirTextView">
+		<attr name="textId" />
+	</declare-styleable>
+	<declare-styleable name="AirButton">
+		<attr name="textId" />
+	</declare-styleable>
+	<declare-styleable name="AirRadioButton">
+		<attr name="textId" />
+	</declare-styleable>
+	<declare-styleable name="AirCheckBox">
+		<attr name="textId" />
+	</declare-styleable>
+	<declare-styleable name="AirTextLight">
+		<attr name="textId" />
+	</declare-styleable>
+	<declare-styleable name="AirLabel">
+		<attr name="textId" />
+	</declare-styleable>
+	<declare-styleable name="AirImageView">
+		<attr name="layout" />
+		<attr name="showBusy" />
+		<attr name="sizeHint" />
+		<attr name="aspectRatio" />
+		<attr name="aspectRatioEnabled" />
+		<attr name="dominantMeasurement" />
+		<attr name="sizeType" />
+	</declare-styleable>
+	<declare-styleable name="CandiView">
+		<attr name="layout" />
+		<attr name="colorize" />
+		<attr name="aspectRatio" />
+		<attr name="aspectRatioEnabled" />
+		<attr name="dominantMeasurement" />
+	</declare-styleable>
+	<declare-styleable name="ComboButton">
+		<attr name="layout" />
+		<attr name="label" />
+		<attr name="drawable" />
+		<attr name="drawableScale" />
+	</declare-styleable>
+	<declare-styleable name="UserView">
+		<attr name="layout" />
+		<attr name="label" />
+	</declare-styleable>
+	<declare-styleable name="EntityView">
+		<attr name="layout" />
+		<attr name="label" />
+	</declare-styleable>
+	<declare-styleable name="AirListView">
+		<attr name="maxWidth" />
+		<attr name="parallax_factor" />
+		<attr name="inner_parallax_factor" />
+		<attr name="parallax_views_num" />
+		<attr name="circular_parallax" />
+	</declare-styleable>
+	<declare-styleable name="AirGridView">
+		<attr name="maxWidth" />
+	</declare-styleable>
+	<declare-styleable name="AirScrollView">
+		<attr name="maxWidth" />
+	</declare-styleable>
+	<declare-styleable name="AirLinearLayout">
+		<attr name="maxWidth" />
+	</declare-styleable>
+	<declare-styleable name="AirRelativeLayout">
+		<attr name="maxWidth" />
+	</declare-styleable>
+	<declare-styleable name="AirTokenCompleteTextView">
+		<attr name="prefix" />
+	</declare-styleable>
+	<declare-styleable name="HorizontalScrollLayout">
+		<attr name="layout" />
+	</declare-styleable>
+	<declare-styleable name="SectionLayout">
+		<attr name="layoutHeader" />
+		<attr name="layoutFooter" />
+		<attr name="headerTitle" />
+	</declare-styleable>
+	<declare-styleable name="ListViewExpanded">
+		<attr name="layoutItems" />
+		<attr name="itemMaxCount" />
+		<attr name="showDivider" />
+	</declare-styleable>
+	<declare-styleable name="TextViewEllipsizing">
+		<attr name="maxLines" />
+	</declare-styleable>
+	<declare-styleable name="BuilderButton">
+		<attr name="layout" />
+		<attr name="hint" />
+	</declare-styleable>
+	<declare-styleable name="ListPreferenceMultiSelect">
+		<attr name="keyId" />
+		<attr name="checkAll" />
+		<attr name="separator" />
+	</declare-styleable>
+	<declare-styleable name="AirListPreference">
+		<attr name="keyId" />
+	</declare-styleable>
+	<declare-styleable name="AirCheckBoxPreference">
+		<attr name="keyId" />
+	</declare-styleable>
+	<declare-styleable name="SmoothProgressBar">
+		<attr name="spbStyle" />
+		<attr name="spb_color" />
+		<attr name="spb_stroke_width" />
+		<attr name="spb_stroke_separator_length" />
+		<attr name="spb_sections_count" />
+		<attr name="spb_speed" />
+		<attr name="spb_interpolator" />
+		<attr name="spb_reversed" />
+		<attr name="spb_mirror_mode" />
+		<attr name="spb_colors" />
+	</declare-styleable>
 
 </resources>

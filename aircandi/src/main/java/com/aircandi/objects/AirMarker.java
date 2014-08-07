@@ -8,21 +8,22 @@ import com.aircandi.service.Expose;
 public class AirMarker {
 
 	@Expose
-	public String	title;
+	public String  title;
 	@Expose
-	public String	snippet;
+	public String  snippet;
 	@Expose
-	public String	id;
+	public String  id;
 	@Expose
-	public Number	lat;
+	public Number  lat;
 	@Expose
-	public Number	lng;
+	public Number  lng;
 	@Expose
-	public Integer	iconResId;
+	public Integer iconResId;
 	@Expose
-	public Boolean	current;
+	public Boolean current;
 
-	public AirMarker() {}
+	public AirMarker() {
+	}
 
 	public AirMarker(String id, String title, String snippet, Number lat, Number lng, Boolean current, Integer iconResId) {
 		this.id = id;

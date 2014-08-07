@@ -37,7 +37,7 @@ public class S3 {
 	}
 
 	private static class AmazonS3Holder {
-		public static final AmazonS3	instance	= new AmazonS3Client(Aircandi.awsCredentials);
+		public static final AmazonS3 instance = new AmazonS3Client(Aircandi.awsCredentials);
 	}
 
 	public static AmazonS3 getInstance() {

@@ -17,8 +17,8 @@ import com.aircandi.ui.base.BaseActivity.SimpleTextWatcher;
 
 public class AirEditText extends EditText {
 
-	private Boolean		mEnableClearButton	= false;
-	private Drawable	mClearDrawable;
+	private Boolean mEnableClearButton = false;
+	private Drawable mClearDrawable;
 
 	@SuppressWarnings("ucd")
 	public AirEditText(Context context) {
@@ -51,14 +51,15 @@ public class AirEditText extends EditText {
 					mEnableClearButton = true;
 					Bitmap bitmap = ((BitmapDrawable) mClearDrawable).getBitmap();
 					Integer drawableWidth = getResources().getDimensionPixelSize(R.dimen.drawable_width);
-					mClearDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, drawableWidth, drawableWidth, true));
+					Integer drawableHeight = drawableWidth;
+					mClearDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, drawableWidth, drawableHeight, true));
 				}
 			}
 
 			if (mEnableClearButton) {
 
 				/* Set the bounds of the button */
-				this.setCompoundDrawablesWithIntrinsicBounds(drawables[0], null, mClearDrawable, null);
+				this.setCompoundDrawablesWithIntrinsicBounds(drawables != null ? drawables[0] : null, null, mClearDrawable, null);
 
 				// button should be hidden on first draw
 				clearButtonHandler();
@@ -67,7 +68,8 @@ public class AirEditText extends EditText {
 				setOnTouchListener(new OnTouchListener() {
 					@Override
 					public boolean onTouch(View view, MotionEvent event) {
-						if (AirEditText.this.getCompoundDrawables()[2] == null || event.getAction() != MotionEvent.ACTION_UP) return false;
+						if (AirEditText.this.getCompoundDrawables()[2] == null || event.getAction() != MotionEvent.ACTION_UP)
+							return false;
 
 						if (event.getX() > AirEditText.this.getWidth() - AirEditText.this.getPaddingRight() - mClearDrawable.getIntrinsicWidth()) {
 							AirEditText.this.setText("");
@@ -90,7 +92,7 @@ public class AirEditText extends EditText {
 
 	private void clearButtonHandler() {
 		final Drawable[] drawables = getCompoundDrawables();
-		if (this == null || !hasFocus() || getText().toString().equals("") || getText().toString().length() == 0) {
+		if (!hasFocus() || getText().toString().equals("") || getText().toString().length() == 0) {
 			/* Remove clear button */
 			setCompoundDrawables(drawables[0], null, null, null);
 		}

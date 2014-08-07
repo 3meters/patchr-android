@@ -20,7 +20,7 @@ public interface IEntityController {
 	public Intent view(Context context, Entity entity, String entityId, String parentId, String linkType, Bundle extras, Boolean start);
 
 	public Intent viewFor(Context context, Entity entity, String entityId, String linkType, Direction direction, String title, Boolean newEnabled,
-			Boolean start);
+	                      Boolean start);
 
 	public Intent edit(Context context, Entity entity, Bundle extras, Boolean start);
 
@@ -28,9 +28,9 @@ public interface IEntityController {
 
 	public void decorate(Entity entity, Links linkOptions);
 
-    public void bind(Entity entity, View view);
+	public void bind(Entity entity, View view);
 
-    public void bindHolder(View view, ViewHolder viewHolder);
+	public void bindHolder(View view, ViewHolder viewHolder);
 
 	public Entity makeNew();
 
@@ -65,5 +65,5 @@ public interface IEntityController {
 	public IEntityController setNewClass(Class<?> newClass);
 
 	public IEntityController setListClass(Class<?> listClass);
-	
+
 }

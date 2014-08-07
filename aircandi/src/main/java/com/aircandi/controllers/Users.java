@@ -40,11 +40,11 @@ public class Users extends EntityControllerBase {
 	@Override
 	public Photo getDefaultPhoto(String type) {
 		String prefix = Aircandi.themeTone.equals(ThemeTone.LIGHT) ? "img_user_generic_light" : "img_user_generic_dark";
-		String source = PhotoSource.resource;		
+		String source = PhotoSource.resource;
 		Photo photo = new Photo(prefix, null, null, null, source);
 		return photo;
 	}
-	
+
 	@Override
 	public Integer getLinkProfile() {
 		return LinkProfile.LINKS_FOR_USER_CURRENT;

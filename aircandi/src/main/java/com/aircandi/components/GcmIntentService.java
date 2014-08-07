@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -26,14 +27,15 @@ import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+@SuppressLint("Registered")
 public class GcmIntentService extends IntentService {
 
 	// wakelock
-	protected static final String			WAKELOCK_KEY	= "GCM_LIB";
-	protected static PowerManager.WakeLock	sWakeLock;
+	protected static final String WAKELOCK_KEY = "GCM_LIB";
+	protected static PowerManager.WakeLock sWakeLock;
 
 	// Java lock used to synchronize access to sWakelock
-	protected static final Object			LOCK			= GcmIntentService.class;
+	protected static final Object LOCK = GcmIntentService.class;
 
 	public GcmIntentService() {
 		super(StringManager.getString(R.string.id_gcm_sender));
@@ -51,7 +53,7 @@ public class GcmIntentService extends IntentService {
 			if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
 
 				/*
-				 * Filter messages based on message type. Since it is likely that GCM will be
+	             * Filter messages based on message type. Since it is likely that GCM will be
 				 * extended in the future with new message types, just ignore any message types you're
 				 * not interested in, or that you don't recognize.
 				 */
@@ -107,31 +109,36 @@ public class GcmIntentService extends IntentService {
 					 * BACKGROUND, NEARBY, OR TARGET NOT VISIBLE
 					 */
 
-					if (message.getTriggerCategory().equals(TriggerType.NEARBY)
-							|| Aircandi.getInstance().getCurrentActivity() == null
-							|| !targetContextVisible(message)) {
+					Boolean background = (Aircandi.getInstance().getCurrentActivity() == null);
+					Boolean targetVisible = targetContextVisible(message);
+
+					if (background || !targetVisible || message.getTriggerCategory().equals(TriggerType.NEARBY)) {
 
 						if (!message.getTriggerCategory().equals(TriggerType.NEARBY)) {
 							MessagingManager.getInstance().setNewActivity(true);
 						}
 
-						/* Build intent that can be used in association with the notification */
-						if (message.action.entity != null) {
-							IEntityController controller = Aircandi.getInstance().getControllerForSchema(message.action.entity.schema);
-							Extras bundle = new Extras().setForceRefresh(true);
-							String parentId = (message.action.toEntity != null) ? message.action.toEntity.id : null;
-							message.intent = controller.view(Aircandi.applicationContext, null, message.action.entity.id, parentId, null,
-									bundle.getExtras(),
-									false);
+						if (background || message.getTriggerCategory().equals(TriggerType.NEARBY)) {
+
+						    /* Build intent that can be used in association with the notification */
+							if (message.action.entity != null) {
+								IEntityController controller = Aircandi.getInstance().getControllerForSchema(message.action.entity.schema);
+								Extras bundle = new Extras().setForceRefresh(true);
+								String parentId = (message.action.toEntity != null) ? message.action.toEntity.id : null;
+								message.intent = controller.view(Aircandi.applicationContext, null, message.action.entity.id, parentId, null,
+										bundle.getExtras(),
+										false);
+							}
+
+						    /* Customize title and subtitle before broadcasting */
+							Aircandi.getInstance().getActivityDecorator().decorate(message);
+
+						    /* Send notification */
+							MessagingManager.getInstance().notificationForMessage(message, Aircandi.applicationContext);
 						}
-
-						/* Customize title and subtitle before broadcasting */
-						Aircandi.getInstance().getActivityDecorator().decorate(message);
-
-						/* Send notification */
-						MessagingManager.getInstance().notificationForMessage(message, Aircandi.applicationContext);
-						
-						MessagingManager.getInstance().setNewActivity(true);
+						else {
+							MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);
+						}
 					}
 
 					/*
@@ -140,13 +147,13 @@ public class GcmIntentService extends IntentService {
 
 					else {
 
-//						if (triggerVibratorAlert(message)) {
-//							Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-//							if (vibrator.hasVibrator()) {
-//								long[] pattern = { 0, 400, 400, 400 };
-//								vibrator.vibrate(pattern, -1);
-//							}
-//						}
+						//						if (triggerVibratorAlert(message)) {
+						//							Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+						//							if (vibrator.hasVibrator()) {
+						//								long[] pattern = { 0, 400, 400, 400 };
+						//								vibrator.vibrate(pattern, -1);
+						//							}
+						//						}
 						MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);
 					}
 
@@ -214,12 +221,12 @@ public class GcmIntentService extends IntentService {
 	}
 
 	protected Boolean isValidSchema(ServiceMessage message) {
-		String[] validSchemas = { Constants.SCHEMA_ENTITY_APPLINK
+		String[] validSchemas = {Constants.SCHEMA_ENTITY_APPLINK
 				, Constants.SCHEMA_ENTITY_BEACON
 				, Constants.SCHEMA_ENTITY_PICTURE
 				, Constants.SCHEMA_ENTITY_PLACE
 				, Constants.SCHEMA_ENTITY_COMMENT
-				, Constants.SCHEMA_ENTITY_USER };
+				, Constants.SCHEMA_ENTITY_USER};
 
 		if (message.action.entity != null) {
 			if (!Arrays.asList(validSchemas).contains(message.action.entity.schema)) return false;

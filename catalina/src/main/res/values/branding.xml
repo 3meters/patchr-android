@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Branding colors -->
+	<!-- Branding colors -->
 
-    <color name="brand_primary">#ffff8800</color>
-    <color name="brand_accent">#ffffbb33</color>
-    <color name="brand_secondary">#ffbf6600</color>
-    <color name="brand_pressed">#88bf6600</color>
-    
-    <!-- Branding icon colors -->
-    
-    <color name="brand_actionbar_icon_light">@color/white</color>
-    <color name="brand_actionbar_icon_dark">@color/white</color>
-            
-    <!-- Branding widgetsbackgrounds -->
-    
-    <color name="brand_progress_bar_color">@color/holo_orange_light</color>
-    <color name="brand_progress_bar_splash_color">@color/brand_secondary</color>    
-	<color name="default_progress_bar_color">@color/holo_orange_light</color>    
-    
+	<color name="brand_primary">#ffff8800</color>
+	<color name="brand_accent">#ffffbb33</color>
+	<color name="brand_secondary">#ffbf6600</color>
+	<color name="brand_pressed">#88bf6600</color>
+
+	<!-- Branding icon colors -->
+
+	<color name="brand_actionbar_icon_light">@color/white</color>
+	<color name="brand_actionbar_icon_dark">@color/white</color>
+
+	<!-- Branding widgetsbackgrounds -->
+
+	<color name="brand_progress_bar_color">@color/holo_orange_light</color>
+	<color name="brand_progress_bar_splash_color">@color/brand_secondary</color>
+	<color name="default_progress_bar_color">@color/holo_orange_light</color>
+
 </resources>

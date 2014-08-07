@@ -33,15 +33,15 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 @SuppressWarnings("ucd")
 public class MessagingManager {
 
-	public static NotificationManager	mNotificationManager;
+	public static NotificationManager mNotificationManager;
 
-	private static final String			NOTIFICATION_DELETED_ACTION	= "NOTIFICATION_DELETED";
-	private GoogleCloudMessaging		mGcm;
-	private Install						mInstall;
-	private Boolean						mNewActivity				= false;
-	private Integer						mCount						= 0;
+	private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
+	private GoogleCloudMessaging mGcm;
+	private Install              mInstall;
+	private Boolean mNewActivity = false;
+	private Integer mCount       = 0;
 
-	private BroadcastReceiver			mReceiver;
+	private BroadcastReceiver mReceiver;
 
 	private MessagingManager() {
 		mNotificationManager = (NotificationManager) Aircandi.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -53,12 +53,12 @@ public class MessagingManager {
 				//Aircandi.applicationContext.unregisterReceiver(this);
 			}
 		};
-		
+
 		Aircandi.applicationContext.registerReceiver(mReceiver, new IntentFilter(NOTIFICATION_DELETED_ACTION));
 	}
 
 	private static class NotificationManagerHolder {
-		public static final MessagingManager	instance	= new MessagingManager();
+		public static final MessagingManager instance = new MessagingManager();
 	}
 
 	public static MessagingManager getInstance() {
@@ -67,12 +67,12 @@ public class MessagingManager {
 
 	// --------------------------------------------------------------------------------------------
 	// GCM
-	// --------------------------------------------------------------------------------------------	
+	// --------------------------------------------------------------------------------------------
 
 	public ServiceResponse registerInstallWithGCM() {
 
 		/*
-		 * Only called when aircandi application first runs.
+	     * Only called when aircandi application first runs.
 		 * 
 		 * Called on a background thread.
 		 * 
@@ -132,7 +132,7 @@ public class MessagingManager {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putString(StringManager.getString(R.string.setting_gcm_registration_id), registrationId);
 		editor.putInt(StringManager.getString(R.string.setting_gcm_version_code), versionCode);
-		editor.commit();
+		editor.apply();
 	}
 
 	private String getRegistrationId(Context context) {
@@ -160,20 +160,20 @@ public class MessagingManager {
 
 	// --------------------------------------------------------------------------------------------
 	// Notifications
-	// --------------------------------------------------------------------------------------------	
+	// --------------------------------------------------------------------------------------------
 
 	public void broadcastMessage(final ServiceMessage message) {
 		BusProvider.getInstance().post(new MessageEvent(message));
 	}
 
 	public void notificationForMessage(final ServiceMessage message, Context context) {
-		/*
+        /*
 		 * Small icon displays on left unless a large icon is specified
 		 * and then it moves to the right.
 		 */
 		if (message.trigger != null) {
 			PreferenceManager preferenceManager = new PreferenceManager();
-			if (!preferenceManager.notificationEnabled(message.getTriggerCategory(), message.action.entity.schema)) {
+			if (!preferenceManager.notificationEnabled(message.getTriggerCategory(), message.action.entity)) {
 				return;
 			}
 		}
@@ -214,16 +214,19 @@ public class MessagingManager {
 
 			try {
 				Integer width = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.notification_large_icon_width);
+				@SuppressWarnings("SuspiciousNameCombination")
 				Bitmap bitmap = DownloadManager.with(Aircandi.applicationContext)
-						.load(byImageUri)
-						.centerCrop()
-						.resize(width, width)
-						.get();
+				                               .load(byImageUri)
+				                               .centerCrop()
+				                               .resize(width, width)
+				                               .get();
 
 				builder.setLargeIcon(bitmap);
 
 				/* Enhance or go with default */
-				if (message.action.entity != null && message.action.getEventCategory().equals(EventCategory.INSERT)) {
+				if (message.action.entity != null
+						&& (message.action.getEventCategory().equals(EventCategory.INSERT)
+						|| message.action.getEventCategory().equals(EventCategory.SHARE))) {
 					IEntityController controller = Aircandi.getInstance().getControllerForSchema(message.action.entity.schema);
 					if (controller != null) {
 						Integer notificationType = controller.getNotificationType(message.action.entity);
@@ -259,8 +262,8 @@ public class MessagingManager {
 
 		try {
 			Bitmap bitmap = DownloadManager.with(Aircandi.applicationContext)
-					.load(imageUri)
-					.get();
+			                               .load(imageUri)
+			                               .get();
 
 			NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle()
 					.bigPicture(bitmap)
@@ -312,7 +315,7 @@ public class MessagingManager {
 
 	// --------------------------------------------------------------------------------------------
 	// Properties
-	// --------------------------------------------------------------------------------------------	
+	// --------------------------------------------------------------------------------------------
 
 	public Install getInstall() {
 		return mInstall;
@@ -324,7 +327,7 @@ public class MessagingManager {
 
 	// --------------------------------------------------------------------------------------------
 	// Classes
-	// --------------------------------------------------------------------------------------------	
+	// --------------------------------------------------------------------------------------------
 
 	public Boolean getNewActivity() {
 		return mNewActivity;
@@ -343,9 +346,9 @@ public class MessagingManager {
 	}
 
 	public static class Tag {
-		public static String	INSERT	= "insert";
-		public static String	UPDATE	= "update";
+		public static String INSERT  = "insert";
+		public static String UPDATE  = "update";
 		@SuppressWarnings("ucd")
-		public static String	REFRESH	= "refresh";
+		public static String REFRESH = "refresh";
 	}
 }

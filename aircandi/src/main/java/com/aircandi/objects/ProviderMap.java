@@ -11,22 +11,20 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class ProviderMap extends ServiceObject implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 4362288672245719998L;
+	private static final long serialVersionUID = 4362288672245719998L;
 
 	@Expose
-	public String				aircandi;
+	public String aircandi;
 	@Expose
-	public String				foursquare;
+	public String foursquare;
 	@Expose
-	public String				google;
+	public String google;
 	@Expose
-	public String				yelp;
+	public String yelp;
 	@Expose
-	public String				googleReference;
+	public String googleReference;
 	@Expose
-	public String				factual;
-
-	
+	public String factual;
 
 	@Override
 	public ProviderMap clone() {

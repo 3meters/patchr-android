@@ -28,8 +28,8 @@ import com.aircandi.objects.TransitionType;
 
 public class AnimationManager {
 
-	public static Integer		DURATION_MEDIUM	= 500;
-	private static Animation	mFadeInMedium;
+	public static Integer DURATION_MEDIUM = 500;
+	private static Animation mFadeInMedium;
 
 	public static Animation fadeInMedium() {
 		/*
@@ -143,7 +143,7 @@ public class AnimationManager {
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static class DepthPageTransformer implements ViewPager.PageTransformer {
-		private float	MIN_SCALE	= 0.75f;
+		private float MIN_SCALE = 0.75f;
 
 		@Override
 		public void transformPage(View view, float position) {
@@ -177,7 +177,7 @@ public class AnimationManager {
 
 			}
 			else { // (1,+Infinity]
-					// This page is way off-screen to the right.
+				// This page is way off-screen to the right.
 				view.setAlpha(0);
 			}
 		}

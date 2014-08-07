@@ -14,14 +14,14 @@ import com.aircandi.utilities.Maps;
 
 public class EntitiesQuery implements IQuery {
 
-	protected Cursor	mCursor;
-	protected Boolean	mMore			= false;
-	protected Integer	mPageSize;
-	protected String	mSchema;
-	protected String	mLinkType;
-	protected String	mLinkDirection;
-	protected String	mLinkWhere; // NO_UCD (unused code)
-	protected String	mEntityId;
+	protected Cursor mCursor;
+	protected Boolean mMore = false;
+	protected Integer mPageSize;
+	protected String  mSchema;
+	protected String  mLinkType;
+	protected String  mLinkDirection;
+	protected String  mLinkWhere; // NO_UCD (unused code)
+	protected String  mEntityId;
 
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {
@@ -77,7 +77,7 @@ public class EntitiesQuery implements IQuery {
 	public String getEntityId() {
 		return mEntityId;
 	}
-	
+
 	@Override
 	public Integer getPageSize() {
 		return mPageSize;

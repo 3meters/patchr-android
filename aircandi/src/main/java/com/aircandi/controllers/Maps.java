@@ -20,7 +20,7 @@ public class Maps extends EntityControllerBase {
 	public Entity makeNew() {
 		return null;
 	}
-	
+
 	@Override
 	public Drawable getIcon() {
 		Drawable icon = Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_map_temp);

@@ -12,9 +12,9 @@ import com.aircandi.utilities.Maps;
 
 public class ActivityByUserQuery implements IQuery {
 
-	protected Boolean	mMore		= false;
-	protected Integer	mPageSize	= 30;
-	protected String	mEntityId;
+	protected Boolean mMore     = false;
+	protected Integer mPageSize = 30;
+	protected String mEntityId;
 
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {
@@ -44,7 +44,7 @@ public class ActivityByUserQuery implements IQuery {
 		events.add(EventType.WATCH_PLACE);
 		events.add(EventType.WATCH_PICTURE);
 		events.add(EventType.WATCH_USER);
-		
+
 		events.add(EventType.UNWATCH_PLACE);
 		events.add(EventType.UNWATCH_PICTURE);
 		events.add(EventType.UNWATCH_USER);
@@ -75,5 +75,10 @@ public class ActivityByUserQuery implements IQuery {
 	@Override
 	public Integer getPageSize() {
 		return mPageSize;
+	}
+
+	@Override
+	public String getEntityId() {
+		return mEntityId;
 	}
 }

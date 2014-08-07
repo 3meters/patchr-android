@@ -6,14 +6,14 @@ import com.aircandi.components.ProximityManager.ModelResult;
 @SuppressWarnings("ucd")
 public class TrendQuery implements IQuery {
 
-	protected String	toSchema;
-	protected String	fromSchema;
-	protected String	trendType;
-	protected Integer	mPageSize = 50;  // Default service limit if nothing is passed
+	protected String toSchema;
+	protected String fromSchema;
+	protected String trendType;
+	protected Integer mPageSize = 50;  // Default service limit if nothing is passed
 
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {
-		/*
+	    /*
 		 * Should be called on a background thread. By default returns sorted by rank
 		 * in ascending order.
 		 */
@@ -56,5 +56,10 @@ public class TrendQuery implements IQuery {
 	@Override
 	public Integer getPageSize() {
 		return mPageSize;
+	}
+
+	@Override
+	public String getEntityId() {
+		return null;
 	}
 }

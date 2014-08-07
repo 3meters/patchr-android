@@ -29,9 +29,9 @@ import com.aircandi.ui.base.IBind.BindingMode;
 @SuppressLint("Registered")
 public class ApplicationPicker extends BasePicker implements OnItemClickListener {
 
-	private TextView	mName;
-	private ListView	mListView;
-	private ListAdapter	mListAdapter;
+	private TextView    mName;
+	private ListView    mListView;
+	private ListAdapter mListAdapter;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -47,10 +47,10 @@ public class ApplicationPicker extends BasePicker implements OnItemClickListener
 		String title = !TextUtils.isEmpty(mEntity.name) ? mEntity.name : mEntity.getSchemaMapped();
 		mName.setText(title);
 
-		/* Shown as a dialog so doesn't have an action bar */		
+		/* Shown as a dialog so doesn't have an action bar */
 		IEntityController controller = Aircandi.getInstance().getControllerForSchema(mEntity.schema);
 		List<Object> listData = controller.getApplications(Aircandi.themeTone);
-		
+
 		mListAdapter = new ListAdapter(this, listData);
 		mListView.setAdapter(mListAdapter);
 	}
@@ -72,9 +72,8 @@ public class ApplicationPicker extends BasePicker implements OnItemClickListener
 	// Classes
 	// --------------------------------------------------------------------------------------------
 
-	private class ListAdapter extends ArrayAdapter<Object>
-	{
-		private final List<Object>	items;
+	private class ListAdapter extends ArrayAdapter<Object> {
+		private final List<Object> items;
 
 		private ListAdapter(Context context, List<Object> items) {
 			super(context, 0, items);
@@ -82,8 +81,7 @@ public class ApplicationPicker extends BasePicker implements OnItemClickListener
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent)
-		{
+		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = convertView;
 			final AirApplication itemData = (AirApplication) items.get(position);
 

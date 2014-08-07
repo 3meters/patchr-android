@@ -21,7 +21,7 @@ public class Comments extends EntityControllerBase {
 		mColorPrimary = R.color.holo_orange_dark;
 		mBrowseClass = CommentForm.class;
 		mEditClass = CommentEdit.class;
-		mNewClass = CommentEdit.class;		
+		mNewClass = CommentEdit.class;
 		mSchema = Constants.SCHEMA_ENTITY_COMMENT;
 		mPageSize = Integers.getInteger(R.integer.page_size_comments);
 		mListItemResId = R.layout.temp_listitem_comment;
@@ -29,7 +29,7 @@ public class Comments extends EntityControllerBase {
 		mListLoadingResId = R.layout.temp_list_item_loading;
 		mListNewMessageResId = R.string.button_list_new_comment;
 	}
-	
+
 	@Override
 	public Entity makeNew() {
 		Entity entity = new Comment();
@@ -38,12 +38,12 @@ public class Comments extends EntityControllerBase {
 		entity.signalFence = -100.0f;
 		return entity;
 	}
-	
+
 	@Override
 	public Integer getNotificationType(Entity entity) {
 		return NotificationType.BIG_TEXT;
 	}
-	
+
 	@Override
 	public Drawable getIcon() {
 		Drawable icon = Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_comment_temp);
@@ -54,5 +54,5 @@ public class Comments extends EntityControllerBase {
 	@Override
 	public Entity makeFromMap(Map<String, Object> map, Boolean nameMapping) {
 		return Comment.setPropertiesFromMap(new Comment(), map, nameMapping);
-	}	
+	}
 }

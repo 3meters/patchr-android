@@ -129,7 +129,7 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 		/*
 		 * Fragment menu items are in addition to any menu items added by the parent activity.
 		 */
-		BaseFragment fragment = null;
+		BaseFragment fragment;
 
 		if (mFragments.containsKey(fragmentType)) {
 			fragment = mFragments.get(fragmentType);
@@ -137,7 +137,7 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 		else {
 
 			if (fragmentType.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
-				
+
 				fragment = new RadarListFragment()
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.radar_fragment)
@@ -145,7 +145,7 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 						.setListEmptyMessageResId(R.string.label_radar_empty)
 						.setTitleResId(R.string.label_radar_title);
 
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_beacons);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh_special);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
 			}
@@ -158,8 +158,8 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 				MessagesQuery query = new MessagesQuery();
 
 				query.setEntityId(Aircandi.getInstance().getCurrentUser().id)
-						.setPageSize(Integers.getInteger(R.integer.page_size_messages))
-						.setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
+				     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
+				     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
 
 				((EntityListFragment) fragment)
 						.setMonitor(monitor)
@@ -173,6 +173,7 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 						.setActivityStream(true)
 						.setTitleResId(R.string.label_feed_title);
 
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
 			}
@@ -185,22 +186,23 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 				EntitiesQuery query = new EntitiesQuery();
 
 				query.setEntityId(Aircandi.getInstance().getCurrentUser().id)
-						.setLinkDirection(Direction.out.name())
-						.setLinkType(Constants.TYPE_LINK_WATCH)
-						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
-						.setSchema(Constants.SCHEMA_ENTITY_PLACE);
+				     .setLinkDirection(Direction.out.name())
+				     .setLinkType(Constants.TYPE_LINK_WATCH)
+				     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
+				     .setSchema(Constants.SCHEMA_ENTITY_PLACE);
 
 				((EntityListFragment) fragment).setQuery(query)
-						.setMonitor(monitor)
-						.setListPagingEnabled(true)
-						.setListItemResId(R.layout.temp_listitem_radar)
-						.setListLoadingResId(R.layout.temp_list_item_loading)
-						.setListViewType(ViewType.LIST)
-						.setListLayoutResId(R.layout.place_list_fragment)
-						.setListEmptyMessageResId(R.string.label_watching_empty)
-						.setTitleResId(R.string.label_watch_title)
-						.setSelfBindingEnabled(true);
+				                               .setMonitor(monitor)
+				                               .setListPagingEnabled(true)
+				                               .setListItemResId(R.layout.temp_listitem_radar)
+				                               .setListLoadingResId(R.layout.temp_list_item_loading)
+				                               .setListViewType(ViewType.LIST)
+				                               .setListLayoutResId(R.layout.place_list_fragment)
+				                               .setListEmptyMessageResId(R.string.label_watching_empty)
+				                               .setTitleResId(R.string.label_watch_title)
+				                               .setSelfBindingEnabled(true);
 
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
 			}
@@ -213,22 +215,23 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 				EntitiesQuery query = new EntitiesQuery();
 
 				query.setEntityId(Aircandi.getInstance().getCurrentUser().id)
-						.setLinkDirection(Direction.out.name())
-						.setLinkType(Constants.TYPE_LINK_CREATE)
-						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
-						.setSchema(Constants.SCHEMA_ENTITY_PLACE);
+				     .setLinkDirection(Direction.out.name())
+				     .setLinkType(Constants.TYPE_LINK_CREATE)
+				     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
+				     .setSchema(Constants.SCHEMA_ENTITY_PLACE);
 
 				((EntityListFragment) fragment).setQuery(query)
-						.setMonitor(monitor)
-						.setListPagingEnabled(true)
-						.setListItemResId(R.layout.temp_listitem_radar)
-						.setListLoadingResId(R.layout.temp_list_item_loading)
-						.setListViewType(ViewType.LIST)
-						.setListLayoutResId(R.layout.place_list_fragment)
-						.setListEmptyMessageResId(R.string.label_created_empty)
-						.setTitleResId(R.string.label_create_title)
-						.setSelfBindingEnabled(true);
+				                               .setMonitor(monitor)
+				                               .setListPagingEnabled(true)
+				                               .setListItemResId(R.layout.temp_listitem_radar)
+				                               .setListLoadingResId(R.layout.temp_list_item_loading)
+				                               .setListViewType(ViewType.LIST)
+				                               .setListLayoutResId(R.layout.place_list_fragment)
+				                               .setListEmptyMessageResId(R.string.label_created_empty)
+				                               .setTitleResId(R.string.label_create_title)
+				                               .setSelfBindingEnabled(true);
 
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
 			}
@@ -241,23 +244,24 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 				TrendQuery query = new TrendQuery();
 
 				query.setToSchema(Constants.SCHEMA_ENTITY_PLACE)
-						.setFromSchema(Constants.SCHEMA_ENTITY_USER)
-						.setTrendType(Constants.TYPE_LINK_WATCH);
+				     .setFromSchema(Constants.SCHEMA_ENTITY_USER)
+				     .setTrendType(Constants.TYPE_LINK_WATCH);
 
 				((EntityListFragment) fragment).setQuery(query)
-						.setMonitor(monitor)
-						.setListPagingEnabled(false)
-						.setEntityCacheEnabled(false)
-						.setHeaderViewResId(R.layout.widget_list_header_trends_popular)
-						.setListItemResId(R.layout.temp_listitem_trends)
-						.setListViewType(ViewType.LIST)
-						.setListLayoutResId(R.layout.trends_list_fragment)
-						.setListEmptyMessageResId(R.string.label_created_empty)
-						.setTitleResId(R.string.label_trends_popular)
-						.setSelfBindingEnabled(true);
+				                               .setMonitor(monitor)
+				                               .setListPagingEnabled(false)
+				                               .setEntityCacheEnabled(false)
+				                               .setHeaderViewResId(R.layout.widget_list_header_trends_popular)
+				                               .setListItemResId(R.layout.temp_listitem_trends)
+				                               .setListViewType(ViewType.LIST)
+				                               .setListLayoutResId(R.layout.trends_list_fragment)
+				                               .setListEmptyMessageResId(R.string.label_created_empty)
+				                               .setTitleResId(R.string.label_trends_popular)
+				                               .setSelfBindingEnabled(true);
 
 				((TrendListFragment) fragment).setCountLabelResId(R.string.label_trends_count_popular);
 
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
 			}
@@ -270,23 +274,24 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 				TrendQuery query = new TrendQuery();
 
 				query.setToSchema(Constants.SCHEMA_ENTITY_PLACE)
-						.setFromSchema(Constants.SCHEMA_ENTITY_MESSAGE)
-						.setTrendType(Constants.TYPE_LINK_CONTENT);
+				     .setFromSchema(Constants.SCHEMA_ENTITY_MESSAGE)
+				     .setTrendType(Constants.TYPE_LINK_CONTENT);
 
 				((EntityListFragment) fragment).setQuery(query)
-						.setMonitor(monitor)
-						.setListPagingEnabled(false)
-						.setEntityCacheEnabled(false)
-						.setHeaderViewResId(R.layout.widget_list_header_trends_active)
-						.setListItemResId(R.layout.temp_listitem_trends)
-						.setListViewType(ViewType.LIST)
-						.setListLayoutResId(R.layout.trends_list_fragment)
-						.setListEmptyMessageResId(R.string.label_created_empty)
-						.setTitleResId(R.string.label_trends_active)
-						.setSelfBindingEnabled(true);
+				                               .setMonitor(monitor)
+				                               .setListPagingEnabled(false)
+				                               .setEntityCacheEnabled(false)
+				                               .setHeaderViewResId(R.layout.widget_list_header_trends_active)
+				                               .setListItemResId(R.layout.temp_listitem_trends)
+				                               .setListViewType(ViewType.LIST)
+				                               .setListLayoutResId(R.layout.trends_list_fragment)
+				                               .setListEmptyMessageResId(R.string.label_created_empty)
+				                               .setTitleResId(R.string.label_trends_active)
+				                               .setSelfBindingEnabled(true);
 
 				((TrendListFragment) fragment).setCountLabelResId(R.string.label_trends_count_active);
 
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
 			}
@@ -332,6 +337,16 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 			if (menuItemAdd != null) {
 				menuItemAdd.setVisible(!(drawerOpen));
 			}
+		}
+
+		final MenuItem notifications = menu.findItem(com.aircandi.R.id.notifications);
+		if (notifications != null) {
+			notifications.getActionView().findViewById(com.aircandi.R.id.notifications_frame).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					mDrawerLayout.openDrawer(mDrawer);
+				}
+			});
 		}
 
 		return true;

@@ -18,14 +18,14 @@ import com.aircandi.utilities.UI;
 @SuppressWarnings("ucd")
 public class ComboButton extends RelativeLayout {
 
-	private Integer			mLayoutResId;
-	private Integer			mDrawableResId;
-	private String			mLabel;
+	private Integer mLayoutResId;
+	private Integer mDrawableResId;
+	private String  mLabel;
 
-	private ViewGroup		mLayout;
-	private ImageView		mImageIcon;
-	private TextView		mTextLabel;
-	private ViewAnimator	mViewAnimator;
+	private ViewGroup    mLayout;
+	private ImageView    mImageIcon;
+	private TextView     mTextLabel;
+	private ViewAnimator mViewAnimator;
 
 	public ComboButton(Context context) {
 		this(context, null);
@@ -48,9 +48,9 @@ public class ComboButton extends RelativeLayout {
 			ta.recycle();
 			initialize();
 			if (!isInEditMode()) {
-                if (labelResId != 0) {
-                    mLabel = StringManager.getString(labelResId);
-                }
+				if (labelResId != 0) {
+					mLabel = StringManager.getString(labelResId);
+				}
 				draw();
 			}
 		}

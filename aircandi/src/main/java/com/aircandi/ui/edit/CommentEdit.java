@@ -2,6 +2,7 @@ package com.aircandi.ui.edit;
 
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.WindowManager;
 
@@ -14,6 +15,7 @@ import com.aircandi.objects.Link;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.utilities.Dialogs;
 
+@SuppressLint("Registered")
 public class CommentEdit extends BaseEntityEdit {
 
 	@Override
@@ -29,7 +31,9 @@ public class CommentEdit extends BaseEntityEdit {
 	@Override
 	protected String getLinkType() {
 		return Constants.TYPE_LINK_CONTENT;
-	};
+	}
+
+	;
 
 	@Override
 	protected boolean validate() {

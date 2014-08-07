@@ -6,14 +6,15 @@ import android.net.Uri;
 
 public class IntentBuilder extends Extras {
 
-	private Context		mContext;
-	private Class<?>	mClass;
-	private String		mAction;
-	private Uri			mData;
-	private String		mCategory;
-	private String		mMimeType;
+	private Context  mContext;
+	private Class<?> mClass;
+	private String   mAction;
+	private Uri      mData;
+	private String   mCategory;
+	private String   mMimeType;
 
-	public IntentBuilder() {}
+	public IntentBuilder() {
+	}
 
 	public IntentBuilder(Context context, Class<?> clazz) {
 		mContext = context;
