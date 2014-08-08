@@ -28,8 +28,8 @@ import com.aircandi.utilities.UI;
 
 public class ReportEdit extends BaseEntityEdit {
 
-	private Document	mReport;
-	private String		mReportType;
+	private Document mReport;
+	private String   mReportType;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -44,10 +44,7 @@ public class ReportEdit extends BaseEntityEdit {
 
 				@Override
 				public void afterTextChanged(Editable s) {
-					mDirty = false;
-					if (s.toString() != null || !s.toString().equals("")) {
-						mDirty = true;
-					}
+					mDirty = s.toString() != null || !s.toString().equals("");
 				}
 			});
 		}

@@ -9,9 +9,7 @@ import java.util.Map;
 @SuppressWarnings("ucd")
 public class SimpleEntity extends Entity implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 4362288672244729448L;
-
-	
+	private static final long serialVersionUID = 4362288672244729448L;
 
 	public static Entity setPropertiesFromMap(Entity entity, Map map, Boolean nameMapping) {
 		/*

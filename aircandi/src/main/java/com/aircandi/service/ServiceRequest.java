@@ -9,10 +9,10 @@ import com.aircandi.objects.Session;
 
 /**
  * Here is the typical code to construct a service request:
- * 
+ * <p/>
  * <pre>
- * 
- * 
+ *
+ *
  * {
  * 	&#064;code
  * 	ServiceRequest serviceRequest = new ServiceRequest();
@@ -24,26 +24,26 @@ import com.aircandi.objects.Session;
  * 	NetworkManager.getInstance().requestAsync(serviceRequest);
  * }
  * </pre>
- * 
+ *
  * @author Jayma
  */
 
 public class ServiceRequest {
 
-	private String			mUri;
-	private String			mRequestBody;
-	private String			mActivityName;
-	private Bundle			mParameters;
-	private RequestType		mRequestType;
-	private ResponseFormat	mResponseFormat;
-	private RequestListener	mRequestListener;
-	private Session			mSession;
-	private String			mUserName;
-	private String			mPassword;
-	private AuthType		mAuthType			= AuthType.NONE;
-	private Boolean			mUseSecret			= false;
-	private Boolean			mIgnoreResponseData	= false;
-	private boolean			mSuppressUI			= false;
+	private String          mUri;
+	private String          mRequestBody;
+	private String          mActivityName;
+	private Bundle          mParameters;
+	private RequestType     mRequestType;
+	private ResponseFormat  mResponseFormat;
+	private RequestListener mRequestListener;
+	private Session         mSession;
+	private String          mUserName;
+	private String          mPassword;
+	private AuthType mAuthType           = AuthType.NONE;
+	private Boolean  mUseSecret          = false;
+	private Boolean  mIgnoreResponseData = false;
+	private boolean  mSuppressUI         = false;
 
 	@SuppressWarnings("ucd")
 	public enum AuthType {
@@ -52,7 +52,8 @@ public class ServiceRequest {
 		OAUTH
 	}
 
-	public ServiceRequest() {}
+	public ServiceRequest() {
+	}
 
 	public ServiceRequest(String uri, RequestType requestType, ResponseFormat responseFormat) {
 		mUri = uri;

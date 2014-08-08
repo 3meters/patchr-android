@@ -5,14 +5,17 @@ import java.util.Locale;
 import android.view.View;
 import android.widget.TextView;
 
+import com.aircandi.Aircandi;
 import com.aircandi.catalina.R;
 import com.aircandi.components.StringManager;
+import com.aircandi.controllers.IEntityController;
+import com.aircandi.controllers.ViewHolder;
 import com.aircandi.objects.Entity;
 import com.aircandi.ui.EntityListFragment;
 
 public class TrendListFragment extends EntityListFragment {
 
-	private Integer	mCountLabelResId;
+	private Integer mCountLabelResId;
 
 	// --------------------------------------------------------------------------------------------
 	// Events
@@ -23,22 +26,24 @@ public class TrendListFragment extends EntityListFragment {
 	// --------------------------------------------------------------------------------------------
 
 	@Override
-	public ViewHolder bindHolder(View view, ViewHolder holder) {
+	protected void bindListItem(Entity entity, View view) {
 
+		IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
+
+		ViewHolder holder = (ViewHolder) view.getTag();
 		if (holder == null) {
 			holder = new ViewHolderExtended();
+
+			((ViewHolderExtended) holder).countValue = (TextView) view.findViewById(R.id.count_value);
+			((ViewHolderExtended) holder).countLabel = (TextView) view.findViewById(R.id.count_label);
+			((ViewHolderExtended) holder).rank = (TextView) view.findViewById(R.id.rank);
+
+			controller.bindHolder(view, holder);
+			view.setTag(holder);
 		}
+		holder.data = entity;
 
-		((ViewHolderExtended) holder).countValue = (TextView) view.findViewById(R.id.count_value);
-		((ViewHolderExtended) holder).countLabel = (TextView) view.findViewById(R.id.count_label);
-		((ViewHolderExtended) holder).rank = (TextView) view.findViewById(R.id.rank);
-
-		return super.bindHolder(view, holder);
-	}
-
-	@Override
-	protected void drawListItem(Entity entity, View view, ViewHolder holder) {
-		super.drawListItem(entity, view, holder);
+		controller.bind(entity, view);
 
 		/*
 		 * Trending data
@@ -80,8 +85,8 @@ public class TrendListFragment extends EntityListFragment {
 	// --------------------------------------------------------------------------------------------
 
 	public class ViewHolderExtended extends ViewHolder {
-		public TextView	countValue;
-		public TextView	countLabel;
-		public TextView	rank;
+		public TextView countValue;
+		public TextView countLabel;
+		public TextView rank;
 	}
 }

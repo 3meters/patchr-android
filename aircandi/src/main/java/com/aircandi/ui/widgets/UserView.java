@@ -26,22 +26,22 @@ import com.aircandi.utilities.UI;
 @SuppressWarnings("ucd")
 public class UserView extends RelativeLayout {
 
-	private ViewGroup		mBoundView;
-	private AirImageView	mPhotoView;
-	private ImageView		mImageLocked;
-	private ImageView		mImageWatched;
-	private TextView		mName;
-	private TextView		mEmail;
-	private TextView		mArea;
-	private TextView		mLabel;
-	private TextView		mWatchCount;
-	private TextView		mTimeSince;
-	private ComboButton		mOverflowButton;
+	private ViewGroup    mBoundView;
+	private AirImageView mPhotoView;
+	private ImageView    mImageLocked;
+	private ImageView    mImageWatched;
+	private TextView     mName;
+	private TextView     mEmail;
+	private TextView     mArea;
+	private TextView     mLabel;
+	private TextView     mWatchCount;
+	private TextView     mTimeSince;
+	private ComboButton  mOverflowButton;
 
-	private Entity			mUser;
-	private Integer			mLabelResId;
-	private Long			mDate;
-	private Boolean			mLocked	= false;
+	private Entity  mUser;
+	private Integer mLabelResId;
+	private Long    mDate;
+	private Boolean mLocked = false;
 
 	public UserView(Context context) {
 		this(context, null);
@@ -85,14 +85,9 @@ public class UserView extends RelativeLayout {
 		databind(user, null);
 	}
 
-	public void databind(Entity user, Long date) {
-		databind(user, date, null);
-	}
-
-	public void databind(Entity entity, Long date, Boolean locked) {
+	public void databind(Entity entity, Long date) {
 		mUser = entity;
 		mDate = date;
-		mLocked = locked;
 		this.setTag(entity);
 		if (mOverflowButton != null) {
 			mOverflowButton.setTag(entity);
@@ -109,7 +104,7 @@ public class UserView extends RelativeLayout {
 					mOverflowButton.setVisibility(user.isAnonymous() ? View.GONE : View.VISIBLE);
 				}
 			}
-			
+
 			if (mLabel != null) {
 				if (mLabelResId != 0) {
 					mLabel.setText(StringManager.getString(mLabelResId));

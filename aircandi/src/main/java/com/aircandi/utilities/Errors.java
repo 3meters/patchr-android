@@ -92,6 +92,7 @@ public final class Errors {
 
 	public static final ErrorResponse getErrorResponse(Context context, ServiceResponse serviceResponse) {
 
+		//noinspection PointlessBooleanExpression
 		if (!Constants.ERROR_LEVEL_VERBOSE) {
 
 			if (serviceResponse.statusCode != null) {
@@ -147,7 +148,8 @@ public final class Errors {
 								return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_unverified_unauthorized));
 						}
 					}
-					else if (serviceResponse.statusCode == HttpStatus.SC_FORBIDDEN) {
+					else //noinspection StatementWithEmptyBody
+						if (serviceResponse.statusCode == HttpStatus.SC_FORBIDDEN) {
 						/*
 						 * Reached the service with a good call but failed for a well known reason.
 						 * 
@@ -159,18 +161,18 @@ public final class Errors {
 						 * - 403.11: Duplicate found
 						 * - 403.21: Password not strong enough
 						 */
-						if (serviceResponse.statusCodeService != null) {
-							if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_USER_PASSWORD_WEAK)
-								return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_password_weak));
-							else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE)
-								return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_email_taken));
+							if (serviceResponse.statusCodeService != null) {
+								if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_USER_PASSWORD_WEAK)
+									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_password_weak));
+								else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE)
+									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_email_taken));
+							}
 						}
-					}
-					else {
+						else {
 						/*
 						 * Something in the 4xx range not handled earlier
 						 */
-					}
+						}
 				}
 				ErrorResponse errorResponse = new ErrorResponse(ResponseType.NONE, null);
 				return errorResponse;
@@ -448,12 +450,12 @@ public final class Errors {
 
 	@SuppressWarnings("ucd")
 	public static class ErrorResponse {
-		public String		errorMessage;
-		public String		errorTitle;
-		public ResponseType	errorResponseType;
-		public Boolean		signout	= false;
-		public Boolean		splash	= false;
-		public Boolean		track	= false;
+		public String       errorMessage;
+		public String       errorTitle;
+		public ResponseType errorResponseType;
+		public Boolean signout = false;
+		public Boolean splash  = false;
+		public Boolean track   = false;
 
 		public ErrorResponse(ResponseType responseType) {
 			this(responseType, null);

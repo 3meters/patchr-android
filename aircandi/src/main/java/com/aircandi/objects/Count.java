@@ -10,18 +10,19 @@ import com.aircandi.service.Expose;
  */
 public class Count extends ServiceObject implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 455904759787968585L;
+	private static final long serialVersionUID = 455904759787968585L;
 
 	@Expose
-	public String				type;
+	public String  type;
 	@Expose
-	public String				schema;
+	public String  schema;
 	@Expose
-	public Boolean				enabled;
+	public Boolean enabled;
 	@Expose
-	public Number				count;
+	public Number  count;
 
-	public Count() {}
+	public Count() {
+	}
 
 	public Count(String type, String schema, Boolean enabled, Number count) {
 		this.type = type;

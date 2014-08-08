@@ -33,34 +33,34 @@ import com.aircandi.utilities.UI;
 @SuppressWarnings("ucd")
 public class CandiView extends RelativeLayout {
 
-	public static final int			HORIZONTAL						= 0;
-	public static final int			VERTICAL						= 1;
+	public static final int HORIZONTAL = 0;
+	public static final int VERTICAL   = 1;
 
-	protected Entity				mEntity;
-	protected Integer				mLayoutId;
-	protected ViewGroup				mLayout;
-	protected Boolean				mColorize;
+	protected Entity    mEntity;
+	protected Integer   mLayoutId;
+	protected ViewGroup mLayout;
+	protected Boolean   mColorize;
 
-	protected AirImageView			mPhotoView;
-	protected AirImageView			mCategoryPhoto;
-	protected TextView				mName;
-	protected TextView				mSubtitle;
-	protected TextView				mEmail;
-	protected TextView				mArea;
-	protected TextView				mDistance;
-	protected View					mCandiViewGroup;
-	protected LinearLayout			mHolderShortcuts;
-	protected LinearLayout			mHolderInfo;
-	protected CacheStamp			mCacheStamp;
-	private float					mAspectRatio;
-	private boolean					mAspectRatioEnabled;
-	private int						mDominantMeasurement;
+	protected AirImageView mPhotoView;
+	protected AirImageView mCategoryPhoto;
+	protected TextView     mName;
+	protected TextView     mSubtitle;
+	protected TextView     mEmail;
+	protected TextView     mArea;
+	protected TextView     mDistance;
+	protected View         mCandiViewGroup;
+	protected LinearLayout mHolderShortcuts;
+	protected LinearLayout mHolderInfo;
+	protected CacheStamp   mCacheStamp;
+	private   float        mAspectRatio;
+	private   boolean      mAspectRatioEnabled;
+	private   int          mDominantMeasurement;
 
-	public static final int			MEASUREMENT_WIDTH				= 0;
-	public static final int			MEASUREMENT_HEIGHT				= 1;
-	private static final float		DEFAULT_ASPECT_RATIO			= 1f;
-	private static final boolean	DEFAULT_ASPECT_RATIO_ENABLED	= false;
-	private static final int		DEFAULT_DOMINANT_MEASUREMENT	= MEASUREMENT_WIDTH;
+	public static final  int     MEASUREMENT_WIDTH            = 0;
+	public static final  int     MEASUREMENT_HEIGHT           = 1;
+	private static final float   DEFAULT_ASPECT_RATIO         = 1f;
+	private static final boolean DEFAULT_ASPECT_RATIO_ENABLED = false;
+	private static final int     DEFAULT_DOMINANT_MEASUREMENT = MEASUREMENT_WIDTH;
 
 	public CandiView(Context context) {
 		this(context, null);
@@ -130,7 +130,7 @@ public class CandiView extends RelativeLayout {
 		}
 
 		setMeasuredDimension(newWidth, newHeight);
-		
+
 		if (mCandiViewGroup != null) {
 			int widthSpec = MeasureSpec.makeMeasureSpec(newWidth, View.MeasureSpec.EXACTLY);
 			int heightSpec = MeasureSpec.makeMeasureSpec(newHeight, View.MeasureSpec.EXACTLY);
@@ -147,7 +147,7 @@ public class CandiView extends RelativeLayout {
 			/*
 			 * If it is the same entity and it hasn't changed then nothing to do
 			 */
-			if (!entity.synthetic) {
+			if (!entity.synthetic) { // Leaving this in case we ever use a candiview to display a suggested place.
 				if (mEntity != null && entity.id.equals(mEntity.id) && mCacheStamp.equals(entity.getCacheStamp())) {
 					mEntity = entity;
 					showDistance(entity);
@@ -258,7 +258,7 @@ public class CandiView extends RelativeLayout {
 						Photo photo = category.photo.clone();
 						if (!Photo.same(mCategoryPhoto.getPhoto(), photo)) {
 							photo.colorize = false;
-							mCategoryPhoto.setSizeHint(UI.getRawPixelsForDisplayPixels(getContext(), 50f));
+							mCategoryPhoto.setSizeHint(UI.getRawPixelsForDisplayPixels(50f));
 							UI.drawPhoto(mCategoryPhoto, photo);
 						}
 						mCategoryPhoto.setVisibility(View.VISIBLE);
@@ -300,7 +300,7 @@ public class CandiView extends RelativeLayout {
 		if (mHolderShortcuts != null) {
 
 			mHolderShortcuts.removeAllViews();
-			final int sizePixels = UI.getRawPixelsForDisplayPixels(getContext(), (float) options.imageSizePixels);
+			final int sizePixels = UI.getRawPixelsForDisplayPixels((float) options.imageSizePixels);
 
 			if (options.watchingEnabled) {
 				Integer watching = 0;
@@ -310,9 +310,9 @@ public class CandiView extends RelativeLayout {
 				}
 				if (options.showIfZero || (count != null && (count.count.intValue() > 0))) {
 					String label = options.iconsEnabled
-							? String.valueOf(count.count.intValue())
-							: String.valueOf(count.count.intValue()) + " "
-									+ StringManager.getString(R.string.label_indicator_watching).toUpperCase(Locale.US);
+					               ? String.valueOf(count.count.intValue())
+					               : String.valueOf(count.count.intValue()) + " "
+							               + StringManager.getString(R.string.label_indicator_watching).toUpperCase(Locale.US);
 					addIndicator(R.id.holder_indicator_watching, "ic_watched_holo_dark", label, sizePixels, options);
 				}
 			}
@@ -458,12 +458,16 @@ public class CandiView extends RelativeLayout {
 		mHolderInfo = textGroup;
 	}
 
-	/** Get the aspect ratio for this image view. */
+	/**
+	 * Get the aspect ratio for this image view.
+	 */
 	public float getAspectRatio() {
 		return mAspectRatio;
 	}
 
-	/** Set the aspect ratio for this image view. This will update the view instantly. */
+	/**
+	 * Set the aspect ratio for this image view. This will update the view instantly.
+	 */
 	public void setAspectRatio(float aspectRatio) {
 		this.mAspectRatio = aspectRatio;
 		if (mAspectRatioEnabled) {
@@ -471,25 +475,31 @@ public class CandiView extends RelativeLayout {
 		}
 	}
 
-	/** Get whether or not forcing the aspect ratio is enabled. */
+	/**
+	 * Get whether or not forcing the aspect ratio is enabled.
+	 */
 	public boolean getAspectRatioEnabled() {
 		return mAspectRatioEnabled;
 	}
 
-	/** set whether or not forcing the aspect ratio is enabled. This will re-layout the view. */
+	/**
+	 * set whether or not forcing the aspect ratio is enabled. This will re-layout the view.
+	 */
 	public void setAspectRatioEnabled(boolean aspectRatioEnabled) {
 		this.mAspectRatioEnabled = aspectRatioEnabled;
 		requestLayout();
 	}
 
-	/** Get the dominant measurement for the aspect ratio. */
+	/**
+	 * Get the dominant measurement for the aspect ratio.
+	 */
 	public int getDominantMeasurement() {
 		return mDominantMeasurement;
 	}
 
 	/**
 	 * Set the dominant measurement for the aspect ratio.
-	 * 
+	 *
 	 * @see #MEASUREMENT_WIDTH
 	 * @see #MEASUREMENT_HEIGHT
 	 */
@@ -506,10 +516,10 @@ public class CandiView extends RelativeLayout {
 	// --------------------------------------------------------------------------------------------
 
 	public static class IndicatorOptions {
-		public int		imageSizePixels	= 20;
-		public boolean	showIfZero		= false;
-		public boolean	forceUpdate		= false;
-		public boolean	watchingEnabled	= true;
-		public boolean	iconsEnabled	= true;
+		public int     imageSizePixels = 20;
+		public boolean showIfZero      = false;
+		public boolean forceUpdate     = false;
+		public boolean watchingEnabled = true;
+		public boolean iconsEnabled    = true;
 	}
 }

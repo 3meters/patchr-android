@@ -149,30 +149,30 @@ public class MenuManager {
 		if (entity == null) return false;
 
 		if (entity.isOwnedByCurrentUser() || entity.isOwnedBySystem()) return true;
-		if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-				&& Type.isTrue(Aircandi.getInstance().getCurrentUser().developer)) return true;
+		return Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+				&& Type.isTrue(Aircandi.getInstance().getCurrentUser().developer);
 
-		return false;
 	}
 
 	public Boolean canUserDelete(Entity entity) {
 		if (entity == null) return false;
 
 		if (entity.isOwnedByCurrentUser()) return true;
-		if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-				&& Type.isTrue(Aircandi.getInstance().getCurrentUser().developer)) return true;
+		return Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+				&& Type.isTrue(Aircandi.getInstance().getCurrentUser().developer);
 
-		return false;
 	}
 
 	@SuppressWarnings("ucd")
 	public Boolean canUserRemoveFromPlace(Entity entity) {
 		if (entity == null) return false;
-		
+		if (entity.type.equals(Constants.TYPE_LINK_SHARE)) return false;
+
 		Link placeLink = entity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE, entity.placeId, Direction.out);
-		if (placeLink != null && placeLink.ownerId.equals(Aircandi.getInstance().getCurrentUser().id)) return true;
-		
-		return false;
+		return placeLink != null
+				&& placeLink.ownerId.equals(Aircandi.getInstance().getCurrentUser().id)
+				&& !entity.ownerId.equals(Aircandi.getInstance().getCurrentUser().id);
+
 	}
 
 	public Boolean canUserAdd(Entity entity) {
@@ -182,12 +182,16 @@ public class MenuManager {
 		if (entity.isOwnedByCurrentUser() || entity.isOwnedBySystem()) return true;
 
 		/* Locked */
-		if (entity.locked) return false;
+		return !entity.locked;
 
-		return true;
 	}
 
-	public Boolean showAction(Integer route, Entity entity) {
+	public Boolean canUserShare(Entity entity) {
+		if (entity == null || entity.shareable == null) return false;
+		return entity.shareable;
+	}
+
+	public Boolean showAction(Integer route, Entity entity, String forId) {
 
 		if (entity == null)
 			return false;
@@ -197,6 +201,8 @@ public class MenuManager {
 			return Aircandi.getInstance().getMenuManager().canUserDelete(entity);
 		else if (route == Route.REMOVE)
 			return Aircandi.getInstance().getMenuManager().canUserRemoveFromPlace(entity);
+		else if (route == Route.SHARE)
+			return Aircandi.getInstance().getMenuManager().canUserShare(entity);
 		else if (route == Route.ADD) {
 			if (entity != null && (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)
 					|| entity.schema.equals(Constants.SCHEMA_ENTITY_PICTURE)))

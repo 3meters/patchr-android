@@ -24,12 +24,12 @@ import com.aircandi.utilities.Utilities;
 
 public class UserEdit extends BaseEntityEdit {
 
-	private EditText	mBio;
-	private EditText	mWebUri;
-	private EditText	mArea;
-	private EditText	mEmail;
+	private EditText mBio;
+	private EditText mWebUri;
+	private EditText mArea;
+	private EditText mEmail;
 
-	private TabManager	mTabManager;
+	private TabManager mTabManager;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {

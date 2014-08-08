@@ -59,18 +59,18 @@ import com.aircandi.utilities.UI;
 
 public class PhotoForm extends BaseActivity implements IBind {
 
-	protected static int		DEFAULT_ANIMATION_DURATION	= 200;
+	protected static int DEFAULT_ANIMATION_DURATION = 200;
 
-	private Photo				mPhoto;
-	private List<Photo>			mPhotosForPaging			= new ArrayList<Photo>();
-	private AirViewPager		mViewPager;
-	private Boolean				mPagingEnabled				= true;
-	private String				mForEntityId;
-	private Entity				mForEntity;
-	private String				mListLinkType;
-	private String				mListLinkSchema;
-	private ImageViewTouch		mImageViewTouch;
-	private ShareActionProvider	mShareActionProvider;
+	private Photo mPhoto;
+	private List<Photo> mPhotosForPaging = new ArrayList<Photo>();
+	private AirViewPager mViewPager;
+	private Boolean mPagingEnabled = true;
+	private String              mForEntityId;
+	private Entity              mForEntity;
+	private String              mListLinkType;
+	private String              mListLinkSchema;
+	private ImageViewTouch      mImageViewTouch;
+	private ShareActionProvider mShareActionProvider;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -146,7 +146,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 				}
 				else {
 					List<Entity> entities = (List<Entity>) EntityManager.getEntityCache().getCacheEntitiesForEntity(mForEntityId, mListLinkSchema, null,
-							null, null, null);
+							null, null);
 					/*
 					 * We might get here just using a link without a downloaded entity. Treat it like paging
 					 * is not enabled.
@@ -174,7 +174,8 @@ public class PhotoForm extends BaseActivity implements IBind {
 	}
 
 	@Override
-	public void draw() {}
+	public void draw() {
+	}
 
 	public ViewGroup buildPictureDetail(Photo photo, ViewGroup layout) {
 
@@ -205,7 +206,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 		/* Author block */
 		UI.setVisibility(user, View.GONE);
 		if (photo.getUser() != null) {
-			user.databind(photo.getUser(), photo.getCreatedAt().longValue(), false);
+			user.databind(photo.getUser(), photo.getCreatedAt().longValue());
 			UI.setVisibility(user, View.VISIBLE);
 		}
 
@@ -217,7 +218,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 		UI.drawPhoto(holder.photoView, photo);
 
 		/* Sharing */
-		setShareIntent(photo);
+		share(photo);
 
 		return layout;
 	}
@@ -229,7 +230,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	public void onZoomIn() {
 		mImageViewTouch.setDoubleTapDirection(1);
 		float scale = mImageViewTouch.getScale();
-		float targetScale = scale;
+		float targetScale;
 		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
 		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
 		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
@@ -238,15 +239,14 @@ public class PhotoForm extends BaseActivity implements IBind {
 	public void onZoomOut() {
 		mImageViewTouch.setDoubleTapDirection(-1);
 		float scale = mImageViewTouch.getScale();
-		float targetScale = scale;
+		float targetScale;
 		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
 		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
 		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
 
 	}
 
-	private void updateViewPager()
-	{
+	private void updateViewPager() {
 		if (mViewPager == null) {
 
 			mViewPager = (AirViewPager) findViewById(R.id.view_pager);
@@ -333,14 +333,17 @@ public class PhotoForm extends BaseActivity implements IBind {
 	// Methods
 	// --------------------------------------------------------------------------------------------
 
-	private void setShareIntent(Photo photo) {
+	private void share(Photo photo) {
 
 		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this)
-				.setSubject(String.format(StringManager.getString(R.string.label_photo_share_subject)
-						, Aircandi.getInstance().getCurrentUser().name))
-				.setType("image/jpeg").setStream(MediaManager.getSharePathUri());
+		                                                             .setSubject(String.format(StringManager.getString(R.string.label_photo_share_subject)
+				                                                             , Aircandi.getInstance().getCurrentUser().name))
+		                                                             .setType("image/jpeg").setStream(MediaManager.getSharePathUri());
 
 		Intent intent = builder.getIntent();
+
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
 
 		if (mShareActionProvider != null) {
 			mShareActionProvider.setShareIntent(intent);
@@ -394,7 +397,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 		item.setActionProvider(mShareActionProvider);
 
 		if (mPhoto != null) {
-			setShareIntent(mPhoto);
+			share(mPhoto);
 		}
 
 		return true;
@@ -450,8 +453,9 @@ public class PhotoForm extends BaseActivity implements IBind {
 		}
 
 		@SuppressWarnings("deprecation")
-        @Override
-		public void finishUpdate(View arg0) {}
+		@Override
+		public void finishUpdate(View arg0) {
+		}
 
 		@Override
 		public Parcelable saveState() {
@@ -459,13 +463,14 @@ public class PhotoForm extends BaseActivity implements IBind {
 		}
 
 		@Override
-		public void restoreState(Parcelable state, ClassLoader loader) {}
+		public void restoreState(Parcelable state, ClassLoader loader) {
+		}
 
 	}
 
 	public static class ViewHolder {
 
-		public AirImageView	photoView;
-		public ImageResult	data;		// NO_UCD (unused code)
+		public AirImageView photoView;
+		public ImageResult  data;        // NO_UCD (unused code)
 	}
 }

@@ -34,8 +34,8 @@ import com.squareup.picasso.Target;
 
 public class ShortcutPicker extends BaseActivity {
 
-	private ListView				mList;
-	private final List<Shortcut>	mShortcuts	= new ArrayList<Shortcut>();
+	private ListView mList;
+	private final List<Shortcut> mShortcuts = new ArrayList<Shortcut>();
 
 	@Override
 	public void unpackIntent() {
@@ -74,24 +74,27 @@ public class ShortcutPicker extends BaseActivity {
 			Photo photo = controller.getDefaultPhoto(shortcut.app);
 
 			Integer width = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_thumbnail);
+			//noinspection SuspiciousNameCombination
 			DownloadManager.with(Aircandi.applicationContext)
-					.load(photo.getUri())
-					.centerCrop()
-					.placeholder(null)
-					.resize(width, width)
-					.into(new Target() {
+			               .load(photo.getUri())
+			               .centerCrop()
+			               .placeholder(null)
+			               .resize(width, width)
+			               .into(new Target() {
 
-						@Override
-						public void onBitmapFailed(Drawable arg0) {}
+				               @Override
+				               public void onBitmapFailed(Drawable arg0) {
+				               }
 
-						@Override
-						public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
-							mActionBar.setIcon(new BitmapDrawable(Aircandi.applicationContext.getResources(), bitmap));
-						}
+				               @Override
+				               public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
+					               mActionBar.setIcon(new BitmapDrawable(Aircandi.applicationContext.getResources(), bitmap));
+				               }
 
-						@Override
-						public void onPrepareLoad(Drawable arg0) {}
-					});
+				               @Override
+				               public void onPrepareLoad(Drawable arg0) {
+				               }
+			               });
 		}
 
 		final ShortcutListAdapter adapter = new ShortcutListAdapter(this, mShortcuts, R.layout.temp_listitem_shortcut_picker);
@@ -136,9 +139,9 @@ public class ShortcutPicker extends BaseActivity {
 	static public class ShortcutListAdapter extends ArrayAdapter<Shortcut>
 			implements Filterable {
 
-		private final LayoutInflater	mInflater;
-		private Integer					mItemLayoutId;
-		private final List<Shortcut>	mListItems;
+		private final LayoutInflater mInflater;
+		private       Integer        mItemLayoutId;
+		private final List<Shortcut> mListItems;
 
 		public ShortcutListAdapter(Context context, List<Shortcut> shortcuts, Integer itemLayoutId) {
 			super(context, 0, shortcuts);
@@ -234,11 +237,11 @@ public class ShortcutPicker extends BaseActivity {
 		}
 
 		static class ViewHolder {
-			private AirImageView	photoView;
-			private TextView		name;
-			private TextView		appId;
-			private TextView		appUrl;
-			private Object			data;
+			private AirImageView photoView;
+			private TextView     name;
+			private TextView     appId;
+			private TextView     appUrl;
+			private Object       data;
 		}
 	}
 

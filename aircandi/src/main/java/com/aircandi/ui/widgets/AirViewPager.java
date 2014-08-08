@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 
 public class AirViewPager extends ViewPager {
 
-	private boolean	mSwipeable	= true;
+	private boolean mSwipeable = true;
 
 	@SuppressWarnings("ucd")
 	public AirViewPager(Context context) {
@@ -25,11 +25,11 @@ public class AirViewPager extends ViewPager {
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent arg0) {
-		return (this.mSwipeable) ? super.onInterceptTouchEvent(arg0) : false;
+		return (this.mSwipeable) && super.onInterceptTouchEvent(arg0);
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent arg0) {
-		return (this.mSwipeable) ? super.onTouchEvent(arg0) : false;
+		return (this.mSwipeable) && super.onTouchEvent(arg0);
 	}
 }

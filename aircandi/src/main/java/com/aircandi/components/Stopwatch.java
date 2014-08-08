@@ -9,12 +9,10 @@ import com.aircandi.utilities.Debug;
 
 public class Stopwatch {
 
-	private long			mTotalTime;
-	private long			mLastThreshold;
-	private String			mName;
-	private List<String>	mLog	= new ArrayList<String>();
-
-	
+	private long   mTotalTime;
+	private long   mLastThreshold;
+	private String mName;
+	private List<String> mLog = new ArrayList<String>();
 
 	public long getTotalTime() {
 		return mTotalTime;

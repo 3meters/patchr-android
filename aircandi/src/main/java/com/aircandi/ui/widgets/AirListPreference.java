@@ -17,7 +17,7 @@ public class AirListPreference extends ListPreference {
 
 	public AirListPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		
+
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.AirListPreference, 0, 0);
 		Integer keyId = ta.getResourceId(R.styleable.AirListPreference_keyId, 0);
 		ta.recycle();

@@ -32,8 +32,8 @@ import com.aircandi.utilities.UI;
 
 public class InviteEdit extends BaseEntityEdit {
 
-	private AirEditText			mEmail;
-	private static final int	CONTACT_PICKER_RESULT	= 1001;
+	private AirEditText mEmail;
+	private static final int CONTACT_PICKER_RESULT = 1001;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -57,10 +57,7 @@ public class InviteEdit extends BaseEntityEdit {
 
 				@Override
 				public void afterTextChanged(Editable s) {
-					mDirty = false;
-					if (s.toString() != null || !s.toString().equals("")) {
-						mDirty = true;
-					}
+					mDirty = s.toString() != null || !s.toString().equals("");
 				}
 			});
 		}
@@ -70,10 +67,7 @@ public class InviteEdit extends BaseEntityEdit {
 
 				@Override
 				public void afterTextChanged(Editable s) {
-					mDirty = false;
-					if (s.toString() != null || !s.toString().equals("")) {
-						mDirty = true;
-					}
+					mDirty = s.toString() != null || !s.toString().equals("");
 				}
 			});
 		}
@@ -213,8 +207,8 @@ public class InviteEdit extends BaseEntityEdit {
 				mBusy.hideBusy(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString((emails.size() > 1)
-							? R.string.alert_invite_sent_plural
-							: R.string.alert_invite_sent)
+					                                                 ? R.string.alert_invite_sent_plural
+					                                                 : R.string.alert_invite_sent)
 							, Toast.LENGTH_SHORT);
 					finish();
 				}

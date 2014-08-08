@@ -1,6 +1,7 @@
 package com.aircandi.ui.widgets;
 
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -29,44 +30,44 @@ import com.squareup.picasso.Target;
 @SuppressWarnings("ucd")
 public class AirImageView extends FrameLayout implements Target {
 
-	private ImageView					mImageMain;
-	private ImageView					mImageZoom;
-	private ProgressBar					mProgressBar;
-	private TextView					mMissingMessage;
+	private ImageView   mImageMain;
+	private ImageView   mImageZoom;
+	private ProgressBar mProgressBar;
+	private TextView    mMissingMessage;
 
-	private Photo						mPhoto;
-	private final Handler				mThreadHandler					= new Handler();
-	private Target						mTarget;
+	private Photo mPhoto;
+	private final Handler mThreadHandler = new Handler();
+	private Target mTarget;
 
-	private Integer						mSizeHint;
-	private SizeType					mSizeType;
+	private Integer  mSizeHint;
+	private SizeType mSizeType;
 
-	private boolean						mShowBusy						= true;
-	private Integer						mLayoutId;
-	private ScaleType					mScaleType						= ScaleType.CENTER_CROP;
-	private Boolean						mCenterCrop						= true;
-	private float						mAspectRatio;
-	private boolean						mAspectRatioEnabled;
-	private int							mDominantMeasurement;
+	private boolean   mShowBusy   = true;
+	private ScaleType mScaleType  = ScaleType.CENTER_CROP;
+	private Boolean   mCenterCrop = true;
+	private Integer mLayoutId;
+	private float   mAspectRatio;
+	private boolean mAspectRatioEnabled;
+	private int     mDominantMeasurement;
 
-	public static final int				MEASUREMENT_WIDTH				= 0;
-	public static final int				MEASUREMENT_HEIGHT				= 1;
+	public static final int MEASUREMENT_WIDTH  = 0;
+	public static final int MEASUREMENT_HEIGHT = 1;
 
-	private static final float			DEFAULT_ASPECT_RATIO			= 1f;
-	private static final boolean		DEFAULT_ASPECT_RATIO_ENABLED	= false;
-	private static final int			DEFAULT_DOMINANT_MEASUREMENT	= MEASUREMENT_WIDTH;
+	private static final float   DEFAULT_ASPECT_RATIO         = 1f;
+	private static final boolean DEFAULT_ASPECT_RATIO_ENABLED = false;
+	private static final int     DEFAULT_DOMINANT_MEASUREMENT = MEASUREMENT_WIDTH;
 
-	private static final String			androidNamespace				= "http://schemas.android.com/apk/res/android";
-	private static final ScaleType[]	sScaleTypeArray					= {
-																		ScaleType.MATRIX,
-																		ScaleType.FIT_XY,
-																		ScaleType.FIT_START,
-																		ScaleType.FIT_CENTER,
-																		ScaleType.FIT_END,
-																		ScaleType.CENTER,
-																		ScaleType.CENTER_CROP,
-																		ScaleType.CENTER_INSIDE
-																		};
+	private static final String      androidNamespace = "http://schemas.android.com/apk/res/android";
+	private static final ScaleType[] sScaleTypeArray  = {
+			ScaleType.MATRIX,
+			ScaleType.FIT_XY,
+			ScaleType.FIT_START,
+			ScaleType.FIT_CENTER,
+			ScaleType.FIT_END,
+			ScaleType.CENTER,
+			ScaleType.CENTER_CROP,
+			ScaleType.CENTER_INSIDE
+	};
 
 	public AirImageView(Context context) {
 		this(context, null);
@@ -98,7 +99,6 @@ public class AirImageView extends FrameLayout implements Target {
 				mScaleType = sScaleTypeArray[scaleTypeValue];
 			}
 		}
-
 		initialize(context);
 	}
 
@@ -282,7 +282,6 @@ public class AirImageView extends FrameLayout implements Target {
 	}
 
 	/**
-	 * 
 	 * @return Desired width in pixels.
 	 */
 	public Integer getSizeHint() {
@@ -304,7 +303,6 @@ public class AirImageView extends FrameLayout implements Target {
 	}
 
 	/**
-	 * 
 	 * @return Desired download width in pixels.
 	 */
 	public SizeType getSizeType() {
@@ -342,12 +340,16 @@ public class AirImageView extends FrameLayout implements Target {
 		return this;
 	}
 
-	/** Get the aspect ratio for this image view. */
+	/**
+	 * Get the aspect ratio for this image view.
+	 */
 	public float getAspectRatio() {
 		return mAspectRatio;
 	}
 
-	/** Set the aspect ratio for this image view. This will update the view instantly. */
+	/**
+	 * Set the aspect ratio for this image view. This will update the view instantly.
+	 */
 	public void setAspectRatio(float aspectRatio) {
 		this.mAspectRatio = aspectRatio;
 		if (mAspectRatioEnabled) {
@@ -355,25 +357,31 @@ public class AirImageView extends FrameLayout implements Target {
 		}
 	}
 
-	/** Get whether or not forcing the aspect ratio is enabled. */
+	/**
+	 * Get whether or not forcing the aspect ratio is enabled.
+	 */
 	public boolean getAspectRatioEnabled() {
 		return mAspectRatioEnabled;
 	}
 
-	/** set whether or not forcing the aspect ratio is enabled. This will re-layout the view. */
+	/**
+	 * set whether or not forcing the aspect ratio is enabled. This will re-layout the view.
+	 */
 	public void setAspectRatioEnabled(boolean aspectRatioEnabled) {
 		this.mAspectRatioEnabled = aspectRatioEnabled;
 		requestLayout();
 	}
 
-	/** Get the dominant measurement for the aspect ratio. */
+	/**
+	 * Get the dominant measurement for the aspect ratio.
+	 */
 	public int getDominantMeasurement() {
 		return mDominantMeasurement;
 	}
 
 	/**
 	 * Set the dominant measurement for the aspect ratio.
-	 * 
+	 *
 	 * @see #MEASUREMENT_WIDTH
 	 * @see #MEASUREMENT_HEIGHT
 	 */

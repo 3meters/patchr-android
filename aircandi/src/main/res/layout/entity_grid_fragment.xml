@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
-    <com.aircandi.ui.widgets.AirGridView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:custom="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:clipToPadding="false"
-        android:listSelector="@null"
-        android:numColumns="auto_fit"
-        android:padding="@dimen/grid_padding"
-        android:scrollbars="none"
-        android:stretchMode="columnWidth" />
+	<com.aircandi.ui.widgets.AirGridView xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:custom="http://schemas.android.com/apk/res-auto"
+		android:id="@+id/list"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_alignParentTop="true"
+		android:clipToPadding="false"
+		android:listSelector="@null"
+		android:numColumns="auto_fit"
+		android:padding="@dimen/grid_padding"
+		android:scrollbars="none"
+		android:stretchMode="columnWidth" />
 
-    <com.aircandi.ui.widgets.AirSquareButton
-        android:id="@+id/button_special"
-        style="@style/button_round"
-        android:layout_width="@dimen/button_round_width"
-        android:layout_height="@dimen/button_round_height"
-        android:layout_centerInParent="true" />
+	<com.aircandi.ui.widgets.AirSquareButton
+		android:id="@+id/button_special"
+		style="@style/button_round"
+		android:layout_width="@dimen/button_round_width"
+		android:layout_height="@dimen/button_round_height"
+		android:layout_centerInParent="true" />
 
 </RelativeLayout>

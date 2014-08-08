@@ -1,6 +1,7 @@
 package com.aircandi.utilities;
 
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -17,6 +18,7 @@ import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.inputmethod.InputMethodManager;
@@ -37,15 +39,16 @@ import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.squareup.picasso.RequestCreator;
 
+@SuppressWarnings("ucd")
 public class UI {
 
-	// --------------------------------------------------------------------------------------------
-	// Photos
-	// --------------------------------------------------------------------------------------------
+	/* --------------------------------------------------------------------------------------------
+	   Photos
+	   -------------------------------------------------------------------------------------------- */
 
 	public static void drawPhoto(final AirImageView photoView, final Photo photo) {
-		/*
-		 * There are only a few places that don't use this code to handle images:
+        /*
+         * There are only a few places that don't use this code to handle images:
 		 * - Notification icons - can't use AirImageView
 		 * - Actionbar icons - can't use AirImageView (shortcutpicker, placeform)
 		 * - Photo detail - can't use AirImageView, using ImageViewTouch
@@ -117,34 +120,40 @@ public class UI {
 			Integer drawableId = Photo.getResourceIdFromUri(imageUri);
 			if (drawableId != null) {
 				DownloadManager.with(Aircandi.applicationContext)
-						.load(drawableId)
-						.placeholder(null)
-						.resize(photoView.getSizeHint(), photoView.getSizeHint())  	// Memory size
+				               .load(drawableId)
+				               .placeholder(null)
+						.resize(photoView.getSizeHint(), photoView.getSizeHint())    // Memory size
 						.into(photoView);
 			}
 		}
 		else {
 			RequestCreator request = DownloadManager.with(Aircandi.applicationContext)
-					.load(imageUri)
-					.config(Config.RGB_565)
-					.placeholder(null);
+			                                        .load(imageUri)
+			                                        .config(Config.RGB_565)
+			                                        .placeholder(null);
 
 			if (photoView.getCenterCrop()) {
 				request.centerCrop();
 				request.resize(photoView.getSizeHint(), photoView.getSizeHint());
 			}
-			
+
 			request.into(photoView);
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Utilities
-	// --------------------------------------------------------------------------------------------
+	/* --------------------------------------------------------------------------------------------
+	   Utilities
+	   -------------------------------------------------------------------------------------------- */
 
-	public static int getRawPixelsForDisplayPixels(Context context, Float displayPixels) {
-		final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+	public static int getRawPixelsForDisplayPixels(Float displayPixels) {
+		final DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
 		final int pixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, displayPixels, metrics);
+		return pixels;
+	}
+
+	public static int getRawPixelsForScaledPixels(Float scaledPixels) {
+		final DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+		final int pixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, scaledPixels, metrics);
 		return pixels;
 	}
 
@@ -163,7 +172,6 @@ public class UI {
 		return metrics.heightPixels;
 	}
 
-	@SuppressWarnings("ucd")
 	public static int getImageMemorySize(int height, int width, boolean hasAlpha) {
 		return height * width * (hasAlpha ? 4 : 3);
 	}
@@ -187,59 +195,62 @@ public class UI {
 		return bitmapScaled;
 	}
 
-	@SuppressWarnings("ucd")
 	public static Drawable colorDrawable(Integer resId, Mode mode) {
 		Drawable drawable = Aircandi.applicationContext.getResources().getDrawable(resId);
 		return colorDrawable(drawable, mode);
 	}
-	
+
 	public static Drawable colorDrawable(Drawable drawable, Mode mode) {
 		drawable.setColorFilter(Colors.getColor(R.color.brand_primary), mode);
 		return drawable;
 	}
-	
-	public static Drawable colorDrawable(Drawable drawable, Integer colorResId,  Mode mode) {
+
+	public static Drawable colorDrawable(Drawable drawable, Integer colorResId, Mode mode) {
 		drawable.setColorFilter(Colors.getColor(colorResId), mode);
 		return drawable;
 	}
-	
-	@SuppressWarnings("ucd")
+
 	public static Drawable getDrawableForAttribute(Integer attr) {
-		
-		int[] attrs = new int[] { attr /* index 0 */};
-		TypedArray a = Aircandi.applicationContext.getTheme().obtainStyledAttributes(attrs);     
-		Drawable drawable = a.getDrawable(0);
-		a.recycle();
+
+		int[] attrs = new int[]{attr /* index 0 */};
+		TypedArray ta = Aircandi.applicationContext.getTheme().obtainStyledAttributes(attrs);
+		Drawable drawable = ta.getDrawable(0);
+		ta.recycle();
 		return drawable;
 	}
-	
-	@SuppressWarnings("ucd")
+
 	public static Integer getResIdForAttribute(Integer attr) {
-		
-		int[] attrs = new int[] { attr /* index 0 */};
-		TypedArray a = Aircandi.applicationContext.getTheme().obtainStyledAttributes(attrs);     
-		Integer resId = a.getResourceId(0, 0);
-		a.recycle();
+
+		int[] attrs = new int[]{attr /* index 0 */};
+		TypedArray ta = Aircandi.applicationContext.getTheme().obtainStyledAttributes(attrs);
+		Integer resId = ta.getResourceId(0, 0);
+		ta.recycle();
 		return resId;
 	}
-	
-	// --------------------------------------------------------------------------------------------
-	// Display
-	// --------------------------------------------------------------------------------------------
+
+	/* --------------------------------------------------------------------------------------------
+	   Display
+	   -------------------------------------------------------------------------------------------- */
 
 	public static void showToastNotification(final String message, final int duration) {
+		showToastNotification(message, duration, 0);
+	}
+
+	public static void showToastNotification(final String message, final int duration, final int gravity) {
 		Aircandi.mainThreadHandler.post(new Runnable() {
 
 			@Override
 			public void run() {
 				final CharSequence text = message;
 				final Toast toast = Toast.makeText(Aircandi.applicationContext, text, duration);
+				if (gravity != 0) {
+					toast.setGravity(gravity, 0, 0);
+				}
 				toast.show();
 			}
 		});
 	}
 
-	@SuppressWarnings("ucd")
 	public static void showImageInImageView(final Bitmap bitmap, final ImageView imageView, final boolean animate, final Animation animation) {
 		/*
 		 * Make sure this on the main thread
@@ -255,7 +266,8 @@ public class UI {
 					animation.setAnimationListener(new AnimationListener() {
 
 						@Override
-						public void onAnimationStart(Animation animation) {}
+						public void onAnimationStart(Animation animation) {
+						}
 
 						@Override
 						public void onAnimationEnd(Animation animation) {
@@ -263,7 +275,8 @@ public class UI {
 						}
 
 						@Override
-						public void onAnimationRepeat(Animation animation) {}
+						public void onAnimationRepeat(Animation animation) {
+						}
 					});
 					imageView.startAnimation(animation);
 				}
@@ -297,7 +310,6 @@ public class UI {
 		});
 	}
 
-	@SuppressWarnings("ucd")
 	public static void clearImageInImageView(final ImageView imageView, final boolean animate, final Animation animation) {
 		Aircandi.mainThreadHandler.post(new Runnable() {
 
@@ -327,27 +339,20 @@ public class UI {
 				if (imageView != null) {
 					imageView.setImageDrawable(drawable);
 					imageView.clearAnimation();
-					
+					imageView.invalidate();
+
 					if (animate) {
 						ObjectAnimator anim = ObjectAnimator.ofFloat(imageView, "alpha", 0f, 1f);
 						anim.setDuration(AnimationManager.DURATION_MEDIUM);
-						anim.start();					
+						anim.start();
 					}
-					
-//					if (animate) {
-//						animation.setFillEnabled(true);
-//						animation.setFillAfter(true);
-//						imageView.startAnimation(animation);
-//					}
-//					imageView.postInvalidate();
 				}
 			}
 		});
 	}
 
-	@SuppressWarnings("ucd")
 	public static void showDrawableInImageView(final Drawable drawable, final ImageViewTouch imageView, final float minZoom, final float maxZoom,
-			final boolean animate, final Animation animation) {
+	                                           final boolean animate, final Animation animation) {
 		/*
 		 * Make sure this on the main thread
 		 */
@@ -368,7 +373,6 @@ public class UI {
 		});
 	}
 
-	@SuppressWarnings("ucd")
 	public static void setImageBitmapWithFade(final ImageView imageView, final Bitmap bitmap) {
 		Resources resources = imageView.getResources();
 		BitmapDrawable bitmapDrawable = new BitmapDrawable(resources, bitmap);
@@ -406,11 +410,20 @@ public class UI {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Input
-	// --------------------------------------------------------------------------------------------
+	public static void setEnabled(View view, boolean enabled) {
+		view.setEnabled(enabled);
+		if (view instanceof ViewGroup) {
+			ViewGroup group = (ViewGroup) view;
+			for (int i = 0; i < group.getChildCount(); i++) {
+				setEnabled(group.getChildAt(i), enabled);
+			}
+		}
+	}
 
-	@SuppressWarnings("ucd")
+	/* --------------------------------------------------------------------------------------------
+	   Input
+   	   -------------------------------------------------------------------------------------------- */
+
 	public static void hideSoftInput(Context context) {
 		InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 		inputManager.hideSoftInputFromWindow(new View(context).getWindowToken(), 0);
@@ -421,13 +434,11 @@ public class UI {
 		inputManager.hideSoftInputFromWindow(windowToken, 0);
 	}
 
-	@SuppressWarnings("ucd")
 	public static void showSoftInput(Context context) {
 		InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 		inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 	}
 
-	@SuppressWarnings("ucd")
 	public static int showScreenSize() {
 		int screenSize = Aircandi.applicationContext.getResources().getConfiguration().screenLayout &
 				Configuration.SCREENLAYOUT_SIZE_MASK;

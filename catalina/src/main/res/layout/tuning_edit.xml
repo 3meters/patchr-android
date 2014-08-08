@@ -1,129 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
-    <com.aircandi.ui.widgets.AirScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport="true" >
+	<com.aircandi.ui.widgets.AirScrollView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:fillViewport="true">
 
-        <LinearLayout
-            style="@style/form_content_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
+		<LinearLayout
+			style="@style/form_content_layout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
 
-            <!-- Tuning -->
+			<!-- Tuning -->
 
-            <com.aircandi.ui.widgets.AirTextLight
-                android:id="@+id/section_title_tune"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="2dp"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/brand_primary"
-                custom:textId="@string/label_section_tuning" />
+			<com.aircandi.ui.widgets.AirTextLight
+				android:id="@+id/section_title_tune"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="2dp"
+				android:textAppearance="?android:attr/textAppearanceLarge"
+				android:textColor="@color/brand_primary"
+				custom:textId="@string/label_section_tuning" />
 
-            <com.aircandi.ui.widgets.AirTextView
-                android:id="@+id/label_tune"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                custom:textId="@string/label_tuning_tune_no_name" />
+			<com.aircandi.ui.widgets.AirTextView
+				android:id="@+id/label_tune"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="10dp"
+				custom:textId="@string/label_tuning_tune_no_name" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
 
-                <com.aircandi.ui.widgets.ComboButton
-                    android:id="@+id/button_tune"
-                    style="@style/button_link"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/button_height"
-                    android:layout_marginRight="2dp"
-                    android:layout_weight="0.5"
-                    android:onClick="onTuneButtonClick"
-                    custom:label="@string/button_tuning_tune" />
+				<com.aircandi.ui.widgets.ComboButton
+					android:id="@+id/button_tune"
+					style="@style/button_link"
+					android:layout_width="wrap_content"
+					android:layout_height="@dimen/button_height"
+					android:layout_marginRight="2dp"
+					android:layout_weight="0.5"
+					android:onClick="onTuneButtonClick"
+					custom:label="@string/button_tuning_tune" />
 
-                <com.aircandi.ui.widgets.ComboButton
-                    android:id="@+id/button_untune"
-                    style="@style/button_link"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/button_height"
-                    android:layout_marginLeft="2dp"
-                    android:layout_weight="0.5"
-                    android:onClick="onUntuneButtonClick"
-                    android:visibility="gone"
-                    custom:label="@string/button_tuning_untune" />
-            </LinearLayout>
+				<com.aircandi.ui.widgets.ComboButton
+					android:id="@+id/button_untune"
+					style="@style/button_link"
+					android:layout_width="wrap_content"
+					android:layout_height="@dimen/button_height"
+					android:layout_marginLeft="2dp"
+					android:layout_weight="0.5"
+					android:onClick="onUntuneButtonClick"
+					android:visibility="gone"
+					custom:label="@string/button_tuning_untune" />
+			</LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/holder_editing"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
+			<LinearLayout
+				android:id="@+id/holder_editing"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/rule_divider_height"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginTop="10dp"
-                    android:background="?attr/ruleColor" />
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/rule_divider_height"
+					android:layout_marginBottom="10dp"
+					android:layout_marginTop="10dp"
+					android:background="?attr/ruleColor" />
 
-                <!-- Set banner -->
+				<!-- Set banner -->
 
-                <com.aircandi.ui.widgets.AirTextLight
-                    android:id="@+id/section_title_banner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="2dp"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/brand_primary"
-                    custom:textId="@string/label_section_banner" />
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@+id/section_title_banner"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="2dp"
+					android:textAppearance="?android:attr/textAppearanceLarge"
+					android:textColor="@color/brand_primary"
+					custom:textId="@string/label_section_banner" />
 
-                <com.aircandi.ui.widgets.AirTextView
-                    android:id="@+id/label_banner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    custom:textId="@string/label_tuning_banner_no_name" />
+				<com.aircandi.ui.widgets.AirTextView
+					android:id="@+id/label_banner"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="10dp"
+					custom:textId="@string/label_tuning_banner_no_name" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal" >
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal">
 
-                    <com.aircandi.ui.widgets.AirImageView
-                        android:id="@+id/entity_photo"
-                        style="@style/picture_framed"
-                        android:layout_width="@dimen/image_large"
-                        android:layout_height="@dimen/image_large"
-                        android:layout_marginRight="10dp"
-                        android:clickable="true"
-                        android:minWidth="@dimen/image_large"
-                        android:onClick="onChangePhotoButtonClick"
-                        android:scaleType="centerCrop"
-                        custom:layout="@layout/widget_webimageview_candi_view"
-                        custom:showBusy="true"
-                        custom:sizeType="preview"
-                        custom:sizeHint="@dimen/image_large" />
+					<com.aircandi.ui.widgets.AirImageView
+						android:id="@+id/entity_photo"
+						style="@style/picture_framed"
+						android:layout_width="@dimen/image_large"
+						android:layout_height="@dimen/image_large"
+						android:layout_marginRight="10dp"
+						android:clickable="true"
+						android:minWidth="@dimen/image_large"
+						android:onClick="onChangePhotoButtonClick"
+						android:scaleType="centerCrop"
+						custom:layout="@layout/widget_webimageview_candi_view"
+						custom:showBusy="true"
+						custom:sizeType="preview"
+						custom:sizeHint="@dimen/image_large" />
 
-                    <com.aircandi.ui.widgets.ComboButton
-                        android:id="@+id/button_change_image"
-                        style="@style/button_link"
-                        android:layout_width="@dimen/button_width_min"
-                        android:layout_height="@dimen/button_height"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="10dp"
-                        android:onClick="onChangePhotoButtonClick"
-                        custom:label="@string/button_change_picture" />
-                </LinearLayout>
+					<com.aircandi.ui.widgets.ComboButton
+						android:id="@+id/button_change_image"
+						style="@style/button_link"
+						android:layout_width="@dimen/button_width_min"
+						android:layout_height="@dimen/button_height"
+						android:layout_gravity="center_vertical"
+						android:layout_marginLeft="10dp"
+						android:onClick="onChangePhotoButtonClick"
+						custom:label="@string/button_change_picture" />
+				</LinearLayout>
 
-            </LinearLayout>
-        </LinearLayout>
-    </com.aircandi.ui.widgets.AirScrollView>
+			</LinearLayout>
+		</LinearLayout>
+	</com.aircandi.ui.widgets.AirScrollView>
 
 </RelativeLayout>

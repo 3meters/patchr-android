@@ -2,9 +2,11 @@ package com.aircandi.catalina.components;
 
 import android.text.TextUtils;
 
+import com.aircandi.Aircandi;
 import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.objects.Message.MessageType;
 import com.aircandi.components.Logger;
+import com.aircandi.controllers.IEntityController;
 import com.aircandi.objects.Action.EventCategory;
 import com.aircandi.objects.ActivityBase;
 import com.aircandi.objects.ActivityBase.TriggerType;
@@ -70,7 +72,7 @@ public class ActivityDecorator extends com.aircandi.components.ActivityDecorator
 						return String.format("sent a message to a %1$s you are watching.", activity.action.toEntity.getLabelForSchema());
 					else if (activity.trigger.equals(TriggerType.WATCH_USER)
 							|| activity.trigger.equals(TriggerType.NONE))
-						return String.format("sent a message.", activity.action.toEntity.getSchemaMapped());
+						return "sent a message.";
 					else if (activity.trigger.equals(TriggerType.OWN_TO))
 						return String.format("sent a message to a %1$s of yours.", activity.action.toEntity.getLabelForSchema());
 				}
@@ -82,12 +84,24 @@ public class ActivityDecorator extends com.aircandi.components.ActivityDecorator
 						return String.format("replied to a message at a %1$s you are watching.", activity.action.toEntity.getLabelForSchema());
 					else if (activity.trigger.equals(TriggerType.WATCH_USER)
 							|| activity.trigger.equals(TriggerType.NONE))
-						return String.format("replied to a message.", activity.action.toEntity.getSchemaMapped());
+						return "replied to a message.";
 					else if (activity.trigger.equals(TriggerType.OWN_TO))
 						return String.format("replied to a message at a %1$s of yours.", activity.action.toEntity.getLabelForSchema());
 				}
 			}
+			else if (activity.action.entity.schema.equals(com.aircandi.Constants.SCHEMA_ENTITY_PLACE)) {
+
+				if (activity.trigger.equals(TriggerType.NEARBY))
+					return "dropped a new patch nearby.";
+			}
 		}
+		else if (activity.action.getEventCategory().equals(EventCategory.SHARE)) {
+
+			if (activity.action.entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+				return "shared with you.";
+			}
+		}
+
 		Logger.w(ActivityDecorator.class, "activity missing subtitle");
 		return null;
 	}
@@ -102,9 +116,10 @@ public class ActivityDecorator extends com.aircandi.components.ActivityDecorator
 
 	@Override
 	public Photo photoBy(ActivityBase activity) {
-		Photo photo = null;
+		Photo photo;
 		if (activity.action.user == null) {
-			photo = activity.action.user.getDefaultPhoto();
+			IEntityController controller = Aircandi.getInstance().getControllerForSchema(com.aircandi.Constants.SCHEMA_ENTITY_USER);
+			photo = ((controller != null) ? controller.getDefaultPhoto(null) : null);
 		}
 		else {
 			photo = activity.action.user.getPhoto();
@@ -116,12 +131,12 @@ public class ActivityDecorator extends com.aircandi.components.ActivityDecorator
 
 	@Override
 	public Photo photoOne(ActivityBase activity) {
-		Photo photo = null;
+		Photo photo;
 
 		photo = activity.action.entity.getPhoto();
 		photo.name = TextUtils.isEmpty(activity.action.entity.name)
-				? activity.action.entity.getSchemaMapped()
-				: activity.action.entity.name;
+		             ? activity.action.entity.getSchemaMapped()
+		             : activity.action.entity.name;
 		photo.shortcut = activity.action.entity.getShortcut();
 		return photo;
 	}

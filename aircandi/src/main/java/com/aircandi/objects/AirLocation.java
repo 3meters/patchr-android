@@ -11,29 +11,30 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class AirLocation extends ServiceObject implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 455904759787968585L;
+	private static final long serialVersionUID = 455904759787968585L;
 
 	@Expose
-	public Number				lat;
+	public Number lat;
 	@Expose
-	public Number				lng;
+	public Number lng;
 	@Expose
-	public Number				altitude;
+	public Number altitude;
 	@Expose
-	public Number				accuracy;
+	public Number accuracy;
 	@Expose
-	public Number				bearing;
+	public Number bearing;
 	@Expose
-	public Number				speed;
+	public Number speed;
 	@Expose
-	public String				provider;
+	public String provider;
 
 	/*
 	 * Client only
 	 */
-	public Boolean				zombie				= false;
+	public Boolean zombie = false;
 
-	public AirLocation() {}
+	public AirLocation() {
+	}
 
 	public AirLocation(Number lat, Number lng) {
 		this.lat = lat;
@@ -68,7 +69,7 @@ public class AirLocation extends ServiceObject implements Cloneable, Serializabl
 
 	public Float distanceTo(AirLocation location) {
 
-		Float distance = 0f;
+		Float distance;
 
 		final android.location.Location locationThis = new android.location.Location(this.provider);
 		locationThis.setLatitude(this.lat.doubleValue());

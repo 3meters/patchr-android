@@ -50,7 +50,7 @@ public class OkHttpUrlConnection extends BaseConnection {
 	 * - Doesn't retry if IOException is during response streaming.
 	 */
 
-	private OkHttpClient	client;
+	private OkHttpClient client;
 
 	public OkHttpUrlConnection() {
 
@@ -193,7 +193,7 @@ public class OkHttpUrlConnection extends BaseConnection {
 					final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 					final StringBuilder stringBuilder = new StringBuilder(); // $codepro.audit.disable defineInitialCapacity
 
-					String line = null;
+					String line;
 					while ((line = bufferedReader.readLine()) != null) {
 						stringBuilder.append(line + System.getProperty("line.separator"));
 					}
@@ -207,7 +207,7 @@ public class OkHttpUrlConnection extends BaseConnection {
 						 * We think anything json is coming from the Aircandi service.
 						 */
 						ServiceData serviceData = (ServiceData) Json.jsonToObject(responseContent, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
-						
+
 						if (serviceData != null
 								&& serviceData.clientMinVersions != null
 								&& serviceData.clientMinVersions.containsKey(Aircandi.applicationContext.getPackageName())) {
@@ -279,7 +279,7 @@ public class OkHttpUrlConnection extends BaseConnection {
 			byte[] buffer = new byte[bufferSize];
 
 			// we need to know how may bytes were read to write them to the byteBuffer
-			int len = 0;
+			int len;
 			while ((len = bufferedInputStream.read(buffer)) != -1 && !Thread.currentThread().isInterrupted()) {
 				byteBuffer.write(buffer, 0, len);
 			}
@@ -296,7 +296,7 @@ public class OkHttpUrlConnection extends BaseConnection {
 			final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 			final StringBuilder stringBuilder = new StringBuilder(); // $codepro.audit.disable defineInitialCapacity
 
-			String line = null;
+			String line;
 			while ((line = bufferedReader.readLine()) != null && !Thread.currentThread().isInterrupted()) {
 				stringBuilder.append(line + System.getProperty("line.separator"));
 			}
@@ -330,7 +330,7 @@ public class OkHttpUrlConnection extends BaseConnection {
 		 * Gingerbread and above support Gzip natively.
 		 */
 		OutputStream outputStream = null;
-		InputStream inputStream = null;
+		InputStream inputStream;
 
 		try {
 
@@ -391,7 +391,7 @@ public class OkHttpUrlConnection extends BaseConnection {
 		 */
 		boolean useGzip = false;
 		OutputStream outputStream = null;
-		InputStream inputStream = null;
+		InputStream inputStream;
 
 		try {
 			connection.setRequestProperty("Accept-Encoding", "gzip");
@@ -428,10 +428,10 @@ public class OkHttpUrlConnection extends BaseConnection {
 			// This is a map, but we can't assume the key we're looking for
 			// is in normal casing. So it's really not a good map, is it?
 			final Set<Map.Entry<String, List<String>>> set = headers.entrySet();
-			for (Iterator<Map.Entry<String, List<String>>> i = set.iterator(); i.hasNext();) {
+			for (Iterator<Map.Entry<String, List<String>>> i = set.iterator(); i.hasNext(); ) {
 				Map.Entry<String, List<String>> entry = i.next();
 				if ("Content-Encoding".equalsIgnoreCase(entry.getKey())) {
-					for (Iterator<String> j = entry.getValue().iterator(); j.hasNext();) {
+					for (Iterator<String> j = entry.getValue().iterator(); j.hasNext(); ) {
 						String str = j.next();
 						if (str.equalsIgnoreCase("gzip")) {
 							useGzip = true;
@@ -510,10 +510,10 @@ public class OkHttpUrlConnection extends BaseConnection {
 		// This is a map, but we can't assume the key we're looking for
 		// is in normal casing. So it's really not a good map, is it?
 		final Set<Map.Entry<String, List<String>>> set = headers.entrySet();
-		for (Iterator<Map.Entry<String, List<String>>> i = set.iterator(); i.hasNext();) {
+		for (Iterator<Map.Entry<String, List<String>>> i = set.iterator(); i.hasNext(); ) {
 			Map.Entry<String, List<String>> entry = i.next();
 			if ("Content-Encoding".equalsIgnoreCase(entry.getKey())) {
-				for (Iterator<String> j = entry.getValue().iterator(); j.hasNext();) {
+				for (Iterator<String> j = entry.getValue().iterator(); j.hasNext(); ) {
 					String str = j.next();
 					if (str.equalsIgnoreCase("gzip")) {
 						useGzip = true;

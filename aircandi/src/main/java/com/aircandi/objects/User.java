@@ -15,66 +15,66 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class User extends Entity {
 
-	private static final long	serialVersionUID	= 127428776257201065L;
-	public static final String	collectionId		= "users";
+	private static final long   serialVersionUID = 127428776257201065L;
+	public static final  String collectionId     = "users";
+	public static final  String schemaName       = "user";
+	public static final  String schemaId         = "us";
 
 	// --------------------------------------------------------------------------------------------
 	// service fields
 	// --------------------------------------------------------------------------------------------
 
 	@Expose
-	public String				email;										// Required
+	public String  email;                                        // Required
 	@Expose
-	public String				role;
+	public String  role;
 	@Expose
-	public String				area;
+	public String  area;
 	@Expose
-	public String				bio;
+	public String  bio;
 	@Expose
-	public String				webUri;
+	public String  webUri;
 	@Expose
-	public Boolean				developer;
+	public Boolean developer;
 	@Expose
-	public String				password;
+	public String  password;
 
 	@Expose(serialize = false, deserialize = true)
-	public String				facebookId;
+	public String facebookId;
 	@Expose(serialize = false, deserialize = true)
-	public String				twitterId;
+	public String twitterId;
 	@Expose(serialize = false, deserialize = true)
-	public String				googleId;
+	public String googleId;
 
 	@Expose
-	public String				authSource;
+	public String authSource;
 
 	@Expose(serialize = false, deserialize = true)
-	public String				oauthId;
+	public String oauthId;
 	@Expose(serialize = false, deserialize = true)
-	public String				oauthToken;
+	public String oauthToken;
 	@Expose(serialize = false, deserialize = true)
-	public String				oauthSecret;
+	public String oauthSecret;
 	@Expose(serialize = false, deserialize = true)
-	public String				oauthData;
+	public String oauthData;
 
 	@Expose(serialize = false, deserialize = true)
-	public Number				lastSignedInDate;
+	public Number lastSignedInDate;
 	@Expose(serialize = false, deserialize = true)
-	public Number				validationDate;
+	public Number validationDate;
 	@Expose(serialize = false, deserialize = true)
-	public Number				validationNotifyDate;
+	public Number validationNotifyDate;
 
 	// --------------------------------------------------------------------------------------------
 	// client fields
 	// --------------------------------------------------------------------------------------------
 
-	public List<Count>			stats;
-	public Session				session;
-
-	
+	public List<Count> stats;
+	public Session     session;
 
 	// --------------------------------------------------------------------------------------------
 	// Set and get
-	// --------------------------------------------------------------------------------------------		
+	// --------------------------------------------------------------------------------------------
 
 	@Override
 	public String getCollection() {
@@ -88,7 +88,7 @@ public class User extends Entity {
 	public Boolean isAdmin() {
 		return (id != null && id.equals(ServiceConstants.ADMIN_USER_ID));
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 	// Copy and serialization
 	// --------------------------------------------------------------------------------------------

@@ -10,10 +10,8 @@ import java.util.Map;
 @SuppressWarnings("ucd")
 public class Document extends ServiceBase implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 694133954499515095L;
-	public static final String	collectionId		= "documents";
-
-	
+	private static final long   serialVersionUID = 694133954499515095L;
+	public static final  String collectionId     = "documents";
 
 	public static Document setPropertiesFromMap(Document document, Map map, Boolean nameMapping) {
 		/*

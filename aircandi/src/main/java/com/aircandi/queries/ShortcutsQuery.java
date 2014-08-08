@@ -7,8 +7,8 @@ import com.aircandi.objects.Links;
 
 public class ShortcutsQuery implements IQuery {
 
-	protected String	mEntityId;
-	protected Integer	mPageSize;
+	protected String  mEntityId;
+	protected Integer mPageSize;
 
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {
@@ -31,5 +31,10 @@ public class ShortcutsQuery implements IQuery {
 	@Override
 	public Integer getPageSize() {
 		return mPageSize;
+	}
+
+	@Override
+	public String getEntityId() {
+		return mEntityId;
 	}
 }

@@ -15,27 +15,30 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class Beacon extends Entity implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 694133954499515095L;
-	public static final String	collectionId		= "beacons";
+	private static final long   serialVersionUID = 694133954499515095L;
+	public static final  String collectionId     = "beacons";
+	public static final  String schemaName       = "beacon";
+	public static final  String schemaId         = "be";
 
 	// --------------------------------------------------------------------------------------------
 	// service fields
 	// --------------------------------------------------------------------------------------------
 
 	@Expose
-	public String				ssid;
+	public String ssid;
 	@Expose
-	public String				bssid;
+	public String bssid;
 	@Expose
-	public Number				signal;									// Used to evaluate location accuracy 
+	public Number signal;                                    // Used to evaluate location accuracy
 
 	// --------------------------------------------------------------------------------------------
 	// client fields (NONE are transferred)
 	// --------------------------------------------------------------------------------------------
 
-	public Boolean				test				= false;
+	public Boolean test = false;
 
-	public Beacon() {}
+	public Beacon() {
+	}
 
 	public Beacon(String bssid, String ssid, String label, int levelDb, Boolean test) { // $codepro.audit.disable largeNumberOfParameters
 		id = "be." + bssid;
@@ -48,7 +51,7 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 
 	// --------------------------------------------------------------------------------------------
 	// Set and get
-	// --------------------------------------------------------------------------------------------	
+	// --------------------------------------------------------------------------------------------
 
 	@Override
 	public Float getDistance(Boolean refresh) {
@@ -133,10 +136,10 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 		@Override
 		public int compare(Beacon object1, Beacon object2) {
 			if ((object1.signal.intValue() / Constants.RADAR_BEACON_SIGNAL_BUCKET_SIZE)
-			> (object2.signal.intValue() / Constants.RADAR_BEACON_SIGNAL_BUCKET_SIZE))
+					> (object2.signal.intValue() / Constants.RADAR_BEACON_SIGNAL_BUCKET_SIZE))
 				return -1;
 			else if ((object1.signal.intValue() / Constants.RADAR_BEACON_SIGNAL_BUCKET_SIZE)
-			< (object2.signal.intValue() / Constants.RADAR_BEACON_SIGNAL_BUCKET_SIZE))
+					< (object2.signal.intValue() / Constants.RADAR_BEACON_SIGNAL_BUCKET_SIZE))
 				return 1;
 			else
 				return 0;

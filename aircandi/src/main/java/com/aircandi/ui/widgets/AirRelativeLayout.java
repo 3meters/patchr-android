@@ -10,7 +10,7 @@ import com.aircandi.R;
 @SuppressWarnings("ucd")
 public class AirRelativeLayout extends RelativeLayout {
 
-	private Integer	mMaxWidth;
+	private Integer mMaxWidth;
 
 	public AirRelativeLayout(Context context) {
 		super(context);

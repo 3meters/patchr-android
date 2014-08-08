@@ -33,8 +33,8 @@ import com.google.analytics.tracking.android.StandardExceptionParser;
 @SuppressWarnings("ucd")
 public class TrackerGoogleEasy extends TrackerBase {
 
-	public static final int	GA_DISPATCH_PERIOD			= 60;	// seconds																				// Dispatch period in seconds.
-	public static final int	GA_DISPATCH_PERIOD_DEBUG	= 10;	// seconds																				// Dispatch period in seconds.
+	public static final int GA_DISPATCH_PERIOD       = 60;    // seconds																				// Dispatch period in seconds.
+	public static final int GA_DISPATCH_PERIOD_DEBUG = 10;    // seconds																				// Dispatch period in seconds.
 
 	@Override
 	public void activityStart(Activity activity) {
@@ -91,7 +91,8 @@ public class TrackerGoogleEasy extends TrackerBase {
 			EasyTracker.getInstance(Aircandi.applicationContext).send(
 					MapBuilder.createException(new StandardExceptionParser(Aircandi.applicationContext, null)
 							.getDescription(Thread.currentThread().getName(), exception), false)
-							.build());
+					          .build()
+			);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -104,7 +105,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 			/*
 			 * Screen name as set will be included in all subsequent sends.
 			 */
-			EasyTracker.getInstance(Aircandi.applicationContext).set(Fields.SCREEN_NAME, fragment.getClass().getSimpleName());
+			EasyTracker.getInstance(Aircandi.applicationContext).set(Fields.SCREEN_NAME, ((Object) fragment).getClass().getSimpleName());
 			EasyTracker.getInstance(Aircandi.applicationContext).send(MapBuilder.createAppView().build());
 		}
 		catch (Exception e) {
@@ -130,10 +131,10 @@ public class TrackerGoogleEasy extends TrackerBase {
 	private void startNewSession() {
 		try {
 			EasyTracker.getInstance(Aircandi.applicationContext).send(MapBuilder
-					.createEvent(TrackerCategory.SYSTEM, "session_start", null, null)
-					.set(Fields.SESSION_CONTROL, "start")
-					.build()
-					);
+							.createEvent(TrackerCategory.SYSTEM, "session_start", null, null)
+							.set(Fields.SESSION_CONTROL, "start")
+							.build()
+			);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -144,10 +145,10 @@ public class TrackerGoogleEasy extends TrackerBase {
 	private void stopSession() {
 		try {
 			EasyTracker.getInstance(Aircandi.applicationContext).send(MapBuilder
-					.createEvent(TrackerCategory.SYSTEM, "session_end", null, null)
-					.set(Fields.SESSION_CONTROL, "end")
-					.build()
-					);
+							.createEvent(TrackerCategory.SYSTEM, "session_end", null, null)
+							.set(Fields.SESSION_CONTROL, "end")
+							.build()
+			);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

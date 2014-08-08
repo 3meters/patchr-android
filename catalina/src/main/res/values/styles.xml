@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="button_message" parent="selectable_item">
-        <item name="android:minHeight">50dp</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="layout">@layout/widget_button_send_message</item>
-        <item name="android:background">?attr/backgroundForm</item>
-    </style>
+	<style name="button_message" parent="selectable_item">
+		<item name="android:minHeight">50dp</item>
+		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+		<item name="layout">@layout/widget_button_send_message</item>
+		<item name="android:background">?attr/backgroundForm</item>
+	</style>
 
 </resources>

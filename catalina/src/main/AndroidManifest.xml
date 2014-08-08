@@ -138,7 +138,19 @@
             android:name="com.aircandi.catalina.ui.MessageForm"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/form_title_message"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:host="candipatch.com" />
+                <data android:pathPrefix="/message" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+            </intent-filter>
+        </activity>
         <activity
             android:name="com.aircandi.ui.EntityList"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -185,7 +197,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.aircandi.ui.edit.PlaceEdit"
+            android:name="com.aircandi.catalina.ui.edit.PlaceEdit"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/name_app_lowercase"
             android:windowSoftInputMode="stateHidden" />

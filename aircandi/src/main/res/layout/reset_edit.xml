@@ -1,76 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.aircandi.ui.widgets.AirScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center_horizontal"
-    android:fillViewport="true" >
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_gravity="center_horizontal"
+	android:fillViewport="true">
 
-    <!-- Content -->
+	<!-- Content -->
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
 
-        <com.aircandi.ui.widgets.AirTextView
-            android:id="@+id/content_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:padding="10dp"
-            android:text="@string/label_reset_message_email"
-            android:textColor="?attr/textColorSecondary"
-            custom:textId="@string/label_reset_message_email" />
+		<com.aircandi.ui.widgets.AirTextView
+			android:id="@+id/content_message"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="20dp"
+			android:padding="10dp"
+			android:text="@string/label_reset_message_email"
+			android:textColor="?attr/textColorSecondary"
+			custom:textId="@string/label_reset_message_email" />
 
-        <LinearLayout
-            style="@style/form_content_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical|top"
-            android:orientation="vertical" >
+		<LinearLayout
+			style="@style/form_content_layout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical|top"
+			android:orientation="vertical">
 
-            <com.aircandi.ui.widgets.AirEditText
-                android:id="@+id/email"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/form_field_height"
-                android:drawableRight="?attr/iconClear"
-                android:hint="@string/label_email"
-                android:inputType="textEmailAddress"
-                android:textSize="18sp" />
+			<com.aircandi.ui.widgets.AirEditText
+				android:id="@+id/email"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/form_field_height"
+				android:drawableRight="?attr/iconClear"
+				android:hint="@string/label_email"
+				android:inputType="textEmailAddress"
+				android:textAppearance="?attr/textAppearanceMediumLarge" />
 
-            <com.aircandi.ui.widgets.AirEditText
-                android:id="@+id/password"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/form_field_height"
-                android:drawableRight="?attr/iconClear"
-                android:hint="@string/label_password"
-                android:inputType="textPassword"
-                android:textSize="18sp"
-                android:visibility="gone" />
+			<com.aircandi.ui.widgets.AirEditText
+				android:id="@+id/password"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/form_field_height"
+				android:drawableRight="?attr/iconClear"
+				android:hint="@string/label_password"
+				android:inputType="textPassword"
+				android:textAppearance="?attr/textAppearanceMediumLarge"
+				android:visibility="gone" />
 
-            <com.aircandi.ui.widgets.AirEditText
-                android:id="@+id/password_confirm"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/form_field_height"
-                android:layout_marginBottom="10dp"
-                android:drawableRight="?attr/iconClear"
-                android:hint="@string/label_password_confirm"
-                android:imeOptions="actionGo"
-                android:inputType="textPassword"
-                android:textSize="18sp"
-                android:visibility="gone" />
+			<com.aircandi.ui.widgets.AirEditText
+				android:id="@+id/password_confirm"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/form_field_height"
+				android:layout_marginBottom="10dp"
+				android:drawableRight="?attr/iconClear"
+				android:hint="@string/label_password_confirm"
+				android:imeOptions="actionGo"
+				android:inputType="textPassword"
+				android:textAppearance="?attr/textAppearanceMediumLarge"
+				android:visibility="gone" />
 
-            <com.aircandi.ui.widgets.ComboButton
-                android:id="@+id/button_register"
-                style="@style/button_link"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/button_height"
-                android:layout_marginTop="10dp"
-                android:onClick="onResetButtonClick"
-                android:text="@string/button_reset_password"
-                custom:label="@string/button_reset_password" />
-        </LinearLayout>
-    </LinearLayout>
+			<com.aircandi.ui.widgets.ComboButton
+				android:id="@+id/button_register"
+				style="@style/button_link"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/button_height"
+				android:layout_marginTop="10dp"
+				android:onClick="onResetButtonClick"
+				android:text="@string/button_reset_password"
+				custom:label="@string/button_reset_password" />
+		</LinearLayout>
+	</LinearLayout>
 
 </com.aircandi.ui.widgets.AirScrollView>

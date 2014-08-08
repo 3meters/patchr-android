@@ -23,19 +23,18 @@ import com.aircandi.controllers.Pictures;
 
 public class SplashForm extends com.aircandi.ui.SplashForm {
 
-
 	@Override
 	protected void configure() {
 		/*
 		 * Only called when app is first started
-		 */		
+		 */
 		Aircandi.getInstance()
-				.setMenuManager(new MenuManager())
-				.setActivityDecorator(new ActivityDecorator())
-				.setShortcutManager(new ShortcutManager())
-				.setEntityManager(new EntityManager().setLinks(new Links()))
-				.setMediaManager(new MediaManager().initSoundPool())
-				.setAnimationManager(new AnimationManager());
+		        .setMenuManager(new MenuManager())
+		        .setActivityDecorator(new ActivityDecorator())
+		        .setShortcutManager(new ShortcutManager())
+		        .setEntityManager(new EntityManager().setLinks(new Links()))
+		        .setMediaManager(new MediaManager().initSoundPool())
+		        .setAnimationManager(new AnimationManager());
 
 		Aircandi.controllerMap.put(Constants.SCHEMA_ENTITY_APPLINK, new Applinks());
 		Aircandi.controllerMap.put(Constants.SCHEMA_ENTITY_BEACON, new Beacons());
@@ -54,7 +53,7 @@ public class SplashForm extends com.aircandi.ui.SplashForm {
 
 		/* Starts activity recognition */
 		ActivityRecognitionManager.getInstance().initialize(getApplicationContext());
-		
+
 		Logger.i(this, "First run configuration completed");
 	}
 

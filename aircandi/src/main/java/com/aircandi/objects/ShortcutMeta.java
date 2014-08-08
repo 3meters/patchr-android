@@ -8,7 +8,7 @@ import com.aircandi.objects.Shortcut.InstallStatus;
 @SuppressWarnings("ucd")
 public class ShortcutMeta {
 
-	public InstallStatus	installStatus	= InstallStatus.NONE;
+	public InstallStatus installStatus = InstallStatus.NONE;
 
 	public ShortcutMeta(InstallStatus installStatus) {
 		this.installStatus = installStatus;

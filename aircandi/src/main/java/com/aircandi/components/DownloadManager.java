@@ -23,8 +23,8 @@ import com.squareup.picasso.Picasso.Listener;
 @SuppressWarnings("ucd")
 public class DownloadManager {
 
-	private static Picasso	instance	= null;
-	public static LruCache	mPicassoMemoryCache;
+	private static Picasso instance = null;
+	public static LruCache mPicassoMemoryCache;
 
 	public static Picasso getInstance() {
 		return instance;
@@ -48,7 +48,7 @@ public class DownloadManager {
 
 			/* Picasso uses 15% default but we stretch it to ~25% */
 			Integer cacheSize = Utilities.calculateMemoryCacheSize(Aircandi.applicationContext);
-			
+
 			mPicassoMemoryCache = new LruCache(cacheSize);
 			Listener listener = new Listener() {
 

@@ -34,22 +34,22 @@ import com.aircandi.utilities.UI;
 
 public class CategoryBuilder extends BaseEdit {
 
-	private AirImageView	mPhotoView;
-	private Spinner			mSpinnerCategory;
-	private Spinner			mSpinnerSubCategory;
-	private Spinner			mSpinnerSubSubCategory;
-	private Integer			mSpinnerItem;
+	private AirImageView mPhotoView;
+	private Spinner      mSpinnerCategory;
+	private Spinner      mSpinnerSubCategory;
+	private Spinner      mSpinnerSubSubCategory;
+	private Integer      mSpinnerItem;
 
-	private Category		mOriginalCategory;
-	private Integer			mOriginalCategoryIndex;
-	private Integer			mOriginalSubCategoryIndex;
-	private Integer			mOriginalSubSubCategoryIndex;
+	private Category mOriginalCategory;
+	private Integer  mOriginalCategoryIndex;
+	private Integer  mOriginalSubCategoryIndex;
+	private Integer  mOriginalSubSubCategoryIndex;
 
-	private Category		mCategory;
-	private Category		mSubCategory;
-	private Category		mSubSubCategory;
+	private Category mCategory;
+	private Category mSubCategory;
+	private Category mSubSubCategory;
 
-	private List<Category>	mCategories;
+	private List<Category> mCategories;
 
 	@Override
 	public void unpackIntent() {
@@ -69,11 +69,11 @@ public class CategoryBuilder extends BaseEdit {
 		super.initialize(savedInstanceState);
 
 		mPhotoView = (AirImageView) findViewById(R.id.entity_photo);
-		
+
 		mSpinnerCategory = (Spinner) findViewById(R.id.category);
 		mSpinnerSubCategory = (Spinner) findViewById(R.id.sub_category);
 		mSpinnerSubSubCategory = (Spinner) findViewById(R.id.sub_sub_category);
-		
+
 		mSpinnerItem = Aircandi.themeTone.equals(ThemeTone.DARK) ? R.layout.spinner_item_dark : R.layout.spinner_item_light;
 
 		setActivityTitle(StringManager.getString(R.string.dialog_category_builder_title));
@@ -252,7 +252,8 @@ public class CategoryBuilder extends BaseEdit {
 			}
 
 			@Override
-			public void onNothingSelected(AdapterView<?> parent) {}
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
 		});
 
 		if (mOriginalCategory != null && mOriginalCategoryIndex != null) {
@@ -315,7 +316,8 @@ public class CategoryBuilder extends BaseEdit {
 				}
 
 				@Override
-				public void onNothingSelected(AdapterView<?> parent) {}
+				public void onNothingSelected(AdapterView<?> parent) {
+				}
 			});
 
 			if (mOriginalCategory != null && mOriginalSubCategoryIndex != null) {
@@ -373,7 +375,8 @@ public class CategoryBuilder extends BaseEdit {
 				}
 
 				@Override
-				public void onNothingSelected(AdapterView<?> parent) {}
+				public void onNothingSelected(AdapterView<?> parent) {
+				}
 			});
 
 			if (mOriginalCategory != null && mOriginalSubSubCategoryIndex != null) {
@@ -389,7 +392,7 @@ public class CategoryBuilder extends BaseEdit {
 
 	private class CategoryAdapter extends ArrayAdapter {
 
-		private final List<String>	mCategories;
+		private final List<String> mCategories;
 
 		private CategoryAdapter(Context context, int textViewResourceId, List categories, Integer categoryHint) {
 			super(context, textViewResourceId, categories);
@@ -403,7 +406,7 @@ public class CategoryBuilder extends BaseEdit {
 			final View view = super.getView(position, convertView, parent);
 
 			final TextView text = (TextView) view.findViewById(R.id.spinner_name);
-			
+
 			if (position == getCount()) {
 				text.setText("");
 				text.setHint(mCategories.get(getCount())); //"Hint to be displayed"

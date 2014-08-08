@@ -10,11 +10,11 @@ public class Type {
 	}
 
 	public static Boolean isTrue(Boolean value) {
-		return (value != null && value) ? true : false;
+		return (value != null && value);
 	}
 
 	public static Boolean isFalse(Boolean value) {
-		return (value == null || !value) ? true : false;
+		return (value == null || !value);
 	}
 
 	public static Boolean equal(String value1, String value2) {

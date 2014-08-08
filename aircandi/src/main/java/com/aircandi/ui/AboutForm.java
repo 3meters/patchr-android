@@ -19,9 +19,9 @@ import com.aircandi.utilities.DateTime;
 
 public class AboutForm extends BaseActivity {
 
-	private TextView	mVersion;
-	private TextView	mCopyright;
-	private String		mVersionName;
+	private TextView mVersion;
+	private TextView mCopyright;
+	private String   mVersionName;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {

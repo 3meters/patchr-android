@@ -39,8 +39,8 @@ import com.squareup.okhttp.OkHttpClient;
 
 @SuppressWarnings("unused")
 public class NetworkManager {
-	/*
-	 * Http 1.1 Status Codes (subset)
+    /*
+     * Http 1.1 Status Codes (subset)
 	 * 
 	 * - 200: OK
 	 * - 201: Created
@@ -82,28 +82,31 @@ public class NetworkManager {
 	 */
 
 	/* monitor platform changes */
-	private IntentFilter					mNetworkStateChangedFilter;
-	private BroadcastReceiver				mNetworkStateIntentReceiver;
+	private IntentFilter      mNetworkStateChangedFilter;
+	private BroadcastReceiver mNetworkStateIntentReceiver;
 
-	private Context							mApplicationContext;
-	private final WifiStateChangedReceiver	mWifiStateChangedReceiver		= new WifiStateChangedReceiver();
-	private Integer							mWifiState;
-	private Integer							mWifiApState;
-	private WifiManager						mWifiManager;
-	private ConnectivityManager				mConnectivityManager;
-	private ConnectedState					mConnectedState					= ConnectedState.NORMAL;
-	private BaseConnection					mConnection;
+	private Context mApplicationContext;
+	private final WifiStateChangedReceiver mWifiStateChangedReceiver = new WifiStateChangedReceiver();
 
-	public static final String				EXTRA_WIFI_AP_STATE				= "wifi_state";
-	public static final String				WIFI_AP_STATE_CHANGED_ACTION	= "android.net.wifi.WIFI_AP_STATE_CHANGED";
-	public static final int					WIFI_AP_STATE_ENABLED			= 3;
+	/* Opportunistically used for crash reporting but not current state */
+	private Integer mWifiState;
+	private Integer mWifiApState;
+
+	private WifiManager         mWifiManager;
+	private ConnectivityManager mConnectivityManager;
+	private ConnectedState mConnectedState = ConnectedState.NORMAL;
+	private BaseConnection mConnection;
+
+	public static final String EXTRA_WIFI_AP_STATE          = "wifi_state";
+	public static final String WIFI_AP_STATE_CHANGED_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
+	public static final int    WIFI_AP_STATE_ENABLED        = 3;
 
 	private NetworkManager() {
 		mConnection = new OkHttpUrlConnection();
 	}
 
 	private static class NetworkManagerHolder {
-		public static final NetworkManager	instance	= new NetworkManager();
+		public static final NetworkManager instance = new NetworkManager();
 	}
 
 	public static NetworkManager getInstance() {
@@ -245,7 +248,8 @@ public class NetworkManager {
 			final NetworkInfo[] info = cm.getAllNetworkInfo();
 			if (info != null) {
 				for (int i = 0; i < info.length; i++) {
-					if (info[i].getState() == State.CONNECTED || info[i].getState() == State.CONNECTING) return true;
+					if (info[i].getState() == State.CONNECTED || info[i].getState() == State.CONNECTING)
+						return true;
 				}
 			}
 		}
@@ -300,7 +304,7 @@ public class NetworkManager {
 	public Boolean isWifiEnabled() {
 		Boolean wifiEnabled = null;
 		if (mWifiManager != null) {
-			wifiEnabled = mWifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED;
+			wifiEnabled = (mWifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED);
 		}
 		return wifiEnabled;
 	}
@@ -347,13 +351,13 @@ public class NetworkManager {
 			return "wifi";
 		}
 		else if (type == ConnectivityManager.TYPE_MOBILE) {
-			if (subType == TelephonyManager.NETWORK_TYPE_1xRTT) { 		// ~50-100 kbps
+			if (subType == TelephonyManager.NETWORK_TYPE_1xRTT) {        // ~50-100 kbps
 				typeLabel = "1xrtt";
 			}
-			else if (subType == TelephonyManager.NETWORK_TYPE_CDMA) {	// ~14-64 kbps
+			else if (subType == TelephonyManager.NETWORK_TYPE_CDMA) {    // ~14-64 kbps
 				typeLabel = "cdma";
 			}
-			else if (subType == TelephonyManager.NETWORK_TYPE_EDGE) { 	// ~50-100 kbps
+			else if (subType == TelephonyManager.NETWORK_TYPE_EDGE) {    // ~50-100 kbps
 				typeLabel = "edge";
 			}
 			else if (subType == TelephonyManager.NETWORK_TYPE_EVDO_0) { // ~ 400-1000 kbps
@@ -362,34 +366,34 @@ public class NetworkManager {
 			else if (subType == TelephonyManager.NETWORK_TYPE_EVDO_A) { // ~ 600-1400 kbps
 				typeLabel = "evdo_a";
 			}
-			else if (subType == TelephonyManager.NETWORK_TYPE_GPRS) {	// ~ 100 kbps
+			else if (subType == TelephonyManager.NETWORK_TYPE_GPRS) {    // ~ 100 kbps
 				typeLabel = "gprs";
 			}
-			else if (subType == TelephonyManager.NETWORK_TYPE_HSDPA) {	// ~ 2-14 Mbps
+			else if (subType == TelephonyManager.NETWORK_TYPE_HSDPA) {    // ~ 2-14 Mbps
 				typeLabel = "hsdpa";
 			}
-			else if (subType == TelephonyManager.NETWORK_TYPE_HSPA) {	// ~ 700-1700 kbps
+			else if (subType == TelephonyManager.NETWORK_TYPE_HSPA) {    // ~ 700-1700 kbps
 				typeLabel = "hspa";
 			}
-			else if (subType == TelephonyManager.NETWORK_TYPE_HSUPA) {	// ~ 1-23 Mbps
+			else if (subType == TelephonyManager.NETWORK_TYPE_HSUPA) {    // ~ 1-23 Mbps
 				typeLabel = "hsupa";
 			}
-			else if (subType == TelephonyManager.NETWORK_TYPE_UMTS) {	// ~ 400-7000 kbps
+			else if (subType == TelephonyManager.NETWORK_TYPE_UMTS) {    // ~ 400-7000 kbps
 				typeLabel = "umts";
 			}
-			else if (subType == TelephonyManager.NETWORK_TYPE_IDEN) {	// ~25 kbps
+			else if (subType == TelephonyManager.NETWORK_TYPE_IDEN) {    // ~25 kbps
 				typeLabel = "iden";
 			}
-			else if (subType == TelephonyManager.NETWORK_TYPE_EVDO_B) {	// ~5 Mbps
+			else if (subType == TelephonyManager.NETWORK_TYPE_EVDO_B) {    // ~5 Mbps
 				typeLabel = "evdo_b";
 			}
-			else if (Constants.SUPPORTS_HONEYCOMB_MR2 && subType == TelephonyManager.NETWORK_TYPE_HSPAP) {	// ~10-20 Mbps
+			else if (Constants.SUPPORTS_HONEYCOMB_MR2 && subType == TelephonyManager.NETWORK_TYPE_HSPAP) {    // ~10-20 Mbps
 				typeLabel = "hspap";
 			}
-			else if (Constants.SUPPORTS_HONEYCOMB && subType == TelephonyManager.NETWORK_TYPE_EHRPD) {	// ~1-2 Mbps
+			else if (Constants.SUPPORTS_HONEYCOMB && subType == TelephonyManager.NETWORK_TYPE_EHRPD) {    // ~1-2 Mbps
 				typeLabel = "ehrpd";
 			}
-			else if (Constants.SUPPORTS_HONEYCOMB && subType == TelephonyManager.NETWORK_TYPE_LTE) {	// ~10+ Mbps
+			else if (Constants.SUPPORTS_HONEYCOMB && subType == TelephonyManager.NETWORK_TYPE_LTE) {    // ~10+ Mbps
 				typeLabel = "lte";
 			}
 			else {
@@ -409,11 +413,20 @@ public class NetworkManager {
 	}
 
 	public Integer getWifiState() {
-		return mWifiState;
+		return mWifiManager.getWifiState();
 	}
 
-	public Integer getWifiApState() {
-		return mWifiApState;
+	public WIFI_AP_STATE getWifiApState() {
+		try {
+			Method method = mWifiManager.getClass().getMethod("getWifiApState");
+			int tmp = ((Integer) method.invoke(mWifiManager));
+			if (tmp > 10) {
+				tmp = tmp - 10;
+			}
+			return WIFI_AP_STATE.class.getEnumConstants()[tmp];
+		}
+		catch (Exception ignore) {}
+		return WIFI_AP_STATE.WIFI_AP_STATE_FAILED;
 	}
 
 	public ConnectedState getConnectedState() {
@@ -450,5 +463,13 @@ public class NetworkManager {
 	public static enum ConnectedState {
 		NONE,
 		NORMAL,
+	}
+
+	public enum WIFI_AP_STATE {
+		WIFI_AP_STATE_DISABLING,
+		WIFI_AP_STATE_DISABLED,
+		WIFI_AP_STATE_ENABLING,
+		WIFI_AP_STATE_ENABLED,
+		WIFI_AP_STATE_FAILED
 	}
 }

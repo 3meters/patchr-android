@@ -16,14 +16,14 @@ import com.aircandi.utilities.Maps;
 
 public class WatchersQuery implements IQuery {
 
-	protected Cursor	mCursor;
-	protected Boolean	mMore	= false;
-	protected Integer	mPageSize;
-	protected String	mSchema;
-	protected String	mLinkType;
-	protected String	mLinkDirection;
-	protected Map		mLinkWhere;
-	protected String	mEntityId;
+	protected Cursor mCursor;
+	protected Boolean mMore = false;
+	protected Integer mPageSize;
+	protected String  mSchema;
+	protected String  mLinkType;
+	protected String  mLinkDirection;
+	protected Map     mLinkWhere;
+	protected String  mEntityId;
 
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {

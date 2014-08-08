@@ -38,7 +38,7 @@ public class Applinks extends EntityControllerBase {
 	@Override
 	public Photo getDefaultPhoto(String type) {
 		String prefix = "img_placeholder_logo_bw";
-		String source = PhotoSource.resource;		
+		String source = PhotoSource.resource;
 		if (type != null) {
 			prefix = type.toLowerCase(Locale.US) + ".png";
 			source = PhotoSource.assets_applinks;
@@ -46,7 +46,7 @@ public class Applinks extends EntityControllerBase {
 		Photo photo = new Photo(prefix, null, null, null, source);
 		return photo;
 	}
-	
+
 	@Override
 	public Entity makeFromMap(Map<String, Object> map, Boolean nameMapping) {
 		return Applink.setPropertiesFromMap(new Applink(), map, nameMapping);

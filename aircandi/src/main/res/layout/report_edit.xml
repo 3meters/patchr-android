@@ -1,116 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.aircandi.ui.widgets.AirScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    android:layout_gravity="center_horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true" >
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	android:layout_gravity="center_horizontal"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:fillViewport="true">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical|top" >
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical|top">
 
-        <com.aircandi.ui.widgets.AirTextLight
-            android:id="@+id/content_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="?attr/backgroundFormSecondary"
-            android:padding="16dp" />
+		<com.aircandi.ui.widgets.AirTextLight
+			android:id="@+id/content_message"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="10dp"
+			android:background="?attr/backgroundFormSecondary"
+			android:padding="16dp" />
 
-        <!-- Title and Content -->
+		<!-- Title and Content -->
 
-        <LinearLayout
-            android:id="@+id/holder_body"
-            style="@style/form_content_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/content_message"
-            android:orientation="vertical" >
+		<LinearLayout
+			android:id="@+id/holder_body"
+			style="@style/form_content_layout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/content_message"
+			android:orientation="vertical">
 
-            <RadioGroup
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
+			<RadioGroup
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
 
-                <com.aircandi.ui.widgets.AirRadioButton
-                    android:id="@+id/radio_spam"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onRadioButtonClicked"
-                    android:tag="spam"
-                    custom:textId="@string/label_report_option_spam" />
+				<com.aircandi.ui.widgets.AirRadioButton
+					android:id="@+id/radio_spam"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:onClick="onRadioButtonClicked"
+					android:tag="spam"
+					custom:textId="@string/label_report_option_spam" />
 
-                <com.aircandi.ui.widgets.AirRadioButton
-                    android:id="@+id/radio_abusive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onRadioButtonClicked"
-                    android:tag="abusive"
-                    custom:textId="@string/label_report_option_abusive" />
+				<com.aircandi.ui.widgets.AirRadioButton
+					android:id="@+id/radio_abusive"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:onClick="onRadioButtonClicked"
+					android:tag="abusive"
+					custom:textId="@string/label_report_option_abusive" />
 
-                <com.aircandi.ui.widgets.AirRadioButton
-                    android:id="@+id/radio_porn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onRadioButtonClicked"
-                    android:tag="obscene"
-                    custom:textId="@string/label_report_option_porn" />
+				<com.aircandi.ui.widgets.AirRadioButton
+					android:id="@+id/radio_porn"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:onClick="onRadioButtonClicked"
+					android:tag="obscene"
+					custom:textId="@string/label_report_option_porn" />
 
-                <com.aircandi.ui.widgets.AirRadioButton
-                    android:id="@+id/radio_incorrect"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onRadioButtonClicked"
-                    android:tag="incorrect"
-                    custom:textId="@string/label_report_option_incorrect" />
+				<com.aircandi.ui.widgets.AirRadioButton
+					android:id="@+id/radio_incorrect"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:onClick="onRadioButtonClicked"
+					android:tag="incorrect"
+					custom:textId="@string/label_report_option_incorrect" />
 
-                <com.aircandi.ui.widgets.AirRadioButton
-                    android:id="@+id/radio_other"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:onClick="onRadioButtonClicked"
-                    android:tag="other"
-                    custom:textId="@string/label_report_option_other" />
-            </RadioGroup>
+				<com.aircandi.ui.widgets.AirRadioButton
+					android:id="@+id/radio_other"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="10dp"
+					android:onClick="onRadioButtonClicked"
+					android:tag="other"
+					custom:textId="@string/label_report_option_other" />
+			</RadioGroup>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/rule_divider_height"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:background="?attr/ruleColorStrong" />
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/rule_divider_height"
+				android:layout_marginBottom="10dp"
+				android:layout_marginTop="10dp"
+				android:background="?attr/ruleColorStrong" />
 
-            <com.aircandi.ui.widgets.AirEditText
-                android:id="@+id/description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:gravity="top"
-                android:hint="@string/label_report_description_hint"
-                android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
-                android:minLines="5" />
-        </LinearLayout>
+			<com.aircandi.ui.widgets.AirEditText
+				android:id="@+id/description"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="10dp"
+				android:gravity="top"
+				android:hint="@string/label_report_description_hint"
+				android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
+				android:minLines="5" />
+		</LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/holder_authoring"
-            style="@style/form_content_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_below="@+id/holder_body"
-            android:baselineAligned="false"
-            android:gravity="bottom"
-            android:orientation="horizontal" >
+		<LinearLayout
+			android:id="@+id/holder_authoring"
+			style="@style/form_content_layout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:layout_below="@+id/holder_body"
+			android:baselineAligned="false"
+			android:gravity="bottom"
+			android:orientation="horizontal">
 
-            <com.aircandi.ui.widgets.UserView
-                android:id="@+id/created_by"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                custom:layout="@layout/widget_user_view_compact" />
-        </LinearLayout>
-    </RelativeLayout>
+			<com.aircandi.ui.widgets.UserView
+				android:id="@+id/created_by"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				custom:layout="@layout/widget_user_view_compact" />
+		</LinearLayout>
+	</RelativeLayout>
 
 </com.aircandi.ui.widgets.AirScrollView>

@@ -11,24 +11,25 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class LinkParams extends ServiceObject {
 
-	private static final long	serialVersionUID	= 4371355790668325686L;
+	private static final long serialVersionUID = 4371355790668325686L;
 
 	@Expose
-	public String				type;
+	public String type;
 	@Expose
-	public String				schema;
+	public String schema;
 	@Expose
-	public Boolean				links				= false;
+	public Boolean links = false;
 	@Expose
-	public Boolean				count				= true;
+	public Boolean count = true;
 	@Expose
-	public Map					where;
+	public Map    where;
 	@Expose
-	public Number				limit;
+	public Number limit;
 	@Expose
-	public String				direction			= "both";
+	public String direction = "both";
 
-	public LinkParams() {}
+	public LinkParams() {
+	}
 
 	public LinkParams(String type, String schema, Boolean links, Boolean count, Number limit) {
 		this(type, schema, links, count, limit, null);

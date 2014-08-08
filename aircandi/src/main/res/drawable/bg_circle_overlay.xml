@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval" >
+	android:shape="oval">
 
-    <gradient
-        android:angle="270"
-        android:endColor="@color/overlay_photo_detail"
-        android:startColor="@color/overlay_photo_detail" />
+	<gradient
+		android:angle="270"
+		android:endColor="@color/overlay_photo_detail"
+		android:startColor="@color/overlay_photo_detail" />
 
-    <corners android:radius="@dimen/form_balloon_corner_radius" />
+	<corners android:radius="@dimen/form_balloon_corner_radius" />
 
-    <stroke
-        android:width="@dimen/form_balloon_stroke_width"
-        android:color="@color/overlay_photo_detail" />
+	<stroke
+		android:width="@dimen/form_balloon_stroke_width"
+		android:color="@color/overlay_photo_detail" />
 
-    <padding
-        android:bottom="@dimen/form_balloon_padding"
-        android:left="@dimen/form_balloon_padding"
-        android:right="@dimen/form_balloon_padding"
-        android:top="@dimen/form_balloon_padding" />
+	<padding
+		android:bottom="@dimen/form_balloon_padding"
+		android:left="@dimen/form_balloon_padding"
+		android:right="@dimen/form_balloon_padding"
+		android:top="@dimen/form_balloon_padding" />
 
 </shape>

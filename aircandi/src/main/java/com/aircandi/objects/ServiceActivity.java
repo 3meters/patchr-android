@@ -12,17 +12,15 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class ServiceActivity extends ActivityBase implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 2794888576925195033L;
+	private static final long serialVersionUID = 2794888576925195033L;
 	@Expose
-	public String				summary;
+	public String  summary;
 	@Expose
-	public Boolean				grouped;
+	public Boolean grouped;
 	@Expose
-	public Number				sortDate;
+	public Number  sortDate;
 	@Expose
-	public Number				activityDate;
-
-	
+	public Number  activityDate;
 
 	public static ServiceActivity setPropertiesFromMap(ServiceActivity activity, Map map, Boolean nameMapping) {
 

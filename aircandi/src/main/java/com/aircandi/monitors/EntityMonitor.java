@@ -9,7 +9,7 @@ import com.aircandi.objects.User;
 
 public class EntityMonitor extends SimpleMonitor {
 
-	private String	mEntityId;
+	private String mEntityId;
 
 	public EntityMonitor(String entityId) {
 		mEntityId = entityId;
@@ -49,11 +49,11 @@ public class EntityMonitor extends SimpleMonitor {
 				/* We know a service refresh is needed so skip service activity check. */
 				if (this.changed) {
 					this.activity = ((cacheStamp.activityDate == null)
-							? mCacheStamp.activityDate == null
-							: mCacheStamp.activityDate.equals(cacheStamp.activityDate));
+					                 ? mCacheStamp.activityDate == null
+					                 : mCacheStamp.activityDate.equals(cacheStamp.activityDate));
 					this.modified = ((cacheStamp.modifiedDate == null)
-							? mCacheStamp.modifiedDate == null
-							: mCacheStamp.modifiedDate.equals(cacheStamp.modifiedDate));
+					                 ? mCacheStamp.modifiedDate == null
+					                 : mCacheStamp.modifiedDate.equals(cacheStamp.modifiedDate));
 					return true;
 				}
 			}
@@ -71,8 +71,8 @@ public class EntityMonitor extends SimpleMonitor {
 		//		this.activity = (cacheStamp == null || cacheStamp.activity == null) ? true : cacheStamp.activity;
 		//		this.modified = (cacheStamp == null || cacheStamp.modified == null) ? true : cacheStamp.modified;
 
-		this.activity = (cacheStamp == null) ? true : ((cacheStamp.activity == null) ? false : cacheStamp.activity);
-		this.modified = (cacheStamp == null) ? true : ((cacheStamp.modified == null) ? false : cacheStamp.modified);
+		this.activity = (cacheStamp == null) || ((cacheStamp.activity == null) ? false : cacheStamp.activity);
+		this.modified = (cacheStamp == null) || ((cacheStamp.modified == null) ? false : cacheStamp.modified);
 
 		/*
 		 * Entities for users have a special dependency because changing the parent entity

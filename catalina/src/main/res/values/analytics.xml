@@ -6,25 +6,26 @@
 		Every aircandi application has a unique tracking id 
 	-->
 
-    <string name="ga_trackingId">UA-33660954-5</string>
-    
-    <!-- 
-    	- All default settings and screen names come from aircandi/res/values/analytics.xml.
-    	- To override a setting or screen name, add it here using the same name.
-    	- To add a screen name, add it here.
-    -->
-    
-    <!-- The screen names and overrides that will appear in the reporting -->
-    <string name="com.aircandi.catalina.ui.AircandiForm">AircandiForm</string>
-    <string name="com.aircandi.catalina.ui.AboutForm">AboutForm</string>
-    <string name="com.aircandi.catalina.ui.PlaceForm">PlaceForm</string>
-    <string name="com.aircandi.catalina.ui.MessageForm">MessageForm</string>
-    <string name="com.aircandi.catalina.ui.SplashForm">SplashForm</string>
-    <string name="com.aircandi.catalina.ui.WatcherList">WatcherList</string>
-    <string name="com.aircandi.catalina.ui.user.UserForm">UserForm</string>
-    
-    <!-- Edit -->
+	<string name="ga_trackingId">UA-33660954-5</string>
 
-    <string name="com.aircandi.catalina.ui.edit.MessageEdit">MessageEdit</string>
-    
+	<!--
+		- All default settings and screen names come from aircandi/res/values/analytics.xml.
+		- To override a setting or screen name, add it here using the same name.
+		- To add a screen name, add it here.
+	-->
+
+	<!-- The screen names and overrides that will appear in the reporting -->
+	<string name="com.aircandi.catalina.ui.AircandiForm">AircandiForm</string>
+	<string name="com.aircandi.catalina.ui.AboutForm">AboutForm</string>
+	<string name="com.aircandi.catalina.ui.PlaceForm">PlaceForm</string>
+	<string name="com.aircandi.catalina.ui.MessageForm">MessageForm</string>
+	<string name="com.aircandi.catalina.ui.SplashForm">SplashForm</string>
+	<string name="com.aircandi.catalina.ui.WatcherList">WatcherList</string>
+	<string name="com.aircandi.catalina.ui.user.UserForm">UserForm</string>
+
+	<!-- Edit -->
+
+	<string name="com.aircandi.catalina.ui.edit.MessageEdit">MessageEdit</string>
+	<string name="com.aircandi.catalina.ui.edit.PlaceEdit">PlaceEdit</string>
+
 </resources>

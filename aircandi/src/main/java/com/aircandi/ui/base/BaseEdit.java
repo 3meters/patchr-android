@@ -19,14 +19,14 @@ import com.aircandi.utilities.Dialogs;
 
 public abstract class BaseEdit extends BaseActivity implements IBind {
 
-	protected Boolean	mEditing				= false;
-	protected Boolean	mDirty					= false;
-	protected Integer	mDirtyExitTitleResId	= R.string.alert_dirty_exit_title;
-	protected Integer	mDirtyExitMessageResId	= R.string.alert_dirty_exit_message;
-	protected Integer	mDirtyExitPositiveResId	= R.string.alert_dirty_save;
+	protected Boolean mEditing                = false;
+	protected Boolean mDirty                  = false;
+	protected Integer mDirtyExitTitleResId    = R.string.alert_dirty_exit_title;
+	protected Integer mDirtyExitMessageResId  = R.string.alert_dirty_exit_message;
+	protected Integer mDirtyExitPositiveResId = R.string.alert_dirty_save;
 
 	/* Inputs */
-	protected Boolean	mSkipSave				= false;
+	protected Boolean mSkipSave = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +55,8 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 	}
 
 	@Override
-	public void draw() {}
+	public void draw() {
+	}
 
 	@Override
 	protected void configureActionBar() {
@@ -94,9 +95,11 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 		return mDirty;
 	}
 
-	protected void insert() {}
+	protected void insert() {
+	}
 
-	protected void update() {}
+	protected void update() {
+	}
 
 	protected void confirmDirtyExit() {
 		if (!mSkipSave) {
@@ -110,16 +113,16 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 					, R.string.alert_dirty_discard
 					, new DialogInterface.OnClickListener() {
 
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (which == DialogInterface.BUTTON_POSITIVE) {
-								onAccept();
-							}
-							else if (which == DialogInterface.BUTTON_NEUTRAL) {
-								Aircandi.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
-							}
-						}
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (which == DialogInterface.BUTTON_POSITIVE) {
+						onAccept();
 					}
+					else if (which == DialogInterface.BUTTON_NEUTRAL) {
+						Aircandi.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
+					}
+				}
+			}
 					, null);
 			dialog.setCanceledOnTouchOutside(false);
 		}
@@ -134,13 +137,13 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 					, null
 					, new DialogInterface.OnClickListener() {
 
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (which == DialogInterface.BUTTON_POSITIVE) {
-								Aircandi.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
-							}
-						}
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (which == DialogInterface.BUTTON_POSITIVE) {
+						Aircandi.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
 					}
+				}
+			}
 					, null);
 			dialog.setCanceledOnTouchOutside(false);
 		}
@@ -150,9 +153,12 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 		return true;
 	}
 
-	protected void beforeInsert(Entity entity, List<Link> links) {}
+	protected void beforeInsert(Entity entity, List<Link> links) {
+	}
 
-	protected void afterInsert() {}
+	protected boolean afterInsert() {
+		return true;
+	}
 
 	// --------------------------------------------------------------------------------------------
 	// Properties

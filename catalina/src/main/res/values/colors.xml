@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-        <!-- Borders dark -->
+	<!-- Borders dark -->
 
-    <color name="stroke_button_round_dark">@color/gray_70_pcnt</color>
-    
-    <!-- Borders light -->
-    
-    <color name="stroke_button_round_light">@color/gray_30_pcnt</color>
-    
-    <!-- Backgrounds light -->
-    
-    <color name="background_button_round_light">#eeffffff</color>
-    
+	<color name="stroke_button_round_dark">@color/gray_70_pcnt</color>
+
+	<!-- Borders light -->
+
+	<color name="stroke_button_round_light">@color/gray_30_pcnt</color>
+
+	<!-- Backgrounds light -->
+
+	<color name="background_button_round_light">#eeffffff</color>
+
 </resources>

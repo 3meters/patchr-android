@@ -7,12 +7,10 @@ import com.aircandi.service.Expose;
 
 public class ServiceMessage extends ActivityBase implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= -6550475791491989605L;
+	private static final long serialVersionUID = -6550475791491989605L;
 
 	@Expose
-	public Number				sentDate;
-
-	
+	public Number sentDate;
 
 	public static ServiceMessage setPropertiesFromMap(ServiceMessage serviceMessage, Map map, Boolean nameMapping) {
 

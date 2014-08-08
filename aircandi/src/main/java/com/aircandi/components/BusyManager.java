@@ -20,14 +20,14 @@ import com.aircandi.utilities.DateTime;
 
 public class BusyManager implements IBusy {
 
-	private Activity				mActivity;
-	private ProgressDialog			mProgressDialog;
-	private View					mRefreshImage;
-	private View					mRefreshProgress;
-	private Runnable				mRunnableHide;
-	private Runnable				mRunnableShow;
-	private Long					mBusyStartedTime;
-	private SmoothProgressBar		mHeaderProgressBar;
+	private Activity          mActivity;
+	private ProgressDialog    mProgressDialog;
+	private View              mRefreshImage;
+	private View              mRefreshProgress;
+	private Runnable          mRunnableHide;
+	private Runnable          mRunnableShow;
+	private Long              mBusyStartedTime;
+	private SmoothProgressBar mHeaderProgressBar;
 
 	public BusyManager(Activity activity) {
 		mActivity = activity;

@@ -11,26 +11,30 @@ import android.view.View;
 import android.view.ViewGroup;
 
 @SuppressWarnings("ucd")
-public class FlowLayout extends ViewGroup
-{
+public class FlowLayout extends ViewGroup {
 
-	private int[]						mRowHeights;
-	private int[]						mRowWidths;
-	private int							mSpacingVertical	= 0;
-	private int							mSpacingHorizontal	= 0;
-	private final List<RowMeasurement>	mRows				= new ArrayList<RowMeasurement>();
-	protected ArrayList<View>			mCurrentViews;
+	private   int[]           mRowHeights;
+	private   int[]           mRowWidths;
+	protected ArrayList<View> mCurrentViews;
+	private       int                  mSpacingVertical   = 0;
+	private       int                  mSpacingHorizontal = 0;
+	private final List<RowMeasurement> mRows              = new ArrayList<RowMeasurement>();
 
 	public FlowLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		setClickable(false);
 	}
+
+    /* ---------------------------------------------------------------------------------------------
+        Events
+       --------------------------------------------------------------------------------------------- */
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 		final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-		final int maxInternalWidth = MeasureSpec.getSize(widthMeasureSpec) - getHorizontalPadding();
-		final int maxInternalHeight = MeasureSpec.getSize(heightMeasureSpec) - getVerticalPadding();
+		final int maxInternalWidth = MeasureSpec.getSize(widthMeasureSpec) - horizontalPadding();
+		final int maxInternalHeight = MeasureSpec.getSize(heightMeasureSpec) - verticalPadding();
 
 		mRows.clear();
 
@@ -76,42 +80,8 @@ public class FlowLayout extends ViewGroup
 			longestRowWidth = Math.max(longestRowWidth, row.getWidth());
 		}
 
-		setMeasuredDimension((widthMode == MeasureSpec.EXACTLY) ? MeasureSpec.getSize(widthMeasureSpec) : (longestRowWidth + getHorizontalPadding())
-				, (heightMode == MeasureSpec.EXACTLY) ? MeasureSpec.getSize(heightMeasureSpec) : (totalRowHeight + getVerticalPadding()));
-	}
-
-	private int createChildMeasureSpec(int childLayoutParam, int max, int parentMode) {
-		int spec;
-		if (childLayoutParam == ViewGroup.LayoutParams.MATCH_PARENT) {
-			spec = MeasureSpec.makeMeasureSpec(max, MeasureSpec.EXACTLY);
-		}
-		else if (childLayoutParam == ViewGroup.LayoutParams.WRAP_CONTENT) {
-			spec = MeasureSpec.makeMeasureSpec(max, ((parentMode == MeasureSpec.UNSPECIFIED) ? MeasureSpec.UNSPECIFIED : MeasureSpec.AT_MOST));
-		}
-		else {
-			spec = MeasureSpec.makeMeasureSpec(childLayoutParam, MeasureSpec.EXACTLY);
-		}
-		return spec;
-	}
-
-	@Override
-	protected LayoutParams generateDefaultLayoutParams() {
-		return new LayoutParams();
-	}
-
-	@Override
-	protected boolean checkLayoutParams(ViewGroup.LayoutParams layoutParams) {
-		return layoutParams instanceof LayoutParams;
-	}
-
-	@Override
-	public LayoutParams generateLayoutParams(AttributeSet attrs) {
-		return new LayoutParams(getContext(), attrs);
-	}
-
-	@Override
-	protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-		return new LayoutParams(p);
+		setMeasuredDimension((widthMode == MeasureSpec.EXACTLY) ? MeasureSpec.getSize(widthMeasureSpec) : (longestRowWidth + horizontalPadding())
+				, (heightMode == MeasureSpec.EXACTLY) ? MeasureSpec.getSize(heightMeasureSpec) : (totalRowHeight + verticalPadding()));
 	}
 
 	@Override
@@ -156,6 +126,44 @@ public class FlowLayout extends ViewGroup
 		}
 	}
 
+    /* ---------------------------------------------------------------------------------------------
+        Methods
+       --------------------------------------------------------------------------------------------- */
+
+	private int createChildMeasureSpec(int childLayoutParam, int max, int parentMode) {
+		int spec;
+		if (childLayoutParam == ViewGroup.LayoutParams.MATCH_PARENT) {
+			spec = MeasureSpec.makeMeasureSpec(max, MeasureSpec.EXACTLY);
+		}
+		else if (childLayoutParam == ViewGroup.LayoutParams.WRAP_CONTENT) {
+			spec = MeasureSpec.makeMeasureSpec(max, ((parentMode == MeasureSpec.UNSPECIFIED) ? MeasureSpec.UNSPECIFIED : MeasureSpec.AT_MOST));
+		}
+		else {
+			spec = MeasureSpec.makeMeasureSpec(childLayoutParam, MeasureSpec.EXACTLY);
+		}
+		return spec;
+	}
+
+	@Override
+	protected LayoutParams generateDefaultLayoutParams() {
+		return new LayoutParams();
+	}
+
+	@Override
+	protected boolean checkLayoutParams(ViewGroup.LayoutParams layoutParams) {
+		return layoutParams instanceof LayoutParams;
+	}
+
+	@Override
+	public LayoutParams generateLayoutParams(AttributeSet attrs) {
+		return new LayoutParams(getContext(), attrs);
+	}
+
+	@Override
+	protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
+		return new LayoutParams(p);
+	}
+
 	private Collection<View> getLayoutChildren() {
 		final int count = getChildCount();
 		final Collection<View> children = new ArrayList<View>(count);
@@ -169,13 +177,17 @@ public class FlowLayout extends ViewGroup
 		return children;
 	}
 
-	private int getVerticalPadding() {
+	private int verticalPadding() {
 		return getPaddingTop() + getPaddingBottom();
 	}
 
-	private int getHorizontalPadding() {
+	private int horizontalPadding() {
 		return getPaddingLeft() + getPaddingRight();
 	}
+
+    /* ---------------------------------------------------------------------------------------------
+        Properties
+       --------------------------------------------------------------------------------------------- */
 
 	public void setSpacingVertical(int spacingVertical) {
 		mSpacingVertical = spacingVertical;
@@ -185,10 +197,14 @@ public class FlowLayout extends ViewGroup
 		mSpacingHorizontal = spacingHorizontal;
 	}
 
+    /* ---------------------------------------------------------------------------------------------
+        Classes
+       --------------------------------------------------------------------------------------------- */
+
 	@SuppressWarnings("ucd")
 	public static class LayoutParams extends MarginLayoutParams {
-		private boolean	centerVertical;
-		private boolean	centerHorizontal;
+		private boolean centerVertical;
+		private boolean centerHorizontal;
 
 		public LayoutParams() {
 			this(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -201,7 +217,7 @@ public class FlowLayout extends ViewGroup
 
 		public LayoutParams(Context context, AttributeSet attrs) {
 			super(context, attrs);
-			final TypedArray attributes = context.obtainStyledAttributes(attrs, new int[] { android.R.attr.layout_centerVertical });
+			final TypedArray attributes = context.obtainStyledAttributes(attrs, new int[]{android.R.attr.layout_centerVertical});
 			setCenterVertical(attributes.getBoolean(0, false));
 			attributes.recycle();
 		}
@@ -227,12 +243,11 @@ public class FlowLayout extends ViewGroup
 		}
 	}
 
-	private static class RowMeasurement
-	{
-		private final int	maxWidth;
-		private final int	widthMode;
-		private int			width;
-		private int			height;
+	private static class RowMeasurement {
+		private final int maxWidth;
+		private final int widthMode;
+		private       int width;
+		private       int height;
 
 		RowMeasurement(int maxWidth, int widthMode) {
 			this.maxWidth = maxWidth;

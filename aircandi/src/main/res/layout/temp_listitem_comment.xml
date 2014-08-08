@@ -1,90 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    style="@style/selectable_item"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="10dp" >
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	style="@style/selectable_item"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:padding="10dp">
 
-    <com.aircandi.ui.widgets.AirImageView
-        android:id="@+id/user_photo"
-        style="@style/selectable_image"
-        android:layout_width="@dimen/image_small"
-        android:layout_height="@dimen/image_small"
-        android:layout_marginRight="8dp"
-        android:adjustViewBounds="true"
-        android:clickable="true"
-        android:onClick="onEntityClick"
-        android:scaleType="centerCrop"
-        custom:layout="@layout/widget_webimageview"
-        custom:sizeType="thumbnail"
-        custom:sizeHint="@dimen/image_small" />
+	<com.aircandi.ui.widgets.AirImageView
+		android:id="@+id/user_photo"
+		style="@style/selectable_image"
+		android:layout_width="@dimen/image_small"
+		android:layout_height="@dimen/image_small"
+		android:layout_marginRight="8dp"
+		android:adjustViewBounds="true"
+		android:clickable="true"
+		android:onClick="onEntityClick"
+		android:scaleType="centerCrop"
+		custom:layout="@layout/widget_webimageview"
+		custom:sizeType="thumbnail"
+		custom:sizeHint="@dimen/image_small" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/user_photo"
-        android:orientation="vertical" >
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_toRightOf="@+id/user_photo"
+		android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp" >
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="5dp">
 
-            <com.aircandi.ui.widgets.AirTextView
-                android:id="@+id/user_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:includeFontPadding="false"
-                android:text="@string/dummy_name"
-                android:textStyle="bold"
-                custom:textId="@string/dummy_name" />
+			<com.aircandi.ui.widgets.AirTextView
+				android:id="@+id/user_name"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_centerVertical="true"
+				android:includeFontPadding="false"
+				android:text="@string/dummy_name"
+				android:textStyle="bold"
+				custom:textId="@string/dummy_name" />
 
-            <com.aircandi.ui.widgets.AirTextView
-                android:id="@+id/separator"
-                style="@style/bullet"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/user_name"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                custom:textId="@string/symbol_bullet" />
+			<com.aircandi.ui.widgets.AirTextView
+				android:id="@+id/separator"
+				style="@style/bullet"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_centerVertical="true"
+				android:layout_toRightOf="@+id/user_name"
+				android:paddingLeft="4dp"
+				android:paddingRight="4dp"
+				custom:textId="@string/symbol_bullet" />
 
-            <com.aircandi.ui.widgets.AirTextLight
-                android:id="@+id/area"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="14dp"
-                android:layout_toRightOf="@+id/user_name"
-                custom:textId="@string/dummy_location" />
-        </RelativeLayout>
+			<com.aircandi.ui.widgets.AirTextLight
+				android:id="@+id/area"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_centerVertical="true"
+				android:layout_marginLeft="14dp"
+				android:layout_toRightOf="@+id/user_name"
+				custom:textId="@string/dummy_location" />
+		</RelativeLayout>
 
-        <com.aircandi.ui.widgets.AirTextLight
-            android:id="@+id/description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:ellipsize="end"
-            android:maxLines="5"
-            android:text="@string/dummy_message"
-            custom:textId="@string/dummy_message" />
+		<com.aircandi.ui.widgets.AirTextLight
+			android:id="@+id/description"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="5dp"
+			android:ellipsize="end"
+			android:maxLines="5"
+			android:text="@string/dummy_message"
+			custom:textId="@string/dummy_message" />
 
-        <LinearLayout
-            android:id="@+id/actions_holder"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+		<LinearLayout
+			android:id="@+id/actions_holder"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
 
-            <com.aircandi.ui.widgets.AirTextLight
-                android:id="@+id/created_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/textColorSecondary"
-                custom:textId="@string/dummy_datetime" />
-        </LinearLayout>
-    </LinearLayout>
+			<com.aircandi.ui.widgets.AirTextLight
+				android:id="@+id/created_date"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textColor="?attr/textColorSecondary"
+				custom:textId="@string/dummy_datetime" />
+		</LinearLayout>
+	</LinearLayout>
 
 </RelativeLayout>

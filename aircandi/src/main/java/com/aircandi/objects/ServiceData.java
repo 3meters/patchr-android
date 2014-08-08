@@ -12,30 +12,28 @@ import com.aircandi.service.Expose;
 public class ServiceData {
 
 	@Expose
-	public Object		data;
+	public Object  data;
 	@Expose
-	public Object		d;						/* for Bing */
+	public Object  d;						/* for Bing */
 	@Expose
-	public Number		date;
+	public Number  date;
 	@Expose
-	public Number		count;
+	public Number  count;
 	@Expose
-	public Boolean		more;
+	public Boolean more;
 	@Expose
-	public String		info;
+	public String  info;
 
 	@Expose
-	public User			user;
+	public User                user;
 	@Expose
-	public ServiceError	error;
+	public ServiceError        error;
 	@Expose
-	public Session		session;
+	public Session             session;
 	@Expose
-	public Number		time;
+	public Number              time;
 	@Expose
-	public Map<String, Object>	clientMinVersions;
-
-	
+	public Map<String, Object> clientMinVersions;
 
 	public static ServiceData setPropertiesFromMap(ServiceData serviceData, Map map, Boolean nameMapping) {
 		/*

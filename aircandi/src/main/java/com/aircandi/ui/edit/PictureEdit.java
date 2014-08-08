@@ -2,6 +2,7 @@ package com.aircandi.ui.edit;
 
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.ViewFlipper;
 
@@ -16,9 +17,10 @@ import com.aircandi.objects.Post;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.utilities.Dialogs;
 
+@SuppressLint("Registered")
 public class PictureEdit extends BaseEntityEdit {
 
-	private TabManager	mTabManager;
+	private TabManager mTabManager;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -38,7 +40,7 @@ public class PictureEdit extends BaseEntityEdit {
 	@Override
 	protected boolean validate() {
 		if (!super.validate()) return false;
-		
+
 		gather();
 		Post post = (Post) mEntity;
 		if (post.photo == null) {
@@ -58,7 +60,9 @@ public class PictureEdit extends BaseEntityEdit {
 	@Override
 	protected String getLinkType() {
 		return Constants.TYPE_LINK_CONTENT;
-	};
+	}
+
+	;
 
 	@Override
 	protected void beforeInsert(Entity entity, List<Link> links) {

@@ -6,6 +6,7 @@ import java.util.List;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.catalina.ui.PlaceForm;
+import com.aircandi.catalina.ui.edit.PlaceEdit;
 import com.aircandi.components.AirApplication;
 import com.aircandi.components.StringManager;
 
@@ -13,6 +14,8 @@ public class Places extends com.aircandi.controllers.Places {
 
 	public Places() {
 		mBrowseClass = PlaceForm.class;
+		mNewClass = PlaceEdit.class;
+		mEditClass = PlaceEdit.class;
 	}
 
 	@Override

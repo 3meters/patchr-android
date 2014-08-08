@@ -2,6 +2,7 @@ package com.aircandi.ui.user;
 
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
@@ -29,10 +30,11 @@ import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 
+@SuppressLint("Registered")
 @SuppressWarnings("ucd")
 public class UserForm extends BaseEntityForm {
 
-	protected RenderDelegate	mDrawStats;
+	protected RenderDelegate mDrawStats;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {

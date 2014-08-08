@@ -27,7 +27,7 @@ public class UserStats implements RenderDelegate {
 		final StringBuilder statString = new StringBuilder(500);
 
 		/* Watch stats */
-		
+
 		TextView watchingStats = (TextView) view.findViewById(R.id.watching_stats);
 		if (watchingStats != null) {
 			Count count = user.getCount(Constants.TYPE_LINK_WATCH, null, null, Direction.in);

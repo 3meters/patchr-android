@@ -26,47 +26,48 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	/*
 	 * sourceName: aircandi, foursquare, external
 	 */
-	private static final long	serialVersionUID	= 4979315562693226461L;
+	private static final long serialVersionUID = 4979315562693226461L;
 
 	@Expose
-	public String				prefix;
+	public String prefix;
 	@Expose
-	public String				suffix;
+	public String suffix;
 	@Expose
-	public Number				width;
+	public Number width;
 	@Expose
-	public Number				height;
+	public Number height;
 	@Expose
-	public String				source;
+	public String source;
 	@Expose
-	public Number				createdDate;
+	public Number createdDate;
 
 	@Expose(serialize = false, deserialize = true)
-	public Boolean				colorize			= false;
+	public Boolean colorize = false;
 	@Expose(serialize = false, deserialize = true)
-	public String				colorizeKey;
+	public String  colorizeKey;
 	@Expose(serialize = false, deserialize = true)
-	public Integer				color;
+	public Integer color;
 
 	/* Only comes from foursquare */
 	@Expose(serialize = false, deserialize = true)
-	public Entity				user;
+	public Entity user;
 
 	/* client only */
-	public String				name;
-	public String				description;
-	public Boolean				usingDefault		= false;
-	public Shortcut				shortcut;
-	public Boolean				store				= false;
+	public String name;
+	public String description;
+	public Boolean usingDefault = false;
+	public Shortcut shortcut;
+	public Boolean store = false;
 
-	public Number				sizeType			= SizeType.FULLSIZE.ordinal();
-	public Boolean				proxyActive			= false;
-	public Number				proxyWidth;
-	public Number				proxyHeight;
+	public Number  sizeType    = SizeType.FULLSIZE.ordinal();
+	public Boolean proxyActive = false;
+	public Number proxyWidth;
+	public Number proxyHeight;
 
-	private GooglePlusProxy		mImageProxy			= new GooglePlusProxy();
+	private GooglePlusProxy mImageProxy = new GooglePlusProxy();
 
-	public Photo() {}
+	public Photo() {
+	}
 
 	public Photo(String prefix, String suffix, Number width, Number height, String sourceName) {
 		this.prefix = prefix;
@@ -147,7 +148,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 					photoUri = prefix + String.valueOf(proxyWidth.intValue()) + "x" + String.valueOf(proxyHeight.intValue()) + suffix;
 				}
 				else {
-					/* Sometimes we have height/width info and sometimes we don't */
+	                /* Sometimes we have height/width info and sometimes we don't */
 					Integer width = (maxWidth != null) ? maxWidth.intValue() : 256;
 					Integer height = (maxHeight != null) ? maxHeight.intValue() : 256;
 					if (prefix != null && suffix != null) {
@@ -186,8 +187,8 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 				if (wrapped && Type.isTrue(proxyActive) && proxyWidth != null) {
 					if (this.width != null && this.height != null) {
 						Orientation orientation = (this.width.intValue() >= this.height.intValue())
-								? Orientation.LANDSCAPE
-								: Orientation.PORTRAIT;
+						                          ? Orientation.LANDSCAPE
+						                          : Orientation.PORTRAIT;
 						photoUri = mImageProxy.convert(photoUri, proxyWidth.intValue(), orientation);
 					}
 					else {
@@ -213,8 +214,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	}
 
 	public static Boolean isDrawable(String uri) {
-		if (uri.toLowerCase(Locale.US).startsWith("resource:")) return true;
-		return false;
+		return uri.toLowerCase(Locale.US).startsWith("resource:");
 	}
 
 	public ImageResult getAsImageResult() {
@@ -265,7 +265,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	public boolean sameAs(Object obj) {
 
 		if (obj == null) return false;
-		if (!getClass().equals(obj.getClass())) return false;
+		if (!((Object) this).getClass().equals(obj.getClass())) return false;
 		if (this.getUri() == null) return false;
 
 		final Photo other = (Photo) obj;
@@ -275,13 +275,13 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	}
 
 	public static boolean same(Object obj1, Object obj2) {
+		if (obj1 == null && obj2 == null) return true;
 		if (obj1 != null) {
 			return ((Photo) obj1).sameAs(obj2);
 		}
-		else if (obj2 != null) {
-			return ((Photo) obj2).sameAs(obj1);
+		else {
+			return false;
 		}
-		return true;
 	}
 
 	@Override
@@ -432,32 +432,32 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	// --------------------------------------------------------------------------------------------
 
 	/*
-	 * Any photo from the device (camera, gallery) is store in s3 and source = aircandi
+     * Any photo from the device (camera, gallery) is store in s3 and source = aircandi
 	 * Any search photo is not stored in s3 and source = generic
 	 * Any place photo from foursquare stays there and photo.source = foursquare
 	 */
 
 	public static class PhotoSource {
 
-		public static String	generic				= "generic";				// set in photo picker when using third party photo.
-		public static String	bing				= "bing";					// set when thumbnail is coming straight from bing.
+		public static String generic = "generic";                // set in photo picker when using third party photo.
+		public static String bing    = "bing";                    // set when thumbnail is coming straight from bing.
 
-		public static String	aircandi			= "aircandi";				// legacy that maps to aircandi_images
-		public static String	aircandi_images		= "aircandi.images";		// set when photo is stored by us and used to construct full uri to image data (s3)
-		public static String	aircandi_thumbnails	= "aircandi.thumbnails";	// set when photo is stored by us and used to construct full uri to image data (s3)
-		public static String	aircandi_users		= "aircandi.users";		// set when photo is stored by us and used to construct full uri to image data (s3)
+		public static String aircandi            = "aircandi";                // legacy that maps to aircandi_images
+		public static String aircandi_images     = "aircandi.images";        // set when photo is stored by us and used to construct full uri to image data (s3)
+		public static String aircandi_thumbnails = "aircandi.thumbnails";    // set when photo is stored by us and used to construct full uri to image data (s3)
+		public static String aircandi_users      = "aircandi.users";        // set when photo is stored by us and used to construct full uri to image data (s3)
 
-		public static String	foursquare			= "foursquare";			// set when photo is stored by us and used to construct full uri to image data (s3)
-		public static String	facebook			= "facebook";				// set if photo comes from facebook - used for applinks
-		public static String	twitter				= "twitter";				// set if photo comes from twitter - used for applinks		
-		public static String	google				= "google";				// set if photo comes from google - used for applinks		
-		public static String	yelp				= "yelp";					// set if photo comes from yelp - used for applinks // NO_UCD (unused code)
+		public static String foursquare = "foursquare";            // set when photo is stored by us and used to construct full uri to image data (s3)
+		public static String facebook   = "facebook";                // set if photo comes from facebook - used for applinks
+		public static String twitter    = "twitter";                // set if photo comes from twitter - used for applinks
+		public static String google     = "google";                // set if photo comes from google - used for applinks
+		public static String yelp       = "yelp";                    // set if photo comes from yelp - used for applinks // NO_UCD (unused code)
 
 		/* System sources */
 
-		public static String	resource			= "resource";				// set as default for shortcut and applink photos		
-		public static String	assets_applinks		= "assets.applinks";		// used when targeting something like the default applink icons
-		public static String	assets_categories	= "assets.categories";		// ditto to above
+		public static String resource          = "resource";                // set as default for shortcut and applink photos
+		public static String assets_applinks   = "assets.applinks";        // used when targeting something like the default applink icons
+		public static String assets_categories = "assets.categories";        // ditto to above
 
 	}
 
@@ -472,12 +472,13 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		PORTRAIT
 	}
 
-	private class GooglePlusProxy {
+	private class GooglePlusProxy implements Serializable {
+		private static final long   serialVersionUID = 4979315502693226461L;
 		/*
 		 * Setting refresh to 60 minutes.
 		 */
-		public String	baseWidth	= "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_w=%d&refresh=3600";
-		public String	baseHeight	= "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_h=%d&refresh=3600";
+		public               String baseWidth        = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_w=%d&refresh=3600";
+		public               String baseHeight       = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_h=%d&refresh=3600";
 
 		public String convert(String uri, Integer size, Orientation orientation) {
 			String base = (orientation == Orientation.LANDSCAPE) ? baseWidth : baseHeight;

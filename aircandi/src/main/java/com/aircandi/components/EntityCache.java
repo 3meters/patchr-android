@@ -26,7 +26,6 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Place;
-import com.aircandi.objects.Provider;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.User;
@@ -40,7 +39,7 @@ import com.aircandi.utilities.Json;
 @SuppressWarnings("ucd")
 public class EntityCache implements Map<String, Entity> {
 
-	private final Map<String, Entity>	mCacheMap	= Collections.synchronizedMap(new HashMap<String, Entity>());
+	private final Map<String, Entity> mCacheMap = Collections.synchronizedMap(new HashMap<String, Entity>());
 
 	// --------------------------------------------------------------------------------------------
 	// Cache loading
@@ -51,8 +50,8 @@ public class EntityCache implements Map<String, Entity> {
 	}
 
 	private ServiceResponse dispatch(ServiceRequest serviceRequest, Stopwatch stopwatch) {
-		/*
-		 * We use this as a choke point for all calls to the aircandi service.
+	    /*
+         * We use this as a choke point for all calls to the aircandi service.
 		 */
 		final ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest, true, stopwatch);
 		return serviceResponse;
@@ -93,8 +92,8 @@ public class EntityCache implements Map<String, Entity> {
 			serviceResponse.data = serviceData;
 
 			if (loadedEntities != null && loadedEntities.size() > 0) {
-				/*
-				 * Clear out any cache stamp overrides.
+                /*
+                 * Clear out any cache stamp overrides.
 				 */
 				for (Entity entity : loadedEntities) {
 					if (Aircandi.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
@@ -306,20 +305,6 @@ public class EntityCache implements Map<String, Entity> {
 					Place place = (Place) entity;
 					place.locked = false;
 					place.enabled = true;
-
-					/* No id means it's a synthetic */
-					if (place.id == null) {
-						Provider provider = place.getProvider();
-						if (provider == null) {
-							Logger.v(this, "grr");
-						}
-						place.id = place.getProvider().id;
-						place.modifiedDate = DateTime.nowDate().getTime();
-						place.synthetic = true;
-					}
-					else {
-						place.synthetic = false;
-					}
 				}
 			}
 
@@ -332,7 +317,7 @@ public class EntityCache implements Map<String, Entity> {
 
 	// --------------------------------------------------------------------------------------------
 	// Cache updates
-	// --------------------------------------------------------------------------------------------	
+	// --------------------------------------------------------------------------------------------
 
 	private void upsertEntities(List<Entity> entities) {
 		for (Entity entity : entities) {
@@ -495,20 +480,18 @@ public class EntityCache implements Map<String, Entity> {
 		return removedEntity;
 	}
 
-	public synchronized Integer removeEntities(String schema, String type, Boolean isSynthetic, Boolean foundByProximity) {
+	public synchronized Integer removeEntities(String schema, String type, Boolean foundByProximity) {
 
 		Integer removeCount = 0;
 		final Iterator iterEntities = keySet().iterator();
-		Entity entity = null;
+		Entity entity;
 		while (iterEntities.hasNext()) {
 			entity = get(iterEntities.next());
 			if (schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
 				if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
-					if (isSynthetic == null || entity.synthetic.equals(isSynthetic)) {
-						if (foundByProximity == null || entity.foundByProximity.equals(foundByProximity)) {
-							iterEntities.remove();
-							removeCount++;
-						}
+					if (foundByProximity == null || entity.foundByProximity.equals(foundByProximity)) {
+						iterEntities.remove();
+						removeCount++;
 					}
 				}
 			}
@@ -585,16 +568,53 @@ public class EntityCache implements Map<String, Entity> {
 	// Cache reads
 	// --------------------------------------------------------------------------------------------
 
-	public synchronized List<? extends Entity> getCacheEntities(String schema, String type, Boolean synthetic, Integer radius, Boolean proximity) {
+	public synchronized List<? extends Entity> getCacheEntities(String schema, String type, Integer radius, Boolean proximity) {
 		List<Entity> entities = new ArrayList<Entity>();
 		final Iterator iter = keySet().iterator();
-		Entity entity = null;
+		Entity entity;
 		while (iter.hasNext()) {
 			entity = get(iter.next());
 			if (!entity.isHidden()) {
 				if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
 					if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
-						if (synthetic == null || entity.synthetic.equals(synthetic)) {
+						if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
+							if (radius == null) {
+								entities.add(entity);
+							}
+							else {
+								Float distance = entity.getDistance(true);
+								if (distance != null && distance <= radius) {
+									entities.add(entity);
+								}
+								else if (distance == null) {
+									Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
+									if (beacon != null) {
+										entities.add(entity);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return entities;
+	}
+
+	@SuppressWarnings("ucd")
+	public synchronized List<? extends Entity> getCacheEntitiesForEntity(String entityId, String schema, String type, Integer radius, Boolean proximity) {
+		/*
+		 * We rely on the toId property instead of traversing links.
+		 */
+		List<Entity> entities = new ArrayList<Entity>();
+		final Iterator iter = keySet().iterator();
+		Entity entity;
+		while (iter.hasNext()) {
+			entity = get(iter.next());
+			if ((entity.toId != null && entity.toId.equals(entityId)) || (entity.fromId != null && entity.fromId.equals(entityId))) {
+				if (!entity.isHidden()) {
+					if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
+						if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
 							if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
 								if (radius == null) {
 									entities.add(entity);
@@ -608,48 +628,6 @@ public class EntityCache implements Map<String, Entity> {
 										Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
 										if (beacon != null) {
 											entities.add(entity);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return entities;
-	}
-
-	@SuppressWarnings("ucd")
-	public synchronized List<? extends Entity> getCacheEntitiesForEntity(String entityId, String schema, String type, Boolean synthetic, Integer radius,
-			Boolean proximity) {
-		/*
-		 * We rely on the toId property instead of traversing links.
-		 */
-		List<Entity> entities = new ArrayList<Entity>();
-		final Iterator iter = keySet().iterator();
-		Entity entity = null;
-		while (iter.hasNext()) {
-			entity = get(iter.next());
-			if ((entity.toId != null && entity.toId.equals(entityId)) || (entity.fromId != null && entity.fromId.equals(entityId))) {
-				if (!entity.isHidden()) {
-					if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
-						if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
-							if (synthetic == null || entity.synthetic.equals(synthetic)) {
-								if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
-									if (radius == null) {
-										entities.add(entity);
-									}
-									else {
-										Float distance = entity.getDistance(true);
-										if (distance != null && distance <= radius) {
-											entities.add(entity);
-										}
-										else if (distance == null) {
-											Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
-											if (beacon != null) {
-												entities.add(entity);
-											}
 										}
 									}
 								}

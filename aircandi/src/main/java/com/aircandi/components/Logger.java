@@ -27,8 +27,6 @@ public class Logger {
 	 * Chatty stuff that is helpful in the logs while developing but will never used in release.
 	 */
 
-	private static final boolean	INCLUDE_MODULE	= true;
-
 	private static enum LogLevel {
 		ERROR,
 		WARNING,
@@ -44,7 +42,7 @@ public class Logger {
 	private static void Log(LogLevel logLevel, Object taskContext, String msgFormat, Throwable t) {
 
 		String task = "";
-		if (INCLUDE_MODULE && taskContext != null) {
+		if (taskContext != null) {
 			task = "[" + Thread.currentThread().getName() + "]: " + taskContext.getClass().getSimpleName() + ": ";
 		}
 		if (logLevel == LogLevel.ERROR) {

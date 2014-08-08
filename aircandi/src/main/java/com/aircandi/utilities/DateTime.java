@@ -12,17 +12,17 @@ import android.text.format.DateUtils;
 
 public class DateTime {
 
-	public static final String	DATE_NOW_FORMAT_FILENAME					= "yyyyMMdd_HHmmss";
-	public static final String	DATE_NOW_FORMAT_FILENAME_EXTENDED			= "yyyyMMdd_HHmmss_SSS";
-	private static final String	DATE_FORMAT_TIME_SINCE						= "MMM d";
-	private static final String	DATE_FORMAT_TIME_SINCE_WITH_YEAR			= "MMM d, yyyy";
-	private static final String	TIME_FORMAT_TIME_SINCE						= "h:mm";
-	private static final String	AMPM_FORMAT_TIME_SINCE						= "a";
-	public static final String	DATE_FORMAT_DETAILED						= "MMM d, yyyy h:mm:ss.SSS";	// NO_UCD (unused code)
-	public static final String	DATE_FORMAT_DEFAULT							= "MMMM d, yyyy h:mma";
+	public static final  String DATE_NOW_FORMAT_FILENAME          = "yyyyMMdd_HHmmss";
+	public static final  String DATE_NOW_FORMAT_FILENAME_EXTENDED = "yyyyMMdd_HHmmss_SSS";
+	private static final String DATE_FORMAT_TIME_SINCE            = "MMM d";
+	private static final String DATE_FORMAT_TIME_SINCE_WITH_YEAR  = "MMM d, yyyy";
+	private static final String TIME_FORMAT_TIME_SINCE            = "h:mm";
+	private static final String AMPM_FORMAT_TIME_SINCE            = "a";
+	public static final  String DATE_FORMAT_DETAILED              = "MMM d, yyyy h:mm:ss.SSS";    // NO_UCD (unused code)
+	public static final  String DATE_FORMAT_DEFAULT               = "MMMM d, yyyy h:mma";
 
-	private static final String	DATE_FORMAT_TIME_SINCE_TWITTER				= "dd MMM";
-	private static final String	DATE_FORMAT_TIME_SINCE_WITH_YEAR_TWITTER	= "dd MMM y";
+	private static final String DATE_FORMAT_TIME_SINCE_TWITTER           = "dd MMM";
+	private static final String DATE_FORMAT_TIME_SINCE_WITH_YEAR_TWITTER = "dd MMM y";
 
 	public static String nowString(String pattern) {
 		final Calendar cal = Calendar.getInstance();
@@ -41,20 +41,20 @@ public class DateTime {
 		return cal.getTime();
 	}
 
-	@SuppressWarnings({ "ucd", "deprecation" })
+	@SuppressWarnings({"ucd", "deprecation"})
 	public static String dateStringAt(Long time) {
 		final Date date = new Date(time);
 
 		SimpleDateFormat datePart = new SimpleDateFormat((date.getYear() != DateTime.nowDate().getYear())
-				? DATE_FORMAT_TIME_SINCE_WITH_YEAR
-				: DATE_FORMAT_TIME_SINCE, Locale.US);
+		                                                 ? DATE_FORMAT_TIME_SINCE_WITH_YEAR
+		                                                 : DATE_FORMAT_TIME_SINCE, Locale.US);
 
 		final SimpleDateFormat timePart = new SimpleDateFormat(TIME_FORMAT_TIME_SINCE, Locale.US);
 		final SimpleDateFormat ampmPart = new SimpleDateFormat(AMPM_FORMAT_TIME_SINCE, Locale.US);
 
-//		return datePart.format(time) + " " + StringManager.getString(R.string.symbol_bullet) + " "
-//				+ timePart.format(time) + " "
-//				+ ampmPart.format(time).toUpperCase(Locale.US);
+		//		return datePart.format(time) + " " + StringManager.getString(R.string.symbol_bullet) + " "
+		//				+ timePart.format(time) + " "
+		//				+ ampmPart.format(time).toUpperCase(Locale.US);
 
 		return timePart.format(time) + " "
 				+ ampmPart.format(time).toUpperCase(Locale.US) + " " + StringManager.getString(R.string.symbol_bullet) + " "
@@ -89,28 +89,22 @@ public class DateTime {
 						+ ampmPart.format(dateOld.getTime()).toUpperCase(Locale.US);
 			}
 		}
-		else if (hours == 1) /* x hours x minutes ago */
-		{
+		else if (hours == 1) /* x hours x minutes ago */ {
 			interval = "1 hour";
 		}
-		else if (hours > 1) /* x hours x minutes ago */
-		{
+		else if (hours > 1) /* x hours x minutes ago */ {
 			interval = String.valueOf(hours) + " hours";
 		}
-		else if (minutes == 1) /* x hours x minutes ago */
-		{
+		else if (minutes == 1) /* x hours x minutes ago */ {
 			interval = "1 minute";
 		}
-		else if (minutes > 1) /* x hours x minutes ago */
-		{
+		else if (minutes > 1) /* x hours x minutes ago */ {
 			interval = String.valueOf(minutes) + " minutes";
 		}
-		else if (seconds == 1) /* 1 second ago */
-		{
+		else if (seconds == 1) /* 1 second ago */ {
 			interval = "1 second";
 		}
-		else if (seconds > 1) /* x hours x minutes ago */
-		{
+		else if (seconds > 1) /* x hours x minutes ago */ {
 			interval = String.valueOf(seconds) + " seconds";
 		}
 		if (context == IntervalContext.PAST) {

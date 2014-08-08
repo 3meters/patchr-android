@@ -6,7 +6,6 @@ import java.util.List;
 import com.aircandi.Aircandi;
 import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.components.EntityManager;
-import com.aircandi.catalina.objects.EventType;
 import com.aircandi.components.ProximityManager.ModelResult;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.objects.Cursor;
@@ -18,11 +17,11 @@ import com.aircandi.utilities.Maps;
 
 public class MessagesQuery implements IQuery {
 
-	protected Cursor	mCursor;
-	protected Boolean	mMore		= false;
-	protected Integer	mPageSize	= 30;
-	protected String	mSchema;
-	protected String	mEntityId;
+	protected Cursor mCursor;
+	protected Boolean mMore     = false;
+	protected Integer mPageSize = 30;
+	protected String mSchema;
+	protected String mEntityId;
 
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {
@@ -32,7 +31,6 @@ public class MessagesQuery implements IQuery {
 		 */
 		List<String> toSchemas = new ArrayList<String>();
 		toSchemas.add(Constants.SCHEMA_ENTITY_PLACE);
-		toSchemas.add(Constants.SCHEMA_ENTITY_MESSAGE);
 		toSchemas.add(Constants.SCHEMA_ENTITY_USER);
 
 		List<String> linkTypes = new ArrayList<String>();
@@ -46,17 +44,13 @@ public class MessagesQuery implements IQuery {
 				.setToSchemas(toSchemas)
 				.setLinkTypes(linkTypes);
 
-		List<String> events = new ArrayList<String>();
-		events.add(EventType.INSERT_MESSAGE_TO_PLACE);
-		events.add(EventType.INSERT_MESSAGE_TO_MESSAGE);
-
 		Links links = Aircandi.getInstance().getEntityManager().getLinks().build(LinkProfile.NO_LINKS);
 		if (mSchema != null) {
 			IEntityController controller = Aircandi.getInstance().getControllerForSchema(mSchema);
 			links = Aircandi.getInstance().getEntityManager().getLinks().build(controller.getLinkProfile());
 		}
 
-		ModelResult result = ((EntityManager) Aircandi.getInstance().getEntityManager()).loadMessages(mEntityId, links, mCursor, events);
+		ModelResult result = ((EntityManager) Aircandi.getInstance().getEntityManager()).loadMessages(mEntityId, links, mCursor);
 
 		if (result.data != null) {
 			mMore = ((ServiceData) result.serviceResponse.data).more;
@@ -88,5 +82,10 @@ public class MessagesQuery implements IQuery {
 	@Override
 	public Integer getPageSize() {
 		return mPageSize;
+	}
+
+	@Override
+	public String getEntityId() {
+		return mEntityId;
 	}
 }

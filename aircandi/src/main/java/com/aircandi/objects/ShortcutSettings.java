@@ -7,15 +7,16 @@ import com.aircandi.objects.Link.Direction;
  */
 public class ShortcutSettings {
 
-	public String		linkType;
-	public String		linkTargetSchema;
-	public Direction	direction;
-	public Boolean		synthetic		= false;
-	public Boolean		groupedByApp	= false;
-	public Boolean		linkBroken		= false;
-	public Class<?>		appClass;
+	public String    linkType;
+	public String    linkTargetSchema;
+	public Direction direction;
+	public Boolean synthetic    = false;
+	public Boolean groupedByApp = false;
+	public Boolean linkBroken   = false;
+	public Class<?> appClass;
 
-	public ShortcutSettings() {}
+	public ShortcutSettings() {
+	}
 
 	public ShortcutSettings(String linkType, String linkTargetSchema, Direction direction, Boolean synthetic, Boolean groupedByApp) {
 		this.linkType = linkType;

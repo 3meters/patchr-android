@@ -76,26 +76,26 @@ import com.commonsware.cwac.endless.EndlessAdapter;
  */
 public class PhotoPicker extends BaseActivity {
 
-	private GridView				mGridView;
-	private AirAutoCompleteTextView	mSearch;
-	private final List<ImageResult>	mImages				= new ArrayList<ImageResult>();
-	private Entity					mEntity;
-	private String					mEntityId;
+	private GridView                mGridView;
+	private AirAutoCompleteTextView mSearch;
+	private final List<ImageResult> mImages = new ArrayList<ImageResult>();
+	private Entity mEntity;
+	private String mEntityId;
 
-	private long					mOffset				= 0;
-	private String					mQuery;
-	private String					mDefaultSearch;
-	private List<String>			mPreviousSearches	= new ArrayList<String>();
-	private ArrayAdapter<String>	mSearchAdapter;
-	private String					mTitleOptional;
-	private Boolean					mPlacePhotoMode		= false;
-	private Provider				mProvider;
-	private Integer					mPhotoWidthPixels;
+	private long mOffset = 0;
+	private String mQuery;
+	private String mDefaultSearch;
+	private List<String> mPreviousSearches = new ArrayList<String>();
+	private ArrayAdapter<String> mSearchAdapter;
+	private String               mTitleOptional;
+	private Boolean mPlacePhotoMode = false;
+	private Provider mProvider;
+	private Integer  mPhotoWidthPixels;
 
-	private static final long		PAGE_SIZE			= 30L;
-	private static final long		LIST_MAX			= 300L;
-	private static final String		QUERY_PREFIX		= "";
-	private static final String		QUERY_DEFAULT		= "wallpaper unusual places";
+	private static final long   PAGE_SIZE     = 30L;
+	private static final long   LIST_MAX      = 300L;
+	private static final String QUERY_PREFIX  = "";
+	private static final String QUERY_DEFAULT = "wallpaper unusual places";
 
 	@Override
 	public void unpackIntent() {
@@ -416,8 +416,8 @@ public class PhotoPicker extends BaseActivity {
 
 		final ServiceRequest serviceRequest = new ServiceRequest(bingUrl, RequestType.GET, ResponseFormat.JSON);
 		serviceRequest.setAuthType(AuthType.BASIC)
-				.setUserName(null)
-				.setPassword(Aircandi.getInstance().getContainer().getString(Aircandi.BING_ACCESS_KEY));
+		              .setUserName(null)
+		              .setPassword(Aircandi.getInstance().getContainer().getString(Aircandi.BING_ACCESS_KEY));
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest, true, null);
 
@@ -502,7 +502,7 @@ public class PhotoPicker extends BaseActivity {
 
 	public class EndlessImageAdapter extends EndlessAdapter {
 
-		private List<ImageResult>	mMoreImages	= new ArrayList<ImageResult>();
+		private List<ImageResult> mMoreImages = new ArrayList<ImageResult>();
 
 		private EndlessImageAdapter(List<ImageResult> list) {
 			super(new ListAdapter(list));
@@ -690,8 +690,8 @@ public class PhotoPicker extends BaseActivity {
 
 	public static class ViewHolder {
 
-		public AirImageView	photoView;
-		public ImageResult	data; // NO_UCD (unused code)
+		public AirImageView photoView;
+		public ImageResult  data; // NO_UCD (unused code)
 	}
 
 }

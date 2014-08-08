@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.View;
 
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
@@ -19,13 +20,17 @@ public interface IEntityController {
 	public Intent view(Context context, Entity entity, String entityId, String parentId, String linkType, Bundle extras, Boolean start);
 
 	public Intent viewFor(Context context, Entity entity, String entityId, String linkType, Direction direction, String title, Boolean newEnabled,
-			Boolean start);
+	                      Boolean start);
 
 	public Intent edit(Context context, Entity entity, Bundle extras, Boolean start);
 
 	public Intent insert(Context context, Bundle extras, Boolean start);
 
 	public void decorate(Entity entity, Links linkOptions);
+
+	public void bind(Entity entity, View view);
+
+	public void bindHolder(View view, ViewHolder viewHolder);
 
 	public Entity makeNew();
 
@@ -60,5 +65,5 @@ public interface IEntityController {
 	public IEntityController setNewClass(Class<?> newClass);
 
 	public IEntityController setListClass(Class<?> listClass);
-	
+
 }

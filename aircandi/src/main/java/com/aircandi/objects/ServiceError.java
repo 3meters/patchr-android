@@ -12,19 +12,17 @@ import com.aircandi.service.Expose;
 public class ServiceError {
 
 	@Expose
-	public String		name;
+	public String       name;
 	@Expose
-	public Number		code;
+	public Number       code;
 	@Expose
-	public String		message;
+	public String       message;
 	@Expose
-	public String		errors;
+	public String       errors;
 	@Expose
-	public List<String>	appStack;	// optional
+	public List<String> appStack;    // optional
 	@Expose
-	public String		stack;
-
-	
+	public String       stack;
 
 	public static ServiceError setPropertiesFromMap(ServiceError serviceError, Map map, Boolean nameMapping) {
 		/*

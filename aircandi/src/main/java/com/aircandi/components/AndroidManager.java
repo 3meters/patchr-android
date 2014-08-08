@@ -31,12 +31,13 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 @SuppressWarnings("ucd")
 public class AndroidManager {
 
-	public static final int	PLAY_SERVICES_RESOLUTION_REQUEST	= 9000;
+	public static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
-	private AndroidManager() {}
+	private AndroidManager() {
+	}
 
 	private static class AndroidManagerHolder {
-		public static final AndroidManager	instance	= new AndroidManager();
+		public static final AndroidManager instance = new AndroidManager();
 	}
 
 	public static AndroidManager getInstance() {
@@ -63,32 +64,34 @@ public class AndroidManager {
 	public static void showPlayServicesErrorDialog(final int status, final Activity activity) {
 
 		final Activity activityTemp = (activity != null) ? activity : Aircandi.getInstance().getCurrentActivity();
+		if (activityTemp != null) {
 
-		activityTemp.runOnUiThread(new Runnable() {
+			activityTemp.runOnUiThread(new Runnable() {
 
-			@Override
-			public void run() {
-				Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status
-						, activityTemp
-						, PLAY_SERVICES_RESOLUTION_REQUEST);
-				dialog.setCancelable(true);
-				dialog.setCanceledOnTouchOutside(false);
-				dialog.setOnCancelListener(new OnCancelListener() {
+				@Override
+				public void run() {
+					Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status
+							, activityTemp
+							, PLAY_SERVICES_RESOLUTION_REQUEST);
+					dialog.setCancelable(true);
+					dialog.setCanceledOnTouchOutside(false);
+					dialog.setOnCancelListener(new OnCancelListener() {
 
-					@Override
-					public void onCancel(DialogInterface dialog) {
-						UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unavailable), Toast.LENGTH_LONG);
-						if (!(activity instanceof SplashForm)) {
-							Aircandi.dispatch.route(activity, Route.SPLASH, null, null, null);
+						@Override
+						public void onCancel(DialogInterface dialog) {
+							UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unavailable), Toast.LENGTH_LONG);
+							if (!(activity instanceof SplashForm)) {
+								Aircandi.dispatch.route(activity, Route.SPLASH, null, null, null);
+							}
+							else {
+								activity.finish();
+							}
 						}
-						else {
-							activity.finish();
-						}
-					}
-				});
-				dialog.show();
-			}
-		});
+					});
+					dialog.show();
+				}
+			});
+		}
 	}
 
 	public static Boolean appExists(String app) {
@@ -176,7 +179,7 @@ public class AndroidManager {
 
 	@SuppressWarnings("ucd")
 	protected boolean getIsLowBattery() {
-		/*
+	    /*
 		 * Returns battery status. TRUE if less than 15% remaining.
 		 */
 		final IntentFilter batIntentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -187,7 +190,7 @@ public class AndroidManager {
 	}
 
 	public void startMapNavigationNow(Context context, Double latitude, Double longitude, String address, String label) {
-		String uri = null;
+		String uri;
 		if (address != null) {
 			uri = "google.navigation:q=" + address + " (" + label + ")";
 		}
@@ -206,7 +209,7 @@ public class AndroidManager {
 	}
 
 	public void callMapNavigation(Context context, Double latitude, Double longitude, String address, String label) {
-		String uri = null;
+		String uri;
 		if (address != null) {
 			uri = "http://maps.google.com/maps?" + "daddr=" + address + " (" + label + ")";
 		}
@@ -353,15 +356,14 @@ public class AndroidManager {
 		final String[] browserApps = {
 				"com.android.browser",
 				"com.android.chrome",
-				"com.google.android.browser" };
+				"com.google.android.browser"};
 
 		final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
 		final PackageManager packageManager = context.getPackageManager();
 		final List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 
-		String p = null;
+		String p;
 		for (int i = 0; i < browserApps.length; i++) {
-			p = null;
 			for (ResolveInfo resolveInfo : list) {
 				p = resolveInfo.activityInfo.packageName;
 				if (p != null && p.startsWith(browserApps[i])) {

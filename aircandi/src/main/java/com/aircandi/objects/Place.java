@@ -21,48 +21,44 @@ import com.aircandi.utilities.Colors;
 @SuppressWarnings("ucd")
 public class Place extends Entity implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= -3599862145425838670L;
-	public static final String	collectionId		= "places";
+	private static final long   serialVersionUID = -3599862145425838670L;
+	public static final  String collectionId     = "places";
+	public static final  String schemaName       = "place";
+	public static final  String schemaId         = "pl";
 
 	// --------------------------------------------------------------------------------------------
 	// service fields
 	// --------------------------------------------------------------------------------------------
 
 	@Expose
-	public String				address;
+	public String      address;
 	@Expose
-	public String				city;
+	public String      city;
 	@Expose
-	public String				region;
+	public String      region;
 	@Expose
-	public String				country;
+	public String      country;
 	@Expose
-	public String				postalCode;
+	public String      postalCode;
 	@Expose
-	public String				phone;
+	public String      phone;
 	@Expose
-	public ProviderMap			provider;
+	public ProviderMap provider;
 	@Expose
-	public Category				category;
+	public Category    category;
 	@Expose(serialize = false, deserialize = true)
-	public Number				applinkDate;
-	@Expose(serialize = false, deserialize = true)
-	public String				reason;
-	@Expose(serialize = false, deserialize = true)
-	public Number				score;
+	public Number      applinkDate;
 
 	// --------------------------------------------------------------------------------------------
 	// client fields (NONE are transferred)
 	// --------------------------------------------------------------------------------------------
-
-	
 
 	// --------------------------------------------------------------------------------------------
 	// Methods
 	// --------------------------------------------------------------------------------------------
 
 	public static Place upsizeFromSynthetic(Place synthetic) {
-		/*
+	    /*
 		 * Sythetic entity created from foursquare data
 		 * 
 		 * We make a copy so these changes don't effect the synthetic entity
@@ -105,7 +101,7 @@ public class Place extends Entity implements Cloneable, Serializable {
 			return new Provider(provider.yelp, Constants.TYPE_PROVIDER_YELP);
 		else if (provider.google != null)
 			return new Provider(provider.google, Constants.TYPE_PROVIDER_GOOGLE);
-		else if (provider.factual != null) 
+		else if (provider.factual != null)
 			return new Provider(provider.factual, Constants.TYPE_PROVIDER_FACTUAL);
 		return null;
 	}
@@ -209,9 +205,7 @@ public class Place extends Entity implements Cloneable, Serializable {
 		entity.country = (String) map.get("country");
 		entity.postalCode = (String) map.get("postalCode");
 		entity.phone = (String) map.get("phone");
-		entity.reason = (String) map.get("reason");
-		entity.score = (Number) map.get("score");
-		entity.applinkDate = (Number) map.get("applinkDate");		
+		entity.applinkDate = (Number) map.get("applinkDate");
 
 		if (map.get("provider") != null) {
 			entity.provider = ProviderMap.setPropertiesFromMap(new ProviderMap(), (HashMap<String, Object>) map.get("provider"), nameMapping);
@@ -261,13 +255,13 @@ public class Place extends Entity implements Cloneable, Serializable {
 				 */
 				if (object1.distance == null && object2.distance == null)
 					return 0;
-				else if (object1.distance == null && object2.distance != null) 
+				else if (object1.distance == null && object2.distance != null)
 					return 1;
 				else if (object2.distance == null && object1.distance != null)
-					return -1;				
-				else if (object1.fuzzy && object2.fuzzy) 
+					return -1;
+				else if (object1.fuzzy && object2.fuzzy)
 					return 0;
-				else if (object1.fuzzy && !object2.fuzzy) 
+				else if (object1.fuzzy && !object2.fuzzy)
 					return 1;
 				else if (object2.fuzzy && !object1.fuzzy)
 					return -1;
@@ -283,9 +277,9 @@ public class Place extends Entity implements Cloneable, Serializable {
 
 	@SuppressWarnings("ucd")
 	public static class ReasonType {
-		public static String	WATCH		= "watch";
-		public static String	LOCATION	= "location";
-		public static String	RECENT		= "recent";
-		public static String	OTHER		= "other";
+		public static String WATCH    = "watch";
+		public static String LOCATION = "location";
+		public static String RECENT   = "recent";
+		public static String OTHER    = "other";
 	}
 }

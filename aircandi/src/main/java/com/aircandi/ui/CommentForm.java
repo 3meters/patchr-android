@@ -1,5 +1,6 @@
 package com.aircandi.ui;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
@@ -19,6 +20,7 @@ import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.UI;
 
+@SuppressLint("Registered")
 public class CommentForm extends BaseEntityForm {
 
 	@Override
@@ -60,13 +62,13 @@ public class CommentForm extends BaseEntityForm {
 		if (mEntity.ownerId != null && Aircandi.getInstance().getCurrentUser() != null
 				&& (mEntity.ownerId.equals(Aircandi.getInstance().getCurrentUser().id)
 				|| (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-						&& Aircandi.getInstance().getCurrentUser().developer != null
-						&& Aircandi.getInstance().getCurrentUser().developer))) {
+				&& Aircandi.getInstance().getCurrentUser().developer != null
+				&& Aircandi.getInstance().getCurrentUser().developer))) {
 			UI.setVisibility(findViewById(R.id.button_delete), View.VISIBLE);
 		}
 
 		/* Message text */
-		
+
 		UI.setVisibility(description, View.GONE);
 		if (description != null) {
 			description.setText(null);
@@ -100,7 +102,7 @@ public class CommentForm extends BaseEntityForm {
 		}
 
 		/* User area */
-		
+
 		UI.setVisibility(toName, View.GONE);
 		UI.setVisibility(findViewById(R.id.symbol_at), View.GONE);
 		if (toName != null && mEntity.creator != null && !TextUtils.isEmpty(mEntity.creator.area)) {
@@ -134,7 +136,7 @@ public class CommentForm extends BaseEntityForm {
 		}
 
 		/* Created date */
-		
+
 		UI.setVisibility(createdDate, View.GONE);
 		if (createdDate != null && mEntity.createdDate != null) {
 			createdDate.setText(DateTime.dateStringAt(mEntity.createdDate.longValue()));

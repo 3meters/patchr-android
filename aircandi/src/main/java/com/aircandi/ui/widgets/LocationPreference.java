@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -31,11 +32,11 @@ import com.aircandi.utilities.UI;
 
 public class LocationPreference extends AirListPreference {
 
-	private List<Document>	mTestLocations	= new ArrayList<Document>();
-	private ListAdapter		mAdapter;
-	private Integer			mCurrentIndex;
-	public Document			mLocationDefault;
-	public static String	LOCATION_DEFAULT;
+	private List<Document> mTestLocations = new ArrayList<Document>();
+	private       ListAdapter mAdapter;
+	private       Integer     mCurrentIndex;
+	public        Document    mLocationDefault;
+	public static String      LOCATION_DEFAULT;
 
 	@SuppressWarnings("ucd")
 	public LocationPreference(Context context) {
@@ -51,7 +52,7 @@ public class LocationPreference extends AirListPreference {
 	// --------------------------------------------------------------------------------------------
 	// Events
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	protected void onPrepareDialogBuilder(Builder builder) {
 		setEntriesFromLocations(); // Initialize entry arrays but empty
@@ -183,6 +184,7 @@ public class LocationPreference extends AirListPreference {
 			super(context, 0, items);
 		}
 
+		@SuppressLint("WrongViewCast")
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = convertView;

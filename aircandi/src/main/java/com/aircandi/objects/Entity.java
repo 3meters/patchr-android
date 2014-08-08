@@ -30,83 +30,91 @@ import com.aircandi.utilities.Type;
 
 /**
  * Entity as described by the service protocol standards.
- * 
+ *
  * @author Jayma
  */
 @SuppressWarnings("ucd")
 public abstract class Entity extends ServiceBase implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= -3902834532692561618L;
+	private static final long serialVersionUID = -3902834532692561618L;
 
 	// --------------------------------------------------------------------------------------------
 	// service fields
-	// --------------------------------------------------------------------------------------------	
+	// --------------------------------------------------------------------------------------------
 
 	/* Database fields */
 
 	@Expose
-	public String				subtitle;
+	public String      subtitle;
 	@Expose
-	public String				description;
+	public String      description;
 	@Expose
-	public Photo				photo;
+	public Photo       photo;
 	@Expose
-	public AirLocation			location;
+	public AirLocation location;
 	@Expose
-	public Number				signalFence			= -100.0f;
+	public Number signalFence = -100.0f;
 	@Expose
-	public String				visibility;									// private|public|hidden
+	public String visibility;                                    // private|public|hidden
 	@Expose
 	@SerializedName(name = "_place")
-	public String				placeId;
+	public String placeId;
 
 	/* Synthetic fields */
 
 	@Expose(serialize = false, deserialize = true)
-	public List<Link>			linksIn;
+	public List<Link>  linksIn;
 	@Expose(serialize = false, deserialize = true)
-	public List<Link>			linksOut;
+	public List<Link>  linksOut;
 	@Expose(serialize = false, deserialize = true)
-	public List<Count>			linksInCounts;
+	public List<Count> linksInCounts;
 	@Expose(serialize = false, deserialize = true)
-	public List<Count>			linksOutCounts;
+	public List<Count> linksOutCounts;
 
 	@Expose(serialize = false, deserialize = true)
-	public String				toId;											// Used to find entities this entity is linked to
+	public String toId;                                            // Used to find entities this entity is linked to
 	@Expose(serialize = false, deserialize = true)
-	public String				fromId;										// Used to find entities this entity is linked from
+	public String fromId;                                        // Used to find entities this entity is linked from
 
 	@Expose(serialize = false, deserialize = true)
-	public List<Entity>			entities;
+	public List<Entity> entities;
 
 	/* Place (synthesized for the client) */
 
 	@Expose(serialize = false, deserialize = true)
-	public Place				place;
+	public Place place;
 
 	/* Stat fields (synthesized for the client) */
 
 	@Expose(serialize = false, deserialize = true)
-	public Number				count;
+	public String reason;
 	@Expose(serialize = false, deserialize = true)
-	public Number				rank;
+	public Number score;
+	@Expose(serialize = false, deserialize = true)
+	public Number count;
+	@Expose(serialize = false, deserialize = true)
+	public Number rank;
 
 	// --------------------------------------------------------------------------------------------
 	// client fields (NONE are transferred)
-	// --------------------------------------------------------------------------------------------	
+	// --------------------------------------------------------------------------------------------
 
-	public Boolean				hidden				= false;					// Flag entities not currently visible because of fencing.
-	public Float				distance;										// Used to cache most recent distance calculation.
-	public Boolean				fuzzy				= false;					// Flag places with inaccurate locations.
-	public Boolean				checked				= false;					// Used to track selection in lists.
-	public Boolean				synthetic			= false;					// Entity is not persisted with service.
-	public Boolean				shortcuts			= false;					// Do links have shortcuts?
-	public Boolean				foundByProximity	= false;					// Was this found based on proximity
-	public Boolean				editing				= false;					// Used to flag when we can't use id to match up.
-	public Boolean				highlighted			= false;					// Used to track one shot highlighting
-	public Boolean				read				= true;					// Used to track if the user has browsed.
+	public Boolean hidden           = false;                    // Flag entities not currently visible because of fencing.
+	public Boolean shareable        = true;                     // Flag whether an entity can be shared or not.
+	public Boolean fuzzy            = false;                    // Flag places with inaccurate locations.
+	public Boolean checked          = false;                    // Used to track selection in lists.
+	public Boolean shortcuts        = false;                    // Do links have shortcuts?
+	public Boolean foundByProximity = false;                    // Was this found based on proximity
+	public Boolean editing          = false;                    // Used to flag when we can't use id to match up.
+	public Boolean highlighted      = false;                    // Used to track one shot highlighting
+	public Boolean read             = true;                    // Used to track if the user has browsed.
+	public Boolean autowatchable    = false;                    // Used to track if the user has browsed.
+	public Float distance;                                        // Used to cache most recent distance calculation.
 
-	
+    /* Entity is not persisted with service, only seeing this for suggested places that
+       come from provider. We also use this when injecting a fake beacon or applink. */
+
+	public Boolean synthetic = false;
 
 	// --------------------------------------------------------------------------------------------
 	// Methods
@@ -135,8 +143,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public Boolean isTempId() {
-		if (id != null && id.substring(0, 5).equals("temp:")) return true;
-		return false;
+		return (id != null && id.substring(0, 5).equals("temp:"));
 	}
 
 	public Boolean visibleToCurrentUser() {
@@ -162,12 +169,9 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public boolean sameAs(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (!getClass().equals(obj.getClass())) {
-			return false;
-		}
+		if (obj == null) return false;
+		if (!((Object) this).getClass().equals(obj.getClass())) return false;
+
 		final Entity other = (Entity) obj;
 
 		if (!Type.equal(this.id, other.id)) return false;
@@ -175,9 +179,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		if (!Type.equal(this.description, other.description)) return false;
 		if (!this.getPhoto().getUri().equals(other.getPhoto().getUri())) return false;
 		if (this.linksIn.size() != other.linksIn.size()) return false;
-		if (this.linksOut != null && other.linksOut != null && this.linksOut.size() != other.linksOut.size()) return false;
+		return !(this.linksOut != null && other.linksOut != null && this.linksOut.size() != other.linksOut.size());
 
-		return true;
 	}
 
 	// --------------------------------------------------------------------------------------------
@@ -235,8 +238,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Boolean isHidden() {
 		Boolean oldIsHidden = hidden;
 		this.hidden = false;
-		/*
-		 * Make it harder to fade out than it is to fade in. Entities are only NEW
+	    /*
+         * Make it harder to fade out than it is to fade in. Entities are only NEW
 		 * for the first scan that discovers them.
 		 */
 		if (signalFence != null) {
@@ -291,8 +294,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public Beacon getActiveBeacon(String type, Boolean primaryOnly) {
-		/*
-		 * If an entity has more than one viable link, we choose the one
+        /*
+         * If an entity has more than one viable link, we choose the one
 		 * using the following priority:
 		 * 
 		 * - strongest primary
@@ -337,8 +340,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public Beacon getBeaconFromLink(String type, Boolean primaryOnly) {
-		/*
-		 * If an entity has more than one viable link, we choose the one
+        /*
+         * If an entity has more than one viable link, we choose the one
 		 * using the following priority:
 		 * 
 		 * - first primary
@@ -381,8 +384,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public List<? extends Entity> getLinkedEntitiesByLinkTypeAndSchema(List<String> types, List<String> schemas, Direction direction, Boolean traverse) {
-		/*
-		 * Currently only called by EntityCache.removeEntityTree
+        /*
+         * Currently only called by EntityCache.removeEntityTree
 		 */
 		final List<Entity> entities = new ArrayList<Entity>();
 		if (linksIn != null) {
@@ -485,12 +488,32 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			for (Link link : links) {
 				if (type == null || link.type.equals(type)) {
 					if (targetSchema == null || link.targetSchema.equals(targetSchema)) {
-						if (targetId == null || targetId.equals((direction == Direction.in) ? link.fromId : link.toId)) return link;
+						if (targetId == null || targetId.equals((direction == Direction.in) ? link.fromId : link.toId))
+							return link;
 					}
 				}
 			}
 		}
 		return null;
+	}
+
+	public List<Link> getLinks(String type, String targetSchema, String targetId, Direction direction) {
+		List<Link> links = new ArrayList<Link>();
+		List<Link> tempLinks = linksIn;
+		if (direction == Direction.out) {
+			tempLinks = linksOut;
+		}
+		if (tempLinks != null) {
+			for (Link link : tempLinks) {
+				if (type == null || link.type.equals(type)) {
+					if (targetSchema == null || link.targetSchema.equals(targetSchema)) {
+						if (targetId == null || targetId.equals((direction == Direction.in) ? link.fromId : link.toId))
+							links.add(link);
+					}
+				}
+			}
+		}
+		return links;
 	}
 
 	public Link removeLinksByTypeAndTargetSchema(String type, String targetSchema, String targetId, Direction direction) {
@@ -527,8 +550,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 						if (settings.synthetic == null || link.shortcut.isSynthetic().equals(settings.synthetic)) {
 							if (settings.linkBroken
 									|| (!settings.linkBroken && (link.shortcut.validatedDate == null || link.shortcut.validatedDate.longValue() != -1))) {
-								/*
-								 * Must clone or the groups added below will cause circular references
+                                /*
+                                 * Must clone or the groups added below will cause circular references
 								 * that choke serializing to json.
 								 */
 								Shortcut shortcut = link.shortcut.clone();
@@ -587,7 +610,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Boolean byAppUser(String linkType) {
 		if (linksIn != null) {
 			for (Link link : linksIn) {
-				if (link.type.equals(linkType) && link.fromId.equals(Aircandi.getInstance().getCurrentUser().id)) return true;
+				if (link.type.equals(linkType) && link.fromId.equals(Aircandi.getInstance().getCurrentUser().id))
+					return true;
 			}
 		}
 		return false;
@@ -596,15 +620,16 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Link linkByAppUser(String linkType) {
 		if (linksIn != null) {
 			for (Link link : linksIn) {
-				if (link.type.equals(linkType) && link.fromId.equals(Aircandi.getInstance().getCurrentUser().id)) return link;
+				if (link.type.equals(linkType) && link.fromId.equals(Aircandi.getInstance().getCurrentUser().id))
+					return link;
 			}
 		}
 		return null;
 	}
 
 	public void getClientShortcuts(List<Shortcut> shortcuts) {
-		/*
-		 * Shortcuts are in shortcut.isActive() at draw time to determine if it gets shown
+        /*
+         * Shortcuts are in shortcut.isActive() at draw time to determine if it gets shown
 		 */
 
 		/* Comments */
@@ -613,6 +638,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 				, Constants.TYPE_APP_COMMENT
 				, Constants.ACTION_VIEW_FOR
 				, StringManager.getString(R.string.label_link_comments)
+				, null
 				, "img_comment_temp"
 				, 20
 				, false
@@ -623,7 +649,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		shortcuts.add(shortcut);
 	}
 
-	public void removeLink() {}
+	public void removeLink() {
+	}
 
 	public String getSchemaMapped() {
 		String schema = this.schema;
@@ -656,6 +683,29 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return label;
 	}
 
+	public static String getSchemaForId(String id) {
+		String prefix = id.substring(0, 2);
+		if (prefix.equals("ap")) {
+			return Constants.SCHEMA_ENTITY_APPLINK;
+		}
+		else if (prefix.equals("be")) {
+			return Constants.SCHEMA_ENTITY_BEACON;
+		}
+		else if (prefix.equals("co")) {
+			return Constants.SCHEMA_ENTITY_COMMENT;
+		}
+		else if (prefix.equals("pl")) {
+			return Constants.SCHEMA_ENTITY_PLACE;
+		}
+		else if (prefix.equals("po")) {
+			return Constants.SCHEMA_ENTITY_PICTURE;
+		}
+		else if (prefix.equals("us")) {
+			return Constants.SCHEMA_ENTITY_USER;
+		}
+		return null;
+	}
+
 	// --------------------------------------------------------------------------------------------
 	// Copy and serialization
 	// --------------------------------------------------------------------------------------------
@@ -663,7 +713,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public static Entity setPropertiesFromMap(Entity entity, Map map, Boolean nameMapping) {
 
 		synchronized (entity) {
-			/*
+            /*
 			 * Need to include any properties that need to survive encode/decoded between activities.
 			 */
 			entity = (Entity) ServiceBase.setPropertiesFromMap(entity, map, nameMapping);
@@ -685,6 +735,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			entity.toId = (String) (nameMapping ? map.get("_to") : map.get("toId"));
 			entity.fromId = (String) (nameMapping ? map.get("_from") : map.get("fromId"));
 
+			entity.reason = (String) map.get("reason");
+			entity.score = (Number) map.get("score");
 			entity.count = (Number) map.get("count");
 			entity.rank = (Number) map.get("rank");
 
@@ -770,6 +822,27 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			entity.place = place.clone();
 		}
 		return entity;
+	}
+
+	@Override
+	public String toString() {
+		return this.id;
+	}
+
+	public int hashCode() {
+		return this.id.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object object) {
+        /*
+         * Object class implementation of equals uses reference but we want to compare
+         * using semantic equality.
+         */
+		if (!(object instanceof Entity)) return false;
+		if ((this.id == null) || (object == null) || (((Entity) object).id == null)) return false;
+		if (this == object) return true;
+		return this.id.equals(((Entity) object).id);
 	}
 
 	// --------------------------------------------------------------------------------------------

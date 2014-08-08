@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto" >
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools">
 
-    <View
-        android:id="@+id/color_layer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible" />
+	<View
+		android:id="@+id/color_layer"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:visibility="visible" />
 
-    <View
-        android:id="@+id/reverse_layer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/overlay_gray_light"
-        android:visibility="visible" />
+	<View
+		android:id="@+id/reverse_layer"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@color/overlay_gray_light"
+		android:visibility="visible" />
 
-    <ProgressBar
-        android:id="@+id/image_progress"
-        android:layout_width="@dimen/progress_small_width"
-        android:layout_height="@dimen/progress_small_height"
-        android:layout_gravity="center"
-        android:focusable="true"
-        android:visibility="gone" />
+	<ProgressBar
+		android:id="@+id/image_progress"
+		android:layout_width="@dimen/progress_small_width"
+		android:layout_height="@dimen/progress_small_height"
+		android:layout_gravity="center"
+		android:visibility="gone" />
 
-    <com.aircandi.ui.widgets.AirTextView
-        android:id="@+id/image_missing"
-        style="@style/missing"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="@string/label_photo_missing"
-        android:visibility="gone"
-        custom:textId="@string/label_photo_missing" />
+	<com.aircandi.ui.widgets.AirTextView
+		android:id="@+id/image_missing"
+		style="@style/missing"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:gravity="center"
+		android:text="@string/label_photo_missing"
+		android:visibility="gone"
+		custom:textId="@string/label_photo_missing" />
 
-    <ImageView
-        android:id="@+id/image_main"
-        style="@style/picture"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop" />
+	<ImageView
+		android:id="@+id/image_main"
+		style="@style/picture"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		tools:src="@drawable/img_dummy"
+		android:scaleType="centerCrop" />
 
 </merge>

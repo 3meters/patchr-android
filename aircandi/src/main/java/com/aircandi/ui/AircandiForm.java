@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentTransaction;
@@ -40,8 +42,11 @@ import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.widgets.UserView;
+import com.aircandi.utilities.Booleans;
+import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
+import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
@@ -82,28 +87,30 @@ import com.squareup.otto.Subscribe;
  * Unlock screen with Aircandi in foreground: Restart->Start->Resume
  */
 
+@SuppressLint("Registered")
 public class AircandiForm extends BaseActivity {
 
-	protected Number					mPauseDate;
-	protected Map<String, BaseFragment>	mFragments	= new HashMap<String, BaseFragment>();
-	protected BaseFragment				mCurrentFragment;
-	protected String					mCurrentFragmentTag;
-	protected String					mRequestedFragmentTag;
-	protected View						mRequestedFragmentView;
-	protected Boolean					mConfiguredForAnonymous;
+	protected Number mPauseDate;
+	protected Map<String, BaseFragment> mFragments = new HashMap<String, BaseFragment>();
+	protected BaseFragment mCurrentFragment;
+	protected String       mCurrentFragmentTag;
+	protected String       mRequestedFragmentTag;
+	protected View         mRequestedFragmentView;
+	protected Boolean      mConfiguredForAnonymous;
 
-	protected DrawerLayout				mDrawerLayout;
-	protected View						mDrawer;
-	protected ActionBarDrawerToggle		mDrawerToggle;
-	protected String					mDrawerTitle;
+	protected DrawerLayout          mDrawerLayout;
+	protected View                  mDrawer;
+	protected ActionBarDrawerToggle mDrawerToggle;
+	protected String                mDrawerTitle;
+	protected Boolean mFinishOnClose = false;
 
-	protected String					mTitle		= StringManager.getString(R.string.name_app);
-	protected UserView					mUserView;
-	protected CacheStamp				mCacheStamp;
+	protected String mTitle = StringManager.getString(R.string.name_app);
+	protected UserView   mUserView;
+	protected CacheStamp mCacheStamp;
 
-	protected View		mCurrentNavView;
-	protected String	mCurrentNavId	= Constants.FRAGMENT_TYPE_NEARBY; // NO_UCD (unused code)
-	
+	protected View mCurrentNavView;
+	protected String mCurrentNavId = Constants.FRAGMENT_TYPE_NEARBY; // NO_UCD (unused code)
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -126,8 +133,9 @@ public class AircandiForm extends BaseActivity {
 
 		mUserView = (UserView) findViewById(R.id.user_current);
 		mUserView.setTag(Aircandi.getInstance().getCurrentUser());
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawer = findViewById(R.id.drawer);
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		mDrawerLayout.setFocusableInTouchMode(false);
 
 		mDrawerToggle = new ActionBarDrawerToggle(this
 				, mDrawerLayout
@@ -162,8 +170,6 @@ public class AircandiForm extends BaseActivity {
 		// Set the drawer toggle as the DrawerListener
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-		//configureDrawer();
-
 		/* Check if the device is tethered */
 		tetherAlert();
 	}
@@ -194,16 +200,16 @@ public class AircandiForm extends BaseActivity {
 
 	@Override
 	protected void configureActionBar() {
-		/*
-		 * Only called when form is created
+	    /*
+         * Only called when form is created
 		 */
 		super.configureActionBar();
 		if (mActionBar != null) {
 			mActionBar.setDisplayShowTitleEnabled(true);
 			mActionBar.setDisplayShowHomeEnabled(true);
 			if (mDrawerLayout != null) {
-				mActionBar.setHomeButtonEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) == DrawerLayout.LOCK_MODE_LOCKED_CLOSED) ? false : true);
-				mActionBar.setDisplayHomeAsUpEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) == DrawerLayout.LOCK_MODE_LOCKED_CLOSED) ? false : true);
+				mActionBar.setHomeButtonEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) != DrawerLayout.LOCK_MODE_LOCKED_CLOSED));
+				mActionBar.setDisplayHomeAsUpEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) != DrawerLayout.LOCK_MODE_LOCKED_CLOSED));
 			}
 		}
 		View view = findViewById(R.id.item_nearby);
@@ -217,6 +223,16 @@ public class AircandiForm extends BaseActivity {
 	// --------------------------------------------------------------------------------------------
 
 	@Override
+	public void onBackPressed() {
+		if (mDrawerLayout.isDrawerVisible(mDrawer)) {
+			onCancel(false);
+		}
+		else {
+			mDrawerLayout.openDrawer(mDrawer);
+		}
+	}
+
+	@Override
 	public void onRefresh() {
 		if (mCurrentFragment != null) {
 			mCurrentFragment.onRefresh();
@@ -227,7 +243,14 @@ public class AircandiForm extends BaseActivity {
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
 		if (!(entity.schema.equals(Constants.SCHEMA_ENTITY_USER) && ((User) entity).isAnonymous())) {
-			Aircandi.dispatch.route(this, Route.BROWSE, entity, null, null);
+			Bundle extras = new Bundle();
+			if (Type.isTrue(entity.autowatchable)) {
+				if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
+						, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
+					extras.putBoolean(Constants.EXTRA_AUTO_WATCH, true);
+				}
+			}
+			Aircandi.dispatch.route(this, Route.BROWSE, entity, null, extras);
 		}
 		if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mDrawer)) {
 			mDrawerLayout.closeDrawer(mDrawer);
@@ -306,8 +329,8 @@ public class AircandiForm extends BaseActivity {
 	// --------------------------------------------------------------------------------------------
 
 	public void setCurrentFragment(String fragmentType, View view) {
-		/*
-		 * Fragment menu items are in addition to any menu items added by the parent activity.
+        /*
+         * Fragment menu items are in addition to any menu items added by the parent activity.
 		 */
 		BaseFragment fragment = null;
 
@@ -422,25 +445,55 @@ public class AircandiForm extends BaseActivity {
 	}
 
 	private void tetherAlert() {
-		/*
-		 * We alert that wifi isn't enabled. If the user ends up enabling wifi,
+        /*
+         * We alert that wifi isn't enabled. If the user ends up enabling wifi,
 		 * we will get that event and refresh radar with beacon support.
 		 */
 		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
 		if (tethered || (!NetworkManager.getInstance().isWifiEnabled() && !Aircandi.usingEmulator)) {
-			
+
 			UI.showToastNotification(StringManager.getString(tethered
-					? R.string.alert_wifi_tethered
-					: R.string.alert_wifi_disabled), Toast.LENGTH_SHORT);
+			                                                 ? R.string.alert_wifi_tethered
+			                                                 : R.string.alert_wifi_disabled), Toast.LENGTH_SHORT);
 		}
 	}
 
 	public void updateActivityAlert() {
-		((ImageView) findViewById(R.id.indicator)).setVisibility(MessagingManager.getInstance().getNewActivity() ? View.VISIBLE : View.INVISIBLE);
+
+		Logger.v(this, "updateActivityAlert for menus");
+
+		Boolean newMessages = MessagingManager.getInstance().getNewActivity();
+		if (mMenu != null) {
+			MenuItem notifications = mMenu.findItem(R.id.notifications);
+			if (notifications != null) {
+				ImageView image = (ImageView) notifications.getActionView().findViewById(R.id.notifications_image);
+				if (newMessages) {
+					final int color = Colors.getColor(R.color.holo_blue_dark);
+					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+					notifications.setVisible(true);
+				}
+				else {
+					image.setColorFilter(null);
+					notifications.setVisible(false);
+				}
+				image.invalidate();
+			}
+		}
+
+		ImageView drawerImage = (ImageView) findViewById(R.id.image_messages_all);
+		if (drawerImage != null) {
+			if (newMessages) {
+				final int color = Colors.getColor(R.color.holo_blue_dark);
+				drawerImage.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+				drawerImage.setVisibility(View.VISIBLE);
+			}
+			else {
+				drawerImage.setColorFilter(null);
+			}
+		}
 	}
 
 	protected void updateActionBar() {
-		
 	}
 
 	@SuppressWarnings("ucd")
@@ -451,12 +504,12 @@ public class AircandiForm extends BaseActivity {
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_watch).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_create).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceMedium((TextView) mCurrentNavView.findViewById(R.id.name));
-		}		
+		}
 	}
 
 	// --------------------------------------------------------------------------------------------
 	// Menus
-	// --------------------------------------------------------------------------------------------	
+	// --------------------------------------------------------------------------------------------
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -481,6 +534,12 @@ public class AircandiForm extends BaseActivity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 
+		/* Manage activity alert */
+		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+			updateActivityAlert();
+		}
+
+        /* Hide/show actions based on drawer state */
 		if (mDrawerLayout != null) {
 			Boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawer);
 
@@ -492,6 +551,12 @@ public class AircandiForm extends BaseActivity {
 			final MenuItem refresh = menu.findItem(R.id.refresh);
 			if (refresh != null) {
 				refresh.setVisible(!(drawerOpen));
+			}
+
+			final MenuItem notifications = menu.findItem(R.id.notifications);
+			if (notifications != null) {
+				Boolean newMessages = MessagingManager.getInstance().getNewActivity();
+				notifications.setVisible(!(drawerOpen || !newMessages));
 			}
 
 			/* Don't need to show the user email in two places */
@@ -519,8 +584,8 @@ public class AircandiForm extends BaseActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		/*
-		 * Check for location service everytime we start. We won't continue
+        /*
+         * Check for location service everytime we start. We won't continue
 		 * if location services are disabled.
 		 */
 		if (!LocationManager.getInstance().isLocationAccessEnabled()) {
@@ -543,17 +608,13 @@ public class AircandiForm extends BaseActivity {
 		/* Make sure we are configured properly depending on user status */
 		configureDrawer();
 
-		/* Manage activity alert */
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			updateActivityAlert();
-		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		/*
-		 * Lifecycle ordering: (onCreate/onRestart)->onStart->onResume->onAttachedToWindow->onWindowFocusChanged
+        /*
+         * Lifecycle ordering: (onCreate/onRestart)->onStart->onResume->onAttachedToWindow->onWindowFocusChanged
 		 * 
 		 * OnResume gets called after OnCreate (always) and whenever the activity is being brought back to the
 		 * foreground. Not guaranteed but is usually called just before the activity receives focus.
@@ -565,6 +626,11 @@ public class AircandiForm extends BaseActivity {
 			if (interval > Constants.INTERVAL_TETHER_ALERT) {
 				tetherAlert();
 			}
+		}
+
+		/* Manage activity alert */
+		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+			updateActivityAlert();
 		}
 
 		/* In case the user was edited from the drawer */

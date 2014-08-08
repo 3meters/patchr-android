@@ -1,14 +1,8 @@
 package com.aircandi.catalina.ui.edit;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,10 +12,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Html;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
@@ -32,6 +28,7 @@ import com.aircandi.catalina.R;
 import com.aircandi.catalina.objects.Message;
 import com.aircandi.catalina.objects.Message.MessageType;
 import com.aircandi.components.AnimationManager;
+import com.aircandi.components.EntityManager;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager.ModelResult;
@@ -44,28 +41,49 @@ import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.ui.base.IBusy.BusyAction;
-import com.aircandi.ui.widgets.AirImageView;
+import com.aircandi.ui.components.EntitySuggestController;
+import com.aircandi.ui.widgets.AirTokenCompleteTextView;
+import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
-import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
+import com.tokenautocomplete.TokenCompleteTextView;
 
-public class MessageEdit extends BaseEntityEdit {
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-	private Place			mToPlace;
-	private String			mMessageType	= MessageType.ROOT;
-	private String			mReplyPlaceId;						// Passed in for replies
-	private String			mReplyRootId;
-	private String			mReplyToId;
-	private String			mReplyToName;
-	private String			mMessage;
+public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView.TokenListener {
 
-	private ViewAnimator	mAnimatorTo;
-	private ViewAnimator	mAnimatorPhoto;
-	private Button			mButtonTo;
+	private String mReplyPlaceId;                        // Passed in for replies
+	private String mReplyRootId;
+	private String mReplyToId;
+	private String mReplyToName;
+	private String mMessage;
+	private String mShareId;
+	private String mShareSchema;
+	private Entity mShareEntity;
+
+	private ViewAnimator             mAnimatorTo;
+	private ViewAnimator             mAnimatorPhoto;
+	private ViewGroup                mShareHolder;
+	private ViewGroup                mShare;
+	private AirTokenCompleteTextView mTo;
+	private ImageView                mButtonToClear;
+	private ImageView                mButtonPhotoDelete;
+	private EntitySuggestController  mEntitySuggest;
+
+	private List<Entity>               mTos          = new ArrayList<Entity>();
+	private String                     mMessageType  = MessageType.ROOT;
+	private EntityManager.SuggestScope mSuggestScope = EntityManager.SuggestScope.PLACES;
+	private ToMode                     mToMode       = ToMode.SINGLE;
+	private Boolean                    mToEditable   = true;
 
 	@Override
 	public void unpackIntent() {
@@ -82,14 +100,18 @@ public class MessageEdit extends BaseEntityEdit {
 			mReplyRootId = extras.getString(Constants.EXTRA_MESSAGE_ROOT_ID);
 			mReplyToId = extras.getString(Constants.EXTRA_MESSAGE_REPLY_TO_ID);
 			mReplyToName = extras.getString(Constants.EXTRA_MESSAGE_REPLY_TO_NAME);
+			mSuggestScope = EntityManager.SuggestScope.values()[extras.getInt(Constants.EXTRA_SUGGEST_SCOPE
+					, EntityManager.SuggestScope.PLACES.ordinal())];
+			mToMode = ToMode.values()[extras.getInt(Constants.EXTRA_TO_MODE, ToMode.SINGLE.ordinal())];
+			mToEditable = extras.getBoolean(Constants.EXTRA_TO_EDITABLE, true);
 		}
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/*
-		 * Special pre-handling because this form can be called directly
+	    /*
+         * Special pre-handling because this form can be called directly
 		 * because of a sharing intent and we need a signed in user. If user
 		 * signs in they will be routed back to this form again.
 		 */
@@ -105,47 +127,83 @@ public class MessageEdit extends BaseEntityEdit {
 
 		mEntitySchema = Constants.SCHEMA_ENTITY_MESSAGE;
 
+		if (Aircandi.getInstance().getCurrentPlace() != null) {
+			mToEditable = false;
+		}
+
 		mDirtyExitTitleResId = R.string.alert_dirty_exit_title_message;
 		mDirtyExitMessageResId = R.string.alert_dirty_exit_message_message;
 		mDirtyExitPositiveResId = R.string.alert_dirty_send;
-
 		mInsertProgressResId = R.string.progress_sending;
 		mInsertedResId = R.string.alert_message_sent;
-
-		mAnimatorTo = (ViewAnimator) findViewById(R.id.animator_to);
-		mAnimatorTo.setInAnimation(this, R.anim.fade_in_short);
-		mAnimatorTo.setOutAnimation(this, R.anim.fade_out_short);
 
 		mAnimatorPhoto = (ViewAnimator) findViewById(R.id.animator_photo);
 		mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
 		mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
 
-		mButtonTo = (Button) findViewById(R.id.button_to);
-		mButtonTo.setHint(StringManager.getString(R.string.hint_message_to));
+		mAnimatorTo = (ViewAnimator) findViewById(R.id.animator_to);
+		mAnimatorTo.setInAnimation(this, R.anim.fade_in_short);
+		mAnimatorTo.setOutAnimation(this, R.anim.fade_out_short);
+		mButtonToClear = (ImageView) findViewById(R.id.to_clear);
+		mButtonPhotoDelete = (ImageView) findViewById(R.id.photo_delete);
+		mShareHolder = (ViewGroup) findViewById(R.id.share_holder);
+		mShare = (ViewGroup) findViewById(R.id.share);
+		mTo = (AirTokenCompleteTextView) findViewById(R.id.to);
+		mTo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus) {
+				}
+				else {
+				}
+			}
+		});
+
+		/*
+         * Make sure that we don't already have a place set when
+		 * handling a share intent.
+		 */
+		Intent intent = getIntent();
+		if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEND)) {
+
+			mMessageType = MessageType.SHARE;
+			mSuggestScope = EntityManager.SuggestScope.USERS;
+			mToMode = ToMode.MULTIPLE;
+			mToEditable = true;
+
+			Aircandi.getInstance().setCurrentPlace(null);
+			onEntityClearButtonClick(null);
+
+			mDirtyExitTitleResId = R.string.alert_dirty_share_exit_title;
+			mDirtyExitMessageResId = R.string.alert_dirty_share_exit_message;
+			mDirtyExitPositiveResId = R.string.alert_dirty_share;
+			mInsertProgressResId = R.string.progress_sharing;
+			mInsertedResId = R.string.alert_shared;
+		}
+
+		mTo.setLineSpacing(mToMode == ToMode.SINGLE ? 0 : (int) UI.getRawPixelsForDisplayPixels(5f), 1f);
+		mTo.setTokenLayoutResId(mToMode == ToMode.SINGLE
+		                        ? R.layout.widget_token_view_single
+		                        : R.layout.widget_token_view);
+
+		mEntitySuggest = new EntitySuggestController(this)
+				.setInput(mTo)
+				.setTokenListener(this)
+				.setSuggestScope(mSuggestScope);
+		mEntitySuggest.init();
 
 		if (mMessage != null) {
 			TextView message = (TextView) findViewById(R.id.content_message);
 			message.setText(mMessage);
 			message.setVisibility(View.VISIBLE);
 		}
-
-		Intent intent = getIntent();
-
-		/*
-		 * Make sure that we don't already have a place set when
-		 * handling a share intent.
-		 */
-		if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEND)) {
-			Aircandi.getInstance().setCurrentPlace(null);
-			onClearPlaceButtonClick(null);
-		}
 	}
 
 	@Override
 	protected void configureActionBar() {
 		super.configureActionBar();
-		/*
-		 * Navigation setup for action bar icon and title
+        /*
+         * Navigation setup for action bar icon and title
 		 */
 		Drawable icon = getResources().getDrawable(R.drawable.ic_action_message_dark);
 		mActionBar.setIcon(icon);
@@ -174,6 +232,9 @@ public class MessageEdit extends BaseEntityEdit {
 			if (mMessageType.equals(MessageType.ROOT)) {
 				setActivityTitle("New " + mEntity.getSchemaMapped());
 			}
+			else if (mMessageType.equals(MessageType.SHARE)) {
+				setActivityTitle("Share");
+			}
 			else if (mReplyToName != null) {
 				setActivityTitle("Reply to " + mReplyToName);
 			}
@@ -182,34 +243,93 @@ public class MessageEdit extends BaseEntityEdit {
 			}
 
 			/*
-			 * Check to see if some data for this new message was passed
+             * Check to see if some data for this new message was passed
 			 * in the intent.
 			 */
 			Intent intent = getIntent();
 			if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEND)) {
-				if (intent.getType() != null) {
 
-					/* Intent with text */
-					if (intent.getType().equals("text/plain") || intent.getStringExtra(Intent.EXTRA_TEXT) != null) {
+                /* Try to determine if it from us */
+				Boolean selfSend = false;
+				Bundle extras = intent.getExtras();
+				if (extras != null) {
+					String sendSource = intent.getExtras().getString(Constants.EXTRA_SHARE_SOURCE);
+					if (sendSource != null && sendSource.equals(getPackageName())) {
+						selfSend = true;
+					}
+				}
+
+				if (selfSend) {
+
+					mShareId = extras.getString(Constants.EXTRA_SHARE_ID);
+					mShareSchema = extras.getString(Constants.EXTRA_SHARE_SCHEMA);
+					mShareEntity = EntityManager.getCacheEntity(mShareId);
+
+					if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+						mEntity.description = String.format(StringManager.getString(R.string.label_place_share_body_self), mShareEntity.name);
+					}
+					else if (mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+						if (mShareEntity.place != null) {
+							mEntity.description = String.format(StringManager.getString(R.string.label_message_share_body_self), mShareEntity.creator.name, mShareEntity.place.name);
+						}
+						else {
+							mEntity.description = String.format(StringManager.getString(R.string.label_message_share_body_self_no_place), mShareEntity.creator.name);
+						}
+					}
+					else if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PICTURE)) {
+
+                        /* Check for a photo */
+						if (intent.getType() != null) {
+							if (intent.getType().indexOf("image/") != -1 || intent.getParcelableExtra(Intent.EXTRA_STREAM) != null) {
+
+								Uri photoUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+								if (photoUri != null) {
+
+									try {
+										InputStream stream = getContentResolver().openInputStream(photoUri);
+										Bitmap bitmap = BitmapFactory.decodeStream(stream);
+										stream.close();
+										File file = MediaManager.copyBitmapToSharePath(bitmap);
+
+										if (file != null) {
+											Photo photo = new Photo()
+													.setPrefix(MediaManager.getSharePathUri().toString())
+													.setStore(true);
+											onPhotoSelected(photo); // mDirty gets set in this method
+											mDirty = false;
+										}
+										else {
+											UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
+										}
+									}
+									catch (FileNotFoundException exception) {
+										exception.printStackTrace();
+									}
+									catch (IOException exception) {
+										exception.printStackTrace();
+									}
+								}
+							}
+						}
+						mEntity.description = StringManager.getString(R.string.label_photo_share_body_self);
+					}
+				}
+
+                /* Text/image shared from another application */
+
+				else if (intent.getType() != null) {
+
+					/* Intent with text from another application */
+					if (!selfSend && (intent.getType().equals("text/plain") || intent.getStringExtra(Intent.EXTRA_TEXT) != null)) {
 						String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
 						if (sharedText != null) {
-							/*
-							 * If this is candipatch sharing with itself then strip the install info
-							 */
-							String installUri = StringManager.getString(R.string.uri_play_store);
-							if (sharedText.contains(installUri)) {
-								String installLabel = StringManager.getString(R.string.label_place_share_body_install);
-								sharedText = sharedText.replace(installLabel, "");
-								sharedText = sharedText.replace(installUri, "");
-							}
-
 							mDirty = true;
 							mEntity.description = sharedText;
 						}
 					}
 
 					/*
-					 * Intent with image data. We get a uri we use to open a stream to get the bitmap.
+                     * Intent with image data. We get a uri we use to open a stream to get the bitmap.
 					 * We then copy the bitmap to a our pinned share file. We are not the source of the
 					 * image so we don't want to track it in the Candipatch collection but
 					 */
@@ -242,17 +362,9 @@ public class MessageEdit extends BaseEntityEdit {
 							}
 						}
 					}
-
-					/* Intent with text */
-					else if (intent.getType().equals("text/plain")) {
-						String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-						if (sharedText != null) {
-							mDirty = true;
-							mEntity.description = sharedText;
-						}
-					}
-
 				}
+
+                /* Text from other application sent via clipboard */
 				else if (Constants.SUPPORTS_JELLY_BEAN && intent.getClipData() != null) {
 
 					ClipData.Item item = intent.getClipData().getItemAt(0);
@@ -263,25 +375,67 @@ public class MessageEdit extends BaseEntityEdit {
 					}
 				}
 			}
-
 		}
 		draw();
 	}
 
 	@Override
 	public void draw() {
-
+        /*
+         * This method is only called when the activity is created.
+         */
 		UI.setVisibility(mAnimatorTo, View.VISIBLE);
-		
+
 		/* We don't allow the place to be changed when editing */
-		if ((mMessageType != null && mMessageType.equals(MessageType.REPLY)) || mEditing) {
+		if ((mMessageType != null && mMessageType.equals(MessageType.REPLY))
+				|| mEditing) {
 			UI.setVisibility(mAnimatorTo, View.GONE);
 		}
+		else {
+			Entity currentPlace = Aircandi.getInstance().getCurrentPlace();
+			if (currentPlace != null) {
+				mTo.addObject(currentPlace);
+			}
+		}
 
-		Entity currentPlace = Aircandi.getInstance().getCurrentPlace();
-		if (currentPlace != null) {
-			mToPlace = (Place) currentPlace;
-			setPlace();
+		if (mButtonToClear != null && !mToEditable) {
+			mButtonToClear.setVisibility(View.GONE);
+		}
+
+		TextView textView = (TextView) findViewById(R.id.description);
+		if (mMessageType == MessageType.SHARE) {
+
+			int layoutResId = 0;
+			if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+				layoutResId = R.layout.temp_share_place;
+			}
+			else if (mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+				layoutResId = R.layout.temp_share_message;
+			}
+			else if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PICTURE)) {
+				mButtonPhotoDelete.setVisibility(View.GONE);
+			}
+
+			if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE) || mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+				mAnimatorPhoto.setVisibility(View.GONE);
+				mShareHolder.setVisibility(View.VISIBLE);
+				View view = LayoutInflater.from(this).inflate(layoutResId, mShare, true);
+				IEntityController controller = Aircandi.getInstance().getControllerForSchema(mShareSchema);
+				controller.bind(mShareEntity, view);
+
+				if (mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+					UI.setEnabled(view, false);
+				}
+			}
+
+			if (textView != null) {
+				textView.setMinLines(3);
+			}
+		}
+		else {
+			if (textView != null) {
+				textView.setCompoundDrawables(null, null, null, null);
+			}
 		}
 
 		super.draw();
@@ -299,22 +453,22 @@ public class MessageEdit extends BaseEntityEdit {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+       Events
+       -------------------------------------------------------------------------------------------- */
 
 	@Override
 	public void onAccept() {
-		if (isDirty()) {
+		if (isDirty() || mMessageType.equals(MessageType.SHARE)) {
 			if (validate()) { // validate() also gathers
 
 				/* Upsize the place we are sending to if needed */
 				if (mMessageType != null && mMessageType.equals(MessageType.REPLY)) {
 					insert();
 				}
-				else if (!mEditing && Type.isTrue(mToPlace.synthetic)) {
-					/*
-					 * Upsized places do not automatically link to nearby beacons because
+				else if (!mEditing && Type.isTrue(mTos.get(0).synthetic)) {
+                    /*
+                     * Upsized places do not automatically link to nearby beacons because
 					 * the browsing action isn't enough of an indicator of proximity.
 					 */
 					new AsyncTask() {
@@ -328,7 +482,7 @@ public class MessageEdit extends BaseEntityEdit {
 						@Override
 						protected Object doInBackground(Object... params) {
 							Thread.currentThread().setName("AsyncUpsizeSynthetic");
-							final ModelResult result = Aircandi.getInstance().getEntityManager().upsizeSynthetic((Place) mToPlace, false);
+							final ModelResult result = Aircandi.getInstance().getEntityManager().upsizeSynthetic((Place) mTos.get(0), false);
 							return result;
 						}
 
@@ -337,9 +491,9 @@ public class MessageEdit extends BaseEntityEdit {
 							final ModelResult result = (ModelResult) response;
 							mBusy.hideBusy(false);
 							if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-								mToPlace = (Place) result.data;
-								mParentId = mToPlace.id;
-								gather();  // Regather because we now have an official place
+								mTos.set(0, (Place) result.data);
+								mParentId = mTos.get(0).id;
+								gather();  // Re-gather because we now have an official place
 								if (mEditing) {
 									update();
 								}
@@ -365,6 +519,32 @@ public class MessageEdit extends BaseEntityEdit {
 		}
 		else {
 			onCancel(false);
+		}
+	}
+
+	@Override
+	public void onTokenAdded(Object o) {
+
+		if (!mTos.contains(o)) {
+			mTos.add((Entity) o);
+		}
+
+		if (mToMode == ToMode.SINGLE && mTos.size() > 0) {
+			final EntityView entityView = (EntityView) findViewById(R.id.entity_view);
+			entityView.databind((Entity) mTos.get(0));
+			mAnimatorTo.setDisplayedChild(1);
+		}
+	}
+
+	@Override
+	public void onTokenRemoved(Object o) {
+
+		if (mTos.contains(o)) {
+			mTos.remove((Entity) o);
+		}
+
+		if (mToMode == ToMode.SINGLE && mTos.size() == 0) {
+			mAnimatorTo.setDisplayedChild(0);
 		}
 	}
 
@@ -424,8 +604,8 @@ public class MessageEdit extends BaseEntityEdit {
 
 	@Override
 	public void onPhotoSelected(Photo photo) {
-		/*
-		 * All photo selection sources and types end up here
+        /*
+         * All photo selection sources and types end up here
 		 */
 		mDirty = !Photo.same(mEntity.photo, photo);
 		if (mDirty) {
@@ -451,24 +631,14 @@ public class MessageEdit extends BaseEntityEdit {
 						}
 
 						@Override
-						public void onPrepareLoad(Drawable arg0) {}
+						public void onPrepareLoad(Drawable arg0) {
+						}
 					});
 
 					UI.drawPhoto(mPhotoView, mEntity.getPhoto());
 				}
 			});
 		}
-	}
-
-	@SuppressWarnings("ucd")
-	public void onPlaceSearchClick(View view) {
-		Aircandi.dispatch.route(MessageEdit.this, Route.PLACE_SEARCH, null, null, null);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onClearPlaceButtonClick(View view) {
-		mToPlace = null;
-		mAnimatorTo.setDisplayedChild(0);
 	}
 
 	@SuppressWarnings("ucd")
@@ -491,81 +661,49 @@ public class MessageEdit extends BaseEntityEdit {
 		mPhotoView.setPhoto(null);
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		/*
-		 * Called before onResume. If we are returning from the market app, we get a zero result code whether the user
-		 * decided to start an install or not.
-		 */
-		if (resultCode != Activity.RESULT_CANCELED) {
-			if (requestCode == Constants.ACTIVITY_PLACE_SEARCH) {
+	@SuppressWarnings("ucd")
+	public void onEntityClearButtonClick(View view) {
 
-				if (intent != null && intent.getExtras() != null) {
-					final Bundle extras = intent.getExtras();
-					final String jsonPlace = extras.getString(Constants.EXTRA_ENTITY);
-					if (!TextUtils.isEmpty(jsonPlace)) {
-						mToPlace = (Place) Json.jsonToObject(jsonPlace, Json.ObjectType.ENTITY);
-						mParentId = mToPlace.id;
-						setPlace();
-					}
-				}
-			}
+        /* Means we are in single mode.*/
+		for (Object obj : mTo.getObjects()) {
+			mTo.removeObject(obj);
 		}
-		super.onActivityResult(requestCode, resultCode, intent);
+		mTo.requestFocus();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+       Methods
+       -------------------------------------------------------------------------------------------- */
 
-	protected void setPlace() {
-
-		final AirImageView placePhotoView = (AirImageView) findViewById(R.id.place_photo);
-		final TextView placeName = (TextView) findViewById(R.id.place_name);
-		final TextView placeSubtitle = (TextView) findViewById(R.id.place_subtitle);
-
-		UI.setVisibility(placePhotoView, View.GONE);
-		if (placePhotoView != null) {
-			UI.drawPhoto(placePhotoView, mToPlace.getPhoto());
-			UI.setVisibility(placePhotoView, View.VISIBLE);
-		}
-		UI.setVisibility(placeName, View.GONE);
-		if (!TextUtils.isEmpty(mToPlace.name)) {
-			placeName.setText(Html.fromHtml(mToPlace.name));
-			UI.setVisibility(placeName, View.VISIBLE);
-		}
-		UI.setVisibility(placeSubtitle, View.GONE);
-		if (placeSubtitle != null) {
-			String address = mToPlace.getAddressString(false);
-
-			if (!TextUtils.isEmpty(address)) {
-				placeSubtitle.setText(address);
-				UI.setVisibility(placeSubtitle, View.VISIBLE);
-			}
-			else {
-				if (mToPlace.category != null && !TextUtils.isEmpty(mToPlace.category.name)) {
-					placeSubtitle.setText(Html.fromHtml(mToPlace.category.name));
-					UI.setVisibility(placeSubtitle, View.VISIBLE);
-				}
-			}
-		}
+	protected void setEntity() {
+		final EntityView entityView = (EntityView) findViewById(R.id.entity_view);
+		entityView.databind(mTos.get(0));
 		mAnimatorTo.setDisplayedChild(1);
 	}
 
 	@Override
 	protected boolean validate() {
 		if (!super.validate()) return false;
-		/*
-		 * Transfering values from the controls to the entity is easier
+        /*
+         * Transfering values from the controls to the entity is easier
 		 * with candigrams.
 		 */
 		gather();
 		Message message = (Message) mEntity;
 
-		if (!mEditing && mToPlace == null && !mMessageType.equals(MessageType.REPLY)) {
+		if (!mEditing && mTos.size() == 0 && !mMessageType.equals(MessageType.REPLY)) {
+
+			int messageResId = 0;
+			if (mMessageType.equals(MessageType.ROOT)) {
+				messageResId = R.string.error_missing_message_to;
+			}
+			else if (mMessageType.equals(MessageType.SHARE)) {
+				messageResId = R.string.error_missing_share_to;
+			}
+
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
-					, StringManager.getString(R.string.error_missing_message_place)
+					, StringManager.getString(messageResId)
 					, null
 					, this
 					, android.R.string.ok
@@ -592,6 +730,7 @@ public class MessageEdit extends BaseEntityEdit {
 		super.gather();
 
 		if (!mEditing) {
+
 			Message message = (Message) mEntity;
 			message.type = mMessageType;
 
@@ -603,9 +742,9 @@ public class MessageEdit extends BaseEntityEdit {
 					message.rootId = mReplyRootId;
 				}
 			}
-			else {
-				if (mToPlace != null) {
-					message.placeId = mToPlace.id;
+			else if (mMessageType.equals(MessageType.ROOT)) {
+				if (mTos.size() > 0) {
+					message.placeId = mTos.get(0).id;
 				}
 			}
 		}
@@ -614,28 +753,47 @@ public class MessageEdit extends BaseEntityEdit {
 	@Override
 	protected String getLinkType() {
 		return Constants.TYPE_LINK_CONTENT;
-	};
+	}
 
 	@Override
 	protected void beforeInsert(Entity entity, List<Link> links) {
-		/*
-		 * We link replies to the places they are associated with. This give us the option
+        /*
+         * We link replies to the places they are associated with. This give us the option
 		 * to thread, flatten or do some combo. Called on background thread.
 		 */
 		if (mMessageType.equals(MessageType.REPLY)) {
+			if (mParentId != null) {
+				links.add(new Link(mParentId, getLinkType(), mEntity.schema));
+			}
 			links.add(new Link(mEntity.placeId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE));
+		}
+		else if (mMessageType.equals(MessageType.ROOT)) {
+			for (Entity to : mTos) {
+				links.add(new Link(to.id, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE));
+			}
+		}
+		else if (mMessageType.equals(MessageType.SHARE)) {
+			if (mShareId != null) {
+				links.add(new Link(mShareId, Constants.TYPE_LINK_SHARE, mShareSchema));  // To support showing the shared entity with the message
+			}
+			for (Entity to : mTos) {
+				links.add(new Link(to.id, Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER));
+			}
 		}
 	}
 
 	@Override
-	protected void afterInsert() {
-		/*
-		 * Only called if the insert was successful. Called on main ui thread.
+	protected boolean afterInsert() {
+        /*
+         * Only called if the insert was successful. Called on main ui thread.
 		 */
-		Entity currentPlace = Aircandi.getInstance().getCurrentPlace();
-		if (mToPlace != null && (currentPlace == null || !currentPlace.id.equals(mToPlace.id))) {
-			Aircandi.dispatch.route(this, Route.BROWSE, mToPlace, null, null);
+		if (!mMessageType.equals(MessageType.SHARE)) {
+			Entity currentPlace = Aircandi.getInstance().getCurrentPlace();
+			if (mTos.size() > 0 && (currentPlace == null || !currentPlace.id.equals(mTos.get(0).id))) {
+				Aircandi.dispatch.route(this, Route.BROWSE, mTos.get(0), null, null);
+			}
 		}
+		return true;
 	}
 
 	@Override
@@ -650,17 +808,22 @@ public class MessageEdit extends BaseEntityEdit {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
+    /* --------------------------------------------------------------------------------------------
+       Properties
+       -------------------------------------------------------------------------------------------- */
 
 	@Override
 	protected int getLayoutId() {
 		return R.layout.message_edit;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
 
+    /* --------------------------------------------------------------------------------------------
+       Classes
+       -------------------------------------------------------------------------------------------- */
+
+	public enum ToMode {
+		SINGLE,
+		MULTIPLE
+	}
 }

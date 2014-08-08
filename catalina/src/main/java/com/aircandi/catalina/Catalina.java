@@ -1,6 +1,5 @@
 package com.aircandi.catalina;
 
-import com.actionbarsherlock.widget.SearchView;
 import com.aircandi.Aircandi;
 import com.aircandi.catalina.components.DispatchManager;
 import com.aircandi.components.StringManager;

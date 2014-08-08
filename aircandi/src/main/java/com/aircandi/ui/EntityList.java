@@ -22,7 +22,7 @@ import com.squareup.otto.Subscribe;
 
 public class EntityList extends BaseActivity {
 
-	private EntityListFragment	mListFragment;
+	private EntityListFragment mListFragment;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -51,19 +51,19 @@ public class EntityList extends BaseActivity {
 
 		EntitiesQuery query = new EntitiesQuery();
 		query.setEntityId(mParams.getEntityId())
-				.setLinkDirection(mParams.getListLinkDirection())
-				.setLinkType(mParams.getListLinkType())
-				.setPageSize(mParams.getListPageSize())
-				.setSchema(mParams.getListLinkSchema());
+		     .setLinkDirection(mParams.getListLinkDirection())
+		     .setLinkType(mParams.getListLinkType())
+		     .setPageSize(mParams.getListPageSize())
+		     .setSchema(mParams.getListLinkSchema());
 
 		mListFragment.setQuery(query)
-				.setMonitor(monitor)
-				.setListItemResId(mParams.getListItemResId())
-				.setListViewType(mParams.getListViewType())
-				.setListButtonMessageResId(mParams.getListNewMessageResId())
-				.setListLayoutResId(mParams.getListLayoutResId())
-				.setListLoadingResId(mParams.getListLoadingResId())
-				.setSelfBindingEnabled(true);
+		             .setMonitor(monitor)
+		             .setListItemResId(mParams.getListItemResId())
+		             .setListViewType(mParams.getListViewType())
+		             .setListButtonMessageResId(mParams.getListNewMessageResId())
+		             .setListLayoutResId(mParams.getListLayoutResId())
+		             .setListLoadingResId(mParams.getListLoadingResId())
+		             .setSelfBindingEnabled(true);
 
 		getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mListFragment).commit();
 	}

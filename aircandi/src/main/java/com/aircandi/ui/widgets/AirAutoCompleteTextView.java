@@ -17,10 +17,10 @@ import com.aircandi.ui.base.BaseActivity.SimpleTextWatcher;
 
 public class AirAutoCompleteTextView extends AutoCompleteTextView {
 
-	private Boolean		mEnableClearButton	= false;
+	private Boolean mEnableClearButton = false;
 
-	private Drawable	mClearDrawable;
-	private Drawable	mSearchDrawable;
+	private Drawable mClearDrawable;
+	private Drawable mSearchDrawable;
 
 	@SuppressWarnings("ucd")
 	public AirAutoCompleteTextView(Context context) {
@@ -49,6 +49,7 @@ public class AirAutoCompleteTextView extends AutoCompleteTextView {
 			mClearDrawable = drawables[2];
 			mSearchDrawable = drawables[0];
 			Integer drawableWidth = getResources().getDimensionPixelSize(R.dimen.drawable_width);
+			Integer drawableHeight = drawableWidth;
 
 			if (mClearDrawable != null) {
 				if (!Constants.SUPPORTS_HONEYCOMB) {
@@ -57,14 +58,14 @@ public class AirAutoCompleteTextView extends AutoCompleteTextView {
 
 				mEnableClearButton = true;
 				Bitmap bitmap = ((BitmapDrawable) mClearDrawable).getBitmap();
-				mClearDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, drawableWidth, drawableWidth, true));
+				mClearDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, drawableWidth, drawableHeight, true));
 			}
 			if (mSearchDrawable != null) {
 				if (!Constants.SUPPORTS_HONEYCOMB) {
 					mSearchDrawable = getResources().getDrawable(R.drawable.ic_action_search_light);
 				}
 				Bitmap bitmap = ((BitmapDrawable) mSearchDrawable).getBitmap();
-				mSearchDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, drawableWidth, drawableWidth, true));
+				mSearchDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, drawableWidth, drawableHeight, true));
 			}
 		}
 
@@ -80,7 +81,8 @@ public class AirAutoCompleteTextView extends AutoCompleteTextView {
 			setOnTouchListener(new OnTouchListener() {
 				@Override
 				public boolean onTouch(View view, MotionEvent event) {
-					if (AirAutoCompleteTextView.this.getCompoundDrawables()[2] == null || event.getAction() != MotionEvent.ACTION_UP) return false;
+					if (AirAutoCompleteTextView.this.getCompoundDrawables()[2] == null || event.getAction() != MotionEvent.ACTION_UP)
+						return false;
 
 					if (event.getX() > AirAutoCompleteTextView.this.getWidth() - AirAutoCompleteTextView.this.getPaddingRight()
 							- mClearDrawable.getIntrinsicWidth()) {
@@ -102,7 +104,7 @@ public class AirAutoCompleteTextView extends AutoCompleteTextView {
 	}
 
 	private void clearButtonHandler() {
-		if (this == null || !hasFocus() || getText().toString().equals("") || getText().toString().length() == 0) {
+		if (!hasFocus() || getText().toString().equals("") || getText().toString().length() == 0) {
 			/* Remove clear button */
 			setCompoundDrawables(mSearchDrawable, null, null, null);
 		}

@@ -24,11 +24,11 @@ import com.aircandi.utilities.Integers;
 @SuppressWarnings("ucd")
 public class CandiView extends com.aircandi.ui.widgets.CandiView {
 
-	public static final int	HORIZONTAL	= 0;
-	public static final int	VERTICAL	= 1;
-	protected TextView		mCount;
+	public static final int HORIZONTAL = 0;
+	public static final int VERTICAL   = 1;
+	protected TextView mCount;
 
-	List<Shortcut>			mShortcuts	= new ArrayList<Shortcut>();
+	List<Shortcut> mShortcuts = new ArrayList<Shortcut>();
 
 	public CandiView(Context context) {
 		this(context, null);
@@ -99,7 +99,7 @@ public class CandiView extends com.aircandi.ui.widgets.CandiView {
 				int shortcutCount = 0;
 				for (Shortcut shortcut : shortcuts) {
 					if (shortcutCount < Integers.getInteger(R.integer.limit_indicators_radar)) {
-						View view = inflater.inflate(R.layout.temp_indicator_message, null);
+						View view = inflater.inflate(R.layout.temp_indicator_message, mHolderShortcuts, false);
 						TextView name = (TextView) view.findViewById(R.id.indicator_name);
 						TextView message = (TextView) view.findViewById(R.id.indicator_message);
 						name.setText(shortcut.creator.name);

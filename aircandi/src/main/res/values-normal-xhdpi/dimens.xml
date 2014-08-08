@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Images -->
+	<!-- Images -->
 
-    <dimen name="image_picture_form">250dp</dimen>
-            
+	<dimen name="image_picture_form">250dp</dimen>
+
 </resources>

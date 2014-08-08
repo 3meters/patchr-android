@@ -24,34 +24,35 @@ import com.google.android.gms.location.LocationRequest;
 
 @SuppressWarnings("ucd")
 public class LocationManager implements
-		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener,
-		LocationListener {
+                             GooglePlayServicesClient.ConnectionCallbacks,
+                             GooglePlayServicesClient.OnConnectionFailedListener,
+                             LocationListener {
 
-	public static final Double					RADIUS_EARTH_MILES						= 3958.75;
-	public static final Double					RADIUS_EARTH_KILOMETERS					= 6371.0;
-	public static final float					MetersToMilesConversion					= 0.000621371192237334f;
-	public static final float					MetersToFeetConversion					= 3.28084f;
-	public static final float					MetersToYardsConversion					= 1.09361f;
-	public static final float					FeetToMetersConversion					= 0.3048f;
+	public static final Double RADIUS_EARTH_MILES      = 3958.75;
+	public static final Double RADIUS_EARTH_KILOMETERS = 6371.0;
+	public static final float  MetersToMilesConversion = 0.000621371192237334f;
+	public static final float  MetersToFeetConversion  = 3.28084f;
+	public static final float  MetersToYardsConversion = 1.09361f;
+	public static final float  FeetToMetersConversion  = 0.3048f;
 
-	private final static int					CONNECTION_FAILURE_RESOLUTION_REQUEST	= 9000;
-	private final static int					ACCURACY_PREFERRED						= 50;
+	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+	private final static int ACCURACY_PREFERRED                    = 50;
 
-	protected android.location.LocationManager	mLocationManager;
-	protected LocationClient					mLocationClient;
-	protected LocationRequest					mLocationRequest;
-	protected LocationMode						mLocationMode							= LocationMode.NONE;
-	private Runnable							mBurstTimeout;
-	private AirLocation							mAirLocationLocked;
+	protected android.location.LocationManager mLocationManager;
+	protected LocationClient                   mLocationClient;
+	protected LocationRequest                  mLocationRequest;
+	protected LocationMode mLocationMode = LocationMode.NONE;
+	private Runnable    mBurstTimeout;
+	private AirLocation mAirLocationLocked;
 
-	private Location							mLocationLast;
-	private Location							mLocationLocked;
+	private Location mLocationLast;
+	private Location mLocationLocked;
 
-	private LocationManager() {}
+	private LocationManager() {
+	}
 
 	private static class LocationManagerHolder {
-		public static final LocationManager	instance	= new LocationManager();
+		public static final LocationManager instance = new LocationManager();
 	}
 
 	public static LocationManager getInstance() {

@@ -49,18 +49,18 @@ public class Reporting {
 
 		/* Wifi access point state */
 
-		Integer wifiApState = NetworkManager.getInstance().getWifiApState();
+		NetworkManager.WIFI_AP_STATE wifiApState = NetworkManager.getInstance().getWifiApState();
 		if (wifiApState != null) {
-			if (wifiApState == WifiManager.WIFI_STATE_DISABLED) {
+			if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLED) {
 				Crashlytics.setString("wifi_ap_state", "disabled");
 			}
-			else if (wifiApState == WifiManager.WIFI_STATE_ENABLED) {
+			else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLED) {
 				Crashlytics.setString("wifi_ap_state", "enabled");
 			}
-			else if (wifiApState == WifiManager.WIFI_STATE_ENABLING) {
+			else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLING) {
 				Crashlytics.setString("wifi_ap_state", "enabling");
 			}
-			else if (wifiApState == WifiManager.WIFI_STATE_DISABLING) {
+			else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLING) {
 				Crashlytics.setString("wifi_ap_state", "disabling");
 			}
 		}

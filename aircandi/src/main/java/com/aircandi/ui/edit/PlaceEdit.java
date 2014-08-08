@@ -3,6 +3,7 @@ package com.aircandi.ui.edit;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -45,17 +46,18 @@ import com.aircandi.utilities.Maps;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
+@SuppressLint("Registered")
 public class PlaceEdit extends BaseEntityEdit {
 
-	private TabManager	mTabManager;
-	private ComboButton	mButtonTune;
-	private ComboButton	mButtonUntune;
+	private TabManager  mTabManager;
+	private ComboButton mButtonTune;
+	private ComboButton mButtonUntune;
 
-	private Boolean		mTuned				= false;
-	private Boolean		mUntuned			= false;
-	private Boolean		mTuningInProcess	= false;
-	private Boolean		mUntuning			= false;
-	private Boolean		mFirstTune			= true;
+	private Boolean mTuned           = false;
+	private Boolean mUntuned         = false;
+	private Boolean mTuningInProcess = false;
+	private Boolean mUntuning        = false;
+	private Boolean mFirstTune       = true;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -102,16 +104,14 @@ public class PlaceEdit extends BaseEntityEdit {
 				mButtonUntune.setVisibility(View.VISIBLE);
 			}
 		}
-		
+
 		/* Help message */
 		UI.setVisibility(findViewById(R.id.label_message), mEditing ? View.GONE : View.VISIBLE);
+		UI.setVisibility(findViewById(R.id.label_to), mEditing ? View.GONE : View.VISIBLE);
+		UI.setVisibility(findViewById(R.id.to), mEditing ? View.GONE : View.VISIBLE);
 
 		super.draw();
 	}
-
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
 
 	@SuppressWarnings("ucd")
 	public void onTuneButtonClick(View view) {
@@ -157,8 +157,8 @@ public class PlaceEdit extends BaseEntityEdit {
 						ProximityManager.getInstance().lockBeacons();
 					}
 					else {
-						/*
-						 * We fake that the tuning happened because it is simpler than enabling/disabling ui
+	                    /*
+                         * We fake that the tuning happened because it is simpler than enabling/disabling ui
 						 */
 						mBusy.hideBusy(false);
 						if (mUntuning) {
@@ -267,8 +267,8 @@ public class PlaceEdit extends BaseEntityEdit {
 	// --------------------------------------------------------------------------------------------
 
 	private void tuneProximity() {
-		/*
-		 * If there are beacons:
+        /*
+         * If there are beacons:
 		 * 
 		 * - links to beacons created.
 		 * - link_proximity action logged.
@@ -307,7 +307,7 @@ public class PlaceEdit extends BaseEntityEdit {
 				mBusy.hideBusy(false);
 
 				if (mTuned || mUntuned) {
-					/* Undoing a tuning */
+                    /* Undoing a tuning */
 					mButtonTune.setLabel(R.string.button_tuning_tune);
 					mButtonUntune.setLabel(R.string.button_tuning_untune);
 					mUntuned = false;
@@ -455,7 +455,9 @@ public class PlaceEdit extends BaseEntityEdit {
 	@Override
 	protected String getLinkType() {
 		return Constants.TYPE_LINK_PROXIMITY;
-	};
+	}
+
+	;
 
 	// --------------------------------------------------------------------------------------------
 	// Lifecycle

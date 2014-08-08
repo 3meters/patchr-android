@@ -31,11 +31,11 @@ import com.aircandi.utilities.UI;
 
 public class BeaconPreference extends AirListPreference {
 
-	private List<Document>	mTestBeacons	= new ArrayList<Document>();
-	private ListAdapter		mAdapter;
-	private Integer			mCurrentIndex;
-	public Document			mBeaconDefault;
-	public static String	BEACON_DEFAULT;
+	private List<Document> mTestBeacons = new ArrayList<Document>();
+	private       ListAdapter mAdapter;
+	private       Integer     mCurrentIndex;
+	public        Document    mBeaconDefault;
+	public static String      BEACON_DEFAULT;
 
 	@SuppressWarnings("ucd")
 	public BeaconPreference(Context context) {
@@ -51,7 +51,7 @@ public class BeaconPreference extends AirListPreference {
 	// --------------------------------------------------------------------------------------------
 	// Events
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	protected void onPrepareDialogBuilder(Builder builder) {
 		setEntriesFromBeacons(); // Initialize entry arrays but empty
@@ -147,7 +147,7 @@ public class BeaconPreference extends AirListPreference {
 	}
 
 	public void setEntriesFromBeacons() {
-		
+
 		CharSequence[] entries = new CharSequence[mTestBeacons.size()];
 		CharSequence[] entryValues = new CharSequence[mTestBeacons.size()];
 		int i = 0;

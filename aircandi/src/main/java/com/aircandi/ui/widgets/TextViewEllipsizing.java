@@ -1,8 +1,5 @@
 package com.aircandi.ui.widgets;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -17,17 +14,16 @@ import com.aircandi.R;
 @SuppressWarnings("ucd")
 public class TextViewEllipsizing extends AirTextView {
 
-	private static final String				ELLIPSIS						= "&#8230;";
+	private static final String ELLIPSIS = "&#8230;";
 
-	private final List<EllipsizeListener>	mEllipsizeListeners				= new ArrayList<EllipsizeListener>();
-	private boolean							mIsEllipsized;
-	private boolean							mIsStale;
-	private boolean							mProgrammaticChange;
-	private String							mFullText;
-	private int								mMaxLines						= -1;
-	private float							mLineSpacingMultiplier			= 1.0f;
-	private float							mLineAdditionalVerticalPadding	= 0.0f;
-	private boolean							mMirrorText						= false;
+	private boolean mIsEllipsized;
+	private boolean mIsStale;
+	private boolean mProgrammaticChange;
+	private String  mFullText;
+	private int     mMaxLines                      = -1;
+	private float   mLineSpacingMultiplier         = 1.0f;
+	private float   mLineAdditionalVerticalPadding = 0.0f;
+	private boolean mMirrorText                    = false;
 
 	public TextViewEllipsizing(Context context) {
 		this(context, null);
@@ -105,9 +101,6 @@ public class TextViewEllipsizing extends AirTextView {
 
 			if (ellipsized != mIsEllipsized) {
 				mIsEllipsized = ellipsized;
-				for (EllipsizeListener listener : mEllipsizeListeners) {
-					listener.ellipsizeStateChanged(ellipsized);
-				}
 			}
 		}
 		catch (Exception exception) { // $codepro.audit.disable emptyCatchClause

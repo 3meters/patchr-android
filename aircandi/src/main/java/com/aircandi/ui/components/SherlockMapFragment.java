@@ -15,7 +15,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 
 public class SherlockMapFragment extends SupportMapFragment
 		implements OnCreateOptionsMenuListener, OnPrepareOptionsMenuListener, OnOptionsItemSelectedListener {
-	private SherlockFragmentActivity	mActivity;
+	private SherlockFragmentActivity mActivity;
 
 	public SherlockFragmentActivity getSherlockActivity() {
 		return mActivity;
@@ -24,7 +24,7 @@ public class SherlockMapFragment extends SupportMapFragment
 	@Override
 	public void onAttach(Activity activity) {
 		if (!(activity instanceof SherlockFragmentActivity)) {
-			throw new IllegalStateException(getClass().getSimpleName() + " must be attached to a SherlockFragmentActivity.");
+			throw new IllegalStateException(((Object)this).getClass().getSimpleName() + " must be attached to a SherlockFragmentActivity.");
 		}
 		mActivity = (SherlockFragmentActivity) activity;
 
@@ -67,4 +67,4 @@ public class SherlockMapFragment extends SupportMapFragment
 		//Nothing to see here.
 		return false;
 	}
-	}
+}

@@ -11,16 +11,14 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class Log extends ServiceBase implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 4622842664683047258L;
-	
-	@Expose
-	public String	category;
-	@Expose
-	public String	label;
-	@Expose
-	public Number	value;
+	private static final long serialVersionUID = 4622842664683047258L;
 
-	
+	@Expose
+	public String category;
+	@Expose
+	public String label;
+	@Expose
+	public Number value;
 
 	public static Log setPropertiesFromMap(Log log, Map map, Boolean nameMapping) {
 		/*
@@ -37,7 +35,7 @@ public class Log extends ServiceBase implements Cloneable, Serializable {
 	public String getCollection() {
 		return "logs";
 	}
-	
+
 	public static class LogCategory {
 		public static String TIMING = "timing";
 	}

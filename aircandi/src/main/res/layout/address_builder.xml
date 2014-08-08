@@ -1,67 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.aircandi.ui.widgets.AirScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center_horizontal"
-    android:fillViewport="true" >
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_gravity="center_horizontal"
+	android:fillViewport="true">
 
-    <LinearLayout
-        style="@style/dialog_content_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical|top"
-        android:orientation="vertical" >
+	<LinearLayout
+		style="@style/dialog_content_layout"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical|top"
+		android:orientation="vertical">
 
-        <com.aircandi.ui.widgets.AirEditText
-            android:id="@+id/address"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/form_field_height"
-            android:drawableRight="?attr/iconClear"
-            android:hint="@string/hint_address"
-            android:inputType="textPostalAddress" />
+		<com.aircandi.ui.widgets.AirEditText
+			android:id="@+id/address"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/form_field_height"
+			android:drawableRight="?attr/iconClear"
+			android:hint="@string/hint_address"
+			android:inputType="textPostalAddress" />
 
-        <com.aircandi.ui.widgets.AirEditText
-            android:id="@+id/city"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/form_field_height"
-            android:drawableRight="?attr/iconClear"
-            android:hint="@string/hint_city"
-            android:inputType="textCapWords|textNoSuggestions"
-            android:nextFocusDown="@+id/state" />
+		<com.aircandi.ui.widgets.AirEditText
+			android:id="@+id/city"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/form_field_height"
+			android:drawableRight="?attr/iconClear"
+			android:hint="@string/hint_city"
+			android:inputType="textCapWords|textNoSuggestions"
+			android:nextFocusDown="@+id/state" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
 
-            <com.aircandi.ui.widgets.AirEditText
-                android:id="@+id/state"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/form_field_height"
-                android:layout_weight="1"
-                android:drawableRight="?attr/iconClear"
-                android:hint="@string/hint_state"
-                android:inputType="textCapCharacters|textNoSuggestions"
-                android:nextFocusDown="@+id/zip_code" />
+			<com.aircandi.ui.widgets.AirEditText
+				android:id="@+id/state"
+				android:layout_width="wrap_content"
+				android:layout_height="@dimen/form_field_height"
+				android:layout_weight="1"
+				android:drawableRight="?attr/iconClear"
+				android:hint="@string/hint_state"
+				android:inputType="textCapCharacters|textNoSuggestions"
+				android:nextFocusDown="@+id/zip_code" />
 
-            <com.aircandi.ui.widgets.AirEditText
-                android:id="@+id/zip_code"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/form_field_height"
-                android:layout_weight="1"
-                android:drawableRight="?attr/iconClear"
-                android:hint="@string/hint_zipcode"
-                android:inputType="number"
-                android:nextFocusDown="@+id/phone" />
-        </LinearLayout>
+			<com.aircandi.ui.widgets.AirEditText
+				android:id="@+id/zip_code"
+				android:layout_width="wrap_content"
+				android:layout_height="@dimen/form_field_height"
+				android:layout_weight="1"
+				android:drawableRight="?attr/iconClear"
+				android:hint="@string/hint_zipcode"
+				android:inputType="number"
+				android:nextFocusDown="@+id/phone" />
+		</LinearLayout>
 
-        <com.aircandi.ui.widgets.AirEditText
-            android:id="@+id/phone"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/form_field_height"
-            android:drawableRight="?attr/iconClear"
-            android:hint="@string/hint_phone"
-            android:inputType="phone" />
-    </LinearLayout>
+		<com.aircandi.ui.widgets.AirEditText
+			android:id="@+id/phone"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/form_field_height"
+			android:drawableRight="?attr/iconClear"
+			android:hint="@string/hint_phone"
+			android:inputType="phone" />
+	</LinearLayout>
 
 </com.aircandi.ui.widgets.AirScrollView>

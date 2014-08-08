@@ -37,6 +37,7 @@ import com.aircandi.components.ProximityManager.ScanReason;
 import com.aircandi.components.ProximityManager.WifiScanResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
+import com.aircandi.controllers.ViewHolder;
 import com.aircandi.events.BeaconsLockedEvent;
 import com.aircandi.events.BurstTimeoutEvent;
 import com.aircandi.events.EntitiesByProximityFinishedEvent;
@@ -66,19 +67,19 @@ import com.squareup.otto.Subscribe;
 
 public class RadarListFragment extends EntityListFragment {
 
-	private final Handler	mHandler				= new Handler();
+	private final Handler mHandler = new Handler();
 
-	private MenuItem		mMenuItemBeacons;
-	private TextView		mBeaconIndicator;
-	private String			mDebugWifi;
-	private String			mDebugLocation			= "--";
+	private MenuItem mMenuItemBeacons;
+	private TextView mBeaconIndicator;
+	private String   mDebugWifi;
+	private String mDebugLocation = "--";
 
-	private Number			mEntityModelBeaconDate;
-	private Integer			mWifiStateLastSearch	= WifiManager.WIFI_STATE_UNKNOWN;
-	private LocationHandler	mLocationHandler		= new LocationHandler();
-	private Boolean			mAtLeastOneLocationProcessed		= false;
+	private Number mEntityModelBeaconDate;
+	private Integer         mWifiStateLastSearch         = WifiManager.WIFI_STATE_UNKNOWN;
+	private LocationHandler mLocationHandler             = new LocationHandler();
+	private Boolean         mAtLeastOneLocationProcessed = false;
 
-	private CacheStamp		mCacheStamp;
+	private CacheStamp mCacheStamp;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -107,6 +108,7 @@ public class RadarListFragment extends EntityListFragment {
 		 */
 
 		String bindReason = null;
+		//noinspection LoopStatementThatDoesntLoop
 		while (true) {
 
 			if (mEntities.size() == 0) {
@@ -157,9 +159,8 @@ public class RadarListFragment extends EntityListFragment {
 				if (NetworkManager.getInstance().getWifiState() == WifiManager.WIFI_STATE_DISABLED) {
 
 					bindReason = "Wifi switched off";
-					Integer wifiApState = NetworkManager.getInstance().getWifiApState();
-					if (wifiApState != null && (wifiApState == NetworkManager.WIFI_AP_STATE_ENABLED
-							|| wifiApState == NetworkManager.WIFI_AP_STATE_ENABLED + 10)) {
+					NetworkManager.WIFI_AP_STATE wifiApState = NetworkManager.getInstance().getWifiApState();
+					if (wifiApState != null && (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLED)) {
 						Logger.d(getSherlockActivity(), "Wifi Ap enabled, clearing beacons");
 						UI.showToastNotification("Hotspot or tethering enabled", Toast.LENGTH_SHORT);
 					}
@@ -167,7 +168,7 @@ public class RadarListFragment extends EntityListFragment {
 						UI.showToastNotification("Wifi disabled", Toast.LENGTH_SHORT);
 					}
 					ProximityManager.getInstance().getWifiList().clear();
-					EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null);
+					EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 					LocationManager.getInstance().setLocationLocked(null);
 				}
 				else if (NetworkManager.getInstance().getWifiState() == WifiManager.WIFI_STATE_ENABLED) {
@@ -256,13 +257,8 @@ public class RadarListFragment extends EntityListFragment {
 
 	@Override
 	public void onClick(View view) {
-
 		final Place entity = (Place) ((ViewHolder) view.getTag()).data;
 		Bundle extras = null;
-		if (entity.synthetic) {
-			extras = new Bundle();
-			extras.putBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC, true);
-		}
 		Aircandi.dispatch.route(getSherlockActivity(), Route.BROWSE, entity, null, extras);
 	}
 
@@ -349,7 +345,7 @@ public class RadarListFragment extends EntityListFragment {
 	}
 
 	@Subscribe
-	@SuppressWarnings({ "ucd" })
+	@SuppressWarnings({"ucd"})
 	public void onPlacesNearLocationFinished(final PlacesNearLocationFinishedEvent event) {
 		/*
 		 * No application logic here, just tracking.
@@ -385,9 +381,9 @@ public class RadarListFragment extends EntityListFragment {
 				if (LocationManager.getInstance().getLocationLocked() != null) {
 					mBusy.hideBusy(false);
 				}
-//				if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-//					mBusy.hideBusy(false);
-//				}
+				//				if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
+				//					mBusy.hideBusy(false);
+				//				}
 
 				if (event.source.equals("onLocationChanged")) {
 					mAtLeastOneLocationProcessed = true;
@@ -477,7 +473,7 @@ public class RadarListFragment extends EntityListFragment {
 
 				Aircandi.stopwatch1.start("beacon_search", "Search for places by beacon");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
-				EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null);
+				EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 				if (NetworkManager.getInstance().isWifiEnabled()) {
 					ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
 				}
@@ -518,7 +514,7 @@ public class RadarListFragment extends EntityListFragment {
 						beaconMessage.append(System.getProperty("line.separator"));
 						beaconMessage.append("Wifi fix: "
 								+ DateTime.interval(ProximityManager.getInstance().mLastWifiUpdate.getTime(), DateTime.nowDate().getTime(),
-										IntervalContext.PAST));
+								IntervalContext.PAST));
 					}
 
 					final Location location = LocationManager.getInstance().getLocationLocked();
@@ -548,7 +544,8 @@ public class RadarListFragment extends EntityListFragment {
 					DialogInterface.OnClickListener() {
 
 						@Override
-						public void onClick(DialogInterface dialog, int which) {}
+						public void onClick(DialogInterface dialog, int which) {
+						}
 					}, null);
 		}
 	}
@@ -720,12 +717,13 @@ public class RadarListFragment extends EntityListFragment {
 
 	/* Stub for future use because I hate bind() */
 	@SuppressWarnings("ucd")
-	public class RadarMonitor extends SimpleMonitor {}
+	public class RadarMonitor extends SimpleMonitor {
+	}
 
 	public class LocationHandler {
 
 		@Subscribe
-		@SuppressWarnings({ "ucd" })
+		@SuppressWarnings({"ucd"})
 		public void onLocationChanged(final LocationChangedEvent event) {
 			/*
 			 * LocationManager has a very low bar for passing along the first location fix.
@@ -822,7 +820,7 @@ public class RadarListFragment extends EntityListFragment {
 		}
 
 		@Subscribe
-		@SuppressWarnings({ "ucd" })
+		@SuppressWarnings({"ucd"})
 		public void onBurstTimeout(final BurstTimeoutEvent event) {
 
 			mBusy.hideBusy(false);

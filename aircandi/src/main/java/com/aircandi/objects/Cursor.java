@@ -11,24 +11,25 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class Cursor extends ServiceObject {
 
-	private static final long	serialVersionUID	= -8424707925181657940L;
+	private static final long serialVersionUID = -8424707925181657940L;
 
 	@Expose
-	public Map					sort;
+	public Map sort;
 	@Expose
-	public Number				skip				= 0;
+	public Number skip = 0;
 	@Expose
-	public Number				limit;
+	public Number       limit;
 	@Expose
-	public List<String>			linkTypes;
+	public List<String> linkTypes;
 	@Expose
-	public List<String>			schemas;
+	public List<String> schemas;
 	@Expose
-	public String				direction;
+	public String       direction;
 	@Expose
-	public Map					where;
+	public Map          where;
 
-	public Cursor() {}
+	public Cursor() {
+	}
 
 	public Cursor(List<String> linkTypes, List<String> schemas, String direction, Map where, Map sort, Number skip, Number limit) {
 		this.sort = sort;

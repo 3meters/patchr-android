@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.aircandi.ui.widgets.AirRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center_horizontal"
-    android:background="?attr/backgroundHelp"
-    android:clickable="true"
-    android:onClick="onHelpClick"
-    tools:ignore="Overdraw" >
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_gravity="center_horizontal"
+	android:background="?attr/backgroundHelp"
+	android:clickable="true"
+	android:onClick="onHelpClick"
+	tools:ignore="Overdraw">
 
-    <com.aircandi.ui.widgets.AirTextLight
-        android:id="@+id/add_places"
-        style="@style/balloon"
-        android:layout_width="@dimen/balloon_width"
-        android:layout_height="@dimen/balloon_height"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="20dp"
-        android:text="@string/help_radar_add_places"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        custom:textId="@string/help_radar_add_places" />
+	<com.aircandi.ui.widgets.AirTextLight
+		android:id="@+id/add_places"
+		style="@style/balloon"
+		android:layout_width="@dimen/balloon_width"
+		android:layout_height="@dimen/balloon_height"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentTop="true"
+		android:layout_marginRight="20dp"
+		android:layout_marginTop="20dp"
+		android:text="@string/help_radar_add_places"
+		android:textAppearance="?android:attr/textAppearanceMedium"
+		custom:textId="@string/help_radar_add_places" />
 
-    <com.aircandi.ui.widgets.AirTextLight
-        style="@style/balloon"
-        android:layout_width="@dimen/balloon_width"
-        android:layout_height="@dimen/balloon_height"
-        android:layout_below="@+id/add_places"
-        android:layout_centerInParent="true"
-        android:text="@string/help_radar_browse_places"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        custom:textId="@string/help_radar_browse_places" />
+	<com.aircandi.ui.widgets.AirTextLight
+		style="@style/balloon"
+		android:layout_width="@dimen/balloon_width"
+		android:layout_height="@dimen/balloon_height"
+		android:layout_below="@+id/add_places"
+		android:layout_centerInParent="true"
+		android:text="@string/help_radar_browse_places"
+		android:textAppearance="?android:attr/textAppearanceMedium"
+		custom:textId="@string/help_radar_browse_places" />
 
 </com.aircandi.ui.widgets.AirRelativeLayout>

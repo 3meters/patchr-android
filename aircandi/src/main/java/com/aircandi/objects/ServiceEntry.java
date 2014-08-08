@@ -8,9 +8,7 @@ import java.util.Map;
 @SuppressWarnings("ucd")
 public class ServiceEntry extends ServiceBase {
 
-	private static final long	serialVersionUID	= -4468666434251114969L;
-
-	
+	private static final long serialVersionUID = -4468666434251114969L;
 
 	public static ServiceEntry setPropertiesFromMap(ServiceEntry serviceEntry, Map map, Boolean nameMapping) {
 

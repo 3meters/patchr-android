@@ -25,30 +25,36 @@ import android.support.v4.app.Fragment;
 public abstract class TrackerBase implements TrackerDelegate {
 
 	@Override
-	public void sendTiming(String category, Long timing, String name, String label) {}
+	public void sendTiming(String category, Long timing, String name, String label) {
+	}
 
 	@Override
-	public void sendException(Exception exception) {}
+	public void sendException(Exception exception) {
+	}
 
 	@Override
-	public void sendError(String category, String name) {}
+	public void sendError(String category, String name) {
+	}
 
 	@Override
-	public void activityStop(Activity activity) {}
+	public void activityStop(Activity activity) {
+	}
 
 	@Override
-	public void fragmentStart(Fragment fragment) {}
+	public void fragmentStart(Fragment fragment) {
+	}
 
 	@Override
-	public void enableDeveloper(Boolean enable) {}
+	public void enableDeveloper(Boolean enable) {
+	}
 
 	public static class TrackerCategory {
-		public static String	UX			= "ux";
-		public static String	SYSTEM		= "system";
-		public static String	EDIT		= "editing";
-		public static String	LINK		= "linking";
-		public static String	USER		= "user";
-		public static String	PERFORMANCE	= "performance";
+		public static String UX          = "ux";
+		public static String SYSTEM      = "system";
+		public static String EDIT        = "editing";
+		public static String LINK        = "linking";
+		public static String USER        = "user";
+		public static String PERFORMANCE = "performance";
 	}
 
 }

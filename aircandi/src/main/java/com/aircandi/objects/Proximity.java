@@ -11,14 +11,12 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class Proximity extends ServiceObject implements Cloneable, Serializable {
 
-	private static final long	serialVersionUID	= 455904759787968585L;
+	private static final long serialVersionUID = 455904759787968585L;
 
 	@Expose
-	public Boolean				primary;
+	public Boolean primary;
 	@Expose
-	public Number				signal;
-
-	
+	public Number  signal;
 
 	@Override
 	public Proximity clone() {

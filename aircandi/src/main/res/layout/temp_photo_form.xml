@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background_picture_detail"
-    tools:ignore="Overdraw" >
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/background_picture_detail"
+	tools:ignore="Overdraw">
 
-    <com.aircandi.ui.widgets.AirImageView
-        android:id="@+id/entity_photo"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        custom:layout="@layout/widget_photoview_touch"
-        custom:showBusy="true"
-        custom:sizeType="fullsize" />
+	<com.aircandi.ui.widgets.AirImageView
+		android:id="@+id/entity_photo"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		custom:layout="@layout/widget_photoview_touch"
+		custom:showBusy="true"
+		custom:sizeType="fullsize" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@color/overlay_photo_detail"
-        android:orientation="vertical"
-        android:padding="10dp" >
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:background="@color/overlay_photo_detail"
+		android:orientation="vertical"
+		android:padding="10dp">
 
-        <com.aircandi.ui.widgets.AirTextLight
-            android:id="@+id/name"
-            style="@style/form_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_dark" />
+		<com.aircandi.ui.widgets.AirTextLight
+			android:id="@+id/name"
+			style="@style/form_title"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textColor="@color/text_dark" />
 
-        <com.aircandi.ui.widgets.UserView
-            android:id="@+id/author"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            custom:layout="@layout/widget_user_view_text_only_dark" />
-    </LinearLayout>
+		<com.aircandi.ui.widgets.UserView
+			android:id="@+id/author"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			custom:layout="@layout/widget_user_view_text_only_dark" />
+	</LinearLayout>
 
 </RelativeLayout>

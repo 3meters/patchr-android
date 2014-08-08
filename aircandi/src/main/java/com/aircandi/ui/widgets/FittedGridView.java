@@ -8,7 +8,7 @@ import android.widget.GridView;
 @SuppressWarnings("ucd")
 public class FittedGridView extends GridView {
 
-	private boolean	mExpanded	= false;
+	private boolean mExpanded = false;
 
 	public FittedGridView(Context context) {
 		super(context);
@@ -57,13 +57,11 @@ public class FittedGridView extends GridView {
 		//		super.onMeasure(widthMeasureSpec, heightSpec);
 	}
 
-	public void setExpanded(boolean expanded)
-	{
+	public void setExpanded(boolean expanded) {
 		mExpanded = expanded;
 	}
 
-	public boolean isExpanded()
-	{
+	public boolean isExpanded() {
 		return mExpanded;
 	}
 }

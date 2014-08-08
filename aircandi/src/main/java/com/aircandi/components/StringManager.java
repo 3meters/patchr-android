@@ -9,10 +9,11 @@ import com.aircandi.objects.Entity;
 @SuppressWarnings("ucd")
 public class StringManager {
 
-	private StringManager() {}
+	private StringManager() {
+	}
 
 	private static class Holder {
-		public static final StringManager	instance	= new StringManager();
+		public static final StringManager instance = new StringManager();
 	}
 
 	public static StringManager getInstance() {
@@ -62,7 +63,8 @@ public class StringManager {
 			int end = stringBuilder.indexOf("]", start);
 			String tokenResName = stringBuilder.substring(start + 2, end);
 			int tokenResId = resources.getIdentifier(tokenResName, null, packageName);
-			if (tokenResId == 0) throw new IllegalArgumentException("Failed to resolve link to @" + tokenResName);
+			if (tokenResId == 0)
+				throw new IllegalArgumentException("Failed to resolve link to @" + tokenResName);
 			stringBuilder.replace(start, end + 1, resources.getString(tokenResId));
 		}
 

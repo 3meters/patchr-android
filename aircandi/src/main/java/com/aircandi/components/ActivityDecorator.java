@@ -2,7 +2,9 @@ package com.aircandi.components;
 
 import android.text.TextUtils;
 
+import com.aircandi.Aircandi;
 import com.aircandi.Constants;
+import com.aircandi.controllers.IEntityController;
 import com.aircandi.objects.Action.EventCategory;
 import com.aircandi.objects.ActivityBase;
 import com.aircandi.objects.ActivityBase.TriggerType;
@@ -101,7 +103,8 @@ public class ActivityDecorator {
 				else if (activity.trigger.equals(TriggerType.WATCH_USER)
 						|| activity.trigger.equals(TriggerType.NONE))
 					return "tagged a new place.";
-				else if (activity.trigger.equals(TriggerType.WATCH)) return "tagged a place you started watching.";
+				else if (activity.trigger.equals(TriggerType.WATCH))
+					return "tagged a place you started watching.";
 			}
 			else if (activity.action.getEventCategory().equals(EventCategory.UPDATE)) {
 				return "edited a place";
@@ -144,9 +147,10 @@ public class ActivityDecorator {
 	}
 
 	public Photo photoBy(ActivityBase activity) {
-		Photo photo = null;
+		Photo photo;
 		if (activity.action.user == null) {
-			photo = activity.action.user.getDefaultPhoto();
+			IEntityController controller = Aircandi.getInstance().getControllerForSchema(Constants.SCHEMA_ENTITY_USER);
+			photo = ((controller != null) ? controller.getDefaultPhoto(null) : null);
 		}
 		else {
 			photo = activity.action.user.getPhoto();
@@ -157,20 +161,20 @@ public class ActivityDecorator {
 	}
 
 	public Photo photoOne(ActivityBase activity) {
-		Photo photo = null;
+		Photo photo;
 
 		if (activity.action.entity.schema.equals(Constants.SCHEMA_ENTITY_COMMENT)) {
 			photo = activity.action.toEntity.getPhoto();
 			photo.name = TextUtils.isEmpty(activity.action.toEntity.name)
-					? activity.action.toEntity.getSchemaMapped()
-					: activity.action.toEntity.name;
+			             ? activity.action.toEntity.getSchemaMapped()
+			             : activity.action.toEntity.name;
 			photo.shortcut = activity.action.toEntity.getShortcut();
 		}
 		else {
 			photo = activity.action.entity.getPhoto();
 			photo.name = TextUtils.isEmpty(activity.action.entity.name)
-					? activity.action.entity.getSchemaMapped()
-					: activity.action.entity.name;
+			             ? activity.action.entity.getSchemaMapped()
+			             : activity.action.entity.name;
 			photo.shortcut = activity.action.entity.getShortcut();
 		}
 		return photo;

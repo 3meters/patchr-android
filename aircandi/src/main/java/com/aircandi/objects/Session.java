@@ -10,18 +10,16 @@ import com.aircandi.service.Expose;
 @SuppressWarnings("ucd")
 public class Session extends ServiceBase {
 
-	private static final long	serialVersionUID	= 127428776257201066L;
-	public static final String	collectionId		= "sessions";
+	private static final long   serialVersionUID = 127428776257201066L;
+	public static final  String collectionId     = "sessions";
 
 	@Expose
-	public String				key;
+	public String key;
 
 	/* Dates */
 
 	@Expose
-	public Number				expirationDate;
-
-	
+	public Number expirationDate;
 
 	public static Session setPropertiesFromMap(Session session, Map map, Boolean nameMapping) {
 		/*

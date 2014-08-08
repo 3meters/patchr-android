@@ -14,12 +14,12 @@ import com.aircandi.R;
 @SuppressWarnings("ucd")
 public class SectionLayout extends LinearLayout {
 
-	private Integer		mLayoutHeaderId;
-	private Integer		mLayoutFooterId;
-	private String		mHeaderTitle;
-	private TextView	mTextViewHeader;
-	private View		mHeaderRule;
-	private ViewGroup	mHeader;
+	private Integer   mLayoutHeaderId;
+	private Integer   mLayoutFooterId;
+	private String    mHeaderTitle;
+	private TextView  mTextViewHeader;
+	private View      mHeaderRule;
+	private ViewGroup mHeader;
 
 	public SectionLayout(Context context) {
 		this(context, null);

@@ -47,7 +47,6 @@ public class DispatchManager extends com.aircandi.components.DispatchManager {
 
 			activity.startActivity(intent);
 			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_HELP);
-			return;
 		}
 
 		else if (route == Route.SPLASH) {
@@ -66,7 +65,6 @@ public class DispatchManager extends com.aircandi.components.DispatchManager {
 			if (Aircandi.getInstance().getAnimationManager() != null) {
 				Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO_PAGE);
 			}
-			return;
 		}
 
 		else if (route == Route.EDIT) {
@@ -85,7 +83,6 @@ public class DispatchManager extends com.aircandi.components.DispatchManager {
 				extras.putInt(Constants.EXTRA_LAYOUT_RESID, R.layout.place_customize);
 			}
 			controller.edit(activity, entity, extras, true);
-			return;
 		}
 
 		else if (route == Route.WATCHERS) {
@@ -94,13 +91,10 @@ public class DispatchManager extends com.aircandi.components.DispatchManager {
 			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.create());
 			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
-			return;
 		}
 
 		else {
 			super.route(activity, route, entity, shortcut, extras);
 		}
-
-		return;
 	}
 }

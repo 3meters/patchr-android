@@ -1,7 +1,5 @@
 package com.aircandi.components;
 
-// import static java.util.Arrays.asList;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,20 +63,18 @@ import com.aircandi.utilities.UI;
 
 public class EntityManager {
 
-	private static final EntityCache	mEntityCache			= new EntityCache();
-	private Map<String, String>			mCacheStampOverrides	= new HashMap<String, String>();
-	private Number						mActivityDate;
-	private Links						mLinks;
+	private static final EntityCache         mEntityCache         = new EntityCache();
+	private              Map<String, String> mCacheStampOverrides = new HashMap<String, String>();
+	private Number mActivityDate;
+	private Links  mLinks;
 	/*
 	 * Categories are cached by a background thread.
 	 */
-	private List<Category>				mCategories				= Collections.synchronizedList(new ArrayList<Category>());
-
-	
+	private List<Category> mCategories = Collections.synchronizedList(new ArrayList<Category>());
 
 	protected ServiceResponse dispatch(ServiceRequest serviceRequest) {
-		/*
-		 * We use this as a choke point for all calls to the aircandi service.
+	    /*
+         * We use this as a choke point for all calls to the aircandi service.
 		 */
 		final ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest, true, null);
 		return serviceResponse;
@@ -380,7 +376,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult suggestPlaces(String input, String userId, AirLocation location, long limit) {
+	public ModelResult suggest(String input, SuggestScope suggestScope, String userId, AirLocation location, long limit) {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -388,16 +384,18 @@ public class EntityManager {
 		parameters.putString("provider", ServiceConstants.PLACE_SUGGEST_PROVIDER);
 		parameters.putString("input", input.toLowerCase(Locale.US)); // matches any word that as input as prefix
 		parameters.putLong("limit", limit);
-		parameters.putString("_user", userId);
+		parameters.putString("_user", userId); // So service can handle places the current user is watching
 
-		if (location != null) {
-			parameters.putString("location", "object:" + Json.objectToJson(location));
-			parameters.putInt("radius", ServiceConstants.PLACE_SUGGEST_RADIUS);
-			parameters.putInt("timeout", ServiceConstants.TIMEOUT_PLACE_SUGGEST);
+		if (suggestScope != SuggestScope.USERS) {
+			if (location != null) {
+				parameters.putString("location", "object:" + Json.objectToJson(location));
+				parameters.putInt("radius", ServiceConstants.PLACE_SUGGEST_RADIUS);
+				parameters.putInt("timeout", ServiceConstants.TIMEOUT_PLACE_SUGGEST);
+			}
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "suggestPlaces")
+				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_SUGGEST + (suggestScope == SuggestScope.PLACES ? "/places" : (suggestScope == SuggestScope.USERS) ? "/users" : ""))
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
@@ -880,7 +878,7 @@ public class EntityManager {
 				else {
 
 					/* Link */
-					if (links != null) {
+					if (links != null && links.size() > 0) {
 						final List<String> linkStrings = new ArrayList<String>();
 						for (Link link : links) {
 							linkStrings.add("object:" + Json.objectToJson(link, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
@@ -892,6 +890,7 @@ public class EntityManager {
 				/* Entity */
 				parameters.putString("entity", "object:" + Json.objectToJson(entity, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 
+                /* Upsizing a suggest place routes through this routine */
 				if (entity.synthetic) {
 					parameters.putBoolean("skipNotifications", true);
 				}
@@ -1161,7 +1160,7 @@ public class EntityManager {
 								Iterator<Link> iterLinks = entity.linksOut.iterator();
 								while (iterLinks.hasNext()) {
 									Link temp = iterLinks.next();
-									if (temp ==link) {
+									if (temp == link) {
 										iterLinks.remove();
 										/*
 										 * Entity could be a clone so grab the one in the cache.
@@ -1213,13 +1212,13 @@ public class EntityManager {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
-		parameters.putString("fromId", fromId); 		// required
-		parameters.putString("toId", toId);				// required
-		parameters.putString("type", type);				// required
+		parameters.putString("fromId", fromId);        // required
+		parameters.putString("toId", toId);                // required
+		parameters.putString("type", type);                // required
 		parameters.putString("actionEvent", actionEvent);
 
 		if (enabled != null) {
-			parameters.putBoolean("enabled", enabled);		// optional		
+			parameters.putBoolean("enabled", enabled);        // optional
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
@@ -1257,9 +1256,9 @@ public class EntityManager {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
-		parameters.putString("fromId", fromId); 		// required
-		parameters.putString("toId", toId);				// required
-		parameters.putString("type", type);				// required
+		parameters.putString("fromId", fromId);        // required
+		parameters.putString("toId", toId);                // required
+		parameters.putString("type", type);                // required
 		parameters.putString("actionEvent", actionEvent);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
@@ -1312,10 +1311,10 @@ public class EntityManager {
 				/* Synchronous call to get the bitmap */
 				try {
 					bitmap = DownloadManager.with(Aircandi.applicationContext)
-							.load(entity.getPhoto().getUri())
-							.centerInside()
-							.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-							.get();
+					                        .load(entity.getPhoto().getUri())
+					                        .centerInside()
+					                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+					                        .get();
 				}
 				catch (IOException ignore) {}
 
@@ -1366,9 +1365,9 @@ public class EntityManager {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
-		parameters.putString("fromId", fromId); 		// required
-		parameters.putString("toId", toId);				// required
-		parameters.putString("type", type);				// required
+		parameters.putString("fromId", fromId);        // required
+		parameters.putString("toId", toId);                // required
+		parameters.putString("type", type);                // required
 		parameters.putString("actionEvent", actionEvent);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
@@ -1402,10 +1401,10 @@ public class EntityManager {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
-		parameters.putString("fromId", fromId); 			// required
-		parameters.putString("toId", toId);					// required
-		parameters.putString("type", type);					// required
-		parameters.putBoolean("enabled", enabled);			// required
+		parameters.putString("fromId", fromId);            // required
+		parameters.putString("toId", toId);                    // required
+		parameters.putString("type", type);                    // required
+		parameters.putBoolean("enabled", enabled);            // required
 		parameters.putString("actionEvent", actionEvent);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
@@ -1666,7 +1665,6 @@ public class EntityManager {
 		List<Place> places = (List<Place>) EntityManager.getEntityCache().getCacheEntities(
 				Constants.SCHEMA_ENTITY_PLACE,
 				Constants.TYPE_ANY,
-				synthetic,
 				searchRangeMeters,
 				proximity);
 
@@ -1756,4 +1754,10 @@ public class EntityManager {
 	// --------------------------------------------------------------------------------------------
 	// Classes
 	// --------------------------------------------------------------------------------------------
+
+	public static enum SuggestScope {
+		PLACES,
+		USERS,
+		ALL
+	}
 }

@@ -17,7 +17,7 @@ import com.aircandi.utilities.Maps;
  */
 public class Links extends com.aircandi.objects.Links {
 
-	private static final long	serialVersionUID	= 6358655034455139946L;
+	private static final long serialVersionUID = 6358655034455139946L;
 
 	@Override
 	public com.aircandi.objects.Links build(Integer linkProfile) {
@@ -52,6 +52,12 @@ public class Links extends com.aircandi.objects.Links {
 						.setDirection(Direction.out));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1)
 						.setDirection(Direction.both));
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PLACE, true, true, 1)
+						.setDirection(Direction.out));
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1)
+						.setDirection(Direction.out));
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, true, true, 5)
+						.setDirection(Direction.out));
 			}
 			else if (linkProfile == LinkProfile.LINKS_FOR_USER_CURRENT) {
 

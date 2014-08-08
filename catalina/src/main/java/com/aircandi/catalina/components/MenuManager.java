@@ -37,7 +37,9 @@ public class MenuManager extends com.aircandi.components.MenuManager {
 				inflater.inflate(R.menu.menu_report, menu);
 			}
 		}
-		else if (activityName.equals("AircandiForm") && entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+		else if (activityName.equals("AircandiForm")
+				&& entity != null
+				&& entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
 			if (canUserEdit(entity)) {
 				inflater.inflate(R.menu.menu_edit_user, menu);
 				inflater.inflate(R.menu.menu_sign_out, menu);
@@ -58,6 +60,10 @@ public class MenuManager extends com.aircandi.components.MenuManager {
 		Entity entity = ((BaseActivity) activity).getEntity();
 
 		if (activityName.equals("AircandiForm")) {
+			/*
+			 * Fragments set menu items when they are configured which are
+			 * later added in BaseFragment.onCreateOptionsMenu.
+			 */
 			menuInflater.inflate(R.menu.menu_base, menu);
 			return true;
 		}
@@ -82,10 +88,9 @@ public class MenuManager extends com.aircandi.components.MenuManager {
 		}
 		else if (activityName.equals("MessageForm")) {
 			/*
-			 * These are included but actual visibility is handled in
-			 * onPrepareOptionsMenu which gets called everytime the overflow menu is
-			 * displayed. If these are shown as actions there might be a timing
-			 * problem.
+			 * These are included but actual visibility is handled in BaseActivity.onPrepareOptionsMenu
+			 * which gets called everytime the overflow menu is displayed. If these are shown as actions
+			 * there might be a timing problem.
 			 */
 			menuInflater.inflate(R.menu.menu_edit_message, menu);
 			menuInflater.inflate(R.menu.menu_delete, menu);
@@ -114,11 +119,17 @@ public class MenuManager extends com.aircandi.components.MenuManager {
 	}
 
 	@Override
-	public Boolean showAction(Integer route, Entity entity) {
+	public Boolean showAction(Integer route, Entity entity, String forId) {
 		if (route == Route.ADD) {
 			if (entity != null && (entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)))
 				return true;
 		}
-		return super.showAction(route, entity);
+		else if (route == Route.REMOVE) {
+			if (forId == null) return false;
+			String forSchema = com.aircandi.catalina.objects.Entity.getSchemaForId(forId);
+			if (forSchema.equals(com.aircandi.Constants.SCHEMA_ENTITY_USER))
+				return false;
+		}
+		return super.showAction(route, entity, forId);
 	}
 }

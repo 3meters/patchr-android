@@ -21,14 +21,14 @@ import com.aircandi.utilities.Booleans;
 @SuppressWarnings("ucd")
 public class MediaManager {
 
-	public static Integer		SOUND_PLACES_FOUND;
-	public static Integer		SOUND_ACTIVITY_NEW;
-	public static Integer		SOUND_DEBUG_POP;
-	public static Integer		SOUND_ACTIVITY_CHANGE;
+	public static Integer SOUND_PLACES_FOUND;
+	public static Integer SOUND_ACTIVITY_NEW;
+	public static Integer SOUND_DEBUG_POP;
+	public static Integer SOUND_ACTIVITY_CHANGE;
 
-	public static SoundPool		soundPool;
-	public static Integer		streamType			= AudioManager.STREAM_NOTIFICATION;
-	public static AudioManager	audioManager;
+	public static SoundPool soundPool;
+	public static Integer streamType = AudioManager.STREAM_NOTIFICATION;
+	public static AudioManager audioManager;
 
 	/*
 	 * Sharing Management
@@ -58,10 +58,8 @@ public class MediaManager {
 	 * created using the camera.
 	 */
 
-	private static String		shareFileName		= "photo.jpeg";
-	public static String		tempDirectoryName	= ".Candipatch";
-
-	
+	private static String shareFileName     = "photo.jpeg";
+	public static  String tempDirectoryName = ".Candipatch";
 
 	public MediaManager initSoundPool() {
 		soundPool = new SoundPool(4, streamType, 100);
@@ -89,11 +87,8 @@ public class MediaManager {
 	}
 
 	public static Boolean canCaptureWithCamera() {
-		if (AndroidManager.isIntentAvailable(Aircandi.applicationContext, MediaStore.ACTION_IMAGE_CAPTURE)
-				&& Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-			return true;
-		}
-		return false;
+		return AndroidManager.isIntentAvailable(Aircandi.applicationContext, MediaStore.ACTION_IMAGE_CAPTURE)
+				&& Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
 	}
 
 	public static void scanMedia(File file) {
@@ -111,6 +106,7 @@ public class MediaManager {
 		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 			File directory = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + directoryName);
 			if (!directory.exists()) {
+				//noinspection ResultOfMethodCallIgnored
 				directory.mkdirs();
 			}
 			return directory.getAbsolutePath();

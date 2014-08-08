@@ -31,33 +31,34 @@ import com.aircandi.components.BusProvider;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Entity;
+import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.UI;
 import com.nineoldandroids.view.ViewHelper;
 
 public abstract class BaseFragment extends SherlockFragment implements IForm, IBind {
 
-	public Entity			mEntity;
-	protected Resources		mResources;
-	protected IBusy			mBusy;
-	protected Boolean		mIsVisible				= false;
-	protected Boolean		mActivityStream			= false;
-	protected Boolean		mSelfBindingEnabled		= true;
+	public    Entity    mEntity;
+	protected Resources mResources;
+	protected IBusy     mBusy;
+	protected Boolean mIsVisible          = false;
+	protected Boolean mActivityStream     = false;
+	protected Boolean mSelfBindingEnabled = true;
 
-	protected Boolean		mLoaded					= false;
-	protected Integer		mScrollState			= OnScrollListener.SCROLL_STATE_IDLE;
+	protected Boolean mLoaded      = false;
+	protected Integer mScrollState = OnScrollListener.SCROLL_STATE_IDLE;
 
-	protected Button		mButtonSpecial;
-	protected Boolean		mButtonSpecialEnabled	= true;
-	protected Boolean		mButtonSpecialClickable	= false;
+	protected Button mButtonSpecial;
+	protected Boolean mButtonSpecialEnabled   = true;
+	protected Boolean mButtonSpecialClickable = false;
 
 	/* Resources */
-	protected Integer		mTitleResId;
-	protected List<Integer>	mMenuResIds				= new ArrayList<Integer>();
+	protected Integer mTitleResId;
+	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
 
 	// --------------------------------------------------------------------------------------------
 	// Events
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public void onAttach(Activity activity) {
 		/* Called when the fragment has been associated with the activity. */
@@ -118,13 +119,16 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	}
 
 	@Override
-	public void onAdd(Bundle extras) {}
+	public void onAdd(Bundle extras) {
+	}
 
 	@Override
-	public void onHelp() {}
+	public void onHelp() {
+	}
 
 	@Override
-	public void onError() {}
+	public void onError() {
+	}
 
 	public abstract void onScollToTop();
 
@@ -139,20 +143,26 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	// --------------------------------------------------------------------------------------------
 
 	@Override
-	public void unpackIntent() {}
+	public void unpackIntent() {
+	}
 
 	@Override
-	public void initialize(Bundle savedInstanceState) {}
+	public void initialize(Bundle savedInstanceState) {
+	}
 
-	protected void preBind() {}
-
-	@Override
-	public void bind(BindingMode mode) {}
-
-	protected void postBind() {}
+	protected void preBind() {
+	}
 
 	@Override
-	public void draw() {}
+	public void bind(BindingMode mode) {
+	}
+
+	protected void postBind() {
+	}
+
+	@Override
+	public void draw() {
+	}
 
 	protected void scrollToTop(final Object scroller) {
 		if (scroller instanceof ListView) {
@@ -210,8 +220,8 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 					if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
 						RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(buttonSpecial.getLayoutParams());
 						params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-						int headerHeight = (header != null) ? header.getHeight() : UI.getRawPixelsForDisplayPixels(Aircandi.applicationContext, 150f);
-						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(Aircandi.applicationContext, 100f);
+						int headerHeight = (header != null) ? header.getHeight() : UI.getRawPixelsForDisplayPixels(150f);
+						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(100f);
 						buttonSpecial.setLayoutParams(params);
 					}
 					else {
@@ -232,7 +242,8 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	}
 
 	@Override
-	public void share() {}
+	public void share() {
+	}
 
 	// --------------------------------------------------------------------------------------------
 	// Properties
@@ -318,6 +329,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 
 	@SuppressWarnings("ucd")
 	public boolean onCreatePopupMenu(android.view.Menu menu) {
+		Logger.d(this, "Creating fragment options menu");
 		return Aircandi.getInstance().getMenuManager().onCreatePopupMenu(getSherlockActivity(), menu, mEntity);
 	}
 
@@ -342,6 +354,10 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	public void onResume() {
 		Logger.d(this, "Fragment resume");
 		BusProvider.getInstance().register(this);
+		if (getSherlockActivity() != null && getSherlockActivity() instanceof AircandiForm) {
+			((AircandiForm) getSherlockActivity()).updateActivityAlert();
+		}
+
 		super.onResume();
 	}
 

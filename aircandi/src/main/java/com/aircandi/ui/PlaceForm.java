@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +33,7 @@ import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Applink;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
+import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Photo;
@@ -46,18 +48,21 @@ import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
 import com.aircandi.ui.widgets.ComboButton;
 import com.aircandi.ui.widgets.UserView;
+import com.aircandi.utilities.Booleans;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
+@SuppressLint("Registered")
 public class PlaceForm extends BaseEntityForm {
 
-	private Boolean					mDoUpsize;
-	protected final PackageReceiver	mPackageReceiver	= new PackageReceiver();
-	protected final List<String>	mPackageInstalls	= new ArrayList<String>();
-	protected Boolean				mWaitForContent		= true;
+	private Boolean mDoUpsize;
+	protected final PackageReceiver mPackageReceiver = new PackageReceiver();
+	protected final List<String>    mPackageInstalls = new ArrayList<String>();
+	protected       Boolean         mWaitForContent  = true;
+	protected       Boolean         mAutoWatch       = false;
 
 	@Override
 	public void unpackIntent() {
@@ -66,6 +71,7 @@ public class PlaceForm extends BaseEntityForm {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mDoUpsize = extras.getBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC);
+			mAutoWatch = extras.getBoolean(Constants.EXTRA_AUTO_WATCH);
 		}
 	}
 
@@ -87,6 +93,17 @@ public class PlaceForm extends BaseEntityForm {
 		if (mDoUpsize && mEntity != null) {
 			mDoUpsize = false;
 			upsize();
+		}
+
+		if (mAutoWatch && mEntity != null) {
+			Link link = mEntity.linkByAppUser(Constants.TYPE_LINK_WATCH);
+			if (link == null) {
+		        /* User is not already watching this */
+				if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
+						, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
+					watch(true);
+				}
+			}
 		}
 	}
 
@@ -128,8 +145,8 @@ public class PlaceForm extends BaseEntityForm {
 	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onMessage(final MessageEvent event) {
-		/*
-		 * Refresh the form because something new has been added to it
+        /*
+         * Refresh the form because something new has been added to it
 		 * like a comment or picture.
 		 */
 		if (event.message.action.toEntity != null
@@ -338,7 +355,7 @@ public class PlaceForm extends BaseEntityForm {
 			if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				if (((Place) mEntity).getProvider().type.equals("aircandi")) {
 					userView.setLabel(R.string.label_created_by);
-					userView.databind(mEntity.creator, mEntity.createdDate.longValue(), mEntity.locked);
+					userView.databind(mEntity.creator, mEntity.createdDate.longValue());
 					UI.setVisibility(userView, View.VISIBLE);
 					userView = user_two;
 				}
@@ -350,7 +367,7 @@ public class PlaceForm extends BaseEntityForm {
 				else {
 					userView.setLabel(R.string.label_created_by);
 				}
-				userView.databind(mEntity.creator, mEntity.createdDate.longValue(), mEntity.locked);
+				userView.databind(mEntity.creator, mEntity.createdDate.longValue());
 				UI.setVisibility(user_one, View.VISIBLE);
 				userView = user_two;
 			}
@@ -361,7 +378,7 @@ public class PlaceForm extends BaseEntityForm {
 
 				if (mEntity.createdDate.longValue() != mEntity.modifiedDate.longValue()) {
 					userView.setLabel(R.string.label_edited_by);
-					userView.databind(mEntity.modifier, mEntity.modifiedDate.longValue(), null);
+					userView.databind(mEntity.modifier, mEntity.modifiedDate.longValue());
 					UI.setVisibility(userView, View.VISIBLE);
 				}
 			}
@@ -390,19 +407,17 @@ public class PlaceForm extends BaseEntityForm {
 
 		/* TUNE */
 		UI.setVisibility(findViewById(R.id.button_tune), View.GONE);
-		if (!place.synthetic) {
 
 			/* Tuning buttons */
-			final Boolean hasActiveProximityLink = place.hasActiveProximity();
-			if (hasActiveProximityLink) {
-				ComboButton button = (ComboButton) findViewById(R.id.button_tune);
-				if (button != null) {
-					button.setDrawableId(R.drawable.ic_action_signal_tuned);
-				}
+		final Boolean hasActiveProximityLink = place.hasActiveProximity();
+		if (hasActiveProximityLink) {
+			ComboButton button = (ComboButton) findViewById(R.id.button_tune);
+			if (button != null) {
+				button.setDrawableId(R.drawable.ic_action_signal_tuned);
 			}
-
-			UI.setVisibility(findViewById(R.id.button_tune), View.VISIBLE);
 		}
+
+		UI.setVisibility(findViewById(R.id.button_tune), View.VISIBLE);
 	}
 
 	protected void handlePackageInstalls() {
@@ -483,7 +498,7 @@ public class PlaceForm extends BaseEntityForm {
 	@Override
 	protected void onDestroy() {
 		/* This activity gets destroyed everytime we leave using back or finish(). */
-		Logger.d(this, "Activity destroying: contextId: " + this.hashCode());
+		Logger.d(this, "Activity destroying: contextId: " + ((Object) this).hashCode());
 		try {
 			unregisterReceiver(mPackageReceiver);
 		}

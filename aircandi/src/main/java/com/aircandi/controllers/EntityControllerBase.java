@@ -8,11 +8,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.TextUtils;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.TextView;
 
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
+import com.aircandi.ServiceConstants;
+import com.aircandi.components.EntityManager;
 import com.aircandi.components.IntentBuilder;
+import com.aircandi.objects.Applink;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -22,30 +31,38 @@ import com.aircandi.objects.Links;
 import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoSource;
+import com.aircandi.objects.Place;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.EntityList;
 import com.aircandi.ui.EntityListFragment.ViewType;
+import com.aircandi.ui.widgets.AirImageView;
+import com.aircandi.ui.widgets.CandiView;
+import com.aircandi.ui.widgets.ComboButton;
+import com.aircandi.ui.widgets.EntityView;
+import com.aircandi.ui.widgets.UserView;
+import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
+import com.aircandi.utilities.UI;
 
 public abstract class EntityControllerBase implements IEntityController {
 
-	protected int		mColorPrimary	= R.color.holo_orange_dark;
-	protected String	mSchema;
+	protected int mColorPrimary = R.color.holo_orange_dark;
+	protected String mSchema;
 
-	protected Class<?>	mBrowseClass;
+	protected Class<?> mBrowseClass;
 
-	protected Class<?>	mEditClass;
-	protected Class<?>	mNewClass;
-	protected Class<?>	mListClass		= EntityList.class;
+	protected Class<?> mEditClass;
+	protected Class<?> mNewClass;
+	protected Class<?> mListClass = EntityList.class;
 
-	protected String	mListViewType	= ViewType.LIST;
-	protected Integer	mPageSize		= Integers.getInteger(R.integer.page_size_entities);
+	protected String  mListViewType = ViewType.LIST;
+	protected Integer mPageSize     = Integers.getInteger(R.integer.page_size_entities);
 
-	protected Integer	mListItemResId	= R.layout.temp_listitem_entity;
-	protected Integer	mListLayoutResId;
-	protected Integer	mListLoadingResId;
-	protected Integer	mListNewMessageResId;
+	protected Integer mListItemResId = R.layout.temp_listitem_entity;
+	protected Integer mListLayoutResId;
+	protected Integer mListLoadingResId;
+	protected Integer mListNewMessageResId;
 
 	/*
 	 * Browse an entity.
@@ -154,6 +171,275 @@ public abstract class EntityControllerBase implements IEntityController {
 		}
 
 		return intent;
+	}
+
+	public void bind(Entity entity, View view) {
+
+        /* Configure holder if we didn't get one ready to go */
+		ViewHolder holder = (ViewHolder) view.getTag();
+		if (holder == null) {
+			holder = new ViewHolder();
+			bindHolder(view, holder);
+			view.setTag(holder);
+		}
+		holder.data = entity;
+
+		/* Candi View */
+
+		UI.setVisibility(holder.candiView, View.GONE);
+		if (holder.candiView != null) {
+			holder.candiView.databind(entity, new CandiView.IndicatorOptions());
+			UI.setVisibility(holder.candiView, View.VISIBLE);
+			return;
+		}
+
+		/* Checkbox */
+
+		UI.setVisibility(holder.checked, View.GONE);
+		if (holder.checked != null && entity.checked != null) {
+			holder.checked.setChecked(entity.checked);
+			holder.checked.setTag(entity);
+			UI.setVisibility(holder.checked, View.VISIBLE);
+		}
+
+		/* Overflow button */
+
+		UI.setVisibility(holder.overflow, View.GONE);
+		if (holder.overflow != null) {
+			holder.overflow.setTag(entity);
+			UI.setVisibility(holder.overflow, View.VISIBLE);
+		}
+
+		/* Name */
+
+		UI.setVisibility(holder.name, View.GONE);
+		if (holder.name != null && entity.name != null && entity.name.length() > 0) {
+			holder.name.setText(entity.name);
+			UI.setVisibility(holder.name, View.VISIBLE);
+		}
+
+		/* Subtitle */
+
+		UI.setVisibility(holder.subtitle, View.GONE);
+		if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+			Place place = (Place) entity;
+			if (holder.subtitle != null) {
+				if (place.subtitle != null) {
+					holder.subtitle.setText(place.subtitle);
+					UI.setVisibility(holder.subtitle, View.VISIBLE);
+				}
+				else {
+					if (place.category != null && !TextUtils.isEmpty(place.category.name)) {
+						holder.subtitle.setText(Html.fromHtml(place.category.name));
+						UI.setVisibility(holder.subtitle, View.VISIBLE);
+					}
+				}
+			}
+		}
+		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_APPLINK)) {
+			String subtitle = null;
+			if (entity.type.equals(Constants.TYPE_APP_WEBSITE)) {
+				subtitle = ((Applink) entity).appUrl;
+			}
+			else if (entity.type.equals(Constants.TYPE_APP_EMAIL)) {
+				subtitle = ((Applink) entity).appId;
+			}
+			else if (entity.type.equals(Constants.TYPE_APP_OPENTABLE)
+					|| entity.type.equals(Constants.TYPE_APP_URBANSPOON)
+					|| entity.type.equals(Constants.TYPE_APP_TRIPADVISOR)) {
+				subtitle = ((Applink) entity).appUrl;
+			}
+			else if (entity.type.equals(Constants.TYPE_APP_GOOGLEPLUS)) {
+				subtitle = ((Applink) entity).appUrl;
+			}
+
+			if (subtitle != null) {
+				holder.subtitle.setText(subtitle);
+				UI.setVisibility(holder.subtitle, View.VISIBLE);
+			}
+		}
+		else {
+			if (holder.subtitle != null && entity.subtitle != null && !entity.subtitle.equals("")) {
+				holder.subtitle.setText(entity.subtitle);
+				UI.setVisibility(holder.subtitle, View.VISIBLE);
+			}
+		}
+
+		/* Type */
+
+		UI.setVisibility(holder.type, View.GONE);
+		if (holder.type != null && entity.type != null && entity.type.length() > 0) {
+
+			String type = entity.type;
+			String typeVerbose = getType(entity, true);
+			if (typeVerbose != null) {
+				type = typeVerbose;
+			}
+
+			if (type.equals(Constants.TYPE_APP_GOOGLEPLUS)) {
+				type = type.replaceFirst("plus", "+");
+			}
+
+			holder.type.setText(type);
+			UI.setVisibility(holder.type, View.VISIBLE);
+		}
+
+		/* Description */
+
+		UI.setVisibility(holder.description, View.GONE);
+		if (holder.description != null && entity.description != null && entity.description.length() > 0) {
+			holder.description.setText(entity.description);
+			UI.setVisibility(holder.description, View.VISIBLE);
+		}
+
+		/* Place context */
+
+		UI.setVisibility(holder.placeName, View.GONE);
+		if (holder.placeName != null) {
+			Entity parentEntity = entity.place;
+			if (parentEntity == null) {
+				parentEntity = EntityManager.getCacheEntity(entity.placeId);
+			}
+			if (parentEntity != null) {
+				holder.placeName.setText(parentEntity.name);
+				UI.setVisibility(holder.placeName, View.VISIBLE);
+			}
+		}
+
+		/* Comments */
+
+		UI.setVisibility(holder.comments, View.GONE);
+		if (holder.comments != null) {
+			Count count = entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_COMMENT, null, Direction.in);
+			Integer commentCount = (count != null) ? count.count.intValue() : 0;
+			if (commentCount != null && commentCount > 0) {
+				holder.comments.setText(String.valueOf(commentCount) + ((commentCount == 1) ? " Comment" : " Comments"));
+				holder.comments.setTag(entity);
+				UI.setVisibility(holder.comments, View.VISIBLE);
+			}
+		}
+
+		/* Creator */
+
+		UI.setVisibility(holder.creator, View.GONE);
+		if (holder.creator != null && entity.creator != null) {
+			if (!entity.ownerId.equals(ServiceConstants.ADMIN_USER_ID)
+					&& !entity.ownerId.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
+				holder.creator.databind(entity.creator, entity.modifiedDate.longValue());
+				UI.setVisibility(holder.creator, View.VISIBLE);
+			}
+		}
+
+		/* User photo */
+
+		UI.setVisibility(holder.userPhotoView, View.GONE);
+		if (holder.userPhotoView != null && entity.creator != null) {
+	        /*
+			 * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
+			 */
+			Photo photo = entity.creator.getPhoto();
+			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
+				holder.userPhotoView.setTag(entity.creator);
+				UI.drawPhoto(holder.userPhotoView, photo);
+			}
+			UI.setVisibility(holder.userPhotoView, View.VISIBLE);
+		}
+
+		/* User name */
+
+		UI.setVisibility(holder.userName, View.GONE);
+		if (holder.userName != null && entity.creator != null && entity.creator.name != null && entity.creator.name.length() > 0) {
+			holder.userName.setText(entity.creator.name);
+			UI.setVisibility(holder.userName, View.VISIBLE);
+		}
+
+		/* User area */
+
+		UI.setVisibility(holder.area, View.GONE);
+		if (holder.area != null && entity.creator != null && entity.creator.area != null && entity.creator.area.length() > 0) {
+			holder.area.setText(entity.creator.area);
+			UI.setVisibility(view.findViewById(R.id.separator), View.VISIBLE);
+			UI.setVisibility(holder.area, View.VISIBLE);
+		}
+		else {
+			UI.setVisibility(view.findViewById(R.id.separator), View.GONE);
+		}
+
+		/* Created date */
+
+		UI.setVisibility(holder.createdDate, View.GONE);
+		if (holder.createdDate != null && entity.createdDate != null) {
+			String compactAgo = DateTime.dateStringAt(entity.createdDate.longValue());
+			holder.createdDate.setText(compactAgo);
+			UI.setVisibility(holder.createdDate, View.VISIBLE);
+		}
+
+		/* Parent context */
+
+		UI.setVisibility(holder.parent, View.GONE);
+		if (entity.toId != null && holder.parent != null) {
+			Entity parentEntity = EntityManager.getCacheEntity(entity.toId);
+			if (parentEntity != null) {
+				holder.parent.databind(parentEntity);
+				UI.setVisibility(holder.parent, View.VISIBLE);
+			}
+		}
+
+		/* Photo */
+
+		UI.setVisibility(holder.photoView, View.GONE);
+		if (holder.photoView != null) {
+			final Photo photo = entity.schema.equals(Constants.SCHEMA_ENTITY_COMMENT) ? entity.creator.getPhoto() : entity.getPhoto();
+
+			if (photo != null) {
+				if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {
+					UI.drawPhoto(holder.photoView, photo);
+				}
+				UI.setVisibility(holder.photoView, View.VISIBLE);
+			}
+		}
+	}
+
+	public void bindHolder(View view, ViewHolder holder) {
+
+		holder.candiView = (CandiView) view.findViewById(R.id.candi_view);
+		holder.photoView = (AirImageView) view.findViewById(R.id.entity_photo);
+		holder.name = (TextView) view.findViewById(R.id.name);
+		holder.subtitle = (TextView) view.findViewById(R.id.subtitle);
+		holder.type = (TextView) view.findViewById(R.id.type);
+		holder.description = (TextView) view.findViewById(R.id.description);
+		holder.creator = (UserView) view.findViewById(R.id.creator);
+		holder.area = (TextView) view.findViewById(R.id.area);
+		holder.createdDate = (TextView) view.findViewById(R.id.created_date);
+		holder.comments = (TextView) view.findViewById(R.id.comments);
+		holder.checked = (CheckBox) view.findViewById(R.id.checked);
+		holder.overflow = (ComboButton) view.findViewById(R.id.button_overflow);
+		holder.share = (ViewGroup) view.findViewById(R.id.share);
+
+		if (holder.checked != null) {
+			holder.checked.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View view) {
+					final CheckBox checkBox = (CheckBox) view;
+					final Entity entity = (Entity) checkBox.getTag();
+					entity.checked = checkBox.isChecked();
+				}
+			});
+		}
+
+		holder.parent = (EntityView) view.findViewById(R.id.parent);
+		holder.userPhotoView = (AirImageView) view.findViewById(R.id.user_photo);
+		holder.userName = (TextView) view.findViewById(R.id.user_name);
+		holder.placeName = (TextView) view.findViewById(R.id.place_name);
+		holder.toName = (TextView) view.findViewById(R.id.to_name);
+
+		//		if (mListView instanceof GridView) {
+		//			Integer nudge = mResources.getDimensionPixelSize(R.dimen.grid_item_height_kick);
+		//			final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mPhotoWidthPixels, mPhotoWidthPixels - nudge);
+		//			holder.photoView.getImageView().setLayoutParams(params);
+		//			holder.photoView.getMissingMessage().setLayoutParams(params);
+		//		}
 	}
 
 	@Override
@@ -276,4 +562,5 @@ public abstract class EntityControllerBase implements IEntityController {
 		Photo photo = new Photo(prefix, null, null, null, source);
 		return photo;
 	}
+
 }

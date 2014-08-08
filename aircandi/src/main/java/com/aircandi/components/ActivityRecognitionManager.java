@@ -20,32 +20,33 @@ import com.google.android.gms.location.DetectedActivity;
 
 @SuppressWarnings("ucd")
 public class ActivityRecognitionManager implements
-		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener {
+                                        GooglePlayServicesClient.ConnectionCallbacks,
+                                        GooglePlayServicesClient.OnConnectionFailedListener {
 
-	private final static int			CONNECTION_FAILURE_RESOLUTION_REQUEST	= 9000;
+	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
-	protected ActivityRecognitionClient	mActivityRecognitionClient;
-	protected PendingIntent				mActivityRecognitionPendingIntent;
+	protected ActivityRecognitionClient mActivityRecognitionClient;
+	protected PendingIntent             mActivityRecognitionPendingIntent;
 
-	private Integer						mActivityTypeCurrent					= DetectedActivity.STILL;
-	private Integer						mActivityTypePrevious					= DetectedActivity.STILL;
-	private Integer						mActivityTypeConfidence;
+	private Integer mActivityTypeCurrent  = DetectedActivity.STILL;
+	private Integer mActivityTypePrevious = DetectedActivity.STILL;
+	private Integer mActivityTypeConfidence;
 
-	private Long						mActivityStateStart;
-	private ActivityState				mActivityStateCandidate;
+	private Long          mActivityStateStart;
+	private ActivityState mActivityStateCandidate;
 
-	private ActivityState				mActivityStateCurrent					= ActivityState.STILL;
-	private Integer						mActivityStateThreshold					= Constants.TIME_TEN_SECONDS;
+	private ActivityState mActivityStateCurrent   = ActivityState.STILL;
+	private Integer       mActivityStateThreshold = Constants.TIME_TEN_SECONDS;
 
-	protected Boolean					mInProgress								= false;
-	protected Integer					mDetectionInterval						= Constants.TIME_THIRTY_SECONDS;
-	protected DetectionMode				mDetectionMode							= DetectionMode.MOVING;
+	protected Boolean       mInProgress        = false;
+	protected Integer       mDetectionInterval = Constants.TIME_THIRTY_SECONDS;
+	protected DetectionMode mDetectionMode     = DetectionMode.MOVING;
 
-	private ActivityRecognitionManager() {}
+	private ActivityRecognitionManager() {
+	}
 
 	private static class ActivityRecognitionManagerHolder {
-		public static final ActivityRecognitionManager	instance	= new ActivityRecognitionManager();
+		public static final ActivityRecognitionManager instance = new ActivityRecognitionManager();
 	}
 
 	public static ActivityRecognitionManager getInstance() {
@@ -114,7 +115,7 @@ public class ActivityRecognitionManager implements
 	public void setActivityType(Integer activityType, Integer confidence) {
 
 		Logger.v(this, getNameFromType(activityType) + ": " + confidence);
-		
+
 		if (mActivityRecognitionClient == null) return;
 
 		if (activityType == DetectedActivity.UNKNOWN ||
@@ -133,22 +134,22 @@ public class ActivityRecognitionManager implements
 		else {
 			if (mActivityStateCandidate != null && (DateTime.nowDate().getTime() - mActivityStateStart) >= mActivityStateThreshold) {
 				mActivityStateCurrent = (mActivityStateCandidate == ActivityState.MOVING)
-						? ActivityState.DEPARTING
-						: ActivityState.ARRIVING;
+				                        ? ActivityState.DEPARTING
+				                        : ActivityState.ARRIVING;
 				mActivityStateCandidate = null;
 			}
 			else {
 				mActivityStateCurrent = (mActivityStateCurrent == ActivityState.DEPARTING)
-						? ActivityState.MOVING
-						: (mActivityStateCurrent == ActivityState.ARRIVING)
-								? ActivityState.STILL
-								: mActivityStateCurrent;
+				                        ? ActivityState.MOVING
+				                        : (mActivityStateCurrent == ActivityState.ARRIVING)
+				                          ? ActivityState.STILL
+				                          : mActivityStateCurrent;
 			}
 		}
 		
 		/* Throttle up/down as needed */
-		
-		if ((mActivityStateCurrent == ActivityState.ARRIVING || mActivityStateCurrent == ActivityState.STILL) 
+
+		if ((mActivityStateCurrent == ActivityState.ARRIVING || mActivityStateCurrent == ActivityState.STILL)
 				&& mDetectionMode == DetectionMode.MOVING) {
 			startUpdates(Constants.TIME_TWO_MINUTES, Constants.TIME_TEN_SECONDS);  // Transition to moving is fast
 			mDetectionMode = DetectionMode.STILL;
@@ -157,9 +158,9 @@ public class ActivityRecognitionManager implements
 				UI.showToastNotification("Activity recognition: throttling down", Toast.LENGTH_SHORT);
 			}
 		}
-		else if ((mActivityStateCurrent == ActivityState.DEPARTING || mActivityStateCurrent == ActivityState.MOVING) 
+		else if ((mActivityStateCurrent == ActivityState.DEPARTING || mActivityStateCurrent == ActivityState.MOVING)
 				&& mDetectionMode == DetectionMode.STILL) {
-			startUpdates(Constants.TIME_ONE_MINUTE, Constants.TIME_TWO_MINUTES);	// Transition to still takes more time 
+			startUpdates(Constants.TIME_ONE_MINUTE, Constants.TIME_TWO_MINUTES);    // Transition to still takes more time
 			mDetectionMode = DetectionMode.MOVING;
 			if (Aircandi.getInstance().getPrefEnableDev()) {
 				MediaManager.playSound(MediaManager.SOUND_ACTIVITY_CHANGE, 1.0f, 3);
