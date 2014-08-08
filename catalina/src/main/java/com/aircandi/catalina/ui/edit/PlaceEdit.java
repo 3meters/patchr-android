@@ -15,6 +15,8 @@ import com.aircandi.components.NetworkManager;
 import com.aircandi.components.ProximityManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
+import com.aircandi.events.BeaconsLockedEvent;
+import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.TransitionType;
@@ -23,6 +25,7 @@ import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.ui.widgets.AirTokenCompleteTextView;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 import com.tokenautocomplete.TokenCompleteTextView;
 
 import java.util.ArrayList;
@@ -61,6 +64,15 @@ public class PlaceEdit extends com.aircandi.ui.edit.PlaceEdit implements TokenCo
 	// --------------------------------------------------------------------------------------------
 	// Events
 	// --------------------------------------------------------------------------------------------
+	@Subscribe
+	public void onQueryWifiScanReceived(final QueryWifiScanReceivedEvent event) {
+		super.onQueryWifiScanReceived(event);
+	}
+
+	@Subscribe
+	public void onBeaconsLocked(BeaconsLockedEvent event) {
+		super.onBeaconsLocked(event);
+	}
 
 	@Override
 	public void onTokenAdded(Object o) {
@@ -84,7 +96,7 @@ public class PlaceEdit extends com.aircandi.ui.edit.PlaceEdit implements TokenCo
 	@Override
 	protected boolean afterInsert() {
 	    /*
-         * Only called if the insert was successful. Called on main ui thread.
+	     * Only called if the insert was successful. Called on main ui thread.
          * We link replies to the places they are associated with. This give us the option
 		 * to thread, flatten or do some combo. Called on background thread.
 		 */

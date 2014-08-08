@@ -1,6 +1,8 @@
 package com.aircandi.components;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -38,8 +40,8 @@ public class MessagingManager {
 	private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
 	private GoogleCloudMessaging mGcm;
 	private Install              mInstall;
-	private Boolean mNewActivity = false;
-	private Integer mCount       = 0;
+	private Boolean              mNewActivity = false;
+	private Map<String, Integer> mCounts      = new HashMap<String, Integer>();
 
 	private BroadcastReceiver mReceiver;
 
@@ -49,7 +51,6 @@ public class MessagingManager {
 		mReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				mCount = 0;
 				//Aircandi.applicationContext.unregisterReceiver(this);
 			}
 		};
@@ -72,7 +73,7 @@ public class MessagingManager {
 	public ServiceResponse registerInstallWithGCM() {
 
 		/*
-	     * Only called when aircandi application first runs.
+		 * Only called when aircandi application first runs.
 		 * 
 		 * Called on a background thread.
 		 * 
@@ -167,7 +168,7 @@ public class MessagingManager {
 	}
 
 	public void notificationForMessage(final ServiceMessage message, Context context) {
-        /*
+	    /*
 		 * Small icon displays on left unless a large icon is specified
 		 * and then it moves to the right.
 		 */
@@ -178,7 +179,14 @@ public class MessagingManager {
 			}
 		}
 
-		mCount++;
+		String messageTag = getTag(message);
+		if (!mCounts.containsKey(messageTag)) {
+			mCounts.put(messageTag, 1);
+		}
+		else {
+			Integer count = mCounts.get(messageTag);
+			mCounts.put(messageTag, count++);
+		}
 
 		message.intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		message.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -196,7 +204,7 @@ public class MessagingManager {
 				.setContentTitle(message.title)
 				.setContentText(message.subtitle)
 				.setDeleteIntent(deleteIntent)
-				.setNumber(mCount)
+				.setNumber(mCounts.get(messageTag))
 				.setTicker(StringManager.getString(R.string.label_notification_ticker))
 				.setSmallIcon(R.drawable.ic_stat_notification)
 				.setAutoCancel(true)
@@ -303,12 +311,10 @@ public class MessagingManager {
 	// --------------------------------------------------------------------------------------------
 
 	public String getTag(ActivityBase activity) {
-		if (activity.action.getEventCategory().equals(EventCategory.FORWARD))
-			return Tag.UPDATE;
-		else if (activity.action.getEventCategory().equals(EventCategory.MOVE))
-			return Tag.UPDATE;
-		else if (activity.action.getEventCategory().equals(EventCategory.INSERT))
+		if (activity.action.getEventCategory().equals(EventCategory.INSERT))
 			return Tag.INSERT;
+		else if (activity.action.getEventCategory().equals(EventCategory.SHARE))
+			return Tag.SHARE;
 
 		return Tag.UPDATE;
 	}
@@ -337,16 +343,13 @@ public class MessagingManager {
 		mNewActivity = newActivity;
 	}
 
-	public Integer getCount() {
-		return mCount;
-	}
-
-	public void setCount(Integer count) {
-		mCount = count;
+	public void clearCounts() {
+		mCounts.clear();
 	}
 
 	public static class Tag {
 		public static String INSERT  = "insert";
+		public static String SHARE   = "share";
 		public static String UPDATE  = "update";
 		@SuppressWarnings("ucd")
 		public static String REFRESH = "refresh";

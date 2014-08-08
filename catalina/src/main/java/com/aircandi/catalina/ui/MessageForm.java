@@ -143,7 +143,7 @@ public class MessageForm extends BaseEntityForm {
 
             /* Clear notifications and activity indicator */
 			MessagingManager.getInstance().setNewActivity(false);
-			MessagingManager.getInstance().setCount(0);
+			MessagingManager.getInstance().clearCounts();
 			if (mEntityMonitor.changed) {
 				mListFragment.bind(BindingMode.MANUAL);
 			}

@@ -11,7 +11,7 @@ public class PreferenceManager {
 
 	public Boolean notificationEnabled(String triggerCategory, Entity entity) {
 
-		if (entity.type.equals(Constants.TYPE_LINK_SHARE)) {
+		if (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE)) {
 			if (!Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_messages_share)
 					, Booleans.getBoolean(R.bool.pref_notifications_share_default)))
 				return false;

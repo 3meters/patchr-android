@@ -24,7 +24,7 @@ public class SherlockMapFragment extends SupportMapFragment
 	@Override
 	public void onAttach(Activity activity) {
 		if (!(activity instanceof SherlockFragmentActivity)) {
-			throw new IllegalStateException(getClass().getSimpleName() + " must be attached to a SherlockFragmentActivity.");
+			throw new IllegalStateException(((Object)this).getClass().getSimpleName() + " must be attached to a SherlockFragmentActivity.");
 		}
 		mActivity = (SherlockFragmentActivity) activity;
 

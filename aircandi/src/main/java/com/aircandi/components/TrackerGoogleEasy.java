@@ -105,7 +105,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 			/*
 			 * Screen name as set will be included in all subsequent sends.
 			 */
-			EasyTracker.getInstance(Aircandi.applicationContext).set(Fields.SCREEN_NAME, fragment.getClass().getSimpleName());
+			EasyTracker.getInstance(Aircandi.applicationContext).set(Fields.SCREEN_NAME, ((Object) fragment).getClass().getSimpleName());
 			EasyTracker.getInstance(Aircandi.applicationContext).send(MapBuilder.createAppView().build());
 		}
 		catch (Exception e) {

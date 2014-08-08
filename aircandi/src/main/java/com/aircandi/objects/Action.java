@@ -71,8 +71,6 @@ public class Action extends ServiceObject implements Cloneable, Serializable {
 		if (this.event.contains("update")) return EventCategory.UPDATE;
 		if (this.event.contains("delete")) return EventCategory.DELETE;
 		if (this.event.contains("watch")) return EventCategory.WATCH;
-		if (this.event.contains("move")) return EventCategory.MOVE;
-		if (this.event.contains("forward")) return EventCategory.FORWARD;
 		return EventCategory.UNKNOWN;
 	}
 
@@ -86,8 +84,6 @@ public class Action extends ServiceObject implements Cloneable, Serializable {
 		public static String DELETE  = "delete";
 		public static String UPDATE  = "update";
 		public static String WATCH   = "watch";
-		public static String MOVE    = "move";
-		public static String FORWARD = "forward";
 		public static String UNKNOWN = "unknown";
 	}
 }

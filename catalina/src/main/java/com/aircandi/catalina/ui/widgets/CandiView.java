@@ -99,7 +99,7 @@ public class CandiView extends com.aircandi.ui.widgets.CandiView {
 				int shortcutCount = 0;
 				for (Shortcut shortcut : shortcuts) {
 					if (shortcutCount < Integers.getInteger(R.integer.limit_indicators_radar)) {
-						View view = inflater.inflate(R.layout.temp_indicator_message, mHolderShortcuts);
+						View view = inflater.inflate(R.layout.temp_indicator_message, mHolderShortcuts, false);
 						TextView name = (TextView) view.findViewById(R.id.indicator_name);
 						TextView message = (TextView) view.findViewById(R.id.indicator_message);
 						name.setText(shortcut.creator.name);
@@ -109,6 +109,7 @@ public class CandiView extends com.aircandi.ui.widgets.CandiView {
 						else if (shortcut.photo != null) {
 							message.setText("+photo");
 						}
+						mHolderShortcuts.addView(view);
 					}
 					shortcutCount++;
 				}

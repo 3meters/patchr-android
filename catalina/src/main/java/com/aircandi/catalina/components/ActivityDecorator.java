@@ -89,6 +89,11 @@ public class ActivityDecorator extends com.aircandi.components.ActivityDecorator
 						return String.format("replied to a message at a %1$s of yours.", activity.action.toEntity.getLabelForSchema());
 				}
 			}
+			else if (activity.action.entity.schema.equals(com.aircandi.Constants.SCHEMA_ENTITY_PLACE)) {
+
+				if (activity.trigger.equals(TriggerType.NEARBY))
+					return "dropped a new patch nearby.";
+			}
 		}
 		else if (activity.action.getEventCategory().equals(EventCategory.SHARE)) {
 
@@ -96,6 +101,7 @@ public class ActivityDecorator extends com.aircandi.components.ActivityDecorator
 				return "shared with you.";
 			}
 		}
+
 		Logger.w(ActivityDecorator.class, "activity missing subtitle");
 		return null;
 	}

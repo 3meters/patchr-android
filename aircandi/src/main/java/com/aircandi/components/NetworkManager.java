@@ -304,7 +304,7 @@ public class NetworkManager {
 	public Boolean isWifiEnabled() {
 		Boolean wifiEnabled = null;
 		if (mWifiManager != null) {
-			wifiEnabled = mWifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED;
+			wifiEnabled = (mWifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED);
 		}
 		return wifiEnabled;
 	}
