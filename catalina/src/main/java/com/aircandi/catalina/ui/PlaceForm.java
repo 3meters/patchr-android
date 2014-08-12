@@ -65,9 +65,11 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 			if (uri != null) {
 				if (uri.getPath().contains("/place/")) {
 					mEntityId = uri.getPath().replace("/place/", "");
+					mAutoWatch = true;
 				}
 				else if (uri.getPath().contains("/patch/")) {
 					mEntityId = uri.getPath().replace("/patch/", "");
+					mAutoWatch = true;
 				}
 			}
 		}
