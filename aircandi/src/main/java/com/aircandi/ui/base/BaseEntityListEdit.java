@@ -1,9 +1,5 @@
 package com.aircandi.ui.base;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -33,6 +29,10 @@ import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 
@@ -105,10 +105,9 @@ public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 		return null;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	public void onActivityComplete() {
 		if (mListNewEnabled) {
 			showButtonSpecial(mEntities.size() == 0, StringManager.getString(R.string.button_list_new_applink));
@@ -282,10 +281,9 @@ public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void confirmDelete() {
 
@@ -381,29 +379,22 @@ public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void onResume() {
 		super.onResume();
 		bind(BindingMode.AUTO);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------	
-
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	protected abstract static class EntityListAdapter extends ArrayAdapter<Entity> implements Filterable {
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    protected abstract static class EntityListAdapter extends ArrayAdapter<Entity> implements Filterable {
 
 		protected       Integer      mItemLayoutId;
 		protected final List<Entity> mListItems;

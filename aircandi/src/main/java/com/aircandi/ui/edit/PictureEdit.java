@@ -1,7 +1,5 @@
 package com.aircandi.ui.edit;
 
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.ViewFlipper;
@@ -16,6 +14,8 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Post;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.utilities.Dialogs;
+
+import java.util.List;
 
 @SuppressLint("Registered")
 public class PictureEdit extends BaseEntityEdit {
@@ -33,10 +33,9 @@ public class PictureEdit extends BaseEntityEdit {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected boolean validate() {
 		if (!super.validate()) return false;
@@ -71,10 +70,9 @@ public class PictureEdit extends BaseEntityEdit {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.picture_edit;

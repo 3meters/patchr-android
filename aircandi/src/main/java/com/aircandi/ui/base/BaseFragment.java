@@ -1,8 +1,5 @@
 package com.aircandi.ui.base;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.res.Configuration;
@@ -35,6 +32,9 @@ import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.UI;
 import com.nineoldandroids.view.ViewHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class BaseFragment extends SherlockFragment implements IForm, IBind {
 
 	public    Entity    mEntity;
@@ -44,7 +44,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	protected Boolean mActivityStream     = false;
 	protected Boolean mSelfBindingEnabled = true;
 
-	protected Boolean mLoaded      = false;
+	protected Boolean mLoaded      = false; // Used to control busy feedback
 	protected Integer mScrollState = OnScrollListener.SCROLL_STATE_IDLE;
 
 	protected Button mButtonSpecial;
@@ -55,10 +55,9 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	protected Integer mTitleResId;
 	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onAttach(Activity activity) {
 		/* Called when the fragment has been associated with the activity. */
@@ -138,10 +137,9 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 		super.onConfigurationChanged(newConfig);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void unpackIntent() {
 	}
@@ -245,10 +243,9 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	public void share() {
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	@SuppressWarnings("ucd")
 	public Boolean isActivityStream() {
 		return mActivityStream;
@@ -314,10 +311,9 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 		return this;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		Logger.d(this, "Creating fragment options menu");
@@ -339,10 +335,9 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 		super.onPrepareOptionsMenu(menu);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onStart() {
 		Logger.d(this, "Fragment start");

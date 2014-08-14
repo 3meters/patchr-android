@@ -1,10 +1,5 @@
 package com.aircandi.components;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -17,6 +12,11 @@ import android.provider.MediaStore;
 import com.aircandi.Aircandi;
 import com.aircandi.R;
 import com.aircandi.utilities.Booleans;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 @SuppressWarnings("ucd")
 public class MediaManager {

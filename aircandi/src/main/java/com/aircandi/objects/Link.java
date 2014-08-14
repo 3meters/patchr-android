@@ -1,14 +1,14 @@
 package com.aircandi.objects;
 
+import com.aircandi.Constants;
+import com.aircandi.service.Expose;
+import com.aircandi.service.SerializedName;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.aircandi.Constants;
-import com.aircandi.service.Expose;
-import com.aircandi.service.SerializedName;
 
 /**
  * @author Jayma
@@ -57,10 +57,9 @@ public class Link extends ServiceBase {
 		this.fromId = fromId;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Set and get
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Set and get
+	 *--------------------------------------------------------------------------------------------*/
 	public Integer getProximityScore() {
 		Integer score = 0;
 		if (this.stats != null) {
@@ -122,10 +121,9 @@ public class Link extends ServiceBase {
 		return collectionId;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Copy and serialization
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Copy and serialization
+	 *--------------------------------------------------------------------------------------------*/
 	public static Link setPropertiesFromMap(Link link, Map map, Boolean nameMapping) {
 
 		link = (Link) ServiceBase.setPropertiesFromMap(link, map, nameMapping);
@@ -166,11 +164,9 @@ public class Link extends ServiceBase {
 		return link;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public enum Direction {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public enum Direction {
 		in,
 		out,
 		both

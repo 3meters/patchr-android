@@ -1,14 +1,14 @@
 package com.aircandi.queries;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.aircandi.Aircandi;
 import com.aircandi.components.ProximityManager.ModelResult;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.EventType;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.utilities.Maps;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ActivityByUserQuery implements IQuery {
 

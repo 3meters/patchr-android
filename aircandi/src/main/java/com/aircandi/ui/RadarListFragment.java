@@ -1,9 +1,5 @@
 package com.aircandi.ui;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.location.Location;
@@ -64,6 +60,10 @@ import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class RadarListFragment extends EntityListFragment {
 
@@ -251,10 +251,9 @@ public class RadarListFragment extends EntityListFragment {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onClick(View view) {
 		final Place entity = (Place) ((ViewHolder) view.getTag()).data;
@@ -453,10 +452,9 @@ public class RadarListFragment extends EntityListFragment {
 		mAdapter.notifyDataSetChanged();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	private void searchForPlaces() {
 
 		new AsyncTask() {
@@ -492,10 +490,9 @@ public class RadarListFragment extends EntityListFragment {
 		}.execute();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// UI
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * UI
+	 *--------------------------------------------------------------------------------------------*/
 	private void doBeaconIndicatorClick() {
 		if (mBeaconIndicator != null) {
 			final StringBuilder beaconMessage = new StringBuilder(500);
@@ -615,10 +612,9 @@ public class RadarListFragment extends EntityListFragment {
 		mBeaconIndicator.setText(mDebugWifi + ":" + mDebugLocation);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------	
-
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		/*
@@ -660,10 +656,9 @@ public class RadarListFragment extends EntityListFragment {
 		return true;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onStart() {
 		/*
@@ -711,11 +706,9 @@ public class RadarListFragment extends EntityListFragment {
 		super.onStop();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	/* Stub for future use because I hate bind() */
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/ 	/* Stub for future use because I hate bind() */
 	@SuppressWarnings("ucd")
 	public class RadarMonitor extends SimpleMonitor {
 	}

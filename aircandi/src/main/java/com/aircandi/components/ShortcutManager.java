@@ -1,7 +1,5 @@
 package com.aircandi.components;
 
-import java.util.List;
-
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -10,6 +8,8 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.utilities.Colors;
+
+import java.util.List;
 
 public class ShortcutManager {
 

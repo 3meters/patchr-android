@@ -90,9 +90,9 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		mInput.setTokenListener(mTokenListener != null ? mTokenListener : this);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onTokenAdded(Object o) {
 		Entity entity = (Entity) o;
@@ -115,14 +115,11 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	public void onTokenRemoved(Object o) {
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	public EntitySuggestController setInput(AirTokenCompleteTextView input) {
 		mInput = input;
 		return this;
@@ -157,11 +154,9 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		return mSeedEntities;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	private class SuggestArrayAdapter extends ArrayAdapter<Entity> {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    private class SuggestArrayAdapter extends ArrayAdapter<Entity> {
 
 		private Filter       mFilter;
 		private List<Entity> mSeedEntities;
@@ -277,7 +272,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 			@Override
 			protected FilterResults performFiltering(CharSequence chars) {
-	            /*
+		        /*
                  * Called on background thread.
                  */
 				mSuggestInProgress = true;

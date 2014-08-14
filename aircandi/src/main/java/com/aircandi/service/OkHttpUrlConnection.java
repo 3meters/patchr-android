@@ -1,5 +1,20 @@
 package com.aircandi.service;
 
+import android.os.Build;
+import android.text.TextUtils;
+
+import com.aircandi.Aircandi;
+import com.aircandi.Constants;
+import com.aircandi.ServiceConstants;
+import com.aircandi.components.Logger;
+import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.components.Stopwatch;
+import com.aircandi.objects.ServiceData;
+import com.aircandi.ui.AircandiForm;
+import com.aircandi.utilities.Json;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.OkUrlFactory;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -18,21 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.SSLContext;
-
-import android.os.Build;
-import android.text.TextUtils;
-
-import com.aircandi.Aircandi;
-import com.aircandi.Constants;
-import com.aircandi.ServiceConstants;
-import com.aircandi.components.Logger;
-import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.Stopwatch;
-import com.aircandi.objects.ServiceData;
-import com.aircandi.ui.AircandiForm;
-import com.aircandi.utilities.Json;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.OkUrlFactory;
 
 public class OkHttpUrlConnection extends BaseConnection {
 	/*
@@ -311,10 +311,9 @@ public class OkHttpUrlConnection extends BaseConnection {
 		return null;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Post
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Post
+	 *--------------------------------------------------------------------------------------------*/
 	private InputStream post(HttpURLConnection connection, String string, AirHttpRequest request, ServiceResponse serviceResponse)
 			throws IOException, InterruptedException {
 
@@ -465,10 +464,9 @@ public class OkHttpUrlConnection extends BaseConnection {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Get
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Get
+	 *--------------------------------------------------------------------------------------------*/
 	private InputStream get(HttpURLConnection connection, AirHttpRequest request, ServiceResponse serviceResponse)
 			throws IOException, InterruptedException {
 

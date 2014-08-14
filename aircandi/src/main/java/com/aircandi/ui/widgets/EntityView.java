@@ -59,10 +59,9 @@ public class EntityView extends LinearLayout {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public void initialize() {
 
 		if (mLayoutResId != null) {
@@ -124,7 +123,7 @@ public class EntityView extends LinearLayout {
 
 						@Override
 						public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
-	                        /*
+		                    /*
                              * Called on main thread and whether bitmap was loaded from network or memory.
                              */
 							final BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
@@ -169,10 +168,9 @@ public class EntityView extends LinearLayout {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	public void setAnimateDisabled(Boolean animateDisabled) {
 		mAnimateDisabled = animateDisabled;
 	}

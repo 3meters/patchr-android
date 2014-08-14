@@ -1,9 +1,5 @@
 package com.aircandi.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import android.graphics.drawable.Drawable;
 
 import com.aircandi.Aircandi;
@@ -20,6 +16,10 @@ import com.aircandi.ui.PictureForm;
 import com.aircandi.ui.edit.PictureEdit;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class Pictures extends EntityControllerBase {
 

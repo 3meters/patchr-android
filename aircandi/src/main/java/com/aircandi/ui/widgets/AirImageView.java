@@ -1,7 +1,5 @@
 package com.aircandi.ui.widgets;
 
-import it.sephiroth.android.library.imagezoom.ImageViewTouch;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -26,6 +24,8 @@ import com.aircandi.objects.Photo;
 import com.aircandi.utilities.UI;
 import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
+
+import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 
 @SuppressWarnings("ucd")
 public class AirImageView extends FrameLayout implements Target {
@@ -130,10 +130,9 @@ public class AirImageView extends FrameLayout implements Target {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		if (mImageMain != null) {
@@ -230,10 +229,9 @@ public class AirImageView extends FrameLayout implements Target {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public void showLoading(final Boolean visible) {
 		mThreadHandler.post(new Runnable() {
 
@@ -264,10 +262,9 @@ public class AirImageView extends FrameLayout implements Target {
 		});
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	public ImageView getImageView() {
 		return mImageMain;
 	}
@@ -393,11 +390,9 @@ public class AirImageView extends FrameLayout implements Target {
 		requestLayout();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public enum SizeType {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public enum SizeType {
 		/*
 		 * Always append new enum items because there is a
 		 * dependency on ordering for persistence.

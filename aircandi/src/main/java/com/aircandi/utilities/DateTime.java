@@ -1,14 +1,14 @@
 package com.aircandi.utilities;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import android.text.format.DateUtils;
 
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
 
-import android.text.format.DateUtils;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class DateTime {
 

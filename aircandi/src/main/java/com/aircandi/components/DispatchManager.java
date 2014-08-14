@@ -1,8 +1,5 @@
 package com.aircandi.components;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
@@ -52,6 +49,9 @@ import com.aircandi.ui.user.SignInEdit;
 import com.aircandi.utilities.Debug;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DispatchManager {
 
@@ -285,7 +285,7 @@ public class DispatchManager {
 		}
 
 		else if (route == Route.PHOTO) {
-	        /*
+		    /*
 			 * Single photo to show and it has already been serialized into the extras bundle.
 			 */
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoForm.class);

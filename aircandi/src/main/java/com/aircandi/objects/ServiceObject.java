@@ -1,8 +1,8 @@
 package com.aircandi.objects;
 
-import java.io.Serializable;
-
 import com.aircandi.objects.ServiceBase.UpdateScope;
+
+import java.io.Serializable;
 
 public class ServiceObject implements Cloneable, Serializable {
 

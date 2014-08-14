@@ -3,6 +3,8 @@ package com.aircandi.catalina.ui;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
@@ -14,6 +16,7 @@ import com.aircandi.catalina.R;
 import com.aircandi.catalina.queries.MessagesQuery;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
+import com.aircandi.components.MessagingManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.MessageEvent;
 import com.aircandi.monitors.EntityMonitor;
@@ -22,6 +25,7 @@ import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Route;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.queries.TrendQuery;
+import com.aircandi.ui.ActivityFragment;
 import com.aircandi.ui.EntityListFragment;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.RadarListFragment;
@@ -72,11 +76,9 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
-	@Override
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/ 	@Override
 	public void onAdd(Bundle extras) {
 		if (!extras.containsKey(Constants.EXTRA_ENTITY_SCHEMA)) {
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
@@ -119,11 +121,9 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 		mDrawerLayout.closeDrawer(mDrawer);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
-	@Override
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/ 	@Override
 	public void setCurrentFragment(String fragmentType, View view) {
 		Logger.i(this, "setCurrentFragment called");
 		/*
@@ -322,11 +322,20 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------	
+	protected Boolean showingMessages() {
+		return (mCurrentFragment != null && ((Object) mCurrentFragment).getClass().equals(MessageListFragment.class));
+	}
 
-	@Override
+	protected void scrollToTopOfList() {
+		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
+			AbsListView list = ((EntityListFragment) mCurrentFragment).getListView();
+			((ListView) list).setSelectionAfterHeaderView();
+		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/ 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 
@@ -344,7 +353,15 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 			notifications.getActionView().findViewById(com.aircandi.R.id.notifications_frame).setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					mDrawerLayout.openDrawer(mDrawer);
+					if (showingMessages()) {
+						scrollToTopOfList();  // Scrolling will trigger an activity update
+						MessagingManager.getInstance().setNewActivity(false);
+						updateActivityAlert();
+						MessagingManager.getInstance().cancelNotifications();
+					}
+					else {
+						mDrawerLayout.openDrawer(mDrawer);
+					}
 				}
 			});
 		}
@@ -352,21 +369,15 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 		return true;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
-	@Override
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/ 	@Override
 	protected int getLayoutId() {
 		return R.layout.aircandi_form;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-}
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/ }

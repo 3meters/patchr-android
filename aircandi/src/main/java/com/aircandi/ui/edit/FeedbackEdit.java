@@ -1,7 +1,5 @@
 package com.aircandi.ui.edit;
 
-import java.util.HashMap;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -23,6 +21,8 @@ import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
+
+import java.util.HashMap;
 
 public class FeedbackEdit extends BaseEntityEdit {
 
@@ -66,10 +66,9 @@ public class FeedbackEdit extends BaseEntityEdit {
 		((UserView) findViewById(R.id.created_by)).databind(Aircandi.getInstance().getCurrentUser(), null);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected String getLinkType() {
 		return null;
@@ -80,10 +79,9 @@ public class FeedbackEdit extends BaseEntityEdit {
 		mFeedback.data.put("message", mDescription.getText().toString().trim());
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Services
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Services
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected boolean validate() {
 		if (!super.validate()) return false;
@@ -135,14 +133,11 @@ public class FeedbackEdit extends BaseEntityEdit {
 		}.execute();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.feedback_edit;

@@ -1,7 +1,5 @@
 package com.aircandi.utilities;
 
-import java.util.Locale;
-
 import android.content.Context;
 import android.location.Location;
 import android.net.wifi.WifiManager;
@@ -12,6 +10,8 @@ import com.aircandi.components.NetworkManager;
 import com.aircandi.components.ProximityManager;
 import com.aircandi.objects.User;
 import com.crashlytics.android.Crashlytics;
+
+import java.util.Locale;
 
 public class Reporting {
 

@@ -1,9 +1,5 @@
 package com.aircandi.ui.base;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -62,6 +58,10 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public abstract class BaseEntityForm extends BaseActivity {
 
 	public    ScrollView mScrollView;
@@ -96,7 +96,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	public void beforeDatabind(final BindingMode mode) {
 	    /*
-         * If cache entity is fresher than the one currently bound to or there is
+	     * If cache entity is fresher than the one currently bound to or there is
 		 * a cache entity available, go ahead and draw before we check against the service.
 		 */
 		mEntity = EntityManager.getCacheEntity(mEntityId);
@@ -200,10 +200,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}.execute();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onRefresh() {
 		bind(BindingMode.MANUAL); // Called from Routing
@@ -330,10 +329,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// UI
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * UI
+	 *--------------------------------------------------------------------------------------------*/
 	protected void drawStats() {
 	}
 
@@ -564,10 +562,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public void watch(final boolean autoWatch) {
 
 		new AsyncTask() {
@@ -647,14 +644,11 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void onResume() {
 		super.onResume();

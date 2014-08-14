@@ -1,9 +1,5 @@
 package com.aircandi.utilities;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -15,6 +11,10 @@ import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Document;
 import com.aircandi.objects.Log;
 import com.aircandi.objects.Place;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Debug {
 

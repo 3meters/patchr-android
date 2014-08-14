@@ -1,8 +1,8 @@
 package com.aircandi.events;
 
-import java.util.List;
-
 import com.aircandi.components.ProximityManager.WifiScanResult;
+
+import java.util.List;
 
 @SuppressWarnings("ucd")
 public class QueryWifiScanReceivedEvent {

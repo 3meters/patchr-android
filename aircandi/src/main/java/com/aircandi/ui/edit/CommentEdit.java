@@ -1,7 +1,5 @@
 package com.aircandi.ui.edit;
 
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.WindowManager;
@@ -15,6 +13,8 @@ import com.aircandi.objects.Link;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.utilities.Dialogs;
 
+import java.util.List;
+
 @SuppressLint("Registered")
 public class CommentEdit extends BaseEntityEdit {
 
@@ -24,10 +24,9 @@ public class CommentEdit extends BaseEntityEdit {
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected String getLinkType() {
 		return Constants.TYPE_LINK_CONTENT;
@@ -58,10 +57,9 @@ public class CommentEdit extends BaseEntityEdit {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.comment_edit;

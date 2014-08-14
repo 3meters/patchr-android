@@ -1,12 +1,12 @@
 package com.aircandi.objects;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.aircandi.ServiceConstants;
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * Initial user settings (owner,creator):
@@ -96,10 +96,9 @@ public abstract class ServiceBase extends ServiceObject {
 	protected ServiceBase() {
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Set and get
-	// --------------------------------------------------------------------------------------------	
-
+	/*--------------------------------------------------------------------------------------------
+	 * Set and get
+	 *--------------------------------------------------------------------------------------------*/
 	public String getEntryUri() {
 		final String root = ServiceConstants.URL_PROXIBASE_SERVICE_REST;
 		final String entity = getCollection();
@@ -113,10 +112,9 @@ public abstract class ServiceBase extends ServiceObject {
 		return (position != null) ? position.intValue() : 0;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Copy and serialization
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Copy and serialization
+	 *--------------------------------------------------------------------------------------------*/
 	public static ServiceBase setPropertiesFromMap(ServiceBase base, Map map, Boolean nameMapping) {
 
 		base.id = (String) (nameMapping ? (map.get("_id") != null) ? map.get("_id") : map.get("id") : map.get("id"));
@@ -174,11 +172,9 @@ public abstract class ServiceBase extends ServiceObject {
 		return entry;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static class SortByPositionSortDate implements Comparator<ServiceBase> {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public static class SortByPositionSortDate implements Comparator<ServiceBase> {
 
 		@Override
 		public int compare(ServiceBase object1, ServiceBase object2) {

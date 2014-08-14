@@ -1,9 +1,5 @@
 package com.aircandi.ui;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +12,10 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.utilities.DateTime;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 public class AboutForm extends BaseActivity {
 
@@ -69,9 +69,9 @@ public class AboutForm extends BaseActivity {
 		setActivityTitle(StringManager.getString(R.string.label_about_title));
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	public void onCancel(Boolean force) {
@@ -95,24 +95,22 @@ public class AboutForm extends BaseActivity {
 		Aircandi.dispatch.route(this, Route.LEGAL, null, null, null);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void onResume() {
 		super.onResume();
 		bind(BindingMode.AUTO);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/
 
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.about_form;

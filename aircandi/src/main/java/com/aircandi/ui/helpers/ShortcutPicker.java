@@ -1,8 +1,5 @@
 package com.aircandi.ui.helpers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -31,6 +28,9 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
 import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ShortcutPicker extends BaseActivity {
 
@@ -101,29 +101,26 @@ public class ShortcutPicker extends BaseActivity {
 		mList.setAdapter(adapter);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@SuppressWarnings("ucd")
 	public void onListItemClick(View view) {
 		Shortcut shortcut = (Shortcut) ((ViewHolder) view.getTag()).data;
 		Aircandi.dispatch.shortcut(this, shortcut, mEntity, null, null);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.link_picker;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -132,11 +129,9 @@ public class ShortcutPicker extends BaseActivity {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	static public class ShortcutListAdapter extends ArrayAdapter<Shortcut>
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    static public class ShortcutListAdapter extends ArrayAdapter<Shortcut>
 			implements Filterable {
 
 		private final LayoutInflater mInflater;

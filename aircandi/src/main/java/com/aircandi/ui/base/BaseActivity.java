@@ -1,7 +1,5 @@
 package com.aircandi.ui.base;
 
-import java.lang.reflect.Field;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -65,6 +63,8 @@ import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
 import com.nineoldandroids.view.ViewHelper;
 
+import java.lang.reflect.Field;
+
 public abstract class BaseActivity extends SherlockFragmentActivity implements OnRefreshListener, IForm, IBind {
 
 	protected ActionBar     mActionBar;
@@ -105,7 +105,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 	    /*
-         * We do all this here so the work is finished before subclasses start
+	     * We do all this here so the work is finished before subclasses start
 		 * their create/initialize processing.
 		 */
 		Logger.d(this, "Activity created");
@@ -194,10 +194,9 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		catch (Exception ignore) {}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@SuppressWarnings("ucd")
 	public void onOverflowButtonClick(View view) {
 		popupMenu(view);
@@ -283,10 +282,9 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	protected int getLayoutId() {
 		return 0;
 	}
@@ -335,10 +333,9 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		return mEntity;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void draw() {
 	}
@@ -644,10 +641,9 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Logger.v(this, "Creating options menu");
@@ -810,10 +806,9 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		alert.show();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void onRestart() {
 		Logger.d(this, "Activity restarting");
@@ -888,10 +883,9 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		window.setFormat(PixelFormat.RGBA_8888);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/
 	public Boolean getInvalidated() {
 		return mInvalidated;
 	}

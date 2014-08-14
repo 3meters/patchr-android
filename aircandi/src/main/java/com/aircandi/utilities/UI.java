@@ -1,7 +1,5 @@
 package com.aircandi.utilities;
 
-import it.sephiroth.android.library.imagezoom.ImageViewTouch;
-
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -39,15 +37,17 @@ import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 import com.squareup.picasso.RequestCreator;
 
+import it.sephiroth.android.library.imagezoom.ImageViewTouch;
+
 @SuppressWarnings("ucd")
 public class UI {
 
-	/* --------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
 	   Photos
-	   -------------------------------------------------------------------------------------------- */
+	  /* *--------------------------------------------------------------------------------------------*/
 
 	public static void drawPhoto(final AirImageView photoView, final Photo photo) {
-        /*
+	    /*
          * There are only a few places that don't use this code to handle images:
 		 * - Notification icons - can't use AirImageView
 		 * - Actionbar icons - can't use AirImageView (shortcutpicker, placeform)
@@ -141,9 +141,9 @@ public class UI {
 		}
 	}
 
-	/* --------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
 	   Utilities
-	   -------------------------------------------------------------------------------------------- */
+	  /* *--------------------------------------------------------------------------------------------*/
 
 	public static int getRawPixelsForDisplayPixels(Float displayPixels) {
 		final DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
@@ -228,9 +228,9 @@ public class UI {
 		return resId;
 	}
 
-	/* --------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
 	   Display
-	   -------------------------------------------------------------------------------------------- */
+	  /* *--------------------------------------------------------------------------------------------*/
 
 	public static void showToastNotification(final String message, final int duration) {
 		showToastNotification(message, duration, 0);
@@ -420,9 +420,9 @@ public class UI {
 		}
 	}
 
-	/* --------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
 	   Input
-   	   -------------------------------------------------------------------------------------------- */
+   	  /* *--------------------------------------------------------------------------------------------*/
 
 	public static void hideSoftInput(Context context) {
 		InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);

@@ -1,8 +1,5 @@
 package com.aircandi.controllers;
 
-import java.util.List;
-import java.util.Map;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -13,6 +10,9 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Photo;
+
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("ucd")
 public interface IEntityController {

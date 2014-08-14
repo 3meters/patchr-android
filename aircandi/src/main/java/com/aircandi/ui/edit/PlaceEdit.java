@@ -1,8 +1,5 @@
 package com.aircandi.ui.edit;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -45,6 +42,9 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Maps;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressLint("Registered")
 public class PlaceEdit extends BaseEntityEdit {
@@ -157,7 +157,7 @@ public class PlaceEdit extends BaseEntityEdit {
 						ProximityManager.getInstance().lockBeacons();
 					}
 					else {
-	                    /*
+		                /*
                          * We fake that the tuning happened because it is simpler than enabling/disabling ui
 						 */
 						mBusy.hideBusy(false);
@@ -262,10 +262,9 @@ public class PlaceEdit extends BaseEntityEdit {
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	private void tuneProximity() {
         /*
          * If there are beacons:
@@ -459,14 +458,11 @@ public class PlaceEdit extends BaseEntityEdit {
 
 	;
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return (mLayoutResId != null && mLayoutResId != 0) ? mLayoutResId : R.layout.place_edit;

@@ -1,12 +1,12 @@
 package com.aircandi.objects;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.aircandi.Aircandi;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.service.Expose;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Jayma
@@ -31,7 +31,7 @@ public class Action extends ServiceObject implements Cloneable, Serializable {
 
 	public static Action setPropertiesFromMap(Action action, Map map, Boolean nameMapping) {
 	    /*
-         * Properties involved with editing are copied from one entity to another.
+	     * Properties involved with editing are copied from one entity to another.
 		 */
 		action.event = (String) map.get("event");
 
@@ -74,11 +74,9 @@ public class Action extends ServiceObject implements Cloneable, Serializable {
 		return EventCategory.UNKNOWN;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static class EventCategory {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public static class EventCategory {
 		public static String SHARE   = "share";
 		public static String INSERT  = "insert";
 		public static String DELETE  = "delete";

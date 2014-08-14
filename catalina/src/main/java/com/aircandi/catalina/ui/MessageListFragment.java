@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ViewAnimator;
 
 import com.aircandi.Aircandi;
@@ -15,12 +16,13 @@ import com.aircandi.catalina.R;
 import com.aircandi.catalina.objects.Message;
 import com.aircandi.catalina.objects.Message.MessageType;
 import com.aircandi.components.Extras;
+import com.aircandi.components.MessagingManager;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.controllers.ViewHolder;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
-import com.aircandi.ui.EntityListFragment;
+import com.aircandi.ui.*;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.components.AnimationFactory;
 import com.aircandi.ui.components.AnimationFactory.FlipDirection;
@@ -31,17 +33,15 @@ public class MessageListFragment extends EntityListFragment {
 
 	private ViewAnimator mHeaderViewAnimator;
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
-	@Override
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/ 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		View view = super.onCreateView(inflater, container, savedInstanceState);
 
 		if (mHeaderView != null) {
-	        /*
+		    /*
 			 * Parallax the photo
 			 */
 			mHeaderCandiView = mHeaderView.findViewById(R.id.candi_view);
@@ -53,6 +53,27 @@ public class MessageListFragment extends EntityListFragment {
 			 * Grab the animator
 			 */
 			mHeaderViewAnimator = (ViewAnimator) mHeaderView.findViewById(R.id.animator_header);
+		}
+
+		if (mListView != null) {
+			mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+				@Override
+				public void onScrollStateChanged(AbsListView view, int scrollState) {
+					if (scrollState == SCROLL_STATE_IDLE && mActivityStream) {
+						if (MessagingManager.getInstance().getNewActivity()) {
+							MessagingManager.getInstance().setNewActivity(false);
+							if (getSherlockActivity() != null) {
+								((com.aircandi.ui.AircandiForm) getSherlockActivity()).updateActivityAlert();
+							}
+							MessagingManager.getInstance().cancelNotifications();
+						}
+					}
+				}
+
+				@Override
+				public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+				}
+			});
 		}
 
 		return view;
@@ -93,11 +114,9 @@ public class MessageListFragment extends EntityListFragment {
 		super.onAttach(activity);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
-	@Override
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/ 	@Override
 	protected void postBind() {
 		super.postBind();
 	}
@@ -147,19 +166,14 @@ public class MessageListFragment extends EntityListFragment {
 		view.requestLayout();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
+		Properties
+	 * *--------------------------------------------------------------------------------------------*/
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-}
+ 	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 * *--------------------------------------------------------------------------------------------*/	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 * *--------------------------------------------------------------------------------------------*/	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 * *--------------------------------------------------------------------------------------------*/}

@@ -1,8 +1,5 @@
 package com.aircandi.ui.helpers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -33,6 +30,9 @@ import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.ShortcutSettings;
 import com.aircandi.ui.base.BasePicker;
 import com.aircandi.ui.base.IBind.BindingMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressLint("Registered")
 public class PhotoSourcePicker extends BasePicker implements OnItemClickListener {
@@ -129,10 +129,9 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		mListView.setAdapter(mListAdapter);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		final AirApplication choice = (AirApplication) view.getTag();
@@ -142,11 +141,9 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		finish();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	private class ListAdapter extends ArrayAdapter<Object> {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    private class ListAdapter extends ArrayAdapter<Object> {
 
 		private final List<Object> items;
 
@@ -173,10 +170,9 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.photo_source_picker;

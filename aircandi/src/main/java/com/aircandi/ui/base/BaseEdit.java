@@ -1,7 +1,5 @@
 package com.aircandi.ui.base;
 
-import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -16,6 +14,8 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.utilities.Dialogs;
+
+import java.util.List;
 
 public abstract class BaseEdit extends BaseActivity implements IBind {
 
@@ -66,10 +66,9 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onBackPressed() {
 		Aircandi.dispatch.route(this, Route.CANCEL, null, null, null);
@@ -87,10 +86,9 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public Boolean isDirty() {
 		return mDirty;
 	}
@@ -160,16 +158,16 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 		return true;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 
 	@SuppressWarnings("ucd")
 	public Boolean isEditing() {
 		return mEditing;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
 }

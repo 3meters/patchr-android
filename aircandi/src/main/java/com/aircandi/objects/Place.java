@@ -1,12 +1,5 @@
 package com.aircandi.objects;
 
-import java.io.Serializable;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
-
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 
@@ -14,6 +7,13 @@ import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.service.Expose;
 import com.aircandi.utilities.Colors;
+
+import java.io.Serializable;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * @author Jayma
@@ -26,12 +26,11 @@ public class Place extends Entity implements Cloneable, Serializable {
 	public static final  String schemaName       = "place";
 	public static final  String schemaId         = "pl";
 
-	// --------------------------------------------------------------------------------------------
-	// service fields
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * service fields
+	 *--------------------------------------------------------------------------------------------*/
 	@Expose
-	public String      address;
+	public String address;
 	@Expose
 	public String      city;
 	@Expose
@@ -49,14 +48,11 @@ public class Place extends Entity implements Cloneable, Serializable {
 	@Expose(serialize = false, deserialize = true)
 	public Number      applinkDate;
 
-	// --------------------------------------------------------------------------------------------
-	// client fields (NONE are transferred)
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * client fields (NONE are transferred)
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public static Place upsizeFromSynthetic(Place synthetic) {
 	    /*
 		 * Sythetic entity created from foursquare data
@@ -189,10 +185,9 @@ public class Place extends Entity implements Cloneable, Serializable {
 		return collectionId;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Copy and serialization
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Copy and serialization
+	 *--------------------------------------------------------------------------------------------*/
 	public static Place setPropertiesFromMap(Place entity, Map map, Boolean nameMapping) {
 		/*
 		 * Properties involved with editing are copied from one entity to another.
@@ -233,11 +228,9 @@ public class Place extends Entity implements Cloneable, Serializable {
 		return place;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static class SortByProximityAndDistance implements Comparator<Entity> {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public static class SortByProximityAndDistance implements Comparator<Entity> {
 
 		@Override
 		public int compare(Entity object1, Entity object2) {

@@ -1,12 +1,12 @@
 package com.aircandi.objects;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
 import android.content.Intent;
 
 import com.aircandi.service.Expose;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Jayma
@@ -31,7 +31,7 @@ public abstract class ActivityBase extends ServiceObject implements Cloneable, S
 
 	public static ActivityBase setPropertiesFromMap(ActivityBase base, Map map, Boolean nameMapping) {
 	    /*
-         * Need to include any properties that need to survive encode/decoded between activities.
+	     * Need to include any properties that need to survive encode/decoded between activities.
 		 */
 		base.trigger = (String) map.get("trigger");
 
@@ -49,11 +49,9 @@ public abstract class ActivityBase extends ServiceObject implements Cloneable, S
 		return null;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static class TriggerType {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public static class TriggerType {
 		public static String NEARBY     = "nearby";        // sent because this user is nearby
 		public static String WATCH      = "watch";         // sent because this user is watching the entity
 		public static String WATCH_TO   = "watch_to";      // sent because this user is watching the 'to' entity

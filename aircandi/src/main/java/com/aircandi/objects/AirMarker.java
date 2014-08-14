@@ -1,8 +1,8 @@
 package com.aircandi.objects;
 
-import java.util.Map;
-
 import com.aircandi.service.Expose;
+
+import java.util.Map;
 
 @SuppressWarnings("ucd")
 public class AirMarker {

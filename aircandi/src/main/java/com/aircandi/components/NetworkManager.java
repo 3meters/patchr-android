@@ -1,8 +1,5 @@
 package com.aircandi.components;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -32,6 +29,9 @@ import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 import com.squareup.okhttp.OkHttpClient;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Designed as a singleton. The private Constructor prevents any other class from instantiating.
@@ -192,10 +192,9 @@ public class NetworkManager {
 		return serviceResponse;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Connectivity routines
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Connectivity routines
+	 *--------------------------------------------------------------------------------------------*/
 	public ConnectedState checkConnectedState() {
 		int attempts = 0;
 
@@ -297,10 +296,9 @@ public class NetworkManager {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Wifi routines
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Wifi routines
+	 *--------------------------------------------------------------------------------------------*/
 	public Boolean isWifiEnabled() {
 		Boolean wifiEnabled = null;
 		if (mWifiManager != null) {
@@ -404,10 +402,9 @@ public class NetworkManager {
 		return typeLabel;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public OkHttpClient getHttpClient() {
 		return ((OkHttpUrlConnection) mConnection).getClient();
 	}
@@ -433,11 +430,9 @@ public class NetworkManager {
 		return mConnectedState;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	private class WifiStateChangedReceiver extends BroadcastReceiver {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    private class WifiStateChangedReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive(final Context context, Intent intent) {

@@ -1,7 +1,5 @@
 package com.aircandi.ui.user;
 
-import java.util.Locale;
-
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -33,6 +31,8 @@ import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
+
+import java.util.Locale;
 
 public class SignInEdit extends BaseEdit {
 
@@ -90,10 +90,9 @@ public class SignInEdit extends BaseEdit {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@SuppressWarnings("ucd")
 	public void onForgotPasswordButtonClick(View view) {
 		Aircandi.dispatch.route(this, Route.PASSWORD_RESET, null, null, null);
@@ -196,9 +195,9 @@ public class SignInEdit extends BaseEdit {
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	//--------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	protected int getLayoutId() {

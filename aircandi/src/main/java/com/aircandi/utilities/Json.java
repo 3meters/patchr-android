@@ -1,18 +1,5 @@
 package com.aircandi.utilities;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.minidev.json.JSONValue;
-import net.minidev.json.parser.ContainerFactory;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
-
 import com.aircandi.Aircandi;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.objects.AirLocation;
@@ -35,6 +22,19 @@ import com.aircandi.objects.Session;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
+
+import net.minidev.json.JSONValue;
+import net.minidev.json.parser.ContainerFactory;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Json {
 

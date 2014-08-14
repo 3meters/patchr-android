@@ -1,8 +1,5 @@
 package com.aircandi.ui;
 
-import java.util.Collections;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.Html;
@@ -38,6 +35,9 @@ import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
+import java.util.Collections;
+import java.util.List;
+
 @SuppressLint("Registered")
 public class PictureForm extends BaseEntityForm {
 
@@ -47,10 +47,9 @@ public class PictureForm extends BaseEntityForm {
 		mLinkProfile = LinkProfile.LINKS_FOR_PICTURE;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onMessage(final MessageEvent event) {
@@ -73,10 +72,9 @@ public class PictureForm extends BaseEntityForm {
 		Aircandi.dispatch.route(this, Route.NEW_PICKER, mEntity, null, null);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// UI
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * UI
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void draw() {
 		/*
@@ -319,14 +317,11 @@ public class PictureForm extends BaseEntityForm {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.picture_form;

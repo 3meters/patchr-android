@@ -1,14 +1,14 @@
 package com.aircandi.objects;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Photo.PhotoSource;
 import com.aircandi.service.Expose;
 import com.aircandi.utilities.Json;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * @author Jayma
@@ -19,10 +19,9 @@ public class Applink extends Entity implements Cloneable, Serializable {
 	private static final long   serialVersionUID = 4362288672245819448L;
 	public static final  String collectionId     = "applinks";
 
-	// --------------------------------------------------------------------------------------------
-	// service fields
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * service fields
+	 *--------------------------------------------------------------------------------------------*/
 	@Expose
 	public String appId;
 	@Expose
@@ -36,10 +35,9 @@ public class Applink extends Entity implements Cloneable, Serializable {
 	@Expose
 	public Number popularity;
 
-	// --------------------------------------------------------------------------------------------
-	// Set and get
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Set and get
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public String getCollection() {
 		return collectionId;
@@ -56,10 +54,9 @@ public class Applink extends Entity implements Cloneable, Serializable {
 		return shortcut;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Copy and serialization
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Copy and serialization
+	 *--------------------------------------------------------------------------------------------*/
 	public static Applink setPropertiesFromMap(Applink entity, Map map, Boolean nameMapping) {
 
 		synchronized (entity) {
@@ -80,10 +77,9 @@ public class Applink extends Entity implements Cloneable, Serializable {
 		return entity;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------	
-
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/
 	public static Applink builder(Entity entity, String type, String name, String image, Boolean synthetic) {
 
 		final Applink applink = (Applink) Aircandi.getInstance().getEntityManager().loadEntityFromResources(R.raw.applink_entity, Json.ObjectType.ENTITY);

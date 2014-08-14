@@ -1,11 +1,11 @@
 package com.aircandi.controllers;
 
-import java.util.Map;
-
 import com.aircandi.Constants;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Entity;
 import com.aircandi.utilities.DateTime;
+
+import java.util.Map;
 
 public class Beacons extends EntityControllerBase {
 

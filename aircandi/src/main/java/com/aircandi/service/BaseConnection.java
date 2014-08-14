@@ -1,12 +1,12 @@
 package com.aircandi.service;
 
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.aircandi.components.Stopwatch;
 import com.aircandi.service.AirHttpRequest.Header;
 import com.aircandi.service.ServiceRequest.AuthType;
+
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class BaseConnection implements IConnection {
 

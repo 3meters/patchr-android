@@ -1,14 +1,5 @@
 package com.aircandi.ui;
 
-import it.sephiroth.android.library.imagezoom.ImageViewTouch;
-import it.sephiroth.android.library.imagezoom.ImageViewTouchBase.DisplayType;
-import it.sephiroth.android.library.imagezoom.ImageViewTouchBase.OnScaleChangeListener;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -56,6 +47,15 @@ import com.aircandi.ui.widgets.AirViewPager;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import it.sephiroth.android.library.imagezoom.ImageViewTouch;
+import it.sephiroth.android.library.imagezoom.ImageViewTouchBase.DisplayType;
+import it.sephiroth.android.library.imagezoom.ImageViewTouchBase.OnScaleChangeListener;
 
 public class PhotoForm extends BaseActivity implements IBind {
 
@@ -223,10 +223,9 @@ public class PhotoForm extends BaseActivity implements IBind {
 		return layout;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	public void onZoomIn() {
 		mImageViewTouch.setDoubleTapDirection(1);
 		float scale = mImageViewTouch.getScale();
@@ -329,10 +328,9 @@ public class PhotoForm extends BaseActivity implements IBind {
 		super.onConfigurationChanged(newConfig);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	private void share(Photo photo) {
 
 		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this)
@@ -350,23 +348,19 @@ public class PhotoForm extends BaseActivity implements IBind {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.photo_form;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -403,11 +397,9 @@ public class PhotoForm extends BaseActivity implements IBind {
 		return true;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public class PhotoPagerAdapter extends PagerAdapter {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public class PhotoPagerAdapter extends PagerAdapter {
 
 		@Override
 		public int getCount() {

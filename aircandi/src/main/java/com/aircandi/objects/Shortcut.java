@@ -1,5 +1,11 @@
 package com.aircandi.objects;
 
+import android.content.Intent;
+
+import com.aircandi.Constants;
+import com.aircandi.objects.Photo.PhotoSource;
+import com.aircandi.service.Expose;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,12 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import android.content.Intent;
-
-import com.aircandi.Constants;
-import com.aircandi.objects.Photo.PhotoSource;
-import com.aircandi.service.Expose;
 
 /**
  * @author Jayma
@@ -67,10 +67,9 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 	public String linkType;                                                                                // so we know if entity shortcut represents is targeted via like/watch/content etc.
 	public Intent intent;
 
-	// --------------------------------------------------------------------------------------------
-	// Copy and serialization
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Copy and serialization
+	 *--------------------------------------------------------------------------------------------*/
 	public static Shortcut setPropertiesFromMap(Shortcut shortcut, Map map, Boolean nameMapping) {
 		/*
 		 * Need to include any properties that need to survive encode/decoded between activities.
@@ -139,10 +138,9 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public Photo getPhoto() {
 		Photo photo = this.photo;
 		if (photo == null) {
@@ -206,10 +204,9 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		return entity;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Set/get
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Set/get
+	 *--------------------------------------------------------------------------------------------*/
 	public String getName() {
 		return name;
 	}
@@ -322,11 +319,9 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		return this;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static class SortByPositionSortDate implements Comparator<Shortcut> {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public static class SortByPositionSortDate implements Comparator<Shortcut> {
 
 		@Override
 		public int compare(Shortcut object1, Shortcut object2) {
