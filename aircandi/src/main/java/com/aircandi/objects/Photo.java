@@ -1,10 +1,5 @@
 package com.aircandi.objects;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
 import android.net.Uri;
 import android.util.TypedValue;
 
@@ -17,6 +12,11 @@ import com.aircandi.objects.ImageResult.Thumbnail;
 import com.aircandi.service.Expose;
 import com.aircandi.ui.widgets.AirImageView.SizeType;
 import com.aircandi.utilities.Type;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author Jayma
@@ -77,10 +77,9 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		this.source = sourceName;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public static Photo setPropertiesFromMap(Photo photo, Map map, Boolean nameMapping) {
 
 		photo.prefix = (String) map.get("prefix");
@@ -148,7 +147,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 					photoUri = prefix + String.valueOf(proxyWidth.intValue()) + "x" + String.valueOf(proxyHeight.intValue()) + suffix;
 				}
 				else {
-	                /* Sometimes we have height/width info and sometimes we don't */
+		            /* Sometimes we have height/width info and sometimes we don't */
 					Integer width = (maxWidth != null) ? maxWidth.intValue() : 256;
 					Integer height = (maxHeight != null) ? maxHeight.intValue() : 256;
 					if (prefix != null && suffix != null) {
@@ -300,10 +299,9 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	public Number getCreatedAt() {
 		return createdDate;
 	}
@@ -427,11 +425,9 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return this;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	/*
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/ 	/*
      * Any photo from the device (camera, gallery) is store in s3 and source = aircandi
 	 * Any search photo is not stored in s3 and source = generic
 	 * Any place photo from foursquare stays there and photo.source = foursquare

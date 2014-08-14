@@ -1,16 +1,5 @@
 package com.aircandi.objects;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -28,6 +17,17 @@ import com.aircandi.utilities.Booleans;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Type;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 /**
  * Entity as described by the service protocol standards.
  *
@@ -38,11 +38,9 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	private static final long serialVersionUID = -3902834532692561618L;
 
-	// --------------------------------------------------------------------------------------------
-	// service fields
-	// --------------------------------------------------------------------------------------------
-
-	/* Database fields */
+	/*--------------------------------------------------------------------------------------------
+	 * service fields
+	 *--------------------------------------------------------------------------------------------*/ 	/* Database fields */
 
 	@Expose
 	public String      subtitle;
@@ -95,11 +93,9 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@Expose(serialize = false, deserialize = true)
 	public Number rank;
 
-	// --------------------------------------------------------------------------------------------
-	// client fields (NONE are transferred)
-	// --------------------------------------------------------------------------------------------
-
-	public Boolean hidden           = false;                    // Flag entities not currently visible because of fencing.
+	/*--------------------------------------------------------------------------------------------
+	 * client fields (NONE are transferred)
+	 *--------------------------------------------------------------------------------------------*/    public Boolean hidden = false;                    // Flag entities not currently visible because of fencing.
 	public Boolean shareable        = true;                     // Flag whether an entity can be shared or not.
 	public Boolean fuzzy            = false;                    // Flag places with inaccurate locations.
 	public Boolean checked          = false;                    // Used to track selection in lists.
@@ -116,10 +112,9 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public Boolean synthetic = false;
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public Shortcut getShortcut() {
 		Shortcut shortcut = new Shortcut()
 				.setAppId(id)
@@ -183,14 +178,11 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public Photo getPhoto() {
 		Photo photo = this.photo;
 		if (photo == null) {
@@ -238,7 +230,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Boolean isHidden() {
 		Boolean oldIsHidden = hidden;
 		this.hidden = false;
-	    /*
+		/*
          * Make it harder to fade out than it is to fade in. Entities are only NEW
 		 * for the first scan that discovers them.
 		 */
@@ -706,10 +698,9 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Copy and serialization
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Copy and serialization
+	 *--------------------------------------------------------------------------------------------*/
 	public static Entity setPropertiesFromMap(Entity entity, Map map, Boolean nameMapping) {
 
 		synchronized (entity) {
@@ -845,11 +836,9 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return this.id.equals(((Entity) object).id);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static class SortByRank implements Comparator<Entity> {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public static class SortByRank implements Comparator<Entity> {
 
 		@Override
 		public int compare(Entity object1, Entity object2) {

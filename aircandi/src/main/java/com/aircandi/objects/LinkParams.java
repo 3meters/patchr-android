@@ -1,9 +1,9 @@
 package com.aircandi.objects;
 
-import java.util.Map;
-
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.service.Expose;
+
+import java.util.Map;
 
 /**
  * @author Jayma

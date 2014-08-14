@@ -1,14 +1,5 @@
 package com.aircandi.utilities;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Random;
-import java.util.regex.Pattern;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
@@ -22,12 +13,21 @@ import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.components.Logger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Random;
+import java.util.regex.Pattern;
+
 public class Utilities {
 
 	@SuppressWarnings("ucd")
 	public static final String md5(final String s) {
 		try {
-	        /* Create MD5 Hash */
+		    /* Create MD5 Hash */
 			final MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
 			digest.update(s.getBytes());
 			final byte[] messageDigest = digest.digest();

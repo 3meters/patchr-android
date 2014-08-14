@@ -1,9 +1,5 @@
 package com.aircandi.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -34,6 +30,10 @@ import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.DateTime.IntervalContext;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class ActivityFragment extends BaseFragment implements OnClickListener {
 
@@ -124,8 +124,8 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 						mAdapter.sort(new ServiceActivity.SortBySortDate());
 						draw();
 					}
-					mLoaded = true;
 					postBind();
+					mLoaded = true;
 				}
 				else {
 					Errors.handleError(getSherlockActivity(), result.serviceResponse);
@@ -152,10 +152,9 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 		mAdapter.notifyDataSetChanged();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onClick(View v) {
 
@@ -198,10 +197,9 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public void onActivityComplete() {
 		if (getSherlockActivity() != null) {
 			showButtonSpecial(mAdapter.getCount() == 0, null, null);
@@ -258,10 +256,9 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 		return R.layout.activity_list_fragment;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	public ActivityFragment setMonitor(SimpleMonitor monitor) {
 		mMonitor = monitor;
 		return this;
@@ -272,14 +269,11 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 		return this;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onPause() {
 		super.onPause();
@@ -303,15 +297,11 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public class ListAdapter extends ArrayAdapter<ServiceActivity> {
+	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public class ListAdapter extends ArrayAdapter<ServiceActivity> {
 
 		private ListAdapter(List<ServiceActivity> items) {
 			super(getSherlockActivity(), 0, items);

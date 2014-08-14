@@ -1,13 +1,13 @@
 package com.aircandi.controllers;
 
-import java.util.Map;
-
 import android.graphics.drawable.Drawable;
 
 import com.aircandi.Aircandi;
 import com.aircandi.R;
 import com.aircandi.objects.Entity;
 import com.aircandi.ui.MapForm;
+
+import java.util.Map;
 
 public class Maps extends EntityControllerBase {
 

@@ -1,7 +1,5 @@
 package com.aircandi.components;
 
-import java.util.List;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -27,6 +25,8 @@ import com.aircandi.ui.SplashForm;
 import com.aircandi.utilities.UI;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+
+import java.util.List;
 
 @SuppressWarnings("ucd")
 public class AndroidManager {

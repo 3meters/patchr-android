@@ -1,12 +1,5 @@
 package com.aircandi.ui;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -60,6 +53,13 @@ import com.aircandi.utilities.UI;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class EntityListFragment extends BaseFragment implements OnClickListener {
 
 	/* Widgets */
@@ -95,6 +95,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	protected Integer mVisibleRows    = 3;
 	protected Integer mTopOffset;                                            // NO_UCD (unused code)
 	protected Integer mLastViewedPosition;                                    // NO_UCD (unused code)
+	protected Boolean mFirstBind = true;
 
 	/* Data binding */
 	protected List<Entity>           mEntities          = new ArrayList<Entity>();
@@ -126,7 +127,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		View view = super.onCreateView(inflater, container, savedInstanceState);
 		/*
 		 * The listview scroll position seems to be preserved between destroy view
-		 * and create view. Probably falls into the buck of view properties that are
+		 * and create view. Probably falls into the bucket of view properties that are
 		 * auto restored by android.
 		 */
 		restoreState(savedInstanceState);
@@ -137,6 +138,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 			throw new IllegalArgumentException("List item resource is required by EntityListFragment");
 		}
 
+		mLoaded = false;
+		mFirstBind = true;
 		mListView = (AbsListView) view.findViewById(R.id.list);
 
 		if (mListLoadingResId != null) {
@@ -318,8 +321,9 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
 						draw();
 					}
-					mLoaded = true;
 					postBind();
+					mLoaded = true;
+					mFirstBind = false;
 					onActivityComplete();
 				}
 				else {
@@ -332,9 +336,10 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	@Override
 	protected void postBind() {
 		/*
-		 * Clear notifications and activity indicator if visible and acting as an activity stream
+		 * Clear notifications and activity indicator if visible, acting as an
+		 * activity stream and binding for the first time.
 		 */
-		if (mActivityStream && getUserVisibleHint()) {
+		if (mFirstBind && mActivityStream && getUserVisibleHint()) {
 			MessagingManager.getInstance().setNewActivity(false);
 			if (getSherlockActivity() != null) {
 				((AircandiForm) getSherlockActivity()).updateActivityAlert();
@@ -349,10 +354,9 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		BusProvider.getInstance().post(new EntitiesLoadedEvent()); // Used to trigger item highlighting
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onClick(View v) {
 		if (v.getTag() == null) {
@@ -417,10 +421,9 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		outState.putString(Constants.EXTRA_LIST_VIEW_TYPE, mListViewType);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public void lazyLoad() {
 
 		final ViewSwitcher switcher = (ViewSwitcher) mLoadingView.findViewById(R.id.animator_more);
@@ -624,10 +627,9 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	public String getActivityTitle() {
 		BaseActivity activity = (BaseActivity) getSherlockActivity();
 		return (String) ((activity.getActivityTitle() != null) ? activity.getActivityTitle() : getSherlockActivity().getTitle());
@@ -733,10 +735,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		return this;
 	}
 
-	public Boolean getReverseSort() {
-		return mReverseSort;
-	}
-
 	@SuppressWarnings("ucd")
 	public EntityListFragment setReverseSort(Boolean reverseSort) {
 		mReverseSort = reverseSort;
@@ -747,6 +745,10 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		return mHeaderView;
 	}
 
+	public AbsListView getListView() {
+		return mListView;
+	}
+
 	public IMonitor getMonitor() {
 		return mMonitor;
 	}
@@ -755,14 +757,11 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		return mQuery;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onResume() {
 		/*
@@ -790,11 +789,9 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		saveListPosition();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	protected class ListAdapter extends ArrayAdapter<Entity> {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    protected class ListAdapter extends ArrayAdapter<Entity> {
 
 		public ListAdapter(List<Entity> entities) {
 			super(getSherlockActivity(), 0, entities);

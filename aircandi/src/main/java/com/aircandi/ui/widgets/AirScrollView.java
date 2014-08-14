@@ -33,10 +33,9 @@ public class AirScrollView extends ScrollView {
 		initialize(context, attrs);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measuredWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -47,10 +46,9 @@ public class AirScrollView extends ScrollView {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	private void initialize(Context context, AttributeSet attrs) {
 		/*
 		 * get the density of the screen and do some maths with it on the max overscroll distance

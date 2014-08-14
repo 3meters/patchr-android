@@ -1,9 +1,5 @@
 package com.aircandi.ui.edit;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -29,6 +25,10 @@ import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class InviteEdit extends BaseEntityEdit {
 
@@ -78,10 +78,9 @@ public class InviteEdit extends BaseEntityEdit {
 		((UserView) findViewById(R.id.created_by)).databind(Aircandi.getInstance().getCurrentUser(), null);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@SuppressWarnings("ucd")
 	public void onSearchButtonClick(View view) {
 		Intent intent = new Intent(Intent.ACTION_PICK, Email.CONTENT_URI);
@@ -134,10 +133,9 @@ public class InviteEdit extends BaseEntityEdit {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onAccept() {
 		if (validate()) {
@@ -219,14 +217,11 @@ public class InviteEdit extends BaseEntityEdit {
 		}.execute();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.invite_edit;

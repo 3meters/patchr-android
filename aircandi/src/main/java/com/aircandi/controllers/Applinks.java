@@ -1,8 +1,5 @@
 package com.aircandi.controllers;
 
-import java.util.Locale;
-import java.util.Map;
-
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Applink;
@@ -12,6 +9,9 @@ import com.aircandi.objects.Photo.PhotoSource;
 import com.aircandi.ui.edit.ApplinkEdit;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
+
+import java.util.Locale;
+import java.util.Map;
 
 public class Applinks extends EntityControllerBase {
 

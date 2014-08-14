@@ -1,18 +1,5 @@
 package com.aircandi.components;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -61,6 +48,19 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 public class EntityManager {
 
 	private static final EntityCache         mEntityCache         = new EntityCache();
@@ -74,24 +74,22 @@ public class EntityManager {
 
 	protected ServiceResponse dispatch(ServiceRequest serviceRequest) {
 	    /*
-         * We use this as a choke point for all calls to the aircandi service.
+	     * We use this as a choke point for all calls to the aircandi service.
 		 */
 		final ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest, true, null);
 		return serviceResponse;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Cache queries
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Cache queries
+	 *--------------------------------------------------------------------------------------------*/
 	public static Entity getCacheEntity(String entityId) {
 		return mEntityCache.get(entityId);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Combo service/cache queries
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Combo service/cache queries
+	 *--------------------------------------------------------------------------------------------*/
 	public synchronized ModelResult getEntity(String entityId, Boolean refresh, Links linkOptions) {
 		/*
 		 * Retrieves entity from cache if available otherwise downloads the entity from the service. If refresh is true
@@ -153,10 +151,9 @@ public class EntityManager {
 		return result;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// service queries
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * service queries
+	 *--------------------------------------------------------------------------------------------*/
 	public synchronized ModelResult loadActivities(String entityId, Cursor cursor, List<String> events) {
 
 		final ModelResult result = new ModelResult();
@@ -466,10 +463,9 @@ public class EntityManager {
 		return result;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// user updates
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * user updates
+	 *--------------------------------------------------------------------------------------------*/
 	public ModelResult signin(String email, String password, String activityName) {
 		ModelResult result = new ModelResult();
 
@@ -769,10 +765,9 @@ public class EntityManager {
 		return result;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Entity updates
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Entity updates
+	 *--------------------------------------------------------------------------------------------*/
 	private ModelResult insertEntity(Entity entity, Boolean waitForContent) {
 		return insertEntity(entity, null, null, null, null, waitForContent);
 	}
@@ -1426,10 +1421,9 @@ public class EntityManager {
 		return result;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Reports
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Reports
+	 *--------------------------------------------------------------------------------------------*/
 	public ModelResult getTrending(String toSchema, String fromSchema, String trendType) {
 		ModelResult result = new ModelResult();
 
@@ -1463,10 +1457,9 @@ public class EntityManager {
 		return result;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Other service tasks
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Other service tasks
+	 *--------------------------------------------------------------------------------------------*/
 	public CacheStamp getCacheStamp() {
 		CacheStamp cacheStamp = new CacheStamp(mActivityDate, null);
 		cacheStamp.source = StampSource.ENTITY_MANAGER.name().toLowerCase(Locale.US);
@@ -1649,14 +1642,11 @@ public class EntityManager {
 		return result;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Utilities
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Cache queries
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Utilities
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Cache queries
+	 *--------------------------------------------------------------------------------------------*/
 	public List<? extends Entity> getPlaces(Boolean synthetic, Boolean proximity) {
 		Integer searchRangeMeters = Integer.parseInt(Aircandi.settings.getString(
 				StringManager.getString(R.string.pref_search_radius),
@@ -1674,10 +1664,9 @@ public class EntityManager {
 		return (places.size() > limit.intValue()) ? places.subList(0, limit.intValue()) : places;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Other fetch routines
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Other fetch routines
+	 *--------------------------------------------------------------------------------------------*/
 	public List<String> getCategoriesAsStringArray(List<Category> categories) {
 		final List<String> categoryStrings = new ArrayList<String>();
 		for (Category category : categories) {
@@ -1717,10 +1706,9 @@ public class EntityManager {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	public List<Category> getCategories() {
 		return mCategories;
 	}
@@ -1751,11 +1739,9 @@ public class EntityManager {
 		return this;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static enum SuggestScope {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public static enum SuggestScope {
 		PLACES,
 		USERS,
 		ALL

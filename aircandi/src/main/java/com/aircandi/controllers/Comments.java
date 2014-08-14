@@ -1,7 +1,5 @@
 package com.aircandi.controllers;
 
-import java.util.Map;
-
 import android.graphics.drawable.Drawable;
 
 import com.aircandi.Aircandi;
@@ -14,6 +12,8 @@ import com.aircandi.ui.CommentForm;
 import com.aircandi.ui.edit.CommentEdit;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
+
+import java.util.Map;
 
 public class Comments extends EntityControllerBase {
 

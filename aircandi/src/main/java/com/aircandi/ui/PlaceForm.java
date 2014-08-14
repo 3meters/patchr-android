@@ -1,10 +1,5 @@
 package com.aircandi.ui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -55,6 +50,11 @@ import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
 @SuppressLint("Registered")
 public class PlaceForm extends BaseEntityForm {
 
@@ -98,7 +98,7 @@ public class PlaceForm extends BaseEntityForm {
 		if (mAutoWatch && mEntity != null) {
 			Link link = mEntity.linkByAppUser(Constants.TYPE_LINK_WATCH);
 			if (link == null) {
-		        /* User is not already watching this */
+			    /* User is not already watching this */
 				if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
 						, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
 					watch(true);
@@ -107,10 +107,9 @@ public class PlaceForm extends BaseEntityForm {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onAdd(Bundle extras) {
 		Aircandi.dispatch.route(this, Route.NEW_PICKER, mEntity, null, null);
@@ -161,10 +160,9 @@ public class PlaceForm extends BaseEntityForm {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void draw() {
 		/*
@@ -483,10 +481,9 @@ public class PlaceForm extends BaseEntityForm {
 		}.execute();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -506,20 +503,17 @@ public class PlaceForm extends BaseEntityForm {
 		super.onDestroy();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.place_form;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	private class PackageReceiver extends BroadcastReceiver {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    private class PackageReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive(final Context context, Intent intent) {

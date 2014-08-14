@@ -1,10 +1,5 @@
 package com.aircandi.ui.base;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -63,6 +58,11 @@ import com.kbeanie.imagechooser.api.ChosenImage;
 import com.kbeanie.imagechooser.api.ImageChooserListener;
 import com.kbeanie.imagechooser.api.ImageChooserManager;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserListener {
 
 	protected AirImageView mPhotoView;
@@ -89,7 +89,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	@Override
 	public void unpackIntent() {
 		super.unpackIntent();
-	    /*
+		/*
          * Intent inputs:
 		 * - Both: Edit_Only
 		 * - New: Schema (required), Parent_Entity_Id
@@ -365,10 +365,9 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onError(final String reason) {
         /*
@@ -578,10 +577,9 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	protected void buildPhoto() {
 		if (mPhotoSource != null && mEntity.schema.equals(Constants.SCHEMA_ENTITY_APPLINK)) {
 			if (mPhotoSource.equals(Constants.PHOTO_SOURCE_FACEBOOK)) {
@@ -633,10 +631,9 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		onPhotoSelected(null);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Pickers
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Pickers
+	 *--------------------------------------------------------------------------------------------*/
 	@SuppressLint("InlinedApi")
 	protected void photoFromGallery() {
 
@@ -697,10 +694,9 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		Aircandi.dispatch.route(this, Route.PHOTO_PLACE_SEARCH, entity, null, null);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Services
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Services
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void beforeInsert(Entity entity, List<Link> links) {
 		if (mParentId != null) {
@@ -901,12 +897,9 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		}.execute();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------------------------
-
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/
 }

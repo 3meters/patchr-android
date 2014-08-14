@@ -34,10 +34,9 @@ public class AirGridView extends GridView {
 		initBounceScrollView(context, attrs);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measuredWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -48,10 +47,9 @@ public class AirGridView extends GridView {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	private void initBounceScrollView(Context context, AttributeSet attrs) {
 		/*
 		 * get the density of the screen and do some maths with it on the max overscroll distance

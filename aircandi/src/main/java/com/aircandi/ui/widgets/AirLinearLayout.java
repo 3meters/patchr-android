@@ -25,10 +25,9 @@ public class AirLinearLayout extends LinearLayout {
 		initialize(context, attrs);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measuredWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -39,10 +38,9 @@ public class AirLinearLayout extends LinearLayout {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	private void initialize(Context context, AttributeSet attrs) {
 		TypedArray typeArray = getContext().obtainStyledAttributes(attrs, R.styleable.AirLinearLayout);
 		mMaxWidth = typeArray.getDimensionPixelSize(R.styleable.AirLinearLayout_maxWidth, getContext().getResources().getDimensionPixelSize(R.dimen.form_max_width));

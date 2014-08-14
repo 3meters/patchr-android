@@ -1,11 +1,11 @@
 package com.aircandi.service;
 
-import org.apache.commons.codec.binary.Base64;
-
 import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.aircandi.objects.Session;
+
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * Here is the typical code to construct a service request:

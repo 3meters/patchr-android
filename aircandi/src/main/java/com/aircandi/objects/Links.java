@@ -1,8 +1,5 @@
 package com.aircandi.objects;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.res.Resources;
 
 import com.aircandi.Aircandi;
@@ -11,6 +8,9 @@ import com.aircandi.R;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.service.Expose;
 import com.aircandi.utilities.Maps;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Jayma

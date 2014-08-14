@@ -1,10 +1,5 @@
 package com.aircandi.components;
 
-import java.io.IOException;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -25,6 +20,11 @@ import android.view.animation.TranslateAnimation;
 import com.aircandi.Aircandi;
 import com.aircandi.R;
 import com.aircandi.objects.TransitionType;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 public class AnimationManager {
 

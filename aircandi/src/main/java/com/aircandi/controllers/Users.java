@@ -1,7 +1,5 @@
 package com.aircandi.controllers;
 
-import java.util.Map;
-
 import com.aircandi.Aircandi;
 import com.aircandi.Aircandi.ThemeTone;
 import com.aircandi.Constants;
@@ -15,6 +13,8 @@ import com.aircandi.ui.user.UserEdit;
 import com.aircandi.ui.user.UserForm;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
+
+import java.util.Map;
 
 public class Users extends EntityControllerBase {
 

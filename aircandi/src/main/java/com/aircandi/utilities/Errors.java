@@ -1,18 +1,5 @@
 package com.aircandi.utilities;
 
-import java.io.EOFException;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.Locale;
-
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.conn.ConnectTimeoutException;
-
 import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
@@ -31,6 +18,19 @@ import com.aircandi.service.ImageUnusableException;
 import com.aircandi.service.ServiceException;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.base.BaseActivity;
+
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.conn.ConnectTimeoutException;
+
+import java.io.EOFException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.Locale;
 
 public final class Errors {
 
@@ -438,11 +438,9 @@ public final class Errors {
 		return (serviceResponse.statusCode == null && serviceResponse.exception != null && serviceResponse.exception instanceof IOException);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static enum ResponseType {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public static enum ResponseType {
 		TOAST,
 		DIALOG,
 		NONE

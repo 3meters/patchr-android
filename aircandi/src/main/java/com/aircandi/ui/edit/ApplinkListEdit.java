@@ -1,8 +1,5 @@
 package com.aircandi.ui.edit;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -35,6 +32,9 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @SuppressLint("Registered")
 public class ApplinkListEdit extends BaseEntityListEdit {
 
@@ -53,10 +53,9 @@ public class ApplinkListEdit extends BaseEntityListEdit {
 		return new ListAdapter(this, mEntities, mListItemResId);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onRefresh() {
 		refreshApplinks(mEntities);
@@ -166,10 +165,9 @@ public class ApplinkListEdit extends BaseEntityListEdit {
 		super.onActivityComplete();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Services
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Services
+	 *--------------------------------------------------------------------------------------------*/
 	private void searchApplinks(final List<Entity> applinks, final Boolean autoInsert, final String placeId, final Boolean userInitiated) {
 
 		new AsyncTask() {
@@ -293,24 +291,19 @@ public class ApplinkListEdit extends BaseEntityListEdit {
 		}.execute();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Menus
-	// --------------------------------------------------------------------------------------------	
-
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.applink_list_edit;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	private static class ListAdapter extends EntityListAdapter {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    private static class ListAdapter extends EntityListAdapter {
 
 		public ListAdapter(Context context, List<Entity> entities, Integer itemLayoutId) {
 			super(context, entities, itemLayoutId);

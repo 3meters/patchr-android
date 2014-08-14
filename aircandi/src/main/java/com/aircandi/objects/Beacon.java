@@ -1,12 +1,12 @@
 package com.aircandi.objects;
 
-import java.io.Serializable;
-import java.util.Comparator;
-import java.util.Map;
-
 import com.aircandi.Constants;
 import com.aircandi.components.LocationManager;
 import com.aircandi.service.Expose;
+
+import java.io.Serializable;
+import java.util.Comparator;
+import java.util.Map;
 
 /**
  * @author Jayma
@@ -20,10 +20,9 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 	public static final  String schemaName       = "beacon";
 	public static final  String schemaId         = "be";
 
-	// --------------------------------------------------------------------------------------------
-	// service fields
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * service fields
+	 *--------------------------------------------------------------------------------------------*/
 	@Expose
 	public String ssid;
 	@Expose
@@ -31,11 +30,9 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 	@Expose
 	public Number signal;                                    // Used to evaluate location accuracy
 
-	// --------------------------------------------------------------------------------------------
-	// client fields (NONE are transferred)
-	// --------------------------------------------------------------------------------------------
-
-	public Boolean test = false;
+	/*--------------------------------------------------------------------------------------------
+	 * client fields (NONE are transferred)
+	 *--------------------------------------------------------------------------------------------*/    public Boolean test = false;
 
 	public Beacon() {
 	}
@@ -49,10 +46,9 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 		this.test = test;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Set and get
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Set and get
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public Float getDistance(Boolean refresh) {
 
@@ -106,10 +102,9 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 		return collectionId;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Copy and serialization
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Copy and serialization
+	 *--------------------------------------------------------------------------------------------*/
 	public static Beacon setPropertiesFromMap(Beacon entity, Map map, Boolean nameMapping) {
 
 		synchronized (entity) {
@@ -127,11 +122,9 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 		return entity;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static class SortBySignalLevel implements Comparator<Beacon> {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public static class SortBySignalLevel implements Comparator<Beacon> {
 
 		@Override
 		public int compare(Beacon object1, Beacon object2) {

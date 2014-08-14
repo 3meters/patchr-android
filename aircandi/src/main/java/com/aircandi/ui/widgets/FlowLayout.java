@@ -1,14 +1,14 @@
 package com.aircandi.ui.widgets;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @SuppressWarnings("ucd")
 public class FlowLayout extends ViewGroup {
@@ -25,9 +25,9 @@ public class FlowLayout extends ViewGroup {
 		setClickable(false);
 	}
 
-    /* ---------------------------------------------------------------------------------------------
+    /*---------------------------------------------------------------------------------------------
         Events
-       --------------------------------------------------------------------------------------------- */
+      /*- *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -126,9 +126,9 @@ public class FlowLayout extends ViewGroup {
 		}
 	}
 
-    /* ---------------------------------------------------------------------------------------------
+    /*---------------------------------------------------------------------------------------------
         Methods
-       --------------------------------------------------------------------------------------------- */
+      /*- *--------------------------------------------------------------------------------------------*/
 
 	private int createChildMeasureSpec(int childLayoutParam, int max, int parentMode) {
 		int spec;
@@ -185,9 +185,9 @@ public class FlowLayout extends ViewGroup {
 		return getPaddingLeft() + getPaddingRight();
 	}
 
-    /* ---------------------------------------------------------------------------------------------
+    /*---------------------------------------------------------------------------------------------
         Properties
-       --------------------------------------------------------------------------------------------- */
+      /*- *--------------------------------------------------------------------------------------------*/
 
 	public void setSpacingVertical(int spacingVertical) {
 		mSpacingVertical = spacingVertical;
@@ -197,9 +197,9 @@ public class FlowLayout extends ViewGroup {
 		mSpacingHorizontal = spacingHorizontal;
 	}
 
-    /* ---------------------------------------------------------------------------------------------
+    /*---------------------------------------------------------------------------------------------
         Classes
-       --------------------------------------------------------------------------------------------- */
+      /*- *--------------------------------------------------------------------------------------------*/
 
 	@SuppressWarnings("ucd")
 	public static class LayoutParams extends MarginLayoutParams {

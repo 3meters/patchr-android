@@ -1,10 +1,5 @@
 package com.aircandi.ui.widgets;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -15,6 +10,11 @@ import android.widget.ListView;
 
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author declanshanaghy

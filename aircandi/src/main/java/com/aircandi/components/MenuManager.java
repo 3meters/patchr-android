@@ -10,8 +10,8 @@ import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
-import com.aircandi.objects.Route;
 import com.aircandi.objects.Link.Direction;
+import com.aircandi.objects.Route;
 import com.aircandi.utilities.Type;
 
 public class MenuManager {

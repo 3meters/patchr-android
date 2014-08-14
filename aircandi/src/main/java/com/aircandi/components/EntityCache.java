@@ -1,14 +1,5 @@
 package com.aircandi.components;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import android.os.Bundle;
 
 import com.aircandi.Aircandi;
@@ -36,22 +27,30 @@ import com.aircandi.service.ServiceResponse;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 @SuppressWarnings("ucd")
 public class EntityCache implements Map<String, Entity> {
 
 	private final Map<String, Entity> mCacheMap = Collections.synchronizedMap(new HashMap<String, Entity>());
 
-	// --------------------------------------------------------------------------------------------
-	// Cache loading
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Cache loading
+	 *--------------------------------------------------------------------------------------------*/
 	private ServiceResponse dispatch(ServiceRequest serviceRequest) {
 		return dispatch(serviceRequest, null);
 	}
 
 	private ServiceResponse dispatch(ServiceRequest serviceRequest, Stopwatch stopwatch) {
 	    /*
-         * We use this as a choke point for all calls to the aircandi service.
+	     * We use this as a choke point for all calls to the aircandi service.
 		 */
 		final ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest, true, stopwatch);
 		return serviceResponse;
@@ -315,10 +314,9 @@ public class EntityCache implements Map<String, Entity> {
 		return serviceResponse;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Cache updates
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Cache updates
+	 *--------------------------------------------------------------------------------------------*/
 	private void upsertEntities(List<Entity> entities) {
 		for (Entity entity : entities) {
 			upsertEntity(entity);
@@ -456,10 +454,9 @@ public class EntityCache implements Map<String, Entity> {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Cache deletes
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Cache deletes
+	 *--------------------------------------------------------------------------------------------*/
 	public synchronized Entity removeEntityTree(String entityId) {
 		/*
 		 * Clean out entity and every entity related to entity. Is not recursive
@@ -564,10 +561,9 @@ public class EntityCache implements Map<String, Entity> {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Cache reads
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Cache reads
+	 *--------------------------------------------------------------------------------------------*/
 	public synchronized List<? extends Entity> getCacheEntities(String schema, String type, Integer radius, Boolean proximity) {
 		List<Entity> entities = new ArrayList<Entity>();
 		final Iterator iter = keySet().iterator();
@@ -640,10 +636,9 @@ public class EntityCache implements Map<String, Entity> {
 		return entities;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Map methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Map methods
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void clear() {
 		mCacheMap.clear();

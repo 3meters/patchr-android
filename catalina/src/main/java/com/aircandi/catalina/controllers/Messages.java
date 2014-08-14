@@ -303,11 +303,9 @@ public class Messages extends EntityControllerBase {
 		return Message.setPropertiesFromMap(new Message(), map, nameMapping);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static class ViewHolderExtended extends ViewHolder {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/ 	public static class ViewHolderExtended extends ViewHolder {
 		public TextView childCount;
 	}
 

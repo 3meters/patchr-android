@@ -1,7 +1,5 @@
 package com.aircandi.ui.components;
 
-import com.aircandi.R;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -14,6 +12,8 @@ import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Interpolator;
+
+import com.aircandi.R;
 
 public class SmoothProgressDrawable extends Drawable implements Animatable {
 

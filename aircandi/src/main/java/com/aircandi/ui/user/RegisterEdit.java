@@ -1,8 +1,5 @@
 package com.aircandi.ui.user;
 
-import java.io.IOException;
-import java.util.Locale;
-
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,6 +31,9 @@ import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
 
+import java.io.IOException;
+import java.util.Locale;
+
 public class RegisterEdit extends BaseEntityEdit {
 
 	private EditText mEmail;
@@ -63,10 +63,9 @@ public class RegisterEdit extends BaseEntityEdit {
 		});
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@SuppressWarnings("ucd")
 	public void onViewTermsButtonClick(View view) {
 		Aircandi.dispatch.route(this, Route.TERMS, null, null, null);
@@ -85,10 +84,9 @@ public class RegisterEdit extends BaseEntityEdit {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected String getLinkType() {
 		return null;
@@ -103,10 +101,9 @@ public class RegisterEdit extends BaseEntityEdit {
 		user.password = mPassword.getText().toString().trim();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Services
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Services
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected boolean validate() {
 		if (mName.getText().length() == 0) {
@@ -241,10 +238,9 @@ public class RegisterEdit extends BaseEntityEdit {
 		}.execute();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.register_edit;

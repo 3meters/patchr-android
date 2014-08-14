@@ -20,11 +20,9 @@ public class Message extends Entity implements Cloneable, Serializable {
 	public static final  String schemaName       = "message";
 	public static final  String schemaId         = "me";
 
-	// --------------------------------------------------------------------------------------------
-	// service fields
-	// --------------------------------------------------------------------------------------------
-
-	@Expose
+	/*--------------------------------------------------------------------------------------------
+	 * service fields
+	 *--------------------------------------------------------------------------------------------*/ 	@Expose
 	@SerializedName(name = "_root")
 	public String rootId;
 	@Expose
@@ -36,11 +34,9 @@ public class Message extends Entity implements Cloneable, Serializable {
 	@Expose(serialize = false, deserialize = true)
 	public User replyTo;
 
-	// --------------------------------------------------------------------------------------------
-	// client fields (NONE are transferred)
-	// --------------------------------------------------------------------------------------------
-
-	public static Message setPropertiesFromMap(Message entity, Map map, Boolean nameMapping) {
+	/*--------------------------------------------------------------------------------------------
+	 * client fields (NONE are transferred)
+	 *--------------------------------------------------------------------------------------------*/ 	public static Message setPropertiesFromMap(Message entity, Map map, Boolean nameMapping) {
 	    /*
          * Properties involved with editing are copied from one entity to another.
 		 */
@@ -69,11 +65,9 @@ public class Message extends Entity implements Cloneable, Serializable {
 		return collectionId;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static class MessageType {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/ 	public static class MessageType {
 		public static String ROOT  = "root";
 		public static String REPLY = "reply";
 		public static String SHARE = "share";

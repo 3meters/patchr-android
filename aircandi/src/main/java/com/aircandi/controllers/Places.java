@@ -1,9 +1,5 @@
 package com.aircandi.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import android.graphics.drawable.Drawable;
 
 import com.aircandi.Aircandi;
@@ -18,6 +14,10 @@ import com.aircandi.objects.ProviderMap;
 import com.aircandi.ui.PlaceForm;
 import com.aircandi.ui.edit.PlaceEdit;
 import com.aircandi.utilities.DateTime;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class Places extends EntityControllerBase {
 

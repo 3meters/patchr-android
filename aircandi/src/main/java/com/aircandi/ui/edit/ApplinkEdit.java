@@ -1,8 +1,5 @@
 package com.aircandi.ui.edit;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -38,6 +35,9 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressLint("Registered")
 public class ApplinkEdit extends BaseEntityEdit {
@@ -248,10 +248,9 @@ public class ApplinkEdit extends BaseEntityEdit {
 		((Applink) mEntity).appUrl = null;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onAccept() {
 		if (isDirty()) {
@@ -277,10 +276,9 @@ public class ApplinkEdit extends BaseEntityEdit {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	private void verifyAndExit() {
 
 		new AsyncTask() {
@@ -432,10 +430,9 @@ public class ApplinkEdit extends BaseEntityEdit {
 		return true;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Misc
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Misc
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.applink_edit;

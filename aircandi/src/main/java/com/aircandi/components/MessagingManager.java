@@ -1,9 +1,5 @@
 package com.aircandi.components;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -31,6 +27,10 @@ import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.Errors;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("ucd")
 public class MessagingManager {
@@ -66,10 +66,9 @@ public class MessagingManager {
 		return NotificationManagerHolder.instance;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// GCM
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * GCM
+	 *--------------------------------------------------------------------------------------------*/
 	public ServiceResponse registerInstallWithGCM() {
 
 		/*
@@ -159,10 +158,9 @@ public class MessagingManager {
 		return Aircandi.applicationContext.getSharedPreferences(MessagingManager.class.getSimpleName(), Context.MODE_PRIVATE);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Notifications
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Notifications
+	 *--------------------------------------------------------------------------------------------*/
 	public void broadcastMessage(final ServiceMessage message) {
 		BusProvider.getInstance().post(new MessageEvent(message));
 	}
@@ -306,10 +304,9 @@ public class MessagingManager {
 		mNotificationManager.cancelAll();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public String getTag(ActivityBase activity) {
 		if (activity.action.getEventCategory().equals(EventCategory.INSERT))
 			return Tag.INSERT;
@@ -319,10 +316,9 @@ public class MessagingManager {
 		return Tag.UPDATE;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	public Install getInstall() {
 		return mInstall;
 	}
@@ -331,10 +327,9 @@ public class MessagingManager {
 		mInstall = device;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/
 	public Boolean getNewActivity() {
 		return mNewActivity;
 	}

@@ -1,12 +1,12 @@
 package com.aircandi.ui.widgets;
 
-import java.lang.ref.WeakReference;
-
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.view.View;
 
 import com.aircandi.Constants;
+
+import java.lang.ref.WeakReference;
 
 public abstract class ParallaxedViewBase {
 

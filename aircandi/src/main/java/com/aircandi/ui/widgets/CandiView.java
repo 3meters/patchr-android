@@ -1,7 +1,5 @@
 package com.aircandi.ui.widgets;
 
-import java.util.Locale;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.Html;
@@ -29,6 +27,8 @@ import com.aircandi.objects.Photo.PhotoSource;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.User;
 import com.aircandi.utilities.UI;
+
+import java.util.Locale;
 
 @SuppressWarnings("ucd")
 public class CandiView extends RelativeLayout {
@@ -103,10 +103,9 @@ public class CandiView extends RelativeLayout {
 		mHolderInfo = (LinearLayout) mLayout.findViewById(R.id.info_holder);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -138,10 +137,9 @@ public class CandiView extends RelativeLayout {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public void databind(Entity entity, IndicatorOptions options) {
 		synchronized (entity) {
 			/*
@@ -420,10 +418,9 @@ public class CandiView extends RelativeLayout {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	protected static void setVisibility(View view, Integer visibility) {
 		if (view != null) {
 			view.setVisibility(visibility);
@@ -511,11 +508,9 @@ public class CandiView extends RelativeLayout {
 		requestLayout();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static class IndicatorOptions {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public static class IndicatorOptions {
 		public int     imageSizePixels = 20;
 		public boolean showIfZero      = false;
 		public boolean forceUpdate     = false;

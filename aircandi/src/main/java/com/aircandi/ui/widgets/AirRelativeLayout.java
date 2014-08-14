@@ -27,10 +27,9 @@ public class AirRelativeLayout extends RelativeLayout {
 		initialize(context, attrs);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measuredWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -41,10 +40,9 @@ public class AirRelativeLayout extends RelativeLayout {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	private void initialize(Context context, AttributeSet attrs) {
 		TypedArray typeArray = getContext().obtainStyledAttributes(attrs, R.styleable.AirRelativeLayout);
 		mMaxWidth = typeArray.getDimensionPixelSize(R.styleable.AirRelativeLayout_maxWidth, getContext().getResources().getDimensionPixelSize(R.dimen.form_max_width));

@@ -1,7 +1,5 @@
 package com.aircandi.components;
 
-import java.util.Locale;
-
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.widget.ViewFlipper;
@@ -10,6 +8,8 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 import com.aircandi.Constants;
 import com.aircandi.R;
+
+import java.util.Locale;
 
 public class TabManager implements ActionBar.TabListener {
 

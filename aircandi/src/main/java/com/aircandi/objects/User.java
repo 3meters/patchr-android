@@ -1,13 +1,13 @@
 package com.aircandi.objects;
 
+import com.aircandi.ServiceConstants;
+import com.aircandi.service.Expose;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.aircandi.ServiceConstants;
-import com.aircandi.service.Expose;
 
 /**
  * @author Jayma
@@ -20,12 +20,11 @@ public class User extends Entity {
 	public static final  String schemaName       = "user";
 	public static final  String schemaId         = "us";
 
-	// --------------------------------------------------------------------------------------------
-	// service fields
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * service fields
+	 *--------------------------------------------------------------------------------------------*/
 	@Expose
-	public String  email;                                        // Required
+	public String email;                                        // Required
 	@Expose
 	public String  role;
 	@Expose
@@ -65,17 +64,14 @@ public class User extends Entity {
 	@Expose(serialize = false, deserialize = true)
 	public Number validationNotifyDate;
 
-	// --------------------------------------------------------------------------------------------
-	// client fields
-	// --------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
+	 * client fields
+	 *--------------------------------------------------------------------------------------------*/    public List<Count> stats;
+	public Session session;
 
-	public List<Count> stats;
-	public Session     session;
-
-	// --------------------------------------------------------------------------------------------
-	// Set and get
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Set and get
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public String getCollection() {
 		return collectionId;
@@ -89,10 +85,9 @@ public class User extends Entity {
 		return (id != null && id.equals(ServiceConstants.ADMIN_USER_ID));
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Copy and serialization
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Copy and serialization
+	 *--------------------------------------------------------------------------------------------*/
 	public static User setPropertiesFromMap(User entity, Map map, Boolean nameMapping) {
 
 		synchronized (entity) {

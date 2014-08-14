@@ -46,10 +46,9 @@ public class AirTokenCompleteTextView extends TokenCompleteTextView {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public void initialize() {
 		if (mPrefixResId != 0) {
 			TextDrawable text = new TextDrawable(StringManager.getString(mPrefixResId));
@@ -94,10 +93,9 @@ public class AirTokenCompleteTextView extends TokenCompleteTextView {
 		FontManager.getInstance().setTypefaceLight(this);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	public void setTokenLayoutResId(Integer tokenLayoutResId) {
 		mTokenLayoutResId = tokenLayoutResId;
 	}

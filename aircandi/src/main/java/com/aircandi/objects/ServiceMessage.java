@@ -1,9 +1,9 @@
 package com.aircandi.objects;
 
+import com.aircandi.service.Expose;
+
 import java.io.Serializable;
 import java.util.Map;
-
-import com.aircandi.service.Expose;
 
 public class ServiceMessage extends ActivityBase implements Cloneable, Serializable {
 

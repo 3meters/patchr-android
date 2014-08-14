@@ -1,9 +1,5 @@
 package com.aircandi.components;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.content.Context;
@@ -26,6 +22,10 @@ import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @SuppressLint("Registered")
 public class GcmIntentService extends IntentService {
@@ -53,7 +53,7 @@ public class GcmIntentService extends IntentService {
 			if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
 
 				/*
-		         * Filter messages based on message type. Since it is likely that GCM will be
+			     * Filter messages based on message type. Since it is likely that GCM will be
 				 * extended in the future with new message types, just ignore any message types you're
 				 * not interested in, or that you don't recognize.
 				 */
@@ -185,12 +185,11 @@ public class GcmIntentService extends IntentService {
 		 * If user is currently on the activities list, it will be auto refreshed
 		 * so don't show indicator in the tab.
 		 */
-		Boolean showingActivities = showingActivities();
 		Boolean showingEntity = false;
 		if (message.action.toEntity != null) {
 			showingEntity = showingEntity(message.action.toEntity.id);
 		}
-		return (showingActivities || showingEntity);
+		return (showingEntity);
 	}
 
 	@SuppressWarnings("ucd")
@@ -211,7 +210,7 @@ public class GcmIntentService extends IntentService {
 		android.app.Activity currentActivity = Aircandi.getInstance().getCurrentActivity();
 		if (currentActivity != null && currentActivity.getClass().equals(AircandiForm.class)) {
 			BaseFragment fragment = ((AircandiForm) currentActivity).getCurrentFragment();
-			if (fragment != null && ((Object)fragment).getClass().equals(ActivityFragment.class)) {
+			if (fragment != null && ((Object) fragment).getClass().equals(ActivityFragment.class)) {
 				return true;
 			}
 		}

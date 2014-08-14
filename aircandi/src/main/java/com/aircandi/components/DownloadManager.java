@@ -1,13 +1,5 @@
 package com.aircandi.components;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.security.GeneralSecurityException;
-
-import javax.net.ssl.SSLContext;
-
 import android.content.Context;
 import android.net.Uri;
 
@@ -19,6 +11,14 @@ import com.squareup.picasso.LruCache;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.Listener;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.security.GeneralSecurityException;
+
+import javax.net.ssl.SSLContext;
 
 @SuppressWarnings("ucd")
 public class DownloadManager {

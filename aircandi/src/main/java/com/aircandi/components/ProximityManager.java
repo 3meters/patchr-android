@@ -1,12 +1,5 @@
 package com.aircandi.components;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -44,6 +37,13 @@ import com.aircandi.utilities.Maps;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class ProximityManager {
 
@@ -83,10 +83,9 @@ public class ProximityManager {
 		return ProxiManagerHolder.instance;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onActivityStateEvent(final ActivityStateEvent event) {
@@ -125,10 +124,9 @@ public class ProximityManager {
 		}.execute();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	public void scanForWifi(final ScanReason reason) {
 		/*
 		 * If context is null then we probably crashed and the scan service is still calling.
@@ -253,10 +251,9 @@ public class ProximityManager {
 		BusProvider.getInstance().post(new BeaconsLockedEvent());
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Load beacon related entities
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Load beacon related entities
+	 *--------------------------------------------------------------------------------------------*/
 	public synchronized ServiceResponse getEntitiesByProximity() {
 		/*
 		 * All current beacons ids are sent to the service. Previously discovered beacons are included in separate
@@ -427,10 +424,9 @@ public class ProximityManager {
 		return RefreshReason.NONE;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 	public List<Beacon> getStrongestBeacons(int max) {
 
 		final List<Beacon> beaconStrongest = new ArrayList<Beacon>();
@@ -465,10 +461,9 @@ public class ProximityManager {
 		return mWifiList;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/
 	public Long getLastBeaconInstallUpdate() {
 		return mLastBeaconInstallUpdate;
 	}
@@ -477,11 +472,9 @@ public class ProximityManager {
 		mLastBeaconInstallUpdate = lastBeaconInstallUpdate;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	public static class ModelResult {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    public static class ModelResult {
 		public Object data;
 		public ServiceResponse serviceResponse = new ServiceResponse();
 	}

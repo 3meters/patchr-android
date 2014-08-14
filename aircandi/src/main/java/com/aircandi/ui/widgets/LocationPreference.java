@@ -1,10 +1,5 @@
 package com.aircandi.ui.widgets;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -30,6 +25,11 @@ import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
 public class LocationPreference extends AirListPreference {
 
 	private List<Document> mTestLocations = new ArrayList<Document>();
@@ -49,10 +49,9 @@ public class LocationPreference extends AirListPreference {
 		setDefaultValue(LOCATION_DEFAULT);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected void onPrepareDialogBuilder(Builder builder) {
 		setEntriesFromLocations(); // Initialize entry arrays but empty
@@ -75,10 +74,9 @@ public class LocationPreference extends AirListPreference {
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 	private void databind() {
 
 		mTestLocations.clear();
@@ -169,11 +167,9 @@ public class LocationPreference extends AirListPreference {
 		LOCATION_DEFAULT = jsonLocation;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Classes
-	// --------------------------------------------------------------------------------------------
-
-	private class ListAdapter extends ArrayAdapter<Document> {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/    private class ListAdapter extends ArrayAdapter<Document> {
 
 		@Override
 		public int getCount() {

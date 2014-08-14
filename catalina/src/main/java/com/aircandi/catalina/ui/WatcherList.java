@@ -84,11 +84,9 @@ public class WatcherList extends BaseActivity {
 
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Events
-	// --------------------------------------------------------------------------------------------
-
-	@SuppressWarnings("ucd")
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/ 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
 		mListFragment.onMoreButtonClick(view);
 	}
@@ -195,11 +193,9 @@ public class WatcherList extends BaseActivity {
 		return R.layout.watcher_list;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------
-
-	public void enableLink(final Entity entity, final String fromId, final String toId, final Boolean enabled) {
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/ 	public void enableLink(final Entity entity, final String fromId, final String toId, final Boolean enabled) {
 
 		final String actionEvent = "entity_watch_" + (enabled ? "approved" : "requested");
 

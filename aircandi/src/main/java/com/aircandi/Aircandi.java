@@ -1,12 +1,6 @@
 // $codepro.audit.disable fileComment
 package com.aircandi;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
@@ -56,6 +50,12 @@ import com.google.tagmanager.Container.RefreshType;
 import com.google.tagmanager.Logger.LogLevel;
 import com.google.tagmanager.TagManager;
 import com.google.tagmanager.TagManager.RefreshMode;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 public abstract class Aircandi extends Application {
 
@@ -140,9 +140,9 @@ public abstract class Aircandi extends Application {
 		singletonObject.initializeInstance();
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Methods
-	// --------------------------------------------------------------------------------------------	
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 
 	@SuppressLint("CommitPrefEdits")
 	protected void initializeInstance() {
@@ -311,9 +311,9 @@ public abstract class Aircandi extends Application {
 		return controllerMap.get(entity.schema);
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Statics
-	// --------------------------------------------------------------------------------------------	
+	/*--------------------------------------------------------------------------------------------
+	 * Statics
+	 *--------------------------------------------------------------------------------------------*/
 
 	public static String getVersionName(Context context, Class cls) {
 		try {
@@ -391,9 +391,9 @@ public abstract class Aircandi extends Application {
 		public static String LIGHT = "light";
 	}
 
-	// --------------------------------------------------------------------------------------------
-	// Properties
-	// --------------------------------------------------------------------------------------------	
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 
 	public void setCurrentUser(User user) {
 		mCurrentUser = user;
