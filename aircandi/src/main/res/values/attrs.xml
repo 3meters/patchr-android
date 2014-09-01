@@ -75,6 +75,7 @@
 		<attr name="textColorInverse" format="color|reference" />
 		<attr name="textColorPure" format="color|reference" />
 		<attr name="textColorSecondary" format="color|reference" />
+		<attr name="textColorHint" format="color|reference" />
 		<attr name="textColorAlert" format="color|reference" />
 		<attr name="textColorSpinner" format="color|reference" />
 		<attr name="textColorUnfocused" format="color|reference" />
@@ -85,6 +86,7 @@
 		<attr name="textColorCandiView" format="color|reference" />
 		<attr name="textColorCandiViewSynthetic" format="color|reference" />
 		<attr name="textSelector" format="color|reference" />
+		<attr name="textSelectorLink" format="color|reference" />
 		<attr name="highlightColor" format="color|reference" />
 		<attr name="cardShadowColor" format="color|reference" />
 		<attr name="cardHighlightColor" format="color|reference" />
@@ -106,6 +108,7 @@
 		<attr name="backgroundHelp" format="color|reference" />
 		<attr name="backgroundPictureFramed" format="color|reference" />
 		<attr name="backgroundPlaceholder" format="color|reference" />
+		<attr name="backgroundProgressMessage" format="color|reference" />
 		<attr name="backgroundProgress" format="color|reference" />
 		<attr name="backgroundSpinner" format="color|reference" />
 		<attr name="backgroundToken" format="color|reference" />

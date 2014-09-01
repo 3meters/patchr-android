@@ -73,6 +73,7 @@ public class MenuManager extends com.aircandi.components.MenuManager {
 			if (canUserEdit(entity)) {
 				menuInflater.inflate(R.menu.menu_edit_place, menu);
 			}
+			menuInflater.inflate(R.menu.menu_delete, menu);
 			menuInflater.inflate(R.menu.menu_report, menu);
 			menuInflater.inflate(R.menu.menu_base, menu);
 			return true;

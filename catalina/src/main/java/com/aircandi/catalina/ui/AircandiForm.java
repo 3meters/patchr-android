@@ -1,5 +1,7 @@
 package com.aircandi.catalina.ui;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.aircandi.Aircandi;
 import com.aircandi.catalina.Catalina;
 import com.aircandi.catalina.Constants;
@@ -25,7 +28,6 @@ import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Route;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.queries.TrendQuery;
-import com.aircandi.ui.ActivityFragment;
 import com.aircandi.ui.EntityListFragment;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.RadarListFragment;
@@ -78,7 +80,9 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
-	 *--------------------------------------------------------------------------------------------*/ 	@Override
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
 	public void onAdd(Bundle extras) {
 		if (!extras.containsKey(Constants.EXTRA_ENTITY_SCHEMA)) {
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
@@ -123,7 +127,9 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
-	 *--------------------------------------------------------------------------------------------*/ 	@Override
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
 	public void setCurrentFragment(String fragmentType, View view) {
 		Logger.i(this, "setCurrentFragment called");
 		/*
@@ -147,7 +153,8 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh_special);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_FEED)) {
@@ -175,7 +182,8 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_WATCH)) {
@@ -204,7 +212,8 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_CREATE)) {
@@ -233,7 +242,8 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_TREND_POPULAR)) {
@@ -263,7 +273,8 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_TREND_ACTIVE)) {
@@ -293,7 +304,8 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
 			else {
@@ -335,7 +347,9 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
-	 *--------------------------------------------------------------------------------------------*/ 	@Override
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 
@@ -371,13 +385,18 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Misc
-	 *--------------------------------------------------------------------------------------------*/ 	@Override
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
 	protected int getLayoutId() {
 		return R.layout.aircandi_form;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/ }
+	 *--------------------------------------------------------------------------------------------*/
+}

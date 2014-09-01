@@ -42,26 +42,8 @@ public class EntityCache implements Map<String, Entity> {
 	private final Map<String, Entity> mCacheMap = Collections.synchronizedMap(new HashMap<String, Entity>());
 
 	/*--------------------------------------------------------------------------------------------
-	 * Cache loading
+	 * Cache loading from service
 	 *--------------------------------------------------------------------------------------------*/
-	private ServiceResponse dispatch(ServiceRequest serviceRequest) {
-		return dispatch(serviceRequest, null);
-	}
-
-	private ServiceResponse dispatch(ServiceRequest serviceRequest, Stopwatch stopwatch) {
-	    /*
-	     * We use this as a choke point for all calls to the aircandi service.
-		 */
-		final ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest, true, stopwatch);
-		return serviceResponse;
-	}
-
-	public void decorate(List<Entity> entities, Links linkOptions) {
-		for (Entity entity : entities) {
-			IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
-			controller.decorate(entity, linkOptions);
-		}
-	}
 
 	public ServiceResponse loadEntities(List<String> entityIds, Links linkOptions) {
 
@@ -81,7 +63,7 @@ public class EntityCache implements Map<String, Entity> {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		ServiceResponse serviceResponse = dispatch(serviceRequest);
+		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
@@ -91,7 +73,7 @@ public class EntityCache implements Map<String, Entity> {
 			serviceResponse.data = serviceData;
 
 			if (loadedEntities != null && loadedEntities.size() > 0) {
-                /*
+	            /*
                  * Clear out any cache stamp overrides.
 				 */
 				for (Entity entity : loadedEntities) {
@@ -151,13 +133,14 @@ public class EntityCache implements Map<String, Entity> {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesForEntity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
-				.setResponseFormat(ResponseFormat.JSON);
+				.setResponseFormat(ResponseFormat.JSON)
+				.setStopwatch(stopwatch);
 
 		//		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
 		//			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		//		}
 
-		ServiceResponse serviceResponse = dispatch(serviceRequest, stopwatch);
+		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) serviceResponse.data;
@@ -211,7 +194,8 @@ public class EntityCache implements Map<String, Entity> {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesByProximity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
-				.setResponseFormat(ResponseFormat.JSON);
+				.setResponseFormat(ResponseFormat.JSON)
+				.setStopwatch(stopwatch);
 
 		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
@@ -221,7 +205,7 @@ public class EntityCache implements Map<String, Entity> {
 			stopwatch.segmentTime("Load entities: service call started");
 		}
 
-		ServiceResponse serviceResponse = dispatch(serviceRequest, stopwatch);
+		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (stopwatch != null) {
 			stopwatch.segmentTime("Load entities: service call complete");
@@ -286,7 +270,7 @@ public class EntityCache implements Map<String, Entity> {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		ServiceResponse serviceResponse = Aircandi.getInstance().getEntityManager().dispatch(serviceRequest);
+		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
@@ -315,8 +299,9 @@ public class EntityCache implements Map<String, Entity> {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Cache updates
+	 * Cache updates (local only)
 	 *--------------------------------------------------------------------------------------------*/
+
 	private void upsertEntities(List<Entity> entities) {
 		for (Entity entity : entities) {
 			upsertEntity(entity);
@@ -455,8 +440,9 @@ public class EntityCache implements Map<String, Entity> {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Cache deletes
+	 * Cache deletes (local only)
 	 *--------------------------------------------------------------------------------------------*/
+
 	public synchronized Entity removeEntityTree(String entityId) {
 		/*
 		 * Clean out entity and every entity related to entity. Is not recursive
@@ -562,8 +548,9 @@ public class EntityCache implements Map<String, Entity> {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Cache reads
+	 * Cache reads (local only)
 	 *--------------------------------------------------------------------------------------------*/
+
 	public synchronized List<? extends Entity> getCacheEntities(String schema, String type, Integer radius, Boolean proximity) {
 		List<Entity> entities = new ArrayList<Entity>();
 		final Iterator iter = keySet().iterator();
@@ -637,8 +624,20 @@ public class EntityCache implements Map<String, Entity> {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Map methods
+	 * Cache methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	public void decorate(List<Entity> entities, Links linkOptions) {
+		for (Entity entity : entities) {
+			IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
+			controller.decorate(entity, linkOptions);
+		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Cache Map methods
+	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void clear() {
 		mCacheMap.clear();

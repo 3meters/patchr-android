@@ -41,7 +41,7 @@ public class AirAutoCompleteTextView extends AutoCompleteTextView {
 	private void initialize(Context context) {
 
 		if (!isInEditMode()) {
-			FontManager.getInstance().setTypefaceDefault(this);
+			FontManager.getInstance().setTypefaceLight(this);
 		}
 
 		final Drawable[] drawables = getCompoundDrawables();

@@ -221,6 +221,7 @@ public class AircandiForm extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onBackPressed() {
 		if (mDrawerLayout.isDrawerVisible(mDrawer)) {
@@ -326,6 +327,7 @@ public class AircandiForm extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void setCurrentFragment(String fragmentType, View view) {
         /*
          * Fragment menu items are in addition to any menu items added by the parent activity.
@@ -508,6 +510,7 @@ public class AircandiForm extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -577,6 +580,7 @@ public class AircandiForm extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -669,6 +673,7 @@ public class AircandiForm extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.aircandi_form;
@@ -677,4 +682,5 @@ public class AircandiForm extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
+
 }

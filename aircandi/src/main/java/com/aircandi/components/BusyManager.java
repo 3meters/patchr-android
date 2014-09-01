@@ -1,10 +1,13 @@
 package com.aircandi.components;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -14,9 +17,12 @@ import android.view.WindowManager.BadTokenException;
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
+import com.aircandi.events.CancelEvent;
+import com.aircandi.events.ProgressEvent;
 import com.aircandi.ui.base.IBusy;
 import com.aircandi.ui.widgets.SmoothProgressBar;
 import com.aircandi.utilities.DateTime;
+import com.squareup.otto.Subscribe;
 
 public class BusyManager implements IBusy {
 
@@ -27,12 +33,21 @@ public class BusyManager implements IBusy {
 	private Runnable          mRunnableHide;
 	private Runnable          mRunnableShow;
 	private Long              mBusyStartedTime;
-	private SmoothProgressBar mHeaderProgressBar;
+	private SmoothProgressBar mHeaderActivityBar;
 
 	public BusyManager(Activity activity) {
 		mActivity = activity;
-		mHeaderProgressBar = (SmoothProgressBar) mActivity.findViewById(R.id.progress_bar);
-		addProgressDrawable();
+		mHeaderActivityBar = (SmoothProgressBar) mActivity.findViewById(R.id.progress_bar);
+		BusProvider.getInstance().register(this);
+
+		if (mHeaderActivityBar != null) {
+			ShapeDrawable shape = new ShapeDrawable();
+			shape.setShape(new RectShape());
+			shape.getPaint().setColor(mHeaderActivityBar.getColor());
+			ClipDrawable clipDrawable = new ClipDrawable(shape, Gravity.CENTER, ClipDrawable.HORIZONTAL);
+			mHeaderActivityBar.setProgressDrawable(clipDrawable);
+		}
+
 		mRunnableHide = new Runnable() {
 
 			@Override
@@ -45,15 +60,6 @@ public class BusyManager implements IBusy {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-	public void addProgressDrawable() {
-		if (mHeaderProgressBar != null) {
-			ShapeDrawable shape = new ShapeDrawable();
-			shape.setShape(new RectShape());
-			shape.getPaint().setColor(mHeaderProgressBar.getColor());
-			ClipDrawable clipDrawable = new ClipDrawable(shape, Gravity.CENTER, ClipDrawable.HORIZONTAL);
-			mHeaderProgressBar.setProgressDrawable(clipDrawable);
-		}
-	}
 
 	@Override
 	public void showBusy(final BusyAction busyAction) {
@@ -121,7 +127,7 @@ public class BusyManager implements IBusy {
 
 							if (!progressDialog.isShowing()) {
 								progressDialog.setCancelable(false);
-								mProgressDialog.setCanceledOnTouchOutside(false);
+								progressDialog.setCanceledOnTouchOutside(false);
 								progressDialog.show();
 								if (Aircandi.displayMetrics != null) {
 									progressDialog.getWindow().setLayout((int) (Aircandi.displayMetrics.widthPixels * 0.7), LayoutParams.WRAP_CONTENT);
@@ -143,6 +149,64 @@ public class BusyManager implements IBusy {
 		};
 
 		Aircandi.mainThreadHandler.postDelayed(mRunnableShow, (busyAction == BusyAction.Loading) ? Constants.INTERVAL_BUSY_DELAY : 0);
+	}
+
+	public void showProgress() {
+		/*
+		 * Make sure there are no pending busys waiting.
+		 */
+		Aircandi.mainThreadHandler.removeCallbacks(mRunnableShow);
+		Aircandi.mainThreadHandler.removeCallbacks(mRunnableHide);
+
+		mRunnableShow = new Runnable() {
+
+			@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+			@Override
+			public void run() {
+				try {
+					/*
+					 * Making a service call and showing a message
+					 */
+					final ProgressDialog progressDialog = getProgressDialog();
+
+					if (!progressDialog.isShowing()) {
+						progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+						progressDialog.setProgress(0);
+						progressDialog.setMax(100);
+						if (Constants.SUPPORTS_HONEYCOMB) {
+							progressDialog.setProgressNumberFormat(null);
+						}
+						progressDialog.setIndeterminate(false);
+						progressDialog.setCanceledOnTouchOutside(false);
+						progressDialog.setCancelable(false);
+						progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								BusProvider.getInstance().post(new CancelEvent(false));
+								progressDialog.dismiss();
+							}
+						});
+						progressDialog.show();
+						if (Aircandi.displayMetrics != null) {
+							progressDialog.getWindow().setLayout((int) (Aircandi.displayMetrics.widthPixels * 0.7), LayoutParams.WRAP_CONTENT);
+						}
+					}
+					mBusyStartedTime = DateTime.nowDate().getTime();
+				}
+
+				catch (BadTokenException ignore) {}
+			}
+		};
+
+		Aircandi.mainThreadHandler.postDelayed(mRunnableShow, 0);
+	}
+
+	@Subscribe
+	public void onProgressEvent(ProgressEvent event) {
+		if (mProgressDialog != null && mProgressDialog.isShowing() && !mProgressDialog.isIndeterminate()) {
+			Logger.v(this, "Progress event: " + event.percent + "%");
+			mProgressDialog.setProgress((int) event.percent);
+		}
 	}
 
 	@Override
@@ -194,9 +258,9 @@ public class BusyManager implements IBusy {
 	}
 
 	public void startBarBusyIndicator() {
-		if (mHeaderProgressBar != null && mHeaderProgressBar.getVisibility() != View.VISIBLE) {
-			mHeaderProgressBar.setIndeterminate(true);
-			mHeaderProgressBar.setVisibility(View.VISIBLE);
+		if (mHeaderActivityBar != null && mHeaderActivityBar.getVisibility() != View.VISIBLE) {
+			mHeaderActivityBar.setIndeterminate(true);
+			mHeaderActivityBar.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -208,8 +272,8 @@ public class BusyManager implements IBusy {
 	}
 
 	public void stopBarBusyIndicator() {
-		if (mHeaderProgressBar != null && mHeaderProgressBar.getVisibility() != View.GONE) {
-			mHeaderProgressBar.setVisibility(View.GONE);
+		if (mHeaderActivityBar != null && mHeaderActivityBar.getVisibility() != View.GONE) {
+			mHeaderActivityBar.setVisibility(View.GONE);
 		}
 	}
 
@@ -253,6 +317,7 @@ public class BusyManager implements IBusy {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void setRefreshImage(View refreshImage) {
 		mRefreshImage = refreshImage;
 	}
@@ -261,16 +326,8 @@ public class BusyManager implements IBusy {
 		mRefreshProgress = refreshProgress;
 	}
 
-	public View getRefreshImage() {
-		return mRefreshImage;
-	}
-
-	public View getRefreshProgress() {
-		return mRefreshProgress;
-	}
-
 	@Override
-	public SmoothProgressBar getHeaderProgressBar() {
-		return mHeaderProgressBar;
+	public SmoothProgressBar getHeaderActivityBar() {
+		return mHeaderActivityBar;
 	}
 }

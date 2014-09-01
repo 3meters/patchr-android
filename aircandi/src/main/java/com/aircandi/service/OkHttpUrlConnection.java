@@ -4,7 +4,6 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import com.aircandi.Aircandi;
-import com.aircandi.Constants;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -57,7 +56,7 @@ public class OkHttpUrlConnection extends BaseConnection {
 		client = new OkHttpClient();
 		client.setFollowSslRedirects(true);
 		client.setConnectTimeout(ServiceConstants.TIMEOUT_CONNECTION, TimeUnit.MILLISECONDS);
-		client.setReadTimeout(ServiceConstants.TIMEOUT_SOCKET_QUERIES, TimeUnit.MILLISECONDS);
+		client.setReadTimeout(ServiceConstants.TIMEOUT_SOCKET_READ, TimeUnit.MILLISECONDS);
 		/*
 		 * Hack to deal with ssl context conflict that blows up any other
 		 * software we are using that also works with ssl.
@@ -74,7 +73,7 @@ public class OkHttpUrlConnection extends BaseConnection {
 	}
 
 	@Override
-	public ServiceResponse request(ServiceRequest serviceRequest, Stopwatch stopwatch) {
+	public ServiceResponse request(ServiceRequest serviceRequest) {
 
 		ServiceResponse serviceResponse = new ServiceResponse();
 		serviceResponse.activityName = serviceRequest.getActivityName();
@@ -83,7 +82,7 @@ public class OkHttpUrlConnection extends BaseConnection {
 
 		try {
 
-			AirHttpRequest request = BaseConnection.buildHttpRequest(serviceRequest, stopwatch);
+			AirHttpRequest request = BaseConnection.buildHttpRequest(serviceRequest);
 			URL url = new URL(request.uri);
 			connection = new OkUrlFactory(client).open(url);
 
@@ -117,8 +116,8 @@ public class OkHttpUrlConnection extends BaseConnection {
 				inputStream = post(connection, request.requestBody, request, serviceResponse);
 			}
 
-			if (stopwatch != null) {
-				stopwatch.segmentTime("Http service: request execute completed");
+			if (serviceRequest.getStopwatch() != null) {
+				serviceRequest.getStopwatch().segmentTime("Http service: request execute completed");
 			}
 
 			serviceResponse.statusCode = connection.getResponseCode();
@@ -129,31 +128,13 @@ public class OkHttpUrlConnection extends BaseConnection {
 				 * Any 2.XX status code is considered success.
 				 */
 				if (inputStream != null) {
-
-					if (connection.getHeaderField("Content-Length") != null) {
-
-						Long contentLength = Long.parseLong(connection.getHeaderField("Content-Length"));
-						serviceResponse.contentLength = contentLength;
-						if (request.responseFormat == ResponseFormat.BYTES && contentLength > Constants.IMAGE_DOWNLOAD_BYTES_MAX)
-							return new ServiceResponse(ResponseCode.FAILED, null, new ImageSizeException());
-						else if (request.responseFormat == ResponseFormat.BYTES && contentLength < Constants.IMAGE_DOWNLOAD_BYTES_MIN)
-							return new ServiceResponse(ResponseCode.FAILED, null, new ImageUnusableException());
-					}
-
 					/*
 					 * Can throw InterruptedException
 					 */
 					Object response = handleResponse(inputStream, request, serviceResponse);
 
-					/*
-					 * We have cases where we requested an image but got html message instead. We treat
-					 * that as an unusable image and a failure.
-					 */
-					if (request.responseFormat == ResponseFormat.BYTES && response instanceof String)
-						return new ServiceResponse(ResponseCode.FAILED, null, new ImageUnusableException());
-
-					if (stopwatch != null) {
-						stopwatch.segmentTime("Http service: response content captured");
+					if (serviceRequest.getStopwatch() != null) {
+						serviceRequest.getStopwatch().segmentTime("Http service: response content captured");
 					}
 
 					/* Check for valid client version even if the call was successful */
@@ -163,8 +144,8 @@ public class OkHttpUrlConnection extends BaseConnection {
 						 */
 						ServiceData serviceData = (ServiceData) Json.jsonToObject((String) response, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 
-						if (stopwatch != null) {
-							stopwatch.segmentTime("Http service: response content json ("
+						if (serviceRequest.getStopwatch() != null) {
+							serviceRequest.getStopwatch().segmentTime("Http service: response content json ("
 									+ String.valueOf(((String) response).length())
 									+ " bytes) decoded to object");
 						}

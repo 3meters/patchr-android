@@ -1,6 +1,7 @@
 package com.aircandi.components;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -18,20 +19,25 @@ import android.widget.Toast;
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.ServiceConstants;
+import com.aircandi.objects.ServiceData;
 import com.aircandi.service.BaseConnection;
+import com.aircandi.service.ClientVersionException;
 import com.aircandi.service.NoNetworkException;
-import com.aircandi.service.OkHttpUrlConnection;
+import com.aircandi.service.OkHttp;
 import com.aircandi.service.RequestType;
 import com.aircandi.service.ResponseFormat;
 import com.aircandi.service.ServiceRequest;
 import com.aircandi.service.ServiceResponse;
+import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.Errors;
+import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 import com.squareup.okhttp.OkHttpClient;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Locale;
 
 /**
  * Designed as a singleton. The private Constructor prevents any other class from instantiating.
@@ -89,20 +95,20 @@ public class NetworkManager {
 	private final WifiStateChangedReceiver mWifiStateChangedReceiver = new WifiStateChangedReceiver();
 
 	/* Opportunistically used for crash reporting but not current state */
-	private Integer mWifiState;
-	private Integer mWifiApState;
-
+	private Integer             mWifiState;
+	private Integer             mWifiApState;
 	private WifiManager         mWifiManager;
 	private ConnectivityManager mConnectivityManager;
 	private ConnectedState mConnectedState = ConnectedState.NORMAL;
-	private BaseConnection mConnection;
+	private BaseConnection mOkClient;
 
 	public static final String EXTRA_WIFI_AP_STATE          = "wifi_state";
 	public static final String WIFI_AP_STATE_CHANGED_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
 	public static final int    WIFI_AP_STATE_ENABLED        = 3;
 
 	private NetworkManager() {
-		mConnection = new OkHttpUrlConnection();
+		mOkClient = new OkHttp();
+		BusProvider.getInstance().register(this);
 	}
 
 	private static class NetworkManagerHolder {
@@ -111,7 +117,6 @@ public class NetworkManager {
 
 	public static NetworkManager getInstance() {
 		return NetworkManagerHolder.instance;
-
 	}
 
 	public void setContext(Context applicationContext) {
@@ -162,24 +167,52 @@ public class NetworkManager {
 		};
 	}
 
-	public ServiceResponse request(final ServiceRequest serviceRequest, Boolean errorCheck, final Stopwatch stopwatch) {
+	public ServiceResponse request(final ServiceRequest serviceRequest) {
 		/*
 		 * This is always being called from a background (non main) thread.
 		 */
 		ServiceResponse serviceResponse;
 		ConnectedState state = checkConnectedState();
 
-		if (state == ConnectedState.NORMAL) {
-			serviceResponse = mConnection.request(serviceRequest, stopwatch);
-		}
-		else {
+		if (state != ConnectedState.NORMAL) {
 			serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new NoNetworkException());
 		}
+		else {
 
-		if (serviceResponse.responseCode == ResponseCode.FAILED && errorCheck) {
+			/* Tag request with the activity class name */
+			Activity currentActivity = Aircandi.getInstance().getCurrentActivity();
+			if (currentActivity != null) {
+				serviceRequest.setTag(currentActivity.getClass().getSimpleName().toLowerCase(Locale.US));
+			}
+
+			serviceResponse = mOkClient.request(serviceRequest);
+
+			/* Check for valid client version even if the call was successful */
+			if (serviceRequest.getResponseFormat() == ResponseFormat.JSON
+					&& !serviceRequest.getIgnoreResponseData()
+					&& serviceResponse.exception == null
+					&& serviceResponse.data != null) {
+				/*
+				 * We think anything json is coming from the Aircandi service (except Bing)
+				 */
+				ServiceData serviceData = (ServiceData) Json.jsonToObject((String) serviceResponse.data, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
+
+				if (serviceData != null
+						&& serviceData.clientMinVersions != null
+						&& serviceData.clientMinVersions.containsKey(Aircandi.applicationContext.getPackageName())) {
+
+					Integer clientVersionCode = Aircandi.getVersionCode(Aircandi.applicationContext, AircandiForm.class);
+					if ((Integer) serviceData.clientMinVersions.get(Aircandi.applicationContext.getPackageName()) > clientVersionCode) {
+						return new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
+					}
+				}
+			}
+		}
+
+		if (serviceResponse.responseCode == ResponseCode.FAILED && serviceRequest.getErrorCheck()) {
 			serviceResponse.errorResponse = Errors.getErrorResponse(mApplicationContext, serviceResponse);
-			if (stopwatch != null) {
-				stopwatch.segmentTime("Service call failed");
+			if (serviceRequest.getStopwatch() != null) {
+				serviceRequest.getStopwatch().segmentTime("Service call failed");
 			}
 			if (serviceResponse.exception != null) {
 				Logger.w(this, "Service exception: " + serviceResponse.exception.getClass().getSimpleName());
@@ -189,12 +222,14 @@ public class NetworkManager {
 				Logger.w(this, "Service error: (code: " + String.valueOf(serviceResponse.statusCode) + ") " + serviceResponse.statusMessage);
 			}
 		}
+
 		return serviceResponse;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Connectivity routines
 	 *--------------------------------------------------------------------------------------------*/
+
 	public ConnectedState checkConnectedState() {
 		int attempts = 0;
 
@@ -283,9 +318,10 @@ public class NetworkManager {
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.WALLED_GARDEN_URI)
 				.setRequestType(RequestType.GET)
-				.setResponseFormat(ResponseFormat.NONE);
+				.setResponseFormat(ResponseFormat.NONE)
+				.setErrorCheck(false);
 
-		final ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest, false, null);
+		final ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS)
 			return serviceResponse.statusCode != 204;
 		else {
@@ -299,6 +335,7 @@ public class NetworkManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Wifi routines
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Boolean isWifiEnabled() {
 		Boolean wifiEnabled = null;
 		if (mWifiManager != null) {
@@ -405,8 +442,9 @@ public class NetworkManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public OkHttpClient getHttpClient() {
-		return ((OkHttpUrlConnection) mConnection).getClient();
+		return ((OkHttp) mOkClient).getClient();
 	}
 
 	public Integer getWifiState() {
@@ -432,7 +470,9 @@ public class NetworkManager {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    private class WifiStateChangedReceiver extends BroadcastReceiver {
+	 *--------------------------------------------------------------------------------------------*/
+
+	private class WifiStateChangedReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive(final Context context, Intent intent) {

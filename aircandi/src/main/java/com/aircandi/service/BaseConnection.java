@@ -11,9 +11,9 @@ import java.util.List;
 public abstract class BaseConnection implements IConnection {
 
 	@Override
-	public abstract ServiceResponse request(ServiceRequest serviceRequest, Stopwatch stopwatch);
+	public abstract ServiceResponse request(ServiceRequest serviceRequest);
 
-	protected static AirHttpRequest buildHttpRequest(final ServiceRequest serviceRequest, final Stopwatch stopwatch) {
+	protected static AirHttpRequest buildHttpRequest(final ServiceRequest serviceRequest) {
 
 		AirHttpRequest airHttpRequest = new AirHttpRequest();
 		airHttpRequest.uri = serviceRequest.getUriWithQuery();
@@ -105,9 +105,6 @@ public abstract class BaseConnection implements IConnection {
 		if (serviceRequest.getResponseFormat() == ResponseFormat.JSON) {
 			airHttpRequest.headers.add(new Header("Accept", "application/json"));
 		}
-		if (serviceRequest.getResponseFormat() == ResponseFormat.BYTES) {
-			airHttpRequest.headers.add(new Header("Accept", "image/png, image/gif, image/jpeg, image/bmp"));
-		}
 		if (serviceRequest.getAuthType() == AuthType.BASIC) {
 			airHttpRequest.headers.add(new Header("Authorization", "Basic " + serviceRequest.getPasswordBase64()));
 		}
@@ -126,14 +123,8 @@ public abstract class BaseConnection implements IConnection {
 		 * on what we requested.
 		 */
 		if (contentType == null) {
-			if (request.responseFormat == ResponseFormat.BYTES) {
-				contentType = "image/*";
-			}
-			else if (request.responseFormat == ResponseFormat.JSON) {
+			if (request.responseFormat == ResponseFormat.JSON) {
 				contentType = "application/json";
-			}
-			else if (request.responseFormat == ResponseFormat.HTML) {
-				contentType = "text/html";
 			}
 			else {
 				contentType = "text/*";

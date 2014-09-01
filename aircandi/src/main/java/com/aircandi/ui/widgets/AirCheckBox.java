@@ -27,7 +27,7 @@ public class AirCheckBox extends CheckBox {
 		ta.recycle();
 
 		if (!isInEditMode()) {
-			FontManager.getInstance().setTypefaceDefault(this);
+			FontManager.getInstance().setTypefaceLight(this);
 			if (textId != 0) {
 				super.setText(StringManager.getString(textId, context, getResources()));
 			}

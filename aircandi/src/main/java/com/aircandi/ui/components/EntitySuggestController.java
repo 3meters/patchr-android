@@ -10,9 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Filter;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.aircandi.Aircandi;
@@ -32,9 +32,9 @@ import com.aircandi.objects.User;
 import com.aircandi.ui.base.BaseActivity.SimpleTextWatcher;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.AirTokenCompleteTextView;
+import com.aircandi.ui.widgets.TokenCompleteTextView;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
-import com.tokenautocomplete.TokenCompleteTextView;
 
 import org.json.JSONException;
 
@@ -52,8 +52,9 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	private ArrayAdapter                        mAdapter;
 	private Context                             mContext;
 	private AbsListView                         mListView;
-	private AirTokenCompleteTextView            mInput;
-	private ProgressBar                         mProgress;
+	private AutoCompleteTextView                mInput;
+	private View                                mSearchProgress;
+	private View                                mSearchImage;
 	private Integer                             mWatchResId;
 	private Integer                             mLocationResId;
 	private Integer                             mUserResId;
@@ -83,16 +84,20 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	public void init() {
 
 		/* Bind to adapter */
-		mInput.allowDuplicates(false);
-		mInput.setDeletionStyle(TokenCompleteTextView.TokenDeleteStyle.Clear);
-		mInput.setTokenClickStyle(TokenCompleteTextView.TokenClickStyle.Select);
+		if (mInput instanceof AirTokenCompleteTextView) {
+			AirTokenCompleteTextView input = (AirTokenCompleteTextView) mInput;
+			input.allowDuplicates(false);
+			input.setDeletionStyle(TokenCompleteTextView.TokenDeleteStyle.Clear);
+			input.setTokenClickStyle(TokenCompleteTextView.TokenClickStyle.Select);
+			input.setTokenListener(mTokenListener != null ? mTokenListener : this);
+		}
 		mInput.setAdapter(mAdapter);
-		mInput.setTokenListener(mTokenListener != null ? mTokenListener : this);
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onTokenAdded(Object o) {
 		Entity entity = (Entity) o;
@@ -117,10 +122,13 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-	public EntitySuggestController setInput(AirTokenCompleteTextView input) {
+
+	public EntitySuggestController setInput(AutoCompleteTextView input) {
 		mInput = input;
 		return this;
 	}
@@ -135,8 +143,13 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		return this;
 	}
 
-	public EntitySuggestController setProgress(ProgressBar progress) {
-		mProgress = progress;
+	public EntitySuggestController setSearchProgress(View progress) {
+		mSearchProgress = progress;
+		return this;
+	}
+
+	public EntitySuggestController setSearchImage(View image) {
+		mSearchImage = image;
 		return this;
 	}
 
@@ -156,7 +169,9 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    private class SuggestArrayAdapter extends ArrayAdapter<Entity> {
+	 *--------------------------------------------------------------------------------------------*/
+
+	private class SuggestArrayAdapter extends ArrayAdapter<Entity> {
 
 		private Filter       mFilter;
 		private List<Entity> mSeedEntities;
@@ -272,38 +287,51 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 			@Override
 			protected FilterResults performFiltering(CharSequence chars) {
-		        /*
-                 * Called on background thread.
+			    /*
+			     * Called on background thread.
                  */
-				mSuggestInProgress = true;
 				FilterResults result = new FilterResults();
-				if (chars != null && chars.length() > 0) {
+				if (!mSuggestInProgress) {
 
-					Thread.currentThread().setName("AsyncSuggestEntities");
-					final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
-					ModelResult modelResult = Aircandi.getInstance().getEntityManager().suggest(chars.toString().trim()
-							, mSuggestScope, Aircandi.getInstance().getCurrentUser().id
-							, location
-							, LIMIT);
+					mSuggestInProgress = true;
+					if (chars != null && chars.length() > 0) {
 
-					if (modelResult.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-						final List<Entity> entities = (List<Entity>) modelResult.data;
-
-						if (mSeedEntities != null && mSeedEntities.size() > 0) {
-							entities.add(mSeedEntities.get(0));
+						if (mSearchProgress != null) {
+							mInput.post(new Runnable() {
+								@Override
+								public void run() {
+									mSearchImage.setVisibility(View.INVISIBLE);
+									mSearchProgress.setVisibility(View.VISIBLE);
+								}
+							});
 						}
 
-						result.count = entities.size();
-						result.values = entities;
+						Thread.currentThread().setName("AsyncSuggestEntities");
+						final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+						ModelResult modelResult = Aircandi.getInstance().getEntityManager().suggest(chars.toString().trim()
+								, mSuggestScope, Aircandi.getInstance().getCurrentUser().id
+								, location
+								, LIMIT);
+
+						if (modelResult.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+
+							final List<Entity> entities = (List<Entity>) modelResult.data;
+
+							if (mSeedEntities != null && mSeedEntities.size() > 0) {
+								entities.add(mSeedEntities.get(0));
+							}
+
+							result.count = entities.size();
+							result.values = entities;
+						}
+					}
+					else {
+			            /* Add all seed entities */
+						result.values = mSeedEntities;
+						result.count = mSeedEntities.size();
 					}
 
 					mSuggestInProgress = false;
-				}
-				else {
-                    /* Add all seed entities */
-					result.values = mSeedEntities;
-					result.count = mSeedEntities.size();
 				}
 				return result;
 			}
@@ -314,6 +342,16 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
                 /*
                  * Called on UI thread.
                  */
+				if (mSearchProgress != null) {
+					mInput.post(new Runnable() {
+						@Override
+						public void run() {
+							mSearchImage.setVisibility(View.VISIBLE);
+							mSearchProgress.setVisibility(View.INVISIBLE);
+						}
+					});
+				}
+
 				clear();
 				if (results.count > 0) {
 					if (Constants.SUPPORTS_HONEYCOMB) {

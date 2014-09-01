@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.DeadObjectException;
 import android.os.Handler;
 import android.widget.Toast;
 
@@ -99,6 +100,7 @@ public class LocationManager implements
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onLocationChanged(Location location) {
 
@@ -188,12 +190,12 @@ public class LocationManager implements
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void setLocationMode(LocationMode locationMode) {
 		/*
 		 * This is the external entry point that triggers use of the
 		 * play services location client.
 		 */
-
 		Reporting.updateCrashKeys();
 		Logger.d(LocationManager.this, "Location mode changed to: " + locationMode.name());
 		mLocationMode = locationMode;
@@ -210,27 +212,28 @@ public class LocationManager implements
 			}
 		}
 		else {
-
-			mLocationClient.removeLocationUpdates(this);
-
-			if (mLocationMode == LocationMode.BURST) {
-				Aircandi.stopwatch2.start("location_lock", "Lock location: start");
-				Logger.d(LocationManager.this, "Lock location started");
-				onLocationChanged(null);
-				mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-				mLocationRequest.setInterval(Constants.TIME_FIVE_SECONDS);
-				mLocationRequest.setFastestInterval(Constants.TIME_FIVE_SECONDS);
-				Aircandi.mainThreadHandler.postDelayed(mBurstTimeout, Constants.TIME_THIRTY_SECONDS);
-				mLocationClient.requestLocationUpdates(mLocationRequest, this);
-			}
-			else if (mLocationMode == LocationMode.OFF) {
-				if (Aircandi.stopwatch2.isStarted()) {
-					Aircandi.stopwatch2.stop("Lock location: stopped");
+			try {
+				mLocationClient.removeLocationUpdates(this);
+				if (mLocationMode == LocationMode.BURST) {
+					Aircandi.stopwatch2.start("location_lock", "Lock location: start");
+					Logger.d(LocationManager.this, "Lock location started");
+					onLocationChanged(null);
+					mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+					mLocationRequest.setInterval(Constants.TIME_FIVE_SECONDS);
+					mLocationRequest.setFastestInterval(Constants.TIME_FIVE_SECONDS);
+					Aircandi.mainThreadHandler.postDelayed(mBurstTimeout, Constants.TIME_THIRTY_SECONDS);
+					mLocationClient.requestLocationUpdates(mLocationRequest, this);
 				}
-				Logger.d(LocationManager.this, "Lock location stopped: ** done **");
-				Aircandi.mainThreadHandler.removeCallbacks(mBurstTimeout);
-				mLocationMode = LocationMode.NONE;
+				else if (mLocationMode == LocationMode.OFF) {
+					if (Aircandi.stopwatch2.isStarted()) {
+						Aircandi.stopwatch2.stop("Lock location: stopped");
+					}
+					Logger.d(LocationManager.this, "Lock location stopped: ** done **");
+					Aircandi.mainThreadHandler.removeCallbacks(mBurstTimeout);
+					mLocationMode = LocationMode.NONE;
+				}
 			}
+			catch (Exception ignore) {}
 		}
 	}
 
@@ -252,6 +255,7 @@ public class LocationManager implements
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Location getLocationLast() {
 		return mLocationLast;
 	}
@@ -322,7 +326,9 @@ public class LocationManager implements
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public enum LocationMode {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public enum LocationMode {
 		BURST,
 		OFF,
 		NONE

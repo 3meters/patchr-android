@@ -71,6 +71,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	private String              mListLinkSchema;
 	private ImageViewTouch      mImageViewTouch;
 	private ShareActionProvider mShareActionProvider;
+	private AirImageView        mPhotoView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -179,7 +180,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 	public ViewGroup buildPictureDetail(Photo photo, ViewGroup layout) {
 
-		final AirImageView photoView = (AirImageView) layout.findViewById(R.id.entity_photo);
+		mPhotoView = (AirImageView) layout.findViewById(R.id.entity_photo);
 		layout.setOnTouchListener(new OnTouchListener() {
 
 			@Override
@@ -191,7 +192,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 		final TextView name = (TextView) layout.findViewById(R.id.name);
 		final UserView user = (UserView) layout.findViewById(R.id.author);
-		final ImageView imageView = (ImageView) photoView.getImageView();
+		final ImageView imageView = (ImageView) mPhotoView.getImageView();
 
 		((ImageViewTouch) imageView).setDisplayType(DisplayType.FIT_TO_SCREEN);
 		((ImageViewTouch) imageView).setScrollEnabled(true);
@@ -212,7 +213,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 		/* Photo */
 		final ViewHolder holder = new ViewHolder();
-		holder.photoView = photoView;
+		holder.photoView = mPhotoView;
 		holder.photoView.setTag(photo);
 		holder.photoView.setCenterCrop(false);
 		UI.drawPhoto(holder.photoView, photo);
@@ -226,6 +227,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void onZoomIn() {
 		mImageViewTouch.setDoubleTapDirection(1);
 		float scale = mImageViewTouch.getScale();

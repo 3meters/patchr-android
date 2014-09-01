@@ -43,8 +43,8 @@ import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 public class UI {
 
 	/*--------------------------------------------------------------------------------------------
-	   Photos
-	  /* *--------------------------------------------------------------------------------------------*/
+	 * Photos
+	 *--------------------------------------------------------------------------------------------*/
 
 	public static void drawPhoto(final AirImageView photoView, final Photo photo) {
 	    /*
@@ -142,8 +142,8 @@ public class UI {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	   Utilities
-	  /* *--------------------------------------------------------------------------------------------*/
+	 * Utilities
+	 *--------------------------------------------------------------------------------------------*/
 
 	public static int getRawPixelsForDisplayPixels(Float displayPixels) {
 		final DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
@@ -229,8 +229,8 @@ public class UI {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	   Display
-	  /* *--------------------------------------------------------------------------------------------*/
+	 * Display
+	 *--------------------------------------------------------------------------------------------*/
 
 	public static void showToastNotification(final String message, final int duration) {
 		showToastNotification(message, duration, 0);
@@ -421,22 +421,22 @@ public class UI {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	   Input
-   	  /* *--------------------------------------------------------------------------------------------*/
+	 * Input
+   	 *--------------------------------------------------------------------------------------------*/
 
-	public static void hideSoftInput(Context context) {
-		InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputManager.hideSoftInputFromWindow(new View(context).getWindowToken(), 0);
+	public static void hideSoftInput(View view) {
+		InputMethodManager inputManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 	}
 
-	public static void hideSoftInput(Context context, IBinder windowToken) {
-		InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputManager.hideSoftInputFromWindow(windowToken, 0);
-	}
+//	public static void hideSoftInput(Context context, IBinder windowToken) {
+//		InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+//		inputManager.hideSoftInputFromWindow(windowToken, 0);
+//	}
 
-	public static void showSoftInput(Context context) {
-		InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+	public static void showSoftInput(View view) {
+		InputMethodManager inputManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		inputManager.showSoftInput(view, InputMethodManager.SHOW_FORCED);
 	}
 
 	public static int showScreenSize() {

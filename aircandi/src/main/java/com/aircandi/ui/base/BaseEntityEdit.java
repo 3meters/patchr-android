@@ -74,6 +74,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	protected ViewGroup           mPrivateHolder;
 	protected String              mPhotoSource;
 	protected ImageChooserManager mImageChooserManager;
+	protected AsyncTask           mTaskService;
 
 	protected Boolean mBrokenLink = false;
 
@@ -86,11 +87,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	public String mParentId;
 	public String mEntitySchema;
 
-	@Override
 	public void unpackIntent() {
 		super.unpackIntent();
 		/*
-         * Intent inputs:
+		 * Intent inputs:
 		 * - Both: Edit_Only
 		 * - New: Schema (required), Parent_Entity_Id
 		 * - Edit: Entity (required)
@@ -109,7 +109,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		mEditing = (mEntity != null);
 	}
 
-	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
@@ -182,7 +181,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		//		}
 	}
 
-	@Override
 	public void bind(BindingMode mode) {
 		if (!mEditing && mEntity == null && mEntitySchema != null) {
 			IEntityController controller = Aircandi.getInstance().getControllerForSchema(mEntitySchema);
@@ -196,7 +194,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		draw();
 	}
 
-	@Override
 	public void draw() {
 
 		if (mEntity != null) {
@@ -304,7 +301,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	protected void drawShortcuts(Entity entity) {
 
 		/*
-         * We are expecting a builder button with a viewgroup to
+		 * We are expecting a builder button with a viewgroup to
 		 * hold a set of images.
 		 */
 		final BuilderButton button = (BuilderButton) findViewById(R.id.applinks);
@@ -368,7 +365,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-	@Override
+
 	public void onError(final String reason) {
         /*
          * Error trying to pick or take a photo
@@ -383,7 +380,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		});
 	}
 
-	@Override
 	public void onAccept() {
 		if (isDirty()) {
 			if (validate()) {
@@ -448,16 +444,12 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		}
 	}
 
-	protected void onChangedPhoto() {
-	}
+	protected void onChangedPhoto() {}
 
-	protected void onChangingPhoto() {
-	}
+	protected void onChangingPhoto() {}
 
-	protected void onCanceledPhoto() {
-	}
+	protected void onCanceledPhoto() {}
 
-	@Override
 	public void onImageChosen(final ChosenImage image) {
 		runOnUiThread(new Runnable() {
 
@@ -476,13 +468,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		});
 	}
 
-	@SuppressWarnings("ucd")
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
 		Aircandi.dispatch.route(this, Route.BROWSE, entity, null, null);
 	}
 
-	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		/*
 		 * Called before onResume. If we are returning from the market app, we get a zero result code whether the user
@@ -580,6 +570,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	protected void buildPhoto() {
 		if (mPhotoSource != null && mEntity.schema.equals(Constants.SCHEMA_ENTITY_APPLINK)) {
 			if (mPhotoSource.equals(Constants.PHOTO_SOURCE_FACEBOOK)) {
@@ -598,8 +589,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	protected String getLinkType() {
 		return null;
 	}
-
-	;
 
 	protected void gather() {
 		if (mName != null) {
@@ -634,6 +623,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	/*--------------------------------------------------------------------------------------------
 	 * Pickers
 	 *--------------------------------------------------------------------------------------------*/
+
 	@SuppressLint("InlinedApi")
 	protected void photoFromGallery() {
 
@@ -697,6 +687,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	/*--------------------------------------------------------------------------------------------
 	 * Services
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void beforeInsert(Entity entity, List<Link> links) {
 		if (mParentId != null) {
@@ -710,11 +701,16 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	@Override
 	protected void insert() {
 
-		new AsyncTask() {
+		mTaskService = new AsyncTask() {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.showBusy(BusyAction.ActionWithMessage, mInsertProgressResId);
+				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
+					mBusy.showProgress();
+				}
+				else {
+					mBusy.showBusy(BusyAction.Update);
+				}
 			}
 
 			@Override
@@ -750,6 +746,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						                        .centerInside()
 						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 						                        .get();
+						if (isCancelled()) return null;
 					}
 					catch (OutOfMemoryError error) {
 						/*
@@ -764,17 +761,25 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 							                        .get();
 
+							if (isCancelled()) return null;
 						}
 						catch (IOException ignore) {}
 					}
-					catch (IOException ignore) {}
+					catch (IOException ignore) {
+						if (isCancelled()) return null;
+					}
 				}
 
 				/* In case a derived class needs to augment the entity or add links before insert */
 				List<Link> links = new ArrayList<Link>();
 				beforeInsert(mEntity, links);
+				if (isCancelled()) return null;
 
 				ModelResult result = Aircandi.getInstance().getEntityManager().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true);
+				if (isCancelled()) return null;
+
+				/* Don't allow cancel if we made it this far */
+				mBusy.hideBusy(true);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Entity insertedEntity = (Entity) result.data;
@@ -794,9 +799,21 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 
 			@Override
+			protected void onCancelled(Object response) {
+				/*
+				 * Stopping Points (interrupt was triggered on background thread)
+				 * - When task is pulled from queue (if waiting)
+				 * - Between service and s3 calls.
+				 * - During service calls assuming okhttp catches the interrupt.
+				 * - During image upload to s3 if CancelEvent is sent via bus.
+				 */
+				mBusy.hideBusy(true);
+				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
+			}
+
+			@Override
 			protected void onPostExecute(Object response) {
 				final ServiceResponse serviceResponse = (ServiceResponse) response;
-				mBusy.hideBusy(true);
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					/*
 					 * In case a derived class needs to do something after a successful insert
@@ -821,22 +838,22 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	@Override
 	protected void update() {
 
-		new AsyncTask() {
+		mTaskService = new AsyncTask() {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.showBusy(BusyAction.ActionWithMessage, mUpdateProgressResId);
+				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
+					mBusy.showProgress();
+				}
+				else {
+					mBusy.showBusy(BusyAction.Update);
+				}
 			}
 
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertUpdateEntity");
 				ModelResult result = new ModelResult();
-
-				/* Save applinks first */
-				if (mApplinks != null) {
-					result = Aircandi.getInstance().getEntityManager().replaceEntitiesForEntity(mEntity.id, mApplinks, Constants.SCHEMA_ENTITY_APPLINK);
-				}
 
 				/* Update entity */
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -850,13 +867,37 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 							                        .get();
+							if (isCancelled()) return null;
 						}
-						catch (IOException ignore) {}
+						catch (OutOfMemoryError error) {
+						/*
+						 * We make attempt to recover by giving the vm another chance to
+						 * garbage collect plus reduce the image size in memory by 75%.
+						 */
+							System.gc();
+							try {
+								bitmap = DownloadManager.with(Aircandi.applicationContext)
+								                        .load(mEntity.getPhoto().getUri())
+								                        .centerInside()
+								                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
+								                        .get();
+								if (isCancelled()) return null;
+							}
+							catch (IOException ignore) {}
+						}
+						catch (IOException ignore) {
+							if (isCancelled()) return null;
+						}
 					}
 
 					result = Aircandi.getInstance().getEntityManager().updateEntity(mEntity, bitmap);
+					if (isCancelled()) return null;
+
+					/* Don't allow cancel if we made it this far */
+					mBusy.hideBusy(true);
 
 					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+
 						if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
 							if (Aircandi.getInstance().getCurrentUser().id.equals(mEntity.id)) {
 
@@ -874,16 +915,34 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 								Aircandi.getInstance().setCurrentUser((User) mEntity);
 							}
 						}
+
+						if (mApplinks != null) {
+							result = Aircandi.getInstance().getEntityManager().replaceEntitiesForEntity(mEntity.id, mApplinks, Constants.SCHEMA_ENTITY_APPLINK);
+						}
 					}
 				}
 				return result.serviceResponse;
 			}
 
 			@Override
+			protected void onCancelled(Object response) {
+				/*
+				 * Stopping Points (interrupt was triggered on background thread)
+				 * - When task is pulled from queue (if waiting)
+				 * - Between service and s3 calls.
+				 * - During service calls assuming okhttp catches the interrupt.
+				 * - During image upload to s3 if CancelEvent is sent via bus.
+				 */
+				mBusy.hideBusy(true);
+				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
+			}
+
+			@Override
 			protected void onPostExecute(Object response) {
 				final ServiceResponse serviceResponse = (ServiceResponse) response;
-				mBusy.hideBusy(true);
+
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+
 					UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
 					setResultCode(Activity.RESULT_OK);
 					finish();
@@ -899,7 +958,9 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
 }

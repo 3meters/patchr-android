@@ -13,6 +13,7 @@ import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TabManager;
+import com.aircandi.events.CancelEvent;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
@@ -21,6 +22,7 @@ import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
+import com.squareup.otto.Subscribe;
 
 public class UserEdit extends BaseEntityEdit {
 
@@ -123,6 +125,7 @@ public class UserEdit extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@SuppressWarnings("ucd")
 	public void onChangePasswordButtonClick(View view) {
 		Aircandi.dispatch.route(this, Route.PASSWORD_CHANGE, null, null, null);
@@ -154,9 +157,17 @@ public class UserEdit extends BaseEntityEdit {
 		}
 	}
 
+	@Subscribe
+	public void onCancelEvent(CancelEvent event) {
+		if (mTaskService != null) {
+			mTaskService.cancel(true);
+		}
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected String getLinkType() {
 		return null;

@@ -72,17 +72,10 @@ public class EntityManager {
 	 */
 	private List<Category> mCategories = Collections.synchronizedList(new ArrayList<Category>());
 
-	protected ServiceResponse dispatch(ServiceRequest serviceRequest) {
-	    /*
-	     * We use this as a choke point for all calls to the aircandi service.
-		 */
-		final ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest, true, null);
-		return serviceResponse;
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Cache queries
 	 *--------------------------------------------------------------------------------------------*/
+
 	public static Entity getCacheEntity(String entityId) {
 		return mEntityCache.get(entityId);
 	}
@@ -90,6 +83,7 @@ public class EntityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Combo service/cache queries
 	 *--------------------------------------------------------------------------------------------*/
+
 	public synchronized ModelResult getEntity(String entityId, Boolean refresh, Links linkOptions) {
 		/*
 		 * Retrieves entity from cache if available otherwise downloads the entity from the service. If refresh is true
@@ -154,6 +148,7 @@ public class EntityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * service queries
 	 *--------------------------------------------------------------------------------------------*/
+
 	public synchronized ModelResult loadActivities(String entityId, Cursor cursor, List<String> events) {
 
 		final ModelResult result = new ModelResult();
@@ -179,7 +174,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -219,7 +214,7 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		/* In case of a failure, we echo back the provided cache stamp to the caller */
 		CacheStamp cacheStampService = null;
@@ -256,7 +251,7 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -280,7 +275,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -351,7 +346,7 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -401,7 +396,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -431,7 +426,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -453,7 +448,7 @@ public class EntityManager {
 				.setSuppressUI(true)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest, true, null);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -466,6 +461,7 @@ public class EntityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * user updates
 	 *--------------------------------------------------------------------------------------------*/
+
 	public ModelResult signin(String email, String password, String activityName) {
 		ModelResult result = new ModelResult();
 
@@ -481,7 +477,7 @@ public class EntityManager {
 				.setActivityName(activityName)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
@@ -558,7 +554,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
 		 * We treat user as signed out even if the service call failed.
 		 */
@@ -598,7 +594,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
@@ -629,7 +625,7 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Aircandi.tracker.sendEvent(TrackerCategory.USER, "request_password_reset", null, 0);
@@ -658,7 +654,7 @@ public class EntityManager {
 
 		serviceRequest.setSession(tempUser.session);
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
@@ -694,7 +690,7 @@ public class EntityManager {
 				.setResponseFormat(ResponseFormat.JSON);
 
 		/* insert user. */
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
@@ -726,7 +722,7 @@ public class EntityManager {
 				}
 
 				/* Doing an update so we don't need anything back */
-				result.serviceResponse = dispatch(serviceRequest);
+				result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					jsonResponse = (String) result.serviceResponse.data;
@@ -755,7 +751,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.COUNT, Json.ServiceDataWrapper.TRUE);
@@ -768,6 +764,7 @@ public class EntityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Entity updates
 	 *--------------------------------------------------------------------------------------------*/
+
 	private ModelResult insertEntity(Entity entity, Boolean waitForContent) {
 		return insertEntity(entity, null, null, null, null, waitForContent);
 	}
@@ -785,150 +782,146 @@ public class EntityManager {
 		 * - create link is created from user but not followed
 		 */
 
+		Logger.i(this, "Inserting entity: " + entity.name);
 		ModelResult result = new ModelResult();
 
-		Logger.i(this, "Inserting entity: " + entity.name);
+		/* Upload image to S3 as needed */
+		if (bitmap != null && !bitmap.isRecycled()) {
+			PhotoType photoType = PhotoType.GENERAL;
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+				photoType = PhotoType.USER;
+			}
+			result.serviceResponse = storeImageAtS3(entity, null, bitmap, photoType);
+		}
 
 		/* Pre-fetch an id so a failed request can be retried */
-		result = getDocumentId(entity.getCollection());
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			result = getDocumentId(entity.getCollection());
+		}
+
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			entity.id = (String) result.serviceResponse.data;
+
+			/* Construct entity, link, and observation */
+			final Bundle parameters = new Bundle();
+
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+				Place place = (Place) entity;
+
+				/* Primary beacon id */
+				if (primaryBeacon != null) {
+					parameters.putString("primaryBeaconId", primaryBeacon.id);
+				}
+
+				if (beacons != null && beacons.size() > 0) {
+					/*
+					 * Linking to beacons or sending to support nearby notifications
+					 */
+					final List<String> beaconStrings = new ArrayList<String>();
+
+					for (Beacon beacon : beacons) {
+						AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+						if (location != null && !location.zombie) {
+
+							beacon.location = new AirLocation();
+
+							beacon.location.lat = location.lat;
+							beacon.location.lng = location.lng;
+
+							if (location.altitude != null) {
+								beacon.location.altitude = location.altitude;
+							}
+							if (location.accuracy != null) {
+								beacon.location.accuracy = location.accuracy;
+							}
+							if (location.bearing != null) {
+								beacon.location.bearing = location.bearing;
+							}
+							if (location.speed != null) {
+								beacon.location.speed = location.speed;
+							}
+							if (location.provider != null) {
+								beacon.location.provider = location.provider;
+							}
+						}
+
+						beacon.type = Constants.TYPE_BEACON_FIXED;
+						beacon.locked = false;
+						beaconStrings.add("object:" + Json.objectToJson(beacon, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
+					}
+					parameters.putStringArrayList("beacons", (ArrayList<String>) beaconStrings);
+				}
+
+				/* Sources configuration */
+				if (!place.getProvider().type.equals("aircandi")) {
+					//parameters.putBoolean("insertApplinks", true);
+					//parameters.putInt("applinksTimeout", 10000);
+					parameters.putBoolean("waitForContent", waitForContent);
+				}
+
+				/* Provider id if this is a custom place */
+				if (place.provider.aircandi != null) {
+					place.provider.aircandi = entity.id;
+				}
+			}
+			else {
+
+				/* Link */
+				if (links != null && links.size() > 0) {
+					final List<String> linkStrings = new ArrayList<String>();
+					for (Link link : links) {
+						linkStrings.add("object:" + Json.objectToJson(link, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
+					}
+					parameters.putStringArrayList("links", (ArrayList<String>) linkStrings);
+				}
+			}
+
+			/* Entity */
+			parameters.putString("entity", "object:" + Json.objectToJson(entity, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
+
+            /* Upsizing a suggest place routes through this routine */
+			if (entity.synthetic) {
+				parameters.putBoolean("skipNotifications", true);
+			}
+
+			final ServiceRequest serviceRequest = new ServiceRequest()
+					.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "insertEntity")
+					.setRequestType(RequestType.METHOD)
+					.setParameters(parameters)
+					.setResponseFormat(ResponseFormat.JSON);
+
+			if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+				serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+			}
+
+			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			entity.id = (String) result.serviceResponse.data;
-			/*
-			 * Upload image to S3 as needed
-			 */
-			if (bitmap != null && !bitmap.isRecycled()) {
-				PhotoType photoType = PhotoType.GENERAL;
-				if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-					photoType = PhotoType.USER;
-				}
-				result.serviceResponse = storeImageAtS3(entity, null, bitmap, photoType);
-			}
+			String action = entity.synthetic ? "entity_upsize" : "entity_insert";
+			Aircandi.tracker.sendEvent(TrackerCategory.EDIT, action, entity.schema, 0);
+			Json.ObjectType serviceDataType = Json.ObjectType.ENTITY;
 
-			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-				/* Construct entity, link, and observation */
-				final Bundle parameters = new Bundle();
-
-				if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-					Place place = (Place) entity;
-
-					/* Primary beacon id */
-					if (primaryBeacon != null) {
-						parameters.putString("primaryBeaconId", primaryBeacon.id);
-					}
-
-					if (beacons != null && beacons.size() > 0) {
-						/*
-						 * Linking to beacons or sending to support nearby notifications
-						 */
-						final List<String> beaconStrings = new ArrayList<String>();
-
-						for (Beacon beacon : beacons) {
-							AirLocation location = LocationManager.getInstance().getAirLocationLocked();
-							if (location != null && !location.zombie) {
-
-								beacon.location = new AirLocation();
-
-								beacon.location.lat = location.lat;
-								beacon.location.lng = location.lng;
-
-								if (location.altitude != null) {
-									beacon.location.altitude = location.altitude;
-								}
-								if (location.accuracy != null) {
-									beacon.location.accuracy = location.accuracy;
-								}
-								if (location.bearing != null) {
-									beacon.location.bearing = location.bearing;
-								}
-								if (location.speed != null) {
-									beacon.location.speed = location.speed;
-								}
-								if (location.provider != null) {
-									beacon.location.provider = location.provider;
-								}
-							}
-
-							beacon.type = Constants.TYPE_BEACON_FIXED;
-							beacon.locked = false;
-							beaconStrings.add("object:" + Json.objectToJson(beacon, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
-						}
-						parameters.putStringArrayList("beacons", (ArrayList<String>) beaconStrings);
-					}
-
-					/* Sources configuration */
-					if (!place.getProvider().type.equals("aircandi")) {
-						//parameters.putBoolean("insertApplinks", true);
-						//parameters.putInt("applinksTimeout", 10000);
-						parameters.putBoolean("waitForContent", waitForContent);
-					}
-
-					/* Provider id if this is a custom place */
-					if (place.provider.aircandi != null) {
-						place.provider.aircandi = entity.id;
-					}
-				}
-				else {
-
-					/* Link */
-					if (links != null && links.size() > 0) {
-						final List<String> linkStrings = new ArrayList<String>();
-						for (Link link : links) {
-							linkStrings.add("object:" + Json.objectToJson(link, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
-						}
-						parameters.putStringArrayList("links", (ArrayList<String>) linkStrings);
-					}
-				}
-
-				/* Entity */
-				parameters.putString("entity", "object:" + Json.objectToJson(entity, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
-
-                /* Upsizing a suggest place routes through this routine */
-				if (entity.synthetic) {
-					parameters.putBoolean("skipNotifications", true);
-				}
-
-				final ServiceRequest serviceRequest = new ServiceRequest()
-						.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "insertEntity")
-						.setRequestType(RequestType.METHOD)
-						.setParameters(parameters)
-						.setResponseFormat(ResponseFormat.JSON);
-
-				if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-					serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
-				}
-
-				result.serviceResponse = dispatch(serviceRequest);
-			}
-
-			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-				String action = entity.synthetic ? "entity_upsize" : "entity_insert";
-				Aircandi.tracker.sendEvent(TrackerCategory.EDIT, action, entity.schema, 0);
-				Json.ObjectType serviceDataType = Json.ObjectType.ENTITY;
-
-				final String jsonResponse = (String) result.serviceResponse.data;
-				final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, serviceDataType, Json.ServiceDataWrapper.TRUE);
-				final Entity insertedEntity = (Entity) serviceData.data;
+			final String jsonResponse = (String) result.serviceResponse.data;
+			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, serviceDataType, Json.ServiceDataWrapper.TRUE);
+			final Entity insertedEntity = (Entity) serviceData.data;
 				/*
 				 * Optimization: Add soft 'create' link so user entity doesn't have to be refetched
 				 */
-				if (!entity.synthetic) {
-					Aircandi.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-					mEntityCache.addLink(Aircandi.getInstance().getCurrentUser().id
-							, insertedEntity.id
-							, Constants.TYPE_LINK_CREATE
-							, null
-							, Aircandi.getInstance().getCurrentUser().getShortcut(), insertedEntity.getShortcut());
-				}
+			if (!entity.synthetic) {
+				Aircandi.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+				mEntityCache.addLink(Aircandi.getInstance().getCurrentUser().id
+						, insertedEntity.id
+						, Constants.TYPE_LINK_CREATE
+						, null
+						, Aircandi.getInstance().getCurrentUser().getShortcut(), insertedEntity.getShortcut());
+			}
 
-				result.data = insertedEntity;
+			result.data = insertedEntity;
 
-				if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-					mActivityDate = DateTime.nowDate().getTime();
-				}
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+				mActivityDate = DateTime.nowDate().getTime();
 			}
 		}
 
@@ -980,7 +973,7 @@ public class EntityManager {
 				serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 			}
 
-			result.serviceResponse = dispatch(serviceRequest);
+			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -1033,7 +1026,7 @@ public class EntityManager {
 				serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 			}
 
-			result.serviceResponse = dispatch(serviceRequest);
+			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		}
 
@@ -1126,7 +1119,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		/* Reproduce the service call effect locally */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -1226,7 +1219,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
 		 * We update the cache directly instead of refreshing from the service
 		 */
@@ -1266,7 +1259,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
 		 * We update the cache directly instead of refreshing from the service
 		 */
@@ -1345,7 +1338,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Aircandi.tracker.sendEvent(TrackerCategory.EDIT, "entity_replace_entities", schema, 0);
@@ -1375,7 +1368,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
 		 * We update the cache directly instead of refreshing from the service
 		 */
@@ -1412,7 +1405,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Aircandi.tracker.sendEvent(TrackerCategory.LINK, "entity_watch_" + (enabled ? "approved" : "requested"), Constants.SCHEMA_ENTITY_PLACE, 0);
@@ -1424,6 +1417,7 @@ public class EntityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Reports
 	 *--------------------------------------------------------------------------------------------*/
+
 	public ModelResult getTrending(String toSchema, String fromSchema, String trendType) {
 		ModelResult result = new ModelResult();
 
@@ -1444,7 +1438,7 @@ public class EntityManager {
 				.setRequestType(RequestType.GET)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -1460,6 +1454,7 @@ public class EntityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Other service tasks
 	 *--------------------------------------------------------------------------------------------*/
+
 	public CacheStamp getCacheStamp() {
 		CacheStamp cacheStamp = new CacheStamp(mActivityDate, null);
 		cacheStamp.source = StampSource.ENTITY_MANAGER.name().toLowerCase(Locale.US);
@@ -1482,7 +1477,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		return result;
 	}
 
@@ -1505,7 +1500,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Aircandi.tracker.sendEvent(TrackerCategory.USER, document.type + "_insert", document.type, 0);
@@ -1527,7 +1522,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Aircandi.tracker.sendEvent(TrackerCategory.USER, document.type + "_insert", document.type, 0);
@@ -1550,7 +1545,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		return result;
 	}
@@ -1581,7 +1576,7 @@ public class EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Aircandi.tracker.sendEvent(TrackerCategory.USER, "invite_send", null, 0);
@@ -1605,7 +1600,7 @@ public class EntityManager {
 		 */
 		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
 		final String imageKey = String.valueOf((user != null) ? user.id : Aircandi.getInstance().getCurrentUser().id) + "_" + stringDate + ".jpg";
-		ServiceResponse serviceResponse = S3.putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3, photoType);
+		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3, photoType);
 
 		/* Update the photo object for the entity or user */
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -1644,9 +1639,12 @@ public class EntityManager {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Utilities
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Cache queries
 	 *--------------------------------------------------------------------------------------------*/
+
 	public List<? extends Entity> getPlaces(Boolean synthetic, Boolean proximity) {
 		Integer searchRangeMeters = Integer.parseInt(Aircandi.settings.getString(
 				StringManager.getString(R.string.pref_search_radius),
@@ -1667,6 +1665,7 @@ public class EntityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Other fetch routines
 	 *--------------------------------------------------------------------------------------------*/
+
 	public List<String> getCategoriesAsStringArray(List<Category> categories) {
 		final List<String> categoryStrings = new ArrayList<String>();
 		for (Category category : categories) {
@@ -1709,6 +1708,7 @@ public class EntityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	public List<Category> getCategories() {
 		return mCategories;
 	}
@@ -1741,7 +1741,9 @@ public class EntityManager {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public static enum SuggestScope {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static enum SuggestScope {
 		PLACES,
 		USERS,
 		ALL

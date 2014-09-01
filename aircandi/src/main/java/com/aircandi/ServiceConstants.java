@@ -4,8 +4,10 @@ package com.aircandi;
 @SuppressWarnings("ucd")
 public final class ServiceConstants {
 
-	public static final int TIMEOUT_SOCKET_QUERIES  = 30000;
-	public static final int TIMEOUT_CONNECTION      = 20000;
+	public static final int TIMEOUT_CONNECTION   = 20000;
+	public static final int TIMEOUT_SOCKET_READ  = 30000;
+	public static final int TIMEOUT_SOCKET_WRITE = 30000;
+
 	public static final int TIMEOUT_APPLINK_SEARCH  = 10000;
 	public static final int TIMEOUT_APPLINK_REFRESH = 10000;
 	public static final int TIMEOUT_PLACE_QUERIES   = 20000;
@@ -25,8 +27,8 @@ public final class ServiceConstants {
 	public static final String ADMIN_USER_ID     = "us.000000.00000.000.000000";                                        //$NON-NLS-1$
 	public static final String ANONYMOUS_USER_ID = "us.000000.00000.000.111111";                                        //$NON-NLS-1$
 
-	public static final String __URL_PROXIBASE_SERVICE = "http://ariseditions.com:8080/v1";                                    // local																					// $codepro.audit.disable constantNamingConvention //$NON-NLS-1$
-	public static final String URL_PROXIBASE_SERVICE   = "https://api.aircandi.com/v1";                                        // production																					//$NON-NLS-1$
+	public static final String __URL_PROXIBASE_SERVICE   = "http://ariseditions.com:8080/v1";                                    // local																					// $codepro.audit.disable constantNamingConvention //$NON-NLS-1$
+	public static final String URL_PROXIBASE_SERVICE = "https://api.aircandi.com/v1";                                        // production																					//$NON-NLS-1$
 	public static final String _URL_PROXIBASE_SERVICE  = "https://api.aircandi.com:444/v1";                                    // staging																									//$NON-NLS-1$
 
 	public static final String PATH_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS = "/assets/img/applinks/";                                                //$NON-NLS-1$

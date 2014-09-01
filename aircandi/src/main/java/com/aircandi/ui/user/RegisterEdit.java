@@ -38,7 +38,6 @@ public class RegisterEdit extends BaseEntityEdit {
 
 	private EditText mEmail;
 	private EditText mPassword;
-	private EditText mPasswordConfirm;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -47,10 +46,9 @@ public class RegisterEdit extends BaseEntityEdit {
 		mEntitySchema = Constants.SCHEMA_ENTITY_USER;
 		mEmail = (EditText) findViewById(R.id.email);
 		mPassword = (EditText) findViewById(R.id.password);
-		mPasswordConfirm = (EditText) findViewById(R.id.password_confirm);
 
-		mPasswordConfirm.setImeOptions(EditorInfo.IME_ACTION_GO);
-		mPasswordConfirm.setOnEditorActionListener(new OnEditorActionListener() {
+		mPassword.setImeOptions(EditorInfo.IME_ACTION_GO);
+		mPassword.setOnEditorActionListener(new OnEditorActionListener() {
 
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -66,6 +64,7 @@ public class RegisterEdit extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@SuppressWarnings("ucd")
 	public void onViewTermsButtonClick(View view) {
 		Aircandi.dispatch.route(this, Route.TERMS, null, null, null);
@@ -87,6 +86,12 @@ public class RegisterEdit extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	public void draw() {
+		super.draw();
+		setActivityTitle(StringManager.getString(R.string.label_register_title));
+	}
+
 	@Override
 	protected String getLinkType() {
 		return null;
@@ -136,16 +141,6 @@ public class RegisterEdit extends BaseEntityEdit {
 					, null, null, null, null);
 			return false;
 		}
-		if (mPasswordConfirm.getText().length() < 6) {
-			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-					, null
-					, StringManager.getString(R.string.error_missing_password_confirmation)
-					, null
-					, this
-					, android.R.string.ok
-					, null, null, null, null);
-			return false;
-		}
 		if (!Utilities.validEmail(mEmail.getText().toString())) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
@@ -156,17 +151,6 @@ public class RegisterEdit extends BaseEntityEdit {
 					, null, null, null, null);
 			return false;
 		}
-		if (!mPassword.getText().toString().equals(mPasswordConfirm.getText().toString())) {
-			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-					, StringManager.getString(R.string.error_signup_missmatched_passwords_title)
-					, StringManager.getString(R.string.error_signup_missmatched_passwords_message)
-					, null
-					, this
-					, android.R.string.ok
-					, null, null, null, null);
-			mPasswordConfirm.setText("");
-			return false;
-		}
 		return true;
 	}
 
@@ -175,11 +159,16 @@ public class RegisterEdit extends BaseEntityEdit {
 
 		Logger.d(this, "Inserting user: " + mEntity.name);
 
-		new AsyncTask() {
+		mTaskService = new AsyncTask() {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_signing_up);
+				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
+					mBusy.showProgress();
+				}
+				else {
+					mBusy.showBusy(BusyAction.Update);
+				}
 			}
 
 			@Override
@@ -196,12 +185,37 @@ public class RegisterEdit extends BaseEntityEdit {
 						                        .centerInside()
 						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 						                        .get();
+						if (isCancelled()) return null;
 					}
-					catch (IOException ignore) {}
+					catch (OutOfMemoryError error) {
+						/*
+						 * We make attempt to recover by giving the vm another chance to
+						 * garbage collect plus reduce the image size in memory by 75%.
+						 */
+						System.gc();
+						try {
+							bitmap = DownloadManager.with(Aircandi.applicationContext)
+							                        .load(mEntity.getPhoto().getUri())
+							                        .centerInside()
+							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
+							                        .get();
+
+							if (isCancelled()) return null;
+						}
+						catch (IOException ignore) {}
+					}
+					catch (IOException ignore) {
+						if (isCancelled()) return null;
+					}
 				}
 
 				ModelResult result = Aircandi.getInstance().getEntityManager().registerUser((User) mEntity
 						, (mEntity.photo != null) ? bitmap : null);
+
+				if (isCancelled()) return null;
+
+				/* Don't allow cancel if we made it this far */
+				mBusy.hideBusy(true);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					/*
@@ -218,10 +232,22 @@ public class RegisterEdit extends BaseEntityEdit {
 			}
 
 			@Override
+			protected void onCancelled(Object response) {
+				/*
+				 * Stopping Points (interrupt was triggered on background thread)
+				 * - When task is pulled from queue (if waiting)
+				 * - Between service and s3 calls.
+				 * - During service calls assuming okhttp catches the interrupt.
+				 * - During image upload to s3 if CancelEvent is sent via bus.
+				 */
+				mBusy.hideBusy(true);
+				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
+			}
+
+			@Override
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mBusy.hideBusy(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					Logger.i(RegisterEdit.this, "Inserted new user: " + mEntity.name + " (" + mEntity.id + ")");

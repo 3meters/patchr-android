@@ -2,21 +2,18 @@ package com.aircandi.catalina.ui.edit;
 
 import android.annotation.TargetApi;
 import android.content.ClipData;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,27 +27,23 @@ import com.aircandi.catalina.objects.Message.MessageType;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.MediaManager;
-import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
+import com.aircandi.events.CancelEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseEntityEdit;
-import com.aircandi.ui.base.IBusy.BusyAction;
 import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.ui.widgets.AirTokenCompleteTextView;
 import com.aircandi.ui.widgets.EntityView;
+import com.aircandi.ui.widgets.TokenCompleteTextView;
 import com.aircandi.utilities.Dialogs;
-import com.aircandi.utilities.Errors;
-import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
-import com.tokenautocomplete.TokenCompleteTextView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -110,7 +103,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-	    /*
+		/*
          * Special pre-handling because this form can be called directly
 		 * because of a sharing intent and we need a signed in user. If user
 		 * signs in they will be routed back to this form again.
@@ -454,8 +447,8 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	}
 
     /*--------------------------------------------------------------------------------------------
-       Events
-      /* *--------------------------------------------------------------------------------------------*/
+     * Events
+     *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	public void onAccept() {
@@ -465,47 +458,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				/* Upsize the place we are sending to if needed */
 				if (mMessageType != null && mMessageType.equals(MessageType.REPLY)) {
 					insert();
-				}
-				else if (!mEditing && Type.isTrue(mTos.get(0).synthetic)) {
-                    /*
-                     * Upsized places do not automatically link to nearby beacons because
-					 * the browsing action isn't enough of an indicator of proximity.
-					 */
-					new AsyncTask() {
-
-						@Override
-						protected void onPreExecute() {
-							mBusy.hideBusy(false);
-							mBusy.showBusy(BusyAction.ActionWithMessage, mInsertProgressResId);
-						}
-
-						@Override
-						protected Object doInBackground(Object... params) {
-							Thread.currentThread().setName("AsyncUpsizeSynthetic");
-							final ModelResult result = Aircandi.getInstance().getEntityManager().upsizeSynthetic((Place) mTos.get(0), false);
-							return result;
-						}
-
-						@Override
-						protected void onPostExecute(Object response) {
-							final ModelResult result = (ModelResult) response;
-							mBusy.hideBusy(false);
-							if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-								mTos.set(0, (Place) result.data);
-								mParentId = mTos.get(0).id;
-								gather();  // Re-gather because we now have an official place
-								if (mEditing) {
-									update();
-								}
-								else {
-									insert();
-								}
-							}
-							else {
-								Errors.handleError(MessageEdit.this, result.serviceResponse);
-							}
-						}
-					}.execute();
 				}
 				else {
 					if (mEditing) {
@@ -519,6 +471,13 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 		else {
 			onCancel(false);
+		}
+	}
+
+	@Subscribe
+	public void onCancelEvent(CancelEvent event) {
+		if (mTaskService != null) {
+			mTaskService.cancel(true);
 		}
 	}
 
@@ -665,15 +624,15 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	public void onEntityClearButtonClick(View view) {
 
         /* Means we are in single mode.*/
-		for (Object obj : mTo.getObjects()) {
-			mTo.removeObject(obj);
+		for (int i = mTo.getObjects().size(); i > 0; i--) {
+			mTo.getObjects().remove(i - 1);
 		}
 		mTo.requestFocus();
 	}
 
     /*--------------------------------------------------------------------------------------------
-       Methods
-      /* *--------------------------------------------------------------------------------------------*/
+     * Methods
+     *--------------------------------------------------------------------------------------------*/
 
 	protected void setEntity() {
 		final EntityView entityView = (EntityView) findViewById(R.id.entity_view);
@@ -809,8 +768,8 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	}
 
     /*--------------------------------------------------------------------------------------------
-       Properties
-      /* *--------------------------------------------------------------------------------------------*/
+     * Properties
+     *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	protected int getLayoutId() {
@@ -819,8 +778,8 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 
     /*--------------------------------------------------------------------------------------------
-       Classes
-      /* *--------------------------------------------------------------------------------------------*/
+     * Classes
+     *--------------------------------------------------------------------------------------------*/
 
 	public enum ToMode {
 		SINGLE,

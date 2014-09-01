@@ -117,7 +117,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		}
 		else {
 			mResources = getResources();
-            /*
+			/*
 			 * Theme must be set before contentView is processed.
 			 */
 			setTheme(isDialog(), isTransparent());
@@ -197,6 +197,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@SuppressWarnings("ucd")
 	public void onOverflowButtonClick(View view) {
 		popupMenu(view);
@@ -237,6 +238,12 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		}
 	}
 
+	public void onCancel(Boolean force) {
+		setResultCode(Activity.RESULT_CANCELED);
+		finish();
+		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
+	}
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		Logger.d(this, "Configuration changed");
@@ -246,12 +253,6 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	@SuppressWarnings("ucd")
 	public void onCancelButtonClick(View view) {
 		Aircandi.dispatch.route(this, Route.CANCEL, null, null, null);
-	}
-
-	public void onCancel(Boolean force) {
-		setResultCode(Activity.RESULT_CANCELED);
-		finish();
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
 	}
 
 	@Override
@@ -285,6 +286,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	protected int getLayoutId() {
 		return 0;
 	}
@@ -336,11 +338,10 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void draw() {
 	}
-
-	;
 
 	@Override
 	public void bind(BindingMode mode) {
@@ -530,6 +531,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 				Thread.currentThread().setName("AsyncRemoveEntity");
 				final ModelResult result = Aircandi.getInstance().getEntityManager()
 				                                   .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove");
+				isCancelled();
 				return result;
 			}
 
@@ -644,6 +646,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Logger.v(this, "Creating options menu");
@@ -809,6 +812,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void onRestart() {
 		Logger.d(this, "Activity restarting");

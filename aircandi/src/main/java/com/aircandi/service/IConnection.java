@@ -29,5 +29,5 @@ import com.aircandi.components.Stopwatch;
  */
 public interface IConnection {
 
-	public ServiceResponse request(final ServiceRequest serviceRequest, final Stopwatch stopwatch);
+	public ServiceResponse request(final ServiceRequest serviceRequest);
 }

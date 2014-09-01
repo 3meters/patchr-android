@@ -52,6 +52,7 @@
 		<item name="textColorInverse">@color/text_light</item>
 		<item name="textColorPure">@color/white</item>
 		<item name="textColorSecondary">@color/text_secondary_dark</item>
+		<item name="textColorHint">@color/text_hint_dark</item>
 		<item name="textColorAlert">@color/text_alert_dark</item>
 		<item name="textColorUnfocused">@color/text_dark</item>
 		<item name="textColorButtonLink">@color/brand_primary</item>
@@ -62,6 +63,7 @@
 		<item name="textColorCandiViewSynthetic">@color/text_color</item>
 		<item name="textOutlineRadar">true</item>
 		<item name="textSelector">@color/selector_text_dark</item>
+		<item name="textSelectorLink">@color/selector_link_text_dark</item>
 		<item name="badgeColor">@color/text_dark</item>
 		<item name="badgeColorSynthetic">@color/text_dark</item>
 		<item name="highlightColor">@color/background_highlight_dark</item>
@@ -89,6 +91,7 @@
 		<item name="backgroundFormSecondary">@color/gray_80_pcnt</item>
 		<item name="backgroundPictureFramed">@drawable/bg_image_framed_dark</item>
 		<item name="backgroundProgress">@android:color/transparent</item>
+		<item name="backgroundProgressMessage">@color/gray_80_pcnt</item>
 		<item name="backgroundPlaceholder">@drawable/bg_placeholder_dark</item>
 		<item name="backgroundSpinner">@drawable/abs__spinner_ab_holo_dark</item>
 		<item name="backgroundToken">@drawable/selector_token_dark</item>
@@ -178,6 +181,7 @@
 		<item name="textColor">@color/text_light</item>
 		<item name="textColorInverse">@color/text_dark</item>
 		<item name="textColorPure">@color/black</item>
+		<item name="textColorHint">@color/text_hint_light</item>
 		<item name="textColorSecondary">@color/text_secondary_light</item>
 		<item name="textColorAlert">@color/text_alert_light</item>
 		<item name="textColorUnfocused">@color/text_light</item>
@@ -189,6 +193,7 @@
 		<item name="textColorCandiViewSynthetic">@color/text_color</item>
 		<item name="textOutlineRadar">false</item>
 		<item name="textSelector">@color/selector_text_light</item>
+		<item name="textSelectorLink">@color/selector_link_text_light</item>
 		<item name="badgeColor">@color/text_dark</item>
 		<item name="badgeColorSynthetic">@color/text_dark</item>
 		<item name="highlightColor">@color/background_highlight_light</item>
@@ -216,6 +221,7 @@
 		<item name="backgroundFormSecondary">@color/gray_10_pcnt</item>
 		<item name="backgroundPictureFramed">@drawable/bg_image_framed_light</item>
 		<item name="backgroundProgress">@android:color/transparent</item>
+		<item name="backgroundProgressMessage">@color/gray_10_pcnt</item>
 		<item name="backgroundPlaceholder">@drawable/bg_placeholder_light</item>
 		<item name="backgroundSpinner">@drawable/abs__spinner_ab_holo_dark</item>
 		<item name="backgroundToken">@drawable/selector_token_light</item>

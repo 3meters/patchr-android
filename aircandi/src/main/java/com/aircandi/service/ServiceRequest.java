@@ -3,9 +3,9 @@ package com.aircandi.service;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.aircandi.components.Stopwatch;
 import com.aircandi.objects.Session;
-
-import org.apache.commons.codec.binary.Base64;
+import com.amazonaws.util.Base64;
 
 /**
  * Here is the typical code to construct a service request:
@@ -40,6 +40,9 @@ public class ServiceRequest {
 	private Session         mSession;
 	private String          mUserName;
 	private String          mPassword;
+	private String          mTag;
+	private Stopwatch       mStopwatch;
+	private Boolean  mErrorCheck         = true;
 	private AuthType mAuthType           = AuthType.NONE;
 	private Boolean  mUseSecret          = false;
 	private Boolean  mIgnoreResponseData = false;
@@ -93,55 +96,24 @@ public class ServiceRequest {
 		return sessionInfo;
 	}
 
-	public ServiceRequest setRequestType(RequestType requestType) {
-		mRequestType = requestType;
-		return this;
-	}
-
 	public RequestType getRequestType() {
 		return mRequestType;
-	}
-
-	@SuppressWarnings("ucd")
-	public ServiceRequest setRequestListener(RequestListener requestListener) {
-		mRequestListener = requestListener;
-		return this;
 	}
 
 	public RequestListener getRequestListener() {
 		return mRequestListener;
 	}
 
-	public ServiceRequest setResponseFormat(ResponseFormat responseFormat) {
-		mResponseFormat = responseFormat;
-		return this;
-	}
-
 	public ResponseFormat getResponseFormat() {
 		return mResponseFormat;
-	}
-
-	public ServiceRequest setRequestBody(String requestBody) {
-		mRequestBody = requestBody;
-		return this;
 	}
 
 	public String getRequestBody() {
 		return mRequestBody;
 	}
 
-	public ServiceRequest setParameters(Bundle parameters) {
-		mParameters = parameters;
-		return this;
-	}
-
 	public Bundle getParameters() {
 		return mParameters;
-	}
-
-	public ServiceRequest setSuppressUI(boolean suppressUI) {
-		mSuppressUI = suppressUI;
-		return this;
 	}
 
 	public boolean isSuppressUI() {
@@ -152,18 +124,8 @@ public class ServiceRequest {
 		return mSession;
 	}
 
-	public ServiceRequest setSession(Session session) {
-		mSession = session;
-		return this;
-	}
-
 	public String getUserName() {
 		return mUserName;
-	}
-
-	public ServiceRequest setUserName(String userName) {
-		mUserName = userName;
-		return this;
 	}
 
 	public String getPassword() {
@@ -171,9 +133,78 @@ public class ServiceRequest {
 	}
 
 	public String getPasswordBase64() {
-		final byte[] accountKeyBytes = Base64.encodeBase64((mPassword + ":" + mPassword).getBytes());
+		final byte[] accountKeyBytes = Base64.encode((mPassword + ":" + mPassword).getBytes());
 		final String accountKeyEnc = new String(accountKeyBytes);
 		return accountKeyEnc;
+	}
+
+	public AuthType getAuthType() {
+		return mAuthType;
+	}
+
+	public Boolean getUseSecret() {
+		return mUseSecret;
+	}
+
+	public Boolean getIgnoreResponseData() {
+		return mIgnoreResponseData;
+	}
+
+	public String getActivityName() {
+		return mActivityName;
+	}
+
+	public String getTag() {
+		return mTag;
+	}
+
+	public Boolean getErrorCheck() {
+		return mErrorCheck;
+	}
+
+	public Stopwatch getStopwatch() {
+		return mStopwatch;
+	}
+
+	public ServiceRequest setRequestType(RequestType requestType) {
+		mRequestType = requestType;
+		return this;
+	}
+
+	@SuppressWarnings("ucd")
+	public ServiceRequest setRequestListener(RequestListener requestListener) {
+		mRequestListener = requestListener;
+		return this;
+	}
+
+	public ServiceRequest setResponseFormat(ResponseFormat responseFormat) {
+		mResponseFormat = responseFormat;
+		return this;
+	}
+
+	public ServiceRequest setRequestBody(String requestBody) {
+		mRequestBody = requestBody;
+		return this;
+	}
+
+	public ServiceRequest setParameters(Bundle parameters) {
+		mParameters = parameters;
+		return this;
+	}
+
+	public ServiceRequest setSuppressUI(boolean suppressUI) {
+		mSuppressUI = suppressUI;
+		return this;
+	}
+
+	public ServiceRequest setSession(Session session) {
+		mSession = session;
+		return this;
+	}
+
+	public ServiceRequest setUserName(String userName) {
+		mUserName = userName;
+		return this;
 	}
 
 	public ServiceRequest setPassword(String password) {
@@ -181,17 +212,9 @@ public class ServiceRequest {
 		return this;
 	}
 
-	public AuthType getAuthType() {
-		return mAuthType;
-	}
-
 	public ServiceRequest setAuthType(AuthType authType) {
 		mAuthType = authType;
 		return this;
-	}
-
-	public Boolean getUseSecret() {
-		return mUseSecret;
 	}
 
 	public ServiceRequest setUseSecret(Boolean useSecret) {
@@ -199,21 +222,28 @@ public class ServiceRequest {
 		return this;
 	}
 
-	public Boolean getIgnoreResponseData() {
-		return mIgnoreResponseData;
-	}
-
 	public ServiceRequest setIgnoreResponseData(Boolean ignoreResponseData) {
 		mIgnoreResponseData = ignoreResponseData;
 		return this;
 	}
 
-	public String getActivityName() {
-		return mActivityName;
-	}
-
 	public ServiceRequest setActivityName(String activityName) {
 		mActivityName = activityName;
+		return this;
+	}
+
+	public ServiceRequest setTag(String tag) {
+		mTag = tag;
+		return this;
+	}
+
+	public ServiceRequest setErrorCheck(Boolean errorCheck) {
+		mErrorCheck = errorCheck;
+		return this;
+	}
+
+	public ServiceRequest setStopwatch(Stopwatch stopwatch) {
+		mStopwatch = stopwatch;
 		return this;
 	}
 }

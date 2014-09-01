@@ -40,7 +40,8 @@
 
 	<string name="splash_message">get more out of the places you love</string>
 	<string name="splash_button_signin">Sign in</string>
-	<string name="splash_button_start">Start!</string>
+	<string name="splash_button_signup">Register</string>
+	<string name="splash_button_start">Ghost</string>
 	<string name="splash_button_retry">Retry</string>
 
 	<!-- Invite -->
