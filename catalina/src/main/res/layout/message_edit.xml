@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.aircandi.ui.widgets.AirScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:layout_gravity="center_horizontal"
@@ -22,6 +21,24 @@
 			android:padding="16dp"
 			android:visibility="gone"
 			custom:textId="@string/label_message_edit_message" />
+
+		<LinearLayout
+			android:id="@+id/holder_progress_bar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:background="?attr/backgroundForm"
+			android:orientation="vertical">
+
+			<com.aircandi.ui.widgets.SmoothProgressBar
+				android:id="@+id/progress_bar"
+				style="@style/progress_bar"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/progress_bar_height"
+				android:indeterminate="true"
+				android:visibility="gone"
+				custom:spb_color="@color/brand_progress_bar_color" />
+		</LinearLayout>
 
 		<LinearLayout
 			android:id="@+id/content_group"
@@ -47,6 +64,9 @@
 					android:layout_height="wrap_content"
 					android:gravity="center_vertical"
 					android:imeOptions="flagNoExtractUi"
+					android:completionHint="@string/label_share_completion_hint"
+					android:completionHintView="@layout/dropdown_search_hint"
+					android:hint="@string/label_share_to_hint"
 					android:minHeight="65dp"
 					android:textAppearance="?attr/textAppearanceMediumLarge"
 					custom:prefix="@string/label_message_to_prefix" />
@@ -68,9 +88,9 @@
 						android:layout_weight="0"
 						android:background="@color/transparent"
 						android:gravity="center_vertical"
-						android:textColor="?attr/textColorSecondary"
 						android:text="@string/label_message_to_prefix"
-						android:textAppearance="?attr/textAppearanceMediumLarge" />
+						android:textAppearance="?attr/textAppearanceMediumLarge"
+						android:textColor="?attr/textColorSecondary" />
 
 					<com.aircandi.ui.widgets.EntityView
 						android:id="@+id/entity_view"
@@ -103,18 +123,16 @@
 				android:layout_height="wrap_content"
 				android:orientation="vertical">
 
-				<LinearLayout
+				<RelativeLayout
 					android:id="@+id/holder_body"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_marginBottom="5dp"
-					android:orientation="vertical">
+					android:layout_marginBottom="5dp">
 
 					<com.aircandi.ui.widgets.AirEditText
 						android:id="@+id/name"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/message_field_height"
-						android:layout_weight="0.5"
 						android:drawableRight="?attr/iconClear"
 						android:hint="@string/hint_message_name"
 						android:inputType="textCapSentences|textAutoCorrect"
@@ -124,17 +142,17 @@
 						android:id="@+id/description"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:layout_weight="0.5"
-						android:gravity="top"
 						android:drawableRight="?attr/iconClear"
+						android:gravity="top"
 						android:hint="@string/hint_message_description"
-						android:textColorHint="?attr/textColorSecondary"
 						android:imeOptions="flagNoExtractUi"
 						android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
 						android:minLines="4"
 						android:paddingTop="8dp"
-						android:textAppearance="?attr/textAppearanceMediumLarge" />
-				</LinearLayout>
+						android:textAppearance="?attr/textAppearanceMediumLarge"
+						android:textColorHint="?attr/textColorSecondary" />
+
+				</RelativeLayout>
 
 				<!-- Attachment -->
 
@@ -159,7 +177,7 @@
 						android:layout_height="@dimen/button_height">
 
 						<ProgressBar
-							android:id="@+id/progress"
+							android:id="@+id/photo_progress"
 							android:layout_width="30dp"
 							android:layout_height="30dp"
 							android:layout_centerInParent="true" />

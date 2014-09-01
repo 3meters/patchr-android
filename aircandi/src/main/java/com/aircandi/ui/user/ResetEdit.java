@@ -34,7 +34,6 @@ public class ResetEdit extends BaseEdit {
 
 	private EditText mEmail;
 	private EditText mPassword;
-	private EditText mPasswordConfirm;
 	private Boolean mEmailConfirmed = false;
 	private TextView mMessage;
 	private User     mUser;
@@ -46,10 +45,9 @@ public class ResetEdit extends BaseEdit {
 		mMessage = (TextView) findViewById(R.id.content_message);
 		mEmail = (EditText) findViewById(R.id.email);
 		mPassword = (EditText) findViewById(R.id.password);
-		mPasswordConfirm = (EditText) findViewById(R.id.password_confirm);
 
-		mPasswordConfirm.setImeOptions(EditorInfo.IME_ACTION_GO);
-		mPasswordConfirm.setOnEditorActionListener(new OnEditorActionListener() {
+		mPassword.setImeOptions(EditorInfo.IME_ACTION_GO);
+		mPassword.setOnEditorActionListener(new OnEditorActionListener() {
 
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -124,27 +122,6 @@ public class ResetEdit extends BaseEdit {
 						, null, null, null, null);
 				return false;
 			}
-			if (mPasswordConfirm.getText().length() < 6) {
-				Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-						, null
-						, StringManager.getString(R.string.error_missing_password_confirmation)
-						, null
-						, this
-						, android.R.string.ok
-						, null, null, null, null);
-				return false;
-			}
-			if (!mPassword.getText().toString().equals(mPasswordConfirm.getText().toString())) {
-				Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-						, StringManager.getString(R.string.error_signup_missmatched_passwords_title)
-						, StringManager.getString(R.string.error_signup_missmatched_passwords_message)
-						, null
-						, this
-						, android.R.string.ok
-						, null, null, null, null);
-				mPasswordConfirm.setText("");
-				return false;
-			}
 		}
 		return true;
 	}
@@ -158,7 +135,7 @@ public class ResetEdit extends BaseEdit {
 			@Override
 			protected void onPreExecute() {
 				mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_reset_verify);
-				UI.hideSoftInput(ResetEdit.this, mMessage.getWindowToken());
+				UI.hideSoftInput(mEmail);
 			}
 
 			@Override
@@ -209,7 +186,6 @@ public class ResetEdit extends BaseEdit {
 					mEmailConfirmed = true;
 					mEmail.setVisibility(View.GONE);
 					mPassword.setVisibility(View.VISIBLE);
-					mPasswordConfirm.setVisibility(View.VISIBLE);
 					mMessage.setText(StringManager.getString(R.string.label_reset_message_password));
 				}
 			}

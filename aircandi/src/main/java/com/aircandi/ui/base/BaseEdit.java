@@ -69,10 +69,6 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-	@Override
-	public void onBackPressed() {
-		Aircandi.dispatch.route(this, Route.CANCEL, null, null, null);
-	}
 
 	@Override
 	public void onCancel(Boolean force) {
@@ -80,15 +76,14 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 			confirmDirtyExit();
 		}
 		else {
-			setResultCode(Activity.RESULT_CANCELED);
-			finish();
-			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
+			super.onCancel(force);
 		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Boolean isDirty() {
 		return mDirty;
 	}

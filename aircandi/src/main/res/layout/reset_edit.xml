@@ -13,14 +13,14 @@
 		android:layout_height="wrap_content"
 		android:orientation="vertical">
 
-		<com.aircandi.ui.widgets.AirTextView
+		<com.aircandi.ui.widgets.AirTextLight
 			android:id="@+id/content_message"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="20dp"
-			android:padding="10dp"
+			android:background="?attr/backgroundFormSecondary"
+			android:gravity="center_horizontal"
+			android:padding="16dp"
 			android:text="@string/label_reset_message_email"
-			android:textColor="?attr/textColorSecondary"
 			custom:textId="@string/label_reset_message_email" />
 
 		<LinearLayout
@@ -34,6 +34,7 @@
 				android:id="@+id/email"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/form_field_height"
+				android:layout_marginBottom="8dp"
 				android:drawableRight="?attr/iconClear"
 				android:hint="@string/label_email"
 				android:inputType="textEmailAddress"
@@ -43,20 +44,9 @@
 				android:id="@+id/password"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/form_field_height"
+				android:layout_marginBottom="8dp"
 				android:drawableRight="?attr/iconClear"
 				android:hint="@string/label_password"
-				android:inputType="textPassword"
-				android:textAppearance="?attr/textAppearanceMediumLarge"
-				android:visibility="gone" />
-
-			<com.aircandi.ui.widgets.AirEditText
-				android:id="@+id/password_confirm"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/form_field_height"
-				android:layout_marginBottom="10dp"
-				android:drawableRight="?attr/iconClear"
-				android:hint="@string/label_password_confirm"
-				android:imeOptions="actionGo"
 				android:inputType="textPassword"
 				android:textAppearance="?attr/textAppearanceMediumLarge"
 				android:visibility="gone" />
@@ -66,7 +56,8 @@
 				style="@style/button_link"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/button_height"
-				android:layout_marginTop="10dp"
+				android:layout_marginLeft="4dp"
+				android:layout_marginRight="4dp"
 				android:onClick="onResetButtonClick"
 				android:text="@string/button_reset_password"
 				custom:label="@string/button_reset_password" />

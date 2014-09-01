@@ -9,6 +9,7 @@ import android.os.Bundle;
 import com.aircandi.Aircandi;
 import com.aircandi.ServiceConstants;
 import com.aircandi.catalina.Constants;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager.ModelResult;
 import com.aircandi.objects.Cursor;
@@ -47,7 +48,7 @@ public class EntityManager extends com.aircandi.components.EntityManager {
 			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
 		}
 
-		result.serviceResponse = dispatch(serviceRequest);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) result.serviceResponse.data;

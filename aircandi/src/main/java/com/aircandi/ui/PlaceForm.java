@@ -46,6 +46,7 @@ import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Booleans;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
+import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
@@ -70,6 +71,14 @@ public class PlaceForm extends BaseEntityForm {
 
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
+			/*
+			 * We handle upsizing if the place entity we want to browse isn't
+			 * stored in the service yet.
+			 */
+			final String jsonEntity = extras.getString(Constants.EXTRA_ENTITY);
+			if (jsonEntity != null) {
+				mEntity = (Entity) Json.jsonToObject(jsonEntity, Json.ObjectType.ENTITY);
+			}
 			mDoUpsize = extras.getBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC);
 			mAutoWatch = extras.getBoolean(Constants.EXTRA_AUTO_WATCH);
 		}
@@ -87,13 +96,19 @@ public class PlaceForm extends BaseEntityForm {
 	}
 
 	@Override
-	public void afterDatabind(final BindingMode mode, ModelResult result) {
-		super.afterDatabind(mode, result);
-
+	public void bind(final BindingMode mode) {
 		if (mDoUpsize && mEntity != null) {
 			mDoUpsize = false;
 			upsize();
 		}
+		else {
+			super.bind(mode);
+		}
+	}
+
+	@Override
+	public void afterDatabind(final BindingMode mode, ModelResult result) {
+		super.afterDatabind(mode, result);
 
 		if (mAutoWatch && mEntity != null) {
 			Link link = mEntity.linkByAppUser(Constants.TYPE_LINK_WATCH);
@@ -110,6 +125,7 @@ public class PlaceForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onAdd(Bundle extras) {
 		Aircandi.dispatch.route(this, Route.NEW_PICKER, mEntity, null, null);
@@ -144,8 +160,8 @@ public class PlaceForm extends BaseEntityForm {
 	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onMessage(final MessageEvent event) {
-        /*
-         * Refresh the form because something new has been added to it
+	    /*
+	     * Refresh the form because something new has been added to it
 		 * like a comment or picture.
 		 */
 		if (event.message.action.toEntity != null
@@ -163,6 +179,7 @@ public class PlaceForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void draw() {
 		/*
@@ -465,12 +482,12 @@ public class PlaceForm extends BaseEntityForm {
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 				mBusy.hideBusy(false);
+
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					final Entity upsizedEntity = (Entity) result.data;
 					mEntityId = upsizedEntity.id;
 					mEntity = null;
 					mEntityMonitor = new EntityMonitor(mEntityId);
-					//mCacheStamp = null;
 					mFirstDraw = true;
 					bind(BindingMode.AUTO);
 				}
@@ -484,6 +501,7 @@ public class PlaceForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -506,6 +524,7 @@ public class PlaceForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.place_form;
@@ -513,7 +532,9 @@ public class PlaceForm extends BaseEntityForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    private class PackageReceiver extends BroadcastReceiver {
+	 *--------------------------------------------------------------------------------------------*/
+
+	private class PackageReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive(final Context context, Intent intent) {

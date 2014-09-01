@@ -23,7 +23,6 @@ public class PasswordEdit extends BaseEdit {
 
 	private EditText mPasswordOld;
 	private EditText mPassword;
-	private EditText mPasswordConfirm;
 
 	/* Inputs */
 	protected String mEntityId;
@@ -43,7 +42,6 @@ public class PasswordEdit extends BaseEdit {
 
 		mPasswordOld = (EditText) findViewById(R.id.password_old);
 		mPassword = (EditText) findViewById(R.id.password);
-		mPasswordConfirm = (EditText) findViewById(R.id.password_confirm);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -125,17 +123,7 @@ public class PasswordEdit extends BaseEdit {
 					, null, null, null, null);
 			return false;
 		}
-		if (mPasswordConfirm.getText().length() == 0) {
-			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-					, null
-					, StringManager.getString(R.string.error_missing_password_confirmation)
-					, null
-					, this
-					, android.R.string.ok
-					, null, null, null, null);
-			return false;
-		}
-		if (mPassword.getText().length() < 6 || mPasswordConfirm.getText().length() < 6) {
+		if (mPassword.getText().length() < 6) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_password_weak)
@@ -143,19 +131,6 @@ public class PasswordEdit extends BaseEdit {
 					, this
 					, android.R.string.ok
 					, null, null, null, null);
-			return false;
-		}
-		if (!mPassword.getText().toString().equals(mPasswordConfirm.getText().toString())) {
-
-			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-					, StringManager.getString(R.string.error_signup_missmatched_passwords_title)
-					, StringManager.getString(R.string.error_signup_missmatched_passwords_message)
-					, null
-					, this
-					, android.R.string.ok
-					, null, null, null, null);
-			mPasswordConfirm.setText("");
-			mPassword.setText("");
 			return false;
 		}
 		return true;

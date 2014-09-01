@@ -59,9 +59,9 @@ public class Stopwatch {
 	public long stop(String message) {
 		final long lapTime = processSegmentTime("*** Stopped ***: " + message);
 		mLastThreshold = 0;
-		if (Aircandi.DEBUG) {
-			Debug.insertLog(LogCategory.TIMING, mName, NetworkManager.getInstance().getNetworkType(), getTotalTimeMills(), mLog);
-		}
+//		if (Aircandi.DEBUG) {
+//			Debug.insertLog(LogCategory.TIMING, mName, NetworkManager.getInstance().getNetworkType(), getTotalTimeMills(), mLog);
+//		}
 		Logger.v(this, "*** Timer log ***");
 		for (String line : mLog) {
 			Logger.v(this, line);

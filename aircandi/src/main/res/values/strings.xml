@@ -30,6 +30,7 @@
 	<string name="menu_item_edit_user">Edit profile</string>
 	<string name="menu_item_save_beacon">Save beacon</string>
 	<string name="menu_item_share">Share</string>
+	<string name="menu_item_search">Search</string>
 	<string name="menu_item_share_place">Share</string>
 	<string name="menu_item_profile">Profile</string>
 	<string name="menu_item_home">Home</string>
@@ -128,6 +129,7 @@
 	<string name="alert_updated">Updated</string>
 	<string name="alert_inserted">Saved</string>
 	<string name="alert_shared">Shared</string>
+	<string name="alert_cancelled">Cancelled</string>
 	<string name="alert_saved_and_shared">Saved and shared</string>
 	<string name="alert_signed_in">Signed in as</string>
 	<string name="alert_password_changed">You have been automatically signed in with your new password</string>
@@ -289,10 +291,10 @@
 	<string name="button_change_picture">Select</string>
 	<string name="button_change_password">Change password</string>
 	<string name="button_sign_in">Sign in</string>
-	<string name="button_register">Sign up</string>
+	<string name="button_register">Join</string>
 	<string name="button_reset_password">Submit</string>
 	<string name="button_cancel" tools:ignore="ButtonCase">Cancel</string>
-	<string name="button_terms">Terms of service</string>
+	<string name="button_terms">Terms of Service</string>
 	<string name="button_privacy">Privacy policy</string>
 	<string name="button_legal">Open source licenses</string>
 	<string name="button_forgot_password">Forgot password?</string>
@@ -320,7 +322,7 @@
 	<string name="label_location">Location</string>
 	<string name="label_password">Password (6 characters or more)</string>
 	<string name="label_password_unmask">Show password</string>
-	<string name="label_terms">By clicking the register button, you agree to the terms of service:</string>
+	<string name="label_terms">By joining, you agree to the</string>
 	<string name="label_password_confirm">Confirm password</string>
 	<string name="label_password_old">Old password</string>
 	<string name="label_email">Email</string>
@@ -328,6 +330,11 @@
 	<string name="label_locked_description">Users can browse but not add content</string>
 	<string name="label_private">Private</string>
 	<string name="label_private_description">Users can only see content if you approve their membership request</string>
+	<string name="label_register_message">Join [@string/name_app]!</string>
+	<string name="label_register_title">Join [@string/name_app]</string>
+	<string name="label_search">Aircandi</string>
+	<string name="label_search_hint">Search patches</string>
+	<string name="label_search_completion_hint">Pick a patch to browse.</string>
 
 	<string name="label_about_install">Install</string>
 	<string name="label_about_title">About [@string/name_app]</string>
@@ -407,13 +414,14 @@
 	<!-- Labels: Sharing -->
 
 	<string name="label_place_share_title">Share \'%1$s\' using&#8230;</string>
-	<string name="label_place_share_subject">\'%1$s\' [@string/name_app_lowercase]</string>
+	<string name="label_place_share_subject">\'%1$s\' [@string/container_singular_lowercase]</string>
 	<string name="label_place_share_body_install">Get the [@string/name_app] app at\u0020</string>
     <string name="label_place_share_body">
         "A [@string/name_app_lowercase] has been shared with you! \n\nhttp://candipatch.com/patch/%1$s \n\n[@string/label_place_share_body_install][@string/uri_play_store]"
     </string>
-	<string name="label_place_share_body_self">"Checkout the \'%1$s\' [@string/name_app_lowercase]!"</string>
-	<string name="label_place_share_body_self_oncreate">"Checkout the \'%1$s\' [@string/name_app_lowercase] I just dropped!"</string>
+
+	<string name="label_place_share_body_self">"Checkout the \'%1$s\' [@string/container_singular_lowercase]!"</string>
+	<string name="label_place_share_body_self_oncreate">"Checkout the \'%1$s\' [@string/container_singular_lowercase] I just dropped!"</string>
 
 	<string name="label_message_share_title">Share message using&#8230;</string>
 	<string name="label_message_share_subject">[@string/name_app] message shared by %1$s</string>
@@ -421,8 +429,9 @@
     <string name="label_message_share_body">
         "A message has been shared with you! \n\nhttp://candipatch.com/message/%1$s \n\n[@string/label_message_share_body_install][@string/uri_play_store]"
     </string>
-	<string name="label_message_share_body_self">"Checkout %1$s\'s message to \'%2$s\'!"</string>
-	<string name="label_message_share_body_self_no_place">"Checkout %1$s\'s message to a candipatch!"</string>
+
+	<string name="label_message_share_body_self">"Checkout %1$s\'s message to the \'%2$s\' [@string/container_singular_lowercase]!"</string>
+	<string name="label_message_share_body_self_no_place">"Checkout %1$s\'s message to a [@string/container_singular_lowercase]!"</string>
 
 	<string name="label_photo_share_title">Share photo using&#8230;</string>
 	<string name="label_photo_share_subject">[@string/name_app] photo shared by %1$s</string>

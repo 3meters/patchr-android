@@ -62,12 +62,6 @@ public class SplashForm extends Activity {
 
 		mBusy = new BusyManager(this);
 
-		/* Brand coloring */
-		ImageView image = (ImageView) findViewById(R.id.logo);
-		UI.colorDrawable(image.getDrawable(), R.color.brand_primary, Mode.SRC_ATOP);
-		ImageView background = (ImageView) findViewById(R.id.image_background);
-		UI.colorDrawable(background.getDrawable(), Mode.MULTIPLY);
-
 		/* Always reset the entity cache */
 		EntityManager.getEntityCache().clear();
 
@@ -84,6 +78,17 @@ public class SplashForm extends Activity {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	private void draw() {
+
+		/* Brand coloring */
+		ImageView image = (ImageView) findViewById(R.id.logo);
+		UI.colorDrawable(image.getDrawable(), R.color.brand_primary, Mode.SRC_ATOP);
+		ImageView background = (ImageView) findViewById(R.id.image_background);
+		UI.colorDrawable(background.getDrawable(), Mode.MULTIPLY);
+
+	}
+
 	private void prepareToRun() {
 
 		mBusy.showBusy(BusyAction.Refreshing);
@@ -245,9 +250,12 @@ public class SplashForm extends Activity {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Dialogs
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@SuppressWarnings("ucd")
 	public void onSigninButtonClick(View view) {
 		if (Aircandi.applicationUpdateRequired) {
@@ -255,6 +263,15 @@ public class SplashForm extends Activity {
 			return;
 		}
 		Aircandi.dispatch.route(this, Route.SIGNIN, null, null, null);
+	}
+
+	@SuppressWarnings("ucd")
+	public void onSignupButtonClick(View view) {
+		if (Aircandi.applicationUpdateRequired) {
+			updateRequired();
+			return;
+		}
+		Aircandi.dispatch.route(this, Route.REGISTER, null, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -309,6 +326,7 @@ public class SplashForm extends Activity {
 		super.onResume();
 		Logger.d(this, "Splash resume");
 		Aircandi.getInstance().setCurrentActivity(this);
+		draw();
 	}
 
 	@Override

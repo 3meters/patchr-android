@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 
 import com.aircandi.Aircandi;
@@ -198,6 +199,8 @@ public class MessagingManager {
 		Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
 		PendingIntent deleteIntent = PendingIntent.getBroadcast(Aircandi.applicationContext, 0, intent, 0);
 
+		Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.notification_activity);
+
 		final NotificationCompat.Builder builder = new NotificationCompat.Builder(Aircandi.applicationContext)
 				.setContentTitle(message.title)
 				.setContentText(message.subtitle)
@@ -207,6 +210,8 @@ public class MessagingManager {
 				.setSmallIcon(R.drawable.ic_stat_notification)
 				.setAutoCancel(true)
 				.setPriority(NotificationCompat.PRIORITY_HIGH)
+				.setVibrate(new long[]{0, 400, 400, 400})
+				.setSound(soundUri)
 				.setOnlyAlertOnce(false)
 				.setContentIntent(pendingIntent)
 				.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE)
@@ -233,6 +238,7 @@ public class MessagingManager {
 				if (message.action.entity != null
 						&& (message.action.getEventCategory().equals(EventCategory.INSERT)
 						|| message.action.getEventCategory().equals(EventCategory.SHARE))) {
+
 					IEntityController controller = Aircandi.getInstance().getControllerForSchema(message.action.entity.schema);
 					if (controller != null) {
 						Integer notificationType = controller.getNotificationType(message.action.entity);

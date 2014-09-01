@@ -1,62 +1,71 @@
 package com.aircandi.components;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
 import com.aircandi.Aircandi;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.events.CancelEvent;
 import com.aircandi.objects.Photo.PhotoType;
 import com.aircandi.service.ServiceResponse;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.event.ProgressEvent;
+import com.amazonaws.event.ProgressListener;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
+import com.amazonaws.services.s3.transfer.Transfer;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.Upload;
+import com.squareup.otto.Subscribe;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.concurrent.CancellationException;
 
 public class S3 {
 
-	static {
-		System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
-		try {
-			@SuppressWarnings("unused")
-			final XMLReader reader = XMLReaderFactory.createXMLReader(); // $codepro.audit.disable variableUsage
-		}
-		catch (SAXException e) {
-			Log.e("SAXException", e.getMessage());
-		}
+	private TransferManager mManager;
+	private Upload          mUpload;
+
+	private S3() {
+		mManager = new TransferManager(Aircandi.awsCredentials);
+		BusProvider.getInstance().register(this);
 	}
 
-	private static class AmazonS3Holder {
-		public static final AmazonS3 instance = new AmazonS3Client(Aircandi.awsCredentials);
+	private static class S3Holder {
+		public static final S3 instance = new S3();
 	}
 
-	public static AmazonS3 getInstance() {
-		return AmazonS3Holder.instance;
+	public static S3 getInstance() {
+		return S3Holder.instance;
 	}
 
-	public static ServiceResponse putImage(String imageKey, Bitmap bitmap, Integer quality, PhotoType photoType) {
-
-		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
-		final byte[] bitmapBytes = outputStream.toByteArray();
-		final ByteArrayInputStream inputStream = new ByteArrayInputStream(bitmapBytes);
-		final ObjectMetadata metadata = new ObjectMetadata();
-		metadata.setContentLength(bitmapBytes.length);
-		metadata.setContentType("image/jpeg");
+	public ServiceResponse putImage(final String imageKey, Bitmap bitmap, Integer quality, final PhotoType photoType) {
 
 		try {
-			S3.getInstance().putObject(getBucketForPhotoType(photoType), imageKey, inputStream, metadata);
-			S3.getInstance().setObjectAcl(getBucketForPhotoType(photoType), imageKey, CannedAccessControlList.PublicRead);
+			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+			final byte[] bitmapBytes = outputStream.toByteArray();
+			final ByteArrayInputStream inputStream = new ByteArrayInputStream(bitmapBytes);
+			final ObjectMetadata metadata = new ObjectMetadata();
+			metadata.setContentLength(bitmapBytes.length);
+			metadata.setContentType("image/jpeg");
+			outputStream.close();
+
+			mUpload = mManager.upload(getBucketForPhotoType(photoType), imageKey, inputStream, metadata);
+
+			mUpload.addProgressListener(new ProgressListener() {
+				public void progressChanged(ProgressEvent progressEvent) {
+					if (mUpload == null) return;
+					BusProvider.getInstance().post(new com.aircandi.events.ProgressEvent(mUpload.getProgress().getPercentTransferred()));
+				}
+			});
+
+			mUpload.waitForCompletion();
+			mManager.getAmazonS3Client().setObjectAcl(getBucketForPhotoType(photoType), imageKey, CannedAccessControlList.PublicRead);
+
 			return new ServiceResponse();
 		}
 		catch (final AmazonServiceException exception) {
@@ -65,14 +74,24 @@ public class S3 {
 		catch (final AmazonClientException exception) {
 			return new ServiceResponse(ResponseCode.FAILED, null, exception);
 		}
-		finally {
-			try {
-				outputStream.close();
-				inputStream.close();
-			}
-			catch (IOException exception) {
-				return new ServiceResponse(ResponseCode.FAILED, null, exception);
-			}
+		catch (InterruptedException exception) {
+			return new ServiceResponse(ResponseCode.INTERRUPTED, null, exception);
+		}
+		catch (CancellationException exception) {
+			return new ServiceResponse(ResponseCode.INTERRUPTED, null, exception);
+		}
+		catch (IOException exception) {
+			return new ServiceResponse(ResponseCode.FAILED, null, exception);
+		}
+	}
+
+	@Subscribe
+	public void onCancelEvent(CancelEvent event) {
+		if (mUpload != null
+				&& (mUpload.getState() == Transfer.TransferState.InProgress
+				|| mUpload.getState() == Transfer.TransferState.Waiting)) {
+			mUpload.abort();
+			Logger.v(this, "Image upload aborted");
 		}
 	}
 

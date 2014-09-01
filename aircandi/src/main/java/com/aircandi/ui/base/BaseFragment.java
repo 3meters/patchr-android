@@ -12,7 +12,10 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -20,6 +23,7 @@ import android.widget.ScrollView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -28,7 +32,11 @@ import com.aircandi.components.BusProvider;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Entity;
+import com.aircandi.objects.Route;
 import com.aircandi.ui.AircandiForm;
+import com.aircandi.ui.components.EntitySuggestController;
+import com.aircandi.ui.widgets.AirAutoCompleteTextView;
+import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
 import com.nineoldandroids.view.ViewHelper;
 
@@ -47,7 +55,11 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	protected Boolean mLoaded      = false; // Used to control busy feedback
 	protected Integer mScrollState = OnScrollListener.SCROLL_STATE_IDLE;
 
-	protected Button mButtonSpecial;
+	private   AirAutoCompleteTextView mTo;
+	private   View                    mToImage;
+	private   View                    mToProgress;
+	private   EntitySuggestController mEntitySuggest;
+	protected Button                  mButtonSpecial;
 	protected Boolean mButtonSpecialEnabled   = true;
 	protected Boolean mButtonSpecialClickable = false;
 
@@ -90,6 +102,8 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 			ViewHelper.setAlpha(mButtonSpecial, 0);
 			mButtonSpecial.setClickable(false);
 		}
+
+		mEntitySuggest = new EntitySuggestController(getSherlockActivity());
 
 		return view;
 	}
@@ -317,9 +331,65 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		Logger.d(this, "Creating fragment options menu");
+
 		for (Integer menuResId : mMenuResIds) {
 			inflater.inflate(menuResId, menu);
 		}
+
+		/* If fragment has a search action then configure it */
+
+		final MenuItem item = menu.findItem(R.id.search);
+		if (item != null) {
+			mTo = (AirAutoCompleteTextView) item.getActionView().findViewById(R.id.search_input);
+			mToImage = item.getActionView().findViewById(R.id.search_image);
+			mToProgress = item.getActionView().findViewById(R.id.search_progress);
+			mEntitySuggest.setInput((AutoCompleteTextView) mTo);
+			mEntitySuggest.setSearchImage(mToImage);
+			mEntitySuggest.setSearchProgress(mToProgress);
+			mEntitySuggest.init();
+
+			mTo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					item.collapseActionView();
+					Entity entity = (Entity) mTo.getAdapter().getItem(position);
+
+					Bundle extras = new Bundle();
+					if (entity.synthetic) {
+						final String jsonEntity = Json.objectToJson(entity);
+						extras.putString(Constants.EXTRA_ENTITY, jsonEntity);
+						extras.putBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC, true);
+					}
+					Aircandi.dispatch.route(getSherlockActivity(), Route.BROWSE, entity, null, extras);
+				}
+			});
+
+			item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+
+				@Override
+				public boolean onMenuItemActionExpand(MenuItem item) {
+
+					mTo.setText(null);
+
+					mTo.post(new Runnable() {
+						@Override
+						public void run() {
+							mTo.requestFocus();
+							UI.showSoftInput(mTo);
+						}
+					});
+					return true;
+				}
+
+				@Override
+				public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+					UI.hideSoftInput(mTo);
+					return true;
+				}
+			});
+		}
+
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 

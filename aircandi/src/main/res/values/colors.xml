@@ -34,6 +34,8 @@
 	<color name="text_alert_dark">@color/brand_primary</color>
 	<color name="text_alert_light">@color/brand_primary</color>
 	<color name="text_color">@color/white</color>
+	<color name="text_hint_dark">#bbffffff</color>
+	<color name="text_hint_light">#bb343434</color>
 
 	<!-- Accuracy -->
 

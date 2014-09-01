@@ -39,8 +39,7 @@
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
 			android:singleLine="true"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			custom:textId="@string/label_drawer_item_nearby" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</LinearLayout>
 
 	<com.aircandi.ui.widgets.ComboButton

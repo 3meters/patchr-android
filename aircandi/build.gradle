@@ -28,12 +28,12 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
     compile 'com.squareup.okio:okio:1.0.0'
     compile 'com.squareup:otto:1.3.5'
-    compile 'com.squareup.picasso:picasso:2.3.3'
+    compile 'com.squareup.picasso:picasso:2.3.+'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'net.minidev:json-smart:1.2'
 
-    compile files('libs/aws-android-sdk-1.3.2-core.jar')
-    compile files('libs/aws-android-sdk-1.3.2-s3.jar')
+    compile files('libs/aws-android-sdk-2.0.5-core.jar')
+    compile files('libs/aws-android-sdk-2.0.5-s3.jar')
     compile files('libs/crashlytics.jar')
     compile files('libs/cwac-adapter-wrapper.jar')
     compile files('libs/endless-1.2.3.jar')

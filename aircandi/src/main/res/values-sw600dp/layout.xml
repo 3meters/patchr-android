@@ -1,0 +1,3 @@
+<resources>
+	<item name="actionbar_search" type="layout">@layout/actionbar_search_large</item>
+</resources>

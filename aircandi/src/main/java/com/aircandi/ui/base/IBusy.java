@@ -8,9 +8,11 @@ public interface IBusy {
 
 	public void showBusy(BusyAction busyAction, Object message);
 
+	public void showProgress();
+
 	public void hideBusy(Boolean now);
 
-	public SmoothProgressBar getHeaderProgressBar();
+	public SmoothProgressBar getHeaderActivityBar();
 
 	public enum BusyAction {
 		Loading,

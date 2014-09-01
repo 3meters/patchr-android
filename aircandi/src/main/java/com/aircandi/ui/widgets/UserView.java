@@ -120,9 +120,11 @@ public class UserView extends RelativeLayout {
 				}
 			}
 
+			UI.setVisibility(mEmail, View.GONE);
 			if (mEmail != null) {
 				if (!TextUtils.isEmpty(user.email)) {
 					mEmail.setText(user.email);
+					UI.setVisibility(mEmail, View.VISIBLE);
 				}
 			}
 

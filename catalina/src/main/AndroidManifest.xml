@@ -1,323 +1,328 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.aircandi.catalina"
-    android:installLocation="auto" >
+<manifest
+	package="com.aircandi.catalina"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:installLocation="auto">
 
-    <supports-screens
-        android:anyDensity="true"
-        android:largeScreens="true"
-        android:normalScreens="true"
-        android:resizeable="true"
-        android:smallScreens="true"
-        android:xlargeScreens="true" />
+	<supports-screens
+		android:anyDensity="true"
+		android:largeScreens="true"
+		android:normalScreens="true"
+		android:resizeable="true"
+		android:smallScreens="true"
+		android:xlargeScreens="true" />
 
-    <uses-feature
-        android:glEsVersion="0x00020000"
-        android:required="true" />
+	<uses-feature
+		android:glEsVersion="0x00020000"
+		android:required="true" />
 
-    <permission
-        android:name="com.aircandi.catalina.permission.MAPS_RECEIVE"
-        android:protectionLevel="signature" />
-    <permission
-        android:name="com.aircandi.catalina.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
+	<permission
+		android:name="com.aircandi.catalina.permission.MAPS_RECEIVE"
+		android:protectionLevel="signature" />
+	<permission
+		android:name="com.aircandi.catalina.permission.C2D_MESSAGE"
+		android:protectionLevel="signature" />
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-    <!-- Support location -->
+	<!-- Support location -->
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    
-    <!-- Support network and wifi interactions -->
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+	<!-- Support network and wifi interactions -->
 
-    <!-- Support play services -->
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
-    <uses-permission android:name="com.aircandi.catalina.permission.MAPS_RECEIVE" />
-    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+	<!-- Support play services -->
 
-    <!-- To support GCM -->
+	<uses-permission android:name="com.aircandi.catalina.permission.MAPS_RECEIVE" />
+	<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+	<uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="com.aircandi.catalina.permission.C2D_MESSAGE" />
+	<!-- To support GCM -->
 
-    <!-- To support Notifications -->
+	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+	<uses-permission android:name="com.aircandi.catalina.permission.C2D_MESSAGE" />
 
-    <uses-permission android:name="android.permission.VIBRATE" />
+	<!-- To support Notifications -->
 
-    <!-- Needed to trigger a wifi scan -->
+	<uses-permission android:name="android.permission.VIBRATE" />
 
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+	<!-- Needed to trigger a wifi scan -->
 
-    <application
-        android:name="com.aircandi.catalina.Catalina"
-        android:allowBackup="false"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/name_app"
-        android:theme="@style/aircandi_theme_midnight" >
+	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
-        <!-- Service keys -->
+	<application
+		android:name="com.aircandi.catalina.Catalina"
+		android:allowBackup="false"
+		android:icon="@drawable/ic_launcher"
+		android:label="@string/name_app"
+		android:theme="@style/aircandi_theme_midnight">
 
-        <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCq-TgeWzyK-iUod3Bs9uRpj4992xGlEZ8" />
-        <meta-data
-            android:name="com.crashlytics.ApiKey"
-            android:value="3f03e3891f0d0c56c4bc1c393db5efe2aa0f90c7" />
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+		<!-- Service keys -->
 
-        <!-- Services -->
+		<meta-data
+			android:name="com.google.android.maps.v2.API_KEY"
+			android:value="AIzaSyCq-TgeWzyK-iUod3Bs9uRpj4992xGlEZ8" />
+		<meta-data
+			android:name="com.crashlytics.ApiKey"
+			android:value="3f03e3891f0d0c56c4bc1c393db5efe2aa0f90c7" />
+		<meta-data
+			android:name="com.google.android.gms.version"
+			android:value="@integer/google_play_services_version" />
 
-        <service
-            android:name="com.aircandi.catalina.components.GcmIntentService"
-            android:enabled="true" />
-        <service
-            android:name="com.aircandi.components.ActivityRecognitionService"
-            android:exported="false"
-            android:label="@string/name_app" />
+		<!-- Services -->
 
-        <!-- Receivers -->
+		<service
+			android:name="com.aircandi.catalina.components.GcmIntentService"
+			android:enabled="true" />
+		<service
+			android:name="com.aircandi.components.ActivityRecognitionService"
+			android:exported="false"
+			android:label="@string/name_app" />
 
-        <receiver
-            android:name="com.aircandi.catalina.components.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND" >
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+		<!-- Receivers -->
 
-                <category android:name="com.aircandi.catalina" />
-            </intent-filter>
-        </receiver>
+		<receiver
+			android:name="com.aircandi.catalina.components.GcmBroadcastReceiver"
+			android:permission="com.google.android.c2dm.permission.SEND">
+			<intent-filter>
+				<action android:name="com.google.android.c2dm.intent.RECEIVE" />
+				<action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-        <!-- Activities -->
+				<category android:name="com.aircandi.catalina" />
+			</intent-filter>
+		</receiver>
 
-        <activity
-            android:name="com.aircandi.catalina.ui.SplashForm"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/aircandi_theme_midnight_notitlebar"
-            android:windowSoftInputMode="stateHidden" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+		<!-- Activities -->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="com.aircandi.catalina.ui.AircandiForm"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/name_app" />
-        <activity
-            android:name="com.aircandi.catalina.ui.PlaceForm"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/name_app"
-            android:windowSoftInputMode="stateHidden" >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+		<activity
+			android:name="com.aircandi.catalina.ui.SplashForm"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:theme="@style/aircandi_theme_midnight_notitlebar"
+			android:windowSoftInputMode="stateHidden">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+		<activity
+			android:name="com.aircandi.catalina.ui.AircandiForm"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/name_app">
+			<meta-data
+				android:name="android.app.searchable"
+				android:resource="@xml/searchable" />
+		</activity>
+		<activity
+			android:name="com.aircandi.catalina.ui.PlaceForm"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/name_app"
+			android:windowSoftInputMode="stateHidden">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
 
-                <data android:host="candipatch.com" />
-                <data android:pathPrefix="/patch" />
-                <data android:pathPrefix="/place" />
-                <data android:scheme="http" />
-                <data android:scheme="https" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="com.aircandi.catalina.ui.MessageForm"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/form_title_message"
-            android:windowSoftInputMode="stateHidden" >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
+				<data android:host="candipatch.com" />
+				<data android:pathPrefix="/patch" />
+				<data android:pathPrefix="/place" />
+				<data android:scheme="http" />
+				<data android:scheme="https" />
+			</intent-filter>
+		</activity>
+		<activity
+			android:name="com.aircandi.catalina.ui.MessageForm"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_message"
+			android:windowSoftInputMode="stateHidden">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
 
-                <data android:host="candipatch.com" />
-                <data android:pathPrefix="/message" />
-                <data android:scheme="http" />
-                <data android:scheme="https" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="com.aircandi.ui.EntityList"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.catalina.ui.WatcherList"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.HelpForm"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/name_app"
-            android:theme="@style/aircandi_theme_midnight_transparent"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.PhotoForm"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.MapForm"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/name_app_lowercase"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.AboutForm"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/name_app"
-            android:windowSoftInputMode="stateHidden" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
 
-        <!-- Editing activities -->
+				<data android:host="candipatch.com" />
+				<data android:pathPrefix="/message" />
+				<data android:scheme="http" />
+				<data android:scheme="https" />
+			</intent-filter>
+		</activity>
+		<activity
+			android:name="com.aircandi.ui.EntityList"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.catalina.ui.WatcherList"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.HelpForm"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/name_app"
+			android:theme="@style/aircandi_theme_midnight_transparent"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.PhotoForm"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.MapForm"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/name_app_lowercase"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.AboutForm"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/name_app"
+			android:windowSoftInputMode="stateHidden" />
 
-        <activity
-            android:name="com.aircandi.catalina.ui.edit.MessageEdit"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/name_app"
-            android:windowSoftInputMode="stateHidden" >
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
+		<!-- Editing activities -->
 
-                <category android:name="android.intent.category.DEFAULT" />
+		<activity
+			android:name="com.aircandi.catalina.ui.edit.MessageEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/name_app"
+			android:windowSoftInputMode="stateHidden">
+			<intent-filter>
+				<action android:name="android.intent.action.SEND" />
 
-                <data android:mimeType="text/plain" />
-                <data android:mimeType="image/*" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="com.aircandi.catalina.ui.edit.PlaceEdit"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/name_app_lowercase"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.edit.TuningEdit"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/name_app_lowercase"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.edit.InviteEdit"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/form_title_invite"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name="com.aircandi.ui.edit.FeedbackEdit"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/form_title_feedback"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name="com.aircandi.ui.edit.ReportEdit"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/form_title_report"
-            android:windowSoftInputMode="adjustResize" />
+				<category android:name="android.intent.category.DEFAULT" />
 
-        <!-- User activities -->
+				<data android:mimeType="text/plain" />
+				<data android:mimeType="image/*" />
+			</intent-filter>
+		</activity>
+		<activity
+			android:name="com.aircandi.catalina.ui.edit.PlaceEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/name_app_lowercase"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.edit.TuningEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/name_app_lowercase"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.edit.InviteEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_invite"
+			android:windowSoftInputMode="adjustResize" />
+		<activity
+			android:name="com.aircandi.ui.edit.FeedbackEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_feedback"
+			android:windowSoftInputMode="adjustResize" />
+		<activity
+			android:name="com.aircandi.ui.edit.ReportEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_report"
+			android:windowSoftInputMode="adjustResize" />
 
-        <activity
-            android:name="com.aircandi.catalina.ui.user.UserForm"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/name_app"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.user.UserEdit"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/form_title_profile"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.user.SignInEdit"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/form_title_signin"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name="com.aircandi.ui.user.RegisterEdit"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/form_title_signup"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.user.ResetEdit"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/form_title_reset"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.user.PasswordEdit"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/form_title_password"
-            android:windowSoftInputMode="stateHidden" />
+		<!-- User activities -->
 
-        <!-- Builders/pickers -->
+		<activity
+			android:name="com.aircandi.catalina.ui.user.UserForm"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/name_app"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.user.UserEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_profile"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.user.SignInEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_signin"
+			android:windowSoftInputMode="adjustResize" />
+		<activity
+			android:name="com.aircandi.ui.user.RegisterEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_signup"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.user.ResetEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_reset"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.user.PasswordEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_password"
+			android:windowSoftInputMode="stateHidden" />
 
-        <activity
-            android:name="com.aircandi.ui.helpers.PhotoPicker"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.helpers.PlacePicker"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.helpers.ApplicationPicker"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/aircandi_theme_dialog_dark"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.helpers.PhotoSourcePicker"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/aircandi_theme_dialog_dark"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.helpers.ShortcutPicker"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/aircandi_theme_dialog_dark"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.aircandi.ui.helpers.AddressBuilder"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/aircandi_theme_dialog_dark"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name="com.aircandi.ui.helpers.CategoryBuilder"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/aircandi_theme_dialog_dark"
-            android:windowSoftInputMode="stateHidden" />
+		<!-- Builders/pickers -->
 
-        <!-- Misc -->
+		<activity
+			android:name="com.aircandi.ui.helpers.PhotoPicker"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.helpers.PlacePicker"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.helpers.ApplicationPicker"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:theme="@style/aircandi_theme_dialog_dark"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.helpers.PhotoSourcePicker"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:theme="@style/aircandi_theme_dialog_dark"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.helpers.ShortcutPicker"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:theme="@style/aircandi_theme_dialog_dark"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.helpers.AddressBuilder"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:theme="@style/aircandi_theme_dialog_dark"
+			android:windowSoftInputMode="adjustResize" />
+		<activity
+			android:name="com.aircandi.ui.helpers.CategoryBuilder"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:theme="@style/aircandi_theme_dialog_dark"
+			android:windowSoftInputMode="stateHidden" />
 
-        <activity
-            android:name="com.aircandi.ui.Preferences"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.aircandi.Preferences" />
+		<!-- Misc -->
 
-                <category android:name="android.intent.category.PREFERENCE" />
-            </intent-filter>
-        </activity>
-    </application>
+		<activity
+			android:name="com.aircandi.ui.Preferences"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:exported="false">
+			<intent-filter>
+				<action android:name="com.aircandi.Preferences" />
 
-    <!--
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.UPDATE_DEVICE_STATS" />
-    <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
-    <uses-permission android:name="com.android.browser.permission.WRITE_HISTORY_BOOKMARKS" />
-    <uses-permission android:name="android.permission.READ_LOGS" />
+				<category android:name="android.intent.category.PREFERENCE" />
+			</intent-filter>
+		</activity>
+	</application>
+
+	<!--
+	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
+	<uses-permission android:name="android.permission.UPDATE_DEVICE_STATS" />
+	<uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
+	<uses-permission android:name="com.android.browser.permission.WRITE_HISTORY_BOOKMARKS" />
+	<uses-permission android:name="android.permission.READ_LOGS" />
 
 
 
 
-    -->
+	-->
 
 </manifest>

@@ -254,6 +254,7 @@ public class RadarListFragment extends EntityListFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onClick(View view) {
 		final Place entity = (Place) ((ViewHolder) view.getTag()).data;
@@ -455,6 +456,7 @@ public class RadarListFragment extends EntityListFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	private void searchForPlaces() {
 
 		new AsyncTask() {
@@ -493,6 +495,7 @@ public class RadarListFragment extends EntityListFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * UI
 	 *--------------------------------------------------------------------------------------------*/
+
 	private void doBeaconIndicatorClick() {
 		if (mBeaconIndicator != null) {
 			final StringBuilder beaconMessage = new StringBuilder(500);
@@ -615,6 +618,7 @@ public class RadarListFragment extends EntityListFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		/*
@@ -659,6 +663,7 @@ public class RadarListFragment extends EntityListFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onStart() {
 		/*
@@ -708,7 +713,9 @@ public class RadarListFragment extends EntityListFragment {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/ 	/* Stub for future use because I hate bind() */
+	 *--------------------------------------------------------------------------------------------*/
+
+	/* Stub for future use because I hate bind() */
 	@SuppressWarnings("ucd")
 	public class RadarMonitor extends SimpleMonitor {
 	}

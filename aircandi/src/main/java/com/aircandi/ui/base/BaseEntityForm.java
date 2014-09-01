@@ -203,6 +203,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onRefresh() {
 		bind(BindingMode.MANUAL); // Called from Routing
@@ -332,6 +333,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * UI
 	 *--------------------------------------------------------------------------------------------*/
+
 	protected void drawStats() {
 	}
 
@@ -565,6 +567,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void watch(final boolean autoWatch) {
 
 		new AsyncTask() {

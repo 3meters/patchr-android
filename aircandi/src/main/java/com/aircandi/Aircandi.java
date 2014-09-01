@@ -2,7 +2,9 @@
 package com.aircandi;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
@@ -42,6 +44,7 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
+import com.aircandi.utilities.Utilities;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.google.tagmanager.Container;
@@ -193,6 +196,9 @@ public abstract class Aircandi extends Application {
 			}
 			catch (Exception ignore) {}
 		}
+
+		/* Establish device memory class */
+		Utilities.calculateMemoryCacheSize(getApplicationContext());
 
 		/* Initialize managers */
 		initializeManagers();

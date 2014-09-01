@@ -416,7 +416,7 @@ public class PhotoPicker extends BaseActivity {
 		              .setUserName(null)
 		              .setPassword(Aircandi.getInstance().getContainer().getString(Aircandi.BING_ACCESS_KEY));
 
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest, true, null);
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 

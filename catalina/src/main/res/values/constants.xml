@@ -31,6 +31,7 @@
 	<!-- Splash -->
 
 	<string name="splash_message">sharing reimagined</string>
+	<string name="splash_button_signup">Join [@string/name_app]</string>
 
 	<!-- Overrides strings in pull to refresh library -->
 

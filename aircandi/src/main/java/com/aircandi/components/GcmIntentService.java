@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.os.Vibrator;
 
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
@@ -53,7 +54,7 @@ public class GcmIntentService extends IntentService {
 			if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
 
 				/*
-			     * Filter messages based on message type. Since it is likely that GCM will be
+				 * Filter messages based on message type. Since it is likely that GCM will be
 				 * extended in the future with new message types, just ignore any message types you're
 				 * not interested in, or that you don't recognize.
 				 */
@@ -147,13 +148,15 @@ public class GcmIntentService extends IntentService {
 
 					else {
 
-						//						if (triggerVibratorAlert(message)) {
-						//							Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-						//							if (vibrator.hasVibrator()) {
-						//								long[] pattern = { 0, 400, 400, 400 };
-						//								vibrator.vibrate(pattern, -1);
-						//							}
-						//						}
+						Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+						if (Constants.SUPPORTS_HONEYCOMB) {
+							if (vibrator != null && Shaker.canShake(vibrator)) {
+								vibrator.vibrate(new long[]{0, 400, 400, 400}, -1);
+							}
+						}
+						else if (vibrator != null) {
+							vibrator.vibrate(new long[]{0, 400, 400, 400}, -1);
+						}
 						MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);
 					}
 

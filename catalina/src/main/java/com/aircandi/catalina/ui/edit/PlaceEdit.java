@@ -16,6 +16,7 @@ import com.aircandi.components.ProximityManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.events.BeaconsLockedEvent;
+import com.aircandi.events.CancelEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -23,10 +24,10 @@ import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.IBusy;
 import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.ui.widgets.AirTokenCompleteTextView;
+import com.aircandi.ui.widgets.TokenCompleteTextView;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
-import com.tokenautocomplete.TokenCompleteTextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,7 @@ public class PlaceEdit extends com.aircandi.ui.edit.PlaceEdit implements TokenCo
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
 					if (hasFocus) {
-						UI.showSoftInput(PlaceEdit.this);
+						UI.showSoftInput(mTo);
 					}
 				}
 			});
@@ -73,6 +74,13 @@ public class PlaceEdit extends com.aircandi.ui.edit.PlaceEdit implements TokenCo
 	@Subscribe
 	public void onBeaconsLocked(BeaconsLockedEvent event) {
 		super.onBeaconsLocked(event);
+	}
+
+	@Subscribe
+	public void onCancelEvent(CancelEvent event) {
+		if (mTaskService != null) {
+			mTaskService.cancel(true);
+		}
 	}
 
 	@Override

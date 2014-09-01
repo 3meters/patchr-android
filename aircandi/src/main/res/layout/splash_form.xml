@@ -89,7 +89,7 @@
 			android:id="@+id/button_holder"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="horizontal"
+			android:orientation="vertical"
 			android:visibility="gone">
 
 			<com.aircandi.ui.widgets.ComboButton
@@ -97,19 +97,28 @@
 				style="@style/button_link"
 				android:layout_width="wrap_content"
 				android:layout_height="@dimen/button_height"
-				android:layout_marginRight="2dp"
-				android:layout_weight="1"
+				android:layout_marginBottom="8dp"
 				android:onClick="onSigninButtonClick"
+				android:textAppearance="?attr/textAppearanceMediumLarge"
 				custom:label="@string/splash_button_signin" />
+
+			<com.aircandi.ui.widgets.ComboButton
+				android:id="@+id/button_signup"
+				style="@style/button_link"
+				android:layout_width="wrap_content"
+				android:layout_height="@dimen/button_height"
+				android:layout_marginBottom="8dp"
+				android:onClick="onSignupButtonClick"
+				android:textAppearance="?attr/textAppearanceMediumLarge"
+				custom:label="@string/splash_button_signup" />
 
 			<com.aircandi.ui.widgets.ComboButton
 				android:id="@+id/button_start"
 				style="@style/button_link"
 				android:layout_width="wrap_content"
 				android:layout_height="@dimen/button_height"
-				android:layout_marginLeft="2dp"
-				android:layout_weight="1"
 				android:onClick="onStartButtonClick"
+				android:textAppearance="?attr/textAppearanceMediumLarge"
 				custom:label="@string/splash_button_start" />
 		</LinearLayout>
 
@@ -125,8 +134,8 @@
 				style="@style/button_link"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/button_height"
-				android:layout_marginRight="3dp"
 				android:onClick="onRetryButtonClick"
+				android:textAppearance="?attr/textAppearanceMediumLarge"
 				custom:label="@string/splash_button_retry" />
 		</LinearLayout>
 	</LinearLayout>

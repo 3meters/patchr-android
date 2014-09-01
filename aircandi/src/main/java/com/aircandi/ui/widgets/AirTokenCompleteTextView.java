@@ -13,7 +13,6 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.User;
 import com.aircandi.ui.components.TextDrawable;
 import com.aircandi.utilities.UI;
-import com.tokenautocomplete.TokenCompleteTextView;
 
 public class AirTokenCompleteTextView extends TokenCompleteTextView {
 
