@@ -4,6 +4,7 @@
 	<declare-styleable name="CandipatchTheme">
 		<attr name="iconPatch" format="reference" />
 		<attr name="iconMessage" format="reference" />
+		<attr name="iconMessageNew" format="reference" />
 	</declare-styleable>
 
 </resources>

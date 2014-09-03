@@ -41,22 +41,13 @@ public class MessagingManager {
 	private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
 	private GoogleCloudMessaging mGcm;
 	private Install              mInstall;
+	private Uri                  mSoundUri;
 	private Boolean              mNewActivity = false;
 	private Map<String, Integer> mCounts      = new HashMap<String, Integer>();
 
-	private BroadcastReceiver mReceiver;
-
 	private MessagingManager() {
 		mNotificationManager = (NotificationManager) Aircandi.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
-
-		mReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				//Aircandi.applicationContext.unregisterReceiver(this);
-			}
-		};
-
-		Aircandi.applicationContext.registerReceiver(mReceiver, new IntentFilter(NOTIFICATION_DELETED_ACTION));
+		mSoundUri = Uri.parse("android.resource://" + Aircandi.applicationContext.getPackageName() + "/" + R.raw.notification_activity);
 	}
 
 	private static class NotificationManagerHolder {
@@ -70,6 +61,7 @@ public class MessagingManager {
 	/*--------------------------------------------------------------------------------------------
 	 * GCM
 	 *--------------------------------------------------------------------------------------------*/
+
 	public ServiceResponse registerInstallWithGCM() {
 
 		/*
@@ -162,6 +154,7 @@ public class MessagingManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void broadcastMessage(final ServiceMessage message) {
 		BusProvider.getInstance().post(new MessageEvent(message));
 	}
@@ -199,22 +192,19 @@ public class MessagingManager {
 		Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
 		PendingIntent deleteIntent = PendingIntent.getBroadcast(Aircandi.applicationContext, 0, intent, 0);
 
-		Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.notification_activity);
-
 		final NotificationCompat.Builder builder = new NotificationCompat.Builder(Aircandi.applicationContext)
 				.setContentTitle(message.title)
 				.setContentText(message.subtitle)
 				.setDeleteIntent(deleteIntent)
 				.setNumber(mCounts.get(messageTag))
-				.setTicker(StringManager.getString(R.string.label_notification_ticker))
 				.setSmallIcon(R.drawable.ic_stat_notification)
 				.setAutoCancel(true)
 				.setPriority(NotificationCompat.PRIORITY_HIGH)
 				.setVibrate(new long[]{0, 400, 400, 400})
-				.setSound(soundUri)
+				.setSound(mSoundUri)
 				.setOnlyAlertOnce(false)
 				.setContentIntent(pendingIntent)
-				.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE)
+				.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE)
 				.setWhen(System.currentTimeMillis());
 
 		String byImageUri = message.photoBy.getUri();
@@ -248,24 +238,15 @@ public class MessagingManager {
 						else if (notificationType == NotificationType.BIG_TEXT) {
 							useBigText(builder, message);
 						}
-						else {
-							String tag = getTag(message);
-							mNotificationManager.notify(tag, 0, builder.build());
-						}
+						builder.setTicker(controller.getNotificationTicker(message, message.action.getEventCategory()));
 					}
-				}
-				else {
-					String tag = getTag(message);
-					mNotificationManager.notify(tag, 0, builder.build());
 				}
 			}
 			catch (IOException exception) {
 				exception.printStackTrace();
 			}
 		}
-		else {
-			mNotificationManager.notify(getTag(message), 0, builder.build());
-		}
+		mNotificationManager.notify(getTag(message), 0, builder.build());
 	}
 
 	public void useBigPicture(final NotificationCompat.Builder builder, final ServiceMessage message) {
@@ -313,6 +294,7 @@ public class MessagingManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public String getTag(ActivityBase activity) {
 		if (activity.action.getEventCategory().equals(EventCategory.INSERT))
 			return Tag.INSERT;
@@ -325,6 +307,7 @@ public class MessagingManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Install getInstall() {
 		return mInstall;
 	}
@@ -336,6 +319,7 @@ public class MessagingManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Boolean getNewActivity() {
 		return mNewActivity;
 	}

@@ -6,10 +6,12 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 
+import com.aircandi.objects.Action;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.ServiceMessage;
 
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,8 @@ public interface IEntityController {
 	public Drawable getPlaceholderDrawable(String type);
 
 	public Integer getNotificationType(Entity entity);
+
+	public String  getNotificationTicker(ServiceMessage message, String eventCategory);
 
 	public String getName(Boolean plural);
 

@@ -11,8 +11,8 @@ build/
 
 # Used by crashlytics
 .crashlytics_data
-/res/values/com_crashlytics_export_strings.xml
-/assets/crashlytics-build.properties
+/src/main/res/values/com_crashlytics_export_strings.xml
+/src/main/assets/crashlytics-build.properties
 
 # -------------------------------------------------
 # Intellij files to ignore

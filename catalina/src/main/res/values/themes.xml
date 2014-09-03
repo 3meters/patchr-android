@@ -26,6 +26,7 @@
 		<item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Dark</item>
 
 		<item name="iconMessage">@drawable/ic_action_message_dark</item>
+		<item name="iconMessageNew">@drawable/img_edit</item>
 		<item name="iconPatch">@drawable/ic_action_patch_new_dark</item>
 
 	</style>
@@ -55,6 +56,7 @@
 		<item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Light</item>
 
 		<item name="iconMessage">@drawable/ic_action_message_light</item>
+		<item name="iconMessageNew">@drawable/img_edit</item>
 		<item name="iconPatch">@drawable/ic_action_add_light</item>
 
 	</style>

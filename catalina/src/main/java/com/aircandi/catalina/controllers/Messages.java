@@ -24,11 +24,13 @@ import com.aircandi.components.StringManager;
 import com.aircandi.controllers.EntityControllerBase;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.controllers.ViewHolder;
+import com.aircandi.objects.Action;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.ServiceMessage;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
@@ -285,6 +287,27 @@ public class Messages extends EntityControllerBase {
 	}
 
 	@Override
+	public String getNotificationTicker(ServiceMessage message, String eventCategory) {
+		if (eventCategory.equals(Action.EventCategory.INSERT)) {
+			if (message.action.entity.photo != null && message.action.toEntity != null) {
+				return String.format(StringManager.getString(R.string.label_notification_ticker_photo_insert), message.title, message.action.toEntity.name);
+			}
+			else if (message.action.entity.description != null) {
+				return String.format(StringManager.getString(R.string.label_notification_ticker_message_insert), message.title, message.action.entity.description);
+			}
+		}
+		else if (eventCategory.equals(Action.EventCategory.SHARE)) {
+			if (message.action.entity.photo != null) {
+				return String.format(StringManager.getString(R.string.label_notification_ticker_photo_share), message.title);
+			}
+			else {
+				return String.format(StringManager.getString(R.string.label_notification_ticker_message_share), message.title);
+			}
+		}
+		return super.getNotificationTicker(message, eventCategory);
+	}
+
+	@Override
 	public List<Object> getApplications(String themeTone) {
 
 		final List<Object> listData = new ArrayList<Object>();
@@ -305,7 +328,9 @@ public class Messages extends EntityControllerBase {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/ 	public static class ViewHolderExtended extends ViewHolder {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static class ViewHolderExtended extends ViewHolder {
 		public TextView childCount;
 	}
 
