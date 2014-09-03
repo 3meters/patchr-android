@@ -91,6 +91,14 @@
 	<string name="label_share_to_hint">type to search users</string>
 	<string name="label_share_completion_hint">Pick users to share with.</string>
 
+	<string name="label_notification_ticker_place_insert">%1$s: dropped a [@string/container_singular_lowercase]</string>
+	<string name="label_notification_ticker_place_insert_nearby">%1$s: dropped a [@string/container_singular_lowercase] nearby</string>
+	<string name="label_notification_ticker_place_share">%1$s: shared a [@string/container_singular_lowercase] with you</string>
+	<string name="label_notification_ticker_message_insert">%1$s: %2$s</string>
+	<string name="label_notification_ticker_message_share">%1$s: shared a message with you</string>
+	<string name="label_notification_ticker_photo_insert">%1$s: posted a photo to \'%2$s\'</string>
+	<string name="label_notification_ticker_photo_share">%1$s: shared a photo with you</string>
+
 	<!-- Labels: Navigation -->
 
 	<string name="label_drawer_section_places">PATCHES</string>

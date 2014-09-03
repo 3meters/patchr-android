@@ -18,6 +18,8 @@ import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.IntentBuilder;
+import com.aircandi.components.StringManager;
+import com.aircandi.objects.Action;
 import com.aircandi.objects.Applink;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
@@ -29,6 +31,7 @@ import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoSource;
 import com.aircandi.objects.Place;
+import com.aircandi.objects.ServiceMessage;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.EntityList;
@@ -512,6 +515,11 @@ public abstract class EntityControllerBase implements IEntityController {
 	@Override
 	public Integer getNotificationType(Entity entity) {
 		return NotificationType.NORMAL;
+	}
+
+	@Override
+	public String getNotificationTicker(ServiceMessage message, String eventCategory) {
+		return StringManager.getString(R.string.label_notification_ticker);
 	}
 
 	@Override

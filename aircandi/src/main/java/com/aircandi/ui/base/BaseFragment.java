@@ -15,7 +15,6 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -44,6 +43,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BaseFragment extends SherlockFragment implements IForm, IBind {
+	/*
+	 * Fragment lifecycle
+	 *
+	 * - onAttach (activity may not be fully initialized)
+	 * - onCreate
+	 * - onCreateView
+	 * - onActivityCreated
+	 * - onStart (fragment becomes visible)
+	 * - onResume
+	 *
+	 * - onPause
+	 * - onStop
+	 * - onSaveInstanceState
+	 * - onDestroyView
+	 * - onDestroy
+	 * - onDetach
+	 */
 
 	public    Entity    mEntity;
 	protected Resources mResources;
@@ -102,8 +118,6 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 			ViewHelper.setAlpha(mButtonSpecial, 0);
 			mButtonSpecial.setClickable(false);
 		}
-
-		mEntitySuggest = new EntitySuggestController(getSherlockActivity());
 
 		return view;
 	}
@@ -330,6 +344,10 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		/*
+		 * This is triggered by onCreate in some android versions
+		 * so any dependencies must have already been created.
+		 */
 		Logger.d(this, "Creating fragment options menu");
 
 		for (Integer menuResId : mMenuResIds) {
@@ -343,6 +361,11 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 			mTo = (AirAutoCompleteTextView) item.getActionView().findViewById(R.id.search_input);
 			mToImage = item.getActionView().findViewById(R.id.search_image);
 			mToProgress = item.getActionView().findViewById(R.id.search_progress);
+
+			if (mEntitySuggest == null) {
+				mEntitySuggest = new EntitySuggestController(getSherlockActivity());
+			}
+
 			mEntitySuggest.setInput((AutoCompleteTextView) mTo);
 			mEntitySuggest.setSearchImage(mToImage);
 			mEntitySuggest.setSearchProgress(mToProgress);

@@ -51,7 +51,9 @@ public abstract class ActivityBase extends ServiceObject implements Cloneable, S
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public static class TriggerType {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static class TriggerType {
 		public static String NEARBY     = "nearby";        // sent because this user is nearby
 		public static String WATCH      = "watch";         // sent because this user is watching the entity
 		public static String WATCH_TO   = "watch_to";      // sent because this user is watching the 'to' entity
