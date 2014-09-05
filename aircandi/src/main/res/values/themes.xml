@@ -35,6 +35,7 @@
 		<item name="android:checkboxStyle">@style/form_checkbox</item>
 		<item name="android:listViewStyle">@style/list_view</item>
 		<item name="android:textViewStyle">@style/text_view</item>
+		<item name="spbStyle">@style/SmoothProgressBar</item>
 
 		<item name="android:textColorPrimary">@color/text_dark</item>
 		<item name="android:textAppearance">@style/textAppearance</item>
@@ -165,6 +166,7 @@
 		<item name="android:checkboxStyle">@style/form_checkbox</item>
 		<item name="android:listViewStyle">@style/list_view</item>
 		<item name="android:textViewStyle">@style/text_view</item>
+		<item name="spbStyle">@style/SmoothProgressBar</item>
 
 		<item name="android:textColorPrimary">@color/text_light</item>
 		<item name="android:textAppearance">@style/textAppearance</item>

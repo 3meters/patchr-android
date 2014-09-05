@@ -141,7 +141,6 @@ public class AnimationManager {
 		return anim;
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static class DepthPageTransformer implements ViewPager.PageTransformer {
 		private float MIN_SCALE = 0.75f;
 

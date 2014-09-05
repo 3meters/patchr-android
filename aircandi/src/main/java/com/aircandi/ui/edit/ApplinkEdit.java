@@ -180,11 +180,6 @@ public class ApplinkEdit extends BaseEntityEdit {
 				final View view = super.getView(position, convertView, parent);
 
 				final TextView text = (TextView) view.findViewById(R.id.spinner_name);
-				if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
-					if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-						text.setTextColor(Colors.getColor(R.color.text_dark));
-					}
-				}
 
 				if (position == getCount()) {
 					((TextView) view.findViewById(R.id.spinner_name)).setText("");
@@ -200,12 +195,6 @@ public class ApplinkEdit extends BaseEntityEdit {
 			}
 		};
 
-		if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
-			if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-				adapter.setDropDownViewResource(R.layout.spinner_item_light);
-			}
-		}
-
 		mTypePicker.setAdapter(adapter);
 
 		if (!mEditing) {
@@ -216,12 +205,6 @@ public class ApplinkEdit extends BaseEntityEdit {
 
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-				if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
-					if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-						((TextView) parent.getChildAt(0)).setTextColor(getResources().getColor(R.color.text_light));
-					}
-				}
 
 				/* Do nothing when the hint item is selected */
 				if (position != parent.getCount()) {
@@ -251,6 +234,7 @@ public class ApplinkEdit extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onAccept() {
 		if (isDirty()) {

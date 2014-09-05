@@ -1,6 +1,5 @@
 package com.aircandi.utilities;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -9,7 +8,6 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.view.View;
 import android.widget.Toast;
 
@@ -30,7 +28,6 @@ import com.aircandi.ui.base.BaseActivity;
 
 public class Dialogs {
 
-	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	public static AlertDialog alertDialog(Integer iconResource // $codepro.audit.disable largeNumberOfParameters
 			, String titleText
 			, String message
@@ -79,9 +76,7 @@ public class Dialogs {
 		alert.show();
 
 		/* Prevent dimming the background */
-		if (Constants.SUPPORTS_ICE_CREAM_SANDWICH) {
-			alert.getWindow().setDimAmount(Constants.DIALOGS_DIM_AMOUNT);
-		}
+		alert.getWindow().setDimAmount(Constants.DIALOGS_DIM_AMOUNT);
 
 		return alert;
 	}

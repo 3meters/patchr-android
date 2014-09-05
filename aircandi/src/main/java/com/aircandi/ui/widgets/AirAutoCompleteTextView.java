@@ -52,18 +52,11 @@ public class AirAutoCompleteTextView extends AutoCompleteTextView {
 			Integer drawableHeight = drawableWidth;
 
 			if (mClearDrawable != null) {
-				if (!Constants.SUPPORTS_HONEYCOMB) {
-					mClearDrawable = getResources().getDrawable(R.drawable.ic_action_cancel_light);
-				}
-
 				mEnableClearButton = true;
 				Bitmap bitmap = ((BitmapDrawable) mClearDrawable).getBitmap();
 				mClearDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, drawableWidth, drawableHeight, true));
 			}
 			if (mSearchDrawable != null) {
-				if (!Constants.SUPPORTS_HONEYCOMB) {
-					mSearchDrawable = getResources().getDrawable(R.drawable.ic_action_search_light);
-				}
 				Bitmap bitmap = ((BitmapDrawable) mSearchDrawable).getBitmap();
 				mSearchDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, drawableWidth, drawableHeight, true));
 			}

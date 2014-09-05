@@ -160,7 +160,6 @@ public class BusyManager implements IBusy {
 
 		mRunnableShow = new Runnable() {
 
-			@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 			@Override
 			public void run() {
 				try {
@@ -173,9 +172,7 @@ public class BusyManager implements IBusy {
 						progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 						progressDialog.setProgress(0);
 						progressDialog.setMax(100);
-						if (Constants.SUPPORTS_HONEYCOMB) {
-							progressDialog.setProgressNumberFormat(null);
-						}
+						progressDialog.setProgressNumberFormat(null);
 						progressDialog.setIndeterminate(false);
 						progressDialog.setCanceledOnTouchOutside(false);
 						progressDialog.setCancelable(false);

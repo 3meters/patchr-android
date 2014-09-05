@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.aircandi.Aircandi;
-import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.LocationManager;
@@ -326,7 +325,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 						}
 					}
 					else {
-			            /* Add all seed entities */
+				        /* Add all seed entities */
 						result.values = mSeedEntities;
 						result.count = mSeedEntities.size();
 					}
@@ -354,17 +353,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 				clear();
 				if (results.count > 0) {
-					if (Constants.SUPPORTS_HONEYCOMB) {
-						API11AddAll.addAll(SuggestArrayAdapter.this, (Collection) results.values);
-					}
-					else {
-						Collection<Entity> entities = (Collection<Entity>) results.values;
-						if (entities != null) {
-							for (Entity entity : entities) {
-								add(entity);
-							}
-						}
-					}
+					addAll((Collection) results.values);
 					sort(new SortByScoreAndDistance());
 					notifyDataSetChanged();
 				}
@@ -405,13 +394,5 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		public TextView     subtitle;
 		public String       photoUri;    // Used for verification after fetching image // NO_UCD (unused code)
 		public Object       data;        // object binding to
-	}
-
-	private static class API11AddAll {
-		@TargetApi(11)
-		@SuppressWarnings("unchecked")
-		public static void addAll(SuggestArrayAdapter adapter, Collection entities) {
-			adapter.addAll(entities);
-		}
 	}
 }

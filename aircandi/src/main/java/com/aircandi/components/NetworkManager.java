@@ -132,7 +132,7 @@ public class NetworkManager {
 		 * Setting system properties needed for HttpUrlConnection
 		 */
 		System.setProperty("http.maxConnections", String.valueOf(ServiceConstants.DEFAULT_MAX_CONNECTIONS));
-		System.setProperty("http.keepAlive", Constants.SUPPORTS_FROYO ? "true" : "false");
+		System.setProperty("http.keepAlive", "true");
 
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
@@ -422,13 +422,13 @@ public class NetworkManager {
 			else if (subType == TelephonyManager.NETWORK_TYPE_EVDO_B) {    // ~5 Mbps
 				typeLabel = "evdo_b";
 			}
-			else if (Constants.SUPPORTS_HONEYCOMB_MR2 && subType == TelephonyManager.NETWORK_TYPE_HSPAP) {    // ~10-20 Mbps
+			else if (subType == TelephonyManager.NETWORK_TYPE_HSPAP) {    // ~10-20 Mbps
 				typeLabel = "hspap";
 			}
-			else if (Constants.SUPPORTS_HONEYCOMB && subType == TelephonyManager.NETWORK_TYPE_EHRPD) {    // ~1-2 Mbps
+			else if (subType == TelephonyManager.NETWORK_TYPE_EHRPD) {    // ~1-2 Mbps
 				typeLabel = "ehrpd";
 			}
-			else if (Constants.SUPPORTS_HONEYCOMB && subType == TelephonyManager.NETWORK_TYPE_LTE) {    // ~10+ Mbps
+			else if (subType == TelephonyManager.NETWORK_TYPE_LTE) {    // ~10+ Mbps
 				typeLabel = "lte";
 			}
 			else {

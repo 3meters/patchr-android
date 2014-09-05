@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	tools:context=".ui.PlaceForm">
 
 	<FrameLayout
 		android:id="@+id/fragment_holder"
@@ -41,7 +43,6 @@
 		android:layout_width="@dimen/button_round_medium"
 		android:layout_height="@dimen/button_round_medium"
 		android:clickable="true"
-		android:tint="@color/brand_primary"
 		android:onClick="onAddMessageButtonClick"
 		android:src="?attr/iconMessageNew" />
 

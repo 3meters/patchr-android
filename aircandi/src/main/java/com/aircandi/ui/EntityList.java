@@ -83,6 +83,7 @@ public class EntityList extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onMessage(final MessageEvent event) {
@@ -139,38 +140,8 @@ public class EntityList extends BaseActivity {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
-	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
-	@SuppressLint("NewApi")
-	@SuppressWarnings("ucd")
-	public void gingerbreadPopupMenu(final Entity entity) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this)
-				.setItems(R.array.more_options_entity, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int item) {
-						if (item == 0) {
-							Bundle extras = new Bundle();
-							extras.putString(Constants.EXTRA_ENTITY_SCHEMA, entity.getSchemaMapped());
-							Aircandi.dispatch.route(EntityList.this, Route.REPORT, entity, null, extras);
-						}
-					}
-				});
-		AlertDialog alert = builder.create();
 
-		/* Prevent dimming the background */
-		if (Constants.SUPPORTS_ICE_CREAM_SANDWICH) {
-			alert.getWindow().setDimAmount(Constants.POPUP_DIM_AMOUNT);
-		}
-
-		alert.show();
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.entity_list;

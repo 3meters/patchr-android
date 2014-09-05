@@ -15,7 +15,6 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.text.InputType;
@@ -80,16 +79,6 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 	}
 
 	private void initialize() {
-
-		/* Hide preference that are not supported */
-
-		if (!Constants.SUPPORTS_HONEYCOMB) {
-			Preference pref = findPreference(StringManager.getString(R.string.pref_theme));
-			if (pref != null) {
-				PreferenceCategory mCategory = (PreferenceCategory) findPreference("Pref_General_Category");
-				mCategory.removePreference(pref);
-			}
-		}
 
 		/* Set dividers */
 
@@ -396,10 +385,10 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 				, StringManager.getString(R.string.pref_theme_default));
 
 		if (prefTheme.equals("aircandi_theme_snow")) {
-			setTheme(Constants.SUPPORTS_HONEYCOMB ? R.style.aircandi_theme_snow : R.style.aircandi_theme_snow_notitlebar);
+			setTheme(R.style.aircandi_theme_snow);
 		}
 		else {
-			setTheme(Constants.SUPPORTS_HONEYCOMB ? R.style.aircandi_theme_midnight : R.style.aircandi_theme_midnight_notitlebar);
+			setTheme(R.style.aircandi_theme_midnight);
 		}
 	}
 
@@ -421,11 +410,9 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 		if (dialog != null) {
 
 			/* Inialize the action bar */
-			if (Constants.SUPPORTS_HONEYCOMB) {
-				dialog.getActionBar().setDisplayHomeAsUpEnabled(true);
-				dialog.getActionBar().setDisplayShowHomeEnabled(true);
-				dialog.getActionBar().setIcon(Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
-			}
+			dialog.getActionBar().setDisplayHomeAsUpEnabled(true);
+			dialog.getActionBar().setDisplayShowHomeEnabled(true);
+			dialog.getActionBar().setIcon(Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
 
 			/*
 			 * Apply custom home button area click listener to close the PreferenceScreen because PreferenceScreens are

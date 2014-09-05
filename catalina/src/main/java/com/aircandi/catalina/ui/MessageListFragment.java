@@ -22,7 +22,7 @@ import com.aircandi.controllers.ViewHolder;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
-import com.aircandi.ui.*;
+import com.aircandi.ui.EntityListFragment;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.components.AnimationFactory;
 import com.aircandi.ui.components.AnimationFactory.FlipDirection;
@@ -35,7 +35,8 @@ public class MessageListFragment extends EntityListFragment {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
-	 *--------------------------------------------------------------------------------------------*/ 	@Override
+	 *--------------------------------------------------------------------------------------------*/
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		View view = super.onCreateView(inflater, container, savedInstanceState);
@@ -116,7 +117,8 @@ public class MessageListFragment extends EntityListFragment {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
-	 *--------------------------------------------------------------------------------------------*/ 	@Override
+	 *--------------------------------------------------------------------------------------------*/
+	@Override
 	protected void postBind() {
 		super.postBind();
 	}
@@ -128,23 +130,21 @@ public class MessageListFragment extends EntityListFragment {
 
 		/* Special highlighting */
 
-		if (Constants.SUPPORTS_ICE_CREAM_SANDWICH) {
-			if (mHighlightEntities.size() > 0) {
-				view.setBackgroundResource(mBackgroundResId);
-				if (mHighlightEntities.containsKey(entity.id)) {
-					Highlight highlight = mHighlightEntities.get(entity.id);
-					if (!highlight.isOneShot() || !highlight.hasFired()) {
-						if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
-							view.setBackgroundResource(R.drawable.bg_transition_fade);
-						}
-						else {
-							view.setBackgroundResource(R.drawable.bg_transition_fade);
-						}
-						TransitionDrawable transition = (TransitionDrawable) view.getBackground();
-						transition.startTransition(600);
-						transition.reverseTransition(1200);
-						highlight.setFired(true);
+		if (mHighlightEntities.size() > 0) {
+			view.setBackgroundResource(mBackgroundResId);
+			if (mHighlightEntities.containsKey(entity.id)) {
+				Highlight highlight = mHighlightEntities.get(entity.id);
+				if (!highlight.isOneShot() || !highlight.hasFired()) {
+					if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
+						view.setBackgroundResource(R.drawable.bg_transition_fade);
 					}
+					else {
+						view.setBackgroundResource(R.drawable.bg_transition_fade);
+					}
+					TransitionDrawable transition = (TransitionDrawable) view.getBackground();
+					transition.startTransition(600);
+					transition.reverseTransition(1200);
+					highlight.setFired(true);
 				}
 			}
 		}
@@ -176,4 +176,5 @@ public class MessageListFragment extends EntityListFragment {
 	 * Lifecycle
 	 * *--------------------------------------------------------------------------------------------*/	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 * *--------------------------------------------------------------------------------------------*/}
+	 * *--------------------------------------------------------------------------------------------*/
+}

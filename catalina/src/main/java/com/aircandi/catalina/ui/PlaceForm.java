@@ -446,10 +446,6 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 		if (!place.fuzzy || !TextUtils.isEmpty(place.address)) {
 			UI.setVisibility(findViewById(R.id.button_map), View.VISIBLE);
 		}
-
-		if (!Constants.SUPPORTS_HONEYCOMB && Aircandi.getInstance().getMenuManager().canUserEdit(mEntity)) {
-			UI.setVisibility(findViewById(R.id.button_edit), View.VISIBLE);
-		}
 	}
 
 	protected void positionButton(final Integer headerHeightProjected) {

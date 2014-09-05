@@ -45,9 +45,6 @@ public class AirEditText extends EditText {
 				mClearDrawable = drawables[2];
 
 				if (mClearDrawable != null) {
-					if (!Constants.SUPPORTS_HONEYCOMB) {
-						mClearDrawable = getResources().getDrawable(R.drawable.ic_action_cancel_light);
-					}
 					mEnableClearButton = true;
 					Bitmap bitmap = ((BitmapDrawable) mClearDrawable).getBitmap();
 					Integer drawableWidth = getResources().getDimensionPixelSize(R.dimen.drawable_width);

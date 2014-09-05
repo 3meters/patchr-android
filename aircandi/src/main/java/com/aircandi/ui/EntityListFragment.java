@@ -487,7 +487,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		mTopOffset = (view == null) ? 0 : view.getTop();
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setListPositionToEntity(String entityId) {
 		final AtomicInteger position = new AtomicInteger(0);
 
@@ -497,10 +496,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 				mListView.post(new Runnable() {
 					@Override
 					public void run() {
-						if (Constants.SUPPORTS_HONEYCOMB) {
-							Integer offsetToShowHeader = UI.getRawPixelsForDisplayPixels(100f);
-							((ListView) mListView).setSelectionFromTop(position.get() + 1, offsetToShowHeader);
-						}
+						Integer offsetToShowHeader = UI.getRawPixelsForDisplayPixels(100f);
+						((ListView) mListView).setSelectionFromTop(position.get() + 1, offsetToShowHeader);
 					}
 				});
 

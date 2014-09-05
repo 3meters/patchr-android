@@ -290,18 +290,6 @@ public class AircandiForm extends BaseActivity {
 	}
 
 	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		if (!Constants.SUPPORTS_HONEYCOMB) {
-			if (event.getAction() == KeyEvent.ACTION_UP &&
-					keyCode == KeyEvent.KEYCODE_MENU) {
-				openOptionsMenu();
-				return true;
-			}
-		}
-		return super.onKeyUp(keyCode, event);
-	}
-
-	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		if (mDrawerToggle != null) {

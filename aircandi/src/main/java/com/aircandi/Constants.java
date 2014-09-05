@@ -2,6 +2,7 @@
 package com.aircandi;
 
 import android.graphics.Bitmap.Config;
+import android.os.Build;
 import android.util.Log;
 
 @SuppressWarnings("ucd")
@@ -279,14 +280,10 @@ public class Constants {
 	public static final int RESULT_PROFILE_UPDATED        = 310;
 	public static final int RESULT_USER_SIGNED_IN         = 400;
 
-	public static final boolean SUPPORTS_ECLAIR             = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ECLAIR;
-	public static final boolean SUPPORTS_FROYO              = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.FROYO;
-	public static final boolean SUPPORTS_GINGERBREAD        = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.GINGERBREAD;
-	public static final boolean SUPPORTS_HONEYCOMB          = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB;
-	public static final boolean SUPPORTS_HONEYCOMB_MR2      = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB_MR2;
 	public static final boolean SUPPORTS_ICE_CREAM_SANDWICH = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 	public static final boolean SUPPORTS_JELLY_BEAN         = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN;
 	public static final boolean SUPPORTS_JELLY_BEAN_MR1     = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
+	public static final boolean SUPPORTS_KIT_KAT            = android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
 	/* Install id */
 	public static final String INSTALL_TYPE_RANDOM     = "random_uuid";

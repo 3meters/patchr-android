@@ -156,7 +156,7 @@ public class MessageForm extends BaseEntityForm {
 	@Override
 	public void draw() {
 	    /*
-         * For now, we assume that the candi form isn't recycled.
+	     * For now, we assume that the candi form isn't recycled.
 		 * 
 		 * We leave most of the views visible by default so they are visible in the layout editor.
 		 * 
@@ -388,25 +388,23 @@ public class MessageForm extends BaseEntityForm {
 		if (description != null) {
 			description.setText(null);
 
-			if (Constants.SUPPORTS_HONEYCOMB) {
-				description.setOnLongClickListener(new OnLongClickListener() {
+			description.setOnLongClickListener(new OnLongClickListener() {
 
-					@Override
-					public boolean onLongClick(View v) {
-						TextView textView = (TextView) v;
-						String text = (String) textView.getText().toString();
+				@Override
+				public boolean onLongClick(View v) {
+					TextView textView = (TextView) v;
+					String text = (String) textView.getText().toString();
 
-						if (!TextUtils.isEmpty(text)) {
-							android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-							android.content.ClipData clip = android.content.ClipData.newPlainText("message", text);
-							clipboard.setPrimaryClip(clip);
-							UI.showToastNotification(StringManager.getString(R.string.alert_copied_to_clipboard), Toast.LENGTH_SHORT);
-						}
-
-						return true;
+					if (!TextUtils.isEmpty(text)) {
+						android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+						android.content.ClipData clip = android.content.ClipData.newPlainText("message", text);
+						clipboard.setPrimaryClip(clip);
+						UI.showToastNotification(StringManager.getString(R.string.alert_copied_to_clipboard), Toast.LENGTH_SHORT);
 					}
-				});
-			}
+
+					return true;
+				}
+			});
 
 			if (!TextUtils.isEmpty(mEntity.description)) {
 				description.setText(mEntity.description);
@@ -481,7 +479,8 @@ public class MessageForm extends BaseEntityForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
-	 *--------------------------------------------------------------------------------------------*/ 	@Subscribe
+	 *--------------------------------------------------------------------------------------------*/
+	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onEntitiesLoaded(final EntitiesLoadedEvent event) {
 		if (mHighlight != null && !mHighlight.hasFired()) {
@@ -593,7 +592,8 @@ public class MessageForm extends BaseEntityForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
-	 *--------------------------------------------------------------------------------------------*/ 	@Override
+	 *--------------------------------------------------------------------------------------------*/
+	@Override
 	public void share() {
 
 		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
@@ -709,7 +709,8 @@ public class MessageForm extends BaseEntityForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
-	 *--------------------------------------------------------------------------------------------*/ 	@Override
+	 *--------------------------------------------------------------------------------------------*/
+	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem menuItem = menu.findItem(com.aircandi.R.id.share);
 		if (menuItem != null) {
@@ -722,7 +723,8 @@ public class MessageForm extends BaseEntityForm {
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
 	 * Misc
-	 *--------------------------------------------------------------------------------------------*/ 	@Override
+	 *--------------------------------------------------------------------------------------------*/
+	@Override
 	protected int getLayoutId() {
 		return R.layout.message_form;
 	}

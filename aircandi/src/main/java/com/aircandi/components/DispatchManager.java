@@ -60,7 +60,6 @@ public class DispatchManager {
 		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void route(final Activity activity, Integer route, Entity entity, Shortcut shortcut, Bundle extras) {
 
 		String schema = null;
@@ -432,9 +431,7 @@ public class DispatchManager {
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, SplashForm.class);
 			final Intent intent = intentBuilder.create();
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			if (Constants.SUPPORTS_HONEYCOMB) {
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-			}
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			if (activity instanceof BaseActivity) {
 				((BaseActivity) activity).setResultCode(Activity.RESULT_CANCELED);
 			}

@@ -4,8 +4,6 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.view.View;
 
-import com.aircandi.Constants;
-
 import java.lang.ref.WeakReference;
 
 public abstract class ParallaxedViewBase {
@@ -24,16 +22,10 @@ public abstract class ParallaxedViewBase {
 		return (v != null && mView != null && mView.get() != null && mView.get().equals(v));
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setOffset(float offset) {
 		View view = this.mView.get();
 		if (view != null)
-			if (Constants.SUPPORTS_HONEYCOMB) {
-				view.setTranslationY(offset);
-			}
-			else {
-				translatePreICS(view, offset);
-			}
+			view.setTranslationY(offset);
 	}
 
 	public void setView(View view) {
