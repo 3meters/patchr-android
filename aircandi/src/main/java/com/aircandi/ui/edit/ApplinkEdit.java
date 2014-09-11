@@ -29,7 +29,6 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.ui.base.IBusy.BusyAction;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;

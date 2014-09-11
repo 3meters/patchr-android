@@ -114,7 +114,7 @@
 								android:layout_height="match_parent"
 								android:layout_marginRight="3dp"
 								android:gravity="center_vertical"
-								android:textAppearance="@style/textAppearanceExtraSmall"
+								android:textAppearance="@style/text_appearance_extra_small"
 								android:textColor="?attr/textColorCandiView"
 								android:visibility="visible"
 								custom:textId="@string/dummy_number" />
@@ -190,7 +190,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:gravity="bottom"
-							android:textAppearance="@style/textAppearanceSmall"
+							android:textAppearance="@style/text_appearance_small"
 							android:textColor="?attr/textColorSecondary" />
 
 						<com.aircandi.ui.widgets.AirTextView
@@ -200,7 +200,7 @@
 							android:ellipsize="end"
 							android:gravity="top"
 							android:maxLines="2"
-							android:textAppearance="@style/textAppearanceSmall"
+							android:textAppearance="@style/text_appearance_small"
 							custom:textId="@string/dummy_title" />
 					</LinearLayout>
 				</LinearLayout>

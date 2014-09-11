@@ -7,10 +7,10 @@ import android.graphics.PorterDuff.Mode;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import com.actionbarsherlock.view.Window;
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -84,8 +84,8 @@ public class SplashForm extends Activity {
 		/* Brand coloring */
 		ImageView image = (ImageView) findViewById(R.id.logo);
 		UI.colorDrawable(image.getDrawable(), R.color.brand_primary, Mode.SRC_ATOP);
-		ImageView background = (ImageView) findViewById(R.id.image_background);
-		UI.colorDrawable(background.getDrawable(), Mode.MULTIPLY);
+//		ImageView background = (ImageView) findViewById(R.id.image_background);
+//		UI.colorDrawable(background.getDrawable(), Mode.MULTIPLY);
 
 	}
 

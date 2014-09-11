@@ -1,17 +1,14 @@
 package com.aircandi.catalina.ui;
 
-import android.app.SearchManager;
-import android.content.Context;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
 import com.aircandi.Aircandi;
 import com.aircandi.catalina.Catalina;
 import com.aircandi.catalina.Constants;
@@ -30,12 +27,14 @@ import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.queries.TrendQuery;
 import com.aircandi.ui.EntityListFragment;
 import com.aircandi.ui.EntityListFragment.ViewType;
-import com.aircandi.ui.RadarListFragment;
 import com.aircandi.ui.base.BaseFragment;
+import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.utilities.Integers;
 import com.squareup.otto.Subscribe;
 
 public class AircandiForm extends com.aircandi.ui.AircandiForm {
+
+	protected ToolTipRelativeLayout mTooltips;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +47,13 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 		else {
 			FontManager.getInstance().setTypefaceMedium((TextView) findViewById(R.id.item_nearby).findViewById(R.id.name));
 		}
+	}
+
+	@Override
+	public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+		mTooltips = (ToolTipRelativeLayout) findViewById(R.id.tooltips);
+		mTooltips.setSingleShot(Constants.TOOLTIPS_PATCH_LIST_ID);
 	}
 
 	@Override
@@ -123,6 +129,10 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 			updateDrawer();
 		}
 		mDrawerLayout.closeDrawer(mDrawer);
+	}
+
+	public void onTooltipsCancelButtonClick(View view){
+		mTooltips.hide(false);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -316,7 +326,7 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 		}
 
 		mDrawerTitle = StringManager.getString(fragment.getTitleResId());
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.replace(R.id.fragment_holder, fragment);
 		ft.commit();
 		mCurrentFragment = (BaseFragment) fragment;
@@ -381,6 +391,12 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 		}
 
 		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		mTooltips.hide(false);
+		return super.onOptionsItemSelected(item);
 	}
 
 	/*--------------------------------------------------------------------------------------------

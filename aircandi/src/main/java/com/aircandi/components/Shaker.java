@@ -1,6 +1,5 @@
 package com.aircandi.components;
 
-import android.annotation.SuppressLint;
 import android.os.Vibrator;
 
 public class Shaker {

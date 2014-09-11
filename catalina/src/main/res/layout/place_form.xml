@@ -46,4 +46,26 @@
 		android:onClick="onAddMessageButtonClick"
 		android:src="?attr/iconMessageNew" />
 
+	<com.aircandi.ui.widgets.ToolTipRelativeLayout
+		android:id="@+id/tooltips"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="?attr/backgroundTooltipLayer"
+		android:visibility="gone">
+
+		<ImageView
+			android:id="@+id/tooltips_cancel"
+			android:layout_width="35dp"
+			android:layout_height="35dp"
+			android:layout_alignParentTop="true"
+			android:layout_alignParentRight="true"
+			android:layout_margin="8dp"
+			android:background="@drawable/selector_button_circle_overlay"
+			android:duplicateParentState="true"
+			android:padding="4dp"
+			android:scaleType="centerCrop"
+			android:src="@drawable/ic_action_cancel_dark" />
+
+	</com.aircandi.ui.widgets.ToolTipRelativeLayout>
+
 </RelativeLayout>

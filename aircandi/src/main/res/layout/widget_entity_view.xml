@@ -32,7 +32,7 @@
 			android:gravity="bottom"
 			android:singleLine="true"
 			android:text="@string/dummy_label"
-			android:textAppearance="@style/textAppearanceSmall"
+			android:textAppearance="@style/text_appearance_small"
 			android:textColor="?attr/textColorSecondary" />
 
 		<com.aircandi.ui.widgets.AirTextView
@@ -44,7 +44,7 @@
 			android:gravity="top"
 			android:singleLine="true"
 			android:text="@string/dummy_title"
-			android:textAppearance="@style/textAppearanceSmall"
+			android:textAppearance="@style/text_appearance_small"
 			custom:textId="@string/dummy_title" />
 
 		<com.aircandi.ui.widgets.AirTextLight
@@ -56,7 +56,7 @@
 			android:gravity="top"
 			android:singleLine="true"
 			android:text="@string/dummy_title"
-			android:textAppearance="@style/textAppearanceSmall"
+			android:textAppearance="@style/text_appearance_small"
 			custom:textId="@string/dummy_subtitle" />
 	</LinearLayout>
 

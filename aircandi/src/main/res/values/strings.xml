@@ -22,7 +22,7 @@
 
 	<string name="menu_item_beacons">Beacons</string>
 	<string name="menu_item_add_entity">Add content</string>
-	<string name="menu_item_add_place">Make a place</string>
+	<string name="menu_item_new_place">Make a place</string>
 	<string name="menu_item_refresh">Refresh</string>
 	<string name="menu_item_notifications">Notifications</string>
 	<string name="menu_item_edit">Edit</string>
@@ -57,7 +57,7 @@
 	<!-- Help -->
 
 	<string name="help_radar_browse_places">Radar finds [@string/container_plural_lowercase] nearby you can browse and interact with.</string>
-	<string name="help_radar_add_places">Use the action bar to make and share custom [@string/container_plural_lowercase].</string>
+	<string name="help_radar_new_places">Use the action bar to make and share custom [@string/container_plural_lowercase].</string>
 	<string name="help_place_tune">Tune [@string/container_plural_lowercase] to make them better.</string>
 	<string name="help_place_add">Use the action bar to add pictures and comments.</string>
 	<string name="help_applink_list">Add a website or facebook link and we suggest related links that might be useful.</string>
@@ -282,13 +282,13 @@
 
 	<!-- Symbols -->
 
-	<string name="symbol_bullet">•</string>
+	<string name="symbol_bullet">&#8226;</string>
 	<string name="symbol_copyright">&#169;</string>
 
 	<!-- Buttons -->
 
 	<string name="button_tune">Tune</string>
-	<string name="button_change_picture">Select</string>
+	<string name="button_change_picture">Set photo</string>
 	<string name="button_change_password">Change password</string>
 	<string name="button_sign_in">Sign in</string>
 	<string name="button_register">Join</string>
@@ -397,7 +397,7 @@
 	<string name="label_drawer_open">Open drawer</string>
 	<string name="label_drawer_close">Close drawer</string>
 
-	<string name="label_radar_title">Nearby [@string/container_plural_lowercase]</string>
+	<string name="label_radar_title">Nearby</string>
 	<string name="label_watch_title">Watching</string>
 	<string name="label_create_title">My [@string/container_plural_lowercase]</string>
 	<string name="label_feed_title">Activity</string>
@@ -413,11 +413,11 @@
 
 	<!-- Labels: Sharing -->
 
-	<string name="label_place_share_title">Share \'%1$s\' using&#8230;</string>
+	<string name="label_place_share_title">Invite people to \'%1$s\' using&#8230;</string>
 	<string name="label_place_share_subject">\'%1$s\' [@string/container_singular_lowercase]</string>
 	<string name="label_place_share_body_install">Get the [@string/name_app] app at\u0020</string>
     <string name="label_place_share_body">
-        "A [@string/name_app_lowercase] has been shared with you! \n\nhttp://candipatch.com/patch/%1$s \n\n[@string/label_place_share_body_install][@string/uri_play_store]"
+        "You\'ve been invited to a [@string/container_singular_lowercase]! \n\nhttp://candipatch.com/patch/%1$s \n\n[@string/label_place_share_body_install][@string/uri_play_store]"
     </string>
 
 	<string name="label_place_share_body_self">"Checkout the \'%1$s\' [@string/container_singular_lowercase]!"</string>

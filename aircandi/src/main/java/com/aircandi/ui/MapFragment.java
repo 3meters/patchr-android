@@ -8,11 +8,12 @@ import android.widget.Toast;
 
 import com.aircandi.utilities.UI;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 
-public class MapFragment extends com.aircandi.ui.components.SherlockMapFragment {
+public class MapFragment extends SupportMapFragment {
 
-	private GoogleMap mMap;
+	private GoogleMap        mMap;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

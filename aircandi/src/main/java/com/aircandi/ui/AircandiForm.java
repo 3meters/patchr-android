@@ -1,20 +1,19 @@
 package com.aircandi.ui;
 
 import android.annotation.SuppressLint;
+import android.app.FragmentTransaction;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
-import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -419,13 +418,15 @@ public class AircandiForm extends BaseActivity {
 			mFragments.put(fragmentType, fragment);
 		}
 
-		mDrawerTitle = StringManager.getString(fragment.getTitleResId());
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		ft.replace(R.id.fragment_holder, fragment);
-		ft.commit();
-		mCurrentFragment = (BaseFragment) fragment;
-		mCurrentFragmentTag = fragmentType;
-		updateActionBar();
+		if (fragment != null) {
+			mDrawerTitle = StringManager.getString(fragment != null ? fragment.getTitleResId() : 0);
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			ft.replace(R.id.fragment_holder, fragment);
+			ft.commit();
+			mCurrentFragment = (BaseFragment) fragment;
+			mCurrentFragmentTag = fragmentType;
+			updateActionBar();
+		}
 	}
 
 	public BaseFragment getCurrentFragment() {
@@ -481,8 +482,7 @@ public class AircandiForm extends BaseActivity {
 		}
 	}
 
-	protected void updateActionBar() {
-	}
+	protected void updateActionBar() {}
 
 	@SuppressWarnings("ucd")
 	protected void updateDrawer() {
@@ -531,7 +531,7 @@ public class AircandiForm extends BaseActivity {
 		if (mDrawerLayout != null) {
 			Boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawer);
 
-			MenuItem menuItemAdd = menu.findItem(R.id.add_place);
+			MenuItem menuItemAdd = menu.findItem(R.id.new_place);
 			if (menuItemAdd != null) {
 				menuItemAdd.setVisible(!(drawerOpen));
 			}
@@ -539,6 +539,11 @@ public class AircandiForm extends BaseActivity {
 			final MenuItem refresh = menu.findItem(R.id.refresh);
 			if (refresh != null) {
 				refresh.setVisible(!(drawerOpen));
+			}
+
+			final MenuItem search = menu.findItem(R.id.search);
+			if (search != null) {
+				search.setVisible(!(drawerOpen));
 			}
 
 			final MenuItem notifications = menu.findItem(R.id.notifications);

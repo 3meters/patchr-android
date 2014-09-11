@@ -107,7 +107,7 @@
 	<!-- Actionbar -->
 
 	<dimen name="action_button_min_width">56dp</dimen>
-	<dimen name="actionbar_height">48dp</dimen>
+	<dimen name="action_bar_default_height">48dp</dimen>
 
 	<!-- Balloons -->
 
@@ -123,5 +123,13 @@
 	<!-- Dialog title height -->
 
 	<dimen name="abs__alert_dialog_title_height">64dp</dimen>
+
+	<!-- Tooltips -->
+
+	<dimen name="bg_tooltip_padding_top">4dp</dimen>
+	<dimen name="bg_tooltip_padding_left">5dp</dimen>
+	<dimen name="bg_tooltip_padding_right">5dp</dimen>
+	<dimen name="bg_tooltip_padding_bottom">10dp</dimen>
+	<dimen name="bg_tooltip_pointer_padding_bottom">8dp</dimen>
 
 </resources>

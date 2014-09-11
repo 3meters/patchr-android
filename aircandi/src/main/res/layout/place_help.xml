@@ -11,7 +11,7 @@
 	tools:ignore="Overdraw">
 
 	<com.aircandi.ui.widgets.AirTextLight
-		android:id="@+id/add_places"
+		android:id="@+id/new_places"
 		style="@style/balloon"
 		android:layout_width="@dimen/balloon_width"
 		android:layout_height="@dimen/balloon_height"
@@ -27,7 +27,7 @@
 		style="@style/balloon"
 		android:layout_width="@dimen/balloon_width"
 		android:layout_height="@dimen/balloon_height"
-		android:layout_below="@+id/add_places"
+		android:layout_below="@+id/new_places"
 		android:layout_centerInParent="true"
 		android:text="@string/help_place_tune"
 		android:textAppearance="?android:attr/textAppearanceMedium"

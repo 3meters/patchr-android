@@ -11,11 +11,11 @@ import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Route;
-import com.aircandi.service.ClientVersionException;
-import com.aircandi.service.GcmRegistrationIOException;
-import com.aircandi.service.ImageSizeException;
-import com.aircandi.service.ImageUnusableException;
-import com.aircandi.service.ServiceException;
+import com.aircandi.exceptions.ClientVersionException;
+import com.aircandi.exceptions.GcmRegistrationIOException;
+import com.aircandi.exceptions.ImageSizeException;
+import com.aircandi.exceptions.ImageUnusableException;
+import com.aircandi.exceptions.ServiceException;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.base.BaseActivity;
 

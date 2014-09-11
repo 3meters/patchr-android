@@ -19,7 +19,7 @@
 		android:drawableRight="?attr/iconClear"
 		android:hint="@string/label_email"
 		android:inputType="textEmailAddress"
-		android:textAppearance="@style/textAppearanceMedium" />
+		android:textAppearance="@style/text_appearance_medium" />
 
 	<com.aircandi.ui.widgets.AirEditText
 		android:id="@+id/password"
@@ -30,7 +30,7 @@
 		android:hint="@string/label_password"
 		android:imeOptions="actionGo"
 		android:inputType="textPassword"
-		android:textAppearance="@style/textAppearanceMedium" />
+		android:textAppearance="@style/text_appearance_medium" />
 
 	<com.aircandi.ui.widgets.AirCheckBox
 		android:id="@+id/chk_unmask"

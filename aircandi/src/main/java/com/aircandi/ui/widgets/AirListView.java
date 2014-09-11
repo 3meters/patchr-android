@@ -1,5 +1,6 @@
 package com.aircandi.ui.widgets;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -14,7 +15,6 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.aircandi.Constants;
 import com.aircandi.R;
 

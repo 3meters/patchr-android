@@ -2,11 +2,15 @@ package com.aircandi.ui.base;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -19,10 +23,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -30,6 +30,7 @@ import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.ButtonSpecialEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.AircandiForm;
@@ -37,12 +38,14 @@ import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.ui.widgets.AirAutoCompleteTextView;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ActionItemTarget;
 import com.nineoldandroids.view.ViewHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseFragment extends SherlockFragment implements IForm, IBind {
+public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	/*
 	 * Fragment lifecycle
 	 *
@@ -86,12 +89,13 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onAttach(Activity activity) {
 		/* Called when the fragment has been associated with the activity. */
 		super.onAttach(activity);
 		Logger.d(this, "Fragment attached");
-		mBusy = ((BaseActivity) getSherlockActivity()).getBusy();
+		mBusy = ((BaseActivity) getActivity()).getBusy();
 	}
 
 	@Override
@@ -109,7 +113,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Logger.d(this, "Fragment view created");
-		if (getSherlockActivity() == null || getSherlockActivity().isFinishing()) return null;
+		if (getActivity() == null || getActivity().isFinishing()) return null;
 
 		View view = inflater.inflate(getLayoutId(), container, false);
 
@@ -126,12 +130,6 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		Logger.d(this, "Activity for fragment created");
-	}
-
-	@Override
-	public void onViewStateRestored(Bundle savedInstanceState) {
-		super.onViewStateRestored(savedInstanceState);
-		Logger.d(this, "Fragment system managed view state restored");
 	}
 
 	@Override
@@ -168,6 +166,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void unpackIntent() {
 	}
@@ -192,7 +191,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 
 	protected void scrollToTop(final Object scroller) {
 		if (scroller instanceof ListView) {
-			getSherlockActivity().runOnUiThread(new Runnable() {
+			getActivity().runOnUiThread(new Runnable() {
 
 				@Override
 				public void run() {
@@ -202,7 +201,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 
 		}
 		else if (scroller instanceof ScrollView) {
-			getSherlockActivity().runOnUiThread(new Runnable() {
+			getActivity().runOnUiThread(new Runnable() {
 
 				@Override
 				public void run() {
@@ -215,9 +214,6 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 
 	public void showButtonSpecial(Boolean visible, Integer messageResId, View header) {
 		if (mButtonSpecial != null) {
-			//			if (header != null) {
-			//				positionButton(header);
-			//			}
 			if (messageResId != null) {
 				mButtonSpecial.setText(StringManager.getString(messageResId));
 			}
@@ -225,6 +221,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 				mButtonSpecial.setClickable(visible);
 			}
 			UI.animateView(mButtonSpecial, visible, (visible ? mButtonSpecialClickable : false), AnimationManager.DURATION_MEDIUM);
+			BusProvider.getInstance().post(new ButtonSpecialEvent(visible));
 		}
 	}
 
@@ -246,7 +243,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 					if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
 						RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(buttonSpecial.getLayoutParams());
 						params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-						int headerHeight = (header != null) ? header.getHeight() : UI.getRawPixelsForDisplayPixels(150f);
+						int headerHeight = header.getHeight();
 						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(100f);
 						buttonSpecial.setLayoutParams(params);
 					}
@@ -274,6 +271,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	@SuppressWarnings("ucd")
 	public Boolean isActivityStream() {
 		return mActivityStream;
@@ -342,6 +340,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		/*
@@ -363,7 +362,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 			mToProgress = item.getActionView().findViewById(R.id.search_progress);
 
 			if (mEntitySuggest == null) {
-				mEntitySuggest = new EntitySuggestController(getSherlockActivity());
+				mEntitySuggest = new EntitySuggestController(getActivity());
 			}
 
 			mEntitySuggest.setInput((AutoCompleteTextView) mTo);
@@ -384,7 +383,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 						extras.putString(Constants.EXTRA_ENTITY, jsonEntity);
 						extras.putBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC, true);
 					}
-					Aircandi.dispatch.route(getSherlockActivity(), Route.BROWSE, entity, null, extras);
+					Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
 				}
 			});
 
@@ -419,7 +418,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	@SuppressWarnings("ucd")
 	public boolean onCreatePopupMenu(android.view.Menu menu) {
 		Logger.d(this, "Creating fragment options menu");
-		return Aircandi.getInstance().getMenuManager().onCreatePopupMenu(getSherlockActivity(), menu, mEntity);
+		return Aircandi.getInstance().getMenuManager().onCreatePopupMenu(getActivity(), menu, mEntity);
 	}
 
 	@Override
@@ -431,6 +430,7 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onStart() {
 		Logger.d(this, "Fragment start");
@@ -442,8 +442,8 @@ public abstract class BaseFragment extends SherlockFragment implements IForm, IB
 	public void onResume() {
 		Logger.d(this, "Fragment resume");
 		BusProvider.getInstance().register(this);
-		if (getSherlockActivity() != null && getSherlockActivity() instanceof AircandiForm) {
-			((AircandiForm) getSherlockActivity()).updateActivityAlert();
+		if (getActivity() != null && getActivity() instanceof AircandiForm) {
+			((AircandiForm) getActivity()).updateActivityAlert();
 		}
 
 		super.onResume();

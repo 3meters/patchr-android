@@ -40,7 +40,7 @@
 		android:layout_marginLeft="2dp"
 		android:ellipsize="end"
 		android:singleLine="true"
-		android:textAppearance="?attr/textAppearanceSmall"
+		android:textAppearance="?android:attr/textAppearanceSmall"
 		android:textColor="?textColorSecondary" />
 
 	<RelativeLayout

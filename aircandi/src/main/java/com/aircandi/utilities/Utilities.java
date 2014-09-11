@@ -1,13 +1,11 @@
 package com.aircandi.utilities;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
-import android.os.Build;
 
 import com.aircandi.Aircandi;
 import com.aircandi.components.Logger;

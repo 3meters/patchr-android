@@ -1,8 +1,5 @@
 package com.aircandi.ui;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
@@ -65,7 +62,7 @@ public class EntityList extends BaseActivity {
 		             .setListLoadingResId(mParams.getListLoadingResId())
 		             .setSelfBindingEnabled(true);
 
-		getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mListFragment).commit();
+		getFragmentManager().beginTransaction().replace(R.id.fragment_holder, mListFragment).commit();
 	}
 
 	@Override

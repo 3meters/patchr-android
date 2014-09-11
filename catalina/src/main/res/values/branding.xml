@@ -13,10 +13,10 @@
 	<color name="brand_actionbar_icon_light">@color/white</color>
 	<color name="brand_actionbar_icon_dark">@color/white</color>
 
-	<!-- Branding widgetsbackgrounds -->
+	<!-- Branding widgets backgrounds -->
 
 	<color name="brand_progress_bar_color">@color/holo_orange_light</color>
-	<color name="brand_progress_bar_splash_color">@color/brand_secondary</color>
+	<color name="brand_progress_bar_splash_color">@color/holo_orange_light</color>
 	<color name="default_progress_bar_color">@color/holo_orange_light</color>
 
 </resources>

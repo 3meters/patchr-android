@@ -265,6 +265,7 @@ public class PlaceEdit extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	private void tuneProximity() {
         /*
          * If there are beacons:
@@ -302,7 +303,7 @@ public class PlaceEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPostExecute(Object response) {
-				setSupportProgressBarIndeterminateVisibility(false);
+				setProgressBarIndeterminateVisibility(false);
 				mBusy.hideBusy(false);
 
 				if (mTuned || mUntuned) {
@@ -460,9 +461,12 @@ public class PlaceEdit extends BaseEntityEdit {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return (mLayoutResId != null && mLayoutResId != 0) ? mLayoutResId : R.layout.place_edit;

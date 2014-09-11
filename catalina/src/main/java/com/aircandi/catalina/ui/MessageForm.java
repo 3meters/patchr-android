@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -19,8 +21,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.aircandi.Aircandi;
 import com.aircandi.R.color;
 import com.aircandi.catalina.Constants;
@@ -133,7 +133,7 @@ public class MessageForm extends BaseEntityForm {
 			mListFragment.getHighlightEntities().put(mChildId, mHighlight);
 		}
 
-		getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mListFragment).commit();
+		getFragmentManager().beginTransaction().replace(R.id.fragment_holder, mListFragment).commit();
 	}
 
 	@Override
@@ -480,6 +480,7 @@ public class MessageForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onEntitiesLoaded(final EntitiesLoadedEvent event) {
@@ -593,6 +594,7 @@ public class MessageForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void share() {
 
@@ -710,6 +712,7 @@ public class MessageForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem menuItem = menu.findItem(com.aircandi.R.id.share);
@@ -721,9 +724,11 @@ public class MessageForm extends BaseEntityForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.message_form;

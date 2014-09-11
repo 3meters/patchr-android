@@ -1,7 +1,5 @@
 package com.aircandi.ui.widgets;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.view.View;
 
 import java.lang.ref.WeakReference;

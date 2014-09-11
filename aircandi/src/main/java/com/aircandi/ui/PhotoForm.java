@@ -11,19 +11,18 @@ import android.support.v4.app.ShareCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.ImageView;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.ShareActionProvider;
-import com.actionbarsherlock.widget.ShareActionProvider.OnShareTargetSelectedListener;
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -96,7 +95,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-		setSupportProgressBarIndeterminateVisibility(true);
+		setProgressBarIndeterminateVisibility(true);
 		if (mForEntityId == null) {
 			mPagingEnabled = false;
 		}
@@ -370,9 +369,9 @@ public class PhotoForm extends BaseActivity implements IBind {
 		// Locate MenuItem with ShareActionProvider
 		MenuItem item = menu.findItem(R.id.share);
 
-		mShareActionProvider = new ShareActionProvider(getSupportActionBar().getThemedContext());
+		mShareActionProvider = new ShareActionProvider(getActionBar().getThemedContext());
 		mShareActionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
-		mShareActionProvider.setOnShareTargetSelectedListener(new OnShareTargetSelectedListener() {
+		mShareActionProvider.setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
 
 			@Override
 			public boolean onShareTargetSelected(ShareActionProvider source, Intent intent) {
@@ -401,7 +400,9 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public class PhotoPagerAdapter extends PagerAdapter {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public class PhotoPagerAdapter extends PagerAdapter {
 
 		@Override
 		public int getCount() {
@@ -438,7 +439,6 @@ public class PhotoForm extends BaseActivity implements IBind {
 			 */
 			View view = (View) o;
 			((ViewPager) collection).removeView(view);
-			view = null;
 		}
 
 		@Override

@@ -2,6 +2,7 @@
 <manifest
 	package="com.aircandi.catalina"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:installLocation="auto">
 
 	<supports-screens
@@ -63,7 +64,8 @@
 		android:allowBackup="false"
 		android:icon="@drawable/ic_launcher"
 		android:label="@string/name_app"
-		android:theme="@style/aircandi_theme_midnight">
+		android:theme="@style/aircandi_theme_midnight"
+		tools:replace="android:allowBackup">
 
 		<!-- Service keys -->
 

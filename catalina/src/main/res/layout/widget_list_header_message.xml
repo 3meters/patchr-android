@@ -28,7 +28,7 @@
 			android:layout_toLeftOf="@+id/logo"
 			android:ellipsize="end"
 			android:singleLine="true"
-			android:textAppearance="@style/textAppearanceMedium"
+			android:textAppearance="@style/text_appearance_medium"
 			android:textColor="@color/brand_primary" />
 
 		<ImageView
@@ -123,7 +123,7 @@
 		android:linksClickable="true"
 		android:paddingLeft="@dimen/form_body_padding"
 		android:paddingRight="@dimen/form_body_padding"
-		android:textAppearance="@style/textAppearanceMedium" />
+		android:textAppearance="@style/text_appearance_medium" />
 
 	<RelativeLayout
 		android:layout_width="match_parent"
@@ -137,7 +137,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_centerVertical="true"
-			android:textAppearance="@style/textAppearanceSmall"
+			android:textAppearance="@style/text_appearance_small"
 			android:textColor="?attr/textColorSecondary" />
 	</RelativeLayout>
 

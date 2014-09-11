@@ -1,6 +1,5 @@
 package com.aircandi.ui.components;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.text.Html;
 import android.text.TextUtils;

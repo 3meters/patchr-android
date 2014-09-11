@@ -1,10 +1,10 @@
 package com.aircandi.catalina.components;
 
 import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.R;
 import com.aircandi.objects.Entity;
@@ -55,8 +55,8 @@ public class MenuManager extends com.aircandi.components.MenuManager {
 	public boolean onCreateOptionsMenu(Activity activity, Menu menu) {
 
 		String activityName = activity.getClass().getSimpleName();
-		final SherlockFragmentActivity sherlock = (SherlockFragmentActivity) activity;
-		MenuInflater menuInflater = sherlock.getSupportMenuInflater();
+		final FragmentActivity sherlock = (FragmentActivity) activity;
+		MenuInflater menuInflater = sherlock.getMenuInflater();
 		Entity entity = ((BaseActivity) activity).getEntity();
 
 		if (activityName.equals("AircandiForm")) {

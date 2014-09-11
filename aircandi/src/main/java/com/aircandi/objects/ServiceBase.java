@@ -174,7 +174,9 @@ public abstract class ServiceBase extends ServiceObject {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public static class SortByPositionSortDate implements Comparator<ServiceBase> {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static class SortByPositionSortDate implements Comparator<ServiceBase> {
 
 		@Override
 		public int compare(ServiceBase object1, ServiceBase object2) {

@@ -3,10 +3,8 @@ package com.aircandi.components;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -23,7 +21,7 @@ import com.aircandi.objects.ActivityBase;
 import com.aircandi.objects.Install;
 import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.ServiceMessage;
-import com.aircandi.service.GcmRegistrationIOException;
+import com.aircandi.exceptions.GcmRegistrationIOException;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.Errors;
@@ -96,7 +94,6 @@ public class MessagingManager {
 
 	public ModelResult registerInstallWithAircandi() {
 
-		ModelResult result = new ModelResult();
 		Logger.i(this, "Registering install with Aircandi service");
 
 		String registrationId = getRegistrationId(Aircandi.applicationContext);
@@ -109,7 +106,7 @@ public class MessagingManager {
 		install.clientVersionCode = Aircandi.getVersionCode(Aircandi.applicationContext, AircandiForm.class);
 		install.clientPackageName = Aircandi.applicationContext.getPackageName();
 
-		result = Aircandi.getInstance().getEntityManager().registerInstall(install);
+		ModelResult result = Aircandi.getInstance().getEntityManager().registerInstall(install);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Logger.i(this, "Install successfully registered with Aircandi service");
@@ -177,7 +174,7 @@ public class MessagingManager {
 		}
 		else {
 			Integer count = mCounts.get(messageTag);
-			mCounts.put(messageTag, count++);
+			mCounts.put(messageTag, (count++));
 		}
 
 		message.intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

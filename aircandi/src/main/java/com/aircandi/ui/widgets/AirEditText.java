@@ -10,7 +10,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 
-import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
 import com.aircandi.ui.base.BaseActivity.SimpleTextWatcher;

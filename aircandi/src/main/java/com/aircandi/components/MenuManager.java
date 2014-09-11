@@ -1,10 +1,10 @@
 package com.aircandi.components;
 
 import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -31,8 +31,8 @@ public class MenuManager {
 		/* Browsing */
 
 		String activityName = activity.getClass().getSimpleName();
-		final SherlockFragmentActivity sherlock = (SherlockFragmentActivity) activity;
-		MenuInflater menuInflater = sherlock.getSupportMenuInflater();
+		final FragmentActivity fragmentActivity = (FragmentActivity) activity;
+		MenuInflater menuInflater = fragmentActivity.getMenuInflater();
 
 		/* Editing */
 

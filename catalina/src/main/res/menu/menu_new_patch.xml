@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<item
-		android:id="@+id/add_place"
+		android:id="@+id/new_place"
 		android:icon="?attr/iconAdd"
 		android:orderInCategory="5"
 		android:showAsAction="ifRoom"
-		android:title="@string/menu_item_add_place" />
+		android:title="@string/menu_item_new_place" />
 
 </menu>

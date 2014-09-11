@@ -1,9 +1,5 @@
 package com.aircandi.components;
 
-import com.aircandi.Aircandi;
-import com.aircandi.objects.Log.LogCategory;
-import com.aircandi.utilities.Debug;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,6 +1,5 @@
 package com.aircandi.service;
 
-import com.aircandi.components.Stopwatch;
 import com.aircandi.service.AirHttpRequest.Header;
 import com.aircandi.service.ServiceRequest.AuthType;
 

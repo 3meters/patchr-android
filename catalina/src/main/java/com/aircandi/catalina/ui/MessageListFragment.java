@@ -1,9 +1,12 @@
 package com.aircandi.catalina.ui;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -17,6 +20,7 @@ import com.aircandi.catalina.objects.Message;
 import com.aircandi.catalina.objects.Message.MessageType;
 import com.aircandi.components.Extras;
 import com.aircandi.components.MessagingManager;
+import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.controllers.ViewHolder;
 import com.aircandi.objects.Entity;
@@ -27,6 +31,9 @@ import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.components.AnimationFactory;
 import com.aircandi.ui.components.AnimationFactory.FlipDirection;
 import com.aircandi.ui.widgets.AirListView;
+import com.aircandi.ui.widgets.ToolTip;
+import com.aircandi.ui.widgets.ToolTipRelativeLayout;
+import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.UI;
 
 public class MessageListFragment extends EntityListFragment {
@@ -36,6 +43,7 @@ public class MessageListFragment extends EntityListFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -63,8 +71,8 @@ public class MessageListFragment extends EntityListFragment {
 					if (scrollState == SCROLL_STATE_IDLE && mActivityStream) {
 						if (MessagingManager.getInstance().getNewActivity()) {
 							MessagingManager.getInstance().setNewActivity(false);
-							if (getSherlockActivity() != null) {
-								((com.aircandi.ui.AircandiForm) getSherlockActivity()).updateActivityAlert();
+							if (getActivity() != null) {
+								((com.aircandi.ui.AircandiForm) getActivity()).updateActivityAlert();
 							}
 							MessagingManager.getInstance().cancelNotifications();
 						}
@@ -93,8 +101,8 @@ public class MessageListFragment extends EntityListFragment {
 		extras.setEntityForId(mQuery.getEntityId());
 		if (entity.type.equals(MessageType.REPLY)
 				&& link != null
-				&& (((BaseActivity) getSherlockActivity()).getEntity() == null
-				|| !((BaseActivity) getSherlockActivity()).getEntity().id.equals(link.toId))) {
+				&& (((BaseActivity) getActivity()).getEntity() == null
+				|| !((BaseActivity) getActivity()).getEntity().id.equals(link.toId))) {
 			extras.setEntityChildId(entity.id);
 			extras.setEntityId(link.toId);
 		}
@@ -102,7 +110,7 @@ public class MessageListFragment extends EntityListFragment {
 			extras.setEntityId(entity.id);
 		}
 
-		Aircandi.dispatch.route(getSherlockActivity(), Route.BROWSE, entity, null, extras.getExtras());
+		Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
 	}
 
 	@SuppressWarnings("ucd")
@@ -115,9 +123,16 @@ public class MessageListFragment extends EntityListFragment {
 		super.onAttach(activity);
 	}
 
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		showTooltips();
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void postBind() {
 		super.postBind();
@@ -157,8 +172,8 @@ public class MessageListFragment extends EntityListFragment {
 
 		if (entity.type.equals(Message.MessageType.REPLY)
 				&& link != null
-				&& (((BaseActivity) getSherlockActivity()).getEntity() != null
-				&& ((BaseActivity) getSherlockActivity()).getEntity().id.equals(link.toId))) {
+				&& (((BaseActivity) getActivity()).getEntity() != null
+				&& ((BaseActivity) getActivity()).getEntity().id.equals(link.toId))) {
 			indent = UI.getRawPixelsForDisplayPixels(30f);
 		}
 
@@ -166,15 +181,48 @@ public class MessageListFragment extends EntityListFragment {
 		view.requestLayout();
 	}
 
+	public void showTooltips() {
+
+		if (getActivity() instanceof PlaceForm) {
+			ToolTipRelativeLayout tooltipLayer = ((PlaceForm) getActivity()).mTooltips;
+			if (!tooltipLayer.hasShot()) {
+				tooltipLayer.setVisibility(View.VISIBLE);
+				tooltipLayer.setClickable(true);
+				tooltipLayer.clear();
+				tooltipLayer.requestLayout();
+
+				View anchor = getActivity().findViewById(R.id.button_watch);
+				if (anchor != null) {
+					tooltipLayer.showTooltipForView(new ToolTip()
+							.withText(StringManager.getString(R.string.tooltip_place_watch))
+							.setMaxWidth(UI.getRawPixelsForDisplayPixels(120f))
+							.withShadow(true)
+							.setArrowPosition(ToolTip.ArrowPosition.BELOW)
+							.withAnimationType(ToolTip.AnimationType.FROM_TOP), anchor);
+				}
+			}
+		}
+	}
+
 	/*--------------------------------------------------------------------------------------------
-		Properties
-	 * *--------------------------------------------------------------------------------------------*/
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 
  	/*--------------------------------------------------------------------------------------------
 	 * Menus
-	 * *--------------------------------------------------------------------------------------------*/	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		showTooltips();
+	}
+
+	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
-	 * *--------------------------------------------------------------------------------------------*/	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 * *--------------------------------------------------------------------------------------------*/
+	 *--------------------------------------------------------------------------------------------*/
 }

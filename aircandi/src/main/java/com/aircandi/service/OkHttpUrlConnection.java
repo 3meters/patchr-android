@@ -6,6 +6,7 @@ import com.aircandi.Aircandi;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.exceptions.ClientVersionException;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.Json;

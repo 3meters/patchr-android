@@ -25,36 +25,36 @@
 		holoButtonBorderlessSmall: 14sp
 	-->
 
-	<style name="textAppearance" parent="@android:style/TextAppearance">
+	<style name="text_appearance" parent="@android:style/TextAppearance">
 		<item name="android:textSize">16sp</item>
 		<item name="android:textColor">?attr/textColor</item>
 	</style>
 
-	<style name="textAppearanceExtraLarge" parent="textAppearance">
+	<style name="text_appearance_extra_large" parent="text_appearance">
 		<item name="android:textSize">24sp</item>
 	</style>
 
-	<style name="textAppearanceLarge" parent="textAppearance">
+	<style name="text_appearance_large" parent="text_appearance">
 		<item name="android:textSize">22sp</item>
 	</style>
 
-	<style name="textAppearanceMediumLarge" parent="textAppearance">
+	<style name="text_appearance_medium_large" parent="text_appearance">
 		<item name="android:textSize">20sp</item>
 	</style>
 
-	<style name="textAppearanceMedium" parent="textAppearance">
+	<style name="text_appearance_medium" parent="text_appearance">
 		<item name="android:textSize">18sp</item>
 	</style>
 
-	<style name="textAppearanceSmall" parent="textAppearance">
+	<style name="text_appearance_small" parent="text_appearance">
 		<item name="android:textSize">14sp</item>
 	</style>
 
-	<style name="textAppearanceExtraSmall" parent="textAppearance">
+	<style name="text_appearance_extra_small" parent="text_appearance">
 		<item name="android:textSize">12sp</item>
 	</style>
 
-	<style name="textAppearanceTiny" parent="textAppearance">
+	<style name="text_appearance_tiny" parent="text_appearance">
 		<item name="android:textSize">11sp</item>
 	</style>
 
@@ -123,11 +123,11 @@
 	</style>
 
 	<style name="selectable_item">
-		<item name="android:background">@android:drawable/list_selector_background</item>
+		<item name="android:background">?android:attr/selectableItemBackground</item>
 	</style>
 
 	<style name="selectable_image">
-		<item name="android:foreground">@android:drawable/list_selector_background</item>
+		<item name="android:foreground">?android:attr/selectableItemBackground</item>
 	</style>
 
 	<!-- Edit forms -->
@@ -209,16 +209,6 @@
 		<item name="android:background">?attr/backgroundBalloonOnGray</item>
 	</style>
 
-	<style name="Widget.Sherlock.ActionButton" parent="Widget">
-		<item name="android:background">?attr/actionBarItemBackground</item>
-		<item name="android:minHeight">?attr/actionBarSize</item>
-		<item name="android:minWidth">@dimen/abs__action_button_min_width</item>
-		<item name="android:gravity">center</item>
-		<item name="android:paddingLeft">12dp</item>
-		<item name="android:paddingRight">12dp</item>
-		<item name="android:scaleType">center</item>
-	</style>
-
 	<style name="form_edit" parent="@android:style/Widget.EditText">
 		<item name="android:textAppearance">?android:attr/textAppearance</item>
 		<item name="android:textColorHint">?android:attr/textColorHint</item>
@@ -228,11 +218,7 @@
 		<item name="android:textAppearance">?android:attr/textAppearance</item>
 	</style>
 
-	<style name="Widget.Sherlock" />
-
-	<style name="Widget.Sherlock.DropDownItem" />
-
-	<style name="form_spinner_item" parent="Widget.Sherlock.DropDownItem.Spinner">
+	<style name="form_spinner_item" parent="android:Widget.DropDownItem.Spinner">
 		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:paddingTop">8dp</item>
@@ -241,9 +227,7 @@
 		<item name="android:paddingRight">8dp</item>
 	</style>
 
-	<style name="Widget.Sherlock.TextView" />
-
-	<style name="form_spinner" parent="Widget.Sherlock.TextView.SpinnerItem">
+	<style name="form_spinner" parent="android:Widget.TextView.SpinnerItem">
 		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:paddingLeft">4dp</item>
@@ -296,6 +280,38 @@
 		<item name="spb_background">@null</item>
 		<item name="spb_generate_background_with_colors">false</item>
 		<item name="spb_gradients">false</item>
+	</style>
+
+	<!-- Showcase view -->
+
+	<style name="CustomShowcaseTheme" parent="ShowcaseView.Light">
+		<item name="sv_backgroundColor">#3300A621</item>
+		<item name="sv_showcaseColor">#00801A</item>
+		<item name="sv_buttonText">Hide</item>
+		<item name="sv_tintButtonColor">false</item>
+		<item name="sv_titleTextAppearance">@style/CustomTitle</item>
+	</style>
+
+	<style name="CustomShowcaseTheme2" parent="ShowcaseView.Light">
+		<item name="sv_backgroundColor">#663d4353</item>
+		<item name="sv_showcaseColor">#25467A</item>
+		<item name="sv_buttonText">Close</item>
+		<item name="sv_titleTextAppearance">@style/CustomTitle2</item>
+	</style>
+
+	<style name="CustomShowcaseTheme3" parent="ShowcaseView">
+		<item name="sv_backgroundColor">#330066FF</item>
+		<item name="sv_showcaseColor">#00801A</item>
+		<item name="sv_buttonText">Close</item>
+		<item name="sv_titleTextAppearance">@style/CustomTitle</item>
+	</style>
+
+	<style name="CustomTitle" parent="TextAppearance.ShowcaseView.Title">
+		<item name="android:textColor">#00801A</item>
+	</style>
+
+	<style name="CustomTitle2" parent="TextAppearance.ShowcaseView.Title">
+		<item name="android:textColor">#25467A</item>
 	</style>
 
 </resources>

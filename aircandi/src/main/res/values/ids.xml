@@ -28,6 +28,7 @@
 	<item name="label_edit" type="id" />
 	<item name="label_message" type="id" />
 	<item name="place_name" type="id" />
+	<item name="tooltips_cancel" type="id" />
 	<!--
 	<item name="item_create" type="id"/>
 	<item name="item_watch" type="id"/>

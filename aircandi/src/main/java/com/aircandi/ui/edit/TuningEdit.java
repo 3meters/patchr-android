@@ -228,7 +228,7 @@ public class TuningEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPostExecute(Object response) {
-				setSupportProgressBarIndeterminateVisibility(false);
+				setProgressBarIndeterminateVisibility(false);
 				mBusy.hideBusy(false);
 
 				if (mTuned || mUntuned) {

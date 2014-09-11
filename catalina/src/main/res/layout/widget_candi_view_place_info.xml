@@ -58,7 +58,7 @@
 		android:layout_alignParentRight="true"
 		android:layout_marginLeft="3dp"
 		android:layout_marginRight="10dp"
-		android:textAppearance="?attr/textAppearanceSmall"
+		android:textAppearance="?android:attr/textAppearanceSmall"
 		android:textColor="?textColorSecondary" />
 
 	<com.aircandi.ui.widgets.UserView

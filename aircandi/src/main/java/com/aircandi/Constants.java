@@ -120,6 +120,10 @@ public class Constants {
 	public static final int TABS_USER_EDIT_ID   = 3;
 	public static final int TABS_ENTITY_FORM_ID = 4;
 
+	public static final long TOOLTIPS_PATCH_LIST_ID   = 100;
+	public static final long TOOLTIPS_PLACE_EDIT_ID   = 101;
+	public static final long TOOLTIPS_PLACE_BROWSE_ID = 102;
+
 	public static final int    RADAR_BEACON_SIGNAL_BUCKET_SIZE = 1;
 	/*
 	 * Using quality = 70 for jpeg compression reduces image file size by 85% with

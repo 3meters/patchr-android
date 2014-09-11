@@ -49,7 +49,7 @@ public class UserForm extends com.aircandi.ui.user.UserForm {
 		             .setHeaderViewResId(R.layout.widget_list_header_user)
 		             .setSelfBindingEnabled(false);
 
-		getSupportFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
+		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
 
 		Boolean currentUser = Aircandi.getInstance().getCurrentUser().id.equals(mEntityId);
 		mLinkProfile = currentUser ? LinkProfile.LINKS_FOR_USER_CURRENT : LinkProfile.LINKS_FOR_USER;

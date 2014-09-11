@@ -39,7 +39,7 @@
 				android:minHeight="30dp" />
 		</ViewAnimator>
 
-		<com.aircandi.ui.widgets.AirTextView
+		<com.aircandi.ui.widgets.AirTextLight
 			android:id="@+id/button_label"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

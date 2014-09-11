@@ -4,22 +4,10 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.aircandi.Aircandi;
-import com.aircandi.ServiceConstants;
 import com.aircandi.utilities.Utilities;
-import com.squareup.okhttp.Cache;
-import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.Listener;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.security.GeneralSecurityException;
-import java.util.concurrent.TimeUnit;
-
-import javax.net.ssl.SSLContext;
 
 @SuppressWarnings("ucd")
 public class DownloadManager {

@@ -15,8 +15,6 @@
  */
 package com.aircandi.service;
 
-import com.aircandi.components.Stopwatch;
-
 /**
  * Implements a basic connection object for ObaRequests.
  * These are created by the ObaConnectionFactory class.

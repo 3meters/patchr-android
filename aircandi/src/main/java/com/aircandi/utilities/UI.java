@@ -3,7 +3,6 @@ package com.aircandi.utilities;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Matrix;
@@ -12,7 +11,6 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
-import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -48,7 +46,7 @@ public class UI {
 
 	public static void drawPhoto(final AirImageView photoView, final Photo photo) {
 	    /*
-         * There are only a few places that don't use this code to handle images:
+	     * There are only a few places that don't use this code to handle images:
 		 * - Notification icons - can't use AirImageView
 		 * - Actionbar icons - can't use AirImageView (shortcutpicker, placeform)
 		 * - Photo detail - can't use AirImageView, using ImageViewTouch
@@ -117,7 +115,7 @@ public class UI {
 		String imageUri = photo.getUriWrapped();
 
 		if (Photo.isDrawable(imageUri)) {
-			Integer drawableId = Photo.getResourceIdFromUri(imageUri);
+			Integer drawableId = Photo.getResourceIdFromUri(photoView.getContext(), imageUri);
 			if (drawableId != null) {
 				DownloadManager.with(Aircandi.applicationContext)
 				               .load(drawableId)
@@ -210,22 +208,16 @@ public class UI {
 		return drawable;
 	}
 
-	public static Drawable getDrawableForAttribute(Integer attr) {
-
-		int[] attrs = new int[]{attr /* index 0 */};
-		TypedArray ta = Aircandi.applicationContext.getTheme().obtainStyledAttributes(attrs);
-		Drawable drawable = ta.getDrawable(0);
-		ta.recycle();
-		return drawable;
+	public static Drawable getDrawableForAttribute(Context context, Integer attr) {
+		TypedValue a = new TypedValue();
+		context.getTheme().resolveAttribute(attr, a, true);
+		return Aircandi.applicationContext.getResources().getDrawable(a.resourceId);
 	}
 
-	public static Integer getResIdForAttribute(Integer attr) {
-
-		int[] attrs = new int[]{attr /* index 0 */};
-		TypedArray ta = Aircandi.applicationContext.getTheme().obtainStyledAttributes(attrs);
-		Integer resId = ta.getResourceId(0, 0);
-		ta.recycle();
-		return resId;
+	public static Integer getResIdForAttribute(Context context, Integer attr) {
+		TypedValue a = new TypedValue();
+		context.getTheme().resolveAttribute(attr, a, true);
+		return a.resourceId;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -429,10 +421,10 @@ public class UI {
 		inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 	}
 
-//	public static void hideSoftInput(Context context, IBinder windowToken) {
-//		InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-//		inputManager.hideSoftInputFromWindow(windowToken, 0);
-//	}
+	//	public static void hideSoftInput(Context context, IBinder windowToken) {
+	//		InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+	//		inputManager.hideSoftInputFromWindow(windowToken, 0);
+	//	}
 
 	public static void showSoftInput(View view) {
 		InputMethodManager inputManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);

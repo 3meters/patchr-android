@@ -80,7 +80,7 @@ public class WatcherList extends BaseActivity {
 		             .setTitleResId(R.string.form_title_watchers)
 		             .setButtonSpecialClickable(true);
 
-		getSupportFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
+		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
 
 	}
 

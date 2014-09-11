@@ -1,6 +1,7 @@
 package com.aircandi.ui.base;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -13,10 +14,13 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.Window;
@@ -27,10 +31,6 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -64,9 +64,10 @@ import com.nineoldandroids.view.ViewHelper;
 
 import java.lang.reflect.Field;
 
-public abstract class BaseActivity extends SherlockFragmentActivity implements OnRefreshListener, IForm, IBind {
+public abstract class BaseActivity extends FragmentActivity implements OnRefreshListener, IForm, IBind {
 
 	protected ActionBar     mActionBar;
+	public    View          mActionBarView;
 	protected String        mActivityTitle;
 	protected Entity        mEntity;
 	protected String        mEntityId;
@@ -135,7 +136,8 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 			mBusy = new BusyManager(this);
 
 			/* Stash the action bar */
-			mActionBar = getSupportActionBar();
+			mActionBar = getActionBar();
+			mActionBarView = getActionBarView();
 
 			/* Fonts */
 			final Integer titleId = getActionBarTitleId();
@@ -152,9 +154,6 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 			unpackIntent();
 			initialize(savedInstanceState);
-			if (!isFinishing()) {
-				configureActionBar();
-			}
 		}
 	}
 
@@ -290,7 +289,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		return 0;
 	}
 
-	public int getActionBarTitleId() {
+	public Integer getActionBarTitleId() {
 		Integer actionBarTitleId = null;
 		try {
 			// Use reflection to get the actionbar title TextView and set the custom font. May break in updates.
@@ -327,6 +326,10 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 
 	public Entity getEntity() {
 		return mEntity;
+	}
+
+	public Menu getMenu() {
+		return mMenu;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -631,6 +634,13 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		}
 	}
 
+	public View getActionBarView() {
+		View view = getWindow().getDecorView();
+		int resId = getResources().getIdentifier("action_bar_container", "id", "android");
+		return view.findViewById(resId);
+	}
+
+
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
@@ -724,7 +734,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		Bundle extras = null;
 		if (item.getItemId() == R.id.remove && mEntity.placeId != null) {
 		    /*
-             * We use placeId instead of toId so we can removed replies where
+	         * We use placeId instead of toId so we can removed replies where
              * toId points to the root message.
              */
 			extras = new Bundle();
@@ -806,7 +816,9 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		BusProvider.getInstance().register(this);
 		Aircandi.getInstance().setCurrentActivity(this);
 		mClickEnabled = true;
-
+		if (!isFinishing()) {
+			configureActionBar(); // Icon gets lost sometimes so refresh
+		}
 		/*
 		 * We always check to make sure play services are working properly. This call will finish 
 		 * the activity if play services are missing and can't be installed. If play services can
@@ -849,6 +861,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Boolean getInvalidated() {
 		return mInvalidated;
 	}

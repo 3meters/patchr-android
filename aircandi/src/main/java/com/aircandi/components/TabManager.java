@@ -1,11 +1,10 @@
 package com.aircandi.components;
 
+import android.app.ActionBar;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.widget.ViewFlipper;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
 import com.aircandi.Constants;
 import com.aircandi.R;
 
@@ -73,7 +72,7 @@ public class TabManager implements ActionBar.TabListener {
 	}
 
 	@Override
-	public void onTabSelected(Tab tab, FragmentTransaction ft) {
+	public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
 		Logger.v(this, "onTabSelected: " + tab.getTag());
 		/* Currently handles tab switching in all forms with view flippers */
 		if (mViewFlipper != null) {
@@ -82,11 +81,11 @@ public class TabManager implements ActionBar.TabListener {
 	}
 
 	@Override
-	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+	public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
 	}
 
 	@Override
-	public void onTabReselected(Tab tab, FragmentTransaction ft) {
+	public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
 	}
 
 	public void doSaveInstanceState(Bundle savedInstanceState) {

@@ -16,7 +16,7 @@
 		android:id="@+id/beacon_indicator"
 		style="@style/actionbar_beacons"
 		android:layout_width="wrap_content"
-		android:layout_height="@dimen/abs__action_bar_default_height"
+		android:layout_height="@dimen/action_bar_default_height"
 		android:layout_gravity="center"
 		android:focusable="false"
 		android:gravity="center"
