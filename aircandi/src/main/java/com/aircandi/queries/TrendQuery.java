@@ -1,7 +1,7 @@
 package com.aircandi.queries;
 
 import com.aircandi.Aircandi;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 
 @SuppressWarnings("ucd")
 public class TrendQuery implements IQuery {

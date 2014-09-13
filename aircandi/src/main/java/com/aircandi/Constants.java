@@ -268,11 +268,15 @@ public class Constants {
 	public static final String FRAGMENT_TYPE_TREND_ACTIVE  = "trend_active";
 	public static final String FRAGMENT_TYPE_PROFILE       = "profile";
 	public static final String FRAGMENT_TYPE_HISTORY       = "history";
+	public static final String FRAGMENT_TYPE_MAP           = "map";
 
 	public static final String NAVIGATION_CATEGORY_PLACES   = "places";
 	public static final String NAVIGATION_CATEGORY_TRENDS   = "trends";
 	public static final String NAVIGATION_CATEGORY_MESSAGES = "messages";
 	public static final String NAVIGATION_CATEGORY_NONE     = "none";
+
+	public static final String VIEW_TYPE_MAP  = "map";
+	public static final String VIEW_TYPE_LIST = "list";
 
 	public static final int RESULT_ENTITY_INSERTED        = 100;
 	public static final int RESULT_ENTITY_UPDATED         = 110;

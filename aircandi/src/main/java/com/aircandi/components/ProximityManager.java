@@ -86,6 +86,7 @@ public class ProximityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onActivityStateEvent(final ActivityStateEvent event) {
@@ -127,6 +128,7 @@ public class ProximityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void scanForWifi(final ScanReason reason) {
 		/*
 		 * If context is null then we probably crashed and the scan service is still calling.
@@ -254,6 +256,7 @@ public class ProximityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Load beacon related entities
 	 *--------------------------------------------------------------------------------------------*/
+
 	public synchronized ServiceResponse getEntitiesByProximity() {
 		/*
 		 * All current beacons ids are sent to the service. Previously discovered beacons are included in separate
@@ -427,6 +430,7 @@ public class ProximityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	public List<Beacon> getStrongestBeacons(int max) {
 
 		final List<Beacon> beaconStrongest = new ArrayList<Beacon>();
@@ -464,6 +468,7 @@ public class ProximityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Long getLastBeaconInstallUpdate() {
 		return mLastBeaconInstallUpdate;
 	}
@@ -474,10 +479,7 @@ public class ProximityManager {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public static class ModelResult {
-		public Object data;
-		public ServiceResponse serviceResponse = new ServiceResponse();
-	}
+	 *--------------------------------------------------------------------------------------------*/
 
 	public static class WifiScanResult {
 

@@ -15,7 +15,7 @@ import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;

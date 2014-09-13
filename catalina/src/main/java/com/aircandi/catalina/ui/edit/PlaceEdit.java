@@ -15,6 +15,7 @@ import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.R;
 import com.aircandi.catalina.objects.Message;
 import com.aircandi.components.EntityManager;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.ProximityManager;
 import com.aircandi.components.StringManager;
@@ -170,13 +171,13 @@ public class PlaceEdit extends com.aircandi.ui.edit.PlaceEdit implements TokenCo
 						for (Entity to : mTos) {
 							links.add(new Link(to.id, Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER));
 						}
-						final ProximityManager.ModelResult result = Aircandi.getInstance().getEntityManager().insertEntity(message, links, null, null, null, true);
+						final ModelResult result = Aircandi.getInstance().getEntityManager().insertEntity(message, links, null, null, null, true);
 						return result;
 					}
 
 					@Override
 					protected void onPostExecute(Object response) {
-						final ProximityManager.ModelResult result = (ProximityManager.ModelResult) response;
+						final ModelResult result = (ModelResult) response;
 						mBusy.hideBusy(false);
 
 						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {

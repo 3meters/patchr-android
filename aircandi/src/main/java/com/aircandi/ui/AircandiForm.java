@@ -1,6 +1,7 @@
 package com.aircandi.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
@@ -90,17 +91,16 @@ import java.util.Map;
 public class AircandiForm extends BaseActivity {
 
 	protected Number mPauseDate;
-	protected Map<String, BaseFragment> mFragments = new HashMap<String, BaseFragment>();
-	protected BaseFragment mCurrentFragment;
-	protected String       mCurrentFragmentTag;
-	protected String       mRequestedFragmentTag;
-	protected View         mRequestedFragmentView;
-	protected Boolean      mConfiguredForAnonymous;
+	protected Map<String, Fragment> mFragments = new HashMap<String, Fragment>();
+	protected Fragment mCurrentFragment;
+	protected String   mCurrentFragmentTag;
+	protected String   mNextFragmentTag;
+	protected String   mPrevFragmentTag;
+	protected Boolean  mConfiguredForAnonymous;
 
 	protected DrawerLayout          mDrawerLayout;
 	protected View                  mDrawer;
 	protected ActionBarDrawerToggle mDrawerToggle;
-	protected String                mDrawerTitle;
 	protected Boolean mFinishOnClose = false;
 
 	protected String mTitle = StringManager.getString(R.string.name_app);
@@ -108,7 +108,6 @@ public class AircandiForm extends BaseActivity {
 	protected CacheStamp mCacheStamp;
 
 	protected View mCurrentNavView;
-	protected String mCurrentNavId = Constants.FRAGMENT_TYPE_NEARBY; // NO_UCD (unused code)
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -146,14 +145,15 @@ public class AircandiForm extends BaseActivity {
 			@Override
 			public void onDrawerClosed(View view) {
 				super.onDrawerClosed(view);
-				if (!mRequestedFragmentTag.equals(mCurrentFragmentTag)) {
-					setCurrentFragment(mRequestedFragmentTag, mRequestedFragmentView);
+				if (!mNextFragmentTag.equals(mCurrentFragmentTag)) {
+					setCurrentFragment(mNextFragmentTag);
 				}
 				else {
-					updateActionBar();
+					if (!mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
+						mActionBar.setTitle(StringManager.getString(((BaseFragment) mCurrentFragment).getTitleResId()));
+					}
 				}
-				mActionBar.setTitle(mDrawerTitle);
-				onPrepareOptionsMenu(mMenu);
+				onPrepareOptionsMenu(mMenu); //Hide/show action bar items
 			}
 
 			/** Called when a drawer has settled in a completely open state. */
@@ -161,8 +161,7 @@ public class AircandiForm extends BaseActivity {
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
 				mActionBar.setTitle(mTitle);
-				updateActionBar();
-				onPrepareOptionsMenu(mMenu);
+				onPrepareOptionsMenu(mMenu); //Hide/show action bar items
 			}
 		};
 
@@ -212,9 +211,8 @@ public class AircandiForm extends BaseActivity {
 			}
 		}
 		View view = findViewById(R.id.item_nearby);
-		mRequestedFragmentTag = Constants.FRAGMENT_TYPE_NEARBY;
-		setCurrentFragment(Constants.FRAGMENT_TYPE_NEARBY, view);
-		mActionBar.setTitle(mDrawerTitle);
+		mNextFragmentTag = Constants.FRAGMENT_TYPE_NEARBY;
+		setCurrentFragment(mNextFragmentTag);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -234,7 +232,7 @@ public class AircandiForm extends BaseActivity {
 	@Override
 	public void onRefresh() {
 		if (mCurrentFragment != null) {
-			mCurrentFragment.onRefresh();
+			((BaseFragment) mCurrentFragment).onRefresh();
 		}
 	}
 
@@ -264,8 +262,7 @@ public class AircandiForm extends BaseActivity {
 
 	@SuppressWarnings("ucd")
 	public void onDrawerItemClick(View view) {
-		mRequestedFragmentTag = (String) view.getTag();
-		mRequestedFragmentView = view;
+		mNextFragmentTag = (String) view.getTag();
 		mDrawerLayout.closeDrawer(mDrawer);
 	}
 
@@ -284,7 +281,7 @@ public class AircandiForm extends BaseActivity {
 	@Override
 	public void onHelp() {
 		if (mCurrentFragment != null) {
-			mCurrentFragment.onHelp();
+			((BaseFragment) mCurrentFragment).onHelp();
 		}
 	}
 
@@ -303,8 +300,8 @@ public class AircandiForm extends BaseActivity {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				if (mCurrentFragment != null) {
-					mCurrentFragment.bind(BindingMode.AUTO);
+				if (mCurrentFragment != null && mCurrentFragment instanceof BaseFragment) {
+					((BaseFragment) mCurrentFragment).bind(BindingMode.AUTO);
 				}
 				updateActivityAlert();
 			}
@@ -315,11 +312,11 @@ public class AircandiForm extends BaseActivity {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void setCurrentFragment(String fragmentType, View view) {
-        /*
-         * Fragment menu items are in addition to any menu items added by the parent activity.
+	public void setCurrentFragment(String fragmentType) {
+	    /*
+	     * Fragment menu items are in addition to any menu items added by the parent activity.
 		 */
-		BaseFragment fragment = null;
+		Fragment fragment = null;
 
 		if (mFragments.containsKey(fragmentType)) {
 			fragment = mFragments.get(fragmentType);
@@ -419,23 +416,22 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		if (fragment != null) {
-			mDrawerTitle = StringManager.getString(fragment != null ? fragment.getTitleResId() : 0);
+			mActionBar.setTitle(StringManager.getString(((BaseFragment) fragment).getTitleResId()));
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
 			ft.replace(R.id.fragment_holder, fragment);
 			ft.commit();
 			mCurrentFragment = (BaseFragment) fragment;
 			mCurrentFragmentTag = fragmentType;
-			updateActionBar();
 		}
 	}
 
-	public BaseFragment getCurrentFragment() {
+	public Fragment getCurrentFragment() {
 		return mCurrentFragment;
 	}
 
 	private void tetherAlert() {
-        /*
-         * We alert that wifi isn't enabled. If the user ends up enabling wifi,
+	    /*
+	     * We alert that wifi isn't enabled. If the user ends up enabling wifi,
 		 * we will get that event and refresh radar with beacon support.
 		 */
 		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
@@ -481,8 +477,6 @@ public class AircandiForm extends BaseActivity {
 			}
 		}
 	}
-
-	protected void updateActionBar() {}
 
 	@SuppressWarnings("ucd")
 	protected void updateDrawer() {

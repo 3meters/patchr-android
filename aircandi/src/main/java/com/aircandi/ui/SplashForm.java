@@ -25,7 +25,7 @@ import com.aircandi.components.MediaManager;
 import com.aircandi.components.MenuManager;
 import com.aircandi.components.MessagingManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.ShortcutManager;
 import com.aircandi.controllers.Applinks;
 import com.aircandi.controllers.Beacons;

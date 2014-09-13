@@ -19,7 +19,7 @@ import com.aircandi.R;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;

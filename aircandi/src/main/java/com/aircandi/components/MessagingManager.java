@@ -13,7 +13,7 @@ import android.support.v4.app.NotificationCompat;
 import com.aircandi.Aircandi;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.events.MessageEvent;
 import com.aircandi.objects.Action.EventCategory;

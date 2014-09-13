@@ -36,8 +36,8 @@ public class AirImageView extends FrameLayout implements Target {
 	private TextView    mMissingMessage;
 
 	private Photo mPhoto;
-	private final Handler mThreadHandler = new Handler();
 	private Target mTarget;
+	private final Handler mThreadHandler = new Handler();
 
 	private Integer  mSizeHint;
 	private SizeType mSizeType;
@@ -94,9 +94,11 @@ public class AirImageView extends FrameLayout implements Target {
 		ta.recycle();
 
 		if (!isInEditMode()) {
-			final int scaleTypeValue = attributes.getAttributeIntValue(androidNamespace, "scaleType", 6);
-			if (scaleTypeValue >= 0) {
-				mScaleType = sScaleTypeArray[scaleTypeValue];
+			if (attributes != null) {
+				final int scaleTypeValue = attributes.getAttributeIntValue(androidNamespace, "scaleType", 6);
+				if (scaleTypeValue >= 0) {
+					mScaleType = sScaleTypeArray[scaleTypeValue];
+				}
 			}
 		}
 		initialize(context);
@@ -133,6 +135,7 @@ public class AirImageView extends FrameLayout implements Target {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		if (mImageMain != null) {
@@ -232,6 +235,7 @@ public class AirImageView extends FrameLayout implements Target {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void showLoading(final Boolean visible) {
 		mThreadHandler.post(new Runnable() {
 
@@ -265,6 +269,7 @@ public class AirImageView extends FrameLayout implements Target {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	public ImageView getImageView() {
 		return mImageMain;
 	}
@@ -392,7 +397,9 @@ public class AirImageView extends FrameLayout implements Target {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public enum SizeType {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public enum SizeType {
 		/*
 		 * Always append new enum items because there is a
 		 * dependency on ordering for persistence.

@@ -41,6 +41,29 @@
 				custom:spb_color="@color/brand_progress_bar_color" />
 		</LinearLayout>
 
+		<!--
+		<ImageButton
+			android:id="@+id/footer_holder"
+			style="@style/button_round_glow"
+			android:layout_width="@dimen/button_round_medium"
+			android:layout_height="@dimen/button_round_medium"
+			android:tag="map"
+			android:clickable="true"
+			android:onClick="onViewButtonClick"
+			android:src="?attr/iconMap" />-->
+
+		<com.aircandi.ui.widgets.AirTextLight
+			android:id="@+id/footer_holder"
+			style="@style/button_round_glow"
+			android:layout_width="@dimen/button_round_medium"
+			android:layout_height="@dimen/button_round_medium"
+			android:clickable="true"
+			android:onClick="onListViewButtonClick"
+			android:tag="map"
+			android:text="@string/label_view_map"
+			android:textAllCaps="true"
+			android:textColor="?attr/textColorButtonLink" />
+
 		<com.aircandi.ui.widgets.ToolTipRelativeLayout
 			android:id="@+id/tooltips"
 			android:layout_width="match_parent"
@@ -52,8 +75,8 @@
 				android:id="@+id/tooltips_cancel"
 				android:layout_width="35dp"
 				android:layout_height="35dp"
-				android:layout_alignParentTop="true"
 				android:layout_alignParentRight="true"
+				android:layout_alignParentTop="true"
 				android:layout_margin="8dp"
 				android:background="@drawable/selector_button_circle_overlay"
 				android:duplicateParentState="true"

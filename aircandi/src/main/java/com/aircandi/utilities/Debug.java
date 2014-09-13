@@ -6,7 +6,7 @@ import android.widget.Toast;
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Document;
 import com.aircandi.objects.Log;

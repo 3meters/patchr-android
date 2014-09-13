@@ -20,7 +20,7 @@ import com.aircandi.Aircandi.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Category;
 import com.aircandi.objects.Photo;

@@ -1,5 +1,6 @@
 package com.aircandi.catalina.ui;
 
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.Menu;
@@ -35,6 +36,7 @@ import com.squareup.otto.Subscribe;
 public class AircandiForm extends com.aircandi.ui.AircandiForm {
 
 	protected ToolTipRelativeLayout mTooltips;
+	protected View                  mFooterHolder;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
+		mFooterHolder = findViewById(R.id.footer_holder);
 		mTooltips = (ToolTipRelativeLayout) findViewById(R.id.tooltips);
 		mTooltips.setSingleShot(Constants.TOOLTIPS_PATCH_LIST_ID);
 	}
@@ -89,6 +92,21 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
+	public void onBackPressed() {
+		if (mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
+			mFooterHolder.callOnClick();
+		}
+		else {
+			if (mDrawerLayout.isDrawerVisible(mDrawer)) {
+				onCancel(false);
+			}
+			else {
+				mDrawerLayout.openDrawer(mDrawer);
+			}
+		}
+	}
+
+	@Override
 	public void onAdd(Bundle extras) {
 		if (!extras.containsKey(Constants.EXTRA_ENTITY_SCHEMA)) {
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
@@ -120,32 +138,31 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 	@Override
 	@SuppressWarnings("ucd")
 	public void onDrawerItemClick(View view) {
-
-		String navId = (String) view.getTag();
-		if (!mCurrentNavId.equals(navId)) {
-			mRequestedFragmentTag = navId;
-			mCurrentNavId = navId;
-			mCurrentNavView = view;
-			updateDrawer();
-		}
+		mNextFragmentTag = (String) view.getTag();
+		mCurrentNavView = view;
+		updateDrawer();
 		mDrawerLayout.closeDrawer(mDrawer);
 	}
 
-	public void onTooltipsCancelButtonClick(View view){
-		mTooltips.hide(false);
+	@SuppressWarnings("ucd")
+	public void onListViewButtonClick(View view) {
+		mNextFragmentTag = (String) view.getTag();
+		setCurrentFragment(mNextFragmentTag);
+		onPrepareOptionsMenu(mMenu);
 	}
+
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
-	public void setCurrentFragment(String fragmentType, View view) {
+	public void setCurrentFragment(String fragmentType) {
 		Logger.i(this, "setCurrentFragment called");
 		/*
 		 * Fragment menu items are in addition to any menu items added by the parent activity.
 		 */
-		BaseFragment fragment;
+		Fragment fragment;
 
 		if (mFragments.containsKey(fragmentType)) {
 			fragment = mFragments.get(fragmentType);
@@ -318,6 +335,14 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
+			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
+
+				fragment = new MapListFragment();
+
+				((MapListFragment) fragment).getMenuResIds().add(com.aircandi.R.menu.menu_refresh);
+				((MapListFragment) fragment).getMenuResIds().add(com.aircandi.R.menu.menu_new_place);
+			}
+
 			else {
 				return;
 			}
@@ -325,13 +350,43 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 			mFragments.put(fragmentType, fragment);
 		}
 
-		mDrawerTitle = StringManager.getString(fragment.getTitleResId());
+		if (!fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
+			mActionBar.setTitle(StringManager.getString(((BaseFragment) fragment).getTitleResId()));
+		}
+		else {
+			Integer zoomLevel = MapListFragment.ZOOM_COUNTY;
+			if (mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
+				zoomLevel = MapListFragment.ZOOM_NEARBY;
+			}
+			((MapListFragment) fragment)
+					.setEntities(((EntityListFragment) getCurrentFragment()).getEntities())
+					.setTitleResId(((EntityListFragment) getCurrentFragment()).getTitleResId())
+					.setZoomLevel(zoomLevel);
+		}
+
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.replace(R.id.fragment_holder, fragment);
 		ft.commit();
-		mCurrentFragment = (BaseFragment) fragment;
+		mPrevFragmentTag = mCurrentFragmentTag;
 		mCurrentFragmentTag = fragmentType;
-		updateActionBar();
+		mCurrentFragment = fragment;
+		updateFooter();
+	}
+
+	protected void updateFooter() {
+		if (mFooterHolder != null) {
+			if (mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_FEED)) {
+				mFooterHolder.setVisibility(View.GONE);
+			}
+			else {
+				mFooterHolder.setTag(mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP) ? mPrevFragmentTag : Constants.FRAGMENT_TYPE_MAP);
+				String label = StringManager.getString(mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)
+				                                       ? R.string.label_view_list
+				                                       : R.string.label_view_map);
+				((TextView) mFooterHolder).setText(label);
+				mFooterHolder.setVisibility(View.VISIBLE);
+			}
+		}
 	}
 
 	@Override

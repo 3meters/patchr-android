@@ -17,7 +17,7 @@ import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.ProximityManager.ScanReason;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TabManager;

@@ -6,7 +6,7 @@ import java.util.List;
 import com.aircandi.Aircandi;
 import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.components.EntityManager;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.LinkProfile;

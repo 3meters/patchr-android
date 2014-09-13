@@ -17,7 +17,7 @@ public class GcmIntentService extends com.aircandi.components.GcmIntentService {
 	protected Boolean showingActivities() {
 		android.app.Activity currentActivity = Catalina.getInstance().getCurrentActivity();
 		if (currentActivity != null && currentActivity.getClass().equals(AircandiForm.class)) {
-			BaseFragment fragment = ((AircandiForm) currentActivity).getCurrentFragment();
+			BaseFragment fragment = (BaseFragment) ((AircandiForm) currentActivity).getCurrentFragment();
 			if (fragment != null && fragment.isActivityStream()) {
 				return true;
 			}

@@ -10,15 +10,21 @@ import com.aircandi.utilities.UI;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.clustering.ClusterItem;
+import com.google.maps.android.clustering.ClusterManager;
 
 public class MapFragment extends SupportMapFragment {
 
-	private GoogleMap        mMap;
+	protected GoogleMap      mMap;
+	protected ClusterManager<MyClusterItem> mClusterManager;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = super.onCreateView(inflater, container, savedInstanceState);
 		mMap = getMap();
+		mClusterManager = new ClusterManager<MyClusterItem>(getActivity(), mMap);
+
 		// Check if we were successful in obtaining the map.
 		if (checkReady()) {
 			setUpMap();
@@ -47,5 +53,22 @@ public class MapFragment extends SupportMapFragment {
 		uiSettings.setAllGesturesEnabled(true);
 		uiSettings.setCompassEnabled(true);
 
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	public class MyClusterItem implements ClusterItem {
+		private final LatLng mPosition;
+
+		public MyClusterItem(double lat, double lng) {
+			mPosition = new LatLng(lat, lng);
+		}
+
+		@Override
+		public LatLng getPosition() {
+			return mPosition;
+		}
 	}
 }

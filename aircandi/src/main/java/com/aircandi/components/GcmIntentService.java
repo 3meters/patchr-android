@@ -207,7 +207,7 @@ public class GcmIntentService extends IntentService {
 	protected Boolean showingActivities() {
 		android.app.Activity currentActivity = Aircandi.getInstance().getCurrentActivity();
 		if (currentActivity != null && currentActivity.getClass().equals(AircandiForm.class)) {
-			BaseFragment fragment = ((AircandiForm) currentActivity).getCurrentFragment();
+			BaseFragment fragment = (BaseFragment) ((AircandiForm) currentActivity).getCurrentFragment();
 			if (fragment != null && ((Object) fragment).getClass().equals(ActivityFragment.class)) {
 				return true;
 			}

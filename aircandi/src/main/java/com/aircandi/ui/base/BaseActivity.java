@@ -43,7 +43,7 @@ import com.aircandi.components.Extras;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.monitors.SimpleMonitor;
@@ -154,6 +154,7 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 			unpackIntent();
 			initialize(savedInstanceState);
+			configureActionBar();
 		}
 	}
 
@@ -173,9 +174,7 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 
 		if (mActionBar != null) {
 			mActionBar.setDisplayHomeAsUpEnabled(true);
-			Drawable icon = Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
-			icon.setColorFilter(Colors.getColor(color.white), PorterDuff.Mode.SRC_ATOP);
-			mActionBar.setIcon(icon);
+			actionBarIcon();
 		}
 
 		/*
@@ -190,6 +189,14 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 			}
 		}
 		catch (Exception ignore) {}
+	}
+
+	protected void actionBarIcon() {
+		if (mActionBar != null) {
+			Drawable icon = Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
+			icon.setColorFilter(Colors.getColor(color.white), PorterDuff.Mode.SRC_ATOP);
+			mActionBar.setIcon(icon);
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -734,7 +741,7 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 		Bundle extras = null;
 		if (item.getItemId() == R.id.remove && mEntity.placeId != null) {
 		    /*
-	         * We use placeId instead of toId so we can removed replies where
+		     * We use placeId instead of toId so we can removed replies where
              * toId points to the root message.
              */
 			extras = new Bundle();
@@ -817,7 +824,7 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 		Aircandi.getInstance().setCurrentActivity(this);
 		mClickEnabled = true;
 		if (!isFinishing()) {
-			configureActionBar(); // Icon gets lost sometimes so refresh
+			actionBarIcon(); // Hack: Icon gets lost sometimes so refresh
 		}
 		/*
 		 * We always check to make sure play services are working properly. This call will finish 

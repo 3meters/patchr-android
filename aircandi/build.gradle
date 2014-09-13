@@ -32,6 +32,7 @@ dependencies {
     compile 'net.minidev:json-smart:1.2'
     compile 'com.github.amlcurran.showcaseview:library:5.+'
     compile 'com.github.castorflex.smoothprogressbar:library:0.5.+'
+    compile 'com.google.maps.android:android-maps-utils:0.3+'
 
     compile files('libs/aws-android-sdk-2.0.5-core.jar')
     compile files('libs/aws-android-sdk-2.0.5-s3.jar')

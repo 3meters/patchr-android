@@ -109,6 +109,9 @@
 	<string name="label_drawer_item_trend_active">Most active</string>
 	<string name="label_drawer_item_trend_popular">Most popular</string>
 
+	<string name="label_view_map">Map</string>
+	<string name="label_view_list">List</string>
+
 	<!-- Labels -->
 
 	<string name="tooltip_place_new_part1">

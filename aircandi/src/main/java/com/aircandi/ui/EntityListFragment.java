@@ -25,7 +25,7 @@ import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MessagingManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.controllers.ViewHolder;
@@ -753,6 +753,10 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 	public IQuery getQuery() {
 		return mQuery;
+	}
+
+	public List<Entity> getEntities() {
+		return mEntities;
 	}
 
 	/*--------------------------------------------------------------------------------------------

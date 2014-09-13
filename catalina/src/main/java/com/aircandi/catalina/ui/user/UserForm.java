@@ -9,7 +9,7 @@ import com.aircandi.catalina.R;
 import com.aircandi.catalina.objects.LinkProfile;
 import com.aircandi.catalina.ui.MessageListFragment;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Route;
