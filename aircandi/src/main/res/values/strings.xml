@@ -159,6 +159,7 @@
 	<string name="alert_signin_message_like">Sign in to like [@schema]s.</string>
 	<string name="alert_signin_message_invite">Sign in to send invites.</string>
 	<string name="alert_signin_message_place_tune">Sign in to tune [@string/container_plural_lowercase].</string>
+	<string name="alert_signin_message_place_new">Sign in to create a new [@string/container_singular_lowercase].</string>
 
 	<!-- Alerts: confirm dirty -->
 

@@ -33,12 +33,12 @@
 		android:layout_width="280dp"
 		android:layout_height="wrap_content"
 		android:layout_centerInParent="true"
-		android:background="#66000000"
+		android:background="@drawable/bg_splash_dialog"
 		android:orientation="vertical"
 		android:paddingBottom="10dp"
 		android:paddingLeft="10dp"
 		android:paddingRight="10dp"
-		android:paddingTop="25dp"
+		android:paddingTop="15dp"
 		android:visibility="visible"
 		tools:ignore="UselessParent">
 
@@ -47,7 +47,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
-			android:layout_marginBottom="20dp"
+			android:layout_marginBottom="10dp"
 			android:gravity="center_horizontal"
 			android:orientation="horizontal"
 			tools:ignore="UseCompoundDrawables">

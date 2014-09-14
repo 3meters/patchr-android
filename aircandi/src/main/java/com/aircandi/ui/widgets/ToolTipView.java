@@ -52,10 +52,8 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
 	private static final int VERB_COUNT = 22;
 
 	private ImageView mTopPointerView;
-	private View      mTopFrame;
 	private ViewGroup mContentHolder;
 	private TextView  mToolTipTV;
-	private View      mBottomFrame;
 	private ImageView mBottomPointerView;
 	private View      mShadowView;
 
@@ -83,13 +81,11 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
 
 		setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 		setOrientation(VERTICAL);
-		LayoutInflater.from(getContext()).inflate(R.layout.tooltip, this, true);
+		LayoutInflater.from(getContext()).inflate(R.layout.widget_tooltip, this, true);
 
 		mTopPointerView = (ImageView) findViewById(R.id.tooltip_pointer_up);
-		mTopFrame = findViewById(R.id.tooltip_topframe);
 		mContentHolder = (ViewGroup) findViewById(R.id.tooltip_contentholder);
 		mToolTipTV = (TextView) findViewById(R.id.tooltip_contenttv);
-		mBottomFrame = findViewById(R.id.tooltip_bottomframe);
 		mBottomPointerView = (ImageView) findViewById(R.id.tooltip_pointer_down);
 		mShadowView = findViewById(R.id.tooltip_shadow);
 
@@ -108,6 +104,7 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
 		mDimensionsKnown = true;
 
 		mWidth = mContentHolder.getWidth();
+		mContentHolder.bringToFront();
 
 		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) getLayoutParams();
 		layoutParams.width = mWidth;
@@ -275,10 +272,7 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
 
 	public void setColor(final int color) {
 		mTopPointerView.setColorFilter(color, PorterDuff.Mode.MULTIPLY);
-		mTopFrame.getBackground().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
 		mBottomPointerView.setColorFilter(color, PorterDuff.Mode.MULTIPLY);
-		mBottomFrame.getBackground().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
-		mContentHolder.setBackgroundColor(color);
 	}
 
 	private void setContentView(final View view) {

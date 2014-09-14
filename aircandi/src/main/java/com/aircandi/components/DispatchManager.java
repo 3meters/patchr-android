@@ -165,6 +165,9 @@ public class DispatchManager {
 
 			if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
 				String message = StringManager.getString(R.string.alert_signin_message_add, schema);
+				if (schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+					message = StringManager.getString(R.string.alert_signin_message_place_new, schema);
+				}
 				Dialogs.signinRequired(activity, message);
 				return;
 			}

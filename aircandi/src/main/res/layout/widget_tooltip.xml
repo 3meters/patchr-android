@@ -4,30 +4,30 @@
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content">
 
-	<FrameLayout
-		android:id="@+id/tooltip_topframe"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="10dp"
-		android:background="@drawable/tooltip_top_frame" />
-
 	<ImageView
 		android:id="@+id/tooltip_pointer_up"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:src="@drawable/tooltip_arrow_up" />
 
+	<View
+		android:id="@+id/tooltip_shadow"
+		android:layout_width="match_parent"
+		android:layout_height="30dp"
+		android:layout_below="@+id/tooltip_contentholder"
+		android:layout_marginTop="-14dp"
+		android:background="@drawable/quickcontact_drop_shadow" />
+
 	<FrameLayout
 		android:id="@+id/tooltip_contentholder"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_below="@id/tooltip_topframe"
-		android:layout_marginTop="-2dp"
-		android:background="#ffffff"
+		android:layout_marginTop="10dp"
+		android:background="@drawable/bg_tooltip"
+		android:paddingBottom="6dp"
 		android:paddingLeft="8dp"
 		android:paddingRight="8dp"
-		android:paddingTop="4dp"
-		android:paddingBottom="4dp"
+		android:paddingTop="6dp"
 		android:scrollbars="none">
 
 		<TextView
@@ -36,26 +36,11 @@
 			android:layout_height="wrap_content" />
 	</FrameLayout>
 
-	<View
-		android:id="@+id/tooltip_shadow"
-		android:layout_width="match_parent"
-		android:layout_height="30dp"
-		android:layout_below="@id/tooltip_contentholder"
-		android:layout_marginTop="-6dp"
-		android:background="@drawable/quickcontact_drop_shadow" />
-
-	<FrameLayout
-		android:id="@+id/tooltip_bottomframe"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_below="@id/tooltip_contentholder"
-		android:background="@drawable/tooltip_bottom_frame" />
-
 	<ImageView
 		android:id="@+id/tooltip_pointer_down"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_below="@id/tooltip_bottomframe"
+		android:layout_below="@id/tooltip_contentholder"
 		android:layout_marginTop="-1dp"
 		android:src="@drawable/tooltip_arrow_down" />
 

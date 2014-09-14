@@ -97,7 +97,7 @@
 		<item name="backgroundPlaceholder">@drawable/bg_placeholder_dark</item>
 		<item name="backgroundToken">@drawable/selector_token_dark</item>
 		<item name="backgroundTooltip">@color/holo_blue_dark</item>
-		<item name="backgroundTooltipLayer">@color/background_tooltip_layer_dark</item>
+		<item name="backgroundTooltipLayer">@color/transparent</item>
 
 		<!-- Images and icons -->
 
@@ -228,7 +228,7 @@
 		<item name="backgroundProgressMessage">@color/gray_10_pcnt</item>
 		<item name="backgroundPlaceholder">@drawable/bg_placeholder_light</item>
 		<item name="backgroundToken">@drawable/selector_token_light</item>
-		<item name="backgroundTooltip">@color/holo_blue_light</item>
+		<item name="backgroundTooltip">@color/holo_blue_dark</item>
 		<item name="backgroundTooltipLayer">@color/transparent</item>
 
 		<!-- Images and icons -->

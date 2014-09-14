@@ -76,6 +76,8 @@
 	<dimen name="progress_small_height">20dp</dimen>
 	<dimen name="progress_small_width">20dp</dimen>
 
+	<dimen name="tooltip_corner_radius">4dp</dimen>
+
 	<!--
 		This controls how much extra room is added around buttons and
 		images so selection feedback can show around the view
