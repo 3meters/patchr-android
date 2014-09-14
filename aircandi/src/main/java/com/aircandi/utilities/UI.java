@@ -1,5 +1,6 @@
 package com.aircandi.utilities;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -31,8 +32,6 @@ import com.aircandi.objects.Photo;
 import com.aircandi.objects.Place;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.AirImageView.SizeType;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
 import com.squareup.picasso.RequestCreator;
 
 import it.sephiroth.android.library.imagezoom.ImageViewTouch;
@@ -286,13 +285,13 @@ public class UI {
 
 			@Override
 			public void run() {
-				if (visible && ViewHelper.getAlpha(view) == 0) {
+				if (visible && view.getAlpha() == 0) {
 					if (clickable) view.setClickable(true);
 					ObjectAnimator anim = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
 					anim.setDuration((duration == null) ? AnimationManager.DURATION_MEDIUM : duration);
 					anim.start();
 				}
-				else if (!visible && ViewHelper.getAlpha(view) == 1) {
+				else if (!visible && view.getAlpha() == 1) {
 					if (clickable) view.setClickable(false);
 					ObjectAnimator anim = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
 					anim.setDuration((duration == null) ? AnimationManager.DURATION_MEDIUM : duration);

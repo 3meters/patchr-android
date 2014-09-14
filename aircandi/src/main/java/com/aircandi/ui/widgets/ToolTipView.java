@@ -15,6 +15,10 @@
 
 package com.aircandi.ui.widgets;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PorterDuff;
@@ -34,11 +38,6 @@ import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.UI;
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorListenerAdapter;
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -207,11 +206,7 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
 
 		final boolean showBelow = (mArrowPosition == ToolTip.ArrowPosition.BELOW || toolTipViewAboveY < 0);
 
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			ViewHelper.setAlpha(mTopPointerView, showBelow ? 1 : 0);
-			ViewHelper.setAlpha(mBottomPointerView, showBelow ? 0 : 1);
-		}
-		else if (mToolTip.showArrow()) {
+		if (mToolTip.showArrow()) {
 			mTopPointerView.setVisibility(showBelow ? VISIBLE : GONE);
 			mBottomPointerView.setVisibility(showBelow ? GONE : VISIBLE);
 		}
@@ -224,8 +219,8 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
 		}
 
 		if (mToolTip.getAnimationType() == ToolTip.AnimationType.NONE) {
-			ViewHelper.setTranslationY(this, mToolTipViewY);
-			ViewHelper.setTranslationX(this, mToolTipViewX);
+			setTranslationY(mToolTipViewY);
+			setTranslationX(mToolTipViewX);
 		}
 		else {
 			animateView();
@@ -262,8 +257,8 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
 	public void setPointerCenterX(final int pointerCenterX) {
 		int pointerWidth = Math.max(mTopPointerView.getMeasuredWidth(), mBottomPointerView.getMeasuredWidth());
 
-		ViewHelper.setX(mTopPointerView, pointerCenterX - pointerWidth / 2 - (int) getX());
-		ViewHelper.setX(mBottomPointerView, pointerCenterX - pointerWidth / 2 - (int) getX());
+		mTopPointerView.setX(pointerCenterX - pointerWidth / 2 - (int) getX());
+		mBottomPointerView.setX(pointerCenterX - pointerWidth / 2 - (int) getX());
 	}
 
 	public void setOnToolTipViewClickedListener(final OnToolTipViewClickedListener listener) {
@@ -327,66 +322,6 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
 		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) getLayoutParams();
 		params.addRule(verb, anchor);
 		setLayoutParams(params);
-	}
-
-	/**
-	 * Convenience method for getting X.
-	 */
-	@SuppressLint("NewApi")
-	@Override
-	public float getX() {
-		float result;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			result = super.getX();
-		}
-		else {
-			result = ViewHelper.getX(this);
-		}
-		return result;
-	}
-
-	/**
-	 * Convenience method for setting X.
-	 */
-	@SuppressLint("NewApi")
-	@Override
-	public void setX(final float x) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			super.setX(x);
-		}
-		else {
-			ViewHelper.setX(this, x);
-		}
-	}
-
-	/**
-	 * Convenience method for getting Y.
-	 */
-	@SuppressLint("NewApi")
-	@Override
-	public float getY() {
-		float result;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			result = super.getY();
-		}
-		else {
-			result = ViewHelper.getY(this);
-		}
-		return result;
-	}
-
-	/**
-	 * Convenience method for setting Y.
-	 */
-	@SuppressLint("NewApi")
-	@Override
-	public void setY(final float y) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			super.setY(y);
-		}
-		else {
-			ViewHelper.setY(this, y);
-		}
 	}
 
 	public interface OnToolTipViewClickedListener {

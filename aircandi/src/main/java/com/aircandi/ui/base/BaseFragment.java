@@ -38,9 +38,6 @@ import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.ui.widgets.AirAutoCompleteTextView;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
-import com.github.amlcurran.showcaseview.ShowcaseView;
-import com.github.amlcurran.showcaseview.targets.ActionItemTarget;
-import com.nineoldandroids.view.ViewHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,7 +116,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 
 		mButtonSpecial = (Button) view.findViewById(R.id.button_special);
 		if (mButtonSpecial != null) {
-			ViewHelper.setAlpha(mButtonSpecial, 0);
+			mButtonSpecial.setAlpha(0);
 			mButtonSpecial.setClickable(false);
 		}
 

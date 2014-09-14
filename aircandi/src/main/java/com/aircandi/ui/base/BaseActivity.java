@@ -60,7 +60,6 @@ import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
-import com.nineoldandroids.view.ViewHelper;
 
 import java.lang.reflect.Field;
 
@@ -146,7 +145,7 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 			/* Super base ui */
 			mButtonSpecial = (Button) findViewById(R.id.button_special);
 			if (mButtonSpecial != null) {
-				ViewHelper.setAlpha(mButtonSpecial, 0);
+				mButtonSpecial.setAlpha(0);
 				mButtonSpecial.setClickable(false);
 			}
 

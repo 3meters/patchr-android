@@ -1,5 +1,6 @@
 package com.aircandi.ui;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -48,8 +49,6 @@ import com.aircandi.ui.widgets.AirListView.OnDragListener;
 import com.aircandi.ui.widgets.AirSwipeRefreshLayout;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -586,7 +585,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 			mFooterHolder.setClickable(direction == DragDirection.DOWN);
 		}
 		else {
-			if (visible && (mFooterHolderHidden || ViewHelper.getTranslationY(mFooterHolder) != 0)) {
+			if (visible && (mFooterHolderHidden || mFooterHolder.getTranslationY() != 0)) {
 				ObjectAnimator animator = ObjectAnimator.ofFloat(mFooterHolder
 						, "translationY"
 						, mFooterHolder.getHeight()
@@ -596,7 +595,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 				mFooterHolderHidden = false;
 				mFooterHolder.setClickable(true);
 			}
-			else if (!visible && (!mFooterHolderHidden || ViewHelper.getTranslationY(mFooterHolder) == 0)) {
+			else if (!visible && (!mFooterHolderHidden || mFooterHolder.getTranslationY() == 0)) {
 				ObjectAnimator animator = ObjectAnimator.ofFloat(mFooterHolder
 						, "translationY"
 						, 0
