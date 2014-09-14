@@ -3,6 +3,7 @@ package com.aircandi.ui.widgets;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -20,7 +21,10 @@ import com.aircandi.Aircandi;
 import com.aircandi.Aircandi.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DownloadManager;
+import com.aircandi.components.StringManager;
 import com.aircandi.objects.Photo;
+import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
@@ -35,7 +39,7 @@ public class AirImageView extends FrameLayout implements Target {
 	private ProgressBar mProgressBar;
 	private TextView    mMissingMessage;
 
-	private Photo mPhoto;
+	private Photo  mPhoto;
 	private Target mTarget;
 	private final Handler mThreadHandler = new Handler();
 
@@ -205,11 +209,13 @@ public class AirImageView extends FrameLayout implements Target {
 	}
 
 	@Override
-	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
+	public void onBitmapLoaded(Bitmap bm, LoadedFrom loadedFrom) {
 		if (mTarget != null) {
-			mTarget.onBitmapLoaded(bitmap, loadedFrom);
+			mTarget.onBitmapLoaded(bm, loadedFrom);
 		}
 		else {
+			Bitmap bitmap = DownloadManager.checkDebug(bm, loadedFrom);
+			DownloadManager.checkDebug(bitmap, loadedFrom);
 			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Aircandi.applicationContext.getResources(), bitmap);
 			UI.showDrawableInImageView(bitmapDrawable, mImageMain, true, AnimationManager.fadeInMedium());
 			showMissing(false);

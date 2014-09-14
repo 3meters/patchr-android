@@ -8,13 +8,13 @@ import android.widget.Toast;
 
 import com.aircandi.utilities.UI;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 
-public class MapFragment extends SupportMapFragment {
+public class MapItemFragment extends MapFragment {
 
 	protected GoogleMap      mMap;
 	protected ClusterManager<MyClusterItem> mClusterManager;

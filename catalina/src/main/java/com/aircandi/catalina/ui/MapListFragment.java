@@ -3,6 +3,7 @@ package com.aircandi.catalina.ui;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,11 +21,13 @@ import com.aircandi.components.DownloadManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.StringManager;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
+import com.aircandi.catalina.ui.components.EntityTarget;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.UI;
@@ -42,12 +45,12 @@ import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.ui.IconGenerator;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 
 public class MapListFragment extends MapFragment implements ClusterManager.OnClusterClickListener<MapListFragment.EntityItem>
 		, ClusterManager.OnClusterInfoWindowClickListener<MapListFragment.EntityItem>
@@ -231,73 +234,71 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 			mLabel.setBackground(new ColorDrawable(Colors.getColor(R.color.brand_primary)));
 			mImage = (AirImageView) singleMarker.findViewById(R.id.entity_photo);
 			mImage.setSizeHint(UI.getRawPixelsForDisplayPixels(50f));
+			mImage.setSizeType(AirImageView.SizeType.THUMBNAIL);
 		}
 
 		@Override
 		protected void onBeforeClusterItemRendered(final EntityItem entityItem, final MarkerOptions markerOptions) {
 
 			final Place place = (Place) entityItem.mEntity;
-			if (!TextUtils.isEmpty(place.name)) {
-				markerOptions.title(place.name);
-			}
+			markerOptions.title(place.id);
 
-			if (place.category != null && !TextUtils.isEmpty(place.category.name)) {
+			new AsyncTask() {
 
-				mLabel.setText(place.category.name.substring(0, 1).toUpperCase(Locale.US));
-				markerOptions.snippet(place.category.name);
+				@Override
+				protected void onPreExecute() {}
 
-				final Photo photo = (place.category.photo != null) ? place.category.photo : place.getDefaultPhoto();
-				markerOptions.title(place.id);
+				@Override
+				protected Object doInBackground(Object... params) {
 
-				new AsyncTask() {
-
-					@Override
-					protected void onPreExecute() {}
-
-					@Override
-					protected Object doInBackground(Object... params) {
-
-						Thread.currentThread().setName("AsyncGetEntity");
-						ModelResult result = new ModelResult();
-						try {
-							Bitmap bitmap = DownloadManager.with(Aircandi.applicationContext)
-							                               .load(photo.getUri())
-							                               .centerInside()
-							                               .resize(mImage.getSizeHint(), mImage.getSizeHint())
-							                               .get();
-							result.data = bitmap;
-						}
-						catch (IOException ignore) {}
-						return result;
+					Thread.currentThread().setName("AsyncGetEntity");
+					ModelResult result = new ModelResult();
+					try {
+						/*
+						 * Picasso.get() will pull from memory/file/network but will only
+						 * cache to a file. This is probably for the best so we don't consume
+						 * memory for a bunch of little map icons.
+						 */
+						Photo photo = place.getPhoto();
+						Bitmap bitmap = DownloadManager.with(Aircandi.applicationContext)
+						                               .load(photo.getUri())
+						                               .centerCrop()
+						                               .resize(mImage.getSizeHint(), mImage.getSizeHint())
+						                               .get();
+						result.data = bitmap;
 					}
+					catch (IOException ignore) {}
+					return result;
+				}
 
-					@Override
-					protected void onPostExecute(Object modelResult) {
-						ModelResult result = (ModelResult) modelResult;
-						if (result.data != null) {
-							reloadMarker(entityItem, (Bitmap) result.data);
-						}
+				@Override
+				protected void onPostExecute(Object modelResult) {
+					ModelResult result = (ModelResult) modelResult;
+					if (result.data != null) {
+						reloadMarker(place, (Bitmap) result.data);
 					}
+				}
 
-				}.execute();
-			}
+			}.execute();
 
 			mImage.getImageView().setImageBitmap(null);
 			Bitmap icon = mIconGenerator.makeIcon();
 			markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
 		}
 
-		public void reloadMarker(EntityItem item, Bitmap bitmap) {
+		public void reloadMarker(Entity entity, Bitmap bitmap) {
+
+			final Place place = (Place) entity;
 
 			Collection<Marker> markers = mClusterManager.getMarkerCollection().getMarkers();
 			for (Marker marker : markers) {
-				if (item.mEntity.id.equals(marker.getTitle())) {
+				if (place.id.equals(marker.getTitle())) {
 					mImage.getImageView().setImageBitmap(bitmap);
 					Bitmap icon = mIconGenerator.makeIcon();
+
 					marker.setIcon(BitmapDescriptorFactory.fromBitmap(icon));
-					if (!TextUtils.isEmpty(item.mEntity.name)) {
-						marker.setTitle(item.mEntity.name);
-					}
+					marker.setTitle(!(TextUtils.isEmpty(place.name)) ? place.name : StringManager.getString(R.string.container_singular));
+					marker.setSnippet((place.category != null && !TextUtils.isEmpty(place.category.name)) ? place.category.name : null);
 					break;
 				}
 			}

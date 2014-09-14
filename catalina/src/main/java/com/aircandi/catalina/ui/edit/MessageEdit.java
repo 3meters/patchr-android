@@ -25,6 +25,7 @@ import com.aircandi.catalina.R;
 import com.aircandi.catalina.objects.Message;
 import com.aircandi.catalina.objects.Message.MessageType;
 import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DownloadManager;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.StringManager;
@@ -584,6 +585,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 						@Override
 						public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
+							DownloadManager.checkDebug(bitmap, loadedFrom);
 							final BitmapDrawable bitmapDrawable = new BitmapDrawable(Aircandi.applicationContext.getResources(), bitmap);
 							UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true, AnimationManager.fadeInMedium());
 							onChangedPhoto();

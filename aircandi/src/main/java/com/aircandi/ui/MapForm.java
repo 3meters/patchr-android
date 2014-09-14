@@ -1,5 +1,6 @@
 package com.aircandi.ui;
 
+import android.app.Fragment;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
@@ -19,7 +20,7 @@ import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.IBusy.BusyAction;
 import com.aircandi.utilities.Errors;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -30,15 +31,15 @@ import java.util.Locale;
 
 public class MapForm extends BaseEntityForm {
 
-	SupportMapFragment mMapFragment;
+	Fragment mMapFragment;
 	private static final int DEFAULT_ZOOM = 16;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 		mLinkProfile = LinkProfile.LINKS_FOR_PLACE;
-		mMapFragment = new MapFragment();
-		getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mMapFragment).commit();
+		mMapFragment = new MapItemFragment();
+		getFragmentManager().beginTransaction().replace(R.id.fragment_holder, mMapFragment).commit();
 	}
 
 	@Override
@@ -126,9 +127,9 @@ public class MapForm extends BaseEntityForm {
 							options.snippet(place.category.name);
 						}
 
-						Marker marker = mMapFragment.getMap().addMarker(options);
+						Marker marker = ((MapFragment)mMapFragment).getMap().addMarker(options);
 						marker.showInfoWindow();
-						mMapFragment.getMap().moveCamera(
+						((MapFragment)mMapFragment).getMap().moveCamera(
 								CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), DEFAULT_ZOOM));
 					}
 					else {

@@ -266,7 +266,9 @@ public class PlaceEdit extends com.aircandi.ui.edit.PlaceEdit implements TokenCo
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		mTooltips.hide(false);
+		if (mTooltips != null) {
+			mTooltips.hide(false);
+		}
 		return super.onOptionsItemSelected(item);
 	}
 }
