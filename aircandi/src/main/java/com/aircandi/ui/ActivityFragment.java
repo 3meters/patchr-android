@@ -18,7 +18,7 @@ import com.aircandi.components.Extras;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MessagingManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.ServiceActivity;
@@ -58,7 +58,7 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 		if (view == null) return null;
 
 		mListView = (ListView) view.findViewById(R.id.list);
-		mLoading = LayoutInflater.from(getSherlockActivity()).inflate(R.layout.temp_list_item_loading, null);
+		mLoading = LayoutInflater.from(getActivity()).inflate(R.layout.temp_list_item_loading, null);
 
 		/*
 		 * Triggers data fetch because endless wrapper calls cacheInBackground()
@@ -128,7 +128,7 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 					mLoaded = true;
 				}
 				else {
-					Errors.handleError(getSherlockActivity(), result.serviceResponse);
+					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 				onActivityComplete();
 			}
@@ -142,7 +142,7 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 		 */
 		if (mActivityStream) {
 			MessagingManager.getInstance().setNewActivity(false);
-			((AircandiForm) getSherlockActivity()).updateActivityAlert();
+			((AircandiForm) getActivity()).updateActivityAlert();
 			MessagingManager.getInstance().cancelNotifications();
 		}
 	}
@@ -162,10 +162,10 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 
 		if (activity.action.entity != null) {
 			Extras extras = new Extras().setForceRefresh(true);
-			Aircandi.dispatch.route(getSherlockActivity(), Route.BROWSE, activity.action.entity, null, extras.getExtras());
+			Aircandi.dispatch.route(getActivity(), Route.BROWSE, activity.action.entity, null, extras.getExtras());
 		}
 		else {
-			Aircandi.dispatch.intent(getSherlockActivity(), activity.intent);
+			Aircandi.dispatch.intent(getActivity(), activity.intent);
 		}
 	}
 
@@ -201,7 +201,7 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 	public void onActivityComplete() {
-		if (getSherlockActivity() != null) {
+		if (getActivity() != null) {
 			showButtonSpecial(mAdapter.getCount() == 0, null, null);
 		}
 	}
@@ -229,7 +229,7 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 				ModelResult result = (ModelResult) response;
 
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-					Errors.handleError(getSherlockActivity(), result.serviceResponse);
+					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 				else {
 					if (result.data != null) {
@@ -304,7 +304,7 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 	 *--------------------------------------------------------------------------------------------*/    public class ListAdapter extends ArrayAdapter<ServiceActivity> {
 
 		private ListAdapter(List<ServiceActivity> items) {
-			super(getSherlockActivity(), 0, items);
+			super(getActivity(), 0, items);
 		}
 
 		@Override
@@ -323,7 +323,7 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 			final ServiceActivity activity = mActivities.get(position);
 
 			if (view == null || view.findViewById(R.id.animator_more) != null) {
-				view = LayoutInflater.from(getSherlockActivity()).inflate(R.layout.temp_listitem_activity, null);
+				view = LayoutInflater.from(getActivity()).inflate(R.layout.temp_listitem_activity, null);
 				holder = new ViewHolder();
 
 				holder.name = (TextView) view.findViewById(R.id.name);

@@ -1,13 +1,12 @@
 package com.aircandi.service;
 
-import android.os.Build;
 import android.text.TextUtils;
 
 import com.aircandi.Aircandi;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.Stopwatch;
+import com.aircandi.exceptions.ClientVersionException;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.Json;
@@ -24,10 +23,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
@@ -295,20 +290,10 @@ public class OkHttpUrlConnection extends BaseConnection {
 	/*--------------------------------------------------------------------------------------------
 	 * Post
 	 *--------------------------------------------------------------------------------------------*/
+
 	private InputStream post(HttpURLConnection connection, String string, AirHttpRequest request, ServiceResponse serviceResponse)
 			throws IOException, InterruptedException {
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD)
-			return post_Gingerbread(connection, string, request, serviceResponse);
-		else
-			return post_Froyo(connection, string, request, serviceResponse);
-	}
-
-	private InputStream post_Gingerbread(HttpURLConnection connection, String string, AirHttpRequest request, ServiceResponse serviceResponse)
-			throws IOException, InterruptedException {
-		/*
-		 * Gingerbread and above support Gzip natively.
-		 */
 		OutputStream outputStream = null;
 		InputStream inputStream;
 
@@ -364,100 +349,11 @@ public class OkHttpUrlConnection extends BaseConnection {
 		}
 	}
 
-	private InputStream post_Froyo(HttpURLConnection connection, String string, AirHttpRequest request, ServiceResponse serviceResponse)
-			throws IOException, InterruptedException {
-		/*
-		 * Gingerbread and above support Gzip natively.
-		 */
-		boolean useGzip = false;
-		OutputStream outputStream = null;
-		InputStream inputStream;
-
-		try {
-			connection.setRequestProperty("Accept-Encoding", "gzip");
-
-			/*
-			 * Some posts like DELETE send an empty body so the string is null/empty
-			 */
-			if (!TextUtils.isEmpty(string)) {
-				byte[] data = string.getBytes();
-
-				connection.setDoOutput(true);
-				connection.setFixedLengthStreamingMode(data.length);
-
-				// Set the output stream
-				outputStream = connection.getOutputStream();
-				outputStream.write(data);
-				outputStream.flush();
-				outputStream.close();
-			}
-			else {
-				connection.connect();
-			}
-
-			if (connection.getResponseCode() / 100 == HttpURLConnection.HTTP_OK / 100) {
-				inputStream = connection.getInputStream();
-			}
-			else {
-				inputStream = connection.getErrorStream();
-			}
-
-			if (Thread.currentThread().isInterrupted()) throw new InterruptedException();
-
-			final Map<String, List<String>> headers = connection.getHeaderFields();
-			// This is a map, but we can't assume the key we're looking for
-			// is in normal casing. So it's really not a good map, is it?
-			final Set<Map.Entry<String, List<String>>> set = headers.entrySet();
-			for (Iterator<Map.Entry<String, List<String>>> i = set.iterator(); i.hasNext(); ) {
-				Map.Entry<String, List<String>> entry = i.next();
-				if ("Content-Encoding".equalsIgnoreCase(entry.getKey())) {
-					for (Iterator<String> j = entry.getValue().iterator(); j.hasNext(); ) {
-						String str = j.next();
-						if (str.equalsIgnoreCase("gzip")) {
-							useGzip = true;
-							break;
-						}
-					}
-					// Break out of outer loop.
-					if (useGzip) {
-						break;
-					}
-				}
-			}
-
-			serviceResponse.contentType = getContentType(connection, request);
-			if (useGzip) {
-				serviceResponse.contentEncoding = "gzip";
-				return new GZIPInputStream(inputStream);
-			}
-			else {
-				serviceResponse.contentEncoding = "none";
-				return inputStream;
-			}
-		}
-		finally {
-			if (outputStream != null) {
-				try {
-					outputStream.close();
-				}
-				catch (IOException ignore) {}
-			}
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Get
 	 *--------------------------------------------------------------------------------------------*/
+
 	private InputStream get(HttpURLConnection connection, AirHttpRequest request, ServiceResponse serviceResponse)
-			throws IOException, InterruptedException {
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD)
-			return get_Gingerbread(connection, request, serviceResponse);
-		else
-			return get_Froyo(connection, request, serviceResponse);
-	}
-
-	private InputStream get_Gingerbread(HttpURLConnection connection, AirHttpRequest request, ServiceResponse serviceResponse)
 			throws IOException, InterruptedException {
 
 		InputStream inputStream = connection.getInputStream();
@@ -466,48 +362,6 @@ public class OkHttpUrlConnection extends BaseConnection {
 
 		serviceResponse.contentType = getContentType(connection, request);
 		if (connection.getContentEncoding() != null && connection.getContentEncoding().equals("gzip")) {
-			serviceResponse.contentEncoding = "gzip";
-			return new GZIPInputStream(inputStream);
-		}
-		else {
-			serviceResponse.contentEncoding = "none";
-			return inputStream;
-		}
-	}
-
-	private InputStream get_Froyo(HttpURLConnection connection, AirHttpRequest request, ServiceResponse serviceResponse)
-			throws IOException, InterruptedException {
-
-		boolean useGzip = false;
-		connection.setRequestProperty("Accept-Encoding", "gzip");
-
-		InputStream inputStream = connection.getInputStream();
-
-		if (Thread.currentThread().isInterrupted()) throw new InterruptedException();
-
-		final Map<String, List<String>> headers = connection.getHeaderFields();
-		// This is a map, but we can't assume the key we're looking for
-		// is in normal casing. So it's really not a good map, is it?
-		final Set<Map.Entry<String, List<String>>> set = headers.entrySet();
-		for (Iterator<Map.Entry<String, List<String>>> i = set.iterator(); i.hasNext(); ) {
-			Map.Entry<String, List<String>> entry = i.next();
-			if ("Content-Encoding".equalsIgnoreCase(entry.getKey())) {
-				for (Iterator<String> j = entry.getValue().iterator(); j.hasNext(); ) {
-					String str = j.next();
-					if (str.equalsIgnoreCase("gzip")) {
-						useGzip = true;
-						break;
-					}
-				}
-				// Break out of outer loop.
-				if (useGzip) {
-					break;
-				}
-			}
-		}
-
-		serviceResponse.contentType = getContentType(connection, request);
-		if (useGzip) {
 			serviceResponse.contentEncoding = "gzip";
 			return new GZIPInputStream(inputStream);
 		}

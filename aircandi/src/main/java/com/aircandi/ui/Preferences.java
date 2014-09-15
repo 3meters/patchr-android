@@ -15,11 +15,12 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceCategory;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.text.InputType;
 import android.util.TypedValue;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -27,8 +28,8 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.aircandi.Aircandi;
 import com.aircandi.Aircandi.ThemeTone;
 import com.aircandi.Constants;
@@ -41,6 +42,7 @@ import com.aircandi.objects.Document;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.ui.components.ShotStateStore;
 import com.aircandi.ui.widgets.BeaconPreference;
 import com.aircandi.ui.widgets.ListPreferenceMultiSelect;
 import com.aircandi.ui.widgets.LocationPreference;
@@ -49,7 +51,7 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
 
 @SuppressWarnings("deprecation")
-public class Preferences extends SherlockPreferenceActivity implements OnSharedPreferenceChangeListener {
+public class Preferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
 	protected BusyManager   mBusy;
 	protected ColorDrawable mDivider; // NO_UCD (unused code)
@@ -81,16 +83,6 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 
 	private void initialize() {
 
-		/* Hide preference that are not supported */
-
-		if (!Constants.SUPPORTS_HONEYCOMB) {
-			Preference pref = findPreference(StringManager.getString(R.string.pref_theme));
-			if (pref != null) {
-				PreferenceCategory mCategory = (PreferenceCategory) findPreference("Pref_General_Category");
-				mCategory.removePreference(pref);
-			}
-		}
-
 		/* Set dividers */
 
 		ListView list = (ListView) findViewById(android.R.id.list);
@@ -110,10 +102,10 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 
 		/* Configure action bar */
 
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setDisplayShowHomeEnabled(true);
-		getSupportActionBar().setTitle(StringManager.getString(R.string.form_title_preferences));
-		getSupportActionBar().setIcon(Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setDisplayShowHomeEnabled(true);
+		getActionBar().setTitle(StringManager.getString(R.string.form_title_preferences));
+		getActionBar().setIcon(Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
 
 		mBusy = new BusyManager(this);
 
@@ -178,6 +170,20 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					Aircandi.dispatch.route(Preferences.this, Route.FEEDBACK, null, null, null);
+					return true;
+				}
+			});
+		}
+
+		/* Listen for tutorial reset click */
+		pref = findPreference("Pref_Reset_Tutorials");
+		if (pref != null) {
+			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					ShotStateStore.resetTooltips(Aircandi.applicationContext);
+					UI.showToastNotification("Tooltips restored", Toast.LENGTH_SHORT);
 					return true;
 				}
 			});
@@ -396,10 +402,10 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 				, StringManager.getString(R.string.pref_theme_default));
 
 		if (prefTheme.equals("aircandi_theme_snow")) {
-			setTheme(Constants.SUPPORTS_HONEYCOMB ? R.style.aircandi_theme_snow : R.style.aircandi_theme_snow_notitlebar);
+			setTheme(R.style.aircandi_theme_snow);
 		}
 		else {
-			setTheme(Constants.SUPPORTS_HONEYCOMB ? R.style.aircandi_theme_midnight : R.style.aircandi_theme_midnight_notitlebar);
+			setTheme(R.style.aircandi_theme_midnight);
 		}
 	}
 
@@ -421,11 +427,9 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 		if (dialog != null) {
 
 			/* Inialize the action bar */
-			if (Constants.SUPPORTS_HONEYCOMB) {
-				dialog.getActionBar().setDisplayHomeAsUpEnabled(true);
-				dialog.getActionBar().setDisplayShowHomeEnabled(true);
-				dialog.getActionBar().setIcon(Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
-			}
+			dialog.getActionBar().setDisplayHomeAsUpEnabled(true);
+			dialog.getActionBar().setDisplayShowHomeEnabled(true);
+			dialog.getActionBar().setIcon(Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
 
 			/*
 			 * Apply custom home button area click listener to close the PreferenceScreen because PreferenceScreens are
@@ -471,7 +475,7 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
 	@Override
-	public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == android.R.id.home) {
 			/*
 			 * We aren't using Routing because pref activity doesn't derive

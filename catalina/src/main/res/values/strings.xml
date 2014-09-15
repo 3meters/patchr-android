@@ -7,7 +7,7 @@
 
 	<!-- Menus -->
 
-	<string name="menu_item_add_place">Drop a patch</string>
+	<string name="menu_item_new_place">New patch</string>
 	<string name="menu_item_edit_place">Edit</string>
 	<string name="menu_item_edit_message">Edit</string>
 	<string name="menu_item_share_message">Share</string>
@@ -34,6 +34,7 @@
 	<string name="alert_delete_message_message_no_name">Are you sure you want to delete this message?</string>
 
 	<string name="alert_signin_message_watch">Sign in to watch [@schema]es.</string>
+	<string name="alert_signin_message_place_new">Sign in to create a new [@string/container_singular_lowercase].</string>
 
 	<!-- Errors -->
 
@@ -51,7 +52,7 @@
 
 	<!-- Menus -->
 
-	<string name="menu_item_share_place">Share this patch</string>
+	<string name="menu_item_share_place">Invite</string>
 
 	<!-- Progress -->
 
@@ -93,7 +94,7 @@
 
 	<string name="label_notification_ticker_place_insert">%1$s: dropped a [@string/container_singular_lowercase]</string>
 	<string name="label_notification_ticker_place_insert_nearby">%1$s: dropped a [@string/container_singular_lowercase] nearby</string>
-	<string name="label_notification_ticker_place_share">%1$s: shared a [@string/container_singular_lowercase] with you</string>
+	<string name="label_notification_ticker_place_share">%1$s: invited you to a [@string/container_singular_lowercase]</string>
 	<string name="label_notification_ticker_message_insert">%1$s: %2$s</string>
 	<string name="label_notification_ticker_message_share">%1$s: shared a message with you</string>
 	<string name="label_notification_ticker_photo_insert">%1$s: posted a photo to \'%2$s\'</string>
@@ -109,9 +110,30 @@
 	<string name="label_drawer_item_trend_active">Most active</string>
 	<string name="label_drawer_item_trend_popular">Most popular</string>
 
+	<string name="label_view_map">Map</string>
+	<string name="label_view_list">List</string>
+
+	<!-- Labels -->
+
+	<string name="tooltip_place_new_part1">
+		Patches let a group of people share messages about places and events!
+	</string>
+	<string name="tooltip_place_new_part2">
+		" &#8226; Parties and sporting events\n &#8226; Family vacations\n &#8226; Projects and meetings"
+	</string>
+	<string name="tooltip_place_new_part3">
+		This patch will be locked to your current location.
+		Invite some friends and get the conversation started!
+	</string>
+	<string name="tooltip_action_item_place_new">Tap to create a new patch.</string>
+	<string name="tooltip_list_nearby">Your world is filled with patches! Discover them or create one of your own.</string>
+	<string name="tooltip_place_watch">Stay connected to patches by tapping the watch button.</string>
+	<string name="tooltip_place_share">Invite your friends to this patch.</string>
+
 	<!-- Buttons -->
 
-	<string name="button_list_share">Share this patch</string>
-	<string name="button_list_watchers_share">Share this patch to add watchers</string>
+	<string name="button_list_share">Invite friends to this patch</string>
+	<string name="button_place_share">Invite</string>
+	<string name="button_list_watchers_share">Invite friends to this patch to add watchers</string>
 
 </resources>

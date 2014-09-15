@@ -24,7 +24,7 @@
 		android:layout_centerVertical="true"
 		android:layout_toRightOf="@+id/entity_photo"
 		android:ellipsize="end"
-		android:textAppearance="@style/textAppearance"
+		android:textAppearance="@style/text_appearance"
 		android:textColor="?attr/textColor"
 		custom:textId="@string/dummy_name" />
 

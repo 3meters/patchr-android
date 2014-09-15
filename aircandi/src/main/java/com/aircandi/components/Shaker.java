@@ -1,12 +1,10 @@
 package com.aircandi.components;
 
-import android.annotation.SuppressLint;
 import android.os.Vibrator;
 
 public class Shaker {
 	private Shaker() {}
 
-	@SuppressLint("NewApi")
 	public static boolean canShake(Vibrator vibrator) throws NullPointerException {
 		boolean vibrates = false;
 		if (vibrator != null)

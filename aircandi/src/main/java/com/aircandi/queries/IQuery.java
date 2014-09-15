@@ -1,6 +1,6 @@
 package com.aircandi.queries;
 
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 
 public interface IQuery {
 

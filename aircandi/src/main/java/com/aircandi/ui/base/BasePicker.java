@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 
 import com.aircandi.Aircandi;
@@ -58,6 +57,7 @@ public abstract class BasePicker extends Activity {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@SuppressWarnings("ucd")
 	public void onCancelButtonClick(View view) {
 		onCancel(true);
@@ -76,20 +76,16 @@ public abstract class BasePicker extends Activity {
 
 	/*--------------------------------------------------------------------------------------------
 	 * UI
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void bind(BindingMode mode) {
 	}
 
 	public void setTheme(Boolean isDialog, Boolean isTransparent) {
 		mPrefTheme = Aircandi.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
-		/*
-		 * ActionBarSherlock takes over the title area if version < 4.0 (Ice Cream Sandwich).
-		 */
-		if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			requestWindowFeature(Window.FEATURE_NO_TITLE);
-		}
 		/*
 		 * Need to use application context so our app level themes and attributes are available to actionbarsherlock
 		 */
@@ -126,9 +122,12 @@ public abstract class BasePicker extends Activity {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void onResume() {
 		super.onResume();

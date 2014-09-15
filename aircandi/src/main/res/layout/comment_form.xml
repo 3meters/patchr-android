@@ -86,7 +86,7 @@
 		android:paddingLeft="@dimen/form_body_padding"
 		android:paddingRight="@dimen/form_body_padding"
 		android:text="@string/dummy_message"
-		android:textAppearance="@style/textAppearanceMedium"
+		android:textAppearance="@style/text_appearance_medium"
 		custom:textId="@string/dummy_message" />
 
 	<RelativeLayout

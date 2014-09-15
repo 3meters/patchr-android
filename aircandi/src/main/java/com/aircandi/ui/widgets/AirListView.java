@@ -1,5 +1,6 @@
 package com.aircandi.ui.widgets;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -14,7 +15,6 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.aircandi.Constants;
 import com.aircandi.R;
 
@@ -80,21 +80,16 @@ public class AirListView extends ListView implements OnScrollListener {
 				, mContext.getResources().getDimensionPixelSize(R.dimen.list_max_width));
 
 		typeArray.recycle();
-
-		if (!Constants.SUPPORTS_GINGERBREAD) {
-			super.setOnScrollListener(this);
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 		super.onScrollChanged(l, t, oldl, oldt);
-		if (Constants.SUPPORTS_GINGERBREAD) {
-			parallaxScroll();
-		}
+		parallaxScroll();
 	}
 
 	@Override
@@ -106,9 +101,6 @@ public class AirListView extends ListView implements OnScrollListener {
 
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		if (!Constants.SUPPORTS_GINGERBREAD) {
-			parallaxScroll();
-		}
 		if (this.mListener != null) {
 			this.mListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
 		}
@@ -224,6 +216,7 @@ public class AirListView extends ListView implements OnScrollListener {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	protected void addAlphaEffect() {
 		if (mHeaderView == null) return;
 

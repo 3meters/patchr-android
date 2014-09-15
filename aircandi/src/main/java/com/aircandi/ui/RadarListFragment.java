@@ -8,13 +8,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.aircandi.Aircandi;
 import com.aircandi.Aircandi.ThemeTone;
 import com.aircandi.Constants;
@@ -161,7 +162,7 @@ public class RadarListFragment extends EntityListFragment {
 					bindReason = "Wifi switched off";
 					NetworkManager.WIFI_AP_STATE wifiApState = NetworkManager.getInstance().getWifiApState();
 					if (wifiApState != null && (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLED)) {
-						Logger.d(getSherlockActivity(), "Wifi Ap enabled, clearing beacons");
+						Logger.d(getActivity(), "Wifi Ap enabled, clearing beacons");
 						UI.showToastNotification("Hotspot or tethering enabled", Toast.LENGTH_SHORT);
 					}
 					else {
@@ -202,7 +203,7 @@ public class RadarListFragment extends EntityListFragment {
 						final ServiceResponse serviceResponse = (ServiceResponse) result;
 						if (serviceResponse.responseCode != ResponseCode.SUCCESS) {
 							onError();
-							Errors.handleError(getSherlockActivity(), serviceResponse);
+							Errors.handleError(getActivity(), serviceResponse);
 						}
 					}
 				}.execute();
@@ -230,7 +231,7 @@ public class RadarListFragment extends EntityListFragment {
 							final ServiceResponse serviceResponse = (ServiceResponse) result;
 							if (serviceResponse.responseCode != ResponseCode.SUCCESS) {
 								onError();
-								Errors.handleError(getSherlockActivity(), serviceResponse);
+								Errors.handleError(getActivity(), serviceResponse);
 							}
 						}
 					}.execute();
@@ -243,7 +244,7 @@ public class RadarListFragment extends EntityListFragment {
 		}
 
 		if (bindReason != null) {
-			Logger.d(getSherlockActivity(), "Radar bind: " + bindReason);
+			Logger.d(getActivity(), "Radar bind: " + bindReason);
 
 			if (Aircandi.getInstance().getPrefEnableDev()) {
 				UI.showToastNotification("Radar bind: " + bindReason, Toast.LENGTH_SHORT);
@@ -259,7 +260,7 @@ public class RadarListFragment extends EntityListFragment {
 	public void onClick(View view) {
 		final Place entity = (Place) ((ViewHolder) view.getTag()).data;
 		Bundle extras = null;
-		Aircandi.dispatch.route(getSherlockActivity(), Route.BROWSE, entity, null, extras);
+		Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
 	}
 
 	@Subscribe
@@ -268,7 +269,7 @@ public class RadarListFragment extends EntityListFragment {
 
 		updateDevIndicator(event.wifiList, null);
 		Reporting.updateCrashKeys();
-		getSherlockActivity().runOnUiThread(new Runnable() {
+		getActivity().runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
@@ -278,7 +279,7 @@ public class RadarListFragment extends EntityListFragment {
 						, "wifi_scan_finished"
 						, NetworkManager.getInstance().getNetworkType());
 
-				Logger.d(getSherlockActivity(), "Query wifi scan received event: locking beacons");
+				Logger.d(getActivity(), "Query wifi scan received event: locking beacons");
 
 				if (event.wifiList != null) {
 					ProximityManager.getInstance().lockBeacons();
@@ -294,7 +295,7 @@ public class RadarListFragment extends EntityListFragment {
 	@SuppressWarnings("ucd")
 	public void onBeaconsLocked(BeaconsLockedEvent event) {
 
-		getSherlockActivity().runOnUiThread(new Runnable() {
+		getActivity().runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
@@ -313,7 +314,7 @@ public class RadarListFragment extends EntityListFragment {
 						final ServiceResponse serviceResponse = (ServiceResponse) result;
 						if (serviceResponse.responseCode != ResponseCode.SUCCESS) {
 							onError();
-							Errors.handleError(getSherlockActivity(), serviceResponse);
+							Errors.handleError(getActivity(), serviceResponse);
 						}
 					}
 
@@ -326,12 +327,12 @@ public class RadarListFragment extends EntityListFragment {
 	@SuppressWarnings("ucd")
 	public void onEntitiesByProximityFinished(EntitiesByProximityFinishedEvent event) {
 
-		getSherlockActivity().runOnUiThread(new Runnable() {
+		getActivity().runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
 
-				Logger.d(getSherlockActivity(), "Entities for beacons finished event: ** done **");
+				Logger.d(getActivity(), "Entities for beacons finished event: ** done **");
 				Aircandi.stopwatch1.segmentTime("Entities by proximity finished event fired");
 				Aircandi.tracker.sendTiming(TrackerCategory.PERFORMANCE, Aircandi.stopwatch1.getTotalTimeMills()
 						, "places_by_proximity_downloaded"
@@ -350,7 +351,7 @@ public class RadarListFragment extends EntityListFragment {
 		/*
 		 * No application logic here, just tracking.
 		 */
-		Logger.d(getSherlockActivity(), "Places near location finished event: ** done **");
+		Logger.d(getActivity(), "Places near location finished event: ** done **");
 		Aircandi.stopwatch2.stop("Location processing: Places near location complete");
 		Aircandi.tracker.sendTiming(TrackerCategory.PERFORMANCE, Aircandi.stopwatch2.getTotalTimeMills()
 				, "places_near_location_downloaded"
@@ -362,17 +363,17 @@ public class RadarListFragment extends EntityListFragment {
 	@SuppressWarnings("ucd")
 	public void onEntitiesChanged(final EntitiesChangedEvent event) {
 
-		getSherlockActivity().runOnUiThread(new Runnable() {
+		getActivity().runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
-				Logger.d(getSherlockActivity(), "Entities changed event: updating radar");
+				Logger.d(getActivity(), "Entities changed event: updating radar");
 
 				/* Point radar adapter at the updated entities */
 				final int previousCount = mAdapter.getCount();
 				final List<Entity> entities = event.entities;
 
-				Logger.d(getSherlockActivity(), "Entities changed: source = " + event.source + ", count = " + String.valueOf(entities.size()));
+				Logger.d(getActivity(), "Entities changed: source = " + event.source + ", count = " + String.valueOf(entities.size()));
 				mEntities.clear();
 				mEntities.addAll(entities);
 				mAdapter.notifyDataSetChanged();
@@ -418,21 +419,21 @@ public class RadarListFragment extends EntityListFragment {
 		/*
 		 * This only gets called by a user clicking the refresh button.
 		 */
-		Logger.d(getSherlockActivity(), "Starting refresh");
+		Logger.d(getActivity(), "Starting refresh");
 		searchForPlaces();
 	}
 
 	@Override
 	public void onAdd(Bundle extras) {
 		/* Schema target is in the extras */
-		Aircandi.dispatch.route(getSherlockActivity(), Route.NEW, null, null, extras);
+		Aircandi.dispatch.route(getActivity(), Route.NEW, null, null, extras);
 	}
 
 	@Override
 	public void onHelp() {
 		Bundle extras = new Bundle();
 		extras.putInt(Constants.EXTRA_HELP_ID, R.layout.radar_help);
-		Aircandi.dispatch.route(getSherlockActivity(), Route.HELP, null, null, extras);
+		Aircandi.dispatch.route(getActivity(), Route.HELP, null, null, extras);
 	}
 
 	@Override
@@ -536,7 +537,7 @@ public class RadarListFragment extends EntityListFragment {
 					, StringManager.getString(R.string.alert_beacons_title)
 					, beaconMessage.toString()
 					, null
-					, getSherlockActivity()
+					, getActivity()
 					, android.R.string.ok
 					, null
 					, null
@@ -560,7 +561,7 @@ public class RadarListFragment extends EntityListFragment {
 				/*
 				 * In case we get called from a background thread.
 				 */
-				getSherlockActivity().runOnUiThread(new Runnable() {
+				getActivity().runOnUiThread(new Runnable() {
 
 					@Override
 					public void run() {
@@ -656,7 +657,7 @@ public class RadarListFragment extends EntityListFragment {
 			return true;
 		}
 
-		Aircandi.dispatch.route(getSherlockActivity(), Aircandi.dispatch.routeForMenuId(item.getItemId()), null, null, null);
+		Aircandi.dispatch.route(getActivity(), Aircandi.dispatch.routeForMenuId(item.getItemId()), null, null, null);
 		return true;
 	}
 
@@ -675,8 +676,8 @@ public class RadarListFragment extends EntityListFragment {
 		 */
 		if (!LocationManager.getInstance().isLocationAccessEnabled()) {
 			/* We won't continue if location services are disabled */
-			Aircandi.dispatch.route(getSherlockActivity(), Route.SETTINGS_LOCATION, null, null, null);
-			getSherlockActivity().finish();
+			Aircandi.dispatch.route(getActivity(), Route.SETTINGS_LOCATION, null, null, null);
+			getActivity().finish();
 		}
 
 		BusProvider.getInstance().register(mLocationHandler);
@@ -760,7 +761,7 @@ public class RadarListFragment extends EntityListFragment {
 					UI.showToastNotification(message, Toast.LENGTH_SHORT);
 				}
 
-				Logger.d(getSherlockActivity(), "Location changed event: location accepted: " + reason);
+				Logger.d(getActivity(), "Location changed event: location accepted: " + reason);
 				LocationManager.getInstance().setLocationLocked(locationCandidate);
 				updateDevIndicator(null, locationCandidate);
 
@@ -778,7 +779,7 @@ public class RadarListFragment extends EntityListFragment {
 						@Override
 						protected Object doInBackground(Object... params) {
 
-							Logger.d(getSherlockActivity(), "Location changed event: getting places near location");
+							Logger.d(getActivity(), "Location changed event: getting places near location");
 							Thread.currentThread().setName("AsyncGetPlacesNearLocation");
 							Aircandi.stopwatch2.start("location_processing", "Location processing: get places near location");
 
@@ -805,7 +806,7 @@ public class RadarListFragment extends EntityListFragment {
 							}
 							else {
 								onError();
-								Errors.handleError(getSherlockActivity(), serviceResponse);
+								Errors.handleError(getActivity(), serviceResponse);
 							}
 						}
 

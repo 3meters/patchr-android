@@ -23,7 +23,7 @@ import com.aircandi.R;
 import com.aircandi.components.AndroidManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.monitors.IMonitor;
@@ -147,7 +147,7 @@ public class ShortcutFragment extends BaseFragment {
 					mLoaded = true;
 				}
 				else {
-					Errors.handleError(getSherlockActivity(), result.serviceResponse);
+					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 				onActivityComplete();
 			}
@@ -274,7 +274,7 @@ public class ShortcutFragment extends BaseFragment {
 			, Integer holderId
 			, Integer flowItemResId) {
 
-		View holder = LayoutInflater.from(getSherlockActivity()).inflate(R.layout.section_shortcuts, null);
+		View holder = LayoutInflater.from(getActivity()).inflate(R.layout.section_shortcuts, null);
 		SectionLayout section = (SectionLayout) holder.findViewById(R.id.section_layout_shortcuts);
 		if (titleResId != null) {
 			section.setHeaderTitle(StringManager.getString(titleResId));
@@ -288,7 +288,7 @@ public class ShortcutFragment extends BaseFragment {
 		if (shortcuts.size() > flowLimit) {
 
 			IEntityController controller = Aircandi.getInstance().getControllerForSchema(settings.linkTargetSchema);
-			Intent intent = controller.viewFor(getSherlockActivity()
+			Intent intent = controller.viewFor(getActivity()
 					, null
 					, mEntity.id
 					, settings.linkType
@@ -360,7 +360,7 @@ public class ShortcutFragment extends BaseFragment {
 
 			View view = getScrapView();
 			if (view == null) {
-				view = LayoutInflater.from(getSherlockActivity()).inflate(viewResId, null);
+				view = LayoutInflater.from(getActivity()).inflate(viewResId, null);
 			}
 
 			AirImageView photoView = (AirImageView) view.findViewById(R.id.shortcut_photo);
@@ -436,7 +436,7 @@ public class ShortcutFragment extends BaseFragment {
 				@Override
 				public void onClick(View view) {
 					final Shortcut shortcut = (Shortcut) view.getTag();
-					Aircandi.dispatch.route(getSherlockActivity(), Route.SHORTCUT, null, shortcut, null);
+					Aircandi.dispatch.route(getActivity(), Route.SHORTCUT, null, shortcut, null);
 				}
 			});
 

@@ -1,5 +1,6 @@
 package com.aircandi.objects;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.TypedValue;
 
@@ -232,10 +233,10 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return imageResult;
 	}
 
-	public static Integer getResourceIdFromUri(String uri) {
+	public static Integer getResourceIdFromUri(Context context, String uri) {
 
 		final String rawResourceName = uri.substring(uri.indexOf("resource:") + 9);
-		final String resolvedResourceName = resolveResourceName(rawResourceName);
+		final String resolvedResourceName = resolveResourceName(context, rawResourceName);
 		if (resolvedResourceName != null) {
 			final int resourceId = Aircandi.applicationContext.getResources().getIdentifier(resolvedResourceName
 					, "drawable"
@@ -245,12 +246,12 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return null;
 	}
 
-	public static String resolveResourceName(String rawResourceName) {
+	public static String resolveResourceName(Context context, String rawResourceName) {
 		int resourceId = Aircandi.applicationContext.getResources().getIdentifier(rawResourceName, "drawable", Aircandi.getInstance().getPackageName());
 		if (resourceId == 0) {
 			resourceId = Aircandi.applicationContext.getResources().getIdentifier(rawResourceName, "attr", Aircandi.getInstance().getPackageName());
 			final TypedValue value = new TypedValue();
-			if (Aircandi.applicationContext.getTheme().resolveAttribute(resourceId, value, true)) {
+			if (context.getTheme().resolveAttribute(resourceId, value, true)) {
 				final String redirectedResourceName = (String) value.coerceToString();
 				return redirectedResourceName;
 			}

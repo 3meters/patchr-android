@@ -2,6 +2,7 @@
 package com.aircandi;
 
 import android.graphics.Bitmap.Config;
+import android.os.Build;
 import android.util.Log;
 
 @SuppressWarnings("ucd")
@@ -118,6 +119,10 @@ public class Constants {
 	public static final int TABS_USER_FORM_ID   = 2;
 	public static final int TABS_USER_EDIT_ID   = 3;
 	public static final int TABS_ENTITY_FORM_ID = 4;
+
+	public static final long TOOLTIPS_PATCH_LIST_ID   = 100;
+	public static final long TOOLTIPS_PLACE_EDIT_ID   = 101;
+	public static final long TOOLTIPS_PLACE_BROWSE_ID = 102;
 
 	public static final int    RADAR_BEACON_SIGNAL_BUCKET_SIZE = 1;
 	/*
@@ -263,11 +268,15 @@ public class Constants {
 	public static final String FRAGMENT_TYPE_TREND_ACTIVE  = "trend_active";
 	public static final String FRAGMENT_TYPE_PROFILE       = "profile";
 	public static final String FRAGMENT_TYPE_HISTORY       = "history";
+	public static final String FRAGMENT_TYPE_MAP           = "map";
 
 	public static final String NAVIGATION_CATEGORY_PLACES   = "places";
 	public static final String NAVIGATION_CATEGORY_TRENDS   = "trends";
 	public static final String NAVIGATION_CATEGORY_MESSAGES = "messages";
 	public static final String NAVIGATION_CATEGORY_NONE     = "none";
+
+	public static final String VIEW_TYPE_MAP  = "map";
+	public static final String VIEW_TYPE_LIST = "list";
 
 	public static final int RESULT_ENTITY_INSERTED        = 100;
 	public static final int RESULT_ENTITY_UPDATED         = 110;
@@ -279,14 +288,10 @@ public class Constants {
 	public static final int RESULT_PROFILE_UPDATED        = 310;
 	public static final int RESULT_USER_SIGNED_IN         = 400;
 
-	public static final boolean SUPPORTS_ECLAIR             = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ECLAIR;
-	public static final boolean SUPPORTS_FROYO              = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.FROYO;
-	public static final boolean SUPPORTS_GINGERBREAD        = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.GINGERBREAD;
-	public static final boolean SUPPORTS_HONEYCOMB          = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB;
-	public static final boolean SUPPORTS_HONEYCOMB_MR2      = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB_MR2;
 	public static final boolean SUPPORTS_ICE_CREAM_SANDWICH = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 	public static final boolean SUPPORTS_JELLY_BEAN         = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN;
 	public static final boolean SUPPORTS_JELLY_BEAN_MR1     = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
+	public static final boolean SUPPORTS_KIT_KAT            = android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
 	/* Install id */
 	public static final String INSTALL_TYPE_RANDOM     = "random_uuid";

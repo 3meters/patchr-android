@@ -42,7 +42,6 @@
 		android:layout_height="@dimen/button_round_medium"
 		android:clickable="true"
 		android:onClick="onReplyClick"
-		android:tint="@color/brand_primary"
 		android:src="?attr/iconMessageNew" />
 
 </RelativeLayout>

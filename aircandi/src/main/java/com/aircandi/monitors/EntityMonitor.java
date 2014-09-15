@@ -12,6 +12,9 @@ public class EntityMonitor extends SimpleMonitor {
 	private String mEntityId;
 
 	public EntityMonitor(String entityId) {
+		if (entityId == null) {
+			throw new IllegalArgumentException("EntityId must not be null.");
+		}
 		mEntityId = entityId;
 	}
 

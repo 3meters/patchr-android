@@ -1,17 +1,18 @@
 package com.aircandi.ui;
 
+import android.app.Fragment;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.MenuItem;
 
-import com.actionbarsherlock.view.MenuItem;
 import com.aircandi.Aircandi;
 import com.aircandi.R;
 import com.aircandi.components.AndroidManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Place;
@@ -19,7 +20,7 @@ import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.IBusy.BusyAction;
 import com.aircandi.utilities.Errors;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -30,15 +31,15 @@ import java.util.Locale;
 
 public class MapForm extends BaseEntityForm {
 
-	SupportMapFragment mMapFragment;
+	Fragment mMapFragment;
 	private static final int DEFAULT_ZOOM = 16;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 		mLinkProfile = LinkProfile.LINKS_FOR_PLACE;
-		mMapFragment = new MapFragment();
-		getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder, mMapFragment).commit();
+		mMapFragment = new MapItemFragment();
+		getFragmentManager().beginTransaction().replace(R.id.fragment_holder, mMapFragment).commit();
 	}
 
 	@Override
@@ -57,9 +58,12 @@ public class MapForm extends BaseEntityForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	private void drawMap() {
 
 		if (mEntity.getLocation() != null) {
@@ -123,9 +127,9 @@ public class MapForm extends BaseEntityForm {
 							options.snippet(place.category.name);
 						}
 
-						Marker marker = mMapFragment.getMap().addMarker(options);
+						Marker marker = ((MapFragment)mMapFragment).getMap().addMarker(options);
 						marker.showInfoWindow();
-						mMapFragment.getMap().moveCamera(
+						((MapFragment)mMapFragment).getMap().moveCamera(
 								CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), DEFAULT_ZOOM));
 					}
 					else {
@@ -140,6 +144,7 @@ public class MapForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -165,9 +170,12 @@ public class MapForm extends BaseEntityForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.map_form;

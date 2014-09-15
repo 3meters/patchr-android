@@ -11,6 +11,8 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
@@ -19,8 +21,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.aircandi.Aircandi;
 import com.aircandi.ServiceConstants;
 import com.aircandi.catalina.Constants;
@@ -28,9 +28,10 @@ import com.aircandi.catalina.R;
 import com.aircandi.catalina.objects.Message.MessageType;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
+import com.aircandi.events.ButtonSpecialEvent;
 import com.aircandi.events.MessageEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Count;
@@ -45,6 +46,7 @@ import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
+import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Integers;
@@ -53,7 +55,8 @@ import com.squareup.otto.Subscribe;
 
 public class PlaceForm extends com.aircandi.ui.PlaceForm {
 
-	private EntityListFragment mListFragment;
+	private   EntityListFragment    mListFragment;
+	protected ToolTipRelativeLayout mTooltips;
 
 	@Override
 	public void unpackIntent() {
@@ -79,6 +82,9 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
+		mTooltips = (ToolTipRelativeLayout) findViewById(R.id.tooltips);
+		mTooltips.setSingleShot(Constants.TOOLTIPS_PLACE_BROWSE_ID);
+
 		mListFragment = new MessageListFragment();
 
 		EntityMonitor monitor = new EntityMonitor(mEntityId);
@@ -103,7 +109,7 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 		             .setSelfBindingEnabled(false)
 		             .setButtonSpecialClickable(true);
 
-		getSupportFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
+		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
 
 	}
 
@@ -128,6 +134,7 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	@Subscribe
 	@SuppressWarnings("ucd")
@@ -300,6 +307,7 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void share() {
 
@@ -446,10 +454,11 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 		if (!place.fuzzy || !TextUtils.isEmpty(place.address)) {
 			UI.setVisibility(findViewById(R.id.button_map), View.VISIBLE);
 		}
+	}
 
-		if (!Constants.SUPPORTS_HONEYCOMB && Aircandi.getInstance().getMenuManager().canUserEdit(mEntity)) {
-			UI.setVisibility(findViewById(R.id.button_edit), View.VISIBLE);
-		}
+	@Subscribe
+	public void onButtonSpecial(ButtonSpecialEvent event) {
+		UI.setVisibility(findViewById(R.id.button_share), event.visible ? View.GONE : View.VISIBLE);
 	}
 
 	protected void positionButton(final Integer headerHeightProjected) {
@@ -542,6 +551,12 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.SHARE, mEntity, mForId));
 		}
 		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		mTooltips.hide(false);
+		return super.onOptionsItemSelected(item);
 	}
 
 	/*--------------------------------------------------------------------------------------------

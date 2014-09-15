@@ -8,9 +8,9 @@
 
 	<!-- Content -->
 
-	<RelativeLayout
+	<FrameLayout
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+		android:layout_height="wrap_content">
 
 		<LinearLayout
 			android:id="@+id/holder_progress_bar"
@@ -172,7 +172,7 @@
 				</LinearLayout>
 
 				<!-- Message -->
-
+				<!--
 				<com.aircandi.ui.widgets.AirTokenCompleteTextView
 					android:id="@+id/to"
 					android:layout_width="match_parent"
@@ -195,7 +195,7 @@
 					android:layout_marginRight="2dp"
 					android:layout_marginTop="8dp"
 					android:visibility="gone"
-					custom:textId="@string/label_place_create" />
+					custom:textId="@string/label_place_create" />-->
 
 				<LinearLayout
 					android:id="@+id/holder_private"
@@ -226,6 +226,28 @@
 
 		</RelativeLayout>
 
-	</RelativeLayout>
+		<com.aircandi.ui.widgets.ToolTipRelativeLayout
+			android:id="@+id/tooltips"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="?attr/backgroundTooltipLayer"
+			android:visibility="gone">
+
+			<ImageView
+				android:id="@+id/tooltips_cancel"
+				android:layout_width="35dp"
+				android:layout_height="35dp"
+				android:layout_alignParentTop="true"
+				android:layout_alignParentRight="true"
+				android:layout_margin="8dp"
+				android:background="@drawable/selector_button_circle_overlay"
+				android:duplicateParentState="true"
+				android:padding="4dp"
+				android:scaleType="centerCrop"
+				android:src="@drawable/ic_action_cancel_dark" />
+
+		</com.aircandi.ui.widgets.ToolTipRelativeLayout>
+
+	</FrameLayout>
 
 </com.aircandi.ui.widgets.AirScrollView>

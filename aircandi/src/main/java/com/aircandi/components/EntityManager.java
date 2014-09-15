@@ -10,7 +10,7 @@ import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.MessagingManager.Tag;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.objects.AirLocation;

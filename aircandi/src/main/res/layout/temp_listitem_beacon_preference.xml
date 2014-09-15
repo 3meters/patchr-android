@@ -32,7 +32,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/dummy_title_short"
-			android:textAppearance="@style/textAppearanceMedium"
+			android:textAppearance="@style/text_appearance_medium"
 			custom:textId="@string/dummy_title_short" />
 
 		<com.aircandi.ui.widgets.AirTextView
@@ -40,7 +40,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/dummy_subtitle"
-			android:textAppearance="@style/textAppearanceSmall"
+			android:textAppearance="@style/text_appearance_small"
 			android:textColor="?attr/textColorSecondary"
 			custom:textId="@string/dummy_subtitle" />
 	</LinearLayout>

@@ -149,12 +149,7 @@ public class GcmIntentService extends IntentService {
 					else {
 
 						Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-						if (Constants.SUPPORTS_HONEYCOMB) {
-							if (vibrator != null && Shaker.canShake(vibrator)) {
-								vibrator.vibrate(new long[]{0, 400, 400, 400}, -1);
-							}
-						}
-						else if (vibrator != null) {
+						if (vibrator != null && Shaker.canShake(vibrator)) {
 							vibrator.vibrate(new long[]{0, 400, 400, 400}, -1);
 						}
 						MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);
@@ -212,7 +207,7 @@ public class GcmIntentService extends IntentService {
 	protected Boolean showingActivities() {
 		android.app.Activity currentActivity = Aircandi.getInstance().getCurrentActivity();
 		if (currentActivity != null && currentActivity.getClass().equals(AircandiForm.class)) {
-			BaseFragment fragment = ((AircandiForm) currentActivity).getCurrentFragment();
+			BaseFragment fragment = (BaseFragment) ((AircandiForm) currentActivity).getCurrentFragment();
 			if (fragment != null && ((Object) fragment).getClass().equals(ActivityFragment.class)) {
 				return true;
 			}

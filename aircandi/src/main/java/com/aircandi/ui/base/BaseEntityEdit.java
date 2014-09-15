@@ -28,7 +28,7 @@ import com.aircandi.components.IntentBuilder;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.controllers.IEntityController;

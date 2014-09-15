@@ -1,10 +1,8 @@
 package com.aircandi.components;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -60,7 +58,6 @@ public class DispatchManager {
 		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void route(final Activity activity, Integer route, Entity entity, Shortcut shortcut, Bundle extras) {
 
 		String schema = null;
@@ -148,7 +145,7 @@ public class DispatchManager {
 			((BaseActivity) activity).onAdd(new Bundle());
 		}
 
-		else if (route == Route.ADD_PLACE) {
+		else if (route == Route.NEW_PLACE) {
 
 			if (extras == null) {
 				extras = new Bundle();
@@ -168,6 +165,9 @@ public class DispatchManager {
 
 			if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
 				String message = StringManager.getString(R.string.alert_signin_message_add, schema);
+				if (schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+					message = StringManager.getString(R.string.alert_signin_message_place_new, schema);
+				}
 				Dialogs.signinRequired(activity, message);
 				return;
 			}
@@ -432,9 +432,7 @@ public class DispatchManager {
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, SplashForm.class);
 			final Intent intent = intentBuilder.create();
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			if (Constants.SUPPORTS_HONEYCOMB) {
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-			}
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			if (activity instanceof BaseActivity) {
 				((BaseActivity) activity).setResultCode(Activity.RESULT_CANCELED);
 			}
@@ -599,8 +597,8 @@ public class DispatchManager {
 			return Route.REFRESH;
 		else if (itemId == R.id.add)
 			return Route.ADD;
-		else if (itemId == R.id.add_place)
-			return Route.ADD_PLACE;
+		else if (itemId == R.id.new_place)
+			return Route.NEW_PLACE;
 		else if (itemId == R.id.share)
 			return Route.SHARE;
 		else if (itemId == R.id.delete)

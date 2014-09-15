@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.aircandi.Aircandi;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.RenderDelegate;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.LinkProfile;

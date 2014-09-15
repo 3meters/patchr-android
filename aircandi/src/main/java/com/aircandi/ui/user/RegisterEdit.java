@@ -18,7 +18,7 @@ import com.aircandi.components.DownloadManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MessagingManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;

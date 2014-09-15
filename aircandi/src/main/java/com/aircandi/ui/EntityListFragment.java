@@ -1,9 +1,8 @@
 package com.aircandi.ui;
 
-import android.annotation.TargetApi;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -27,7 +26,7 @@ import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MessagingManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.controllers.ViewHolder;
@@ -50,8 +49,6 @@ import com.aircandi.ui.widgets.AirListView.OnDragListener;
 import com.aircandi.ui.widgets.AirSwipeRefreshLayout;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,8 +110,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		 * using settings when originally created, just bail.
 		 */
 		if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
-			Intent intent = getSherlockActivity().getIntent();
-			getSherlockActivity().finish();
+			Intent intent = getActivity().getIntent();
+			getActivity().finish();
 			startActivity(intent);
 		}
 		else {
@@ -143,7 +140,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		mListView = (AbsListView) view.findViewById(R.id.list);
 
 		if (mListLoadingResId != null) {
-			mLoadingView = LayoutInflater.from(getSherlockActivity()).inflate(mListLoadingResId, null);
+			mLoadingView = LayoutInflater.from(getActivity()).inflate(mListLoadingResId, null);
 		}
 
 		if (mButtonSpecial != null) {
@@ -174,7 +171,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 			mLoadingView.setLayoutParams(params);
 		}
 
-		mFooterHolder = getSherlockActivity().findViewById(R.id.footer_holder);
+		mFooterHolder = getActivity().findViewById(R.id.footer_holder);
 		if (mFooterHolder != null) {
 
 			((AirListView) mListView).setDragListener(new OnDragListener() {
@@ -255,7 +252,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		/*
 		 * Guard binding if this is a private place and user isn't approved
 		 */
-		Entity entity = ((BaseActivity) getSherlockActivity()).getEntity();
+		Entity entity = ((BaseActivity) getActivity()).getEntity();
 		if (entity instanceof Place) {
 			if (!entity.visibleToCurrentUser()) {
 				return;
@@ -327,7 +324,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 					onActivityComplete();
 				}
 				else {
-					Errors.handleError(getSherlockActivity(), result.serviceResponse);
+					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 			}
 		}.execute();
@@ -341,8 +338,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		 */
 		if (mFirstBind && mActivityStream && getUserVisibleHint()) {
 			MessagingManager.getInstance().setNewActivity(false);
-			if (getSherlockActivity() != null) {
-				((AircandiForm) getSherlockActivity()).updateActivityAlert();
+			if (getActivity() != null) {
+				((AircandiForm) getActivity()).updateActivityAlert();
 			}
 			MessagingManager.getInstance().cancelNotifications();
 		}
@@ -357,16 +354,17 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onClick(View v) {
 		if (v.getTag() == null) {
-			((BaseActivity) getSherlockActivity()).onAdd(new Bundle());
+			((BaseActivity) getActivity()).onAdd(new Bundle());
 		}
 		else {
 
 			final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
 			if (entity instanceof Applink) {
-				Aircandi.dispatch.shortcut(getSherlockActivity(), entity.getShortcut(), null, null, null);
+				Aircandi.dispatch.shortcut(getActivity(), entity.getShortcut(), null, null, null);
 			}
 			else {
 				if (mQuery instanceof EntitiesQuery) {
@@ -375,11 +373,11 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 						Bundle extras = new Bundle();
 						extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
 						extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, ((EntitiesQuery) mQuery).getEntityId());
-						Aircandi.dispatch.route(getSherlockActivity(), Route.BROWSE, entity, null, extras);
+						Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
 						return;
 					}
 				}
-				Aircandi.dispatch.route(getSherlockActivity(), Route.BROWSE, entity, null, null);
+				Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
 			}
 		}
 	}
@@ -424,6 +422,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void lazyLoad() {
 
 		final ViewSwitcher switcher = (ViewSwitcher) mLoadingView.findViewById(R.id.animator_more);
@@ -447,7 +446,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 				ModelResult result = (ModelResult) response;
 
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-					Errors.handleError(getSherlockActivity(), result.serviceResponse);
+					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 				else {
 					if (result.data != null) {
@@ -487,7 +486,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		mTopOffset = (view == null) ? 0 : view.getTop();
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setListPositionToEntity(String entityId) {
 		final AtomicInteger position = new AtomicInteger(0);
 
@@ -497,10 +495,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 				mListView.post(new Runnable() {
 					@Override
 					public void run() {
-						if (Constants.SUPPORTS_HONEYCOMB) {
-							Integer offsetToShowHeader = UI.getRawPixelsForDisplayPixels(100f);
-							((ListView) mListView).setSelectionFromTop(position.get() + 1, offsetToShowHeader);
-						}
+						Integer offsetToShowHeader = UI.getRawPixelsForDisplayPixels(100f);
+						((ListView) mListView).setSelectionFromTop(position.get() + 1, offsetToShowHeader);
 					}
 				});
 
@@ -589,7 +585,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 			mFooterHolder.setClickable(direction == DragDirection.DOWN);
 		}
 		else {
-			if (visible && (mFooterHolderHidden || ViewHelper.getTranslationY(mFooterHolder) != 0)) {
+			if (visible && (mFooterHolderHidden || mFooterHolder.getTranslationY() != 0)) {
 				ObjectAnimator animator = ObjectAnimator.ofFloat(mFooterHolder
 						, "translationY"
 						, mFooterHolder.getHeight()
@@ -599,7 +595,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 				mFooterHolderHidden = false;
 				mFooterHolder.setClickable(true);
 			}
-			else if (!visible && (!mFooterHolderHidden || ViewHelper.getTranslationY(mFooterHolder) == 0)) {
+			else if (!visible && (!mFooterHolderHidden || mFooterHolder.getTranslationY() == 0)) {
 				ObjectAnimator animator = ObjectAnimator.ofFloat(mFooterHolder
 						, "translationY"
 						, 0
@@ -630,9 +626,10 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	public String getActivityTitle() {
-		BaseActivity activity = (BaseActivity) getSherlockActivity();
-		return (String) ((activity.getActivityTitle() != null) ? activity.getActivityTitle() : getSherlockActivity().getTitle());
+		BaseActivity activity = (BaseActivity) getActivity();
+		return (String) ((activity.getActivityTitle() != null) ? activity.getActivityTitle() : getActivity().getTitle());
 	}
 
 	@Override
@@ -757,6 +754,10 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		return mQuery;
 	}
 
+	public List<Entity> getEntities() {
+		return mEntities;
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
@@ -774,7 +775,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	}
 
 	protected void resume() {
-		if (mSelfBindingEnabled && (getSherlockActivity() != null && !getSherlockActivity().isFinishing())) {
+		if (mSelfBindingEnabled && (getActivity() != null && !getActivity().isFinishing())) {
 			bind(BindingMode.AUTO);
 		}
 		if (mFooterHolder != null) {
@@ -794,7 +795,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	 *--------------------------------------------------------------------------------------------*/    protected class ListAdapter extends ArrayAdapter<Entity> {
 
 		public ListAdapter(List<Entity> entities) {
-			super(getSherlockActivity(), 0, entities);
+			super(getActivity(), 0, entities);
 		}
 
 		@Override
@@ -807,7 +808,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 			if (mListPagingEnabled && position >= mEntities.size() && position < (mVisibleColumns * mVisibleRows)) {
 				if (view == null || view.findViewById(R.id.item_placeholder) == null) {
-					view = LayoutInflater.from(getSherlockActivity()).inflate(R.layout.temp_list_item_empty, null);
+					view = LayoutInflater.from(getActivity()).inflate(R.layout.temp_list_item_empty, null);
 					if (mListView instanceof GridView) {
 						Integer nudge = mResources.getDimensionPixelSize(R.dimen.grid_item_height_kick);
 						final AbsListView.LayoutParams params = new AbsListView.LayoutParams(mPhotoWidthPixels, mPhotoWidthPixels - (nudge / 2));
@@ -833,7 +834,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 				if (view == null
 						|| view.findViewById(R.id.animator_more) != null
 						|| view.findViewById(R.id.item_placeholder) != null) {
-					view = LayoutInflater.from(getSherlockActivity()).inflate(mListItemResId, null);
+					view = LayoutInflater.from(getActivity()).inflate(mListItemResId, null);
 				}
 
 				if (entity != null) {

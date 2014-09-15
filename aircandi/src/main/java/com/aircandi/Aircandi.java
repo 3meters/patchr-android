@@ -2,9 +2,7 @@
 package com.aircandi;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
@@ -184,18 +182,16 @@ public abstract class Aircandi extends Application {
 		}
 
 		/* Force actionbar overflow */
-		if (Constants.SUPPORTS_HONEYCOMB) {
-			try {
-				ViewConfiguration config = ViewConfiguration.get(this);
-				Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+		try {
+			ViewConfiguration config = ViewConfiguration.get(this);
+			Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
 
-				if (menuKeyField != null) {
-					menuKeyField.setAccessible(true);
-					menuKeyField.setBoolean(config, false);
-				}
+			if (menuKeyField != null) {
+				menuKeyField.setAccessible(true);
+				menuKeyField.setBoolean(config, false);
 			}
-			catch (Exception ignore) {}
 		}
+		catch (Exception ignore) {}
 
 		/* Establish device memory class */
 		Utilities.calculateMemoryCacheSize(getApplicationContext());

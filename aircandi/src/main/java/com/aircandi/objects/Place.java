@@ -50,9 +50,12 @@ public class Place extends Entity implements Cloneable, Serializable {
 
 	/*--------------------------------------------------------------------------------------------
 	 * client fields (NONE are transferred)
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public static Place upsizeFromSynthetic(Place synthetic) {
 	    /*
 		 * Sythetic entity created from foursquare data
@@ -188,6 +191,7 @@ public class Place extends Entity implements Cloneable, Serializable {
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
+
 	public static Place setPropertiesFromMap(Place entity, Map map, Boolean nameMapping) {
 		/*
 		 * Properties involved with editing are copied from one entity to another.
@@ -230,7 +234,9 @@ public class Place extends Entity implements Cloneable, Serializable {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public static class SortByProximityAndDistance implements Comparator<Entity> {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static class SortByProximityAndDistance implements Comparator<Entity> {
 
 		@Override
 		public int compare(Entity object1, Entity object2) {

@@ -1,11 +1,9 @@
 package com.aircandi.components;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources.NotFoundException;
 import android.content.res.XmlResourceParser;
-import android.os.Build;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Xml;
@@ -30,6 +28,11 @@ public class AnimationManager {
 
 	public static Integer DURATION_MEDIUM = 500;
 	private static Animation mFadeInMedium;
+	public static final String TRANSLATION_Y_COMPAT = "translationY";
+	public static final String TRANSLATION_X_COMPAT = "translationX";
+	public static final String SCALE_X_COMPAT       = "scaleX";
+	public static final String SCALE_Y_COMPAT       = "scaleY";
+	public static final String ALPHA_COMPAT         = "alpha";
 
 	public static Animation fadeInMedium() {
 		/*
@@ -141,7 +144,6 @@ public class AnimationManager {
 		return anim;
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static class DepthPageTransformer implements ViewPager.PageTransformer {
 		private float MIN_SCALE = 0.75f;
 

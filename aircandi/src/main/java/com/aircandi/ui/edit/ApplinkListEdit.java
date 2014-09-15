@@ -20,7 +20,7 @@ import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Applink;
 import com.aircandi.objects.Entity;
@@ -77,7 +77,8 @@ public class ApplinkListEdit extends BaseEntityListEdit {
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
 		if (resultCode != Activity.RESULT_CANCELED) {
-			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT || requestCode == Constants.ACTIVITY_ENTITY_INSERT) {
+			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT
+					|| requestCode == Constants.ACTIVITY_ENTITY_INSERT) {
 				if (intent != null && intent.getExtras() != null) {
 
 					final Bundle extras = intent.getExtras();
@@ -111,7 +112,7 @@ public class ApplinkListEdit extends BaseEntityListEdit {
 							}
 						}
 					}
-					else if (requestCode == Constants.ACTIVITY_ENTITY_INSERT) {
+					else {
 
 						/* Add the inserted entity and any extra friends we don't already have */
 						for (Entity inserted : entities) {

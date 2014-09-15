@@ -14,7 +14,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 public class OkHttp extends BaseConnection {
@@ -134,11 +133,10 @@ public class OkHttp extends BaseConnection {
 
 		final ServiceResponse serviceResponse = new ServiceResponse();
 		serviceResponse.activityName = serviceRequest.getActivityName();
+		Request.Builder builder = new Request.Builder().tag(serviceRequest.getTag());
 
 		final AirHttpRequest airRequest = BaseConnection.buildHttpRequest(serviceRequest);
-		URL url = new URL(airRequest.uri);
-
-		Request.Builder builder = new Request.Builder().tag(serviceRequest.getTag());
+		builder.url(airRequest.uri);
 
 		for (AirHttpRequest.Header header : airRequest.headers) {
 			builder.addHeader(header.key, header.value);

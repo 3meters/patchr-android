@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.aircandi.Aircandi;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.LinkProfile;

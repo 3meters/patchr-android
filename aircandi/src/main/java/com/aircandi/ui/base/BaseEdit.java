@@ -12,7 +12,6 @@ import com.aircandi.components.StringManager;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
-import com.aircandi.objects.TransitionType;
 import com.aircandi.utilities.Dialogs;
 
 import java.util.List;

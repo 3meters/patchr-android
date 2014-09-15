@@ -1,6 +1,7 @@
 package com.aircandi.ui.base;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -12,12 +13,14 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.Window;
@@ -28,10 +31,6 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -44,7 +43,7 @@ import com.aircandi.components.Extras;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.monitors.SimpleMonitor;
@@ -61,13 +60,13 @@ import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
-import com.nineoldandroids.view.ViewHelper;
 
 import java.lang.reflect.Field;
 
-public abstract class BaseActivity extends SherlockFragmentActivity implements OnRefreshListener, IForm, IBind {
+public abstract class BaseActivity extends FragmentActivity implements OnRefreshListener, IForm, IBind {
 
 	protected ActionBar     mActionBar;
+	public    View          mActionBarView;
 	protected String        mActivityTitle;
 	protected Entity        mEntity;
 	protected String        mEntityId;
@@ -136,7 +135,8 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 			mBusy = new BusyManager(this);
 
 			/* Stash the action bar */
-			mActionBar = getSupportActionBar();
+			mActionBar = getActionBar();
+			mActionBarView = getActionBarView();
 
 			/* Fonts */
 			final Integer titleId = getActionBarTitleId();
@@ -145,7 +145,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 			/* Super base ui */
 			mButtonSpecial = (Button) findViewById(R.id.button_special);
 			if (mButtonSpecial != null) {
-				ViewHelper.setAlpha(mButtonSpecial, 0);
+				mButtonSpecial.setAlpha(0);
 				mButtonSpecial.setClickable(false);
 			}
 
@@ -153,9 +153,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 			unpackIntent();
 			initialize(savedInstanceState);
-			if (!isFinishing()) {
-				configureActionBar();
-			}
+			configureActionBar();
 		}
 	}
 
@@ -175,9 +173,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 
 		if (mActionBar != null) {
 			mActionBar.setDisplayHomeAsUpEnabled(true);
-			Drawable icon = Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
-			icon.setColorFilter(Colors.getColor(color.white), PorterDuff.Mode.SRC_ATOP);
-			mActionBar.setIcon(icon);
+			actionBarIcon();
 		}
 
 		/*
@@ -192,6 +188,14 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 			}
 		}
 		catch (Exception ignore) {}
+	}
+
+	protected void actionBarIcon() {
+		if (mActionBar != null) {
+			Drawable icon = Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
+			icon.setColorFilter(Colors.getColor(color.white), PorterDuff.Mode.SRC_ATOP);
+			mActionBar.setIcon(icon);
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -291,16 +295,11 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		return 0;
 	}
 
-	public int getActionBarTitleId() {
+	public Integer getActionBarTitleId() {
 		Integer actionBarTitleId = null;
 		try {
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-				actionBarTitleId = Class.forName("com.actionbarsherlock.R$id").getField("abs__action_bar_title").getInt(null);
-			}
-			else {
-				// Use reflection to get the actionbar title TextView and set the custom font. May break in updates.
-				actionBarTitleId = Class.forName("com.android.internal.R$id").getField("action_bar_title").getInt(null);
-			}
+			// Use reflection to get the actionbar title TextView and set the custom font. May break in updates.
+			actionBarTitleId = Class.forName("com.android.internal.R$id").getField("action_bar_title").getInt(null);
 		}
 		catch (Exception e) {
 			if (Aircandi.DEBUG) {
@@ -333,6 +332,10 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 
 	public Entity getEntity() {
 		return mEntity;
+	}
+
+	public Menu getMenu() {
+		return mMenu;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -573,12 +576,6 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	public void setTheme(Boolean isDialog, Boolean isTransparent) {
 		mPrefTheme = Aircandi.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
 		/*
-		 * ActionBarSherlock takes over the title area if version < 4.0 (Ice Cream Sandwich).
-		 */
-		if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			requestWindowFeature(Window.FEATURE_NO_TITLE);
-		}
-		/*
 		 * Need to use application context so our app level themes and attributes are available to actionbarsherlock
 		 */
 		Integer themeId = getApplicationContext().getResources().getIdentifier(mPrefTheme, "style", getPackageName());
@@ -642,6 +639,13 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 			Aircandi.getInstance().snapshotPreferences();
 		}
 	}
+
+	public View getActionBarView() {
+		View view = getWindow().getDecorView();
+		int resId = getResources().getIdentifier("action_bar_container", "id", "android");
+		return view.findViewById(resId);
+	}
+
 
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
@@ -735,8 +739,8 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 
 		Bundle extras = null;
 		if (item.getItemId() == R.id.remove && mEntity.placeId != null) {
-            /*
-             * We use placeId instead of toId so we can removed replies where
+		    /*
+		     * We use placeId instead of toId so we can removed replies where
              * toId points to the root message.
              */
 			extras = new Bundle();
@@ -755,58 +759,29 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	@SuppressLint("NewApi")
 	public void popupMenu(View view) {
 
-		if (Constants.SUPPORTS_HONEYCOMB) {
-
-			final Entity entity = (Entity) view.getTag();
-			PopupMenu popupMenu = new PopupMenu(this, view);
-			onCreatePopupMenu(popupMenu.getMenu(), (entity != null) ? entity : mEntity);
-			popupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-
-				@Override
-				public boolean onMenuItemClick(android.view.MenuItem item) {
-
-					if (item.getItemId() == R.id.report) {
-						Bundle extras = new Bundle();
-						extras.putString(Constants.EXTRA_ENTITY_SCHEMA, mEntity.getSchemaMapped());
-						Aircandi.dispatch.route(BaseActivity.this, Route.REPORT, (entity != null) ? entity : mEntity, null, extras);
-						return true;
-					}
-					else {
-						Aircandi.dispatch.route(BaseActivity.this, Aircandi.dispatch.routeForMenuId(item.getItemId())
-								, (entity != null) ? entity : mEntity, null, new Bundle());
-						return true;
-					}
-				}
-			});
-
-			popupMenu.show();
-		}
-		else {
-			gingerbreadPopupMenu();
-		}
-	}
-
-	public void gingerbreadPopupMenu() {
-		/*
-		 * Builder constructor that takes theme requires api level 11.
-		 */
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setInverseBackgroundForced(true);
-
-		builder.setItems(R.array.more_options_entity, new DialogInterface.OnClickListener() {
+		final Entity entity = (Entity) view.getTag();
+		PopupMenu popupMenu = new PopupMenu(this, view);
+		onCreatePopupMenu(popupMenu.getMenu(), (entity != null) ? entity : mEntity);
+		popupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 
 			@Override
-			public void onClick(DialogInterface dialog, int item) {
-				if (item == 0) {
+			public boolean onMenuItemClick(android.view.MenuItem item) {
+
+				if (item.getItemId() == R.id.report) {
 					Bundle extras = new Bundle();
 					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, mEntity.getSchemaMapped());
-					Aircandi.dispatch.route(BaseActivity.this, Route.REPORT, mEntity, null, extras);
+					Aircandi.dispatch.route(BaseActivity.this, Route.REPORT, (entity != null) ? entity : mEntity, null, extras);
+					return true;
+				}
+				else {
+					Aircandi.dispatch.route(BaseActivity.this, Aircandi.dispatch.routeForMenuId(item.getItemId())
+							, (entity != null) ? entity : mEntity, null, new Bundle());
+					return true;
 				}
 			}
 		});
 
-		AlertDialog alert = builder.create();
-		alert.show();
+		popupMenu.show();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -847,7 +822,9 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 		BusProvider.getInstance().register(this);
 		Aircandi.getInstance().setCurrentActivity(this);
 		mClickEnabled = true;
-
+		if (!isFinishing()) {
+			actionBarIcon(); // Hack: Icon gets lost sometimes so refresh
+		}
 		/*
 		 * We always check to make sure play services are working properly. This call will finish 
 		 * the activity if play services are missing and can't be installed. If play services can
@@ -890,6 +867,7 @@ public abstract class BaseActivity extends SherlockFragmentActivity implements O
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Boolean getInvalidated() {
 		return mInvalidated;
 	}

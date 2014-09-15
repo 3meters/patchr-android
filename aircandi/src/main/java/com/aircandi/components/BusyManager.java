@@ -1,13 +1,11 @@
 package com.aircandi.components;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -160,7 +158,6 @@ public class BusyManager implements IBusy {
 
 		mRunnableShow = new Runnable() {
 
-			@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 			@Override
 			public void run() {
 				try {
@@ -173,9 +170,7 @@ public class BusyManager implements IBusy {
 						progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 						progressDialog.setProgress(0);
 						progressDialog.setMax(100);
-						if (Constants.SUPPORTS_HONEYCOMB) {
-							progressDialog.setProgressNumberFormat(null);
-						}
+						progressDialog.setProgressNumberFormat(null);
 						progressDialog.setIndeterminate(false);
 						progressDialog.setCanceledOnTouchOutside(false);
 						progressDialog.setCancelable(false);

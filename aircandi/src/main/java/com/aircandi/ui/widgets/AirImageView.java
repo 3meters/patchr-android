@@ -20,6 +20,7 @@ import com.aircandi.Aircandi;
 import com.aircandi.Aircandi.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DownloadManager;
 import com.aircandi.objects.Photo;
 import com.aircandi.utilities.UI;
 import com.squareup.picasso.Picasso.LoadedFrom;
@@ -35,9 +36,9 @@ public class AirImageView extends FrameLayout implements Target {
 	private ProgressBar mProgressBar;
 	private TextView    mMissingMessage;
 
-	private Photo mPhoto;
-	private final Handler mThreadHandler = new Handler();
+	private Photo  mPhoto;
 	private Target mTarget;
+	private final Handler mThreadHandler = new Handler();
 
 	private Integer  mSizeHint;
 	private SizeType mSizeType;
@@ -94,9 +95,11 @@ public class AirImageView extends FrameLayout implements Target {
 		ta.recycle();
 
 		if (!isInEditMode()) {
-			final int scaleTypeValue = attributes.getAttributeIntValue(androidNamespace, "scaleType", 6);
-			if (scaleTypeValue >= 0) {
-				mScaleType = sScaleTypeArray[scaleTypeValue];
+			if (attributes != null) {
+				final int scaleTypeValue = attributes.getAttributeIntValue(androidNamespace, "scaleType", 6);
+				if (scaleTypeValue >= 0) {
+					mScaleType = sScaleTypeArray[scaleTypeValue];
+				}
 			}
 		}
 		initialize(context);
@@ -133,6 +136,7 @@ public class AirImageView extends FrameLayout implements Target {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		if (mImageMain != null) {
@@ -202,11 +206,13 @@ public class AirImageView extends FrameLayout implements Target {
 	}
 
 	@Override
-	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
+	public void onBitmapLoaded(Bitmap bm, LoadedFrom loadedFrom) {
 		if (mTarget != null) {
-			mTarget.onBitmapLoaded(bitmap, loadedFrom);
+			mTarget.onBitmapLoaded(bm, loadedFrom);
 		}
 		else {
+			Bitmap bitmap = DownloadManager.checkDebug(bm, loadedFrom);
+			DownloadManager.checkDebug(bitmap, loadedFrom);
 			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Aircandi.applicationContext.getResources(), bitmap);
 			UI.showDrawableInImageView(bitmapDrawable, mImageMain, true, AnimationManager.fadeInMedium());
 			showMissing(false);
@@ -232,6 +238,7 @@ public class AirImageView extends FrameLayout implements Target {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void showLoading(final Boolean visible) {
 		mThreadHandler.post(new Runnable() {
 
@@ -248,15 +255,19 @@ public class AirImageView extends FrameLayout implements Target {
 
 			@Override
 			public void run() {
-				if (mSizeType != SizeType.THUMBNAIL) {
-					mMissingMessage.setVisibility(visible ? View.VISIBLE : View.GONE);
-				}
-				else {
+				if (mSizeType == SizeType.THUMBNAIL) {
+					/*
+					 * Use image instead of message
+					 */
+					mMissingMessage.setVisibility(View.GONE);
 					if (visible) {
-						Integer resId = Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.img_broken_light : R.drawable.img_broken_dark;
+						Integer resId = Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.img_broken_100_light : R.drawable.img_broken_100_dark;
 						Drawable drawable = getResources().getDrawable(resId);
 						UI.showDrawableInImageView(drawable, mImageMain, true, AnimationManager.fadeInMedium());
 					}
+				}
+				else {
+					mMissingMessage.setVisibility(visible ? View.VISIBLE : View.GONE);
 				}
 			}
 		});
@@ -265,6 +276,7 @@ public class AirImageView extends FrameLayout implements Target {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	public ImageView getImageView() {
 		return mImageMain;
 	}
@@ -392,7 +404,9 @@ public class AirImageView extends FrameLayout implements Target {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public enum SizeType {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public enum SizeType {
 		/*
 		 * Always append new enum items because there is a
 		 * dependency on ordering for persistence.

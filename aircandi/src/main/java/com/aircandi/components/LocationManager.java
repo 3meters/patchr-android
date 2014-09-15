@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.DeadObjectException;
 import android.os.Handler;
 import android.widget.Toast;
 

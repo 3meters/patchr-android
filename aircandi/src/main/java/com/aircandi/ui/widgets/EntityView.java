@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DownloadManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Photo;
@@ -126,6 +127,7 @@ public class EntityView extends LinearLayout {
 		                    /*
                              * Called on main thread and whether bitmap was loaded from network or memory.
                              */
+							DownloadManager.checkDebug(bitmap, loadedFrom);
 							final BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
 							if (mAnimateDisabled) {
 								mPhotoView.getImageView().setImageDrawable(bitmapDrawable);

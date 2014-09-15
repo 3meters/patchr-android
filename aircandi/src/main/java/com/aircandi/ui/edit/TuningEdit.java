@@ -12,7 +12,7 @@ import com.aircandi.ServiceConstants;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.ProximityManager;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.ProximityManager.ScanReason;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.BeaconsLockedEvent;
@@ -228,7 +228,7 @@ public class TuningEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPostExecute(Object response) {
-				setSupportProgressBarIndeterminateVisibility(false);
+				setProgressBarIndeterminateVisibility(false);
 				mBusy.hideBusy(false);
 
 				if (mTuned || mUntuned) {

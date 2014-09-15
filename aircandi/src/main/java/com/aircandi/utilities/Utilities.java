@@ -1,16 +1,13 @@
 package com.aircandi.utilities;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
-import android.os.Build;
 
 import com.aircandi.Aircandi;
-import com.aircandi.Constants;
 import com.aircandi.components.Logger;
 
 import java.io.BufferedReader;
@@ -143,11 +140,9 @@ public class Utilities {
 		ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		int memClass = am.getMemoryClass();
 
-		if (Constants.SUPPORTS_HONEYCOMB) {
-			final boolean largeHeap = (context.getApplicationInfo().flags & ApplicationInfo.FLAG_LARGE_HEAP) != 0;
-			if (largeHeap) {
-				memClass = ActivityManagerHoneycomb.getLargeMemoryClass(am);
-			}
+		final boolean largeHeap = (context.getApplicationInfo().flags & ApplicationInfo.FLAG_LARGE_HEAP) != 0;
+		if (largeHeap) {
+			memClass = am.getLargeMemoryClass();
 		}
 
 		Logger.i(context, "Device memory class: " + String.valueOf(memClass));
@@ -158,13 +153,6 @@ public class Utilities {
 		Logger.i(context, "Memory cache size: " + String.valueOf(cacheSize));
 
 		return cacheSize;
-	}
-
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private static class ActivityManagerHoneycomb {
-		static int getLargeMemoryClass(ActivityManager activityManager) {
-			return activityManager.getLargeMemoryClass();
-		}
 	}
 
 	private static final Pattern EMAIL_ADDRESS                    = Pattern.compile(

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ViewAnimator xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
+<ViewAnimator
 	android:id="@+id/animator_header"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
@@ -73,6 +74,30 @@
 				custom:drawable="@drawable/ic_action_show_dark" />
 
 			<com.aircandi.ui.widgets.ComboButton
+				android:id="@+id/button_map"
+				style="@style/button"
+				android:layout_width="@dimen/button_height"
+				android:layout_height="@dimen/button_height"
+				android:layout_centerVertical="true"
+				android:layout_toLeftOf="@+id/button_share"
+				android:onClick="onMapButtonClick"
+				custom:drawable="@drawable/ic_action_location_dark" />
+
+			<com.aircandi.ui.widgets.ComboButton
+				android:id="@+id/button_share"
+				style="@style/button_link"
+				android:layout_width="100dp"
+				android:layout_height="30dp"
+				android:layout_alignParentRight="true"
+				android:layout_centerVertical="true"
+				android:layout_marginRight="8dp"
+				android:onClick="onShareButtonClick"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				android:visibility="invisible"
+				custom:label="@string/button_place_share" />
+
+			<!--
+			<com.aircandi.ui.widgets.ComboButton
 				android:id="@+id/button_share"
 				style="@style/button"
 				android:layout_width="@dimen/button_height"
@@ -80,7 +105,7 @@
 				android:layout_alignParentRight="true"
 				android:layout_centerVertical="true"
 				android:onClick="onShareButtonClick"
-				custom:drawable="@drawable/ic_action_share_dark" />
+				custom:drawable="@drawable/ic_action_share_dark" />-->
 		</RelativeLayout>
 	</RelativeLayout>
 
@@ -112,7 +137,7 @@
 			android:orientation="horizontal">
 
 			<com.aircandi.ui.widgets.ComboButton
-				android:id="@+id/button_map"
+				android:id="@+id/button_map_info"
 				style="@style/button"
 				android:layout_width="@dimen/button_height"
 				android:layout_height="@dimen/button_height"

@@ -10,7 +10,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 
-import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
 import com.aircandi.ui.base.BaseActivity.SimpleTextWatcher;
@@ -45,9 +44,6 @@ public class AirEditText extends EditText {
 				mClearDrawable = drawables[2];
 
 				if (mClearDrawable != null) {
-					if (!Constants.SUPPORTS_HONEYCOMB) {
-						mClearDrawable = getResources().getDrawable(R.drawable.ic_action_cancel_light);
-					}
 					mEnableClearButton = true;
 					Bitmap bitmap = ((BitmapDrawable) mClearDrawable).getBitmap();
 					Integer drawableWidth = getResources().getDimensionPixelSize(R.dimen.drawable_width);

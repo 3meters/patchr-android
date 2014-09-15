@@ -9,7 +9,7 @@ import com.aircandi.catalina.R;
 import com.aircandi.catalina.objects.LinkProfile;
 import com.aircandi.catalina.ui.MessageListFragment;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Route;
@@ -49,7 +49,7 @@ public class UserForm extends com.aircandi.ui.user.UserForm {
 		             .setHeaderViewResId(R.layout.widget_list_header_user)
 		             .setSelfBindingEnabled(false);
 
-		getSupportFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
+		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
 
 		Boolean currentUser = Aircandi.getInstance().getCurrentUser().id.equals(mEntityId);
 		mLinkProfile = currentUser ? LinkProfile.LINKS_FOR_USER_CURRENT : LinkProfile.LINKS_FOR_USER;

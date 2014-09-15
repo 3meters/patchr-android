@@ -1,7 +1,7 @@
 package com.aircandi.components;
 
 import android.app.Activity;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 
 import com.aircandi.Aircandi;
 import com.aircandi.R;

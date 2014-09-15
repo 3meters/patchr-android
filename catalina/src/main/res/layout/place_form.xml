@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	tools:context=".ui.PlaceForm">
 
 	<FrameLayout
 		android:id="@+id/fragment_holder"
@@ -41,8 +43,29 @@
 		android:layout_width="@dimen/button_round_medium"
 		android:layout_height="@dimen/button_round_medium"
 		android:clickable="true"
-		android:tint="@color/brand_primary"
 		android:onClick="onAddMessageButtonClick"
 		android:src="?attr/iconMessageNew" />
+
+	<com.aircandi.ui.widgets.ToolTipRelativeLayout
+		android:id="@+id/tooltips"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="?attr/backgroundTooltipLayer"
+		android:visibility="gone">
+
+		<ImageView
+			android:id="@+id/tooltips_cancel"
+			android:layout_width="35dp"
+			android:layout_height="35dp"
+			android:layout_alignParentTop="true"
+			android:layout_alignParentRight="true"
+			android:layout_margin="8dp"
+			android:background="@drawable/selector_button_circle_overlay"
+			android:duplicateParentState="true"
+			android:padding="4dp"
+			android:scaleType="centerCrop"
+			android:src="@drawable/ic_action_cancel_dark" />
+
+	</com.aircandi.ui.widgets.ToolTipRelativeLayout>
 
 </RelativeLayout>

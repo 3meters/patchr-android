@@ -15,7 +15,7 @@ import com.aircandi.catalina.R;
 import com.aircandi.catalina.queries.WatchersQuery;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
@@ -80,7 +80,7 @@ public class WatcherList extends BaseActivity {
 		             .setTitleResId(R.string.form_title_watchers)
 		             .setButtonSpecialClickable(true);
 
-		getSupportFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
+		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
 
 	}
 

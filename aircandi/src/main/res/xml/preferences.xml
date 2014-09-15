@@ -68,6 +68,10 @@
 		<Preference
 			android:key="Pref_Feedback"
 			android:title="Feedback" />
+
+		<Preference
+			android:key="Pref_Reset_Tutorials"
+			android:title="Restore tooltips" />
 	</PreferenceCategory>
 
 	<PreferenceCategory

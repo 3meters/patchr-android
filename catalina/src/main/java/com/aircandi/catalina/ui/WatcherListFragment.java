@@ -27,7 +27,7 @@ public class WatcherListFragment extends EntityListFragment {
 				.setEntitySchema(Constants.SCHEMA_ENTITY_USER)
 				.setEntityId(entity.id);
 
-		Aircandi.dispatch.route(getSherlockActivity(), Route.BROWSE, entity, null, extras.getExtras());
+		Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class WatcherListFragment extends EntityListFragment {
 
 		//		if (holder.candiView != null) {
 		//			ViewGroup layout = holder.candiView.getLayout();
-		//			Entity parent = ((BaseActivity) getSherlockActivity()).getEntity();
+		//			Entity parent = ((BaseActivity) getActivity()).getEntity();
 		//			Boolean isOwner = entity.id.equals(parent.ownerId);
 
 		//			layout.findViewById(R.id.holder_owner_edit).setVisibility((parent.isOwnedByCurrentUser() && !isOwner) ? View.VISIBLE : View.GONE);

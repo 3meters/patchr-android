@@ -67,7 +67,7 @@
 		android:layout_alignParentRight="true"
 		android:paddingBottom="12dp"
 		android:paddingRight="10dp"
-		android:textAppearance="?attr/textAppearanceSmall"
+		android:textAppearance="?android:attr/textAppearanceSmall"
 		android:textColor="?attr/textColorCandiView" />
 
 	<com.aircandi.ui.widgets.AirTextView
@@ -76,7 +76,7 @@
 		android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true"
 		android:layout_alignParentRight="true"
-		android:textAppearance="?attr/textAppearanceSmall"
+		android:textAppearance="?android:attr/textAppearanceSmall"
 		android:textColor="?attr/textColorCandiView"
 		android:visibility="gone" />
 

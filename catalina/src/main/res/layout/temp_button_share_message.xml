@@ -25,7 +25,7 @@
 			android:layout_marginRight="8dp"
 			android:ellipsize="end"
 			android:singleLine="true"
-			android:textAppearance="@style/textAppearanceSmall"
+			android:textAppearance="@style/text_appearance_small"
 			android:textColor="?attr/textColorSecondary" />
 
 		<ImageView

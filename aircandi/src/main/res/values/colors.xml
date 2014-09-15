@@ -77,6 +77,7 @@
 	<color name="background_help_dark">@color/overlay_help</color>
 	<color name="background_token_dark">@color/overlay_help</color>
 	<color name="background_button_share_dark">@color/gray_90_pcnt</color>
+	<color name="background_tooltip_layer_dark">#66000000</color>
 
 	<!-- Backgrounds light -->
 
@@ -90,6 +91,7 @@
 	<color name="background_balloon_light">@color/gray_10_pcnt</color>
 	<color name="background_help_light">@color/overlay_help</color>
 	<color name="background_button_share_light">@color/gray_05_pcnt</color>
+	<color name="background_tooltip_layer_light">#66000000</color>
 
 	<!-- Backgrounds gray -->
 
@@ -100,9 +102,8 @@
 	<color name="background_pressed">@color/brand_pressed</color>
 	<color name="background_button_pressed">@color/brand_pressed</color>
 	<color name="background_picture_detail">@color/gray_85_pcnt</color>
-	<color name="pressed_highlight_color">#fffeaa0c</color>
+	<color name="pressed_highlight_color">#660099cc</color>
 	<!-- legacy -->
-
 	<color name="background_token_selected">#880099CC</color>
 
 	<!-- Semi transparent overlays -->

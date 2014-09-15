@@ -90,7 +90,7 @@
 		android:layout_alignParentRight="true"
 		android:paddingBottom="12dp"
 		android:paddingRight="10dp"
-		android:textAppearance="?attr/textAppearanceSmall"
+		android:textAppearance="?android:attr/textAppearanceSmall"
 		android:textColor="?attr/textColorCandiView" />
 
 </merge>

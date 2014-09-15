@@ -1,7 +1,7 @@
 package com.aircandi.queries;
 
 import com.aircandi.Aircandi;
-import com.aircandi.components.ProximityManager.ModelResult;
+import com.aircandi.components.ModelResult;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.EventType;
 import com.aircandi.objects.ServiceData;

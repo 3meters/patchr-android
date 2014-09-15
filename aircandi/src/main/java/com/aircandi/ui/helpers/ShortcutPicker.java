@@ -87,7 +87,8 @@ public class ShortcutPicker extends BaseActivity {
 				               }
 
 				               @Override
-				               public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
+				               public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
+					               DownloadManager.checkDebug(bitmap, loadedFrom);
 					               mActionBar.setIcon(new BitmapDrawable(Aircandi.applicationContext.getResources(), bitmap));
 				               }
 
