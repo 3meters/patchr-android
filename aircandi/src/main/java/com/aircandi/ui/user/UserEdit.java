@@ -144,7 +144,9 @@ public class UserEdit extends BaseEntityEdit {
 		if (mDirty) {
 
 			mEntity.photo = photo;
-			mEntity.photo.setStore(true);
+			if (mEntity.photo != null) {
+				mEntity.photo.setStore(true);
+			}
 			runOnUiThread(new Runnable() {
 
 				@Override
