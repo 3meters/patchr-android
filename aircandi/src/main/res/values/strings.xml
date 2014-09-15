@@ -463,7 +463,7 @@
 	<string name="label_radar_empty">No [@string/container_plural_lowercase] found nearby</string>
 	<string name="label_photo_picker_empty">No photos found for</string>
 	<string name="label_photo_missing">Unable to download photo</string>
-
+	<string name="label_photo_missing_thumbnail">Missing</string>
 	<!-- Labels: Misc -->
 
 	<string name="label_message_to_prefix">"To:  "</string>

@@ -3,7 +3,6 @@ package com.aircandi.ui.widgets;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -22,9 +21,7 @@ import com.aircandi.Aircandi.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
-import com.aircandi.components.StringManager;
 import com.aircandi.objects.Photo;
-import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
@@ -258,15 +255,19 @@ public class AirImageView extends FrameLayout implements Target {
 
 			@Override
 			public void run() {
-				if (mSizeType != SizeType.THUMBNAIL) {
-					mMissingMessage.setVisibility(visible ? View.VISIBLE : View.GONE);
-				}
-				else {
+				if (mSizeType == SizeType.THUMBNAIL) {
+					/*
+					 * Use image instead of message
+					 */
+					mMissingMessage.setVisibility(View.GONE);
 					if (visible) {
-						Integer resId = Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.img_broken_light : R.drawable.img_broken_dark;
+						Integer resId = Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.img_broken_100_light : R.drawable.img_broken_100_dark;
 						Drawable drawable = getResources().getDrawable(resId);
 						UI.showDrawableInImageView(drawable, mImageMain, true, AnimationManager.fadeInMedium());
 					}
+				}
+				else {
+					mMissingMessage.setVisibility(visible ? View.VISIBLE : View.GONE);
 				}
 			}
 		});
