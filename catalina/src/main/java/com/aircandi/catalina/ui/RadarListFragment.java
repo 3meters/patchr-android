@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.aircandi.catalina.R;
+import com.aircandi.components.LocationManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.BeaconsLockedEvent;
 import com.aircandi.events.EntitiesByProximityFinishedEvent;
@@ -70,25 +71,27 @@ public class RadarListFragment extends com.aircandi.ui.RadarListFragment {
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		MenuItem menuItem = ((BaseActivity) getActivity()).getMenu().findItem(R.id.search);
-		final View searchView = menuItem.getActionView();
-		searchView.post(new Runnable() {
-			@Override
-			public void run() {
-				showTooltips();
-			}
-		});
+		if (mEntities.size() > 0 || LocationManager.getInstance().getLocationLocked() != null) {
+			MenuItem menuItem = ((BaseActivity) getActivity()).getMenu().findItem(R.id.search);
+			final View searchView = menuItem.getActionView();
+			searchView.post(new Runnable() {
+				@Override
+				public void run() {
+					showTooltips(true);
+				}
+			});
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void showTooltips() {
+	public void showTooltips(boolean force) {
 
 		ToolTipRelativeLayout tooltipLayer = ((AircandiForm) getActivity()).mTooltips;
 
-		if (!tooltipLayer.hasShot()) {
+		if ((force || tooltipLayer.getVisibility() != View.VISIBLE) && !tooltipLayer.hasShot()) {
 			tooltipLayer.setClickable(true);
 			tooltipLayer.setVisibility(View.VISIBLE);
 			tooltipLayer.clear();
@@ -127,14 +130,14 @@ public class RadarListFragment extends com.aircandi.ui.RadarListFragment {
 		 * gone through measure/layout. That's when it's safe to process tooltips
 		 * for action bar items.
 		 */
-		MenuItem menuItem = menu.findItem(R.id.search);
-		final View searchView = menuItem.getActionView();
-		searchView.post(new Runnable() {
-			@Override
-			public void run() {
-				showTooltips();
-			}
-		});
+//		MenuItem menuItem = menu.findItem(R.id.search);
+//		final View searchView = menuItem.getActionView();
+//		searchView.post(new Runnable() {
+//			@Override
+//			public void run() {
+//				showTooltips();
+//			}
+//		});
 	}
 
 	/*--------------------------------------------------------------------------------------------

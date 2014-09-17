@@ -91,7 +91,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 		if (mScrollView != null) {
 			mScrollView.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 		}
-		mEntityMonitor = new EntityMonitor(mEntityId);
+		if (mEntityId != null) {
+			mEntityMonitor = new EntityMonitor(mEntityId);
+		}
 	}
 
 	public void beforeDatabind(final BindingMode mode) {
