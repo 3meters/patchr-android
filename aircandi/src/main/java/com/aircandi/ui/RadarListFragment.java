@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -381,10 +380,11 @@ public class RadarListFragment extends EntityListFragment {
 				/* No more updates are coming */
 				if (LocationManager.getInstance().getLocationLocked() != null) {
 					mBusy.hideBusy(false);
+					showTooltips(false);
 				}
-				//				if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-				//					mBusy.hideBusy(false);
-				//				}
+
+				/* Show map button if we have some entities to map */
+				showFooter(entities.size() > 0);
 
 				if (event.source.equals("onLocationChanged")) {
 					mAtLeastOneLocationProcessed = true;
@@ -492,6 +492,8 @@ public class RadarListFragment extends EntityListFragment {
 			}
 		}.execute();
 	}
+
+	public void showTooltips(boolean force) {}
 
 	/*--------------------------------------------------------------------------------------------
 	 * UI

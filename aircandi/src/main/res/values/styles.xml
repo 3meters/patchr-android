@@ -177,6 +177,11 @@
 		<item name="layout">@layout/widget_combo_button_link</item>
 	</style>
 
+	<style name="button_link_no_outline" parent="selectable_item">
+		<item name="android:minHeight">@dimen/button_height</item>
+		<item name="layout">@layout/widget_combo_button_link_no_outline</item>
+	</style>
+
 	<style name="button_round" parent="button">
 		<item name="android:padding">10dp</item>
 		<item name="android:minWidth">200dp</item>

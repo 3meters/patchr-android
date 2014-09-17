@@ -1,5 +1,6 @@
 package com.aircandi.catalina.ui;
 
+import android.animation.ObjectAnimator;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import com.aircandi.catalina.Catalina;
 import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.R;
 import com.aircandi.catalina.queries.MessagesQuery;
+import com.aircandi.components.AnimationManager;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MessagingManager;
@@ -384,7 +386,16 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 				                                       ? R.string.label_view_list
 				                                       : R.string.label_view_map);
 				((TextView) mFooterHolder).setText(label);
-				mFooterHolder.setVisibility(View.VISIBLE);
+
+				if (mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
+					mFooterHolder.setVisibility(View.VISIBLE);
+					mFooterHolder.setClickable(true);
+				}
+				else {
+					Boolean hasEntities = (((EntityListFragment) getCurrentFragment()).getEntities().size() > 0);
+					mFooterHolder.setVisibility(hasEntities ? View.VISIBLE : View.INVISIBLE);
+					mFooterHolder.setClickable(hasEntities);
+				}
 			}
 		}
 	}

@@ -11,15 +11,19 @@ public class EntityMonitor extends SimpleMonitor {
 
 	private String mEntityId;
 
+	public EntityMonitor() {
+		this(null);
+	}
+
 	public EntityMonitor(String entityId) {
-		if (entityId == null) {
-			throw new IllegalArgumentException("EntityId must not be null.");
-		}
 		mEntityId = entityId;
 	}
 
 	@Override
 	public Boolean isChanged() {
+		if (mEntityId == null) {
+			throw new IllegalArgumentException("EntityId must not be null when calling isChanged()");
+		}
 		/*
 		 * Possible states:
 		 * - No entity in the cache, go get it.

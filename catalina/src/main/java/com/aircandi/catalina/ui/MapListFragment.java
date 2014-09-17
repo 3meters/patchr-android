@@ -3,7 +3,6 @@ package com.aircandi.catalina.ui;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,6 +10,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +27,6 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
-import com.aircandi.catalina.ui.components.EntityTarget;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.UI;
@@ -45,7 +44,6 @@ import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.ui.IconGenerator;
-import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -88,30 +86,55 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		mClusterManager.setOnClusterItemClickListener(this);
 		mClusterManager.setOnClusterItemInfoWindowClickListener(this);
 
+		return root;
+	}
+
+	@Override
+	public void onViewCreated (View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
 		// Check if we were successful in obtaining the map.
 		if (checkReady()) {
 			setUpMap();
 			draw();
 		}
-		return root;
 	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
 	private void draw() {
 		Logger.d(this, "Map draw");
-		for (Entity entity : mEntities) {
-			if (entity.getLocation() != null) {
-				AirLocation location = entity.getLocation();
-				EntityItem marker = new EntityItem(location.lat.doubleValue(), location.lng.doubleValue(), entity);
-				mClusterManager.addItem(marker);
+		if (mEntities != null) {
+			for (Entity entity : mEntities) {
+				if (entity.getLocation() != null) {
+					AirLocation location = entity.getLocation();
+					EntityItem marker = new EntityItem(location.lat.doubleValue(), location.lng.doubleValue(), entity);
+					mClusterManager.addItem(marker);
+				}
 			}
 		}
-		Location location = LocationManager.getInstance().getLocationLast();
-		if (location != null) {
-			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), mZoomLevel));
+
+		final View mapView = getView();
+
+		if (mapView != null && mapView.getViewTreeObserver().isAlive()) {
+			mapView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+				public void onGlobalLayout() {
+					mapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+					LatLngBounds bounds = getBounds(mEntities);
+					if (bounds != null) {
+						CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 150);
+						mMap.moveCamera(cameraUpdate);
+					}
+					else {
+						Location location = LocationManager.getInstance().getLocationLast();
+						if (location != null) {
+							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), mZoomLevel));
+						}
+					}
+				}
+			});
 		}
 	}
 
@@ -137,6 +160,20 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		uiSettings.setAllGesturesEnabled(true);
 		uiSettings.setCompassEnabled(true);
 
+	}
+
+	public LatLngBounds getBounds(List<Entity> entities) {
+		LatLngBounds bounds = null;
+		if (entities != null) {
+			LatLngBounds.Builder builder = LatLngBounds.builder();
+			for (Entity entity : entities) {
+				if (entity.location != null) {
+					builder.include(new LatLng(entity.location.lat.doubleValue(), entity.location.lng.doubleValue()));
+				}
+			}
+			bounds = builder.build();
+		}
+		return bounds;
 	}
 
 	/*--------------------------------------------------------------------------------------------

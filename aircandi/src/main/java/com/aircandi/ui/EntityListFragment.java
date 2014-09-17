@@ -21,6 +21,7 @@ import com.aircandi.Aircandi;
 import com.aircandi.Aircandi.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
+import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
@@ -235,8 +236,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 					}
 				}
 			});
-
-			//mBusy.setSwipeRefreshLayout(swipeRefreshLayout);
 		}
 
 		return view;
@@ -348,6 +347,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	@Override
 	public void draw() {
 		mAdapter.notifyDataSetChanged();
+		showFooter(mAdapter.getCount() > 0);
 		BusProvider.getInstance().post(new EntitiesLoadedEvent()); // Used to trigger item highlighting
 	}
 
@@ -564,7 +564,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 	}
 
-	protected void handleFooter(Boolean auto, Boolean visible, Integer duration) {
+	public void handleFooter(Boolean auto, Boolean visible, Integer duration) {
 
 		if (mFooterHolder == null) return;
 		if (mFooterHolderLocked) return;
@@ -610,6 +610,18 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 	protected void lockFooter(Boolean lock) {
 		mFooterHolderLocked = lock;
+	}
+
+	protected void showFooter(Boolean show) {
+
+		Boolean visible = (mFooterHolder.getVisibility() == View.VISIBLE && mFooterHolder.getAlpha() == 1);
+		if (show != visible) {
+			mFooterHolder.setVisibility(View.VISIBLE);
+			mFooterHolder.setClickable(show);
+			ObjectAnimator anim = ObjectAnimator.ofFloat(mFooterHolder, "alpha", show ? 0f : 1f, show ? 1f : 0f);
+			anim.setDuration(AnimationManager.DURATION_MEDIUM);
+			anim.start();
+		}
 	}
 
 	protected ListAdapter getAdapter() {

@@ -74,27 +74,26 @@
 				custom:drawable="@drawable/ic_action_show_dark" />
 
 			<com.aircandi.ui.widgets.ComboButton
-				android:id="@+id/button_map"
-				style="@style/button"
-				android:layout_width="@dimen/button_height"
-				android:layout_height="@dimen/button_height"
-				android:layout_centerVertical="true"
-				android:layout_toLeftOf="@+id/button_share"
-				android:onClick="onMapButtonClick"
-				custom:drawable="@drawable/ic_action_location_dark" />
-
-			<com.aircandi.ui.widgets.ComboButton
 				android:id="@+id/button_share"
 				style="@style/button_link"
 				android:layout_width="100dp"
 				android:layout_height="30dp"
-				android:layout_alignParentRight="true"
+				android:layout_toRightOf="@+id/button_watch"
 				android:layout_centerVertical="true"
-				android:layout_marginRight="8dp"
 				android:onClick="onShareButtonClick"
 				android:textAppearance="?android:attr/textAppearanceMedium"
 				android:visibility="invisible"
 				custom:label="@string/button_place_share" />
+
+			<com.aircandi.ui.widgets.ComboButton
+				android:id="@+id/button_map"
+				style="@style/button"
+				android:layout_width="@dimen/button_height"
+				android:layout_height="@dimen/button_height"
+				android:layout_alignParentRight="true"
+				android:layout_centerVertical="true"
+				android:onClick="onMapButtonClick"
+				custom:drawable="@drawable/ic_action_location_dark" />
 
 			<!--
 			<com.aircandi.ui.widgets.ComboButton
