@@ -23,6 +23,7 @@ import com.aircandi.components.MessagingManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.controllers.ViewHolder;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
@@ -35,6 +36,7 @@ import com.aircandi.ui.widgets.ToolTip;
 import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 public class MessageListFragment extends EntityListFragment {
 
@@ -121,6 +123,11 @@ public class MessageListFragment extends EntityListFragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
+	}
+
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		super.onProcessingComplete(event);
 	}
 
 	@Override

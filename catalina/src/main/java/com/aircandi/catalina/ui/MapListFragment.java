@@ -7,21 +7,26 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aircandi.Aircandi;
 import com.aircandi.catalina.R;
 import com.aircandi.catalina.ui.components.AirClusterRenderer;
+import com.aircandi.components.BusProvider;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.LocationManager;
-import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ViewLayoutEvent;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Photo;
@@ -43,7 +48,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.view.ClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
+import com.squareup.otto.Subscribe;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,8 +73,10 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	protected ClusterManager<EntityItem> mClusterManager;
 	protected List<Entity>               mEntities;
 	protected Integer                    mTitleResId;
-	protected Integer       mZoomLevel  = ZOOM_DEFAULT;
-	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
+	protected Integer       mZoomLevel   = ZOOM_DEFAULT;
+	protected List<Integer> mMenuResIds  = new ArrayList<Integer>();
+	protected View          mProgressBar = null;
+	protected ClusterRenderer mClusterRenderer;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -75,7 +84,8 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 		mMap = getMap();
 		mClusterManager = new ClusterManager<EntityItem>(getActivity(), mMap);
-		mClusterManager.setRenderer(new EntityRenderer(getActivity()));
+		mClusterRenderer = new EntityRenderer(getActivity());
+		mClusterManager.setRenderer(mClusterRenderer);
 
 		mMap.setOnCameraChangeListener(mClusterManager);
 		mMap.setOnMarkerClickListener(mClusterManager);
@@ -86,12 +96,44 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		mClusterManager.setOnClusterItemClickListener(this);
 		mClusterManager.setOnClusterItemInfoWindowClickListener(this);
 
+		mProgressBar = new ProgressBar(root.getContext(), null, android.R.attr.progressBarStyleLarge);
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+				UI.getRawPixelsForDisplayPixels(50f),
+				UI.getRawPixelsForDisplayPixels(50f));
+		params.gravity = Gravity.CENTER;
+		mProgressBar.setLayoutParams(params);
+		mProgressBar.setVisibility(View.INVISIBLE);
+
+		((ViewGroup) root).addView(mProgressBar);
+
 		return root;
 	}
 
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		if (mProgressBar != null) {
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mProgressBar.setVisibility(View.INVISIBLE);
+				}
+			});
+		}
+	}
+
 	@Override
-	public void onViewCreated (View view, Bundle savedInstanceState) {
+	public void onViewCreated(final View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+
+		if (view != null && view.getViewTreeObserver().isAlive()) {
+			view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+				public void onGlobalLayout() {
+					view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+					BusProvider.getInstance().post(new ViewLayoutEvent());
+				}
+			});
+		}
 
 		// Check if we were successful in obtaining the map.
 		if (checkReady()) {
@@ -99,18 +141,20 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 			draw();
 		}
 	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
 	private void draw() {
-		Logger.d(this, "Map draw");
+
 		if (mEntities != null) {
+			mProgressBar.setVisibility(View.VISIBLE);
 			for (Entity entity : mEntities) {
 				if (entity.getLocation() != null) {
 					AirLocation location = entity.getLocation();
-					EntityItem marker = new EntityItem(location.lat.doubleValue(), location.lng.doubleValue(), entity);
-					mClusterManager.addItem(marker);
+					EntityItem entityItem = new EntityItem(location.lat.doubleValue(), location.lng.doubleValue(), entity);
+					mClusterManager.addItem(entityItem);
 				}
 			}
 		}
@@ -122,16 +166,9 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 				public void onGlobalLayout() {
 					mapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-					LatLngBounds bounds = getBounds(mEntities);
-					if (bounds != null) {
-						CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 150);
-						mMap.moveCamera(cameraUpdate);
-					}
-					else {
-						Location location = LocationManager.getInstance().getLocationLast();
-						if (location != null) {
-							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), mZoomLevel));
-						}
+					Location location = LocationManager.getInstance().getLocationLast();
+					if (location != null) {
+						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), mZoomLevel));
 					}
 				}
 			});
@@ -159,7 +196,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		uiSettings.setMyLocationButtonEnabled(true);
 		uiSettings.setAllGesturesEnabled(true);
 		uiSettings.setCompassEnabled(true);
-
 	}
 
 	public LatLngBounds getBounds(List<Entity> entities) {
@@ -227,6 +263,22 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	@Override
 	public void onClusterItemInfoWindowClick(EntityItem entityItem) {
 		Aircandi.dispatch.route(getActivity(), Route.BROWSE, entityItem.mEntity, null, null);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public void onResume() {
+		BusProvider.getInstance().register(this);
+		super.onResume();
+	}
+
+	@Override
+	public void onPause() {
+		BusProvider.getInstance().unregister(this);
+		super.onPause();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -315,7 +367,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 						reloadMarker(place, (Bitmap) result.data);
 					}
 				}
-
 			}.execute();
 
 			mImage.getImageView().setImageBitmap(null);

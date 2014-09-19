@@ -41,17 +41,6 @@
 				custom:spb_color="@color/brand_progress_bar_color" />
 		</LinearLayout>
 
-		<!--
-		<ImageButton
-			android:id="@+id/footer_holder"
-			style="@style/button_round_glow"
-			android:layout_width="@dimen/button_round_medium"
-			android:layout_height="@dimen/button_round_medium"
-			android:tag="map"
-			android:clickable="true"
-			android:onClick="onViewButtonClick"
-			android:src="?attr/iconMap" />-->
-
 		<com.aircandi.ui.widgets.AirTextLight
 			android:id="@+id/footer_holder"
 			style="@style/button_round_glow"

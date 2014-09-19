@@ -26,12 +26,13 @@ import com.aircandi.components.BusProvider;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MessagingManager;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.controllers.ViewHolder;
 import com.aircandi.events.EntitiesLoadedEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.monitors.IMonitor;
 import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.Applink;
@@ -41,6 +42,7 @@ import com.aircandi.objects.Route;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.queries.IQuery;
 import com.aircandi.ui.base.BaseActivity;
+import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.base.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirListView;
@@ -50,6 +52,7 @@ import com.aircandi.ui.widgets.AirListView.OnDragListener;
 import com.aircandi.ui.widgets.AirSwipeRefreshLayout;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -181,7 +184,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 				public boolean onDragEvent(DragEvent event, Float dragX, Float dragY) {
 
 					if (event == DragEvent.DRAG) {
-						handleFooter(true, null, 200);
+						handleFooterDrag();
 					}
 					return false;
 				}
@@ -218,7 +221,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 				public boolean onTouch(View v, MotionEvent event) {
 					if (event.getAction() == MotionEvent.ACTION_UP) {
 						if (mFooterHolder != null) {
-							handleFooter(false, true, 500);
+							handleFooter(true, AnimationManager.DURATION_MEDIUM);
 						}
 					}
 					return false;
@@ -232,7 +235,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 					swipeRefreshLayout.setRefreshing(false);
 					EntityListFragment.this.onRefresh();
 					if (mFooterHolder != null) {
-						handleFooter(false, true, 500);
+						handleFooter(true, AnimationManager.DURATION_MEDIUM);
 					}
 				}
 			});
@@ -242,8 +245,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	}
 
 	@Override
-	protected void preBind() {
-	}
+	protected void preBind() {}
 
 	@Override
 	public void bind(final BindingMode mode) {
@@ -320,7 +322,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 					postBind();
 					mLoaded = true;
 					mFirstBind = false;
-					onActivityComplete();
+					BusProvider.getInstance().post(new ProcessingCompleteEvent());
 				}
 				else {
 					Errors.handleError(getActivity(), result.serviceResponse);
@@ -347,7 +349,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	@Override
 	public void draw() {
 		mAdapter.notifyDataSetChanged();
-		showFooter(mAdapter.getCount() > 0);
 		BusProvider.getInstance().post(new EntitiesLoadedEvent()); // Used to trigger item highlighting
 	}
 
@@ -397,7 +398,9 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		scrollToTop(mListView);
 	}
 
-	public void onActivityComplete() {
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+
 		if (mButtonSpecial != null && mButtonSpecialEnabled) {
 			if (mButtonSpecialClickable) {
 				if (mEntities.size() == 0) {
@@ -405,10 +408,15 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 				}
 				else {
 					lockFooter(false);
-					handleFooter(false, true, 500);
 				}
 			}
 			showButtonSpecial(mEntities.size() == 0, mListEmptyMessageResId, mHeaderView);
+		}
+		if (getActivity() instanceof BaseEntityForm) {
+			handleFooter(true, AnimationManager.DURATION_MEDIUM);
+		}
+		else {
+			handleFooter((mAdapter.getCount() > 0), AnimationManager.DURATION_MEDIUM);
 		}
 	}
 
@@ -561,31 +569,22 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 		mPhotoWidthPixels = requestedColumnWidth + spaceLeftOver / mVisibleColumns;
 		gridView.setColumnWidth(mPhotoWidthPixels);
-
 	}
 
-	public void handleFooter(Boolean auto, Boolean visible, Integer duration) {
+	public void handleFooterDrag() {
+		DragDirection direction = ((AirListView) mListView).getDragDirectionLast();
+		handleFooter((direction == DragDirection.DOWN), AnimationManager.DURATION_SHORT);
+	}
+
+	public void handleFooter(Boolean show, Integer duration) {
 
 		if (mFooterHolder == null) return;
 		if (mFooterHolderLocked) return;
 
-		if (auto) {
+		/* Slide if visible */
+		if (mFooterHolder.getVisibility() == View.VISIBLE && mFooterHolder.getAlpha() == 1) {
 
-			DragDirection direction = ((AirListView) mListView).getDragDirectionLast();
-			if (direction == DragDirection.UP && mFooterHolderHidden) return;
-			if (direction == DragDirection.DOWN && !mFooterHolderHidden) return;
-
-			ObjectAnimator animator = ObjectAnimator.ofFloat(mFooterHolder
-					, "translationY"
-					, (direction == DragDirection.UP) ? 0 : mFooterHolder.getHeight()
-					, (direction == DragDirection.UP) ? mFooterHolder.getHeight() : 0);
-
-			animator.setDuration(duration).start();
-			mFooterHolderHidden = (direction == DragDirection.UP);
-			mFooterHolder.setClickable(direction == DragDirection.DOWN);
-		}
-		else {
-			if (visible && (mFooterHolderHidden || mFooterHolder.getTranslationY() != 0)) {
+			if (show && (mFooterHolderHidden || mFooterHolder.getTranslationY() != 0)) {
 				ObjectAnimator animator = ObjectAnimator.ofFloat(mFooterHolder
 						, "translationY"
 						, mFooterHolder.getHeight()
@@ -595,7 +594,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 				mFooterHolderHidden = false;
 				mFooterHolder.setClickable(true);
 			}
-			else if (!visible && (!mFooterHolderHidden || mFooterHolder.getTranslationY() == 0)) {
+			else if (!show && (!mFooterHolderHidden || mFooterHolder.getTranslationY() == 0)) {
 				ObjectAnimator animator = ObjectAnimator.ofFloat(mFooterHolder
 						, "translationY"
 						, 0
@@ -606,22 +605,19 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 				mFooterHolder.setClickable(false);
 			}
 		}
-	}
 
-	protected void lockFooter(Boolean lock) {
-		mFooterHolderLocked = lock;
-	}
-
-	protected void showFooter(Boolean show) {
-
-		Boolean visible = (mFooterHolder.getVisibility() == View.VISIBLE && mFooterHolder.getAlpha() == 1);
-		if (show != visible) {
+		/* Fade if not visible */
+		else {
 			mFooterHolder.setVisibility(View.VISIBLE);
 			mFooterHolder.setClickable(show);
 			ObjectAnimator anim = ObjectAnimator.ofFloat(mFooterHolder, "alpha", show ? 0f : 1f, show ? 1f : 0f);
 			anim.setDuration(AnimationManager.DURATION_MEDIUM);
 			anim.start();
 		}
+	}
+
+	protected void lockFooter(Boolean lock) {
+		mFooterHolderLocked = lock;
 	}
 
 	protected ListAdapter getAdapter() {
@@ -772,9 +768,12 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onResume() {
 		/*
@@ -791,9 +790,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 			bind(BindingMode.AUTO);
 		}
 		if (mFooterHolder != null) {
-			handleFooter(false, true, 500);
+			handleFooter(true, AnimationManager.DURATION_MEDIUM);
 		}
-
 	}
 
 	@Override
@@ -804,7 +802,9 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    protected class ListAdapter extends ArrayAdapter<Entity> {
+	 *--------------------------------------------------------------------------------------------*/
+
+	protected class ListAdapter extends ArrayAdapter<Entity> {
 
 		public ListAdapter(List<Entity> entities) {
 			super(getActivity(), 0, entities);
@@ -914,13 +914,16 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		}
 	}
 
-	public void drawHighlights(Entity entity, View view) {
-
-	}
+	public void drawHighlights(Entity entity, View view) {}
 
 	public static class ViewType {
 		public static String LIST = "list";
 		public static String GRID = "grid";
+	}
+
+	public static enum AnimateType {
+		FADE,
+		SLIDE
 	}
 
 	public static class Highlight {

@@ -22,6 +22,8 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 
 import com.aircandi.catalina.R;
+import com.aircandi.components.BusProvider;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.utilities.Colors;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
@@ -68,7 +70,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	private final ClusterManager<T> mClusterManager;
 	private final float             mDensity;
 
-	private static final int[] BUCKETS = {10, 20, 50, 100, 200, 500, 1000};
+	private static final int[] BUCKETS = {10, 20, 30, 40, 50, 100, 200, 500, 1000};
 	private ShapeDrawable mColoredCircleBackground;
 
 	/**
@@ -419,6 +421,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 			}
 
 			markerModifier.waitUntilFree();
+			BusProvider.getInstance().post(new ProcessingCompleteEvent());
 
 			mMarkers = newMarkers;
 			AirClusterRenderer.this.mClusters = clusters;
@@ -479,7 +482,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	 * UI.
 	 */
 	@SuppressLint("HandlerLeak")
-	private class MarkerModifier extends Handler implements MessageQueue.IdleHandler {
+	public class MarkerModifier extends Handler implements MessageQueue.IdleHandler {
 		private static final int BLANK = 0;
 
 		private final Lock      lock          = new ReentrantLock();
@@ -792,7 +795,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 			this.animateFrom = animateFrom;
 		}
 
-		private void perform(MarkerModifier markerModifier) {
+		protected void perform(MarkerModifier markerModifier) {
 			// Don't show small clusters. Render the markers inside, instead.
 			if (!shouldRenderAsCluster(cluster)) {
 				for (T item : cluster.getItems()) {

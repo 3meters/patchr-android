@@ -62,6 +62,7 @@ public class RadarListFragment extends com.aircandi.ui.RadarListFragment {
 		super.onEntitiesChanged(event);
 	}
 
+	@SuppressWarnings("ucd")
 	@Subscribe
 	@Override
 	public void onMonitoringWifiScanReceived(MonitoringWifiScanReceivedEvent event) {

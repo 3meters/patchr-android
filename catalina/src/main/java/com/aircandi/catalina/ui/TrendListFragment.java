@@ -10,8 +10,10 @@ import com.aircandi.catalina.R;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.controllers.ViewHolder;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.ui.EntityListFragment;
+import com.squareup.otto.Subscribe;
 
 public class TrendListFragment extends EntityListFragment {
 
@@ -19,9 +21,18 @@ public class TrendListFragment extends EntityListFragment {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		super.onProcessingComplete(event);
+	}
+
+	/*--------------------------------------------------------------------------------------------
 	 * Methods
-	 *--------------------------------------------------------------------------------------------*/ 	@Override
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
 	protected void bindListItem(Entity entity, View view) {
 
 		IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
@@ -57,7 +68,9 @@ public class TrendListFragment extends EntityListFragment {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
-	 *--------------------------------------------------------------------------------------------*/ 	public Integer getCountLabelResId() {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public Integer getCountLabelResId() {
 		return mCountLabelResId;
 	}
 
@@ -68,11 +81,17 @@ public class TrendListFragment extends EntityListFragment {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/ 	public class ViewHolderExtended extends ViewHolder {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public class ViewHolderExtended extends ViewHolder {
 		public TextView countValue;
 		public TextView countLabel;
 		public TextView rank;

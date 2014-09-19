@@ -40,8 +40,10 @@
 		style="@style/button_round_glow"
 		android:layout_width="@dimen/button_round_medium"
 		android:layout_height="@dimen/button_round_medium"
-		android:clickable="true"
+		android:visibility="invisible"
+		android:clickable="false"
 		android:onClick="onReplyClick"
+		android:scaleType="fitCenter"
 		android:src="?attr/iconMessageNew" />
 
 </RelativeLayout>

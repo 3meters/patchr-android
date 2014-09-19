@@ -19,6 +19,7 @@ import com.aircandi.Aircandi;
 import com.aircandi.Aircandi.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
+import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.LocationManager;
@@ -41,6 +42,7 @@ import com.aircandi.events.EntitiesChangedEvent;
 import com.aircandi.events.LocationChangedEvent;
 import com.aircandi.events.MonitoringWifiScanReceivedEvent;
 import com.aircandi.events.PlacesNearLocationFinishedEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.AirLocation;
@@ -384,7 +386,7 @@ public class RadarListFragment extends EntityListFragment {
 				}
 
 				/* Show map button if we have some entities to map */
-				showFooter(entities.size() > 0);
+				handleFooter((entities.size() > 0), AnimationManager.DURATION_MEDIUM);
 
 				if (event.source.equals("onLocationChanged")) {
 					mAtLeastOneLocationProcessed = true;
@@ -412,6 +414,11 @@ public class RadarListFragment extends EntityListFragment {
 	@SuppressWarnings("ucd")
 	public void onMonitoringWifiScanReceived(MonitoringWifiScanReceivedEvent event) {
 		updateDevIndicator(event.wifiList, null);
+	}
+
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		super.onProcessingComplete(event);
 	}
 
 	@Override
@@ -747,7 +754,7 @@ public class RadarListFragment extends EntityListFragment {
 					boolean isSignificantlyMoreAccurate = (accuracyImprovement >= 1.5);
 					if (!isSignificantlyMoreAccurate) {
 						if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-							onActivityComplete();
+							BusProvider.getInstance().post(new ProcessingCompleteEvent());
 						}
 						return;
 					}
@@ -803,7 +810,7 @@ public class RadarListFragment extends EntityListFragment {
 
 							if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 								if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-									onActivityComplete();
+									BusProvider.getInstance().post(new ProcessingCompleteEvent());
 								}
 							}
 							else {
@@ -816,7 +823,7 @@ public class RadarListFragment extends EntityListFragment {
 				}
 				else {
 					if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-						onActivityComplete();
+						BusProvider.getInstance().post(new ProcessingCompleteEvent());
 					}
 				}
 			}
@@ -827,7 +834,7 @@ public class RadarListFragment extends EntityListFragment {
 		public void onBurstTimeout(final BurstTimeoutEvent event) {
 
 			mBusy.hideBusy(false);
-			onActivityComplete();
+			BusProvider.getInstance().post(new ProcessingCompleteEvent());
 
 			/* We only show toast if we timeout without getting any location fix */
 			if (LocationManager.getInstance().getLocationLocked() == null) {

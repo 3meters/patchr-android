@@ -27,6 +27,7 @@ import java.io.IOException;
 public class AnimationManager {
 
 	public static Integer DURATION_MEDIUM = 500;
+	public static Integer DURATION_SHORT  = 200;
 	private static Animation mFadeInMedium;
 	public static final String TRANSLATION_Y_COMPAT = "translationY";
 	public static final String TRANSLATION_X_COMPAT = "translationX";
@@ -61,7 +62,6 @@ public class AnimationManager {
 		else if (transitionType == TransitionType.HELP_TO_PAGE) {
 			activity.overridePendingTransition(R.anim.hold, R.anim.fade_out_short);
 		}
-
 	}
 
 	public static Animation loadAnimation(int animationResId) throws NotFoundException {
@@ -154,7 +154,6 @@ public class AnimationManager {
 			if (position < -1) { // [-Infinity,-1)
 				// This page is way off-screen to the left.
 				view.setAlpha(0);
-
 			}
 			else if (position <= 0) { // [-1,0]
 				// Use the default slide transition when moving to the left page
@@ -162,7 +161,6 @@ public class AnimationManager {
 				view.setTranslationX(0);
 				view.setScaleX(1);
 				view.setScaleY(1);
-
 			}
 			else if (position <= 1) { // (0,1]
 				// Fade the page out.
@@ -176,7 +174,6 @@ public class AnimationManager {
 						+ (1 - MIN_SCALE) * (1 - Math.abs(position));
 				view.setScaleX(scaleFactor);
 				view.setScaleY(scaleFactor);
-
 			}
 			else { // (1,+Infinity]
 				// This page is way off-screen to the right.
@@ -184,5 +181,4 @@ public class AnimationManager {
 			}
 		}
 	}
-
 }
