@@ -52,6 +52,7 @@ import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.service.ServiceResponse;
+import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.IBusy.BusyAction;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.DateTime;
@@ -86,7 +87,6 @@ public class RadarListFragment extends EntityListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
-		if (view == null) return view;
 		return view;
 	}
 
@@ -123,16 +123,29 @@ public class RadarListFragment extends EntityListFragment {
 				break;
 			}
 
+			/*
+			 * Check for location service everytime we start.
+			 */
+			//			Boolean locationServiceEnabled = LocationManager.getInstance().isLocationAccessEnabled();
+			//			if (!LocationManager.getInstance().isLocationAccessEnabled()) {
+			//			/* We won't continue if location services are disabled */
+			//				Aircandi.dispatch.route(getActivity(), Route.SETTINGS_LOCATION, null, null, null);
+			//				getActivity().finish();
+			//				return;
+			//			}
+
 			if (!mAtLeastOneLocationProcessed) {
 				/*
 				 * User navigated away before first location entities could be processed by
 				 * radar and displayed. Location could have been locked.
 				 */
-				bindReason = "No location processed";
-				mBusy.showBusy(BusyAction.Scanning);
-				LocationManager.getInstance().setLocationLocked(null);
-				LocationManager.getInstance().setLocationMode(LocationMode.BURST);
-				break;
+				if (LocationManager.getInstance().isLocationAccessEnabled()) {
+					bindReason = "No location processed";
+					mBusy.showBusy(BusyAction.Scanning);
+					LocationManager.getInstance().setLocationLocked(null);
+					LocationManager.getInstance().setLocationMode(LocationMode.BURST);
+					break;
+				}
 			}
 
 			if (LocationManager.getInstance().getLocationLocked() == null) {
@@ -140,10 +153,12 @@ public class RadarListFragment extends EntityListFragment {
 				 * Gets set everytime we accept a location change in onLocationChange. Means
 				 * we didn't get an acceptable fix yet from either the network or gps providers.
 				 */
-				bindReason = "No locked location";
-				mBusy.showBusy(BusyAction.Scanning);
-				LocationManager.getInstance().setLocationMode(LocationMode.BURST);
-				break;
+				if (LocationManager.getInstance().isLocationAccessEnabled()) {
+					bindReason = "No locked location";
+					mBusy.showBusy(BusyAction.Scanning);
+					LocationManager.getInstance().setLocationMode(LocationMode.BURST);
+					break;
+				}
 			}
 
 			RefreshReason reason = ProximityManager.getInstance().beaconRefreshNeeded(LocationManager.getInstance().getLocationLocked());
@@ -260,8 +275,7 @@ public class RadarListFragment extends EntityListFragment {
 	@Override
 	public void onClick(View view) {
 		final Place entity = (Place) ((ViewHolder) view.getTag()).data;
-		Bundle extras = null;
-		Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
+		Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
 	}
 
 	@Subscribe
@@ -318,7 +332,6 @@ public class RadarListFragment extends EntityListFragment {
 							Errors.handleError(getActivity(), serviceResponse);
 						}
 					}
-
 				}.execute();
 			}
 		});
@@ -342,6 +355,15 @@ public class RadarListFragment extends EntityListFragment {
 				Aircandi.stopwatch1.stop("Search for places by beacon complete");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
 				mCacheStamp = Aircandi.getInstance().getEntityManager().getCacheStamp();
+				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
+					mBusy.hideBusy(false);
+					BusProvider.getInstance().post(new ProcessingCompleteEvent());
+
+					/* We only show toast if we timeout without getting any location fix */
+					if (LocationManager.getInstance().getLocationLocked() == null) {
+						UI.showToastNotification("Location services are off", Toast.LENGTH_SHORT);
+					}
+				}
 			}
 		});
 	}
@@ -357,7 +379,6 @@ public class RadarListFragment extends EntityListFragment {
 		Aircandi.tracker.sendTiming(TrackerCategory.PERFORMANCE, Aircandi.stopwatch2.getTotalTimeMills()
 				, "places_near_location_downloaded"
 				, NetworkManager.getInstance().getNetworkType());
-
 	}
 
 	@Subscribe
@@ -402,12 +423,10 @@ public class RadarListFragment extends EntityListFragment {
 							MediaManager.playSound(MediaManager.SOUND_PLACES_FOUND, 1.0f, 1);
 							return null;
 						}
-
 					}.execute();
 				}
 			}
 		});
-
 	}
 
 	@Subscribe
@@ -418,7 +437,30 @@ public class RadarListFragment extends EntityListFragment {
 
 	@Subscribe
 	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		super.onProcessingComplete(event);
+
+		if (mButtonSpecial != null && mButtonSpecialEnabled) {
+			Boolean locationServiceEnabled = LocationManager.getInstance().isLocationAccessEnabled();
+			if (!locationServiceEnabled) {
+				showButtonSpecial(true, R.string.label_location_services_missing, mHeaderView);
+			}
+			else {
+				if (mButtonSpecialClickable) {
+					if (mEntities.size() == 0) {
+						lockFooter(true);
+					}
+					else {
+						lockFooter(false);
+					}
+				}
+				showButtonSpecial(mEntities.size() == 0, mListEmptyMessageResId, mHeaderView);
+			}
+		}
+		if (getActivity() instanceof BaseEntityForm) {
+			handleFooter(true, AnimationManager.DURATION_MEDIUM);
+		}
+		else {
+			handleFooter((mAdapter.getCount() > 0), AnimationManager.DURATION_MEDIUM);
+		}
 	}
 
 	@Override
@@ -487,14 +529,16 @@ public class RadarListFragment extends EntityListFragment {
 				}
 
 				/* We give the beacon query a bit of a head start */
-				mHandler.postDelayed(new Runnable() {
+				if (LocationManager.getInstance().isLocationAccessEnabled()) {
+					mHandler.postDelayed(new Runnable() {
 
-					@Override
-					public void run() {
-						LocationManager.getInstance().setLocationLocked(null);
-						LocationManager.getInstance().setLocationMode(LocationMode.BURST);
-					}
-				}, 500);
+						@Override
+						public void run() {
+							LocationManager.getInstance().setLocationLocked(null);
+							LocationManager.getInstance().setLocationMode(LocationMode.BURST);
+						}
+					}, 500);
+				}
 				return null;
 			}
 		}.execute();
@@ -589,10 +633,8 @@ public class RadarListFragment extends EntityListFragment {
 
 						Aircandi.wifiCount = wifiCount;
 						mDebugWifi = String.valueOf(wifiCount);
-
 					}
 				});
-
 			}
 		}
 
@@ -680,14 +722,6 @@ public class RadarListFragment extends EntityListFragment {
 		 * Called everytime the fragment is started or restarted.
 		 */
 		super.onStart();
-		/*
-		 * Check for location service everytime we start.
-		 */
-		if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-			/* We won't continue if location services are disabled */
-			Aircandi.dispatch.route(getActivity(), Route.SETTINGS_LOCATION, null, null, null);
-			getActivity().finish();
-		}
 
 		BusProvider.getInstance().register(mLocationHandler);
 		LocationManager.getInstance().setLocationMode(LocationMode.OFF);
@@ -818,7 +852,6 @@ public class RadarListFragment extends EntityListFragment {
 								Errors.handleError(getActivity(), serviceResponse);
 							}
 						}
-
 					}.execute();
 				}
 				else {

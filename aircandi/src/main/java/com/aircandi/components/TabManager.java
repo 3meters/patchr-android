@@ -3,11 +3,14 @@ package com.aircandi.components;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.view.ViewConfiguration;
+import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.aircandi.Constants;
 import com.aircandi.R;
 
+import java.lang.reflect.Field;
 import java.util.Locale;
 
 public class TabManager implements ActionBar.TabListener {

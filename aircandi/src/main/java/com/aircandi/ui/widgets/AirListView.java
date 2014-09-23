@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -126,7 +127,7 @@ public class AirListView extends ListView implements OnScrollListener {
 	}
 
 	@Override
-	public boolean onInterceptTouchEvent(MotionEvent event) {
+	public boolean onInterceptTouchEvent(@NonNull MotionEvent event) {
 
 		final float x = event.getX(), y = event.getY();
 
@@ -154,7 +155,7 @@ public class AirListView extends ListView implements OnScrollListener {
 	}
 
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(@NonNull MotionEvent event) {
 
 		if (!mDetector.onTouchEvent(event)) { // We stop if a fling is detected
 

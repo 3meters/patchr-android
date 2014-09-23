@@ -153,8 +153,9 @@ public class MessageForm extends BaseEntityForm {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void draw() {
+	public void draw(View view) {
 	    /*
 	     * For now, we assume that the candi form isn't recycled.
 		 * 
@@ -164,6 +165,9 @@ public class MessageForm extends BaseEntityForm {
 		 * - WebImageView child views are gone by default
 		 * - Header views are visible by default
 		 */
+		if (view == null) {
+			view = findViewById(android.R.id.content);
+		}
 		mFirstDraw = false;
 
 		final AirImageView photoView = (AirImageView) findViewById(R.id.entity_photo);
@@ -250,17 +254,17 @@ public class MessageForm extends BaseEntityForm {
 
 				for (Entity entity : mTos) {
 
-					EntityView view = new EntityView(this);
-					view.setLayout(R.layout.widget_token_view);
-					view.initialize();
-					view.databind(entity);
-					view.setClickable(false);
+					EntityView entityView = new EntityView(this);
+					entityView.setLayout(R.layout.widget_token_view);
+					entityView.initialize();
+					entityView.databind(entity);
+					entityView.setClickable(false);
 
 					FlowLayout.LayoutParams params = new FlowLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 					params.setCenterHorizontal(false);
-					view.setLayoutParams(params);
+					entityView.setLayoutParams(params);
 
-					flowLayout.addView(view);
+					flowLayout.addView(entityView);
 				}
 			}
 		}

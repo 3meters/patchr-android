@@ -13,8 +13,8 @@ public class Constants extends com.aircandi.Constants {
 	/* Entity types */
 	public static final String TYPE_APP_MESSAGE = "message";                                    //$NON-NLS-1$
 
-	public static final String FRAGMENT_TYPE_SENT = "sent";
+	public static final String FRAGMENT_TYPE_SENT     = "sent";
+	public static final String FRAGMENT_TYPE_MESSAGES = "messages";
 
 	public static final String NAVIGATION_CATEGORY_MESSAGES = "messages";
-
 }

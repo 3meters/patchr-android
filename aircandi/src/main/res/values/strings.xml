@@ -464,6 +464,8 @@
 	<string name="label_photo_picker_empty">No photos found for</string>
 	<string name="label_photo_missing">Unable to download photo</string>
 	<string name="label_photo_missing_thumbnail">Missing</string>
+	<string name="label_location_services_missing">Turn on location services to see nearby [@string/container_plural_lowercase]</string>
+
 	<!-- Labels: Misc -->
 
 	<string name="label_message_to_prefix">"To:  "</string>
@@ -476,8 +478,8 @@
 	<string name="hint_title">Title</string>
 	<string name="hint_place_title">Name</string>
 	<string name="hint_place_sources">Links</string>
-	<string name="hint_place_category">Category</string>
-	<string name="hint_place_sub_category">Subcategory</string>
+	<string name="hint_place_category">Set category</string>
+	<string name="hint_place_sub_category">Set subcategory</string>
 	<string name="hint_description">Description</string>
 	<string name="hint_phone">Phone</string>
 	<string name="hint_address">Address</string>

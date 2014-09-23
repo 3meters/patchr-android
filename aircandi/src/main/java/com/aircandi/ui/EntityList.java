@@ -63,14 +63,10 @@ public class EntityList extends BaseActivity {
 		             .setSelfBindingEnabled(true);
 
 		getFragmentManager().beginTransaction().replace(R.id.fragment_holder, mListFragment).commit();
+		draw(null);
 	}
 
-	@Override
-	protected void configureActionBar() {
-		super.configureActionBar();
-		/*
-		 * Navigation setup for action bar icon and title
-		 */
+	public void draw(View view){
 		IEntityController controller = Aircandi.getInstance().getControllerForSchema(mParams.getListLinkSchema());
 		Drawable icon = controller.getIcon();
 		mActionBar.setIcon(icon);

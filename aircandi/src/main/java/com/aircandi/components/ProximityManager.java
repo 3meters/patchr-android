@@ -420,9 +420,11 @@ public class ProximityManager {
 		/* Do a coarse location check */
 		Location locationLocked = LocationManager.getInstance().getLocationLocked();
 		Location locationLast = LocationManager.getInstance().getLocationLast();
-		Float distance = locationLocked.distanceTo(locationLast);
-		if (distance >= Constants.DISTANCE_REFRESH) {
-			return RefreshReason.MOVE_MEASURED;
+		if (locationLast != null && locationLocked != null) {
+			Float distance = locationLocked.distanceTo(locationLast);
+			if (distance >= Constants.DISTANCE_REFRESH) {
+				return RefreshReason.MOVE_MEASURED;
+			}
 		}
 		return RefreshReason.NONE;
 	}

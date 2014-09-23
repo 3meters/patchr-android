@@ -11,4 +11,6 @@ public class TransitionType {
 	public static int PAGE_TO_RADAR_AFTER_DELETE = 8;
 	public static int PAGE_TO_HELP               = 9;
 	public static int HELP_TO_PAGE               = 10;
+	public static int FORM_TO_BUILDER            = 11;
+	public static int BUILDER_TO_FORM            = 12;
 }

@@ -198,13 +198,6 @@ public class PhotoPicker extends BaseActivity {
 
 		mPhotoWidthPixels = requestedColumnWidth + spaceLeftOver / mNumColumns;
 
-		if (mPlacePhotoMode) {
-			setActivityTitle(mEntity.name);
-		}
-		else {
-			setActivityTitle(StringManager.getString(R.string.dialog_photo_picker_search_title));
-		}
-
 		mGridView.setColumnWidth(mPhotoWidthPixels);
 		mGridView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -234,11 +227,13 @@ public class PhotoPicker extends BaseActivity {
 
 		if (mPlacePhotoMode) {
 			bind(BindingMode.AUTO);
+			draw(null);
 		}
 		else {
 			/* Autocomplete */
 			initAutoComplete();
 			bindAutoCompleteAdapter();
+			draw(null);
 		}
 	}
 
@@ -309,9 +304,19 @@ public class PhotoPicker extends BaseActivity {
 		}
 	}
 
+	public void draw(View view){
+		if (mPlacePhotoMode) {
+			setActivityTitle(mEntity.name);
+		}
+		else {
+			setActivityTitle(StringManager.getString(R.string.dialog_photo_picker_search_title));
+		}
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@SuppressWarnings("ucd")
 	public void onSearchClick(View view) {
 		startSearch(view);
@@ -320,6 +325,7 @@ public class PhotoPicker extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	private void startSearch(View view) {
 
 		mSearch.dismissDropDown();
@@ -392,6 +398,7 @@ public class PhotoPicker extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Services
 	 *--------------------------------------------------------------------------------------------*/
+
 	private ModelResult loadSearchImages(String query, long count, long offset, Integer maxSize, Integer maxDimen) {
 
 		ModelResult result = new ModelResult();
@@ -470,6 +477,7 @@ public class PhotoPicker extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -479,6 +487,7 @@ public class PhotoPicker extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.photo_picker;
@@ -486,12 +495,13 @@ public class PhotoPicker extends BaseActivity {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
 	/*--------------------------------------------------------------------------------------------
 	 * Adapter
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
-	 * Adapter
-	 *--------------------------------------------------------------------------------------------*/    public class EndlessImageAdapter extends EndlessAdapter {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public class EndlessImageAdapter extends EndlessAdapter {
 
 		private List<ImageResult> mMoreImages = new ArrayList<ImageResult>();
 
@@ -677,7 +687,9 @@ public class PhotoPicker extends BaseActivity {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public static class ViewHolder {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static class ViewHolder {
 
 		public AirImageView photoView;
 		public ImageResult  data; // NO_UCD (unused code)

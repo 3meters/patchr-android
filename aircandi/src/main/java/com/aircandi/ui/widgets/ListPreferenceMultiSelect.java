@@ -5,6 +5,7 @@ import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.widget.ListView;
 
@@ -72,7 +73,7 @@ public class ListPreferenceMultiSelect extends AirListPreference {
 	}
 
 	@Override
-	protected void onPrepareDialogBuilder(Builder builder) {
+	protected void onPrepareDialogBuilder(@NonNull Builder builder) {
 		final CharSequence[] entries = getEntries();
 		final CharSequence[] entryValues = getEntryValues();
 		if (entries == null
@@ -126,7 +127,7 @@ public class ListPreferenceMultiSelect extends AirListPreference {
 			final List<String> valuesList = Arrays.asList(vals);
 			for (int i = 0; i < entryValues.length; i++) {
 				CharSequence entry = entryValues[i];
-				if (valuesList.contains(entry)) {
+				if (valuesList.contains((String)entry)) {
 					mClickedDialogEntryIndices[i] = true;
 				}
 			}

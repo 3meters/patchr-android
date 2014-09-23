@@ -1,7 +1,6 @@
 package com.aircandi.catalina.components;
 
 import android.app.Activity;
-import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 
@@ -55,8 +54,7 @@ public class MenuManager extends com.aircandi.components.MenuManager {
 	public boolean onCreateOptionsMenu(Activity activity, Menu menu) {
 
 		String activityName = activity.getClass().getSimpleName();
-		final FragmentActivity sherlock = (FragmentActivity) activity;
-		MenuInflater menuInflater = sherlock.getMenuInflater();
+		MenuInflater menuInflater = activity.getMenuInflater();
 		Entity entity = ((BaseActivity) activity).getEntity();
 
 		if (activityName.equals("AircandiForm")) {
@@ -68,13 +66,6 @@ public class MenuManager extends com.aircandi.components.MenuManager {
 			return true;
 		}
 		else if (activityName.equals("PlaceForm")) {
-			menuInflater.inflate(R.menu.menu_refresh, menu);
-			menuInflater.inflate(R.menu.menu_share_place, menu);
-			if (canUserEdit(entity)) {
-				menuInflater.inflate(R.menu.menu_edit_place, menu);
-			}
-			menuInflater.inflate(R.menu.menu_delete, menu);
-			menuInflater.inflate(R.menu.menu_report, menu);
 			menuInflater.inflate(R.menu.menu_base, menu);
 			return true;
 		}

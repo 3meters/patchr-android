@@ -5,7 +5,7 @@
 		android:id="@+id/new_place"
 		android:icon="?attr/iconPlaceNew"
 		android:orderInCategory="5"
-		android:showAsAction="ifRoom"
+		android:showAsAction="always"
 		android:title="@string/menu_item_new_place" />
 
 </menu>

@@ -1,5 +1,7 @@
 package com.aircandi.objects;
 
+import android.support.annotation.Nullable;
+
 import com.aircandi.Constants;
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
@@ -155,9 +157,10 @@ public class Link extends ServiceBase {
 	}
 
 	@Override
+	@Nullable
 	public Link clone() {
 		final Link link = (Link) super.clone();
-		if (stats != null) {
+		if (link != null && stats != null) {
 			link.stats = (List<Count>) ((ArrayList) stats).clone();
 		}
 

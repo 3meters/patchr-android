@@ -68,11 +68,11 @@ public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
 		mList = (ListView) findViewById(R.id.list);
 		if (mButtonSpecial != null) {
 			mButtonSpecial.setText(StringManager.getString(mListNewMessageResId));
 		}
-		super.initialize(savedInstanceState);
 	}
 
 	@Override

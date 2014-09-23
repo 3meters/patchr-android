@@ -314,7 +314,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		if (holder.comments != null) {
 			Count count = entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_COMMENT, null, Direction.in);
 			Integer commentCount = (count != null) ? count.count.intValue() : 0;
-			if (commentCount != null && commentCount > 0) {
+			if (commentCount > 0) {
 				holder.comments.setText(String.valueOf(commentCount) + ((commentCount == 1) ? " Comment" : " Comments"));
 				holder.comments.setTag(entity);
 				UI.setVisibility(holder.comments, View.VISIBLE);

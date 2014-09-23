@@ -83,12 +83,13 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 	/* Configuration */
 	protected String mListViewType;
-	protected Boolean mListPagingEnabled  = true;
-	protected Boolean mParallaxHeader     = false;
-	protected Boolean mEntityCacheEnabled = true;
-	protected Boolean mFooterHolderHidden = false;
-	protected Boolean mFooterHolderLocked = false;
-	protected Boolean mReverseSort        = false;
+	protected Boolean mListPagingEnabled   = true;
+	protected Boolean mParallaxHeader      = false;
+	protected Boolean mEntityCacheEnabled  = true;
+	protected Boolean mFooterHolderEnabled = true;
+	protected Boolean mFooterHolderHidden  = false;
+	protected Boolean mFooterHolderLocked  = false;
+	protected Boolean mReverseSort         = false;
 
 	/* Runtime data */
 	protected Integer mPhotoWidthPixels;
@@ -133,7 +134,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		 */
 		restoreState(savedInstanceState);
 
-		if (view == null) return view;
+		if (view == null) return null;
 
 		if (mListItemResId == null) {
 			throw new IllegalArgumentException("List item resource is required by EntityListFragment");
@@ -317,7 +318,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 							mAdapter.add(entity);
 						}
 						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
-						draw();
+						draw(null);
 					}
 					postBind();
 					mLoaded = true;
@@ -347,7 +348,17 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
+		Logger.i(this, "Draw called for EntityListFragement");
+
+
+
+
+
+
+
+
+
 		mAdapter.notifyDataSetChanged();
 		BusProvider.getInstance().post(new EntitiesLoadedEvent()); // Used to trigger item highlighting
 	}
@@ -462,7 +473,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 							mAdapter.add(entity);
 						}
 						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
-						draw();
+						draw(null);
 					}
 				}
 				switcher.setDisplayedChild(0);
@@ -580,6 +591,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 		if (mFooterHolder == null) return;
 		if (mFooterHolderLocked) return;
+		if (!mFooterHolderEnabled) return;
 
 		/* Slide if visible */
 		if (mFooterHolder.getVisibility() == View.VISIBLE && mFooterHolder.getAlpha() == 1) {
@@ -731,6 +743,12 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	@SuppressWarnings("ucd")
 	public EntityListFragment setListPagingEnabled(Boolean listPagingEnabled) {
 		mListPagingEnabled = listPagingEnabled;
+		return this;
+	}
+
+	@SuppressWarnings("ucd")
+	public EntityListFragment setFooterEnabled(Boolean footerEnabled) {
+		mFooterHolderEnabled = footerEnabled;
 		return this;
 	}
 

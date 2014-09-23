@@ -1,5 +1,6 @@
 package com.aircandi.components;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources.NotFoundException;
@@ -47,6 +48,30 @@ public class AnimationManager {
 		return mFadeInMedium;
 	}
 
+	public static void showViewAnimate(final View view, final Boolean show, final Boolean clickable, final Integer duration) {
+		/*
+		 * Make sure this on the main thread
+		 */
+		Aircandi.mainThreadHandler.post(new Runnable() {
+
+			@Override
+			public void run() {
+				if (show && view.getAlpha() == 0) {
+					if (clickable) view.setClickable(true);
+					ObjectAnimator anim = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
+					anim.setDuration((duration == null) ? DURATION_MEDIUM : duration);
+					anim.start();
+				}
+				else if (!show && view.getAlpha() == 1) {
+					if (clickable) view.setClickable(false);
+					ObjectAnimator anim = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
+					anim.setDuration((duration == null) ? DURATION_MEDIUM : duration);
+					anim.start();
+				}
+			}
+		});
+	}
+
 	public void doOverridePendingTransition(Activity activity, Integer transitionType) {
 		doOverridePendingTransitionDefault(activity, transitionType);
 	}
@@ -61,6 +86,12 @@ public class AnimationManager {
 		}
 		else if (transitionType == TransitionType.HELP_TO_PAGE) {
 			activity.overridePendingTransition(R.anim.hold, R.anim.fade_out_short);
+		}
+		else if (transitionType == TransitionType.FORM_TO_BUILDER) {
+			activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+		}
+		else if (transitionType == TransitionType.BUILDER_TO_FORM) {
+			activity.overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
 		}
 	}
 

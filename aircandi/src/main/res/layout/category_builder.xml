@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.aircandi.ui.widgets.AirScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
+<com.aircandi.ui.widgets.AirScrollView
 	android:id="@+id/form_list"
 	style="@style/form_content_layout"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:layout_gravity="center_horizontal"
@@ -36,24 +37,30 @@
 			android:id="@+id/category"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
-			android:spinnerMode="dialog"
 			android:clickable="false"
+			android:spinnerMode="dialog"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textSize="24sp"
 			android:visibility="invisible" />
 
 		<Spinner
 			android:id="@+id/sub_category"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
-			android:spinnerMode="dialog"
 			android:clickable="false"
+			android:spinnerMode="dialog"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textSize="24sp"
 			android:visibility="invisible" />
 
 		<Spinner
 			android:id="@+id/sub_sub_category"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
-			android:spinnerMode="dialog"
 			android:clickable="false"
+			android:spinnerMode="dialog"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textSize="24sp"
 			android:visibility="invisible" />
 	</LinearLayout>
 

@@ -26,9 +26,9 @@ import com.aircandi.ServiceConstants;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.IntentBuilder;
 import com.aircandi.components.MediaManager;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager;
-import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.controllers.IEntityController;
@@ -185,16 +185,15 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		if (!mEditing && mEntity == null && mEntitySchema != null) {
 			IEntityController controller = Aircandi.getInstance().getControllerForSchema(mEntitySchema);
 			mEntity = controller.makeNew();
-			setActivityTitle(StringManager.getString(R.string.label_edit_new_title) + " " + mEntity.getLabelForSchema());
 			if (Aircandi.getInstance().getCurrentUser() != null) {
 				mEntity.creator = Aircandi.getInstance().getCurrentUser();
 				mEntity.creatorId = Aircandi.getInstance().getCurrentUser().id;
 			}
 		}
-		draw();
+		draw(null);
 	}
 
-	public void draw() {
+	public void draw(View view) {
 
 		if (mEntity != null) {
 
@@ -202,6 +201,9 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			if (mEditing) {
 				String title = !TextUtils.isEmpty(mEntity.name) ? mEntity.name : mEntity.getSchemaMapped();
 				setActivityTitle(title);
+			}
+			else {
+				setActivityTitle(StringManager.getString(R.string.label_edit_new_title) + " " + mEntity.getLabelForSchema());
 			}
 
 			/* Content */
@@ -367,7 +369,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void onError(final String reason) {
-        /*
+	    /*
          * Error trying to pick or take a photo
 		 */
 		runOnUiThread(new Runnable() {
@@ -640,7 +642,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			else {
 				UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
 			}
-
 		}
 		catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -831,7 +832,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					Errors.handleError(BaseEntityEdit.this, serviceResponse);
 				}
 			}
-
 		}.execute();
 	}
 
@@ -952,7 +952,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					Errors.handleError(BaseEntityEdit.this, serviceResponse);
 				}
 			}
-
 		}.execute();
 	}
 

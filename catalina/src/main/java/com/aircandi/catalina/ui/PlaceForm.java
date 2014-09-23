@@ -1,6 +1,8 @@
 package com.aircandi.catalina.ui;
 
 import android.annotation.TargetApi;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -27,8 +29,8 @@ import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.R;
 import com.aircandi.catalina.objects.Message.MessageType;
 import com.aircandi.components.Logger;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.events.ButtonSpecialEvent;
@@ -43,6 +45,7 @@ import com.aircandi.objects.User;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.EntityListFragment;
 import com.aircandi.ui.EntityListFragment.ViewType;
+import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
@@ -55,7 +58,7 @@ import com.squareup.otto.Subscribe;
 
 public class PlaceForm extends com.aircandi.ui.PlaceForm {
 
-	private   EntityListFragment    mListFragment;
+	private   Fragment              mFragment;
 	protected ToolTipRelativeLayout mTooltips;
 
 	@Override
@@ -81,36 +84,11 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-
 		mTooltips = (ToolTipRelativeLayout) findViewById(R.id.tooltips);
 		mTooltips.setSingleShot(Constants.TOOLTIPS_PLACE_BROWSE_ID);
 
-		mListFragment = new MessageListFragment();
-
-		EntityMonitor monitor = new EntityMonitor(mEntityId);
-		EntitiesQuery query = new EntitiesQuery();
-
-		query.setEntityId(mEntityId)
-		     .setLinkDirection(Direction.in.name())
-		     .setLinkType(Constants.TYPE_LINK_CONTENT)
-		     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
-		     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
-
-		mListFragment.setQuery(query)
-		             .setMonitor(monitor)
-		             .setListViewType(ViewType.LIST)
-		             .setListLayoutResId(R.layout.message_list_place_fragment)
-		             .setListLoadingResId(R.layout.temp_list_item_loading)
-		             .setListItemResId(R.layout.temp_listitem_message)
-		             .setListEmptyMessageResId(R.string.button_list_share)
-		             .setListButtonMessageResId(R.string.button_list_share)
-		             .setHeaderViewResId(R.layout.widget_list_header_place)
-		             .setFooterViewResId(R.layout.widget_list_footer_message)
-		             .setSelfBindingEnabled(false)
-		             .setButtonSpecialClickable(true);
-
-		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
-
+		/* Default fragment */
+		mNextFragmentTag = Constants.FRAGMENT_TYPE_MESSAGES;
 	}
 
 	@Override
@@ -120,13 +98,16 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 		    /*
 			 * In case upsizing has changed the id we original bound to.
 			 */
-			((EntityMonitor) mListFragment.getMonitor()).setEntityId(mEntityId);
-			((EntitiesQuery) mListFragment.getQuery()).setEntityId(mEntityId);
-			if (mEntityMonitor.changed) {
-				mListFragment.bind(BindingMode.MANUAL);
-			}
-			else {
-				mListFragment.bind(mode);
+			if (mCurrentFragment instanceof EntityListFragment) {
+				EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
+				((EntityMonitor) fragment.getMonitor()).setEntityId(mEntityId);
+				((EntitiesQuery) fragment.getQuery()).setEntityId(mEntityId);
+				if (mEntityMonitor.changed) {
+					fragment.bind(BindingMode.MANUAL);
+				}
+				else {
+					fragment.bind(mode);
+				}
 			}
 		}
 	}
@@ -151,7 +132,7 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mListFragment.bind(BindingMode.AUTO);
+					((BaseFragment) mCurrentFragment).bind(BindingMode.AUTO);
 				}
 			});
 		}
@@ -220,7 +201,7 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
-		mListFragment.onMoreButtonClick(view);
+		((EntityListFragment) mCurrentFragment).onMoreButtonClick(view);
 	}
 
 	@SuppressWarnings("ucd")
@@ -258,7 +239,7 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 
 	@SuppressWarnings("ucd")
 	public void onHeaderClick(View view) {
-		((MessageListFragment) mListFragment).onHeaderClick(view);
+		((MessageListFragment) mCurrentFragment).onHeaderClick(view);
 	}
 
 	@Override
@@ -285,28 +266,83 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 
-		View header = mListFragment.getHeaderView();
-		if (header != null) {
+		if (mCurrentFragment instanceof EntityListFragment) {
+
+			View header = ((EntityListFragment) mCurrentFragment).getHeaderView();
+			if (header != null) {
 
 			/* Reset the image aspect ratio */
-			AirImageView image = (AirImageView) header.findViewById(R.id.entity_photo);
-			TypedValue typedValue = new TypedValue();
-			getResources().getValue(R.dimen.aspect_ratio_place_image, typedValue, true);
-			image.setAspectRatio(typedValue.getFloat());
+				AirImageView image = (AirImageView) header.findViewById(R.id.entity_photo);
+				TypedValue typedValue = new TypedValue();
+				getResources().getValue(R.dimen.aspect_ratio_place_image, typedValue, true);
+				image.setAspectRatio(typedValue.getFloat());
 
 			/* Pass the projected header height */
-			final DisplayMetrics metrics = getResources().getDisplayMetrics();
-			int screenWidth = (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) ? metrics.widthPixels : metrics.heightPixels;
-			positionButton((int) (screenWidth * typedValue.getFloat()));
-		}
-		else {
-			positionButton(null);
+				final DisplayMetrics metrics = getResources().getDisplayMetrics();
+				int screenWidth = (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) ? metrics.widthPixels : metrics.heightPixels;
+				positionButton((int) (screenWidth * typedValue.getFloat()));
+			}
+			else {
+				positionButton(null);
+			}
 		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public void setCurrentFragment(String fragmentType) {
+		/*
+		 * Fragment menu items are in addition to any menu items added by the parent activity.
+		 */
+		if (fragmentType.equals(Constants.FRAGMENT_TYPE_MESSAGES)) {
+
+			mFragment = new MessageListFragment();
+
+			EntityMonitor monitor = new EntityMonitor(mEntityId);
+			EntitiesQuery query = new EntitiesQuery();
+
+			query.setEntityId(mEntityId)
+			     .setLinkDirection(Direction.in.name())
+			     .setLinkType(Constants.TYPE_LINK_CONTENT)
+			     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
+			     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
+
+			((EntityListFragment) mFragment)
+					.setMonitor(monitor)
+					.setQuery(query)
+					.setListViewType(ViewType.LIST)
+					.setListLayoutResId(R.layout.message_list_place_fragment)
+					.setListLoadingResId(R.layout.temp_list_item_loading)
+					.setListItemResId(R.layout.temp_listitem_message)
+					.setListEmptyMessageResId(R.string.button_list_share)
+					.setListButtonMessageResId(R.string.button_list_share)
+					.setHeaderViewResId(R.layout.widget_list_header_place)
+					.setFooterViewResId(R.layout.widget_list_footer_message)
+					.setSelfBindingEnabled(false)
+					.setButtonSpecialClickable(true);
+
+			((BaseFragment) mFragment).getMenuResIds().add(R.menu.menu_refresh);
+			((BaseFragment) mFragment).getMenuResIds().add(R.menu.menu_share_place);
+			((BaseFragment) mFragment).getMenuResIds().add(R.menu.menu_edit_place);
+			((BaseFragment) mFragment).getMenuResIds().add(R.menu.menu_delete);
+			((BaseFragment) mFragment).getMenuResIds().add(R.menu.menu_report);
+		}
+
+		else {
+			return;
+		}
+
+		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		ft.replace(R.id.fragment_holder, mFragment);
+		ft.commit();
+
+		mPrevFragmentTag = mCurrentFragmentTag;
+		mCurrentFragmentTag = fragmentType;
+		mCurrentFragment = mFragment;
+	}
 
 	@Override
 	public void share() {
@@ -329,12 +365,15 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 	}
 
 	@Override
-	public void draw() {
-		super.draw();
+	public void draw(View view) {
+		if (view == null) {
+			view = findViewById(android.R.id.content);
+		}
+		super.draw(view);
 
-		final CandiView candiViewInfo = (CandiView) findViewById(R.id.candi_view_info);
-		final TextView address = (TextView) findViewById(R.id.candi_form_address);
-		final UserView userView = (UserView) findViewById(R.id.user);
+		final CandiView candiViewInfo = (CandiView) view.findViewById(R.id.candi_view_info);
+		final TextView address = (TextView) view.findViewById(R.id.candi_form_address);
+		final UserView userView = (UserView) view.findViewById(R.id.user);
 
 		if (candiViewInfo != null) {
 			/*
@@ -347,7 +386,7 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 			candiViewInfo.databind(mEntity, options);
 		}
 
-		drawStats();
+		drawStats(view);
 
 		/* Place specific info */
 
@@ -399,19 +438,19 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 	}
 
 	@Override
-	protected void drawBody() {
+	protected void drawBody(View view) {
 		/* Blocking */
 	}
 
 	@Override
-	protected void drawShortcuts() {
+	protected void drawShortcuts(View view) {
 		/* Blocking */
 	}
 
 	@Override
-	protected void drawStats() {
+	protected void drawStats(View view) {
 
-		TextView watchersCount = (TextView) findViewById(R.id.watchers_count);
+		TextView watchersCount = (TextView) view.findViewById(R.id.watchers_count);
 		if (watchersCount != null) {
 			Count count = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, true, Direction.in);
 			if (count == null) {
@@ -422,37 +461,37 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 	}
 
 	@Override
-	public void drawButtons() {
-		super.drawButtons();
+	public void drawButtons(View view) {
+		super.drawButtons(view);
 
 		if (mEntity.visibility != null
 				&& mEntity.visibility.equals(Constants.VISIBILITY_PRIVATE)
 				&& !mEntity.visibleToCurrentUser()) {
 
-			UI.setVisibility(findViewById(R.id.button_watch), View.INVISIBLE);
-			UI.setVisibility(findViewById(R.id.footer_holder), View.INVISIBLE);
+			UI.setVisibility(view.findViewById(R.id.button_watch), View.INVISIBLE);
+			UI.setVisibility(view.findViewById(R.id.footer_holder), View.INVISIBLE);
 
 			Link link = mEntity.linkByAppUser(Constants.TYPE_LINK_WATCH);
 			if (link == null) {
-				mListFragment.getButtonSpecial().setText(R.string.button_list_watch_request);
+				((BaseFragment) mCurrentFragment).getButtonSpecial().setText(R.string.button_list_watch_request);
 			}
 			else if (!link.enabled) {
-				mListFragment.getButtonSpecial().setText(R.string.button_list_watch_request_cancel);
+				((BaseFragment) mCurrentFragment).getButtonSpecial().setText(R.string.button_list_watch_request_cancel);
 			}
 		}
 		else {
-			UI.setVisibility(findViewById(R.id.button_watch), View.VISIBLE);
-			UI.setVisibility(findViewById(R.id.footer_holder), View.VISIBLE);
+			UI.setVisibility(view.findViewById(R.id.button_watch), View.VISIBLE);
+			UI.setVisibility(view.findViewById(R.id.footer_holder), View.VISIBLE);
 		}
 
 		Place place = (Place) mEntity;
-		UI.setVisibility(findViewById(R.id.button_map), View.GONE);
-		UI.setVisibility(findViewById(R.id.button_edit), View.GONE);
+		UI.setVisibility(view.findViewById(R.id.button_map), View.GONE);
+		UI.setVisibility(view.findViewById(R.id.button_edit), View.GONE);
 		/*
 		 * We can map it if we have an address or a decent location fix.
 		 */
 		if (!place.fuzzy || !TextUtils.isEmpty(place.address)) {
-			UI.setVisibility(findViewById(R.id.button_map), View.VISIBLE);
+			UI.setVisibility(view.findViewById(R.id.button_map), View.VISIBLE);
 		}
 	}
 
@@ -463,8 +502,8 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 
 	protected void positionButton(final Integer headerHeightProjected) {
 
-		final View header = mListFragment.getHeaderView();
-		final Button buttonSpecial = mListFragment.getButtonSpecial();
+		final View header = ((EntityListFragment) mCurrentFragment).getHeaderView();
+		final Button buttonSpecial = ((EntityListFragment) mCurrentFragment).getButtonSpecial();
 
 		if (buttonSpecial != null && header != null) {
 
@@ -485,9 +524,7 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 						params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 						int headerHeight = (headerHeightProjected != null)
 						                   ? headerHeightProjected
-						                   : (header != null)
-						                     ? header.getHeight()
-						                     : UI.getRawPixelsForDisplayPixels(150f);
+						                   : header.getHeight();
 
 						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(100f);
 						buttonSpecial.setLayoutParams(params);
@@ -523,11 +560,11 @@ public class PlaceForm extends com.aircandi.ui.PlaceForm {
 			if (mEntity.visibility.equals(Constants.VISIBILITY_PRIVATE) && !mEntity.isOwnedByCurrentUser()) {
 				Link link = mEntity.linkByAppUser(Constants.TYPE_LINK_WATCH);
 				if (link == null) {
-					mListFragment.getButtonSpecial().setText(R.string.button_list_watch_request);
+					((EntityListFragment) mCurrentFragment).getButtonSpecial().setText(R.string.button_list_watch_request);
 					UI.showToastNotification(StringManager.getString(R.string.alert_watch_request_canceled), Toast.LENGTH_SHORT);
 				}
 				else if (!link.enabled) {
-					mListFragment.getButtonSpecial().setText(R.string.button_list_watch_request_cancel);
+					((EntityListFragment) mCurrentFragment).getButtonSpecial().setText(R.string.button_list_watch_request_cancel);
 					UI.showToastNotification(StringManager.getString(R.string.alert_watch_request_sent), Toast.LENGTH_SHORT);
 				}
 				return true;

@@ -82,7 +82,7 @@ public class SignInEdit extends BaseEdit {
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
 		final String email = Aircandi.settings.getString(StringManager.getString(R.string.setting_last_email), null);
 		if (email != null) {
 			mEmail.setText(email);

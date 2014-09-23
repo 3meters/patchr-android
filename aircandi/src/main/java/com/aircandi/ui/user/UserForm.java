@@ -56,9 +56,12 @@ public class UserForm extends BaseEntityForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	protected void loadStats() {
 
 		new AsyncTask() {
@@ -87,7 +90,7 @@ public class UserForm extends BaseEntityForm {
 				mBusy.hideBusy(false);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (result.data != null) {
-						drawStats();
+						drawStats(null);
 					}
 				}
 				else {
@@ -101,9 +104,13 @@ public class UserForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * UI routines
 	 *--------------------------------------------------------------------------------------------*/
-	@Override
-	public void draw() {
 
+	@Override
+	public void draw(View view) {
+
+		if (view == null) {
+			view = findViewById(android.R.id.content);
+		}
 		mFirstDraw = false;
 		setActivityTitle(mEntity.name);
 
@@ -190,11 +197,11 @@ public class UserForm extends BaseEntityForm {
 			}
 
 			if (user.stats != null) {
-				drawStats();
+				drawStats(view);
 			}
 		}
 
-		drawButtons();
+		drawButtons(view);
 
 		if (mScrollView != null) {
 			mScrollView.setVisibility(View.VISIBLE);
@@ -202,7 +209,7 @@ public class UserForm extends BaseEntityForm {
 	}
 
 	@Override
-	public void drawStats() {
+	public void drawStats(View view) {
 		if (mDrawStats != null) {
 			mDrawStats.draw(mEntity, findViewById(android.R.id.content));
 		}
@@ -210,9 +217,12 @@ public class UserForm extends BaseEntityForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.user_form;

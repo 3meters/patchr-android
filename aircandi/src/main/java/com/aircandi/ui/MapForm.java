@@ -7,64 +7,44 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.aircandi.Aircandi;
+import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.AndroidManager;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.objects.AirLocation;
+import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Place;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.IBusy.BusyAction;
 import com.aircandi.utilities.Errors;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class MapForm extends BaseEntityForm {
 
-	Fragment mMapFragment;
-	private static final int DEFAULT_ZOOM = 16;
+	private Fragment mFragment;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 		mLinkProfile = LinkProfile.LINKS_FOR_PLACE;
-		mMapFragment = new MapItemFragment();
-		getFragmentManager().beginTransaction().replace(R.id.fragment_holder, mMapFragment).commit();
+		mNextFragmentTag = Constants.FRAGMENT_TYPE_MAP;
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
 		mFirstDraw = false;
 		if (!TextUtils.isEmpty(mEntity.name)) {
 			setActivityTitle(mEntity.name);
 		}
-		/*
-		 * Map requires OpenGL ES version 2. We specify this feature and version
-		 * as required in the manifest so we assume that if we run then we have what
-		 * we need.
-		 */
-		drawMap();
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	private void drawMap() {
 
 		if (mEntity.getLocation() != null) {
 
@@ -115,30 +95,36 @@ public class MapForm extends BaseEntityForm {
 
 					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-						AirLocation location = mEntity.getLocation();
-						MarkerOptions options = new MarkerOptions().position(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()));
-						Place place = (Place) mEntity;
-
-						if (place.name != null) {
-							options.title(mEntity.name);
-						}
-
-						if (place.category != null && !TextUtils.isEmpty(place.category.name)) {
-							options.snippet(place.category.name);
-						}
-
-						Marker marker = ((MapFragment)mMapFragment).getMap().addMarker(options);
-						marker.showInfoWindow();
-						((MapFragment)mMapFragment).getMap().moveCamera(
-								CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), DEFAULT_ZOOM));
+						List<Entity> entities = new ArrayList<Entity>();
+						entities.add(mEntity);
+						((MapListFragment) mFragment)
+								.setEntities(entities)
+								.setZoomLevel(MapListFragment.ZOOM_NEARBY)
+								.draw();
 					}
 					else {
 						Errors.handleError(MapForm.this, result.serviceResponse);
 					}
 				}
-
 			}.execute();
 		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public void setCurrentFragment(String fragmentType) {
+		mFragment = new MapListFragment();
+		getFragmentManager()
+				.beginTransaction()
+				.replace(R.id.fragment_holder, mFragment)
+				.commit();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -169,11 +155,7 @@ public class MapForm extends BaseEntityForm {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
+	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override

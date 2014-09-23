@@ -75,8 +75,9 @@ public class PictureForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * UI
 	 *--------------------------------------------------------------------------------------------*/
+	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void draw() {
+	public void draw(View view) {
 		/*
 		 * For now, we assume that the candi form isn't recycled.
 		 * 
@@ -86,6 +87,9 @@ public class PictureForm extends BaseEntityForm {
 		 * - WebImageView child views are gone by default
 		 * - Header views are visible by default
 		 */
+		if (view == null) {
+			view = findViewById(android.R.id.content);
+		}
 		mFirstDraw = false;
 		setActivityTitle(mEntity.name);
 
@@ -209,7 +213,7 @@ public class PictureForm extends BaseEntityForm {
 
 		/* Stats */
 
-		drawStats();
+		drawStats(view);
 
 		/* Shortcuts */
 
@@ -291,7 +295,7 @@ public class PictureForm extends BaseEntityForm {
 		}
 
 		/* Buttons */
-		drawButtons();
+		drawButtons(view);
 
 		/* Visibility */
 		if (mScrollView != null) {
@@ -300,14 +304,14 @@ public class PictureForm extends BaseEntityForm {
 	}
 
 	@Override
-	public void drawButtons() {
-		super.drawButtons();
+	public void drawButtons(View view) {
+		super.drawButtons(view);
 	}
 
 	@Override
-	protected void drawStats() {
+	protected void drawStats(View view) {
 
-		TextView watchingStats = (TextView) findViewById(R.id.watching_stats);
+		TextView watchingStats = (TextView) view.findViewById(R.id.watching_stats);
 		if (watchingStats != null) {
 			Count count = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, null, Direction.in);
 			if (count == null) {

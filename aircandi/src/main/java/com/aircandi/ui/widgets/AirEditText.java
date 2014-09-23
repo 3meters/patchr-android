@@ -47,7 +47,7 @@ public class AirEditText extends EditText {
 					mEnableClearButton = true;
 					Bitmap bitmap = ((BitmapDrawable) mClearDrawable).getBitmap();
 					Integer drawableWidth = getResources().getDimensionPixelSize(R.dimen.drawable_width);
-					Integer drawableHeight = drawableWidth;
+					@SuppressWarnings("SuspiciousNameCombination") Integer drawableHeight = drawableWidth;
 					mClearDrawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, drawableWidth, drawableHeight, true));
 				}
 			}

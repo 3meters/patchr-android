@@ -3,7 +3,6 @@ package com.aircandi.catalina.ui.components;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
-import com.aircandi.catalina.ui.MapListFragment;
 import com.aircandi.objects.Entity;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;

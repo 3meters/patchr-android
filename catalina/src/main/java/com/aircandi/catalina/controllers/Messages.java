@@ -250,7 +250,7 @@ public class Messages extends EntityControllerBase {
 			if (((ViewHolderExtended) holder).childCount != null) {
 				Count count = entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, null, Link.Direction.in);
 				Integer linkCount = (count != null) ? count.count.intValue() : 0;
-				if (linkCount != null && linkCount > 0) {
+				if (linkCount > 0) {
 					((ViewHolderExtended) holder).childCount.setText(String.valueOf(linkCount) + ((linkCount == 1) ? " reply" : " replies"));
 					UI.setVisibility(((ViewHolderExtended) holder).childCount, View.VISIBLE);
 				}

@@ -132,6 +132,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 			view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
 				public void onGlobalLayout() {
+					//noinspection deprecation
 					view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
 					BusProvider.getInstance().post(new ViewLayoutEvent());
 				}
@@ -196,7 +197,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
 	}
 
 	protected void scrollToTop(final Object scroller) {
@@ -228,7 +229,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 			if (mButtonSpecialClickable) {
 				mButtonSpecial.setClickable(visible);
 			}
-			UI.animateView(mButtonSpecial, visible, (visible ? mButtonSpecialClickable : false), AnimationManager.DURATION_MEDIUM);
+			AnimationManager.showViewAnimate(mButtonSpecial, visible, (visible ? mButtonSpecialClickable : false), AnimationManager.DURATION_MEDIUM);
 			BusProvider.getInstance().post(new ButtonSpecialEvent(visible));
 		}
 	}

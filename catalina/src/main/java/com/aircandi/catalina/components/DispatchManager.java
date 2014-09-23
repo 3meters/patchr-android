@@ -70,6 +70,10 @@ public class DispatchManager extends com.aircandi.components.DispatchManager {
 				return;
 			}
 
+			if (entity == null) {
+				throw new IllegalArgumentException("Dispatching edit requires entity");
+			}
+
 			IEntityController controller = Aircandi.getInstance().getControllerForSchema(schema);
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE) && entity.isOwnedBySystem()) {
 				if (extras == null) {
@@ -81,6 +85,10 @@ public class DispatchManager extends com.aircandi.components.DispatchManager {
 		}
 
 		else if (route == Route.WATCHERS) {
+
+			if (entity == null) {
+				throw new IllegalArgumentException("Dispatching watchers requires entity");
+			}
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, WatcherList.class);
 			intentBuilder.setEntityId(entity.id).addExtras(extras);

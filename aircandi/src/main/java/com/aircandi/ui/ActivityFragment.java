@@ -122,7 +122,7 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 						}
 
 						mAdapter.sort(new ServiceActivity.SortBySortDate());
-						draw();
+						draw(null);
 					}
 					postBind();
 					mLoaded = true;
@@ -148,7 +148,7 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
 		mAdapter.notifyDataSetChanged();
 	}
 
@@ -237,7 +237,7 @@ public class ActivityFragment extends BaseFragment implements OnClickListener {
 							mAdapter.add(activity);
 						}
 						mAdapter.sort(new ServiceActivity.SortBySortDate());
-						draw();
+						draw(null);
 					}
 				}
 				switcher.setDisplayedChild(0);

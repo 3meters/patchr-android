@@ -276,14 +276,6 @@ public class ToolTipView extends LinearLayout implements ViewTreeObserver.OnPreD
 	}
 
 	public void remove() {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) getLayoutParams();
-			setX(params.leftMargin);
-			setY(params.topMargin);
-			params.leftMargin = 0;
-			params.topMargin = 0;
-			setLayoutParams(params);
-		}
 
 		if (mToolTip.getAnimationType() == ToolTip.AnimationType.NONE) {
 			if (getParent() != null) {

@@ -37,7 +37,7 @@ public class UserEdit extends BaseEntityEdit {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mTabManager = new TabManager(Constants.TABS_USER_EDIT_ID, mActionBar, (ViewFlipper) findViewById(R.id.flipper_form));
+		mTabManager = new TabManager(Constants.TABS_USER_EDIT_ID, getActionBar(), (ViewFlipper) findViewById(R.id.flipper_form));
 		mTabManager.initialize();
 		mTabManager.doRestoreInstanceState(savedInstanceState);
 
@@ -101,8 +101,8 @@ public class UserEdit extends BaseEntityEdit {
 	}
 
 	@Override
-	public void draw() {
-		super.draw();
+	public void draw(View view) {
+		super.draw(view);
 
 		User user = (User) mEntity;
 		if (mBio != null && !TextUtils.isEmpty(user.bio)) {
@@ -119,7 +119,6 @@ public class UserEdit extends BaseEntityEdit {
 		}
 
 		((ViewGroup) findViewById(R.id.flipper_form)).setVisibility(View.VISIBLE);
-
 	}
 
 	/*--------------------------------------------------------------------------------------------

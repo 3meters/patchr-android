@@ -102,10 +102,12 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 		/* Configure action bar */
 
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActionBar().setDisplayShowHomeEnabled(true);
-		getActionBar().setTitle(StringManager.getString(R.string.form_title_preferences));
-		getActionBar().setIcon(Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
+		if (getActionBar() != null) {
+			getActionBar().setDisplayHomeAsUpEnabled(true);
+			getActionBar().setDisplayShowHomeEnabled(true);
+			getActionBar().setTitle(StringManager.getString(R.string.form_title_preferences));
+			getActionBar().setIcon(Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
+		}
 
 		mBusy = new BusyManager(this);
 
@@ -199,28 +201,25 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 			pref.setTitle(StringManager.getString(R.string.pref_signout_title));
 			pref.setSummary(StringManager.getString(R.string.pref_signout_summary));
 		}
-		if (pref != null) {
-			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-						Aircandi.dispatch.route(Preferences.this, Route.SIGNIN, null, null, null);
-					}
-					else {
-						mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_signing_out);
-						Aircandi.dispatch.route(Preferences.this, Route.SIGNOUT, null, null, null);
-					}
-					return true;
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+					Aircandi.dispatch.route(Preferences.this, Route.SIGNIN, null, null, null);
 				}
-			});
-		}
+				else {
+					mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_signing_out);
+					Aircandi.dispatch.route(Preferences.this, Route.SIGNOUT, null, null, null);
+				}
+				return true;
+			}
+		});
 
 		/*
 		 * Init the dev preferences
 		 */
 		initializeDev();
-
 	}
 
 	private void initializeDev() {

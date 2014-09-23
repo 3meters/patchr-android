@@ -174,7 +174,8 @@ public class MessagingManager {
 		}
 		else {
 			Integer count = mCounts.get(messageTag);
-			mCounts.put(messageTag, (count++));
+			count++;
+			mCounts.put(messageTag, count);
 		}
 
 		message.intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

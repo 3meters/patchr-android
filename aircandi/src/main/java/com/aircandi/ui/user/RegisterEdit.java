@@ -112,8 +112,8 @@ public class RegisterEdit extends BaseEntityEdit {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void draw() {
-		super.draw();
+	public void draw(View view) {
+		super.draw(view);
 		setActivityTitle(StringManager.getString(R.string.label_register_title));
 	}
 

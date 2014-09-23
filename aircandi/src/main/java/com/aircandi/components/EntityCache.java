@@ -1,6 +1,7 @@
 package com.aircandi.components;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
@@ -73,7 +74,7 @@ public class EntityCache implements Map<String, Entity> {
 			serviceResponse.data = serviceData;
 
 			if (loadedEntities != null && loadedEntities.size() > 0) {
-	            /*
+			    /*
                  * Clear out any cache stamp overrides.
 				 */
 				for (Entity entity : loadedEntities) {
@@ -236,7 +237,6 @@ public class EntityCache implements Map<String, Entity> {
 				decorate(loadedEntities, linkOptions);
 				upsertEntities(loadedEntities);
 			}
-
 		}
 
 		return serviceResponse;
@@ -392,10 +392,7 @@ public class EntityCache implements Map<String, Entity> {
 			Link link = new Link(fromId, toId, type, fromShortcut.schema);
 			link.enabled = enabled;
 			link.modifiedDate = time;
-
-			if (fromShortcut != null) {
-				link.shortcut = fromShortcut;
-			}
+			link.shortcut = fromShortcut;
 
 			toEntity.linksIn.add(link);
 			toEntity.activityDate = time;
@@ -429,10 +426,7 @@ public class EntityCache implements Map<String, Entity> {
 			Link link = new Link(fromId, toId, type, toShortcut.schema);
 			link.enabled = enabled;
 			link.modifiedDate = time;
-
-			if (toShortcut != null) {
-				link.shortcut = toShortcut;
-			}
+			link.shortcut = toShortcut;
 
 			fromEntity.linksOut.add(0, link);
 			fromEntity.activityDate = time;
@@ -584,7 +578,7 @@ public class EntityCache implements Map<String, Entity> {
 		return entities;
 	}
 
-	@SuppressWarnings("ucd")
+	@SuppressWarnings({"ucd", "ConstantConditions"})
 	public synchronized List<? extends Entity> getCacheEntitiesForEntity(String entityId, String schema, String type, Integer radius, Boolean proximity) {
 		/*
 		 * We rely on the toId property instead of traversing links.
@@ -653,6 +647,7 @@ public class EntityCache implements Map<String, Entity> {
 		return mCacheMap.containsValue(value);
 	}
 
+	@NonNull
 	@Override
 	public Set<java.util.Map.Entry<String, Entity>> entrySet() {
 		return mCacheMap.entrySet();
@@ -668,6 +663,7 @@ public class EntityCache implements Map<String, Entity> {
 		return mCacheMap.isEmpty();
 	}
 
+	@NonNull
 	@Override
 	public Set<String> keySet() {
 		return mCacheMap.keySet();
@@ -693,9 +689,9 @@ public class EntityCache implements Map<String, Entity> {
 		return mCacheMap.size();
 	}
 
+	@NonNull
 	@Override
 	public Collection<Entity> values() {
 		return mCacheMap.values();
 	}
-
 }

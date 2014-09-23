@@ -25,13 +25,11 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.aircandi.Aircandi;
-import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.exceptions.NoOverflowMenuRuntimeException;
 import com.aircandi.exceptions.NoTitleViewRuntimeException;
 import com.aircandi.exceptions.ViewNotFoundRuntimeException;
 import com.aircandi.ui.components.ShotStateStore;
-import com.aircandi.utilities.UI;
 
 public class ToolTipRelativeLayout extends RelativeLayout implements View.OnTouchListener {
 
@@ -149,7 +147,7 @@ public class ToolTipRelativeLayout extends RelativeLayout implements View.OnTouc
 	}
 
 	private void fadeOutShowcase() {
-		UI.animateView(this, false, true, AnimationManager.DURATION_MEDIUM);
+		AnimationManager.showViewAnimate(this, false, true, AnimationManager.DURATION_MEDIUM);
 	}
 
 	private static View findActionBarOverflowMenuView(final Activity activity) {

@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -108,7 +109,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 				Logger.v(this, "Setting current place to: " + mEntity.id);
 			}
 			if (mFirstDraw) {
-				draw();
+				draw(null);
 			}
 		}
 	}
@@ -171,7 +172,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 								Aircandi.getInstance().setCurrentPlace(mEntity);
 								Logger.v(this, "Setting current place to: " + mEntity.id);
 							}
-							draw();
+							draw(null);
 						}
 						else {
 							mBusy.hideBusy(true);
@@ -180,7 +181,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 						}
 					}
 					else if (redrawNeeded.get()) {
-						draw();
+						draw(null);
 					}
 				}
 				else {
@@ -198,7 +199,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 					((EntityMonitor) mEntityMonitor).updateCacheStamp(mEntity);
 				}
 			}
-
 		}.execute();
 	}
 
@@ -313,7 +313,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	}
 
 	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
 		/*
 		 * Will only be called if the activity is destroyed and restored. Restore
 		 * state could be handled in onCreate or here later in the lifecycle after
@@ -336,18 +336,19 @@ public abstract class BaseEntityForm extends BaseActivity {
 	 * UI
 	 *--------------------------------------------------------------------------------------------*/
 
-	protected void drawStats() {
-	}
+	public void draw(View view) {}
 
-	protected void drawButtons() {
+	protected void drawStats(View view) {}
+
+	protected void drawButtons(View view) {
 
 		if (mEntity.id.equals(Aircandi.getInstance().getCurrentUser().id)) {
-			UI.setVisibility(findViewById(R.id.button_holder), View.GONE);
+			UI.setVisibility(view.findViewById(R.id.button_holder), View.GONE);
 		}
 		else {
-			UI.setVisibility(findViewById(R.id.button_holder), View.VISIBLE);
+			UI.setVisibility(view.findViewById(R.id.button_holder), View.VISIBLE);
 
-			ComboButton watched = (ComboButton) findViewById(R.id.button_watch);
+			ComboButton watched = (ComboButton) view.findViewById(R.id.button_watch);
 			if (watched != null) {
 				UI.setVisibility(watched, View.VISIBLE);
 				Link link = mEntity.linkByAppUser(Constants.TYPE_LINK_WATCH);
@@ -414,9 +415,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 		final FlowLayout flow = (FlowLayout) section.findViewById(R.id.flow_shortcuts);
 		flowShortcuts(flow, shortcuts, flowItemResId);
 		((ViewGroup) findViewById(holderId)).addView(holder);
-
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	private void flowShortcuts(FlowLayout layout, List<Shortcut> shortcuts, Integer viewResId) {
 
 		layout.removeAllViews();
@@ -616,8 +617,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 				if (!afterWatch(result)) {
 					((ComboButton) findViewById(R.id.button_watch)).getViewAnimator().setDisplayedChild(0);
 					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-						drawButtons();
-						drawStats();
+						View view = findViewById(android.R.id.content);
+						drawButtons(view);
+						drawStats(view);
 						if (autoWatch) {
 							UI.showToastNotification(StringManager.getString(R.string.alert_auto_watch), Toast.LENGTH_SHORT, Gravity.CENTER);
 						}
@@ -640,13 +642,11 @@ public abstract class BaseEntityForm extends BaseActivity {
 	@Override
 	public Boolean related(String entityId) {
 		return (mEntityId != null && entityId.equals(mEntityId));
-
 	}
 
 	@Override
 	public Boolean related(Entity entity) {
 		return (mEntity != null && entity.id.equals(mEntity.id));
-
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -679,5 +679,4 @@ public abstract class BaseEntityForm extends BaseActivity {
 			bind(BindingMode.AUTO);    // check to see if the cache stamp is stale
 		}
 	}
-
 }

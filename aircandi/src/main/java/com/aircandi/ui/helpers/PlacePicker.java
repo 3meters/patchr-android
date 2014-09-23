@@ -1,6 +1,7 @@
 package com.aircandi.ui.helpers;
 
 import android.os.Bundle;
+import android.view.View;
 import android.view.WindowManager;
 
 import com.aircandi.Aircandi;
@@ -34,20 +35,26 @@ public class PlacePicker extends BaseActivity {
 
 		mTo = (AirTokenCompleteTextView) this.findViewById(R.id.to);
 		mEntitySuggest = new EntitySuggestController(this);
-
-		setActivityTitle(StringManager.getString(R.string.dialog_place_picker_search_title));
 		bind(BindingMode.AUTO);
+	}
+
+	public void draw(View view) {
+		setActivityTitle(StringManager.getString(R.string.dialog_place_picker_search_title));
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------------------------
 	 * Methods
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.place_picker;
@@ -63,5 +70,6 @@ public class PlacePicker extends BaseActivity {
 		}
 		mEntitySuggest.setInput((AirTokenCompleteTextView) findViewById(R.id.to));
 		mEntitySuggest.init();
+		draw(null);
 	}
 }

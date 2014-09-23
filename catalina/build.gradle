@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion 19
+    buildToolsVersion '20.0.0'
 
     defaultConfig {
         applicationId 'com.aircandi.catalina'

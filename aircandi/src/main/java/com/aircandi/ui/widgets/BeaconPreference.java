@@ -5,6 +5,7 @@ import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,8 +52,9 @@ public class BeaconPreference extends AirListPreference {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
-	protected void onPrepareDialogBuilder(Builder builder) {
+	protected void onPrepareDialogBuilder(@NonNull Builder builder) {
 		setEntriesFromBeacons(); // Initialize entry arrays but empty
 		builder.setPositiveButton(null, null);
 		super.onPrepareDialogBuilder(builder);
@@ -76,6 +78,7 @@ public class BeaconPreference extends AirListPreference {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	private void databind() {
 
 		mTestBeacons.clear();

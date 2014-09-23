@@ -24,8 +24,8 @@ import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.MenuManager;
 import com.aircandi.components.MessagingManager;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ShortcutManager;
 import com.aircandi.controllers.Applinks;
 import com.aircandi.controllers.Beacons;
@@ -39,9 +39,9 @@ import com.aircandi.objects.Links;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
 import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
-import com.aircandi.utilities.UI;
 
 @SuppressLint("Registered")
 public class SplashForm extends Activity {
@@ -83,10 +83,7 @@ public class SplashForm extends Activity {
 
 		/* Brand coloring */
 		ImageView image = (ImageView) findViewById(R.id.logo);
-		UI.colorDrawable(image.getDrawable(), R.color.brand_primary, Mode.SRC_ATOP);
-//		ImageView background = (ImageView) findViewById(R.id.image_background);
-//		UI.colorDrawable(background.getDrawable(), Mode.MULTIPLY);
-
+		image.setColorFilter(Colors.getColor(R.color.brand_primary), Mode.SRC_ATOP);
 	}
 
 	private void prepareToRun() {

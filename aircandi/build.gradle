@@ -1,8 +1,8 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion 19
+    buildToolsVersion '20.0.0'
 
     defaultConfig {
         applicationId 'com.aircandi'
@@ -31,7 +31,6 @@ dependencies {
     compile 'net.minidev:json-smart:1.2'
     compile 'com.github.castorflex.smoothprogressbar:library:0.5.+'
     compile 'com.google.maps.android:android-maps-utils:0.3+'
-
     compile files('libs/aws-android-sdk-2.0.5-core.jar')
     compile files('libs/aws-android-sdk-2.0.5-s3.jar')
     compile files('libs/crashlytics.jar')

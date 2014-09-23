@@ -94,10 +94,9 @@ public class ShortcutFragment extends BaseFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
-		if (view == null) return view;
-
-		mScrollView = (ScrollView) view.findViewById(R.id.scroll_view);
-
+		if (view != null) {
+			mScrollView = (ScrollView) view.findViewById(R.id.scroll_view);
+		}
 		return view;
 	}
 
@@ -143,7 +142,7 @@ public class ShortcutFragment extends BaseFragment {
 					if (result.data != null) {
 						mEntity = (Entity) Aircandi.getInstance().getCurrentUser();
 					}
-					draw();
+					draw(null);
 					mLoaded = true;
 				}
 				else {
@@ -159,7 +158,7 @@ public class ShortcutFragment extends BaseFragment {
 	 * UI routines
 	 *--------------------------------------------------------------------------------------------*/
 	@Override
-	public void draw() {
+	public void draw(View view) {
 
 		Logger.d(this, "Fragment drawing");
 

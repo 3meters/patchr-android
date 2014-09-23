@@ -8,8 +8,8 @@ import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.R;
 import com.aircandi.catalina.objects.LinkProfile;
 import com.aircandi.catalina.ui.MessageListFragment;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Route;
@@ -70,18 +70,20 @@ public class UserForm extends com.aircandi.ui.user.UserForm {
 	}
 
 	@Override
-	public void drawButtons() {
-		super.drawButtons();
+	public void drawButtons(View view) {
+		super.drawButtons(view);
 
-		UI.setVisibility(findViewById(R.id.button_edit), View.GONE);
+		UI.setVisibility(view.findViewById(R.id.button_edit), View.GONE);
 		if (Aircandi.getInstance().getMenuManager().canUserEdit(mEntity)) {
-			UI.setVisibility(findViewById(R.id.button_edit), View.VISIBLE);
+			UI.setVisibility(view.findViewById(R.id.button_edit), View.VISIBLE);
 		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
-	 *--------------------------------------------------------------------------------------------*/ 	@SuppressWarnings("ucd")
+	 *--------------------------------------------------------------------------------------------*/
+
+	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
 		mListFragment.onMoreButtonClick(view);
 	}

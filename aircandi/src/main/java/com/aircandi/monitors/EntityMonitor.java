@@ -85,8 +85,8 @@ public class EntityMonitor extends SimpleMonitor {
 		 * Entities for users have a special dependency because changing the parent entity
 		 * (user) can mean updating list items that are showing stale user info.
 		 */
-		if (entity != null && entity instanceof User && this.modified) {
-			this.activity = this.modified;
+		if (entity instanceof User && this.modified) {
+			this.activity = true;
 		}
 
 		this.changed = (cacheStamp == null || !cacheStamp.equals(mCacheStamp));

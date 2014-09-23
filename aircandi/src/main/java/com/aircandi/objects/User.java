@@ -1,5 +1,7 @@
 package com.aircandi.objects;
 
+import android.support.annotation.Nullable;
+
 import com.aircandi.ServiceConstants;
 import com.aircandi.service.Expose;
 
@@ -123,9 +125,10 @@ public class User extends Entity {
 	}
 
 	@Override
+	@Nullable
 	public User clone() {
 		final User user = (User) super.clone();
-		if (stats != null) {
+		if (user != null && stats != null) {
 			user.stats = (List<Count>) ((ArrayList) stats).clone();
 		}
 		return user;

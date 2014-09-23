@@ -113,6 +113,7 @@
 		<item name="iconDrawer">@drawable/ic_drawer_dark</item>
 		<item name="iconEdit">@drawable/ic_action_edit_dark</item>
 		<item name="iconExit">@drawable/ic_action_exit_dark</item>
+		<item name="iconForward">@drawable/ic_action_forward_dark</item>
 		<item name="iconGallery">@drawable/ic_action_tiles_large_dark</item>
 		<item name="iconGooglePlay">@drawable/ic_action_google_play_dark</item>
 		<item name="iconHelp">@drawable/ic_action_help_dark</item>
@@ -245,6 +246,7 @@
 		<item name="iconDrawer">@drawable/ic_drawer_light</item>
 		<item name="iconEdit">@drawable/ic_action_edit_light</item>
 		<item name="iconExit">@drawable/ic_action_exit_light</item>
+		<item name="iconForward">@drawable/ic_action_forward_light</item>
 		<item name="iconGallery">@drawable/ic_action_tiles_large_light</item>
 		<item name="iconGooglePlay">@drawable/ic_action_google_play_light</item>
 		<item name="iconHelp">@drawable/ic_action_help_light</item>
@@ -290,13 +292,15 @@
 
 	<style name="aircandi_theme_midnight" parent="aircandi_theme_dark" />
 
-	<style name="aircandi_theme_midnight_notitlebar" parent="aircandi_theme_midnight">
-		<item name="android:windowNoTitle">true</item>
-	</style>
-
 	<!-- Snow theme -->
 
 	<style name="aircandi_theme_snow" parent="aircandi_theme_light" />
+
+	<!-- No title theme versions -->
+
+	<style name="aircandi_theme_midnight_notitlebar" parent="aircandi_theme_midnight">
+		<item name="android:windowNoTitle">true</item>
+	</style>
 
 	<style name="aircandi_theme_snow_notitlebar" parent="aircandi_theme_snow">
 		<item name="android:windowNoTitle">true</item>
