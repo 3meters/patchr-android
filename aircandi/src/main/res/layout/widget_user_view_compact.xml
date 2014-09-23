@@ -28,12 +28,13 @@
 		android:layout_toRightOf="@+id/widget_photo"
 		android:orientation="vertical">
 
-		<com.aircandi.ui.widgets.TextViewEllipsizing
+		<com.aircandi.ui.widgets.AirTextLight
 			android:id="@+id/widget_name"
 			style="@style/candi_user"
 			android:layout_width="wrap_content"
+			android:ellipsize="end"
+			android:singleLine="true"
 			android:layout_height="wrap_content"
-			android:maxLines="1"
 			android:textColor="?attr/textColorButtonLink"
 			android:textStyle="bold" />
 	</LinearLayout>

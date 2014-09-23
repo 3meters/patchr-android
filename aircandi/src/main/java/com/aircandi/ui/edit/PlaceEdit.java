@@ -77,7 +77,7 @@ public class PlaceEdit extends BaseEntityEdit {
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
 
 		/* Place content */
 		Place place = (Place) mEntity;
@@ -110,7 +110,7 @@ public class PlaceEdit extends BaseEntityEdit {
 		UI.setVisibility(findViewById(R.id.label_to), mEditing ? View.GONE : View.VISIBLE);
 		UI.setVisibility(findViewById(R.id.to), mEditing ? View.GONE : View.VISIBLE);
 
-		super.draw();
+		super.draw(view);
 	}
 
 	@SuppressWarnings("ucd")

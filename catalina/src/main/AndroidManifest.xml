@@ -64,7 +64,6 @@
 		android:allowBackup="false"
 		android:icon="@drawable/ic_launcher"
 		android:label="@string/name_app"
-		android:theme="@style/aircandi_theme_midnight"
 		tools:replace="android:allowBackup">
 
 		<!-- Service keys -->
@@ -275,27 +274,22 @@
 		<activity
 			android:name="com.aircandi.ui.helpers.ApplicationPicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/aircandi_theme_dialog_dark"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name="com.aircandi.ui.helpers.PhotoSourcePicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/aircandi_theme_dialog_dark"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name="com.aircandi.ui.helpers.ShortcutPicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/aircandi_theme_dialog_dark"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name="com.aircandi.ui.helpers.AddressBuilder"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/aircandi_theme_dialog_dark"
 			android:windowSoftInputMode="adjustResize" />
 		<activity
 			android:name="com.aircandi.ui.helpers.CategoryBuilder"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/aircandi_theme_dialog_dark"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Misc -->

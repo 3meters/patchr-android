@@ -62,11 +62,11 @@ public class ReportEdit extends BaseEntityEdit {
 		mReport.type = "report";
 		mReport.name = "aircandi";
 		mReport.data = new HashMap<String, Object>();
-		draw();
+		draw(null);
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
 		((UserView) findViewById(R.id.created_by)).databind(Aircandi.getInstance().getCurrentUser(), null);
 	}
 

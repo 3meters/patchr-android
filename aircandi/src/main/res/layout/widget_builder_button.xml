@@ -25,6 +25,6 @@
 		android:layout_centerVertical="true"
 		android:layout_marginRight="8dp"
 		android:scaleType="fitXY"
-		android:src="?attr/iconMore" />
+		android:src="?attr/iconForward" />
 
 </merge>

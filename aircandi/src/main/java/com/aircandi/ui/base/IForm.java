@@ -1,6 +1,7 @@
 package com.aircandi.ui.base;
 
 import android.os.Bundle;
+import android.view.View;
 
 public interface IForm {
 
@@ -16,5 +17,5 @@ public interface IForm {
 
 	public void initialize(Bundle savedInstanceState);
 
-	public void draw();
+	public void draw(View view);
 }

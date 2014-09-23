@@ -1,7 +1,6 @@
 package com.aircandi.components;
 
 import android.app.Activity;
-import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 
@@ -31,8 +30,7 @@ public class MenuManager {
 		/* Browsing */
 
 		String activityName = activity.getClass().getSimpleName();
-		final FragmentActivity fragmentActivity = (FragmentActivity) activity;
-		MenuInflater menuInflater = fragmentActivity.getMenuInflater();
+		MenuInflater menuInflater = activity.getMenuInflater();
 
 		/* Editing */
 
@@ -204,8 +202,8 @@ public class MenuManager {
 		else if (route == Route.SHARE)
 			return Aircandi.getInstance().getMenuManager().canUserShare(entity);
 		else if (route == Route.ADD) {
-			if (entity != null && (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)
-					|| entity.schema.equals(Constants.SCHEMA_ENTITY_PICTURE)))
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)
+					|| entity.schema.equals(Constants.SCHEMA_ENTITY_PICTURE))
 				return true;
 		}
 

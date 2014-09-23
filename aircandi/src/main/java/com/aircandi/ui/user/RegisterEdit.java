@@ -3,9 +3,12 @@ package com.aircandi.ui.user;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -15,6 +18,7 @@ import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.DownloadManager;
+import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MessagingManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -38,6 +42,7 @@ public class RegisterEdit extends BaseEntityEdit {
 
 	private EditText mEmail;
 	private EditText mPassword;
+	private CheckBox mPasswordUnmask;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -46,6 +51,26 @@ public class RegisterEdit extends BaseEntityEdit {
 		mEntitySchema = Constants.SCHEMA_ENTITY_USER;
 		mEmail = (EditText) findViewById(R.id.email);
 		mPassword = (EditText) findViewById(R.id.password);
+		mPasswordUnmask = (CheckBox) findViewById(R.id.chk_unmask);
+
+		mPasswordUnmask.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (isChecked) {
+					mPassword.setInputType(InputType.TYPE_CLASS_TEXT
+							| InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+							| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+					FontManager.getInstance().setTypefaceDefault(mPassword);
+				}
+				else {
+					mPassword.setInputType(InputType.TYPE_CLASS_TEXT
+							| InputType.TYPE_TEXT_VARIATION_PASSWORD
+							| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+					FontManager.getInstance().setTypefaceDefault(mPassword);
+				}
+			}
+		});
 
 		mPassword.setImeOptions(EditorInfo.IME_ACTION_GO);
 		mPassword.setOnEditorActionListener(new OnEditorActionListener() {
@@ -87,8 +112,8 @@ public class RegisterEdit extends BaseEntityEdit {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void draw() {
-		super.draw();
+	public void draw(View view) {
+		super.draw(view);
 		setActivityTitle(StringManager.getString(R.string.label_register_title));
 	}
 

@@ -1,5 +1,6 @@
 package com.aircandi.objects;
 
+import android.support.annotation.Nullable;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 
@@ -30,7 +31,7 @@ public class Place extends Entity implements Cloneable, Serializable {
 	 * service fields
 	 *--------------------------------------------------------------------------------------------*/
 	@Expose
-	public String address;
+	public String      address;
 	@Expose
 	public String      city;
 	@Expose
@@ -64,9 +65,11 @@ public class Place extends Entity implements Cloneable, Serializable {
 		 * in the entity model in case we keep it because of a failure.
 		 */
 		final Place entity = synthetic.clone();
-		entity.locked = false;
-		if (synthetic.category != null) {
-			entity.subtitle = synthetic.category.name;
+		if (entity != null) {
+			entity.locked = false;
+			if (synthetic.category != null) {
+				entity.subtitle = synthetic.category.name;
+			}
 		}
 		return entity;
 	}
@@ -218,16 +221,19 @@ public class Place extends Entity implements Cloneable, Serializable {
 	}
 
 	@Override
+	@Nullable
 	public Place clone() {
 		final Place place = (Place) super.clone();
-		if (location != null) {
-			place.location = location.clone();
-		}
-		if (provider != null) {
-			place.provider = provider.clone();
-		}
-		if (category != null) {
-			place.category = category.clone();
+		if (place != null) {
+			if (location != null) {
+				place.location = location.clone();
+			}
+			if (provider != null) {
+				place.provider = provider.clone();
+			}
+			if (category != null) {
+				place.category = category.clone();
+			}
 		}
 		return place;
 	}
@@ -260,13 +266,13 @@ public class Place extends Entity implements Cloneable, Serializable {
 					return -1;
 				else if (object1.fuzzy && object2.fuzzy)
 					return 0;
-				else if (object1.fuzzy && !object2.fuzzy)
+				else if (object1.fuzzy)
 					return 1;
-				else if (object2.fuzzy && !object1.fuzzy)
+				else if (object2.fuzzy)
 					return -1;
-				else if (object1.distance < object2.distance.intValue())
+				else if (object1.distance != null && object1.distance.intValue() < object2.distance.intValue())
 					return -1;
-				else if (object1.distance.intValue() > object2.distance.intValue())
+				else if (object1.distance != null && object1.distance.intValue() > object2.distance.intValue())
 					return 1;
 				else
 					return 0;

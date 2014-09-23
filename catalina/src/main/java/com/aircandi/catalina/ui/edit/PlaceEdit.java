@@ -17,7 +17,6 @@ import com.aircandi.catalina.objects.Message;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
-import com.aircandi.components.ProximityManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.events.BeaconsLockedEvent;
@@ -100,7 +99,7 @@ public class PlaceEdit extends com.aircandi.ui.edit.PlaceEdit implements TokenCo
 
 	@Override
 	public void onTokenAdded(Object o) {
-		if (!mTos.contains(o)) {
+		if (!mTos.contains((Entity) o)) {
 			mTos.add((Entity) o);
 			mDirty = true;
 		}
@@ -108,7 +107,7 @@ public class PlaceEdit extends com.aircandi.ui.edit.PlaceEdit implements TokenCo
 
 	@Override
 	public void onTokenRemoved(Object o) {
-		if (mTos.contains(o)) {
+		if (mTos.contains((Entity) o)) {
 			mTos.remove((Entity) o);
 		}
 	}

@@ -2,22 +2,17 @@ package com.aircandi.utilities;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Matrix;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuff.Mode;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -33,8 +28,6 @@ import com.aircandi.objects.Place;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.AirImageView.SizeType;
 import com.squareup.picasso.RequestCreator;
-
-import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 
 @SuppressWarnings("ucd")
 public class UI {
@@ -192,21 +185,6 @@ public class UI {
 		return bitmapScaled;
 	}
 
-	public static Drawable colorDrawable(Integer resId, Mode mode) {
-		Drawable drawable = Aircandi.applicationContext.getResources().getDrawable(resId);
-		return colorDrawable(drawable, mode);
-	}
-
-	public static Drawable colorDrawable(Drawable drawable, Mode mode) {
-		drawable.setColorFilter(Colors.getColor(R.color.brand_primary), mode);
-		return drawable;
-	}
-
-	public static Drawable colorDrawable(Drawable drawable, Integer colorResId, Mode mode) {
-		drawable.setColorFilter(Colors.getColor(colorResId), mode);
-		return drawable;
-	}
-
 	public static Drawable getDrawableForAttribute(Context context, Integer attr) {
 		TypedValue a = new TypedValue();
 		context.getTheme().resolveAttribute(attr, a, true);
@@ -242,83 +220,6 @@ public class UI {
 		});
 	}
 
-	public static void showImageInImageView(final Bitmap bitmap, final ImageView imageView, final boolean animate, final Animation animation) {
-		/*
-		 * Make sure this on the main thread
-		 */
-		Aircandi.mainThreadHandler.post(new Runnable() {
-
-			@Override
-			public void run() {
-				imageView.setImageBitmap(bitmap);
-				if (animate) {
-					animation.setFillEnabled(true);
-					animation.setFillAfter(true);
-					animation.setAnimationListener(new AnimationListener() {
-
-						@Override
-						public void onAnimationStart(Animation animation) {
-						}
-
-						@Override
-						public void onAnimationEnd(Animation animation) {
-							imageView.clearAnimation();
-						}
-
-						@Override
-						public void onAnimationRepeat(Animation animation) {
-						}
-					});
-					imageView.startAnimation(animation);
-				}
-				imageView.postInvalidate();
-			}
-		});
-
-	}
-
-	public static void animateView(final View view, final Boolean visible, final Boolean clickable, final Integer duration) {
-		/*
-		 * Make sure this on the main thread
-		 */
-		Aircandi.mainThreadHandler.post(new Runnable() {
-
-			@Override
-			public void run() {
-				if (visible && view.getAlpha() == 0) {
-					if (clickable) view.setClickable(true);
-					ObjectAnimator anim = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
-					anim.setDuration((duration == null) ? AnimationManager.DURATION_MEDIUM : duration);
-					anim.start();
-				}
-				else if (!visible && view.getAlpha() == 1) {
-					if (clickable) view.setClickable(false);
-					ObjectAnimator anim = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
-					anim.setDuration((duration == null) ? AnimationManager.DURATION_MEDIUM : duration);
-					anim.start();
-				}
-			}
-		});
-	}
-
-	public static void clearImageInImageView(final ImageView imageView, final boolean animate, final Animation animation) {
-		Aircandi.mainThreadHandler.post(new Runnable() {
-
-			@Override
-			public void run() {
-				if (animate) {
-					animation.setFillEnabled(true);
-					animation.setFillAfter(true);
-					imageView.startAnimation(animation);
-				}
-				else {
-					imageView.setAnimation(null);
-					imageView.setImageBitmap(null);
-				}
-			}
-		});
-	}
-
 	public static void showDrawableInImageView(final Drawable drawable, final ImageView imageView, final boolean animate, final Animation animation) {
 		/*
 		 * Make sure this on the main thread
@@ -337,59 +238,6 @@ public class UI {
 						anim.setDuration(AnimationManager.DURATION_MEDIUM);
 						anim.start();
 					}
-				}
-			}
-		});
-	}
-
-	public static void showDrawableInImageView(final Drawable drawable, final ImageViewTouch imageView, final float minZoom, final float maxZoom,
-	                                           final boolean animate, final Animation animation) {
-		/*
-		 * Make sure this on the main thread
-		 */
-		Aircandi.mainThreadHandler.post(new Runnable() {
-
-			@Override
-			public void run() {
-				if (imageView != null) {
-					imageView.setImageDrawable(drawable, null, minZoom, maxZoom);
-					if (animate) {
-						animation.setFillEnabled(true);
-						animation.setFillAfter(true);
-						imageView.startAnimation(animation);
-					}
-					imageView.postInvalidate();
-				}
-			}
-		});
-	}
-
-	public static void setImageBitmapWithFade(final ImageView imageView, final Bitmap bitmap) {
-		Resources resources = imageView.getResources();
-		BitmapDrawable bitmapDrawable = new BitmapDrawable(resources, bitmap);
-		setImageDrawableWithFade(imageView, bitmapDrawable);
-	}
-
-	public static void setImageDrawableWithFade(final ImageView imageView, final Drawable drawable) {
-		/*
-		 * Make sure this on the main thread
-		 */
-		Aircandi.mainThreadHandler.post(new Runnable() {
-
-			@Override
-			public void run() {
-				Drawable currentDrawable = imageView.getDrawable();
-				if (currentDrawable != null) {
-					Drawable[] arrayDrawable = new Drawable[2];
-					arrayDrawable[0] = currentDrawable;
-					arrayDrawable[1] = drawable;
-					TransitionDrawable transitionDrawable = new TransitionDrawable(arrayDrawable);
-					transitionDrawable.setCrossFadeEnabled(true);
-					imageView.setImageDrawable(transitionDrawable);
-					transitionDrawable.startTransition(2000);
-				}
-				else {
-					imageView.setImageDrawable(drawable);
 				}
 			}
 		});
@@ -420,37 +268,8 @@ public class UI {
 		inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 	}
 
-	//	public static void hideSoftInput(Context context, IBinder windowToken) {
-	//		InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-	//		inputManager.hideSoftInputFromWindow(windowToken, 0);
-	//	}
-
 	public static void showSoftInput(View view) {
 		InputMethodManager inputManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		inputManager.showSoftInput(view, InputMethodManager.SHOW_FORCED);
 	}
-
-	public static int showScreenSize() {
-		int screenSize = Aircandi.applicationContext.getResources().getConfiguration().screenLayout &
-				Configuration.SCREENLAYOUT_SIZE_MASK;
-
-		switch (screenSize) {
-			case Configuration.SCREENLAYOUT_SIZE_XLARGE:
-				showToastNotification("Extra large screen", Toast.LENGTH_LONG);
-				break;
-			case Configuration.SCREENLAYOUT_SIZE_LARGE:
-				showToastNotification("Large screen", Toast.LENGTH_LONG);
-				break;
-			case Configuration.SCREENLAYOUT_SIZE_NORMAL:
-				showToastNotification("Normal screen", Toast.LENGTH_LONG);
-				break;
-			case Configuration.SCREENLAYOUT_SIZE_SMALL:
-				showToastNotification("Small screen", Toast.LENGTH_LONG);
-				break;
-			default:
-				showToastNotification("Screen size is neither xlarge, large, normal or small", Toast.LENGTH_LONG);
-		}
-		return screenSize;
-	}
-
 }

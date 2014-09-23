@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.View;
 
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
@@ -45,17 +46,17 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
 		Aircandi.resultCode = Activity.RESULT_OK;
 	}
 
 	@Override
 	public void bind(BindingMode mode) {
-		draw();
+		draw(null);
 	}
 
 	@Override
-	public void draw() {
-	}
+	public void draw(View view) {}
 
 	@Override
 	protected void configureActionBar() {

@@ -112,6 +112,7 @@
 		<attr name="iconDrawer" format="reference" />
 		<attr name="iconEdit" format="reference" />
 		<attr name="iconExit" format="reference" />
+		<attr name="iconForward" format="reference" />
 		<attr name="iconGallery" format="reference" />
 		<attr name="iconGooglePlay" format="reference" />
 		<attr name="iconHelp" format="reference" />
@@ -165,10 +166,10 @@
 	<declare-styleable name="AirCheckBox">
 		<attr name="textId" />
 	</declare-styleable>
-	<declare-styleable name="AirTextLight">
+	<declare-styleable name="AirSpinner">
 		<attr name="textId" />
 	</declare-styleable>
-	<declare-styleable name="AirLabel">
+	<declare-styleable name="AirTextLight">
 		<attr name="textId" />
 	</declare-styleable>
 	<declare-styleable name="AirImageView">
@@ -230,14 +231,6 @@
 		<attr name="layoutHeader" />
 		<attr name="layoutFooter" />
 		<attr name="headerTitle" />
-	</declare-styleable>
-	<declare-styleable name="ListViewExpanded">
-		<attr name="layoutItems" />
-		<attr name="itemMaxCount" />
-		<attr name="showDivider" />
-	</declare-styleable>
-	<declare-styleable name="TextViewEllipsizing">
-		<attr name="maxLines" />
 	</declare-styleable>
 	<declare-styleable name="BuilderButton">
 		<attr name="layout" />

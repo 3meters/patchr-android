@@ -48,7 +48,7 @@ public class AirAutoCompleteTextView extends AutoCompleteTextView {
 			mClearDrawable = drawables[2];
 			mSearchDrawable = drawables[0];
 			Integer drawableWidth = getResources().getDimensionPixelSize(R.dimen.drawable_width);
-			Integer drawableHeight = drawableWidth;
+			@SuppressWarnings("SuspiciousNameCombination") Integer drawableHeight = drawableWidth;
 
 			if (mClearDrawable != null) {
 				mEnableClearButton = true;

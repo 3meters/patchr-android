@@ -20,8 +20,8 @@ import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.AndroidManager;
 import com.aircandi.components.Logger;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.MessageEvent;
 import com.aircandi.monitors.EntityMonitor;
@@ -180,8 +180,7 @@ public class PlaceForm extends BaseEntityForm {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void draw() {
+	public void draw(View view) {
 		/*
 		 * For now, we assume that the candi form isn't recycled.
 		 * 
@@ -192,6 +191,9 @@ public class PlaceForm extends BaseEntityForm {
 		 * - Header views are visible by default
 		 */
 
+		if (view == null) {
+			view = findViewById(android.R.id.content);
+		}
 		mFirstDraw = false;
 		setActivityTitle(mEntity.name);
 
@@ -200,19 +202,19 @@ public class PlaceForm extends BaseEntityForm {
 		 */
 
 		/* Photo overlayed with info */
-		drawBanner();
+		drawBanner(view);
 
 		/* Description and address */
-		drawBody();
+		drawBody(view);
 
 		/* Links to entities */
-		drawShortcuts();
+		drawShortcuts(view);
 
 		/* Creator and/or editor */
-		drawUsers();
+		drawUsers(view);
 
 		/* Buttons */
-		drawButtons();
+		drawButtons(view);
 
 		/* Visibility */
 		if (mScrollView != null) {
@@ -220,12 +222,12 @@ public class PlaceForm extends BaseEntityForm {
 		}
 	}
 
-	protected void drawBanner() {
+	protected void drawBanner(View view) {
 
-		final CandiView candiView = (CandiView) findViewById(R.id.candi_view);
-		final AirImageView photoView = (AirImageView) findViewById(R.id.entity_photo);
-		final TextView name = (TextView) findViewById(R.id.name);
-		final TextView subtitle = (TextView) findViewById(R.id.subtitle);
+		final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
+		final AirImageView photoView = (AirImageView) view.findViewById(R.id.entity_photo);
+		final TextView name = (TextView) view.findViewById(R.id.name);
+		final TextView subtitle = (TextView) view.findViewById(R.id.subtitle);
 
 		/* Primary candi image */
 
@@ -268,20 +270,19 @@ public class PlaceForm extends BaseEntityForm {
 				}
 			}
 		}
-
 	}
 
-	protected void drawBody() {
+	protected void drawBody(View view) {
 
-		final TextView description = (TextView) findViewById(R.id.candi_form_description);
-		final TextView address = (TextView) findViewById(R.id.candi_form_address);
+		final TextView description = (TextView) view.findViewById(R.id.candi_form_description);
+		final TextView address = (TextView) view.findViewById(R.id.candi_form_address);
 
-		UI.setVisibility(findViewById(R.id.section_description), View.GONE);
+		UI.setVisibility(view.findViewById(R.id.section_description), View.GONE);
 		if (description != null) {
 			description.setText(null);
 			if (!TextUtils.isEmpty(mEntity.description)) {
 				description.setText(Html.fromHtml(mEntity.description));
-				UI.setVisibility(findViewById(R.id.section_description), View.VISIBLE);
+				UI.setVisibility(view.findViewById(R.id.section_description), View.VISIBLE);
 			}
 		}
 
@@ -303,10 +304,10 @@ public class PlaceForm extends BaseEntityForm {
 		}
 	}
 
-	protected void drawShortcuts() {
+	protected void drawShortcuts(View view) {
 
 		/* Clear shortcut holder */
-		ViewGroup shortcutHolder = (ViewGroup) findViewById(R.id.shortcut_holder);
+		ViewGroup shortcutHolder = (ViewGroup) view.findViewById(R.id.shortcut_holder);
 
 		if (shortcutHolder != null) {
 			shortcutHolder.removeAllViews();
@@ -351,10 +352,10 @@ public class PlaceForm extends BaseEntityForm {
 		}
 	}
 
-	protected void drawUsers() {
+	protected void drawUsers(View view) {
 
-		final UserView user_one = (UserView) findViewById(R.id.user_one);
-		final UserView user_two = (UserView) findViewById(R.id.user_two);
+		final UserView user_one = (UserView) view.findViewById(R.id.user_one);
+		final UserView user_two = (UserView) view.findViewById(R.id.user_two);
 
 		/* Creator block */
 
@@ -401,9 +402,9 @@ public class PlaceForm extends BaseEntityForm {
 	}
 
 	@Override
-	protected void drawStats() {
+	protected void drawStats(View view) {
 
-		final CandiView candiView = (CandiView) findViewById(R.id.candi_view);
+		final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
 		if (candiView != null) {
 			Count count = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, true, Direction.in);
 			if (count == null) {
@@ -415,24 +416,24 @@ public class PlaceForm extends BaseEntityForm {
 	}
 
 	@Override
-	public void drawButtons() {
-		super.drawButtons();
+	public void drawButtons(View view) {
+		super.drawButtons(view);
 
 		Place place = (Place) mEntity;
 
 		/* TUNE */
-		UI.setVisibility(findViewById(R.id.button_tune), View.GONE);
+		UI.setVisibility(view.findViewById(R.id.button_tune), View.GONE);
 
 			/* Tuning buttons */
 		final Boolean hasActiveProximityLink = place.hasActiveProximity();
 		if (hasActiveProximityLink) {
-			ComboButton button = (ComboButton) findViewById(R.id.button_tune);
+			ComboButton button = (ComboButton) view.findViewById(R.id.button_tune);
 			if (button != null) {
 				button.setDrawableId(R.drawable.ic_action_signal_tuned);
 			}
 		}
 
-		UI.setVisibility(findViewById(R.id.button_tune), View.VISIBLE);
+		UI.setVisibility(view.findViewById(R.id.button_tune), View.VISIBLE);
 	}
 
 	protected void handlePackageInstalls() {

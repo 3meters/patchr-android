@@ -184,9 +184,12 @@ public class AndroidManager {
 		 */
 		final IntentFilter batIntentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
 		final Intent battery = Aircandi.applicationContext.registerReceiver(null, batIntentFilter);
-		final float pctLevel = (float) battery.getIntExtra(BatteryManager.EXTRA_LEVEL, 1) /
-				battery.getIntExtra(BatteryManager.EXTRA_SCALE, 1);
-		return pctLevel < 0.15;
+		if (battery != null) {
+			final float pctLevel = (float) battery.getIntExtra(BatteryManager.EXTRA_LEVEL, 1) /
+					battery.getIntExtra(BatteryManager.EXTRA_SCALE, 1);
+			return (pctLevel < 0.15);
+		}
+		return false;
 	}
 
 	public void startMapNavigationNow(Context context, Double latitude, Double longitude, String address, String label) {

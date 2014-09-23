@@ -32,11 +32,13 @@ public class AboutForm extends BaseActivity {
 
 	@Override
 	public void bind(BindingMode mode) {
-		draw();
+		draw(null);
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
+
+		setActivityTitle(StringManager.getString(R.string.label_about_title));
 
 		final String year = new SimpleDateFormat("yyyy", Locale.US).format(Calendar.getInstance().getTime());
 		final String company = StringManager.getString(R.string.name_company);
@@ -60,13 +62,6 @@ public class AboutForm extends BaseActivity {
 			((TextView) findViewById(R.id.install_date)).setText(DateTime.dateString(Aircandi.getInstallDate(), DateTime.DATE_FORMAT_DEFAULT));
 			findViewById(R.id.holder_footer).setVisibility(View.VISIBLE);
 		}
-	}
-
-	@Override
-	protected void configureActionBar() {
-		super.configureActionBar();
-
-		setActivityTitle(StringManager.getString(R.string.label_about_title));
 	}
 
 	/*--------------------------------------------------------------------------------------------

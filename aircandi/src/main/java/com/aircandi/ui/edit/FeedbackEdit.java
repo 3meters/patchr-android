@@ -3,6 +3,7 @@ package com.aircandi.ui.edit;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -58,11 +59,11 @@ public class FeedbackEdit extends BaseEntityEdit {
 		mFeedback.type = "feedback";
 		mFeedback.name = "aircandi";
 		mFeedback.data = new HashMap<String, Object>();
-		draw();
+		draw(null);
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
 		((UserView) findViewById(R.id.created_by)).databind(Aircandi.getInstance().getCurrentUser(), null);
 	}
 

@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -95,11 +96,9 @@ public class AirImageView extends FrameLayout implements Target {
 		ta.recycle();
 
 		if (!isInEditMode()) {
-			if (attributes != null) {
-				final int scaleTypeValue = attributes.getAttributeIntValue(androidNamespace, "scaleType", 6);
-				if (scaleTypeValue >= 0) {
-					mScaleType = sScaleTypeArray[scaleTypeValue];
-				}
+			final int scaleTypeValue = attributes.getAttributeIntValue(androidNamespace, "scaleType", 6);
+			if (scaleTypeValue >= 0) {
+				mScaleType = sScaleTypeArray[scaleTypeValue];
 			}
 		}
 		initialize(context);
@@ -185,7 +184,7 @@ public class AirImageView extends FrameLayout implements Target {
 	}
 
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(@NonNull MotionEvent event) {
 		if (mImageMain instanceof ImageViewTouch)
 			return mImageMain.onTouchEvent(event);
 		else

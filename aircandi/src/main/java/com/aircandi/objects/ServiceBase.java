@@ -1,5 +1,7 @@
 package com.aircandi.objects;
 
+import android.support.annotation.Nullable;
+
 import com.aircandi.ServiceConstants;
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
@@ -149,8 +151,9 @@ public abstract class ServiceBase extends ServiceObject {
 	}
 
 	@Override
+	@Nullable
 	public ServiceBase clone() {
-		ServiceBase entry = null;
+		@SuppressWarnings("UnusedAssignment") ServiceBase entry = null;
 		try {
 			entry = (ServiceBase) super.clone();
 			if (owner != null) {

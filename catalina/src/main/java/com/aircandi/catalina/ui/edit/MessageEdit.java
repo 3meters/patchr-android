@@ -105,7 +105,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		/*
-         * Special pre-handling because this form can be called directly
+	     * Special pre-handling because this form can be called directly
 		 * because of a sharing intent and we need a signed in user. If user
 		 * signs in they will be routed back to this form again.
 		 */
@@ -219,21 +219,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 			if (mReplyToId != null) {
 				((Message) mEntity).replyToId = mReplyToId;
-			}
-
-			/* Action bar title */
-
-			if (mMessageType.equals(MessageType.ROOT)) {
-				setActivityTitle("New " + mEntity.getSchemaMapped());
-			}
-			else if (mMessageType.equals(MessageType.SHARE)) {
-				setActivityTitle("Share");
-			}
-			else if (mReplyToName != null) {
-				setActivityTitle("Reply to " + mReplyToName);
-			}
-			else {
-				setActivityTitle("Reply");
 			}
 
 			/*
@@ -370,14 +355,17 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				}
 			}
 		}
-		draw();
+		draw(null);
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
         /*
          * This method is only called when the activity is created.
          */
+		if (view == null) {
+			view = findViewById(android.R.id.content);
+		}
 		UI.setVisibility(mAnimatorTo, View.VISIBLE);
 
 		/* We don't allow the place to be changed when editing */
@@ -413,12 +401,12 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE) || mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				mAnimatorPhoto.setVisibility(View.GONE);
 				mShareHolder.setVisibility(View.VISIBLE);
-				View view = LayoutInflater.from(this).inflate(layoutResId, mShare, true);
+				View shareView = LayoutInflater.from(this).inflate(layoutResId, mShare, true);
 				IEntityController controller = Aircandi.getInstance().getControllerForSchema(mShareSchema);
-				controller.bind(mShareEntity, view);
+				controller.bind(mShareEntity, shareView);
 
 				if (mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-					UI.setEnabled(view, false);
+					UI.setEnabled(shareView, false);
 				}
 			}
 
@@ -432,10 +420,25 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			}
 		}
 
-		super.draw();
+		super.draw(view);
 
+		/* Action bar title */
 		if (mEditing) {
 			setActivityTitle("Edit " + mEntity.getSchemaMapped());
+		}
+		else {
+			if (mMessageType.equals(MessageType.ROOT)) {
+				setActivityTitle("New " + mEntity.getSchemaMapped());
+			}
+			else if (mMessageType.equals(MessageType.SHARE)) {
+				setActivityTitle("Share");
+			}
+			else if (mReplyToName != null) {
+				setActivityTitle("Reply to " + mReplyToName);
+			}
+			else {
+				setActivityTitle("Reply");
+			}
 		}
 	}
 

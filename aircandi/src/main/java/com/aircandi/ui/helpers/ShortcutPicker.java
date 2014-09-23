@@ -65,9 +65,8 @@ public class ShortcutPicker extends BaseActivity {
 	@Override
 	public void bind(BindingMode mode) {
 
-		if (mShortcuts != null && mShortcuts.size() > 0) {
+		if (mShortcuts.size() > 0) {
 			Shortcut shortcut = mShortcuts.get(0);
-			setActivityTitle(shortcut.app);
 
 			/* Show default photo based on the type of the shortcut set */
 			IEntityController controller = Aircandi.getInstance().getControllerForSchema(shortcut.schema);
@@ -96,15 +95,21 @@ public class ShortcutPicker extends BaseActivity {
 				               public void onPrepareLoad(Drawable arg0) {
 				               }
 			               });
+			draw(null);
 		}
 
 		final ShortcutListAdapter adapter = new ShortcutListAdapter(this, mShortcuts, R.layout.temp_listitem_shortcut_picker);
 		mList.setAdapter(adapter);
 	}
 
+	public void draw(View view) {
+		setActivityTitle(mShortcuts.get(0).app);
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@SuppressWarnings("ucd")
 	public void onListItemClick(View view) {
 		Shortcut shortcut = (Shortcut) ((ViewHolder) view.getTag()).data;
@@ -114,6 +119,7 @@ public class ShortcutPicker extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.link_picker;
@@ -122,6 +128,7 @@ public class ShortcutPicker extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -132,7 +139,9 @@ public class ShortcutPicker extends BaseActivity {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    static public class ShortcutListAdapter extends ArrayAdapter<Shortcut>
+	 *--------------------------------------------------------------------------------------------*/
+
+	static public class ShortcutListAdapter extends ArrayAdapter<Shortcut>
 			implements Filterable {
 
 		private final LayoutInflater mInflater;
@@ -240,5 +249,4 @@ public class ShortcutPicker extends BaseActivity {
 			private Object       data;
 		}
 	}
-
 }

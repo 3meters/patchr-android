@@ -59,14 +59,14 @@ public class Json {
 			if (serviceDataWrapper == Json.ServiceDataWrapper.FALSE) {
 				if (object instanceof List) {
 					final List<Object> array = (List<Object>) object;
-					if (array != null && array.size() > 0) return array.get(0);
+					if (array.size() > 0) return array.get(0);
 				}
 			}
 			else {
 				ServiceData serviceData = (ServiceData) object;
 				if (serviceData.data instanceof List) {
 					final List<Object> array = (List<Object>) serviceData.data;
-					if (array != null && array.size() > 0) {
+					if (array.size() > 0) {
 						serviceData.data = array.get(0);
 						return serviceData;
 					}

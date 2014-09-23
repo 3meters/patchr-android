@@ -1,5 +1,7 @@
 package com.aircandi.objects;
 
+import android.support.annotation.Nullable;
+
 import com.aircandi.Constants;
 import com.aircandi.components.LocationManager;
 import com.aircandi.service.Expose;
@@ -117,6 +119,7 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 	}
 
 	@Override
+	@Nullable
 	public Beacon clone() {
 		final Beacon entity = (Beacon) super.clone();
 		return entity;

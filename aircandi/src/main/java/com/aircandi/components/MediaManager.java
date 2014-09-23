@@ -144,12 +144,10 @@ public class MediaManager {
 		File file = null;
 		try {
 			file = new File(getSharePath());
-			if (file != null) {
-				FileOutputStream outputStream = new FileOutputStream(file);
-				bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream);
-				outputStream.flush();
-				outputStream.close();
-			}
+			FileOutputStream outputStream = new FileOutputStream(file);
+			bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream);
+			outputStream.flush();
+			outputStream.close();
 		}
 		catch (FileNotFoundException e) {
 			e.printStackTrace();

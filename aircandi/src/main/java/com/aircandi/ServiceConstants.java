@@ -56,7 +56,7 @@ public final class ServiceConstants {
 	/*
 	 * Nearby = 20 minutes walking = 1 mile = 1609 meters.
 	 */
-	public static final int    PLACE_NEAR_RADIUS           = 1609;                                                                //$NON-NLS-1$
+	public static final int    PLACE_NEAR_RADIUS           = 10000;                                                                //$NON-NLS-1$
 	public static final int    PROXIMITY_BEACON_COVERAGE   = 5;
 	public static final int    PROXIMITY_BEACON_UNCOVERAGE = 50;
 
@@ -84,8 +84,5 @@ public final class ServiceConstants {
 	public static final float SERVICE_STATUS_CODE_FORBIDDEN_VIA_API_ONLY       = 403.22f;                                                                // $codepro.audit.disable questionableName
 	public static final float SERVICE_STATUS_CODE_FORBIDDEN_LIMIT_EXCEEDED     = 403.3f;                                                                // $codepro.audit.disable questionableName
 
-	private ServiceConstants() {
-	}
-
-	; // $codepro.audit.disable emptyMethod
+	private ServiceConstants() {}
 }

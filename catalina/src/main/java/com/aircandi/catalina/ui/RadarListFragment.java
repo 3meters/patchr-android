@@ -1,8 +1,6 @@
 package com.aircandi.catalina.ui;
 
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,7 +20,6 @@ import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.widgets.ToolTip;
 import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.ui.widgets.ToolTipView;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
@@ -62,6 +59,7 @@ public class RadarListFragment extends com.aircandi.ui.RadarListFragment {
 		super.onEntitiesChanged(event);
 	}
 
+	@SuppressWarnings("ucd")
 	@Subscribe
 	@Override
 	public void onMonitoringWifiScanReceived(MonitoringWifiScanReceivedEvent event) {

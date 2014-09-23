@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -14,7 +15,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -42,8 +42,8 @@ import com.aircandi.components.BusyManager;
 import com.aircandi.components.Extras;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.monitors.SimpleMonitor;
@@ -62,8 +62,10 @@ import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
-public abstract class BaseActivity extends FragmentActivity implements OnRefreshListener, IForm, IBind {
+public abstract class BaseActivity extends Activity implements OnRefreshListener, IForm, IBind {
 
 	protected ActionBar     mActionBar;
 	public    View          mActionBarView;
@@ -72,6 +74,13 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 	protected String        mEntityId;
 	public    String        mForId;
 	protected SimpleMonitor mEntityMonitor;
+
+	/* Fragments */
+	protected Map<String, Fragment> mFragments = new HashMap<String, Fragment>();
+	protected Fragment mCurrentFragment;
+	protected String   mCurrentFragmentTag;
+	protected String   mNextFragmentTag;
+	protected String   mPrevFragmentTag;
 
 	/* Inputs */
 	protected Extras mParams = new Extras();
@@ -130,35 +139,14 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 
 			super.setContentView(getLayoutId());
 			super.onCreate(savedInstanceState);
-
-			/* Set busy manager */
-			mBusy = new BusyManager(this);
-
-			/* Stash the action bar */
-			mActionBar = getActionBar();
-			mActionBarView = getActionBarView();
-
-			/* Fonts */
-			final Integer titleId = getActionBarTitleId();
-			FontManager.getInstance().setTypefaceDefault((TextView) findViewById(titleId));
-
-			/* Super base ui */
-			mButtonSpecial = (Button) findViewById(R.id.button_special);
-			if (mButtonSpecial != null) {
-				mButtonSpecial.setAlpha(0);
-				mButtonSpecial.setClickable(false);
-			}
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 			/* Event sequence */
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 			unpackIntent();
 			initialize(savedInstanceState);
 			configureActionBar();
+			setCurrentFragment(mNextFragmentTag);
 		}
-	}
-
-	@Override
-	public void initialize(Bundle savedInstanceState) {
 	}
 
 	@Override
@@ -169,26 +157,46 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 		}
 	}
 
+	@Override
+	public void initialize(Bundle savedInstanceState) {
+		/* Base Ui */
+		mBusy = new BusyManager(this);
+		mButtonSpecial = (Button) findViewById(R.id.button_special);
+		if (mButtonSpecial != null) {
+			mButtonSpecial.setAlpha(0);
+			mButtonSpecial.setClickable(false);
+		}
+	}
+
 	protected void configureActionBar() {
+
+		if (mActionBar == null) {
+			mActionBar = getActionBar();
+			mActionBarView = getActionBarView();
+			if (mActionBar != null) {
+				FontManager.getInstance().setTypefaceDefault((TextView) findViewById(getActionBarTitleId()));
+			}
+		}
 
 		if (mActionBar != null) {
 			mActionBar.setDisplayHomeAsUpEnabled(true);
 			actionBarIcon();
-		}
-
-		/*
-		 * Force the display of the action bar overflow item
-		 */
-		try {
-			ViewConfiguration config = ViewConfiguration.get(this);
-			Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-			if (menuKeyField != null) {
-				menuKeyField.setAccessible(true);
-				menuKeyField.setBoolean(config, false);
+			/*
+			 * Force the display of the action bar overflow item
+			 */
+			try {
+				ViewConfiguration config = ViewConfiguration.get(this);
+				Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+				if (menuKeyField != null) {
+					menuKeyField.setAccessible(true);
+					menuKeyField.setBoolean(config, false);
+				}
 			}
+			catch (Exception ignore) {}
 		}
-		catch (Exception ignore) {}
 	}
+
+	public void setCurrentFragment(String fragmentType) {}
 
 	protected void actionBarIcon() {
 		if (mActionBar != null) {
@@ -311,7 +319,9 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 
 	public void setActivityTitle(String title) {
 		mActivityTitle = title;
-		mActionBar.setTitle(title);
+		if (mActionBar != null) {
+			mActionBar.setTitle(title);
+		}
 	}
 
 	public String getActivityTitle() {
@@ -338,24 +348,26 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 		return mMenu;
 	}
 
+	public Fragment getCurrentFragment() {
+		return null;
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
-	public void draw() {
-	}
+	public void draw(View view) {}
 
 	@Override
-	public void bind(BindingMode mode) {
-	}
+	public void bind(BindingMode mode) {}
 
 	protected void showButtonSpecial(Boolean visible, String message) {
 		if (mButtonSpecial != null) {
 			if (message != null) {
 				mButtonSpecial.setText(message);
 			}
-			UI.animateView(mButtonSpecial, visible, false, AnimationManager.DURATION_MEDIUM);
+			AnimationManager.showViewAnimate(mButtonSpecial, visible, false, AnimationManager.DURATION_MEDIUM);
 		}
 	}
 
@@ -512,7 +524,6 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 					Errors.handleError(BaseActivity.this, result.serviceResponse);
 				}
 			}
-
 		}.execute();
 	}
 
@@ -557,7 +568,6 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 					Errors.handleError(BaseActivity.this, result.serviceResponse);
 				}
 			}
-
 		}.execute();
 	}
 
@@ -751,9 +761,9 @@ public abstract class BaseActivity extends FragmentActivity implements OnRefresh
 	}
 
 	@Override
-	public void supportInvalidateOptionsMenu() {
+	public void invalidateOptionsMenu() {
 		Logger.v(this, "Invalidating options menu");
-		super.supportInvalidateOptionsMenu();
+		super.invalidateOptionsMenu();
 	}
 
 	@SuppressLint("NewApi")

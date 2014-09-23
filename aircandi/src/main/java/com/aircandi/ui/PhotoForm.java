@@ -174,7 +174,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
 	}
 
 	public ViewGroup buildPictureDetail(Photo photo, ViewGroup layout) {
@@ -369,27 +369,28 @@ public class PhotoForm extends BaseActivity implements IBind {
 		// Locate MenuItem with ShareActionProvider
 		MenuItem item = menu.findItem(R.id.share);
 
-		mShareActionProvider = new ShareActionProvider(getActionBar().getThemedContext());
-		mShareActionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
-		mShareActionProvider.setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
+		if (getActionBar() != null) {
+			mShareActionProvider = new ShareActionProvider(getActionBar().getThemedContext());
+			mShareActionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
+			mShareActionProvider.setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
 
-			@Override
-			public boolean onShareTargetSelected(ShareActionProvider source, Intent intent) {
+				@Override
+				public boolean onShareTargetSelected(ShareActionProvider source, Intent intent) {
 
-				final AirImageView photoView = (AirImageView) findViewById(R.id.entity_photo);
-				Bitmap bitmap = ((BitmapDrawable) photoView.getImageView().getDrawable()).getBitmap();
-				File file = MediaManager.copyBitmapToSharePath(bitmap);
+					final AirImageView photoView = (AirImageView) findViewById(R.id.entity_photo);
+					Bitmap bitmap = ((BitmapDrawable) photoView.getImageView().getDrawable()).getBitmap();
+					File file = MediaManager.copyBitmapToSharePath(bitmap);
 
-				if (file == null) {
-					UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
-					return true;
+					if (file == null) {
+						UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
+						return true;
+					}
+
+					return false;
 				}
-
-				return false;
-			}
-		});
-
-		item.setActionProvider(mShareActionProvider);
+			});
+			item.setActionProvider(mShareActionProvider);
+		}
 
 		if (mPhoto != null) {
 			share(mPhoto);

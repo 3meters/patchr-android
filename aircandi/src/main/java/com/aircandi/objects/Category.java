@@ -1,5 +1,7 @@
 package com.aircandi.objects;
 
+import android.support.annotation.Nullable;
+
 import com.aircandi.service.Expose;
 
 import java.io.Serializable;
@@ -28,6 +30,7 @@ public class Category extends ServiceObject implements Cloneable, Serializable {
 	public List<Category> categories;
 
 	@Override
+	@Nullable
 	public Category clone() {
 		try {
 			final Category category = (Category) super.clone();

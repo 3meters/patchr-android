@@ -91,11 +91,6 @@ import java.util.Map;
 public class AircandiForm extends BaseActivity {
 
 	protected Number mPauseDate;
-	protected Map<String, Fragment> mFragments = new HashMap<String, Fragment>();
-	protected Fragment mCurrentFragment;
-	protected String   mCurrentFragmentTag;
-	protected String   mNextFragmentTag;
-	protected String   mPrevFragmentTag;
 	protected Boolean  mConfiguredForAnonymous;
 
 	protected DrawerLayout          mDrawerLayout;
@@ -116,12 +111,7 @@ public class AircandiForm extends BaseActivity {
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
-
-		if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-			Aircandi.dispatch.route(this, Route.SETTINGS_LOCATION, null, null, null);
-			finish();
-			return;
-		}
+		super.initialize(savedInstanceState);
 
 		/* Ui init */
 		Integer drawerIconResId = R.drawable.ic_drawer_dark;
@@ -150,7 +140,7 @@ public class AircandiForm extends BaseActivity {
 				}
 				else {
 					if (!mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
-						mActionBar.setTitle(StringManager.getString(((BaseFragment) mCurrentFragment).getTitleResId()));
+						setActivityTitle(StringManager.getString(((BaseFragment) mCurrentFragment).getTitleResId()));
 					}
 				}
 				onPrepareOptionsMenu(mMenu); //Hide/show action bar items
@@ -160,7 +150,7 @@ public class AircandiForm extends BaseActivity {
 			@Override
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
-				mActionBar.setTitle(mTitle);
+				setActivityTitle(mTitle);
 				onPrepareOptionsMenu(mMenu); //Hide/show action bar items
 			}
 		};
@@ -170,6 +160,9 @@ public class AircandiForm extends BaseActivity {
 
 		/* Check if the device is tethered */
 		tetherAlert();
+
+		/* Default fragment */
+		mNextFragmentTag = Constants.FRAGMENT_TYPE_NEARBY;
 	}
 
 	protected void configureDrawer() {
@@ -210,9 +203,6 @@ public class AircandiForm extends BaseActivity {
 				mActionBar.setDisplayHomeAsUpEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) != DrawerLayout.LOCK_MODE_LOCKED_CLOSED));
 			}
 		}
-		View view = findViewById(R.id.item_nearby);
-		mNextFragmentTag = Constants.FRAGMENT_TYPE_NEARBY;
-		setCurrentFragment(mNextFragmentTag);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -416,7 +406,7 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		if (fragment != null) {
-			mActionBar.setTitle(StringManager.getString(((BaseFragment) fragment).getTitleResId()));
+			setActivityTitle(StringManager.getString(((BaseFragment) fragment).getTitleResId()));
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
 			ft.replace(R.id.fragment_holder, fragment);
 			ft.commit();
@@ -571,14 +561,6 @@ public class AircandiForm extends BaseActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-        /*
-         * Check for location service everytime we start. We won't continue
-		 * if location services are disabled.
-		 */
-		if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-			Aircandi.dispatch.route(this, Route.SETTINGS_LOCATION, null, null, null);
-			finish();
-		}
 
 		/* Show current user */
 		if (mActionBar != null

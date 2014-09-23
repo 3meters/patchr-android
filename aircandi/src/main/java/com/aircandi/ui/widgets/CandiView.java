@@ -106,6 +106,7 @@ public class CandiView extends RelativeLayout {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -140,6 +141,7 @@ public class CandiView extends RelativeLayout {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void databind(Entity entity, IndicatorOptions options) {
 		synchronized (entity) {
 			/*
@@ -421,6 +423,7 @@ public class CandiView extends RelativeLayout {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	protected static void setVisibility(View view, Integer visibility) {
 		if (view != null) {
 			view.setVisibility(visibility);
@@ -510,7 +513,9 @@ public class CandiView extends RelativeLayout {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public static class IndicatorOptions {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static class IndicatorOptions {
 		public int     imageSizePixels = 20;
 		public boolean showIfZero      = false;
 		public boolean forceUpdate     = false;

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -38,9 +39,7 @@ public class AddressBuilder extends BaseEntityEdit {
 	}
 
 	@Override
-	public void draw() {
-
-		setActivityTitle(StringManager.getString(R.string.dialog_address_builder_title));
+	public void draw(View view) {
 
 		Place place = (Place) mEntity;
 
@@ -59,11 +58,13 @@ public class AddressBuilder extends BaseEntityEdit {
 		if (place.phone != null) {
 			((EditText) findViewById(R.id.phone)).setText(place.phone);
 		}
+		setActivityTitle(StringManager.getString(R.string.label_about_title));
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void gather() {
 		Place place = (Place) mEntity;
@@ -83,6 +84,7 @@ public class AddressBuilder extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Services
 	 *--------------------------------------------------------------------------------------------*/
+
 	private void save() {
 		final Intent intent = new Intent();
 		if (mEntity != null) {
@@ -96,6 +98,7 @@ public class AddressBuilder extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.address_builder;

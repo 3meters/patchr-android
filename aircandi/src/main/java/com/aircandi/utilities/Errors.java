@@ -92,7 +92,7 @@ public final class Errors {
 
 	public static final ErrorResponse getErrorResponse(Context context, ServiceResponse serviceResponse) {
 
-		//noinspection PointlessBooleanExpression
+		//noinspection PointlessBooleanExpression,ConstantConditions
 		if (!Constants.ERROR_LEVEL_VERBOSE) {
 
 			if (serviceResponse.statusCode != null) {
@@ -440,7 +440,9 @@ public final class Errors {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public static enum ResponseType {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static enum ResponseType {
 		TOAST,
 		DIALOG,
 		NONE

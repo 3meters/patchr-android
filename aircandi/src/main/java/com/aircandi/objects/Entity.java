@@ -1,5 +1,7 @@
 package com.aircandi.objects;
 
+import android.support.annotation.Nullable;
+
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -386,7 +388,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 					if (types == null || types.contains(link.type)) {
 						Entity entity = EntityManager.getCacheEntity(link.fromId);
 						if (entity != null) {
-							if (traverse) {
+							if (Type.isTrue(traverse)) {
 								entities.addAll(entity.getLinkedEntitiesByLinkTypeAndSchema(types, schemas, Direction.in, traverse));
 							}
 							if (schemas == null || schemas.contains(entity.schema)) {
@@ -403,7 +405,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 					if (types == null || types.contains(link.type)) {
 						Entity entity = EntityManager.getCacheEntity(link.toId);
 						if (entity != null) {
-							if (traverse) {
+							if (Type.isTrue(traverse)) {
 								entities.addAll(entity.getLinkedEntitiesByLinkTypeAndSchema(types, schemas, Direction.out, traverse));
 							}
 							if (schemas == null || schemas.contains(entity.schema)) {
@@ -583,7 +585,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 				shortcuts.clear();
 				final Iterator iter = shortcutLists.keySet().iterator();
 				while (iter.hasNext()) {
-					List<Shortcut> list = shortcutLists.get(iter.next());
+					List<Shortcut> list = shortcutLists.get((String) iter.next());
 					Shortcut shortcut = list.get(0);
 					shortcut.setCount(0);
 					Count count = getCount(shortcut.linkType, shortcut.app, null, settings.direction);
@@ -791,26 +793,30 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	@Override
+	@Nullable
 	public Entity clone() {
 
 		final Entity entity = (Entity) super.clone();
-		if (linksIn != null) {
-			entity.linksIn = (List<Link>) ((ArrayList) linksIn).clone();
-		}
-		if (linksOut != null) {
-			entity.linksOut = (List<Link>) ((ArrayList) linksOut).clone();
-		}
-		if (linksInCounts != null) {
-			entity.linksInCounts = (List<Count>) ((ArrayList) linksInCounts).clone();
-		}
-		if (linksOutCounts != null) {
-			entity.linksOutCounts = (List<Count>) ((ArrayList) linksOutCounts).clone();
-		}
-		if (photo != null) {
-			entity.photo = photo.clone();
-		}
-		if (place != null) {
-			entity.place = place.clone();
+		if (entity != null) {
+
+			if (linksIn != null) {
+				entity.linksIn = (List<Link>) ((ArrayList) linksIn).clone();
+			}
+			if (linksOut != null) {
+				entity.linksOut = (List<Link>) ((ArrayList) linksOut).clone();
+			}
+			if (linksInCounts != null) {
+				entity.linksInCounts = (List<Count>) ((ArrayList) linksInCounts).clone();
+			}
+			if (linksOutCounts != null) {
+				entity.linksOutCounts = (List<Count>) ((ArrayList) linksOutCounts).clone();
+			}
+			if (photo != null) {
+				entity.photo = photo.clone();
+			}
+			if (place != null) {
+				entity.place = place.clone();
+			}
 		}
 		return entity;
 	}
@@ -830,8 +836,9 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
          * Object class implementation of equals uses reference but we want to compare
          * using semantic equality.
          */
+		if (object == null) return false;
 		if (!(object instanceof Entity)) return false;
-		if ((this.id == null) || (object == null) || (((Entity) object).id == null)) return false;
+		if ((this.id == null) || (((Entity) object).id == null)) return false;
 		if (this == object) return true;
 		return this.id.equals(((Entity) object).id);
 	}

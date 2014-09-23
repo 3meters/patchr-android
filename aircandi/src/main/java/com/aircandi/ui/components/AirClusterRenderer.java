@@ -1,4 +1,4 @@
-package com.aircandi.catalina.ui.components;
+package com.aircandi.ui.components;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -21,7 +21,9 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 
-import com.aircandi.catalina.R;
+import com.aircandi.R;
+import com.aircandi.components.BusProvider;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.utilities.Colors;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
@@ -44,7 +46,6 @@ import com.google.maps.android.ui.SquareTextView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -62,13 +63,13 @@ import static com.google.maps.android.clustering.algo.NonHierarchicalDistanceBas
  */
 public class AirClusterRenderer<T extends ClusterItem> implements ClusterRenderer<T> {
 
-	private static final boolean SHOULD_ANIMATE = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+	private static final boolean SHOULD_ANIMATE = true;
 	private final GoogleMap         mMap;
 	private final IconGenerator     mIconGenerator;
 	private final ClusterManager<T> mClusterManager;
 	private final float             mDensity;
 
-	private static final int[] BUCKETS = {10, 20, 50, 100, 200, 500, 1000};
+	private static final int[] BUCKETS = {10, 20, 30, 40, 50, 100, 200, 500, 1000};
 	private ShapeDrawable mColoredCircleBackground;
 
 	/**
@@ -358,7 +359,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 			}
 
 			// Create the new markers and animate them to their new positions.
-			final Set<MarkerWithPosition> newMarkers = Collections.newSetFromMap(new ConcurrentHashMap<MarkerWithPosition,Boolean>());
+			final Set<MarkerWithPosition> newMarkers = Collections.newSetFromMap(new ConcurrentHashMap<MarkerWithPosition, Boolean>());
 			for (Cluster<T> c : clusters) {
 				boolean onScreen = visibleBounds.contains(c.getPosition());
 				if (zoomingIn && onScreen && SHOULD_ANIMATE) {
@@ -419,6 +420,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 			}
 
 			markerModifier.waitUntilFree();
+			BusProvider.getInstance().post(new ProcessingCompleteEvent());
 
 			mMarkers = newMarkers;
 			AirClusterRenderer.this.mClusters = clusters;
@@ -479,7 +481,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	 * UI.
 	 */
 	@SuppressLint("HandlerLeak")
-	private class MarkerModifier extends Handler implements MessageQueue.IdleHandler {
+	public class MarkerModifier extends Handler implements MessageQueue.IdleHandler {
 		private static final int BLANK = 0;
 
 		private final Lock      lock          = new ReentrantLock();
@@ -792,7 +794,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 			this.animateFrom = animateFrom;
 		}
 
-		private void perform(MarkerModifier markerModifier) {
+		protected void perform(MarkerModifier markerModifier) {
 			// Don't show small clusters. Render the markers inside, instead.
 			if (!shouldRenderAsCluster(cluster)) {
 				for (T item : cluster.getItems()) {

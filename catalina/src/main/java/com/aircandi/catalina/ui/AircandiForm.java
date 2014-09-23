@@ -1,6 +1,5 @@
 package com.aircandi.catalina.ui;
 
-import android.animation.ObjectAnimator;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
@@ -16,7 +15,6 @@ import com.aircandi.catalina.Catalina;
 import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.R;
 import com.aircandi.catalina.queries.MessagesQuery;
-import com.aircandi.components.AnimationManager;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MessagingManager;
@@ -30,6 +28,7 @@ import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.queries.TrendQuery;
 import com.aircandi.ui.EntityListFragment;
 import com.aircandi.ui.EntityListFragment.ViewType;
+import com.aircandi.ui.MapListFragment;
 import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.utilities.Integers;
@@ -200,6 +199,7 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 				((EntityListFragment) fragment)
 						.setMonitor(monitor)
 						.setQuery(query)
+						.setFooterEnabled(false)
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.entity_list_fragment)
 						.setListItemResId(R.layout.temp_listitem_message)
@@ -353,17 +353,19 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 		}
 
 		if (!fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
-			mActionBar.setTitle(StringManager.getString(((BaseFragment) fragment).getTitleResId()));
+			//noinspection ConstantConditions
+			setActivityTitle(StringManager.getString(((BaseFragment) fragment).getTitleResId()));
 		}
 		else {
-			Integer zoomLevel = MapListFragment.ZOOM_COUNTY;
-			if (mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
-				zoomLevel = MapListFragment.ZOOM_NEARBY;
-			}
+			//noinspection ConstantConditions
 			((MapListFragment) fragment)
 					.setEntities(((EntityListFragment) getCurrentFragment()).getEntities())
 					.setTitleResId(((EntityListFragment) getCurrentFragment()).getTitleResId())
-					.setZoomLevel(zoomLevel);
+					.setZoomLevel(null);
+
+			if (!mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
+				((MapListFragment) fragment).setZoomLevel(MapListFragment.ZOOM_COUNTY);
+			}
 		}
 
 		FragmentTransaction ft = getFragmentManager().beginTransaction();

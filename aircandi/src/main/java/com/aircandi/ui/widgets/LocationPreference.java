@@ -6,6 +6,7 @@ import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,7 +54,7 @@ public class LocationPreference extends AirListPreference {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 	@Override
-	protected void onPrepareDialogBuilder(Builder builder) {
+	protected void onPrepareDialogBuilder(@NonNull Builder builder) {
 		setEntriesFromLocations(); // Initialize entry arrays but empty
 		builder.setPositiveButton(null, null);
 		super.onPrepareDialogBuilder(builder);

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -107,7 +108,7 @@ public class ApplinkEdit extends BaseEntityEdit {
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
 
 		final Applink applink = (Applink) mEntity;
 
@@ -166,7 +167,7 @@ public class ApplinkEdit extends BaseEntityEdit {
 
 			drawPhoto();
 		}
-		super.draw();
+		super.draw(view);
 	}
 
 	private void initializeTypeSpinner(final List<String> items) {
@@ -181,8 +182,8 @@ public class ApplinkEdit extends BaseEntityEdit {
 				final TextView text = (TextView) view.findViewById(R.id.spinner_name);
 
 				if (position == getCount()) {
-					((TextView) view.findViewById(R.id.spinner_name)).setText("");
-					((TextView) view.findViewById(R.id.spinner_name)).setHint(items.get(getCount())); //"Hint to be displayed"
+					text.setText("");
+					text.setHint(items.get(getCount())); //"Hint to be displayed"
 				}
 
 				return view;
@@ -210,7 +211,7 @@ public class ApplinkEdit extends BaseEntityEdit {
 					if (position < mApplinkSearchStrings.size()) {
 						final String sourceType = mApplinkSearchStrings.get(position);
 						setEntityType(sourceType);
-						draw();
+						draw(null);
 					}
 				}
 			}
@@ -389,7 +390,7 @@ public class ApplinkEdit extends BaseEntityEdit {
 
 		if (!mEditing && mAppUrl != null && findViewById(R.id.app_url).getVisibility() == View.VISIBLE) {
 			final String url = mAppUrl.getEditableText().toString();
-			if (url == null || url.length() == 0) {
+			if (TextUtils.isEmpty(url)) {
 				Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 						, null
 						, StringManager.getString(mMissingResId)
@@ -399,7 +400,7 @@ public class ApplinkEdit extends BaseEntityEdit {
 						, null, null, null, null);
 				return false;
 			}
-			else if (url != null && url.length() > 0 && !Utilities.validWebUri(url)) {
+			else if (!Utilities.validWebUri(url)) {
 				Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 						, null
 						, StringManager.getString(R.string.error_weburi_invalid)

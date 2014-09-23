@@ -35,7 +35,7 @@ public class CommentForm extends BaseEntityForm {
 	 * UI
 	 *--------------------------------------------------------------------------------------------*/
 	@Override
-	public void draw() {
+	public void draw(View view) {
 		/*
 		 * For now, we assume that the candi form isn't recycled.
 		 * 

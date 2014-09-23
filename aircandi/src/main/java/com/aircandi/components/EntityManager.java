@@ -10,7 +10,6 @@ import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.MessagingManager.Tag;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ModelResult;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.objects.AirLocation;
@@ -435,7 +434,6 @@ public class EntityManager {
 			result.serviceResponse.data = photos;
 		}
 		return result;
-
 	}
 
 	private ModelResult getDocumentId(String collection) {
@@ -769,6 +767,7 @@ public class EntityManager {
 		return insertEntity(entity, null, null, null, null, waitForContent);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	public ModelResult insertEntity(Entity entity, List<Link> links, List<Beacon> beacons, Beacon primaryBeacon, Bitmap bitmap, Boolean waitForContent) {
 		/*
 		 * Inserts the entity in the entity service collection and Links are created to all the included beacons. The
@@ -1007,6 +1006,10 @@ public class EntityManager {
 
 		if (!cacheOnly) {
 			entity = mEntityCache.get(entityId);
+
+			if (entity == null) {
+				throw new IllegalArgumentException("Deleting entity requires entity from cache");
+			}
 			/*
 			 * Delete the entity and all links and observations it is associated with. We attempt to continue even
 			 * if the call to delete the image failed.
@@ -1027,11 +1030,13 @@ public class EntityManager {
 			}
 
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
+
+			if (entity != null) {
+				Aircandi.tracker.sendEvent(TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
+			}
 			entity = mEntityCache.removeEntityTree(entityId);
 			/*
 			 * Remove 'create' link
@@ -1065,9 +1070,8 @@ public class EntityManager {
 		if (beacons != null && beacons.size() > 0) {
 
 			final List<String> beaconStrings = new ArrayList<String>();
-			final List<String> beaconIds = new ArrayList<String>();
 			for (Beacon beacon : beacons) {
-				if (beacon.id.equals(primaryBeacon.id)) {
+				if (primaryBeacon != null && beacon.id.equals(primaryBeacon.id)) {
 					AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 					if (location != null && !location.zombie) {
 
@@ -1097,7 +1101,6 @@ public class EntityManager {
 				beacon.type = Constants.TYPE_BEACON_FIXED;
 				beacon.locked = false;
 				beaconStrings.add("object:" + Json.objectToJson(beacon, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
-				beaconIds.add(beacon.id);
 			}
 
 			parameters.putStringArrayList("beacons", (ArrayList<String>) beaconStrings);
@@ -1446,7 +1449,6 @@ public class EntityManager {
 			final List<Entity> entities = (List<Entity>) serviceData.data;
 			Collections.sort(entities, new Entity.SortByRank());
 			result.data = entities;
-
 		}
 		return result;
 	}
@@ -1646,9 +1648,11 @@ public class EntityManager {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public List<? extends Entity> getPlaces(Boolean synthetic, Boolean proximity) {
-		Integer searchRangeMeters = Integer.parseInt(Aircandi.settings.getString(
-				StringManager.getString(R.string.pref_search_radius),
-				StringManager.getString(R.string.pref_search_radius_default)));
+//		Integer searchRangeMeters = Integer.parseInt(Aircandi.settings.getString(
+//				StringManager.getString(R.string.pref_search_radius),
+//				StringManager.getString(R.string.pref_search_radius_default)));
+
+		Integer searchRangeMeters = ServiceConstants.PLACE_NEAR_RADIUS;
 
 		List<Place> places = (List<Place>) EntityManager.getEntityCache().getCacheEntities(
 				Constants.SCHEMA_ENTITY_PLACE,
@@ -1694,8 +1698,10 @@ public class EntityManager {
 		}
 		finally {
 			try {
-				inputStream.close();
-				reader.close();
+				if (inputStream != null)
+					inputStream.close();
+				if (reader != null)
+					reader.close();
 			}
 			catch (IOException e) {
 				if (Aircandi.DEBUG) {

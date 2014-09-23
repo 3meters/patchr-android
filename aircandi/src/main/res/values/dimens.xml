@@ -134,4 +134,9 @@
 	<dimen name="bg_tooltip_padding_bottom">10dp</dimen>
 	<dimen name="bg_tooltip_pointer_padding_bottom">8dp</dimen>
 
+	<!-- Maps -->
+
+	<dimen name="map_marker_image">35dp</dimen>
+	<dimen name="map_marker_padding">2dp</dimen>
+
 </resources>

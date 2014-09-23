@@ -48,7 +48,7 @@ public class TuningEdit extends BaseEntityEdit {
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
 
 		if (mEntity != null) {
 

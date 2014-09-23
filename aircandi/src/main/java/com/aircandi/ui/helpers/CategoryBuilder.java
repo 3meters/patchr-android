@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -19,11 +20,13 @@ import com.aircandi.Aircandi;
 import com.aircandi.Aircandi.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.components.FontManager;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Category;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEdit;
 import com.aircandi.ui.base.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirImageView;
@@ -75,12 +78,11 @@ public class CategoryBuilder extends BaseEdit {
 		mSpinnerSubSubCategory = (Spinner) findViewById(R.id.sub_sub_category);
 
 		mSpinnerItem = Aircandi.themeTone.equals(ThemeTone.DARK) ? R.layout.spinner_item_dark : R.layout.spinner_item_light;
-
-		setActivityTitle(StringManager.getString(R.string.dialog_category_builder_title));
 	}
 
 	@Override
 	public void bind(BindingMode mode) {
+
 		if (Aircandi.getInstance().getEntityManager().getCategories().size() == 0) {
 			loadCategories();
 		}
@@ -93,7 +95,7 @@ public class CategoryBuilder extends BaseEdit {
 				initCategorySpinner();
 			}
 		}
-		draw();
+		draw(null);
 	}
 
 	private void loadCategories() {
@@ -125,8 +127,12 @@ public class CategoryBuilder extends BaseEdit {
 					}
 				}
 			}
-
 		}.execute();
+	}
+
+	public void draw(View view) {
+		super.draw(view);
+		setActivityTitle(StringManager.getString(R.string.dialog_category_builder_title));
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -137,10 +143,18 @@ public class CategoryBuilder extends BaseEdit {
 		save();
 	}
 
+	public void onCancel(Boolean force) {
+		setResultCode(Activity.RESULT_CANCELED);
+		finish();
+		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Services
 	 *--------------------------------------------------------------------------------------------*/
+
 	private void save() {
+
 		final Intent intent = new Intent();
 		if (mSubSubCategory != null) {
 			final Category category = new Category();
@@ -168,13 +182,17 @@ public class CategoryBuilder extends BaseEdit {
 		}
 		setResultCode(Activity.RESULT_OK, intent);
 		finish();
+		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
+
 	private void setCategoryIndexes() {
 		int categoryIndex = 0;
 		for (Category category : mCategories) {
@@ -399,8 +417,9 @@ public class CategoryBuilder extends BaseEdit {
 		public View getView(int position, View convertView, ViewGroup parent) {
 
 			final View view = super.getView(position, convertView, parent);
-
 			final TextView text = (TextView) view.findViewById(R.id.spinner_name);
+			FontManager.getInstance().setTypefaceLight(text);
+			text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
 
 			if (position == getCount()) {
 				text.setText("");

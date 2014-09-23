@@ -1,5 +1,6 @@
 package com.aircandi.components;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources.NotFoundException;
@@ -27,6 +28,7 @@ import java.io.IOException;
 public class AnimationManager {
 
 	public static Integer DURATION_MEDIUM = 500;
+	public static Integer DURATION_SHORT  = 200;
 	private static Animation mFadeInMedium;
 	public static final String TRANSLATION_Y_COMPAT = "translationY";
 	public static final String TRANSLATION_X_COMPAT = "translationX";
@@ -46,6 +48,30 @@ public class AnimationManager {
 		return mFadeInMedium;
 	}
 
+	public static void showViewAnimate(final View view, final Boolean show, final Boolean clickable, final Integer duration) {
+		/*
+		 * Make sure this on the main thread
+		 */
+		Aircandi.mainThreadHandler.post(new Runnable() {
+
+			@Override
+			public void run() {
+				if (show && view.getAlpha() == 0) {
+					if (clickable) view.setClickable(true);
+					ObjectAnimator anim = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
+					anim.setDuration((duration == null) ? DURATION_MEDIUM : duration);
+					anim.start();
+				}
+				else if (!show && view.getAlpha() == 1) {
+					if (clickable) view.setClickable(false);
+					ObjectAnimator anim = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
+					anim.setDuration((duration == null) ? DURATION_MEDIUM : duration);
+					anim.start();
+				}
+			}
+		});
+	}
+
 	public void doOverridePendingTransition(Activity activity, Integer transitionType) {
 		doOverridePendingTransitionDefault(activity, transitionType);
 	}
@@ -61,7 +87,12 @@ public class AnimationManager {
 		else if (transitionType == TransitionType.HELP_TO_PAGE) {
 			activity.overridePendingTransition(R.anim.hold, R.anim.fade_out_short);
 		}
-
+		else if (transitionType == TransitionType.FORM_TO_BUILDER) {
+			activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+		}
+		else if (transitionType == TransitionType.BUILDER_TO_FORM) {
+			activity.overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+		}
 	}
 
 	public static Animation loadAnimation(int animationResId) throws NotFoundException {
@@ -154,7 +185,6 @@ public class AnimationManager {
 			if (position < -1) { // [-Infinity,-1)
 				// This page is way off-screen to the left.
 				view.setAlpha(0);
-
 			}
 			else if (position <= 0) { // [-1,0]
 				// Use the default slide transition when moving to the left page
@@ -162,7 +192,6 @@ public class AnimationManager {
 				view.setTranslationX(0);
 				view.setScaleX(1);
 				view.setScaleY(1);
-
 			}
 			else if (position <= 1) { // (0,1]
 				// Fade the page out.
@@ -176,7 +205,6 @@ public class AnimationManager {
 						+ (1 - MIN_SCALE) * (1 - Math.abs(position));
 				view.setScaleX(scaleFactor);
 				view.setScaleY(scaleFactor);
-
 			}
 			else { // (1,+Infinity]
 				// This page is way off-screen to the right.
@@ -184,5 +212,4 @@ public class AnimationManager {
 			}
 		}
 	}
-
 }

@@ -31,6 +31,7 @@ import com.aircandi.components.BusProvider;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.ButtonSpecialEvent;
+import com.aircandi.events.ViewLayoutEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.AircandiForm;
@@ -49,7 +50,8 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	 * - onAttach (activity may not be fully initialized)
 	 * - onCreate
 	 * - onCreateView
-	 * - onActivityCreated
+	 * - onActivityCreated (views created, safe to use findById)
+	 * - onViewStateRestored
 	 * - onStart (fragment becomes visible)
 	 * - onResume
 	 *
@@ -112,7 +114,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		Logger.d(this, "Fragment view created");
 		if (getActivity() == null || getActivity().isFinishing()) return null;
 
-		View view = inflater.inflate(getLayoutId(), container, false);
+		final View view = inflater.inflate(getLayoutId(), container, false);
 
 		mButtonSpecial = (Button) view.findViewById(R.id.button_special);
 		if (mButtonSpecial != null) {
@@ -121,6 +123,21 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		}
 
 		return view;
+	}
+
+	@Override
+	public void onViewCreated(final View view, Bundle savedInstanceState) {
+
+		if (view != null && view.getViewTreeObserver().isAlive()) {
+			view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+				public void onGlobalLayout() {
+					//noinspection deprecation
+					view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+					BusProvider.getInstance().post(new ViewLayoutEvent());
+				}
+			});
+		}
 	}
 
 	@Override
@@ -141,16 +158,13 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	}
 
 	@Override
-	public void onAdd(Bundle extras) {
-	}
+	public void onAdd(Bundle extras) {}
 
 	@Override
-	public void onHelp() {
-	}
+	public void onHelp() {}
 
 	@Override
-	public void onError() {
-	}
+	public void onError() {}
 
 	public abstract void onScollToTop();
 
@@ -183,7 +197,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
 	}
 
 	protected void scrollToTop(final Object scroller) {
@@ -195,7 +209,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 					((ListView) scroller).setSelection(0);
 				}
 			});
-
 		}
 		else if (scroller instanceof ScrollView) {
 			getActivity().runOnUiThread(new Runnable() {
@@ -205,7 +218,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 					((ScrollView) scroller).smoothScrollTo(0, 0);
 				}
 			});
-
 		}
 	}
 
@@ -217,7 +229,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 			if (mButtonSpecialClickable) {
 				mButtonSpecial.setClickable(visible);
 			}
-			UI.animateView(mButtonSpecial, visible, (visible ? mButtonSpecialClickable : false), AnimationManager.DURATION_MEDIUM);
+			AnimationManager.showViewAnimate(mButtonSpecial, visible, (visible ? mButtonSpecialClickable : false), AnimationManager.DURATION_MEDIUM);
 			BusProvider.getInstance().post(new ButtonSpecialEvent(visible));
 		}
 	}
@@ -474,5 +486,4 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		Logger.d(this, "Fragment destroy");
 		super.onDestroy();
 	}
-
 }

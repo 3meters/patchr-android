@@ -14,8 +14,8 @@ import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.R;
 import com.aircandi.catalina.queries.WatchersQuery;
 import com.aircandi.components.EntityManager;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
@@ -51,8 +51,6 @@ public class WatcherList extends BaseActivity {
 		super.initialize(savedInstanceState);
 
 		mListFragment = new WatcherListFragment();
-		setActivityTitle(StringManager.getString(R.string.form_title_watchers));
-
 		EntityMonitor monitor = new EntityMonitor(mEntityId);
 		WatchersQuery query = new WatchersQuery();
 
@@ -81,12 +79,14 @@ public class WatcherList extends BaseActivity {
 		             .setButtonSpecialClickable(true);
 
 		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
-
+		setActivityTitle(StringManager.getString(R.string.form_title_watchers));
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
-	 *--------------------------------------------------------------------------------------------*/ 	@SuppressWarnings("ucd")
+	 *--------------------------------------------------------------------------------------------*/
+
+	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
 		mListFragment.onMoreButtonClick(view);
 	}
@@ -148,7 +148,6 @@ public class WatcherList extends BaseActivity {
 
 		declineDialog.setCanceledOnTouchOutside(false);
 		declineDialog.show();
-
 	}
 
 	@SuppressWarnings("ucd")
@@ -195,7 +194,8 @@ public class WatcherList extends BaseActivity {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
-	 *--------------------------------------------------------------------------------------------*/ 	public void enableLink(final Entity entity, final String fromId, final String toId, final Boolean enabled) {
+	 *--------------------------------------------------------------------------------------------*/
+	public void enableLink(final Entity entity, final String fromId, final String toId, final Boolean enabled) {
 
 		final String actionEvent = "entity_watch_" + (enabled ? "approved" : "requested");
 

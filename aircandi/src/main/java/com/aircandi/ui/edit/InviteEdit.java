@@ -74,7 +74,7 @@ public class InviteEdit extends BaseEntityEdit {
 	}
 
 	@Override
-	public void draw() {
+	public void draw(View view) {
 		((UserView) findViewById(R.id.created_by)).databind(Aircandi.getInstance().getCurrentUser(), null);
 	}
 
@@ -123,7 +123,7 @@ public class InviteEdit extends BaseEntityEdit {
 						}
 						else {
 							String currentEmail = mEmail.getEditableText().toString().trim();
-							Boolean existingEmail = (currentEmail != null && !currentEmail.equals(""));
+							Boolean existingEmail = (!TextUtils.isEmpty(currentEmail));
 							mEmail.getEditableText().append(existingEmail ? ", " + email : email);
 						}
 					}

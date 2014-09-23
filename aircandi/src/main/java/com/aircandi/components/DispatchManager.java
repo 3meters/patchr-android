@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
@@ -58,7 +59,7 @@ public class DispatchManager {
 		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 	}
 
-	public void route(final Activity activity, Integer route, Entity entity, Shortcut shortcut, Bundle extras) {
+	public void route(final Activity activity, Integer route, @Nullable Entity entity, Shortcut shortcut, Bundle extras) {
 
 		String schema = null;
 		if (extras != null) {
@@ -119,10 +120,13 @@ public class DispatchManager {
 			else {
 				shortcut(activity, shortcut, entity, null, null);
 			}
-
 		}
 
 		else if (route == Route.BROWSE) {
+
+			if (entity == null) {
+				throw new IllegalArgumentException("Dispatching browse requires entity");
+			}
 
 			IEntityController controller = Aircandi.getInstance().getControllerForSchema(schema);
 			controller.view(activity, entity, entity.id, entity.toId, null, extras, true);
@@ -164,6 +168,9 @@ public class DispatchManager {
 		else if (route == Route.NEW) {
 
 			if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+				if (schema == null) {
+					throw new IllegalArgumentException("Handling anonymous new requires schema");
+				}
 				String message = StringManager.getString(R.string.alert_signin_message_add, schema);
 				if (schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 					message = StringManager.getString(R.string.alert_signin_message_place_new, schema);
@@ -173,9 +180,6 @@ public class DispatchManager {
 			}
 			else {
 				if (!Aircandi.getInstance().getMenuManager().canUserAdd(entity)) {
-					if (entity.locked) {
-						Dialogs.locked(activity, entity);
-					}
 					return;
 				}
 			}
@@ -194,6 +198,9 @@ public class DispatchManager {
 				return;
 			}
 			else {
+				if (entity == null) {
+					throw new IllegalArgumentException("Dispatching new picker requires entity for lock check");
+				}
 				if (!Aircandi.getInstance().getMenuManager().canUserAdd(entity)) {
 					if (entity.locked) {
 						Dialogs.locked(activity, entity);
@@ -229,6 +236,9 @@ public class DispatchManager {
 
 		else if (route == Route.REPORT) {
 
+			if (entity == null) {
+				throw new IllegalArgumentException("Dispatching report requires entity");
+			}
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, ReportEdit.class);
 			if (extras == null) {
 				extras = new Bundle();
@@ -261,8 +271,12 @@ public class DispatchManager {
 
 		else if (route == Route.PHOTOS) {
 
-			if (entity == null)
-				throw new IllegalArgumentException("valid entity required for selected route");
+			if (entity == null) {
+				throw new IllegalArgumentException("Valid entity required for selected route");
+			}
+			if (extras == null) {
+				throw new IllegalArgumentException("Dispatching photos requires extras");
+			}
 
 			final Photo photo = entity.photo;
 			photo.setCreatedAt(entity.modifiedDate.longValue());
@@ -317,6 +331,9 @@ public class DispatchManager {
 
 		else if (route == Route.REMOVE) {
 
+			if (extras == null) {
+				throw new IllegalArgumentException("Dispatching remove requires extras");
+			}
 			((BaseActivity) activity).confirmRemove(extras.getString(Constants.EXTRA_ENTITY_PARENT_ID));    // Give activity a chance for remove confirmation
 		}
 
@@ -401,6 +418,9 @@ public class DispatchManager {
 
 		else if (route == Route.CATEGORY_EDIT) {
 
+			if (entity == null) {
+				throw new IllegalArgumentException("Dispatching category edit requires entity");
+			}
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, CategoryBuilder.class);
 			final Intent intent = intentBuilder.create();
 
@@ -410,7 +430,7 @@ public class DispatchManager {
 			}
 
 			activity.startActivityForResult(intent, Constants.ACTIVITY_CATEGORY_EDIT);
-			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO_BUILDER);
 		}
 
 		else if (route == Route.PASSWORD_CHANGE) {
@@ -508,7 +528,6 @@ public class DispatchManager {
 
 			Debug.insertBeacon();
 		}
-
 	}
 
 	public void shortcut(final Activity activity, Shortcut shortcut, Entity entity, Direction direction, Bundle extras) {

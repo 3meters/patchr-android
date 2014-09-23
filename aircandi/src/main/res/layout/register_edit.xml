@@ -112,11 +112,19 @@
 				android:id="@+id/password"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/form_field_height"
-				android:layout_marginBottom="12dp"
+				android:layout_marginBottom="4dp"
 				android:drawableRight="?attr/iconClear"
 				android:hint="@string/label_password"
 				android:inputType="textPassword"
 				android:textAppearance="?attr/textAppearanceMediumLarge" />
+
+			<com.aircandi.ui.widgets.AirCheckBox
+				android:id="@+id/chk_unmask"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/form_field_height"
+				android:layout_marginBottom="12dp"
+				android:textAppearance="?android:attr/textAppearance"
+				custom:textId="@string/label_password_unmask" />
 
 			<com.aircandi.ui.widgets.ComboButton
 				android:id="@+id/button_register"

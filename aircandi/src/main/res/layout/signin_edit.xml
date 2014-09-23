@@ -25,7 +25,7 @@
 		android:id="@+id/password"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/form_field_height"
-		android:layout_marginBottom="8dp"
+		android:layout_marginBottom="4dp"
 		android:drawableRight="?attr/iconClear"
 		android:hint="@string/label_password"
 		android:imeOptions="actionGo"

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -23,18 +24,21 @@ import com.aircandi.components.MessagingManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.IEntityController;
 import com.aircandi.controllers.ViewHolder;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.EntityListFragment;
 import com.aircandi.ui.base.BaseActivity;
+import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.components.AnimationFactory;
 import com.aircandi.ui.components.AnimationFactory.FlipDirection;
 import com.aircandi.ui.widgets.AirListView;
+import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.ToolTip;
 import com.aircandi.ui.widgets.ToolTipRelativeLayout;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 public class MessageListFragment extends EntityListFragment {
 
@@ -48,6 +52,11 @@ public class MessageListFragment extends EntityListFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		View view = super.onCreateView(inflater, container, savedInstanceState);
+
+		/* Draw the header */
+		if (((BaseActivity) getActivity()).getEntity() != null) {
+			((BaseEntityForm) getActivity()).draw(view);
+		}
 
 		if (mHeaderView != null) {
 		    /*
@@ -121,6 +130,11 @@ public class MessageListFragment extends EntityListFragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
+	}
+
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		super.onProcessingComplete(event);
 	}
 
 	@Override
@@ -216,6 +230,22 @@ public class MessageListFragment extends EntityListFragment {
 	public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		showTooltips();
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		/*
+		 * Remove menu items per policy
+		 */
+		Entity entity = ((BaseActivity) getActivity()).getEntity();
+		MenuItem item = menu.findItem(R.id.edit);
+		if (item != null) {
+			item.setVisible(Aircandi.getInstance().getMenuManager().canUserEdit(entity));
+		}
+		item = menu.findItem(R.id.delete);
+		if (item != null) {
+			item.setVisible(Aircandi.getInstance().getMenuManager().canUserDelete(entity));
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
