@@ -229,8 +229,11 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 			if (mButtonSpecialClickable) {
 				mButtonSpecial.setClickable(visible);
 			}
-			AnimationManager.showViewAnimate(mButtonSpecial, visible, (visible ? mButtonSpecialClickable : false), AnimationManager.DURATION_MEDIUM);
-			BusProvider.getInstance().post(new ButtonSpecialEvent(visible));
+			mButtonSpecial.setVisibility(visible ? View.VISIBLE: View.INVISIBLE);
+			mButtonSpecial.setAlpha(visible ? 1.0f: 0.0f);
+			mButtonSpecial.setClickable((visible ? mButtonSpecialClickable : false));
+			//AnimationManager.showViewAnimate(mButtonSpecial, visible, (visible ? mButtonSpecialClickable : false), AnimationManager.DURATION_MEDIUM);
+			BusProvider.getInstance().post(new ButtonSpecialEvent(visible)); // Used byu place form
 		}
 	}
 

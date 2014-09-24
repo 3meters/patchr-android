@@ -26,6 +26,8 @@ import com.aircandi.objects.ShortcutMeta;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseActivity;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class Dialogs {
 
 	public static AlertDialog alertDialog(Integer iconResource // $codepro.audit.disable largeNumberOfParameters
@@ -160,6 +162,35 @@ public class Dialogs {
 				activity.finish();
 			}
 		});
+		updateDialog.setCanceledOnTouchOutside(false);
+		updateDialog.show();
+	}
+
+	public static void locationServicesDisabled(final Activity activity, final AtomicBoolean shot) {
+
+		final AlertDialog updateDialog = alertDialog(null
+				, StringManager.getString(R.string.dialog_location_services_disabled_title)
+				, StringManager.getString(R.string.dialog_location_services_disabled_message)
+				, null
+				, activity
+				, R.string.dialog_location_services_disabled_ok
+				, R.string.dialog_location_services_disabled_cancel
+				, null
+				, new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					Aircandi.tracker.sendEvent(TrackerCategory.UX, "aircandi_location_settings_button_click", "com.aircandi", 0);
+					Aircandi.dispatch.route(activity, Route.SETTINGS_LOCATION, null, null, null);
+					dialog.dismiss();
+				}
+				else if (which == DialogInterface.BUTTON_NEGATIVE) {
+					shot.set(true);
+					dialog.dismiss();
+				}
+			}
+		}, null);
 		updateDialog.setCanceledOnTouchOutside(false);
 		updateDialog.show();
 	}

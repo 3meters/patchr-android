@@ -19,7 +19,6 @@ import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
-import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MessagingManager;
 import com.aircandi.components.NetworkManager;
@@ -46,9 +45,8 @@ import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /*
  * Library Notes
@@ -90,8 +88,8 @@ import java.util.Map;
 @SuppressLint("Registered")
 public class AircandiForm extends BaseActivity {
 
-	protected Number mPauseDate;
-	protected Boolean  mConfiguredForAnonymous;
+	protected Number  mPauseDate;
+	protected Boolean mConfiguredForAnonymous;
 
 	protected DrawerLayout          mDrawerLayout;
 	protected View                  mDrawer;
@@ -576,13 +574,12 @@ public class AircandiForm extends BaseActivity {
 
 		/* Make sure we are configured properly depending on user status */
 		configureDrawer();
-
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-        /*
+	    /*
          * Lifecycle ordering: (onCreate/onRestart)->onStart->onResume->onAttachedToWindow->onWindowFocusChanged
 		 * 
 		 * OnResume gets called after OnCreate (always) and whenever the activity is being brought back to the
@@ -651,5 +648,4 @@ public class AircandiForm extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
-
 }

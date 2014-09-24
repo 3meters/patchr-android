@@ -41,8 +41,10 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	private static final long serialVersionUID = -3902834532692561618L;
 
 	/*--------------------------------------------------------------------------------------------
-	 * service fields
-	 *--------------------------------------------------------------------------------------------*/ 	/* Database fields */
+	 * Service fields
+	 *--------------------------------------------------------------------------------------------*/
+
+	/* Database fields */
 
 	@Expose
 	public String      subtitle;
@@ -96,8 +98,10 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Number rank;
 
 	/*--------------------------------------------------------------------------------------------
-	 * client fields (NONE are transferred)
-	 *--------------------------------------------------------------------------------------------*/    public Boolean hidden = false;                    // Flag entities not currently visible because of fencing.
+	 * Client fields (NONE are transferred)
+	 *--------------------------------------------------------------------------------------------*/
+
+	public Boolean hidden           = false;                    // Flag entities not currently visible because of fencing.
 	public Boolean shareable        = true;                     // Flag whether an entity can be shared or not.
 	public Boolean fuzzy            = false;                    // Flag places with inaccurate locations.
 	public Boolean checked          = false;                    // Used to track selection in lists.
@@ -117,6 +121,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Shortcut getShortcut() {
 		Shortcut shortcut = new Shortcut()
 				.setAppId(id)
@@ -177,14 +182,16 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		if (!this.getPhoto().getUri().equals(other.getPhoto().getUri())) return false;
 		if (this.linksIn.size() != other.linksIn.size()) return false;
 		return !(this.linksOut != null && other.linksOut != null && this.linksOut.size() != other.linksOut.size());
-
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Photo getPhoto() {
 		Photo photo = this.photo;
 		if (photo == null) {
@@ -233,7 +240,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		Boolean oldIsHidden = hidden;
 		this.hidden = false;
 		/*
-         * Make it harder to fade out than it is to fade in. Entities are only NEW
+	     * Make it harder to fade out than it is to fade in. Entities are only NEW
 		 * for the first scan that discovers them.
 		 */
 		if (signalFence != null) {
@@ -643,8 +650,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		shortcuts.add(shortcut);
 	}
 
-	public void removeLink() {
-	}
+	public void removeLink() {}
 
 	public String getSchemaMapped() {
 		String schema = this.schema;
@@ -703,6 +709,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
+
 	public static Entity setPropertiesFromMap(Entity entity, Map map, Boolean nameMapping) {
 
 		synchronized (entity) {
@@ -845,7 +852,9 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public static class SortByRank implements Comparator<Entity> {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static class SortByRank implements Comparator<Entity> {
 
 		@Override
 		public int compare(Entity object1, Entity object2) {
@@ -860,5 +869,4 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 				return 0;
 		}
 	}
-
 }

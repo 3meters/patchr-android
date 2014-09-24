@@ -1,13 +1,13 @@
 package com.aircandi.catalina.objects;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.User;
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Jayma
@@ -21,8 +21,10 @@ public class Message extends Entity implements Cloneable, Serializable {
 	public static final  String schemaId         = "me";
 
 	/*--------------------------------------------------------------------------------------------
-	 * service fields
-	 *--------------------------------------------------------------------------------------------*/ 	@Expose
+	 * Service fields
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Expose
 	@SerializedName(name = "_root")
 	public String rootId;
 	@Expose
@@ -35,10 +37,12 @@ public class Message extends Entity implements Cloneable, Serializable {
 	public User replyTo;
 
 	/*--------------------------------------------------------------------------------------------
-	 * client fields (NONE are transferred)
-	 *--------------------------------------------------------------------------------------------*/ 	public static Message setPropertiesFromMap(Message entity, Map map, Boolean nameMapping) {
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static Message setPropertiesFromMap(Message entity, Map map, Boolean nameMapping) {
 	    /*
-         * Properties involved with editing are copied from one entity to another.
+	     * Properties involved with editing are copied from one entity to another.
 		 */
 		synchronized (entity) {
 			entity = (Message) Entity.setPropertiesFromMap(entity, map, nameMapping);
@@ -49,9 +53,12 @@ public class Message extends Entity implements Cloneable, Serializable {
 			if (map.get("replyTo") != null) {
 				entity.replyTo = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("replyTo"), nameMapping);
 			}
-
 		}
 		return entity;
+	}
+
+	public boolean isOwnerAccess() {
+		return true;
 	}
 
 	@Override
@@ -67,7 +74,9 @@ public class Message extends Entity implements Cloneable, Serializable {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/ 	public static class MessageType {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static class MessageType {
 		public static String ROOT  = "root";
 		public static String REPLY = "reply";
 		public static String SHARE = "share";

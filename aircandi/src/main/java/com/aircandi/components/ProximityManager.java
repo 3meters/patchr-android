@@ -299,8 +299,8 @@ public class ProximityManager {
 			final List<Entity> entitiesForEvent = (List<Entity>) Aircandi.getInstance().getEntityManager().getPlaces(null, null);
 			Aircandi.stopwatch1.segmentTime("Entities for beacons: no beacons to process - exiting");
 
-			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
+			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 			return serviceResponse;
 
 		}
@@ -326,11 +326,10 @@ public class ProximityManager {
 			/* All cached place entities that qualify based on current distance pref setting */
 			final List<Entity> entitiesForEvent = (List<Entity>) Aircandi.getInstance().getEntityManager().getPlaces(null, null);
 			Aircandi.stopwatch1.segmentTime("Entities for beacons: objects processed");
-			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
+			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 		}
 		else {
-
 			Aircandi.stopwatch1.segmentTime("Entities for beacons: service call failed");
 			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 		}

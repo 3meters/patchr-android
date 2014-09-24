@@ -35,6 +35,7 @@ import com.aircandi.objects.Route;
 import com.aircandi.ui.components.AirClusterRenderer;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.utilities.Colors;
+import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.UI;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -57,18 +58,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MapListFragment extends MapFragment implements ClusterManager.OnClusterClickListener<MapListFragment.EntityItem>
 		, ClusterManager.OnClusterInfoWindowClickListener<MapListFragment.EntityItem>
 		, ClusterManager.OnClusterItemClickListener<MapListFragment.EntityItem>
-		, ClusterManager.OnClusterItemInfoWindowClickListener<MapListFragment.EntityItem> {
+		, ClusterManager.OnClusterItemInfoWindowClickListener<MapListFragment.EntityItem>
+		, GoogleMap.OnMyLocationButtonClickListener {
 
 	public static final int    ZOOM_NEARBY  = 14;
 	public static final int    ZOOM_CITY    = 11;
 	public static final int    ZOOM_COUNTY  = 10;
 	public static final int    ZOOM_STATE   = 6;
 	public static final int    ZOOM_COUNTRY = 5;
-	public static final int    ZOOM_USA = 3;
+	public static final int    ZOOM_USA     = 3;
 	public static final int    ZOOM_WORLD   = 1;
 	public static final int    ZOOM_DEFAULT = ZOOM_NEARBY;
 	public static       LatLng LATLNG_USA   = new LatLng(39.8282, -98.5795);
@@ -99,6 +102,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		mClusterManager.setOnClusterInfoWindowClickListener(this);
 		mClusterManager.setOnClusterItemClickListener(this);
 		mClusterManager.setOnClusterItemInfoWindowClickListener(this);
+		mMap.setOnMyLocationButtonClickListener(this);
 
 		if (root != null) {
 			mProgressBar = new ProgressBar(root.getContext(), null, android.R.attr.progressBarStyleLarge);
@@ -154,6 +158,50 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	}
 
 	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public boolean onMyLocationButtonClick() {
+		if (!LocationManager.getInstance().isLocationAccessEnabled()) {
+			Dialogs.locationServicesDisabled(getActivity(), new AtomicBoolean(false));
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean onClusterClick(Cluster<EntityItem> cluster) {
+
+		LatLngBounds.Builder builder = LatLngBounds.builder();
+		for (EntityItem item : cluster.getItems()) {
+			builder.include(item.getPosition());
+		}
+		LatLngBounds bounds = builder.build();
+
+		CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 150);
+		mMap.animateCamera(cameraUpdate, 300, null);
+		return true;
+	}
+
+	@Override
+	public void onClusterInfoWindowClick(Cluster<EntityItem> entityItemCluster) {
+		// Does nothing, but you could go to a list of the users.
+	}
+
+	@Override
+	public boolean onClusterItemClick(EntityItem entityItem) {
+		// Does nothing, but you could go into the user's profile page, for example.
+		return false;
+	}
+
+	@Override
+	public void onClusterItemInfoWindowClick(EntityItem entityItem) {
+		Aircandi.dispatch.route(getActivity(), Route.BROWSE, entityItem.mEntity, null, null);
+	}
+
+
+	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
@@ -177,6 +225,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 				public void onGlobalLayout() {
 					mapView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+					if (mEntities == null || mEntities.size() == 0) return;
 					/*
 					 * One only one entity then center on it.
 					 */
@@ -281,36 +330,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 	public List<Integer> getMenuResIds() {
 		return mMenuResIds;
-	}
-
-	@Override
-	public boolean onClusterClick(Cluster<EntityItem> cluster) {
-
-		LatLngBounds.Builder builder = LatLngBounds.builder();
-		for (EntityItem item : cluster.getItems()) {
-			builder.include(item.getPosition());
-		}
-		LatLngBounds bounds = builder.build();
-
-		CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 150);
-		mMap.animateCamera(cameraUpdate, 300, null);
-		return true;
-	}
-
-	@Override
-	public void onClusterInfoWindowClick(Cluster<EntityItem> entityItemCluster) {
-		// Does nothing, but you could go to a list of the users.
-	}
-
-	@Override
-	public boolean onClusterItemClick(EntityItem entityItem) {
-		// Does nothing, but you could go into the user's profile page, for example.
-		return false;
-	}
-
-	@Override
-	public void onClusterItemInfoWindowClick(EntityItem entityItem) {
-		Aircandi.dispatch.route(getActivity(), Route.BROWSE, entityItem.mEntity, null, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------

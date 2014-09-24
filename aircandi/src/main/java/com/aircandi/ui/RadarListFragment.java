@@ -67,6 +67,7 @@ import com.squareup.otto.Subscribe;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RadarListFragment extends EntityListFragment {
 
@@ -78,9 +79,10 @@ public class RadarListFragment extends EntityListFragment {
 	private String mDebugLocation = "--";
 
 	private Number mEntityModelBeaconDate;
-	private Integer         mWifiStateLastSearch         = WifiManager.WIFI_STATE_UNKNOWN;
-	private LocationHandler mLocationHandler             = new LocationHandler();
-	private Boolean         mAtLeastOneLocationProcessed = false;
+	private   Integer         mWifiStateLastSearch         = WifiManager.WIFI_STATE_UNKNOWN;
+	private   LocationHandler mLocationHandler             = new LocationHandler();
+	private   Boolean         mAtLeastOneLocationProcessed = false;
+	protected AtomicBoolean   mLocationDialogShot          = new AtomicBoolean(false);
 
 	private CacheStamp mCacheStamp;
 
@@ -122,17 +124,6 @@ public class RadarListFragment extends EntityListFragment {
 				searchForPlaces();
 				break;
 			}
-
-			/*
-			 * Check for location service everytime we start.
-			 */
-			//			Boolean locationServiceEnabled = LocationManager.getInstance().isLocationAccessEnabled();
-			//			if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-			//			/* We won't continue if location services are disabled */
-			//				Aircandi.dispatch.route(getActivity(), Route.SETTINGS_LOCATION, null, null, null);
-			//				getActivity().finish();
-			//				return;
-			//			}
 
 			if (!mAtLeastOneLocationProcessed) {
 				/*
@@ -355,14 +346,10 @@ public class RadarListFragment extends EntityListFragment {
 				Aircandi.stopwatch1.stop("Search for places by beacon complete");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
 				mCacheStamp = Aircandi.getInstance().getEntityManager().getCacheStamp();
+
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
 					mBusy.hideBusy(false);
 					BusProvider.getInstance().post(new ProcessingCompleteEvent());
-
-					/* We only show toast if we timeout without getting any location fix */
-					if (LocationManager.getInstance().getLocationLocked() == null) {
-						UI.showToastNotification("Location services are off", Toast.LENGTH_SHORT);
-					}
 				}
 			}
 		});
@@ -379,6 +366,12 @@ public class RadarListFragment extends EntityListFragment {
 		Aircandi.tracker.sendTiming(TrackerCategory.PERFORMANCE, Aircandi.stopwatch2.getTotalTimeMills()
 				, "places_near_location_downloaded"
 				, NetworkManager.getInstance().getNetworkType());
+
+		if (!NetworkManager.getInstance().isWifiEnabled()
+				&& LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
+			mBusy.hideBusy(false);
+			BusProvider.getInstance().post(new ProcessingCompleteEvent());
+		}
 	}
 
 	@Subscribe
@@ -407,7 +400,7 @@ public class RadarListFragment extends EntityListFragment {
 				}
 
 				/* Show map button if we have some entities to map */
-				handleFooter((entities.size() > 0), AnimationManager.DURATION_MEDIUM);
+				//handleFooter((entities.size() > 0), AnimationManager.DURATION_MEDIUM);
 
 				if (event.source.equals("onLocationChanged")) {
 					mAtLeastOneLocationProcessed = true;
@@ -439,11 +432,11 @@ public class RadarListFragment extends EntityListFragment {
 	public void onProcessingComplete(ProcessingCompleteEvent event) {
 
 		if (mButtonSpecial != null && mButtonSpecialEnabled) {
-			Boolean locationServiceEnabled = LocationManager.getInstance().isLocationAccessEnabled();
-			if (!locationServiceEnabled) {
-				showButtonSpecial(true, R.string.label_location_services_missing, mHeaderView);
-			}
-			else {
+//			Boolean locationServiceEnabled = LocationManager.getInstance().isLocationAccessEnabled();
+//			if (!locationServiceEnabled) {
+//				showButtonSpecial(true, R.string.label_location_services_missing, mHeaderView);
+//			}
+//			else {
 				if (mButtonSpecialClickable) {
 					if (mEntities.size() == 0) {
 						lockFooter(true);
@@ -453,8 +446,13 @@ public class RadarListFragment extends EntityListFragment {
 					}
 				}
 				showButtonSpecial(mEntities.size() == 0, mListEmptyMessageResId, mHeaderView);
-			}
+//			}
 		}
+		if (!NetworkManager.getInstance().isWifiEnabled()
+				&& !LocationManager.getInstance().isLocationAccessEnabled()) {
+			mFooterHolder.setVisibility(View.INVISIBLE);
+		}
+
 		if (getActivity() instanceof BaseEntityForm) {
 			handleFooter(true, AnimationManager.DURATION_MEDIUM);
 		}
@@ -539,7 +537,30 @@ public class RadarListFragment extends EntityListFragment {
 						}
 					}, 500);
 				}
+
 				return null;
+			}
+
+			@Override
+			protected void onPostExecute(Object response) {
+				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
+					if (!mLocationDialogShot.get()) {
+						Dialogs.locationServicesDisabled(getActivity(), mLocationDialogShot);
+					}
+					else {
+						UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
+					}
+				}
+
+				if (!NetworkManager.getInstance().isWifiEnabled()
+						&& !LocationManager.getInstance().isLocationAccessEnabled()) {
+					mBusy.hideBusy(false);
+					lockFooter(true);
+					BusProvider.getInstance().post(new ProcessingCompleteEvent());
+				}
+				else {
+					lockFooter(false);
+				}
 			}
 		}.execute();
 	}
@@ -828,13 +849,6 @@ public class RadarListFragment extends EntityListFragment {
 
 							final ServiceResponse serviceResponse = ProximityManager.getInstance().getEntitiesNearLocation(location);
 
-							if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-								Aircandi.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
-								final List<Entity> entitiesForEvent = (List<Entity>) Aircandi.getInstance().getEntityManager().getPlaces(null, null);
-								BusProvider.getInstance().post(new PlacesNearLocationFinishedEvent());
-								BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
-							}
-
 							return serviceResponse;
 						}
 
@@ -843,6 +857,10 @@ public class RadarListFragment extends EntityListFragment {
 							final ServiceResponse serviceResponse = (ServiceResponse) result;
 
 							if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+								Aircandi.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
+								final List<Entity> entitiesForEvent = (List<Entity>) Aircandi.getInstance().getEntityManager().getPlaces(null, null);
+								BusProvider.getInstance().post(new PlacesNearLocationFinishedEvent());
+								BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
 								if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
 									BusProvider.getInstance().post(new ProcessingCompleteEvent());
 								}
