@@ -95,17 +95,21 @@ public abstract class ServiceBase extends ServiceObject {
 	@Expose(serialize = false, deserialize = true)
 	public User modifier;
 
-	protected ServiceBase() {
-	}
+	protected ServiceBase() {}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Set and get
 	 *--------------------------------------------------------------------------------------------*/
+
 	public String getEntryUri() {
 		final String root = ServiceConstants.URL_PROXIBASE_SERVICE_REST;
 		final String entity = getCollection();
 		final String uri = root + entity + "/" + id;
 		return uri;
+	}
+
+	public boolean isOwnerAccess() {
+		return false;
 	}
 
 	public abstract String getCollection();
@@ -117,6 +121,7 @@ public abstract class ServiceBase extends ServiceObject {
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
+
 	public static ServiceBase setPropertiesFromMap(ServiceBase base, Map map, Boolean nameMapping) {
 
 		base.id = (String) (nameMapping ? (map.get("_id") != null) ? map.get("_id") : map.get("id") : map.get("id"));
@@ -178,6 +183,7 @@ public abstract class ServiceBase extends ServiceObject {
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
+
 
 	public static class SortByPositionSortDate implements Comparator<ServiceBase> {
 

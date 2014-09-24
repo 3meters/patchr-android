@@ -15,6 +15,7 @@ import com.aircandi.events.EntitiesByProximityFinishedEvent;
 import com.aircandi.events.EntitiesChangedEvent;
 import com.aircandi.events.MonitoringWifiScanReceivedEvent;
 import com.aircandi.events.PlacesNearLocationFinishedEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.widgets.ToolTip;
@@ -64,6 +65,11 @@ public class RadarListFragment extends com.aircandi.ui.RadarListFragment {
 	@Override
 	public void onMonitoringWifiScanReceived(MonitoringWifiScanReceivedEvent event) {
 		super.onMonitoringWifiScanReceived(event);
+	}
+
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		super.onProcessingComplete(event);
 	}
 
 	@Override
@@ -128,14 +134,14 @@ public class RadarListFragment extends com.aircandi.ui.RadarListFragment {
 		 * gone through measure/layout. That's when it's safe to process tooltips
 		 * for action bar items.
 		 */
-//		MenuItem menuItem = menu.findItem(R.id.search);
-//		final View searchView = menuItem.getActionView();
-//		searchView.post(new Runnable() {
-//			@Override
-//			public void run() {
-//				showTooltips();
-//			}
-//		});
+		//		MenuItem menuItem = menu.findItem(R.id.search);
+		//		final View searchView = menuItem.getActionView();
+		//		searchView.post(new Runnable() {
+		//			@Override
+		//			public void run() {
+		//				showTooltips();
+		//			}
+		//		});
 	}
 
 	/*--------------------------------------------------------------------------------------------

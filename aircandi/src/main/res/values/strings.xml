@@ -116,6 +116,11 @@
 	<string name="dialog_decline_requested_private_ok">Decline</string>
 	<string name="dialog_decline_requested_private_cancel">Cancel</string>
 
+	<string name="dialog_location_services_disabled_title">Location services disabled</string>
+	<string name="dialog_location_services_disabled_message">[@string/name_app] works better with access to your location. Please turn on location access.</string>
+	<string name="dialog_location_services_disabled_ok">Settings</string>
+	<string name="dialog_location_services_disabled_cancel">Ignore</string>
+
 	<!-- Alerts -->
 
 	<string name="alert_entity_locked">This [@schema] has been locked by the owner.</string>
@@ -148,6 +153,7 @@
 	<string name="alert_exit_confirm">Press Back once more to exit</string>
 	<string name="alert_copied_to_clipboard">Copied to clipboard</string>
 	<string name="alert_auto_watch">You are now watching this patch</string>
+	<string name="alert_location_services_disabled">Waiting for location&#8230;</string>
 
 	<!-- Alerts: anonymous -->
 

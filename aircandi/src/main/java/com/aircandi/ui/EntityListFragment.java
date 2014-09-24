@@ -831,7 +831,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 
-			if (mListPagingEnabled && mQuery != null && mQuery.isMore() && position == mEntities.size())
+			if (mListPagingEnabled && mQuery != null && mQuery.isMore() && position == mEntities.size() && mEntities.size() > 0)
 				return mLoadingView;
 
 			View view = convertView;

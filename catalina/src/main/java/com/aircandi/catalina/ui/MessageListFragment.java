@@ -34,7 +34,6 @@ import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.components.AnimationFactory;
 import com.aircandi.ui.components.AnimationFactory.FlipDirection;
 import com.aircandi.ui.widgets.AirListView;
-import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.ToolTip;
 import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.utilities.UI;

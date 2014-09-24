@@ -398,7 +398,6 @@ public class DispatchManager {
 
 			activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
 			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
-			activity.finish();
 		}
 
 		else if (route == Route.SETTINGS_WIFI) {

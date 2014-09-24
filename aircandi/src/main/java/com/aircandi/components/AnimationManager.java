@@ -56,18 +56,21 @@ public class AnimationManager {
 
 			@Override
 			public void run() {
-				if (show && view.getAlpha() == 0) {
-					if (clickable) view.setClickable(true);
-					ObjectAnimator anim = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
-					anim.setDuration((duration == null) ? DURATION_MEDIUM : duration);
-					anim.start();
+				if (show) {
+					if (view.getAlpha() < 1) {
+						ObjectAnimator anim = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
+						anim.setDuration((duration == null) ? DURATION_MEDIUM : duration);
+						anim.start();
+					}
 				}
-				else if (!show && view.getAlpha() == 1) {
-					if (clickable) view.setClickable(false);
-					ObjectAnimator anim = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
-					anim.setDuration((duration == null) ? DURATION_MEDIUM : duration);
-					anim.start();
+				else {
+					if (view.getAlpha() > 0) {
+						ObjectAnimator anim = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
+						anim.setDuration((duration == null) ? DURATION_MEDIUM : duration);
+						anim.start();
+					}
 				}
+				view.setClickable(clickable);
 			}
 		});
 	}

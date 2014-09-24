@@ -75,7 +75,7 @@ public class EntityCache implements Map<String, Entity> {
 
 			if (loadedEntities != null && loadedEntities.size() > 0) {
 			    /*
-                 * Clear out any cache stamp overrides.
+	             * Clear out any cache stamp overrides.
 				 */
 				for (Entity entity : loadedEntities) {
 					if (Aircandi.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
@@ -137,9 +137,9 @@ public class EntityCache implements Map<String, Entity> {
 				.setResponseFormat(ResponseFormat.JSON)
 				.setStopwatch(stopwatch);
 
-		//		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-		//			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
-		//		}
+		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		}
 
 		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
