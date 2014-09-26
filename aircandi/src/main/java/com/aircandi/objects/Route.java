@@ -52,4 +52,5 @@ public class Route {
 	public static int REMOVE             = 50;
 	public static int WATCHERS           = 51;
 	public static int NAVIGATE           = 52;
+	public static int PLACE_LIST         = 53;
 }

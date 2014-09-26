@@ -26,7 +26,6 @@ import android.widget.ScrollView;
 import com.aircandi.Aircandi;
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;

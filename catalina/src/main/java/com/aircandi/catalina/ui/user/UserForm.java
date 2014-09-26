@@ -2,15 +2,17 @@ package com.aircandi.catalina.ui.user;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
 import com.aircandi.Aircandi;
 import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.R;
-import com.aircandi.catalina.objects.LinkProfile;
 import com.aircandi.catalina.ui.MessageListFragment;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.components.StringManager;
 import com.aircandi.monitors.EntityMonitor;
+import com.aircandi.objects.Count;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Route;
 import com.aircandi.queries.EntitiesQuery;
@@ -23,11 +25,13 @@ import com.aircandi.utilities.UI;
 public class UserForm extends com.aircandi.ui.user.UserForm {
 
 	private EntityListFragment mListFragment;
+	private TextView           mButtonWatching;
+	private TextView           mButtonCreated;
+	private View               mButtonEdit;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-
 		mListFragment = new MessageListFragment();
 
 		EntityMonitor monitor = new EntityMonitor(mEntityId);
@@ -50,15 +54,13 @@ public class UserForm extends com.aircandi.ui.user.UserForm {
 		             .setSelfBindingEnabled(false);
 
 		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
-
-		Boolean currentUser = Aircandi.getInstance().getCurrentUser().id.equals(mEntityId);
-		mLinkProfile = currentUser ? LinkProfile.LINKS_FOR_USER_CURRENT : LinkProfile.LINKS_FOR_USER;
-		mDrawStats = null;
 	}
 
 	@Override
 	public void afterDatabind(final BindingMode mode, ModelResult result) {
 		super.afterDatabind(mode, result);
+		Boolean currentUser = Aircandi.getInstance().getCurrentUser().id.equals(mEntityId);
+		if (!currentUser) return;
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			if (mEntityMonitor.changed) {
 				mListFragment.bind(BindingMode.MANUAL);
@@ -73,9 +75,23 @@ public class UserForm extends com.aircandi.ui.user.UserForm {
 	public void drawButtons(View view) {
 		super.drawButtons(view);
 
-		UI.setVisibility(view.findViewById(R.id.button_edit), View.GONE);
+		mButtonWatching = (TextView) findViewById(R.id.button_watching);
+		mButtonCreated = (TextView) findViewById(R.id.button_created);
+		mButtonEdit = findViewById(R.id.button_edit);
+
+		UI.setVisibility(mButtonEdit, View.GONE);
 		if (Aircandi.getInstance().getMenuManager().canUserEdit(mEntity)) {
-			UI.setVisibility(view.findViewById(R.id.button_edit), View.VISIBLE);
+			UI.setVisibility(mButtonEdit, View.VISIBLE);
+		}
+
+		Count watching = mEntity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PLACE, true, Direction.out);
+		Count created = mEntity.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PLACE, true, Direction.out);
+
+		if (watching != null) {
+			mButtonWatching.setText(StringManager.getString(R.string.label_user_watching) + ": " + String.valueOf(watching.count.intValue()));
+		}
+		if (created != null) {
+			mButtonCreated.setText(StringManager.getString(R.string.label_user_created) + ": " + String.valueOf(created.count.intValue()));
 		}
 	}
 
@@ -90,6 +106,24 @@ public class UserForm extends com.aircandi.ui.user.UserForm {
 
 	public void onEditButtonClick(View view) {
 		Aircandi.dispatch.route(this, Route.EDIT, mEntity, null, null);
+	}
+
+	public void onPlaceListButtonClick(View view) {
+
+		String linkType = (String) view.getTag();
+		Integer titleResId = null;
+		if (linkType.equals(Constants.TYPE_LINK_WATCH)) {
+			titleResId = R.string.label_drawer_item_watch;
+		}
+		else if (linkType.equals(Constants.TYPE_LINK_CREATE)) {
+			titleResId = R.string.label_drawer_item_create;
+		}
+
+		Bundle extras = new Bundle();
+		extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
+		extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, titleResId);
+
+		Aircandi.dispatch.route(this, Route.PLACE_LIST, mEntity, null, extras);
 	}
 
 	@Override

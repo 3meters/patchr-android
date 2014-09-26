@@ -28,6 +28,7 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.IBusy;
 import com.aircandi.ui.components.EntitySuggestController;
+import com.aircandi.ui.components.ViewId;
 import com.aircandi.ui.widgets.AirTokenCompleteTextView;
 import com.aircandi.ui.widgets.TokenCompleteTextView;
 import com.aircandi.ui.widgets.ToolTip;
@@ -215,7 +216,7 @@ public class PlaceEdit extends com.aircandi.ui.edit.PlaceEdit implements TokenCo
 					.withArrow(false)
 					.setMaxWidth(UI.getRawPixelsForDisplayPixels(250f))
 					.withAnimationType(ToolTip.AnimationType.FROM_SELF));
-			part1.setId(View.generateViewId());
+			part1.setId(ViewId.getInstance().getUniqueId());
 			part1.addRule(RelativeLayout.CENTER_HORIZONTAL);
 
 			RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) part1.getLayoutParams();
@@ -228,7 +229,7 @@ public class PlaceEdit extends com.aircandi.ui.edit.PlaceEdit implements TokenCo
 					.withArrow(false)
 					.setMaxWidth(UI.getRawPixelsForDisplayPixels(250f))
 					.withAnimationType(ToolTip.AnimationType.FROM_SELF));
-			part2.setId(View.generateViewId());
+			part2.setId(ViewId.getInstance().getUniqueId());
 			part2.setMinimumWidth(UI.getRawPixelsForDisplayPixels(250f));
 			part2.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			part2.addRule(RelativeLayout.BELOW, part1.getId());

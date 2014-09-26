@@ -166,6 +166,10 @@
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
+			android:name="com.aircandi.catalina.ui.PlaceList"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
 			android:name="com.aircandi.ui.HelpForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/name_app"

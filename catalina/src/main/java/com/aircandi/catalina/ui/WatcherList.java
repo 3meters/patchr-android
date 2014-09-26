@@ -189,12 +189,13 @@ public class WatcherList extends BaseActivity {
 
 	@Override
 	protected int getLayoutId() {
-		return R.layout.watcher_list;
+		return R.layout.entity_list;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void enableLink(final Entity entity, final String fromId, final String toId, final Boolean enabled) {
 
 		final String actionEvent = "entity_watch_" + (enabled ? "approved" : "requested");

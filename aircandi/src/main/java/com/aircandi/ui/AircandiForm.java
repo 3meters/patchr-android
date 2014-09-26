@@ -46,7 +46,6 @@ import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /*
  * Library Notes

@@ -1,7 +1,6 @@
 package com.aircandi.catalina.ui;
 
 import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -368,9 +367,10 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 			}
 		}
 
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		ft.replace(R.id.fragment_holder, fragment);
-		ft.commit();
+		getFragmentManager()
+				.beginTransaction()
+				.replace(R.id.fragment_holder, fragment)
+				.commit();
 		mPrevFragmentTag = mCurrentFragmentTag;
 		mCurrentFragmentTag = fragmentType;
 		mCurrentFragment = fragment;

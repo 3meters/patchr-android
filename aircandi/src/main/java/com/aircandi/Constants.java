@@ -59,6 +59,7 @@ public class Constants {
 	public static final String EXTRA_LIST_LINK_DIRECTION       = "com.aircandi.EXTRA_LIST_DIRECTION";                                                        //$NON-NLS-1$
 	public static final String EXTRA_LIST_NEW_ENABLED          = "com.aircandi.EXTRA_LIST_NEW_ENABLED";                                                    //$NON-NLS-1$
 	public static final String EXTRA_LIST_TITLE                = "com.aircandi.EXTRA_LIST_TITLE";                                                            //$NON-NLS-1$
+	public static final String EXTRA_LIST_TITLE_RESID          = "com.aircandi.EXTRA_LIST_TITLE_RESID";                                                            //$NON-NLS-1$
 	public static final String EXTRA_LIST_PAGE_SIZE            = "com.aircandi.EXTRA_LIST_PAGE_SIZE";                                                        //$NON-NLS-1$
 	public static final String EXTRA_LIST_VIEW_TYPE            = "com.aircandi.EXTRA_LIST_VIEW_TYPE";                                                        //$NON-NLS-1$
 	public static final String EXTRA_LIST_ITEM_RESID           = "com.aircandi.EXTRA_LIST_ITEM_RESID";                                                    //$NON-NLS-1$
