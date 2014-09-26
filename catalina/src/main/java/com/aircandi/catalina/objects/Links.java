@@ -70,6 +70,10 @@ public class Links extends com.aircandi.objects.Links {
 			}
 			else if (linkProfile == LinkProfile.LINKS_FOR_USER) {
 
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PLACE, false, true, 0)
+						.setDirection(Direction.out));
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PLACE, false, true, 0)
+						.setDirection(Direction.out));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
 						, Maps.asMap("_from", currentUser.id)));
 			}

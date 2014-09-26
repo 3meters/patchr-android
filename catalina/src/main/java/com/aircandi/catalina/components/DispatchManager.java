@@ -8,6 +8,7 @@ import com.aircandi.Aircandi;
 import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.R;
 import com.aircandi.catalina.ui.AircandiForm;
+import com.aircandi.catalina.ui.PlaceList;
 import com.aircandi.catalina.ui.SplashForm;
 import com.aircandi.catalina.ui.WatcherList;
 import com.aircandi.components.IntentBuilder;
@@ -91,6 +92,18 @@ public class DispatchManager extends com.aircandi.components.DispatchManager {
 			}
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, WatcherList.class);
+			intentBuilder.setEntityId(entity.id).addExtras(extras);
+			activity.startActivity(intentBuilder.create());
+			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+		}
+
+		else if (route == Route.PLACE_LIST) {
+
+			if (entity == null) {
+				throw new IllegalArgumentException("Dispatching watchers requires entity");
+			}
+
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, PlaceList.class);
 			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.create());
 			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);

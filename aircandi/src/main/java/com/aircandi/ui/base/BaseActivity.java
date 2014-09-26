@@ -718,7 +718,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		}
 
 		menuItem = menu.findItem(R.id.signin);
-		if (menuItem != null) {
+		if (menuItem != null && Aircandi.getInstance().getCurrentUser() != null) {
 			menuItem.setVisible(Aircandi.getInstance().getCurrentUser().isAnonymous());
 		}
 

@@ -258,7 +258,8 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 						else {
 							LatLngBounds bounds = getBounds(mEntities);
 							if (bounds != null) {
-								CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 300);
+								int padding = (int) (Math.min(mapView.getWidth(), mapView.getHeight()) * 0.2);
+								CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
 								mMap.moveCamera(cameraUpdate);
 							}
 						}

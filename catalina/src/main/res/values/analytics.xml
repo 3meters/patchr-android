@@ -21,6 +21,7 @@
 	<string name="com.aircandi.catalina.ui.MessageForm">MessageForm</string>
 	<string name="com.aircandi.catalina.ui.SplashForm">SplashForm</string>
 	<string name="com.aircandi.catalina.ui.WatcherList">WatcherList</string>
+	<string name="com.aircandi.catalina.ui.PlaceList">PlaceList</string>
 	<string name="com.aircandi.catalina.ui.user.UserForm">UserForm</string>
 
 	<!-- Edit -->

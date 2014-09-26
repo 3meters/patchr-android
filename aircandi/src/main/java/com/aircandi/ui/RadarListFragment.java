@@ -431,34 +431,33 @@ public class RadarListFragment extends EntityListFragment {
 	@Subscribe
 	public void onProcessingComplete(ProcessingCompleteEvent event) {
 
-		if (mButtonSpecial != null && mButtonSpecialEnabled) {
-//			Boolean locationServiceEnabled = LocationManager.getInstance().isLocationAccessEnabled();
-//			if (!locationServiceEnabled) {
-//				showButtonSpecial(true, R.string.label_location_services_missing, mHeaderView);
-//			}
-//			else {
-				if (mButtonSpecialClickable) {
-					if (mEntities.size() == 0) {
-						lockFooter(true);
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (mButtonSpecial != null && mButtonSpecialEnabled) {
+					if (mButtonSpecialClickable) {
+						if (mEntities.size() == 0) {
+							lockFooter(true);
+						}
+						else {
+							lockFooter(false);
+						}
 					}
-					else {
-						lockFooter(false);
-					}
+					showButtonSpecial(mEntities.size() == 0, mListEmptyMessageResId, mHeaderView);
 				}
-				showButtonSpecial(mEntities.size() == 0, mListEmptyMessageResId, mHeaderView);
-//			}
-		}
-		if (!NetworkManager.getInstance().isWifiEnabled()
-				&& !LocationManager.getInstance().isLocationAccessEnabled()) {
-			mFooterHolder.setVisibility(View.INVISIBLE);
-		}
+				if (!NetworkManager.getInstance().isWifiEnabled()
+						&& !LocationManager.getInstance().isLocationAccessEnabled()) {
+					mFooterHolder.setVisibility(View.INVISIBLE);
+				}
 
-		if (getActivity() instanceof BaseEntityForm) {
-			handleFooter(true, AnimationManager.DURATION_MEDIUM);
-		}
-		else {
-			handleFooter((mAdapter.getCount() > 0), AnimationManager.DURATION_MEDIUM);
-		}
+				if (getActivity() instanceof BaseEntityForm) {
+					handleFooter(true, AnimationManager.DURATION_MEDIUM);
+				}
+				else {
+					handleFooter((mAdapter.getCount() > 0), AnimationManager.DURATION_MEDIUM);
+				}
+			}
+		});
 	}
 
 	@Override
