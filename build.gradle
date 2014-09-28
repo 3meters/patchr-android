@@ -1,4 +1,3 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
         jcenter()
@@ -8,17 +7,81 @@ buildscript {
     }
 }
 
-ext {
-    compileSdkVersion = 19
-    buildToolsVersion = '20.0.0'
-    minSdkVersion = 15
-    targetSdkVersion = 19
-    versionCode = 169
-    versionName = '1.3.4'
-}
-
 allprojects {
     repositories {
         jcenter()
     }
+}
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion '20.0.0'
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 19
+        versionCode 169
+        versionName '1.3.4'
+        /*
+         * Official package name used by the Google Play store.
+         * WARNING: Changing this will create a new app with no history.
+         */
+        applicationId 'com.aircandi.catalina'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('aircandi.keystore')
+            keyAlias 'aircandi'
+            storePassword 'Doo.dah.1'
+            keyPassword 'Doo.dah.1'
+        }
+    }
+
+    buildTypes {
+        release {
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            signingConfig signingConfigs.release
+            zipAlign true
+            debuggable false
+            applicationVariants.all { variant ->
+                def file = variant.outputFile
+                variant.outputFile = new File(file.parent, file.name.replace(".apk", "-" + defaultConfig.versionName + ".apk"))
+            }
+        }
+
+        debug {
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            zipAlign true
+            debuggable true
+        }
+    }
+}
+
+dependencies {
+
+    //noinspection GradleDependency,GradleDependency
+    compile 'com.android.support:support-v4:20.+'
+    compile 'com.google.android.gms:play-services:+'
+    compile 'com.squareup.okhttp:okhttp:2.0.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
+    compile 'com.squareup.okio:okio:1.0.0'
+    compile 'com.squareup:otto:1.3.5'
+    compile 'com.squareup.picasso:picasso:2.3.+'
+    compile 'net.minidev:json-smart:1.2'
+    compile 'com.github.castorflex.smoothprogressbar:library:0.5.+'
+    compile 'com.google.maps.android:android-maps-utils:0.3+'
+    compile files('libs/aws-android-sdk-2.0.5-core.jar')
+    compile files('libs/aws-android-sdk-2.0.5-s3.jar')
+    compile files('libs/crashlytics.jar')
+    compile files('libs/google-analytics-services-v3.jar')
+    compile files('libs/image-chooser-library.jar')
+    compile files('libs/imageviewtouch.jar')
+    compile files('libs/tokenautocomplete-1.2.1.jar')
+    compile files('libs/cwac-adapter-wrapper.jar')
+    compile files('libs/endless-1.2.3.jar')
 }
