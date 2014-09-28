@@ -13,6 +13,7 @@ import com.aircandi.Aircandi;
 import com.aircandi.catalina.Catalina;
 import com.aircandi.catalina.Constants;
 import com.aircandi.catalina.R;
+import com.aircandi.catalina.queries.AlertsQuery;
 import com.aircandi.catalina.queries.MessagesQuery;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
@@ -70,7 +71,8 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 			if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
 				mConfiguredForAnonymous = true;
 				findViewById(R.id.group_messages_header).setVisibility(View.GONE);
-				findViewById(R.id.item_feed).setVisibility(View.GONE);
+				findViewById(R.id.item_feed_messages).setVisibility(View.GONE);
+				findViewById(R.id.item_feed_alerts).setVisibility(View.GONE);
 				findViewById(R.id.item_watch).setVisibility(View.GONE);
 				findViewById(R.id.item_create).setVisibility(View.GONE);
 				mUserView.databind(Aircandi.getInstance().getCurrentUser());
@@ -78,7 +80,8 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 			else {
 				mConfiguredForAnonymous = false;
 				findViewById(R.id.group_messages_header).setVisibility(View.VISIBLE);
-				findViewById(R.id.item_feed).setVisibility(View.VISIBLE);
+				findViewById(R.id.item_feed_messages).setVisibility(View.VISIBLE);
+				findViewById(R.id.item_feed_alerts).setVisibility(View.VISIBLE);
 				findViewById(R.id.item_watch).setVisibility(View.VISIBLE);
 				findViewById(R.id.item_create).setVisibility(View.VISIBLE);
 				mUserView.databind(Aircandi.getInstance().getCurrentUser());
@@ -184,7 +187,7 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
-			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_FEED)) {
+			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MESSAGES)) {
 
 				fragment = new MessageListFragment();
 
@@ -203,10 +206,40 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 						.setListLayoutResId(R.layout.entity_list_fragment)
 						.setListItemResId(R.layout.temp_listitem_message)
 						.setListLoadingResId(R.layout.temp_list_item_loading)
-						.setListEmptyMessageResId(R.string.label_feed_empty)
+						.setListEmptyMessageResId(R.string.label_feed_messages_empty)
 						.setSelfBindingEnabled(true)
 						.setActivityStream(true)
-						.setTitleResId(R.string.label_feed_title);
+						.setTitleResId(R.string.label_feed_messages_title);
+
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
+			}
+
+			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_ALERTS)) {
+
+				fragment = new AlertListFragment();
+
+				EntityMonitor monitor = new EntityMonitor(Aircandi.getInstance().getCurrentUser().id);
+				AlertsQuery query = new AlertsQuery();
+
+				query.setEntityId(Aircandi.getInstance().getCurrentUser().id)
+				     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
+				     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
+
+				((EntityListFragment) fragment)
+						.setMonitor(monitor)
+						.setQuery(query)
+						.setFooterEnabled(false)
+						.setListViewType(ViewType.LIST)
+						.setListLayoutResId(R.layout.entity_list_fragment)
+						.setListItemResId(R.layout.temp_listitem_alert)
+						.setListLoadingResId(R.layout.temp_list_item_loading)
+						.setListEmptyMessageResId(R.string.label_feed_alerts_empty)
+						.setSelfBindingEnabled(true)
+						.setActivityStream(true)
+						.setTitleResId(R.string.label_feed_alerts_title);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
@@ -406,6 +439,7 @@ public class AircandiForm extends com.aircandi.ui.AircandiForm {
 	protected void updateDrawer() {
 		super.updateDrawer();
 		if (mCurrentNavView != null) {
+			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_feed_alerts).findViewById(com.aircandi.R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_trend_activity).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_trend_popular).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceMedium((TextView) mCurrentNavView.findViewById(R.id.name));

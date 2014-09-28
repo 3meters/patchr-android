@@ -61,6 +61,40 @@ public class EntityManager extends com.aircandi.components.EntityManager {
 		return result;
 	}
 
+	public synchronized ModelResult loadAlerts(String entityId, Cursor cursor) {
+
+		final ModelResult result = new ModelResult();
+
+		final Bundle parameters = new Bundle();
+		parameters.putString("entityId", entityId);
+
+		if (cursor != null) {
+			parameters.putString("cursor", "object:" + Json.objectToJson(cursor));
+		}
+
+		final ServiceRequest serviceRequest = new ServiceRequest()
+				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getAlerts")
+				.setRequestType(RequestType.METHOD)
+				.setParameters(parameters)
+				.setResponseFormat(ResponseFormat.JSON);
+
+		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		}
+
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			final String jsonResponse = (String) result.serviceResponse.data;
+			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
+			final List<Entity> loadedEntities = (List<Entity>) serviceData.data;
+			result.serviceResponse.data = serviceData;
+			result.data = loadedEntities;
+		}
+
+		return result;
+	}
+
 	public ModelResult deleteMessage(String entityId, Boolean cacheOnly, String seedParentId) {
 		/*
 		 * We sequence calls to delete the message and if the message is a seed then

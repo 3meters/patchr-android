@@ -170,14 +170,14 @@ public class AircandiForm extends BaseActivity {
 
 		if (configChange) {
 			if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-				findViewById(R.id.item_feed).setVisibility(View.GONE);
+				findViewById(R.id.item_feed_messages).setVisibility(View.GONE);
 				findViewById(R.id.item_watch).setVisibility(View.GONE);
 				findViewById(R.id.item_create).setVisibility(View.GONE);
 				mConfiguredForAnonymous = true;
 			}
 			else {
 				mConfiguredForAnonymous = false;
-				findViewById(R.id.item_feed).setVisibility(View.VISIBLE);
+				findViewById(R.id.item_feed_messages).setVisibility(View.VISIBLE);
 				findViewById(R.id.item_watch).setVisibility(View.VISIBLE);
 				findViewById(R.id.item_create).setVisibility(View.VISIBLE);
 				mUserView.databind(Aircandi.getInstance().getCurrentUser());
@@ -338,7 +338,7 @@ public class AircandiForm extends BaseActivity {
 						.setQuery(query)
 						.setActivityStream(true)
 						.setSelfBindingEnabled(true)
-						.setTitleResId(R.string.label_feed_title);
+						.setTitleResId(R.string.label_feed_messages_title);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_place);
@@ -468,7 +468,7 @@ public class AircandiForm extends BaseActivity {
 	@SuppressWarnings("ucd")
 	protected void updateDrawer() {
 		if (mCurrentNavView != null) {
-			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_feed).findViewById(R.id.name));
+			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_feed_messages).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_nearby).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_watch).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_create).findViewById(R.id.name));

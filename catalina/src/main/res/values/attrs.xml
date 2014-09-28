@@ -5,6 +5,7 @@
 		<attr name="iconPatch" format="reference" />
 		<attr name="iconMessage" format="reference" />
 		<attr name="iconMessageNew" format="reference" />
+		<attr name="iconAlert" format="reference" />
 	</declare-styleable>
 
 </resources>

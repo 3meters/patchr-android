@@ -14,6 +14,7 @@
 		<item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_dark</item>
 		<item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Dark</item>
 
+		<item name="iconAlert">@drawable/ic_action_alert_dark</item>
 		<item name="iconMessage">@drawable/ic_action_message_dark</item>
 		<item name="iconMessageNew">@drawable/ic_edit</item>
 		<item name="iconPatch">@drawable/ic_action_patch_new_dark</item>
@@ -33,6 +34,7 @@
 		<item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_light</item>
 		<item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Light</item>
 
+		<item name="iconAlert">@drawable/ic_action_alert_light</item>
 		<item name="iconMessage">@drawable/ic_action_message_light</item>
 		<item name="iconMessageNew">@drawable/ic_edit</item>
 		<item name="iconPatch">@drawable/ic_action_add_light</item>

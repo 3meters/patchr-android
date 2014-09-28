@@ -407,7 +407,7 @@
 	<string name="label_radar_title">Nearby</string>
 	<string name="label_watch_title">Watching</string>
 	<string name="label_create_title">My [@string/container_plural_lowercase]</string>
-	<string name="label_feed_title">Activity</string>
+	<string name="label_feed_messages_title">Activity</string>
 	<string name="label_history_title">History</string>
 	<string name="label_profile_title">Profile</string>
 
@@ -451,7 +451,7 @@
 	<string name="label_drawer_item_nearby">Nearby</string>
 	<string name="label_drawer_item_watch">Watching</string>
 	<string name="label_drawer_item_create">Made by me</string>
-	<string name="label_drawer_item_feed">Activity</string>
+	<string name="label_drawer_item_feed_messages">Activity</string>
 	<string name="label_drawer_item_profile">Profile</string>
 	<string name="label_drawer_item_history">History</string>
 

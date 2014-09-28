@@ -15,6 +15,7 @@ public class Constants extends com.aircandi.Constants {
 
 	public static final String FRAGMENT_TYPE_SENT     = "sent";
 	public static final String FRAGMENT_TYPE_MESSAGES = "messages";
+	public static final String FRAGMENT_TYPE_ALERTS   = "alerts";
 
 	public static final String NAVIGATION_CATEGORY_MESSAGES = "messages";
 }

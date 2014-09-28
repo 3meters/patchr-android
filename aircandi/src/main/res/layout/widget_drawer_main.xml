@@ -55,7 +55,7 @@
 		android:background="?attr/ruleColor" />
 
 	<LinearLayout
-		android:id="@+id/item_feed"
+		android:id="@+id/item_feed_messages"
 		style="@style/selectable_item"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/drawer_item_height"
@@ -80,9 +80,9 @@
 			android:layout_gravity="center_vertical"
 			android:layout_marginRight="10dp"
 			android:layout_weight="1"
-			android:text="@string/label_drawer_item_feed"
+			android:text="@string/label_drawer_item_feed_messages"
 			android:textAppearance="?android:attr/textAppearanceMedium"
-			custom:textId="@string/label_drawer_item_feed" />
+			custom:textId="@string/label_drawer_item_feed_messages" />
 
 		<ImageView
 			android:id="@+id/indicator"

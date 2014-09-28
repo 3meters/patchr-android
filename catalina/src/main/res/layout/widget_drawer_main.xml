@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:clickable="true"
@@ -46,7 +45,7 @@
 					android:layout_gravity="center_vertical"
 					android:layout_marginLeft="12dp"
 					android:layout_marginTop="8dp"
-					android:text="@string/label_drawer_section_places"
+					android:text="@string/label_drawer_section_messages"
 					android:textAppearance="?android:attr/textAppearance"
 					android:textColor="@color/brand_primary"
 					custom:textId="@string/label_drawer_section_messages" />
@@ -58,14 +57,14 @@
 			</LinearLayout>
 
 			<RelativeLayout
-				android:id="@+id/item_feed"
+				android:id="@+id/item_feed_messages"
 				style="@style/selectable_item"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/drawer_item_height"
 				android:clickable="true"
 				android:onClick="onDrawerItemClick"
 				android:orientation="horizontal"
-				android:tag="feed">
+				android:tag="messages">
 
 				<ImageView
 					android:id="@+id/image_messages_all"
@@ -84,9 +83,47 @@
 					android:layout_centerVertical="true"
 					android:layout_marginRight="10dp"
 					android:layout_toRightOf="@+id/image_messages_all"
-					android:text="@string/label_drawer_item_feed"
+					android:text="@string/label_drawer_item_feed_messages"
 					android:textAppearance="?android:attr/textAppearanceMedium"
-					custom:textId="@string/label_drawer_item_feed" />
+					custom:textId="@string/label_drawer_item_feed_messages" />
+
+			</RelativeLayout>
+
+			<RelativeLayout
+				android:id="@+id/item_feed_alerts"
+				style="@style/selectable_item"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/drawer_item_height"
+				android:clickable="true"
+				android:onClick="onDrawerItemClick"
+				android:orientation="horizontal"
+				android:tag="alerts">
+
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/rule_divider_height"
+					android:background="?attr/ruleColor" />
+
+				<ImageView
+					android:id="@+id/image_alerts"
+					android:layout_width="@dimen/image_extra_small"
+					android:layout_height="@dimen/image_extra_small"
+					android:layout_centerVertical="true"
+					android:layout_marginLeft="12dp"
+					android:layout_marginRight="6dp"
+					android:focusable="false"
+					android:src="?attr/iconAlert" />
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@id/name"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_centerVertical="true"
+					android:layout_marginRight="10dp"
+					android:layout_toRightOf="@+id/image_alerts"
+					android:text="@string/label_drawer_item_feed_alerts"
+					android:textAppearance="?android:attr/textAppearanceMedium"
+					custom:textId="@string/label_drawer_item_feed_alerts" />
 
 			</RelativeLayout>
 
