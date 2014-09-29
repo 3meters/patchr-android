@@ -4,11 +4,11 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
-import com.aircandi.controllers.IEntityController;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.events.MessageEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
@@ -67,7 +67,7 @@ public class EntityList extends BaseActivity {
 	}
 
 	public void draw(View view){
-		IEntityController controller = Aircandi.getInstance().getControllerForSchema(mParams.getListLinkSchema());
+		IEntityController controller = Patch.getInstance().getControllerForSchema(mParams.getListLinkSchema());
 		Drawable icon = controller.getIcon();
 		mActionBar.setIcon(icon);
 		setActivityTitle((mParams.getListTitle() != null) ? mParams.getListTitle() : controller.getName(true));
@@ -128,7 +128,7 @@ public class EntityList extends BaseActivity {
 	@SuppressWarnings("ucd")
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Aircandi.dispatch.route(this, Route.BROWSE, entity, null, null);
+		Patch.dispatch.route(this, Route.BROWSE, entity, null, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------

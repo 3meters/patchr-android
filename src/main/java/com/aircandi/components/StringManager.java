@@ -3,7 +3,7 @@ package com.aircandi.components;
 import android.content.Context;
 import android.content.res.Resources;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.objects.Entity;
 
 @SuppressWarnings("ucd")
@@ -21,16 +21,16 @@ public class StringManager {
 	}
 
 	public static String getString(int resId) {
-		String string = Aircandi.applicationContext.getResources().getString(resId);
-		return getString(string, Aircandi.applicationContext, Aircandi.applicationContext.getResources(), null);
+		String string = Patch.applicationContext.getResources().getString(resId);
+		return getString(string, Patch.applicationContext, Patch.applicationContext.getResources(), null);
 	}
 
 	public static String getString(String string) {
-		return getString(string, Aircandi.applicationContext, Aircandi.applicationContext.getResources(), null);
+		return getString(string, Patch.applicationContext, Patch.applicationContext.getResources(), null);
 	}
 
 	public static String getString(int resId, Context context, Resources resources) {
-		String string = Aircandi.applicationContext.getResources().getString(resId);
+		String string = Patch.applicationContext.getResources().getString(resId);
 		return getString(string, context, resources, null);
 	}
 
@@ -39,16 +39,16 @@ public class StringManager {
 	 */
 
 	public static String getString(int resId, String schema) {
-		String string = Aircandi.applicationContext.getResources().getString(resId);
-		return getString(string, Aircandi.applicationContext, Aircandi.applicationContext.getResources(), schema);
+		String string = Patch.applicationContext.getResources().getString(resId);
+		return getString(string, Patch.applicationContext, Patch.applicationContext.getResources(), schema);
 	}
 
 	public static String getString(String string, String schema) {
-		return getString(string, Aircandi.applicationContext, Aircandi.applicationContext.getResources(), schema);
+		return getString(string, Patch.applicationContext, Patch.applicationContext.getResources(), schema);
 	}
 
 	public static String getString(int resId, Context context, Resources resources, String schema) {
-		String string = Aircandi.applicationContext.getResources().getString(resId);
+		String string = Patch.applicationContext.getResources().getString(resId);
 		return getString(string, context, resources, schema);
 	}
 

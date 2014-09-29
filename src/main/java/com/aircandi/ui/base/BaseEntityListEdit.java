@@ -17,10 +17,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
+import com.aircandi.interfaces.IBind;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
@@ -135,12 +136,12 @@ public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 				intent.putStringArrayListExtra(Constants.EXTRA_ENTITIES, (ArrayList<String>) jsonEntities);
 				setResultCode(Activity.RESULT_OK, intent);
 				finish();
-				Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.FORM_TO_PAGE);
+				Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.FORM_TO_PAGE);
 			}
 		}
 		else {
 			finish();
-			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityListEdit.this, TransitionType.FORM_TO_PAGE);
+			Patch.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityListEdit.this, TransitionType.FORM_TO_PAGE);
 		}
 	}
 
@@ -228,7 +229,7 @@ public abstract class BaseEntityListEdit extends BaseEdit implements IBind {
 		mEntityEditing.editing = true;
 		Bundle extras = new Bundle();
 		extras.putBoolean(Constants.EXTRA_SKIP_SAVE, true);
-		Aircandi.dispatch.route(this, Route.EDIT, mEntityEditing, null, extras);
+		Patch.dispatch.route(this, Route.EDIT, mEntityEditing, null, extras);
 	}
 
 	@Override

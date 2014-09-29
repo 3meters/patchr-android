@@ -13,11 +13,11 @@ import android.widget.Filterable;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.DownloadManager;
-import com.aircandi.controllers.IEntityController;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Shortcut;
@@ -69,12 +69,12 @@ public class ShortcutPicker extends BaseActivity {
 			Shortcut shortcut = mShortcuts.get(0);
 
 			/* Show default photo based on the type of the shortcut set */
-			IEntityController controller = Aircandi.getInstance().getControllerForSchema(shortcut.schema);
+			IEntityController controller = Patch.getInstance().getControllerForSchema(shortcut.schema);
 			Photo photo = controller.getDefaultPhoto(shortcut.app);
 
-			Integer width = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_thumbnail);
+			Integer width = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_thumbnail);
 			//noinspection SuspiciousNameCombination
-			DownloadManager.with(Aircandi.applicationContext)
+			DownloadManager.with(Patch.applicationContext)
 			               .load(photo.getUri())
 			               .centerCrop()
 			               .placeholder(null)
@@ -88,7 +88,7 @@ public class ShortcutPicker extends BaseActivity {
 				               @Override
 				               public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
 					               DownloadManager.checkDebug(bitmap, loadedFrom);
-					               mActionBar.setIcon(new BitmapDrawable(Aircandi.applicationContext.getResources(), bitmap));
+					               mActionBar.setIcon(new BitmapDrawable(Patch.applicationContext.getResources(), bitmap));
 				               }
 
 				               @Override
@@ -113,7 +113,7 @@ public class ShortcutPicker extends BaseActivity {
 	@SuppressWarnings("ucd")
 	public void onListItemClick(View view) {
 		Shortcut shortcut = (Shortcut) ((ViewHolder) view.getTag()).data;
-		Aircandi.dispatch.shortcut(this, shortcut, mEntity, null, null);
+		Patch.dispatch.shortcut(this, shortcut, mEntity, null, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------

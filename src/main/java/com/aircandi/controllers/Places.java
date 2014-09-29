@@ -2,13 +2,12 @@ package com.aircandi.controllers;
 
 import android.graphics.drawable.Drawable;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.components.AirApplication;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Action;
-import com.aircandi.objects.ActivityBase;
+import com.aircandi.objects.MessageTriggerType;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Place;
@@ -18,8 +17,6 @@ import com.aircandi.ui.PlaceForm;
 import com.aircandi.ui.edit.PlaceEdit;
 import com.aircandi.utilities.DateTime;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class Places extends EntityControllerBase {
@@ -45,7 +42,7 @@ public class Places extends EntityControllerBase {
 
 		Place place = (Place) entity;
 		place.provider = new ProviderMap();
-		place.provider.aircandi = Aircandi.getInstance().getCurrentUser().id;
+		place.provider.aircandi = Patch.getInstance().getCurrentUser().id;
 
 		return place;
 	}
@@ -57,23 +54,9 @@ public class Places extends EntityControllerBase {
 
 	@Override
 	public Drawable getIcon() {
-		Drawable icon = Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_place_temp);
+		Drawable icon = Patch.applicationContext.getResources().getDrawable(R.drawable.img_place_temp);
 		//icon.setColorFilter(Colors.getColor(mColorPrimary), PorterDuff.Mode.SRC_ATOP);
 		return icon;
-	}
-
-	@Override
-	public List<Object> getApplications(String themeTone) {
-
-		final List<Object> listData = new ArrayList<Object>();
-
-		listData.add(new AirApplication(themeTone.equals("light") ? R.drawable.ic_action_picture_light : R.drawable.ic_action_picture_dark
-				, StringManager.getString(R.string.dialog_application_picture_new), null, Constants.SCHEMA_ENTITY_PICTURE));
-
-		listData.add(new AirApplication(themeTone.equals("light") ? R.drawable.ic_action_monolog_light : R.drawable.ic_action_monolog_dark
-				, StringManager.getString(R.string.dialog_application_comment_new), null, Constants.SCHEMA_ENTITY_COMMENT));
-
-		return listData;
 	}
 
 	@Override
@@ -84,7 +67,7 @@ public class Places extends EntityControllerBase {
 	@Override
 	public String getNotificationTicker(ServiceMessage message, String eventCategory) {
 		if (eventCategory.equals(Action.EventCategory.INSERT)) {
-			if (message.getTriggerCategory().equals(ActivityBase.TriggerType.NEARBY)) {
+			if (message.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
 				return String.format(StringManager.getString(R.string.label_notification_ticker_place_insert_nearby), message.title);
 			}
 			return String.format(StringManager.getString(R.string.label_notification_ticker_place_insert), message.title);

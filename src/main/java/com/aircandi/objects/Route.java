@@ -34,13 +34,11 @@ public class Route {
 	public static int PASSWORD_RESET     = 30;
 	public static int SPLASH             = 31;
 	public static int PHOTO_SOURCE       = 32;
-	public static int APPLINKS_EDIT      = 33;
 	public static int PHOTO_FROM_CAMERA  = 35;
 	public static int PHOTO_SEARCH       = 36;
 	public static int PHOTO_PLACE_SEARCH = 37;
 	public static int PLACE_SEARCH       = 38;
 	public static int TUNE               = 39;
-	public static int NEW_PICKER         = 40;
 	public static int TEST               = 41;
 	public static int ABOUT              = 43;
 	public static int ZOOM_IN            = 44;
@@ -53,4 +51,5 @@ public class Route {
 	public static int WATCHERS           = 51;
 	public static int NAVIGATE           = 52;
 	public static int PLACE_LIST         = 53;
+	public static int MAP                = 54;
 }

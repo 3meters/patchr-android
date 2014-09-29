@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
@@ -46,7 +46,7 @@ public final class Errors {
 		if (errorResponse.errorResponseType == ResponseType.DIALOG) {
 			if (activity != null) {
 				final String errorMessage = errorResponse.errorMessage;
-				Aircandi.mainThreadHandler.post(new Runnable() {
+				Patch.mainThreadHandler.post(new Runnable() {
 
 					@Override
 					public void run() {
@@ -74,7 +74,7 @@ public final class Errors {
 		 * Perform any follow-up actions.
 		 */
 		if (errorResponse.track) {
-			Aircandi.tracker.sendException(serviceResponse.exception);
+			Patch.tracker.sendException(serviceResponse.exception);
 		}
 
 		if (errorResponse.signout) {
@@ -85,7 +85,7 @@ public final class Errors {
 			 * Mostly because a more current client version is required.
 			 */
 			if (activity != null && !activity.getClass().getSimpleName().equals("SplashForm")) {
-				Aircandi.dispatch.route(activity, Route.SPLASH, null, null, null);
+				Patch.dispatch.route(activity, Route.SPLASH, null, null, null);
 			}
 		}
 	}
@@ -188,7 +188,7 @@ public final class Errors {
 					 * is not allowed to access the service api.
 					 */
 					ErrorResponse errorResponse = new ErrorResponse(ResponseType.NONE, StringManager.getString(R.string.dialog_update_message));
-					Aircandi.applicationUpdateRequired = true;
+					Patch.applicationUpdateRequired = true;
 					errorResponse.track = true;
 					errorResponse.splash = true;
 					return errorResponse;
@@ -241,8 +241,8 @@ public final class Errors {
 					}
 
 					/* Show unfriendly message if user is developer and dev stuff is enabled */
-					if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-							&& Type.isTrue(Aircandi.getInstance().getCurrentUser().developer))
+					if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+							&& Type.isTrue(Patch.getInstance().getCurrentUser().developer))
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unknown_exception) + ": "
 								+ exception.getClass().getSimpleName());
 
@@ -264,8 +264,8 @@ public final class Errors {
 					 * - 500: Something bad and unknown has happened in the service.
 					 * - 502: Something bad and unknown has happened with a third party service (via our service)
 					 */
-					if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-							&& Type.isTrue(Aircandi.getInstance().getCurrentUser().developer))
+					if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+							&& Type.isTrue(Patch.getInstance().getCurrentUser().developer))
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unknown_status));
 					return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unknown));
 				}
@@ -342,7 +342,7 @@ public final class Errors {
 					 * is not allowed to access the service api.
 					 */
 					ErrorResponse errorResponse = new ErrorResponse(ResponseType.NONE, StringManager.getString(R.string.dialog_update_message));
-					Aircandi.applicationUpdateRequired = true;
+					Patch.applicationUpdateRequired = true;
 					errorResponse.track = true;
 					errorResponse.splash = true;
 					return errorResponse;
@@ -421,8 +421,8 @@ public final class Errors {
 						}
 
 						/* Show unfriendly message if user is developer and dev stuff is enabled */
-						if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-								&& Type.isTrue(Aircandi.getInstance().getCurrentUser().developer))
+						if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+								&& Type.isTrue(Patch.getInstance().getCurrentUser().developer))
 							return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unknown_exception) + ": "
 									+ exception.getClass().getSimpleName());
 

@@ -1,7 +1,7 @@
 package com.aircandi.controllers;
 
-import com.aircandi.Aircandi;
-import com.aircandi.Aircandi.ThemeTone;
+import com.aircandi.Patch;
+import com.aircandi.Patch.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Entity;
@@ -39,7 +39,7 @@ public class Users extends EntityControllerBase {
 
 	@Override
 	public Photo getDefaultPhoto(String type) {
-		String prefix = Aircandi.themeTone.equals(ThemeTone.LIGHT) ? "img_user_generic_light" : "img_user_generic_dark";
+		String prefix = Patch.themeTone.equals(ThemeTone.LIGHT) ? "img_user_generic_light" : "img_user_generic_dark";
 		String source = PhotoSource.resource;
 		Photo photo = new Photo(prefix, null, null, null, source);
 		return photo;

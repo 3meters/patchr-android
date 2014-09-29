@@ -16,8 +16,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
@@ -112,8 +112,8 @@ public class AircandiForm extends BaseActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (mActionBar == null) {
-			Aircandi.firstStartIntent = getIntent();
-			Aircandi.dispatch.route(this, Route.SPLASH, null, null, null);
+			Patch.firstStartIntent = getIntent();
+			Patch.dispatch.route(this, Route.SPLASH, null, null, null);
 		}
 		else {
 			FontManager.getInstance().setTypefaceMedium((TextView) findViewById(R.id.item_nearby).findViewById(R.id.name));
@@ -131,7 +131,7 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		mUserView = (UserView) findViewById(R.id.user_current);
-		mUserView.setTag(Aircandi.getInstance().getCurrentUser());
+		mUserView.setTag(Patch.getInstance().getCurrentUser());
 		mDrawer = findViewById(R.id.drawer);
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerLayout.setFocusableInTouchMode(false);
@@ -183,18 +183,18 @@ public class AircandiForm extends BaseActivity {
 	protected void configureDrawer() {
 
 		Boolean configChange = mConfiguredForAnonymous == null
-				|| !Aircandi.getInstance().getCurrentUser().isAnonymous().equals(mConfiguredForAnonymous)
-				|| (mCacheStamp != null && !mCacheStamp.equals(Aircandi.getInstance().getCurrentUser().getCacheStamp()));
+				|| !Patch.getInstance().getCurrentUser().isAnonymous().equals(mConfiguredForAnonymous)
+				|| (mCacheStamp != null && !mCacheStamp.equals(Patch.getInstance().getCurrentUser().getCacheStamp()));
 
 		if (configChange) {
-			if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+			if (Patch.getInstance().getCurrentUser().isAnonymous()) {
 				mConfiguredForAnonymous = true;
 				findViewById(R.id.group_messages_header).setVisibility(View.GONE);
 				findViewById(R.id.item_feed_messages).setVisibility(View.GONE);
 				findViewById(R.id.item_feed_alerts).setVisibility(View.GONE);
 				findViewById(R.id.item_watch).setVisibility(View.GONE);
 				findViewById(R.id.item_create).setVisibility(View.GONE);
-				mUserView.databind(Aircandi.getInstance().getCurrentUser());
+				mUserView.databind(Patch.getInstance().getCurrentUser());
 			}
 			else {
 				mConfiguredForAnonymous = false;
@@ -203,8 +203,8 @@ public class AircandiForm extends BaseActivity {
 				findViewById(R.id.item_feed_alerts).setVisibility(View.VISIBLE);
 				findViewById(R.id.item_watch).setVisibility(View.VISIBLE);
 				findViewById(R.id.item_create).setVisibility(View.VISIBLE);
-				mUserView.databind(Aircandi.getInstance().getCurrentUser());
-				mCacheStamp = Aircandi.getInstance().getCurrentUser().getCacheStamp();
+				mUserView.databind(Patch.getInstance().getCurrentUser());
+				mCacheStamp = Patch.getInstance().getCurrentUser().getCacheStamp();
 			}
 		}
 	}
@@ -257,12 +257,12 @@ public class AircandiForm extends BaseActivity {
 		if (!(entity.schema.equals(Constants.SCHEMA_ENTITY_USER) && ((User) entity).isAnonymous())) {
 			Bundle extras = new Bundle();
 			if (Type.isTrue(entity.autowatchable)) {
-				if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
+				if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
 						, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
 					extras.putBoolean(Constants.EXTRA_AUTO_WATCH, true);
 				}
 			}
-			Aircandi.dispatch.route(this, Route.BROWSE, entity, null, extras);
+			Patch.dispatch.route(this, Route.BROWSE, entity, null, extras);
 		}
 		if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mDrawer)) {
 			mDrawerLayout.closeDrawer(mDrawer);
@@ -272,7 +272,7 @@ public class AircandiForm extends BaseActivity {
 	@SuppressWarnings("ucd")
 	public void onShortcutClick(View view) {
 		final Shortcut shortcut = (Shortcut) view.getTag();
-		Aircandi.dispatch.shortcut(this, shortcut, null, null, null);
+		Patch.dispatch.shortcut(this, shortcut, null, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -295,7 +295,7 @@ public class AircandiForm extends BaseActivity {
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
 		}
 		extras.putString(Constants.EXTRA_MESSAGE, StringManager.getString(R.string.label_message_new_message));
-		Aircandi.dispatch.route(this, Route.NEW, null, null, extras);
+		Patch.dispatch.route(this, Route.NEW, null, null, extras);
 	}
 
 	@Override
@@ -379,10 +379,10 @@ public class AircandiForm extends BaseActivity {
 
 				fragment = new MessageListFragment();
 
-				EntityMonitor monitor = new EntityMonitor(Aircandi.getInstance().getCurrentUser().id);
+				EntityMonitor monitor = new EntityMonitor(Patch.getInstance().getCurrentUser().id);
 				MessagesQuery query = new MessagesQuery();
 
-				query.setEntityId(Aircandi.getInstance().getCurrentUser().id)
+				query.setEntityId(Patch.getInstance().getCurrentUser().id)
 				     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
 				     .setSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
 
@@ -409,10 +409,10 @@ public class AircandiForm extends BaseActivity {
 
 				fragment = new AlertListFragment();
 
-				EntityMonitor monitor = new EntityMonitor(Aircandi.getInstance().getCurrentUser().id);
+				EntityMonitor monitor = new EntityMonitor(Patch.getInstance().getCurrentUser().id);
 				AlertsQuery query = new AlertsQuery();
 
-				query.setEntityId(Aircandi.getInstance().getCurrentUser().id)
+				query.setEntityId(Patch.getInstance().getCurrentUser().id)
 				     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
 				     .setSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
 
@@ -439,10 +439,10 @@ public class AircandiForm extends BaseActivity {
 
 				fragment = new EntityListFragment();
 
-				EntityMonitor monitor = new EntityMonitor(Aircandi.getInstance().getCurrentUser().id);
+				EntityMonitor monitor = new EntityMonitor(Patch.getInstance().getCurrentUser().id);
 				EntitiesQuery query = new EntitiesQuery();
 
-				query.setEntityId(Aircandi.getInstance().getCurrentUser().id)
+				query.setEntityId(Patch.getInstance().getCurrentUser().id)
 				     .setLinkDirection(Link.Direction.out.name())
 				     .setLinkType(Constants.TYPE_LINK_WATCH)
 				     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
@@ -469,10 +469,10 @@ public class AircandiForm extends BaseActivity {
 
 				fragment = new EntityListFragment();
 
-				EntityMonitor monitor = new EntityMonitor(Aircandi.getInstance().getCurrentUser().id);
+				EntityMonitor monitor = new EntityMonitor(Patch.getInstance().getCurrentUser().id);
 				EntitiesQuery query = new EntitiesQuery();
 
-				query.setEntityId(Aircandi.getInstance().getCurrentUser().id)
+				query.setEntityId(Patch.getInstance().getCurrentUser().id)
 				     .setLinkDirection(Link.Direction.out.name())
 				     .setLinkType(Constants.TYPE_LINK_CREATE)
 				     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
@@ -583,6 +583,7 @@ public class AircandiForm extends BaseActivity {
 					.setTitleResId(((EntityListFragment) getCurrentFragment()).getTitleResId())
 					.setZoomLevel(null);
 
+			//noinspection ConstantConditions
 			if (!mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
 				((MapListFragment) fragment).setZoomLevel(MapListFragment.ZOOM_COUNTY);
 			}
@@ -608,7 +609,7 @@ public class AircandiForm extends BaseActivity {
 		 * we will get that event and refresh radar with beacon support.
 		 */
 		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
-		if (tethered || (!NetworkManager.getInstance().isWifiEnabled() && !Aircandi.usingEmulator)) {
+		if (tethered || (!NetworkManager.getInstance().isWifiEnabled() && !Patch.usingEmulator)) {
 
 			UI.showToastNotification(StringManager.getString(tethered
 			                                                 ? R.string.alert_wifi_tethered
@@ -667,11 +668,14 @@ public class AircandiForm extends BaseActivity {
 
 	protected void updateFooter() {
 		if (mFooterHolder != null) {
-			if (mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_FEED)) {
+			if (mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_ALERTS)
+					|| mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MESSAGES)) {
 				mFooterHolder.setVisibility(View.GONE);
 			}
 			else {
-				mFooterHolder.setTag(mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP) ? mPrevFragmentTag : Constants.FRAGMENT_TYPE_MAP);
+				mFooterHolder.setTag(mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)
+				                     ? mPrevFragmentTag
+				                     : Constants.FRAGMENT_TYPE_MAP);
 				String label = StringManager.getString(mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)
 				                                       ? R.string.label_view_list
 				                                       : R.string.label_view_map);
@@ -730,7 +734,7 @@ public class AircandiForm extends BaseActivity {
 		super.onPrepareOptionsMenu(menu);
 
 		/* Manage activity alert */
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
 			updateActivityAlert();
 		}
 
@@ -760,14 +764,14 @@ public class AircandiForm extends BaseActivity {
 			}
 
 			/* Don't need to show the user email in two places */
-			if (Aircandi.getInstance().getCurrentUser() != null && Aircandi.getInstance().getCurrentUser().name != null) {
+			if (Patch.getInstance().getCurrentUser() != null && Patch.getInstance().getCurrentUser().name != null) {
 				String subtitle = null;
 				if (!drawerOpen) {
-					if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-						subtitle = Aircandi.getInstance().getCurrentUser().name.toUpperCase(Locale.US);
+					if (Patch.getInstance().getCurrentUser().isAnonymous()) {
+						subtitle = Patch.getInstance().getCurrentUser().name.toUpperCase(Locale.US);
 					}
 					else {
-						subtitle = Aircandi.getInstance().getCurrentUser().email.toLowerCase(Locale.US);
+						subtitle = Patch.getInstance().getCurrentUser().email.toLowerCase(Locale.US);
 					}
 				}
 				mActionBar.setSubtitle(subtitle);
@@ -814,13 +818,13 @@ public class AircandiForm extends BaseActivity {
 
 		/* Show current user */
 		if (mActionBar != null
-				&& Aircandi.getInstance().getCurrentUser() != null
-				&& Aircandi.getInstance().getCurrentUser().name != null) {
-			if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-				mActionBar.setSubtitle(Aircandi.getInstance().getCurrentUser().name.toUpperCase(Locale.US));
+				&& Patch.getInstance().getCurrentUser() != null
+				&& Patch.getInstance().getCurrentUser().name != null) {
+			if (Patch.getInstance().getCurrentUser().isAnonymous()) {
+				mActionBar.setSubtitle(Patch.getInstance().getCurrentUser().name.toUpperCase(Locale.US));
 			}
 			else {
-				mActionBar.setSubtitle(Aircandi.getInstance().getCurrentUser().email.toLowerCase(Locale.US));
+				mActionBar.setSubtitle(Patch.getInstance().getCurrentUser().email.toLowerCase(Locale.US));
 			}
 		}
 
@@ -837,7 +841,7 @@ public class AircandiForm extends BaseActivity {
 		 * OnResume gets called after OnCreate (always) and whenever the activity is being brought back to the
 		 * foreground. Not guaranteed but is usually called just before the activity receives focus.
 		 */
-		Aircandi.getInstance().setCurrentPlace(null);
+		Patch.getInstance().setCurrentPlace(null);
 		Logger.v(this, "Setting current place to null");
 		if (mPauseDate != null) {
 			final Long interval = DateTime.nowDate().getTime() - mPauseDate.longValue();
@@ -847,12 +851,12 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		/* Manage activity alert */
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
 			updateActivityAlert();
 		}
 
 		/* In case the user was edited from the drawer */
-		mUserView.databind(Aircandi.getInstance().getCurrentUser());
+		mUserView.databind(Patch.getInstance().getCurrentUser());
 	}
 
 	@Override

@@ -11,7 +11,7 @@ import android.net.Uri;
 import android.view.View;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.AndroidManager;
@@ -129,7 +129,7 @@ public class Dialogs {
 			public void onClick(DialogInterface dialog, int which) {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					try {
-						Aircandi.tracker.sendEvent(TrackerCategory.UX, "aircandi_update_button_click", "com.aircandi", 0);
+						Patch.tracker.sendEvent(TrackerCategory.UX, "aircandi_update_button_click", "com.aircandi", 0);
 						Logger.d(this, "Update: navigating to market install/update page");
 						final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update)));
 						intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -146,7 +146,7 @@ public class Dialogs {
 						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
 					}
 					dialog.dismiss();
-					Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+					Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {
 					dialog.dismiss();
@@ -181,8 +181,8 @@ public class Dialogs {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
-					Aircandi.tracker.sendEvent(TrackerCategory.UX, "aircandi_location_settings_button_click", "com.aircandi", 0);
-					Aircandi.dispatch.route(activity, Route.SETTINGS_LOCATION, null, null, null);
+					Patch.tracker.sendEvent(TrackerCategory.UX, "aircandi_location_settings_button_click", "com.aircandi", 0);
+					Patch.dispatch.route(activity, Route.SETTINGS_LOCATION, null, null, null);
 					dialog.dismiss();
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {
@@ -212,7 +212,7 @@ public class Dialogs {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					String packageName = AndroidManager.getPackageNameByAppName(shortcut.app);
 					try {
-						Aircandi.tracker.sendEvent(TrackerCategory.UX, "app_install_button_click", packageName, 0);
+						Patch.tracker.sendEvent(TrackerCategory.UX, "app_install_button_click", packageName, 0);
 						Logger.d(this, "Install: navigating to market install page");
 
 						final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString("market://details?id="
@@ -238,7 +238,7 @@ public class Dialogs {
 						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
 					}
 					dialog.dismiss();
-					Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+					Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {
 					final ShortcutMeta meta = Shortcut.shortcutMeta.get(shortcut.app);
@@ -250,7 +250,7 @@ public class Dialogs {
 						Shortcut.shortcutMeta.put(shortcut.app, shortcutMeta);
 					}
 					((BaseActivity) activity).setInvalidated(true); // forces redraw
-					Aircandi.dispatch.route(activity, Route.SHORTCUT, entity, shortcut, null);
+					Patch.dispatch.route(activity, Route.SHORTCUT, entity, shortcut, null);
 					dialog.dismiss();
 				}
 				else if (which == DialogInterface.BUTTON_NEUTRAL) {
@@ -262,7 +262,7 @@ public class Dialogs {
 						ShortcutMeta shortcutMeta = new ShortcutMeta(InstallStatus.LATER);
 						Shortcut.shortcutMeta.put(shortcut.app, shortcutMeta);
 					}
-					Aircandi.dispatch.route(activity, Route.SHORTCUT, entity, shortcut, null);
+					Patch.dispatch.route(activity, Route.SHORTCUT, entity, shortcut, null);
 					dialog.dismiss();
 				}
 			}

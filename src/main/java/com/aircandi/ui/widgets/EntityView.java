@@ -98,7 +98,7 @@ public class EntityView extends LinearLayout {
 					mName.setText(mEntity.name);
 				}
 				else {
-					mName.setText(mEntity.getSchemaMapped());
+					mName.setText(mEntity.schema);
 				}
 				UI.setVisibility(mName, View.VISIBLE);
 			}

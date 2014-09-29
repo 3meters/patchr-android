@@ -12,27 +12,24 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.IntentBuilder;
 import com.aircandi.components.StringManager;
-import com.aircandi.objects.Applink;
-import com.aircandi.objects.Count;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.LinkProfile;
-import com.aircandi.objects.Links;
 import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoSource;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.ServiceMessage;
-import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
+import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.EntityList;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.widgets.AirImageView;
@@ -43,9 +40,6 @@ import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.UI;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class EntityControllerBase implements IEntityController {
 
@@ -78,12 +72,25 @@ public abstract class EntityControllerBase implements IEntityController {
 			, Bundle extras
 			, Boolean start) {
 
-		IntentBuilder intentBuilder = new IntentBuilder(context, mBrowseClass);
+		return viewForm(context, entity, entityId, parentId, mSchema, mBrowseClass, linkType, extras, start);
+	}
+
+	public static Intent viewForm(Context context
+			, Entity entity
+			, String entityId
+			, String parentId
+			, String schema
+			, Class<?> browseClass
+			, String linkType
+			, Bundle extras
+			, Boolean start) {
+
+		IntentBuilder intentBuilder = new IntentBuilder(context, browseClass);
 		intentBuilder
 				.setEntityId(entityId)
 				.setEntityParentId(parentId)
 				.setListLinkType(linkType)
-				.setListLinkSchema(mSchema)
+				.setListLinkSchema(schema)
 				.addExtras(extras);
 
 		if (entity != null) {
@@ -97,7 +104,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			context.startActivity(intent);
-			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
 		}
 
 		return intent;
@@ -135,7 +142,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			context.startActivity(intentBuilder.create());
-			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
 		}
 
 		return intent;
@@ -152,7 +159,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			((Activity) context).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ENTITY_EDIT);
-			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
 		}
 
 		return intent;
@@ -169,7 +176,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			((Activity) context).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ENTITY_INSERT);
-			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
 		}
 
 		return intent;
@@ -238,28 +245,6 @@ public abstract class EntityControllerBase implements IEntityController {
 				}
 			}
 		}
-		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_APPLINK)) {
-			String subtitle = null;
-			if (entity.type.equals(Constants.TYPE_APP_WEBSITE)) {
-				subtitle = ((Applink) entity).appUrl;
-			}
-			else if (entity.type.equals(Constants.TYPE_APP_EMAIL)) {
-				subtitle = ((Applink) entity).appId;
-			}
-			else if (entity.type.equals(Constants.TYPE_APP_OPENTABLE)
-					|| entity.type.equals(Constants.TYPE_APP_URBANSPOON)
-					|| entity.type.equals(Constants.TYPE_APP_TRIPADVISOR)) {
-				subtitle = ((Applink) entity).appUrl;
-			}
-			else if (entity.type.equals(Constants.TYPE_APP_GOOGLEPLUS)) {
-				subtitle = ((Applink) entity).appUrl;
-			}
-
-			if (subtitle != null) {
-				holder.subtitle.setText(subtitle);
-				UI.setVisibility(holder.subtitle, View.VISIBLE);
-			}
-		}
 		else {
 			if (holder.subtitle != null && entity.subtitle != null && !entity.subtitle.equals("")) {
 				holder.subtitle.setText(entity.subtitle);
@@ -305,19 +290,6 @@ public abstract class EntityControllerBase implements IEntityController {
 			if (parentEntity != null) {
 				holder.placeName.setText(parentEntity.name);
 				UI.setVisibility(holder.placeName, View.VISIBLE);
-			}
-		}
-
-		/* Comments */
-
-		UI.setVisibility(holder.comments, View.GONE);
-		if (holder.comments != null) {
-			Count count = entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_COMMENT, null, Direction.in);
-			Integer commentCount = (count != null) ? count.count.intValue() : 0;
-			if (commentCount > 0) {
-				holder.comments.setText(String.valueOf(commentCount) + ((commentCount == 1) ? " Comment" : " Comments"));
-				holder.comments.setTag(entity);
-				UI.setVisibility(holder.comments, View.VISIBLE);
 			}
 		}
 
@@ -391,8 +363,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		UI.setVisibility(holder.photoView, View.GONE);
 		if (holder.photoView != null) {
-			final Photo photo = entity.schema.equals(Constants.SCHEMA_ENTITY_COMMENT) ? entity.creator.getPhoto() : entity.getPhoto();
-
+			final Photo photo = entity.getPhoto();
 			if (photo != null) {
 				if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {
 					UI.drawPhoto(holder.photoView, photo);
@@ -444,38 +415,28 @@ public abstract class EntityControllerBase implements IEntityController {
 		//		}
 	}
 
-	@Override
-	public void decorate(Entity entity, Links linkOptions) {
-
-		List<Shortcut> shortcuts = new ArrayList<Shortcut>();
-
-		Aircandi.getInstance().getShortcutManager().getClientShortcuts(shortcuts, entity);
-
-		if (entity.linksIn == null) {
-			entity.linksIn = new ArrayList<Link>();
-		}
-		if (entity.linksInCounts == null) {
-			entity.linksInCounts = new ArrayList<Count>();
-		}
-		else if (entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, null, Direction.in) == null) {
-			entity.linksInCounts.add(new Count(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, null, shortcuts.size()));
-		}
-		else {
-			entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, null, Direction.in).count = entity.getCount(
-					Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, null, Direction.in).count.intValue()
-					+ shortcuts.size();
-		}
-		for (Shortcut shortcut : shortcuts) {
-			Link link = new Link(shortcut.getId(), entity.id, Constants.TYPE_LINK_CONTENT, shortcut.schema);
-			link.shortcut = shortcut;
-			entity.linksIn.add(link);
-		}
-		entity.shortcuts = (linkOptions != null) ? linkOptions.getShortcuts() : false;
-	}
+	//	@Override
+	//	public void decorate(Entity entity, Links linkOptions) {
+	//
+	//		if (entity.linksIn == null) {
+	//			entity.linksIn = new ArrayList<Link>();
+	//		}
+	//
+	//		if (entity.linksInCounts == null) {
+	//			entity.linksInCounts = new ArrayList<Count>();
+	//		}
+	//
+	//		for (Shortcut shortcut : shortcuts) {
+	//			Link link = new Link(shortcut.getId(), entity.id, Constants.TYPE_LINK_CONTENT, shortcut.schema);
+	//			link.shortcut = shortcut;
+	//			entity.linksIn.add(link);
+	//		}
+	//		entity.shortcuts = (linkOptions != null) ? linkOptions.getShortcuts() : false;
+	//	}
 
 	@Override
 	public Drawable getIcon() {
-		Drawable icon = Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
+		Drawable icon = Patch.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
 		//icon.setColorFilter(Colors.getColor(mColorPrimary), PorterDuff.Mode.SRC_ATOP);
 		return icon;
 	}
@@ -487,7 +448,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 	@Override
 	public Drawable getDefaultDrawable(String type) {
-		Drawable drawable = Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_placeholder_logo_bw);
+		Drawable drawable = Patch.applicationContext.getResources().getDrawable(R.drawable.img_placeholder_logo_bw);
 		return drawable;
 	}
 
@@ -535,11 +496,6 @@ public abstract class EntityControllerBase implements IEntityController {
 	}
 
 	@Override
-	public List<Object> getApplications(String themeTone) {
-		return new ArrayList<Object>();
-	}
-
-	@Override
 	public IEntityController setBrowseClass(Class<?> browseClass) {
 		mBrowseClass = browseClass;
 		return this;
@@ -569,5 +525,4 @@ public abstract class EntityControllerBase implements IEntityController {
 		Photo photo = new Photo(prefix, null, null, null, source);
 		return photo;
 	}
-
 }

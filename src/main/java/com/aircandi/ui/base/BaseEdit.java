@@ -6,10 +6,11 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
+import com.aircandi.interfaces.IBind;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
@@ -47,7 +48,7 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-		Aircandi.resultCode = Activity.RESULT_OK;
+		Patch.resultCode = Activity.RESULT_OK;
 	}
 
 	@Override
@@ -112,7 +113,7 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 						onAccept();
 					}
 					else if (which == DialogInterface.BUTTON_NEUTRAL) {
-						Aircandi.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
+						Patch.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
 					}
 				}
 			}
@@ -133,7 +134,7 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					if (which == DialogInterface.BUTTON_POSITIVE) {
-						Aircandi.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
+						Patch.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
 					}
 				}
 			}

@@ -3,7 +3,7 @@ package com.aircandi.components;
 import android.app.Activity;
 import android.app.Fragment;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Fields;
@@ -39,7 +39,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 	@Override
 	public void activityStart(Activity activity) {
 		try {
-			EasyTracker.getInstance(Aircandi.applicationContext).activityStart(activity);
+			EasyTracker.getInstance(Patch.applicationContext).activityStart(activity);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -49,7 +49,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 	@Override
 	public void activityStop(Activity activity) {
 		try {
-			EasyTracker.getInstance(Aircandi.applicationContext).activityStop(activity);
+			EasyTracker.getInstance(Patch.applicationContext).activityStop(activity);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -62,7 +62,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 		 * Arguments should be free of whitespace.
 		 */
 		try {
-			EasyTracker.getInstance(Aircandi.applicationContext).send(MapBuilder.createEvent(category, action, target, value).build());
+			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder.createEvent(category, action, target, value).build());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -75,7 +75,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 		 * Arguments should be free of whitespace.
 		 */
 		try {
-			EasyTracker.getInstance(Aircandi.applicationContext).send(MapBuilder.createTiming(category, timing, name, label).build());
+			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder.createTiming(category, timing, name, label).build());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -88,8 +88,8 @@ public class TrackerGoogleEasy extends TrackerBase {
 		 * Arguments should be free of whitespace.
 		 */
 		try {
-			EasyTracker.getInstance(Aircandi.applicationContext).send(
-					MapBuilder.createException(new StandardExceptionParser(Aircandi.applicationContext, null)
+			EasyTracker.getInstance(Patch.applicationContext).send(
+					MapBuilder.createException(new StandardExceptionParser(Patch.applicationContext, null)
 							.getDescription(Thread.currentThread().getName(), exception), false)
 					          .build()
 			);
@@ -105,8 +105,8 @@ public class TrackerGoogleEasy extends TrackerBase {
 			/*
 			 * Screen name as set will be included in all subsequent sends.
 			 */
-			EasyTracker.getInstance(Aircandi.applicationContext).set(Fields.SCREEN_NAME, ((Object) fragment).getClass().getSimpleName());
-			EasyTracker.getInstance(Aircandi.applicationContext).send(MapBuilder.createAppView().build());
+			EasyTracker.getInstance(Patch.applicationContext).set(Fields.SCREEN_NAME, ((Object) fragment).getClass().getSimpleName());
+			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder.createAppView().build());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -116,13 +116,13 @@ public class TrackerGoogleEasy extends TrackerBase {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void applicationStart() {
-		Boolean enabled = Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
-		Aircandi.analytics.setDryRun(enabled);
+		Boolean enabled = Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
+		Patch.analytics.setDryRun(enabled);
 
-		Aircandi.analytics.getLogger().setLogLevel(LogLevel.WARNING);
+		Patch.analytics.getLogger().setLogLevel(LogLevel.WARNING);
 		GAServiceManager.getInstance().setLocalDispatchPeriod(GA_DISPATCH_PERIOD);
-		if (Aircandi.DEBUG) {
-			Aircandi.analytics.getLogger().setLogLevel(LogLevel.VERBOSE);
+		if (Patch.DEBUG) {
+			Patch.analytics.getLogger().setLogLevel(LogLevel.VERBOSE);
 			GAServiceManager.getInstance().setLocalDispatchPeriod(GA_DISPATCH_PERIOD_DEBUG);
 		}
 	}
@@ -130,7 +130,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 	@SuppressWarnings("unused")
 	private void startNewSession() {
 		try {
-			EasyTracker.getInstance(Aircandi.applicationContext).send(MapBuilder
+			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder
 							.createEvent(TrackerCategory.SYSTEM, "session_start", null, null)
 							.set(Fields.SESSION_CONTROL, "start")
 							.build()
@@ -144,7 +144,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 	@SuppressWarnings("unused")
 	private void stopSession() {
 		try {
-			EasyTracker.getInstance(Aircandi.applicationContext).send(MapBuilder
+			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder
 							.createEvent(TrackerCategory.SYSTEM, "session_end", null, null)
 							.set(Fields.SESSION_CONTROL, "end")
 							.build()
@@ -157,6 +157,6 @@ public class TrackerGoogleEasy extends TrackerBase {
 
 	@Override
 	public void enableDeveloper(Boolean enable) {
-		Aircandi.analytics.setDryRun(enable);
+		Patch.analytics.setDryRun(enable);
 	}
 }

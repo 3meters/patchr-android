@@ -1,7 +1,5 @@
 package com.aircandi.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import android.graphics.PorterDuff;
@@ -10,14 +8,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Message;
+import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.MessageForm;
 import com.aircandi.ui.edit.MessageEdit;
-import com.aircandi.components.AirApplication;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Action;
@@ -215,7 +214,7 @@ public class Messages extends EntityControllerBase {
 
 			holder.share.removeAllViews();
 			View shareView = LayoutInflater.from(view.getContext()).inflate(layoutResId, null, false);
-			IEntityController controller = Aircandi.getInstance().getControllerForSchema(shareEntity.schema);
+			IEntityController controller = Patch.getInstance().getControllerForSchema(shareEntity.schema);
 			controller.bind(shareEntity, shareView);
 			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				shareEntity.autowatchable = true;
@@ -267,7 +266,7 @@ public class Messages extends EntityControllerBase {
 
 	@Override
 	public Drawable getIcon() {
-		Drawable icon = Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_comment_temp);
+		Drawable icon = Patch.applicationContext.getResources().getDrawable(R.drawable.img_comment_temp);
 		icon.setColorFilter(Colors.getColor(mColorPrimary), PorterDuff.Mode.SRC_ATOP);
 		return icon;
 	}
@@ -301,20 +300,6 @@ public class Messages extends EntityControllerBase {
 			}
 		}
 		return super.getNotificationTicker(message, eventCategory);
-	}
-
-	@Override
-	public List<Object> getApplications(String themeTone) {
-
-		final List<Object> listData = new ArrayList<Object>();
-
-		listData.add(new AirApplication(themeTone.equals("light") ? R.drawable.ic_action_picture_light : R.drawable.ic_action_picture_dark
-				, StringManager.getString(R.string.dialog_application_picture_new), null, Constants.SCHEMA_ENTITY_PICTURE));
-
-		listData.add(new AirApplication(themeTone.equals("light") ? R.drawable.ic_action_monolog_light : R.drawable.ic_action_monolog_dark
-				, StringManager.getString(R.string.dialog_application_comment_new), null, Constants.SCHEMA_ENTITY_COMMENT));
-
-		return listData;
 	}
 
 	@Override

@@ -17,8 +17,8 @@ import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ViewSwitcher;
 
-import com.aircandi.Aircandi;
-import com.aircandi.Aircandi.ThemeTone;
+import com.aircandi.Patch;
+import com.aircandi.Patch.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
@@ -29,22 +29,21 @@ import com.aircandi.components.MessagingManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.controllers.IEntityController;
-import com.aircandi.controllers.ViewHolder;
+import com.aircandi.interfaces.IEntityController;
+import com.aircandi.objects.ViewHolder;
 import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.events.ProcessingCompleteEvent;
-import com.aircandi.monitors.IMonitor;
+import com.aircandi.interfaces.IMonitor;
 import com.aircandi.monitors.SimpleMonitor;
-import com.aircandi.objects.Applink;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.queries.EntitiesQuery;
-import com.aircandi.queries.IQuery;
+import com.aircandi.interfaces.IQuery;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.ui.widgets.AirListView.DragDirection;
 import com.aircandi.ui.widgets.AirListView.DragEvent;
@@ -306,15 +305,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 						mAdapter.clear();
 
 						for (Entity entity : (List<Entity>) result.data) {
-							/*
-							 * Special case: skip broken applinks
-							 */
-							if (entity instanceof Applink) {
-								Applink applink = (Applink) entity;
-								if (applink.validatedDate != null && applink.validatedDate.longValue() == -1) {
-									continue;
-								}
-							}
 							mAdapter.add(entity);
 						}
 						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
@@ -351,14 +341,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	public void draw(View view) {
 		Logger.i(this, "Draw called for EntityListFragement");
 
-
-
-
-
-
-
-
-
 		mAdapter.notifyDataSetChanged();
 		BusProvider.getInstance().post(new EntitiesLoadedEvent()); // Used to trigger item highlighting
 	}
@@ -375,22 +357,17 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		else {
 
 			final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
-			if (entity instanceof Applink) {
-				Aircandi.dispatch.shortcut(getActivity(), entity.getShortcut(), null, null, null);
-			}
-			else {
-				if (mQuery instanceof EntitiesQuery) {
-					String linkType = ((EntitiesQuery) mQuery).getLinkType();
-					if (linkType != null) {
-						Bundle extras = new Bundle();
-						extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
-						extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, ((EntitiesQuery) mQuery).getEntityId());
-						Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
-						return;
-					}
+			if (mQuery instanceof EntitiesQuery) {
+				String linkType = ((EntitiesQuery) mQuery).getLinkType();
+				if (linkType != null) {
+					Bundle extras = new Bundle();
+					extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
+					extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, ((EntitiesQuery) mQuery).getEntityId());
+					Patch.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
+					return;
 				}
-				Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
 			}
+			Patch.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
 		}
 	}
 
@@ -910,7 +887,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	}
 
 	protected void bindListItem(Entity entity, View view) {
-		IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
+		IEntityController controller = Patch.getInstance().getControllerForEntity(entity);
 		controller.bind(entity, view);
 
 		/* Special highlighting */
@@ -920,7 +897,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 			if (mHighlightEntities.containsKey(entity.id)) {
 				Highlight highlight = mHighlightEntities.get(entity.id);
 				if (!highlight.isOneShot() || !highlight.hasFired()) {
-					if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
+					if (Patch.themeTone.equals(ThemeTone.DARK)) {
 						view.setBackgroundResource(R.drawable.selector_image_highlight_dark);
 					}
 					else {

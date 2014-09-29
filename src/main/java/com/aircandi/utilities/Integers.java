@@ -1,10 +1,10 @@
 package com.aircandi.utilities;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 
 public class Integers {
 
 	public static Integer getInteger(int resId) {
-		return Aircandi.applicationContext.getResources().getInteger(resId);
+		return Patch.applicationContext.getResources().getInteger(resId);
 	}
 }

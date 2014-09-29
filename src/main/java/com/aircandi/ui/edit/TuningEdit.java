@@ -6,7 +6,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.Logger;
@@ -21,7 +21,7 @@ import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseEntityEdit;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.ComboButton;
 import com.squareup.otto.Subscribe;
 
@@ -54,8 +54,8 @@ public class TuningEdit extends BaseEntityEdit {
 
 			/* Edit or not */
 
-			mHolderEditing.setVisibility(Aircandi.getInstance().getMenuManager().showAction(Route.EDIT, mEntity, mForId) ? View.VISIBLE : View.GONE);
-			if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+			mHolderEditing.setVisibility(Patch.getInstance().getMenuManager().showAction(Route.EDIT, mEntity, mForId) ? View.VISIBLE : View.GONE);
+			if (Patch.getInstance().getCurrentUser().isAnonymous()) {
 				mHolderEditing.setVisibility(View.GONE);
 			}
 
@@ -94,7 +94,7 @@ public class TuningEdit extends BaseEntityEdit {
 	 *--------------------------------------------------------------------------------------------*/
 	@SuppressWarnings("ucd")
 	public void onEditButtonClick(View view) {
-		Aircandi.dispatch.route(this, Route.EDIT, mEntity, null, null);
+		Patch.dispatch.route(this, Route.EDIT, mEntity, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -218,7 +218,7 @@ public class TuningEdit extends BaseEntityEdit {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncTrackEntityProximity");
 
-				final ModelResult result = Aircandi.getInstance().getEntityManager().trackEntity(mEntity
+				final ModelResult result = Patch.getInstance().getEntityManager().trackEntity(mEntity
 						, beacons
 						, primaryBeacon
 						, mUntuning);

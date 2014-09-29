@@ -16,7 +16,7 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.ServiceConstants;
 import com.aircandi.objects.ServiceData;
@@ -180,7 +180,7 @@ public class NetworkManager {
 		else {
 
 			/* Tag request with the activity class name */
-			Activity currentActivity = Aircandi.getInstance().getCurrentActivity();
+			Activity currentActivity = Patch.getInstance().getCurrentActivity();
 			if (currentActivity != null) {
 				serviceRequest.setTag(currentActivity.getClass().getSimpleName().toLowerCase(Locale.US));
 			}
@@ -199,10 +199,10 @@ public class NetworkManager {
 
 				if (serviceData != null
 						&& serviceData.clientMinVersions != null
-						&& serviceData.clientMinVersions.containsKey(Aircandi.applicationContext.getPackageName())) {
+						&& serviceData.clientMinVersions.containsKey(Patch.applicationContext.getPackageName())) {
 
-					Integer clientVersionCode = Aircandi.getVersionCode(Aircandi.applicationContext, AircandiForm.class);
-					if ((Integer) serviceData.clientMinVersions.get(Aircandi.applicationContext.getPackageName()) > clientVersionCode) {
+					Integer clientVersionCode = Patch.getVersionCode(Patch.applicationContext, AircandiForm.class);
+					if ((Integer) serviceData.clientMinVersions.get(Patch.applicationContext.getPackageName()) > clientVersionCode) {
 						return new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
 					}
 				}
@@ -325,7 +325,7 @@ public class NetworkManager {
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS)
 			return serviceResponse.statusCode != 204;
 		else {
-			if (Aircandi.DEBUG) {
+			if (Patch.DEBUG) {
 				Logger.w(this, "Walled garden check - probably not a portal: exception " + serviceResponse.exception);
 			}
 			return false;
@@ -357,17 +357,17 @@ public class NetworkManager {
 						isTethered = (Boolean) method.invoke(mWifiManager);
 					}
 					catch (IllegalArgumentException e) {
-						if (Aircandi.DEBUG) {
+						if (Patch.DEBUG) {
 							e.printStackTrace();
 						}
 					}
 					catch (IllegalAccessException e) {
-						if (Aircandi.DEBUG) {
+						if (Patch.DEBUG) {
 							e.printStackTrace();
 						}
 					}
 					catch (InvocationTargetException e) {
-						if (Aircandi.DEBUG) {
+						if (Patch.DEBUG) {
 							e.printStackTrace();
 						}
 					}

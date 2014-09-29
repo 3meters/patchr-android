@@ -1,8 +1,9 @@
 package com.aircandi.queries;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.components.ModelResult;
-import com.aircandi.controllers.IEntityController;
+import com.aircandi.interfaces.IEntityController;
+import com.aircandi.interfaces.IQuery;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
@@ -50,13 +51,13 @@ public class EntitiesQuery implements IQuery {
 			mCursor.setDirection(mLinkDirection);
 		}
 
-		Links links = Aircandi.getInstance().getEntityManager().getLinks().build(LinkProfile.NO_LINKS);
+		Links links = Patch.getInstance().getEntityManager().getLinks().build(LinkProfile.NO_LINKS);
 		if (mSchema != null) {
-			IEntityController controller = Aircandi.getInstance().getControllerForSchema(mSchema);
-			links = Aircandi.getInstance().getEntityManager().getLinks().build(controller.getLinkProfile());
+			IEntityController controller = Patch.getInstance().getControllerForSchema(mSchema);
+			links = Patch.getInstance().getEntityManager().getLinks().build(controller.getLinkProfile());
 		}
 
-		ModelResult result = Aircandi.getInstance().getEntityManager().loadEntitiesForEntity(mEntityId, links, mCursor, null);
+		ModelResult result = Patch.getInstance().getEntityManager().loadEntitiesForEntity(mEntityId, links, mCursor, null);
 
 		if (result.data != null) {
 			mMore = ((ServiceData) result.serviceResponse.data).more;

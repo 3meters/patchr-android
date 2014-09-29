@@ -1,9 +1,10 @@
 package com.aircandi.queries;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.ModelResult;
+import com.aircandi.interfaces.IQuery;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.utilities.Maps;
@@ -38,7 +39,7 @@ public class AlertsQuery implements IQuery {
 				.setToSchemas(toSchemas)
 				.setLinkTypes(linkTypes);
 
-		ModelResult result = ((EntityManager) Aircandi.getInstance().getEntityManager()).loadAlerts(mEntityId, mCursor);
+		ModelResult result = ((EntityManager) Patch.getInstance().getEntityManager()).loadAlerts(mEntityId, mCursor);
 
 		if (result.data != null) {
 			mMore = ((ServiceData) result.serviceResponse.data).more;

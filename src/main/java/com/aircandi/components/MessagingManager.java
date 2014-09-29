@@ -10,13 +10,12 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.controllers.IEntityController;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.events.MessageEvent;
 import com.aircandi.objects.Action.EventCategory;
-import com.aircandi.objects.ActivityBase;
 import com.aircandi.objects.Install;
 import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.ServiceMessage;
@@ -43,8 +42,8 @@ public class MessagingManager {
 	private Map<String, Integer> mCounts      = new HashMap<String, Integer>();
 
 	private MessagingManager() {
-		mNotificationManager = (NotificationManager) Aircandi.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
-		mSoundUri = Uri.parse("android.resource://" + Aircandi.applicationContext.getPackageName() + "/" + R.raw.notification_activity);
+		mNotificationManager = (NotificationManager) Patch.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
+		mSoundUri = Uri.parse("android.resource://" + Patch.applicationContext.getPackageName() + "/" + R.raw.notification_activity);
 	}
 
 	private static class NotificationManagerHolder {
@@ -73,19 +72,19 @@ public class MessagingManager {
 		 * shared prefs.
 		 */
 		ServiceResponse serviceResponse = new ServiceResponse();
-		String registrationId = getRegistrationId(Aircandi.applicationContext);
+		String registrationId = getRegistrationId(Patch.applicationContext);
 		if (registrationId.isEmpty()) {
 			try {
 				if (mGcm == null) {
-					mGcm = GoogleCloudMessaging.getInstance(Aircandi.applicationContext);
+					mGcm = GoogleCloudMessaging.getInstance(Patch.applicationContext);
 				}
 				registrationId = mGcm.register(StringManager.getString(R.string.id_gcm_sender));
-				setRegistrationId(Aircandi.applicationContext, registrationId);
+				setRegistrationId(Patch.applicationContext, registrationId);
 				Logger.i(this, "Registered aircandi install with GCM");
 			}
 			catch (IOException ex) {
 				serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new GcmRegistrationIOException());
-				serviceResponse.errorResponse = Errors.getErrorResponse(Aircandi.applicationContext, serviceResponse);
+				serviceResponse.errorResponse = Errors.getErrorResponse(Patch.applicationContext, serviceResponse);
 			}
 		}
 		return serviceResponse;
@@ -95,17 +94,17 @@ public class MessagingManager {
 
 		Logger.i(this, "Registering install with Aircandi service");
 
-		String registrationId = getRegistrationId(Aircandi.applicationContext);
+		String registrationId = getRegistrationId(Patch.applicationContext);
 
-		Install install = new Install(Aircandi.getInstance().getCurrentUser().id
+		Install install = new Install(Patch.getInstance().getCurrentUser().id
 				, registrationId
-				, Aircandi.getinstallId());
+				, Patch.getinstallId());
 
-		install.clientVersionName = Aircandi.getVersionName(Aircandi.applicationContext, AircandiForm.class);
-		install.clientVersionCode = Aircandi.getVersionCode(Aircandi.applicationContext, AircandiForm.class);
-		install.clientPackageName = Aircandi.applicationContext.getPackageName();
+		install.clientVersionName = Patch.getVersionName(Patch.applicationContext, AircandiForm.class);
+		install.clientVersionCode = Patch.getVersionCode(Patch.applicationContext, AircandiForm.class);
+		install.clientPackageName = Patch.applicationContext.getPackageName();
 
-		ModelResult result = Aircandi.getInstance().getEntityManager().registerInstall(install);
+		ModelResult result = Patch.getInstance().getEntityManager().registerInstall(install);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Logger.i(this, "Install successfully registered with Aircandi service");
@@ -115,7 +114,7 @@ public class MessagingManager {
 
 	private void setRegistrationId(Context context, String registrationId) {
 		final SharedPreferences prefs = getGcmPreferences(context);
-		int versionCode = Aircandi.getVersionCode(Aircandi.applicationContext, MessagingManager.class);
+		int versionCode = Patch.getVersionCode(Patch.applicationContext, MessagingManager.class);
 
 		Logger.i(this, "Saving GCM registrationId for app version code " + String.valueOf(versionCode));
 		SharedPreferences.Editor editor = prefs.edit();
@@ -135,7 +134,7 @@ public class MessagingManager {
 		// since the existing regID is not guaranteed to work with the new
 		// app version.
 		int registeredVersionCode = prefs.getInt(StringManager.getString(R.string.setting_gcm_version_code), Integer.MIN_VALUE);
-		int currentVersionCode = Aircandi.getVersionCode(Aircandi.applicationContext, MessagingManager.class);
+		int currentVersionCode = Patch.getVersionCode(Patch.applicationContext, MessagingManager.class);
 		if (registeredVersionCode != currentVersionCode) {
 			Logger.i(this, "GCM app version changed.");
 			return "";
@@ -144,7 +143,7 @@ public class MessagingManager {
 	}
 
 	private SharedPreferences getGcmPreferences(Context context) {
-		return Aircandi.applicationContext.getSharedPreferences(MessagingManager.class.getSimpleName(), Context.MODE_PRIVATE);
+		return Patch.applicationContext.getSharedPreferences(MessagingManager.class.getSimpleName(), Context.MODE_PRIVATE);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -180,16 +179,16 @@ public class MessagingManager {
 		message.intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		message.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-		final PendingIntent pendingIntent = PendingIntent.getActivity(Aircandi.applicationContext, 0
+		final PendingIntent pendingIntent = PendingIntent.getActivity(Patch.applicationContext, 0
 				, message.intent
 				, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		/* Default base notification configuration */
 
 		Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
-		PendingIntent deleteIntent = PendingIntent.getBroadcast(Aircandi.applicationContext, 0, intent, 0);
+		PendingIntent deleteIntent = PendingIntent.getBroadcast(Patch.applicationContext, 0, intent, 0);
 
-		final NotificationCompat.Builder builder = new NotificationCompat.Builder(Aircandi.applicationContext)
+		final NotificationCompat.Builder builder = new NotificationCompat.Builder(Patch.applicationContext)
 				.setContentTitle(message.title)
 				.setContentText(message.subtitle)
 				.setDeleteIntent(deleteIntent)
@@ -211,9 +210,9 @@ public class MessagingManager {
 		if (byImageUri != null) {
 
 			try {
-				Integer width = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.notification_large_icon_width);
+				Integer width = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.notification_large_icon_width);
 				@SuppressWarnings("SuspiciousNameCombination")
-				Bitmap bitmap = DownloadManager.with(Aircandi.applicationContext)
+				Bitmap bitmap = DownloadManager.with(Patch.applicationContext)
 				                               .load(byImageUri)
 				                               .centerCrop()
 				                               .resize(width, width)
@@ -226,7 +225,7 @@ public class MessagingManager {
 						&& (message.action.getEventCategory().equals(EventCategory.INSERT)
 						|| message.action.getEventCategory().equals(EventCategory.SHARE))) {
 
-					IEntityController controller = Aircandi.getInstance().getControllerForSchema(message.action.entity.schema);
+					IEntityController controller = Patch.getInstance().getControllerForSchema(message.action.entity.schema);
 					if (controller != null) {
 						Integer notificationType = controller.getNotificationType(message.action.entity);
 						if (notificationType == NotificationType.BIG_PICTURE) {
@@ -251,7 +250,7 @@ public class MessagingManager {
 		final String imageUri = message.action.entity.getPhoto().getUri();
 
 		try {
-			Bitmap bitmap = DownloadManager.with(Aircandi.applicationContext)
+			Bitmap bitmap = DownloadManager.with(Patch.applicationContext)
 			                               .load(imageUri)
 			                               .get();
 
@@ -292,7 +291,7 @@ public class MessagingManager {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public String getTag(ActivityBase activity) {
+	public String getTag(ServiceMessage activity) {
 		if (activity.action.getEventCategory().equals(EventCategory.INSERT))
 			return Tag.INSERT;
 		else if (activity.action.getEventCategory().equals(EventCategory.SHARE))

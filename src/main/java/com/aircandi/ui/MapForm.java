@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.AndroidManager;
@@ -20,7 +20,7 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Place;
 import com.aircandi.ui.base.BaseEntityForm;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.utilities.Errors;
 
 import java.io.IOException;
@@ -64,7 +64,7 @@ public class MapForm extends BaseEntityForm {
 						String address = ((Place) mEntity).getAddressString(true);
 						if (!TextUtils.isEmpty(address)) {
 							try {
-								Geocoder geocoder = new Geocoder(Aircandi.applicationContext, Locale.getDefault());
+								Geocoder geocoder = new Geocoder(Patch.applicationContext, Locale.getDefault());
 								List<Address> addresses = geocoder.getFromLocationName(address, 1);
 								if (addresses != null && addresses.size() > 0) {
 									Address geolookup = addresses.get(0);
@@ -79,7 +79,7 @@ public class MapForm extends BaseEntityForm {
 							catch (IOException exception) {
 								result.serviceResponse.responseCode = ResponseCode.FAILED;
 								result.serviceResponse.exception = exception;
-								result.serviceResponse.errorResponse = Errors.getErrorResponse(Aircandi.applicationContext, result.serviceResponse);
+								result.serviceResponse.errorResponse = Errors.getErrorResponse(Patch.applicationContext, result.serviceResponse);
 							}
 						}
 					}

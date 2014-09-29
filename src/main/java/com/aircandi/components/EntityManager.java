@@ -4,14 +4,13 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import com.aircandi.Aircandi;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.MessagingManager.Tag;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.TrackerBase.TrackerCategory;
-import com.aircandi.controllers.IEntityController;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.CacheStamp;
@@ -32,7 +31,6 @@ import com.aircandi.objects.Photo.PhotoType;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Provider;
 import com.aircandi.objects.Proximity;
-import com.aircandi.objects.ServiceActivity;
 import com.aircandi.objects.ServiceBase.UpdateScope;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.objects.ServiceEntry;
@@ -169,8 +167,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -203,8 +201,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -215,48 +213,6 @@ public class EntityManager {
 			final List<Entity> loadedEntities = (List<Entity>) serviceData.data;
 			result.serviceResponse.data = serviceData;
 			result.data = loadedEntities;
-		}
-
-		return result;
-	}
-
-	public synchronized ModelResult loadActivities(String entityId, Cursor cursor, List<String> events) {
-
-		final ModelResult result = new ModelResult();
-
-		final Bundle parameters = new Bundle();
-		parameters.putString("entityId", entityId);
-
-		if (cursor != null) {
-			parameters.putString("cursor", "object:" + Json.objectToJson(cursor));
-		}
-
-		if (events != null) {
-			parameters.putStringArrayList("events", (ArrayList<String>) events);
-		}
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getActivities")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
-		}
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.SERVICE_ACTIVITY, Json.ServiceDataWrapper.TRUE);
-			final List<ServiceActivity> loadedActivities = (List<ServiceActivity>) serviceData.data;
-
-			for (ServiceActivity activity : loadedActivities) {
-				Aircandi.getInstance().getActivityDecorator().decorate(activity);
-			}
-			result.serviceResponse.data = serviceData;
-			result.data = loadedActivities;
 		}
 
 		return result;
@@ -342,8 +298,8 @@ public class EntityManager {
 				.setRequestType(RequestType.GET)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -362,7 +318,7 @@ public class EntityManager {
 		ModelResult result = getApplinks(entities, null, timeout, waitForContent, false);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.UX, "applinks_verify", null, 0);
+			Patch.tracker.sendEvent(TrackerCategory.UX, "applinks_verify", null, 0);
 		}
 		return result;
 	}
@@ -370,7 +326,7 @@ public class EntityManager {
 	public ModelResult refreshApplinks(List<Entity> applinks, Integer timeout, Boolean waitForContent) {
 		ModelResult result = getApplinks(applinks, null, timeout, waitForContent, true);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.UX, "applinks_refresh", null, 0);
+			Patch.tracker.sendEvent(TrackerCategory.UX, "applinks_refresh", null, 0);
 		}
 		return result;
 	}
@@ -378,7 +334,7 @@ public class EntityManager {
 	public ModelResult searchApplinks(List<Entity> applinks, String placeId, Integer timeout, Boolean waitForContent) {
 		ModelResult result = getApplinks(applinks, placeId, timeout, waitForContent, false);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.UX, "applinks_search", null, 0);
+			Patch.tracker.sendEvent(TrackerCategory.UX, "applinks_search", null, 0);
 		}
 		return result;
 	}
@@ -463,8 +419,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -493,8 +449,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -538,7 +494,7 @@ public class EntityManager {
 		final Bundle parameters = new Bundle();
 		parameters.putString("email", email);
 		parameters.putString("password", password);
-		parameters.putString("installId", Aircandi.getinstallId());
+		parameters.putString("installId", Patch.getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_AUTH + "signin")
@@ -555,12 +511,12 @@ public class EntityManager {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			Aircandi.getInstance().setCurrentUser(user);
+			Patch.getInstance().setCurrentUser(user);
 
 			activateCurrentUser(true);
 
-			Aircandi.tracker.sendEvent(TrackerCategory.USER, "user_signin", null, 0);
-			Logger.i(this, "User signed in: " + Aircandi.getInstance().getCurrentUser().name);
+			Patch.tracker.sendEvent(TrackerCategory.USER, "user_signin", null, 0);
+			Logger.i(this, "User signed in: " + Patch.getInstance().getCurrentUser().name);
 		}
 		return result;
 	}
@@ -568,7 +524,7 @@ public class EntityManager {
 	public ModelResult activateCurrentUser(Boolean loadUserData) {
 
 		ModelResult result = new ModelResult();
-		User user = Aircandi.getInstance().getCurrentUser();
+		User user = Patch.getInstance().getCurrentUser();
 
 		if (user.isAnonymous()) {
 
@@ -579,13 +535,13 @@ public class EntityManager {
 			MessagingManager.getInstance().cancelNotification(Tag.UPDATE);
 
 			/* Clear user settings */
-			Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
-			Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), null);
-			Aircandi.settingsEditor.commit();
+			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
+			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), null);
+			Patch.settingsEditor.commit();
 		}
 		else {
 
-			Logger.i(this, "Activating authenticated user: " + Aircandi.getInstance().getCurrentUser().id);
+			Logger.i(this, "Activating authenticated user: " + Patch.getInstance().getCurrentUser().id);
 
 			/* Load user data */
 			if (loadUserData) {
@@ -597,10 +553,10 @@ public class EntityManager {
 			final String jsonUser = Json.objectToJson(user);
 			final String jsonSession = Json.objectToJson(user.session);
 
-			Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-			Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
-			Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), user.email);
-			Aircandi.settingsEditor.commit();
+			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
+			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
+			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), user.email);
+			Patch.settingsEditor.commit();
 		}
 
 		return result;
@@ -609,7 +565,6 @@ public class EntityManager {
 	@SuppressWarnings("ucd")
 	public ModelResult signoutComplete() {
 		final ModelResult result = new ModelResult();
-
 		/*
 		 * We use a short timeout with no retry because failure doesn't
 		 * really hurt anything.
@@ -620,26 +575,26 @@ public class EntityManager {
 				.setIgnoreResponseData(true)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
 		 * We treat user as signed out even if the service call failed.
 		 */
-		Aircandi.tracker.sendEvent(TrackerCategory.USER, "user_signout", null, 0);
+		Patch.tracker.sendEvent(TrackerCategory.USER, "user_signout", null, 0);
 		Logger.i(this, "User signed out: "
-				+ Aircandi.getInstance().getCurrentUser().name
-				+ " (" + Aircandi.getInstance().getCurrentUser().id + ")");
+				+ Patch.getInstance().getCurrentUser().name
+				+ " (" + Patch.getInstance().getCurrentUser().id + ")");
 
 		/* Set to anonymous user */
 		User anonymous = (User) loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
-		Aircandi.getInstance().setCurrentUser(anonymous);
+		Patch.getInstance().setCurrentUser(anonymous);
 		activateCurrentUser(true);
 
 		if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-			Logger.w(this, "User sign out but service call failed: " + Aircandi.getInstance().getCurrentUser().id);
+			Logger.w(this, "User sign out but service call failed: " + Patch.getInstance().getCurrentUser().id);
 		}
 		return result;
 	}
@@ -651,7 +606,7 @@ public class EntityManager {
 		parameters.putString("userId", userId);
 		parameters.putString("oldPassword", passwordOld);
 		parameters.putString("newPassword", passwordNew);
-		parameters.putString("installId", Aircandi.getinstallId());
+		parameters.putString("installId", Patch.getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "changepw")
@@ -660,8 +615,8 @@ public class EntityManager {
 				.setActivityName(activityName)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -672,12 +627,12 @@ public class EntityManager {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			Aircandi.getInstance().setCurrentUser(user);
+			Patch.getInstance().setCurrentUser(user);
 
 			activateCurrentUser(true);
 
-			Aircandi.tracker.sendEvent(TrackerCategory.USER, "password_change", null, 0);
-			Logger.i(this, "User changed password: " + Aircandi.getInstance().getCurrentUser().name);
+			Patch.tracker.sendEvent(TrackerCategory.USER, "password_change", null, 0);
+			Logger.i(this, "User changed password: " + Patch.getInstance().getCurrentUser().name);
 		}
 		return result;
 	}
@@ -687,7 +642,7 @@ public class EntityManager {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("email", email);
-		parameters.putString("installId", Aircandi.getinstallId());
+		parameters.putString("installId", Patch.getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "reqresetpw")
@@ -698,7 +653,7 @@ public class EntityManager {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.USER, "request_password_reset", null, 0);
+			Patch.tracker.sendEvent(TrackerCategory.USER, "request_password_reset", null, 0);
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
@@ -714,7 +669,7 @@ public class EntityManager {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("password", password);
-		parameters.putString("installId", Aircandi.getinstallId());
+		parameters.putString("installId", Patch.getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "resetpw")
@@ -728,16 +683,16 @@ public class EntityManager {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			Aircandi.tracker.sendEvent(TrackerCategory.USER, "password_reset", null, 0);
+			Patch.tracker.sendEvent(TrackerCategory.USER, "password_reset", null, 0);
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			Aircandi.getInstance().setCurrentUser(user);
+			Patch.getInstance().setCurrentUser(user);
 			activateCurrentUser(true);
 
-			Aircandi.tracker.sendEvent(TrackerCategory.USER, "user_signin", null, 0);
-			Logger.i(this, "Password reset and user signed in: " + Aircandi.getInstance().getCurrentUser().name);
+			Patch.tracker.sendEvent(TrackerCategory.USER, "user_signin", null, 0);
+			Logger.i(this, "Password reset and user signed in: " + Patch.getInstance().getCurrentUser().name);
 		}
 
 		return result;
@@ -747,8 +702,8 @@ public class EntityManager {
 		ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
-		parameters.putString("secret", Aircandi.getInstance().getContainer().getString(Aircandi.USER_SECRET));
-		parameters.putString("installId", Aircandi.getinstallId());
+		parameters.putString("secret", Patch.getInstance().getContainer().getString(Patch.USER_SECRET));
+		parameters.putString("installId", Patch.getinstallId());
 		user.id = null; // remove temp id we assigned
 
 		ServiceRequest serviceRequest = new ServiceRequest()
@@ -764,7 +719,7 @@ public class EntityManager {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			Aircandi.tracker.sendEvent(TrackerCategory.USER, "user_register", null, 0);
+			Patch.tracker.sendEvent(TrackerCategory.USER, "user_register", null, 0);
 			String jsonResponse = (String) result.serviceResponse.data;
 			ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			user = serviceData.user;
@@ -817,8 +772,8 @@ public class EntityManager {
 				.setRequestType(RequestType.GET)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -961,8 +916,8 @@ public class EntityManager {
 					.setParameters(parameters)
 					.setResponseFormat(ResponseFormat.JSON);
 
-			if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-				serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+			if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+				serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 			}
 
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -971,7 +926,7 @@ public class EntityManager {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 			String action = entity.synthetic ? "entity_upsize" : "entity_insert";
-			Aircandi.tracker.sendEvent(TrackerCategory.EDIT, action, entity.schema, 0);
+			Patch.tracker.sendEvent(TrackerCategory.EDIT, action, entity.schema, 0);
 			Json.ObjectType serviceDataType = Json.ObjectType.ENTITY;
 
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -981,12 +936,12 @@ public class EntityManager {
 				 * Optimization: Add soft 'create' link so user entity doesn't have to be refetched
 				 */
 			if (!entity.synthetic) {
-				Aircandi.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-				mEntityCache.addLink(Aircandi.getInstance().getCurrentUser().id
+				Patch.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+				mEntityCache.addLink(Patch.getInstance().getCurrentUser().id
 						, insertedEntity.id
 						, Constants.TYPE_LINK_CREATE
 						, null
-						, Aircandi.getInstance().getCurrentUser().getShortcut(), insertedEntity.getShortcut());
+						, Patch.getInstance().getCurrentUser().getShortcut(), insertedEntity.getShortcut());
 			}
 
 			result.data = insertedEntity;
@@ -1040,15 +995,15 @@ public class EntityManager {
 					.setParameters(parameters)
 					.setResponseFormat(ResponseFormat.JSON);
 
-			if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-				serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+			if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+				serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 			}
 
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.EDIT, "entity_update", entity.schema, 0);
+			Patch.tracker.sendEvent(TrackerCategory.EDIT, "entity_update", entity.schema, 0);
 			/*
 			 * Optimization: We crawl entities in the cache and update embedded
 			 * user objects so we don't have to refresh all the affected entities
@@ -1097,8 +1052,8 @@ public class EntityManager {
 					.setParameters(parameters)
 					.setResponseFormat(ResponseFormat.JSON);
 
-			if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-				serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+			if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+				serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 			}
 
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1107,7 +1062,7 @@ public class EntityManager {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 			if (entity != null) {
-				Aircandi.tracker.sendEvent(TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
+				Patch.tracker.sendEvent(TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
 			}
 			entity = mEntityCache.removeEntityTree(entityId);
 			/*
@@ -1116,8 +1071,8 @@ public class EntityManager {
 			 * FIXME: This needs to be generalized to hunt down all links that have
 			 * this entity at either end and clean them up including any counts.
 			 */
-			Aircandi.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-			mEntityCache.removeLink(Aircandi.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
+			Patch.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+			mEntityCache.removeLink(Patch.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
 
 			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				mActivityDate = DateTime.nowDate().getTime();
@@ -1202,15 +1157,15 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		/* Reproduce the service call effect locally */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.LINK, untuning ? "place_untune" : "place_tune", null, 0);
+			Patch.tracker.sendEvent(TrackerCategory.LINK, untuning ? "place_untune" : "place_tune", null, 0);
 
 			if (beacons != null) {
 				for (Beacon beacon : beacons) {
@@ -1302,8 +1257,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1316,7 +1271,7 @@ public class EntityManager {
 				action += action + "_" + (enabled ? "approved" : "requested");
 			}
 
-			Aircandi.tracker.sendEvent(TrackerCategory.LINK, action, toShortcut.schema, 0);
+			Patch.tracker.sendEvent(TrackerCategory.LINK, action, toShortcut.schema, 0);
 			/*
 			 * Fail could be because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
@@ -1342,8 +1297,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1357,7 +1312,7 @@ public class EntityManager {
 				action += action + "_" + (enabled ? "approved" : "requested");
 			}
 
-			Aircandi.tracker.sendEvent(TrackerCategory.LINK, action, schema, 0);
+			Patch.tracker.sendEvent(TrackerCategory.LINK, action, schema, 0);
 			/*
 			 * Fail could be because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
@@ -1385,7 +1340,7 @@ public class EntityManager {
 
 				/* Synchronous call to get the bitmap */
 				try {
-					bitmap = DownloadManager.with(Aircandi.applicationContext)
+					bitmap = DownloadManager.with(Patch.applicationContext)
 					                        .load(entity.getPhoto().getUri())
 					                        .centerInside()
 					                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
@@ -1421,14 +1376,14 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.EDIT, "entity_replace_entities", schema, 0);
+			Patch.tracker.sendEvent(TrackerCategory.EDIT, "entity_replace_entities", schema, 0);
 		}
 		return result;
 	}
@@ -1451,8 +1406,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1460,8 +1415,8 @@ public class EntityManager {
 		 * We update the cache directly instead of refreshing from the service
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.LINK, "entity_remove", schema, 0);
-			Aircandi.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+			Patch.tracker.sendEvent(TrackerCategory.LINK, "entity_remove", schema, 0);
+			Patch.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 			mEntityCache.removeLink(fromId, toId, type, null);
 		}
 
@@ -1488,14 +1443,14 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.LINK, "entity_watch_" + (enabled ? "approved" : "requested"), Constants.SCHEMA_ENTITY_PLACE, 0);
+			Patch.tracker.sendEvent(TrackerCategory.LINK, "entity_watch_" + (enabled ? "approved" : "requested"), Constants.SCHEMA_ENTITY_PLACE, 0);
 		}
 
 		return result;
@@ -1559,8 +1514,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1582,14 +1537,14 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.USER, document.type + "_insert", document.type, 0);
+			Patch.tracker.sendEvent(TrackerCategory.USER, document.type + "_insert", document.type, 0);
 		}
 
 		return result;
@@ -1604,14 +1559,14 @@ public class EntityManager {
 				.setRequestType(RequestType.DELETE)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.USER, document.type + "_insert", document.type, 0);
+			Patch.tracker.sendEvent(TrackerCategory.USER, document.type + "_insert", document.type, 0);
 		}
 
 		return result;
@@ -1627,8 +1582,8 @@ public class EntityManager {
 				.setRequestType(RequestType.INSERT)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1658,14 +1613,14 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Aircandi.tracker.sendEvent(TrackerCategory.USER, "invite_send", null, 0);
+			Patch.tracker.sendEvent(TrackerCategory.USER, "invite_send", null, 0);
 		}
 
 		return result;
@@ -1685,7 +1640,7 @@ public class EntityManager {
 		 * Push it to S3. It is always formatted/compressed as a jpeg.
 		 */
 		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
-		final String imageKey = String.valueOf((user != null) ? user.id : Aircandi.getInstance().getCurrentUser().id) + "_" + stringDate + ".jpg";
+		final String imageKey = String.valueOf((user != null) ? user.id : Patch.getInstance().getCurrentUser().id) + "_" + stringDate + ".jpg";
 		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3, photoType);
 
 		/* Update the photo object for the entity or user */
@@ -1715,8 +1670,6 @@ public class EntityManager {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Entity upsized = (Entity) result.data;
 			mEntityCache.removeEntityTree(synthetic.id);
-			IEntityController controller = Aircandi.getInstance().getControllerForEntity(upsized);
-			controller.decorate(upsized, null);
 			mEntityCache.upsertEntity(upsized);
 		}
 
@@ -1745,7 +1698,7 @@ public class EntityManager {
 				proximity);
 
 		Collections.sort(places, new Place.SortByProximityAndDistance());
-		Number limit = Aircandi.applicationContext.getResources().getInteger(R.integer.limit_places_radar);
+		Number limit = Patch.applicationContext.getResources().getInteger(R.integer.limit_places_radar);
 
 		return (places.size() > limit.intValue()) ? places.subList(0, limit.intValue()) : places;
 	}
@@ -1766,7 +1719,7 @@ public class EntityManager {
 		InputStream inputStream = null;
 		BufferedReader reader = null;
 		try {
-			inputStream = Aircandi.applicationContext.getResources().openRawResource(entityResId);
+			inputStream = Patch.applicationContext.getResources().openRawResource(entityResId);
 			reader = new BufferedReader(new InputStreamReader(inputStream));
 			final StringBuilder text = new StringBuilder(10000);
 			String line;
@@ -1788,7 +1741,7 @@ public class EntityManager {
 					reader.close();
 			}
 			catch (IOException e) {
-				if (Aircandi.DEBUG) {
+				if (Patch.DEBUG) {
 					e.printStackTrace();
 				}
 			}

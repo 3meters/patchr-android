@@ -8,71 +8,71 @@ import android.util.Log;
 @SuppressWarnings("ucd")
 public class Constants {
 
-	public static final int     LOG_LEVEL           = Aircandi.DEBUG ? Log.VERBOSE : Log.DEBUG;
+	public static final int     LOG_LEVEL           = Patch.DEBUG ? Log.VERBOSE : Log.DEBUG;
 	public static final boolean ERROR_LEVEL_VERBOSE = false;
 
 	/* Activity parameters */
-	public static final String EXTRA_ENTITY_PARENT_ID = "com.aircandi.EXTRA_PARENT_ENTITY_ID";                                                    //$NON-NLS-1$
-	public static final String EXTRA_ENTITY_CHILD_ID  = "com.aircandi.EXTRA_CHILD_ENTITY_ID";                                                    //$NON-NLS-1$
-	public static final String EXTRA_ENTITY_FOR_ID    = "com.aircandi.EXTRA_ENTITY_FOR_ID";                                                    //$NON-NLS-1$
-	public static final String EXTRA_ENTITY_ID        = "com.aircandi.EXTRA_ENTITY_ID";                                                            //$NON-NLS-1$
-	public static final String EXTRA_ENTITY_SCHEMA    = "com.aircandi.EXTRA_ENTITY_SCHEMA";                                                        //$NON-NLS-1$
-	public static final String EXTRA_ENTITY_TYPE      = "com.aircandi.EXTRA_ENTITY_TYPE";                                                        //$NON-NLS-1$
-	public static final String EXTRA_ENTITIES         = "com.aircandi.EXTRA_ENTITIES";                                                            //$NON-NLS-1$
-	public static final String EXTRA_ENTITY           = "com.aircandi.EXTRA_ENTITY";                                                                //$NON-NLS-1$
+	public static final String EXTRA_ENTITY_PARENT_ID = "com.aircandi.EXTRA_PARENT_ENTITY_ID";
+	public static final String EXTRA_ENTITY_CHILD_ID  = "com.aircandi.EXTRA_CHILD_ENTITY_ID";
+	public static final String EXTRA_ENTITY_FOR_ID    = "com.aircandi.EXTRA_ENTITY_FOR_ID";
+	public static final String EXTRA_ENTITY_ID        = "com.aircandi.EXTRA_ENTITY_ID";
+	public static final String EXTRA_ENTITY_SCHEMA    = "com.aircandi.EXTRA_ENTITY_SCHEMA";
+	public static final String EXTRA_ENTITY_TYPE      = "com.aircandi.EXTRA_ENTITY_TYPE";
+	public static final String EXTRA_ENTITIES         = "com.aircandi.EXTRA_ENTITIES";
+	public static final String EXTRA_ENTITY           = "com.aircandi.EXTRA_ENTITY";
 
-	public static final String EXTRA_PLACE    = "com.aircandi.EXTRA_PLACE";                                                                //$NON-NLS-1$
-	public static final String EXTRA_PLACE_ID = "com.aircandi.EXTRA_PLACE_ID";                                                            //$NON-NLS-1$
+	public static final String EXTRA_PLACE    = "com.aircandi.EXTRA_PLACE";
+	public static final String EXTRA_PLACE_ID = "com.aircandi.EXTRA_PLACE_ID";
 
-	public static final String EXTRA_URI = "com.aircandi.EXTRA_URI";                                                                //$NON-NLS-1$
+	public static final String EXTRA_URI = "com.aircandi.EXTRA_URI";
 
-	public static final String EXTRA_MESSAGE_TYPE          = "com.aircandi.EXTRA_MESSAGE_TYPE";            //$NON-NLS-1$
-	public static final String EXTRA_MESSAGE_ROOT_ID       = "com.aircandi.EXTRA_MESSAGE_ROOT_ID";        //$NON-NLS-1$
-	public static final String EXTRA_MESSAGE_REPLY_TO_ID   = "com.aircandi.EXTRA_MESSAGE_REPLY_TO_ID";    //$NON-NLS-1$
-	public static final String EXTRA_MESSAGE_REPLY_TO_NAME = "com.aircandi.EXTRA_MESSAGE_REPLY_TO_NAME";    //$NON-NLS-1$
+	public static final String EXTRA_MESSAGE_TYPE          = "com.aircandi.EXTRA_MESSAGE_TYPE";
+	public static final String EXTRA_MESSAGE_ROOT_ID       = "com.aircandi.EXTRA_MESSAGE_ROOT_ID";
+	public static final String EXTRA_MESSAGE_REPLY_TO_ID   = "com.aircandi.EXTRA_MESSAGE_REPLY_TO_ID";
+	public static final String EXTRA_MESSAGE_REPLY_TO_NAME = "com.aircandi.EXTRA_MESSAGE_REPLY_TO_NAME";
 
-	public static final String EXTRA_LAYOUT_RESID              = "com.aircandi.EXTRA_LAYOUT_RESID";                                                        //$NON-NLS-1$
-	public static final String EXTRA_MESSAGE                   = "com.aircandi.EXTRA_MESSAGE";                                                             //$NON-NLS-1$
-	public static final String EXTRA_CATEGORY                  = "com.aircandi.EXTRA_CATEGORY";                                                            //$NON-NLS-1$
-	public static final String EXTRA_VERIFY_URI                = "com.aircandi.EXTRA_VERIFY_URI";                                                          //$NON-NLS-1$
-	public static final String EXTRA_SEARCH_PHRASE             = "com.aircandi.EXTRA_SEARCH_PHRASE";                                                       //$NON-NLS-1$
-	public static final String EXTRA_PHOTO_SOURCE              = "com.aircandi.EXTRA_PHOTO_SOURCE";                                                        //$NON-NLS-1$
-	public static final String EXTRA_UPSIZE_SYNTHETIC          = "com.aircandi.EXTRA_UPSIZE_SYNTHETIC";                                                    //$NON-NLS-1$
-	public static final String EXTRA_PAGING_ENABLED            = "com.aircandi.EXTRA_PAGING_ENABLED";                                                      //$NON-NLS-1$
-	public static final String EXTRA_PHOTO                     = "com.aircandi.EXTRA_PHOTO";                                                               //$NON-NLS-1$
-	public static final String EXTRA_REFRESH_FROM_SERVICE      = "com.aircandi.EXTRA_REFRESH_FORCE";                                                       //$NON-NLS-1$
-	public static final String EXTRA_HELP_ID                   = "com.aircandi.EXTRA_HELP_ID";                                                             //$NON-NLS-1$
-	public static final String EXTRA_SHORTCUTS                 = "com.aircandi.EXTRA_SHORTCUTS";                                                           //$NON-NLS-1$
-	public static final String EXTRA_MARKERS                   = "com.aircandi.EXTRA_MARKERS";                                                             //$NON-NLS-1$
-	public static final String EXTRA_SKIP_SAVE                 = "com.aircandi.EXTRA_EDIT_ONLY";                                                           //$NON-NLS-1$
-	public static final String EXTRA_TAB_POSITION              = "com.aircandi.EXTRA_TAB_POSITION";                                                        //$NON-NLS-1$
-	public static final String EXTRA_SHORTCUT_TYPE             = "com.aircandi.EXTRA_SHORTCUT_TYPE";                                                       //$NON-NLS-1$
-	public static final String EXTRA_TITLE                     = "com.aircandi.EXTRA_TITLE";                                                               //$NON-NLS-1$
-	public static final String EXTRA_FRAGMENT_TYPE             = "com.aircandi.EXTRA_FRAGMENT_TYPE";                                                       //$NON-NLS-1$
-	public static final String EXTRA_NOTIFICATIONS_CLEAR_COUNT = "com.aircandi.EXTRA_NOTIFICATIONS_CLEAR_COUNT";                                           //$NON-NLS-1$
-	public static final String EXTRA_TO_MODE                   = "com.aircandi.EXTRA_TO_MODE";                                                     //$NON-NLS-1$
-	public static final String EXTRA_TO_EDITABLE               = "com.aircandi.EXTRA_TO_EDITABLE";                                                       //$NON-NLS-1$
-	public static final String EXTRA_SUGGEST_SCOPE             = "com.aircandi.EXTRA_SUGGEST_SCOPE";                                                       //$NON-NLS-1$
-	public static final String EXTRA_SHARE_SOURCE              = "com.aircandi.EXTRA_SHARE_SOURCE";                                                       //$NON-NLS-1$
-	public static final String EXTRA_SHARE_ID                  = "com.aircandi.EXTRA_SHARE_ID";                                                       //$NON-NLS-1$
-	public static final String EXTRA_SHARE_SCHEMA              = "com.aircandi.EXTRA_SHARE_SCHEMA";                                                       //$NON-NLS-1$
-	public static final String EXTRA_AUTO_WATCH                = "com.aircandi.EXTRA_AUTO_WATCH";                                                    //$NON-NLS-1$
+	public static final String EXTRA_LAYOUT_RESID              = "com.aircandi.EXTRA_LAYOUT_RESID";
+	public static final String EXTRA_MESSAGE                   = "com.aircandi.EXTRA_MESSAGE";
+	public static final String EXTRA_CATEGORY                  = "com.aircandi.EXTRA_CATEGORY";
+	public static final String EXTRA_VERIFY_URI                = "com.aircandi.EXTRA_VERIFY_URI";
+	public static final String EXTRA_SEARCH_PHRASE             = "com.aircandi.EXTRA_SEARCH_PHRASE";
+	public static final String EXTRA_PHOTO_SOURCE              = "com.aircandi.EXTRA_PHOTO_SOURCE";
+	public static final String EXTRA_UPSIZE_SYNTHETIC          = "com.aircandi.EXTRA_UPSIZE_SYNTHETIC";
+	public static final String EXTRA_PAGING_ENABLED            = "com.aircandi.EXTRA_PAGING_ENABLED";
+	public static final String EXTRA_PHOTO                     = "com.aircandi.EXTRA_PHOTO";
+	public static final String EXTRA_REFRESH_FROM_SERVICE      = "com.aircandi.EXTRA_REFRESH_FORCE";
+	public static final String EXTRA_HELP_ID                   = "com.aircandi.EXTRA_HELP_ID";
+	public static final String EXTRA_SHORTCUTS                 = "com.aircandi.EXTRA_SHORTCUTS";
+	public static final String EXTRA_MARKERS                   = "com.aircandi.EXTRA_MARKERS";
+	public static final String EXTRA_SKIP_SAVE                 = "com.aircandi.EXTRA_EDIT_ONLY";
+	public static final String EXTRA_TAB_POSITION              = "com.aircandi.EXTRA_TAB_POSITION";
+	public static final String EXTRA_SHORTCUT_TYPE             = "com.aircandi.EXTRA_SHORTCUT_TYPE";
+	public static final String EXTRA_TITLE                     = "com.aircandi.EXTRA_TITLE";
+	public static final String EXTRA_FRAGMENT_TYPE             = "com.aircandi.EXTRA_FRAGMENT_TYPE";
+	public static final String EXTRA_NOTIFICATIONS_CLEAR_COUNT = "com.aircandi.EXTRA_NOTIFICATIONS_CLEAR_COUNT";
+	public static final String EXTRA_TO_MODE                   = "com.aircandi.EXTRA_TO_MODE";
+	public static final String EXTRA_TO_EDITABLE               = "com.aircandi.EXTRA_TO_EDITABLE";
+	public static final String EXTRA_SUGGEST_SCOPE             = "com.aircandi.EXTRA_SUGGEST_SCOPE";
+	public static final String EXTRA_SHARE_SOURCE              = "com.aircandi.EXTRA_SHARE_SOURCE";
+	public static final String EXTRA_SHARE_ID                  = "com.aircandi.EXTRA_SHARE_ID";
+	public static final String EXTRA_SHARE_SCHEMA              = "com.aircandi.EXTRA_SHARE_SCHEMA";
+	public static final String EXTRA_AUTO_WATCH                = "com.aircandi.EXTRA_AUTO_WATCH";
 
 	/* Activity parameters: lists */
-	public static final String EXTRA_LIST_LINK_TYPE            = "com.aircandi.EXTRA_LIST_LINK_TYPE";                                                        //$NON-NLS-1$
-	public static final String EXTRA_LIST_LINK_SCHEMA          = "com.aircandi.EXTRA_LIST_SCHEMA";                                                        //$NON-NLS-1$
-	public static final String EXTRA_LIST_LINK_DIRECTION       = "com.aircandi.EXTRA_LIST_DIRECTION";                                                        //$NON-NLS-1$
-	public static final String EXTRA_LIST_NEW_ENABLED          = "com.aircandi.EXTRA_LIST_NEW_ENABLED";                                                    //$NON-NLS-1$
-	public static final String EXTRA_LIST_TITLE                = "com.aircandi.EXTRA_LIST_TITLE";                                                            //$NON-NLS-1$
-	public static final String EXTRA_LIST_TITLE_RESID          = "com.aircandi.EXTRA_LIST_TITLE_RESID";                                                            //$NON-NLS-1$
-	public static final String EXTRA_LIST_PAGE_SIZE            = "com.aircandi.EXTRA_LIST_PAGE_SIZE";                                                        //$NON-NLS-1$
-	public static final String EXTRA_LIST_VIEW_TYPE            = "com.aircandi.EXTRA_LIST_VIEW_TYPE";                                                        //$NON-NLS-1$
-	public static final String EXTRA_LIST_ITEM_RESID           = "com.aircandi.EXTRA_LIST_ITEM_RESID";                                                    //$NON-NLS-1$
-	public static final String EXTRA_LIST_LOADING_RESID        = "com.aircandi.EXTRA_LIST_LOADING_RESID";                                                    //$NON-NLS-1$
-	public static final String EXTRA_LIST_NEW_MESSAGE_RESID    = "com.aircandi.EXTRA_LIST_NEW_MESSAGE_RESID";                                                //$NON-NLS-1$
-	public static final String EXTRA_LIST_PAGING_ENABLED       = "com.aircandi.EXTRA_LIST_PAGING_ENABLED";                                                //$NON-NLS-1$
-	public static final String EXTRA_LIST_ENTITY_CACHE_ENABLED = "com.aircandi.EXTRA_LIST_ENTITY_CACHE_ENABLED";                                            //$NON-NLS-1$
-	public static final String EXTRA_LIST_PARALLAX_HEADER      = "com.aircandi.EXTRA_LIST_PARALLAX_HEADER";                                                //$NON-NLS-1$
+	public static final String EXTRA_LIST_LINK_TYPE            = "com.aircandi.EXTRA_LIST_LINK_TYPE";
+	public static final String EXTRA_LIST_LINK_SCHEMA          = "com.aircandi.EXTRA_LIST_SCHEMA";
+	public static final String EXTRA_LIST_LINK_DIRECTION       = "com.aircandi.EXTRA_LIST_DIRECTION";
+	public static final String EXTRA_LIST_NEW_ENABLED          = "com.aircandi.EXTRA_LIST_NEW_ENABLED";
+	public static final String EXTRA_LIST_TITLE                = "com.aircandi.EXTRA_LIST_TITLE";
+	public static final String EXTRA_LIST_TITLE_RESID          = "com.aircandi.EXTRA_LIST_TITLE_RESID";
+	public static final String EXTRA_LIST_PAGE_SIZE            = "com.aircandi.EXTRA_LIST_PAGE_SIZE";
+	public static final String EXTRA_LIST_VIEW_TYPE            = "com.aircandi.EXTRA_LIST_VIEW_TYPE";
+	public static final String EXTRA_LIST_ITEM_RESID           = "com.aircandi.EXTRA_LIST_ITEM_RESID";
+	public static final String EXTRA_LIST_LOADING_RESID        = "com.aircandi.EXTRA_LIST_LOADING_RESID";
+	public static final String EXTRA_LIST_NEW_MESSAGE_RESID    = "com.aircandi.EXTRA_LIST_NEW_MESSAGE_RESID";
+	public static final String EXTRA_LIST_PAGING_ENABLED       = "com.aircandi.EXTRA_LIST_PAGING_ENABLED";
+	public static final String EXTRA_LIST_ENTITY_CACHE_ENABLED = "com.aircandi.EXTRA_LIST_ENTITY_CACHE_ENABLED";
+	public static final String EXTRA_LIST_PARALLAX_HEADER      = "com.aircandi.EXTRA_LIST_PARALLAX_HEADER";
 
 	/* Interval helpers */
 	public static final int MILLS_PER_SECOND     = 1000;
@@ -157,95 +157,89 @@ public class Constants {
 	public static final int    BING_IMAGE_BYTES_MAX            = 500000;
 	public static final int    BING_IMAGE_DIMENSION_MAX        = 1280;
 
-	public static final String SCHEMA_ANY            = "any";                                                                                    //$NON-NLS-1$
-	public static final String SCHEMA_ENTITY_PICTURE = "post";                                                                                    //$NON-NLS-1$
-	public static final String SCHEMA_ENTITY_PLACE   = "place";                                                                                    //$NON-NLS-1$
-	public static final String SCHEMA_ENTITY_COMMENT = "comment";                                                                                //$NON-NLS-1$
-	public static final String SCHEMA_ENTITY_APPLINK = "applink";                                                                                //$NON-NLS-1$
-	public static final String SCHEMA_ENTITY_BEACON  = "beacon";                                                                                //$NON-NLS-1$
-	public static final String SCHEMA_ENTITY_USER    = "user";                                                                                    //$NON-NLS-1$
-	public static final String SCHEMA_LINK           = "link";                                                                                    //$NON-NLS-1$
-	public static final String SCHEMA_INTENT         = "intent";                                                                                //$NON-NLS-1$
-	public static final String SCHEMA_REMAP_PICTURE  = "picture";                                                                                //$NON-NLS-1$
-	public static final String SCHEMA_ENTITY_MESSAGE = "message";                                    //$NON-NLS-1$
+	public static final String SCHEMA_ANY            = "any";
+	public static final String SCHEMA_ENTITY_PLACE   = "place";
+	public static final String SCHEMA_ENTITY_BEACON  = "beacon";
+	public static final String SCHEMA_ENTITY_USER    = "user";
+	public static final String SCHEMA_ENTITY_PICTURE = "post";  // Used for sharing a photo
+	public static final String SCHEMA_LINK           = "link";
+	public static final String SCHEMA_INTENT         = "intent";
+	public static final String SCHEMA_ENTITY_MESSAGE = "message";
 
 	public static final String ACTION_VIEW      = "view";
 	public static final String ACTION_VIEW_FOR  = "view_for";
 	public static final String ACTION_VIEW_AUTO = "view_auto";
 	public static final String ACTION_INSERT    = "insert";
 
-	public static final String TYPE_ANY             = "any";                                                                                    //$NON-NLS-1$
-	public static final String TYPE_APP_FACEBOOK    = "facebook";                                                                                //$NON-NLS-1$
-	public static final String TYPE_APP_TWITTER     = "twitter";                                                                                //$NON-NLS-1$
-	public static final String TYPE_APP_WEBSITE     = "website";                                                                                //$NON-NLS-1$
-	public static final String TYPE_APP_EMAIL       = "email";                                                                                    //$NON-NLS-1$
-	public static final String TYPE_APP_YELP        = "yelp";                                                                                    //$NON-NLS-1$
-	public static final String TYPE_APP_FOURSQUARE  = "foursquare";                                                                            //$NON-NLS-1$
-	public static final String TYPE_APP_OPENTABLE   = "opentable";                                                                                //$NON-NLS-1$
-	public static final String TYPE_APP_URBANSPOON  = "urbanspoon";                                                                            //$NON-NLS-1$
-	public static final String TYPE_APP_CITYSEARCH  = "citysearch";                                                                            //$NON-NLS-1$
-	public static final String TYPE_APP_CITYGRID    = "citygrid";                                                                                //$NON-NLS-1$
-	public static final String TYPE_APP_YAHOOLOCAL  = "yahoolocal";                                                                            //$NON-NLS-1$
-	public static final String TYPE_APP_OPENMENU    = "openmenu";                                                                                //$NON-NLS-1$
-	public static final String TYPE_APP_ZAGAT       = "zagat";                                                                                    //$NON-NLS-1$
-	public static final String TYPE_APP_TRIPADVISOR = "tripadvisor";                                                                            //$NON-NLS-1$
-	public static final String TYPE_APP_GOOGLEPLACE = "googleplace";                                                                            //$NON-NLS-1$
-	public static final String TYPE_APP_GOOGLEPLUS  = "googleplus";                                                                            //$NON-NLS-1$
-	public static final String TYPE_APP_INSTAGRAM   = "instagram";                                                                                //$NON-NLS-1$
-	public static final String TYPE_APP_MESSAGE     = "message";                                    //$NON-NLS-1$
+	public static final String TYPE_ANY             = "any";
+	public static final String TYPE_APP_FACEBOOK    = "facebook";
+	public static final String TYPE_APP_TWITTER     = "twitter";
+	public static final String TYPE_APP_WEBSITE     = "website";
+	public static final String TYPE_APP_EMAIL       = "email";
+	public static final String TYPE_APP_YELP        = "yelp";
+	public static final String TYPE_APP_FOURSQUARE  = "foursquare";
+	public static final String TYPE_APP_OPENTABLE   = "opentable";
+	public static final String TYPE_APP_URBANSPOON  = "urbanspoon";
+	public static final String TYPE_APP_CITYSEARCH  = "citysearch";
+	public static final String TYPE_APP_CITYGRID    = "citygrid";
+	public static final String TYPE_APP_YAHOOLOCAL  = "yahoolocal";
+	public static final String TYPE_APP_OPENMENU    = "openmenu";
+	public static final String TYPE_APP_ZAGAT       = "zagat";
+	public static final String TYPE_APP_TRIPADVISOR = "tripadvisor";
+	public static final String TYPE_APP_GOOGLEPLACE = "googleplace";
+	public static final String TYPE_APP_GOOGLEPLUS  = "googleplus";
+	public static final String TYPE_APP_INSTAGRAM   = "instagram";
 
 	/* Local app */
-	public static final String TYPE_APP_MAP    = "map";                                                                                    //$NON-NLS-1$
-	public static final String TYPE_APP_INTENT = "intent";                                                                                //$NON-NLS-1$
+	public static final String TYPE_APP_MAP    = "map";
+	public static final String TYPE_APP_INTENT = "intent";
 
 	/* Verb types */
-	public static final String TYPE_APP_WATCH = "watch";                                                                                    //$NON-NLS-1$
+	public static final String TYPE_APP_WATCH = "watch";
 
 	/* Entity types */
-	public static final String TYPE_APP_COMMENT = "comment";                                                                                //$NON-NLS-1$
-	public static final String TYPE_APP_PICTURE = "picture";                                                                                //$NON-NLS-1$
-	public static final String TYPE_APP_POST    = "post";                                                                                    //$NON-NLS-1$
-	public static final String TYPE_APP_PLACE   = "place";                                                                                    //$NON-NLS-1$
-	public static final String TYPE_APP_USER    = "user";                                                                                    //$NON-NLS-1$
+	public static final String TYPE_APP_PLACE   = "place";
+	public static final String TYPE_APP_USER    = "user";
+	public static final String TYPE_APP_MESSAGE = "message";
 
-	public static final String TYPE_LINK_PROXIMITY = "proximity";                                                                                //$NON-NLS-1$
-	public static final String TYPE_LINK_WATCH     = "watch";                                                                                    //$NON-NLS-1$
-	public static final String TYPE_LINK_CONTENT   = "content";                                                                                //$NON-NLS-1$
-	public static final String TYPE_LINK_CREATE    = "create";                                                                                //$NON-NLS-1$
-	public static final String TYPE_LINK_SHARE     = "share";                                                                                //$NON-NLS-1$
+	public static final String TYPE_LINK_PROXIMITY = "proximity";
+	public static final String TYPE_LINK_WATCH     = "watch";
+	public static final String TYPE_LINK_CONTENT   = "content";
+	public static final String TYPE_LINK_CREATE    = "create";
+	public static final String TYPE_LINK_SHARE     = "share";
 
-	public static final String TYPE_COUNT_LINK_PROXIMITY       = "link_proximity";                                                                        //$NON-NLS-1$
-	public static final String TYPE_COUNT_LINK_PROXIMITY_MINUS = "link_proximity_minus";                                                                    //$NON-NLS-1$
+	public static final String TYPE_COUNT_LINK_PROXIMITY       = "link_proximity";
+	public static final String TYPE_COUNT_LINK_PROXIMITY_MINUS = "link_proximity_minus";
 
-	public static final String TYPE_BEACON_FIXED     = "fixed";                                                                                    //$NON-NLS-1$
-	public static final String TYPE_BEACON_MOBILE    = "mobile";                                                                                //$NON-NLS-1$
-	public static final String TYPE_BEACON_TEMPORARY = "temporary";                                                                                //$NON-NLS-1$
+	public static final String TYPE_BEACON_FIXED     = "fixed";
+	public static final String TYPE_BEACON_MOBILE    = "mobile";
+	public static final String TYPE_BEACON_TEMPORARY = "temporary";
 
-	public static final String TYPE_PROVIDER_FOURSQUARE = "foursquare";                                                                            //$NON-NLS-1$
-	public static final String TYPE_PROVIDER_GOOGLE     = "google";                                                                                //$NON-NLS-1$
-	public static final String TYPE_PROVIDER_FACTUAL    = "factual";                                                                                //$NON-NLS-1$
-	public static final String TYPE_PROVIDER_AIRCANDI   = "aircandi";                                                                                //$NON-NLS-1$
-	public static final String TYPE_PROVIDER_YELP       = "yelp";                                                                                    //$NON-NLS-1$
-	public static final String TYPE_PROVIDER_USER       = "user";                                                                                    //$NON-NLS-1$
+	public static final String TYPE_PROVIDER_FOURSQUARE = "foursquare";
+	public static final String TYPE_PROVIDER_GOOGLE     = "google";
+	public static final String TYPE_PROVIDER_FACTUAL    = "factual";
+	public static final String TYPE_PROVIDER_AIRCANDI   = "aircandi";
+	public static final String TYPE_PROVIDER_YELP       = "yelp";
+	public static final String TYPE_PROVIDER_USER       = "user";
 
-	public static final String PHOTO_SOURCE_DEFAULT           = "default";                                                                                //$NON-NLS-1$
-	public static final String PHOTO_SOURCE_SEARCH            = "search";                                                                                //$NON-NLS-1$
-	public static final String PHOTO_SOURCE_GALLERY           = "gallery";                                                                                //$NON-NLS-1$
-	public static final String PHOTO_SOURCE_CAMERA            = "camera";                                                                                //$NON-NLS-1$
-	public static final String PHOTO_SOURCE_PLACE             = "place";                                                                                    //$NON-NLS-1$
-	public static final String PHOTO_SOURCE_FACEBOOK          = "facebook";                                                                                //$NON-NLS-1$
-	public static final String PHOTO_SOURCE_TWITTER           = "twitter";                                                                                //$NON-NLS-1$
-	public static final String PHOTO_SOURCE_WEBSITE_THUMBNAIL = "website_thumbnail";                                                                        //$NON-NLS-1$
+	public static final String PHOTO_SOURCE_DEFAULT           = "default";
+	public static final String PHOTO_SOURCE_SEARCH            = "search";
+	public static final String PHOTO_SOURCE_GALLERY           = "gallery";
+	public static final String PHOTO_SOURCE_CAMERA            = "camera";
+	public static final String PHOTO_SOURCE_PLACE             = "place";
+	public static final String PHOTO_SOURCE_FACEBOOK          = "facebook";
+	public static final String PHOTO_SOURCE_TWITTER           = "twitter";
+	public static final String PHOTO_SOURCE_WEBSITE_THUMBNAIL = "website_thumbnail";
 
-	public static final String VISIBILITY_PUBLIC  = "public";                                                                                //$NON-NLS-1$
-	public static final String VISIBILITY_PRIVATE = "private";                                                                                //$NON-NLS-1$
+	public static final String VISIBILITY_PUBLIC  = "public";
+	public static final String VISIBILITY_PRIVATE = "private";
 
 	/* Package names */
-	public static final String PACKAGE_NAME_FACEBOOK    = "com.facebook.katana";                                                                    //$NON-NLS-1$
-	public static final String PACKAGE_NAME_TWITTER     = "com.twitter.android";                                                                    //$NON-NLS-1$
-	public static final String PACKAGE_NAME_FOURSQUARE  = "com.joelapenna.foursquared";                                                            //$NON-NLS-1$
-	public static final String PACKAGE_NAME_TRIPADVISOR = "com.tripadvisor.tripadvisor";                                                            //$NON-NLS-1$
-	public static final String PACKAGE_NAME_YELP        = "com.yelp.android";                                                                        //$NON-NLS-1$
+	public static final String PACKAGE_NAME_FACEBOOK    = "com.facebook.katana";
+	public static final String PACKAGE_NAME_TWITTER     = "com.twitter.android";
+	public static final String PACKAGE_NAME_FOURSQUARE  = "com.joelapenna.foursquared";
+	public static final String PACKAGE_NAME_TRIPADVISOR = "com.tripadvisor.tripadvisor";
+	public static final String PACKAGE_NAME_YELP        = "com.yelp.android";
 
 	public static final int ACTIVITY_NONE                = 0;
 	public static final int ACTIVITY_MARKET              = 200;
@@ -268,7 +262,6 @@ public class Constants {
 	public static final int ACTIVITY_PICTURE_SOURCE_PICK = 950;
 	public static final int ACTIVITY_ENTITY_INSERT       = 960;
 
-	public static final String FRAGMENT_TYPE_FEED          = "feed";
 	public static final String FRAGMENT_TYPE_NEARBY        = "nearby";
 	public static final String FRAGMENT_TYPE_WATCH         = "watch";
 	public static final String FRAGMENT_TYPE_CREATE        = "create";
@@ -285,9 +278,6 @@ public class Constants {
 	public static final String NAVIGATION_CATEGORY_TRENDS   = "trends";
 	public static final String NAVIGATION_CATEGORY_NONE     = "none";
 	public static final String NAVIGATION_CATEGORY_MESSAGES = "messages";
-
-	public static final String VIEW_TYPE_MAP  = "map";
-	public static final String VIEW_TYPE_LIST = "list";
 
 	public static final int RESULT_ENTITY_INSERTED        = 100;
 	public static final int RESULT_ENTITY_UPDATED         = 110;
@@ -327,5 +317,5 @@ public class Constants {
 	public static final Integer DESIRED_ACCURACY                      = DIST_THIRTY_METERS;
 
 	/* Used to filter for notification that active location update provider has been disabled */
-	public static final String ACTIVE_LOCATION_UPDATE_PROVIDER_DISABLED = "com.aircandi.location.active_location_update_provider_disabled";                        //$NON-NLS-1$
+	public static final String ACTIVE_LOCATION_UPDATE_PROVIDER_DISABLED = "com.aircandi.location.active_location_update_provider_disabled";
 }

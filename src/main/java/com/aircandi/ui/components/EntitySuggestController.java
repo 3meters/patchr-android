@@ -14,7 +14,7 @@ import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.LocationManager;
@@ -102,12 +102,12 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 		/* Add place to auto complete array */
 		try {
-			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Aircandi.settings.getString(
+			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patch.settings.getString(
 					StringManager.getString(R.string.setting_place_searches), "{}"));
 			final String jsonEntity = Json.objectToJson(entity);
 			jsonSearchMap.put(entity.id, jsonEntity);
-			Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_place_searches), jsonSearchMap.toString());
-			Aircandi.settingsEditor.commit();
+			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_place_searches), jsonSearchMap.toString());
+			Patch.settingsEditor.commit();
 		}
 		catch (JSONException exception) {
 			exception.printStackTrace();
@@ -306,8 +306,8 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 						Thread.currentThread().setName("AsyncSuggestEntities");
 						final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
-						ModelResult modelResult = Aircandi.getInstance().getEntityManager().suggest(chars.toString().trim()
-								, mSuggestScope, Aircandi.getInstance().getCurrentUser().id
+						ModelResult modelResult = Patch.getInstance().getEntityManager().suggest(chars.toString().trim()
+								, mSuggestScope, Patch.getInstance().getCurrentUser().id
 								, location
 								, LIMIT);
 

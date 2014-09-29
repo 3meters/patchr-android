@@ -1,7 +1,7 @@
 package com.aircandi.utilities;
 
-import com.aircandi.Aircandi;
-import com.aircandi.controllers.IEntityController;
+import com.aircandi.Patch;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.AirMarker;
 import com.aircandi.objects.CacheStamp;
@@ -12,7 +12,6 @@ import com.aircandi.objects.ImageResult;
 import com.aircandi.objects.Install;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.ServiceActivity;
 import com.aircandi.objects.ServiceBase.UpdateScope;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.objects.ServiceEntry;
@@ -153,12 +152,12 @@ public class Json {
 
 		}
 		catch (ParseException e) {
-			if (Aircandi.DEBUG) {
+			if (Patch.DEBUG) {
 				e.printStackTrace();
 			}
 		}
 		catch (Exception e) {
-			if (Aircandi.DEBUG) {
+			if (Patch.DEBUG) {
 				e.printStackTrace();
 			}
 		}
@@ -178,7 +177,7 @@ public class Json {
 				}
 				else if (objectType == Json.ObjectType.ENTITY) {
 					String schema = (String) map.get("schema");
-					IEntityController controller = Aircandi.getInstance().getControllerForSchema(schema);
+					IEntityController controller = Patch.getInstance().getControllerForSchema(schema);
 					if (controller != null) {
 						list.add(controller.makeFromMap(map, nameMapping));
 					}
@@ -197,10 +196,6 @@ public class Json {
 				}
 				else if (objectType == Json.ObjectType.AIR_LOCATION) {
 					list.add(AirLocation.setPropertiesFromMap(new AirLocation(), map, nameMapping));
-				}
-				else if (objectType == Json.ObjectType.SERVICE_ACTIVITY) {
-					ServiceActivity activity = ServiceActivity.setPropertiesFromMap(new ServiceActivity(), map, nameMapping);
-					list.add(activity);
 				}
 				else if (objectType == Json.ObjectType.SERVICE_MESSAGE) {
 					ServiceMessage message = ServiceMessage.setPropertiesFromMap(new ServiceMessage(), map, nameMapping);
@@ -342,12 +337,12 @@ public class Json {
 			}
 		}
 		catch (IllegalArgumentException e) {
-			if (Aircandi.DEBUG) {
+			if (Patch.DEBUG) {
 				e.printStackTrace();
 			}
 		}
 		catch (IllegalAccessException e) {
-			if (Aircandi.DEBUG) {
+			if (Patch.DEBUG) {
 				e.printStackTrace();
 			}
 		}

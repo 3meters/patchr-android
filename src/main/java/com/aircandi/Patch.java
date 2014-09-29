@@ -20,7 +20,6 @@ import android.util.DisplayMetrics;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
-import com.aircandi.R;
 import com.aircandi.components.ActivityDecorator;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DispatchManager;
@@ -29,12 +28,11 @@ import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.MenuManager;
 import com.aircandi.components.NetworkManager;
-import com.aircandi.components.ShortcutManager;
 import com.aircandi.components.Stopwatch;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerDelegate;
 import com.aircandi.components.TrackerGoogleEasy;
-import com.aircandi.controllers.IEntityController;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Session;
 import com.aircandi.objects.User;
@@ -59,11 +57,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-public class Aircandi extends Application {
+public class Patch extends Application {
 
 	public static BasicAWSCredentials awsCredentials = null;
 
-	private static Aircandi singletonObject;
+	private static Patch singletonObject;
 
 	public static SharedPreferences        settings;
 	public static SharedPreferences.Editor settingsEditor;
@@ -123,14 +121,13 @@ public class Aircandi extends Application {
 	protected MenuManager       mMenuManager;
 	protected EntityManager     mEntityManager;
 	protected ActivityDecorator mActivityDecorator;
-	protected ShortcutManager   mShortcutManager;
 	protected MediaManager      mMediaManager;
 	private   AnimationManager  mAnimationManager;
 
 	/* Injected configuration */
 	protected Container mContainer;
 
-	public static Aircandi getInstance() {
+	public static Patch getInstance() {
 		return singletonObject;
 	}
 
@@ -150,7 +147,7 @@ public class Aircandi extends Application {
 	protected void initializeInstance() {
 
 		/* Must have this so activity rerouting works. */
-		Aircandi.applicationContext = getApplicationContext();
+		Patch.applicationContext = getApplicationContext();
 
 		if (!DEBUG) {
 			Reporting.startCrashReporting(this);
@@ -175,7 +172,7 @@ public class Aircandi extends Application {
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
 
 		/* Make sure unique id is initialized */
-		Aircandi.getinstallId();
+		Patch.getinstallId();
 
 		/* Setup the analytics tracker */
 		tracker = new TrackerGoogleEasy();
@@ -211,7 +208,7 @@ public class Aircandi extends Application {
 		openContainer(StringManager.getString(R.string.id_container), RefreshMode.STANDARD);
 
 		/* Inject dispatch manager */
-		Aircandi.dispatch = new DispatchManager();
+		Patch.dispatch = new DispatchManager();
 	}
 
 	protected void initializeManagers() {
@@ -237,11 +234,11 @@ public class Aircandi extends Application {
 	}
 
 	public void snapshotPreferences() {
-		mPrefTheme = Aircandi.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
-		mPrefSearchRadius = Aircandi.settings.getString(StringManager.getString(R.string.pref_search_radius),
+		mPrefTheme = Patch.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
+		mPrefSearchRadius = Patch.settings.getString(StringManager.getString(R.string.pref_search_radius),
 				StringManager.getString(R.string.pref_search_radius_default));
-		mPrefEnableDev = Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
-		mPrefTestingBeacons = Aircandi.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
+		mPrefEnableDev = Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
+		mPrefTestingBeacons = Patch.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
 	}
 
 	@SuppressWarnings("ucd")
@@ -255,7 +252,7 @@ public class Aircandi extends Application {
 
 		TagManager tagManager = TagManager.getInstance(this);
 		tagManager.setRefreshMode(refreshMode); // TODO: Must be set to standard to get fresh pulls
-		if (Aircandi.DEBUG) {
+		if (Patch.DEBUG) {
 			tagManager.getLogger().setLogLevel(LogLevel.VERBOSE);
 		}
 
@@ -272,8 +269,8 @@ public class Aircandi extends Application {
 				/* Called when a successful refresh occurred for the given refresh type. */
 				Logger.v(this, "Container refresh success: " + refreshType.toString());
 
-				if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-						&& Aircandi.getInstance().getCurrentUser() != null && Type.isTrue(Aircandi.getInstance().getCurrentUser().developer)) {
+				if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+						&& Patch.getInstance().getCurrentUser() != null && Type.isTrue(Patch.getInstance().getCurrentUser().developer)) {
 					UI.showToastNotification("Container refreshed: " + refreshType.toString(), Toast.LENGTH_SHORT);
 				}
 
@@ -297,8 +294,8 @@ public class Aircandi extends Application {
 		/*
 		 * Gets called on app create and after restart and ending with the back key.
 		 */
-		final String jsonUser = Aircandi.settings.getString(StringManager.getString(R.string.setting_user), null);
-		final String jsonSession = Aircandi.settings.getString(StringManager.getString(R.string.setting_user_session), null);
+		final String jsonUser = Patch.settings.getString(StringManager.getString(R.string.setting_user), null);
+		final String jsonSession = Patch.settings.getString(StringManager.getString(R.string.setting_user_session), null);
 
 		if (jsonUser != null && jsonSession != null) {
 			Logger.i(this, "Auto sign in...");
@@ -306,7 +303,7 @@ public class Aircandi extends Application {
 			if (user != null) {
 				user.session = (Session) Json.jsonToObject(jsonSession, Json.ObjectType.SESSION);
 				if (user.session != null) {
-					Aircandi.getInstance().setCurrentUser(user);
+					Patch.getInstance().setCurrentUser(user);
 					return true;
 				}
 			}
@@ -370,9 +367,9 @@ public class Aircandi extends Application {
 
 	public synchronized static String getinstallId() {
 		if (uniqueId == null) {
-			uniqueId = Aircandi.settings.getString(StringManager.getString(R.string.setting_unique_id), null);
-			uniqueDate = Aircandi.settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
-			uniqueType = Aircandi.settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
+			uniqueId = Patch.settings.getString(StringManager.getString(R.string.setting_unique_id), null);
+			uniqueDate = Patch.settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
+			uniqueType = Patch.settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
 			if (uniqueId == null || uniqueType == null) {
 				if (Build.SERIAL != null && !Build.SERIAL.equals("unknown")) {
 					uniqueId = Build.SERIAL;
@@ -391,10 +388,10 @@ public class Aircandi extends Application {
 				}
 				uniqueId += "." + applicationContext.getPackageName();
 				uniqueDate = DateTime.nowDate().getTime();
-				Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id_type), uniqueType);
-				Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id), uniqueId);
-				Aircandi.settingsEditor.putLong(StringManager.getString(R.string.setting_unique_id_date), uniqueDate);
-				Aircandi.settingsEditor.commit();
+				Patch.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id_type), uniqueType);
+				Patch.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id), uniqueId);
+				Patch.settingsEditor.putLong(StringManager.getString(R.string.setting_unique_id_date), uniqueDate);
+				Patch.settingsEditor.commit();
 			}
 		}
 		return uniqueId;
@@ -463,10 +460,6 @@ public class Aircandi extends Application {
 		return mContainer;
 	}
 
-	public ShortcutManager getShortcutManager() {
-		return mShortcutManager;
-	}
-
 	public ActivityDecorator getActivityDecorator() {
 		return mActivityDecorator;
 	}
@@ -483,32 +476,27 @@ public class Aircandi extends Application {
 		return mAnimationManager;
 	}
 
-	public Aircandi setMenuManager(MenuManager menuManager) {
+	public Patch setMenuManager(MenuManager menuManager) {
 		mMenuManager = menuManager;
 		return this;
 	}
 
-	public Aircandi setShortcutManager(ShortcutManager shortcutManager) {
-		mShortcutManager = shortcutManager;
-		return this;
-	}
-
-	public Aircandi setActivityDecorator(ActivityDecorator activityDecorator) {
+	public Patch setActivityDecorator(ActivityDecorator activityDecorator) {
 		mActivityDecorator = activityDecorator;
 		return this;
 	}
 
-	public Aircandi setEntityManager(EntityManager entityManager) {
+	public Patch setEntityManager(EntityManager entityManager) {
 		mEntityManager = entityManager;
 		return this;
 	}
 
-	public Aircandi setMediaManager(MediaManager mediaManager) {
+	public Patch setMediaManager(MediaManager mediaManager) {
 		mMediaManager = mediaManager;
 		return this;
 	}
 
-	public Aircandi setAnimationManager(AnimationManager animationManager) {
+	public Patch setAnimationManager(AnimationManager animationManager) {
 		mAnimationManager = animationManager;
 		return this;
 	}

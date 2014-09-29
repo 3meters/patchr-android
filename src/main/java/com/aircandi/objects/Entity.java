@@ -2,7 +2,7 @@ package com.aircandi.objects;
 
 import android.support.annotation.Nullable;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
@@ -10,13 +10,12 @@ import com.aircandi.components.EntityManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.EntityControllerBase;
-import com.aircandi.controllers.IEntityController;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.CacheStamp.StampSource;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
 import com.aircandi.utilities.Booleans;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Type;
 
 import java.io.Serializable;
@@ -160,8 +159,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public Boolean isOwnedByCurrentUser() {
 		Boolean owned = (ownerId != null
-				&& Aircandi.getInstance().getCurrentUser() != null
-				&& ownerId.equals(Aircandi.getInstance().getCurrentUser().id));
+				&& Patch.getInstance().getCurrentUser() != null
+				&& ownerId.equals(Patch.getInstance().getCurrentUser().id));
 		return owned;
 	}
 
@@ -204,12 +203,12 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public Photo getDefaultPhoto() {
-		IEntityController controller = Aircandi.getInstance().getControllerForSchema(this.schema);
+		IEntityController controller = Patch.getInstance().getControllerForSchema(this.schema);
 		return ((controller != null) ? controller.getDefaultPhoto(this.type) : null);
 	}
 
 	public Photo getPlaceholderPhoto() {
-		IEntityController controller = Aircandi.getInstance().getControllerForSchema(this.schema);
+		IEntityController controller = Patch.getInstance().getControllerForSchema(this.schema);
 		return ((controller != null) ? controller.getPlaceholderPhoto(this.type) : null);
 	}
 
@@ -611,7 +610,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Boolean byAppUser(String linkType) {
 		if (linksIn != null) {
 			for (Link link : linksIn) {
-				if (link.type.equals(linkType) && link.fromId.equals(Aircandi.getInstance().getCurrentUser().id))
+				if (link.type.equals(linkType) && link.fromId.equals(Patch.getInstance().getCurrentUser().id))
 					return true;
 			}
 		}
@@ -621,62 +620,25 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Link linkByAppUser(String linkType) {
 		if (linksIn != null) {
 			for (Link link : linksIn) {
-				if (link.type.equals(linkType) && link.fromId.equals(Aircandi.getInstance().getCurrentUser().id))
+				if (link.type.equals(linkType) && link.fromId.equals(Patch.getInstance().getCurrentUser().id))
 					return link;
 			}
 		}
 		return null;
 	}
 
-	public void getClientShortcuts(List<Shortcut> shortcuts) {
-        /*
-         * Shortcuts are in shortcut.isActive() at draw time to determine if it gets shown
-		 */
-
-		/* Comments */
-		Shortcut shortcut = Shortcut.builder(this
-				, Constants.SCHEMA_ENTITY_APPLINK
-				, Constants.TYPE_APP_COMMENT
-				, Constants.ACTION_VIEW_FOR
-				, StringManager.getString(R.string.label_link_comments)
-				, null
-				, "img_comment_temp"
-				, 20
-				, false
-				, true);
-		shortcut.photo.colorize = true;
-		shortcut.photo.color = Colors.getColor(Aircandi.getInstance().getControllerForSchema(Constants.TYPE_APP_COMMENT).getColorPrimary());
-		shortcut.linkType = Constants.TYPE_LINK_CONTENT;
-		shortcuts.add(shortcut);
-	}
-
 	public void removeLink() {}
 
-	public String getSchemaMapped() {
-		String schema = this.schema;
-		if (schema.equals(Constants.SCHEMA_ENTITY_PICTURE)) {
-			schema = Constants.SCHEMA_REMAP_PICTURE;
-		}
-		return schema;
-	}
-
 	public String getLabelForSchema() {
-		String label = getSchemaMapped();
+		String label = this.schema;
 		if (label.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 			label = StringManager.getString(R.string.container_singular_lowercase);
 		}
 		return label;
 	}
 
-	public static String getSchemaMapped(String schema) {
-		if (schema.equals(Constants.SCHEMA_ENTITY_PICTURE)) {
-			schema = Constants.SCHEMA_REMAP_PICTURE;
-		}
-		return schema;
-	}
-
 	public static String getLabelForSchema(String schema) {
-		String label = getSchemaMapped(schema);
+		String label = schema;
 		if (label.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 			label = StringManager.getString(R.string.container_singular_lowercase);
 		}
@@ -685,26 +647,17 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public static String getSchemaForId(String id) {
 		String prefix = id.substring(0, 2);
-		if (prefix.equals("ap")) {
-			return Constants.SCHEMA_ENTITY_APPLINK;
-		}
-		else if (prefix.equals("be")) {
+		if (prefix.equals("be")) {
 			return Constants.SCHEMA_ENTITY_BEACON;
-		}
-		else if (prefix.equals("co")) {
-			return Constants.SCHEMA_ENTITY_COMMENT;
 		}
 		else if (prefix.equals("pl")) {
 			return Constants.SCHEMA_ENTITY_PLACE;
-		}
-		else if (prefix.equals("po")) {
-			return Constants.SCHEMA_ENTITY_PICTURE;
 		}
 		else if (prefix.equals("us")) {
 			return Constants.SCHEMA_ENTITY_USER;
 		}
 		else if (prefix.equals("me")) {
-			return com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE;
+			return Constants.SCHEMA_ENTITY_MESSAGE;
 		}
 		return null;
 	}
@@ -793,7 +746,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 					final List<LinkedHashMap<String, Object>> childMaps = (List<LinkedHashMap<String, Object>>) map.get("entities");
 					for (Map<String, Object> childMap : childMaps) {
 						String schema = (String) childMap.get("schema");
-						IEntityController controller = Aircandi.getInstance().getControllerForSchema(schema);
+						IEntityController controller = Patch.getInstance().getControllerForSchema(schema);
 						entity.entities.add(controller.makeFromMap(map, nameMapping));
 					}
 				}

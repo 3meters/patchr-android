@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -15,7 +15,7 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Document;
 import com.aircandi.ui.base.BaseEntityEdit;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirEditText;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.DateTime;
@@ -64,7 +64,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 
 	@Override
 	public void draw(View view) {
-		((UserView) findViewById(R.id.created_by)).databind(Aircandi.getInstance().getCurrentUser(), null);
+		((UserView) findViewById(R.id.created_by)).databind(Patch.getInstance().getCurrentUser(), null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertFeedback");
 				mFeedback.createdDate = DateTime.nowDate().getTime();
-				final ModelResult result = Aircandi.getInstance().getEntityManager().insertDocument(mFeedback);
+				final ModelResult result = Patch.getInstance().getEntityManager().insertDocument(mFeedback);
 				return result;
 			}
 

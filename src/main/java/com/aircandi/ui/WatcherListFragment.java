@@ -4,12 +4,12 @@ import android.app.Activity;
 import android.view.View;
 import android.widget.CompoundButton;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.Extras;
-import com.aircandi.controllers.IEntityController;
-import com.aircandi.controllers.ViewHolder;
+import com.aircandi.interfaces.IEntityController;
+import com.aircandi.objects.ViewHolder;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.widgets.ComboButton;
@@ -26,7 +26,7 @@ public class WatcherListFragment extends EntityListFragment {
 				.setEntitySchema(Constants.SCHEMA_ENTITY_USER)
 				.setEntityId(entity.id);
 
-		Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
+		Patch.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class WatcherListFragment extends EntityListFragment {
 	@Override
 	protected void bindListItem(Entity entity, View view) {
 
-		IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
+		IEntityController controller = Patch.getInstance().getControllerForEntity(entity);
 
 		ViewHolder holder = (ViewHolder) view.getTag();
 		if (holder == null) {

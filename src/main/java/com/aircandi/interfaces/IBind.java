@@ -1,4 +1,4 @@
-package com.aircandi.ui.base;
+package com.aircandi.interfaces;
 
 public interface IBind {
 

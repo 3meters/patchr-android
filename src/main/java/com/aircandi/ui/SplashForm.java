@@ -11,7 +11,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.ActivityDecorator;
@@ -27,20 +27,14 @@ import com.aircandi.components.MenuManager;
 import com.aircandi.components.MessagingManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ShortcutManager;
-import com.aircandi.controllers.Applinks;
-import com.aircandi.controllers.Beacons;
-import com.aircandi.controllers.Comments;
-import com.aircandi.controllers.Maps;
 import com.aircandi.controllers.Messages;
-import com.aircandi.controllers.Pictures;
 import com.aircandi.controllers.Places;
 import com.aircandi.controllers.Users;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
@@ -67,7 +61,7 @@ public class SplashForm extends Activity {
 		/* Always reset the entity cache */
 		EntityManager.getEntityCache().clear();
 
-		if (!Aircandi.applicationUpdateRequired) {
+		if (!Patch.applicationUpdateRequired) {
 			if (AndroidManager.checkPlayServices(this)) {
 				prepareToRun();
 			}
@@ -99,7 +93,7 @@ public class SplashForm extends Activity {
 				Thread.currentThread().setName("AsyncPrepareToRun");
 				ModelResult result = new ModelResult();
 
-				if (Aircandi.firstStartApp) {
+				if (Patch.firstStartApp) {
 					configure();
 					int maxAttempts = 5;
 					int attempts = 1;
@@ -120,14 +114,14 @@ public class SplashForm extends Activity {
 						}
 						attempts++;
 					}
-					Aircandi.firstStartApp = false;
+					Patch.firstStartApp = false;
 				}
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					User user = Aircandi.getInstance().getCurrentUser();
+					User user = Patch.getInstance().getCurrentUser();
 					if (!user.isAnonymous()) {
-						Links options = Aircandi.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
-						result = Aircandi.getInstance().getEntityManager().getEntity(Aircandi.getInstance().getCurrentUser().id, true, options);
+						Links options = Patch.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
+						result = Patch.getInstance().getEntityManager().getEntity(Patch.getInstance().getCurrentUser().id, true, options);
 					}
 				}
 
@@ -146,7 +140,7 @@ public class SplashForm extends Activity {
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Logger.i(this, "Splash initialized");
-					if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+					if (Patch.getInstance().getCurrentUser().isAnonymous()) {
 						showButtons(Buttons.ACCOUNT);
 					}
 					else {
@@ -160,7 +154,7 @@ public class SplashForm extends Activity {
 					}
 					else {
 						Errors.handleError(SplashForm.this, result.serviceResponse);
-						if (Aircandi.applicationUpdateRequired) {
+						if (Patch.applicationUpdateRequired) {
 							updateRequired();
 							return;
 						}
@@ -176,25 +170,19 @@ public class SplashForm extends Activity {
 		/*
 		 * Only called when app is first started
 		 */
-		Aircandi.getInstance()
+		Patch.getInstance()
 		        .setMenuManager(new MenuManager())
 		        .setActivityDecorator(new ActivityDecorator())
-		        .setShortcutManager(new ShortcutManager())
 		        .setEntityManager(new EntityManager().setLinks(new Links()))
 		        .setMediaManager(new MediaManager().initSoundPool())
 		        .setAnimationManager(new AnimationManager());
 
-		Aircandi.controllerMap.put(Constants.SCHEMA_ENTITY_APPLINK, new Applinks());
-		Aircandi.controllerMap.put(Constants.SCHEMA_ENTITY_BEACON, new Beacons());
-		Aircandi.controllerMap.put(Constants.SCHEMA_ENTITY_COMMENT, new Comments());
-		Aircandi.controllerMap.put(Constants.SCHEMA_ENTITY_PICTURE, new Pictures());
-		Aircandi.controllerMap.put(Constants.SCHEMA_ENTITY_PLACE, new Places());
-		Aircandi.controllerMap.put(Constants.SCHEMA_ENTITY_USER, new Users());
-		Aircandi.controllerMap.put(Constants.TYPE_APP_MAP, new Maps());
-		Aircandi.controllerMap.put(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE, new Messages());
+		Patch.controllerMap.put(Constants.SCHEMA_ENTITY_PLACE, new Places());
+		Patch.controllerMap.put(Constants.SCHEMA_ENTITY_USER, new Users());
+		Patch.controllerMap.put(Constants.SCHEMA_ENTITY_MESSAGE, new Messages());
 
 		/* Start out with anonymous user then upgrade to signed in user if possible */
-		Aircandi.getInstance().initializeUser();
+		Patch.getInstance().initializeUser();
 
 		/* Stash last known location but doesn't start location updates */
 		LocationManager.getInstance().initialize(getApplicationContext());
@@ -206,22 +194,22 @@ public class SplashForm extends Activity {
 	}
 
 	protected void startHomeActivity() {
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous() && Aircandi.firstStartIntent != null) {
-			startActivity(Aircandi.firstStartIntent);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous() && Patch.firstStartIntent != null) {
+			startActivity(Patch.firstStartIntent);
 		}
 		else {
-			Aircandi.dispatch.route(this, Route.HOME, null, null, null);
+			Patch.dispatch.route(this, Route.HOME, null, null, null);
 		}
 
 		/* Always ok to make sure firstStartIntent isn't still around */
-		Aircandi.firstStartIntent = null;
+		Patch.firstStartIntent = null;
 
 		/*
 		 * This is a hack to delay the finish. When executed immediately, we
 		 * are getting a warning about lost windows because the activity hadn't completely
 		 * started before it was being killed.
 		 */
-		Aircandi.mainThreadHandler.postDelayed(new Runnable() {
+		Patch.mainThreadHandler.postDelayed(new Runnable() {
 
 			@Override
 			public void run() {
@@ -261,25 +249,25 @@ public class SplashForm extends Activity {
 
 	@SuppressWarnings("ucd")
 	public void onSigninButtonClick(View view) {
-		if (Aircandi.applicationUpdateRequired) {
+		if (Patch.applicationUpdateRequired) {
 			updateRequired();
 			return;
 		}
-		Aircandi.dispatch.route(this, Route.SIGNIN, null, null, null);
+		Patch.dispatch.route(this, Route.SIGNIN, null, null, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onSignupButtonClick(View view) {
-		if (Aircandi.applicationUpdateRequired) {
+		if (Patch.applicationUpdateRequired) {
 			updateRequired();
 			return;
 		}
-		Aircandi.dispatch.route(this, Route.REGISTER, null, null, null);
+		Patch.dispatch.route(this, Route.REGISTER, null, null, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onStartButtonClick(View view) {
-		if (Aircandi.applicationUpdateRequired) {
+		if (Patch.applicationUpdateRequired) {
 			updateRequired();
 			return;
 		}
@@ -289,7 +277,7 @@ public class SplashForm extends Activity {
 	@SuppressWarnings("ucd")
 	public void onRetryButtonClick(View view) {
 		showButtons(Buttons.NONE);
-		if (Aircandi.applicationUpdateRequired) {
+		if (Patch.applicationUpdateRequired) {
 			updateRequired();
 		}
 		else {
@@ -329,7 +317,7 @@ public class SplashForm extends Activity {
 	protected void onResume() {
 		super.onResume();
 		Logger.d(this, "Splash resume");
-		Aircandi.getInstance().setCurrentActivity(this);
+		Patch.getInstance().setCurrentActivity(this);
 		draw();
 	}
 
@@ -353,9 +341,9 @@ public class SplashForm extends Activity {
 	}
 
 	private void clearReferences() {
-		Activity currentActivity = Aircandi.getInstance().getCurrentActivity();
+		Activity currentActivity = Patch.getInstance().getCurrentActivity();
 		if (currentActivity != null && currentActivity.equals(this)) {
-			Aircandi.getInstance().setCurrentActivity(null);
+			Patch.getInstance().setCurrentActivity(null);
 		}
 	}
 

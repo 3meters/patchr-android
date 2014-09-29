@@ -63,7 +63,7 @@ import static com.google.maps.android.clustering.algo.NonHierarchicalDistanceBas
  */
 public class AirClusterRenderer<T extends ClusterItem> implements ClusterRenderer<T> {
 
-	private static final boolean SHOULD_ANIMATE = true;
+	private boolean mAnimate = true;
 	private final GoogleMap         mMap;
 	private final IconGenerator     mIconGenerator;
 	private final ClusterManager<T> mClusterManager;
@@ -348,7 +348,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 			// Find all of the existing clusters that are on-screen. These are candidates for
 			// markers to animate from.
 			List<Point> existingClustersOnScreen = null;
-			if (AirClusterRenderer.this.mClusters != null && SHOULD_ANIMATE) {
+			if (AirClusterRenderer.this.mClusters != null && mAnimate) {
 				existingClustersOnScreen = new ArrayList<Point>();
 				for (Cluster<T> c : AirClusterRenderer.this.mClusters) {
 					if (shouldRenderAsCluster(c) && visibleBounds.contains(c.getPosition())) {
@@ -362,7 +362,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 			final Set<MarkerWithPosition> newMarkers = Collections.newSetFromMap(new ConcurrentHashMap<MarkerWithPosition, Boolean>());
 			for (Cluster<T> c : clusters) {
 				boolean onScreen = visibleBounds.contains(c.getPosition());
-				if (zoomingIn && onScreen && SHOULD_ANIMATE) {
+				if (zoomingIn && onScreen && mAnimate) {
 					Point point = mSphericalMercatorProjection.toPoint(c.getPosition());
 					Point closest = findClosestCluster(existingClustersOnScreen, point);
 					if (closest != null) {
@@ -388,7 +388,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 			// Find all of the new clusters that were added on-screen. These are candidates for
 			// markers to animate from.
 			List<Point> newClustersOnScreen = null;
-			if (SHOULD_ANIMATE) {
+			if (mAnimate) {
 				newClustersOnScreen = new ArrayList<Point>();
 				for (Cluster<T> c : clusters) {
 					if (shouldRenderAsCluster(c) && visibleBounds.contains(c.getPosition())) {
@@ -403,7 +403,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 				boolean onScreen = visibleBounds.contains(marker.position);
 				// Don't animate when zooming out more than 3 zoom levels.
 				// TODO: drop animation based on speed of device & number of markers to animate.
-				if (!zoomingIn && zoomDelta > -3 && onScreen && SHOULD_ANIMATE) {
+				if (!zoomingIn && zoomDelta > -3 && onScreen && mAnimate) {
 					final Point point = mSphericalMercatorProjection.toPoint(marker.position);
 					final Point closest = findClosestCluster(newClustersOnScreen, point);
 					if (closest != null) {
@@ -453,6 +453,10 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	@Override
 	public void setOnClusterItemInfoWindowClickListener(ClusterManager.OnClusterItemInfoWindowClickListener<T> listener) {
 		mItemInfoWindowClickListener = listener;
+	}
+
+	public void setAnimate(boolean animate) {
+		mAnimate = animate;
 	}
 
 	private static double distanceSquared(Point a, Point b) {

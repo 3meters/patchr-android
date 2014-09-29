@@ -1,5 +1,6 @@
 package com.aircandi.monitors;
 
+import com.aircandi.interfaces.IMonitor;
 import com.aircandi.objects.CacheStamp;
 
 public abstract class SimpleMonitor implements IMonitor {

@@ -23,7 +23,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
@@ -31,6 +31,9 @@ import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.ButtonSpecialEvent;
 import com.aircandi.events.ViewLayoutEvent;
+import com.aircandi.interfaces.IBind;
+import com.aircandi.interfaces.IBusy;
+import com.aircandi.interfaces.IForm;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.AircandiForm;
@@ -394,7 +397,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 						extras.putString(Constants.EXTRA_ENTITY, jsonEntity);
 						extras.putBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC, true);
 					}
-					Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
+					Patch.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
 				}
 			});
 
@@ -429,7 +432,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	@SuppressWarnings("ucd")
 	public boolean onCreatePopupMenu(android.view.Menu menu) {
 		Logger.d(this, "Creating fragment options menu");
-		return Aircandi.getInstance().getMenuManager().onCreatePopupMenu(getActivity(), menu, mEntity);
+		return Patch.getInstance().getMenuManager().onCreatePopupMenu(getActivity(), menu, mEntity);
 	}
 
 	@Override
@@ -445,7 +448,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	@Override
 	public void onStart() {
 		Logger.d(this, "Fragment start");
-		Aircandi.tracker.fragmentStart(this);
+		Patch.tracker.fragmentStart(this);
 		super.onStart();
 	}
 

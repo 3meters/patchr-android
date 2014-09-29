@@ -20,8 +20,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
-import com.aircandi.Aircandi.ThemeTone;
+import com.aircandi.Patch;
+import com.aircandi.Patch.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
@@ -31,7 +31,7 @@ import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.controllers.IEntityController;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -45,7 +45,7 @@ import com.aircandi.objects.Shortcut.InstallStatus;
 import com.aircandi.objects.ShortcutMeta;
 import com.aircandi.objects.ShortcutSettings;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.ComboButton;
 import com.aircandi.ui.widgets.FlowLayout;
@@ -105,7 +105,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		mEntity = EntityManager.getCacheEntity(mEntityId);
 		if (mEntity != null) {
 			if (mEntity instanceof Place) {
-				Aircandi.getInstance().setCurrentPlace(mEntity);
+				Patch.getInstance().setCurrentPlace(mEntity);
 				Logger.v(this, "Setting current place to: " + mEntity.id);
 			}
 			if (mFirstDraw) {
@@ -148,8 +148,8 @@ public abstract class BaseEntityForm extends BaseActivity {
 				}
 
 				if (refreshNeeded.get()) {
-					Links options = Aircandi.getInstance().getEntityManager().getLinks().build(mLinkProfile);
-					result = Aircandi.getInstance().getEntityManager().getEntity(mEntityId, true, options);
+					Links options = Patch.getInstance().getEntityManager().getLinks().build(mLinkProfile);
+					result = Patch.getInstance().getEntityManager().getEntity(mEntityId, true, options);
 				}
 
 				return result;
@@ -169,7 +169,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 								mEntity.toId = mParentId;
 							}
 							if (mEntity instanceof Place) {
-								Aircandi.getInstance().setCurrentPlace(mEntity);
+								Patch.getInstance().setCurrentPlace(mEntity);
 								Logger.v(this, "Setting current place to: " + mEntity.id);
 							}
 							draw(null);
@@ -214,7 +214,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	@SuppressWarnings("ucd")
 	public void onWatchButtonClick(View view) {
 
-		if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+		if (Patch.getInstance().getCurrentUser().isAnonymous()) {
 			String message = StringManager.getString(R.string.alert_signin_message_watch, mEntity.schema);
 			Dialogs.signinRequired(this, message);
 			return;
@@ -228,7 +228,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	@SuppressWarnings("ucd")
 	public void onShortcutClick(View view) {
 		final Shortcut shortcut = (Shortcut) view.getTag();
-		Aircandi.dispatch.route(this, Route.SHORTCUT, mEntity, shortcut, null);
+		Patch.dispatch.route(this, Route.SHORTCUT, mEntity, shortcut, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -236,12 +236,12 @@ public abstract class BaseEntityForm extends BaseActivity {
 		Entity entity = (Entity) view.getTag();
 		Bundle extras = new Bundle();
 		if (Type.isTrue(entity.autowatchable)) {
-			if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
+			if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
 					, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
 				extras.putBoolean(Constants.EXTRA_AUTO_WATCH, true);
 			}
 		}
-		Aircandi.dispatch.route(this, Route.BROWSE, entity, null, extras);
+		Patch.dispatch.route(this, Route.BROWSE, entity, null, extras);
 	}
 
 	@Override
@@ -253,14 +253,14 @@ public abstract class BaseEntityForm extends BaseActivity {
 			final String jsonPhoto = Json.objectToJson(photo);
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Aircandi.dispatch.route(this, Route.PHOTO, null, null, extras);
+			Patch.dispatch.route(this, Route.PHOTO, null, null, extras);
 		}
 		else if (mEntity.photo != null) {
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mParentId);
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, (mListLinkType == null) ? Constants.TYPE_LINK_CONTENT : mListLinkType);
 			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, mEntity.schema);
-			Aircandi.dispatch.route(this, Route.PHOTOS, mEntity, null, extras);
+			Patch.dispatch.route(this, Route.PHOTOS, mEntity, null, extras);
 		}
 	}
 
@@ -272,16 +272,16 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 * - Candi picker returns entity id for a move
 		 * - Template picker returns type of candi to add as a child
 		 */
-		if (resultCode != Activity.RESULT_CANCELED || Aircandi.resultCode != Activity.RESULT_CANCELED) {
+		if (resultCode != Activity.RESULT_CANCELED || Patch.resultCode != Activity.RESULT_CANCELED) {
 			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
 				/*
 				 * Guarantees that any cache stamp retrieved for parent entity from the service will not equal
 				 * any cache stamp including itself. Cleared if parent entity is refreshed from the service.
 				 */
-				Aircandi.getInstance().getEntityManager().getCacheStampOverrides().put(mParentId, mParentId);
+				Patch.getInstance().getEntityManager().getCacheStampOverrides().put(mParentId, mParentId);
 				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
 					finish();
-					Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+					Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
 				}
 			}
 			else if (requestCode == Constants.ACTIVITY_APPLICATION_PICK) {
@@ -303,7 +303,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Logger.d(this, "Activity saving state");
 
@@ -342,7 +342,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	protected void drawButtons(View view) {
 
-		if (mEntity.id.equals(Aircandi.getInstance().getCurrentUser().id)) {
+		if (mEntity.id.equals(Patch.getInstance().getCurrentUser().id)) {
 			UI.setVisibility(view.findViewById(R.id.button_holder), View.GONE);
 		}
 		else {
@@ -384,7 +384,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 		if (shortcuts.size() > flowLimit) {
 
-			IEntityController controller = Aircandi.getInstance().getControllerForClass(settings.appClass);
+			IEntityController controller = Patch.getInstance().getControllerForClass(settings.appClass);
 			Intent intent = controller.viewFor(this
 					, null
 					, mEntityId
@@ -487,42 +487,42 @@ public abstract class BaseEntityForm extends BaseActivity {
 					|| (shortcut.group != null && shortcut.group.size() > 1)) {
 				if (shortcut.app.equals(Constants.TYPE_APP_FACEBOOK)) {
 					badgeLower.setBackgroundResource(R.drawable.ic_action_facebook_dark);
-					if (Aircandi.themeTone.equals(ThemeTone.LIGHT)) {
+					if (Patch.themeTone.equals(ThemeTone.LIGHT)) {
 						badgeLower.setBackgroundResource(R.drawable.ic_action_facebook_light);
 					}
 					badgeLower.setVisibility(View.VISIBLE);
 				}
 				else if (shortcut.app.equals(Constants.TYPE_APP_TWITTER)) {
 					badgeLower.setBackgroundResource(R.drawable.ic_action_twitter_dark);
-					if (Aircandi.themeTone.equals(ThemeTone.LIGHT)) {
+					if (Patch.themeTone.equals(ThemeTone.LIGHT)) {
 						badgeLower.setBackgroundResource(R.drawable.ic_action_twitter_light);
 					}
 					badgeLower.setVisibility(View.VISIBLE);
 				}
 				else if (shortcut.app.equals(Constants.TYPE_APP_WEBSITE)) {
 					badgeLower.setBackgroundResource(R.drawable.ic_action_website_dark);
-					if (Aircandi.themeTone.equals(ThemeTone.LIGHT)) {
+					if (Patch.themeTone.equals(ThemeTone.LIGHT)) {
 						badgeLower.setBackgroundResource(R.drawable.ic_action_website_light);
 					}
 					badgeLower.setVisibility(View.VISIBLE);
 				}
 				else if (shortcut.app.equals(Constants.TYPE_APP_FOURSQUARE)) {
 					badgeLower.setBackgroundResource(R.drawable.ic_action_foursquare_dark);
-					if (Aircandi.themeTone.equals(ThemeTone.LIGHT)) {
+					if (Patch.themeTone.equals(ThemeTone.LIGHT)) {
 						badgeLower.setBackgroundResource(R.drawable.ic_action_foursquare_light);
 					}
 					badgeLower.setVisibility(View.VISIBLE);
 				}
 				else if (shortcut.app.equals(Constants.TYPE_APP_YELP)) {
 					badgeLower.setBackgroundResource(R.drawable.ic_action_yelp_dark);
-					if (Aircandi.themeTone.equals(ThemeTone.LIGHT)) {
+					if (Patch.themeTone.equals(ThemeTone.LIGHT)) {
 						badgeLower.setBackgroundResource(R.drawable.ic_action_yelp_light);
 					}
 					badgeLower.setVisibility(View.VISIBLE);
 				}
 				else if (shortcut.app.equals(Constants.TYPE_APP_CITYGRID)) {
 					badgeLower.setBackgroundResource(R.drawable.ic_action_citygrid_dark);
-					if (Aircandi.themeTone.equals(ThemeTone.LIGHT)) {
+					if (Patch.themeTone.equals(ThemeTone.LIGHT)) {
 						badgeLower.setBackgroundResource(R.drawable.ic_action_citygrid_light);
 					}
 					badgeLower.setVisibility(View.VISIBLE);
@@ -584,14 +584,14 @@ public abstract class BaseEntityForm extends BaseActivity {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncWatchEntity");
 				ModelResult result;
-				Aircandi.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+				Patch.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 				Boolean enabled = mEntity.visibleToCurrentUser();
 				if (!mEntity.byAppUser(Constants.TYPE_LINK_WATCH)) {
 
-					Shortcut fromShortcut = Aircandi.getInstance().getCurrentUser().getShortcut();
+					Shortcut fromShortcut = Patch.getInstance().getCurrentUser().getShortcut();
 					Shortcut toShortcut = mEntity.getShortcut();
 
-					result = Aircandi.getInstance().getEntityManager().insertLink(Aircandi.getInstance().getCurrentUser().id
+					result = Patch.getInstance().getEntityManager().insertLink(Patch.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_WATCH
 							, enabled
@@ -600,7 +600,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 							, "watch_entity_" + mEntity.schema);
 				}
 				else {
-					result = Aircandi.getInstance().getEntityManager().deleteLink(Aircandi.getInstance().getCurrentUser().id
+					result = Patch.getInstance().getEntityManager().deleteLink(Patch.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_WATCH
 							, enabled
@@ -670,11 +670,11 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 */
 		if (!isFinishing()) {
 			if (mEntity instanceof Place) {
-				Aircandi.getInstance().setCurrentPlace(mEntity);
+				Patch.getInstance().setCurrentPlace(mEntity);
 				Logger.v(this, "Setting current place to: " + mEntity.id);
 			}
 
-			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
+			Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
 
 			bind(BindingMode.AUTO);    // check to see if the cache stamp is stale
 		}

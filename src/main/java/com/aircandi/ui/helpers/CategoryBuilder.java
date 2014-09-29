@@ -16,8 +16,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
-import com.aircandi.Aircandi.ThemeTone;
+import com.aircandi.Patch;
+import com.aircandi.Patch.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
@@ -28,7 +28,7 @@ import com.aircandi.objects.Category;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEdit;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
@@ -77,17 +77,17 @@ public class CategoryBuilder extends BaseEdit {
 		mSpinnerSubCategory = (Spinner) findViewById(R.id.sub_category);
 		mSpinnerSubSubCategory = (Spinner) findViewById(R.id.sub_sub_category);
 
-		mSpinnerItem = Aircandi.themeTone.equals(ThemeTone.DARK) ? R.layout.spinner_item_dark : R.layout.spinner_item_light;
+		mSpinnerItem = Patch.themeTone.equals(ThemeTone.DARK) ? R.layout.spinner_item_dark : R.layout.spinner_item_light;
 	}
 
 	@Override
 	public void bind(BindingMode mode) {
 
-		if (Aircandi.getInstance().getEntityManager().getCategories().size() == 0) {
+		if (Patch.getInstance().getEntityManager().getCategories().size() == 0) {
 			loadCategories();
 		}
 		else {
-			mCategories = Aircandi.getInstance().getEntityManager().getCategories();
+			mCategories = Patch.getInstance().getEntityManager().getCategories();
 			if (mCategories != null) {
 				if (mOriginalCategory != null) {
 					setCategoryIndexes();
@@ -109,7 +109,7 @@ public class CategoryBuilder extends BaseEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncLoadCategories");
-				final ModelResult result = Aircandi.getInstance().getEntityManager().loadCategories();
+				final ModelResult result = Patch.getInstance().getEntityManager().loadCategories();
 				return result;
 			}
 
@@ -118,7 +118,7 @@ public class CategoryBuilder extends BaseEdit {
 				final ModelResult result = (ModelResult) response;
 				mBusy.hideBusy(false);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					mCategories = Aircandi.getInstance().getEntityManager().getCategories();
+					mCategories = Patch.getInstance().getEntityManager().getCategories();
 					if (mCategories != null) {
 						if (mOriginalCategory != null) {
 							setCategoryIndexes();
@@ -146,7 +146,7 @@ public class CategoryBuilder extends BaseEdit {
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ public class CategoryBuilder extends BaseEdit {
 		}
 		setResultCode(Activity.RESULT_OK, intent);
 		finish();
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -229,7 +229,7 @@ public class CategoryBuilder extends BaseEdit {
 
 	private void initCategorySpinner() {
 
-		final List<String> categories = Aircandi.getInstance().getEntityManager().getCategoriesAsStringArray(mCategories);
+		final List<String> categories = Patch.getInstance().getEntityManager().getCategoriesAsStringArray(mCategories);
 		final CategoryAdapter adapter = new CategoryAdapter(CategoryBuilder.this
 				, mSpinnerItem
 				, categories
@@ -279,7 +279,7 @@ public class CategoryBuilder extends BaseEdit {
 
 	private void initSubcategorySpinner(Integer position) {
 
-		final List<String> categories = Aircandi.getInstance().getEntityManager().getCategoriesAsStringArray(mCategory.categories);
+		final List<String> categories = Patch.getInstance().getEntityManager().getCategoriesAsStringArray(mCategory.categories);
 
 		if (categories.size() > 0) {
 
@@ -344,7 +344,7 @@ public class CategoryBuilder extends BaseEdit {
 
 	private void initSubsubcategorySpinner(Integer position) {
 
-		final List<String> categories = Aircandi.getInstance().getEntityManager().getCategoriesAsStringArray(mSubCategory.categories);
+		final List<String> categories = Patch.getInstance().getEntityManager().getCategoriesAsStringArray(mSubCategory.categories);
 		if (categories.size() > 0) {
 
 			final CategoryAdapter adapter = new CategoryAdapter(CategoryBuilder.this

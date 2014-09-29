@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.LocationManager;
@@ -457,10 +457,10 @@ public class CandiView extends RelativeLayout {
 					}
 				}
 
-				if (Aircandi.getInstance().getCurrentUser() != null
-						&& Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-						&& Aircandi.getInstance().getCurrentUser().developer != null
-						&& Aircandi.getInstance().getCurrentUser().developer) {
+				if (Patch.getInstance().getCurrentUser() != null
+						&& Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+						&& Patch.getInstance().getCurrentUser().developer != null
+						&& Patch.getInstance().getCurrentUser().developer) {
 					info = target + info;
 				}
 				else {

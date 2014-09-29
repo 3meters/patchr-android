@@ -21,14 +21,13 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
@@ -37,11 +36,10 @@ import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.controllers.IEntityController;
+import com.aircandi.controllers.EntityControllerBase;
 import com.aircandi.events.ButtonSpecialEvent;
 import com.aircandi.events.MessageEvent;
 import com.aircandi.monitors.EntityMonitor;
-import com.aircandi.objects.Applink;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -51,13 +49,11 @@ import com.aircandi.objects.Message;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
-import com.aircandi.objects.Shortcut;
-import com.aircandi.objects.ShortcutSettings;
 import com.aircandi.objects.User;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
@@ -74,7 +70,6 @@ import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @SuppressLint("Registered")
@@ -159,7 +154,7 @@ public class PlaceForm extends BaseEntityForm {
 			Link link = mEntity.linkByAppUser(Constants.TYPE_LINK_WATCH);
 			if (link == null) {
 			    /* User is not already watching this */
-				if (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
+				if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
 						, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
 					watch(true);
 				}
@@ -191,7 +186,7 @@ public class PlaceForm extends BaseEntityForm {
 	@Override
 	public void onAdd(Bundle extras) {
 
-		if (Aircandi.getInstance().getMenuManager().canUserAdd(mEntity)) {
+		if (Patch.getInstance().getMenuManager().canUserAdd(mEntity)) {
 			String message = StringManager.getString(R.string.label_message_new_message);
 			if (!TextUtils.isEmpty(mEntity.name)) {
 				message = String.format(StringManager.getString(R.string.label_message_new_to_message), mEntity.name);
@@ -200,7 +195,7 @@ public class PlaceForm extends BaseEntityForm {
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntityId);
 			extras.putString(com.aircandi.Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
-			Aircandi.dispatch.route(this, Route.NEW, null, null, extras);
+			Patch.dispatch.route(this, Route.NEW, null, null, extras);
 			return;
 		}
 		if (mEntity.locked) {
@@ -212,20 +207,20 @@ public class PlaceForm extends BaseEntityForm {
 	public void onHelp() {
 		Bundle extras = new Bundle();
 		extras.putInt(Constants.EXTRA_HELP_ID, R.layout.place_help);
-		Aircandi.dispatch.route(this, Route.HELP, null, null, extras);
+		Patch.dispatch.route(this, Route.HELP, null, null, extras);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onTuneButtonClick(View view) {
 
-		if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+		if (Patch.getInstance().getCurrentUser().isAnonymous()) {
 			Integer messageResId = R.string.alert_signin_message_place_tune;
 			Dialogs.signinRequired(this, messageResId);
 			return;
 		}
 
-		if (Aircandi.getInstance().getMenuManager().canUserAdd(mEntity)) {
-			Aircandi.dispatch.route(this, Route.TUNE, mEntity, null, null);
+		if (Patch.getInstance().getMenuManager().canUserAdd(mEntity)) {
+			Patch.dispatch.route(this, Route.TUNE, mEntity, null, null);
 			return;
 		}
 
@@ -310,7 +305,7 @@ public class PlaceForm extends BaseEntityForm {
 		if (mEntity != null) {
 			if (mEntity.visibility.equals(Constants.VISIBILITY_PUBLIC)
 					|| (mEntity.visibility.equals(Constants.VISIBILITY_PRIVATE) && mEntity.visibleToCurrentUser())) {
-				Aircandi.dispatch.route(this, Route.WATCHERS, mEntity, null, null);
+				Patch.dispatch.route(this, Route.WATCHERS, mEntity, null, null);
 			}
 		}
 	}
@@ -323,10 +318,7 @@ public class PlaceForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onMapButtonClick(View view) {
 		if (mEntity != null) {
-			IEntityController controller = Aircandi.getInstance().getControllerForSchema(Constants.TYPE_APP_MAP);
-			if (controller != null) {
-				controller.view(this, mEntity, mEntity.id, null, null, null, true);
-			}
+			Patch.dispatch.route(this, Route.MAP, mEntity, null, null);
 		}
 	}
 
@@ -347,14 +339,14 @@ public class PlaceForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onShareButtonClick(View view) {
 		if (mEntity != null) {
-			Aircandi.dispatch.route(this, Route.SHARE, mEntity, null, null);
+			Patch.dispatch.route(this, Route.SHARE, mEntity, null, null);
 		}
 	}
 
 	@SuppressWarnings("ucd")
 	public void onEditButtonClick(View view) {
 		if (mEntity != null) {
-			Aircandi.dispatch.route(this, Route.EDIT, mEntity, null, new Bundle());
+			Patch.dispatch.route(this, Route.EDIT, mEntity, null, new Bundle());
 		}
 	}
 
@@ -655,54 +647,6 @@ public class PlaceForm extends BaseEntityForm {
 		}
 	}
 
-	protected void drawShortcuts(View view) {
-
-		/* Clear shortcut holder */
-		ViewGroup shortcutHolder = (ViewGroup) view.findViewById(R.id.shortcut_holder);
-
-		if (shortcutHolder != null) {
-			shortcutHolder.removeAllViews();
-
-			/* Synthetic applink shortcuts */
-			ShortcutSettings settings = new ShortcutSettings(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, Direction.in, true, true);
-			settings.appClass = Applink.class;
-			List<Shortcut> shortcuts = mEntity.getShortcuts(settings, null, null);
-			if (shortcuts.size() > 0) {
-				Collections.sort(shortcuts, new Shortcut.SortByPositionSortDate());
-				prepareShortcuts(shortcuts
-						, settings
-						, R.string.label_section_applinks
-						, R.string.label_link_links_more
-						, mResources.getInteger(R.integer.limit_shortcuts_flow)
-						, R.id.shortcut_holder
-						, R.layout.widget_shortcut);
-			}
-
-			/* service applink shortcuts */
-			settings = new ShortcutSettings(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, Direction.in, false, true);
-			settings.appClass = Applink.class;
-			shortcuts = mEntity.getShortcuts(settings, null, new Shortcut.SortByPositionSortDate());
-			if (shortcuts.size() > 0) {
-				for (Shortcut shortcut : shortcuts) {
-					if (!shortcut.app.equals(Constants.TYPE_APP_WEBSITE)) {
-						shortcut.name = shortcut.app;
-					}
-					if (shortcut.app.equals(Constants.TYPE_APP_GOOGLEPLUS)) {
-						shortcut.name = shortcut.name.replaceFirst("plus", "+");
-					}
-				}
-				Collections.sort(shortcuts, new Shortcut.SortByPositionSortDate());
-				prepareShortcuts(shortcuts
-						, settings
-						, null
-						, R.string.label_link_links_more
-						, mResources.getInteger(R.integer.limit_shortcuts_flow)
-						, R.id.shortcut_holder
-						, R.layout.widget_shortcut);
-			}
-		}
-	}
-
 	protected void drawUsers(View view) {
 
 		final UserView user_one = (UserView) view.findViewById(R.id.user_one);
@@ -728,12 +672,7 @@ public class PlaceForm extends BaseEntityForm {
 				}
 			}
 			else {
-				if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PICTURE)) {
-					userView.setLabel(R.string.label_added_by);
-				}
-				else {
-					userView.setLabel(R.string.label_created_by);
-				}
+				userView.setLabel(R.string.label_created_by);
 				userView.databind(mEntity.creator, mEntity.createdDate.longValue());
 				UI.setVisibility(user_one, View.VISIBLE);
 				userView = user_two;
@@ -874,7 +813,7 @@ public class PlaceForm extends BaseEntityForm {
 
 		if (mPackageInstalls.size() > 0) {
 			mInvalidated = true;
-			Aircandi.mainThreadHandler.postDelayed(new Runnable() {
+			Patch.mainThreadHandler.postDelayed(new Runnable() {
 
 				@Override
 				public void run() {
@@ -902,7 +841,7 @@ public class PlaceForm extends BaseEntityForm {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncUpsizeSynthetic");
-				final ModelResult result = Aircandi.getInstance().getEntityManager().upsizeSynthetic((Place) mEntity, mWaitForContent);
+				final ModelResult result = Patch.getInstance().getEntityManager().upsizeSynthetic((Place) mEntity, mWaitForContent);
 				return result;
 			}
 
@@ -982,7 +921,7 @@ public class PlaceForm extends BaseEntityForm {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem menuItem = menu.findItem(com.aircandi.R.id.share);
 		if (menuItem != null) {
-			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.SHARE, mEntity, mForId));
+			menuItem.setVisible(Patch.getInstance().getMenuManager().showAction(Route.SHARE, mEntity, mForId));
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -1014,7 +953,7 @@ public class PlaceForm extends BaseEntityForm {
 						 * It's an application we care about.
 						 */
 						mPackageInstalls.add(packageName);
-						if (Aircandi.isActivityVisible()) {
+						if (Patch.isActivityVisible()) {
 							handlePackageInstalls();
 						}
 					}

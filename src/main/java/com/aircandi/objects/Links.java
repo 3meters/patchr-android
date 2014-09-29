@@ -2,7 +2,7 @@ package com.aircandi.objects;
 
 import android.content.res.Resources;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Link.Direction;
@@ -38,12 +38,12 @@ public class Links extends ServiceObject {
 		if (linkProfile == LinkProfile.NO_LINKS)
 			return null;
 		else {
-			User currentUser = Aircandi.getInstance().getCurrentUser();
+			User currentUser = Patch.getInstance().getCurrentUser();
 
 			Links links = new Links().setActive(new ArrayList<LinkParams>());
 			links.shortcuts = true;
 
-			Resources resources = Aircandi.applicationContext.getResources();
+			Resources resources = Patch.applicationContext.getResources();
 			Number limitProximity = resources.getInteger(R.integer.limit_links_proximity_default);
 			Number limitCreate = resources.getInteger(R.integer.limit_links_create_default);
 			Number limitWatch = resources.getInteger(R.integer.limit_links_watch_default);
@@ -59,20 +59,6 @@ public class Links extends ServiceObject {
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitContent));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
 						, Maps.asMap("_from", currentUser.id)));
-			}
-			else if (linkProfile == LinkProfile.LINKS_FOR_PICTURE) {
-
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, true, true, limitApplinks));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_COMMENT, false, true, 0));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
-						, Maps.asMap("_from", currentUser.id)));
-			}
-			else if (linkProfile == LinkProfile.LINKS_FOR_COMMENT) {
-
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE, true, true, 1)
-						.setDirection(Direction.out));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PICTURE, true, true, 1)
-						.setDirection(Direction.out));
 			}
 			else if (linkProfile == LinkProfile.LINKS_FOR_MESSAGE) {
 

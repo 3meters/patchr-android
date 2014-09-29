@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuInflater;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Entity;
@@ -203,16 +203,16 @@ public class MenuManager {
 		if (entity == null) return false;
 
 		if (entity.isOwnedByCurrentUser() || entity.isOwnedBySystem()) return true;
-		return Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-				&& Type.isTrue(Aircandi.getInstance().getCurrentUser().developer);
+		return Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+				&& Type.isTrue(Patch.getInstance().getCurrentUser().developer);
 	}
 
 	public Boolean canUserDelete(Entity entity) {
 		if (entity == null) return false;
 
 		if (entity.isOwnedByCurrentUser()) return true;
-		return Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-				&& Type.isTrue(Aircandi.getInstance().getCurrentUser().developer);
+		return Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+				&& Type.isTrue(Patch.getInstance().getCurrentUser().developer);
 	}
 
 	@SuppressWarnings("ucd")
@@ -222,8 +222,8 @@ public class MenuManager {
 
 		Link placeLink = entity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE, entity.placeId, Direction.out);
 		return placeLink != null
-				&& placeLink.ownerId.equals(Aircandi.getInstance().getCurrentUser().id)
-				&& !entity.ownerId.equals(Aircandi.getInstance().getCurrentUser().id);
+				&& placeLink.ownerId.equals(Patch.getInstance().getCurrentUser().id)
+				&& !entity.ownerId.equals(Patch.getInstance().getCurrentUser().id);
 	}
 
 	public Boolean canUserAdd(Entity entity) {
@@ -246,7 +246,7 @@ public class MenuManager {
 		if (entity == null)
 			return false;
 		else if (route == Route.ADD) {
-			if (entity != null && (entity.schema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)))
+			if (entity.schema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE))
 				return true;
 		}
 		else if (route == Route.REMOVE) {
@@ -256,11 +256,11 @@ public class MenuManager {
 				return false;
 		}
 		else if (route == Route.EDIT)
-			return Aircandi.getInstance().getMenuManager().canUserEdit(entity);
+			return Patch.getInstance().getMenuManager().canUserEdit(entity);
 		else if (route == Route.DELETE)
-			return Aircandi.getInstance().getMenuManager().canUserDelete(entity);
+			return Patch.getInstance().getMenuManager().canUserDelete(entity);
 		else if (route == Route.SHARE)
-			return Aircandi.getInstance().getMenuManager().canUserShare(entity);
+			return Patch.getInstance().getMenuManager().canUserShare(entity);
 
 		return false;
 	}

@@ -8,7 +8,7 @@ import android.content.IntentSender;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.events.ActivityStateEvent;
 import com.aircandi.utilities.DateTime;
@@ -88,7 +88,7 @@ public class ActivityRecognitionManager implements
 		if (connectionResult.hasResolution()) {
 			try {
 				/* Start an Activity that tries to resolve the error */
-				connectionResult.startResolutionForResult((Activity) Aircandi.applicationContext
+				connectionResult.startResolutionForResult((Activity) Patch.applicationContext
 						, CONNECTION_FAILURE_RESOLUTION_REQUEST);
 				/*
 				 * Thrown if Google Play services canceled the original
@@ -104,7 +104,7 @@ public class ActivityRecognitionManager implements
 			 * If no resolution is available, display a dialog to the
 			 * user with the error.
 			 */
-			AndroidManager.showPlayServicesErrorDialog(connectionResult.getErrorCode(), Aircandi.getInstance().getCurrentActivity());
+			AndroidManager.showPlayServicesErrorDialog(connectionResult.getErrorCode(), Patch.getInstance().getCurrentActivity());
 		}
 	}
 
@@ -153,7 +153,7 @@ public class ActivityRecognitionManager implements
 				&& mDetectionMode == DetectionMode.MOVING) {
 			startUpdates(Constants.TIME_TWO_MINUTES, Constants.TIME_TEN_SECONDS);  // Transition to moving is fast
 			mDetectionMode = DetectionMode.STILL;
-			if (Aircandi.getInstance().getPrefEnableDev()) {
+			if (Patch.getInstance().getPrefEnableDev()) {
 				MediaManager.playSound(MediaManager.SOUND_ACTIVITY_CHANGE, 1.0f, 1);
 				UI.showToastNotification("Activity recognition: throttling down", Toast.LENGTH_SHORT);
 			}
@@ -162,13 +162,13 @@ public class ActivityRecognitionManager implements
 				&& mDetectionMode == DetectionMode.STILL) {
 			startUpdates(Constants.TIME_ONE_MINUTE, Constants.TIME_TWO_MINUTES);    // Transition to still takes more time
 			mDetectionMode = DetectionMode.MOVING;
-			if (Aircandi.getInstance().getPrefEnableDev()) {
+			if (Patch.getInstance().getPrefEnableDev()) {
 				MediaManager.playSound(MediaManager.SOUND_ACTIVITY_CHANGE, 1.0f, 3);
 				UI.showToastNotification("Activity recognition: throttling up", Toast.LENGTH_SHORT);
 			}
 		}
 
-		if (Aircandi.getInstance().getPrefEnableDev()) {
+		if (Patch.getInstance().getPrefEnableDev()) {
 			UI.showToastNotification("Activity state: " + mActivityStateCurrent.name(), Toast.LENGTH_SHORT);
 		}
 

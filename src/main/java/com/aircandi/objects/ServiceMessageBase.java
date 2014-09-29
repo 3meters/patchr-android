@@ -12,7 +12,7 @@ import java.util.Map;
  * @author Jayma
  */
 @SuppressWarnings("ucd")
-public abstract class ActivityBase extends ServiceObject implements Cloneable, Serializable {
+public abstract class ServiceMessageBase extends ServiceObject implements Cloneable, Serializable {
 
 	private static final long serialVersionUID = -9162254814199461867L;
 
@@ -29,7 +29,7 @@ public abstract class ActivityBase extends ServiceObject implements Cloneable, S
 	public Photo  photoBy;
 	public Photo  photoOne;
 
-	public static ActivityBase setPropertiesFromMap(ActivityBase base, Map map, Boolean nameMapping) {
+	public static ServiceMessageBase setPropertiesFromMap(ServiceMessageBase base, Map map, Boolean nameMapping) {
 	    /*
 	     * Need to include any properties that need to survive encode/decoded between activities.
 		 */
@@ -43,23 +43,13 @@ public abstract class ActivityBase extends ServiceObject implements Cloneable, S
 	}
 
 	public String getTriggerCategory() {
-		if (this.trigger.contains("nearby")) return TriggerType.NEARBY;
-		if (this.trigger.contains("watch")) return TriggerType.WATCH;
-		if (this.trigger.contains("own")) return TriggerType.OWN;
+		if (this.trigger.contains("nearby")) return MessageTriggerType.TriggerType.NEARBY;
+		if (this.trigger.contains("watch")) return MessageTriggerType.TriggerType.WATCH;
+		if (this.trigger.contains("own")) return MessageTriggerType.TriggerType.OWN;
 		return null;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
-
-	public static class TriggerType {
-		public static String NEARBY     = "nearby";        // sent because this user is nearby
-		public static String WATCH      = "watch";         // sent because this user is watching the entity
-		public static String WATCH_TO   = "watch_to";      // sent because this user is watching the 'to' entity
-		public static String WATCH_USER = "watch_user";    // sent because this user is watching another user
-		public static String OWN        = "own";           // sent because this user is the owner of the entity
-		public static String OWN_TO     = "own_to";        // sent because this user is the owner of the 'to' entity
-		public static String NONE       = "none";          // sent without a special reason
-	}
 }

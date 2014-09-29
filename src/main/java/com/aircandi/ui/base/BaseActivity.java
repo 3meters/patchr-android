@@ -31,7 +31,7 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.R.color;
@@ -46,6 +46,8 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
+import com.aircandi.interfaces.IBind;
+import com.aircandi.interfaces.IForm;
 import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -53,7 +55,7 @@ import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AircandiForm;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
@@ -117,9 +119,9 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		 * their create/initialize processing.
 		 */
 		Logger.d(this, "Activity created");
-		if (Aircandi.firstStartApp) {
-			Aircandi.firstStartIntent = getIntent();
-			Aircandi.dispatch.route(this, Route.SPLASH, null, null, null);
+		if (Patch.firstStartApp) {
+			Patch.firstStartIntent = getIntent();
+			Patch.dispatch.route(this, Route.SPLASH, null, null, null);
 			super.onCreate(savedInstanceState);
 			finish();
 		}
@@ -200,7 +202,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 	protected void actionBarIcon() {
 		if (mActionBar != null) {
-			Drawable icon = Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
+			Drawable icon = Patch.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
 			icon.setColorFilter(Colors.getColor(color.white), PorterDuff.Mode.SRC_ATOP);
 			mActionBar.setIcon(icon);
 		}
@@ -223,7 +225,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			final String jsonPhoto = Json.objectToJson(photo);
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Aircandi.dispatch.route(this, Route.PHOTO, null, null, extras);
+			Patch.dispatch.route(this, Route.PHOTO, null, null, extras);
 		}
 	}
 
@@ -237,7 +239,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	@Override
 	public void onAdd(Bundle extras) {
 		/* Schema target is in the extras */
-		Aircandi.dispatch.route(this, Route.NEW, mEntity, null, extras);
+		Patch.dispatch.route(this, Route.NEW, mEntity, null, extras);
 	}
 
 	@Override
@@ -246,14 +248,14 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			super.onBackPressed();
 		}
 		else {
-			Aircandi.dispatch.route(this, Route.CANCEL, null, null, null);
+			Patch.dispatch.route(this, Route.CANCEL, null, null, null);
 		}
 	}
 
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
 	}
 
 	@Override
@@ -264,7 +266,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 	@SuppressWarnings("ucd")
 	public void onCancelButtonClick(View view) {
-		Aircandi.dispatch.route(this, Route.CANCEL, null, null, null);
+		Patch.dispatch.route(this, Route.CANCEL, null, null, null);
 	}
 
 	@Override
@@ -277,7 +279,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 	@Override
 	public void onLowMemory() {
-		Aircandi.tracker.sendEvent(TrackerCategory.SYSTEM, "memory_low", null, Utilities.getMemoryAvailable());
+		Patch.tracker.sendEvent(TrackerCategory.SYSTEM, "memory_low", null, Utilities.getMemoryAvailable());
 		super.onLowMemory();
 	}
 
@@ -291,7 +293,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		//				return;
 		//			}
 		//		}
-		Aircandi.resultCode = Activity.RESULT_OK;
+		Patch.resultCode = Activity.RESULT_OK;
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
@@ -310,7 +312,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			actionBarTitleId = Class.forName("com.android.internal.R$id").getField("action_bar_title").getInt(null);
 		}
 		catch (Exception e) {
-			if (Aircandi.DEBUG) {
+			if (Patch.DEBUG) {
 				e.printStackTrace();
 			}
 		}
@@ -392,7 +394,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncSignOut");
-						final ModelResult result = Aircandi.getInstance().getEntityManager().signoutComplete();
+						final ModelResult result = Patch.getInstance().getEntityManager().signoutComplete();
 						return result;
 					}
 
@@ -405,7 +407,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 							if (activity instanceof BaseActivity) {
 								((BaseActivity) activity).mBusy.hideBusy(false);
 							}
-							Aircandi.dispatch.route(activity, Route.SPLASH, null, null, null);
+							Patch.dispatch.route(activity, Route.SPLASH, null, null, null);
 						}
 					}
 				}.execute();
@@ -469,20 +471,20 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	}
 
 	private void clearReferences() {
-		Activity currentActivity = Aircandi.getInstance().getCurrentActivity();
+		Activity currentActivity = Patch.getInstance().getCurrentActivity();
 		if (currentActivity != null && currentActivity.equals(this)) {
-			Aircandi.getInstance().setCurrentActivity(null);
+			Patch.getInstance().setCurrentActivity(null);
 		}
 	}
 
 	public void setResultCode(int resultCode) {
 		setResult(resultCode);
-		Aircandi.resultCode = resultCode;
+		Patch.resultCode = resultCode;
 	}
 
 	public void setResultCode(int resultCode, Intent intent) {
 		setResult(resultCode, intent);
-		Aircandi.resultCode = resultCode;
+		Patch.resultCode = resultCode;
 	}
 
 	protected void delete() {
@@ -501,7 +503,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
-				final ModelResult result = Aircandi.getInstance().getEntityManager().deleteEntity(mEntity.id, false);
+				final ModelResult result = Patch.getInstance().getEntityManager().deleteEntity(mEntity.id, false);
 				return result;
 			}
 
@@ -518,7 +520,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 					UI.showToastNotification(StringManager.getString(mDeletedResId), Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_ENTITY_DELETED);
 					finish();
-					Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
+					Patch.getInstance().getAnimationManager().doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
 				}
 				else {
 					Errors.handleError(BaseActivity.this, result.serviceResponse);
@@ -543,7 +545,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRemoveEntity");
-				final ModelResult result = Aircandi.getInstance().getEntityManager()
+				final ModelResult result = Patch.getInstance().getEntityManager()
 				                                   .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove");
 				isCancelled();
 				return result;
@@ -562,7 +564,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 					UI.showToastNotification(StringManager.getString(mRemovedResId), Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_ENTITY_REMOVED);
 					finish();
-					Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
+					Patch.getInstance().getAnimationManager().doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
 				}
 				else {
 					Errors.handleError(BaseActivity.this, result.serviceResponse);
@@ -584,7 +586,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	}
 
 	public void setTheme(Boolean isDialog, Boolean isTransparent) {
-		mPrefTheme = Aircandi.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
+		mPrefTheme = Patch.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
 		/*
 		 * Need to use application context so our app level themes and attributes are available to actionbarsherlock
 		 */
@@ -605,7 +607,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		setTheme(themeId);
 		final TypedValue resourceName = new TypedValue();
 		if (getTheme().resolveAttribute(R.attr.themeTone, resourceName, true)) {
-			Aircandi.themeTone = (String) resourceName.coerceToString();
+			Patch.themeTone = (String) resourceName.coerceToString();
 		}
 	}
 
@@ -617,15 +619,15 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 		/* Common prefs */
 
-		if (!mPrefTheme.equals(Aircandi.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default)))) {
+		if (!mPrefTheme.equals(Patch.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default)))) {
 			Logger.d(this, "Pref change: theme, restarting current activity");
 			mPrefChangeReloadNeeded = true;
 		}
 
-		if (!Aircandi
+		if (!Patch
 				.getInstance()
 				.getPrefSearchRadius()
-				.equals(Aircandi.settings.getString(StringManager.getString(R.string.pref_search_radius),
+				.equals(Patch.settings.getString(StringManager.getString(R.string.pref_search_radius),
 						StringManager.getString(R.string.pref_search_radius_default)))) {
 			mPrefChangeNewSearchNeeded = true;
 			Logger.d(this, "Pref change: search radius");
@@ -633,20 +635,20 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 		/* Dev prefs */
 
-		if (!Aircandi.getInstance().getPrefEnableDev()
-		             .equals(Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false))) {
+		if (!Patch.getInstance().getPrefEnableDev()
+		             .equals(Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false))) {
 			mPrefChangeRefreshUiNeeded = true;
 			Logger.d(this, "Pref change: dev ui");
 		}
 
-		if (!Aircandi.getInstance().getPrefTestingBeacons().equals(Aircandi.settings.getString(StringManager.getString(R.string.pref_testing_beacons),
+		if (!Patch.getInstance().getPrefTestingBeacons().equals(Patch.settings.getString(StringManager.getString(R.string.pref_testing_beacons),
 				StringManager.getString(R.string.pref_testing_beacons_default)))) {
 			mPrefChangeNewSearchNeeded = true;
 			Logger.d(this, "Pref change: testing beacons");
 		}
 
 		if (mPrefChangeNewSearchNeeded || mPrefChangeRefreshUiNeeded || mPrefChangeReloadNeeded) {
-			Aircandi.getInstance().snapshotPreferences();
+			Patch.getInstance().snapshotPreferences();
 		}
 	}
 
@@ -673,14 +675,14 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		 * 
 		 * onCreate->onStart->onResume->onCreateOptionsMenu-
 		 */
-		Aircandi.getInstance().getMenuManager().onCreateOptionsMenu(this, menu);
+		Patch.getInstance().getMenuManager().onCreateOptionsMenu(this, menu);
 		mMenu = menu;
 
 		return true;
 	}
 
 	public boolean onCreatePopupMenu(android.view.Menu menu, Entity entity) {
-		return Aircandi.getInstance().getMenuManager().onCreatePopupMenu(this, menu, (entity != null) ? entity : mEntity);
+		return Patch.getInstance().getMenuManager().onCreatePopupMenu(this, menu, (entity != null) ? entity : mEntity);
 	}
 
 	@Override
@@ -698,28 +700,28 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		 */
 		MenuItem menuItem = menu.findItem(R.id.edit);
 		if (menuItem != null) {
-			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.EDIT, mEntity, mForId));
+			menuItem.setVisible(Patch.getInstance().getMenuManager().showAction(Route.EDIT, mEntity, mForId));
 		}
 
 		menuItem = menu.findItem(R.id.add);
 		if (menuItem != null && mEntity != null) {
-			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.ADD, mEntity, mForId));
+			menuItem.setVisible(Patch.getInstance().getMenuManager().showAction(Route.ADD, mEntity, mForId));
 			menuItem.setTitle(StringManager.getString(R.string.menu_item_add_entity, mEntity.schema));
 		}
 
 		menuItem = menu.findItem(R.id.delete);
 		if (menuItem != null) {
-			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.DELETE, mEntity, mForId));
+			menuItem.setVisible(Patch.getInstance().getMenuManager().showAction(Route.DELETE, mEntity, mForId));
 		}
 
 		menuItem = menu.findItem(R.id.remove);
 		if (menuItem != null) {
-			menuItem.setVisible(Aircandi.getInstance().getMenuManager().showAction(Route.REMOVE, mEntity, mForId));
+			menuItem.setVisible(Patch.getInstance().getMenuManager().showAction(Route.REMOVE, mEntity, mForId));
 		}
 
 		menuItem = menu.findItem(R.id.signin);
-		if (menuItem != null && Aircandi.getInstance().getCurrentUser() != null) {
-			menuItem.setVisible(Aircandi.getInstance().getCurrentUser().isAnonymous());
+		if (menuItem != null && Patch.getInstance().getCurrentUser() != null) {
+			menuItem.setVisible(Patch.getInstance().getCurrentUser().isAnonymous());
 		}
 
 		final MenuItem refresh = menu.findItem(R.id.refresh);
@@ -756,7 +758,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			extras = new Bundle();
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntity.placeId);
 		}
-		Aircandi.dispatch.route(this, Aircandi.dispatch.routeForMenuId(item.getItemId()), mEntity, null, extras);
+		Patch.dispatch.route(this, Patch.dispatch.routeForMenuId(item.getItemId()), mEntity, null, extras);
 		return true;
 	}
 
@@ -779,12 +781,12 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 				if (item.getItemId() == R.id.report) {
 					Bundle extras = new Bundle();
-					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, mEntity.getSchemaMapped());
-					Aircandi.dispatch.route(BaseActivity.this, Route.REPORT, (entity != null) ? entity : mEntity, null, extras);
+					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, mEntity.schema);
+					Patch.dispatch.route(BaseActivity.this, Route.REPORT, (entity != null) ? entity : mEntity, null, extras);
 					return true;
 				}
 				else {
-					Aircandi.dispatch.route(BaseActivity.this, Aircandi.dispatch.routeForMenuId(item.getItemId())
+					Patch.dispatch.route(BaseActivity.this, Patch.dispatch.routeForMenuId(item.getItemId())
 							, (entity != null) ? entity : mEntity, null, new Bundle());
 					return true;
 				}
@@ -811,7 +813,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		super.onStart();
 		if (!isFinishing()) {
 			Logger.d(this, "Activity starting");
-			Aircandi.tracker.activityStart(this);
+			Patch.tracker.activityStart(this);
 
 			if (mPrefChangeReloadNeeded) {
 
@@ -828,9 +830,9 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	protected void onResume() {
 		super.onResume();
 		Logger.d(this, "Activity resuming");
-		Aircandi.activityResumed();
+		Patch.activityResumed();
 		BusProvider.getInstance().register(this);
-		Aircandi.getInstance().setCurrentActivity(this);
+		Patch.getInstance().setCurrentActivity(this);
 		mClickEnabled = true;
 		if (!isFinishing()) {
 			actionBarIcon(); // Hack: Icon gets lost sometimes so refresh
@@ -849,14 +851,14 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		Logger.d(this, "Activity pausing");
 		BusProvider.getInstance().unregister(this);
 		clearReferences();
-		Aircandi.activityPaused();
+		Patch.activityPaused();
 	}
 
 	@Override
 	protected void onStop() {
 		Logger.d(this, "Activity stopping");
 		super.onStop();
-		Aircandi.tracker.activityStop(this);
+		Patch.tracker.activityStop(this);
 	}
 
 	@Override

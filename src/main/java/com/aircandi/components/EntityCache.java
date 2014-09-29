@@ -3,12 +3,11 @@ package com.aircandi.components;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.controllers.IEntityController;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Count;
@@ -60,8 +59,8 @@ public class EntityCache implements Map<String, Entity> {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -78,9 +77,9 @@ public class EntityCache implements Map<String, Entity> {
 	             * Clear out any cache stamp overrides.
 				 */
 				for (Entity entity : loadedEntities) {
-					if (Aircandi.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
+					if (Patch.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
 						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Aircandi.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
+						Patch.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
 					}
 				}
 
@@ -88,28 +87,27 @@ public class EntityCache implements Map<String, Entity> {
 				 * Keep current user synchronized if we refreshed the current user entity. This
 				 * logic also exists in update logic when editing a user entity.
 				 */
-				if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-					String currentUserId = Aircandi.getInstance().getCurrentUser().id;
+				if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+					String currentUserId = Patch.getInstance().getCurrentUser().id;
 					for (Entity entity : loadedEntities) {
 						if (entity.id.equals(currentUserId)) {
 							/*
 							 * We need to update the user that has been persisted for AUTO sign in.
 							 */
 							final String jsonUser = Json.objectToJson(entity);
-							Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-							Aircandi.settingsEditor.commit();
+							Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
+							Patch.settingsEditor.commit();
 							/*
 							 * Update the global user but retain the session info. We don't need
 							 * to call activateCurrentUser because we don't need to refetch link data
 							 * or change notification registration.
 							 */
-							((User) entity).session = Aircandi.getInstance().getCurrentUser().session;
-							Aircandi.getInstance().setCurrentUser((User) entity);
+							((User) entity).session = Patch.getInstance().getCurrentUser().session;
+							Patch.getInstance().setCurrentUser((User) entity);
 						}
 					}
 				}
 
-				decorate(loadedEntities, linkOptions);
 				upsertEntities(loadedEntities);
 			}
 		}
@@ -137,8 +135,8 @@ public class EntityCache implements Map<String, Entity> {
 				.setResponseFormat(ResponseFormat.JSON)
 				.setStopwatch(stopwatch);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -154,9 +152,9 @@ public class EntityCache implements Map<String, Entity> {
 					/*
 					 * Clear out any cache stamp overrides.
 					 */
-					if (Aircandi.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
+					if (Patch.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
 						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Aircandi.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
+						Patch.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
 					}
 					if (cursor != null && cursor.direction != null && cursor.direction.equals("out")) {
 						entity.fromId = forEntityId;
@@ -166,7 +164,6 @@ public class EntityCache implements Map<String, Entity> {
 					}
 				}
 
-				decorate(loadedEntities, linkOptions);
 				upsertEntities(loadedEntities);
 			}
 		}
@@ -198,8 +195,8 @@ public class EntityCache implements Map<String, Entity> {
 				.setResponseFormat(ResponseFormat.JSON)
 				.setStopwatch(stopwatch);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		if (stopwatch != null) {
@@ -229,12 +226,11 @@ public class EntityCache implements Map<String, Entity> {
 					/*
 					 * Clear out any cache stamp overrides.
 					 */
-					if (Aircandi.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
+					if (Patch.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
 						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Aircandi.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
+						Patch.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
 					}
 				}
-				decorate(loadedEntities, linkOptions);
 				upsertEntities(loadedEntities);
 			}
 		}
@@ -247,7 +243,7 @@ public class EntityCache implements Map<String, Entity> {
 		final Bundle parameters = new Bundle();
 
 		parameters.putString("location", "object:" + Json.objectToJson(location));
-		parameters.putInt("limit", Aircandi.applicationContext.getResources().getInteger(R.integer.limit_places_radar));
+		parameters.putInt("limit", Patch.applicationContext.getResources().getInteger(R.integer.limit_places_radar));
 		parameters.putInt("timeout", ServiceConstants.TIMEOUT_PLACE_QUERIES);
 		parameters.putInt("radius", ServiceConstants.PLACE_NEAR_RADIUS);
 		parameters.putString("provider", ServiceConstants.PLACE_NEAR_PROVIDERS);
@@ -266,8 +262,8 @@ public class EntityCache implements Map<String, Entity> {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Aircandi.getInstance().getCurrentUser().session);
+		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
 		}
 
 		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -292,9 +288,9 @@ public class EntityCache implements Map<String, Entity> {
 			}
 
 			/* Push place entities to cache */
-			decorate(entities, new Links(false, null));
 			upsertEntities(entities);
 		}
+
 		return serviceResponse;
 	}
 
@@ -367,8 +363,8 @@ public class EntityCache implements Map<String, Entity> {
 		Long time = DateTime.nowDate().getTime();
 
 		Entity toEntity = get(toId);
-		if (toEntity != null && toEntity.id.equals(Aircandi.getInstance().getCurrentUser().id)) {
-			toEntity = Aircandi.getInstance().getCurrentUser();
+		if (toEntity != null && toEntity.id.equals(Patch.getInstance().getCurrentUser().id)) {
+			toEntity = Patch.getInstance().getCurrentUser();
 		}
 
 		if (toEntity != null) {
@@ -401,8 +397,8 @@ public class EntityCache implements Map<String, Entity> {
 		 * Fixup out links too.
 		 */
 		Entity fromEntity = get(fromId);
-		if (fromEntity != null && fromEntity.id.equals(Aircandi.getInstance().getCurrentUser().id)) {
-			fromEntity = Aircandi.getInstance().getCurrentUser();
+		if (fromEntity != null && fromEntity.id.equals(Patch.getInstance().getCurrentUser().id)) {
+			fromEntity = Patch.getInstance().getCurrentUser();
 		}
 
 		if (fromEntity != null) {
@@ -481,8 +477,8 @@ public class EntityCache implements Map<String, Entity> {
 		Long time = DateTime.nowDate().getTime();
 
 		Entity toEntity = get(toId);
-		if (toEntity != null && toEntity.id.equals(Aircandi.getInstance().getCurrentUser().id)) {
-			toEntity = Aircandi.getInstance().getCurrentUser();
+		if (toEntity != null && toEntity.id.equals(Patch.getInstance().getCurrentUser().id)) {
+			toEntity = Patch.getInstance().getCurrentUser();
 		}
 
 		if (toEntity != null) {
@@ -513,8 +509,8 @@ public class EntityCache implements Map<String, Entity> {
 		 * Fixup out links too
 		 */
 		Entity fromEntity = get(fromId);
-		if (fromEntity != null && fromEntity.id.equals(Aircandi.getInstance().getCurrentUser().id)) {
-			fromEntity = Aircandi.getInstance().getCurrentUser();
+		if (fromEntity != null && fromEntity.id.equals(Patch.getInstance().getCurrentUser().id)) {
+			fromEntity = Patch.getInstance().getCurrentUser();
 		}
 
 		if (fromEntity != null) {
@@ -620,13 +616,6 @@ public class EntityCache implements Map<String, Entity> {
 	/*--------------------------------------------------------------------------------------------
 	 * Cache methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	public void decorate(List<Entity> entities, Links linkOptions) {
-		for (Entity entity : entities) {
-			IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
-			controller.decorate(entity, linkOptions);
-		}
-	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Cache Map methods

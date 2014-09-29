@@ -16,7 +16,7 @@ import android.os.BatteryManager;
 import android.text.Html;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Route;
@@ -46,7 +46,7 @@ public class AndroidManager {
 
 	public static boolean checkPlayServices(Activity activity) {
 
-		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(Aircandi.applicationContext);
+		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(Patch.applicationContext);
 		if (status != ConnectionResult.SUCCESS) {
 			if (GooglePlayServicesUtil.isUserRecoverableError(status)) {
 				showPlayServicesErrorDialog(status, activity);
@@ -63,7 +63,7 @@ public class AndroidManager {
 
 	public static void showPlayServicesErrorDialog(final int status, final Activity activity) {
 
-		final Activity activityTemp = (activity != null) ? activity : Aircandi.getInstance().getCurrentActivity();
+		final Activity activityTemp = (activity != null) ? activity : Patch.getInstance().getCurrentActivity();
 		if (activityTemp != null) {
 
 			activityTemp.runOnUiThread(new Runnable() {
@@ -81,7 +81,7 @@ public class AndroidManager {
 						public void onCancel(DialogInterface dialog) {
 							UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unavailable), Toast.LENGTH_LONG);
 							if (!(activity instanceof SplashForm)) {
-								Aircandi.dispatch.route(activity, Route.SPLASH, null, null, null);
+								Patch.dispatch.route(activity, Route.SPLASH, null, null, null);
 							}
 							else {
 								activity.finish();
@@ -149,12 +149,12 @@ public class AndroidManager {
 	public String getPublicName(String packageName) {
 
 		try {
-			final ApplicationInfo info = Aircandi.packageManager.getApplicationInfo(packageName, 0);
-			final String publicName = (String) info.loadLabel(Aircandi.packageManager);
+			final ApplicationInfo info = Patch.packageManager.getApplicationInfo(packageName, 0);
+			final String publicName = (String) info.loadLabel(Patch.packageManager);
 			return publicName;
 		}
 		catch (NameNotFoundException e) {
-			if (Aircandi.DEBUG) {
+			if (Patch.DEBUG) {
 				e.printStackTrace();
 			}
 			return null;
@@ -163,7 +163,7 @@ public class AndroidManager {
 
 	public static boolean doesPackageExist(String targetPackage) {
 		final List<ApplicationInfo> packages;
-		packages = Aircandi.packageManager.getInstalledApplications(0);
+		packages = Patch.packageManager.getInstalledApplications(0);
 		for (ApplicationInfo packageInfo : packages) {
 			if (packageInfo.packageName.equals(targetPackage)) return true;
 		}
@@ -183,7 +183,7 @@ public class AndroidManager {
 		 * Returns battery status. TRUE if less than 15% remaining.
 		 */
 		final IntentFilter batIntentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-		final Intent battery = Aircandi.applicationContext.registerReceiver(null, batIntentFilter);
+		final Intent battery = Patch.applicationContext.registerReceiver(null, batIntentFilter);
 		if (battery != null) {
 			final float pctLevel = (float) battery.getIntExtra(BatteryManager.EXTRA_LEVEL, 1) /
 					battery.getIntExtra(BatteryManager.EXTRA_SCALE, 1);
@@ -208,7 +208,7 @@ public class AndroidManager {
 			intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
 		}
 		context.startActivity(intent);
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
 	}
 
 	public void callMapNavigation(Context context, Double latitude, Double longitude, String address, String label) {
@@ -226,7 +226,7 @@ public class AndroidManager {
 		}
 
 		context.startActivity(intent);
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
 	}
 
 	public void callMapLocalActivity(Context context, String latitude, String longitude, String label) {
@@ -236,14 +236,14 @@ public class AndroidManager {
 				+ "(" + label + ")";
 		final Intent searchAddress = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
 		context.startActivity(searchAddress);
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
 	}
 
 	public void callDialerActivity(Context context, String phoneNumber) {
 		final String number = "tel:" + phoneNumber.trim();
 		final Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse(number));
 		context.startActivity(callIntent);
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
 	}
 
 	public void callBrowserActivity(Context context, String uri) {
@@ -257,7 +257,7 @@ public class AndroidManager {
 			intent.setData(Uri.parse(uri));
 			context.startActivity(intent);
 		}
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
 	}
 
 	public void callSendToActivity(Context context, String placeName, String emailAddress, String subject, String body) {
@@ -308,7 +308,7 @@ public class AndroidManager {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("https://www.twitter.com/" + twitterHandle));
 		context.startActivity(intent);
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
 	}
 
 	public void callFoursquareActivity(Context context, String venueId, String sourceUri) {
@@ -316,14 +316,14 @@ public class AndroidManager {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(sourceUri));
 		context.startActivity(intent);
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
 	}
 
 	public void callOpentableActivity(Context context, String sourceId, String sourceUri) {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(sourceUri));
 		context.startActivity(intent);
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
 	}
 
 	public void callFacebookActivity(Context context, String facebookId) {
@@ -336,7 +336,7 @@ public class AndroidManager {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("http://m.facebook.com/" + facebookId));
 		context.startActivity(intent);
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
 	}
 
 	public void callYelpActivity(Context context, String sourceId, String sourceUri) {
@@ -345,14 +345,14 @@ public class AndroidManager {
 		String uriFixup = sourceUri.replace("//m.yelp.com", "//www.yelp.com");
 		intent.setData(Uri.parse(uriFixup));
 		context.startActivity(intent);
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
 	}
 
 	public void callGenericActivity(Context context, String sourceId) {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(sourceId));
 		context.startActivity(intent);
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_SOURCE);
 	}
 
 	private Intent findBrowserApp(Context context, String uri) {

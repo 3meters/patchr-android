@@ -15,21 +15,16 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
-import com.aircandi.Aircandi.ThemeTone;
+import com.aircandi.Patch;
+import com.aircandi.Patch.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.AirApplication;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.StringManager;
-import com.aircandi.controllers.Pictures;
-import com.aircandi.objects.Applink;
-import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Place;
-import com.aircandi.objects.Shortcut;
-import com.aircandi.objects.ShortcutSettings;
 import com.aircandi.ui.base.BasePicker;
-import com.aircandi.ui.base.IBind.BindingMode;
+import com.aircandi.interfaces.IBind.BindingMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,17 +52,20 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		final List<Object> listData = new ArrayList<Object>();
 
 		/* Everyone gets these options */
-		listData.add(new AirApplication(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_search_light : R.drawable.ic_action_search_dark
+		listData.add(new AirApplication(Patch.themeTone.equals(ThemeTone.LIGHT)
+		                                ? R.drawable.ic_action_search_light : R.drawable.ic_action_search_dark
 				, StringManager.getString(R.string.dialog_photo_source_search), null, Constants.PHOTO_SOURCE_SEARCH));
 
-		listData.add(new AirApplication(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_tiles_large_light
-		                                                                           : R.drawable.ic_action_tiles_large_dark
+		listData.add(new AirApplication(Patch.themeTone.equals(ThemeTone.LIGHT)
+		                                ? R.drawable.ic_action_tiles_large_light
+		                                : R.drawable.ic_action_tiles_large_dark
 				, StringManager.getString(R.string.dialog_photo_source_gallery), null, Constants.PHOTO_SOURCE_GALLERY));
 
 		/* Only show the camera choice if there is one and there is a place to store the image */
 		if (MediaManager.canCaptureWithCamera()) {
-			listData.add(new AirApplication(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_camera_light
-			                                                                           : R.drawable.ic_action_camera_dark
+			listData.add(new AirApplication(Patch.themeTone.equals(ThemeTone.LIGHT)
+			                                ? R.drawable.ic_action_camera_light
+			                                : R.drawable.ic_action_camera_dark
 					, StringManager.getString(R.string.dialog_photo_source_camera), null, Constants.PHOTO_SOURCE_CAMERA));
 		}
 
@@ -75,51 +73,18 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 			Place place = (Place) mEntity;
 			if (place.getProvider().type != null && place.getProvider().type.equals(Constants.TYPE_PROVIDER_FOURSQUARE)) {
-				listData.add(new AirApplication(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_location_light
-				                                                                           : R.drawable.ic_action_location_dark
+				listData.add(new AirApplication(Patch.themeTone.equals(ThemeTone.LIGHT)
+				                                ? R.drawable.ic_action_location_light
+				                                : R.drawable.ic_action_location_dark
 						, StringManager.getString(R.string.dialog_photo_source_place), null, Constants.PHOTO_SOURCE_PLACE));
-			}
-			else {
-
-				ShortcutSettings settings = new ShortcutSettings(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PICTURE, Direction.in, false, false);
-				settings.appClass = Pictures.class;
-				List<Shortcut> shortcuts = mEntity.getShortcuts(settings, null, new Shortcut.SortByPositionSortDate());
-				if (shortcuts.size() > 0) {
-					for (Shortcut shortcut : shortcuts) {
-						if (shortcut.photo != null) {
-							listData.add(new AirApplication(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_location_light
-							                                                                           : R.drawable.ic_action_location_dark
-									, StringManager.getString(R.string.dialog_photo_source_place), null, Constants.PHOTO_SOURCE_PLACE));
-							break;
-						}
-					}
-				}
-			}
-		}
-		else if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_APPLINK)) {
-			Applink applink = (Applink) mEntity;
-			if (applink.type != null) {
-				if (applink.type.equals(Constants.TYPE_APP_FACEBOOK)) {
-					listData.add(new AirApplication(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_facebook_light
-					                                                                           : R.drawable.ic_action_facebook_dark
-							, StringManager.getString(R.string.dialog_photo_source_facebook), null, Constants.PHOTO_SOURCE_FACEBOOK));
-				}
-				else if (applink.type.equals(Constants.TYPE_APP_TWITTER)) {
-					listData.add(new AirApplication(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_twitter_light
-					                                                                           : R.drawable.ic_action_twitter_dark
-							, StringManager.getString(R.string.dialog_photo_source_twitter), null, Constants.PHOTO_SOURCE_TWITTER));
-				}
-				else if (applink.type.equals(Constants.TYPE_APP_WEBSITE)) {
-					listData.add(new AirApplication(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_website_light
-					                                                                           : R.drawable.ic_action_website_dark
-							, StringManager.getString(R.string.dialog_photo_source_website_thumbnail), null, Constants.PHOTO_SOURCE_WEBSITE_THUMBNAIL));
-				}
 			}
 		}
 
 		/* Everyone gets the default option */
-		if (mEntity.type == null || !(mEntity.schema.equals(Constants.SCHEMA_ENTITY_APPLINK) && mEntity.type.equals(Constants.TYPE_APP_WEBSITE))) {
-			listData.add(new AirApplication(Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.ic_action_picture_light : R.drawable.ic_action_picture_dark
+		if (mEntity.type == null) {
+			listData.add(new AirApplication(Patch.themeTone.equals(ThemeTone.LIGHT)
+			                                ? R.drawable.ic_action_picture_light
+			                                : R.drawable.ic_action_picture_dark
 					, StringManager.getString(R.string.dialog_photo_source_default), null, Constants.PHOTO_SOURCE_DEFAULT));
 		}
 

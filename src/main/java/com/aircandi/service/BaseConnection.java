@@ -1,5 +1,6 @@
 package com.aircandi.service;
 
+import com.aircandi.interfaces.IConnection;
 import com.aircandi.service.AirHttpRequest.Header;
 import com.aircandi.service.ServiceRequest.AuthType;
 

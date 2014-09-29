@@ -3,7 +3,6 @@ package com.aircandi.ui.helpers;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.DisplayMetrics;
@@ -21,7 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
@@ -31,19 +30,13 @@ import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
-import com.aircandi.objects.Count;
-import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.ImageResult;
 import com.aircandi.objects.ImageResult.Thumbnail;
-import com.aircandi.objects.Link.Direction;
-import com.aircandi.objects.LinkProfile;
-import com.aircandi.objects.Links;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoSource;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Provider;
-import com.aircandi.objects.ServiceBase;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.service.RequestType;
 import com.aircandi.service.ResponseFormat;
@@ -51,14 +44,12 @@ import com.aircandi.service.ServiceRequest;
 import com.aircandi.service.ServiceRequest.AuthType;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirAutoCompleteTextView;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.AirTextView;
 import com.aircandi.utilities.Errors;
-import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Json;
-import com.aircandi.utilities.Maps;
 import com.aircandi.utilities.UI;
 import com.commonsware.cwac.endless.EndlessAdapter;
 
@@ -67,7 +58,6 @@ import org.json.JSONException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /*
@@ -146,7 +136,7 @@ public class PhotoPicker extends BaseActivity {
 				mSearch.setText(mDefaultSearch);
 			}
 			else {
-				String lastSearch = Aircandi.settings.getString(StringManager.getString(R.string.setting_picture_search_last), null);
+				String lastSearch = Patch.settings.getString(StringManager.getString(R.string.setting_picture_search_last), null);
 				if (lastSearch != null && !lastSearch.equals("")) {
 					mSearch.setText(lastSearch);
 				}
@@ -239,67 +229,7 @@ public class PhotoPicker extends BaseActivity {
 
 	@Override
 	public void bind(BindingMode mode) {
-		/*
-		 * First check to see if there are any candi picture children.
-		 */
-		Count pictures = null;
-		if (mEntity != null) {
-			pictures = mEntity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PICTURE, null, Direction.in);
-		}
-
-		if (mPlacePhotoMode && pictures != null) {
-
-			new AsyncTask() {
-
-				@Override
-				protected void onPreExecute() {
-					mBusy.showBusy(BusyAction.Loading);
-				}
-
-				@Override
-				protected Object doInBackground(Object... params) {
-					Thread.currentThread().setName("AsyncPlacePictures");
-
-					Links linkOptions = Aircandi.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_PICTURE);
-
-					List<String> schemas = new ArrayList<String>();
-					schemas.add(Constants.SCHEMA_ENTITY_PICTURE);
-					List<String> linkTypes = new ArrayList<String>();
-					linkTypes.add(Constants.TYPE_LINK_CONTENT);
-
-					Cursor cursor = new Cursor()
-							.setLimit(Integers.getInteger(R.integer.page_size_pictures))
-							.setSort(Maps.asMap("modifiedDate", -1))
-							.setToSchemas(schemas)
-							.setLinkTypes(linkTypes)
-							.setDirection(Direction.in.name());
-
-					ModelResult result = Aircandi.getInstance().getEntityManager().loadEntitiesForEntity(mEntity.id, linkOptions, cursor, null);
-
-					return result;
-				}
-
-				@Override
-				protected void onPostExecute(Object response) {
-					ModelResult result = (ModelResult) response;
-					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-						List<Entity> entities = (List<Entity>) result.data;
-						Collections.sort(entities, new ServiceBase.SortByPositionSortDate());
-						for (Entity entity : entities) {
-							Photo photo = entity.getPhoto();
-							ImageResult imageResult = photo.getAsImageResult();
-							imageResult.setPhoto(photo);
-							imageResult.getThumbnail().setHeight(100L);
-							mImages.add(imageResult);
-						}
-					}
-					mGridView.setAdapter(new EndlessImageAdapter(mImages));
-					mBusy.hideBusy(false);
-				}
-			}.execute();
-
-		}
-		else if (mPlacePhotoMode || (mQuery != null && !mQuery.equals(""))) {
+		if (mPlacePhotoMode || (mQuery != null && !mQuery.equals(""))) {
 			mGridView.setAdapter(new EndlessImageAdapter(mImages));
 		}
 	}
@@ -341,16 +271,16 @@ public class PhotoPicker extends BaseActivity {
 		imm.hideSoftInputFromWindow(mSearch.getWindowToken(), 0);
 
 		/* Stash query so we can restore it in the future */
-		Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_picture_search_last), mQuery);
-		Aircandi.settingsEditor.commit();
+		Patch.settingsEditor.putString(StringManager.getString(R.string.setting_picture_search_last), mQuery);
+		Patch.settingsEditor.commit();
 
 		/* Add query to auto complete array */
 		try {
-			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Aircandi.settings.getString(StringManager.getString(R.string.setting_picture_searches),
+			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patch.settings.getString(StringManager.getString(R.string.setting_picture_searches),
 					"{}"));
 			jsonSearchMap.put(mQuery, mQuery);
-			Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
-			Aircandi.settingsEditor.commit();
+			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
+			Patch.settingsEditor.commit();
 		}
 		catch (JSONException exception) {
 			exception.printStackTrace();
@@ -369,7 +299,7 @@ public class PhotoPicker extends BaseActivity {
 
 	private void initAutoComplete() {
 		try {
-			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Aircandi.settings.getString(StringManager.getString(R.string.setting_picture_searches),
+			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patch.settings.getString(StringManager.getString(R.string.setting_picture_searches),
 					"{}"));
 			mPreviousSearches.clear();
 			if (mDefaultSearch != null) {
@@ -406,7 +336,7 @@ public class PhotoPicker extends BaseActivity {
 			query = "%27" + URLEncoder.encode(query, "UTF-8") + "%27";
 		}
 		catch (UnsupportedEncodingException e) {
-			if (Aircandi.DEBUG) {
+			if (Patch.DEBUG) {
 				e.printStackTrace();
 			}
 		}
@@ -421,7 +351,7 @@ public class PhotoPicker extends BaseActivity {
 		final ServiceRequest serviceRequest = new ServiceRequest(bingUrl, RequestType.GET, ResponseFormat.JSON);
 		serviceRequest.setAuthType(AuthType.BASIC)
 		              .setUserName(null)
-		              .setPassword(Aircandi.getInstance().getContainer().getString(Aircandi.BING_ACCESS_KEY));
+		              .setPassword(Patch.getInstance().getContainer().getString(Patch.BING_ACCESS_KEY));
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -470,7 +400,7 @@ public class PhotoPicker extends BaseActivity {
 	}
 
 	private ServiceResponse loadPlaceImages(long count, long offset) {
-		final ModelResult result = Aircandi.getInstance().getEntityManager().getPlacePhotos(mProvider, count, offset);
+		final ModelResult result = Patch.getInstance().getEntityManager().getPlacePhotos(mProvider, count, offset);
 		return result.serviceResponse;
 	}
 

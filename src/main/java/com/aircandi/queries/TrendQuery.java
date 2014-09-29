@@ -1,7 +1,8 @@
 package com.aircandi.queries;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.components.ModelResult;
+import com.aircandi.interfaces.IQuery;
 
 @SuppressWarnings("ucd")
 public class TrendQuery implements IQuery {
@@ -17,7 +18,7 @@ public class TrendQuery implements IQuery {
 		 * Should be called on a background thread. By default returns sorted by rank
 		 * in ascending order.
 		 */
-		ModelResult result = Aircandi.getInstance().getEntityManager().getTrending(toSchema, fromSchema, trendType);
+		ModelResult result = Patch.getInstance().getEntityManager().getTrending(toSchema, fromSchema, trendType);
 		return result;
 	}
 

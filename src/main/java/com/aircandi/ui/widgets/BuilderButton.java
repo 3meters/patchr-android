@@ -9,8 +9,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
-import com.aircandi.Aircandi.ThemeTone;
+import com.aircandi.Patch;
+import com.aircandi.Patch.ThemeTone;
 import com.aircandi.R;
 
 @SuppressWarnings("ucd")
@@ -46,7 +46,7 @@ public class BuilderButton extends RelativeLayout {
 		mViewGroup = (LinearLayout) view.findViewById(R.id.builder_images);
 
 		if (mTextView != null && mHint != null) {
-			if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
+			if (Patch.themeTone.equals(ThemeTone.DARK)) {
 				mTextView.setTextColor(getResources().getColor(R.color.text_secondary_dark));
 			}
 			else {
@@ -59,7 +59,7 @@ public class BuilderButton extends RelativeLayout {
 	public void setText(String text) {
 		if (mTextView != null) {
 			if (text != null && !text.equals("")) {
-				if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
+				if (Patch.themeTone.equals(ThemeTone.DARK)) {
 					mTextView.setTextColor(getResources().getColor(R.color.text_dark));
 				}
 				else {
@@ -68,7 +68,7 @@ public class BuilderButton extends RelativeLayout {
 				mTextView.setText(text);
 			}
 			else {
-				if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
+				if (Patch.themeTone.equals(ThemeTone.DARK)) {
 					mTextView.setTextColor(getResources().getColor(R.color.text_secondary_dark));
 				}
 				else {

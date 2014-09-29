@@ -1,4 +1,4 @@
-package com.aircandi.controllers;
+package com.aircandi.interfaces;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,11 +8,10 @@ import android.view.View;
 
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
-import com.aircandi.objects.Links;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.ServiceMessage;
+import com.aircandi.objects.ViewHolder;
 
-import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("ucd")
@@ -26,8 +25,6 @@ public interface IEntityController {
 	public Intent edit(Context context, Entity entity, Bundle extras, Boolean start);
 
 	public Intent insert(Context context, Bundle extras, Boolean start);
-
-	public void decorate(Entity entity, Links linkOptions);
 
 	public void bind(Entity entity, View view);
 
@@ -56,8 +53,6 @@ public interface IEntityController {
 	public String getType(Entity entity, Boolean verbose);
 
 	public Integer getColorPrimary();
-
-	public List<Object> getApplications(String themeTone);
 
 	public Integer getLinkProfile();
 

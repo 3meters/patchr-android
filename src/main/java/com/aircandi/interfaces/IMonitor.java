@@ -1,4 +1,4 @@
-package com.aircandi.monitors;
+package com.aircandi.interfaces;
 
 public interface IMonitor {
 

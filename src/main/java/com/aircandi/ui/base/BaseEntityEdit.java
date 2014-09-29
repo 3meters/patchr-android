@@ -9,17 +9,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
@@ -31,23 +29,17 @@ import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
-import com.aircandi.controllers.IEntityController;
-import com.aircandi.objects.Applink;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
-import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Photo.PhotoSource;
 import com.aircandi.objects.Route;
-import com.aircandi.objects.Shortcut;
-import com.aircandi.objects.ShortcutSettings;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.service.ServiceResponse;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirImageView;
-import com.aircandi.ui.widgets.BuilderButton;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
@@ -60,14 +52,11 @@ import com.kbeanie.imagechooser.api.ImageChooserManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserListener {
 
-	protected AirImageView mPhotoView;
-	protected List<Entity> mApplinks;
-
+	protected AirImageView        mPhotoView;
 	protected TextView            mName;
 	protected TextView            mDescription;
 	protected CheckBox            mLocked;
@@ -183,11 +172,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 	public void bind(BindingMode mode) {
 		if (!mEditing && mEntity == null && mEntitySchema != null) {
-			IEntityController controller = Aircandi.getInstance().getControllerForSchema(mEntitySchema);
+			IEntityController controller = Patch.getInstance().getControllerForSchema(mEntitySchema);
 			mEntity = controller.makeNew();
-			if (Aircandi.getInstance().getCurrentUser() != null) {
-				mEntity.creator = Aircandi.getInstance().getCurrentUser();
-				mEntity.creatorId = Aircandi.getInstance().getCurrentUser().id;
+			if (Patch.getInstance().getCurrentUser() != null) {
+				mEntity.creator = Patch.getInstance().getCurrentUser();
+				mEntity.creatorId = Patch.getInstance().getCurrentUser().id;
 			}
 		}
 		draw(null);
@@ -199,7 +188,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 			final Entity entity = mEntity;
 			if (mEditing) {
-				String title = !TextUtils.isEmpty(mEntity.name) ? mEntity.name : mEntity.getSchemaMapped();
+				String title = !TextUtils.isEmpty(mEntity.name) ? mEntity.name : mEntity.schema;
 				setActivityTitle(title);
 			}
 			else {
@@ -235,17 +224,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			//				}
 			//			}
 
-			/* Shortcuts */
-
-			if (findViewById(R.id.applinks) != null) {
-				drawShortcuts(entity);
-				UI.setVisibility(findViewById(R.id.alert), View.GONE);
-				if (mBrokenLink) {
-					((TextView) findViewById(R.id.alert)).setText(StringManager.getString(R.string.alert_applinks_broken));
-					UI.setVisibility(findViewById(R.id.alert), View.VISIBLE);
-				}
-			}
-
 			/* Creator block */
 			final UserView creator = (UserView) findViewById(R.id.created_by);
 			final UserView editor = (UserView) findViewById(R.id.edited_by);
@@ -280,10 +258,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			/* Configure UI */
 			UI.setVisibility(findViewById(R.id.button_delete), View.GONE);
 			if (entity.ownerId != null
-					&& (entity.ownerId.equals(Aircandi.getInstance().getCurrentUser().id)
-					|| (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-					&& Aircandi.getInstance().getCurrentUser().developer != null
-					&& Aircandi.getInstance().getCurrentUser().developer))) {
+					&& (entity.ownerId.equals(Patch.getInstance().getCurrentUser().id)
+					|| (Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+					&& Patch.getInstance().getCurrentUser().developer != null
+					&& Patch.getInstance().getCurrentUser().developer))) {
 				UI.setVisibility(findViewById(R.id.button_delete), View.VISIBLE);
 			}
 			mFirstDraw = false;
@@ -300,77 +278,13 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		}
 	}
 
-	protected void drawShortcuts(Entity entity) {
-
-		/*
-		 * We are expecting a builder button with a viewgroup to
-		 * hold a set of images.
-		 */
-		final BuilderButton button = (BuilderButton) findViewById(R.id.applinks);
-
-		List<Shortcut> shortcuts;
-
-		if (mApplinks != null) {
-			shortcuts = new ArrayList<Shortcut>();
-			for (Entity applink : mApplinks) {
-				Shortcut shortcut = ((Applink) applink).getShortcut();
-				shortcuts.add(shortcut);
-			}
-		}
-		else {
-			ShortcutSettings settings = new ShortcutSettings(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_APPLINK, Direction.in, false, false);
-			settings.linkBroken = true;
-			shortcuts = entity.getShortcuts(settings, null, new Shortcut.SortByPositionSortDate());
-		}
-
-		Collections.sort(shortcuts, new Shortcut.SortByPositionSortDate());
-
-		if (shortcuts.size() == 0) {
-			button.getTextView().setVisibility(View.VISIBLE);
-			button.getViewGroup().setVisibility(View.GONE);
-		}
-		else {
-			button.getTextView().setVisibility(View.GONE);
-			button.getViewGroup().setVisibility(View.VISIBLE);
-			button.getViewGroup().removeAllViews();
-			final LayoutInflater inflater = LayoutInflater.from(this);
-			final int sizePixels = UI.getRawPixelsForDisplayPixels(30f);
-			final int marginPixels = UI.getRawPixelsForDisplayPixels(5f);
-
-			/* We only show the first five */
-			int shortcutCount = 0;
-			mBrokenLink = false;
-			for (Shortcut shortcut : shortcuts) {
-				if (shortcutCount < 5) {
-					View view = inflater.inflate(R.layout.temp_entity_edit_link_item, null);
-					AirImageView photoView = (AirImageView) view.findViewById(R.id.entity_photo);
-					photoView.setSizeHint(sizePixels);
-
-					UI.drawPhoto(photoView, shortcut.getPhoto());
-
-					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(sizePixels, sizePixels);
-					params.setMargins(marginPixels
-							, marginPixels
-							, marginPixels
-							, marginPixels);
-					view.setLayoutParams(params);
-					button.getViewGroup().addView(view);
-				}
-				if (shortcut.validatedDate != null && shortcut.validatedDate.longValue() == -1) {
-					mBrokenLink = true;
-				}
-				shortcutCount++;
-			}
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void onError(final String reason) {
 	    /*
-         * Error trying to pick or take a photo
+	     * Error trying to pick or take a photo
 		 */
 		runOnUiThread(new Runnable() {
 
@@ -385,7 +299,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	public void onAccept() {
 		if (isDirty()) {
 			if (validate()) {
-                /*
+		        /*
                  * Pull all the control values back into the entity object. Validate
 				 * does that too but we don't know if validate is always being performed.
 				 */
@@ -399,7 +313,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					intentBuilder.setEntity(mEntity);
 					setResultCode(Constants.RESULT_ENTITY_EDITED, intentBuilder.create());
 					finish();
-					Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.FORM_TO_PAGE);
+					Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.FORM_TO_PAGE);
 				}
 				else {
 					if (mEditing) {
@@ -423,7 +337,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		gather();
 
 		/* Route it */
-		Aircandi.dispatch.route(this, Route.PHOTO_SOURCE, mEntity, null, null);
+		Patch.dispatch.route(this, Route.PHOTO_SOURCE, mEntity, null, null);
 		onChangingPhoto();
 	}
 
@@ -458,7 +372,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			@Override
 			public void run() {
 				if (image != null) {
-					Aircandi.tracker.sendEvent(TrackerCategory.UX, "photo_used_from_device", null, 0);
+					Patch.tracker.sendEvent(TrackerCategory.UX, "photo_used_from_device", null, 0);
 					final Uri photoUri = Uri.parse("file:" + image.getFilePathOriginal());
 					MediaManager.scanMedia(Uri.parse("file:" + image.getFilePathOriginal()));
 					Photo photo = new Photo()
@@ -472,7 +386,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Aircandi.dispatch.route(this, Route.BROWSE, entity, null, null);
+		Patch.dispatch.route(this, Route.BROWSE, entity, null, null);
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -518,26 +432,12 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 							usePhotoDefault();
 						}
-						else if (photoSource.equals(Constants.PHOTO_SOURCE_FACEBOOK)) {
-
-							Photo photo = new Photo()
-									.setPrefix("https://graph.facebook.com/" + ((Applink) mEntity).appId + "/picture?type=large")
-									.setSource(PhotoSource.facebook);
-							onPhotoSelected(photo);
-						}
-						else if (photoSource.equals(Constants.PHOTO_SOURCE_TWITTER)) {
-
-							Photo photo = new Photo()
-									.setPrefix("https://api.twitter.com/1/users/profile_image?screen_name=" + ((Applink) mEntity).appId + "&size=bigger")
-									.setSource(PhotoSource.facebook);
-							onPhotoSelected(photo);
-						}
 					}
 				}
 			}
 			else if (requestCode == Constants.ACTIVITY_PHOTO_SEARCH) {
 
-				Aircandi.tracker.sendEvent(TrackerCategory.UX, "photo_select_using_search", null, 0);
+				Patch.tracker.sendEvent(TrackerCategory.UX, "photo_select_using_search", null, 0);
 				if (intent != null && intent.getExtras() != null) {
 
 					final Bundle extras = intent.getExtras();
@@ -548,7 +448,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 			else if (requestCode == Constants.ACTIVITY_PHOTO_PICK_PLACE) {
 
-				Aircandi.tracker.sendEvent(TrackerCategory.UX, "photo_select_from_place", null, 0);
+				Patch.tracker.sendEvent(TrackerCategory.UX, "photo_select_from_place", null, 0);
 				if (intent != null && intent.getExtras() != null) {
 
 					final Bundle extras = intent.getExtras();
@@ -573,21 +473,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	protected void buildPhoto() {
-		if (mPhotoSource != null && mEntity.schema.equals(Constants.SCHEMA_ENTITY_APPLINK)) {
-			if (mPhotoSource.equals(Constants.PHOTO_SOURCE_FACEBOOK)) {
-				mEntity.photo = new Photo("https://graph.facebook.com/" + ((Applink) mEntity).appId + "/picture?type=large", null, null, null,
-						PhotoSource.facebook);
-			}
-			else if (mPhotoSource.equals(Constants.PHOTO_SOURCE_TWITTER)) {
-				mEntity.photo = new Photo(
-						"https://api.twitter.com/1/users/profile_image?screen_name=" + ((Applink) mEntity).appId + "&size=bigger",
-						null,
-						null, null, PhotoSource.twitter);
-			}
-		}
-	}
-
 	protected String getLinkType() {
 		return null;
 	}
@@ -605,9 +490,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		//		if (mPrivate != null) {
 		//			mEntity.visibility = mPrivate.isChecked() ? Constants.VISIBILITY_PRIVATE : Constants.VISIBILITY_PUBLIC;
 		//		}
-
-		/* Might need to rebuild photo because it requires current property values */
-		buildPhoto();
 	}
 
 	protected void setEntityType(String type) {
@@ -618,7 +500,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		/*
 		 * Setting the photo to null will trigger correct default handling.
 		 */
-		Aircandi.tracker.sendEvent(TrackerCategory.UX, "photo_set_to_default", null, 0);
+		Patch.tracker.sendEvent(TrackerCategory.UX, "photo_set_to_default", null, 0);
 		onPhotoSelected(null);
 	}
 
@@ -678,11 +560,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	protected void photoSearch(String defaultSearch) {
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_SEARCH_PHRASE, defaultSearch);
-		Aircandi.dispatch.route(this, Route.PHOTO_SEARCH, null, null, extras);
+		Patch.dispatch.route(this, Route.PHOTO_SEARCH, null, null, extras);
 	}
 
 	protected void photoFromPlace(Entity entity) {
-		Aircandi.dispatch.route(this, Route.PHOTO_PLACE_SEARCH, entity, null, null);
+		Patch.dispatch.route(this, Route.PHOTO_PLACE_SEARCH, entity, null, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -742,7 +624,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
 
 					try {
-						bitmap = DownloadManager.with(Aircandi.applicationContext)
+						bitmap = DownloadManager.with(Patch.applicationContext)
 						                        .load(mEntity.getPhoto().getUri())
 						                        .centerInside()
 						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
@@ -756,7 +638,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						 */
 						System.gc();
 						try {
-							bitmap = DownloadManager.with(Aircandi.applicationContext)
+							bitmap = DownloadManager.with(Patch.applicationContext)
 							                        .load(mEntity.getPhoto().getUri())
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
@@ -776,7 +658,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				beforeInsert(mEntity, links);
 				if (isCancelled()) return null;
 
-				ModelResult result = Aircandi.getInstance().getEntityManager().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true);
+				ModelResult result = Patch.getInstance().getEntityManager().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true);
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
@@ -785,15 +667,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Entity insertedEntity = (Entity) result.data;
 					mEntity.id = insertedEntity.id;
-
-					if (mApplinks != null) {
-						result = Aircandi.getInstance().getEntityManager()
-						                 .replaceEntitiesForEntity(insertedEntity.id, mApplinks, Constants.SCHEMA_ENTITY_APPLINK);
-                        /*
-                         * Need to update the linkIn for the entity or these won't show
-                         * without a service refresh.
-                         */
-					}
 				}
 
 				return result.serviceResponse;
@@ -825,7 +698,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						}
 						setResultCode(Activity.RESULT_OK);
 						finish();
-						Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_TO_PAGE);
+						Patch.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_TO_PAGE);
 					}
 				}
 				else {
@@ -862,7 +735,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
 
 						try {
-							bitmap = DownloadManager.with(Aircandi.applicationContext)
+							bitmap = DownloadManager.with(Patch.applicationContext)
 							                        .load(mEntity.getPhoto().getUri())
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
@@ -876,7 +749,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						 */
 							System.gc();
 							try {
-								bitmap = DownloadManager.with(Aircandi.applicationContext)
+								bitmap = DownloadManager.with(Patch.applicationContext)
 								                        .load(mEntity.getPhoto().getUri())
 								                        .centerInside()
 								                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
@@ -890,7 +763,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						}
 					}
 
-					result = Aircandi.getInstance().getEntityManager().updateEntity(mEntity, bitmap);
+					result = Patch.getInstance().getEntityManager().updateEntity(mEntity, bitmap);
 					if (isCancelled()) return null;
 
 					/* Don't allow cancel if we made it this far */
@@ -899,25 +772,21 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 						if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-							if (Aircandi.getInstance().getCurrentUser().id.equals(mEntity.id)) {
+							if (Patch.getInstance().getCurrentUser().id.equals(mEntity.id)) {
 
 								/* We also need to update the user that has been persisted for AUTO sign in. */
 								final String jsonUser = Json.objectToJson(mEntity);
-								Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-								Aircandi.settingsEditor.commit();
+								Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
+								Patch.settingsEditor.commit();
 
 								/*
 								 * Update the global user but retain the session info. We don't need
 								 * to call activateCurrentUser because we don't need to refetch link data
 								 * or change notification registration.
 								 */
-								((User) mEntity).session = Aircandi.getInstance().getCurrentUser().session;
-								Aircandi.getInstance().setCurrentUser((User) mEntity);
+								((User) mEntity).session = Patch.getInstance().getCurrentUser().session;
+								Patch.getInstance().setCurrentUser((User) mEntity);
 							}
-						}
-
-						if (mApplinks != null) {
-							result = Aircandi.getInstance().getEntityManager().replaceEntitiesForEntity(mEntity.id, mApplinks, Constants.SCHEMA_ENTITY_APPLINK);
 						}
 					}
 				}
@@ -946,7 +815,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
 					setResultCode(Activity.RESULT_OK);
 					finish();
-					Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_TO_PAGE);
+					Patch.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_TO_PAGE);
 				}
 				else {
 					Errors.handleError(BaseEntityEdit.this, serviceResponse);

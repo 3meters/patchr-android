@@ -17,8 +17,8 @@ import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
-import com.aircandi.Aircandi.ThemeTone;
+import com.aircandi.Patch;
+import com.aircandi.Patch.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
@@ -212,7 +212,7 @@ public class AirImageView extends FrameLayout implements Target {
 		else {
 			Bitmap bitmap = DownloadManager.checkDebug(bm, loadedFrom);
 			DownloadManager.checkDebug(bitmap, loadedFrom);
-			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Aircandi.applicationContext.getResources(), bitmap);
+			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patch.applicationContext.getResources(), bitmap);
 			UI.showDrawableInImageView(bitmapDrawable, mImageMain, true, AnimationManager.fadeInMedium());
 			showMissing(false);
 			if (mShowBusy) {
@@ -260,7 +260,7 @@ public class AirImageView extends FrameLayout implements Target {
 					 */
 					mMissingMessage.setVisibility(View.GONE);
 					if (visible) {
-						Integer resId = Aircandi.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.img_broken_100_light : R.drawable.img_broken_100_dark;
+						Integer resId = Patch.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.img_broken_100_light : R.drawable.img_broken_100_dark;
 						Drawable drawable = getResources().getDrawable(resId);
 						UI.showDrawableInImageView(drawable, mImageMain, true, AnimationManager.fadeInMedium());
 					}

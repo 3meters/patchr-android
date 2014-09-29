@@ -8,12 +8,12 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.Vibrator;
 
-import com.aircandi.Aircandi;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
-import com.aircandi.controllers.IEntityController;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Action.EventCategory;
-import com.aircandi.objects.ActivityBase.TriggerType;
+import com.aircandi.objects.MessageTriggerType;
 import com.aircandi.objects.EventType;
 import com.aircandi.objects.ServiceMessage;
 import com.aircandi.ui.AircandiForm;
@@ -81,14 +81,14 @@ public class GcmIntentService extends IntentService {
 					 * can be woken up when we don't have a current user. We do this regardless of whether
 					 * the application is in the foreground or not.
 					 */
-					if (Aircandi.getInstance().getCurrentUser() != null) {
-						Aircandi.getInstance().getCurrentUser().activityDate = message.sentDate;
+					if (Patch.getInstance().getCurrentUser() != null) {
+						Patch.getInstance().getCurrentUser().activityDate = message.sentDate;
 					}
 
 					/* Tickle activity date on entity manager because that is monitored by radar. */
 					if ((message.action.entity != null && message.action.entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE))
 							|| (message.action.toEntity != null && message.action.toEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE))) {
-						Aircandi.getInstance().getEntityManager().setActivityDate(DateTime.nowDate().getTime());
+						Patch.getInstance().getEntityManager().setActivityDate(DateTime.nowDate().getTime());
 					}
 
 					/* Do some cache stuffing */
@@ -109,32 +109,32 @@ public class GcmIntentService extends IntentService {
 					 * BACKGROUND, NEARBY, OR TARGET NOT VISIBLE
 					 */
 
-					Boolean background = (Aircandi.getInstance().getCurrentActivity() == null);
+					Boolean background = (Patch.getInstance().getCurrentActivity() == null);
 					Boolean targetVisible = targetContextVisible(message);
 
-					if (background || !targetVisible || message.getTriggerCategory().equals(TriggerType.NEARBY)) {
+					if (background || !targetVisible || message.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
 
-						if (!message.getTriggerCategory().equals(TriggerType.NEARBY)) {
+						if (!message.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
 							MessagingManager.getInstance().setNewActivity(true);
 						}
 
-						if (background || message.getTriggerCategory().equals(TriggerType.NEARBY)) {
+						if (background || message.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
 
 						    /* Build intent that can be used in association with the notification */
 							if (message.action.entity != null) {
-								IEntityController controller = Aircandi.getInstance().getControllerForSchema(message.action.entity.schema);
+								IEntityController controller = Patch.getInstance().getControllerForSchema(message.action.entity.schema);
 								Extras bundle = new Extras().setForceRefresh(true);
 								String parentId = (message.action.toEntity != null) ? message.action.toEntity.id : null;
-								message.intent = controller.view(Aircandi.applicationContext, null, message.action.entity.id, parentId, null,
+								message.intent = controller.view(Patch.applicationContext, null, message.action.entity.id, parentId, null,
 										bundle.getExtras(),
 										false);
 							}
 
 						    /* Customize title and subtitle before broadcasting */
-							Aircandi.getInstance().getActivityDecorator().decorate(message);
+							Patch.getInstance().getActivityDecorator().decorate(message);
 
 						    /* Send notification */
-							MessagingManager.getInstance().notificationForMessage(message, Aircandi.applicationContext);
+							MessagingManager.getInstance().notificationForMessage(message, Patch.applicationContext);
 						}
 						else {
 							MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);
@@ -204,7 +204,7 @@ public class GcmIntentService extends IntentService {
 	}
 
 	protected Boolean showingActivities() {
-		android.app.Activity currentActivity = Aircandi.getInstance().getCurrentActivity();
+		android.app.Activity currentActivity = Patch.getInstance().getCurrentActivity();
 		if (currentActivity != null && currentActivity.getClass().equals(AircandiForm.class)) {
 			BaseFragment fragment = (BaseFragment) ((AircandiForm) currentActivity).getCurrentFragment();
 			if (fragment != null && fragment.isActivityStream()) {
@@ -215,7 +215,7 @@ public class GcmIntentService extends IntentService {
 	}
 
 	protected Boolean showingEntity(String entityId) {
-		android.app.Activity currentActivity = Aircandi.getInstance().getCurrentActivity();
+		android.app.Activity currentActivity = Patch.getInstance().getCurrentActivity();
 		if (currentActivity != null && currentActivity instanceof BaseActivity) {
 			return ((BaseActivity) currentActivity).related(entityId);
 		}

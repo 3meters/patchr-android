@@ -2,7 +2,7 @@ package com.aircandi.components;
 
 import android.graphics.Bitmap;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.events.CancelEvent;
@@ -30,7 +30,7 @@ public class S3 {
 	private Upload          mUpload;
 
 	private S3() {
-		mManager = new TransferManager(Aircandi.awsCredentials);
+		mManager = new TransferManager(Patch.awsCredentials);
 		BusProvider.getInstance().register(this);
 	}
 

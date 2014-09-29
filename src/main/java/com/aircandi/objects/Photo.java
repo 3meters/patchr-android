@@ -4,7 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.TypedValue;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
@@ -238,18 +238,18 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		final String rawResourceName = uri.substring(uri.indexOf("resource:") + 9);
 		final String resolvedResourceName = resolveResourceName(context, rawResourceName);
 		if (resolvedResourceName != null) {
-			final int resourceId = Aircandi.applicationContext.getResources().getIdentifier(resolvedResourceName
+			final int resourceId = Patch.applicationContext.getResources().getIdentifier(resolvedResourceName
 					, "drawable"
-					, Aircandi.getInstance().getPackageName());
+					, Patch.getInstance().getPackageName());
 			return resourceId;
 		}
 		return null;
 	}
 
 	public static String resolveResourceName(Context context, String rawResourceName) {
-		int resourceId = Aircandi.applicationContext.getResources().getIdentifier(rawResourceName, "drawable", Aircandi.getInstance().getPackageName());
+		int resourceId = Patch.applicationContext.getResources().getIdentifier(rawResourceName, "drawable", Patch.getInstance().getPackageName());
 		if (resourceId == 0) {
-			resourceId = Aircandi.applicationContext.getResources().getIdentifier(rawResourceName, "attr", Aircandi.getInstance().getPackageName());
+			resourceId = Patch.applicationContext.getResources().getIdentifier(rawResourceName, "attr", Patch.getInstance().getPackageName());
 			final TypedValue value = new TypedValue();
 			if (context.getTheme().resolveAttribute(resourceId, value, true)) {
 				final String redirectedResourceName = (String) value.coerceToString();
@@ -398,24 +398,24 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		if (proxyActive) {
 			this.sizeType = sizeType.ordinal();
 			if (sizeType == SizeType.FULLSIZE) {
-				this.proxyWidth = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_fullsize);
-				this.proxyHeight = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_fullsize);
+				this.proxyWidth = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_fullsize);
+				this.proxyHeight = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_fullsize);
 			}
 			else if (sizeType == SizeType.PREVIEW) {
-				this.proxyWidth = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_preview);
-				this.proxyHeight = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_preview);
+				this.proxyWidth = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_preview);
+				this.proxyHeight = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_preview);
 			}
 			else if (sizeType == SizeType.PREVIEW_LARGE) {
-				this.proxyWidth = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_preview_large);
-				this.proxyHeight = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_preview_large);
+				this.proxyWidth = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_preview_large);
+				this.proxyHeight = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_preview_large);
 			}
 			else if (sizeType == SizeType.THUMBNAIL) {
-				this.proxyWidth = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_thumbnail);
-				this.proxyHeight = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_thumbnail);
+				this.proxyWidth = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_thumbnail);
+				this.proxyHeight = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_thumbnail);
 			}
 			else if (sizeType == SizeType.FULLSIZE_CAPPED) {
-				this.proxyWidth = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_fullsize_capped);
-				this.proxyHeight = Aircandi.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_fullsize_capped);
+				this.proxyWidth = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_fullsize_capped);
+				this.proxyHeight = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_fullsize_capped);
 			}
 		}
 		else {

@@ -1,19 +1,17 @@
 package com.aircandi.ui.user;
 
 import android.annotation.SuppressLint;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.RenderDelegate;
 import com.aircandi.components.StringManager;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Count;
@@ -26,35 +24,29 @@ import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.EntityListFragment;
 import com.aircandi.ui.MessageListFragment;
 import com.aircandi.ui.base.BaseEntityForm;
-import com.aircandi.ui.base.IBusy.BusyAction;
-import com.aircandi.ui.components.UserStats;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
 import com.aircandi.ui.widgets.SectionLayout;
-import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
-
-import java.util.List;
 
 @SuppressLint("Registered")
 @SuppressWarnings("ucd")
 public class UserForm extends BaseEntityForm {
 
-	protected RenderDelegate     mDrawStats;
-	private   EntityListFragment mListFragment;
-	private   TextView           mButtonWatching;
-	private   TextView           mButtonCreated;
-	private   View               mButtonEdit;
+	private EntityListFragment mListFragment;
+	private TextView           mButtonWatching;
+	private TextView           mButtonCreated;
+	private View               mButtonEdit;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-		Boolean currentUser = Aircandi.getInstance().getCurrentUser().id.equals(mEntityId);
+
+		Boolean currentUser = Patch.getInstance().getCurrentUser().id.equals(mEntityId);
 		mLinkProfile = currentUser ? LinkProfile.LINKS_FOR_USER_CURRENT : LinkProfile.LINKS_FOR_USER;
-		mDrawStats = new UserStats();
 		mListFragment = new MessageListFragment();
 
 		EntityMonitor monitor = new EntityMonitor(mEntityId);
@@ -83,12 +75,9 @@ public class UserForm extends BaseEntityForm {
 	public void afterDatabind(BindingMode mode, ModelResult result) {
 		super.afterDatabind(mode, result);
 
-		Boolean currentUser = Aircandi.getInstance().getCurrentUser().id.equals(mEntityId);
+		Boolean currentUser = Patch.getInstance().getCurrentUser().id.equals(mEntityId);
 		if (!currentUser) return;
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			if (mDrawStats != null) {
-				loadStats();
-			}
 			if (mEntityMonitor.changed) {
 				mListFragment.bind(BindingMode.MANUAL);
 			}
@@ -108,13 +97,13 @@ public class UserForm extends BaseEntityForm {
 	}
 
 	public void onEditButtonClick(View view) {
-		Aircandi.dispatch.route(this, Route.EDIT, mEntity, null, null);
+		Patch.dispatch.route(this, Route.EDIT, mEntity, null, null);
 	}
 
 	public void onPlaceListButtonClick(View view) {
 
 		String linkType = (String) view.getTag();
-		Integer titleResId = null;
+		int titleResId = 0;
 		if (linkType.equals(Constants.TYPE_LINK_WATCH)) {
 			titleResId = R.string.label_drawer_item_watch;
 		}
@@ -126,7 +115,7 @@ public class UserForm extends BaseEntityForm {
 		extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
 		extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, titleResId);
 
-		Aircandi.dispatch.route(this, Route.PLACE_LIST, mEntity, null, extras);
+		Patch.dispatch.route(this, Route.PLACE_LIST, mEntity, null, extras);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -142,7 +131,7 @@ public class UserForm extends BaseEntityForm {
 		mButtonEdit = findViewById(R.id.button_edit);
 
 		UI.setVisibility(mButtonEdit, View.GONE);
-		if (Aircandi.getInstance().getMenuManager().canUserEdit(mEntity)) {
+		if (Patch.getInstance().getMenuManager().canUserEdit(mEntity)) {
 			UI.setVisibility(mButtonEdit, View.VISIBLE);
 		}
 
@@ -157,43 +146,43 @@ public class UserForm extends BaseEntityForm {
 		}
 	}
 
-	protected void loadStats() {
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				mBusy.showBusy(BusyAction.Update);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncGetStats");
-
-				/* get user stats using rest api */
-				ModelResult result = Aircandi.getInstance().getEntityManager().getUserStats(mEntityId);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					((User) mEntity).stats = (List<Count>) result.data;
-				}
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object modelResult) {
-				final ModelResult result = (ModelResult) modelResult;
-
-				mBusy.hideBusy(false);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					if (result.data != null) {
-						drawStats(null);
-					}
-				}
-				else {
-					Errors.handleError(UserForm.this, result.serviceResponse);
-				}
-			}
-		}.execute();
-	}
+	//	protected void loadStats() {
+	//
+	//		new AsyncTask() {
+	//
+	//			@Override
+	//			protected void onPreExecute() {
+	//				mBusy.showBusy(BusyAction.Update);
+	//			}
+	//
+	//			@Override
+	//			protected Object doInBackground(Object... params) {
+	//				Thread.currentThread().setName("AsyncGetStats");
+	//
+	//				/* get user stats using rest api */
+	//				ModelResult result = Patch.getInstance().getEntityManager().getUserStats(mEntityId);
+	//				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+	//					((User) mEntity).stats = (List<Count>) result.data;
+	//				}
+	//				return result;
+	//			}
+	//
+	//			@Override
+	//			protected void onPostExecute(Object modelResult) {
+	//				final ModelResult result = (ModelResult) modelResult;
+	//
+	//				mBusy.hideBusy(false);
+	//				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+	//					if (result.data != null) {
+	//						drawStats(null);
+	//					}
+	//				}
+	//				else {
+	//					Errors.handleError(UserForm.this, result.serviceResponse);
+	//				}
+	//			}
+	//		}.execute();
+	//	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * UI routines
@@ -299,13 +288,6 @@ public class UserForm extends BaseEntityForm {
 
 		if (mScrollView != null) {
 			mScrollView.setVisibility(View.VISIBLE);
-		}
-	}
-
-	@Override
-	public void drawStats(View view) {
-		if (mDrawStats != null) {
-			mDrawStats.draw(mEntity, findViewById(android.R.id.content));
 		}
 	}
 

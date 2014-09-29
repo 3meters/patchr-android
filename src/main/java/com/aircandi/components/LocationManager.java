@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.events.BurstTimeoutEvent;
@@ -70,10 +70,10 @@ public class LocationManager implements
 			public void run() {
 
 				Logger.d(LocationManager.this, "Location fix attempt aborted: timeout: ** done **");
-				Aircandi.stopwatch2.segmentTime("Location fix attempt aborted: timeout");
-				Aircandi.mainThreadHandler.removeCallbacks(mBurstTimeout);
+				Patch.stopwatch2.segmentTime("Location fix attempt aborted: timeout");
+				Patch.mainThreadHandler.removeCallbacks(mBurstTimeout);
 
-				Aircandi.tracker.sendTiming(TrackerCategory.PERFORMANCE, Aircandi.stopwatch2.getTotalTimeMills()
+				Patch.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patch.stopwatch2.getTotalTimeMills()
 						, "location_timeout"
 						, NetworkManager.getInstance().getNetworkType());
 
@@ -108,17 +108,17 @@ public class LocationManager implements
 			mLocationLast = null;
 		}
 		else {
-			if (Aircandi.stopwatch2.isStarted()) {
-				Aircandi.stopwatch2.segmentTime("Lock location: update: accuracy = " + (location.hasAccuracy() ? location.getAccuracy() : "none"));
+			if (Patch.stopwatch2.isStarted()) {
+				Patch.stopwatch2.segmentTime("Lock location: update: accuracy = " + (location.hasAccuracy() ? location.getAccuracy() : "none"));
 			}
 
 			if (mLocationMode == LocationMode.BURST) {
 				if (location.hasAccuracy()) {
-					if (Aircandi.getInstance().getPrefEnableDev()) {
+					if (Patch.getInstance().getPrefEnableDev()) {
 						UI.showToastNotification("Location accuracy: " + location.getAccuracy(), Toast.LENGTH_SHORT);
 					}
 					if (location.getAccuracy() <= ACCURACY_PREFERRED) {
-						Aircandi.tracker.sendTiming(TrackerCategory.PERFORMANCE, Aircandi.stopwatch2.getTotalTimeMills()
+						Patch.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patch.stopwatch2.getTotalTimeMills()
 								, "location_accepted"
 								, NetworkManager.getInstance().getNetworkType());
 
@@ -148,7 +148,7 @@ public class LocationManager implements
 		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
-				mLocationClient = new LocationClient(Aircandi.applicationContext, LocationManager.this, LocationManager.this);
+				mLocationClient = new LocationClient(Patch.applicationContext, LocationManager.this, LocationManager.this);
 				mLocationClient.connect();
 			}
 		});
@@ -166,7 +166,7 @@ public class LocationManager implements
 		if (connectionResult.hasResolution()) {
 			try {
 				/* Start an Activity that tries to resolve the error */
-				connectionResult.startResolutionForResult((Activity) Aircandi.applicationContext
+				connectionResult.startResolutionForResult((Activity) Patch.applicationContext
 						, CONNECTION_FAILURE_RESOLUTION_REQUEST);
 				/*
 				 * Thrown if Google Play services canceled the original
@@ -182,7 +182,7 @@ public class LocationManager implements
 			 * If no resolution is available, display a dialog to the
 			 * user with the error.
 			 */
-			AndroidManager.showPlayServicesErrorDialog(connectionResult.getErrorCode(), Aircandi.getInstance().getCurrentActivity());
+			AndroidManager.showPlayServicesErrorDialog(connectionResult.getErrorCode(), Patch.getInstance().getCurrentActivity());
 		}
 	}
 
@@ -207,28 +207,28 @@ public class LocationManager implements
 		if (!mLocationClient.isConnected()) {
 			mLocationClient.connect();
 			if (mLocationMode != LocationMode.NONE) {
-				Aircandi.mainThreadHandler.postDelayed(mBurstTimeout, Constants.TIME_THIRTY_SECONDS);
+				Patch.mainThreadHandler.postDelayed(mBurstTimeout, Constants.TIME_THIRTY_SECONDS);
 			}
 		}
 		else {
 			try {
 				mLocationClient.removeLocationUpdates(this);
 				if (mLocationMode == LocationMode.BURST) {
-					Aircandi.stopwatch2.start("location_lock", "Lock location: start");
+					Patch.stopwatch2.start("location_lock", "Lock location: start");
 					Logger.d(LocationManager.this, "Lock location started");
 					onLocationChanged(null);
 					mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 					mLocationRequest.setInterval(Constants.TIME_FIVE_SECONDS);
 					mLocationRequest.setFastestInterval(Constants.TIME_FIVE_SECONDS);
-					Aircandi.mainThreadHandler.postDelayed(mBurstTimeout, Constants.TIME_THIRTY_SECONDS);
+					Patch.mainThreadHandler.postDelayed(mBurstTimeout, Constants.TIME_THIRTY_SECONDS);
 					mLocationClient.requestLocationUpdates(mLocationRequest, this);
 				}
 				else if (mLocationMode == LocationMode.OFF) {
-					if (Aircandi.stopwatch2.isStarted()) {
-						Aircandi.stopwatch2.stop("Lock location: stopped");
+					if (Patch.stopwatch2.isStarted()) {
+						Patch.stopwatch2.stop("Lock location: stopped");
 					}
 					Logger.d(LocationManager.this, "Lock location stopped: ** done **");
-					Aircandi.mainThreadHandler.removeCallbacks(mBurstTimeout);
+					Patch.mainThreadHandler.removeCallbacks(mBurstTimeout);
 					mLocationMode = LocationMode.NONE;
 				}
 			}
@@ -293,7 +293,7 @@ public class LocationManager implements
 
 		synchronized (mLocationLocked) {
 
-			if (Aircandi.usingEmulator) {
+			if (Patch.usingEmulator) {
 				location = new AirLocation(47.616245, -122.201645); // earls
 				location.provider = "emulator_lucky";
 			}

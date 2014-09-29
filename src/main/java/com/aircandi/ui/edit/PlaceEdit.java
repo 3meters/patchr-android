@@ -13,7 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
@@ -22,20 +22,17 @@ import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager;
 import com.aircandi.components.ProximityManager.ScanReason;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TabManager;
-import com.aircandi.controllers.IEntityController;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.events.BeaconsLockedEvent;
 import com.aircandi.events.CancelEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.objects.AirLocation;
-import com.aircandi.objects.Applink;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Category;
-import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Message;
@@ -43,10 +40,10 @@ import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEntityEdit;
-import com.aircandi.ui.base.IBusy;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.components.EntitySuggestController;
-import com.aircandi.ui.components.ViewId;
+import com.aircandi.utilities.ViewId;
 import com.aircandi.ui.widgets.AirTokenCompleteTextView;
 import com.aircandi.ui.widgets.BuilderButton;
 import com.aircandi.ui.widgets.ComboButton;
@@ -56,9 +53,7 @@ import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.ui.widgets.ToolTipView;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
-import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Json;
-import com.aircandi.utilities.Maps;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
@@ -91,7 +86,7 @@ public class PlaceEdit extends BaseEntityEdit
 		mButtonTune = (ComboButton) findViewById(R.id.button_tune);
 		mButtonUntune = (ComboButton) findViewById(R.id.button_untune);
 
-		if (mEntity == null || (mEntity.ownerId != null && (mEntity.ownerId.equals(Aircandi.getInstance().getCurrentUser().id)))) {
+		if (mEntity == null || (mEntity.ownerId != null && (mEntity.ownerId.equals(Patch.getInstance().getCurrentUser().id)))) {
 			ViewFlipper flipper = (ViewFlipper) findViewById(R.id.flipper_form);
 			if (flipper != null) {
 				mTabManager = new TabManager(Constants.TABS_ENTITY_FORM_ID, mActionBar, (ViewFlipper) findViewById(R.id.flipper_form));
@@ -256,17 +251,12 @@ public class PlaceEdit extends BaseEntityEdit
 
 	@SuppressWarnings("ucd")
 	public void onAddressBuilderClick(View view) {
-		Aircandi.dispatch.route(this, Route.ADDRESS_EDIT, mEntity, null, null);
+		Patch.dispatch.route(this, Route.ADDRESS_EDIT, mEntity, null, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onCategoryBuilderClick(View view) {
-		Aircandi.dispatch.route(this, Route.CATEGORY_EDIT, mEntity, null, null);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onApplinksBuilderClick(View view) {
-		loadApplinks();
+		Patch.dispatch.route(this, Route.CATEGORY_EDIT, mEntity, null, null);
 	}
 
 	public void onTokenAdded(Object o) {
@@ -331,20 +321,6 @@ public class PlaceEdit extends BaseEntityEdit
 					}
 				}
 			}
-			else if (requestCode == Constants.ACTIVITY_APPLINKS_EDIT) {
-
-				if (intent != null && intent.getExtras() != null) {
-					final Bundle extras = intent.getExtras();
-					final List<String> jsonApplinks = extras.getStringArrayList(Constants.EXTRA_ENTITIES);
-					mApplinks.clear();
-					for (String jsonApplink : jsonApplinks) {
-						Applink applink = (Applink) Json.jsonToObject(jsonApplink, Json.ObjectType.ENTITY);
-						mApplinks.add(applink);
-					}
-					mDirty = true;
-					drawShortcuts(mEntity);
-				}
-			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
@@ -378,13 +354,13 @@ public class PlaceEdit extends BaseEntityEdit
 						Thread.currentThread().setName("AsyncAutoSharePlace");
 
                     /* Create message entity */
-						IEntityController controller = Aircandi.getInstance().getControllerForSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+						IEntityController controller = Patch.getInstance().getControllerForSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
 						Entity message = controller.makeNew();
 						message.description = String.format(StringManager.getString(R.string.label_place_share_body_self_oncreate), mEntity.name);
 						message.type = Message.MessageType.SHARE;
-						if (Aircandi.getInstance().getCurrentUser() != null) {
-							message.creator = Aircandi.getInstance().getCurrentUser();
-							message.creatorId = Aircandi.getInstance().getCurrentUser().id;
+						if (Patch.getInstance().getCurrentUser() != null) {
+							message.creator = Patch.getInstance().getCurrentUser();
+							message.creatorId = Patch.getInstance().getCurrentUser().id;
 						}
 
                     /* Links */
@@ -393,7 +369,7 @@ public class PlaceEdit extends BaseEntityEdit
 						for (Entity to : mTos) {
 							links.add(new Link(to.id, Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER));
 						}
-						final ModelResult result = Aircandi.getInstance().getEntityManager().insertEntity(message, links, null, null, null, true);
+						final ModelResult result = Patch.getInstance().getEntityManager().insertEntity(message, links, null, null, null, true);
 						return result;
 					}
 
@@ -406,7 +382,7 @@ public class PlaceEdit extends BaseEntityEdit
 							UI.showToastNotification(StringManager.getString(mInsertedResId), Toast.LENGTH_SHORT);
 							setResultCode(Activity.RESULT_OK);
 							finish();
-							Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(PlaceEdit.this, TransitionType.FORM_TO_PAGE);
+							Patch.getInstance().getAnimationManager().doOverridePendingTransition(PlaceEdit.this, TransitionType.FORM_TO_PAGE);
 						}
 						else {
 							Errors.handleError(PlaceEdit.this, result.serviceResponse);
@@ -417,7 +393,7 @@ public class PlaceEdit extends BaseEntityEdit
 				return false; // Tells caller that we will handle finishing
 			}
 			else {
-				Aircandi.dispatch.route(this, Route.BROWSE, mEntity, null, null);
+				Patch.dispatch.route(this, Route.BROWSE, mEntity, null, null);
 			}
 		}
 
@@ -426,7 +402,7 @@ public class PlaceEdit extends BaseEntityEdit
 
 	private void tuneProximity() {
 	    /*
-         * If there are beacons:
+	     * If there are beacons:
 		 * 
 		 * - links to beacons created.
 		 * - link_proximity action logged.
@@ -451,7 +427,7 @@ public class PlaceEdit extends BaseEntityEdit
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncTrackEntityProximity");
 
-				final ModelResult result = Aircandi.getInstance().getEntityManager().trackEntity(mEntity
+				final ModelResult result = Patch.getInstance().getEntityManager().trackEntity(mEntity
 						, beacons
 						, primaryBeacon
 						, mUntuning);
@@ -500,74 +476,6 @@ public class PlaceEdit extends BaseEntityEdit
 		}.execute();
 	}
 
-	private void loadApplinks() {
-		/*
-		 * First, we need the real applinks to send them to the applinks editor
-		 */
-		if (mApplinks != null) {
-			doApplinksBuilder();
-		}
-		else {
-			new AsyncTask() {
-
-				@Override
-				protected void onPreExecute() {
-					mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_loading_applinks);
-				}
-
-				@Override
-				protected Object doInBackground(Object... params) {
-					Thread.currentThread().setName("AsyncBindApplinks");
-
-					List<String> linkTypes = new ArrayList<String>();
-					List<String> schemas = new ArrayList<String>();
-					linkTypes.add(Constants.TYPE_LINK_CONTENT);
-					schemas.add(Constants.SCHEMA_ENTITY_APPLINK);
-
-					Cursor cursor = new Cursor()
-							.setLimit(Integers.getInteger(R.integer.page_size_applinks))
-							.setSort(Maps.asMap("modifiedDate", -1))
-							.setSkip(0)
-							.setToSchemas(schemas)
-							.setLinkTypes(linkTypes);
-
-					ModelResult result = Aircandi.getInstance().getEntityManager().loadEntitiesForEntity(mEntity.id, null, cursor, null);
-
-					return result;
-				}
-
-				@Override
-				protected void onPostExecute(Object modelResult) {
-					final ModelResult result = (ModelResult) modelResult;
-					mBusy.hideBusy(false);
-					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-						mApplinks = (List<Entity>) result.data;
-						doApplinksBuilder();
-					}
-					else {
-						Errors.handleError(PlaceEdit.this, result.serviceResponse);
-					}
-				}
-			}.execute();
-		}
-	}
-
-	public void doApplinksBuilder() {
-
-		/* Serialize the applinks */
-		Bundle extras = new Bundle();
-		if (mApplinks.size() > 0) {
-			final List<String> applinkStrings = new ArrayList<String>();
-			for (Entity applink : mApplinks) {
-				applinkStrings.add(Json.objectToJson(applink, Json.UseAnnotations.FALSE, Json.ExcludeNulls.TRUE));
-			}
-			extras.putStringArrayList(Constants.EXTRA_ENTITIES, (ArrayList<String>) applinkStrings);
-		}
-
-		extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, Constants.SCHEMA_ENTITY_APPLINK);
-		Aircandi.dispatch.route(this, Route.APPLINKS_EDIT, mEntity, null, extras);
-	}
-
 	@Override
 	protected boolean validate() {
 		if (!super.validate()) return false;
@@ -592,7 +500,7 @@ public class PlaceEdit extends BaseEntityEdit
 	protected void gather() {
 		super.gather();
 		if (!mEditing) {
-			((Place) mEntity).provider.aircandi = Aircandi.getInstance().getCurrentUser().id;
+			((Place) mEntity).provider.aircandi = Patch.getInstance().getCurrentUser().id;
 			/*
 			 * Custom places get the current location.
 			 * 

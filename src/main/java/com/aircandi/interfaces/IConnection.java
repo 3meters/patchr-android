@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.aircandi.service;
+package com.aircandi.interfaces;
+
+import com.aircandi.service.ServiceRequest;
+import com.aircandi.service.ServiceResponse;
 
 /**
  * Implements a basic connection object for ObaRequests.

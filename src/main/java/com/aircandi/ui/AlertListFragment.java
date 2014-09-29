@@ -2,8 +2,8 @@ package com.aircandi.ui;
 
 import android.view.View;
 
-import com.aircandi.Aircandi;
-import com.aircandi.controllers.ViewHolder;
+import com.aircandi.Patch;
+import com.aircandi.objects.ViewHolder;
 import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
@@ -21,7 +21,7 @@ public class AlertListFragment extends MessageListFragment {
 		final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
 		if (entity.creator != null) {
 			User user = entity.creator;
-			Aircandi.dispatch.route(getActivity(), Route.BROWSE, user, null, null);
+			Patch.dispatch.route(getActivity(), Route.BROWSE, user, null, null);
 		}
 	}
 

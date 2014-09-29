@@ -4,7 +4,7 @@ import android.content.Context;
 import android.location.Location;
 import android.net.wifi.WifiManager;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.ProximityManager;
@@ -17,7 +17,7 @@ public class Reporting {
 
 	public static void updateCrashKeys() {
 
-		Crashlytics.setBool("airplane_mode", NetworkManager.isAirplaneMode(Aircandi.applicationContext));
+		Crashlytics.setBool("airplane_mode", NetworkManager.isAirplaneMode(Patch.applicationContext));
 		Crashlytics.setBool("connected", NetworkManager.getInstance().isConnected());
 		Crashlytics.setString("network_type", NetworkManager.getInstance().getNetworkType().toLowerCase(Locale.US));
 		Crashlytics.setBool("wifi_tethered", NetworkManager.getInstance().isWifiTethered());

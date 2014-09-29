@@ -30,8 +30,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
-import com.aircandi.Aircandi.ThemeTone;
+import com.aircandi.Patch;
+import com.aircandi.Patch.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.BusyManager;
@@ -41,7 +41,7 @@ import com.aircandi.components.StringManager;
 import com.aircandi.objects.Document;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.components.ShotStateStore;
 import com.aircandi.ui.widgets.BeaconPreference;
 import com.aircandi.ui.widgets.ListPreferenceMultiSelect;
@@ -67,15 +67,15 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 		/* Load preferences layout */
 		addPreferencesFromResource(R.xml.preferences);
-		if (Aircandi.getInstance().getCurrentUser() != null
-				&& Aircandi.getInstance().getCurrentUser().developer != null
-				&& Aircandi.getInstance().getCurrentUser().developer) {
+		if (Patch.getInstance().getCurrentUser() != null
+				&& Patch.getInstance().getCurrentUser().developer != null
+				&& Patch.getInstance().getCurrentUser().developer) {
 			addPreferencesFromResource(R.xml.preferences_dev);
 		}
 
 		final TypedValue resourceName = new TypedValue();
 		if (getTheme().resolveAttribute(R.attr.themeTone, resourceName, true)) {
-			Aircandi.themeTone = (String) resourceName.coerceToString();
+			Patch.themeTone = (String) resourceName.coerceToString();
 		}
 
 		initialize();
@@ -87,7 +87,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 		ListView list = (ListView) findViewById(android.R.id.list);
 
-		if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
+		if (Patch.themeTone.equals(ThemeTone.DARK)) {
 			int color = getResources().getColor(R.color.stroke_button_dark);
 			int[] colors = {color, color, color};
 			list.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, colors));
@@ -106,7 +106,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 			getActionBar().setDisplayShowHomeEnabled(true);
 			getActionBar().setTitle(StringManager.getString(R.string.form_title_preferences));
-			getActionBar().setIcon(Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
+			getActionBar().setIcon(Patch.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
 		}
 
 		mBusy = new BusyManager(this);
@@ -118,8 +118,8 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 				@Override
 				public boolean onPreferenceChange(Preference preference, Object newValue) {
-					Aircandi.settingsEditor.putString(StringManager.getString(R.string.pref_theme), (String) newValue);
-					Aircandi.settingsEditor.commit();
+					Patch.settingsEditor.putString(StringManager.getString(R.string.pref_theme), (String) newValue);
+					Patch.settingsEditor.commit();
 
 					final Intent intent = getIntent();
 					intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -149,7 +149,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		/* Listen for about click */
 		pref = findPreference("Pref_About");
 		if (pref != null) {
-			pref.setTitle("Version: " + Aircandi.getVersionName(this, Preferences.class));
+			pref.setTitle("Version: " + Patch.getVersionName(this, Preferences.class));
 			pref.setSummary("Terms of Service, Privacy Policy, Licenses");
 
 			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -157,7 +157,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					DownloadManager.getInstance().getSnapshot();
-					Aircandi.dispatch.route(Preferences.this, Route.ABOUT, null, null, null);
+					Patch.dispatch.route(Preferences.this, Route.ABOUT, null, null, null);
 
 					return true;
 				}
@@ -171,7 +171,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					Aircandi.dispatch.route(Preferences.this, Route.FEEDBACK, null, null, null);
+					Patch.dispatch.route(Preferences.this, Route.FEEDBACK, null, null, null);
 					return true;
 				}
 			});
@@ -184,7 +184,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					ShotStateStore.resetTooltips(Aircandi.applicationContext);
+					ShotStateStore.resetTooltips(Patch.applicationContext);
 					UI.showToastNotification("Tooltips restored", Toast.LENGTH_SHORT);
 					return true;
 				}
@@ -193,7 +193,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 		/* Listen for signin/out click */
 		pref = findPreference("Pref_Signin_Signout");
-		if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
+		if (Patch.getInstance().getCurrentUser().isAnonymous()) {
 			pref.setTitle(StringManager.getString(R.string.pref_signin_title));
 			pref.setSummary(StringManager.getString(R.string.pref_signin_summary));
 		}
@@ -205,12 +205,12 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				if (Aircandi.getInstance().getCurrentUser().isAnonymous()) {
-					Aircandi.dispatch.route(Preferences.this, Route.SIGNIN, null, null, null);
+				if (Patch.getInstance().getCurrentUser().isAnonymous()) {
+					Patch.dispatch.route(Preferences.this, Route.SIGNIN, null, null, null);
 				}
 				else {
 					mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_signing_out);
-					Aircandi.dispatch.route(Preferences.this, Route.SIGNOUT, null, null, null);
+					Patch.dispatch.route(Preferences.this, Route.SIGNOUT, null, null, null);
 				}
 				return true;
 			}
@@ -227,7 +227,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		/* Listen for dev toggle */
 		Preference pref = findPreference(StringManager.getString(R.string.pref_enable_dev));
 		if (pref != null) {
-			Boolean enabled = Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
+			Boolean enabled = Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
 			enableDeveloper(enabled);
 
 			pref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -245,15 +245,15 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		final Preference prefTagRefresh = findPreference(StringManager.getString(R.string.pref_tag_refresh));
 		if (prefTagRefresh != null) {
 			prefTagRefresh.setSummary("Last refresh: "
-					+ DateTime.dateString(Aircandi.getInstance().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
+					+ DateTime.dateString(Patch.getInstance().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
 			prefTagRefresh.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					prefTagRefresh.setSummary("Refreshing...");
-					Aircandi.getInstance().getContainer().refresh();
+					Patch.getInstance().getContainer().refresh();
 					prefTagRefresh.setSummary("Last refresh: "
-							+ DateTime.dateString(Aircandi.getInstance().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
+							+ DateTime.dateString(Patch.getInstance().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
 					return true;
 				}
 			});
@@ -263,7 +263,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	private void enableDeveloper(Boolean enable) {
 		findPreference(StringManager.getString(R.string.pref_testing_screen)).setEnabled(enable);
 		findPreference(StringManager.getString(R.string.pref_tag_refresh)).setEnabled(enable);
-		Aircandi.tracker.enableDeveloper(enable);
+		Patch.tracker.enableDeveloper(enable);
 		DownloadManager.getInstance().setDebugging(enable);
 	}
 
@@ -272,8 +272,8 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		Preference pref = findPreference("Pref_Notifications_Screen");
 		if (pref != null) {
 			pref.setShouldDisableView(true);
-			if (Aircandi.getInstance().getCurrentUser() != null) {
-				pref.setEnabled(!(Aircandi.getInstance().getCurrentUser().isAnonymous()));
+			if (Patch.getInstance().getCurrentUser() != null) {
+				pref.setEnabled(!(Patch.getInstance().getCurrentUser().isAnonymous()));
 			}
 		}
 	}
@@ -397,7 +397,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	}
 
 	private void setTheme() {
-		final String prefTheme = Aircandi.settings.getString(StringManager.getString(R.string.pref_theme)
+		final String prefTheme = Patch.settings.getString(StringManager.getString(R.string.pref_theme)
 				, StringManager.getString(R.string.pref_theme_default));
 
 		if (prefTheme.equals("aircandi_theme_snow")) {
@@ -409,9 +409,9 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	}
 
 	private void clearReferences() {
-		Activity currentActivity = Aircandi.getInstance().getCurrentActivity();
+		Activity currentActivity = Patch.getInstance().getCurrentActivity();
 		if (currentActivity != null && currentActivity.equals(this)) {
-			Aircandi.getInstance().setCurrentActivity(null);
+			Patch.getInstance().setCurrentActivity(null);
 		}
 	}
 
@@ -428,7 +428,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 			/* Inialize the action bar */
 			dialog.getActionBar().setDisplayHomeAsUpEnabled(true);
 			dialog.getActionBar().setDisplayShowHomeEnabled(true);
-			dialog.getActionBar().setIcon(Aircandi.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
+			dialog.getActionBar().setIcon(Patch.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
 
 			/*
 			 * Apply custom home button area click listener to close the PreferenceScreen because PreferenceScreens are
@@ -482,7 +482,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 			 */
 			setResult(Activity.RESULT_CANCELED);
 			finish();
-			Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_PAGE);
+			Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_PAGE);
 		}
 		return true;
 	}
@@ -493,7 +493,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Aircandi.tracker.activityStart(this);
+		Patch.tracker.activityStart(this);
 		handleAnonymous();
 	}
 
@@ -501,7 +501,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	protected void onResume() {
 		super.onResume();
 		Logger.d(this, "Activity resuming");
-		Aircandi.getInstance().setCurrentActivity(this);
+		Patch.getInstance().setCurrentActivity(this);
 		setSummaries(getPreferenceScreen());
 		getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 	}
@@ -516,7 +516,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	@Override
 	protected void onStop() {
 		super.onStop();
-		Aircandi.tracker.activityStop(this);
+		Patch.tracker.activityStop(this);
 	}
 
 	@Override

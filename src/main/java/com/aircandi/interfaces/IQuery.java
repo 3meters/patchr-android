@@ -1,4 +1,4 @@
-package com.aircandi.queries;
+package com.aircandi.interfaces;
 
 import com.aircandi.components.ModelResult;
 

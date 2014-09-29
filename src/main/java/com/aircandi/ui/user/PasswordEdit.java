@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
@@ -13,7 +13,7 @@ import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.ui.base.BaseEdit;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
@@ -70,8 +70,8 @@ public class PasswordEdit extends BaseEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncUpdatePassword");
-				final ModelResult result = Aircandi.getInstance().getEntityManager().updatePassword(
-						Aircandi.getInstance().getCurrentUser().id,
+				final ModelResult result = Patch.getInstance().getEntityManager().updatePassword(
+						Patch.getInstance().getCurrentUser().id,
 						mPasswordOld.getText().toString(),
 						mPassword.getText().toString(),
 						PasswordEdit.class.getSimpleName());
@@ -85,8 +85,8 @@ public class PasswordEdit extends BaseEdit {
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					Logger.i(this, "User changed password: "
-							+ Aircandi.getInstance().getCurrentUser().name
-							+ " (" + Aircandi.getInstance().getCurrentUser().id
+							+ Patch.getInstance().getCurrentUser().name
+							+ " (" + Patch.getInstance().getCurrentUser().id
 							+ ")");
 
 					UI.showToastNotification(StringManager.getString(R.string.alert_password_changed), Toast.LENGTH_SHORT);

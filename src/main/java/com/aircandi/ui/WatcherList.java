@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.ServiceConstants;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -91,7 +91,7 @@ public class WatcherList extends BaseActivity {
 	}
 
 	public void onShareButtonClick(View view) {
-		Aircandi.dispatch.route(this, Route.SHARE, mEntity, null, null);
+		Patch.dispatch.route(this, Route.SHARE, mEntity, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -208,7 +208,7 @@ public class WatcherList extends BaseActivity {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncStatusUpdate");
-				ModelResult result = Aircandi.getInstance().getEntityManager().enabledLink(fromId, toId, Constants.TYPE_LINK_WATCH, enabled, actionEvent);
+				ModelResult result = Patch.getInstance().getEntityManager().enabledLink(fromId, toId, Constants.TYPE_LINK_WATCH, enabled, actionEvent);
 				return result;
 			}
 

@@ -7,14 +7,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.ui.base.IBind.BindingMode;
+import com.aircandi.interfaces.IBind.BindingMode;
 import com.aircandi.utilities.Json;
 
 public abstract class BasePicker extends Activity {
@@ -66,7 +66,7 @@ public abstract class BasePicker extends Activity {
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Aircandi.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
+		Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public abstract class BasePicker extends Activity {
 	}
 
 	public void setTheme(Boolean isDialog, Boolean isTransparent) {
-		mPrefTheme = Aircandi.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
+		mPrefTheme = Patch.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
 		/*
 		 * Need to use application context so our app level themes and attributes are available to actionbarsherlock
 		 */
@@ -112,12 +112,12 @@ public abstract class BasePicker extends Activity {
 
 	public void setResultCode(int resultCode) {
 		setResult(resultCode);
-		Aircandi.resultCode = resultCode;
+		Patch.resultCode = resultCode;
 	}
 
 	public void setResultCode(int resultCode, Intent intent) {
 		setResult(resultCode, intent);
-		Aircandi.resultCode = resultCode;
+		Patch.resultCode = resultCode;
 	}
 
 	/*--------------------------------------------------------------------------------------------

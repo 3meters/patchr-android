@@ -1,4 +1,4 @@
-package com.aircandi.ui.base;
+package com.aircandi.interfaces;
 
 import com.aircandi.ui.widgets.SmoothProgressBar;
 

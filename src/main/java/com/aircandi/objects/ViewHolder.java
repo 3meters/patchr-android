@@ -1,4 +1,4 @@
-package com.aircandi.controllers;
+package com.aircandi.objects;
 
 import android.view.ViewGroup;
 import android.widget.CheckBox;

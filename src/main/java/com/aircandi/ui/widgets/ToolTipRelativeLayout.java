@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.exceptions.NoOverflowMenuRuntimeException;
 import com.aircandi.exceptions.NoTitleViewRuntimeException;
@@ -53,7 +53,7 @@ public class ToolTipRelativeLayout extends RelativeLayout implements View.OnTouc
 
 	public ToolTipRelativeLayout(final Context context, final AttributeSet attrs, final int defStyle) {
 		super(context, attrs, defStyle);
-		mShotStateStore = new ShotStateStore(Aircandi.applicationContext);
+		mShotStateStore = new ShotStateStore(Patch.applicationContext);
 		setOnTouchListener(this);
 	}
 

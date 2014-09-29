@@ -1,10 +1,7 @@
-package com.aircandi.ui.components;
+package com.aircandi.utilities;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Created by Jayma on 9/25/2014.
- */
 public class ViewId {
 	private static ViewId INSTANCE = new ViewId();
 

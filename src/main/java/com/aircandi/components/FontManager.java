@@ -3,7 +3,7 @@ package com.aircandi.components;
 import android.graphics.Typeface;
 import android.widget.TextView;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 
 public class FontManager {
 
@@ -33,14 +33,14 @@ public class FontManager {
 	}
 
 	private void initialize() {
-		fontRobotoThin = Typeface.createFromAsset(Aircandi.applicationContext.getAssets(), "Roboto-Thin.ttf");
-		fontRobotoLight = Typeface.createFromAsset(Aircandi.applicationContext.getAssets(), "Roboto-Light.ttf");
-		fontRobotoRegular = Typeface.createFromAsset(Aircandi.applicationContext.getAssets(), "Roboto-Regular.ttf");
-		fontRobotoMedium = Typeface.createFromAsset(Aircandi.applicationContext.getAssets(), "Roboto-Medium.ttf");
-		fontRobotoBold = Typeface.createFromAsset(Aircandi.applicationContext.getAssets(), "Roboto-Bold.ttf");
-		fontRobotoCondensedLight = Typeface.createFromAsset(Aircandi.applicationContext.getAssets(), "RobotoCondensed-Light.ttf");
-		fontRobotoCondensedRegular = Typeface.createFromAsset(Aircandi.applicationContext.getAssets(), "RobotoCondensed-Regular.ttf");
-		fontRobotoCondensedBold = Typeface.createFromAsset(Aircandi.applicationContext.getAssets(), "RobotoCondensed-Bold.ttf");
+		fontRobotoThin = Typeface.createFromAsset(Patch.applicationContext.getAssets(), "Roboto-Thin.ttf");
+		fontRobotoLight = Typeface.createFromAsset(Patch.applicationContext.getAssets(), "Roboto-Light.ttf");
+		fontRobotoRegular = Typeface.createFromAsset(Patch.applicationContext.getAssets(), "Roboto-Regular.ttf");
+		fontRobotoMedium = Typeface.createFromAsset(Patch.applicationContext.getAssets(), "Roboto-Medium.ttf");
+		fontRobotoBold = Typeface.createFromAsset(Patch.applicationContext.getAssets(), "Roboto-Bold.ttf");
+		fontRobotoCondensedLight = Typeface.createFromAsset(Patch.applicationContext.getAssets(), "RobotoCondensed-Light.ttf");
+		fontRobotoCondensedRegular = Typeface.createFromAsset(Patch.applicationContext.getAssets(), "RobotoCondensed-Regular.ttf");
+		fontRobotoCondensedBold = Typeface.createFromAsset(Patch.applicationContext.getAssets(), "RobotoCondensed-Bold.ttf");
 	}
 
 	protected FontManager() {

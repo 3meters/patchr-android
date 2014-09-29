@@ -14,7 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
@@ -187,7 +187,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 	@Override
 	public void onClusterItemInfoWindowClick(EntityItem entityItem) {
-		Aircandi.dispatch.route(getActivity(), Route.BROWSE, entityItem.mEntity, null, null);
+		Patch.dispatch.route(getActivity(), Route.BROWSE, entityItem.mEntity, null, null);
 	}
 
 
@@ -214,6 +214,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 			mapView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
 				public void onGlobalLayout() {
+					//noinspection deprecation
 					mapView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
 					if (mEntities == null || mEntities.size() == 0) return;
 					/*

@@ -13,8 +13,8 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ViewAnimator;
 
-import com.aircandi.Aircandi;
-import com.aircandi.Aircandi.ThemeTone;
+import com.aircandi.Patch;
+import com.aircandi.Patch.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Message;
@@ -22,8 +22,8 @@ import com.aircandi.objects.Message.MessageType;
 import com.aircandi.components.Extras;
 import com.aircandi.components.MessagingManager;
 import com.aircandi.components.StringManager;
-import com.aircandi.controllers.IEntityController;
-import com.aircandi.controllers.ViewHolder;
+import com.aircandi.interfaces.IEntityController;
+import com.aircandi.objects.ViewHolder;
 import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -117,7 +117,7 @@ public class MessageListFragment extends EntityListFragment {
 			extras.setEntityId(entity.id);
 		}
 
-		Aircandi.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
+		Patch.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
 	}
 
 	@SuppressWarnings("ucd")
@@ -152,7 +152,7 @@ public class MessageListFragment extends EntityListFragment {
 
 	@Override
 	protected void bindListItem(Entity entity, View view) {
-		IEntityController controller = Aircandi.getInstance().getControllerForEntity(entity);
+		IEntityController controller = Patch.getInstance().getControllerForEntity(entity);
 		controller.bind(entity, view);
 
 		/* Special highlighting */
@@ -162,7 +162,7 @@ public class MessageListFragment extends EntityListFragment {
 			if (mHighlightEntities.containsKey(entity.id)) {
 				Highlight highlight = mHighlightEntities.get(entity.id);
 				if (!highlight.isOneShot() || !highlight.hasFired()) {
-					if (Aircandi.themeTone.equals(ThemeTone.DARK)) {
+					if (Patch.themeTone.equals(ThemeTone.DARK)) {
 						view.setBackgroundResource(R.drawable.bg_transition_fade);
 					}
 					else {
@@ -238,11 +238,11 @@ public class MessageListFragment extends EntityListFragment {
 		Entity entity = ((BaseActivity) getActivity()).getEntity();
 		MenuItem item = menu.findItem(R.id.edit);
 		if (item != null) {
-			item.setVisible(Aircandi.getInstance().getMenuManager().canUserEdit(entity));
+			item.setVisible(Patch.getInstance().getMenuManager().canUserEdit(entity));
 		}
 		item = menu.findItem(R.id.delete);
 		if (item != null) {
-			item.setVisible(Aircandi.getInstance().getMenuManager().canUserDelete(entity));
+			item.setVisible(Patch.getInstance().getMenuManager().canUserDelete(entity));
 		}
 	}
 

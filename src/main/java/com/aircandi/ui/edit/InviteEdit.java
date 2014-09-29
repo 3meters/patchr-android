@@ -12,14 +12,14 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
-import com.aircandi.Aircandi;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.ui.base.BaseEntityEdit;
-import com.aircandi.ui.base.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirEditText;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Dialogs;
@@ -44,7 +44,7 @@ public class InviteEdit extends BaseEntityEdit {
 		mDescription = (AirEditText) findViewById(R.id.description);
 		mEmail = (AirEditText) findViewById(R.id.email);
 
-		String lastMessage = Aircandi.settings.getString(StringManager.getString(R.string.setting_invite_message_last), null);
+		String lastMessage = Patch.settings.getString(StringManager.getString(R.string.setting_invite_message_last), null);
 		if (lastMessage != null && !lastMessage.equals("")) {
 			mDescription.setText(lastMessage);
 		}
@@ -75,7 +75,7 @@ public class InviteEdit extends BaseEntityEdit {
 
 	@Override
 	public void draw(View view) {
-		((UserView) findViewById(R.id.created_by)).databind(Aircandi.getInstance().getCurrentUser(), null);
+		((UserView) findViewById(R.id.created_by)).databind(Patch.getInstance().getCurrentUser(), null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -176,13 +176,13 @@ public class InviteEdit extends BaseEntityEdit {
 		Logger.i(this, "Send invite");
 
 		final String email = mEmail.getEditableText().toString();
-		final String invitor = Aircandi.getInstance().getCurrentUser().name;
+		final String invitor = Patch.getInstance().getCurrentUser().name;
 		final String message = mDescription.getEditableText().toString();
 		final List<String> emails = new ArrayList(Arrays.asList(email.split("\\s*,\\s*")));
 
 		/* Stash message so we can restore it in the FUTURE */
-		Aircandi.settingsEditor.putString(StringManager.getString(R.string.setting_invite_message_last), message);
-		Aircandi.settingsEditor.commit();
+		Patch.settingsEditor.putString(StringManager.getString(R.string.setting_invite_message_last), message);
+		Patch.settingsEditor.commit();
 
 		new AsyncTask() {
 
@@ -194,7 +194,7 @@ public class InviteEdit extends BaseEntityEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncSendInvite");
-				final ModelResult result = Aircandi.getInstance().getEntityManager().sendInvite(emails, invitor, message);
+				final ModelResult result = Patch.getInstance().getEntityManager().sendInvite(emails, invitor, message);
 				return result;
 			}
 
