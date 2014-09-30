@@ -119,7 +119,7 @@ public class MessageForm extends BaseEntityForm {
 		             .setListItemResId(R.layout.temp_listitem_message)
 		             .setListViewType(ViewType.LIST)
 		             .setListLayoutResId(R.layout.entity_list_fragment)
-		             .setListLoadingResId(R.layout.temp_list_item_loading)
+		             .setListLoadingResId(R.layout.temp_listitem_loading)
 		             .setHeaderViewResId(R.layout.widget_list_header_message)
 		             .setFooterViewResId(R.layout.widget_list_footer_message)
 		             .setBackgroundResId(R.drawable.selector_item)

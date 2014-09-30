@@ -25,7 +25,7 @@ public class Users extends EntityControllerBase {
 		mSchema = Constants.SCHEMA_ENTITY_USER;
 		mPageSize = Integers.getInteger(R.integer.page_size_users);
 		mListLayoutResId = R.layout.entity_list_fragment;
-		mListLoadingResId = R.layout.temp_list_item_loading;
+		mListLoadingResId = R.layout.temp_listitem_loading;
 	}
 
 	@Override

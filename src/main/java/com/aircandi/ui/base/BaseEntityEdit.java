@@ -224,37 +224,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			//				}
 			//			}
 
-			/* Creator block */
-			final UserView creator = (UserView) findViewById(R.id.created_by);
-			final UserView editor = (UserView) findViewById(R.id.edited_by);
-
-			UI.setVisibility(creator, View.GONE);
-			UI.setVisibility(editor, View.GONE);
-
-			if (mEditing) {
-				if (creator != null
-						&& entity.creator != null
-						&& !entity.creator.id.equals(ServiceConstants.ADMIN_USER_ID)
-						&& !mEntity.creator.id.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
-
-					creator.setLabel(R.string.label_added_by);
-					creator.databind(entity.creator, (entity.createdDate != null) ? entity.createdDate.longValue() : null);
-					UI.setVisibility(creator, View.VISIBLE);
-				}
-
-				/* Editor block */
-
-				if (editor != null && entity.modifier != null
-						&& !entity.modifier.id.equals(ServiceConstants.ADMIN_USER_ID)
-						&& !entity.modifier.id.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
-					if (entity.createdDate.longValue() != entity.modifiedDate.longValue()) {
-						editor.setLabel(R.string.label_edited_by);
-						editor.databind(entity.modifier, entity.modifiedDate.longValue());
-						UI.setVisibility(editor, View.VISIBLE);
-					}
-				}
-			}
-
 			/* Configure UI */
 			UI.setVisibility(findViewById(R.id.button_delete), View.GONE);
 			if (entity.ownerId != null

@@ -69,7 +69,7 @@ public class WatcherList extends BaseActivity {
 		             .setMonitor(monitor)
 		             .setListViewType(ViewType.LIST)
 		             .setListLayoutResId(R.layout.watcher_list_fragment)
-		             .setListLoadingResId(R.layout.temp_list_item_loading)
+		             .setListLoadingResId(R.layout.temp_listitem_loading)
 		             .setListItemResId(R.layout.temp_listitem_watcher)
 		             .setListEmptyMessageResId(R.string.button_list_watchers_share)
 		             .setListButtonMessageResId(R.string.button_list_watchers_share)

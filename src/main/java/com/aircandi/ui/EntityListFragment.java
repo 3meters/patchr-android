@@ -17,9 +17,9 @@ import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ViewSwitcher;
 
+import com.aircandi.Constants;
 import com.aircandi.Patch;
 import com.aircandi.Patch.ThemeTone;
-import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
@@ -29,21 +29,21 @@ import com.aircandi.components.MessagingManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.interfaces.IEntityController;
-import com.aircandi.objects.ViewHolder;
 import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.interfaces.IBusy.BusyAction;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.interfaces.IMonitor;
+import com.aircandi.interfaces.IQuery;
 import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
+import com.aircandi.objects.ViewHolder;
 import com.aircandi.queries.EntitiesQuery;
-import com.aircandi.interfaces.IQuery;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.ui.widgets.AirListView.DragDirection;
 import com.aircandi.ui.widgets.AirListView.DragEvent;
@@ -179,6 +179,12 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		if (mFooterHolder != null) {
 
 			((AirListView) mListView).setDragListener(new OnDragListener() {
+
+				@Override
+				public void onDragBottom() {
+					/* Getting twitchy behavior so disabling for now */
+					//handleFooter(true, AnimationManager.DURATION_MEDIUM);
+				}
 
 				@Override
 				public boolean onDragEvent(DragEvent event, Float dragX, Float dragY) {
@@ -815,7 +821,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 			if (mListPagingEnabled && position >= mEntities.size() && position < (mVisibleColumns * mVisibleRows)) {
 				if (view == null || view.findViewById(R.id.item_placeholder) == null) {
-					view = LayoutInflater.from(getActivity()).inflate(R.layout.temp_list_item_empty, null);
+					view = LayoutInflater.from(getActivity()).inflate(R.layout.temp_listitem_empty, null);
 					if (mListView instanceof GridView) {
 						Integer nudge = mResources.getDimensionPixelSize(R.dimen.grid_item_height_kick);
 						final AbsListView.LayoutParams params = new AbsListView.LayoutParams(mPhotoWidthPixels, mPhotoWidthPixels - (nudge / 2));

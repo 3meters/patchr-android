@@ -36,7 +36,6 @@ import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.controllers.EntityControllerBase;
 import com.aircandi.events.ButtonSpecialEvent;
 import com.aircandi.events.MessageEvent;
 import com.aircandi.monitors.EntityMonitor;
@@ -408,7 +407,7 @@ public class PlaceForm extends BaseEntityForm {
 					.setQuery(query)
 					.setListViewType(EntityListFragment.ViewType.LIST)
 					.setListLayoutResId(R.layout.message_list_place_fragment)
-					.setListLoadingResId(R.layout.temp_list_item_loading)
+					.setListLoadingResId(R.layout.temp_listitem_loading)
 					.setListItemResId(R.layout.temp_listitem_message)
 					.setListEmptyMessageResId(R.string.button_list_share)
 					.setListButtonMessageResId(R.string.button_list_share)
@@ -487,16 +486,8 @@ public class PlaceForm extends BaseEntityForm {
 		//		/* Links to entities */
 		//		drawShortcuts(view);
 
-		/* Creator and/or editor */
-		drawUsers(view);
-
 		/* Buttons */
 		drawButtons(view);
-
-		/* Visibility */
-		if (mScrollView != null) {
-			mScrollView.setVisibility(View.VISIBLE);
-		}
 
 		final CandiView candiViewInfo = (CandiView) view.findViewById(R.id.candi_view_info);
 		final TextView address = (TextView) view.findViewById(R.id.candi_form_address);
@@ -617,17 +608,7 @@ public class PlaceForm extends BaseEntityForm {
 
 	protected void drawBody(View view) {
 
-		final TextView description = (TextView) view.findViewById(R.id.candi_form_description);
 		final TextView address = (TextView) view.findViewById(R.id.candi_form_address);
-
-		UI.setVisibility(view.findViewById(R.id.section_description), View.GONE);
-		if (description != null) {
-			description.setText(null);
-			if (!TextUtils.isEmpty(mEntity.description)) {
-				description.setText(Html.fromHtml(mEntity.description));
-				UI.setVisibility(view.findViewById(R.id.section_description), View.VISIBLE);
-			}
-		}
 
 		/* Place specific info */
 		final Place place = (Place) mEntity;
@@ -643,50 +624,6 @@ public class PlaceForm extends BaseEntityForm {
 			if (!"".equals(addressBlock)) {
 				address.setText(Html.fromHtml(addressBlock));
 				UI.setVisibility(address, View.VISIBLE);
-			}
-		}
-	}
-
-	protected void drawUsers(View view) {
-
-		final UserView user_one = (UserView) view.findViewById(R.id.user_one);
-		final UserView user_two = (UserView) view.findViewById(R.id.user_two);
-
-		/* Creator block */
-
-		UI.setVisibility(user_one, View.GONE);
-		UI.setVisibility(user_two, View.GONE);
-		UserView userView = user_one;
-
-		if (userView != null
-				&& mEntity.creator != null
-				&& !mEntity.creator.id.equals(ServiceConstants.ADMIN_USER_ID)
-				&& !mEntity.creator.id.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
-
-			if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-				if (((Place) mEntity).getProvider().type.equals("aircandi")) {
-					userView.setLabel(R.string.label_created_by);
-					userView.databind(mEntity.creator, mEntity.createdDate.longValue());
-					UI.setVisibility(userView, View.VISIBLE);
-					userView = user_two;
-				}
-			}
-			else {
-				userView.setLabel(R.string.label_created_by);
-				userView.databind(mEntity.creator, mEntity.createdDate.longValue());
-				UI.setVisibility(user_one, View.VISIBLE);
-				userView = user_two;
-			}
-
-			if (userView != null && mEntity.modifier != null
-					&& !mEntity.modifier.id.equals(ServiceConstants.ADMIN_USER_ID)
-					&& !mEntity.modifier.id.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
-
-				if (mEntity.createdDate.longValue() != mEntity.modifiedDate.longValue()) {
-					userView.setLabel(R.string.label_edited_by);
-					userView.databind(mEntity.modifier, mEntity.modifiedDate.longValue());
-					UI.setVisibility(userView, View.VISIBLE);
-				}
 			}
 		}
 	}

@@ -3,10 +3,7 @@
 
 	<!-- Need more applinks because we stack them by app -->
 
-	<integer name="limit_shortcuts_flow">8</integer>
 	<integer name="limit_indicators_radar">2</integer>
-	<integer name="limit_shortcuts_flow_create">12</integer>
-	<integer name="limit_shortcuts_flow_watch">12</integer>
 	<integer name="limit_links_content_default">2</integer>
 
 	<integer name="limit_links_watch_default">0</integer>

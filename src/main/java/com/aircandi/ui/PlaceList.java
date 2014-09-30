@@ -54,7 +54,7 @@ public class PlaceList extends BaseActivity {
 		             .setListPagingEnabled(true)
 		             .setListViewType(ViewType.LIST)
 		             .setListLayoutResId(R.layout.place_list_fragment)
-		             .setListLoadingResId(R.layout.temp_list_item_loading)
+		             .setListLoadingResId(R.layout.temp_listitem_loading)
 		             .setListItemResId(R.layout.temp_listitem_radar)
 		             .setListEmptyMessageResId(R.string.label_watching_empty)
 		             .setTitleResId(mListTitleResId)

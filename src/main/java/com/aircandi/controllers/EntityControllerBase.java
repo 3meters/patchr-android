@@ -252,25 +252,6 @@ public abstract class EntityControllerBase implements IEntityController {
 			}
 		}
 
-		/* Type */
-
-		UI.setVisibility(holder.type, View.GONE);
-		if (holder.type != null && entity.type != null && entity.type.length() > 0) {
-
-			String type = entity.type;
-			String typeVerbose = getType(entity, true);
-			if (typeVerbose != null) {
-				type = typeVerbose;
-			}
-
-			if (type.equals(Constants.TYPE_APP_GOOGLEPLUS)) {
-				type = type.replaceFirst("plus", "+");
-			}
-
-			holder.type.setText(type);
-			UI.setVisibility(holder.type, View.VISIBLE);
-		}
-
 		/* Description */
 
 		UI.setVisibility(holder.description, View.GONE);
@@ -327,18 +308,6 @@ public abstract class EntityControllerBase implements IEntityController {
 			UI.setVisibility(holder.userName, View.VISIBLE);
 		}
 
-		/* User area */
-
-		UI.setVisibility(holder.area, View.GONE);
-		if (holder.area != null && entity.creator != null && entity.creator.area != null && entity.creator.area.length() > 0) {
-			holder.area.setText(entity.creator.area);
-			UI.setVisibility(view.findViewById(R.id.separator), View.VISIBLE);
-			UI.setVisibility(holder.area, View.VISIBLE);
-		}
-		else {
-			UI.setVisibility(view.findViewById(R.id.separator), View.GONE);
-		}
-
 		/* Created date */
 
 		UI.setVisibility(holder.createdDate, View.GONE);
@@ -346,17 +315,6 @@ public abstract class EntityControllerBase implements IEntityController {
 			String compactAgo = DateTime.dateStringAt(entity.createdDate.longValue());
 			holder.createdDate.setText(compactAgo);
 			UI.setVisibility(holder.createdDate, View.VISIBLE);
-		}
-
-		/* Parent context */
-
-		UI.setVisibility(holder.parent, View.GONE);
-		if (entity.toId != null && holder.parent != null) {
-			Entity parentEntity = EntityManager.getCacheEntity(entity.toId);
-			if (parentEntity != null) {
-				holder.parent.databind(parentEntity);
-				UI.setVisibility(holder.parent, View.VISIBLE);
-			}
 		}
 
 		/* Photo */
@@ -379,7 +337,6 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.photoView = (AirImageView) view.findViewById(R.id.entity_photo);
 		holder.name = (TextView) view.findViewById(R.id.name);
 		holder.subtitle = (TextView) view.findViewById(R.id.subtitle);
-		holder.type = (TextView) view.findViewById(R.id.type);
 		holder.description = (TextView) view.findViewById(R.id.description);
 		holder.creator = (UserView) view.findViewById(R.id.creator);
 		holder.area = (TextView) view.findViewById(R.id.area);
@@ -401,7 +358,6 @@ public abstract class EntityControllerBase implements IEntityController {
 			});
 		}
 
-		holder.parent = (EntityView) view.findViewById(R.id.parent);
 		holder.userPhotoView = (AirImageView) view.findViewById(R.id.user_photo);
 		holder.userName = (TextView) view.findViewById(R.id.user_name);
 		holder.placeName = (TextView) view.findViewById(R.id.place_name);
@@ -414,25 +370,6 @@ public abstract class EntityControllerBase implements IEntityController {
 		//			holder.photoView.getMissingMessage().setLayoutParams(params);
 		//		}
 	}
-
-	//	@Override
-	//	public void decorate(Entity entity, Links linkOptions) {
-	//
-	//		if (entity.linksIn == null) {
-	//			entity.linksIn = new ArrayList<Link>();
-	//		}
-	//
-	//		if (entity.linksInCounts == null) {
-	//			entity.linksInCounts = new ArrayList<Count>();
-	//		}
-	//
-	//		for (Shortcut shortcut : shortcuts) {
-	//			Link link = new Link(shortcut.getId(), entity.id, Constants.TYPE_LINK_CONTENT, shortcut.schema);
-	//			link.shortcut = shortcut;
-	//			entity.linksIn.add(link);
-	//		}
-	//		entity.shortcuts = (linkOptions != null) ? linkOptions.getShortcuts() : false;
-	//	}
 
 	@Override
 	public Drawable getIcon() {

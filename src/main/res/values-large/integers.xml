@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<integer name="limit_shortcuts_flow">21</integer>
-	<integer name="limit_shortcuts_flow_create">14</integer>
-	<integer name="limit_shortcuts_flow_watch">14</integer>
 	<integer name="limit_links_content_default">2</integer>
 
 </resources>

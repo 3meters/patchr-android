@@ -110,7 +110,6 @@ public class AirImageView extends FrameLayout implements Target {
 		mImageMain = (ImageView) view.findViewById(R.id.image_main);
 
 		if (!isInEditMode()) {
-			mImageZoom = (ImageView) view.findViewById(R.id.image_zoom);
 			mProgressBar = (ProgressBar) view.findViewById(R.id.image_progress);
 			mMissingMessage = (TextView) view.findViewById(R.id.image_missing);
 		}

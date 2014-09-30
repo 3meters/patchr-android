@@ -18,6 +18,7 @@ import android.widget.ListView;
 
 import com.aircandi.Constants;
 import com.aircandi.R;
+import com.aircandi.components.Logger;
 
 @SuppressWarnings("ucd")
 public class AirListView extends ListView implements OnScrollListener {
@@ -89,6 +90,17 @@ public class AirListView extends ListView implements OnScrollListener {
 
 	@Override
 	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+
+		/* Grab the last child placed in the ScrollView, we need it to determinate the bottom position. */
+		if (mDragListener != null) {
+			View view = (View) getChildAt(getChildCount() - 1);
+			if (view != null) {
+				int diff = (view.getBottom() - (getHeight() + getScrollY()));
+				if (diff <= 0) {
+					mDragListener.onDragBottom();
+				}
+			}
+		}
 		super.onScrollChanged(l, t, oldl, oldt);
 		parallaxScroll();
 	}
@@ -197,7 +209,6 @@ public class AirListView extends ListView implements OnScrollListener {
 					}
 					break;
 				}
-
 			}
 		}
 
@@ -236,7 +247,6 @@ public class AirListView extends ListView implements OnScrollListener {
 		float ratio = (float) Math.min(Math.max(scrollPosition, 0), headerHeight) / headerHeight;
 		int newAlpha = (int) (ratio * 255);
 		mActionBarBackgroundDrawable.setAlpha(newAlpha);
-
 	}
 
 	protected void parallaxScroll() {
@@ -384,6 +394,7 @@ public class AirListView extends ListView implements OnScrollListener {
 
 	public interface OnDragListener {
 		public boolean onDragEvent(DragEvent event, Float dragX, Float dragY);
+		public void onDragBottom();
 	}
 
 	public enum DragEvent {

@@ -62,7 +62,7 @@ public class UserForm extends BaseEntityForm {
 		             .setMonitor(monitor)
 		             .setListViewType(EntityListFragment.ViewType.LIST)
 		             .setListLayoutResId(R.layout.entity_list_fragment)
-		             .setListLoadingResId(R.layout.temp_list_item_loading)
+		             .setListLoadingResId(R.layout.temp_listitem_loading)
 		             .setListItemResId(R.layout.temp_listitem_message)
 		             .setListEmptyMessageResId(R.string.label_sent_empty)
 		             .setHeaderViewResId(R.layout.widget_list_header_user)
@@ -285,10 +285,6 @@ public class UserForm extends BaseEntityForm {
 		}
 
 		drawButtons(view);
-
-		if (mScrollView != null) {
-			mScrollView.setVisibility(View.VISIBLE);
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -301,6 +297,6 @@ public class UserForm extends BaseEntityForm {
 
 	@Override
 	protected int getLayoutId() {
-		return R.layout.user_form_with_list;
+		return R.layout.user_form;
 	}
 }

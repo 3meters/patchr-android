@@ -41,6 +41,14 @@ android {
     }
 
     buildTypes {
+
+        debug {
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            zipAlign true
+            debuggable true
+        }
+
         release {
             runProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
@@ -51,13 +59,6 @@ android {
                 def file = variant.outputFile
                 variant.outputFile = new File(file.parent, file.name.replace(".apk", "-" + defaultConfig.versionName + ".apk"))
             }
-        }
-
-        debug {
-            runProguard true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            zipAlign true
-            debuggable true
         }
     }
 }

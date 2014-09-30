@@ -28,7 +28,7 @@ public class Places extends EntityControllerBase {
 		mEditClass = PlaceEdit.class;
 		mNewClass = PlaceEdit.class;
 		mListLayoutResId = R.layout.entity_list_fragment;
-		mListLoadingResId = R.layout.temp_list_item_loading;
+		mListLoadingResId = R.layout.temp_listitem_loading;
 	}
 
 	@Override

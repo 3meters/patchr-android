@@ -31,7 +31,6 @@ import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
-import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.User;
 import com.aircandi.queries.AlertsQuery;
 import com.aircandi.queries.EntitiesQuery;
@@ -270,12 +269,6 @@ public class AircandiForm extends BaseActivity {
 	}
 
 	@SuppressWarnings("ucd")
-	public void onShortcutClick(View view) {
-		final Shortcut shortcut = (Shortcut) view.getTag();
-		Patch.dispatch.shortcut(this, shortcut, null, null, null);
-	}
-
-	@SuppressWarnings("ucd")
 	public void onDrawerItemClick(View view) {
 		mNextFragmentTag = (String) view.getTag();
 		mCurrentNavView = view;
@@ -393,7 +386,7 @@ public class AircandiForm extends BaseActivity {
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.entity_list_fragment)
 						.setListItemResId(R.layout.temp_listitem_message)
-						.setListLoadingResId(R.layout.temp_list_item_loading)
+						.setListLoadingResId(R.layout.temp_listitem_loading)
 						.setListEmptyMessageResId(R.string.label_feed_messages_empty)
 						.setSelfBindingEnabled(true)
 						.setActivityStream(true)
@@ -423,7 +416,7 @@ public class AircandiForm extends BaseActivity {
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.entity_list_fragment)
 						.setListItemResId(R.layout.temp_listitem_alert)
-						.setListLoadingResId(R.layout.temp_list_item_loading)
+						.setListLoadingResId(R.layout.temp_listitem_loading)
 						.setListEmptyMessageResId(R.string.label_feed_alerts_empty)
 						.setSelfBindingEnabled(true)
 						.setActivityStream(true)
@@ -452,7 +445,7 @@ public class AircandiForm extends BaseActivity {
 				                               .setMonitor(monitor)
 				                               .setListPagingEnabled(true)
 				                               .setListItemResId(R.layout.temp_listitem_radar)
-				                               .setListLoadingResId(R.layout.temp_list_item_loading)
+				                               .setListLoadingResId(R.layout.temp_listitem_loading)
 				                               .setListViewType(ViewType.LIST)
 				                               .setListLayoutResId(R.layout.place_list_fragment)
 				                               .setListEmptyMessageResId(R.string.label_watching_empty)
@@ -482,7 +475,7 @@ public class AircandiForm extends BaseActivity {
 				                               .setMonitor(monitor)
 				                               .setListPagingEnabled(true)
 				                               .setListItemResId(R.layout.temp_listitem_radar)
-				                               .setListLoadingResId(R.layout.temp_list_item_loading)
+				                               .setListLoadingResId(R.layout.temp_listitem_loading)
 				                               .setListViewType(ViewType.LIST)
 				                               .setListLayoutResId(R.layout.place_list_fragment)
 				                               .setListEmptyMessageResId(R.string.label_created_empty)

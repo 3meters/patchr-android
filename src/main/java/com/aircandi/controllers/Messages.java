@@ -42,7 +42,7 @@ public class Messages extends EntityControllerBase {
 		mPageSize = Integers.getInteger(R.integer.page_size_messages);
 		mListLayoutResId = R.layout.entity_list_fragment;
 		mListItemResId = R.layout.temp_listitem_message;
-		mListLoadingResId = R.layout.temp_list_item_loading;
+		mListLoadingResId = R.layout.temp_listitem_loading;
 	}
 
 	@Override

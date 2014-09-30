@@ -43,7 +43,6 @@ public class BuilderButton extends RelativeLayout {
 		final View view = LayoutInflater.from(getContext()).inflate(mLayoutId, this);
 
 		mTextView = (TextView) view.findViewById(R.id.builder_text);
-		mViewGroup = (LinearLayout) view.findViewById(R.id.builder_images);
 
 		if (mTextView != null && mHint != null) {
 			if (Patch.themeTone.equals(ThemeTone.DARK)) {

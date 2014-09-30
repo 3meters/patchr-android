@@ -49,7 +49,6 @@
 	<string name="com.aircandi.ui.HelpForm">HelpForm</string>
 	<string name="com.aircandi.ui.MapForm">MapForm</string>
 	<string name="com.aircandi.ui.PhotoForm">PhotoForm</string>
-	<string name="com.aircandi.ui.PictureForm">PictureForm</string>
 	<string name="com.aircandi.ui.PlaceForm">PlaceForm</string>
 	<string name="com.aircandi.ui.Preferences">Preferences</string>
 	<string name="com.aircandi.ui.SplashForm">SplashForm</string>
@@ -60,14 +59,10 @@
 
 	<!-- Edit -->
 
-	<string name="com.aircandi.ui.edit.ApplinkEdit">ApplinkEdit</string>
-	<string name="com.aircandi.ui.edit.ApplinkListEdit">ApplinkListEdit</string>
-	<string name="com.aircandi.ui.edit.CommentEdit">CommentEdit</string>
 	<string name="com.aircandi.ui.edit.FeedbackEdit">FeedbackEdit</string>
 	<string name="com.aircandi.ui.edit.InviteEdit">InviteEdit</string>
 	<string name="com.aircandi.ui.edit.ReportEdit">ReportEdit</string>
 	<string name="com.aircandi.ui.edit.PlaceEdit">PlaceEdit</string>
-	<string name="com.aircandi.ui.edit.PictureEdit">PictureEdit</string>
 	<string name="com.aircandi.ui.edit.TuningEdit">TuningEdit</string>
 	<string name="com.aircandi.ui.edit.MessageEdit">MessageEdit</string>
 
@@ -88,6 +83,5 @@
 	<string name="com.aircandi.ui.helpers.PhotoPicker">PhotoPicker</string>
 	<string name="com.aircandi.ui.helpers.PlacePicker">PlacePicker</string>
 	<string name="com.aircandi.ui.helpers.PhotoSourcePicker">PhotoSourcePicker</string>
-	<string name="com.aircandi.ui.helpers.ShortcutPicker">ShortcutPicker</string>
 
 </resources>

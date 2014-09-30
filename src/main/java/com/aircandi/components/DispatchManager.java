@@ -8,8 +8,8 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
@@ -18,8 +18,6 @@ import com.aircandi.objects.Photo;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
-import com.aircandi.objects.Shortcut.InstallStatus;
-import com.aircandi.objects.ShortcutMeta;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AboutForm;
 import com.aircandi.ui.AircandiForm;
@@ -39,7 +37,6 @@ import com.aircandi.ui.helpers.CategoryBuilder;
 import com.aircandi.ui.helpers.PhotoPicker;
 import com.aircandi.ui.helpers.PhotoSourcePicker;
 import com.aircandi.ui.helpers.PlacePicker;
-import com.aircandi.ui.helpers.ShortcutPicker;
 import com.aircandi.ui.user.PasswordEdit;
 import com.aircandi.ui.user.RegisterEdit;
 import com.aircandi.ui.user.ResetEdit;
@@ -47,9 +44,6 @@ import com.aircandi.ui.user.SignInEdit;
 import com.aircandi.utilities.Debug;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DispatchManager {
 
@@ -79,46 +73,6 @@ public class DispatchManager {
 
 			activity.startActivity(intent);
 			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_HELP);
-		}
-
-		else if (route == Route.SHORTCUT) {
-
-			if (shortcut == null)
-				throw new IllegalArgumentException("valid shortcut required for selected route");
-
-			final ShortcutMeta meta = Shortcut.shortcutMeta.get(shortcut.app);
-			Boolean installCheck = (meta == null || (meta.installStatus != InstallStatus.LATER && meta.installStatus != InstallStatus.DECLINED));
-
-			if (meta != null && meta.installStatus == InstallStatus.LATER) {
-				meta.installStatus = InstallStatus.NONE;
-			}
-
-			if (installCheck) {
-				if (AndroidManager.hasIntentSupport(shortcut.app)
-						&& AndroidManager.appExists(shortcut.app)
-						&& !AndroidManager.isAppInstalled(shortcut.app)) {
-					Dialogs.installApp(activity, shortcut, entity);
-					return;
-				}
-			}
-
-			if (shortcut.group != null && shortcut.group.size() > 1) {
-				IntentBuilder intentBuilder = new IntentBuilder(activity, ShortcutPicker.class);
-				intentBuilder.setEntity(entity);
-				final Intent intent = intentBuilder.create();
-				final List<String> shortcutStrings = new ArrayList<String>();
-				for (Shortcut item : shortcut.group) {
-					Shortcut clone = item.clone();
-					clone.group = null;
-					shortcutStrings.add(Json.objectToJson(clone, Json.UseAnnotations.FALSE, Json.ExcludeNulls.TRUE));
-				}
-				intent.putStringArrayListExtra(Constants.EXTRA_SHORTCUTS, (ArrayList<String>) shortcutStrings);
-				activity.startActivity(intent);
-				Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
-			}
-			else {
-				shortcut(activity, shortcut, entity, null, null);
-			}
 		}
 
 		else if (route == Route.BROWSE) {
@@ -558,8 +512,6 @@ public class DispatchManager {
 			return Route.SETTINGS;
 		else if (itemId == android.R.id.home)
 			return Route.CANCEL;
-		else if (itemId == R.id.home)
-			return Route.HOME;
 		else if (itemId == R.id.signout)
 			return Route.SIGNOUT;
 		else if (itemId == R.id.signin)
@@ -586,14 +538,6 @@ public class DispatchManager {
 			return Route.REMOVE;
 		else if (itemId == R.id.navigate)
 			return Route.NAVIGATE;
-		else if (itemId == R.id.save_beacon)
-			return Route.SAVE_BEACON;
-		else if (itemId == R.id.zoom_in)
-			return Route.ZOOM_IN;
-		else if (itemId == R.id.zoom_out)
-			return Route.ZOOM_OUT;
-		else if (itemId == R.id.watchers)
-			return Route.WATCHERS;
 
 		return Route.UNKNOWN;
 	}

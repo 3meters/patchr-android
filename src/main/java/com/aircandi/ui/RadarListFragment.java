@@ -756,42 +756,7 @@ public class RadarListFragment extends EntityListFragment {
 	}
 
 	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		/*
-		 * Setup menu items local to radar.
-		 */
-		mMenuItemBeacons = menu.findItem(R.id.beacons);
-		if (mMenuItemBeacons != null) {
-
-			/* Only show beacon indicator if user is a developer */
-			if (!Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-					|| !Type.isTrue(Patch.getInstance().getCurrentUser().developer)) {
-				mMenuItemBeacons.setVisible(false);
-			}
-			else {
-				mBeaconIndicator = (TextView) mMenuItemBeacons.getActionView().findViewById(R.id.beacon_indicator);
-				mMenuItemBeacons.getActionView().findViewById(R.id.beacon_frame).setTag(mMenuItemBeacons);
-				mMenuItemBeacons.getActionView().findViewById(R.id.beacon_frame).setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						MenuItem item = (MenuItem) view.getTag();
-						onOptionsItemSelected(item);
-					}
-				});
-			}
-		}
-
-		super.onPrepareOptionsMenu(menu);
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-
-		if (item.getItemId() == R.id.beacons) {
-			doBeaconIndicatorClick();
-			return true;
-		}
-
 		Patch.dispatch.route(getActivity(), Patch.dispatch.routeForMenuId(item.getItemId()), null, null, null);
 		return true;
 	}
