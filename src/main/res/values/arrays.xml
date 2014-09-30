@@ -26,10 +26,4 @@
 		<item>empty</item>
 	</string-array>
 
-	<!-- Context menu items: default -->
-
-	<string-array name="more_options_entity">
-		<item>Report a problem</item>
-	</string-array>
-
 </resources>

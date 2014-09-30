@@ -27,6 +27,7 @@
 		android:layout_centerVertical="true"
 		android:layout_marginTop="3dp"
 		android:layout_toRightOf="@+id/entity_photo"
+		android:textAppearance="@style/text_appearance_medium"
 		custom:textId="@string/dummy_name" />
 
 </RelativeLayout>

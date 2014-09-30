@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
 	<!-- Names -->
 
-	<string name="name_app_family">Aircandi</string>
-	<string name="name_app_family_lowercase">aircandi</string>
+	<string name="name_app_family" tools:ignore="UnusedResources">Aircandi</string>
+	<string name="name_app_family_lowercase" tools:ignore="UnusedResources">aircandi</string>
 
-	<string name="name_app">Patch</string>
-	<string name="name_app_lowercase">patch</string>
-	<string name="name_company">3meters LLC.</string>
+	<string name="name_app" tools:ignore="UnusedResources">Patchr</string>
+	<string name="name_app_lowercase" tools:ignore="UnusedResources">patchr</string>
+	<string name="name_company" tools:ignore="UnusedResources">3meters LLC.</string>
 
-	<string name="app_family_attribution">by [@string/name_app_family_lowercase]</string>
+	<string name="app_family_attribution" tools:ignore="UnusedResources">by [@string/name_app_family_lowercase]</string>
 
 	<!--
 		We get complete substitution with the following exceptions
@@ -21,17 +21,17 @@
 		- strings for preferences in xml
 	 -->
 
-	<string name="container_singular">Patch</string>
-	<string name="container_plural">Patches</string>
-	<string name="container_singular_lowercase">patch</string>
-	<string name="container_plural_lowercase">patches</string>
+	<string name="container_singular" tools:ignore="UnusedResources">Patch</string>
+	<string name="container_plural" tools:ignore="UnusedResources">Patches</string>
+	<string name="container_singular_lowercase" tools:ignore="UnusedResources">patch</string>
+	<string name="container_plural_lowercase" tools:ignore="UnusedResources">patches</string>
 
 	<!-- Identifiers -->
 
-	<string name="id_gcm_sender">657673071389</string>
-	<string name="id_package">com.aircandi.catalina</string>
-	<string name="id_referrer">com.aircandi.catalina</string>
-	<string name="uri_play_store">http://bit.ly/1wnySLm</string>
+	<string name="id_gcm_sender" tools:ignore="UnusedResources">657673071389</string>
+	<string name="id_package" tools:ignore="UnusedResources">com.aircandi.catalina</string>
+	<string name="id_referrer" tools:ignore="UnusedResources">com.aircandi.catalina</string>
+	<string name="uri_play_store" tools:ignore="UnusedResources">http://bit.ly/1wnySLm</string>
 
 	<!-- Late binding: Aircandi applications always subclass GcmIntentService -->
 
@@ -43,7 +43,6 @@
 
 	<!-- Splash -->
 
-	<string name="splash_message">sharing reimagined</string>
 	<string name="splash_button_signin">Sign in</string>
 	<string name="splash_button_start">Guest</string>
 	<string name="splash_button_retry">Retry</string>
@@ -55,6 +54,12 @@
 	<string name="invite_message_default">I enjoy [@string/name_app] and I thought you might like it too!</string>
 	<string name="form_invite_email_hint">Email address</string>
 	<string name="form_invite_message_hint">Add a personal note (optional)</string>
+
+	<!-- Attribution -->
+
+	<string name="label_place_provider_foursquare" tools:ignore="UnusedResources">Powered by Foursquare</string>
+	<string name="label_place_provider_google" tools:ignore="UnusedResources">Powered by Google</string>
+	<string name="label_place_provider_factual" tools:ignore="UnusedResources">Powered by Factual</string>
 
 	<!-- Feedback -->
 
@@ -83,11 +88,7 @@
 	<!-- Service paging sizes -->
 
 	<integer name="page_size_entities">30</integer>
-	<integer name="page_size_applinks">100</integer>
-	<integer name="page_size_comments">30</integer>
-	<integer name="page_size_pictures">30</integer>
 	<integer name="page_size_users">30</integer>
-	<integer name="page_size_activities">30</integer>
 	<integer name="page_size_messages">50</integer>
 	<integer name="page_size_replies">50</integer>
 

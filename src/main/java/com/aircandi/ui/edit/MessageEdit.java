@@ -398,7 +398,8 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				mButtonPhotoDelete.setVisibility(View.GONE);
 			}
 
-			if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE) || mShareSchema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)) {
+			if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE)
+					|| mShareSchema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)) {
 				mAnimatorPhoto.setVisibility(View.GONE);
 				mShareHolder.setVisibility(View.VISIBLE);
 				View shareView = LayoutInflater.from(this).inflate(layoutResId, mShare, true);
@@ -710,6 +711,9 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				if (mTos.size() > 0) {
 					message.placeId = mTos.get(0).id;
 				}
+			}
+			else if (mMessageType.equals(MessageType.SHARE)) {
+
 			}
 		}
 	}

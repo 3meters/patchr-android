@@ -353,7 +353,7 @@ public class PlaceEdit extends BaseEntityEdit
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncAutoSharePlace");
 
-                    /* Create message entity */
+                        /* Create message entity */
 						IEntityController controller = Patch.getInstance().getControllerForSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
 						Entity message = controller.makeNew();
 						message.description = String.format(StringManager.getString(R.string.label_place_share_body_self_oncreate), mEntity.name);
@@ -363,7 +363,7 @@ public class PlaceEdit extends BaseEntityEdit
 							message.creatorId = Patch.getInstance().getCurrentUser().id;
 						}
 
-                    /* Links */
+                        /* Links */
 						List<Link> links = new ArrayList<Link>();
 						links.add(new Link(mEntity.id, Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PLACE));
 						for (Entity to : mTos) {

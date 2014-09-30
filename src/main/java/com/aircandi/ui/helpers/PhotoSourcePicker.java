@@ -97,6 +97,7 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		final AirApplication choice = (AirApplication) view.getTag();
@@ -108,7 +109,9 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    private class ListAdapter extends ArrayAdapter<Object> {
+	 *--------------------------------------------------------------------------------------------*/
+
+	private class ListAdapter extends ArrayAdapter<Object> {
 
 		private final List<Object> items;
 
@@ -138,6 +141,7 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.photo_source_picker;
