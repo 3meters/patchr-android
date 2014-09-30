@@ -4,10 +4,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -27,17 +24,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
-import com.aircandi.components.AndroidManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.ButtonSpecialEvent;
 import com.aircandi.events.MessageEvent;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
@@ -52,7 +49,6 @@ import com.aircandi.objects.User;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
@@ -68,15 +64,10 @@ import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SuppressLint("Registered")
 public class PlaceForm extends BaseEntityForm {
 
 	private Boolean mDoUpsize;
-	protected final PackageReceiver mPackageReceiver = new PackageReceiver();
-	protected final List<String>    mPackageInstalls = new ArrayList<String>();
 	protected       Boolean         mWaitForContent  = true;
 	protected       Boolean         mAutoWatch       = false;
 	private   Fragment              mFragment;
@@ -127,11 +118,6 @@ public class PlaceForm extends BaseEntityForm {
 		mNextFragmentTag = com.aircandi.Constants.FRAGMENT_TYPE_MESSAGES;
 
 		mLinkProfile = LinkProfile.LINKS_FOR_PLACE;
-
-		/* Package receiver */
-		final IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
-		filter.addDataScheme("package");
-		registerReceiver(mPackageReceiver, filter);
 	}
 
 	@Override
@@ -738,30 +724,6 @@ public class PlaceForm extends BaseEntityForm {
 		}
 	}
 
-	protected void handlePackageInstalls() {
-
-		for (String packageName : mPackageInstalls) {
-			final String publicName = AndroidManager.getInstance().getPublicName(packageName);
-			if (publicName != null) {
-				UI.showToastNotification(publicName + " " + getText(R.string.dialog_install_toast_package_installed)
-						, Toast.LENGTH_SHORT);
-			}
-		}
-
-		if (mPackageInstalls.size() > 0) {
-			mInvalidated = true;
-			Patch.mainThreadHandler.postDelayed(new Runnable() {
-
-				@Override
-				public void run() {
-					bind(BindingMode.AUTO);
-				}
-			}, 1500);
-		}
-
-		mPackageInstalls.clear();
-	}
-
 	protected void upsize() {
 		mWaitForContent = false;
 		/*
@@ -831,25 +793,6 @@ public class PlaceForm extends BaseEntityForm {
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if (!this.isFinishing()) {
-			handlePackageInstalls();
-		}
-	}
-
-	@Override
-	protected void onDestroy() {
-		/* This activity gets destroyed everytime we leave using back or finish(). */
-		Logger.d(this, "Activity destroying: contextId: " + ((Object) this).hashCode());
-		try {
-			unregisterReceiver(mPackageReceiver);
-		}
-		catch (Exception ignore) {} // $codepro.audit.disable emptyCatchClause
-		super.onDestroy();
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
@@ -872,30 +815,4 @@ public class PlaceForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
-
-	private class PackageReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(final Context context, Intent intent) {
-
-			/* This is on the main UI thread */
-			if (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)) {
-
-				final String packageName = intent.getData().getEncodedSchemeSpecificPart();
-				if (packageName != null) {
-
-					String appName = AndroidManager.getAppNameByPackageName(packageName);
-					if (appName != null && AndroidManager.hasIntentSupport(appName)) {
-						/*
-						 * It's an application we care about.
-						 */
-						mPackageInstalls.add(packageName);
-						if (Patch.isActivityVisible()) {
-							handlePackageInstalls();
-						}
-					}
-				}
-			}
-		}
-	}
 }

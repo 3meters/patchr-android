@@ -27,7 +27,6 @@ import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
-import com.aircandi.ui.widgets.SectionLayout;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
@@ -249,14 +248,6 @@ public class UserForm extends BaseEntityForm {
 			}
 
 			/* Description section */
-
-			UI.setVisibility(findViewById(R.id.section_details), View.GONE);
-
-			SectionLayout section = (SectionLayout) findViewById(R.id.section_details);
-			if (section != null && user.name != null && !user.name.equals("")) {
-				section.setHeaderTitle(Html.fromHtml(user.name).toString());
-				UI.setVisibility(findViewById(R.id.section_details), View.VISIBLE);
-			}
 
 			UI.setVisibility(area, View.GONE);
 			if (area != null && user.area != null && !user.area.equals("")) {

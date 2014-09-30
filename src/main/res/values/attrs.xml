@@ -231,11 +231,6 @@
 	<declare-styleable name="HorizontalScrollLayout">
 		<attr name="layout" />
 	</declare-styleable>
-	<declare-styleable name="SectionLayout">
-		<attr name="layoutHeader" />
-		<attr name="layoutFooter" />
-		<attr name="headerTitle" />
-	</declare-styleable>
 	<declare-styleable name="BuilderButton">
 		<attr name="layout" />
 		<attr name="hint" />
