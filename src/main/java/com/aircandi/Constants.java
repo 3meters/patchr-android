@@ -56,6 +56,7 @@ public class Constants {
 	public static final String EXTRA_SHARE_SOURCE              = "com.aircandi.EXTRA_SHARE_SOURCE";
 	public static final String EXTRA_SHARE_ID                  = "com.aircandi.EXTRA_SHARE_ID";
 	public static final String EXTRA_SHARE_SCHEMA              = "com.aircandi.EXTRA_SHARE_SCHEMA";
+	public static final String EXTRA_SHARE_PATCH               = "com.aircandi.EXTRA_SHARE_PATCH";
 	public static final String EXTRA_AUTO_WATCH                = "com.aircandi.EXTRA_AUTO_WATCH";
 
 	/* Activity parameters: lists */

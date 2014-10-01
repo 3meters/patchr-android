@@ -47,7 +47,6 @@ public class Links extends ServiceObject {
 			Number limitProximity = resources.getInteger(R.integer.limit_links_proximity_default);
 			Number limitCreate = resources.getInteger(R.integer.limit_links_create_default);
 			Number limitWatch = resources.getInteger(R.integer.limit_links_watch_default);
-			Number limitApplinks = resources.getInteger(R.integer.limit_links_applinks_default);
 			Number limitContent = resources.getInteger(R.integer.limit_links_content_default);
 
 			if (linkProfile == LinkProfile.LINKS_FOR_PLACE || linkProfile == LinkProfile.LINKS_FOR_BEACONS) {

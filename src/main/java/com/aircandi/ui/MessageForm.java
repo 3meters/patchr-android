@@ -21,26 +21,27 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
-import com.aircandi.R.color;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
+import com.aircandi.R.color;
 import com.aircandi.components.EntityManager;
-import com.aircandi.objects.LinkProfile;
-import com.aircandi.objects.Message;
-import com.aircandi.objects.Message.MessageType;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MessagingManager;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.interfaces.IEntityController;
 import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.events.MessageEvent;
+import com.aircandi.interfaces.IBusy.BusyAction;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
+import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.Message;
+import com.aircandi.objects.Message.MessageType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
@@ -48,7 +49,6 @@ import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.EntityListFragment.Highlight;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseEntityForm;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.ui.widgets.FlowLayout;
@@ -169,63 +169,19 @@ public class MessageForm extends BaseEntityForm {
 		}
 		mFirstDraw = false;
 
-		final AirImageView photoView = (AirImageView) findViewById(R.id.entity_photo);
-		final View holderUser = findViewById(R.id.holder_user);
-		final View holderPlace = findViewById(R.id.holder_place);
-		final TextView description = (TextView) findViewById(R.id.description);
-		final AirImageView userPhotoView = (AirImageView) findViewById(R.id.user_photo);
-		final TextView userName = (TextView) findViewById(R.id.user_name);
-		final TextView toName = (TextView) findViewById(R.id.to_name);
-		final TextView placeName = (TextView) findViewById(R.id.place_name);
-		final TextView createdDate = (TextView) findViewById(R.id.created_date);
-		final FlowLayout flowLayout = (FlowLayout) findViewById(R.id.flow_recipients);
-		final ViewGroup shareHolder = (ViewGroup) findViewById(R.id.share_holder);
-		final ViewGroup shareFrame = (ViewGroup) findViewById(R.id.share);
-		final ViewGroup toHolder = (ViewGroup) findViewById(R.id.to_holder);
-
-		//		final ComboButton messageButton = (ComboButton) findViewById(R.id.footer_holder);
-		//		if (messageButton != null && mEntity.creator != null && !TextUtils.isEmpty(mEntity.creator.name)) {
-		//			messageButton.setLabel(String.format(StringManager.getString(R.string.button_reply_message), mEntity.creator.name));
-		//		}
-		//		UI.setVisibility(messageButton, View.VISIBLE);
-
-		/* Delete button */
-
-		//		UI.setVisibility(findViewById(R.id.button_delete), View.GONE);
-		//		UI.setVisibility(findViewById(R.id.button_remove), View.GONE);
-		//
-		//		/*
-		//		 * Only the message owner can delete the seed or reply message.
-		//		 */
-		//		if (mEntity.ownerId != null && Aircandi.getInstance().getCurrentUser() != null
-		//				&& (mEntity.ownerId.equals(Aircandi.getInstance().getCurrentUser().id)
-		//				|| (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-		//						&& Aircandi.getInstance().getCurrentUser().developer != null
-		//						&& Aircandi.getInstance().getCurrentUser().developer))) {
-		//			UI.setVisibility(findViewById(R.id.button_delete), View.VISIBLE);
-		//		}
-		//		/*
-		//		 * If a seed message is linked to a patch owned by the current user, they have the
-		//		 * right to remove it. We do not let a seed message owner remove a reply.
-		//		 */
-		//		else if (mEntity.type.equals(MessageType.ROOT)) {
-		//			Link placeLink = mEntity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE, mEntity.placeId, Direction.out);
-		//			if (placeLink != null && placeLink.ownerId.equals(Aircandi.getInstance().getCurrentUser().id)) {
-		//				findViewById(R.id.button_remove).setTag(mEntity.placeId);
-		//				UI.setVisibility(findViewById(R.id.button_remove), View.VISIBLE);
-		//			}
-		//		}
-		//
-		//		/* Edit button */
-		//
-		//		UI.setVisibility(findViewById(R.id.button_edit), View.GONE);
-		//		if (mEntity != null && mEntity.ownerId != null && Aircandi.getInstance().getCurrentUser() != null
-		//				&& (mEntity.ownerId.equals(Aircandi.getInstance().getCurrentUser().id)
-		//				|| (Aircandi.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-		//						&& Aircandi.getInstance().getCurrentUser().developer != null
-		//						&& Aircandi.getInstance().getCurrentUser().developer))) {
-		//			UI.setVisibility(findViewById(R.id.button_edit), View.VISIBLE);
-		//		}
+		final AirImageView photoView = (AirImageView) view.findViewById(R.id.entity_photo);
+		final View holderUser = view.findViewById(R.id.holder_user);
+		final View holderPlace = view.findViewById(R.id.holder_place);
+		final TextView description = (TextView) view.findViewById(R.id.description);
+		final AirImageView userPhotoView = (AirImageView) view.findViewById(R.id.user_photo);
+		final TextView userName = (TextView) view.findViewById(R.id.user_name);
+		final TextView toName = (TextView) view.findViewById(R.id.to_name);
+		final TextView placeName = (TextView) view.findViewById(R.id.place_name);
+		final TextView createdDate = (TextView) view.findViewById(R.id.created_date);
+		final FlowLayout flowLayout = (FlowLayout) view.findViewById(R.id.flow_recipients);
+		final ViewGroup shareHolder = (ViewGroup) view.findViewById(R.id.share_holder);
+		final ViewGroup shareFrame = (ViewGroup) view.findViewById(R.id.share);
+		final ViewGroup toHolder = (ViewGroup) view.findViewById(R.id.to_holder);
 
         /* Share */
 
@@ -495,7 +451,7 @@ public class MessageForm extends BaseEntityForm {
 	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onMessage(final MessageEvent event) {
-        /*
+	    /*
          * Refresh the form because something new has been added to it
 		 * like a comment or post.
 		 */
@@ -618,13 +574,9 @@ public class MessageForm extends BaseEntityForm {
 		builder.startChooser();
 	}
 
-	@Override
-	protected void configureActionBar() {
-		super.configureActionBar();
-
+	protected void actionBarIcon() {
 		if (mActionBar != null) {
-			Drawable icon = Patch.applicationContext.getResources().getDrawable(R.drawable.img_comment_temp);
-			icon.setColorFilter(Colors.getColor(color.white), PorterDuff.Mode.SRC_ATOP);
+			Drawable icon = getResources().getDrawable(R.drawable.img_message_dark);
 			mActionBar.setIcon(icon);
 		}
 	}
@@ -708,7 +660,6 @@ public class MessageForm extends BaseEntityForm {
 					Errors.handleError(MessageForm.this, result.serviceResponse);
 				}
 			}
-
 		}.execute();
 	}
 
@@ -737,5 +688,4 @@ public class MessageForm extends BaseEntityForm {
 	protected int getLayoutId() {
 		return R.layout.message_form;
 	}
-
 }

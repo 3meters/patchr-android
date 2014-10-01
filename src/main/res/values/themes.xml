@@ -104,6 +104,7 @@
 		<item name="imgLogo">@drawable/img_logo_dark</item>
 		<item name="iconAccept">@drawable/ic_action_tick_dark</item>
 		<item name="iconAdd">@drawable/ic_action_add_dark</item>
+		<item name="iconAlert">@drawable/ic_action_alert_dark</item>
 		<item name="iconAndroid">@drawable/ic_action_android_dark</item>
 		<item name="iconCall">@drawable/ic_action_dialer_dark</item>
 		<item name="iconCamera">@drawable/ic_action_camera_dark</item>
@@ -127,6 +128,8 @@
 		<item name="iconLocation">@drawable/ic_action_location_dark</item>
 		<item name="iconLocked">@drawable/ic_action_lock_closed_dark</item>
 		<item name="iconMap">@drawable/ic_action_map_dark</item>
+		<item name="iconMessage">@drawable/ic_action_message_dark</item>
+		<item name="iconMessageNew">@drawable/ic_edit</item>
 		<item name="iconMore">@drawable/ic_action_more_dark</item>
 		<item name="iconMoveUp">@drawable/ic_action_arrow_top_dark</item>
 		<item name="iconMoveDown">@drawable/ic_action_arrow_bottom_dark</item>
@@ -149,9 +152,6 @@
 		<item name="iconUsers">@drawable/ic_action_users_dark</item>
 		<item name="iconWatch">@drawable/ic_action_show_dark</item>
 		<item name="iconWatchInvert">@drawable/ic_action_show_dark</item>
-		<item name="iconZoom">@drawable/ic_action_zoom</item>
-		<item name="iconZoomIn">@drawable/ic_action_expand_dark</item>
-		<item name="iconZoomOut">@drawable/ic_action_collapse_dark</item>
 
 	</style>
 
@@ -237,6 +237,7 @@
 		<item name="imgLogo">@drawable/img_logo_dark</item>
 		<item name="iconAccept">@drawable/ic_action_tick_light</item>
 		<item name="iconAdd">@drawable/ic_action_add_light</item>
+		<item name="iconAlert">@drawable/ic_action_alert_light</item>
 		<item name="iconAndroid">@drawable/ic_action_android_light</item>
 		<item name="iconCall">@drawable/ic_action_dialer_light</item>
 		<item name="iconCamera">@drawable/ic_action_camera_light</item>
@@ -260,6 +261,8 @@
 		<item name="iconLocation">@drawable/ic_action_location_light</item>
 		<item name="iconLocked">@drawable/ic_action_lock_closed_light</item>
 		<item name="iconMap">@drawable/ic_action_map_light</item>
+		<item name="iconMessage">@drawable/ic_action_message_light</item>
+		<item name="iconMessageNew">@drawable/ic_edit</item>
 		<item name="iconMore">@drawable/ic_action_more_light</item>
 		<item name="iconMoveUp">@drawable/ic_action_arrow_top_light</item>
 		<item name="iconMoveDown">@drawable/ic_action_arrow_bottom_light</item>
@@ -282,9 +285,6 @@
 		<item name="iconUsers">@drawable/ic_action_users_light</item>
 		<item name="iconWatch">@drawable/ic_action_show_light</item>
 		<item name="iconWatchInvert">@drawable/ic_action_show_light</item>
-		<item name="iconZoom">@drawable/ic_action_zoom</item>
-		<item name="iconZoomIn">@drawable/ic_action_expand_light</item>
-		<item name="iconZoomOut">@drawable/ic_action_collapse_light</item>
 
 	</style>
 
@@ -301,11 +301,6 @@
 		<item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_dark</item>
 		<item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Dark</item>
 
-		<item name="iconAlert">@drawable/ic_action_alert_dark</item>
-		<item name="iconMessage">@drawable/ic_action_message_dark</item>
-		<item name="iconMessageNew">@drawable/ic_edit</item>
-		<item name="iconPatch">@drawable/ic_action_patch_new_dark</item>
-
 	</style>
 
 	<style name="aircandi_theme_snow" parent="aircandi_theme_light">
@@ -320,11 +315,6 @@
 		<item name="android:actionModeBackground">@drawable/cab_background_top_light</item>
 		<item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_light</item>
 		<item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Light</item>
-
-		<item name="iconAlert">@drawable/ic_action_alert_light</item>
-		<item name="iconMessage">@drawable/ic_action_message_light</item>
-		<item name="iconMessageNew">@drawable/ic_edit</item>
-		<item name="iconPatch">@drawable/ic_action_add_light</item>
 
 	</style>
 

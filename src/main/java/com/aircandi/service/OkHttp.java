@@ -204,6 +204,7 @@ public class OkHttp extends BaseConnection {
 		final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.body().byteStream()));
 		final StringBuilder stringBuilder = new StringBuilder(); // $codepro.audit.disable defineInitialCapacity
 
+		//noinspection EmptyCatchBlock
 		try {
 
 			String line;
@@ -212,8 +213,7 @@ public class OkHttp extends BaseConnection {
 			}
 			bufferedReader.close();
 		}
-		catch (IOException e) {
-		}
+		catch (IOException ignore) {}
 
 		String responseContent = stringBuilder.toString();
 		Logger.d(this, responseContent);

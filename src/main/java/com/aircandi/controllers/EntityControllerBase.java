@@ -35,7 +35,6 @@ import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.ComboButton;
-import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
@@ -369,13 +368,6 @@ public abstract class EntityControllerBase implements IEntityController {
 		//			holder.photoView.getImageView().setLayoutParams(params);
 		//			holder.photoView.getMissingMessage().setLayoutParams(params);
 		//		}
-	}
-
-	@Override
-	public Drawable getIcon() {
-		Drawable icon = Patch.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
-		//icon.setColorFilter(Colors.getColor(mColorPrimary), PorterDuff.Mode.SRC_ATOP);
-		return icon;
 	}
 
 	@Override

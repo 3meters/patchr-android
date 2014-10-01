@@ -329,7 +329,6 @@
 
 	<string name="label_edit_new_title">New</string>
 
-	<string name="label_chooser_gallery_title">Select a photo</string>
 	<string name="label_notification_ticker">Message from [@string/name_app]</string>
 
 	<string name="label_drawer_open">Open drawer</string>
@@ -367,7 +366,6 @@
 	<string name="label_message_share_body_self">"Checkout %1$s\'s message to the \'%2$s\' [@string/container_singular_lowercase]!"</string>
 	<string name="label_message_share_body_self_no_place">"Checkout %1$s\'s message to a [@string/container_singular_lowercase]!"</string>
 
-	<string name="label_photo_share_title">Share photo using&#8230;</string>
 	<string name="label_photo_share_subject">[@string/name_app] photo shared by %1$s</string>
     <string name="label_photo_share_body_self">
         "Checkout this [@string/name_app] photo!"
@@ -404,7 +402,6 @@
 	<string name="label_tuning_tune_no_name">If you are currently at this [@string/container_singular_lowercase], help make [@string/name_app] better by tuning the [@string/container_singular_lowercase] for faster and more accurate discovery.</string>
 	<string name="label_message_share_title">Share message to&#8230;</string>
 	<string name="label_private_description" tools:ignore="UnusedResources">Users can only see posted messages if you approve their watch request.</string>
-	<string name="label_place_create">This patch will be dropped at your current location. Share this patch with friends and get the conversation started! As the patch owner, you will automatically receive any messages posted to this patch.</string>
 
 	<string name="label_trends_popular">Most popular</string>
 	<string name="label_trends_active">Most active</string>

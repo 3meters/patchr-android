@@ -158,6 +158,9 @@ public class DispatchManager {
 
 		else if (route == Route.MAP) {
 
+			if (entity == null) {
+				throw new IllegalArgumentException("Dispatching map requires entity");
+			}
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, MapForm.class);
 			if (extras == null) {
 				extras = new Bundle();

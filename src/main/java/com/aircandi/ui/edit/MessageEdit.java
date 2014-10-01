@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -19,20 +20,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
-import com.aircandi.objects.Message;
-import com.aircandi.objects.Message.MessageType;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.StringManager;
-import com.aircandi.interfaces.IEntityController;
 import com.aircandi.events.CancelEvent;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
+import com.aircandi.objects.Message;
+import com.aircandi.objects.Message.MessageType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseEntityEdit;
@@ -40,6 +41,7 @@ import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.ui.widgets.AirTokenCompleteTextView;
 import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.ui.widgets.TokenCompleteTextView;
+import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
@@ -105,7 +107,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		/*
-	     * Special pre-handling because this form can be called directly
+		 * Special pre-handling because this form can be called directly
 		 * because of a sharing intent and we need a signed in user. If user
 		 * signs in they will be routed back to this form again.
 		 */
@@ -193,14 +195,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 	}
 
-	@Override
-	protected void configureActionBar() {
-		super.configureActionBar();
-        /*
-         * Navigation setup for action bar icon and title
-		 */
-		Drawable icon = getResources().getDrawable(R.drawable.ic_action_message_dark);
-		mActionBar.setIcon(icon);
+	protected void actionBarIcon() {
+		if (mActionBar != null) {
+			Drawable icon = getResources().getDrawable(R.drawable.img_message_edit_dark);
+			mActionBar.setIcon(icon);
+		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)

@@ -2,8 +2,6 @@ package com.aircandi.controllers;
 
 import java.util.Map;
 
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -26,7 +24,6 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.ServiceMessage;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.UI;
@@ -262,13 +259,6 @@ public class Messages extends EntityControllerBase {
 	@Override
 	public Integer getLinkProfile() {
 		return LinkProfile.LINKS_FOR_MESSAGE;
-	}
-
-	@Override
-	public Drawable getIcon() {
-		Drawable icon = Patch.applicationContext.getResources().getDrawable(R.drawable.img_comment_temp);
-		icon.setColorFilter(Colors.getColor(mColorPrimary), PorterDuff.Mode.SRC_ATOP);
-		return icon;
 	}
 
 	@Override

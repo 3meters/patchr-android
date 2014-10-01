@@ -1,7 +1,5 @@
 package com.aircandi.controllers;
 
-import android.graphics.drawable.Drawable;
-
 import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
@@ -50,13 +48,6 @@ public class Places extends EntityControllerBase {
 	@Override
 	public Integer getLinkProfile() {
 		return LinkProfile.LINKS_FOR_PLACE;
-	}
-
-	@Override
-	public Drawable getIcon() {
-		Drawable icon = Patch.applicationContext.getResources().getDrawable(R.drawable.img_place_temp);
-		//icon.setColorFilter(Colors.getColor(mColorPrimary), PorterDuff.Mode.SRC_ATOP);
-		return icon;
 	}
 
 	@Override

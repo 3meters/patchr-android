@@ -1,5 +1,6 @@
 package com.aircandi.ui.helpers;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 
+@SuppressLint("Registered")
 public class AddressBuilder extends BaseEntityEdit {
 
 	@Override

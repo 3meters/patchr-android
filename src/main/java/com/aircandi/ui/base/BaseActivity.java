@@ -181,6 +181,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		}
 
 		if (mActionBar != null) {
+			mActionBar.setDisplayShowTitleEnabled(true);
 			mActionBar.setDisplayHomeAsUpEnabled(true);
 			actionBarIcon();
 			/*

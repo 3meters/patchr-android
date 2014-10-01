@@ -1,8 +1,5 @@
 package com.aircandi.objects;
 
-/**
- * Created by Jayma on 9/29/2014.
- */
 public class MessageTriggerType {
 	public static class TriggerType {
 		public static String NEARBY     = "nearby";        // sent because this user is nearby

@@ -2,17 +2,17 @@ package com.aircandi.ui;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
-import com.aircandi.ServiceConstants;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
-import com.aircandi.queries.WatchersQuery;
+import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -21,6 +21,7 @@ import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Route;
+import com.aircandi.queries.WatchersQuery;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.utilities.Dialogs;
@@ -186,14 +187,16 @@ public class WatcherList extends BaseActivity {
 		UI.showToastNotification(entity.id + " leaving", Toast.LENGTH_SHORT);
 	}
 
-	@Override
-	protected int getLayoutId() {
-		return R.layout.entity_list;
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	protected void actionBarIcon() {
+		if (mActionBar != null) {
+			Drawable icon = getResources().getDrawable(R.drawable.img_users_dark);
+			mActionBar.setIcon(icon);
+		}
+	}
 
 	public void enableLink(final Entity entity, final String fromId, final String toId, final Boolean enabled) {
 
@@ -226,5 +229,10 @@ public class WatcherList extends BaseActivity {
 				}
 			}
 		}.execute();
+	}
+
+	@Override
+	protected int getLayoutId() {
+		return R.layout.entity_list;
 	}
 }

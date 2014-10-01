@@ -40,7 +40,6 @@ import com.aircandi.objects.User;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirImageView;
-import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;

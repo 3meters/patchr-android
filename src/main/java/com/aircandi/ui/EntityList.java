@@ -1,6 +1,5 @@
 package com.aircandi.ui;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 
@@ -68,8 +67,8 @@ public class EntityList extends BaseActivity {
 
 	public void draw(View view){
 		IEntityController controller = Patch.getInstance().getControllerForSchema(mParams.getListLinkSchema());
-		Drawable icon = controller.getIcon();
-		mActionBar.setIcon(icon);
+//		Drawable icon = controller.getIcon();
+//		mActionBar.setIcon(icon);
 		setActivityTitle((mParams.getListTitle() != null) ? mParams.getListTitle() : controller.getName(true));
 	}
 

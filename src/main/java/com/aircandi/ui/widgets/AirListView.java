@@ -18,7 +18,6 @@ import android.widget.ListView;
 
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.components.Logger;
 
 @SuppressWarnings("ucd")
 public class AirListView extends ListView implements OnScrollListener {

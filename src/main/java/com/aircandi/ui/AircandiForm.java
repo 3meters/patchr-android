@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
@@ -215,11 +216,25 @@ public class AircandiForm extends BaseActivity {
 		 */
 		super.configureActionBar();
 		if (mActionBar != null) {
-			mActionBar.setDisplayShowTitleEnabled(true);
-			mActionBar.setDisplayShowHomeEnabled(true);
 			if (mDrawerLayout != null) {
 				mActionBar.setHomeButtonEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) != DrawerLayout.LOCK_MODE_LOCKED_CLOSED));
 				mActionBar.setDisplayHomeAsUpEnabled((mDrawerLayout.getDrawerLockMode(mDrawer) != DrawerLayout.LOCK_MODE_LOCKED_CLOSED));
+			}
+		}
+	}
+
+	protected void actionBarIcon() {
+		super.actionBarIcon();
+		if (mActionBar != null && mCurrentFragmentTag != null) {
+			Drawable icon = null;
+			if (mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_ALERTS)) {
+				icon = getResources().getDrawable(R.drawable.img_alert_dark);
+			}
+			else if (mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MESSAGES)) {
+				icon = getResources().getDrawable(R.drawable.img_message_dark);
+			}
+			if (icon != null) {
+				mActionBar.setIcon(icon);
 			}
 		}
 	}
@@ -334,7 +349,6 @@ public class AircandiForm extends BaseActivity {
 		setCurrentFragment(mNextFragmentTag);
 		onPrepareOptionsMenu(mMenu);
 	}
-
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
@@ -576,8 +590,8 @@ public class AircandiForm extends BaseActivity {
 					.setTitleResId(((EntityListFragment) getCurrentFragment()).getTitleResId())
 					.setZoomLevel(null);
 
-			//noinspection ConstantConditions
 			if (!mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
+				//noinspection ConstantConditions
 				((MapListFragment) fragment).setZoomLevel(MapListFragment.ZOOM_COUNTY);
 			}
 		}
@@ -589,6 +603,7 @@ public class AircandiForm extends BaseActivity {
 		mPrevFragmentTag = mCurrentFragmentTag;
 		mCurrentFragmentTag = fragmentType;
 		mCurrentFragment = fragment;
+		actionBarIcon();
 		updateFooter();
 	}
 

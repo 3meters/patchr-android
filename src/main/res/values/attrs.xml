@@ -153,9 +153,6 @@
 		<attr name="iconUsers" format="reference" />
 		<attr name="iconWatch" format="reference" />
 		<attr name="iconWatchInvert" format="reference" />
-		<attr name="iconZoom" format="reference" />
-		<attr name="iconZoomIn" format="reference" />
-		<attr name="iconZoomOut" format="reference" />
 	</declare-styleable>
 
 	<declare-styleable name="AirTextView">

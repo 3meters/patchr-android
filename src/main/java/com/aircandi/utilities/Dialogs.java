@@ -14,17 +14,12 @@ import android.widget.Toast;
 import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.components.AndroidManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
-import com.aircandi.objects.Shortcut;
-import com.aircandi.objects.Shortcut.InstallStatus;
-import com.aircandi.objects.ShortcutMeta;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.ui.base.BaseActivity;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

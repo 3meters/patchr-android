@@ -1,6 +1,7 @@
 package com.aircandi.ui.user;
 
 import android.annotation.SuppressLint;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
@@ -121,6 +122,13 @@ public class UserForm extends BaseEntityForm {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	protected void actionBarIcon() {
+		if (mActionBar != null) {
+			Drawable icon = getResources().getDrawable(R.drawable.img_user_dark);
+			mActionBar.setIcon(icon);
+		}
+	}
+
 	@Override
 	public void drawButtons(View view) {
 		super.drawButtons(view);
@@ -144,48 +152,6 @@ public class UserForm extends BaseEntityForm {
 			mButtonCreated.setText(StringManager.getString(R.string.label_user_created) + ": " + String.valueOf(created.count.intValue()));
 		}
 	}
-
-	//	protected void loadStats() {
-	//
-	//		new AsyncTask() {
-	//
-	//			@Override
-	//			protected void onPreExecute() {
-	//				mBusy.showBusy(BusyAction.Update);
-	//			}
-	//
-	//			@Override
-	//			protected Object doInBackground(Object... params) {
-	//				Thread.currentThread().setName("AsyncGetStats");
-	//
-	//				/* get user stats using rest api */
-	//				ModelResult result = Patch.getInstance().getEntityManager().getUserStats(mEntityId);
-	//				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-	//					((User) mEntity).stats = (List<Count>) result.data;
-	//				}
-	//				return result;
-	//			}
-	//
-	//			@Override
-	//			protected void onPostExecute(Object modelResult) {
-	//				final ModelResult result = (ModelResult) modelResult;
-	//
-	//				mBusy.hideBusy(false);
-	//				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-	//					if (result.data != null) {
-	//						drawStats(null);
-	//					}
-	//				}
-	//				else {
-	//					Errors.handleError(UserForm.this, result.serviceResponse);
-	//				}
-	//			}
-	//		}.execute();
-	//	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * UI routines
-	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	public void draw(View view) {
@@ -278,16 +244,12 @@ public class UserForm extends BaseEntityForm {
 		drawButtons(view);
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
-
 	@Override
 	protected int getLayoutId() {
 		return R.layout.user_form;
 	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/
 }

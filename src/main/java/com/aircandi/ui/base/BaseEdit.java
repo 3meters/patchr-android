@@ -3,6 +3,7 @@ package com.aircandi.ui.base;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 
@@ -59,11 +60,10 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 	@Override
 	public void draw(View view) {}
 
-	@Override
-	protected void configureActionBar() {
-		super.configureActionBar();
+	protected void actionBarIcon() {
 		if (mActionBar != null) {
-			mActionBar.setDisplayHomeAsUpEnabled(true);
+			Drawable icon = getResources().getDrawable(R.drawable.img_edit_dark);
+			mActionBar.setIcon(icon);
 		}
 	}
 

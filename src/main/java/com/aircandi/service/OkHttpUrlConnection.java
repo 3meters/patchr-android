@@ -231,6 +231,7 @@ public class OkHttpUrlConnection extends BaseConnection {
 					inputStream.close();
 				}
 				catch (IOException exception) {
+					//noinspection ReturnInsideFinallyBlock
 					return new ServiceResponse(ResponseCode.FAILED, null, exception);
 				}
 			}

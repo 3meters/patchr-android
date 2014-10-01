@@ -34,8 +34,6 @@ public interface IEntityController {
 
 	public Entity makeFromMap(Map<String, Object> map, Boolean nameMapping);
 
-	public Drawable getIcon();
-
 	public Photo getDefaultPhoto(String type);
 
 	public Drawable getDefaultDrawable(String type);

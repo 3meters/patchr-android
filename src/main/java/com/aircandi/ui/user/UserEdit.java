@@ -1,6 +1,7 @@
 package com.aircandi.ui.user;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
@@ -131,7 +132,7 @@ public class UserEdit extends BaseEntityEdit {
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle savedInstanceState) {
+	protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
 		super.onSaveInstanceState(savedInstanceState);
 		mTabManager.doSaveInstanceState(savedInstanceState);
 	}
