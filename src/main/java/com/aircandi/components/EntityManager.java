@@ -532,7 +532,8 @@ public class EntityManager {
 
 			/* Cancel any current notifications in the status bar */
 			MessagingManager.getInstance().cancelNotification(Tag.INSERT);
-			MessagingManager.getInstance().cancelNotification(Tag.UPDATE);
+			MessagingManager.getInstance().cancelNotification(Tag.ALERT);
+			MessagingManager.getInstance().cancelNotification(Tag.SHARE);
 
 			/* Clear user settings */
 			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
@@ -880,8 +881,6 @@ public class EntityManager {
 
 				/* Sources configuration */
 				if (!place.getProvider().type.equals("aircandi")) {
-					//parameters.putBoolean("insertApplinks", true);
-					//parameters.putInt("applinksTimeout", 10000);
 					parameters.putBoolean("waitForContent", waitForContent);
 				}
 

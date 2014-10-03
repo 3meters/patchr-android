@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:clickable="true"
@@ -67,7 +68,7 @@
 				android:tag="messages">
 
 				<ImageView
-					android:id="@+id/image_messages_all"
+					android:id="@+id/image_messages"
 					android:layout_width="@dimen/image_extra_small"
 					android:layout_height="@dimen/image_extra_small"
 					android:layout_centerVertical="true"
@@ -82,10 +83,22 @@
 					android:layout_height="wrap_content"
 					android:layout_centerVertical="true"
 					android:layout_marginRight="10dp"
-					android:layout_toRightOf="@+id/image_messages_all"
+					android:layout_toRightOf="@+id/image_messages"
+					android:layout_toLeftOf="@+id/count_messages"
 					android:text="@string/label_drawer_item_feed_messages"
 					android:textAppearance="?android:attr/textAppearanceMedium"
 					custom:textId="@string/label_drawer_item_feed_messages" />
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@+id/count_messages"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_centerVertical="true"
+					android:layout_alignParentRight="true"
+					android:layout_marginRight="10dp"
+					android:textColor="?attr/textColorSecondary"
+					tools:text="12"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
 
 			</RelativeLayout>
 
@@ -124,6 +137,17 @@
 					android:text="@string/label_drawer_item_feed_alerts"
 					android:textAppearance="?android:attr/textAppearanceMedium"
 					custom:textId="@string/label_drawer_item_feed_alerts" />
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@+id/count_alerts"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_centerVertical="true"
+					android:layout_alignParentRight="true"
+					android:layout_marginRight="10dp"
+					android:textColor="?attr/textColorSecondary"
+					tools:text="5"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
 
 			</RelativeLayout>
 

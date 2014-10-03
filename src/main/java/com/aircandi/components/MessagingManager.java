@@ -13,13 +13,14 @@ import android.support.v4.app.NotificationCompat;
 import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.interfaces.IEntityController;
 import com.aircandi.events.MessageEvent;
+import com.aircandi.exceptions.GcmRegistrationIOException;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Action.EventCategory;
 import com.aircandi.objects.Install;
+import com.aircandi.objects.Message;
 import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.ServiceMessage;
-import com.aircandi.exceptions.GcmRegistrationIOException;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.Errors;
@@ -38,8 +39,10 @@ public class MessagingManager {
 	private GoogleCloudMessaging mGcm;
 	private Install              mInstall;
 	private Uri                  mSoundUri;
-	private Boolean              mNewActivity = false;
-	private Map<String, Integer> mCounts      = new HashMap<String, Integer>();
+	private Boolean              mNewMessage = false;
+	private Boolean              mNewAlert   = false;
+	private Map<String, Message> mAlerts     = new HashMap<String, Message>();
+	private Map<String, Message> mMessages   = new HashMap<String, Message>();
 
 	private MessagingManager() {
 		mNotificationManager = (NotificationManager) Patch.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -166,16 +169,6 @@ public class MessagingManager {
 			}
 		}
 
-		String messageTag = getTag(message);
-		if (!mCounts.containsKey(messageTag)) {
-			mCounts.put(messageTag, 1);
-		}
-		else {
-			Integer count = mCounts.get(messageTag);
-			count++;
-			mCounts.put(messageTag, count);
-		}
-
 		message.intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		message.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -188,11 +181,14 @@ public class MessagingManager {
 		Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
 		PendingIntent deleteIntent = PendingIntent.getBroadcast(Patch.applicationContext, 0, intent, 0);
 
+		String messageTag = getTag(message);
+		Integer count = messageTag.equals(Tag.ALERT) ? mAlerts.size() : mMessages.size();
+
 		final NotificationCompat.Builder builder = new NotificationCompat.Builder(Patch.applicationContext)
 				.setContentTitle(message.title)
 				.setContentText(message.subtitle)
 				.setDeleteIntent(deleteIntent)
-				.setNumber(mCounts.get(messageTag))
+				.setNumber(count)
 				.setSmallIcon(R.drawable.ic_stat_notification)
 				.setAutoCancel(true)
 				.setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -242,7 +238,7 @@ public class MessagingManager {
 				exception.printStackTrace();
 			}
 		}
-		mNotificationManager.notify(getTag(message), 0, builder.build());
+		mNotificationManager.notify(messageTag, 0, builder.build());
 	}
 
 	public void useBigPicture(final NotificationCompat.Builder builder, final ServiceMessage message) {
@@ -292,12 +288,13 @@ public class MessagingManager {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public String getTag(ServiceMessage activity) {
-		if (activity.action.getEventCategory().equals(EventCategory.INSERT))
+		String eventCategory = activity.action.getEventCategory();
+		if (eventCategory.equals(EventCategory.INSERT))
 			return Tag.INSERT;
-		else if (activity.action.getEventCategory().equals(EventCategory.SHARE))
+		else if (eventCategory.equals(EventCategory.SHARE))
 			return Tag.SHARE;
-
-		return Tag.UPDATE;
+		else
+			return Tag.ALERT;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -312,27 +309,46 @@ public class MessagingManager {
 		mInstall = device;
 	}
 
+	public Boolean getNewActivity() {
+		return (mNewMessage || mNewAlert);
+	}
+
+	public void setNewActivity(Boolean visible) {
+		mNewMessage = visible;
+		mNewAlert = visible;
+	}
+
+	public Boolean getNewMessage() {
+		return mNewMessage;
+	}
+
+	public void setNewMessage(Boolean newMessage) {
+		mNewMessage = newMessage;
+	}
+
+	public Boolean getNewAlert() {
+		return mNewAlert;
+	}
+
+	public void setNewAlert(Boolean newAlert) {
+		mNewAlert = newAlert;
+	}
+
+	public Map<String, Message> getAlerts() {
+		return mAlerts;
+	}
+
+	public Map<String, Message> getMessages() {
+		return mMessages;
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public Boolean getNewActivity() {
-		return mNewActivity;
-	}
-
-	public void setNewActivity(Boolean newActivity) {
-		mNewActivity = newActivity;
-	}
-
-	public void clearCounts() {
-		mCounts.clear();
-	}
-
 	public static class Tag {
-		public static String INSERT  = "insert";
-		public static String SHARE   = "share";
-		public static String UPDATE  = "update";
-		@SuppressWarnings("ucd")
-		public static String REFRESH = "refresh";
+		public static String INSERT = "insert";
+		public static String SHARE  = "share";
+		public static String ALERT  = "alert";
 	}
 }

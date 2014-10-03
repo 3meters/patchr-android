@@ -1,32 +1,33 @@
 package com.aircandi.controllers;
 
-import java.util.Map;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
-import com.aircandi.interfaces.IEntityController;
-import com.aircandi.objects.LinkProfile;
-import com.aircandi.objects.Message;
-import com.aircandi.objects.ViewHolder;
-import com.aircandi.ui.MessageForm;
-import com.aircandi.ui.edit.MessageEdit;
 import com.aircandi.components.EntityManager;
+import com.aircandi.components.MessagingManager;
 import com.aircandi.components.StringManager;
+import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Action;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
+import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.Message;
 import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.ServiceMessage;
+import com.aircandi.objects.ViewHolder;
+import com.aircandi.ui.MessageForm;
+import com.aircandi.ui.edit.MessageEdit;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.UI;
+
+import java.util.Map;
 
 public class Messages extends EntityControllerBase {
 
@@ -90,7 +91,7 @@ public class Messages extends EntityControllerBase {
 
 		UI.setVisibility(holder.userPhotoView, View.GONE);
 		if (holder.userPhotoView != null && entity.creator != null) {
-	        /*
+		    /*
              * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
 			 */
 			Photo photo = entity.creator.getPhoto();
@@ -176,6 +177,24 @@ public class Messages extends EntityControllerBase {
 		if (holder.description != null && entity.description != null && entity.description.length() > 0) {
 			holder.description.setText(entity.description);
 			UI.setVisibility(holder.description, View.VISIBLE);
+		}
+
+		/* Alert indicator */
+
+		if (holder.alert != null) {
+			UI.setVisibility(holder.alert, View.INVISIBLE);
+			if (entity.type.equals(Constants.TYPE_APP_ALERT)) {
+				boolean notification = MessagingManager.getInstance().getAlerts().containsKey(entity.id);
+				if (notification) {
+					UI.setVisibility(holder.alert, View.VISIBLE);
+				}
+			}
+			else {
+				boolean notification = MessagingManager.getInstance().getMessages().containsKey(entity.id);
+				if (notification) {
+					UI.setVisibility(holder.alert, View.VISIBLE);
+				}
+			}
 		}
 
         /* Shared entity */
@@ -304,5 +323,4 @@ public class Messages extends EntityControllerBase {
 	public static class ViewHolderExtended extends ViewHolder {
 		public TextView childCount;
 	}
-
 }

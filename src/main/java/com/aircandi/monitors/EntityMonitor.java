@@ -42,6 +42,7 @@ public class EntityMonitor extends SimpleMonitor {
 			this.activity = true;
 			this.modified = true;
 			this.changed = true;
+			mFirstRun = false;
 			return true;
 		}
 		else {
@@ -61,6 +62,7 @@ public class EntityMonitor extends SimpleMonitor {
 					this.modified = ((cacheStamp.modifiedDate == null)
 					                 ? mCacheStamp.modifiedDate == null
 					                 : mCacheStamp.modifiedDate.equals(cacheStamp.modifiedDate));
+					mFirstRun = false;
 					return true;
 				}
 			}
@@ -85,7 +87,7 @@ public class EntityMonitor extends SimpleMonitor {
 		 * Entities for users have a special dependency because changing the parent entity
 		 * (user) can mean updating list items that are showing stale user info.
 		 */
-		if (entity instanceof User && this.modified) {
+		if (entity instanceof User && (mFirstRun || this.modified)) {
 			this.activity = true;
 		}
 
@@ -97,6 +99,7 @@ public class EntityMonitor extends SimpleMonitor {
 					+ mCacheStamp.modifiedDate);
 		}
 
+		mFirstRun = false;
 		return this.changed;
 	}
 

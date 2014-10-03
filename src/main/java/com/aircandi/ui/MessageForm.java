@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -24,7 +23,6 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patch;
 import com.aircandi.R;
-import com.aircandi.R.color;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MessagingManager;
@@ -52,7 +50,6 @@ import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.ui.widgets.FlowLayout;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
@@ -142,7 +139,6 @@ public class MessageForm extends BaseEntityForm {
 
             /* Clear notifications and activity indicator */
 			MessagingManager.getInstance().setNewActivity(false);
-			MessagingManager.getInstance().clearCounts();
 			if (mEntityMonitor.changed) {
 				mListFragment.bind(BindingMode.MANUAL);
 			}

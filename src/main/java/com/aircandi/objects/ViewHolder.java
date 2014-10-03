@@ -2,6 +2,7 @@ package com.aircandi.objects;
 
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.aircandi.ui.widgets.AirImageView;
@@ -27,6 +28,7 @@ public class ViewHolder {
 	public TextView     area;
 	public EntityView   parent;
 	public ViewGroup    share;
+	public ImageView    alert;
 
 	public ComboButton overflow;
 	public CheckBox    checked;

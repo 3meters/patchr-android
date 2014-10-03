@@ -197,6 +197,7 @@ public class Constants {
 
 	/* Verb types */
 	public static final String TYPE_APP_WATCH = "watch";
+	public static final String TYPE_APP_ALERT = "alert";
 
 	/* Entity types */
 	public static final String TYPE_APP_PLACE   = "place";

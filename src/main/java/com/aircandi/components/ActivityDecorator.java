@@ -2,6 +2,7 @@ package com.aircandi.components;
 
 import android.text.TextUtils;
 
+import com.aircandi.Constants;
 import com.aircandi.Patch;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Action.EventCategory;
@@ -75,6 +76,8 @@ public class ActivityDecorator {
 					else if (activity.trigger.equals(MessageTriggerType.TriggerType.OWN_TO))
 						return String.format("replied to a message at a %1$s of yours.", activity.action.toEntity.getLabelForSchema());
 				}
+				else if (activity.action.entity.type.equals(Message.MessageType.REPLY)) {
+				}
 			}
 			else if (activity.action.entity.schema.equals(com.aircandi.Constants.SCHEMA_ENTITY_PLACE)) {
 
@@ -86,6 +89,11 @@ public class ActivityDecorator {
 
 			if (activity.action.entity.schema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)) {
 				return "shared with you.";
+			}
+		}
+		else if (activity.action.getEventCategory().equals(EventCategory.WATCH)) {
+			if (activity.action.toEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+				return String.format("started watching a patch of yours: %1$s", activity.action.toEntity.name);
 			}
 		}
 

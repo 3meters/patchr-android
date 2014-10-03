@@ -61,6 +61,11 @@ public class SplashForm extends Activity {
 		/* Always reset the entity cache */
 		EntityManager.getEntityCache().clear();
 
+		/* Restart notification tracking */
+		MessagingManager.getInstance().setNewActivity(false);
+		MessagingManager.getInstance().getAlerts().clear();
+		MessagingManager.getInstance().getMessages().clear();
+
 		if (!Patch.applicationUpdateRequired) {
 			if (AndroidManager.checkPlayServices(this)) {
 				prepareToRun();

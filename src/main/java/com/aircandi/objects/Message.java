@@ -78,5 +78,6 @@ public class Message extends Entity implements Cloneable, Serializable {
 		public static String ROOT  = "root";
 		public static String REPLY = "reply";
 		public static String SHARE = "share";
+		public static String ALERT = "alert";
 	}
 }

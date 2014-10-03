@@ -13,8 +13,9 @@ import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Action.EventCategory;
-import com.aircandi.objects.MessageTriggerType;
 import com.aircandi.objects.EventType;
+import com.aircandi.objects.Message;
+import com.aircandi.objects.MessageTriggerType;
 import com.aircandi.objects.ServiceMessage;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.ui.base.BaseActivity;
@@ -64,17 +65,18 @@ public class GcmIntentService extends IntentService {
 					 * has a payload, its contents are available as extras in the intent.
 					 */
 					String jsonMessage = extras.getString("message");
-					ServiceMessage message = (ServiceMessage) Json.jsonToObject(jsonMessage, Json.ObjectType.SERVICE_MESSAGE);
+					ServiceMessage serviceMessage = (ServiceMessage) Json.jsonToObject(jsonMessage, Json.ObjectType.SERVICE_MESSAGE);
 					/*
 					 * If the primary entity of the message isn't one we have a controller for, it won't be deserialized
 					 * and entity will be null. That is a good reason to discard the message.
 					 */
-					if (message == null || message.action.entity == null) return;
+					if (serviceMessage == null || serviceMessage.action.entity == null) return;
 
 					/* Is this a message event we know how to handle */
-					if (message.action.getEventCategory().equals(EventCategory.UNKNOWN)) return;
-					if (!isValidSchema(message)) return;
-					if (!isValidEvent(message)) return;
+					if (serviceMessage.action.getEventCategory().equals(EventCategory.UNKNOWN))
+						return;
+					if (!isValidSchema(serviceMessage)) return;
+					if (!isValidEvent(serviceMessage)) return;
 
 					/*
 					 * Tickle activity date on current user to flag auto refresh for activity list. This service
@@ -82,12 +84,12 @@ public class GcmIntentService extends IntentService {
 					 * the application is in the foreground or not.
 					 */
 					if (Patch.getInstance().getCurrentUser() != null) {
-						Patch.getInstance().getCurrentUser().activityDate = message.sentDate;
+						Patch.getInstance().getCurrentUser().activityDate = serviceMessage.sentDate;
 					}
 
 					/* Tickle activity date on entity manager because that is monitored by radar. */
-					if ((message.action.entity != null && message.action.entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE))
-							|| (message.action.toEntity != null && message.action.toEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE))) {
+					if ((serviceMessage.action.entity != null && serviceMessage.action.entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE))
+							|| (serviceMessage.action.toEntity != null && serviceMessage.action.toEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE))) {
 						Patch.getInstance().getEntityManager().setActivityDate(DateTime.nowDate().getTime());
 					}
 
@@ -95,13 +97,26 @@ public class GcmIntentService extends IntentService {
 
 					/*
 					 * Hmm, if this is a message for a place, the place will get replace with this toEntity which
-					 * is not exactly a full monty place entity. Its ok if its a new place not in the cache
-					 * because it provide context info for things like comments and pictures.
+					 * is not exactly a full monty place entity. It's ok if its a new place not in the cache
+					 * because it provides context info for things like messages.
 					 */
-					if (message.action.toEntity != null) {
-						if (!EntityManager.getEntityCache().containsKey(message.action.toEntity.id)) {
-							EntityManager.getEntityCache().upsertEntity(message.action.toEntity);
-							message.action.entity.toId = message.action.toEntity.id;
+					if (serviceMessage.action.toEntity != null) {
+						if (!EntityManager.getEntityCache().containsKey(serviceMessage.action.toEntity.id)) {
+							EntityManager.getEntityCache().upsertEntity(serviceMessage.action.toEntity);
+							serviceMessage.action.entity.toId = serviceMessage.action.toEntity.id;
+						}
+					}
+
+					/* Track */
+					if (serviceMessage.action.entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+						Message message = (Message) serviceMessage.action.entity;
+						if (message.type.equals(Constants.TYPE_APP_ALERT)) {
+							MessagingManager.getInstance().getAlerts().put(message.id, message);
+							MessagingManager.getInstance().setNewAlert(true);
+						}
+						else {
+							MessagingManager.getInstance().getMessages().put(message.id, message);
+							MessagingManager.getInstance().setNewMessage(true);
 						}
 					}
 
@@ -110,31 +125,42 @@ public class GcmIntentService extends IntentService {
 					 */
 
 					Boolean background = (Patch.getInstance().getCurrentActivity() == null);
-					Boolean targetVisible = targetContextVisible(message);
+					Boolean targetVisible = targetContextVisible(serviceMessage);
 
-					if (background || !targetVisible || message.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
+					if (background || !targetVisible || serviceMessage.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
 
-						if (!message.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
-							MessagingManager.getInstance().setNewActivity(true);
+						if (!serviceMessage.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
+							MessagingManager.getInstance().setNewMessage(true);
 						}
 
-						if (background || message.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
+						if (background || serviceMessage.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
 
 						    /* Build intent that can be used in association with the notification */
-							if (message.action.entity != null) {
-								IEntityController controller = Patch.getInstance().getControllerForSchema(message.action.entity.schema);
-								Extras bundle = new Extras().setForceRefresh(true);
-								String parentId = (message.action.toEntity != null) ? message.action.toEntity.id : null;
-								message.intent = controller.view(Patch.applicationContext, null, message.action.entity.id, parentId, null,
-										bundle.getExtras(),
-										false);
+							if (serviceMessage.action.entity != null) {
+								if (serviceMessage.action.entity.type.equals(Constants.TYPE_APP_ALERT)) {
+									if (serviceMessage.action.toEntity != null) {
+										IEntityController controller = Patch.getInstance().getControllerForSchema(serviceMessage.action.toEntity.schema);
+										Extras bundle = new Extras().setForceRefresh(true);
+										serviceMessage.intent = controller.view(Patch.applicationContext, null, serviceMessage.action.toEntity.id, null, null,
+												bundle.getExtras(),
+												false);
+									}
+								}
+								else {
+									IEntityController controller = Patch.getInstance().getControllerForSchema(serviceMessage.action.entity.schema);
+									Extras bundle = new Extras().setForceRefresh(true);
+									String parentId = (serviceMessage.action.toEntity != null) ? serviceMessage.action.toEntity.id : null;
+									serviceMessage.intent = controller.view(Patch.applicationContext, null, serviceMessage.action.entity.id, parentId, null,
+											bundle.getExtras(),
+											false);
+								}
 							}
 
 						    /* Customize title and subtitle before broadcasting */
-							Patch.getInstance().getActivityDecorator().decorate(message);
+							Patch.getInstance().getActivityDecorator().decorate(serviceMessage);
 
 						    /* Send notification */
-							MessagingManager.getInstance().notificationForMessage(message, Patch.applicationContext);
+							MessagingManager.getInstance().notificationForMessage(serviceMessage, Patch.applicationContext);
 						}
 						else {
 							MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);
@@ -155,7 +181,7 @@ public class GcmIntentService extends IntentService {
 					}
 
 					/* Trigger event so subscribers can decide if they care about the activity */
-					MessagingManager.getInstance().broadcastMessage(message);
+					MessagingManager.getInstance().broadcastMessage(serviceMessage);
 				}
 			}
 		}
@@ -174,7 +200,6 @@ public class GcmIntentService extends IntentService {
 				}
 			}
 		}
-
 	}
 
 	protected Boolean targetContextVisible(ServiceMessage message) {
@@ -242,6 +267,7 @@ public class GcmIntentService extends IntentService {
 		events.add(EventType.INSERT_PLACE);
 		events.add(EventType.INSERT_MESSAGE);
 		events.add(EventType.INSERT_MESSAGE_SHARE);
+		events.add(EventType.INSERT_LINK_WATCH);
 
 		if (message.action.entity != null) {
 			if (!events.contains(message.action.event)) return false;

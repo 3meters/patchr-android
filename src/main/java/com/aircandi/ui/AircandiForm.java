@@ -3,7 +3,6 @@ package com.aircandi.ui;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.res.Configuration;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -12,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -629,33 +627,40 @@ public class AircandiForm extends BaseActivity {
 
 		Logger.v(this, "updateActivityAlert for menus");
 
-		Boolean newMessages = MessagingManager.getInstance().getNewActivity();
+		Boolean showingMessages = (mCurrentFragment != null && mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MESSAGES));
+		Boolean showingAlerts = (mCurrentFragment != null && mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_ALERTS));
+
+		Boolean newActivity = MessagingManager.getInstance().getNewActivity();
+		Boolean newAlert = MessagingManager.getInstance().getNewAlert();
+		Boolean newMessage = MessagingManager.getInstance().getNewMessage();
+
 		if (mMenu != null) {
 			MenuItem notifications = mMenu.findItem(R.id.notifications);
 			if (notifications != null) {
-				ImageView image = (ImageView) notifications.getActionView().findViewById(R.id.notifications_image);
-				if (newMessages) {
-					final int color = Colors.getColor(R.color.holo_blue_dark);
-					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-					notifications.setVisible(true);
-				}
-				else {
-					image.setColorFilter(null);
-					notifications.setVisible(false);
-				}
-				image.invalidate();
+				notifications.setVisible((newActivity && !(showingMessages||showingAlerts)) ? true : false);
 			}
 		}
 
-		ImageView drawerImage = (ImageView) findViewById(R.id.image_messages_all);
-		if (drawerImage != null) {
-			if (newMessages) {
-				final int color = Colors.getColor(R.color.holo_blue_dark);
-				drawerImage.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-				drawerImage.setVisibility(View.VISIBLE);
+		Integer color = Colors.getColor(UI.getResIdForAttribute(this, R.attr.textColorSecondary));
+		Integer colorHighlighted = Colors.getColor(R.color.brand_primary);
+
+		TextView alertCount = (TextView) findViewById(R.id.count_alerts);
+		if (alertCount != null) {
+			Integer count = MessagingManager.getInstance().getAlerts().size();
+			alertCount.setVisibility(count > 0 ? View.VISIBLE : View.INVISIBLE);
+			if (count > 0) {
+				alertCount.setText(String.valueOf(count));
+				alertCount.setTextColor((newAlert && !showingAlerts) ? colorHighlighted : color);
 			}
-			else {
-				drawerImage.setColorFilter(null);
+		}
+
+		TextView messageCount = (TextView) findViewById(R.id.count_messages);
+		if (messageCount != null) {
+			Integer count = MessagingManager.getInstance().getMessages().size();
+			messageCount.setVisibility(count > 0 ? View.VISIBLE : View.INVISIBLE);
+			if (count > 0) {
+				messageCount.setText(String.valueOf(count));
+				messageCount.setTextColor((newMessage && !showingMessages) ? colorHighlighted : color);
 			}
 		}
 	}
@@ -703,7 +708,13 @@ public class AircandiForm extends BaseActivity {
 	}
 
 	protected Boolean showingMessages() {
-		return (mCurrentFragment != null && ((Object) mCurrentFragment).getClass().equals(MessageListFragment.class));
+		if (mCurrentFragment != null) {
+			if (mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_ALERTS)
+					|| mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MESSAGES)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	protected void scrollToTopOfList() {
@@ -750,9 +761,9 @@ public class AircandiForm extends BaseActivity {
 		if (mDrawerLayout != null) {
 			Boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawer);
 
-			MenuItem menuItemAdd = menu.findItem(R.id.new_place);
-			if (menuItemAdd != null) {
-				menuItemAdd.setVisible(!(drawerOpen));
+			MenuItem menuItemNewPlace = menu.findItem(R.id.new_place);
+			if (menuItemNewPlace != null) {
+				menuItemNewPlace.setVisible(!(drawerOpen));
 			}
 
 			final MenuItem refresh = menu.findItem(R.id.refresh);
@@ -765,10 +776,16 @@ public class AircandiForm extends BaseActivity {
 				search.setVisible(!(drawerOpen));
 			}
 
+			MenuItem menuItemAdd = menu.findItem(R.id.add);
+			if (menuItemAdd != null) {
+				menuItemAdd.setVisible(!(drawerOpen));
+			}
+
 			final MenuItem notifications = menu.findItem(R.id.notifications);
 			if (notifications != null) {
-				Boolean newMessages = MessagingManager.getInstance().getNewActivity();
-				notifications.setVisible(!(drawerOpen || !newMessages));
+				if (drawerOpen) {
+					notifications.setVisible(false);
+				}
 			}
 
 			/* Don't need to show the user email in two places */
@@ -786,18 +803,10 @@ public class AircandiForm extends BaseActivity {
 			}
 		}
 
-		if (mDrawerLayout != null) {
-			Boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawer);
-
-			MenuItem menuItemAdd = menu.findItem(R.id.add);
-			if (menuItemAdd != null) {
-				menuItemAdd.setVisible(!(drawerOpen));
-			}
-		}
-
-		final MenuItem notifications = menu.findItem(com.aircandi.R.id.notifications);
+		final MenuItem notifications = menu.findItem(R.id.notifications);
 		if (notifications != null) {
-			notifications.getActionView().findViewById(com.aircandi.R.id.notifications_frame).setOnClickListener(new View.OnClickListener() {
+			notifications.getActionView().findViewById(R.id.notifications_frame).setOnClickListener(new View.OnClickListener() {
+
 				@Override
 				public void onClick(View view) {
 					if (showingMessages()) {

@@ -117,7 +117,14 @@ public class MessageListFragment extends EntityListFragment {
 			extras.setEntityId(entity.id);
 		}
 
+
 		Patch.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
+
+		MessagingManager.getInstance().setNewActivity(false);
+		if (MessagingManager.getInstance().getMessages().containsKey(entity.id)) {
+			MessagingManager.getInstance().getMessages().remove(entity.id);
+			mAdapter.notifyDataSetChanged();;
+		}
 	}
 
 	@SuppressWarnings("ucd")

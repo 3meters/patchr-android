@@ -11,6 +11,15 @@
 	android:onClick="onEntityClick"
 	android:padding="10dp">
 
+	<ImageView
+		android:id="@+id/alert_indicator"
+		android:layout_width="@dimen/image_micro"
+		android:layout_height="@dimen/image_micro"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentTop="true"
+		android:src="@drawable/img_blue_dot"
+		android:visibility="invisible" />
+
 	<!-- Place context -->
 
 	<LinearLayout
@@ -149,11 +158,11 @@
 
 		<RelativeLayout
 			android:id="@+id/share_holder"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
 			android:layout_marginBottom="5dp"
 			android:layout_marginLeft="2dp"
-			android:layout_marginTop="12dp"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+			android:layout_marginTop="12dp">
 
 			<FrameLayout
 				android:id="@+id/share"

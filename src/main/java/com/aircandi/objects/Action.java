@@ -69,13 +69,11 @@ public class Action extends ServiceObject implements Cloneable, Serializable {
 		/*
 		 * event can contain multiple candidates: i.e. insert_message_share
 		 */
-		if (this.event.contains("insert")) return EventCategory.INSERT;
-		if (this.event.contains("update")) return EventCategory.UPDATE;
-		if (this.event.contains("delete")) return EventCategory.DELETE;
 		if (this.event.contains("share")) return EventCategory.SHARE;
 		if (this.event.contains("watch")) return EventCategory.WATCH;
 		if (this.event.contains("like")) return EventCategory.LIKE;
 		if (this.event.contains("join")) return EventCategory.JOIN;
+		if (this.event.contains("insert")) return EventCategory.INSERT;
 		return EventCategory.UNKNOWN;
 	}
 
@@ -85,8 +83,6 @@ public class Action extends ServiceObject implements Cloneable, Serializable {
 
 	public static class EventCategory {
 		public static String INSERT  = "insert";
-		public static String UPDATE  = "update";
-		public static String DELETE  = "delete";
 		public static String SHARE   = "share";
 		public static String WATCH   = "watch";
 		public static String LIKE    = "like";

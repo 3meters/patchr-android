@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.aircandi.Patch;
@@ -344,6 +345,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.checked = (CheckBox) view.findViewById(R.id.checked);
 		holder.overflow = (ComboButton) view.findViewById(R.id.button_overflow);
 		holder.share = (ViewGroup) view.findViewById(R.id.share);
+		holder.alert = (ImageView) view.findViewById(R.id.alert_indicator);
 
 		if (holder.checked != null) {
 			holder.checked.setOnClickListener(new View.OnClickListener() {
@@ -361,13 +363,6 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.userName = (TextView) view.findViewById(R.id.user_name);
 		holder.placeName = (TextView) view.findViewById(R.id.place_name);
 		holder.toName = (TextView) view.findViewById(R.id.to_name);
-
-		//		if (mListView instanceof GridView) {
-		//			Integer nudge = mResources.getDimensionPixelSize(R.dimen.grid_item_height_kick);
-		//			final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mPhotoWidthPixels, mPhotoWidthPixels - nudge);
-		//			holder.photoView.getImageView().setLayoutParams(params);
-		//			holder.photoView.getMissingMessage().setLayoutParams(params);
-		//		}
 	}
 
 	@Override

@@ -147,7 +147,7 @@ public class ToolTipRelativeLayout extends RelativeLayout implements View.OnTouc
 	}
 
 	private void fadeOutShowcase() {
-		AnimationManager.showViewAnimate(this, false, true, AnimationManager.DURATION_MEDIUM);
+		AnimationManager.showViewAnimate(this, false, false, AnimationManager.DURATION_MEDIUM);
 	}
 
 	private static View findActionBarOverflowMenuView(final Activity activity) {
