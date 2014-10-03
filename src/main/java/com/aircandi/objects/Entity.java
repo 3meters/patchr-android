@@ -58,7 +58,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@Expose
 	public String visibility;                                    // private|public|hidden
 	@Expose
-	@SerializedName(name = "_place")
+	@SerializedName(name = "_acl")
 	public String placeId;
 
 	/* Synthetic fields */
@@ -683,7 +683,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			entity.synthetic = (Boolean) ((map.get("synthetic") != null) ? map.get("synthetic") : false);
 			entity.shortcuts = (Boolean) ((map.get("shortcuts") != null) ? map.get("shortcuts") : false);
 			entity.checked = (Boolean) ((map.get("checked") != null) ? map.get("checked") : false);
-			entity.placeId = (String) (nameMapping ? map.get("_place") : map.get("placeId"));
+			entity.placeId = (String) (nameMapping ? map.get("_acl") : map.get("placeId"));
 			entity.editing = (Boolean) ((map.get("editing") != null) ? map.get("checked") : false);
 			entity.highlighted = (Boolean) ((map.get("highlighted") != null) ? map.get("highlighted") : false);
 			entity.read = (Boolean) ((map.get("read") != null) ? map.get("read") : false);
