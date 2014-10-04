@@ -259,6 +259,11 @@ public class PlaceEdit extends BaseEntityEdit
 		Patch.dispatch.route(this, Route.CATEGORY_EDIT, mEntity, null, null);
 	}
 
+	@SuppressWarnings("ucd")
+	public void onLocationBuilderClick(View view) {
+		Patch.dispatch.route(this, Route.LOCATION_EDIT, mEntity, null, null);
+	}
+
 	public void onTokenAdded(Object o) {
 		if (!mTos.contains((Entity) o)) {
 			mTos.add((Entity) o);

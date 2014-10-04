@@ -261,6 +261,7 @@
 	<!-- Buttons -->
 
 	<string name="button_change_picture">Set photo</string>
+	<string name="button_change_banner">Tap to set banner</string>
 	<string name="button_change_password">Change password</string>
 	<string name="button_sign_in">Sign in</string>
 	<string name="button_register">Join</string>
@@ -371,17 +372,6 @@
         "Checkout this [@string/name_app] photo!"
     </string>
 
-	<!-- Labels: Navigation -->
-
-	<string name="label_drawer_item_nearby">Nearby</string>
-	<string name="label_drawer_item_watch">Watching</string>
-	<string name="label_drawer_item_create">Made by me</string>
-
-	<string name="label_tab_item_content">Content</string>
-	<string name="label_tab_item_settings">Settings</string>
-	<string name="label_tab_item_profile">Profile</string>
-	<string name="label_tab_item_account">Account</string>
-
 	<!-- Labels: Empty -->
 
 	<string name="label_radar_empty">No [@string/container_plural_lowercase] found nearby</string>
@@ -446,6 +436,15 @@
 
 	<!-- Labels: Navigation -->
 
+	<string name="label_drawer_item_nearby">Nearby</string>
+	<string name="label_drawer_item_watch">Watching</string>
+	<string name="label_drawer_item_create">Made by me</string>
+
+	<string name="label_tab_item_content">Content</string>
+	<string name="label_tab_item_settings">Settings</string>
+	<string name="label_tab_item_profile">Profile</string>
+	<string name="label_tab_item_account">Account</string>
+
 	<string name="label_drawer_section_places">PATCHES</string>
 	<string name="label_drawer_section_trending">TRENDING</string>
 	<string name="label_drawer_section_messages">FEEDS</string>
@@ -481,6 +480,7 @@
 	<string name="hint_place_title">Name</string>
 	<string name="hint_place_category">Set category</string>
 	<string name="hint_place_sub_category">Set subcategory</string>
+	<string name="hint_place_location">Set location</string>
 	<string name="hint_phone">Phone</string>
 	<string name="hint_address">Address</string>
 	<string name="hint_state">State</string>

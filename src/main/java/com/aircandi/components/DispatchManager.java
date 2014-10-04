@@ -34,6 +34,7 @@ import com.aircandi.ui.edit.ReportEdit;
 import com.aircandi.ui.edit.TuningEdit;
 import com.aircandi.ui.helpers.AddressBuilder;
 import com.aircandi.ui.helpers.CategoryBuilder;
+import com.aircandi.ui.helpers.LocationPicker;
 import com.aircandi.ui.helpers.PhotoPicker;
 import com.aircandi.ui.helpers.PhotoSourcePicker;
 import com.aircandi.ui.helpers.PlacePicker;
@@ -370,8 +371,25 @@ public class DispatchManager {
 			final Intent intent = intentBuilder.create();
 
 			if (((Place) entity).category != null) {
-				final String jsonCategory = Json.objectToJson(((Place) entity).category);
-				intent.putExtra(Constants.EXTRA_CATEGORY, jsonCategory);
+				final String json = Json.objectToJson(((Place) entity).category);
+				intent.putExtra(Constants.EXTRA_CATEGORY, json);
+			}
+
+			activity.startActivityForResult(intent, Constants.ACTIVITY_CATEGORY_EDIT);
+			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO_BUILDER);
+		}
+
+		else if (route == Route.LOCATION_EDIT) {
+
+			if (entity == null) {
+				throw new IllegalArgumentException("Dispatching location edit requires entity");
+			}
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, LocationPicker.class);
+			final Intent intent = intentBuilder.create();
+
+			if (((Place) entity).location != null) {
+				final String json = Json.objectToJson(((Place) entity).location);
+				intent.putExtra(Constants.EXTRA_LOCATION, json);
 			}
 
 			activity.startActivityForResult(intent, Constants.ACTIVITY_CATEGORY_EDIT);
