@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- /// Preferences user /// -->
+
+	<!-- Keys -->
+
+	<string name="pref_theme">[@string/id_package]_pref_theme</string>
+	<string name="pref_sound_effects">[@string/id_package]_pref_sound_effects</string>
+	<string name="pref_auto_watch">[@string/id_package]_pref_auto_watch</string>
+	<string name="pref_messages_nearby">[@string/id_package]_pref_messages_nearby</string>
+	<string name="pref_messages_own">[@string/id_package]_pref_messages_own</string>
+	<string name="pref_messages_watch">[@string/id_package]_pref_messages_watch</string>
+	<string name="pref_messages_share">[@string/id_package]_pref_messages_share</string>
+
+	<!-- Defaults -->
+
+	<string name="pref_theme_default">aircandi_theme_snow</string>
+	<bool name="pref_notifications_nearby_default">true</bool>
+	<bool name="pref_notifications_watch_default">true</bool>
+	<bool name="pref_notifications_own_default">true</bool>
+	<bool name="pref_notifications_share_default">true</bool>
+	<bool name="pref_sound_effects_default">true</bool>
+	<bool name="pref_auto_watch_default">true</bool>
+
+	<!-- UI -->
+
+	<string name="pref_category_title_general">General</string>
+	<string name="pref_category_title_about">About</string>
+	<string name="pref_category_title_account">Account</string>
+
+	<string name="pref_signout_title">Sign out</string>
+	<string name="pref_signin_title">Sign in</string>
+	<string name="pref_signout_summary">Sign out of [@string/name_app]</string>
+	<string name="pref_signin_summary">Sign in to [@string/name_app]</string>
+
+	<string name="pref_theme_title">Themes</string>
+	<string name="pref_theme_dialog_title">Select theme.</string>
+	<string name="pref_sound_effects_summary">Play sound notifications and effects.</string>
+	<string name="pref_sound_effects_title">Sounds</string>
+	<string name="pref_auto_watch_summary">Automatically watch shared patches you browse to.</string>
+	<string name="pref_auto_watch_title">Auto watch</string>
+
+	<string name="pref_notifications_nearby_title">Nearby</string>
+	<string name="pref_notifications_own_title">Created</string>
+	<string name="pref_notifications_watch_title">Watching</string>
+	<string name="pref_notifications_share_title">Sharing</string>
+	<string name="pref_notifications_nearby_summary">Messages posted to patches nearby.</string>
+	<string name="pref_notifications_own_summary">Messages posted to patches I made</string>
+	<string name="pref_notifications_watch_summary">Messages posted to patches I\'m watching.</string>
+	<string name="pref_notifications_share_summary">Messages to share a patch or message with me.</string>
+
+	<!-- /// Preferences developer /// -->
+
+	<!-- Keys -->
+
+	<string name="pref_enable_dev">pref_enable_dev</string>
+	<string name="pref_enable_image_debug">pref_enable_image_debug</string>
+	<string name="pref_testing_screen">pref_testing_screen</string>
+	<string name="pref_testing_beacons">pref_testing_beacons</string>
+	<string name="pref_demo_beacons">pref_demo_beacons</string>
+	<string name="pref_search_radius">pref_search_radius</string>
+	<string name="pref_tag_refresh">pref_tag_refresh</string>
+
+	<!-- Defaults -->
+
+	<string name="pref_search_radius_default">1609</string>
+	<string name="pref_testing_beacons_default">natural</string>
+
+	<!-- UI -->
+
+	<string name="pref_category_title_development">Development</string>
+
+</resources>

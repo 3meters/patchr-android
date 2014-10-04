@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="TypographyDashes">
+
+	<!--
+		By default, the reported app name and version come from the package.
+		Every aircandi application has a unique tracking id
+	-->
+	<string name="ga_trackingId">UA-33660954-5</string>
+	<!--
+		 Set to true to track time spent in each Activity.
+		 Set to false to track application-level information only. Default is false.
+	-->
+	<bool name="ga_autoActivityTracking">true</bool>
+
+	<!--
+		Enable automatic exception tracking. This does not conflict with
+		Crashlytics exception reporting.
+	-->
+	<bool name="ga_reportUncaughtExceptions">true</bool>
+
+	<!--
+		Set how often auto dispatch gets fired in seconds.
+		Note: The default is 30 minutes which is crazy. iOS default is 2 minutes so
+		we are going to be a bit aggresive and make it one minute for ship.
+		For testing/debut it's fine to go with something super fast like 10 seconds.
+		Jayma: We are overriding this in TrackGoogleEasy.applicationStart();
+	-->
+	<integer name="ga_dispatchPeriod">60</integer>
+
+	<!--
+		The amount of time (in seconds) your application can stay in the background before the 
+		session is ended. Default is 30 seconds. Negative value disables EasyTracker session management.
+	-->
+	<integer name="ga_sessionTimeout">120</integer>
+
+	<!-- Privacy settings that strips the last octet of the IP before storage in service -->
+	<bool name="ga_anonymizeIp">false</bool>
+
+	<!--
+		Info on what is being tracked is output to logcat
+		Jayma: We are overriding this in TrackGoogleEasy.applicationStart();
+	-->
+	<string name="ga_logLevel">warning</string>
+
+	<!-- The screen names that will appear in the reporting -->
+
+	<string name="com.aircandi.ui.AircandiForm">AircandiForm</string>
+	<string name="com.aircandi.ui.EntityList">EntityList</string>
+	<string name="com.aircandi.ui.HelpForm">HelpForm</string>
+	<string name="com.aircandi.ui.MapForm">MapForm</string>
+	<string name="com.aircandi.ui.PhotoForm">PhotoForm</string>
+	<string name="com.aircandi.ui.PlaceForm">PlaceForm</string>
+	<string name="com.aircandi.ui.Preferences">Preferences</string>
+	<string name="com.aircandi.ui.SplashForm">SplashForm</string>
+	<string name="com.aircandi.ui.AboutForm">AboutForm</string>
+	<string name="com.aircandi.ui.MessageForm">MessageForm</string>
+	<string name="com.aircandi.ui.WatcherList">WatcherList</string>
+	<string name="com.aircandi.ui.PlaceList">PlaceList</string>
+
+	<!-- Edit -->
+
+	<string name="com.aircandi.ui.edit.FeedbackEdit">FeedbackEdit</string>
+	<string name="com.aircandi.ui.edit.InviteEdit">InviteEdit</string>
+	<string name="com.aircandi.ui.edit.ReportEdit">ReportEdit</string>
+	<string name="com.aircandi.ui.edit.PlaceEdit">PlaceEdit</string>
+	<string name="com.aircandi.ui.edit.TuningEdit">TuningEdit</string>
+	<string name="com.aircandi.ui.edit.MessageEdit">MessageEdit</string>
+
+	<!-- User -->
+
+	<string name="com.aircandi.ui.user.PasswordEdit">PasswordEdit</string>
+	<string name="com.aircandi.ui.user.RegisterEdit">RegisterEdit</string>
+	<string name="com.aircandi.ui.user.ResetEdit">ResetEdit</string>
+	<string name="com.aircandi.ui.user.SignInEdit">SigninEdit</string>
+	<string name="com.aircandi.ui.user.UserEdit">UserEdit</string>
+	<string name="com.aircandi.ui.user.UserForm">UserForm</string>
+
+	<!-- Builders -->
+
+	<string name="com.aircandi.ui.helpers.AddressBuilder">AddressBuilder</string>
+	<string name="com.aircandi.ui.helpers.ApplicationPicker">ApplicationPicker</string>
+	<string name="com.aircandi.ui.helpers.CategoryBuilder">CategoryBuilder</string>
+	<string name="com.aircandi.ui.helpers.PhotoPicker">PhotoPicker</string>
+	<string name="com.aircandi.ui.helpers.PlacePicker">PlacePicker</string>
+	<string name="com.aircandi.ui.helpers.PhotoSourcePicker">PhotoSourcePicker</string>
+
+</resources>

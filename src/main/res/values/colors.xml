@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!--
+		   Theme Colors
+		   - light suffix means a theme where backgrounds are generally light in tone.
+		   - dark suffix means a theme where backgrounds are generally dark in tone.
+	-->
+
+	<!-- Branding colors -->
+
+	<color name="brand_primary">#ffff8800</color>
+	<color name="brand_accent">#ffffbb33</color>
+	<color name="brand_secondary">#ffbf6600</color>
+	<color name="brand_pressed">#88bf6600</color>
+
+	<!-- Branding icon colors -->
+
+	<color name="brand_actionbar_icon_light">@color/white</color>
+	<color name="brand_actionbar_icon_dark">@color/white</color>
+
+	<!-- Branding widgets backgrounds -->
+
+	<color name="brand_progress_bar_color">@color/holo_orange_light</color>
+	<color name="brand_progress_bar_splash_color">@color/holo_orange_light</color>
+	<color name="default_progress_bar_color">@color/holo_orange_light</color>
+
+	<!-- Text -->
+
+	<color name="text_dark">@color/gray_20_pcnt</color>
+	<color name="text_light">@color/black</color>
+	<color name="text_secondary_dark">@color/gray_50_pcnt</color>
+	<color name="text_secondary_light">@color/gray_50_pcnt</color>
+	<color name="text_alert_dark">@color/brand_primary</color>
+	<color name="text_alert_light">@color/brand_primary</color>
+	<color name="text_color">@color/white</color>
+	<color name="text_hint_dark">#bbffffff</color>
+	<color name="text_hint_light">#bb343434</color>
+
+	<!-- Accuracy -->
+
+	<color name="accuracy_halo">#66ffffff</color>
+	<color name="accuracy_center">#44000000</color>
+	<color name="accuracy_halo_wifi_disabled">#66999999</color>
+	<color name="accuracy_center_wifi_disabled">#ff999999</color>
+
+	<!-- Borders dark -->
+
+	<color name="stroke_placeholder_dark">@color/gray_90_pcnt</color>
+	<color name="stroke_button_dark">@color/gray_70_pcnt</color>
+	<color name="stroke_balloon_dark">@color/brand_secondary</color>
+	<color name="stroke_button_share_dark">@color/transparent</color>
+	<color name="stroke_button_round_dark">@color/gray_70_pcnt</color>
+
+	<!-- Borders light -->
+
+	<color name="stroke_placeholder_light">@color/gray_10_pcnt</color>
+	<color name="stroke_button_light">@color/gray_30_pcnt</color>
+	<color name="stroke_button_round_light">@color/gray_30_pcnt</color>
+	<color name="stroke_balloon_light">@color/gray_25_pcnt</color>
+	<color name="stroke_button_share_light">@color/transparent</color>
+
+	<!-- Borders gray -->
+
+	<color name="stroke_balloon_gray">@color/white</color>
+
+	<!-- Backgrounds dark -->
+
+	<color name="background_dark">@color/black</color>
+	<color name="background_secondary_dark">@color/gray_85_pcnt</color>
+	<color name="background_progress_dark">@color/gray_50_pcnt</color>
+	<color name="background_highlight_dark">@color/brand_pressed</color>
+	<color name="background_placeholder_dark">@color/gray_90_pcnt</color>
+	<color name="background_button_dark">@color/gray_80_pcnt</color>
+	<color name="background_button_round_dark">@color/gray_80_pcnt</color>
+	<color name="background_balloon_dark">@color/brand_secondary</color>
+	<color name="background_help_dark">@color/overlay_help</color>
+	<color name="background_token_dark">@color/overlay_help</color>
+	<color name="background_button_share_dark">@color/gray_90_pcnt</color>
+	<color name="background_tooltip_layer_dark">#66000000</color>
+
+	<!-- Backgrounds light -->
+
+	<color name="background_light">@color/white</color>
+	<color name="background_secondary_light">@color/gray_15_pcnt</color>
+	<color name="background_progress_light">@color/gray_15_pcnt</color>
+	<color name="background_highlight_light">@color/brand_pressed</color>
+	<color name="background_placeholder_light">@color/gray_10_pcnt</color>
+	<color name="background_button_light">@color/gray_20_pcnt</color>
+	<color name="background_balloon_light">@color/gray_10_pcnt</color>
+	<color name="background_help_light">@color/overlay_help</color>
+	<color name="background_button_share_light">@color/gray_05_pcnt</color>
+	<color name="background_tooltip_layer_light">#66000000</color>
+	<color name="background_button_round_light">#eeffffff</color>
+
+	<!-- Backgrounds gray -->
+
+	<color name="background_balloon_gray">@color/white</color>
+
+	<!-- Backgrounds all -->
+
+	<color name="background_pressed">@color/brand_pressed</color>
+	<color name="background_button_pressed">@color/brand_pressed</color>
+	<color name="background_picture_detail">@color/gray_85_pcnt</color>
+	<color name="pressed_highlight_color">#660099cc</color>
+	<!-- legacy -->
+	<color name="background_token_selected">#880099CC</color>
+
+	<!-- Semi transparent overlays -->
+
+	<color name="overlay_start">#00000000</color>
+	<color name="overlay_center">#88000000</color>
+	<color name="overlay_end">#aa000000</color>
+	<color name="overlay_gray_light">#55333333</color>
+	<color name="overlay_gray_dark">#ff555555</color>
+	<color name="overlay_photo_detail">#66000000</color>
+	<color name="overlay_attribution">#88000000</color>
+	<color name="overlay_help">#88000000</color>
+
+	<!-- Rules using alpha -->
+
+	<color name="rule_60_dark">#99ffffff</color>
+	<color name="rule_60_light">#99000000</color>
+	<color name="rule_45_dark">#66ffffff</color>
+	<color name="rule_45_light">#66000000</color>
+	<color name="rule_30_dark">#4dffffff</color>
+	<color name="rule_30_light">#4d000000</color>
+	<color name="rule_15_dark">#2dffffff</color>
+	<color name="rule_15_light">#2d000000</color>
+
+	<!-- Android grays -->
+
+	<color name="transparent">#00000000</color>
+	<color name="white">#ffffffff</color>
+	<color name="gray_05_pcnt">#fff2f2f2</color>
+	<color name="gray_10_pcnt">#ffe5e5e5</color>
+	<color name="gray_15_pcnt">#ffd8d8d8</color>
+	<color name="gray_20_pcnt">#ffcccccc</color>
+	<color name="gray_25_pcnt">#ffbfbfbf</color>
+	<color name="gray_30_pcnt">#ffb4b4b4</color>
+	<color name="gray_50_pcnt">#ff7f7f7f</color>
+	<color name="gray_70_pcnt">#ff4c4c4c</color>
+	<color name="gray_75_pcnt">#ff3f3f3f</color>
+	<color name="gray_80_pcnt">#ff333333</color>
+	<color name="gray_85_pcnt">#ff282828</color>
+	<color name="gray_90_pcnt">#ff191919</color>
+	<color name="gray_95_pcnt">#ff0c0c0c</color>
+	<color name="black">#ff000000</color>
+
+	<!-- Android colors -->
+
+	<color name="holo_orange_dark">#ffFF8800</color>
+	<color name="holo_orange_light">#ffFFBB33</color>
+	<color name="holo_red_dark">#ffCC0000</color>
+	<color name="holo_red_light">#ffff4444</color>
+	<color name="holo_blue_dark">#ff0099cc</color>
+	<color name="holo_blue_light">#ff33b5e5</color>
+	<color name="holo_green_dark">#ff669900</color>
+	<color name="holo_green_light">#ff99cc00</color>
+	<color name="holo_purple_dark">#ff9933cc</color>
+	<color name="holo_purple_light">#ffaa66cc</color>
+
+</resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string-array name="theme_entries">
+		<item>Simply Black</item>
+		<item>Simply White</item>
+	</string-array>
+	<string-array name="theme_values">
+		<item>aircandi_theme_midnight</item>
+		<item>aircandi_theme_snow</item>
+	</string-array>
+	<string-array name="testing_beacons_entries">
+		<item>Natural beacons</item>
+		<item>Massena upper</item>
+		<item>Massena lower</item>
+		<item>Massena lower (strong)</item>
+		<item>Massena lower (weak)</item>
+		<item>Empty beacon</item>
+	</string-array>
+	<string-array name="testing_beacons_values">
+		<item>natural</item>
+		<item>massena_upper</item>
+		<item>massena_lower</item>
+		<item>massena_lower_strong</item>
+		<item>massena_lower_weak</item>
+		<item>empty</item>
+	</string-array>
+
+</resources>

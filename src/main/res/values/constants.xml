@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+	<!-- Names -->
+
+	<string name="name_app_family" tools:ignore="UnusedResources">Aircandi</string>
+	<string name="name_app_family_lowercase" tools:ignore="UnusedResources">aircandi</string>
+
+	<string name="name_app" tools:ignore="UnusedResources">Patchr</string>
+	<string name="name_app_lowercase" tools:ignore="UnusedResources">patchr</string>
+	<string name="name_company" tools:ignore="UnusedResources">3meters LLC.</string>
+
+	<string name="app_family_attribution" tools:ignore="UnusedResources">by [@string/name_app_family_lowercase]</string>
+
+	<!--
+		We get complete substitution with the following exceptions
+		- strings for menu titles.
+		- strings for activity titles in manifest.
+		- strings in array resources.
+		- strings embedded in ActivityDecorator.
+		- strings for preferences in xml
+	 -->
+
+	<string name="container_singular" tools:ignore="UnusedResources">Patch</string>
+	<string name="container_plural" tools:ignore="UnusedResources">Patches</string>
+	<string name="container_singular_lowercase" tools:ignore="UnusedResources">patch</string>
+	<string name="container_plural_lowercase" tools:ignore="UnusedResources">patches</string>
+
+	<!-- Identifiers -->
+
+	<string name="id_gcm_sender" tools:ignore="UnusedResources">657673071389</string>
+	<string name="id_package" tools:ignore="UnusedResources">com.aircandi.catalina</string>
+	<string name="id_referrer" tools:ignore="UnusedResources">com.aircandi.catalina</string>
+	<string name="uri_play_store" tools:ignore="UnusedResources">http://bit.ly/1wnySLm</string>
+
+	<!-- Late binding: Aircandi applications always subclass GcmIntentService -->
+
+	<string name="class_gcm_intent_service">com.aircandi.components.GcmIntentService</string>
+
+	<!-- Tag manager -->
+
+	<string name="id_container">GTM-MV8KBB</string>
+
+	<!-- Splash -->
+
+	<string name="splash_button_signin">Sign in</string>
+	<string name="splash_button_start">Guest</string>
+	<string name="splash_button_retry">Retry</string>
+	<string name="splash_button_signup">Join [@string/name_app]</string>
+
+	<!-- Invite -->
+
+	<string name="invite_heading">Invite your friends to [@string/name_app].</string>
+	<string name="invite_message_default">I enjoy [@string/name_app] and I thought you might like it too!</string>
+	<string name="form_invite_email_hint">Email address</string>
+	<string name="form_invite_message_hint">Add a personal note (optional)</string>
+
+	<!-- Attribution -->
+
+	<string name="label_place_provider_foursquare" tools:ignore="UnusedResources">Powered by Foursquare</string>
+	<string name="label_place_provider_google" tools:ignore="UnusedResources">Powered by Google</string>
+	<string name="label_place_provider_factual" tools:ignore="UnusedResources">Powered by Factual</string>
+
+	<!-- Feedback -->
+
+	<string name="feedback_message">How can we make [@string/name_app] better for you?</string>
+
+	<!-- Runtime settings -->
+
+	<bool name="entity_fencing_enabled">false</bool>
+
+	<!-- Content links -->
+
+	<string name="url_terms">http://patchr.com/terms</string>
+	<string name="url_privacy">http://patchr.com/privacy</string>
+	<string name="url_legal">http://patchr.com/android</string>
+
+	<string name="s3_bucket_images">aircandi-images</string>
+	<string name="s3_bucket_thumbnails">aircandi-thumbnails</string>
+	<string name="s3_bucket_users">aircandi-users</string>
+	<string name="url_media_images">http://[@string/s3_bucket_images].s3.amazonaws.com/</string>
+	<string name="url_media_thumbnails">http://[@string/s3_bucket_thumbnails].s3.amazonaws.com/</string>
+	<string name="url_media_users">http://[@string/s3_bucket_users].s3.amazonaws.com/</string>
+
+	<string name="uri_app_update">market://details?id=[@string/id_package]&amp;referrer=utm_source%3D[@string/id_referrer]</string>
+	<string name="uri_app_update_web">http://play.google.com/store/apps/details?id=[@string/id_package]&amp;referrer=utm_source%3D[@string/id_referrer]</string>
+
+	<!-- Service paging sizes -->
+
+	<integer name="page_size_entities">30</integer>
+	<integer name="page_size_users">30</integer>
+	<integer name="page_size_messages">50</integer>
+	<integer name="page_size_replies">50</integer>
+
+</resources>

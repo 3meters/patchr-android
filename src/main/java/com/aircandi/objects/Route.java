@@ -1,0 +1,55 @@
+package com.aircandi.objects;
+
+public class Route {
+
+	public static int UNKNOWN            = 0;
+	public static int ADD                = 1;
+	public static int NEW                = 2;
+	public static int EDIT               = 3;
+	public static int BROWSE             = 4;
+	public static int HELP               = 5;
+	public static int PHOTO              = 7;
+	public static int PHOTOS             = 8;
+	public static int SHORTCUT           = 9;
+	public static int HOME               = 10;
+	public static int SETTINGS           = 11;
+	public static int INVITE             = 12;
+	public static int FEEDBACK           = 13;
+	public static int REPORT             = 14;
+	public static int CANCEL             = 15;
+	public static int CANCEL_FORCE       = 16;
+	public static int DELETE             = 17;
+	public static int SIGNOUT            = 18;
+	public static int SIGNIN             = 19;
+	public static int REGISTER           = 20;
+	public static int ACCEPT             = 21;
+	public static int TERMS              = 22;
+	public static int PRIVACY            = 23;
+	public static int LEGAL              = 24;
+	public static int SETTINGS_LOCATION  = 25;
+	public static int SETTINGS_WIFI      = 26;
+	public static int ADDRESS_EDIT       = 27;
+	public static int CATEGORY_EDIT      = 28;
+	public static int PASSWORD_CHANGE    = 29;
+	public static int PASSWORD_RESET     = 30;
+	public static int SPLASH             = 31;
+	public static int PHOTO_SOURCE       = 32;
+	public static int PHOTO_FROM_CAMERA  = 35;
+	public static int PHOTO_SEARCH       = 36;
+	public static int PHOTO_PLACE_SEARCH = 37;
+	public static int PLACE_SEARCH       = 38;
+	public static int TUNE               = 39;
+	public static int TEST               = 41;
+	public static int ABOUT              = 43;
+	public static int ZOOM_IN            = 44;
+	public static int ZOOM_OUT           = 45;
+	public static int REFRESH            = 46;
+	public static int NEW_PLACE          = 47;
+	public static int SAVE_BEACON        = 48;
+	public static int SHARE              = 49;
+	public static int REMOVE             = 50;
+	public static int WATCHERS           = 51;
+	public static int NAVIGATE           = 52;
+	public static int PLACE_LIST         = 53;
+	public static int MAP                = 54;
+}
