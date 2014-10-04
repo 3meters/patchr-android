@@ -3,7 +3,7 @@ package com.aircandi.components;
 import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.objects.MessageTriggerType;
+import com.aircandi.objects.MessageTriggers;
 import com.aircandi.objects.Entity;
 import com.aircandi.utilities.Booleans;
 
@@ -17,17 +17,17 @@ public class PreferenceManager {
 				return false;
 		}
 		else {
-			if (triggerCategory.equals(MessageTriggerType.TriggerType.NEARBY)) {
+			if (triggerCategory.equals(MessageTriggers.TriggerType.NEARBY)) {
 				if (!Patch.settings.getBoolean(StringManager.getString(R.string.pref_messages_nearby)
 						, Booleans.getBoolean(R.bool.pref_notifications_nearby_default)))
 					return false;
 			}
-			else if (triggerCategory.equals(MessageTriggerType.TriggerType.OWN)) {
+			else if (triggerCategory.equals(MessageTriggers.TriggerCategory.OWN)) {
 				if (!Patch.settings.getBoolean(StringManager.getString(R.string.pref_messages_own)
 						, Booleans.getBoolean(R.bool.pref_notifications_own_default)))
 					return false;
 			}
-			else if (triggerCategory.equals(MessageTriggerType.TriggerType.WATCH)) {
+			else if (triggerCategory.equals(MessageTriggers.TriggerCategory.WATCH)) {
 				if (!Patch.settings.getBoolean(StringManager.getString(R.string.pref_messages_watch)
 						, Booleans.getBoolean(R.bool.pref_notifications_watch_default)))
 					return false;

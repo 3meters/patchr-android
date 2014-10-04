@@ -5,7 +5,7 @@ import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Action;
-import com.aircandi.objects.MessageTriggerType;
+import com.aircandi.objects.MessageTriggers;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Place;
@@ -58,7 +58,7 @@ public class Places extends EntityControllerBase {
 	@Override
 	public String getNotificationTicker(ServiceMessage message, String eventCategory) {
 		if (eventCategory.equals(Action.EventCategory.INSERT)) {
-			if (message.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
+			if (message.getTriggerCategory().equals(MessageTriggers.TriggerType.NEARBY)) {
 				return String.format(StringManager.getString(R.string.label_notification_ticker_place_insert_nearby), message.title);
 			}
 			return String.format(StringManager.getString(R.string.label_notification_ticker_place_insert), message.title);

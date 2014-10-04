@@ -71,9 +71,9 @@
 
 	<!-- Content links -->
 
-	<string name="url_terms">http://candipatch.com/terms</string>
-	<string name="url_privacy">http://candipatch.com/privacy</string>
-	<string name="url_legal">http://candipatch.com/android</string>
+	<string name="url_terms">http://patchr.com/terms</string>
+	<string name="url_privacy">http://patchr.com/privacy</string>
+	<string name="url_legal">http://patchr.com/android</string>
 
 	<string name="s3_bucket_images">aircandi-images</string>
 	<string name="s3_bucket_thumbnails">aircandi-thumbnails</string>

@@ -4,37 +4,15 @@ import android.text.TextUtils;
 
 import com.aircandi.Constants;
 import com.aircandi.Patch;
+import com.aircandi.R;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Action.EventCategory;
-import com.aircandi.objects.MessageTriggerType;
+import com.aircandi.objects.MessageTriggers;
 import com.aircandi.objects.ServiceMessage;
 import com.aircandi.objects.Message;
 import com.aircandi.objects.Photo;
 
 public class ActivityDecorator {
-
-	/*
-	 * Own
-	 * 
-	 * [George Snelling] commented on your [picture] at [Taco Del Mar].
-	 * [George Snelling] commented on your [place] [Taco Del Mar].
-	 * 
-	 * [George Snelling] added a [picture] to your [place] [Taco Del Mar].
-	 * 
-	 * Watching
-	 * 
-	 * [George Snelling] commented on a [picture] you are watching.
-	 * [George Snelling] commented on a [place] you are watching.
-	 * 
-	 * [George Snelling] added a [picture] to a [place] you are watching.
-	 * 
-	 * Nearby
-	 * 
-	 * [George Snelling] commented on a [picture] nearby.
-	 * [George Snelling] commented on a [place] nearby.
-	 * 
-	 * [George Snelling] added a [picture] to a [place] nearby.
-	 */
 
 	public void decorate(ServiceMessage activity) {
 		activity.title = title(activity);
@@ -54,46 +32,38 @@ public class ActivityDecorator {
 			if (activity.action.entity.schema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)) {
 
 				if (activity.action.entity.type.equals(Message.MessageType.ROOT)) {
-					if (activity.trigger.equals(MessageTriggerType.TriggerType.NEARBY))
-						return String.format("sent a message to a %1$s nearby.", activity.action.toEntity.getLabelForSchema());
-					else if (activity.trigger.equals(MessageTriggerType.TriggerType.WATCH_TO))
-						return String.format("sent a message to a %1$s you are watching.", activity.action.toEntity.getLabelForSchema());
-					else if (activity.trigger.equals(MessageTriggerType.TriggerType.WATCH_USER)
-							|| activity.trigger.equals(MessageTriggerType.TriggerType.NONE))
-						return "sent a message.";
-					else if (activity.trigger.equals(MessageTriggerType.TriggerType.OWN_TO))
-						return String.format("sent a message to a %1$s of yours.", activity.action.toEntity.getLabelForSchema());
+					if (activity.trigger.equals(MessageTriggers.TriggerType.NEARBY))
+						return String.format(StringManager.getString(R.string.label_notification_message_nearby_subtitle), activity.action.toEntity.getLabelForSchema());
+					else if (activity.trigger.equals(MessageTriggers.TriggerType.WATCH_TO))
+						return String.format(StringManager.getString(R.string.label_notification_message_watchto_subtitle), activity.action.toEntity.getLabelForSchema());
+					else if (activity.trigger.equals(MessageTriggers.TriggerType.OWN_TO))
+						return String.format(StringManager.getString(R.string.label_notification_message_ownto_subtitle), activity.action.toEntity.getLabelForSchema());
 				}
 				else if (activity.action.entity.type.equals(Message.MessageType.REPLY)) {
 
-					if (activity.trigger.equals(MessageTriggerType.TriggerType.NEARBY))
-						return String.format("replied to a message at %1$s nearby.", activity.action.toEntity.getLabelForSchema());
-					else if (activity.trigger.equals(MessageTriggerType.TriggerType.WATCH_TO))
-						return String.format("replied to a message at a %1$s you are watching.", activity.action.toEntity.getLabelForSchema());
-					else if (activity.trigger.equals(MessageTriggerType.TriggerType.WATCH_USER)
-							|| activity.trigger.equals(MessageTriggerType.TriggerType.NONE))
-						return "replied to a message.";
-					else if (activity.trigger.equals(MessageTriggerType.TriggerType.OWN_TO))
-						return String.format("replied to a message at a %1$s of yours.", activity.action.toEntity.getLabelForSchema());
-				}
-				else if (activity.action.entity.type.equals(Message.MessageType.REPLY)) {
+					if (activity.trigger.equals(MessageTriggers.TriggerType.NEARBY))
+						return String.format(StringManager.getString(R.string.label_notification_message_reply_nearby_subtitle), activity.action.toEntity.getLabelForSchema());
+					else if (activity.trigger.equals(MessageTriggers.TriggerType.WATCH_TO))
+						return String.format(StringManager.getString(R.string.label_notification_message_reply_watchto_subtitle), activity.action.toEntity.getLabelForSchema());
+					else if (activity.trigger.equals(MessageTriggers.TriggerType.OWN_TO))
+						return String.format(StringManager.getString(R.string.label_notification_message_reply_ownto_subtitle), activity.action.toEntity.getLabelForSchema());
 				}
 			}
 			else if (activity.action.entity.schema.equals(com.aircandi.Constants.SCHEMA_ENTITY_PLACE)) {
 
-				if (activity.trigger.equals(MessageTriggerType.TriggerType.NEARBY))
-					return "dropped a new patch nearby.";
+				if (activity.trigger.equals(MessageTriggers.TriggerType.NEARBY))
+					return StringManager.getString(R.string.label_notification_place_nearby_subtitle);
 			}
 		}
 		else if (activity.action.getEventCategory().equals(EventCategory.SHARE)) {
 
 			if (activity.action.entity.schema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)) {
-				return "shared with you.";
+				return StringManager.getString(R.string.label_notification_share_subtitle);
 			}
 		}
 		else if (activity.action.getEventCategory().equals(EventCategory.WATCH)) {
 			if (activity.action.toEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-				return String.format("started watching a patch of yours: %1$s", activity.action.toEntity.name);
+				return String.format(StringManager.getString(R.string.label_notification_watch_subtitle), activity.action.toEntity.name);
 			}
 		}
 

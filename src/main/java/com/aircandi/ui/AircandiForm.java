@@ -637,7 +637,7 @@ public class AircandiForm extends BaseActivity {
 		if (mMenu != null) {
 			MenuItem notifications = mMenu.findItem(R.id.notifications);
 			if (notifications != null) {
-				notifications.setVisible((newActivity && !(showingMessages||showingAlerts)) ? true : false);
+				notifications.setVisible((newActivity && !(showingMessages || showingAlerts)));
 			}
 		}
 

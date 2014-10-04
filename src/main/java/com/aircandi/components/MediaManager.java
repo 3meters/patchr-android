@@ -59,7 +59,7 @@ public class MediaManager {
 	 */
 
 	private static String shareFileName     = "photo.jpeg";
-	public static  String tempDirectoryName = ".Candipatch";
+	public static  String tempDirectoryName = ".Patchr";
 
 	public MediaManager initSoundPool() {
 		soundPool = new SoundPool(4, streamType, 100);

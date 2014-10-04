@@ -351,7 +351,7 @@
 	<string name="label_place_share_subject">\'%1$s\' [@string/container_singular_lowercase]</string>
 	<string name="label_place_share_body_install" tools:ignore="UnusedResources">Get the [@string/name_app] app at\u0020</string>
     <string name="label_place_share_body">
-        "You\'ve been invited to a [@string/container_singular_lowercase]! \n\nhttp://candipatch.com/patch/%1$s \n\n[@string/label_place_share_body_install][@string/uri_play_store]"
+        "You\'ve been invited to a [@string/container_singular_lowercase]! \n\nhttp://patchr.com/patch/%1$s \n\n[@string/label_place_share_body_install][@string/uri_play_store]"
     </string>
 
 	<string name="label_place_share_body_self">"Checkout the \'%1$s\' [@string/container_singular_lowercase]!"</string>
@@ -360,7 +360,7 @@
 	<string name="label_message_share_subject">[@string/name_app] message shared by %1$s</string>
 	<string name="label_message_share_body_install" tools:ignore="UnusedResources">Get the [@string/name_app] app at\u0020</string>
     <string name="label_message_share_body">
-        "A message has been shared with you! \n\nhttp://candipatch.com/message/%1$s \n\n[@string/label_message_share_body_install][@string/uri_play_store]"
+        "A message has been shared with you! \n\nhttp://patchr.com/message/%1$s \n\n[@string/label_message_share_body_install][@string/uri_play_store]"
     </string>
 
 	<string name="label_message_share_body_self">"Checkout %1$s\'s message to the \'%2$s\' [@string/container_singular_lowercase]!"</string>
@@ -420,7 +420,7 @@
 	<string name="label_message_shared">Shared by</string>
 
 	<string name="label_register_message">You\'ll love [@string/name_app]! Join to post messages, create patches and share with your friends.</string>
-	<string name="label_search">Candipatch</string>
+	<string name="label_search">Patchr</string>
 	<string name="label_share_to_hint">type to search users</string>
 	<string name="label_share_completion_hint">Pick users to share with.</string>
 
@@ -431,6 +431,18 @@
 	<string name="label_notification_ticker_message_share">%1$s: shared a message with you</string>
 	<string name="label_notification_ticker_photo_insert">%1$s: posted a photo to \'%2$s\'</string>
 	<string name="label_notification_ticker_photo_share">%1$s: shared a photo with you</string>
+
+	<!-- Labels: Notifications -->
+
+	<string name="label_notification_message_nearby_subtitle">Sent a message to a %1$s nearby.</string>
+	<string name="label_notification_message_watchto_subtitle">Sent a message to a %1$s you are watching.</string>
+	<string name="label_notification_message_ownto_subtitle">Sent a message to a %1$s of yours.</string>
+	<string name="label_notification_message_reply_nearby_subtitle">Replied to a message at a %1$s nearby.</string>
+	<string name="label_notification_message_reply_watchto_subtitle">Replied to a message at a %1$s you are watching.</string>
+	<string name="label_notification_message_reply_ownto_subtitle">Replied to a message at a %1$s of yours.</string>
+	<string name="label_notification_place_nearby_subtitle">Dropped a new patch nearby.</string>
+	<string name="label_notification_share_subtitle">Shared with you.</string>
+	<string name="label_notification_watch_subtitle">Started watching a patch of yours: %1$s</string>
 
 	<!-- Labels: Navigation -->
 
@@ -448,11 +460,6 @@
 
 	<string name="label_user_watching">Watching</string>
 	<string name="label_user_created">Owner</string>
-
-
-
-
-
 
 	<string name="tooltip_place_new_part1">
 		Patches let a group of people share messages about places and events!

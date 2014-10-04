@@ -132,7 +132,7 @@
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
 
-				<data android:host="candipatch.com" />
+				<data android:host="patchr.com" />
 				<data android:pathPrefix="/patch" />
 				<data android:pathPrefix="/place" />
 				<data android:scheme="http" />
@@ -150,7 +150,7 @@
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
 
-				<data android:host="candipatch.com" />
+				<data android:host="patchr.com" />
 				<data android:pathPrefix="/message" />
 				<data android:scheme="http" />
 				<data android:scheme="https" />

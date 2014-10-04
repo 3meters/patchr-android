@@ -15,7 +15,7 @@ import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Action.EventCategory;
 import com.aircandi.objects.EventType;
 import com.aircandi.objects.Message;
-import com.aircandi.objects.MessageTriggerType;
+import com.aircandi.objects.MessageTriggers;
 import com.aircandi.objects.ServiceMessage;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.ui.base.BaseActivity;
@@ -127,13 +127,13 @@ public class GcmIntentService extends IntentService {
 					Boolean background = (Patch.getInstance().getCurrentActivity() == null);
 					Boolean targetVisible = targetContextVisible(serviceMessage);
 
-					if (background || !targetVisible || serviceMessage.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
+					if (background || !targetVisible || serviceMessage.getTriggerCategory().equals(MessageTriggers.TriggerType.NEARBY)) {
 
-						if (!serviceMessage.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
+						if (!serviceMessage.getTriggerCategory().equals(MessageTriggers.TriggerType.NEARBY)) {
 							MessagingManager.getInstance().setNewMessage(true);
 						}
 
-						if (background || serviceMessage.getTriggerCategory().equals(MessageTriggerType.TriggerType.NEARBY)) {
+						if (background || serviceMessage.getTriggerCategory().equals(MessageTriggers.TriggerType.NEARBY)) {
 
 						    /* Build intent that can be used in association with the notification */
 							if (serviceMessage.action.entity != null) {

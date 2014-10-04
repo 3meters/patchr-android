@@ -43,9 +43,9 @@ public abstract class ServiceMessageBase extends ServiceObject implements Clonea
 	}
 
 	public String getTriggerCategory() {
-		if (this.trigger.contains("nearby")) return MessageTriggerType.TriggerType.NEARBY;
-		if (this.trigger.contains("watch")) return MessageTriggerType.TriggerType.WATCH;
-		if (this.trigger.contains("own")) return MessageTriggerType.TriggerType.OWN;
+		if (this.trigger.contains("nearby")) return MessageTriggers.TriggerCategory.NEARBY;
+		if (this.trigger.contains("watch")) return MessageTriggers.TriggerCategory.WATCH;
+		if (this.trigger.contains("own")) return MessageTriggers.TriggerCategory.OWN;
 		return null;
 	}
 
