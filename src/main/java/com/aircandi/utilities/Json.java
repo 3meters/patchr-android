@@ -152,14 +152,10 @@ public class Json {
 
 		}
 		catch (ParseException e) {
-			if (Patch.DEBUG) {
-				e.printStackTrace();
-			}
+			Reporting.logException(e);
 		}
 		catch (Exception e) {
-			if (Patch.DEBUG) {
-				e.printStackTrace();
-			}
+			Reporting.logException(e);
 		}
 		return null;
 	}
@@ -337,14 +333,10 @@ public class Json {
 			}
 		}
 		catch (IllegalArgumentException e) {
-			if (Patch.DEBUG) {
-				e.printStackTrace();
-			}
+			Reporting.logException(e);
 		}
 		catch (IllegalAccessException e) {
-			if (Patch.DEBUG) {
-				e.printStackTrace();
-			}
+			Reporting.logException(e);
 		}
 		return map;
 	}

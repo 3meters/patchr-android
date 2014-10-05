@@ -20,6 +20,7 @@ import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
+import com.aircandi.components.MapManager;
 import com.aircandi.components.MessagingManager;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.StringManager;
@@ -590,7 +591,7 @@ public class AircandiForm extends BaseActivity {
 
 			if (!mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
 				//noinspection ConstantConditions
-				((MapListFragment) fragment).setZoomLevel(MapListFragment.ZOOM_COUNTY);
+				((MapListFragment) fragment).setZoomLevel(MapManager.ZOOM_SCALE_COUNTY);
 			}
 		}
 
@@ -641,7 +642,10 @@ public class AircandiForm extends BaseActivity {
 			}
 		}
 
-		Integer color = Colors.getColor(UI.getResIdForAttribute(this, R.attr.textColorSecondary));
+		Integer color = Colors.getColor(R.color.brand_primary);
+		if (Patch.themeTone != null) {
+			color = Patch.themeTone.equals(Patch.ThemeTone.LIGHT) ? R.color.text_secondary_light : R.color.text_secondary_dark;
+		}
 		Integer colorHighlighted = Colors.getColor(R.color.brand_primary);
 
 		TextView alertCount = (TextView) findViewById(R.id.count_alerts);

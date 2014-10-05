@@ -20,6 +20,7 @@ import com.aircandi.events.ProgressEvent;
 import com.aircandi.interfaces.IBusy;
 import com.aircandi.ui.widgets.SmoothProgressBar;
 import com.aircandi.utilities.DateTime;
+import com.aircandi.utilities.Reporting;
 import com.squareup.otto.Subscribe;
 
 public class BusyManager implements IBusy {
@@ -141,7 +142,7 @@ public class BusyManager implements IBusy {
 					 * Sometimes the activity has been destroyed out from under us
 					 * so we trap this and continue.
 					 */
-					e.printStackTrace();
+					Reporting.logException(e);
 				}
 			}
 		};

@@ -3,8 +3,10 @@ package com.aircandi.utilities;
 import android.content.Context;
 import android.location.Location;
 import android.net.wifi.WifiManager;
+import android.util.Log;
 
 import com.aircandi.Patch;
+import com.aircandi.components.AndroidManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.ProximityManager;
@@ -22,11 +24,19 @@ public class Reporting {
 		Crashlytics.setString("network_type", NetworkManager.getInstance().getNetworkType().toLowerCase(Locale.US));
 		Crashlytics.setBool("wifi_tethered", NetworkManager.getInstance().isWifiTethered());
 		Crashlytics.setFloat("beacons_visible", ProximityManager.getInstance().getWifiList().size());
+		Crashlytics.setString("device_name", AndroidManager.getInstance().getDeviceName());
+
+		/* Identifies device/install combo */
+		Crashlytics.setApplicationInstallationIdentifier(Patch.getinstallId());
 
 		Location location = LocationManager.getInstance().getLocationLocked();
 		if (location != null) {
 			Crashlytics.setFloat("location_accurary", location.getAccuracy());
 			Crashlytics.setString("location_provider", location.getProvider());
+		}
+		else {
+			Crashlytics.setFloat("location_accurary", 0);
+			Crashlytics.setString("location_provider", "no locked location");
 		}
 
 		/* Wifi state */
@@ -85,6 +95,27 @@ public class Reporting {
 	}
 
 	public static void logException(Exception exception) {
+		/*
+		 * Gets sent to crashlytics as a non-fatal exception with all the
+		 * standard logging info. Batched and sent only when the appliction
+		 * restarts. Splash has init logic to restart crashlytics so that
+		 * might force the send even though the app hasn't restarted.
+		 */
 		Crashlytics.logException(exception);
+	}
+
+	public static void logMessage(String message) {
+		/*
+		 * Will be included with the next crash report send to crashlytics.
+		 */
+		Crashlytics.log(message);
+	}
+
+	public static void logStacktrace(Exception e) {
+		/*
+		 * Will be included with the next crash report send to crashlytics.
+		 */
+		String stacktrace = Log.getStackTraceString(e);
+		Crashlytics.log(stacktrace);
 	}
 }

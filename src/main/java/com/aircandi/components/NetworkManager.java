@@ -16,13 +16,13 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.ServiceConstants;
-import com.aircandi.objects.ServiceData;
-import com.aircandi.service.BaseConnection;
 import com.aircandi.exceptions.ClientVersionException;
 import com.aircandi.exceptions.NoNetworkException;
+import com.aircandi.objects.ServiceData;
+import com.aircandi.service.BaseConnection;
 import com.aircandi.service.OkHttp;
 import com.aircandi.service.RequestType;
 import com.aircandi.service.ResponseFormat;
@@ -325,9 +325,9 @@ public class NetworkManager {
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS)
 			return serviceResponse.statusCode != 204;
 		else {
-			if (Patch.DEBUG) {
-				Logger.w(this, "Walled garden check - probably not a portal: exception " + serviceResponse.exception);
-			}
+			/* We assume a failure means most likely not a walled garden */
+			String message = "Walled garden check: failed with exception " + serviceResponse.exception;
+			Reporting.logMessage(message);
 			return false;
 		}
 	}
@@ -357,19 +357,13 @@ public class NetworkManager {
 						isTethered = (Boolean) method.invoke(mWifiManager);
 					}
 					catch (IllegalArgumentException e) {
-						if (Patch.DEBUG) {
-							e.printStackTrace();
-						}
+						Reporting.logException(e);
 					}
 					catch (IllegalAccessException e) {
-						if (Patch.DEBUG) {
-							e.printStackTrace();
-						}
+						Reporting.logException(e);
 					}
 					catch (InvocationTargetException e) {
-						if (Patch.DEBUG) {
-							e.printStackTrace();
-						}
+						Reporting.logException(e);
 					}
 				}
 			}

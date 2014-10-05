@@ -149,9 +149,8 @@ public class Patch extends Application {
 		/* Must have this so activity rerouting works. */
 		Patch.applicationContext = getApplicationContext();
 
-		if (!DEBUG) {
-			Reporting.startCrashReporting(this);
-		}
+		/* Start crashlytics reporting */
+		Reporting.startCrashReporting(this);
 
 		stopwatch1 = new Stopwatch(); // $codepro.audit.disable stringLiterals
 		stopwatch2 = new Stopwatch(); // $codepro.audit.disable stringLiterals
@@ -252,9 +251,7 @@ public class Patch extends Application {
 
 		TagManager tagManager = TagManager.getInstance(this);
 		tagManager.setRefreshMode(refreshMode); // TODO: Must be set to standard to get fresh pulls
-		if (Patch.DEBUG) {
-			tagManager.getLogger().setLogLevel(LogLevel.VERBOSE);
-		}
+		tagManager.getLogger().setLogLevel(LogLevel.VERBOSE);
 
 		mContainer = tagManager.openContainer(containerId, new Container.Callback() {
 

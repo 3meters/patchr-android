@@ -32,6 +32,7 @@ import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.AirTokenCompleteTextView;
 import com.aircandi.ui.widgets.TokenCompleteTextView;
 import com.aircandi.utilities.Json;
+import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 
 import org.json.JSONException;
@@ -109,8 +110,8 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_place_searches), jsonSearchMap.toString());
 			Patch.settingsEditor.commit();
 		}
-		catch (JSONException exception) {
-			exception.printStackTrace();
+		catch (JSONException e) {
+			Reporting.logException(e);
 		}
 	}
 

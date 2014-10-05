@@ -20,7 +20,7 @@
 
 			<com.aircandi.ui.widgets.SmoothProgressBar
 				android:id="@+id/progress_bar"
-				style="@style/progress_bar"
+				style="@style/smooth_progress_bar"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/progress_bar_height"
 				android:indeterminate="true"

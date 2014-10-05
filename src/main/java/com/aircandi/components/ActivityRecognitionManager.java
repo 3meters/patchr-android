@@ -12,6 +12,7 @@ import com.aircandi.Patch;
 import com.aircandi.Constants;
 import com.aircandi.events.ActivityStateEvent;
 import com.aircandi.utilities.DateTime;
+import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -96,7 +97,7 @@ public class ActivityRecognitionManager implements
 				 */
 			}
 			catch (IntentSender.SendIntentException e) {
-				e.printStackTrace();
+				Reporting.logException(e);
 			}
 		}
 		else {

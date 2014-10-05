@@ -3,17 +3,20 @@ package com.aircandi.components;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.events.BurstTimeoutEvent;
 import com.aircandi.events.LocationChangedEvent;
 import com.aircandi.objects.AirLocation;
+import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 import com.google.android.gms.common.ConnectionResult;
@@ -21,6 +24,10 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 @SuppressWarnings("ucd")
 public class LocationManager implements
@@ -152,7 +159,6 @@ public class LocationManager implements
 				mLocationClient.connect();
 			}
 		});
-
 	}
 
 	@Override
@@ -174,7 +180,7 @@ public class LocationManager implements
 				 */
 			}
 			catch (IntentSender.SendIntentException e) {
-				e.printStackTrace();
+				Reporting.logException(e);
 			}
 		}
 		else {
@@ -199,7 +205,6 @@ public class LocationManager implements
 		Logger.d(LocationManager.this, "Location mode changed to: " + locationMode.name());
 		mLocationMode = locationMode;
 		processMode();
-
 	}
 
 	public void processMode() {
@@ -250,6 +255,55 @@ public class LocationManager implements
 	public boolean isLocationAccessEnabled() {
 		return isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER) || isProviderEnabled(android.location.LocationManager.GPS_PROVIDER);
 	}
+
+	public ModelResult getAddressForLocation(final AirLocation location) {
+		/*
+		 * Can trigger network access so should be called on a background thread.
+		 */
+		Thread.currentThread().setName("AsyncAddressForLocation");
+		ModelResult result = new ModelResult();
+		Geocoder geocoder = new Geocoder(Patch.applicationContext, Locale.getDefault());
+
+		try {
+			result.data = geocoder.getFromLocation(location.lat.doubleValue(), location.lng.doubleValue(), 1);
+		}
+		catch (IOException e) {
+			result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
+			result.serviceResponse.exception = e;
+			result.serviceResponse.errorResponse = Errors.getErrorResponse(Patch.applicationContext, result.serviceResponse);
+		}
+
+		return result;
+	}
+
+	public ModelResult getLocationFromAddress(String address) {
+		/*
+		 * Can trigger network access so should be called on a background thread.
+		 */
+		ModelResult result = new ModelResult();
+		try {
+			Geocoder geocoder = new Geocoder(Patch.applicationContext, Locale.getDefault());
+			List<Address> addresses = geocoder.getFromLocationName(address, 1);
+			if (addresses != null && addresses.size() > 0) {
+				Address geolookup = addresses.get(0);
+				if (geolookup.hasLatitude() && geolookup.hasLongitude()) {
+					AirLocation location = new AirLocation(geolookup.getLatitude(), geolookup.getLongitude());
+					location.accuracy = 25;
+					result.data = location;
+				}
+				else {
+					result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
+				}
+			}
+		}
+		catch (IOException exception) {
+			result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
+			result.serviceResponse.exception = exception;
+			result.serviceResponse.errorResponse = Errors.getErrorResponse(Patch.applicationContext, result.serviceResponse);
+		}
+		return result;
+	}
+
 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties

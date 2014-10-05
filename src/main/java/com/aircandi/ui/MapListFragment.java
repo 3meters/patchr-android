@@ -14,11 +14,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.LocationManager;
+import com.aircandi.components.MapManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.events.ViewLayoutEvent;
@@ -56,15 +57,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		, ClusterManager.OnClusterItemInfoWindowClickListener<MapListFragment.EntityItem>
 		, GoogleMap.OnMyLocationButtonClickListener {
 
-	public static final int    ZOOM_NEARBY  = 14;
-	public static final int    ZOOM_CITY    = 11;
-	public static final int    ZOOM_COUNTY  = 10;
-	public static final int    ZOOM_STATE   = 6;
-	public static final int    ZOOM_COUNTRY = 5;
-	public static final int    ZOOM_USA     = 3;
-	public static final int    ZOOM_WORLD   = 1;
-	public static final int    ZOOM_DEFAULT = ZOOM_NEARBY;
-	public static       LatLng LATLNG_USA   = new LatLng(39.8282, -98.5795);
 
 	protected GoogleMap                  mMap;
 	protected ClusterManager<EntityItem> mClusterManager;
@@ -190,7 +182,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		Patch.dispatch.route(getActivity(), Route.BROWSE, entityItem.mEntity, null, null);
 	}
 
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -243,7 +234,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 								 * that could center the user out in the ocean or something else
 								 * stupid.
 								 */
-								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LATLNG_USA, ZOOM_USA));
+								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MapManager.LATLNG_USA, MapManager.ZOOM_SCALE_USA));
 							}
 						}
 						else {
@@ -373,16 +364,16 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		public EntityRenderer(Context context) {
 			super(context, getMap(), mClusterManager);
 
-//			mIconGenerator = new IconGenerator(context);
-//
-//			/* Single markers */
-//			@SuppressLint("InflateParams") View singleMarker = getActivity().getLayoutInflater().inflate(R.layout.widget_map_marker, null, false);
-//			mIconGenerator.setContentView(singleMarker);
-//			mLabel = (TextView) singleMarker.findViewById(R.id.entity_text);
-//			mLabel.setBackgroundDrawable(new ColorDrawable(Colors.getColor(R.color.brand_primary)));
-//			mImage = (AirImageView) singleMarker.findViewById(R.id.entity_photo);
-//			mImage.setSizeHint(UI.getRawPixelsForDisplayPixels(50f));
-//			mImage.setSizeType(AirImageView.SizeType.THUMBNAIL);
+			//			mIconGenerator = new IconGenerator(context);
+			//
+			//			/* Single markers */
+			//			@SuppressLint("InflateParams") View singleMarker = getActivity().getLayoutInflater().inflate(R.layout.widget_map_marker, null, false);
+			//			mIconGenerator.setContentView(singleMarker);
+			//			mLabel = (TextView) singleMarker.findViewById(R.id.entity_text);
+			//			mLabel.setBackgroundDrawable(new ColorDrawable(Colors.getColor(R.color.brand_primary)));
+			//			mImage = (AirImageView) singleMarker.findViewById(R.id.entity_photo);
+			//			mImage.setSizeHint(UI.getRawPixelsForDisplayPixels(50f));
+			//			mImage.setSizeType(AirImageView.SizeType.THUMBNAIL);
 		}
 
 		@Override
@@ -398,6 +389,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		@Override
 		protected void onClusterItemRendered(EntityItem clusterItem, Marker marker) {
 			super.onClusterItemRendered(clusterItem, marker);
+			marker.setAnchor(0.5f, 0.8f);
 			if (mEntities != null && mEntities.size() == 1) {
 				marker.showInfoWindow();
 			}

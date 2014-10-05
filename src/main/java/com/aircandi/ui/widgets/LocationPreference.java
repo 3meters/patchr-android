@@ -24,6 +24,7 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.objects.Document;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
+import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 
 import java.io.UnsupportedEncodingException;
@@ -92,8 +93,8 @@ public class LocationPreference extends AirListPreference {
 					String filter = "query=" + URLEncoder.encode("{\"type\":\"location\"}", "utf-8") + "&sort[name]=1";
 					result = Patch.getInstance().getEntityManager().loadDocuments(filter);
 				}
-				catch (UnsupportedEncodingException exception) {
-					exception.printStackTrace();
+				catch (UnsupportedEncodingException e) {
+					Reporting.logException(e);
 					result.serviceResponse.responseCode = ResponseCode.FAILED;
 				}
 				return result;

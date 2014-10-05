@@ -22,7 +22,7 @@
 
 			<com.aircandi.ui.widgets.SmoothProgressBar
 				android:id="@+id/progress_bar"
-				style="@style/progress_bar"
+				style="@style/smooth_progress_bar"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/progress_bar_height"
 				android:indeterminate="true"
@@ -34,49 +34,42 @@
 			style="@style/form_content_layout"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:gravity="center_vertical|top"
-			android:orientation="vertical">
+			android:gravity="center_vertical|top">
 
 			<!-- Public Image -->
 
-			<LinearLayout
-				android:id="@+id/photo_holder"
-				android:layout_width="wrap_content"
+			<com.aircandi.ui.widgets.AirImageView
+				android:id="@+id/entity_photo"
+				style="@style/selectable_image"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginBottom="10dp"
-				android:layout_marginTop="5dp">
+				android:clickable="true"
+				android:onClick="onChangePhotoButtonClick"
+				android:scaleType="centerCrop"
+				custom:aspectRatio="@dimen/aspect_ratio_place_image"
+				custom:aspectRatioEnabled="true"
+				custom:dominantMeasurement="width"
+				custom:layout="@layout/widget_webimageview_candi_view"
+				custom:sizeHint="@dimen/image_super_large"
+				custom:sizeType="preview_large" />
 
-				<FrameLayout
-					style="@style/selectable_image"
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_alignBottom="@+id/entity_photo"
+				android:background="@drawable/overlay_picture_fadeout"
+				android:orientation="vertical">
+
+				<com.aircandi.ui.widgets.AirTextView
 					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginRight="10dp"
-					android:clickable="true"
-					android:onClick="onChangePhotoButtonClick">
+					android:layout_height="@dimen/form_field_height"
+					android:layout_gravity="center_horizontal"
+					android:layout_marginTop="50dp"
+					android:gravity="center"
+					android:text="@string/button_change_banner"
+					android:textAppearance="?android:attr/textAppearanceMedium"
+					android:textColor="?attr/textColorCandiView" />
 
-					<com.aircandi.ui.widgets.AirImageView
-						android:id="@+id/entity_photo"
-						style="@style/picture_framed"
-						android:layout_width="@dimen/image_large"
-						android:layout_height="@dimen/image_large"
-						android:layout_marginLeft="4dp"
-						android:minWidth="@dimen/image_large"
-						android:scaleType="centerCrop"
-						custom:layout="@layout/widget_webimageview_candi_view"
-						custom:showBusy="true"
-						custom:sizeHint="@dimen/image_large"
-						custom:sizeType="preview" />
-				</FrameLayout>
-
-				<com.aircandi.ui.widgets.ComboButton
-					android:id="@+id/button_change_image"
-					style="@style/button_link"
-					android:layout_width="@dimen/button_width_min"
-					android:layout_height="@dimen/button_height"
-					android:layout_gravity="center_vertical"
-					android:layout_marginLeft="8dp"
-					android:onClick="onChangePhotoButtonClick"
-					custom:label="@string/button_change_picture" />
 			</LinearLayout>
 
 			<!-- Title and Content -->
@@ -85,8 +78,9 @@
 				android:id="@+id/holder_body"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_below="@+id/photo_holder"
+				android:layout_below="@+id/entity_photo"
 				android:layout_marginBottom="8dp"
+				android:layout_marginTop="8dp"
 				android:orientation="vertical">
 
 				<com.aircandi.ui.widgets.AirEditText
@@ -110,6 +104,29 @@
 					android:textAppearance="?android:attr/textAppearanceMedium"
 					android:textSize="24sp"
 					android:visibility="gone" />
+
+				<FrameLayout
+					android:layout_width="match_parent"
+					android:layout_height="104dp"
+					android:layout_marginBottom="8dp"
+					android:layout_marginLeft="4dp"
+					android:layout_marginRight="4dp">
+
+					<com.google.android.gms.maps.MapView
+						android:id="@+id/mapview"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:layout_margin="8dp" />
+
+					<FrameLayout
+						style="@style/selectable_image"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:background="?attr/backgroundButtonLink"
+						android:clickable="true"
+						android:onClick="onLocationBuilderClick" />
+
+				</FrameLayout>
 
 				<com.aircandi.ui.widgets.BuilderButton
 					android:id="@+id/category"
@@ -237,8 +254,8 @@
 				android:id="@+id/tooltips_cancel"
 				android:layout_width="35dp"
 				android:layout_height="35dp"
-				android:layout_alignParentTop="true"
 				android:layout_alignParentRight="true"
+				android:layout_alignParentTop="true"
 				android:layout_margin="8dp"
 				android:background="@drawable/selector_button_circle_overlay"
 				android:duplicateParentState="true"

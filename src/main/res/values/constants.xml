@@ -48,13 +48,6 @@
 	<string name="splash_button_retry">Retry</string>
 	<string name="splash_button_signup">Join [@string/name_app]</string>
 
-	<!-- Invite -->
-
-	<string name="invite_heading">Invite your friends to [@string/name_app].</string>
-	<string name="invite_message_default">I enjoy [@string/name_app] and I thought you might like it too!</string>
-	<string name="form_invite_email_hint">Email address</string>
-	<string name="form_invite_message_hint">Add a personal note (optional)</string>
-
 	<!-- Attribution -->
 
 	<string name="label_place_provider_foursquare" tools:ignore="UnusedResources">Powered by Foursquare</string>

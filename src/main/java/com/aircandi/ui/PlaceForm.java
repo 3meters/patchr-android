@@ -466,12 +466,6 @@ public class PlaceForm extends BaseEntityForm {
 		/* Photo overlayed with info */
 		drawBanner(view);
 
-		//		/* Description and address */
-		//		drawBody(view);
-		//
-		//		/* Links to entities */
-		//		drawShortcuts(view);
-
 		/* Buttons */
 		drawButtons(view);
 

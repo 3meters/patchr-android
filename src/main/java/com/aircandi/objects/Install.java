@@ -33,6 +33,8 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 	@Expose
 	public String       clientPackageName;
 	@Expose
+	public String       deviceName;
+	@Expose
 	public List<Beacon> beacons;
 	@Expose
 	public Number       beaconsDate;
@@ -55,6 +57,7 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 		install.clientVersionCode = (Number) map.get("clientVersionCode");
 		install.clientVersionName = (String) map.get("clientVersionName");
 		install.clientPackageName = (String) map.get("clientPackageName");
+		install.deviceName = (String) map.get("deviceName");
 		install.beaconsDate = (Number) map.get("beaconsDate");
 
 		if (map.get("beacons") != null) {

@@ -60,7 +60,6 @@
 	<!-- Edit -->
 
 	<string name="com.aircandi.ui.edit.FeedbackEdit">FeedbackEdit</string>
-	<string name="com.aircandi.ui.edit.InviteEdit">InviteEdit</string>
 	<string name="com.aircandi.ui.edit.ReportEdit">ReportEdit</string>
 	<string name="com.aircandi.ui.edit.PlaceEdit">PlaceEdit</string>
 	<string name="com.aircandi.ui.edit.TuningEdit">TuningEdit</string>
@@ -78,8 +77,8 @@
 	<!-- Builders -->
 
 	<string name="com.aircandi.ui.helpers.AddressBuilder">AddressBuilder</string>
-	<string name="com.aircandi.ui.helpers.ApplicationPicker">ApplicationPicker</string>
 	<string name="com.aircandi.ui.helpers.CategoryBuilder">CategoryBuilder</string>
+	<string name="com.aircandi.ui.helpers.LocationPicker">LocationPicker</string>
 	<string name="com.aircandi.ui.helpers.PhotoPicker">PhotoPicker</string>
 	<string name="com.aircandi.ui.helpers.PlacePicker">PlacePicker</string>
 	<string name="com.aircandi.ui.helpers.PhotoSourcePicker">PhotoSourcePicker</string>

@@ -5,7 +5,6 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -41,8 +40,8 @@ import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.ui.widgets.AirTokenCompleteTextView;
 import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.ui.widgets.TokenCompleteTextView;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
+import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 import com.squareup.picasso.Picasso.LoadedFrom;
@@ -148,15 +147,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		mTo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
-				if (hasFocus) {
-				}
-				else {
-				}
 			}
 		});
 
 		/*
-         * Make sure that we don't already have a place set when
+	     * Make sure that we don't already have a place set when
 		 * handling a share intent.
 		 */
 		Intent intent = getIntent();
@@ -280,11 +275,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 											UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
 										}
 									}
-									catch (FileNotFoundException exception) {
-										exception.printStackTrace();
+									catch (FileNotFoundException e) {
+										Reporting.logException(e);
 									}
-									catch (IOException exception) {
-										exception.printStackTrace();
+									catch (IOException e) {
+										Reporting.logException(e);
 									}
 								}
 							}
@@ -332,11 +327,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 									UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
 								}
 							}
-							catch (FileNotFoundException exception) {
-								exception.printStackTrace();
+							catch (FileNotFoundException e) {
+								Reporting.logException(e);
 							}
-							catch (IOException exception) {
-								exception.printStackTrace();
+							catch (IOException e) {
+								Reporting.logException(e);
 							}
 						}
 					}
@@ -384,7 +379,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 
 		TextView textView = (TextView) findViewById(R.id.description);
-		if (mMessageType == MessageType.SHARE) {
+		if (mMessageType.equals(MessageType.SHARE)) {
 
 			int layoutResId = 0;
 			if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
@@ -488,7 +483,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	@Override
 	public void onTokenAdded(Object o) {
 
-		if (!mTos.contains(o)) {
+		if (!mTos.contains((Entity) o)) {
 			mTos.add((Entity) o);
 		}
 
@@ -502,7 +497,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	@Override
 	public void onTokenRemoved(Object o) {
 
-		if (mTos.contains(o)) {
+		if (mTos.contains((Entity) o)) {
 			mTos.remove((Entity) o);
 		}
 

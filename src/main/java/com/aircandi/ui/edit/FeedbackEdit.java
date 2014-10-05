@@ -31,6 +31,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
 		/*
 		 * Feedback are not really an entity type so we handle
 		 * all the expected initialization.

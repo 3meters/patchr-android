@@ -216,11 +216,6 @@
 			android:label="@string/name_app_lowercase"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.edit.InviteEdit"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_invite"
-			android:windowSoftInputMode="adjustResize" />
-		<activity
 			android:name="com.aircandi.ui.edit.FeedbackEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_feedback"
@@ -271,12 +266,18 @@
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.helpers.PlacePicker"
+			android:name="com.aircandi.ui.helpers.LocationPicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
+			android:name="com.aircandi.ui.helpers.PlacePicker"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:windowSoftInputMode="stateHidden" />
+		<!-- Theme setting required to get dialog treatment for all theming -->
+		<activity
 			android:name="com.aircandi.ui.helpers.PhotoSourcePicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:theme="@style/aircandi_theme_dialog_light"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name="com.aircandi.ui.helpers.CategoryBuilder"

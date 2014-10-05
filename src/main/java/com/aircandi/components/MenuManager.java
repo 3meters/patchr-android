@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuInflater;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -114,8 +114,7 @@ public class MenuManager {
 		/* Editing */
 
 		else if (activityName.equals("ReportEdit")
-				|| activityName.equals("FeedbackEdit")
-				|| activityName.equals("InviteEdit")) {
+				|| activityName.equals("FeedbackEdit")) {
 			menuInflater.inflate(R.menu.menu_cancel, menu);
 			menuInflater.inflate(R.menu.menu_send, menu);
 			return true;
@@ -131,7 +130,8 @@ public class MenuManager {
 				|| activityName.equals("UserEdit")
 				|| activityName.equals("PasswordEdit")
 				|| activityName.equals("TuningEdit")
-				|| activityName.contains("SignInEdit")) {
+				|| activityName.contains("SignInEdit")
+				|| activityName.contains("LocationPicker")) {
 			menuInflater.inflate(R.menu.menu_cancel, menu);
 			menuInflater.inflate(R.menu.menu_accept, menu);
 			return true;

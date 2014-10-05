@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import com.aircandi.ServiceConstants;
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
+import com.aircandi.utilities.Reporting;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -174,8 +175,8 @@ public abstract class ServiceBase extends ServiceObject {
 				entry.data = new HashMap(data);
 			}
 		}
-		catch (CloneNotSupportedException exception) {
-			exception.printStackTrace();
+		catch (CloneNotSupportedException e) {
+			Reporting.logException(e);
 		}
 		return entry;
 	}

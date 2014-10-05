@@ -2,7 +2,6 @@ package com.aircandi.interfaces;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 
@@ -36,11 +35,7 @@ public interface IEntityController {
 
 	public Photo getDefaultPhoto(String type);
 
-	public Drawable getDefaultDrawable(String type);
-
 	public Photo getPlaceholderPhoto(String type);
-
-	public Drawable getPlaceholderDrawable(String type);
 
 	public Integer getNotificationType(Entity entity);
 

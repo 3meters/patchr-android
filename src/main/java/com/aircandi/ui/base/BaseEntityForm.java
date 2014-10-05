@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BaseEntityForm extends BaseActivity {
 
-	protected Integer    mLinkProfile;
+	protected Integer mLinkProfile;
 
 	/* Inputs */
 	@SuppressWarnings("ucd")
@@ -155,7 +155,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 						}
 					}
 					else if (redrawNeeded.get()) {
-						draw(null);
+						if (mEntity != null) {
+							draw(null);
+						}
 					}
 				}
 				else {
@@ -285,15 +287,15 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 */
 		super.onRestoreInstanceState(savedInstanceState);
 		Logger.d(this, "Activity restoring state");
-//		final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
-//		if (position != null && mScrollView != null) {
-//			mScrollView.post(new Runnable() {
-//				@Override
-//				public void run() {
-//					mScrollView.scrollTo(position[0], position[1]);
-//				}
-//			});
-//		}
+		//		final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
+		//		if (position != null && mScrollView != null) {
+		//			mScrollView.post(new Runnable() {
+		//				@Override
+		//				public void run() {
+		//					mScrollView.scrollTo(position[0], position[1]);
+		//				}
+		//			});
+		//		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
