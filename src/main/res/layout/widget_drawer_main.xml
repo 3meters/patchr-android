@@ -32,125 +32,6 @@
 			android:layout_height="wrap_content"
 			android:orientation="vertical">
 
-			<!-- Messages section -->
-
-			<LinearLayout
-				android:id="@+id/group_messages_header"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical">
-
-				<com.aircandi.ui.widgets.AirTextLight
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_vertical"
-					android:layout_marginLeft="12dp"
-					android:layout_marginTop="8dp"
-					android:text="@string/label_drawer_section_messages"
-					android:textAppearance="?android:attr/textAppearance"
-					android:textColor="@color/brand_primary"
-					custom:textId="@string/label_drawer_section_messages" />
-
-				<View
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/rule_header_height"
-					android:background="@color/brand_primary" />
-			</LinearLayout>
-
-			<RelativeLayout
-				android:id="@+id/item_feed_messages"
-				style="@style/selectable_item"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/drawer_item_height"
-				android:clickable="true"
-				android:onClick="onDrawerItemClick"
-				android:orientation="horizontal"
-				android:tag="messages">
-
-				<ImageView
-					android:id="@+id/image_messages"
-					android:layout_width="@dimen/image_extra_small"
-					android:layout_height="@dimen/image_extra_small"
-					android:layout_centerVertical="true"
-					android:layout_marginLeft="12dp"
-					android:layout_marginRight="6dp"
-					android:focusable="false"
-					android:src="?attr/iconStream" />
-
-				<com.aircandi.ui.widgets.AirTextLight
-					android:id="@id/name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_centerVertical="true"
-					android:layout_marginRight="10dp"
-					android:layout_toRightOf="@+id/image_messages"
-					android:layout_toLeftOf="@+id/count_messages"
-					android:text="@string/label_drawer_item_feed_messages"
-					android:textAppearance="?android:attr/textAppearanceMedium"
-					custom:textId="@string/label_drawer_item_feed_messages" />
-
-				<com.aircandi.ui.widgets.AirTextLight
-					android:id="@+id/count_messages"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_centerVertical="true"
-					android:layout_alignParentRight="true"
-					android:layout_marginRight="10dp"
-					android:textColor="?attr/textColorSecondary"
-					tools:text="12"
-					android:textAppearance="?android:attr/textAppearanceMedium" />
-
-			</RelativeLayout>
-
-			<RelativeLayout
-				android:id="@+id/item_feed_alerts"
-				style="@style/selectable_item"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/drawer_item_height"
-				android:clickable="true"
-				android:onClick="onDrawerItemClick"
-				android:orientation="horizontal"
-				android:tag="alerts">
-
-				<View
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/rule_divider_height"
-					android:background="?attr/ruleColor" />
-
-				<ImageView
-					android:id="@+id/image_alerts"
-					android:layout_width="@dimen/image_extra_small"
-					android:layout_height="@dimen/image_extra_small"
-					android:layout_centerVertical="true"
-					android:layout_marginLeft="12dp"
-					android:layout_marginRight="6dp"
-					android:focusable="false"
-					android:src="?attr/iconAlert" />
-
-				<com.aircandi.ui.widgets.AirTextLight
-					android:id="@id/name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_centerVertical="true"
-					android:layout_marginRight="10dp"
-					android:layout_toRightOf="@+id/image_alerts"
-					android:text="@string/label_drawer_item_feed_alerts"
-					android:textAppearance="?android:attr/textAppearanceMedium"
-					custom:textId="@string/label_drawer_item_feed_alerts" />
-
-				<com.aircandi.ui.widgets.AirTextLight
-					android:id="@+id/count_alerts"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_centerVertical="true"
-					android:layout_alignParentRight="true"
-					android:layout_marginRight="10dp"
-					android:textColor="?attr/textColorSecondary"
-					tools:text="5"
-					android:textAppearance="?android:attr/textAppearanceMedium" />
-
-			</RelativeLayout>
-
 			<!-- Patch section -->
 
 			<LinearLayout
@@ -280,6 +161,125 @@
 					android:text="@string/label_drawer_item_create"
 					android:textAppearance="?android:attr/textAppearanceMedium"
 					custom:textId="@string/label_drawer_item_create" />
+			</RelativeLayout>
+
+			<!-- Messages section -->
+
+			<LinearLayout
+				android:id="@+id/group_messages_header"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical"
+					android:layout_marginLeft="12dp"
+					android:layout_marginTop="8dp"
+					android:text="@string/label_drawer_section_messages"
+					android:textAppearance="?android:attr/textAppearance"
+					android:textColor="@color/brand_primary"
+					custom:textId="@string/label_drawer_section_messages" />
+
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/rule_header_height"
+					android:background="@color/brand_primary" />
+			</LinearLayout>
+
+			<RelativeLayout
+				android:id="@+id/item_feed_messages"
+				style="@style/selectable_item"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/drawer_item_height"
+				android:clickable="true"
+				android:onClick="onDrawerItemClick"
+				android:orientation="horizontal"
+				android:tag="messages">
+
+				<ImageView
+					android:id="@+id/image_messages"
+					android:layout_width="@dimen/image_extra_small"
+					android:layout_height="@dimen/image_extra_small"
+					android:layout_centerVertical="true"
+					android:layout_marginLeft="12dp"
+					android:layout_marginRight="6dp"
+					android:focusable="false"
+					android:src="?attr/iconStream" />
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@id/name"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_centerVertical="true"
+					android:layout_marginRight="10dp"
+					android:layout_toLeftOf="@+id/count_messages"
+					android:layout_toRightOf="@+id/image_messages"
+					android:text="@string/label_drawer_item_feed_messages"
+					android:textAppearance="?android:attr/textAppearanceMedium"
+					custom:textId="@string/label_drawer_item_feed_messages" />
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@+id/count_messages"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:layout_centerVertical="true"
+					android:layout_marginRight="10dp"
+					android:textAppearance="?android:attr/textAppearanceMedium"
+					android:textColor="?attr/textColorSecondary"
+					tools:text="12" />
+
+			</RelativeLayout>
+
+			<RelativeLayout
+				android:id="@+id/item_feed_alerts"
+				style="@style/selectable_item"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/drawer_item_height"
+				android:clickable="true"
+				android:onClick="onDrawerItemClick"
+				android:orientation="horizontal"
+				android:tag="alerts">
+
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/rule_divider_height"
+					android:background="?attr/ruleColor" />
+
+				<ImageView
+					android:id="@+id/image_alerts"
+					android:layout_width="@dimen/image_extra_small"
+					android:layout_height="@dimen/image_extra_small"
+					android:layout_centerVertical="true"
+					android:layout_marginLeft="12dp"
+					android:layout_marginRight="6dp"
+					android:focusable="false"
+					android:src="?attr/iconAlert" />
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@id/name"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_centerVertical="true"
+					android:layout_marginRight="10dp"
+					android:layout_toRightOf="@+id/image_alerts"
+					android:text="@string/label_drawer_item_feed_alerts"
+					android:textAppearance="?android:attr/textAppearanceMedium"
+					custom:textId="@string/label_drawer_item_feed_alerts" />
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@+id/count_alerts"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:layout_centerVertical="true"
+					android:layout_marginRight="10dp"
+					android:textAppearance="?android:attr/textAppearanceMedium"
+					android:textColor="?attr/textColorSecondary"
+					tools:text="5" />
+
 			</RelativeLayout>
 
 			<!-- Trending section -->

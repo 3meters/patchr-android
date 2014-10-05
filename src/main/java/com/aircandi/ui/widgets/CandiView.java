@@ -12,9 +12,10 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
+import com.aircandi.components.DownloadManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.CacheStamp;
@@ -241,38 +242,44 @@ public class CandiView extends RelativeLayout {
 
 				Category category = place.category;
 				if (mSubtitle != null) {
-					setVisibility(mSubtitle, View.GONE);
+					setVisibility(mSubtitle, View.INVISIBLE);
 					if (category != null && category.name != null && !category.id.equals("generic")) {
 						if (entity.visibility.equals(Constants.VISIBILITY_PRIVATE)) {
 							mSubtitle.setText(Html.fromHtml(category.name.toUpperCase(Locale.US))
 									+ " " + StringManager.getString(R.string.label_place_private_flag).toUpperCase(Locale.US));
 						}
 						else {
-							mSubtitle.setText(Html.fromHtml(category.name.toUpperCase(Locale.US))
-									+ " " + StringManager.getString(R.string.label_place_public_flag).toUpperCase(Locale.US));
+							mSubtitle.setText(Html.fromHtml(category.name.toUpperCase(Locale.US)));
 						}
 						setVisibility(mSubtitle, View.VISIBLE);
 					}
 					else {
-						/* No category so show public/private flag by itself */
-						mSubtitle.setText(StringManager.getString(R.string.label_place_public_flag).toUpperCase(Locale.US));
+						/* No category so show default label */
+						mSubtitle.setText(StringManager.getString(R.string.label_place_category_default).toUpperCase(Locale.US));
 						setVisibility(mSubtitle, View.VISIBLE);
 					}
 				}
 
 				/* Category photo */
 
-				setVisibility(mCategoryPhoto, View.GONE);
+				setVisibility(mCategoryPhoto, View.INVISIBLE);
 				if (mCategoryPhoto != null) {
+					mCategoryPhoto.setSizeHint(UI.getRawPixelsForDisplayPixels(50f));
 					if (category != null) {
 						Photo photo = category.photo.clone();
 						if (!Photo.same(mCategoryPhoto.getPhoto(), photo)) {
 							photo.colorize = false;
-							mCategoryPhoto.setSizeHint(UI.getRawPixelsForDisplayPixels(50f));
 							UI.drawPhoto(mCategoryPhoto, photo);
 						}
-						mCategoryPhoto.setVisibility(View.VISIBLE);
 					}
+					else {
+						DownloadManager.with(Patch.applicationContext)
+						               .load(R.drawable.default_88)
+						               .placeholder(null)
+								.resize(mCategoryPhoto.getSizeHint(), mCategoryPhoto.getSizeHint())    // Memory size
+								.into(mCategoryPhoto);
+					}
+					mCategoryPhoto.setVisibility(View.VISIBLE);
 				}
 			}
 

@@ -5,6 +5,7 @@ import android.app.Fragment;
 
 import com.aircandi.Patch;
 import com.aircandi.R;
+import com.aircandi.utilities.Reporting;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Fields;
 import com.google.analytics.tracking.android.GAServiceManager;
@@ -42,7 +43,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 			EasyTracker.getInstance(Patch.applicationContext).activityStart(activity);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 	}
 
@@ -52,7 +53,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 			EasyTracker.getInstance(Patch.applicationContext).activityStop(activity);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 	}
 
@@ -65,7 +66,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder.createEvent(category, action, target, value).build());
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 	}
 
@@ -78,7 +79,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder.createTiming(category, timing, name, label).build());
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 	}
 
@@ -95,7 +96,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 			);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 	}
 
@@ -109,7 +110,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder.createAppView().build());
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 	}
 
@@ -118,13 +119,8 @@ public class TrackerGoogleEasy extends TrackerBase {
 	public void applicationStart() {
 		Boolean enabled = Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
 		Patch.analytics.setDryRun(enabled);
-
-		Patch.analytics.getLogger().setLogLevel(LogLevel.WARNING);
-		GAServiceManager.getInstance().setLocalDispatchPeriod(GA_DISPATCH_PERIOD);
-		if (Patch.DEBUG) {
-			Patch.analytics.getLogger().setLogLevel(LogLevel.VERBOSE);
-			GAServiceManager.getInstance().setLocalDispatchPeriod(GA_DISPATCH_PERIOD_DEBUG);
-		}
+		Patch.analytics.getLogger().setLogLevel(Patch.DEBUG ? LogLevel.VERBOSE : LogLevel.WARNING);
+		GAServiceManager.getInstance().setLocalDispatchPeriod(Patch.DEBUG ? GA_DISPATCH_PERIOD_DEBUG : GA_DISPATCH_PERIOD);
 	}
 
 	@SuppressWarnings("unused")
@@ -137,7 +133,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 			);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 	}
 
@@ -151,7 +147,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 			);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 	}
 

@@ -9,15 +9,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.text.Html;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
@@ -144,21 +144,6 @@ public class AndroidManager {
 				|| app.equals(Constants.TYPE_APP_TWITTER)
 				|| app.equals(Constants.TYPE_APP_YELP));
 		return intentSupport;
-	}
-
-	public String getPublicName(String packageName) {
-
-		try {
-			final ApplicationInfo info = Patch.packageManager.getApplicationInfo(packageName, 0);
-			final String publicName = (String) info.loadLabel(Patch.packageManager);
-			return publicName;
-		}
-		catch (NameNotFoundException e) {
-			if (Patch.DEBUG) {
-				e.printStackTrace();
-			}
-			return null;
-		}
 	}
 
 	public static boolean doesPackageExist(String targetPackage) {
@@ -384,4 +369,27 @@ public class AndroidManager {
 		return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
 	}
 
+	public String getDeviceName() {
+		String manufacturer = Build.MANUFACTURER;
+		String model = Build.MODEL;
+		if (model.startsWith(manufacturer)) {
+			return capitalize(model);
+		}
+		else {
+			return capitalize(manufacturer) + " " + model;
+		}
+	}
+
+	private String capitalize(String s) {
+		if (s == null || s.length() == 0) {
+			return "";
+		}
+		char first = s.charAt(0);
+		if (Character.isUpperCase(first)) {
+			return s;
+		}
+		else {
+			return Character.toUpperCase(first) + s.substring(1);
+		}
+	}
 }

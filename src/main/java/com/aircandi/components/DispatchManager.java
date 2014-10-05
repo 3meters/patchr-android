@@ -390,9 +390,10 @@ public class DispatchManager {
 			if (((Place) entity).location != null) {
 				final String json = Json.objectToJson(((Place) entity).location);
 				intent.putExtra(Constants.EXTRA_LOCATION, json);
+				intent.putExtra(Constants.EXTRA_TITLE, entity.name);
 			}
 
-			activity.startActivityForResult(intent, Constants.ACTIVITY_CATEGORY_EDIT);
+			activity.startActivityForResult(intent, Constants.ACTIVITY_LOCATION_EDIT);
 			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO_BUILDER);
 		}
 

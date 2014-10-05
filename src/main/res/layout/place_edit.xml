@@ -22,7 +22,7 @@
 
 			<com.aircandi.ui.widgets.SmoothProgressBar
 				android:id="@+id/progress_bar"
-				style="@style/progress_bar"
+				style="@style/smooth_progress_bar"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/progress_bar_height"
 				android:indeterminate="true"
@@ -55,19 +55,20 @@
 
 			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="@dimen/form_field_height"
+				android:layout_height="wrap_content"
 				android:layout_alignBottom="@+id/entity_photo"
 				android:background="@drawable/overlay_picture_fadeout"
 				android:orientation="vertical">
 
 				<com.aircandi.ui.widgets.AirTextView
 					android:layout_width="wrap_content"
-					android:layout_height="match_parent"
+					android:layout_height="@dimen/form_field_height"
 					android:layout_gravity="center_horizontal"
+					android:layout_marginTop="50dp"
 					android:gravity="center"
+					android:text="@string/button_change_banner"
 					android:textAppearance="?android:attr/textAppearanceMedium"
-					android:textColor="?attr/textColorCandiView"
-					android:text="@string/button_change_banner" />
+					android:textColor="?attr/textColorCandiView" />
 
 			</LinearLayout>
 
@@ -104,6 +105,29 @@
 					android:textSize="24sp"
 					android:visibility="gone" />
 
+				<FrameLayout
+					android:layout_width="match_parent"
+					android:layout_height="104dp"
+					android:layout_marginBottom="8dp"
+					android:layout_marginLeft="4dp"
+					android:layout_marginRight="4dp">
+
+					<com.google.android.gms.maps.MapView
+						android:id="@+id/mapview"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:layout_margin="8dp" />
+
+					<FrameLayout
+						style="@style/selectable_image"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:background="?attr/backgroundButtonLink"
+						android:clickable="true"
+						android:onClick="onLocationBuilderClick" />
+
+				</FrameLayout>
+
 				<com.aircandi.ui.widgets.BuilderButton
 					android:id="@+id/category"
 					style="@style/selectable_item"
@@ -115,18 +139,6 @@
 					android:clickable="true"
 					android:onClick="onCategoryBuilderClick"
 					custom:hint="@string/hint_place_category" />
-
-				<com.aircandi.ui.widgets.BuilderButton
-					android:id="@+id/location"
-					style="@style/selectable_item"
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/form_field_height"
-					android:layout_marginBottom="8dp"
-					android:layout_marginLeft="4dp"
-					android:layout_marginRight="4dp"
-					android:clickable="true"
-					android:onClick="onLocationBuilderClick"
-					custom:hint="@string/hint_place_location" />
 
 				<!-- Tuning -->
 

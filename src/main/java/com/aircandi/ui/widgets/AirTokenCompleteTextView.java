@@ -48,6 +48,7 @@ public class AirTokenCompleteTextView extends TokenCompleteTextView {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void initialize() {
 		if (mPrefixResId != 0) {
 			TextDrawable text = new TextDrawable(StringManager.getString(mPrefixResId));

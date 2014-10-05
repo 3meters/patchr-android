@@ -243,6 +243,7 @@
 	<declare-styleable name="AirCheckBoxPreference">
 		<attr name="keyId" />
 	</declare-styleable>
+	<!--
 	<declare-styleable name="SmoothProgressBar">
 		<attr name="spbStyle" format="reference" />
 		<attr name="spb_color" format="color" />
@@ -265,6 +266,6 @@
 		<attr name="spb_background" format="reference" />
 		<attr name="spb_generate_background_with_colors" format="boolean" />
 		<attr name="spb_gradients" format="boolean" />
-	</declare-styleable>
+	</declare-styleable>-->
 
 </resources>

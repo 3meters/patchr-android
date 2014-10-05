@@ -7,8 +7,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBind;
@@ -89,11 +89,9 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 		return mDirty;
 	}
 
-	protected void insert() {
-	}
+	protected void insert() {}
 
-	protected void update() {
-	}
+	protected void update() {}
 
 	protected void confirmDirtyExit() {
 		if (!mSkipSave) {
@@ -147,10 +145,15 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 		return true;
 	}
 
-	protected void beforeInsert(Entity entity, List<Link> links) {
-	}
+	protected void beforeInsert(Entity entity, List<Link> links) {}
+
+	protected void beforeUpdate(Entity entity) {}
 
 	protected boolean afterInsert() {
+		return true;
+	}
+
+	protected boolean afterUpdate() {
 		return true;
 	}
 

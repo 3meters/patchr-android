@@ -176,7 +176,12 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			mActionBar = getActionBar();
 			mActionBarView = getActionBarView();
 			if (mActionBar != null) {
-				FontManager.getInstance().setTypefaceDefault((TextView) findViewById(getActionBarTitleId()));
+				try {
+					/* Use reflection to get the actionbar title TextView and set the custom font. May break in updates. */
+					Integer actionBarTitleId = Class.forName("com.android.internal.R$id").getField("action_bar_title").getInt(null);
+					FontManager.getInstance().setTypefaceDefault((TextView) findViewById(actionBarTitleId));
+				}
+				catch (Exception ignore) {}
 			}
 		}
 
@@ -304,20 +309,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 	protected int getLayoutId() {
 		return 0;
-	}
-
-	public Integer getActionBarTitleId() {
-		Integer actionBarTitleId = null;
-		try {
-			// Use reflection to get the actionbar title TextView and set the custom font. May break in updates.
-			actionBarTitleId = Class.forName("com.android.internal.R$id").getField("action_bar_title").getInt(null);
-		}
-		catch (Exception e) {
-			if (Patch.DEBUG) {
-				e.printStackTrace();
-			}
-		}
-		return actionBarTitleId;
 	}
 
 	public void setActivityTitle(String title) {

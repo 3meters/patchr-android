@@ -38,6 +38,7 @@ import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
+import com.aircandi.utilities.Reporting;
 
 @SuppressLint("Registered")
 public class SplashForm extends Activity {
@@ -65,6 +66,9 @@ public class SplashForm extends Activity {
 		MessagingManager.getInstance().setNewActivity(false);
 		MessagingManager.getInstance().getAlerts().clear();
 		MessagingManager.getInstance().getMessages().clear();
+
+		/* Restart crashlytics to force upload of non-fatal crashes */
+		Reporting.startCrashReporting(this);
 
 		if (!Patch.applicationUpdateRequired) {
 			if (AndroidManager.checkPlayServices(this)) {

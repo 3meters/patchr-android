@@ -17,8 +17,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.DownloadManager;
@@ -29,6 +29,7 @@ import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Entity;
@@ -38,10 +39,10 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.service.ServiceResponse;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
+import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.kbeanie.imagechooser.api.ChooserType;
@@ -64,7 +65,8 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	protected ImageChooserManager mImageChooserManager;
 	protected AsyncTask           mTaskService;
 
-	protected Boolean mBrokenLink = false;
+	protected Boolean mBrokenLink       = false;
+	protected Boolean mProximityInvalid = false;
 
 	protected Integer mInsertProgressResId = R.string.progress_saving;
 	protected Integer mUpdateProgressResId = R.string.progress_updating;
@@ -267,7 +269,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	public void onAccept() {
 		if (isDirty()) {
 			if (validate()) {
-		        /*
+			    /*
                  * Pull all the control values back into the entity object. Validate
 				 * does that too but we don't know if validate is always being performed.
 				 */
@@ -494,10 +496,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 		}
 		catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 	}
 
@@ -518,10 +520,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 		}
 		catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 	}
 
@@ -583,7 +585,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				mEntity.toId = mParentId;
 
 				/* We only send beacons if a place is being inserted */
-				if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+				if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE) && !mProximityInvalid) {
 					beacons = ProximityManager.getInstance().getStrongestBeacons(ServiceConstants.PROXIMITY_BEACON_COVERAGE);
 					primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 				}
@@ -731,6 +733,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						}
 					}
 
+					beforeUpdate(mEntity);
 					result = Patch.getInstance().getEntityManager().updateEntity(mEntity, bitmap);
 					if (isCancelled()) return null;
 
@@ -779,11 +782,12 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				final ServiceResponse serviceResponse = (ServiceResponse) response;
 
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-					UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
-					setResultCode(Activity.RESULT_OK);
-					finish();
-					Patch.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_TO_PAGE);
+					if (afterUpdate()) {
+						UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
+						setResultCode(Activity.RESULT_OK);
+						finish();
+						Patch.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_TO_PAGE);
+					}
 				}
 				else {
 					Errors.handleError(BaseEntityEdit.this, serviceResponse);

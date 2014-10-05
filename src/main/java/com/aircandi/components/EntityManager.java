@@ -1739,11 +1739,7 @@ public class EntityManager {
 				if (reader != null)
 					reader.close();
 			}
-			catch (IOException e) {
-				if (Patch.DEBUG) {
-					e.printStackTrace();
-				}
-			}
+			catch (IOException ignore) {}
 		}
 	}
 

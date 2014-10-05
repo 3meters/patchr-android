@@ -24,6 +24,7 @@ import com.aircandi.objects.ServiceMessage;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.Errors;
+import com.aircandi.utilities.Reporting;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.IOException;
@@ -106,6 +107,7 @@ public class MessagingManager {
 		install.clientVersionName = Patch.getVersionName(Patch.applicationContext, AircandiForm.class);
 		install.clientVersionCode = Patch.getVersionCode(Patch.applicationContext, AircandiForm.class);
 		install.clientPackageName = Patch.applicationContext.getPackageName();
+		install.deviceName = AndroidManager.getInstance().getDeviceName();
 
 		ModelResult result = Patch.getInstance().getEntityManager().registerInstall(install);
 
@@ -234,8 +236,8 @@ public class MessagingManager {
 					}
 				}
 			}
-			catch (IOException exception) {
-				exception.printStackTrace();
+			catch (IOException e) {
+				Reporting.logException(e);
 			}
 		}
 		mNotificationManager.notify(messageTag, 0, builder.build());
@@ -259,8 +261,8 @@ public class MessagingManager {
 			String tag = getTag(message);
 			mNotificationManager.notify(tag, 0, builder.build());
 		}
-		catch (IOException exception) {
-			exception.printStackTrace();
+		catch (IOException e) {
+			Reporting.logException(e);
 		}
 	}
 

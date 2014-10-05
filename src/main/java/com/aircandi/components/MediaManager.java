@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.utilities.Booleans;
+import com.aircandi.utilities.Reporting;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -150,13 +151,13 @@ public class MediaManager {
 			outputStream.close();
 		}
 		catch (FileNotFoundException e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Reporting.logException(e);
 		}
 		return file;
 	}

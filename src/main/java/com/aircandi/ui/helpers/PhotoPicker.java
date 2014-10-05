@@ -50,6 +50,7 @@ import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.AirTextView;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
+import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 import com.commonsware.cwac.endless.EndlessAdapter;
 
@@ -282,8 +283,8 @@ public class PhotoPicker extends BaseActivity {
 			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
 			Patch.settingsEditor.commit();
 		}
-		catch (JSONException exception) {
-			exception.printStackTrace();
+		catch (JSONException e) {
+			Reporting.logException(e);
 		}
 
 		/* Make sure the latest search appears in auto complete */
@@ -313,8 +314,8 @@ public class PhotoPicker extends BaseActivity {
 				}
 			}
 		}
-		catch (JSONException exception) {
-			exception.printStackTrace();
+		catch (JSONException e) {
+			Reporting.logException(e);
 		}
 	}
 
@@ -336,9 +337,7 @@ public class PhotoPicker extends BaseActivity {
 			query = "%27" + URLEncoder.encode(query, "UTF-8") + "%27";
 		}
 		catch (UnsupportedEncodingException e) {
-			if (Patch.DEBUG) {
-				e.printStackTrace();
-			}
+			Reporting.logException(e);
 		}
 
 		final String bingUrl = ServiceConstants.URL_PROXIBASE_SEARCH_IMAGES

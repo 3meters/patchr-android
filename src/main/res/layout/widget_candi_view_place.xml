@@ -36,8 +36,6 @@
 			android:layout_height="@dimen/image_small"
 			android:layout_gravity="center_vertical"
 			android:layout_marginRight="10dp"
-			android:adjustViewBounds="true"
-			android:scaleType="fitCenter"
 			custom:layout="@layout/widget_webimageview"
 			custom:sizeHint="@dimen/image_small"
 			custom:sizeType="thumbnail" />

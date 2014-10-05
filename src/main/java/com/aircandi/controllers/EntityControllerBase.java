@@ -3,7 +3,6 @@ package com.aircandi.controllers;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
@@ -13,8 +12,8 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
@@ -371,19 +370,8 @@ public abstract class EntityControllerBase implements IEntityController {
 	}
 
 	@Override
-	public Drawable getDefaultDrawable(String type) {
-		Drawable drawable = Patch.applicationContext.getResources().getDrawable(R.drawable.img_placeholder_logo_bw);
-		return drawable;
-	}
-
-	@Override
 	public Photo getPlaceholderPhoto(String type) {
 		return getDefaultPhoto(type);
-	}
-
-	@Override
-	public Drawable getPlaceholderDrawable(String type) {
-		return getDefaultDrawable(type);
 	}
 
 	@Override
@@ -444,7 +432,7 @@ public abstract class EntityControllerBase implements IEntityController {
 	}
 
 	public static Photo getDefaultPhoto() {
-		String prefix = "img_placeholder_logo_bw";
+		String prefix = (Patch.themeTone.equals(Patch.ThemeTone.LIGHT)) ? "img_placeholder_bw" : "img_placeholder_bw_dark";
 		String source = PhotoSource.resource;
 		Photo photo = new Photo(prefix, null, null, null, source);
 		return photo;

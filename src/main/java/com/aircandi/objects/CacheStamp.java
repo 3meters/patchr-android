@@ -1,6 +1,7 @@
 package com.aircandi.objects;
 
 import com.aircandi.service.Expose;
+import com.aircandi.utilities.Reporting;
 
 import java.util.Map;
 
@@ -68,8 +69,8 @@ public class CacheStamp extends ServiceObject {
 		try {
 			cacheStamp = (CacheStamp) super.clone();
 		}
-		catch (CloneNotSupportedException exception) {
-			exception.printStackTrace();
+		catch (CloneNotSupportedException e) {
+			Reporting.logException(e);
 			throw new AssertionError();
 		}
 		return cacheStamp;
