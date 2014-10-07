@@ -357,23 +357,8 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	 */
 	private class EntityRenderer extends AirClusterRenderer<EntityItem> {
 
-		private IconGenerator mIconGenerator;
-		private TextView      mLabel;
-		private AirImageView  mImage;
-
 		public EntityRenderer(Context context) {
 			super(context, getMap(), mClusterManager);
-
-			//			mIconGenerator = new IconGenerator(context);
-			//
-			//			/* Single markers */
-			//			@SuppressLint("InflateParams") View singleMarker = getActivity().getLayoutInflater().inflate(R.layout.widget_map_marker, null, false);
-			//			mIconGenerator.setContentView(singleMarker);
-			//			mLabel = (TextView) singleMarker.findViewById(R.id.entity_text);
-			//			mLabel.setBackgroundDrawable(new ColorDrawable(Colors.getColor(R.color.brand_primary)));
-			//			mImage = (AirImageView) singleMarker.findViewById(R.id.entity_photo);
-			//			mImage.setSizeHint(UI.getRawPixelsForDisplayPixels(50f));
-			//			mImage.setSizeType(AirImageView.SizeType.THUMBNAIL);
 		}
 
 		@Override

@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ShareCompat;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Toast;
@@ -190,6 +191,26 @@ public class WatcherList extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public void share() {
+
+		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
+
+		builder.setSubject(String.format(StringManager.getString(R.string.label_place_share_subject)
+				, (mEntity.name != null) ? mEntity.name : "A"));
+
+		builder.setType("text/plain");
+		builder.setText(String.format(StringManager.getString(R.string.label_place_share_body), mEntityId));
+		builder.setChooserTitle(String.format(StringManager.getString(R.string.label_place_share_title)
+				, (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase)));
+
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PLACE);
+
+		builder.startChooser();
+	}
 
 	protected void actionBarIcon() {
 		if (mActionBar != null) {

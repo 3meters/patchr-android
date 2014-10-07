@@ -4,21 +4,25 @@ import android.app.Activity;
 import android.view.View;
 import android.widget.CompoundButton;
 
-import com.aircandi.Patch;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.Extras;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IEntityController;
-import com.aircandi.objects.ViewHolder;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
+import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.widgets.ComboButton;
+import com.squareup.otto.Subscribe;
 
 public class WatcherListFragment extends EntityListFragment {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
-	 *--------------------------------------------------------------------------------------------*/ 	@Override
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
 	public void onClick(View v) {
 		final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
 
@@ -34,9 +38,16 @@ public class WatcherListFragment extends EntityListFragment {
 		super.onAttach(activity);
 	}
 
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		super.onProcessingComplete(event);
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
-	 *--------------------------------------------------------------------------------------------*/ 	@Override
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
 	protected void postBind() {
 		super.postBind();
 	}
@@ -76,13 +87,18 @@ public class WatcherListFragment extends EntityListFragment {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------------------------
 	 * Menus
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/ 	public class ViewHolderExtended extends ViewHolder {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public class ViewHolderExtended extends ViewHolder {
 		public CompoundButton enable; // NO_UCD (unused code)
 		public ComboButton    delete; // NO_UCD (unused code)
 	}

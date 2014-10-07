@@ -94,8 +94,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	protected Integer mPhotoWidthPixels;
 	protected Integer mVisibleColumns = 1;
 	protected Integer mVisibleRows    = 3;
-	protected Integer mTopOffset;                                            // NO_UCD (unused code)
-	protected Integer mLastViewedPosition;                                    // NO_UCD (unused code)
+	protected Integer mTopOffset;
+	protected Integer mLastViewedPosition;
 	protected Boolean mFirstBind = true;
 
 	/* Data binding */

@@ -137,7 +137,7 @@ public class GcmIntentService extends IntentService {
 
 						    /* Build intent that can be used in association with the notification */
 							if (serviceMessage.action.entity != null) {
-								if (serviceMessage.action.entity.type.equals(Constants.TYPE_APP_ALERT)) {
+								if (serviceMessage.action.entity.type != null && serviceMessage.action.entity.type.equals(Constants.TYPE_APP_ALERT)) {
 									if (serviceMessage.action.toEntity != null) {
 										IEntityController controller = Patch.getInstance().getControllerForSchema(serviceMessage.action.toEntity.schema);
 										Extras bundle = new Extras().setForceRefresh(true);

@@ -432,7 +432,7 @@ public abstract class EntityControllerBase implements IEntityController {
 	}
 
 	public static Photo getDefaultPhoto() {
-		String prefix = (Patch.themeTone.equals(Patch.ThemeTone.LIGHT)) ? "img_placeholder_bw" : "img_placeholder_bw_dark";
+		String prefix = (Patch.themeTone.equals(Patch.ThemeTone.LIGHT)) ? "img_placeholder_bw_light" : "img_placeholder_bw_dark";
 		String source = PhotoSource.resource;
 		Photo photo = new Photo(prefix, null, null, null, source);
 		return photo;
