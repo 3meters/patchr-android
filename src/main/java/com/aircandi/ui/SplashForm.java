@@ -84,13 +84,6 @@ public class SplashForm extends Activity {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	private void draw() {
-
-		/* Brand coloring */
-		ImageView image = (ImageView) findViewById(R.id.logo);
-		image.setColorFilter(Colors.getColor(R.color.brand_primary), Mode.SRC_ATOP);
-	}
-
 	private void prepareToRun() {
 
 		mBusy.showBusy(BusyAction.Refreshing);
@@ -327,7 +320,6 @@ public class SplashForm extends Activity {
 		super.onResume();
 		Logger.d(this, "Splash resume");
 		Patch.getInstance().setCurrentActivity(this);
-		draw();
 	}
 
 	@Override

@@ -270,7 +270,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		if (isDirty()) {
 			if (validate()) {
 			    /*
-                 * Pull all the control values back into the entity object. Validate
+	             * Pull all the control values back into the entity object. Validate
 				 * does that too but we don't know if validate is always being performed.
 				 */
 				gather();
@@ -742,22 +742,22 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-						if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-							if (Patch.getInstance().getCurrentUser().id.equals(mEntity.id)) {
+						/* We are editing the current user */
+						if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER) &&
+								Patch.getInstance().getCurrentUser().id.equals(mEntity.id)) {
 
 								/* We also need to update the user that has been persisted for AUTO sign in. */
-								final String jsonUser = Json.objectToJson(mEntity);
-								Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-								Patch.settingsEditor.commit();
+							final String jsonUser = Json.objectToJson(mEntity);
+							Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
+							Patch.settingsEditor.commit();
 
 								/*
 								 * Update the global user but retain the session info. We don't need
 								 * to call activateCurrentUser because we don't need to refetch link data
 								 * or change notification registration.
 								 */
-								((User) mEntity).session = Patch.getInstance().getCurrentUser().session;
-								Patch.getInstance().setCurrentUser((User) mEntity);
-							}
+							((User) mEntity).session = Patch.getInstance().getCurrentUser().session;
+							Patch.getInstance().setCurrentUser((User) mEntity);
 						}
 					}
 				}

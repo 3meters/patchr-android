@@ -669,7 +669,6 @@ public class AircandiForm extends BaseActivity {
 		}
 	}
 
-	@SuppressWarnings("ucd")
 	protected void updateDrawer() {
 		if (mCurrentNavView != null) {
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_feed_messages).findViewById(R.id.name));

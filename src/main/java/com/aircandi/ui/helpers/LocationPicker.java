@@ -32,8 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * We often will get duplicates because the ordering of images isn't
  * guaranteed while paging.
  */
-public class LocationPicker extends BaseActivity implements GoogleMap.OnMyLocationButtonClickListener
-		, GoogleMap.OnMapClickListener
+public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClickListener
 		, GoogleMap.OnMarkerDragListener {
 
 	protected MapView     mMapView;
@@ -100,15 +99,6 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMyLocati
 	}
 
 	@Override
-	public boolean onMyLocationButtonClick() {
-		if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-			Dialogs.locationServicesDisabled(this, new AtomicBoolean(false));
-			return true;
-		}
-		return false;
-	}
-
-	@Override
 	public void onMarkerDragStart(Marker marker) {}
 
 	@Override
@@ -157,17 +147,16 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMyLocati
 		mMap.setMyLocationEnabled(true);
 		mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		mMap.setLocationSource(null);
-		mMap.setPadding(0, 0, 0, UI.getRawPixelsForDisplayPixels(80f));
+		mMap.setMyLocationEnabled(false);
 
 		UiSettings uiSettings = mMap.getUiSettings();
 
 		uiSettings.setZoomControlsEnabled(true);
-		uiSettings.setMyLocationButtonEnabled(true);
+		uiSettings.setMyLocationButtonEnabled(false);
 		uiSettings.setAllGesturesEnabled(true);
 		uiSettings.setCompassEnabled(true);
 
 		MapsInitializer.initialize(this);
-		mMap.setOnMyLocationButtonClickListener(this);
 		mMap.setOnMapClickListener(this);
 		mMap.setOnMarkerDragListener(this);
 

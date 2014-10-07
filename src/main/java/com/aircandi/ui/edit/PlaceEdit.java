@@ -565,6 +565,7 @@ public class PlaceEdit extends BaseEntityEdit {
 
 		mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		mMap.setLocationSource(null);
+		mMap.setMyLocationEnabled(false);
 
 		UiSettings uiSettings = mMap.getUiSettings();
 

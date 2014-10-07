@@ -1,6 +1,5 @@
 package com.aircandi.ui;
 
-import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.net.wifi.WifiManager;
@@ -17,9 +16,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
-import com.aircandi.Patch.ThemeTone;
 import com.aircandi.Constants;
+import com.aircandi.Patch;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
@@ -33,19 +31,17 @@ import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager;
 import com.aircandi.components.ProximityManager.RefreshReason;
 import com.aircandi.components.ProximityManager.ScanReason;
-import com.aircandi.components.ProximityManager.WifiScanResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
-import com.aircandi.objects.ViewHolder;
 import com.aircandi.events.BeaconsLockedEvent;
 import com.aircandi.events.BurstTimeoutEvent;
 import com.aircandi.events.EntitiesByProximityFinishedEvent;
 import com.aircandi.events.EntitiesChangedEvent;
 import com.aircandi.events.LocationChangedEvent;
-import com.aircandi.events.MonitoringWifiScanReceivedEvent;
 import com.aircandi.events.PlacesNearLocationFinishedEvent;
 import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.CacheStamp;
@@ -53,23 +49,19 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.ServiceData;
+import com.aircandi.objects.ViewHolder;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseEntityForm;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.ToolTip;
 import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.ui.widgets.ToolTipView;
-import com.aircandi.utilities.Colors;
-import com.aircandi.utilities.DateTime;
-import com.aircandi.utilities.DateTime.IntervalContext;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -278,7 +270,6 @@ public class RadarListFragment extends EntityListFragment {
 	@SuppressWarnings("ucd")
 	public void onQueryWifiScanReceived(final QueryWifiScanReceivedEvent event) {
 
-		updateDevIndicator(event.wifiList, null);
 		Reporting.updateCrashKeys();
 		getActivity().runOnUiThread(new Runnable() {
 
@@ -425,12 +416,6 @@ public class RadarListFragment extends EntityListFragment {
 				}
 			}
 		});
-	}
-
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onMonitoringWifiScanReceived(MonitoringWifiScanReceivedEvent event) {
-		updateDevIndicator(event.wifiList, null);
 	}
 
 	@Subscribe
@@ -615,122 +600,122 @@ public class RadarListFragment extends EntityListFragment {
 	 * UI
 	 *--------------------------------------------------------------------------------------------*/
 
-	private void doBeaconIndicatorClick() {
-		if (mBeaconIndicator != null) {
-			final StringBuilder beaconMessage = new StringBuilder(500);
-			List<WifiScanResult> wifiList = ProximityManager.getInstance().getWifiList();
-			synchronized (wifiList) {
-				if (Patch.getInstance().getCurrentUser() != null
-						&& Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-						&& Patch.getInstance().getCurrentUser().developer != null
-						&& Patch.getInstance().getCurrentUser().developer) {
-					if (Patch.wifiCount > 0) {
-						for (WifiScanResult wifi : wifiList) {
-							if (!wifi.SSID.equals("candi_feed")) {
-								beaconMessage.append(wifi.SSID + ": (" + String.valueOf(wifi.level) + ") " + wifi.BSSID + System.getProperty("line.separator"));
-							}
-						}
-						beaconMessage.append(System.getProperty("line.separator"));
-						beaconMessage.append("Wifi fix: "
-								+ DateTime.interval(ProximityManager.getInstance().mLastWifiUpdate.getTime(), DateTime.nowDate().getTime(),
-								IntervalContext.PAST));
-					}
+//	private void doBeaconIndicatorClick() {
+//		if (mBeaconIndicator != null) {
+//			final StringBuilder beaconMessage = new StringBuilder(500);
+//			List<WifiScanResult> wifiList = ProximityManager.getInstance().getWifiList();
+//			synchronized (wifiList) {
+//				if (Patch.getInstance().getCurrentUser() != null
+//						&& Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+//						&& Patch.getInstance().getCurrentUser().developer != null
+//						&& Patch.getInstance().getCurrentUser().developer) {
+//					if (Patch.wifiCount > 0) {
+//						for (WifiScanResult wifi : wifiList) {
+//							if (!wifi.SSID.equals("candi_feed")) {
+//								beaconMessage.append(wifi.SSID + ": (" + String.valueOf(wifi.level) + ") " + wifi.BSSID + System.getProperty("line.separator"));
+//							}
+//						}
+//						beaconMessage.append(System.getProperty("line.separator"));
+//						beaconMessage.append("Wifi fix: "
+//								+ DateTime.interval(ProximityManager.getInstance().mLastWifiUpdate.getTime(), DateTime.nowDate().getTime(),
+//								IntervalContext.PAST));
+//					}
+//
+//					final Location location = LocationManager.getInstance().getLocationLocked();
+//					if (location != null) {
+//						final Date fixDate = new Date(location.getTime());
+//						beaconMessage.append(System.getProperty("line.separator") + "Location fix: "
+//								+ DateTime.interval(fixDate.getTime(), DateTime.nowDate().getTime(), IntervalContext.PAST));
+//						beaconMessage.append(System.getProperty("line.separator") + "Location accuracy: " + String.valueOf(location.getAccuracy()));
+//						beaconMessage.append(System.getProperty("line.separator") + "Location provider: " + location.getProvider());
+//					}
+//					else {
+//						beaconMessage.append(System.getProperty("line.separator") + "Location fix: none");
+//					}
+//				}
+//				else
+//					return;
+//			}
+//			Dialogs.alertDialog(R.drawable.ic_launcher
+//					, StringManager.getString(R.string.alert_beacons_title)
+//					, beaconMessage.toString()
+//					, null
+//					, getActivity()
+//					, android.R.string.ok
+//					, null
+//					, null
+//					, new
+//					DialogInterface.OnClickListener() {
+//
+//						@Override
+//						public void onClick(DialogInterface dialog, int which) {
+//						}
+//					}, null);
+//		}
+//	}
 
-					final Location location = LocationManager.getInstance().getLocationLocked();
-					if (location != null) {
-						final Date fixDate = new Date(location.getTime());
-						beaconMessage.append(System.getProperty("line.separator") + "Location fix: "
-								+ DateTime.interval(fixDate.getTime(), DateTime.nowDate().getTime(), IntervalContext.PAST));
-						beaconMessage.append(System.getProperty("line.separator") + "Location accuracy: " + String.valueOf(location.getAccuracy()));
-						beaconMessage.append(System.getProperty("line.separator") + "Location provider: " + location.getProvider());
-					}
-					else {
-						beaconMessage.append(System.getProperty("line.separator") + "Location fix: none");
-					}
-				}
-				else
-					return;
-			}
-			Dialogs.alertDialog(R.drawable.ic_launcher
-					, StringManager.getString(R.string.alert_beacons_title)
-					, beaconMessage.toString()
-					, null
-					, getActivity()
-					, android.R.string.ok
-					, null
-					, null
-					, new
-					DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-						}
-					}, null);
-		}
-	}
-
-	public void updateDevIndicator(final List<WifiScanResult> scanList, Location location) {
-
-		if (mBeaconIndicator == null) return;
-
-		if (scanList != null) {
-
-			synchronized (scanList) {
-				/*
-				 * In case we get called from a background thread.
-				 */
-				getActivity().runOnUiThread(new Runnable() {
-
-					@Override
-					public void run() {
-
-						WifiScanResult wifiStrongest = null;
-						int wifiCount = 0;
-						for (WifiScanResult wifi : scanList) {
-							wifiCount++;
-							if (wifiStrongest == null) {
-								wifiStrongest = wifi;
-							}
-							else if (wifi.level > wifiStrongest.level) {
-								wifiStrongest = wifi;
-							}
-						}
-
-						Patch.wifiCount = wifiCount;
-						mDebugWifi = String.valueOf(wifiCount);
-					}
-				});
-			}
-		}
-
-		if (location != null) {
-			Location locationLocked = LocationManager.getInstance().getLocationLocked();
-			if (locationLocked != null) {
-				if (location.getProvider().equals(locationLocked.getProvider()) && (int) location.getAccuracy() == (int) locationLocked.getAccuracy()) {
-					mBeaconIndicator.setTextColor(Colors.getColor(R.color.brand_primary));
-				}
-				else {
-					if (Patch.themeTone.equals(ThemeTone.DARK)) {
-						mBeaconIndicator.setTextColor(Colors.getColor(R.color.text_dark));
-					}
-					else {
-						mBeaconIndicator.setTextColor(Colors.getColor(R.color.text_light));
-					}
-				}
-			}
-
-			String debugLocation = location.getProvider().substring(0, 1).toUpperCase(Locale.US);
-			if (location.hasAccuracy()) {
-				debugLocation += String.valueOf((int) location.getAccuracy());
-			}
-			else {
-				debugLocation += "--";
-			}
-			mDebugLocation = debugLocation;
-		}
-
-		mBeaconIndicator.setText(mDebugWifi + ":" + mDebugLocation);
-	}
+//	public void updateDevIndicator(final List<WifiScanResult> scanList, Location location) {
+//
+//		if (mBeaconIndicator == null) return;
+//
+//		if (scanList != null) {
+//
+//			synchronized (scanList) {
+//				/*
+//				 * In case we get called from a background thread.
+//				 */
+//				getActivity().runOnUiThread(new Runnable() {
+//
+//					@Override
+//					public void run() {
+//
+//						WifiScanResult wifiStrongest = null;
+//						int wifiCount = 0;
+//						for (WifiScanResult wifi : scanList) {
+//							wifiCount++;
+//							if (wifiStrongest == null) {
+//								wifiStrongest = wifi;
+//							}
+//							else if (wifi.level > wifiStrongest.level) {
+//								wifiStrongest = wifi;
+//							}
+//						}
+//
+//						Patch.wifiCount = wifiCount;
+//						mDebugWifi = String.valueOf(wifiCount);
+//					}
+//				});
+//			}
+//		}
+//
+//		if (location != null) {
+//			Location locationLocked = LocationManager.getInstance().getLocationLocked();
+//			if (locationLocked != null) {
+//				if (location.getProvider().equals(locationLocked.getProvider()) && (int) location.getAccuracy() == (int) locationLocked.getAccuracy()) {
+//					mBeaconIndicator.setTextColor(Colors.getColor(R.color.brand_primary));
+//				}
+//				else {
+//					if (Patch.themeTone.equals(ThemeTone.DARK)) {
+//						mBeaconIndicator.setTextColor(Colors.getColor(R.color.text_dark));
+//					}
+//					else {
+//						mBeaconIndicator.setTextColor(Colors.getColor(R.color.text_light));
+//					}
+//				}
+//			}
+//
+//			String debugLocation = location.getProvider().substring(0, 1).toUpperCase(Locale.US);
+//			if (location.hasAccuracy()) {
+//				debugLocation += String.valueOf((int) location.getAccuracy());
+//			}
+//			else {
+//				debugLocation += "--";
+//			}
+//			mDebugLocation = debugLocation;
+//		}
+//
+//		mBeaconIndicator.setText(mDebugWifi + ":" + mDebugLocation);
+//	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
@@ -854,7 +839,6 @@ public class RadarListFragment extends EntityListFragment {
 
 				Logger.d(getActivity(), "Location changed event: location accepted: " + reason);
 				LocationManager.getInstance().setLocationLocked(locationCandidate);
-				updateDevIndicator(null, locationCandidate);
 
 				final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 				if (location != null && !location.zombie) {
