@@ -11,11 +11,10 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.LocationManager;
@@ -28,7 +27,6 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.components.AirClusterRenderer;
-import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.UI;
 import com.google.android.gms.maps.CameraUpdate;
@@ -44,7 +42,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
-import com.google.maps.android.ui.IconGenerator;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -179,7 +176,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 	@Override
 	public void onClusterItemInfoWindowClick(EntityItem entityItem) {
-		Patch.dispatch.route(getActivity(), Route.BROWSE, entityItem.mEntity, null, null);
+		Patchr.dispatch.route(getActivity(), Route.BROWSE, entityItem.mEntity, null, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------

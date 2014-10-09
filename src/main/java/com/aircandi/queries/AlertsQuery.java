@@ -1,6 +1,6 @@
 package com.aircandi.queries;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.ModelResult;
@@ -39,7 +39,7 @@ public class AlertsQuery implements IQuery {
 				.setToSchemas(toSchemas)
 				.setLinkTypes(linkTypes);
 
-		ModelResult result = ((EntityManager) Patch.getInstance().getEntityManager()).loadAlerts(mEntityId, mCursor);
+		ModelResult result = ((EntityManager) Patchr.getInstance().getEntityManager()).loadAlerts(mEntityId, mCursor);
 
 		if (result.data != null) {
 			mMore = ((ServiceData) result.serviceResponse.data).more;

@@ -8,7 +8,7 @@ import android.util.Log;
 @SuppressWarnings("ucd")
 public class Constants {
 
-	public static final int     LOG_LEVEL           = Patch.DEBUG ? Log.VERBOSE : Log.DEBUG;
+	public static final int     LOG_LEVEL           = Patchr.DEBUG ? Log.VERBOSE : Log.DEBUG;
 	public static final boolean ERROR_LEVEL_VERBOSE = false;
 
 	/* Activity parameters */

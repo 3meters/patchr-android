@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ViewFlipper;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
@@ -128,7 +128,7 @@ public class UserEdit extends BaseEntityEdit {
 
 	@SuppressWarnings("ucd")
 	public void onChangePasswordButtonClick(View view) {
-		Patch.dispatch.route(this, Route.PASSWORD_CHANGE, null, null, null);
+		Patchr.dispatch.route(this, Route.PASSWORD_CHANGE, null, null, null);
 	}
 
 	@Override

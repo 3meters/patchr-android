@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Entity;
@@ -62,7 +62,7 @@ public class PlacePicker extends BaseActivity {
 
 	@Override
 	public void bind(BindingMode mode) {
-		Entity currentPlace = Patch.getInstance().getCurrentPlace();
+		Entity currentPlace = Patchr.getInstance().getCurrentPlace();
 		if (currentPlace != null) {
 			((Place) currentPlace).reason = ReasonType.LOCATION;
 			((Place) currentPlace).score = 20;

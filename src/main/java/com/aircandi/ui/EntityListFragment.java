@@ -18,8 +18,8 @@ import android.widget.ListView;
 import android.widget.ViewSwitcher;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
-import com.aircandi.Patch.ThemeTone;
+import com.aircandi.Patchr;
+import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
@@ -369,11 +369,11 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 					Bundle extras = new Bundle();
 					extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
 					extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, ((EntitiesQuery) mQuery).getEntityId());
-					Patch.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
+					Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
 					return;
 				}
 			}
-			Patch.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
+			Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
 		}
 	}
 
@@ -893,7 +893,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	}
 
 	protected void bindListItem(Entity entity, View view) {
-		IEntityController controller = Patch.getInstance().getControllerForEntity(entity);
+		IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
 		controller.bind(entity, view);
 
 		/* Special highlighting */
@@ -903,7 +903,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 			if (mHighlightEntities.containsKey(entity.id)) {
 				Highlight highlight = mHighlightEntities.get(entity.id);
 				if (!highlight.isOneShot() || !highlight.hasFired()) {
-					if (Patch.themeTone.equals(ThemeTone.DARK)) {
+					if (Patchr.themeTone.equals(ThemeTone.DARK)) {
 						view.setBackgroundResource(R.drawable.selector_image_highlight_dark);
 					}
 					else {

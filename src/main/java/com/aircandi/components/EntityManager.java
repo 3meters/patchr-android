@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.MessagingManager.Tag;
@@ -167,8 +167,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -201,8 +201,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -298,8 +298,8 @@ public class EntityManager {
 				.setRequestType(RequestType.GET)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -318,7 +318,7 @@ public class EntityManager {
 		ModelResult result = getApplinks(entities, null, timeout, waitForContent, false);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patch.tracker.sendEvent(TrackerCategory.UX, "applinks_verify", null, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.UX, "applinks_verify", null, 0);
 		}
 		return result;
 	}
@@ -326,7 +326,7 @@ public class EntityManager {
 	public ModelResult refreshApplinks(List<Entity> applinks, Integer timeout, Boolean waitForContent) {
 		ModelResult result = getApplinks(applinks, null, timeout, waitForContent, true);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patch.tracker.sendEvent(TrackerCategory.UX, "applinks_refresh", null, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.UX, "applinks_refresh", null, 0);
 		}
 		return result;
 	}
@@ -334,7 +334,7 @@ public class EntityManager {
 	public ModelResult searchApplinks(List<Entity> applinks, String placeId, Integer timeout, Boolean waitForContent) {
 		ModelResult result = getApplinks(applinks, placeId, timeout, waitForContent, false);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patch.tracker.sendEvent(TrackerCategory.UX, "applinks_search", null, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.UX, "applinks_search", null, 0);
 		}
 		return result;
 	}
@@ -419,8 +419,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -449,8 +449,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -494,7 +494,7 @@ public class EntityManager {
 		final Bundle parameters = new Bundle();
 		parameters.putString("email", email);
 		parameters.putString("password", password);
-		parameters.putString("installId", Patch.getinstallId());
+		parameters.putString("installId", Patchr.getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_AUTH + "signin")
@@ -511,20 +511,18 @@ public class EntityManager {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			Patch.getInstance().setCurrentUser(user);
+			Patchr.getInstance().setCurrentUser(user, true);
 
-			activateCurrentUser(true);
-
-			Patch.tracker.sendEvent(TrackerCategory.USER, "user_signin", null, 0);
-			Logger.i(this, "User signed in: " + Patch.getInstance().getCurrentUser().name);
+			Patchr.tracker.sendEvent(TrackerCategory.USER, "user_signin", null, 0);
+			Logger.i(this, "User signed in: " + Patchr.getInstance().getCurrentUser().name);
 		}
 		return result;
 	}
 
-	public ModelResult activateCurrentUser(Boolean loadUserData) {
+	public ModelResult activateCurrentUser(Boolean refreshUser) {
 
 		ModelResult result = new ModelResult();
-		User user = Patch.getInstance().getCurrentUser();
+		User user = Patchr.getInstance().getCurrentUser();
 
 		if (user.isAnonymous()) {
 
@@ -536,16 +534,16 @@ public class EntityManager {
 			MessagingManager.getInstance().cancelNotification(Tag.SHARE);
 
 			/* Clear user settings */
-			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
-			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), null);
-			Patch.settingsEditor.commit();
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), null);
+			Patchr.settingsEditor.commit();
 		}
 		else {
 
-			Logger.i(this, "Activating authenticated user: " + Patch.getInstance().getCurrentUser().id);
+			Logger.i(this, "Activating authenticated user: " + Patchr.getInstance().getCurrentUser().id);
 
 			/* Load user data */
-			if (loadUserData) {
+			if (refreshUser) {
 				Links options = mLinks.build(LinkProfile.LINKS_FOR_USER_CURRENT);
 				result = getEntity(user.id, true, options);
 			}
@@ -554,10 +552,10 @@ public class EntityManager {
 			final String jsonUser = Json.objectToJson(user);
 			final String jsonSession = Json.objectToJson(user.session);
 
-			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
-			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), user.email);
-			Patch.settingsEditor.commit();
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), user.email);
+			Patchr.settingsEditor.commit();
 		}
 
 		return result;
@@ -576,26 +574,25 @@ public class EntityManager {
 				.setIgnoreResponseData(true)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
 		 * We treat user as signed out even if the service call failed.
 		 */
-		Patch.tracker.sendEvent(TrackerCategory.USER, "user_signout", null, 0);
+		Patchr.tracker.sendEvent(TrackerCategory.USER, "user_signout", null, 0);
 		Logger.i(this, "User signed out: "
-				+ Patch.getInstance().getCurrentUser().name
-				+ " (" + Patch.getInstance().getCurrentUser().id + ")");
+				+ Patchr.getInstance().getCurrentUser().name
+				+ " (" + Patchr.getInstance().getCurrentUser().id + ")");
 
 		/* Set to anonymous user */
 		User anonymous = (User) loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
-		Patch.getInstance().setCurrentUser(anonymous);
-		activateCurrentUser(true);
+		Patchr.getInstance().setCurrentUser(anonymous, true);
 
 		if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-			Logger.w(this, "User sign out but service call failed: " + Patch.getInstance().getCurrentUser().id);
+			Logger.w(this, "User sign out but service call failed: " + Patchr.getInstance().getCurrentUser().id);
 		}
 		return result;
 	}
@@ -607,7 +604,7 @@ public class EntityManager {
 		parameters.putString("userId", userId);
 		parameters.putString("oldPassword", passwordOld);
 		parameters.putString("newPassword", passwordNew);
-		parameters.putString("installId", Patch.getinstallId());
+		parameters.putString("installId", Patchr.getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "changepw")
@@ -616,8 +613,8 @@ public class EntityManager {
 				.setActivityName(activityName)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -628,12 +625,10 @@ public class EntityManager {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			Patch.getInstance().setCurrentUser(user);
+			Patchr.getInstance().setCurrentUser(user, true);
 
-			activateCurrentUser(true);
-
-			Patch.tracker.sendEvent(TrackerCategory.USER, "password_change", null, 0);
-			Logger.i(this, "User changed password: " + Patch.getInstance().getCurrentUser().name);
+			Patchr.tracker.sendEvent(TrackerCategory.USER, "password_change", null, 0);
+			Logger.i(this, "User changed password: " + Patchr.getInstance().getCurrentUser().name);
 		}
 		return result;
 	}
@@ -643,7 +638,7 @@ public class EntityManager {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("email", email);
-		parameters.putString("installId", Patch.getinstallId());
+		parameters.putString("installId", Patchr.getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "reqresetpw")
@@ -654,7 +649,7 @@ public class EntityManager {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patch.tracker.sendEvent(TrackerCategory.USER, "request_password_reset", null, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.USER, "request_password_reset", null, 0);
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
@@ -670,7 +665,7 @@ public class EntityManager {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("password", password);
-		parameters.putString("installId", Patch.getinstallId());
+		parameters.putString("installId", Patchr.getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "resetpw")
@@ -684,16 +679,15 @@ public class EntityManager {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			Patch.tracker.sendEvent(TrackerCategory.USER, "password_reset", null, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.USER, "password_reset", null, 0);
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			Patch.getInstance().setCurrentUser(user);
-			activateCurrentUser(true);
+			Patchr.getInstance().setCurrentUser(user, true);
 
-			Patch.tracker.sendEvent(TrackerCategory.USER, "user_signin", null, 0);
-			Logger.i(this, "Password reset and user signed in: " + Patch.getInstance().getCurrentUser().name);
+			Patchr.tracker.sendEvent(TrackerCategory.USER, "user_signin", null, 0);
+			Logger.i(this, "Password reset and user signed in: " + Patchr.getInstance().getCurrentUser().name);
 		}
 
 		return result;
@@ -703,8 +697,8 @@ public class EntityManager {
 		ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
-		parameters.putString("secret", Patch.getInstance().getContainer().getString(Patch.USER_SECRET));
-		parameters.putString("installId", Patch.getinstallId());
+		parameters.putString("secret", Patchr.getInstance().getContainer().getString(Patchr.USER_SECRET));
+		parameters.putString("installId", Patchr.getinstallId());
 		user.id = null; // remove temp id we assigned
 
 		ServiceRequest serviceRequest = new ServiceRequest()
@@ -720,7 +714,7 @@ public class EntityManager {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			Patch.tracker.sendEvent(TrackerCategory.USER, "user_register", null, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.USER, "user_register", null, 0);
 			String jsonResponse = (String) result.serviceResponse.data;
 			ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			user = serviceData.user;
@@ -773,8 +767,8 @@ public class EntityManager {
 				.setRequestType(RequestType.GET)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -915,8 +909,8 @@ public class EntityManager {
 					.setParameters(parameters)
 					.setResponseFormat(ResponseFormat.JSON);
 
-			if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-				serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 			}
 
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -925,7 +919,7 @@ public class EntityManager {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 			String action = entity.synthetic ? "entity_upsize" : "entity_insert";
-			Patch.tracker.sendEvent(TrackerCategory.EDIT, action, entity.schema, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.EDIT, action, entity.schema, 0);
 			Json.ObjectType serviceDataType = Json.ObjectType.ENTITY;
 
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -935,12 +929,12 @@ public class EntityManager {
 				 * Optimization: Add soft 'create' link so user entity doesn't have to be refetched
 				 */
 			if (!entity.synthetic) {
-				Patch.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-				mEntityCache.addLink(Patch.getInstance().getCurrentUser().id
+				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+				mEntityCache.addLink(Patchr.getInstance().getCurrentUser().id
 						, insertedEntity.id
 						, Constants.TYPE_LINK_CREATE
 						, null
-						, Patch.getInstance().getCurrentUser().getShortcut(), insertedEntity.getShortcut());
+						, Patchr.getInstance().getCurrentUser().getShortcut(), insertedEntity.getShortcut());
 			}
 
 			result.data = insertedEntity;
@@ -994,15 +988,15 @@ public class EntityManager {
 					.setParameters(parameters)
 					.setResponseFormat(ResponseFormat.JSON);
 
-			if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-				serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 			}
 
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patch.tracker.sendEvent(TrackerCategory.EDIT, "entity_update", entity.schema, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.EDIT, "entity_update", entity.schema, 0);
 			/*
 			 * Optimization: We crawl entities in the cache and update embedded
 			 * user objects so we don't have to refresh all the affected entities
@@ -1051,8 +1045,8 @@ public class EntityManager {
 					.setParameters(parameters)
 					.setResponseFormat(ResponseFormat.JSON);
 
-			if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-				serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 			}
 
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1061,7 +1055,7 @@ public class EntityManager {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 			if (entity != null) {
-				Patch.tracker.sendEvent(TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
+				Patchr.tracker.sendEvent(TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
 			}
 			entity = mEntityCache.removeEntityTree(entityId);
 			/*
@@ -1070,8 +1064,8 @@ public class EntityManager {
 			 * FIXME: This needs to be generalized to hunt down all links that have
 			 * this entity at either end and clean them up including any counts.
 			 */
-			Patch.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-			mEntityCache.removeLink(Patch.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
+			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+			mEntityCache.removeLink(Patchr.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
 
 			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				mActivityDate = DateTime.nowDate().getTime();
@@ -1156,15 +1150,15 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		/* Reproduce the service call effect locally */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patch.tracker.sendEvent(TrackerCategory.LINK, untuning ? "place_untune" : "place_tune", null, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.LINK, untuning ? "place_untune" : "place_tune", null, 0);
 
 			if (beacons != null) {
 				for (Beacon beacon : beacons) {
@@ -1256,8 +1250,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1270,7 +1264,7 @@ public class EntityManager {
 				action += action + "_" + (enabled ? "approved" : "requested");
 			}
 
-			Patch.tracker.sendEvent(TrackerCategory.LINK, action, toShortcut.schema, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.LINK, action, toShortcut.schema, 0);
 			/*
 			 * Fail could be because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
@@ -1296,8 +1290,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1311,7 +1305,7 @@ public class EntityManager {
 				action += action + "_" + (enabled ? "approved" : "requested");
 			}
 
-			Patch.tracker.sendEvent(TrackerCategory.LINK, action, schema, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.LINK, action, schema, 0);
 			/*
 			 * Fail could be because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
@@ -1339,7 +1333,7 @@ public class EntityManager {
 
 				/* Synchronous call to get the bitmap */
 				try {
-					bitmap = DownloadManager.with(Patch.applicationContext)
+					bitmap = DownloadManager.with(Patchr.applicationContext)
 					                        .load(entity.getPhoto().getUri())
 					                        .centerInside()
 					                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
@@ -1375,14 +1369,14 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patch.tracker.sendEvent(TrackerCategory.EDIT, "entity_replace_entities", schema, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.EDIT, "entity_replace_entities", schema, 0);
 		}
 		return result;
 	}
@@ -1405,8 +1399,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1414,8 +1408,8 @@ public class EntityManager {
 		 * We update the cache directly instead of refreshing from the service
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patch.tracker.sendEvent(TrackerCategory.LINK, "entity_remove", schema, 0);
-			Patch.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+			Patchr.tracker.sendEvent(TrackerCategory.LINK, "entity_remove", schema, 0);
+			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 			mEntityCache.removeLink(fromId, toId, type, null);
 		}
 
@@ -1442,14 +1436,14 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patch.tracker.sendEvent(TrackerCategory.LINK, "entity_watch_" + (enabled ? "approved" : "requested"), Constants.SCHEMA_ENTITY_PLACE, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.LINK, "entity_watch_" + (enabled ? "approved" : "requested"), Constants.SCHEMA_ENTITY_PLACE, 0);
 		}
 
 		return result;
@@ -1513,8 +1507,8 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1536,14 +1530,14 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patch.tracker.sendEvent(TrackerCategory.USER, document.type + "_insert", document.type, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.USER, document.type + "_insert", document.type, 0);
 		}
 
 		return result;
@@ -1558,14 +1552,14 @@ public class EntityManager {
 				.setRequestType(RequestType.DELETE)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patch.tracker.sendEvent(TrackerCategory.USER, document.type + "_insert", document.type, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.USER, document.type + "_insert", document.type, 0);
 		}
 
 		return result;
@@ -1581,8 +1575,8 @@ public class EntityManager {
 				.setRequestType(RequestType.INSERT)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1612,14 +1606,14 @@ public class EntityManager {
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patch.getInstance().getCurrentUser().session);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patch.tracker.sendEvent(TrackerCategory.USER, "invite_send", null, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.USER, "invite_send", null, 0);
 		}
 
 		return result;
@@ -1639,7 +1633,7 @@ public class EntityManager {
 		 * Push it to S3. It is always formatted/compressed as a jpeg.
 		 */
 		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
-		final String imageKey = String.valueOf((user != null) ? user.id : Patch.getInstance().getCurrentUser().id) + "_" + stringDate + ".jpg";
+		final String imageKey = String.valueOf((user != null) ? user.id : Patchr.getInstance().getCurrentUser().id) + "_" + stringDate + ".jpg";
 		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3, photoType);
 
 		/* Update the photo object for the entity or user */
@@ -1697,7 +1691,7 @@ public class EntityManager {
 				proximity);
 
 		Collections.sort(places, new Place.SortByProximityAndDistance());
-		Number limit = Patch.applicationContext.getResources().getInteger(R.integer.limit_places_radar);
+		Number limit = Patchr.applicationContext.getResources().getInteger(R.integer.limit_places_radar);
 
 		return (places.size() > limit.intValue()) ? places.subList(0, limit.intValue()) : places;
 	}
@@ -1718,7 +1712,7 @@ public class EntityManager {
 		InputStream inputStream = null;
 		BufferedReader reader = null;
 		try {
-			inputStream = Patch.applicationContext.getResources().openRawResource(entityResId);
+			inputStream = Patchr.applicationContext.getResources().openRawResource(entityResId);
 			reader = new BufferedReader(new InputStreamReader(inputStream));
 			final StringBuilder text = new StringBuilder(10000);
 			String line;

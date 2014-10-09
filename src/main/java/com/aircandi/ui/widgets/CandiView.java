@@ -13,7 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.LocationManager;
@@ -29,6 +29,7 @@ import com.aircandi.objects.Place;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.ShortcutSettings;
 import com.aircandi.objects.User;
+import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.UI;
 
@@ -55,6 +56,9 @@ public class CandiView extends RelativeLayout {
 	protected TextView     mArea;
 	protected TextView     mDistance;
 	protected TextView     mCount;
+	protected TextView     mMessageCount;
+	protected TextView     mLastMessageDate;
+	protected TextView     mWatchCount;
 	protected View         mCandiViewGroup;
 	protected LinearLayout mHolderShortcuts;
 	protected LinearLayout mHolderInfo;
@@ -111,6 +115,9 @@ public class CandiView extends RelativeLayout {
 		mHolderShortcuts = (LinearLayout) mLayout.findViewById(R.id.shortcuts);
 		mHolderInfo = (LinearLayout) mLayout.findViewById(R.id.info_holder);
 		mCount = (TextView) mLayout.findViewById(R.id.count);
+		mMessageCount = (TextView) mLayout.findViewById(R.id.message_count);
+		mWatchCount = (TextView) mLayout.findViewById(R.id.watch_count);
+		mLastMessageDate = (TextView) mLayout.findViewById(R.id.last_message_date);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -273,7 +280,7 @@ public class CandiView extends RelativeLayout {
 						}
 					}
 					else {
-						DownloadManager.with(Patch.applicationContext)
+						DownloadManager.with(Patchr.applicationContext)
 						               .load(R.drawable.default_88)
 						               .placeholder(null)
 								.resize(mCategoryPhoto.getSizeHint(), mCategoryPhoto.getSizeHint())    // Memory size
@@ -374,13 +381,38 @@ public class CandiView extends RelativeLayout {
 			if (mShortcuts.size() > 0) {
 				setVisibility(mHolderShortcuts, View.VISIBLE);
 			}
+		}
 
-			Count messageCount = entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, null, Direction.in);
-			if (messageCount != null && messageCount.count.intValue() > Integers.getInteger(R.integer.limit_indicators_radar)) {
-				Integer extras = messageCount.count.intValue() - Integers.getInteger(R.integer.limit_indicators_radar);
-				mCount.setText("+" + extras);
-				setVisibility(mCount, View.VISIBLE);
+		/* Last message date */
+		if (mLastMessageDate != null) {
+			ShortcutSettings settings = new ShortcutSettings(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, Direction.in, false, false);
+			List<Shortcut> shortcuts = (List<Shortcut>) entity.getShortcuts(settings, null, new Shortcut.SortByPositionSortDate());
+			if (shortcuts != null && shortcuts.size() > 0) {
+				String compactAgo = DateTime.intervalCompact(shortcuts.get(0).sortDate.longValue(), DateTime.nowDate().getTime(), DateTime.IntervalContext.PAST);
+				mLastMessageDate.setText(compactAgo);
 			}
+			else {
+				mLastMessageDate.setVisibility(INVISIBLE);
+			}
+		}
+
+		/* Message count for place list */
+		Count messageCount = entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, null, Direction.in);
+		if (mCount != null && messageCount != null && messageCount.count.intValue() > Integers.getInteger(R.integer.limit_indicators_radar)) {
+			Integer extras = messageCount.count.intValue() - Integers.getInteger(R.integer.limit_indicators_radar);
+			mCount.setText("+" + extras);
+			setVisibility(mCount, View.VISIBLE);
+		}
+
+		/* Message count for nearby list */
+		if (mMessageCount != null) {
+			mMessageCount.setText((messageCount != null) ? String.valueOf(messageCount.count.intValue()) : "0");
+		}
+
+		/* Watch count for nearby list */
+		if (mWatchCount != null) {
+			Count watchCount = entity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, null, Direction.in);
+			mWatchCount.setText((watchCount != null) ? String.valueOf(watchCount.count.intValue()) : "0");
 		}
 	}
 
@@ -464,10 +496,10 @@ public class CandiView extends RelativeLayout {
 					}
 				}
 
-				if (Patch.getInstance().getCurrentUser() != null
-						&& Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-						&& Patch.getInstance().getCurrentUser().developer != null
-						&& Patch.getInstance().getCurrentUser().developer) {
+				if (Patchr.getInstance().getCurrentUser() != null
+						&& Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+						&& Patchr.getInstance().getCurrentUser().developer != null
+						&& Patchr.getInstance().getCurrentUser().developer) {
 					info = target + info;
 				}
 				else {

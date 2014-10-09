@@ -18,7 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.DownloadManager;
@@ -173,11 +173,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 	public void bind(BindingMode mode) {
 		if (!mEditing && mEntity == null && mEntitySchema != null) {
-			IEntityController controller = Patch.getInstance().getControllerForSchema(mEntitySchema);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(mEntitySchema);
 			mEntity = controller.makeNew();
-			if (Patch.getInstance().getCurrentUser() != null) {
-				mEntity.creator = Patch.getInstance().getCurrentUser();
-				mEntity.creatorId = Patch.getInstance().getCurrentUser().id;
+			if (Patchr.getInstance().getCurrentUser() != null) {
+				mEntity.creator = Patchr.getInstance().getCurrentUser();
+				mEntity.creatorId = Patchr.getInstance().getCurrentUser().id;
 			}
 		}
 		draw(null);
@@ -228,10 +228,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			/* Configure UI */
 			UI.setVisibility(findViewById(R.id.button_delete), View.GONE);
 			if (entity.ownerId != null
-					&& (entity.ownerId.equals(Patch.getInstance().getCurrentUser().id)
-					|| (Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-					&& Patch.getInstance().getCurrentUser().developer != null
-					&& Patch.getInstance().getCurrentUser().developer))) {
+					&& (entity.ownerId.equals(Patchr.getInstance().getCurrentUser().id)
+					|| (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+					&& Patchr.getInstance().getCurrentUser().developer != null
+					&& Patchr.getInstance().getCurrentUser().developer))) {
 				UI.setVisibility(findViewById(R.id.button_delete), View.VISIBLE);
 			}
 			mFirstDraw = false;
@@ -283,7 +283,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					intentBuilder.setEntity(mEntity);
 					setResultCode(Constants.RESULT_ENTITY_EDITED, intentBuilder.create());
 					finish();
-					Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.FORM_TO_PAGE);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.FORM_TO_PAGE);
 				}
 				else {
 					if (mEditing) {
@@ -307,7 +307,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		gather();
 
 		/* Route it */
-		Patch.dispatch.route(this, Route.PHOTO_SOURCE, mEntity, null, null);
+		Patchr.dispatch.route(this, Route.PHOTO_SOURCE, mEntity, null, null);
 		onChangingPhoto();
 	}
 
@@ -342,7 +342,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			@Override
 			public void run() {
 				if (image != null) {
-					Patch.tracker.sendEvent(TrackerCategory.UX, "photo_used_from_device", null, 0);
+					Patchr.tracker.sendEvent(TrackerCategory.UX, "photo_used_from_device", null, 0);
 					final Uri photoUri = Uri.parse("file:" + image.getFilePathOriginal());
 					MediaManager.scanMedia(Uri.parse("file:" + image.getFilePathOriginal()));
 					Photo photo = new Photo()
@@ -356,7 +356,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Patch.dispatch.route(this, Route.BROWSE, entity, null, null);
+		Patchr.dispatch.route(this, Route.BROWSE, entity, null, null);
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -407,7 +407,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 			else if (requestCode == Constants.ACTIVITY_PHOTO_SEARCH) {
 
-				Patch.tracker.sendEvent(TrackerCategory.UX, "photo_select_using_search", null, 0);
+				Patchr.tracker.sendEvent(TrackerCategory.UX, "photo_select_using_search", null, 0);
 				if (intent != null && intent.getExtras() != null) {
 
 					final Bundle extras = intent.getExtras();
@@ -418,7 +418,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 			else if (requestCode == Constants.ACTIVITY_PHOTO_PICK_PLACE) {
 
-				Patch.tracker.sendEvent(TrackerCategory.UX, "photo_select_from_place", null, 0);
+				Patchr.tracker.sendEvent(TrackerCategory.UX, "photo_select_from_place", null, 0);
 				if (intent != null && intent.getExtras() != null) {
 
 					final Bundle extras = intent.getExtras();
@@ -470,7 +470,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		/*
 		 * Setting the photo to null will trigger correct default handling.
 		 */
-		Patch.tracker.sendEvent(TrackerCategory.UX, "photo_set_to_default", null, 0);
+		Patchr.tracker.sendEvent(TrackerCategory.UX, "photo_set_to_default", null, 0);
 		onPhotoSelected(null);
 	}
 
@@ -530,11 +530,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	protected void photoSearch(String defaultSearch) {
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_SEARCH_PHRASE, defaultSearch);
-		Patch.dispatch.route(this, Route.PHOTO_SEARCH, null, null, extras);
+		Patchr.dispatch.route(this, Route.PHOTO_SEARCH, null, null, extras);
 	}
 
 	protected void photoFromPlace(Entity entity) {
-		Patch.dispatch.route(this, Route.PHOTO_PLACE_SEARCH, entity, null, null);
+		Patchr.dispatch.route(this, Route.PHOTO_PLACE_SEARCH, entity, null, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -594,7 +594,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
 
 					try {
-						bitmap = DownloadManager.with(Patch.applicationContext)
+						bitmap = DownloadManager.with(Patchr.applicationContext)
 						                        .load(mEntity.getPhoto().getUri())
 						                        .centerInside()
 						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
@@ -608,7 +608,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						 */
 						System.gc();
 						try {
-							bitmap = DownloadManager.with(Patch.applicationContext)
+							bitmap = DownloadManager.with(Patchr.applicationContext)
 							                        .load(mEntity.getPhoto().getUri())
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
@@ -628,7 +628,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				beforeInsert(mEntity, links);
 				if (isCancelled()) return null;
 
-				ModelResult result = Patch.getInstance().getEntityManager().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true);
+				ModelResult result = Patchr.getInstance().getEntityManager().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true);
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
@@ -668,7 +668,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						}
 						setResultCode(Activity.RESULT_OK);
 						finish();
-						Patch.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_TO_PAGE);
+						Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_TO_PAGE);
 					}
 				}
 				else {
@@ -705,7 +705,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
 
 						try {
-							bitmap = DownloadManager.with(Patch.applicationContext)
+							bitmap = DownloadManager.with(Patchr.applicationContext)
 							                        .load(mEntity.getPhoto().getUri())
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
@@ -719,7 +719,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						 */
 							System.gc();
 							try {
-								bitmap = DownloadManager.with(Patch.applicationContext)
+								bitmap = DownloadManager.with(Patchr.applicationContext)
 								                        .load(mEntity.getPhoto().getUri())
 								                        .centerInside()
 								                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
@@ -734,7 +734,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					}
 
 					beforeUpdate(mEntity);
-					result = Patch.getInstance().getEntityManager().updateEntity(mEntity, bitmap);
+					result = Patchr.getInstance().getEntityManager().updateEntity(mEntity, bitmap);
 					if (isCancelled()) return null;
 
 					/* Don't allow cancel if we made it this far */
@@ -744,20 +744,20 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 						/* We are editing the current user */
 						if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER) &&
-								Patch.getInstance().getCurrentUser().id.equals(mEntity.id)) {
+								Patchr.getInstance().getCurrentUser().id.equals(mEntity.id)) {
 
 								/* We also need to update the user that has been persisted for AUTO sign in. */
 							final String jsonUser = Json.objectToJson(mEntity);
-							Patch.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-							Patch.settingsEditor.commit();
+							Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
+							Patchr.settingsEditor.commit();
 
 								/*
 								 * Update the global user but retain the session info. We don't need
 								 * to call activateCurrentUser because we don't need to refetch link data
 								 * or change notification registration.
 								 */
-							((User) mEntity).session = Patch.getInstance().getCurrentUser().session;
-							Patch.getInstance().setCurrentUser((User) mEntity);
+							((User) mEntity).session = Patchr.getInstance().getCurrentUser().session;
+							Patchr.getInstance().setCurrentUser((User) mEntity, true);
 						}
 					}
 				}
@@ -786,7 +786,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
 						setResultCode(Activity.RESULT_OK);
 						finish();
-						Patch.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_TO_PAGE);
+						Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_TO_PAGE);
 					}
 				}
 				else {

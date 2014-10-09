@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Extras;
 import com.aircandi.events.ProcessingCompleteEvent;
@@ -30,7 +30,7 @@ public class WatcherListFragment extends EntityListFragment {
 				.setEntitySchema(Constants.SCHEMA_ENTITY_USER)
 				.setEntityId(entity.id);
 
-		Patch.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
+		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class WatcherListFragment extends EntityListFragment {
 	@Override
 	protected void bindListItem(Entity entity, View view) {
 
-		IEntityController controller = Patch.getInstance().getControllerForEntity(entity);
+		IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
 
 		ViewHolder holder = (ViewHolder) view.getTag();
 		if (holder == null) {

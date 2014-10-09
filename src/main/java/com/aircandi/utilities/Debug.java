@@ -3,7 +3,7 @@ package com.aircandi.utilities;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
@@ -21,9 +21,9 @@ public class Debug {
 	public static void insertBeacon() {
 
 		final Document document = new Document();
-		if (Patch.getInstance().getCurrentPlace() != null) {
+		if (Patchr.getInstance().getCurrentPlace() != null) {
 
-			Place place = (Place) Patch.getInstance().getCurrentPlace();
+			Place place = (Place) Patchr.getInstance().getCurrentPlace();
 			Beacon beacon = place.getBeaconFromLink(Constants.TYPE_LINK_PROXIMITY, true);
 
 			if (beacon != null) {
@@ -39,7 +39,7 @@ public class Debug {
 					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncInsertReport");
-						ModelResult result = Patch.getInstance().getEntityManager().insertDocument(document);
+						ModelResult result = Patchr.getInstance().getEntityManager().insertDocument(document);
 						return result;
 					}
 
@@ -77,7 +77,7 @@ public class Debug {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertReport");
-				ModelResult result = Patch.getInstance().getEntityManager().insertLog(log);
+				ModelResult result = Patchr.getInstance().getEntityManager().insertLog(log);
 				return result;
 			}
 

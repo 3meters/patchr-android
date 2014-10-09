@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBind;
@@ -49,7 +49,7 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-		Patch.resultCode = Activity.RESULT_OK;
+		Patchr.resultCode = Activity.RESULT_OK;
 	}
 
 	@Override
@@ -111,7 +111,7 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 						onAccept();
 					}
 					else if (which == DialogInterface.BUTTON_NEUTRAL) {
-						Patch.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
+						Patchr.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
 					}
 				}
 			}
@@ -132,7 +132,7 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					if (which == DialogInterface.BUTTON_POSITIVE) {
-						Patch.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
+						Patchr.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
 					}
 				}
 			}

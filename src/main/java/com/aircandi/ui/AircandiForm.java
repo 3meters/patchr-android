@@ -16,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
@@ -111,8 +111,8 @@ public class AircandiForm extends BaseActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (mActionBar == null) {
-			Patch.firstStartIntent = getIntent();
-			Patch.dispatch.route(this, Route.SPLASH, null, null, null);
+			Patchr.firstStartIntent = getIntent();
+			Patchr.dispatch.route(this, Route.SPLASH, null, null, null);
 		}
 		else {
 			FontManager.getInstance().setTypefaceMedium((TextView) findViewById(R.id.item_nearby).findViewById(R.id.name));
@@ -130,7 +130,7 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		mUserView = (UserView) findViewById(R.id.user_current);
-		mUserView.setTag(Patch.getInstance().getCurrentUser());
+		mUserView.setTag(Patchr.getInstance().getCurrentUser());
 		mDrawer = findViewById(R.id.drawer);
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerLayout.setFocusableInTouchMode(false);
@@ -182,18 +182,18 @@ public class AircandiForm extends BaseActivity {
 	protected void configureDrawer() {
 
 		Boolean configChange = mConfiguredForAnonymous == null
-				|| !Patch.getInstance().getCurrentUser().isAnonymous().equals(mConfiguredForAnonymous)
-				|| (mCacheStamp != null && !mCacheStamp.equals(Patch.getInstance().getCurrentUser().getCacheStamp()));
+				|| !Patchr.getInstance().getCurrentUser().isAnonymous().equals(mConfiguredForAnonymous)
+				|| (mCacheStamp != null && !mCacheStamp.equals(Patchr.getInstance().getCurrentUser().getCacheStamp()));
 
 		if (configChange) {
-			if (Patch.getInstance().getCurrentUser().isAnonymous()) {
+			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
 				mConfiguredForAnonymous = true;
 				findViewById(R.id.group_messages_header).setVisibility(View.GONE);
 				findViewById(R.id.item_feed_messages).setVisibility(View.GONE);
 				findViewById(R.id.item_feed_alerts).setVisibility(View.GONE);
 				findViewById(R.id.item_watch).setVisibility(View.GONE);
 				findViewById(R.id.item_create).setVisibility(View.GONE);
-				mUserView.databind(Patch.getInstance().getCurrentUser());
+				mUserView.databind(Patchr.getInstance().getCurrentUser());
 			}
 			else {
 				mConfiguredForAnonymous = false;
@@ -202,8 +202,8 @@ public class AircandiForm extends BaseActivity {
 				findViewById(R.id.item_feed_alerts).setVisibility(View.VISIBLE);
 				findViewById(R.id.item_watch).setVisibility(View.VISIBLE);
 				findViewById(R.id.item_create).setVisibility(View.VISIBLE);
-				mUserView.databind(Patch.getInstance().getCurrentUser());
-				mCacheStamp = Patch.getInstance().getCurrentUser().getCacheStamp();
+				mUserView.databind(Patchr.getInstance().getCurrentUser());
+				mCacheStamp = Patchr.getInstance().getCurrentUser().getCacheStamp();
 			}
 		}
 	}
@@ -270,12 +270,12 @@ public class AircandiForm extends BaseActivity {
 		if (!(entity.schema.equals(Constants.SCHEMA_ENTITY_USER) && ((User) entity).isAnonymous())) {
 			Bundle extras = new Bundle();
 			if (Type.isTrue(entity.autowatchable)) {
-				if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
+				if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
 						, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
 					extras.putBoolean(Constants.EXTRA_AUTO_WATCH, true);
 				}
 			}
-			Patch.dispatch.route(this, Route.BROWSE, entity, null, extras);
+			Patchr.dispatch.route(this, Route.BROWSE, entity, null, extras);
 		}
 		if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mDrawer)) {
 			mDrawerLayout.closeDrawer(mDrawer);
@@ -302,7 +302,7 @@ public class AircandiForm extends BaseActivity {
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
 		}
 		extras.putString(Constants.EXTRA_MESSAGE, StringManager.getString(R.string.label_message_new_message));
-		Patch.dispatch.route(this, Route.NEW, null, null, extras);
+		Patchr.dispatch.route(this, Route.NEW, null, null, extras);
 	}
 
 	@Override
@@ -381,14 +381,74 @@ public class AircandiForm extends BaseActivity {
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
+			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_WATCH)) {
+
+				fragment = new EntityListFragment();
+
+				EntityMonitor monitor = new EntityMonitor(Patchr.getInstance().getCurrentUser().id);
+				EntitiesQuery query = new EntitiesQuery();
+
+				query.setEntityId(Patchr.getInstance().getCurrentUser().id)
+				     .setLinkDirection(Link.Direction.out.name())
+				     .setLinkType(Constants.TYPE_LINK_WATCH)
+				     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
+				     .setSchema(Constants.SCHEMA_ENTITY_PLACE);
+
+				((EntityListFragment) fragment).setQuery(query)
+				                               .setMonitor(monitor)
+				                               .setListPagingEnabled(true)
+				                               .setListItemResId(R.layout.temp_listitem_place)
+				                               .setListLoadingResId(R.layout.temp_listitem_loading)
+				                               .setListViewType(ViewType.LIST)
+				                               .setListLayoutResId(R.layout.place_list_fragment)
+				                               .setListEmptyMessageResId(R.string.label_watching_empty)
+				                               .setTitleResId(R.string.label_watch_title)
+				                               .setSelfBindingEnabled(true);
+
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
+			}
+
+			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_CREATE)) {
+
+				fragment = new EntityListFragment();
+
+				EntityMonitor monitor = new EntityMonitor(Patchr.getInstance().getCurrentUser().id);
+				EntitiesQuery query = new EntitiesQuery();
+
+				query.setEntityId(Patchr.getInstance().getCurrentUser().id)
+				     .setLinkDirection(Link.Direction.out.name())
+				     .setLinkType(Constants.TYPE_LINK_CREATE)
+				     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
+				     .setSchema(Constants.SCHEMA_ENTITY_PLACE);
+
+				((EntityListFragment) fragment).setQuery(query)
+				                               .setMonitor(monitor)
+				                               .setListPagingEnabled(true)
+				                               .setListItemResId(R.layout.temp_listitem_place)
+				                               .setListLoadingResId(R.layout.temp_listitem_loading)
+				                               .setListViewType(ViewType.LIST)
+				                               .setListLayoutResId(R.layout.place_list_fragment)
+				                               .setListEmptyMessageResId(R.string.label_created_empty)
+				                               .setTitleResId(R.string.label_create_title)
+				                               .setSelfBindingEnabled(true);
+
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
+			}
+
 			else if (fragmentType.equals(com.aircandi.Constants.FRAGMENT_TYPE_MESSAGES)) {
 
 				fragment = new MessageListFragment();
 
-				EntityMonitor monitor = new EntityMonitor(Patch.getInstance().getCurrentUser().id);
+				EntityMonitor monitor = new EntityMonitor(Patchr.getInstance().getCurrentUser().id);
 				MessagesQuery query = new MessagesQuery();
 
-				query.setEntityId(Patch.getInstance().getCurrentUser().id)
+				query.setEntityId(Patchr.getInstance().getCurrentUser().id)
 				     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
 				     .setSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
 
@@ -415,10 +475,10 @@ public class AircandiForm extends BaseActivity {
 
 				fragment = new AlertListFragment();
 
-				EntityMonitor monitor = new EntityMonitor(Patch.getInstance().getCurrentUser().id);
+				EntityMonitor monitor = new EntityMonitor(Patchr.getInstance().getCurrentUser().id);
 				AlertsQuery query = new AlertsQuery();
 
-				query.setEntityId(Patch.getInstance().getCurrentUser().id)
+				query.setEntityId(Patchr.getInstance().getCurrentUser().id)
 				     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
 				     .setSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
 
@@ -434,66 +494,6 @@ public class AircandiForm extends BaseActivity {
 						.setSelfBindingEnabled(true)
 						.setActivityStream(true)
 						.setTitleResId(R.string.label_feed_alerts_title);
-
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
-			}
-
-			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_WATCH)) {
-
-				fragment = new EntityListFragment();
-
-				EntityMonitor monitor = new EntityMonitor(Patch.getInstance().getCurrentUser().id);
-				EntitiesQuery query = new EntitiesQuery();
-
-				query.setEntityId(Patch.getInstance().getCurrentUser().id)
-				     .setLinkDirection(Link.Direction.out.name())
-				     .setLinkType(Constants.TYPE_LINK_WATCH)
-				     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
-				     .setSchema(Constants.SCHEMA_ENTITY_PLACE);
-
-				((EntityListFragment) fragment).setQuery(query)
-				                               .setMonitor(monitor)
-				                               .setListPagingEnabled(true)
-				                               .setListItemResId(R.layout.temp_listitem_radar)
-				                               .setListLoadingResId(R.layout.temp_listitem_loading)
-				                               .setListViewType(ViewType.LIST)
-				                               .setListLayoutResId(R.layout.place_list_fragment)
-				                               .setListEmptyMessageResId(R.string.label_watching_empty)
-				                               .setTitleResId(R.string.label_watch_title)
-				                               .setSelfBindingEnabled(true);
-
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
-			}
-
-			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_CREATE)) {
-
-				fragment = new EntityListFragment();
-
-				EntityMonitor monitor = new EntityMonitor(Patch.getInstance().getCurrentUser().id);
-				EntitiesQuery query = new EntitiesQuery();
-
-				query.setEntityId(Patch.getInstance().getCurrentUser().id)
-				     .setLinkDirection(Link.Direction.out.name())
-				     .setLinkType(Constants.TYPE_LINK_CREATE)
-				     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
-				     .setSchema(Constants.SCHEMA_ENTITY_PLACE);
-
-				((EntityListFragment) fragment).setQuery(query)
-				                               .setMonitor(monitor)
-				                               .setListPagingEnabled(true)
-				                               .setListItemResId(R.layout.temp_listitem_radar)
-				                               .setListLoadingResId(R.layout.temp_listitem_loading)
-				                               .setListViewType(ViewType.LIST)
-				                               .setListLayoutResId(R.layout.place_list_fragment)
-				                               .setListEmptyMessageResId(R.string.label_created_empty)
-				                               .setTitleResId(R.string.label_create_title)
-				                               .setSelfBindingEnabled(true);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
@@ -616,7 +616,7 @@ public class AircandiForm extends BaseActivity {
 		 * we will get that event and refresh radar with beacon support.
 		 */
 		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
-		if (tethered || (!NetworkManager.getInstance().isWifiEnabled() && !Patch.usingEmulator)) {
+		if (tethered || (!NetworkManager.getInstance().isWifiEnabled() && !Patchr.usingEmulator)) {
 
 			UI.showToastNotification(StringManager.getString(tethered
 			                                                 ? R.string.alert_wifi_tethered
@@ -643,8 +643,8 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		Integer color = Colors.getColor(R.color.brand_primary);
-		if (Patch.themeTone != null) {
-			color = Patch.themeTone.equals(Patch.ThemeTone.LIGHT) ? R.color.text_secondary_light : R.color.text_secondary_dark;
+		if (Patchr.themeTone != null) {
+			color = Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT) ? R.color.text_secondary_light : R.color.text_secondary_dark;
 		}
 		Integer colorHighlighted = Colors.getColor(R.color.brand_primary);
 
@@ -756,7 +756,7 @@ public class AircandiForm extends BaseActivity {
 		super.onPrepareOptionsMenu(menu);
 
 		/* Manage activity alert */
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
 			updateActivityAlert();
 		}
 
@@ -792,14 +792,14 @@ public class AircandiForm extends BaseActivity {
 			}
 
 			/* Don't need to show the user email in two places */
-			if (Patch.getInstance().getCurrentUser() != null && Patch.getInstance().getCurrentUser().name != null) {
+			if (Patchr.getInstance().getCurrentUser() != null && Patchr.getInstance().getCurrentUser().name != null) {
 				String subtitle = null;
 				if (!drawerOpen) {
-					if (Patch.getInstance().getCurrentUser().isAnonymous()) {
-						subtitle = Patch.getInstance().getCurrentUser().name.toUpperCase(Locale.US);
+					if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+						subtitle = Patchr.getInstance().getCurrentUser().name.toUpperCase(Locale.US);
 					}
 					else {
-						subtitle = Patch.getInstance().getCurrentUser().email.toLowerCase(Locale.US);
+						subtitle = Patchr.getInstance().getCurrentUser().email.toLowerCase(Locale.US);
 					}
 				}
 				mActionBar.setSubtitle(subtitle);
@@ -838,13 +838,13 @@ public class AircandiForm extends BaseActivity {
 
 		/* Show current user */
 		if (mActionBar != null
-				&& Patch.getInstance().getCurrentUser() != null
-				&& Patch.getInstance().getCurrentUser().name != null) {
-			if (Patch.getInstance().getCurrentUser().isAnonymous()) {
-				mActionBar.setSubtitle(Patch.getInstance().getCurrentUser().name.toUpperCase(Locale.US));
+				&& Patchr.getInstance().getCurrentUser() != null
+				&& Patchr.getInstance().getCurrentUser().name != null) {
+			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				mActionBar.setSubtitle(Patchr.getInstance().getCurrentUser().name.toUpperCase(Locale.US));
 			}
 			else {
-				mActionBar.setSubtitle(Patch.getInstance().getCurrentUser().email.toLowerCase(Locale.US));
+				mActionBar.setSubtitle(Patchr.getInstance().getCurrentUser().email.toLowerCase(Locale.US));
 			}
 		}
 
@@ -861,7 +861,7 @@ public class AircandiForm extends BaseActivity {
 		 * OnResume gets called after OnCreate (always) and whenever the activity is being brought back to the
 		 * foreground. Not guaranteed but is usually called just before the activity receives focus.
 		 */
-		Patch.getInstance().setCurrentPlace(null);
+		Patchr.getInstance().setCurrentPlace(null);
 		Logger.v(this, "Setting current place to null");
 		if (mPauseDate != null) {
 			final Long interval = DateTime.nowDate().getTime() - mPauseDate.longValue();
@@ -871,12 +871,12 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		/* Manage activity alert */
-		if (!Patch.getInstance().getCurrentUser().isAnonymous()) {
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
 			updateActivityAlert();
 		}
 
 		/* In case the user was edited from the drawer */
-		mUserView.databind(Patch.getInstance().getCurrentUser());
+		mUserView.databind(Patchr.getInstance().getCurrentUser());
 	}
 
 	@Override

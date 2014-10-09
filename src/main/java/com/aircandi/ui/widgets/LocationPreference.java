@@ -17,7 +17,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
@@ -91,7 +91,7 @@ public class LocationPreference extends AirListPreference {
 				ModelResult result = new ModelResult();
 				try {
 					String filter = "query=" + URLEncoder.encode("{\"type\":\"location\"}", "utf-8") + "&sort[name]=1";
-					result = Patch.getInstance().getEntityManager().loadDocuments(filter);
+					result = Patchr.getInstance().getEntityManager().loadDocuments(filter);
 				}
 				catch (UnsupportedEncodingException e) {
 					Reporting.logException(e);
@@ -130,7 +130,7 @@ public class LocationPreference extends AirListPreference {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteTestingLocation");
-				ModelResult result = Patch.getInstance().getEntityManager().deleteDocument(location);
+				ModelResult result = Patchr.getInstance().getEntityManager().deleteDocument(location);
 				return result;
 			}
 

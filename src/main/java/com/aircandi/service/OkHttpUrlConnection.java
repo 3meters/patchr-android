@@ -2,7 +2,7 @@ package com.aircandi.service;
 
 import android.text.TextUtils;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -147,10 +147,10 @@ public class OkHttpUrlConnection extends BaseConnection {
 
 						if (serviceData != null
 								&& serviceData.clientMinVersions != null
-								&& serviceData.clientMinVersions.containsKey(Patch.applicationContext.getPackageName())) {
+								&& serviceData.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
 
-							Integer clientVersionCode = Patch.getVersionCode(Patch.applicationContext, AircandiForm.class);
-							if ((Integer) serviceData.clientMinVersions.get(Patch.applicationContext.getPackageName()) > clientVersionCode)
+							Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
+							if ((Integer) serviceData.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode)
 								return new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
 						}
 					}
@@ -186,10 +186,10 @@ public class OkHttpUrlConnection extends BaseConnection {
 
 						if (serviceData != null
 								&& serviceData.clientMinVersions != null
-								&& serviceData.clientMinVersions.containsKey(Patch.applicationContext.getPackageName())) {
+								&& serviceData.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
 
-							Integer clientVersionCode = Patch.getVersionCode(Patch.applicationContext, AircandiForm.class);
-							if ((Integer) serviceData.clientMinVersions.get(Patch.applicationContext.getPackageName()) > clientVersionCode)
+							Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
+							if ((Integer) serviceData.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode)
 								return new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
 							else if (serviceData.error != null && serviceData.error.code != null) {
 								serviceResponse.statusCodeService = serviceData.error.code.floatValue();

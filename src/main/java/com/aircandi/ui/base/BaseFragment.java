@@ -23,7 +23,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
@@ -397,7 +397,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 						extras.putString(Constants.EXTRA_ENTITY, jsonEntity);
 						extras.putBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC, true);
 					}
-					Patch.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
+					Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
 				}
 			});
 
@@ -432,7 +432,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	@SuppressWarnings("ucd")
 	public boolean onCreatePopupMenu(android.view.Menu menu) {
 		Logger.d(this, "Creating fragment options menu");
-		return Patch.getInstance().getMenuManager().onCreatePopupMenu(getActivity(), menu, mEntity);
+		return Patchr.getInstance().getMenuManager().onCreatePopupMenu(getActivity(), menu, mEntity);
 	}
 
 	@Override
@@ -448,7 +448,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	@Override
 	public void onStart() {
 		Logger.d(this, "Fragment start");
-		Patch.tracker.fragmentStart(this);
+		Patchr.tracker.fragmentStart(this);
 		super.onStart();
 	}
 

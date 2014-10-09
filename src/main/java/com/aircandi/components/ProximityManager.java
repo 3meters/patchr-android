@@ -10,7 +10,7 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.ActivityRecognitionManager.ActivityState;
@@ -68,8 +68,8 @@ public class ProximityManager {
 	private static final String         MockBssid               = "00:00:00:00:00:00";
 
 	private ProximityManager() {
-		if (!Patch.usingEmulator) {
-			mWifiManager = (WifiManager) Patch.applicationContext.getSystemService(Context.WIFI_SERVICE);
+		if (!Patchr.usingEmulator) {
+			mWifiManager = (WifiManager) Patchr.applicationContext.getSystemService(Context.WIFI_SERVICE);
 		}
 		mEntityCache = EntityManager.getEntityCache();
 		register();
@@ -101,7 +101,7 @@ public class ProximityManager {
 		if (event.activityState == ActivityState.ARRIVING) {
 			Logger.d(this, "Beacon push: activity state = arriving");
 			ProximityManager.getInstance().scanForWifi(ScanReason.MONITORING);
-			if (Patch.getInstance().getPrefEnableDev()) {
+			if (Patchr.getInstance().getPrefEnableDev()) {
 				UI.showToastNotification("Beacon push: activity state = arriving", Toast.LENGTH_SHORT);
 			}
 		}
@@ -133,19 +133,19 @@ public class ProximityManager {
 		/*
 		 * If context is null then we probably crashed and the scan service is still calling.
 		 */
-		if (Patch.applicationContext == null) return;
+		if (Patchr.applicationContext == null) return;
 
 		synchronized (mWifiList) {
 
-			if (!Patch.usingEmulator) {
+			if (!Patchr.usingEmulator) {
 
-				Patch.applicationContext.registerReceiver(new BroadcastReceiver() {
+				Patchr.applicationContext.registerReceiver(new BroadcastReceiver() {
 
 					@Override
 					public void onReceive(Context context, Intent intent) {
 
-						Patch.applicationContext.unregisterReceiver(this);
-						Patch.stopwatch1.segmentTime("Wifi scan received from system: reason = " + reason.toString());
+						Patchr.applicationContext.unregisterReceiver(this);
+						Patchr.stopwatch1.segmentTime("Wifi scan received from system: reason = " + reason.toString());
 						Logger.v(ProximityManager.this, "Received wifi scan results for " + reason.name());
 
 						/* get the latest scan results */
@@ -161,7 +161,7 @@ public class ProximityManager {
 							}
 						}
 
-						final String testingBeacons = Patch.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
+						final String testingBeacons = Patchr.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
 
 						if (!ListPreferenceMultiSelect.contains("natural", testingBeacons, null)) {
 							mWifiList.clear();
@@ -187,7 +187,7 @@ public class ProximityManager {
 							mWifiList.add(mWifiEmpty);
 						}
 
-						final String testingBeacon = Patch.settings.getString(StringManager.getString(R.string.pref_demo_beacons), "{\"name\":\"natural\"}");
+						final String testingBeacon = Patchr.settings.getString(StringManager.getString(R.string.pref_demo_beacons), "{\"name\":\"natural\"}");
 						Document demoBeacon = (Document) Json.jsonToObject(testingBeacon, Json.ObjectType.DOCUMENT);
 
 						if (!demoBeacon.name.toLowerCase(Locale.US).equals("natural")) {
@@ -269,7 +269,7 @@ public class ProximityManager {
 		 * visibility.
 		 */
 		Logger.d(this, "Processing beacons from scan");
-		Patch.stopwatch1.segmentTime("Entities for beacons (synchronized): processing started");
+		Patchr.stopwatch1.segmentTime("Entities for beacons (synchronized): processing started");
 
 		/*
 		 * Call the proxi service to see if the new beacons have been tagged with any entities. If call comes back
@@ -296,8 +296,8 @@ public class ProximityManager {
 			mLastBeaconLoadDate = DateTime.nowDate().getTime();
 
 			/* All cached place entities that qualify based on current distance pref setting */
-			final List<Entity> entitiesForEvent = (List<Entity>) Patch.getInstance().getEntityManager().getPlaces(null, null);
-			Patch.stopwatch1.segmentTime("Entities for beacons: no beacons to process - exiting");
+			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null, null);
+			Patchr.stopwatch1.segmentTime("Entities for beacons: no beacons to process - exiting");
 
 			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
 			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
@@ -306,31 +306,31 @@ public class ProximityManager {
 		}
 
 		/* Add current registrationId */
-		String installId = Patch.getinstallId();
+		String installId = Patchr.getinstallId();
 
 		/* Cursor */
 		Cursor cursor = new Cursor()
-				.setLimit(Patch.applicationContext.getResources().getInteger(R.integer.limit_places_radar))
+				.setLimit(Patchr.applicationContext.getResources().getInteger(R.integer.limit_places_radar))
 				.setSort(Maps.asMap("modifiedDate", -1))
 				.setSkip(0);
 
 		serviceResponse = mEntityCache.loadEntitiesByProximity(beaconIds
-				, Patch.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_BEACONS)
+				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_BEACONS)
 				, cursor
 				, installId
-				, Patch.stopwatch1);
+				, Patchr.stopwatch1);
 
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			mLastBeaconLoadDate = ((ServiceData) serviceResponse.data).date.longValue();
 
 			/* All cached place entities that qualify based on current distance pref setting */
-			final List<Entity> entitiesForEvent = (List<Entity>) Patch.getInstance().getEntityManager().getPlaces(null, null);
-			Patch.stopwatch1.segmentTime("Entities for beacons: objects processed");
+			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null, null);
+			Patchr.stopwatch1.segmentTime("Entities for beacons: objects processed");
 			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
 			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 		}
 		else {
-			Patch.stopwatch1.segmentTime("Entities for beacons: service call failed");
+			Patchr.stopwatch1.segmentTime("Entities for beacons: service call failed");
 			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 		}
 
@@ -350,13 +350,13 @@ public class ProximityManager {
 		 * that get returned.
 		 */
 		final List<String> excludePlaceIds = new ArrayList<String>();
-		for (Entity entity : Patch.getInstance().getEntityManager().getPlaces(false, true)) {
+		for (Entity entity : Patchr.getInstance().getEntityManager().getPlaces(false, true)) {
 			Place place = (Place) entity;
 			excludePlaceIds.add(place.id);
 		}
 
 		ServiceResponse serviceResponse = mEntityCache.loadEntitiesNearLocation(location
-				, Patch.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_PLACE)
+				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_PLACE)
 				, excludePlaceIds);
 
 		return serviceResponse;
@@ -379,14 +379,14 @@ public class ProximityManager {
 		}
 
 		/* Add current registrationId */
-		String installId = Patch.getinstallId();
+		String installId = Patchr.getinstallId();
 		Cursor cursor = new Cursor().setLimit(0);
 
 		serviceResponse = mEntityCache.loadEntitiesByProximity(beaconIds, null, cursor, installId, null);
 
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			mLastBeaconInstallUpdate = ((ServiceData) serviceResponse.data).date.longValue();
-			if (Patch.getInstance().getPrefEnableDev()) {
+			if (Patchr.getInstance().getPrefEnableDev()) {
 				UI.showToastNotification("Beacons pushed (" + beaconIds.size() + "): stopped after walking", Toast.LENGTH_SHORT);
 			}
 		}

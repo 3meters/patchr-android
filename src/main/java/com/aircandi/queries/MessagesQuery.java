@@ -3,7 +3,7 @@ package com.aircandi.queries;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.ModelResult;
@@ -44,13 +44,13 @@ public class MessagesQuery implements IQuery {
 				.setToSchemas(toSchemas)
 				.setLinkTypes(linkTypes);
 
-		Links links = Patch.getInstance().getEntityManager().getLinks().build(LinkProfile.NO_LINKS);
+		Links links = Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.NO_LINKS);
 		if (mSchema != null) {
-			IEntityController controller = Patch.getInstance().getControllerForSchema(mSchema);
-			links = Patch.getInstance().getEntityManager().getLinks().build(controller.getLinkProfile());
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(mSchema);
+			links = Patchr.getInstance().getEntityManager().getLinks().build(controller.getLinkProfile());
 		}
 
-		ModelResult result = ((EntityManager) Patch.getInstance().getEntityManager()).loadMessages(mEntityId, links, mCursor);
+		ModelResult result = ((EntityManager) Patchr.getInstance().getEntityManager()).loadMessages(mEntityId, links, mCursor);
 
 		if (result.data != null) {
 			mMore = ((ServiceData) result.serviceResponse.data).more;

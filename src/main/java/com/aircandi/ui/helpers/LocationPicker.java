@@ -7,13 +7,11 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.LocationManager;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,8 +23,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /*
  * We often will get duplicates because the ordering of images isn't
@@ -89,7 +85,7 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
 	}
 
 	@Override
@@ -127,7 +123,7 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 		intent.putExtra(Constants.EXTRA_LOCATION, json);
 		setResultCode(Activity.RESULT_OK, intent);
 		finish();
-		Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
 	}
 
 	private boolean checkReady() {

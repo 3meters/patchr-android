@@ -12,7 +12,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.WindowManager.BadTokenException;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.events.CancelEvent;
@@ -71,8 +71,8 @@ public class BusyManager implements IBusy {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
-		Patch.mainThreadHandler.removeCallbacks(mRunnableShow);
-		Patch.mainThreadHandler.removeCallbacks(mRunnableHide);
+		Patchr.mainThreadHandler.removeCallbacks(mRunnableShow);
+		Patchr.mainThreadHandler.removeCallbacks(mRunnableHide);
 
 		mRunnableShow = new Runnable() {
 
@@ -128,8 +128,8 @@ public class BusyManager implements IBusy {
 								progressDialog.setCancelable(false);
 								progressDialog.setCanceledOnTouchOutside(false);
 								progressDialog.show();
-								if (Patch.displayMetrics != null) {
-									progressDialog.getWindow().setLayout((int) (Patch.displayMetrics.widthPixels * 0.7), LayoutParams.WRAP_CONTENT);
+								if (Patchr.displayMetrics != null) {
+									progressDialog.getWindow().setLayout((int) (Patchr.displayMetrics.widthPixels * 0.7), LayoutParams.WRAP_CONTENT);
 								}
 							}
 						}
@@ -147,15 +147,15 @@ public class BusyManager implements IBusy {
 			}
 		};
 
-		Patch.mainThreadHandler.postDelayed(mRunnableShow, (busyAction == BusyAction.Loading) ? Constants.INTERVAL_BUSY_DELAY : 0);
+		Patchr.mainThreadHandler.postDelayed(mRunnableShow, (busyAction == BusyAction.Loading) ? Constants.INTERVAL_BUSY_DELAY : 0);
 	}
 
 	public void showProgress() {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
-		Patch.mainThreadHandler.removeCallbacks(mRunnableShow);
-		Patch.mainThreadHandler.removeCallbacks(mRunnableHide);
+		Patchr.mainThreadHandler.removeCallbacks(mRunnableShow);
+		Patchr.mainThreadHandler.removeCallbacks(mRunnableHide);
 
 		mRunnableShow = new Runnable() {
 
@@ -183,8 +183,8 @@ public class BusyManager implements IBusy {
 							}
 						});
 						progressDialog.show();
-						if (Patch.displayMetrics != null) {
-							progressDialog.getWindow().setLayout((int) (Patch.displayMetrics.widthPixels * 0.7), LayoutParams.WRAP_CONTENT);
+						if (Patchr.displayMetrics != null) {
+							progressDialog.getWindow().setLayout((int) (Patchr.displayMetrics.widthPixels * 0.7), LayoutParams.WRAP_CONTENT);
 						}
 					}
 					mBusyStartedTime = DateTime.nowDate().getTime();
@@ -194,7 +194,7 @@ public class BusyManager implements IBusy {
 			}
 		};
 
-		Patch.mainThreadHandler.postDelayed(mRunnableShow, 0);
+		Patchr.mainThreadHandler.postDelayed(mRunnableShow, 0);
 	}
 
 	@Subscribe
@@ -211,15 +211,15 @@ public class BusyManager implements IBusy {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
-		Patch.mainThreadHandler.removeCallbacks(mRunnableShow);
-		Patch.mainThreadHandler.removeCallbacks(mRunnableHide);
+		Patchr.mainThreadHandler.removeCallbacks(mRunnableShow);
+		Patchr.mainThreadHandler.removeCallbacks(mRunnableHide);
 		/*
 		 * We delay to enforce a minimum display length for busy if start has been set.
 		 */
 		if (!noDelay && mBusyStartedTime != null) {
 			Long busyDuration = DateTime.nowDate().getTime() - mBusyStartedTime;
 			if (busyDuration < Constants.INTERVAL_BUSY_MINIMUM) {
-				Patch.mainThreadHandler.postDelayed(mRunnableHide, Constants.INTERVAL_BUSY_MINIMUM - busyDuration);
+				Patchr.mainThreadHandler.postDelayed(mRunnableHide, Constants.INTERVAL_BUSY_MINIMUM - busyDuration);
 				return;
 			}
 		}

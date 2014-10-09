@@ -1,6 +1,6 @@
 package com.aircandi.controllers;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
@@ -40,7 +40,7 @@ public class Places extends EntityControllerBase {
 
 		Place place = (Place) entity;
 		place.provider = new ProviderMap();
-		place.provider.aircandi = Patch.getInstance().getCurrentUser().id;
+		place.provider.aircandi = Patchr.getInstance().getCurrentUser().id;
 
 		return place;
 	}

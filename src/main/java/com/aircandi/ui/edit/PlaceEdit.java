@@ -15,7 +15,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.LocationManager;
@@ -94,7 +94,7 @@ public class PlaceEdit extends BaseEntityEdit {
 			}
 		}
 
-		if (mEntity == null || (mEntity.ownerId != null && (mEntity.ownerId.equals(Patch.getInstance().getCurrentUser().id)))) {
+		if (mEntity == null || (mEntity.ownerId != null && (mEntity.ownerId.equals(Patchr.getInstance().getCurrentUser().id)))) {
 			ViewFlipper flipper = (ViewFlipper) findViewById(R.id.flipper_form);
 			if (flipper != null) {
 				mTabManager = new TabManager(Constants.TABS_ENTITY_FORM_ID, mActionBar, (ViewFlipper) findViewById(R.id.flipper_form));
@@ -125,7 +125,7 @@ public class PlaceEdit extends BaseEntityEdit {
 				place.location.lat = location.lat;
 				place.location.lng = location.lng;
 				place.location.accuracy = location.accuracy;
-				place.provider.aircandi = Patch.getInstance().getCurrentUser().id;
+				place.provider.aircandi = Patchr.getInstance().getCurrentUser().id;
 			}
 		}
 
@@ -258,17 +258,17 @@ public class PlaceEdit extends BaseEntityEdit {
 
 	@SuppressWarnings("ucd")
 	public void onAddressBuilderClick(View view) {
-		Patch.dispatch.route(this, Route.ADDRESS_EDIT, mEntity, null, null);
+		Patchr.dispatch.route(this, Route.ADDRESS_EDIT, mEntity, null, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onCategoryBuilderClick(View view) {
-		Patch.dispatch.route(this, Route.CATEGORY_EDIT, mEntity, null, null);
+		Patchr.dispatch.route(this, Route.CATEGORY_EDIT, mEntity, null, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onLocationBuilderClick(View view) {
-		Patch.dispatch.route(this, Route.LOCATION_EDIT, mEntity, null, null);
+		Patchr.dispatch.route(this, Route.LOCATION_EDIT, mEntity, null, null);
 	}
 
 	@Override
@@ -352,7 +352,7 @@ public class PlaceEdit extends BaseEntityEdit {
 		if (mInsertedResId != null && mInsertedResId != 0) {
 			UI.showToastNotification(StringManager.getString(mInsertedResId), Toast.LENGTH_SHORT);
 		}
-		Patch.dispatch.route(this, Route.BROWSE, mEntity, null, null);
+		Patchr.dispatch.route(this, Route.BROWSE, mEntity, null, null);
 		return true;
 	}
 
@@ -397,7 +397,7 @@ public class PlaceEdit extends BaseEntityEdit {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncTrackEntityProximity");
 
-				final ModelResult result = Patch.getInstance().getEntityManager().trackEntity(mEntity
+				final ModelResult result = Patchr.getInstance().getEntityManager().trackEntity(mEntity
 						, beacons
 						, primaryBeacon
 						, mUntuning);
@@ -458,7 +458,7 @@ public class PlaceEdit extends BaseEntityEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncClearEntityProximity");
-				final ModelResult result = Patch.getInstance().getEntityManager().trackEntity(mEntity, null, null, true);
+				final ModelResult result = Patchr.getInstance().getEntityManager().trackEntity(mEntity, null, null, true);
 				return result;
 			}
 
@@ -468,7 +468,7 @@ public class PlaceEdit extends BaseEntityEdit {
 				UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
 				setResultCode(Activity.RESULT_OK);
 				finish();
-				Patch.getInstance().getAnimationManager().doOverridePendingTransition(PlaceEdit.this, TransitionType.FORM_TO_PAGE);
+				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(PlaceEdit.this, TransitionType.FORM_TO_PAGE);
 			}
 		}.execute();
 	}
@@ -497,7 +497,7 @@ public class PlaceEdit extends BaseEntityEdit {
 	protected void gather() {
 		super.gather();
 		if (!mEditing) {
-			((Place) mEntity).provider.aircandi = Patch.getInstance().getCurrentUser().id;
+			((Place) mEntity).provider.aircandi = Patchr.getInstance().getCurrentUser().id;
 		}
 	}
 

@@ -5,7 +5,7 @@ import android.location.Location;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.components.AndroidManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.NetworkManager;
@@ -19,7 +19,7 @@ public class Reporting {
 
 	public static void updateCrashKeys() {
 
-		Crashlytics.setBool("airplane_mode", NetworkManager.isAirplaneMode(Patch.applicationContext));
+		Crashlytics.setBool("airplane_mode", NetworkManager.isAirplaneMode(Patchr.applicationContext));
 		Crashlytics.setBool("connected", NetworkManager.getInstance().isConnected());
 		Crashlytics.setString("network_type", NetworkManager.getInstance().getNetworkType().toLowerCase(Locale.US));
 		Crashlytics.setBool("wifi_tethered", NetworkManager.getInstance().isWifiTethered());
@@ -27,7 +27,7 @@ public class Reporting {
 		Crashlytics.setString("device_name", AndroidManager.getInstance().getDeviceName());
 
 		/* Identifies device/install combo */
-		Crashlytics.setApplicationInstallationIdentifier(Patch.getinstallId());
+		Crashlytics.setApplicationInstallationIdentifier(Patchr.getinstallId());
 
 		Location location = LocationManager.getInstance().getLocationLocked();
 		if (location != null) {

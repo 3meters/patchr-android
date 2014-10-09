@@ -1,6 +1,6 @@
 package com.aircandi.queries;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.components.ModelResult;
 import com.aircandi.interfaces.IQuery;
 import com.aircandi.objects.LinkProfile;
@@ -14,8 +14,8 @@ public class ShortcutsQuery implements IQuery {
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {
 		mPageSize = limit;
-		Links options = Patch.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
-		ModelResult result = Patch.getInstance().getEntityManager().getEntity(mEntityId, true, options);
+		Links options = Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
+		ModelResult result = Patchr.getInstance().getEntityManager().getEntity(mEntityId, true, options);
 		return result;
 	}
 

@@ -9,7 +9,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.utilities.Booleans;
 import com.aircandi.utilities.Reporting;
@@ -64,18 +64,18 @@ public class MediaManager {
 
 	public MediaManager initSoundPool() {
 		soundPool = new SoundPool(4, streamType, 100);
-		audioManager = (AudioManager) Patch.applicationContext.getSystemService(Context.AUDIO_SERVICE);
+		audioManager = (AudioManager) Patchr.applicationContext.getSystemService(Context.AUDIO_SERVICE);
 
-		SOUND_ACTIVITY_NEW = soundPool.load(Patch.applicationContext, R.raw.notification_activity, 1);
-		SOUND_PLACES_FOUND = soundPool.load(Patch.applicationContext, R.raw.notification_candi_discovered_soft, 1);
-		SOUND_DEBUG_POP = soundPool.load(Patch.applicationContext, R.raw.notification_pop, 1);
-		SOUND_ACTIVITY_CHANGE = soundPool.load(Patch.applicationContext, R.raw.notification_carme, 1);
+		SOUND_ACTIVITY_NEW = soundPool.load(Patchr.applicationContext, R.raw.notification_activity, 1);
+		SOUND_PLACES_FOUND = soundPool.load(Patchr.applicationContext, R.raw.notification_candi_discovered_soft, 1);
+		SOUND_DEBUG_POP = soundPool.load(Patchr.applicationContext, R.raw.notification_pop, 1);
+		SOUND_ACTIVITY_CHANGE = soundPool.load(Patchr.applicationContext, R.raw.notification_carme, 1);
 		return this;
 	}
 
 	public static void playSound(Integer soundResId, Float multiplier, Integer loops) {
 		if (soundPool != null) {
-			if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_sound_effects), Booleans.getBoolean(R.bool.pref_sound_effects_default))) {
+			if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_sound_effects), Booleans.getBoolean(R.bool.pref_sound_effects_default))) {
 
 				/* Getting the user sound settings */
 				float actualVolume = (float) audioManager.getStreamVolume(streamType);
@@ -88,7 +88,7 @@ public class MediaManager {
 	}
 
 	public static Boolean canCaptureWithCamera() {
-		return AndroidManager.isIntentAvailable(Patch.applicationContext, MediaStore.ACTION_IMAGE_CAPTURE)
+		return AndroidManager.isIntentAvailable(Patchr.applicationContext, MediaStore.ACTION_IMAGE_CAPTURE)
 				&& Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
 	}
 
@@ -99,7 +99,7 @@ public class MediaManager {
 
 	public static void scanMedia(Uri uri) {
 		Intent scanFileIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri);
-		Patch.applicationContext.sendBroadcast(scanFileIntent);
+		Patchr.applicationContext.sendBroadcast(scanFileIntent);
 	}
 
 	public static String getTempDirectory(String directoryName) {

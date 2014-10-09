@@ -17,7 +17,7 @@ import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.ServiceConstants;
 import com.aircandi.exceptions.ClientVersionException;
 import com.aircandi.exceptions.NoNetworkException;
@@ -180,7 +180,7 @@ public class NetworkManager {
 		else {
 
 			/* Tag request with the activity class name */
-			Activity currentActivity = Patch.getInstance().getCurrentActivity();
+			Activity currentActivity = Patchr.getInstance().getCurrentActivity();
 			if (currentActivity != null) {
 				serviceRequest.setTag(currentActivity.getClass().getSimpleName().toLowerCase(Locale.US));
 			}
@@ -199,10 +199,10 @@ public class NetworkManager {
 
 				if (serviceData != null
 						&& serviceData.clientMinVersions != null
-						&& serviceData.clientMinVersions.containsKey(Patch.applicationContext.getPackageName())) {
+						&& serviceData.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
 
-					Integer clientVersionCode = Patch.getVersionCode(Patch.applicationContext, AircandiForm.class);
-					if ((Integer) serviceData.clientMinVersions.get(Patch.applicationContext.getPackageName()) > clientVersionCode) {
+					Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
+					if ((Integer) serviceData.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode) {
 						return new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
 					}
 				}

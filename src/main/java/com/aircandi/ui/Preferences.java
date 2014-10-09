@@ -30,8 +30,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
-import com.aircandi.Patch.ThemeTone;
+import com.aircandi.Patchr;
+import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.BusyManager;
@@ -67,15 +67,15 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 		/* Load preferences layout */
 		addPreferencesFromResource(R.xml.preferences);
-		if (Patch.getInstance().getCurrentUser() != null
-				&& Patch.getInstance().getCurrentUser().developer != null
-				&& Patch.getInstance().getCurrentUser().developer) {
+		if (Patchr.getInstance().getCurrentUser() != null
+				&& Patchr.getInstance().getCurrentUser().developer != null
+				&& Patchr.getInstance().getCurrentUser().developer) {
 			addPreferencesFromResource(R.xml.preferences_dev);
 		}
 
 		final TypedValue resourceName = new TypedValue();
 		if (getTheme().resolveAttribute(R.attr.themeTone, resourceName, true)) {
-			Patch.themeTone = (String) resourceName.coerceToString();
+			Patchr.themeTone = (String) resourceName.coerceToString();
 		}
 
 		initialize();
@@ -87,7 +87,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 		ListView list = (ListView) findViewById(android.R.id.list);
 
-		if (Patch.themeTone.equals(ThemeTone.DARK)) {
+		if (Patchr.themeTone.equals(ThemeTone.DARK)) {
 			int color = getResources().getColor(R.color.stroke_button_dark);
 			int[] colors = {color, color, color};
 			list.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, colors));
@@ -106,7 +106,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 			getActionBar().setDisplayShowHomeEnabled(true);
 			getActionBar().setTitle(StringManager.getString(R.string.form_title_preferences));
-			getActionBar().setIcon(Patch.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
+			getActionBar().setIcon(Patchr.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
 		}
 
 		mBusy = new BusyManager(this);
@@ -118,8 +118,8 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 				@Override
 				public boolean onPreferenceChange(Preference preference, Object newValue) {
-					Patch.settingsEditor.putString(StringManager.getString(R.string.pref_theme), (String) newValue);
-					Patch.settingsEditor.commit();
+					Patchr.settingsEditor.putString(StringManager.getString(R.string.pref_theme), (String) newValue);
+					Patchr.settingsEditor.commit();
 
 					final Intent intent = getIntent();
 					intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -149,7 +149,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		/* Listen for about click */
 		pref = findPreference("Pref_About");
 		if (pref != null) {
-			pref.setTitle("Version: " + Patch.getVersionName(this, Preferences.class));
+			pref.setTitle("Version: " + Patchr.getVersionName(this, Preferences.class));
 			pref.setSummary("Terms of Service, Privacy Policy, Licenses");
 
 			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -157,7 +157,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					DownloadManager.getInstance().getSnapshot();
-					Patch.dispatch.route(Preferences.this, Route.ABOUT, null, null, null);
+					Patchr.dispatch.route(Preferences.this, Route.ABOUT, null, null, null);
 
 					return true;
 				}
@@ -171,7 +171,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					Patch.dispatch.route(Preferences.this, Route.FEEDBACK, null, null, null);
+					Patchr.dispatch.route(Preferences.this, Route.FEEDBACK, null, null, null);
 					return true;
 				}
 			});
@@ -184,7 +184,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					ShotStateStore.resetTooltips(Patch.applicationContext);
+					ShotStateStore.resetTooltips(Patchr.applicationContext);
 					UI.showToastNotification("Tooltips restored", Toast.LENGTH_SHORT);
 					return true;
 				}
@@ -193,7 +193,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 		/* Listen for signin/out click */
 		pref = findPreference("Pref_Signin_Signout");
-		if (Patch.getInstance().getCurrentUser().isAnonymous()) {
+		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
 			pref.setTitle(StringManager.getString(R.string.pref_signin_title));
 			pref.setSummary(StringManager.getString(R.string.pref_signin_summary));
 		}
@@ -205,12 +205,12 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				if (Patch.getInstance().getCurrentUser().isAnonymous()) {
-					Patch.dispatch.route(Preferences.this, Route.SIGNIN, null, null, null);
+				if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+					Patchr.dispatch.route(Preferences.this, Route.SIGNIN, null, null, null);
 				}
 				else {
 					mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_signing_out);
-					Patch.dispatch.route(Preferences.this, Route.SIGNOUT, null, null, null);
+					Patchr.dispatch.route(Preferences.this, Route.SIGNOUT, null, null, null);
 				}
 				return true;
 			}
@@ -227,7 +227,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		/* Listen for dev toggle */
 		Preference pref = findPreference(StringManager.getString(R.string.pref_enable_dev));
 		if (pref != null) {
-			Boolean enabled = Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
+			Boolean enabled = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
 			enableDeveloper(enabled);
 
 			pref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -245,15 +245,15 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		final Preference prefTagRefresh = findPreference(StringManager.getString(R.string.pref_tag_refresh));
 		if (prefTagRefresh != null) {
 			prefTagRefresh.setSummary("Last refresh: "
-					+ DateTime.dateString(Patch.getInstance().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
+					+ DateTime.dateString(Patchr.getInstance().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
 			prefTagRefresh.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					prefTagRefresh.setSummary("Refreshing...");
-					Patch.getInstance().getContainer().refresh();
+					Patchr.getInstance().getContainer().refresh();
 					prefTagRefresh.setSummary("Last refresh: "
-							+ DateTime.dateString(Patch.getInstance().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
+							+ DateTime.dateString(Patchr.getInstance().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
 					return true;
 				}
 			});
@@ -263,7 +263,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	private void enableDeveloper(Boolean enable) {
 		findPreference(StringManager.getString(R.string.pref_testing_screen)).setEnabled(enable);
 		findPreference(StringManager.getString(R.string.pref_tag_refresh)).setEnabled(enable);
-		Patch.tracker.enableDeveloper(enable);
+		Patchr.tracker.enableDeveloper(enable);
 		DownloadManager.getInstance().setDebugging(enable);
 	}
 
@@ -272,8 +272,8 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		Preference pref = findPreference("Pref_Notifications_Screen");
 		if (pref != null) {
 			pref.setShouldDisableView(true);
-			if (Patch.getInstance().getCurrentUser() != null) {
-				pref.setEnabled(!(Patch.getInstance().getCurrentUser().isAnonymous()));
+			if (Patchr.getInstance().getCurrentUser() != null) {
+				pref.setEnabled(!(Patchr.getInstance().getCurrentUser().isAnonymous()));
 			}
 		}
 	}
@@ -397,7 +397,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	}
 
 	private void setTheme() {
-		final String prefTheme = Patch.settings.getString(StringManager.getString(R.string.pref_theme)
+		final String prefTheme = Patchr.settings.getString(StringManager.getString(R.string.pref_theme)
 				, StringManager.getString(R.string.pref_theme_default));
 
 		if (prefTheme.equals("aircandi_theme_snow")) {
@@ -409,9 +409,9 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	}
 
 	private void clearReferences() {
-		Activity currentActivity = Patch.getInstance().getCurrentActivity();
+		Activity currentActivity = Patchr.getInstance().getCurrentActivity();
 		if (currentActivity != null && currentActivity.equals(this)) {
-			Patch.getInstance().setCurrentActivity(null);
+			Patchr.getInstance().setCurrentActivity(null);
 		}
 	}
 
@@ -428,7 +428,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 			/* Inialize the action bar */
 			dialog.getActionBar().setDisplayHomeAsUpEnabled(true);
 			dialog.getActionBar().setDisplayShowHomeEnabled(true);
-			dialog.getActionBar().setIcon(Patch.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
+			dialog.getActionBar().setIcon(Patchr.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
 
 			/*
 			 * Apply custom home button area click listener to close the PreferenceScreen because PreferenceScreens are
@@ -482,7 +482,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 			 */
 			setResult(Activity.RESULT_CANCELED);
 			finish();
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_PAGE);
 		}
 		return true;
 	}
@@ -493,7 +493,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Patch.tracker.activityStart(this);
+		Patchr.tracker.activityStart(this);
 		handleAnonymous();
 	}
 
@@ -501,7 +501,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	protected void onResume() {
 		super.onResume();
 		Logger.d(this, "Activity resuming");
-		Patch.getInstance().setCurrentActivity(this);
+		Patchr.getInstance().setCurrentActivity(this);
 		setSummaries(getPreferenceScreen());
 		getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 	}
@@ -516,7 +516,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	@Override
 	protected void onStop() {
 		super.onStop();
-		Patch.tracker.activityStop(this);
+		Patchr.tracker.activityStop(this);
 	}
 
 	@Override

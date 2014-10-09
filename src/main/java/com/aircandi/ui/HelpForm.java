@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseActivity;
@@ -26,7 +26,7 @@ public class HelpForm extends BaseActivity {
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.HELP_TO_PAGE);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.HELP_TO_PAGE);
 	}
 
 	/*--------------------------------------------------------------------------------------------

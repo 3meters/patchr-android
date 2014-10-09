@@ -3,7 +3,7 @@ package com.aircandi.ui;
 import android.os.Bundle;
 import android.view.View;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
@@ -66,9 +66,7 @@ public class EntityList extends BaseActivity {
 	}
 
 	public void draw(View view){
-		IEntityController controller = Patch.getInstance().getControllerForSchema(mParams.getListLinkSchema());
-//		Drawable icon = controller.getIcon();
-//		mActionBar.setIcon(icon);
+		IEntityController controller = Patchr.getInstance().getControllerForSchema(mParams.getListLinkSchema());
 		setActivityTitle((mParams.getListTitle() != null) ? mParams.getListTitle() : controller.getName(true));
 	}
 
@@ -79,7 +77,6 @@ public class EntityList extends BaseActivity {
 	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onMessage(final MessageEvent event) {
-
 		/*
 		 * Refresh the form because something new has been added to it
 		 * like a comment or post.
@@ -127,7 +124,7 @@ public class EntityList extends BaseActivity {
 	@SuppressWarnings("ucd")
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Patch.dispatch.route(this, Route.BROWSE, entity, null, null);
+		Patchr.dispatch.route(this, Route.BROWSE, entity, null, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------

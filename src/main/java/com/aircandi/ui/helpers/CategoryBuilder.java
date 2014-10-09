@@ -16,8 +16,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.aircandi.Patch;
-import com.aircandi.Patch.ThemeTone;
+import com.aircandi.Patchr;
+import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
@@ -77,17 +77,17 @@ public class CategoryBuilder extends BaseEdit {
 		mSpinnerSubCategory = (Spinner) findViewById(R.id.sub_category);
 		mSpinnerSubSubCategory = (Spinner) findViewById(R.id.sub_sub_category);
 
-		mSpinnerItem = Patch.themeTone.equals(ThemeTone.DARK) ? R.layout.spinner_item_dark : R.layout.spinner_item_light;
+		mSpinnerItem = Patchr.themeTone.equals(ThemeTone.DARK) ? R.layout.spinner_item_dark : R.layout.spinner_item_light;
 	}
 
 	@Override
 	public void bind(BindingMode mode) {
 
-		if (Patch.getInstance().getEntityManager().getCategories().size() == 0) {
+		if (Patchr.getInstance().getEntityManager().getCategories().size() == 0) {
 			loadCategories();
 		}
 		else {
-			mCategories = Patch.getInstance().getEntityManager().getCategories();
+			mCategories = Patchr.getInstance().getEntityManager().getCategories();
 			if (mCategories != null) {
 				if (mOriginalCategory != null) {
 					setCategoryIndexes();
@@ -109,7 +109,7 @@ public class CategoryBuilder extends BaseEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncLoadCategories");
-				final ModelResult result = Patch.getInstance().getEntityManager().loadCategories();
+				final ModelResult result = Patchr.getInstance().getEntityManager().loadCategories();
 				return result;
 			}
 
@@ -118,7 +118,7 @@ public class CategoryBuilder extends BaseEdit {
 				final ModelResult result = (ModelResult) response;
 				mBusy.hideBusy(false);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					mCategories = Patch.getInstance().getEntityManager().getCategories();
+					mCategories = Patchr.getInstance().getEntityManager().getCategories();
 					if (mCategories != null) {
 						if (mOriginalCategory != null) {
 							setCategoryIndexes();
@@ -147,7 +147,7 @@ public class CategoryBuilder extends BaseEdit {
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ public class CategoryBuilder extends BaseEdit {
 		}
 		setResultCode(Activity.RESULT_OK, intent);
 		finish();
-		Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -230,7 +230,7 @@ public class CategoryBuilder extends BaseEdit {
 
 	private void initCategorySpinner() {
 
-		final List<String> categories = Patch.getInstance().getEntityManager().getCategoriesAsStringArray(mCategories);
+		final List<String> categories = Patchr.getInstance().getEntityManager().getCategoriesAsStringArray(mCategories);
 		final CategoryAdapter adapter = new CategoryAdapter(CategoryBuilder.this
 				, mSpinnerItem
 				, categories
@@ -280,7 +280,7 @@ public class CategoryBuilder extends BaseEdit {
 
 	private void initSubcategorySpinner(Integer position) {
 
-		final List<String> categories = Patch.getInstance().getEntityManager().getCategoriesAsStringArray(mCategory.categories);
+		final List<String> categories = Patchr.getInstance().getEntityManager().getCategoriesAsStringArray(mCategory.categories);
 
 		if (categories.size() > 0) {
 
@@ -345,7 +345,7 @@ public class CategoryBuilder extends BaseEdit {
 
 	private void initSubsubcategorySpinner(Integer position) {
 
-		final List<String> categories = Patch.getInstance().getEntityManager().getCategoriesAsStringArray(mSubCategory.categories);
+		final List<String> categories = Patchr.getInstance().getEntityManager().getCategoriesAsStringArray(mSubCategory.categories);
 		if (categories.size() > 0) {
 
 			final CategoryAdapter adapter = new CategoryAdapter(CategoryBuilder.this

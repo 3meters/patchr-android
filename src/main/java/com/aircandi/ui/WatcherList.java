@@ -11,7 +11,7 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
@@ -25,6 +25,7 @@ import com.aircandi.objects.Route;
 import com.aircandi.queries.WatchersQuery;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
+import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Integers;
@@ -80,7 +81,12 @@ public class WatcherList extends BaseActivity {
 		             .setButtonSpecialClickable(true);
 
 		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
-		setActivityTitle(StringManager.getString(R.string.form_title_watchers));
+		draw(null);
+	}
+
+	@Override
+	public void draw(View view) {
+		setActivityTitle(StringManager.getString(((BaseFragment) mListFragment).getTitleResId()));
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -93,7 +99,7 @@ public class WatcherList extends BaseActivity {
 	}
 
 	public void onShareButtonClick(View view) {
-		Patch.dispatch.route(this, Route.SHARE, mEntity, null, null);
+		Patchr.dispatch.route(this, Route.SHARE, mEntity, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -232,7 +238,7 @@ public class WatcherList extends BaseActivity {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncStatusUpdate");
-				ModelResult result = Patch.getInstance().getEntityManager().enabledLink(fromId, toId, Constants.TYPE_LINK_WATCH, enabled, actionEvent);
+				ModelResult result = Patchr.getInstance().getEntityManager().enabledLink(fromId, toId, Constants.TYPE_LINK_WATCH, enabled, actionEvent);
 				return result;
 			}
 

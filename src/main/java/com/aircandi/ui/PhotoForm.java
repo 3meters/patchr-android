@@ -23,7 +23,7 @@ import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
@@ -337,7 +337,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this)
 		                                                             .setSubject(String.format(StringManager.getString(R.string.label_photo_share_subject)
-				                                                             , Patch.getInstance().getCurrentUser().name))
+				                                                             , Patchr.getInstance().getCurrentUser().name))
 		                                                             .setType("image/jpeg").setStream(MediaManager.getSharePathUri());
 
 		Intent intent = builder.getIntent();

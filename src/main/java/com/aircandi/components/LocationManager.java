@@ -11,7 +11,7 @@ import android.os.Handler;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.events.BurstTimeoutEvent;
 import com.aircandi.events.LocationChangedEvent;
@@ -77,10 +77,10 @@ public class LocationManager implements
 			public void run() {
 
 				Logger.d(LocationManager.this, "Location fix attempt aborted: timeout: ** done **");
-				Patch.stopwatch2.segmentTime("Location fix attempt aborted: timeout");
-				Patch.mainThreadHandler.removeCallbacks(mBurstTimeout);
+				Patchr.stopwatch2.segmentTime("Location fix attempt aborted: timeout");
+				Patchr.mainThreadHandler.removeCallbacks(mBurstTimeout);
 
-				Patch.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patch.stopwatch2.getTotalTimeMills()
+				Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
 						, "location_timeout"
 						, NetworkManager.getInstance().getNetworkType());
 
@@ -115,17 +115,17 @@ public class LocationManager implements
 			mLocationLast = null;
 		}
 		else {
-			if (Patch.stopwatch2.isStarted()) {
-				Patch.stopwatch2.segmentTime("Lock location: update: accuracy = " + (location.hasAccuracy() ? location.getAccuracy() : "none"));
+			if (Patchr.stopwatch2.isStarted()) {
+				Patchr.stopwatch2.segmentTime("Lock location: update: accuracy = " + (location.hasAccuracy() ? location.getAccuracy() : "none"));
 			}
 
 			if (mLocationMode == LocationMode.BURST) {
 				if (location.hasAccuracy()) {
-					if (Patch.getInstance().getPrefEnableDev()) {
+					if (Patchr.getInstance().getPrefEnableDev()) {
 						UI.showToastNotification("Location accuracy: " + location.getAccuracy(), Toast.LENGTH_SHORT);
 					}
 					if (location.getAccuracy() <= ACCURACY_PREFERRED) {
-						Patch.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patch.stopwatch2.getTotalTimeMills()
+						Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
 								, "location_accepted"
 								, NetworkManager.getInstance().getNetworkType());
 
@@ -155,7 +155,7 @@ public class LocationManager implements
 		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
-				mLocationClient = new LocationClient(Patch.applicationContext, LocationManager.this, LocationManager.this);
+				mLocationClient = new LocationClient(Patchr.applicationContext, LocationManager.this, LocationManager.this);
 				mLocationClient.connect();
 			}
 		});
@@ -172,7 +172,7 @@ public class LocationManager implements
 		if (connectionResult.hasResolution()) {
 			try {
 				/* Start an Activity that tries to resolve the error */
-				connectionResult.startResolutionForResult((Activity) Patch.applicationContext
+				connectionResult.startResolutionForResult((Activity) Patchr.applicationContext
 						, CONNECTION_FAILURE_RESOLUTION_REQUEST);
 				/*
 				 * Thrown if Google Play services canceled the original
@@ -188,7 +188,7 @@ public class LocationManager implements
 			 * If no resolution is available, display a dialog to the
 			 * user with the error.
 			 */
-			AndroidManager.showPlayServicesErrorDialog(connectionResult.getErrorCode(), Patch.getInstance().getCurrentActivity());
+			AndroidManager.showPlayServicesErrorDialog(connectionResult.getErrorCode(), Patchr.getInstance().getCurrentActivity());
 		}
 	}
 
@@ -212,28 +212,28 @@ public class LocationManager implements
 		if (!mLocationClient.isConnected()) {
 			mLocationClient.connect();
 			if (mLocationMode != LocationMode.NONE) {
-				Patch.mainThreadHandler.postDelayed(mBurstTimeout, Constants.TIME_THIRTY_SECONDS);
+				Patchr.mainThreadHandler.postDelayed(mBurstTimeout, Constants.TIME_THIRTY_SECONDS);
 			}
 		}
 		else {
 			try {
 				mLocationClient.removeLocationUpdates(this);
 				if (mLocationMode == LocationMode.BURST) {
-					Patch.stopwatch2.start("location_lock", "Lock location: start");
+					Patchr.stopwatch2.start("location_lock", "Lock location: start");
 					Logger.d(LocationManager.this, "Lock location started");
 					onLocationChanged(null);
 					mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 					mLocationRequest.setInterval(Constants.TIME_FIVE_SECONDS);
 					mLocationRequest.setFastestInterval(Constants.TIME_FIVE_SECONDS);
-					Patch.mainThreadHandler.postDelayed(mBurstTimeout, Constants.TIME_THIRTY_SECONDS);
+					Patchr.mainThreadHandler.postDelayed(mBurstTimeout, Constants.TIME_THIRTY_SECONDS);
 					mLocationClient.requestLocationUpdates(mLocationRequest, this);
 				}
 				else if (mLocationMode == LocationMode.OFF) {
-					if (Patch.stopwatch2.isStarted()) {
-						Patch.stopwatch2.stop("Lock location: stopped");
+					if (Patchr.stopwatch2.isStarted()) {
+						Patchr.stopwatch2.stop("Lock location: stopped");
 					}
 					Logger.d(LocationManager.this, "Lock location stopped: ** done **");
-					Patch.mainThreadHandler.removeCallbacks(mBurstTimeout);
+					Patchr.mainThreadHandler.removeCallbacks(mBurstTimeout);
 					mLocationMode = LocationMode.NONE;
 				}
 			}
@@ -262,7 +262,7 @@ public class LocationManager implements
 		 */
 		Thread.currentThread().setName("AsyncAddressForLocation");
 		ModelResult result = new ModelResult();
-		Geocoder geocoder = new Geocoder(Patch.applicationContext, Locale.getDefault());
+		Geocoder geocoder = new Geocoder(Patchr.applicationContext, Locale.getDefault());
 
 		try {
 			result.data = geocoder.getFromLocation(location.lat.doubleValue(), location.lng.doubleValue(), 1);
@@ -270,7 +270,7 @@ public class LocationManager implements
 		catch (IOException e) {
 			result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
 			result.serviceResponse.exception = e;
-			result.serviceResponse.errorResponse = Errors.getErrorResponse(Patch.applicationContext, result.serviceResponse);
+			result.serviceResponse.errorResponse = Errors.getErrorResponse(Patchr.applicationContext, result.serviceResponse);
 		}
 
 		return result;
@@ -282,7 +282,7 @@ public class LocationManager implements
 		 */
 		ModelResult result = new ModelResult();
 		try {
-			Geocoder geocoder = new Geocoder(Patch.applicationContext, Locale.getDefault());
+			Geocoder geocoder = new Geocoder(Patchr.applicationContext, Locale.getDefault());
 			List<Address> addresses = geocoder.getFromLocationName(address, 1);
 			if (addresses != null && addresses.size() > 0) {
 				Address geolookup = addresses.get(0);
@@ -299,7 +299,7 @@ public class LocationManager implements
 		catch (IOException exception) {
 			result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
 			result.serviceResponse.exception = exception;
-			result.serviceResponse.errorResponse = Errors.getErrorResponse(Patch.applicationContext, result.serviceResponse);
+			result.serviceResponse.errorResponse = Errors.getErrorResponse(Patchr.applicationContext, result.serviceResponse);
 		}
 		return result;
 	}
@@ -347,7 +347,7 @@ public class LocationManager implements
 
 		synchronized (mLocationLocked) {
 
-			if (Patch.usingEmulator) {
+			if (Patchr.usingEmulator) {
 				location = new AirLocation(47.616245, -122.201645); // earls
 				location.provider = "emulator_lucky";
 			}

@@ -32,13 +32,15 @@
 				android:minHeight="30dp" />
 		</ViewAnimator>
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.aircandi.ui.widgets.AirTextView
 			android:id="@+id/button_label"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginLeft="2dp"
+			android:minWidth="88dp"
 			android:gravity="center"
-			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textAllCaps="true"
+			android:textAppearance="?android:attr/textAppearanceSmall"
 			custom:textId="@string/dummy_button_label" />
 	</LinearLayout>
 

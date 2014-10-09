@@ -16,7 +16,7 @@ import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.objects.TransitionType;
 
@@ -52,7 +52,7 @@ public class AnimationManager {
 		/*
 		 * Make sure this on the main thread
 		 */
-		Patch.mainThreadHandler.post(new Runnable() {
+		Patchr.mainThreadHandler.post(new Runnable() {
 
 			@Override
 			public void run() {
@@ -111,8 +111,8 @@ public class AnimationManager {
 
 		XmlResourceParser parser = null;
 		try {
-			parser = Patch.applicationContext.getResources().getAnimation(animationResId);
-			return createAnimationFromXml(Patch.applicationContext, parser);
+			parser = Patchr.applicationContext.getResources().getAnimation(animationResId);
+			return createAnimationFromXml(Patchr.applicationContext, parser);
 		}
 		catch (XmlPullParserException ex) {
 			final NotFoundException rnf = new NotFoundException("Can't load animation resource ID #0x" + Integer.toHexString(animationResId));

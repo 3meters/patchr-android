@@ -3,18 +3,15 @@ package com.aircandi.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.PorterDuff.Mode;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.components.ActivityDecorator;
 import com.aircandi.components.ActivityRecognitionManager;
 import com.aircandi.components.AndroidManager;
 import com.aircandi.components.AnimationManager;
@@ -27,15 +24,11 @@ import com.aircandi.components.MenuManager;
 import com.aircandi.components.MessagingManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.controllers.Messages;
-import com.aircandi.controllers.Places;
-import com.aircandi.controllers.Users;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
 import com.aircandi.interfaces.IBusy.BusyAction;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
@@ -70,7 +63,7 @@ public class SplashForm extends Activity {
 		/* Restart crashlytics to force upload of non-fatal crashes */
 		Reporting.startCrashReporting(this);
 
-		if (!Patch.applicationUpdateRequired) {
+		if (!Patchr.applicationUpdateRequired) {
 			if (AndroidManager.checkPlayServices(this)) {
 				prepareToRun();
 			}
@@ -95,7 +88,7 @@ public class SplashForm extends Activity {
 				Thread.currentThread().setName("AsyncPrepareToRun");
 				ModelResult result = new ModelResult();
 
-				if (Patch.firstStartApp) {
+				if (Patchr.firstStartApp) {
 					configure();
 					int maxAttempts = 5;
 					int attempts = 1;
@@ -116,14 +109,14 @@ public class SplashForm extends Activity {
 						}
 						attempts++;
 					}
-					Patch.firstStartApp = false;
+					Patchr.firstStartApp = false;
 				}
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					User user = Patch.getInstance().getCurrentUser();
+					User user = Patchr.getInstance().getCurrentUser();
 					if (!user.isAnonymous()) {
-						Links options = Patch.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
-						result = Patch.getInstance().getEntityManager().getEntity(Patch.getInstance().getCurrentUser().id, true, options);
+						Links options = Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
+						result = Patchr.getInstance().getEntityManager().getEntity(Patchr.getInstance().getCurrentUser().id, true, options);
 					}
 				}
 
@@ -142,7 +135,7 @@ public class SplashForm extends Activity {
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Logger.i(this, "Splash initialized");
-					if (Patch.getInstance().getCurrentUser().isAnonymous()) {
+					if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
 						showButtons(Buttons.ACCOUNT);
 					}
 					else {
@@ -156,7 +149,7 @@ public class SplashForm extends Activity {
 					}
 					else {
 						Errors.handleError(SplashForm.this, result.serviceResponse);
-						if (Patch.applicationUpdateRequired) {
+						if (Patchr.applicationUpdateRequired) {
 							updateRequired();
 							return;
 						}
@@ -172,19 +165,11 @@ public class SplashForm extends Activity {
 		/*
 		 * Only called when app is first started
 		 */
-		Patch.getInstance()
+		Patchr.getInstance()
 		        .setMenuManager(new MenuManager())
-		        .setActivityDecorator(new ActivityDecorator())
-		        .setEntityManager(new EntityManager().setLinks(new Links()))
 		        .setMediaManager(new MediaManager().initSoundPool())
 		        .setAnimationManager(new AnimationManager());
 
-		Patch.controllerMap.put(Constants.SCHEMA_ENTITY_PLACE, new Places());
-		Patch.controllerMap.put(Constants.SCHEMA_ENTITY_USER, new Users());
-		Patch.controllerMap.put(Constants.SCHEMA_ENTITY_MESSAGE, new Messages());
-
-		/* Start out with anonymous user then upgrade to signed in user if possible */
-		Patch.getInstance().initializeUser();
 
 		/* Stash last known location but doesn't start location updates */
 		LocationManager.getInstance().initialize(getApplicationContext());
@@ -196,22 +181,22 @@ public class SplashForm extends Activity {
 	}
 
 	protected void startHomeActivity() {
-		if (!Patch.getInstance().getCurrentUser().isAnonymous() && Patch.firstStartIntent != null) {
-			startActivity(Patch.firstStartIntent);
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous() && Patchr.firstStartIntent != null) {
+			startActivity(Patchr.firstStartIntent);
 		}
 		else {
-			Patch.dispatch.route(this, Route.HOME, null, null, null);
+			Patchr.dispatch.route(this, Route.HOME, null, null, null);
 		}
 
 		/* Always ok to make sure firstStartIntent isn't still around */
-		Patch.firstStartIntent = null;
+		Patchr.firstStartIntent = null;
 
 		/*
 		 * This is a hack to delay the finish. When executed immediately, we
 		 * are getting a warning about lost windows because the activity hadn't completely
 		 * started before it was being killed.
 		 */
-		Patch.mainThreadHandler.postDelayed(new Runnable() {
+		Patchr.mainThreadHandler.postDelayed(new Runnable() {
 
 			@Override
 			public void run() {
@@ -251,25 +236,25 @@ public class SplashForm extends Activity {
 
 	@SuppressWarnings("ucd")
 	public void onSigninButtonClick(View view) {
-		if (Patch.applicationUpdateRequired) {
+		if (Patchr.applicationUpdateRequired) {
 			updateRequired();
 			return;
 		}
-		Patch.dispatch.route(this, Route.SIGNIN, null, null, null);
+		Patchr.dispatch.route(this, Route.SIGNIN, null, null, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onSignupButtonClick(View view) {
-		if (Patch.applicationUpdateRequired) {
+		if (Patchr.applicationUpdateRequired) {
 			updateRequired();
 			return;
 		}
-		Patch.dispatch.route(this, Route.REGISTER, null, null, null);
+		Patchr.dispatch.route(this, Route.REGISTER, null, null, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onStartButtonClick(View view) {
-		if (Patch.applicationUpdateRequired) {
+		if (Patchr.applicationUpdateRequired) {
 			updateRequired();
 			return;
 		}
@@ -279,7 +264,7 @@ public class SplashForm extends Activity {
 	@SuppressWarnings("ucd")
 	public void onRetryButtonClick(View view) {
 		showButtons(Buttons.NONE);
-		if (Patch.applicationUpdateRequired) {
+		if (Patchr.applicationUpdateRequired) {
 			updateRequired();
 		}
 		else {
@@ -319,7 +304,7 @@ public class SplashForm extends Activity {
 	protected void onResume() {
 		super.onResume();
 		Logger.d(this, "Splash resume");
-		Patch.getInstance().setCurrentActivity(this);
+		Patchr.getInstance().setCurrentActivity(this);
 	}
 
 	@Override
@@ -342,9 +327,9 @@ public class SplashForm extends Activity {
 	}
 
 	private void clearReferences() {
-		Activity currentActivity = Patch.getInstance().getCurrentActivity();
+		Activity currentActivity = Patchr.getInstance().getCurrentActivity();
 		if (currentActivity != null && currentActivity.equals(this)) {
-			Patch.getInstance().setCurrentActivity(null);
+			Patchr.getInstance().setCurrentActivity(null);
 		}
 	}
 

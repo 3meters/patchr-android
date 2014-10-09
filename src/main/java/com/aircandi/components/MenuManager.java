@@ -5,7 +5,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -203,16 +203,16 @@ public class MenuManager {
 		if (entity == null) return false;
 
 		if (entity.isOwnedByCurrentUser() || entity.isOwnedBySystem()) return true;
-		return Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-				&& Type.isTrue(Patch.getInstance().getCurrentUser().developer);
+		return Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+				&& Type.isTrue(Patchr.getInstance().getCurrentUser().developer);
 	}
 
 	public Boolean canUserDelete(Entity entity) {
 		if (entity == null) return false;
 
 		if (entity.isOwnedByCurrentUser()) return true;
-		return Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-				&& Type.isTrue(Patch.getInstance().getCurrentUser().developer);
+		return Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+				&& Type.isTrue(Patchr.getInstance().getCurrentUser().developer);
 	}
 
 	@SuppressWarnings("ucd")
@@ -222,8 +222,8 @@ public class MenuManager {
 
 		Link placeLink = entity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE, entity.placeId, Direction.out);
 		return placeLink != null
-				&& placeLink.ownerId.equals(Patch.getInstance().getCurrentUser().id)
-				&& !entity.ownerId.equals(Patch.getInstance().getCurrentUser().id);
+				&& placeLink.ownerId.equals(Patchr.getInstance().getCurrentUser().id)
+				&& !entity.ownerId.equals(Patchr.getInstance().getCurrentUser().id);
 	}
 
 	public Boolean canUserAdd(Entity entity) {
@@ -256,11 +256,11 @@ public class MenuManager {
 				return false;
 		}
 		else if (route == Route.EDIT)
-			return Patch.getInstance().getMenuManager().canUserEdit(entity);
+			return Patchr.getInstance().getMenuManager().canUserEdit(entity);
 		else if (route == Route.DELETE)
-			return Patch.getInstance().getMenuManager().canUserDelete(entity);
+			return Patchr.getInstance().getMenuManager().canUserDelete(entity);
 		else if (route == Route.SHARE)
-			return Patch.getInstance().getMenuManager().canUserShare(entity);
+			return Patchr.getInstance().getMenuManager().canUserShare(entity);
 
 		return false;
 	}

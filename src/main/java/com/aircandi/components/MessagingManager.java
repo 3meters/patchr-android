@@ -10,7 +10,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.events.MessageEvent;
@@ -46,8 +46,8 @@ public class MessagingManager {
 	private Map<String, Message> mMessages   = new HashMap<String, Message>();
 
 	private MessagingManager() {
-		mNotificationManager = (NotificationManager) Patch.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
-		mSoundUri = Uri.parse("android.resource://" + Patch.applicationContext.getPackageName() + "/" + R.raw.notification_activity);
+		mNotificationManager = (NotificationManager) Patchr.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
+		mSoundUri = Uri.parse("android.resource://" + Patchr.applicationContext.getPackageName() + "/" + R.raw.notification_activity);
 	}
 
 	private static class NotificationManagerHolder {
@@ -76,19 +76,19 @@ public class MessagingManager {
 		 * shared prefs.
 		 */
 		ServiceResponse serviceResponse = new ServiceResponse();
-		String registrationId = getRegistrationId(Patch.applicationContext);
+		String registrationId = getRegistrationId(Patchr.applicationContext);
 		if (registrationId.isEmpty()) {
 			try {
 				if (mGcm == null) {
-					mGcm = GoogleCloudMessaging.getInstance(Patch.applicationContext);
+					mGcm = GoogleCloudMessaging.getInstance(Patchr.applicationContext);
 				}
 				registrationId = mGcm.register(StringManager.getString(R.string.id_gcm_sender));
-				setRegistrationId(Patch.applicationContext, registrationId);
+				setRegistrationId(Patchr.applicationContext, registrationId);
 				Logger.i(this, "Registered aircandi install with GCM");
 			}
 			catch (IOException ex) {
 				serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new GcmRegistrationIOException());
-				serviceResponse.errorResponse = Errors.getErrorResponse(Patch.applicationContext, serviceResponse);
+				serviceResponse.errorResponse = Errors.getErrorResponse(Patchr.applicationContext, serviceResponse);
 			}
 		}
 		return serviceResponse;
@@ -98,18 +98,18 @@ public class MessagingManager {
 
 		Logger.i(this, "Registering install with Aircandi service");
 
-		String registrationId = getRegistrationId(Patch.applicationContext);
+		String registrationId = getRegistrationId(Patchr.applicationContext);
 
-		Install install = new Install(Patch.getInstance().getCurrentUser().id
+		Install install = new Install(Patchr.getInstance().getCurrentUser().id
 				, registrationId
-				, Patch.getinstallId());
+				, Patchr.getinstallId());
 
-		install.clientVersionName = Patch.getVersionName(Patch.applicationContext, AircandiForm.class);
-		install.clientVersionCode = Patch.getVersionCode(Patch.applicationContext, AircandiForm.class);
-		install.clientPackageName = Patch.applicationContext.getPackageName();
+		install.clientVersionName = Patchr.getVersionName(Patchr.applicationContext, AircandiForm.class);
+		install.clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
+		install.clientPackageName = Patchr.applicationContext.getPackageName();
 		install.deviceName = AndroidManager.getInstance().getDeviceName();
 
-		ModelResult result = Patch.getInstance().getEntityManager().registerInstall(install);
+		ModelResult result = Patchr.getInstance().getEntityManager().registerInstall(install);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Logger.i(this, "Install successfully registered with Aircandi service");
@@ -119,7 +119,7 @@ public class MessagingManager {
 
 	private void setRegistrationId(Context context, String registrationId) {
 		final SharedPreferences prefs = getGcmPreferences(context);
-		int versionCode = Patch.getVersionCode(Patch.applicationContext, MessagingManager.class);
+		int versionCode = Patchr.getVersionCode(Patchr.applicationContext, MessagingManager.class);
 
 		Logger.i(this, "Saving GCM registrationId for app version code " + String.valueOf(versionCode));
 		SharedPreferences.Editor editor = prefs.edit();
@@ -139,7 +139,7 @@ public class MessagingManager {
 		// since the existing regID is not guaranteed to work with the new
 		// app version.
 		int registeredVersionCode = prefs.getInt(StringManager.getString(R.string.setting_gcm_version_code), Integer.MIN_VALUE);
-		int currentVersionCode = Patch.getVersionCode(Patch.applicationContext, MessagingManager.class);
+		int currentVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MessagingManager.class);
 		if (registeredVersionCode != currentVersionCode) {
 			Logger.i(this, "GCM app version changed.");
 			return "";
@@ -148,7 +148,7 @@ public class MessagingManager {
 	}
 
 	private SharedPreferences getGcmPreferences(Context context) {
-		return Patch.applicationContext.getSharedPreferences(MessagingManager.class.getSimpleName(), Context.MODE_PRIVATE);
+		return Patchr.applicationContext.getSharedPreferences(MessagingManager.class.getSimpleName(), Context.MODE_PRIVATE);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -174,19 +174,19 @@ public class MessagingManager {
 		message.intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		message.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-		final PendingIntent pendingIntent = PendingIntent.getActivity(Patch.applicationContext, 0
+		final PendingIntent pendingIntent = PendingIntent.getActivity(Patchr.applicationContext, 0
 				, message.intent
 				, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		/* Default base notification configuration */
 
 		Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
-		PendingIntent deleteIntent = PendingIntent.getBroadcast(Patch.applicationContext, 0, intent, 0);
+		PendingIntent deleteIntent = PendingIntent.getBroadcast(Patchr.applicationContext, 0, intent, 0);
 
 		String messageTag = getTag(message);
 		Integer count = messageTag.equals(Tag.ALERT) ? mAlerts.size() : mMessages.size();
 
-		final NotificationCompat.Builder builder = new NotificationCompat.Builder(Patch.applicationContext)
+		final NotificationCompat.Builder builder = new NotificationCompat.Builder(Patchr.applicationContext)
 				.setContentTitle(message.title)
 				.setContentText(message.subtitle)
 				.setDeleteIntent(deleteIntent)
@@ -208,9 +208,9 @@ public class MessagingManager {
 		if (byImageUri != null) {
 
 			try {
-				Integer width = Patch.applicationContext.getResources().getDimensionPixelSize(R.dimen.notification_large_icon_width);
+				Integer width = Patchr.applicationContext.getResources().getDimensionPixelSize(R.dimen.notification_large_icon_width);
 				@SuppressWarnings("SuspiciousNameCombination")
-				Bitmap bitmap = DownloadManager.with(Patch.applicationContext)
+				Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
 				                               .load(byImageUri)
 				                               .centerCrop()
 				                               .resize(width, width)
@@ -223,7 +223,7 @@ public class MessagingManager {
 						&& (message.action.getEventCategory().equals(EventCategory.INSERT)
 						|| message.action.getEventCategory().equals(EventCategory.SHARE))) {
 
-					IEntityController controller = Patch.getInstance().getControllerForSchema(message.action.entity.schema);
+					IEntityController controller = Patchr.getInstance().getControllerForSchema(message.action.entity.schema);
 					if (controller != null) {
 						Integer notificationType = controller.getNotificationType(message.action.entity);
 						if (notificationType == NotificationType.BIG_PICTURE) {
@@ -248,7 +248,7 @@ public class MessagingManager {
 		final String imageUri = message.action.entity.getPhoto().getUri();
 
 		try {
-			Bitmap bitmap = DownloadManager.with(Patch.applicationContext)
+			Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
 			                               .load(imageUri)
 			                               .get();
 

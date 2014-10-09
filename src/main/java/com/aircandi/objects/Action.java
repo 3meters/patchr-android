@@ -1,6 +1,6 @@
 package com.aircandi.objects;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.service.Expose;
 
@@ -38,7 +38,7 @@ public class Action extends ServiceObject implements Cloneable, Serializable {
 		if (map.get("entity") != null) {
 			Map<String, Object> entityMap = (HashMap<String, Object>) map.get("entity");
 			String schema = (String) entityMap.get("schema");
-			IEntityController controller = Patch.getInstance().getControllerForSchema(schema);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
 			if (controller != null) {
 				action.entity = controller.makeFromMap(entityMap, nameMapping);
 			}
@@ -47,15 +47,19 @@ public class Action extends ServiceObject implements Cloneable, Serializable {
 		if (map.get("toEntity") != null) {
 			Map<String, Object> entityMap = (HashMap<String, Object>) map.get("toEntity");
 			String schema = (String) entityMap.get("schema");
-			IEntityController controller = Patch.getInstance().getControllerForSchema(schema);
-			action.toEntity = controller.makeFromMap(entityMap, nameMapping);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
+			if (controller != null) {
+				action.toEntity = controller.makeFromMap(entityMap, nameMapping);
+			}
 		}
 
 		if (map.get("fromEntity") != null) {
 			Map<String, Object> entityMap = (HashMap<String, Object>) map.get("fromEntity");
 			String schema = (String) entityMap.get("schema");
-			IEntityController controller = Patch.getInstance().getControllerForSchema(schema);
-			action.fromEntity = controller.makeFromMap(entityMap, nameMapping);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
+			if (controller != null) {
+				action.fromEntity = controller.makeFromMap(entityMap, nameMapping);
+			}
 		}
 
 		if (map.get("user") != null) {

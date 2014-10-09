@@ -2,7 +2,7 @@ package com.aircandi.ui;
 
 import android.view.View;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.components.MessagingManager;
 import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
@@ -22,7 +22,7 @@ public class AlertListFragment extends MessageListFragment {
 		if (entity != null) {
 			Entity place = entity.linksOut.get(0).shortcut.getAsEntity();
 			place.id = entity.linksOut.get(0).toId;
-			Patch.dispatch.route(getActivity(), Route.BROWSE, place, null, null);
+			Patchr.dispatch.route(getActivity(), Route.BROWSE, place, null, null);
 			MessagingManager.getInstance().setNewActivity(false);
 			if (MessagingManager.getInstance().getAlerts().containsKey(entity.id)) {
 				MessagingManager.getInstance().getAlerts().remove(entity.id);

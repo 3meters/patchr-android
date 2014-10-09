@@ -37,7 +37,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
 			android:layout_alignBottom="@+id/entity_photo"
-			android:background="@drawable/overlay_picture_fadeout"
+			android:background="@drawable/scrim_gradient_medium"
 			android:orientation="vertical">
 
 			<com.aircandi.ui.widgets.AirTextView

@@ -14,7 +14,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.DownloadManager;
@@ -92,7 +92,7 @@ public class RegisterEdit extends BaseEntityEdit {
 
 	@SuppressWarnings("ucd")
 	public void onViewTermsButtonClick(View view) {
-		Patch.dispatch.route(this, Route.TERMS, null, null, null);
+		Patchr.dispatch.route(this, Route.TERMS, null, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -205,7 +205,7 @@ public class RegisterEdit extends BaseEntityEdit {
 					
 					/* Synchronous call to get the bitmap */
 					try {
-						bitmap = DownloadManager.with(Patch.applicationContext)
+						bitmap = DownloadManager.with(Patchr.applicationContext)
 						                        .load(mEntity.getPhoto().getUri())
 						                        .centerInside()
 						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
@@ -219,7 +219,7 @@ public class RegisterEdit extends BaseEntityEdit {
 						 */
 						System.gc();
 						try {
-							bitmap = DownloadManager.with(Patch.applicationContext)
+							bitmap = DownloadManager.with(Patchr.applicationContext)
 							                        .load(mEntity.getPhoto().getUri())
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
@@ -234,7 +234,7 @@ public class RegisterEdit extends BaseEntityEdit {
 					}
 				}
 
-				ModelResult result = Patch.getInstance().getEntityManager().registerUser((User) mEntity
+				ModelResult result = Patchr.getInstance().getEntityManager().registerUser((User) mEntity
 						, (mEntity.photo != null) ? bitmap : null);
 
 				if (isCancelled()) return null;
@@ -247,9 +247,7 @@ public class RegisterEdit extends BaseEntityEdit {
 					 * We automatically consider the user signed in.
 					 */
 					final User user = (User) result.data;
-					Patch.getInstance().setCurrentUser(user);
-					result = Patch.getInstance().getEntityManager().activateCurrentUser(true);
-					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					if (Patchr.getInstance().setCurrentUser(user, true)) {
 						result = MessagingManager.getInstance().registerInstallWithAircandi();
 					}
 				}
@@ -276,11 +274,11 @@ public class RegisterEdit extends BaseEntityEdit {
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					Logger.i(RegisterEdit.this, "Inserted new user: " + mEntity.name + " (" + mEntity.id + ")");
-					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in) + " " + Patch.getInstance().getCurrentUser().name,
+					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in) + " " + Patchr.getInstance().getCurrentUser().name,
 							Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();
-					Patch.getInstance().getAnimationManager().doOverridePendingTransition(RegisterEdit.this, TransitionType.FORM_TO_PAGE);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(RegisterEdit.this, TransitionType.FORM_TO_PAGE);
 				}
 				else {
 					Errors.handleError(RegisterEdit.this, result.serviceResponse);

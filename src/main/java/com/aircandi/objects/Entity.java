@@ -2,7 +2,7 @@ package com.aircandi.objects;
 
 import android.support.annotation.Nullable;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
@@ -159,8 +159,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public Boolean isOwnedByCurrentUser() {
 		Boolean owned = (ownerId != null
-				&& Patch.getInstance().getCurrentUser() != null
-				&& ownerId.equals(Patch.getInstance().getCurrentUser().id));
+				&& Patchr.getInstance().getCurrentUser() != null
+				&& ownerId.equals(Patchr.getInstance().getCurrentUser().id));
 		return owned;
 	}
 
@@ -198,17 +198,20 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			if (photo == null) {
 				photo = EntityControllerBase.getDefaultPhoto();
 			}
+			if (photo != null) {
+				photo.usingDefault = true;
+			}
 		}
 		return photo;
 	}
 
 	public Photo getDefaultPhoto() {
-		IEntityController controller = Patch.getInstance().getControllerForSchema(this.schema);
+		IEntityController controller = Patchr.getInstance().getControllerForSchema(this.schema);
 		return ((controller != null) ? controller.getDefaultPhoto(this.type) : null);
 	}
 
 	public Photo getPlaceholderPhoto() {
-		IEntityController controller = Patch.getInstance().getControllerForSchema(this.schema);
+		IEntityController controller = Patchr.getInstance().getControllerForSchema(this.schema);
 		return ((controller != null) ? controller.getPlaceholderPhoto(this.type) : null);
 	}
 
@@ -610,7 +613,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Boolean byAppUser(String linkType) {
 		if (linksIn != null) {
 			for (Link link : linksIn) {
-				if (link.type.equals(linkType) && link.fromId.equals(Patch.getInstance().getCurrentUser().id))
+				if (link.type.equals(linkType) && link.fromId.equals(Patchr.getInstance().getCurrentUser().id))
 					return true;
 			}
 		}
@@ -620,7 +623,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Link linkByAppUser(String linkType) {
 		if (linksIn != null) {
 			for (Link link : linksIn) {
-				if (link.type.equals(linkType) && link.fromId.equals(Patch.getInstance().getCurrentUser().id))
+				if (link.type.equals(linkType) && link.fromId.equals(Patchr.getInstance().getCurrentUser().id))
 					return link;
 			}
 		}
@@ -746,7 +749,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 					final List<LinkedHashMap<String, Object>> childMaps = (List<LinkedHashMap<String, Object>>) map.get("entities");
 					for (Map<String, Object> childMap : childMaps) {
 						String schema = (String) childMap.get("schema");
-						IEntityController controller = Patch.getInstance().getControllerForSchema(schema);
+						IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
 						entity.entities.add(controller.makeFromMap(map, nameMapping));
 					}
 				}

@@ -5,7 +5,7 @@ import java.util.Locale;
 import android.view.View;
 import android.widget.TextView;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IEntityController;
@@ -34,7 +34,7 @@ public class TrendListFragment extends EntityListFragment {
 	@Override
 	protected void bindListItem(Entity entity, View view) {
 
-		IEntityController controller = Patch.getInstance().getControllerForEntity(entity);
+		IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
 
 		ViewHolder holder = (ViewHolder) view.getTag();
 		if (holder == null) {

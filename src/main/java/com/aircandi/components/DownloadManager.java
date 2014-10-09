@@ -8,7 +8,7 @@ import android.graphics.Path;
 import android.graphics.Point;
 import android.net.Uri;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Type;
@@ -33,7 +33,7 @@ public class DownloadManager {
 		if (instance == null) {
 
 			/* Picasso uses 15% default but we stretch it to ~25% */
-			Integer cacheSize = Utilities.calculateMemoryCacheSize(Patch.applicationContext);
+			Integer cacheSize = Utilities.calculateMemoryCacheSize(Patchr.applicationContext);
 			mPicassoMemoryCache = new LruCache(cacheSize);
 
 			/* So we can sniff failures */
@@ -47,7 +47,7 @@ public class DownloadManager {
 			};
 
 			/* Automatically uses okhttp if library is included */
-			instance = new Picasso.Builder(Patch.applicationContext)
+			instance = new Picasso.Builder(Patchr.applicationContext)
 					.listener(listener)
 					.memoryCache(mPicassoMemoryCache)
 					.build();
@@ -58,8 +58,8 @@ public class DownloadManager {
 	public static Bitmap checkDebug(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
 
 		Bitmap mutableBitmap = bitmap;
-		if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_image_debug), false)
-				&& Patch.getInstance().getCurrentUser() != null && Type.isTrue(Patch.getInstance().getCurrentUser().developer)) {
+		if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_image_debug), false)
+				&& Patchr.getInstance().getCurrentUser() != null && Type.isTrue(Patchr.getInstance().getCurrentUser().developer)) {
 			if (!mutableBitmap.isMutable()) {
 				mutableBitmap = bitmap.copy(Bitmap.Config.RGB_565, true);
 			}
@@ -71,7 +71,7 @@ public class DownloadManager {
 
 	public static void drawDebugIndicator(Canvas canvas, Picasso.LoadedFrom loadedFrom) {
 
-		float density = Patch.applicationContext.getResources().getDisplayMetrics().density;
+		float density = Patchr.applicationContext.getResources().getDisplayMetrics().density;
 		DEBUG_PAINT.setColor(Colors.getColor(R.color.white));
 		Path path = getTrianglePath(new Point(0, 0), (int) (16 * density));
 		canvas.drawPath(path, DEBUG_PAINT);

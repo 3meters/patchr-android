@@ -20,7 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
@@ -137,7 +137,7 @@ public class PhotoPicker extends BaseActivity {
 				mSearch.setText(mDefaultSearch);
 			}
 			else {
-				String lastSearch = Patch.settings.getString(StringManager.getString(R.string.setting_picture_search_last), null);
+				String lastSearch = Patchr.settings.getString(StringManager.getString(R.string.setting_picture_search_last), null);
 				if (lastSearch != null && !lastSearch.equals("")) {
 					mSearch.setText(lastSearch);
 				}
@@ -272,16 +272,16 @@ public class PhotoPicker extends BaseActivity {
 		imm.hideSoftInputFromWindow(mSearch.getWindowToken(), 0);
 
 		/* Stash query so we can restore it in the future */
-		Patch.settingsEditor.putString(StringManager.getString(R.string.setting_picture_search_last), mQuery);
-		Patch.settingsEditor.commit();
+		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_picture_search_last), mQuery);
+		Patchr.settingsEditor.commit();
 
 		/* Add query to auto complete array */
 		try {
-			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patch.settings.getString(StringManager.getString(R.string.setting_picture_searches),
+			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(StringManager.getString(R.string.setting_picture_searches),
 					"{}"));
 			jsonSearchMap.put(mQuery, mQuery);
-			Patch.settingsEditor.putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
-			Patch.settingsEditor.commit();
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
+			Patchr.settingsEditor.commit();
 		}
 		catch (JSONException e) {
 			Reporting.logException(e);
@@ -300,7 +300,7 @@ public class PhotoPicker extends BaseActivity {
 
 	private void initAutoComplete() {
 		try {
-			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patch.settings.getString(StringManager.getString(R.string.setting_picture_searches),
+			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(StringManager.getString(R.string.setting_picture_searches),
 					"{}"));
 			mPreviousSearches.clear();
 			if (mDefaultSearch != null) {
@@ -350,7 +350,7 @@ public class PhotoPicker extends BaseActivity {
 		final ServiceRequest serviceRequest = new ServiceRequest(bingUrl, RequestType.GET, ResponseFormat.JSON);
 		serviceRequest.setAuthType(AuthType.BASIC)
 		              .setUserName(null)
-		              .setPassword(Patch.getInstance().getContainer().getString(Patch.BING_ACCESS_KEY));
+		              .setPassword(Patchr.getInstance().getContainer().getString(Patchr.BING_ACCESS_KEY));
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -399,7 +399,7 @@ public class PhotoPicker extends BaseActivity {
 	}
 
 	private ServiceResponse loadPlaceImages(long count, long offset) {
-		final ModelResult result = Patch.getInstance().getEntityManager().getPlacePhotos(mProvider, count, offset);
+		final ModelResult result = Patchr.getInstance().getEntityManager().getPlacePhotos(mProvider, count, offset);
 		return result.serviceResponse;
 	}
 
