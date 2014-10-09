@@ -3,7 +3,7 @@ package com.aircandi.components;
 import android.app.Activity;
 import android.app.Fragment;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.utilities.Reporting;
 import com.google.analytics.tracking.android.EasyTracker;
@@ -40,7 +40,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 	@Override
 	public void activityStart(Activity activity) {
 		try {
-			EasyTracker.getInstance(Patch.applicationContext).activityStart(activity);
+			EasyTracker.getInstance(Patchr.applicationContext).activityStart(activity);
 		}
 		catch (Exception e) {
 			Reporting.logException(e);
@@ -50,7 +50,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 	@Override
 	public void activityStop(Activity activity) {
 		try {
-			EasyTracker.getInstance(Patch.applicationContext).activityStop(activity);
+			EasyTracker.getInstance(Patchr.applicationContext).activityStop(activity);
 		}
 		catch (Exception e) {
 			Reporting.logException(e);
@@ -63,7 +63,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 		 * Arguments should be free of whitespace.
 		 */
 		try {
-			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder.createEvent(category, action, target, value).build());
+			EasyTracker.getInstance(Patchr.applicationContext).send(MapBuilder.createEvent(category, action, target, value).build());
 		}
 		catch (Exception e) {
 			Reporting.logException(e);
@@ -76,7 +76,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 		 * Arguments should be free of whitespace.
 		 */
 		try {
-			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder.createTiming(category, timing, name, label).build());
+			EasyTracker.getInstance(Patchr.applicationContext).send(MapBuilder.createTiming(category, timing, name, label).build());
 		}
 		catch (Exception e) {
 			Reporting.logException(e);
@@ -89,8 +89,8 @@ public class TrackerGoogleEasy extends TrackerBase {
 		 * Arguments should be free of whitespace.
 		 */
 		try {
-			EasyTracker.getInstance(Patch.applicationContext).send(
-					MapBuilder.createException(new StandardExceptionParser(Patch.applicationContext, null)
+			EasyTracker.getInstance(Patchr.applicationContext).send(
+					MapBuilder.createException(new StandardExceptionParser(Patchr.applicationContext, null)
 							.getDescription(Thread.currentThread().getName(), exception), false)
 					          .build()
 			);
@@ -106,8 +106,8 @@ public class TrackerGoogleEasy extends TrackerBase {
 			/*
 			 * Screen name as set will be included in all subsequent sends.
 			 */
-			EasyTracker.getInstance(Patch.applicationContext).set(Fields.SCREEN_NAME, ((Object) fragment).getClass().getSimpleName());
-			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder.createAppView().build());
+			EasyTracker.getInstance(Patchr.applicationContext).set(Fields.SCREEN_NAME, ((Object) fragment).getClass().getSimpleName());
+			EasyTracker.getInstance(Patchr.applicationContext).send(MapBuilder.createAppView().build());
 		}
 		catch (Exception e) {
 			Reporting.logException(e);
@@ -117,16 +117,16 @@ public class TrackerGoogleEasy extends TrackerBase {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void applicationStart() {
-		Boolean enabled = Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
-		Patch.analytics.setDryRun(enabled);
-		Patch.analytics.getLogger().setLogLevel(Patch.DEBUG ? LogLevel.VERBOSE : LogLevel.WARNING);
-		GAServiceManager.getInstance().setLocalDispatchPeriod(Patch.DEBUG ? GA_DISPATCH_PERIOD_DEBUG : GA_DISPATCH_PERIOD);
+		Boolean enabled = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
+		Patchr.analytics.setDryRun(enabled);
+		Patchr.analytics.getLogger().setLogLevel(Patchr.DEBUG ? LogLevel.VERBOSE : LogLevel.WARNING);
+		GAServiceManager.getInstance().setLocalDispatchPeriod(Patchr.DEBUG ? GA_DISPATCH_PERIOD_DEBUG : GA_DISPATCH_PERIOD);
 	}
 
 	@SuppressWarnings("unused")
 	private void startNewSession() {
 		try {
-			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder
+			EasyTracker.getInstance(Patchr.applicationContext).send(MapBuilder
 							.createEvent(TrackerCategory.SYSTEM, "session_start", null, null)
 							.set(Fields.SESSION_CONTROL, "start")
 							.build()
@@ -140,7 +140,7 @@ public class TrackerGoogleEasy extends TrackerBase {
 	@SuppressWarnings("unused")
 	private void stopSession() {
 		try {
-			EasyTracker.getInstance(Patch.applicationContext).send(MapBuilder
+			EasyTracker.getInstance(Patchr.applicationContext).send(MapBuilder
 							.createEvent(TrackerCategory.SYSTEM, "session_end", null, null)
 							.set(Fields.SESSION_CONTROL, "end")
 							.build()
@@ -153,6 +153,6 @@ public class TrackerGoogleEasy extends TrackerBase {
 
 	@Override
 	public void enableDeveloper(Boolean enable) {
-		Patch.analytics.setDryRun(enable);
+		Patchr.analytics.setDryRun(enable);
 	}
 }

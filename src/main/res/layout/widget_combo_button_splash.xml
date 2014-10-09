@@ -44,9 +44,9 @@
 			android:layout_height="wrap_content"
 			android:layout_marginLeft="2dp"
 			android:gravity="center"
-			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textAllCaps="true"
+			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:textColor="#ffffffff"
-
 			custom:textId="@string/dummy_button_label" />
 	</LinearLayout>
 

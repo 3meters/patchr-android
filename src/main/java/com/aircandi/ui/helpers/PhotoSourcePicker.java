@@ -15,8 +15,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.aircandi.Patch;
-import com.aircandi.Patch.ThemeTone;
+import com.aircandi.Patchr;
+import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.AirApplication;
@@ -52,18 +52,18 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		final List<Object> listData = new ArrayList<Object>();
 
 		/* Everyone gets these options */
-		listData.add(new AirApplication(Patch.themeTone.equals(ThemeTone.LIGHT)
+		listData.add(new AirApplication(Patchr.themeTone.equals(ThemeTone.LIGHT)
 		                                ? R.drawable.ic_action_search_light : R.drawable.ic_action_search_dark
 				, StringManager.getString(R.string.dialog_photo_source_search), null, Constants.PHOTO_SOURCE_SEARCH));
 
-		listData.add(new AirApplication(Patch.themeTone.equals(ThemeTone.LIGHT)
+		listData.add(new AirApplication(Patchr.themeTone.equals(ThemeTone.LIGHT)
 		                                ? R.drawable.ic_action_tiles_large_light
 		                                : R.drawable.ic_action_tiles_large_dark
 				, StringManager.getString(R.string.dialog_photo_source_gallery), null, Constants.PHOTO_SOURCE_GALLERY));
 
 		/* Only show the camera choice if there is one and there is a place to store the image */
 		if (MediaManager.canCaptureWithCamera()) {
-			listData.add(new AirApplication(Patch.themeTone.equals(ThemeTone.LIGHT)
+			listData.add(new AirApplication(Patchr.themeTone.equals(ThemeTone.LIGHT)
 			                                ? R.drawable.ic_action_camera_light
 			                                : R.drawable.ic_action_camera_dark
 					, StringManager.getString(R.string.dialog_photo_source_camera), null, Constants.PHOTO_SOURCE_CAMERA));
@@ -73,7 +73,7 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 			Place place = (Place) mEntity;
 			if (place.getProvider().type != null && place.getProvider().type.equals(Constants.TYPE_PROVIDER_FOURSQUARE)) {
-				listData.add(new AirApplication(Patch.themeTone.equals(ThemeTone.LIGHT)
+				listData.add(new AirApplication(Patchr.themeTone.equals(ThemeTone.LIGHT)
 				                                ? R.drawable.ic_action_location_light
 				                                : R.drawable.ic_action_location_dark
 						, StringManager.getString(R.string.dialog_photo_source_place), null, Constants.PHOTO_SOURCE_PLACE));
@@ -82,7 +82,7 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 
 		/* Everyone gets the default option */
 		if (mEntity.type == null) {
-			listData.add(new AirApplication(Patch.themeTone.equals(ThemeTone.LIGHT)
+			listData.add(new AirApplication(Patchr.themeTone.equals(ThemeTone.LIGHT)
 			                                ? R.drawable.ic_action_picture_light
 			                                : R.drawable.ic_action_picture_dark
 					, StringManager.getString(R.string.dialog_photo_source_default), null, Constants.PHOTO_SOURCE_DEFAULT));

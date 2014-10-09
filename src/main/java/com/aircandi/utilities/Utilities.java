@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.components.Logger;
 
 import java.util.regex.Pattern;
@@ -23,7 +23,7 @@ public class Utilities {
 
 	public static Long getMemoryAvailable() {
 		MemoryInfo memoryInfo = new MemoryInfo();
-		ActivityManager activityManager = (ActivityManager) Patch.applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
+		ActivityManager activityManager = (ActivityManager) Patchr.applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
 		activityManager.getMemoryInfo(memoryInfo);
 		long availableMemory = memoryInfo.availMem / 1048576L;
 		return availableMemory;
@@ -31,7 +31,7 @@ public class Utilities {
 
 	@SuppressWarnings("ucd")
 	public static ScreenSize getScreenSize() {
-		int screenLayout = Patch.applicationContext.getResources().getConfiguration().screenLayout;
+		int screenLayout = Patchr.applicationContext.getResources().getConfiguration().screenLayout;
 		screenLayout &= Configuration.SCREENLAYOUT_SIZE_MASK;
 
 		switch (screenLayout) {
@@ -70,7 +70,7 @@ public class Utilities {
 		}
 
 		Logger.i(context, "Device memory class: " + String.valueOf(memClass));
-		Patch.memoryClass = memClass;
+		Patchr.memoryClass = memClass;
 
 		/* Use 1/4th of the available memory for this memory cache. */
 		final int cacheSize = (memClass << 10 << 10) >> 2;

@@ -17,7 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
@@ -96,10 +96,10 @@ public class UI {
 			/*
 			 * We even cap fullsize if the device has minimal memory.
 			 */
-			if (Patch.memoryClass < 48) {
+			if (Patchr.memoryClass < 48) {
 				Logger.i(UI.class, "Screen pixels: "
-						+ getScreenWidthRawPixels(Patch.applicationContext)
-						+ " x " + getScreenHeightRawPixels(Patch.applicationContext));
+						+ getScreenWidthRawPixels(Patchr.applicationContext)
+						+ " x " + getScreenHeightRawPixels(Patchr.applicationContext));
 				photo.setProxy(true, SizeType.FULLSIZE_CAPPED);
 			}
 		}
@@ -109,7 +109,7 @@ public class UI {
 		if (Photo.isDrawable(imageUri)) {
 			Integer drawableId = Photo.getResourceIdFromUri(photoView.getContext(), imageUri);
 			if (drawableId != null) {
-				DownloadManager.with(Patch.applicationContext)
+				DownloadManager.with(Patchr.applicationContext)
 				               .load(drawableId)
 				               .placeholder(null)
 						.resize(photoView.getSizeHint(), photoView.getSizeHint())    // Memory size
@@ -117,7 +117,7 @@ public class UI {
 			}
 		}
 		else {
-			RequestCreator request = DownloadManager.with(Patch.applicationContext)
+			RequestCreator request = DownloadManager.with(Patchr.applicationContext)
 			                                        .load(imageUri)
 			                                        .config(Config.RGB_565)
 			                                        .placeholder(null);
@@ -188,7 +188,7 @@ public class UI {
 	public static Drawable getDrawableForAttribute(Context context, Integer attr) {
 		TypedValue a = new TypedValue();
 		context.getTheme().resolveAttribute(attr, a, true);
-		return Patch.applicationContext.getResources().getDrawable(a.resourceId);
+		return Patchr.applicationContext.getResources().getDrawable(a.resourceId);
 	}
 
 	public static Integer getResIdForAttribute(Context context, Integer attr) {
@@ -206,12 +206,12 @@ public class UI {
 	}
 
 	public static void showToastNotification(final String message, final int duration, final int gravity) {
-		Patch.mainThreadHandler.post(new Runnable() {
+		Patchr.mainThreadHandler.post(new Runnable() {
 
 			@Override
 			public void run() {
 				final CharSequence text = message;
-				final Toast toast = Toast.makeText(Patch.applicationContext, text, duration);
+				final Toast toast = Toast.makeText(Patchr.applicationContext, text, duration);
 				if (gravity != 0) {
 					toast.setGravity(gravity, 0, 0);
 				}
@@ -224,7 +224,7 @@ public class UI {
 		/*
 		 * Make sure this on the main thread
 		 */
-		Patch.mainThreadHandler.post(new Runnable() {
+		Patchr.mainThreadHandler.post(new Runnable() {
 
 			@Override
 			public void run() {

@@ -10,7 +10,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
@@ -59,7 +59,7 @@ public class ResetEdit extends BaseEdit {
 			}
 		});
 
-		final String email = Patch.settings.getString(StringManager.getString(R.string.setting_last_email), null);
+		final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
 		if (email != null) {
 			mEmail.setText(email);
 		}
@@ -143,7 +143,7 @@ public class ResetEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncRequestPasswordReset");
 
 				String email = mEmail.getText().toString().trim().toLowerCase(Locale.US);
-				ModelResult result = Patch.getInstance().getEntityManager().requestPasswordReset(email);
+				ModelResult result = Patchr.getInstance().getEntityManager().requestPasswordReset(email);
 				return result;
 			}
 
@@ -208,7 +208,7 @@ public class ResetEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncResetPassword");
 
 				String password = mPassword.getText().toString();
-				ModelResult result = Patch.getInstance().getEntityManager().resetPassword(password, mUser);
+				ModelResult result = Patchr.getInstance().getEntityManager().resetPassword(password, mUser);
 				return result;
 			}
 
@@ -219,11 +219,11 @@ public class ResetEdit extends BaseEdit {
 				mBusy.hideBusy(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in)
-							+ " " + Patch.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
+							+ " " + Patchr.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
 
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();
-					Patch.getInstance().getAnimationManager().doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_TO_PAGE);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_TO_PAGE);
 				}
 				else {
 					Errors.handleError(ResetEdit.this, result.serviceResponse);

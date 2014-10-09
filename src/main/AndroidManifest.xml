@@ -60,7 +60,7 @@
 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
 	<application
-		android:name="com.aircandi.Patch"
+		android:name=".Patchr"
 		android:allowBackup="false"
 		android:icon="@drawable/ic_launcher"
 		android:label="@string/name_app">
@@ -163,6 +163,7 @@
 		<activity
 			android:name="com.aircandi.ui.WatcherList"
 			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_watchers"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name="com.aircandi.ui.PlaceList"

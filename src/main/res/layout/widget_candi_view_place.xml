@@ -22,7 +22,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true"
-		android:background="@drawable/overlay_picture_fadeout"
+		android:background="@drawable/scrim_gradient_medium"
 		android:orientation="horizontal"
 		android:paddingBottom="40dp"
 		android:paddingLeft="15dp"

@@ -52,7 +52,7 @@ public final class ServiceConstants {
 	public static final String  PLACE_SUGGEST_PROVIDER = "google";
 	public static final Integer PLACE_SUGGEST_RADIUS   = 20000000;
 
-	public static final String PLACE_NEAR_PROVIDERS        = "foursquare|google|yelp";
+	public static final String PLACE_NEAR_PROVIDERS        = "foursquare|google";
 	/*
 	 * Nearby = 20 minutes walking = 1 mile = 1609 meters.
 	 */

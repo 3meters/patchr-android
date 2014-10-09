@@ -21,6 +21,7 @@
 	<item name="button_remove" type="id" />
 	<item name="label_to" type="id" />
 	<item name="image_messages_all" type="id" />
+	<item name="last_message_date" type="id" />
 
 	<item name="applinks" type="id" />
 	<item name="place" type="id" />

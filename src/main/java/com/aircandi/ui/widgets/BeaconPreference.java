@@ -16,7 +16,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
@@ -92,7 +92,7 @@ public class BeaconPreference extends AirListPreference {
 				ModelResult result = new ModelResult();
 				try {
 					String filter = "query=" + URLEncoder.encode("{\"type\":\"beacon\"}", "utf-8") + "&sort[name]=1";
-					result = Patch.getInstance().getEntityManager().loadDocuments(filter);
+					result = Patchr.getInstance().getEntityManager().loadDocuments(filter);
 				}
 				catch (UnsupportedEncodingException e) {
 					Reporting.logException(e);
@@ -131,7 +131,7 @@ public class BeaconPreference extends AirListPreference {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteTestingBeacon");
-				ModelResult result = Patch.getInstance().getEntityManager().deleteDocument(beacon);
+				ModelResult result = Patchr.getInstance().getEntityManager().deleteDocument(beacon);
 				return result;
 			}
 

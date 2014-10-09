@@ -1,10 +1,10 @@
 package com.aircandi.utilities;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 
 public class Colors {
 
 	public static int getColor(int resId) {
-		return Patch.applicationContext.getResources().getColor(resId);
+		return Patchr.applicationContext.getResources().getColor(resId);
 	}
 }

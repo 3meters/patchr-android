@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -68,7 +68,7 @@ public class ReportEdit extends BaseEntityEdit {
 
 	@Override
 	public void draw(View view) {
-		((UserView) findViewById(R.id.created_by)).databind(Patch.getInstance().getCurrentUser(), null);
+		((UserView) findViewById(R.id.created_by)).databind(Patchr.getInstance().getCurrentUser(), null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ public class ReportEdit extends BaseEntityEdit {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertReport");
 				mReport.createdDate = DateTime.nowDate().getTime();
-				final ModelResult result = Patch.getInstance().getEntityManager().insertDocument(mReport);
+				final ModelResult result = Patchr.getInstance().getEntityManager().insertDocument(mReport);
 				return result;
 			}
 

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:paddingBottom="4dp"
+	android:paddingLeft="8dp"
+	android:paddingRight="8dp"
+	android:paddingTop="4dp">
+
+	<FrameLayout
+		style="@style/selectable_image"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="?attr/backgroundCard"
+		tools:ignore="UselessParent">
+
+		<View
+			android:id="@+id/highlight"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_highlight_height"
+			android:layout_gravity="top"
+			android:background="?attr/cardHighlightColor" />
+
+		<com.aircandi.ui.widgets.CandiView
+			android:id="@+id/candi_view"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			custom:colorize="false"
+			custom:layout="@layout/widget_candi_view_place_list" />
+
+		<View
+			android:id="@+id/shadow"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_shadow_height"
+			android:layout_gravity="bottom"
+			android:background="?attr/cardShadowColor" />
+
+	</FrameLayout>
+
+</RelativeLayout>

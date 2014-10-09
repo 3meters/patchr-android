@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.components.ModelResult;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.interfaces.IQuery;
@@ -56,13 +56,13 @@ public class WatchersQuery implements IQuery {
 			mCursor.setDirection(mLinkDirection);
 		}
 
-		Links links = Patch.getInstance().getEntityManager().getLinks().build(LinkProfile.NO_LINKS);
+		Links links = Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.NO_LINKS);
 		if (mSchema != null) {
-			IEntityController controller = Patch.getInstance().getControllerForSchema(mSchema);
-			links = Patch.getInstance().getEntityManager().getLinks().build(controller.getLinkProfile());
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(mSchema);
+			links = Patchr.getInstance().getEntityManager().getLinks().build(controller.getLinkProfile());
 		}
 
-		ModelResult result = Patch.getInstance().getEntityManager().loadEntitiesForEntity(mEntityId, links, mCursor, null);
+		ModelResult result = Patchr.getInstance().getEntityManager().loadEntitiesForEntity(mEntityId, links, mCursor, null);
 
 		if (result.data != null) {
 			mMore = ((ServiceData) result.serviceResponse.data).more;

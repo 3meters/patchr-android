@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.MessagingManager;
@@ -230,7 +230,7 @@ public class Messages extends EntityControllerBase {
 
 			holder.share.removeAllViews();
 			View shareView = LayoutInflater.from(view.getContext()).inflate(layoutResId, null, false);
-			IEntityController controller = Patch.getInstance().getControllerForSchema(shareEntity.schema);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(shareEntity.schema);
 			controller.bind(shareEntity, shareView);
 			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				shareEntity.autowatchable = true;

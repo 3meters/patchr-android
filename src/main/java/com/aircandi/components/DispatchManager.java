@@ -9,7 +9,7 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
@@ -50,7 +50,7 @@ public class DispatchManager {
 
 	public void intent(Activity activity, Intent intent) {
 		activity.startActivity(intent);
-		Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 	}
 
 	public void route(final Activity activity, Integer route, @Nullable Entity entity, Shortcut shortcut, Bundle extras) {
@@ -73,7 +73,7 @@ public class DispatchManager {
 			intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
 			activity.startActivity(intent);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_HELP);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_HELP);
 		}
 
 		else if (route == Route.BROWSE) {
@@ -82,13 +82,13 @@ public class DispatchManager {
 				throw new IllegalArgumentException("Dispatching browse requires entity");
 			}
 
-			IEntityController controller = Patch.getInstance().getControllerForSchema(schema);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
 			controller.view(activity, entity, entity.id, entity.toId, null, extras, true);
 		}
 
 		else if (route == Route.EDIT) {
 
-			if (Patch.getInstance().getCurrentUser().isAnonymous()) {
+			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
 				String message = StringManager.getString(R.string.alert_signin_message_edit, schema);
 				Dialogs.signinRequired(activity, message);
 				return;
@@ -98,7 +98,7 @@ public class DispatchManager {
 				throw new IllegalArgumentException("Dispatching edit requires entity");
 			}
 
-			IEntityController controller = Patch.getInstance().getControllerForSchema(schema);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE) && entity.isOwnedBySystem()) {
 				if (extras == null) {
 					extras = new Bundle();
@@ -131,7 +131,7 @@ public class DispatchManager {
 
 		else if (route == Route.NEW) {
 
-			if (Patch.getInstance().getCurrentUser().isAnonymous()) {
+			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
 				if (schema == null) {
 					throw new IllegalArgumentException("Handling anonymous new requires schema");
 				}
@@ -143,12 +143,12 @@ public class DispatchManager {
 				return;
 			}
 			else {
-				if (!Patch.getInstance().getMenuManager().canUserAdd(entity)) {
+				if (!Patchr.getInstance().getMenuManager().canUserAdd(entity)) {
 					return;
 				}
 			}
 
-			IEntityController controller = Patch.getInstance().getControllerForSchema(schema);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
 			controller.insert(activity, extras, true);
 		}
 
@@ -168,21 +168,21 @@ public class DispatchManager {
 			}
 			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.create());
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.SETTINGS) {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, Preferences.class);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PREFERENCES);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.FEEDBACK) {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, FeedbackEdit.class);
 			activity.startActivity(intentBuilder.create());
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.REPORT) {
@@ -197,14 +197,14 @@ public class DispatchManager {
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, entity.schema);
 			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.create());
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.ABOUT) {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, AboutForm.class);
 			activity.startActivity(intentBuilder.create());
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.HELP) {
@@ -216,7 +216,7 @@ public class DispatchManager {
 				IntentBuilder intentBuilder = new IntentBuilder(activity, HelpForm.class);
 				intentBuilder.setExtras(extras);
 				activity.startActivity(intentBuilder.create());
-				Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_HELP);
+				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_HELP);
 			}
 		}
 
@@ -246,7 +246,7 @@ public class DispatchManager {
 
 			Intent intent = intentBuilder.create();
 			activity.startActivity(intent);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_PAGE);
 		}
 
 		else if (route == Route.PHOTO) {
@@ -257,7 +257,7 @@ public class DispatchManager {
 			intentBuilder.setExtras(extras);
 			Intent intent = intentBuilder.create();
 			activity.startActivity(intent);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_PAGE);
 		}
 
 		else if (route == Route.ACCEPT) {
@@ -307,14 +307,14 @@ public class DispatchManager {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, SignInEdit.class);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_SIGNIN);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.REGISTER) {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, RegisterEdit.class);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_SIGNIN);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.TERMS) {
@@ -322,7 +322,7 @@ public class DispatchManager {
 			final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
 			intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_terms)));
 			activity.startActivity(intentBuilder.create());
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.PRIVACY) {
@@ -330,7 +330,7 @@ public class DispatchManager {
 			final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
 			intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_privacy)));
 			activity.startActivity(intentBuilder.create());
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.LEGAL) {
@@ -338,19 +338,19 @@ public class DispatchManager {
 			final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
 			intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_legal)));
 			activity.startActivity(intentBuilder.create());
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.SETTINGS_LOCATION) {
 
 			activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.SETTINGS_WIFI) {
 
 			activity.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 			activity.finish();
 		}
 
@@ -359,7 +359,7 @@ public class DispatchManager {
 			IntentBuilder intentBuilder = new IntentBuilder(activity, AddressBuilder.class);
 			intentBuilder.setEntity(entity);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ADDRESS_EDIT);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.CATEGORY_EDIT) {
@@ -376,7 +376,7 @@ public class DispatchManager {
 			}
 
 			activity.startActivityForResult(intent, Constants.ACTIVITY_CATEGORY_EDIT);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO_BUILDER);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO_BUILDER);
 		}
 
 		else if (route == Route.LOCATION_EDIT) {
@@ -394,21 +394,21 @@ public class DispatchManager {
 			}
 
 			activity.startActivityForResult(intent, Constants.ACTIVITY_LOCATION_EDIT);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO_BUILDER);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO_BUILDER);
 		}
 
 		else if (route == Route.PASSWORD_CHANGE) {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, PasswordEdit.class);
 			activity.startActivity(intentBuilder.create());
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.PASSWORD_RESET) {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, ResetEdit.class);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_RESET_AND_SIGNIN);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.SPLASH) {
@@ -422,8 +422,8 @@ public class DispatchManager {
 			}
 			activity.startActivity(intent);
 			activity.finish();
-			if (Patch.getInstance().getAnimationManager() != null) {
-				Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO_PAGE);
+			if (Patchr.getInstance().getAnimationManager() != null) {
+				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO_PAGE);
 			}
 		}
 
@@ -432,7 +432,7 @@ public class DispatchManager {
 			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoSourcePicker.class);
 			intentBuilder.setEntity(entity);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PICTURE_SOURCE_PICK);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.PHOTO_FROM_CAMERA) {
@@ -440,7 +440,7 @@ public class DispatchManager {
 			IntentBuilder intentBuilder = new IntentBuilder(MediaStore.ACTION_IMAGE_CAPTURE);
 			intentBuilder.setExtras(extras);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PHOTO_MAKE);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.PHOTO_SEARCH) {
@@ -448,7 +448,7 @@ public class DispatchManager {
 			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoPicker.class);
 			intentBuilder.setExtras(extras);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PHOTO_SEARCH);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.PHOTO_PLACE_SEARCH) {
@@ -458,7 +458,7 @@ public class DispatchManager {
 			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoPicker.class);
 			intentBuilder.setEntityId(entity.id);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PHOTO_PICK_PLACE);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.PLACE_SEARCH) {
@@ -466,7 +466,7 @@ public class DispatchManager {
 			IntentBuilder intentBuilder = new IntentBuilder(activity, PlacePicker.class);
 			intentBuilder.setExtras(extras);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PLACE_SEARCH);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.TUNE) {
@@ -476,7 +476,7 @@ public class DispatchManager {
 			IntentBuilder intentBuilder = new IntentBuilder(activity, TuningEdit.class);
 			intentBuilder.setEntity(entity);
 			activity.startActivity(intentBuilder.create());
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.SAVE_BEACON) {
@@ -493,7 +493,7 @@ public class DispatchManager {
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, WatcherList.class);
 			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.create());
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
 		else if (route == Route.PLACE_LIST) {
@@ -505,14 +505,14 @@ public class DispatchManager {
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, PlaceList.class);
 			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.create());
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 	}
 
 	public void shortcut(final Activity activity, Shortcut shortcut, Entity entity, Direction direction, Bundle extras) {
 
 		if (shortcut.isContent()) {
-			IEntityController controller = Patch.getInstance().getControllerForSchema(shortcut.app);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(shortcut.app);
 			if (controller != null) {
 				if (shortcut.getAction().equals(Constants.ACTION_VIEW)) {
 					controller.view(activity, entity, shortcut.getId(), (entity != null) ? entity.toId : null, shortcut.linkType, extras, true);

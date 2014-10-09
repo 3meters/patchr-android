@@ -13,8 +13,8 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ViewAnimator;
 
-import com.aircandi.Patch;
-import com.aircandi.Patch.ThemeTone;
+import com.aircandi.Patchr;
+import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Message;
@@ -118,7 +118,7 @@ public class MessageListFragment extends EntityListFragment {
 		}
 
 
-		Patch.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
+		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
 
 		MessagingManager.getInstance().setNewActivity(false);
 		if (MessagingManager.getInstance().getMessages().containsKey(entity.id)) {
@@ -159,7 +159,7 @@ public class MessageListFragment extends EntityListFragment {
 
 	@Override
 	protected void bindListItem(Entity entity, View view) {
-		IEntityController controller = Patch.getInstance().getControllerForEntity(entity);
+		IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
 		controller.bind(entity, view);
 
 		/* Special highlighting */
@@ -169,7 +169,7 @@ public class MessageListFragment extends EntityListFragment {
 			if (mHighlightEntities.containsKey(entity.id)) {
 				Highlight highlight = mHighlightEntities.get(entity.id);
 				if (!highlight.isOneShot() || !highlight.hasFired()) {
-					if (Patch.themeTone.equals(ThemeTone.DARK)) {
+					if (Patchr.themeTone.equals(ThemeTone.DARK)) {
 						view.setBackgroundResource(R.drawable.bg_transition_fade);
 					}
 					else {
@@ -245,11 +245,11 @@ public class MessageListFragment extends EntityListFragment {
 		Entity entity = ((BaseActivity) getActivity()).getEntity();
 		MenuItem item = menu.findItem(R.id.edit);
 		if (item != null) {
-			item.setVisible(Patch.getInstance().getMenuManager().canUserEdit(entity));
+			item.setVisible(Patchr.getInstance().getMenuManager().canUserEdit(entity));
 		}
 		item = menu.findItem(R.id.delete);
 		if (item != null) {
-			item.setVisible(Patch.getInstance().getMenuManager().canUserDelete(entity));
+			item.setVisible(Patchr.getInstance().getMenuManager().canUserDelete(entity));
 		}
 	}
 

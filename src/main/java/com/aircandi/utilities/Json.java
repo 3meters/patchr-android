@@ -1,6 +1,6 @@
 package com.aircandi.utilities;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.AirMarker;
@@ -173,7 +173,7 @@ public class Json {
 				}
 				else if (objectType == Json.ObjectType.ENTITY) {
 					String schema = (String) map.get("schema");
-					IEntityController controller = Patch.getInstance().getControllerForSchema(schema);
+					IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
 					if (controller != null) {
 						list.add(controller.makeFromMap(map, nameMapping));
 					}

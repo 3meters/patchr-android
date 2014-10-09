@@ -2,7 +2,7 @@ package com.aircandi.objects;
 
 import android.content.res.Resources;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Link.Direction;
@@ -29,7 +29,7 @@ public class Links extends ServiceObject {
 	}
 
 	public Links(Boolean shortcuts, List<LinkParams> active) {
-		setShortcuts(shortcuts);
+		this.shortcuts = shortcuts;
 		this.active = active;
 	}
 
@@ -38,12 +38,12 @@ public class Links extends ServiceObject {
 		if (linkProfile == LinkProfile.NO_LINKS)
 			return null;
 		else {
-			User currentUser = Patch.getInstance().getCurrentUser();
+			User currentUser = Patchr.getInstance().getCurrentUser();
 
 			Links links = new Links().setActive(new ArrayList<LinkParams>());
 			links.shortcuts = true;
 
-			Resources resources = Patch.applicationContext.getResources();
+			Resources resources = Patchr.applicationContext.getResources();
 			Number limitProximity = resources.getInteger(R.integer.limit_links_proximity_default);
 			Number limitCreate = resources.getInteger(R.integer.limit_links_create_default);
 			Number limitWatch = resources.getInteger(R.integer.limit_links_watch_default);

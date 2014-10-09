@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -45,7 +45,7 @@ public class UserForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		Boolean currentUser = Patch.getInstance().getCurrentUser().id.equals(mEntityId);
+		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
 		mLinkProfile = currentUser ? LinkProfile.LINKS_FOR_USER_CURRENT : LinkProfile.LINKS_FOR_USER;
 		mListFragment = new MessageListFragment();
 
@@ -75,7 +75,7 @@ public class UserForm extends BaseEntityForm {
 	public void afterDatabind(BindingMode mode, ModelResult result) {
 		super.afterDatabind(mode, result);
 
-		Boolean currentUser = Patch.getInstance().getCurrentUser().id.equals(mEntityId);
+		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
 		if (!currentUser) return;
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			if (mEntityMonitor.changed) {
@@ -97,7 +97,7 @@ public class UserForm extends BaseEntityForm {
 	}
 
 	public void onEditButtonClick(View view) {
-		Patch.dispatch.route(this, Route.EDIT, mEntity, null, null);
+		Patchr.dispatch.route(this, Route.EDIT, mEntity, null, null);
 	}
 
 	public void onPlaceListButtonClick(View view) {
@@ -115,7 +115,7 @@ public class UserForm extends BaseEntityForm {
 		extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
 		extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, titleResId);
 
-		Patch.dispatch.route(this, Route.PLACE_LIST, mEntity, null, extras);
+		Patchr.dispatch.route(this, Route.PLACE_LIST, mEntity, null, extras);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ public class UserForm extends BaseEntityForm {
 		mButtonEdit = findViewById(R.id.button_edit);
 
 		UI.setVisibility(mButtonEdit, View.GONE);
-		if (Patch.getInstance().getMenuManager().canUserEdit(mEntity)) {
+		if (Patchr.getInstance().getMenuManager().canUserEdit(mEntity)) {
 			UI.setVisibility(mButtonEdit, View.VISIBLE);
 		}
 

@@ -17,7 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
@@ -215,7 +215,7 @@ public class RadarListFragment extends EntityListFragment {
 			}
 			else {
 
-				CacheStamp cacheStamp = Patch.getInstance().getEntityManager().getCacheStamp();
+				CacheStamp cacheStamp = Patchr.getInstance().getEntityManager().getCacheStamp();
 				if (mCacheStamp != null && !mCacheStamp.equals(cacheStamp)) {
 					/*
 					 * EntityManager stamp gets updated when places are inserted/updated/deleted
@@ -250,7 +250,7 @@ public class RadarListFragment extends EntityListFragment {
 		if (bindReason != null) {
 			Logger.d(getActivity(), "Radar bind: " + bindReason);
 
-			if (Patch.getInstance().getPrefEnableDev()) {
+			if (Patchr.getInstance().getPrefEnableDev()) {
 				UI.showToastNotification("Radar bind: " + bindReason, Toast.LENGTH_SHORT);
 			}
 		}
@@ -263,7 +263,7 @@ public class RadarListFragment extends EntityListFragment {
 	@Override
 	public void onClick(View view) {
 		final Place entity = (Place) ((ViewHolder) view.getTag()).data;
-		Patch.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
+		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
 	}
 
 	@Subscribe
@@ -275,9 +275,9 @@ public class RadarListFragment extends EntityListFragment {
 
 			@Override
 			public void run() {
-				Patch.stopwatch1.segmentTime("Wifi scan received event fired");
+				Patchr.stopwatch1.segmentTime("Wifi scan received event fired");
 
-				Patch.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patch.stopwatch1.getTotalTimeMills()
+				Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
 						, "wifi_scan_finished"
 						, NetworkManager.getInstance().getNetworkType());
 
@@ -334,14 +334,14 @@ public class RadarListFragment extends EntityListFragment {
 			public void run() {
 
 				Logger.d(getActivity(), "Entities for beacons finished event: ** done **");
-				Patch.stopwatch1.segmentTime("Entities by proximity finished event fired");
-				Patch.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patch.stopwatch1.getTotalTimeMills()
+				Patchr.stopwatch1.segmentTime("Entities by proximity finished event fired");
+				Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
 						, "places_by_proximity_downloaded"
 						, NetworkManager.getInstance().getNetworkType());
 
-				Patch.stopwatch1.stop("Search for places by beacon complete");
+				Patchr.stopwatch1.stop("Search for places by beacon complete");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
-				mCacheStamp = Patch.getInstance().getEntityManager().getCacheStamp();
+				mCacheStamp = Patchr.getInstance().getEntityManager().getCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
 					mBusy.hideBusy(false);
@@ -358,8 +358,8 @@ public class RadarListFragment extends EntityListFragment {
 		 * No application logic here, just tracking.
 		 */
 		Logger.d(getActivity(), "Places near location finished event: ** done **");
-		Patch.stopwatch2.stop("Location processing: Places near location complete");
-		Patch.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patch.stopwatch2.getTotalTimeMills()
+		Patchr.stopwatch2.stop("Location processing: Places near location complete");
+		Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
 				, "places_near_location_downloaded"
 				, NetworkManager.getInstance().getNetworkType());
 
@@ -462,14 +462,14 @@ public class RadarListFragment extends EntityListFragment {
 	@Override
 	public void onAdd(Bundle extras) {
 		/* Schema target is in the extras */
-		Patch.dispatch.route(getActivity(), Route.NEW, null, null, extras);
+		Patchr.dispatch.route(getActivity(), Route.NEW, null, null, extras);
 	}
 
 	@Override
 	public void onHelp() {
 		Bundle extras = new Bundle();
 		extras.putInt(Constants.EXTRA_HELP_ID, R.layout.radar_help);
-		Patch.dispatch.route(getActivity(), Route.HELP, null, null, extras);
+		Patchr.dispatch.route(getActivity(), Route.HELP, null, null, extras);
 	}
 
 	@Override
@@ -518,7 +518,7 @@ public class RadarListFragment extends EntityListFragment {
 			@Override
 			protected Object doInBackground(Object... params) {
 
-				Patch.stopwatch1.start("beacon_search", "Search for places by beacon");
+				Patchr.stopwatch1.start("beacon_search", "Search for places by beacon");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
 				EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 				if (NetworkManager.getInstance().isWifiEnabled()) {
@@ -741,7 +741,7 @@ public class RadarListFragment extends EntityListFragment {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Patch.dispatch.route(getActivity(), Patch.dispatch.routeForMenuId(item.getItemId()), null, null, null);
+		Patchr.dispatch.route(getActivity(), Patchr.dispatch.routeForMenuId(item.getItemId()), null, null, null);
 		return true;
 	}
 
@@ -833,7 +833,7 @@ public class RadarListFragment extends EntityListFragment {
 				message += " lng: " + locationCandidate.getLongitude();
 				message += " acc: " + locationCandidate.getAccuracy();
 
-				if (Patch.getInstance().getPrefEnableDev()) {
+				if (Patchr.getInstance().getPrefEnableDev()) {
 					UI.showToastNotification(message, Toast.LENGTH_SHORT);
 				}
 
@@ -856,7 +856,7 @@ public class RadarListFragment extends EntityListFragment {
 
 							Logger.d(getActivity(), "Location changed event: getting places near location");
 							Thread.currentThread().setName("AsyncGetPlacesNearLocation");
-							Patch.stopwatch2.start("location_processing", "Location processing: get places near location");
+							Patchr.stopwatch2.start("location_processing", "Location processing: get places near location");
 
 							final ServiceResponse serviceResponse = ProximityManager.getInstance().getEntitiesNearLocation(location);
 
@@ -868,8 +868,8 @@ public class RadarListFragment extends EntityListFragment {
 							final ServiceResponse serviceResponse = (ServiceResponse) result;
 
 							if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-								Patch.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
-								final List<Entity> entitiesForEvent = (List<Entity>) Patch.getInstance().getEntityManager().getPlaces(null, null);
+								Patchr.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
+								final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null, null);
 								BusProvider.getInstance().post(new PlacesNearLocationFinishedEvent());
 								BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
 								if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {

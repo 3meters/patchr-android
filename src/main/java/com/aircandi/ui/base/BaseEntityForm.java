@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
@@ -79,7 +79,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		mEntity = EntityManager.getCacheEntity(mEntityId);
 		if (mEntity != null) {
 			if (mEntity instanceof Place) {
-				Patch.getInstance().setCurrentPlace(mEntity);
+				Patchr.getInstance().setCurrentPlace(mEntity);
 				Logger.v(this, "Setting current place to: " + mEntity.id);
 			}
 			if (mFirstDraw) {
@@ -122,8 +122,8 @@ public abstract class BaseEntityForm extends BaseActivity {
 				}
 
 				if (refreshNeeded.get()) {
-					Links options = Patch.getInstance().getEntityManager().getLinks().build(mLinkProfile);
-					result = Patch.getInstance().getEntityManager().getEntity(mEntityId, true, options);
+					Links options = Patchr.getInstance().getEntityManager().getLinks().build(mLinkProfile);
+					result = Patchr.getInstance().getEntityManager().getEntity(mEntityId, true, options);
 				}
 
 				return result;
@@ -143,7 +143,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 								mEntity.toId = mParentId;
 							}
 							if (mEntity instanceof Place) {
-								Patch.getInstance().setCurrentPlace(mEntity);
+								Patchr.getInstance().setCurrentPlace(mEntity);
 								Logger.v(this, "Setting current place to: " + mEntity.id);
 							}
 							draw(null);
@@ -190,7 +190,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	@SuppressWarnings("ucd")
 	public void onWatchButtonClick(View view) {
 
-		if (Patch.getInstance().getCurrentUser().isAnonymous()) {
+		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
 			String message = StringManager.getString(R.string.alert_signin_message_watch, mEntity.schema);
 			Dialogs.signinRequired(this, message);
 			return;
@@ -206,12 +206,12 @@ public abstract class BaseEntityForm extends BaseActivity {
 		Entity entity = (Entity) view.getTag();
 		Bundle extras = new Bundle();
 		if (Type.isTrue(entity.autowatchable)) {
-			if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
+			if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
 					, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
 				extras.putBoolean(Constants.EXTRA_AUTO_WATCH, true);
 			}
 		}
-		Patch.dispatch.route(this, Route.BROWSE, entity, null, extras);
+		Patchr.dispatch.route(this, Route.BROWSE, entity, null, extras);
 	}
 
 	@Override
@@ -223,14 +223,14 @@ public abstract class BaseEntityForm extends BaseActivity {
 			final String jsonPhoto = Json.objectToJson(photo);
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patch.dispatch.route(this, Route.PHOTO, null, null, extras);
+			Patchr.dispatch.route(this, Route.PHOTO, null, null, extras);
 		}
 		else if (mEntity.photo != null) {
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mParentId);
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, (mListLinkType == null) ? Constants.TYPE_LINK_CONTENT : mListLinkType);
 			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, mEntity.schema);
-			Patch.dispatch.route(this, Route.PHOTOS, mEntity, null, extras);
+			Patchr.dispatch.route(this, Route.PHOTOS, mEntity, null, extras);
 		}
 	}
 
@@ -242,16 +242,16 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 * - Candi picker returns entity id for a move
 		 * - Template picker returns type of candi to add as a child
 		 */
-		if (resultCode != Activity.RESULT_CANCELED || Patch.resultCode != Activity.RESULT_CANCELED) {
+		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
 			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
 				/*
 				 * Guarantees that any cache stamp retrieved for parent entity from the service will not equal
 				 * any cache stamp including itself. Cleared if parent entity is refreshed from the service.
 				 */
-				Patch.getInstance().getEntityManager().getCacheStampOverrides().put(mParentId, mParentId);
+				Patchr.getInstance().getEntityManager().getCacheStampOverrides().put(mParentId, mParentId);
 				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
 					finish();
-					Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
 				}
 			}
 			else if (requestCode == Constants.ACTIVITY_APPLICATION_PICK) {
@@ -308,7 +308,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	protected void drawButtons(View view) {
 
-		if (mEntity.id.equals(Patch.getInstance().getCurrentUser().id)) {
+
+		if (Patchr.getInstance().getCurrentUser() == null
+				|| mEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
 			UI.setVisibility(view.findViewById(R.id.button_holder), View.GONE);
 		}
 		else {
@@ -346,14 +348,14 @@ public abstract class BaseEntityForm extends BaseActivity {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncWatchEntity");
 				ModelResult result;
-				Patch.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 				Boolean enabled = mEntity.visibleToCurrentUser();
 				if (!mEntity.byAppUser(Constants.TYPE_LINK_WATCH)) {
 
-					Shortcut fromShortcut = Patch.getInstance().getCurrentUser().getShortcut();
+					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getShortcut();
 					Shortcut toShortcut = mEntity.getShortcut();
 
-					result = Patch.getInstance().getEntityManager().insertLink(Patch.getInstance().getCurrentUser().id
+					result = Patchr.getInstance().getEntityManager().insertLink(Patchr.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_WATCH
 							, enabled
@@ -362,7 +364,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 							, "watch_entity_" + mEntity.schema);
 				}
 				else {
-					result = Patch.getInstance().getEntityManager().deleteLink(Patch.getInstance().getCurrentUser().id
+					result = Patchr.getInstance().getEntityManager().deleteLink(Patchr.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_WATCH
 							, enabled
@@ -432,11 +434,11 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 */
 		if (!isFinishing()) {
 			if (mEntity instanceof Place) {
-				Patch.getInstance().setCurrentPlace(mEntity);
+				Patchr.getInstance().setCurrentPlace(mEntity);
 				Logger.v(this, "Setting current place to: " + mEntity.id);
 			}
 
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
 
 			bind(BindingMode.AUTO);    // check to see if the cache stamp is stale
 		}

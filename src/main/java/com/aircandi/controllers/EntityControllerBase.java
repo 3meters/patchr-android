@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
@@ -103,7 +103,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			context.startActivity(intent);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
 		}
 
 		return intent;
@@ -141,7 +141,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			context.startActivity(intentBuilder.create());
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
 		}
 
 		return intent;
@@ -158,7 +158,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			((Activity) context).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ENTITY_EDIT);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
 		}
 
 		return intent;
@@ -175,7 +175,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			((Activity) context).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ENTITY_INSERT);
-			Patch.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
 		}
 
 		return intent;
@@ -432,7 +432,9 @@ public abstract class EntityControllerBase implements IEntityController {
 	}
 
 	public static Photo getDefaultPhoto() {
-		String prefix = (Patch.themeTone.equals(Patch.ThemeTone.LIGHT)) ? "img_placeholder_bw_light" : "img_placeholder_bw_dark";
+		String prefix = (Patchr.themeTone == null || Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
+		                ? "img_placeholder_bw_light"
+		                : "img_placeholder_bw_dark";
 		String source = PhotoSource.resource;
 		Photo photo = new Photo(prefix, null, null, null, source);
 		return photo;

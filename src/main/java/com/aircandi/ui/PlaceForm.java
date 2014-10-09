@@ -25,7 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.Logger;
@@ -139,7 +139,7 @@ public class PlaceForm extends BaseEntityForm {
 			Link link = mEntity.linkByAppUser(Constants.TYPE_LINK_WATCH);
 			if (link == null) {
 			    /* User is not already watching this */
-				if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
+				if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
 						, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
 					watch(true);
 				}
@@ -171,7 +171,7 @@ public class PlaceForm extends BaseEntityForm {
 	@Override
 	public void onAdd(Bundle extras) {
 
-		if (Patch.getInstance().getMenuManager().canUserAdd(mEntity)) {
+		if (Patchr.getInstance().getMenuManager().canUserAdd(mEntity)) {
 			String message = StringManager.getString(R.string.label_message_new_message);
 			if (!TextUtils.isEmpty(mEntity.name)) {
 				message = String.format(StringManager.getString(R.string.label_message_new_to_message), mEntity.name);
@@ -180,7 +180,7 @@ public class PlaceForm extends BaseEntityForm {
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntityId);
 			extras.putString(com.aircandi.Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
-			Patch.dispatch.route(this, Route.NEW, null, null, extras);
+			Patchr.dispatch.route(this, Route.NEW, null, null, extras);
 			return;
 		}
 		if (mEntity.locked) {
@@ -192,20 +192,20 @@ public class PlaceForm extends BaseEntityForm {
 	public void onHelp() {
 		Bundle extras = new Bundle();
 		extras.putInt(Constants.EXTRA_HELP_ID, R.layout.place_help);
-		Patch.dispatch.route(this, Route.HELP, null, null, extras);
+		Patchr.dispatch.route(this, Route.HELP, null, null, extras);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onTuneButtonClick(View view) {
 
-		if (Patch.getInstance().getCurrentUser().isAnonymous()) {
+		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
 			Integer messageResId = R.string.alert_signin_message_place_tune;
 			Dialogs.signinRequired(this, messageResId);
 			return;
 		}
 
-		if (Patch.getInstance().getMenuManager().canUserAdd(mEntity)) {
-			Patch.dispatch.route(this, Route.TUNE, mEntity, null, null);
+		if (Patchr.getInstance().getMenuManager().canUserAdd(mEntity)) {
+			Patchr.dispatch.route(this, Route.TUNE, mEntity, null, null);
 			return;
 		}
 
@@ -290,7 +290,7 @@ public class PlaceForm extends BaseEntityForm {
 		if (mEntity != null) {
 			if (mEntity.visibility.equals(Constants.VISIBILITY_PUBLIC)
 					|| (mEntity.visibility.equals(Constants.VISIBILITY_PRIVATE) && mEntity.visibleToCurrentUser())) {
-				Patch.dispatch.route(this, Route.WATCHERS, mEntity, null, null);
+				Patchr.dispatch.route(this, Route.WATCHERS, mEntity, null, null);
 			}
 		}
 	}
@@ -303,7 +303,7 @@ public class PlaceForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onMapButtonClick(View view) {
 		if (mEntity != null) {
-			Patch.dispatch.route(this, Route.MAP, mEntity, null, null);
+			Patchr.dispatch.route(this, Route.MAP, mEntity, null, null);
 		}
 	}
 
@@ -324,14 +324,14 @@ public class PlaceForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onShareButtonClick(View view) {
 		if (mEntity != null) {
-			Patch.dispatch.route(this, Route.SHARE, mEntity, null, null);
+			Patchr.dispatch.route(this, Route.SHARE, mEntity, null, null);
 		}
 	}
 
 	@SuppressWarnings("ucd")
 	public void onEditButtonClick(View view) {
 		if (mEntity != null) {
-			Patch.dispatch.route(this, Route.EDIT, mEntity, null, new Bundle());
+			Patchr.dispatch.route(this, Route.EDIT, mEntity, null, new Bundle());
 		}
 	}
 
@@ -734,7 +734,7 @@ public class PlaceForm extends BaseEntityForm {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncUpsizeSynthetic");
-				final ModelResult result = Patch.getInstance().getEntityManager().upsizeSynthetic((Place) mEntity, mWaitForContent);
+				final ModelResult result = Patchr.getInstance().getEntityManager().upsizeSynthetic((Place) mEntity, mWaitForContent);
 				return result;
 			}
 
@@ -795,7 +795,7 @@ public class PlaceForm extends BaseEntityForm {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem menuItem = menu.findItem(com.aircandi.R.id.share);
 		if (menuItem != null) {
-			menuItem.setVisible(Patch.getInstance().getMenuManager().showAction(Route.SHARE, mEntity, mForId));
+			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.SHARE, mEntity, mForId));
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}

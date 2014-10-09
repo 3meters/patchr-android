@@ -31,7 +31,7 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.R.color;
@@ -119,9 +119,10 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		 * their create/initialize processing.
 		 */
 		Logger.d(this, "Activity created");
-		if (Patch.firstStartApp) {
-			Patch.firstStartIntent = getIntent();
-			Patch.dispatch.route(this, Route.SPLASH, null, null, null);
+		if (Patchr.firstStartApp) {
+			Logger.d(this, "App unstarted: redirecting to splash");
+			Patchr.firstStartIntent = getIntent();
+			Patchr.dispatch.route(this, Route.SPLASH, null, null, null);
 			super.onCreate(savedInstanceState);
 			finish();
 		}
@@ -208,7 +209,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 	protected void actionBarIcon() {
 		if (mActionBar != null) {
-			Drawable icon = Patch.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
+			Drawable icon = Patchr.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
 			icon.setColorFilter(Colors.getColor(color.white), PorterDuff.Mode.SRC_ATOP);
 			mActionBar.setIcon(icon);
 		}
@@ -231,7 +232,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			final String jsonPhoto = Json.objectToJson(photo);
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patch.dispatch.route(this, Route.PHOTO, null, null, extras);
+			Patchr.dispatch.route(this, Route.PHOTO, null, null, extras);
 		}
 	}
 
@@ -245,7 +246,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	@Override
 	public void onAdd(Bundle extras) {
 		/* Schema target is in the extras */
-		Patch.dispatch.route(this, Route.NEW, mEntity, null, extras);
+		Patchr.dispatch.route(this, Route.NEW, mEntity, null, extras);
 	}
 
 	@Override
@@ -254,14 +255,14 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			super.onBackPressed();
 		}
 		else {
-			Patch.dispatch.route(this, Route.CANCEL, null, null, null);
+			Patchr.dispatch.route(this, Route.CANCEL, null, null, null);
 		}
 	}
 
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patch.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
 	}
 
 	@Override
@@ -272,7 +273,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 	@SuppressWarnings("ucd")
 	public void onCancelButtonClick(View view) {
-		Patch.dispatch.route(this, Route.CANCEL, null, null, null);
+		Patchr.dispatch.route(this, Route.CANCEL, null, null, null);
 	}
 
 	@Override
@@ -285,7 +286,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 	@Override
 	public void onLowMemory() {
-		Patch.tracker.sendEvent(TrackerCategory.SYSTEM, "memory_low", null, Utilities.getMemoryAvailable());
+		Patchr.tracker.sendEvent(TrackerCategory.SYSTEM, "memory_low", null, Utilities.getMemoryAvailable());
 		super.onLowMemory();
 	}
 
@@ -299,7 +300,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		//				return;
 		//			}
 		//		}
-		Patch.resultCode = Activity.RESULT_OK;
+		Patchr.resultCode = Activity.RESULT_OK;
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
@@ -386,7 +387,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncSignOut");
-						final ModelResult result = Patch.getInstance().getEntityManager().signoutComplete();
+						final ModelResult result = Patchr.getInstance().getEntityManager().signoutComplete();
 						return result;
 					}
 
@@ -399,7 +400,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 							if (activity instanceof BaseActivity) {
 								((BaseActivity) activity).mBusy.hideBusy(false);
 							}
-							Patch.dispatch.route(activity, Route.SPLASH, null, null, null);
+							Patchr.dispatch.route(activity, Route.SPLASH, null, null, null);
 						}
 					}
 				}.execute();
@@ -463,20 +464,20 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	}
 
 	private void clearReferences() {
-		Activity currentActivity = Patch.getInstance().getCurrentActivity();
+		Activity currentActivity = Patchr.getInstance().getCurrentActivity();
 		if (currentActivity != null && currentActivity.equals(this)) {
-			Patch.getInstance().setCurrentActivity(null);
+			Patchr.getInstance().setCurrentActivity(null);
 		}
 	}
 
 	public void setResultCode(int resultCode) {
 		setResult(resultCode);
-		Patch.resultCode = resultCode;
+		Patchr.resultCode = resultCode;
 	}
 
 	public void setResultCode(int resultCode, Intent intent) {
 		setResult(resultCode, intent);
-		Patch.resultCode = resultCode;
+		Patchr.resultCode = resultCode;
 	}
 
 	protected void delete() {
@@ -495,7 +496,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
-				final ModelResult result = Patch.getInstance().getEntityManager().deleteEntity(mEntity.id, false);
+				final ModelResult result = Patchr.getInstance().getEntityManager().deleteEntity(mEntity.id, false);
 				return result;
 			}
 
@@ -512,7 +513,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 					UI.showToastNotification(StringManager.getString(mDeletedResId), Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_ENTITY_DELETED);
 					finish();
-					Patch.getInstance().getAnimationManager().doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
 				}
 				else {
 					Errors.handleError(BaseActivity.this, result.serviceResponse);
@@ -537,7 +538,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRemoveEntity");
-				final ModelResult result = Patch.getInstance().getEntityManager()
+				final ModelResult result = Patchr.getInstance().getEntityManager()
 				                                   .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove");
 				isCancelled();
 				return result;
@@ -556,7 +557,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 					UI.showToastNotification(StringManager.getString(mRemovedResId), Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_ENTITY_REMOVED);
 					finish();
-					Patch.getInstance().getAnimationManager().doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
 				}
 				else {
 					Errors.handleError(BaseActivity.this, result.serviceResponse);
@@ -578,7 +579,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	}
 
 	public void setTheme(Boolean isDialog, Boolean isTransparent) {
-		mPrefTheme = Patch.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
+		mPrefTheme = Patchr.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
 		/*
 		 * Need to use application context so our app level themes and attributes are available to actionbarsherlock
 		 */
@@ -599,7 +600,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		setTheme(themeId);
 		final TypedValue resourceName = new TypedValue();
 		if (getTheme().resolveAttribute(R.attr.themeTone, resourceName, true)) {
-			Patch.themeTone = (String) resourceName.coerceToString();
+			Patchr.themeTone = (String) resourceName.coerceToString();
 		}
 	}
 
@@ -611,15 +612,15 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 		/* Common prefs */
 
-		if (!mPrefTheme.equals(Patch.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default)))) {
+		if (!mPrefTheme.equals(Patchr.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default)))) {
 			Logger.d(this, "Pref change: theme, restarting current activity");
 			mPrefChangeReloadNeeded = true;
 		}
 
-		if (!Patch
+		if (!Patchr
 				.getInstance()
 				.getPrefSearchRadius()
-				.equals(Patch.settings.getString(StringManager.getString(R.string.pref_search_radius),
+				.equals(Patchr.settings.getString(StringManager.getString(R.string.pref_search_radius),
 						StringManager.getString(R.string.pref_search_radius_default)))) {
 			mPrefChangeNewSearchNeeded = true;
 			Logger.d(this, "Pref change: search radius");
@@ -627,20 +628,20 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 		/* Dev prefs */
 
-		if (!Patch.getInstance().getPrefEnableDev()
-		             .equals(Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false))) {
+		if (!Patchr.getInstance().getPrefEnableDev()
+		             .equals(Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false))) {
 			mPrefChangeRefreshUiNeeded = true;
 			Logger.d(this, "Pref change: dev ui");
 		}
 
-		if (!Patch.getInstance().getPrefTestingBeacons().equals(Patch.settings.getString(StringManager.getString(R.string.pref_testing_beacons),
+		if (!Patchr.getInstance().getPrefTestingBeacons().equals(Patchr.settings.getString(StringManager.getString(R.string.pref_testing_beacons),
 				StringManager.getString(R.string.pref_testing_beacons_default)))) {
 			mPrefChangeNewSearchNeeded = true;
 			Logger.d(this, "Pref change: testing beacons");
 		}
 
 		if (mPrefChangeNewSearchNeeded || mPrefChangeRefreshUiNeeded || mPrefChangeReloadNeeded) {
-			Patch.getInstance().snapshotPreferences();
+			Patchr.getInstance().snapshotPreferences();
 		}
 	}
 
@@ -667,14 +668,14 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		 * 
 		 * onCreate->onStart->onResume->onCreateOptionsMenu-
 		 */
-		Patch.getInstance().getMenuManager().onCreateOptionsMenu(this, menu);
+		Patchr.getInstance().getMenuManager().onCreateOptionsMenu(this, menu);
 		mMenu = menu;
 
 		return true;
 	}
 
 	public boolean onCreatePopupMenu(android.view.Menu menu, Entity entity) {
-		return Patch.getInstance().getMenuManager().onCreatePopupMenu(this, menu, (entity != null) ? entity : mEntity);
+		return Patchr.getInstance().getMenuManager().onCreatePopupMenu(this, menu, (entity != null) ? entity : mEntity);
 	}
 
 	@Override
@@ -692,28 +693,28 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		 */
 		MenuItem menuItem = menu.findItem(R.id.edit);
 		if (menuItem != null) {
-			menuItem.setVisible(Patch.getInstance().getMenuManager().showAction(Route.EDIT, mEntity, mForId));
+			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.EDIT, mEntity, mForId));
 		}
 
 		menuItem = menu.findItem(R.id.add);
 		if (menuItem != null && mEntity != null) {
-			menuItem.setVisible(Patch.getInstance().getMenuManager().showAction(Route.ADD, mEntity, mForId));
+			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.ADD, mEntity, mForId));
 			menuItem.setTitle(StringManager.getString(R.string.menu_item_add_entity, mEntity.schema));
 		}
 
 		menuItem = menu.findItem(R.id.delete);
 		if (menuItem != null) {
-			menuItem.setVisible(Patch.getInstance().getMenuManager().showAction(Route.DELETE, mEntity, mForId));
+			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.DELETE, mEntity, mForId));
 		}
 
 		menuItem = menu.findItem(R.id.remove);
 		if (menuItem != null) {
-			menuItem.setVisible(Patch.getInstance().getMenuManager().showAction(Route.REMOVE, mEntity, mForId));
+			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.REMOVE, mEntity, mForId));
 		}
 
 		menuItem = menu.findItem(R.id.signin);
-		if (menuItem != null && Patch.getInstance().getCurrentUser() != null) {
-			menuItem.setVisible(Patch.getInstance().getCurrentUser().isAnonymous());
+		if (menuItem != null && Patchr.getInstance().getCurrentUser() != null) {
+			menuItem.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
 		}
 
 		final MenuItem refresh = menu.findItem(R.id.refresh);
@@ -750,7 +751,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			extras = new Bundle();
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntity.placeId);
 		}
-		Patch.dispatch.route(this, Patch.dispatch.routeForMenuId(item.getItemId()), mEntity, null, extras);
+		Patchr.dispatch.route(this, Patchr.dispatch.routeForMenuId(item.getItemId()), mEntity, null, extras);
 		return true;
 	}
 
@@ -774,11 +775,11 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 				if (item.getItemId() == R.id.report) {
 					Bundle extras = new Bundle();
 					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, mEntity.schema);
-					Patch.dispatch.route(BaseActivity.this, Route.REPORT, (entity != null) ? entity : mEntity, null, extras);
+					Patchr.dispatch.route(BaseActivity.this, Route.REPORT, (entity != null) ? entity : mEntity, null, extras);
 					return true;
 				}
 				else {
-					Patch.dispatch.route(BaseActivity.this, Patch.dispatch.routeForMenuId(item.getItemId())
+					Patchr.dispatch.route(BaseActivity.this, Patchr.dispatch.routeForMenuId(item.getItemId())
 							, (entity != null) ? entity : mEntity, null, new Bundle());
 					return true;
 				}
@@ -805,7 +806,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		super.onStart();
 		if (!isFinishing()) {
 			Logger.d(this, "Activity starting");
-			Patch.tracker.activityStart(this);
+			Patchr.tracker.activityStart(this);
 
 			if (mPrefChangeReloadNeeded) {
 
@@ -822,9 +823,9 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	protected void onResume() {
 		super.onResume();
 		Logger.d(this, "Activity resuming");
-		Patch.activityResumed();
+		Patchr.activityResumed();
 		BusProvider.getInstance().register(this);
-		Patch.getInstance().setCurrentActivity(this);
+		Patchr.getInstance().setCurrentActivity(this);
 		mClickEnabled = true;
 		if (!isFinishing()) {
 			actionBarIcon(); // Hack: Icon gets lost sometimes so refresh
@@ -843,14 +844,14 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		Logger.d(this, "Activity pausing");
 		BusProvider.getInstance().unregister(this);
 		clearReferences();
-		Patch.activityPaused();
+		Patchr.activityPaused();
 	}
 
 	@Override
 	protected void onStop() {
 		Logger.d(this, "Activity stopping");
 		super.onStop();
-		Patch.tracker.activityStop(this);
+		Patchr.tracker.activityStop(this);
 	}
 
 	@Override

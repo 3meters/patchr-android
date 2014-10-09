@@ -27,13 +27,18 @@ import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.MenuManager;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.Stopwatch;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerDelegate;
 import com.aircandi.components.TrackerGoogleEasy;
+import com.aircandi.controllers.Messages;
+import com.aircandi.controllers.Places;
+import com.aircandi.controllers.Users;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
+import com.aircandi.objects.Links;
 import com.aircandi.objects.Session;
 import com.aircandi.objects.User;
 import com.aircandi.utilities.DateTime;
@@ -57,11 +62,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-public class Patch extends Application {
+public class Patchr extends Application {
 
 	public static BasicAWSCredentials awsCredentials = null;
 
-	private static Patch singletonObject;
+	private static Patchr singletonObject;
 
 	public static SharedPreferences        settings;
 	public static SharedPreferences.Editor settingsEditor;
@@ -127,16 +132,21 @@ public class Patch extends Application {
 	/* Injected configuration */
 	protected Container mContainer;
 
-	public static Patch getInstance() {
+	public static Patchr getInstance() {
 		return singletonObject;
 	}
 
 	@Override
 	public void onCreate() {
+		/*
+		 * Application starts for all basic cases but also when not running and
+		 * a broadcast receiver is activated.
+		 */
 		super.onCreate();
 		singletonObject = this;
 		DEBUG = (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE));
 		singletonObject.initializeInstance();
+		Logger.d(this, "Application created");
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -147,7 +157,7 @@ public class Patch extends Application {
 	protected void initializeInstance() {
 
 		/* Must have this so activity rerouting works. */
-		Patch.applicationContext = getApplicationContext();
+		Patchr.applicationContext = getApplicationContext();
 
 		/* Start crashlytics reporting */
 		Reporting.startCrashReporting(this);
@@ -171,7 +181,7 @@ public class Patch extends Application {
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
 
 		/* Make sure unique id is initialized */
-		Patch.getinstallId();
+		Patchr.getinstallId();
 
 		/* Setup the analytics tracker */
 		tracker = new TrackerGoogleEasy();
@@ -200,20 +210,31 @@ public class Patch extends Application {
 		/* Establish device memory class */
 		Utilities.calculateMemoryCacheSize(getApplicationContext());
 
-		/* Initialize managers */
-		initializeManagers();
-
 		/* Inject configuration */
 		openContainer(StringManager.getString(R.string.id_container), RefreshMode.STANDARD);
 
-		/* Inject dispatch manager */
-		Patch.dispatch = new DispatchManager();
+		/* Initialize managers */
+		initializeManagers();
+
+		/* Required to deserialize notifications */
+		controllerMap.put(Constants.SCHEMA_ENTITY_PLACE, new Places());
+		controllerMap.put(Constants.SCHEMA_ENTITY_USER, new Users());
+		controllerMap.put(Constants.SCHEMA_ENTITY_MESSAGE, new Messages());
+
+		/* Start out with anonymous user then upgrade to signed in user if possible */
+		Patchr.getInstance().initializeUser();
 	}
 
 	protected void initializeManagers() {
 		/*
-		 * Additional setup is done in SplashForm#configure
+		 * Note: additional setup is done in SplashForm#configure
 		 */
+		/* Inject minimum managers required for notifications */
+		mActivityDecorator = new ActivityDecorator();
+		mEntityManager = new EntityManager().setLinks(new Links());
+
+		/* Inject dispatch manager */
+		Patchr.dispatch = new DispatchManager();
 
 		/* Connectivity monitoring */
 		NetworkManager.getInstance().setContext(getApplicationContext());
@@ -222,22 +243,16 @@ public class Patch extends Application {
 	}
 
 	public void initializeUser() {
-		/*
-		 * Start with anonymous user as the default and then try to auto signin..
-		 */
-		final User anonymous = (User) mEntityManager.loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
-		setCurrentUser(anonymous);
 		signinAuto();
-		mEntityManager.activateCurrentUser(false);
 		Logger.i(this, "User initialized");
 	}
 
 	public void snapshotPreferences() {
-		mPrefTheme = Patch.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
-		mPrefSearchRadius = Patch.settings.getString(StringManager.getString(R.string.pref_search_radius),
+		mPrefTheme = Patchr.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
+		mPrefSearchRadius = Patchr.settings.getString(StringManager.getString(R.string.pref_search_radius),
 				StringManager.getString(R.string.pref_search_radius_default));
-		mPrefEnableDev = Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
-		mPrefTestingBeacons = Patch.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
+		mPrefEnableDev = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
+		mPrefTestingBeacons = Patchr.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
 	}
 
 	@SuppressWarnings("ucd")
@@ -266,8 +281,8 @@ public class Patch extends Application {
 				/* Called when a successful refresh occurred for the given refresh type. */
 				Logger.v(this, "Container refresh success: " + refreshType.toString());
 
-				if (Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-						&& Patch.getInstance().getCurrentUser() != null && Type.isTrue(Patch.getInstance().getCurrentUser().developer)) {
+				if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+						&& Patchr.getInstance().getCurrentUser() != null && Type.isTrue(Patchr.getInstance().getCurrentUser().developer)) {
 					UI.showToastNotification("Container refreshed: " + refreshType.toString(), Toast.LENGTH_SHORT);
 				}
 
@@ -287,12 +302,12 @@ public class Patch extends Application {
 		Logger.v(this, "Container set using default");
 	}
 
-	public Boolean signinAuto() {
+	public void signinAuto() {
 		/*
 		 * Gets called on app create and after restart and ending with the back key.
 		 */
-		final String jsonUser = Patch.settings.getString(StringManager.getString(R.string.setting_user), null);
-		final String jsonSession = Patch.settings.getString(StringManager.getString(R.string.setting_user_session), null);
+		final String jsonUser = Patchr.settings.getString(StringManager.getString(R.string.setting_user), null);
+		final String jsonSession = Patchr.settings.getString(StringManager.getString(R.string.setting_user_session), null);
 
 		if (jsonUser != null && jsonSession != null) {
 			Logger.i(this, "Auto sign in...");
@@ -300,12 +315,15 @@ public class Patch extends Application {
 			if (user != null) {
 				user.session = (Session) Json.jsonToObject(jsonSession, Json.ObjectType.SESSION);
 				if (user.session != null) {
-					Patch.getInstance().setCurrentUser(user);
-					return true;
+					Patchr.getInstance().setCurrentUser(user, false);
+					return;
 				}
 			}
 		}
-		return false;
+
+		/* Couldn't auto signin so fall back to anonymous */
+		final User anonymous = (User) mEntityManager.loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
+		setCurrentUser(anonymous, false);
 	}
 
 	public IEntityController getControllerForSchema(String schema) {
@@ -364,9 +382,9 @@ public class Patch extends Application {
 
 	public synchronized static String getinstallId() {
 		if (uniqueId == null) {
-			uniqueId = Patch.settings.getString(StringManager.getString(R.string.setting_unique_id), null);
-			uniqueDate = Patch.settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
-			uniqueType = Patch.settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
+			uniqueId = Patchr.settings.getString(StringManager.getString(R.string.setting_unique_id), null);
+			uniqueDate = Patchr.settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
+			uniqueType = Patchr.settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
 			if (uniqueId == null || uniqueType == null) {
 				if (Build.SERIAL != null && !Build.SERIAL.equals("unknown")) {
 					uniqueId = Build.SERIAL;
@@ -385,10 +403,10 @@ public class Patch extends Application {
 				}
 				uniqueId += "." + applicationContext.getPackageName();
 				uniqueDate = DateTime.nowDate().getTime();
-				Patch.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id_type), uniqueType);
-				Patch.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id), uniqueId);
-				Patch.settingsEditor.putLong(StringManager.getString(R.string.setting_unique_id_date), uniqueDate);
-				Patch.settingsEditor.commit();
+				Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id_type), uniqueType);
+				Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id), uniqueId);
+				Patchr.settingsEditor.putLong(StringManager.getString(R.string.setting_unique_id_date), uniqueDate);
+				Patchr.settingsEditor.commit();
 			}
 		}
 		return uniqueId;
@@ -404,9 +422,11 @@ public class Patch extends Application {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void setCurrentUser(User user) {
+	public Boolean setCurrentUser(User user, Boolean refreshUser) {
 		mCurrentUser = user;
+		ModelResult result = mEntityManager.activateCurrentUser(refreshUser);
 		Reporting.updateCrashUser(user);
+		return (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS);
 	}
 
 	public User getCurrentUser() {
@@ -473,27 +493,27 @@ public class Patch extends Application {
 		return mAnimationManager;
 	}
 
-	public Patch setMenuManager(MenuManager menuManager) {
+	public Patchr setMenuManager(MenuManager menuManager) {
 		mMenuManager = menuManager;
 		return this;
 	}
 
-	public Patch setActivityDecorator(ActivityDecorator activityDecorator) {
+	public Patchr setActivityDecorator(ActivityDecorator activityDecorator) {
 		mActivityDecorator = activityDecorator;
 		return this;
 	}
 
-	public Patch setEntityManager(EntityManager entityManager) {
+	public Patchr setEntityManager(EntityManager entityManager) {
 		mEntityManager = entityManager;
 		return this;
 	}
 
-	public Patch setMediaManager(MediaManager mediaManager) {
+	public Patchr setMediaManager(MediaManager mediaManager) {
 		mMediaManager = mediaManager;
 		return this;
 	}
 
-	public Patch setAnimationManager(AnimationManager animationManager) {
+	public Patchr setAnimationManager(AnimationManager animationManager) {
 		mAnimationManager = animationManager;
 		return this;
 	}

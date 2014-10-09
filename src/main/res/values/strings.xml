@@ -317,6 +317,9 @@
 	<string name="label_photo_search_loading">Loading…</string>
 	<string name="label_list_more">Show more</string>
 
+	<string name="label_message_count">Messages</string>
+	<string name="label_watch_count">Watching</string>
+	<string name="label_last_message_date">Last message:</string>
 	<string name="label_created_by">Created</string>
 	<string name="label_owned_by">[@string/container_singular] owned by</string>
 

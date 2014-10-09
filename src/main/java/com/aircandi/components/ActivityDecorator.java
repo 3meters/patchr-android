@@ -3,7 +3,7 @@ package com.aircandi.components;
 import android.text.TextUtils;
 
 import com.aircandi.Constants;
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Action.EventCategory;
@@ -81,7 +81,7 @@ public class ActivityDecorator {
 	public Photo photoBy(ServiceMessage activity) {
 		Photo photo;
 		if (activity.action.user == null) {
-			IEntityController controller = Patch.getInstance().getControllerForSchema(com.aircandi.Constants.SCHEMA_ENTITY_USER);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(com.aircandi.Constants.SCHEMA_ENTITY_USER);
 			photo = ((controller != null) ? controller.getDefaultPhoto(null) : null);
 		}
 		else {

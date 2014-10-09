@@ -15,7 +15,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.aircandi.Patch;
+import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
@@ -83,7 +83,7 @@ public class SignInEdit extends BaseEdit {
 
 	@Override
 	public void draw(View view) {
-		final String email = Patch.settings.getString(StringManager.getString(R.string.setting_last_email), null);
+		final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
 		if (email != null) {
 			mEmail.setText(email);
 			mPassword.requestFocus();
@@ -95,7 +95,7 @@ public class SignInEdit extends BaseEdit {
 	 *--------------------------------------------------------------------------------------------*/
 	@SuppressWarnings("ucd")
 	public void onForgotPasswordButtonClick(View view) {
-		Patch.dispatch.route(this, Route.PASSWORD_RESET, null, null, null);
+		Patchr.dispatch.route(this, Route.PASSWORD_RESET, null, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -105,7 +105,7 @@ public class SignInEdit extends BaseEdit {
 
 	@SuppressWarnings("ucd")
 	public void onSignupButtonClick(View view) {
-		Patch.dispatch.route(this, Route.REGISTER, null, null, null);
+		Patchr.dispatch.route(this, Route.REGISTER, null, null, null);
 	}
 
 	@Override
@@ -130,7 +130,7 @@ public class SignInEdit extends BaseEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncSignIn");
-				ModelResult result = Patch.getInstance().getEntityManager().signin(email, password, SignInEdit.class.getSimpleName());
+				ModelResult result = Patchr.getInstance().getEntityManager().signin(email, password, SignInEdit.class.getSimpleName());
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					result = MessagingManager.getInstance().registerInstallWithAircandi();
 				}
@@ -144,11 +144,11 @@ public class SignInEdit extends BaseEdit {
 				mBusy.hideBusy(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in)
-							+ " " + Patch.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
+							+ " " + Patchr.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
 
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();
-					Patch.getInstance().getAnimationManager().doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_TO_PAGE);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_TO_PAGE);
 				}
 				else {
 					Errors.handleError(SignInEdit.this, result.serviceResponse);
@@ -188,7 +188,7 @@ public class SignInEdit extends BaseEdit {
 			if (resultCode == Constants.RESULT_USER_SIGNED_IN) {
 				setResultCode(Constants.RESULT_USER_SIGNED_IN);
 				finish();
-				Patch.getInstance().getAnimationManager().doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_TO_PAGE);
+				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_TO_PAGE);
 			}
 		}
 
