@@ -12,19 +12,14 @@
 		android:layout_height="match_parent"
 		android:layout_alignParentTop="true"
 		android:layout_centerHorizontal="true"
+		android:animationCache="false"
 		android:cacheColorHint="#00000000"
 		android:divider="?attr/ruleColor"
 		android:dividerHeight="@dimen/rule_divider_height"
 		android:footerDividersEnabled="false"
 		android:listSelector="#00000000"
 		android:scrollbars="none"
+		android:scrollingCache="false"
 		custom:parallax_factor="1.9" />
-
-	<com.aircandi.ui.widgets.AirSquareButton
-		android:id="@+id/button_special"
-		style="@style/button_round"
-		android:layout_width="@dimen/button_round_width"
-		android:layout_height="@dimen/button_round_height"
-		android:layout_centerInParent="true" />
 
 </RelativeLayout>

@@ -21,7 +21,8 @@
 				android:layout_height="@dimen/image_combo_button"
 				android:adjustViewBounds="true"
 				android:scaleType="fitCenter"
-				android:src="@drawable/ic_launcher" />
+				android:alpha="0.8"
+				tools:src="@drawable/ic_launcher" />
 
 			<ProgressBar
 				android:id="@+id/button_progress"

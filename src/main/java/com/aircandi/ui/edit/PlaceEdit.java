@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -68,6 +69,8 @@ public class PlaceEdit extends BaseEntityEdit {
 	private   TabManager  mTabManager;
 	private   ComboButton mButtonTune;
 	private   ComboButton mButtonUntune;
+	private   TextView    mButtonCategory;
+	private   TextView    mButtonPrivacy;
 	protected MapView     mMapView;
 	protected GoogleMap   mMap;
 	protected Marker      mMarker;
@@ -84,6 +87,8 @@ public class PlaceEdit extends BaseEntityEdit {
 
 		mButtonTune = (ComboButton) findViewById(R.id.button_tune);
 		mButtonUntune = (ComboButton) findViewById(R.id.button_untune);
+		mButtonCategory = (TextView) findViewById(R.id.button_category);
+		mButtonPrivacy = (TextView) findViewById(R.id.button_privacy);
 		mMapView = (MapView) findViewById(R.id.mapview);
 
 		if (mMapView != null) {
@@ -139,10 +144,19 @@ public class PlaceEdit extends BaseEntityEdit {
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(place.location.lat.doubleValue(), place.location.lng.doubleValue()), 17));
 		}
 
-		if (place.category != null) {
-			if (findViewById(R.id.category) != null) {
-				((BuilderButton) findViewById(R.id.category)).setText(place.category.name);
-			}
+		if (mButtonPrivacy != null) {
+			mButtonPrivacy.setTag(place.privacy);
+			String value = (place.privacy.equals(Constants.PRIVACY_PUBLIC))
+			               ? StringManager.getString(R.string.label_place_privacy_public)
+			               : StringManager.getString(R.string.label_place_privacy_private);
+			mButtonPrivacy.setText(StringManager.getString(R.string.label_place_edit_privacy) + ": " + value);
+		}
+
+		if (mButtonCategory != null) {
+			mButtonCategory.setTag(place.category);
+			mButtonCategory.setText(place.category != null
+			                        ? StringManager.getString(R.string.label_place_edit_category) + ": " + place.category.name
+			                        : StringManager.getString(R.string.label_place_edit_category) + ": None");
 		}
 
 		/* Tuning buttons */
@@ -266,6 +280,10 @@ public class PlaceEdit extends BaseEntityEdit {
 		Patchr.dispatch.route(this, Route.CATEGORY_EDIT, mEntity, null, null);
 	}
 
+	public void onPrivacyBuilderClick(View view) {
+		Patchr.dispatch.route(this, Route.PRIVACY_EDIT, mEntity, null, null);
+	}
+
 	@SuppressWarnings("ucd")
 	public void onLocationBuilderClick(View view) {
 		Patchr.dispatch.route(this, Route.LOCATION_EDIT, mEntity, null, null);
@@ -314,9 +332,24 @@ public class PlaceEdit extends BaseEntityEdit {
 						if (categoryUpdated != null) {
 							mDirty = true;
 							((Place) mEntity).category = categoryUpdated;
-							((BuilderButton) findViewById(R.id.category)).setText(categoryUpdated.name);
+							mButtonCategory.setTag(categoryUpdated);
+							mButtonCategory.setText(categoryUpdated != null ? "Category: " + categoryUpdated.name : "Category: None");
 							drawPhoto();
 						}
+					}
+				}
+			}
+			else if (requestCode == Constants.ACTIVITY_PRIVACY_EDIT) {
+				if (intent != null && intent.getExtras() != null) {
+					final Bundle extras = intent.getExtras();
+					final String privacy = extras.getString(Constants.EXTRA_PRIVACY);
+					if (privacy != null) {
+						mDirty = true;
+						((Place) mEntity).privacy = privacy;
+						mButtonPrivacy.setTag(privacy);
+						String value = (privacy.equals(Constants.PRIVACY_PUBLIC)) ? "Public" : "Closed";
+						mButtonPrivacy.setText("Privacy: " + value);
+						drawPhoto();
 					}
 				}
 			}

@@ -212,11 +212,6 @@
 			android:label="@string/name_app_lowercase"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.edit.TuningEdit"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/name_app_lowercase"
-			android:windowSoftInputMode="stateHidden" />
-		<activity
 			android:name="com.aircandi.ui.edit.FeedbackEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_feedback"
@@ -284,11 +279,16 @@
 			android:name="com.aircandi.ui.helpers.CategoryBuilder"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.helpers.PrivacyBuilder"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_privacy"
+			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Misc -->
 
 		<activity
-			android:name="com.aircandi.ui.Preferences"
+			android:name=".ui.SettingsForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:exported="false">
 			<intent-filter>

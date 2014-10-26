@@ -37,16 +37,23 @@
 			custom:spb_color="@color/brand_progress_bar_color" />
 	</LinearLayout>
 
+	<com.aircandi.ui.widgets.AirSquareButton
+		android:id="@+id/button_bubble"
+		style="@style/button_round"
+		android:layout_width="@dimen/button_round_width"
+		android:layout_height="@dimen/button_round_height"
+		android:layout_centerInParent="true"
+		android:clickable="true" />
+
 	<ImageButton
-		android:id="@+id/footer_holder"
+		android:id="@+id/floating_action_button"
 		style="@style/button_round_glow"
 		android:layout_width="@dimen/button_round_medium"
 		android:layout_height="@dimen/button_round_medium"
-		android:clickable="false"
-		android:visibility="invisible"
-		android:scaleType="fitCenter"
 		android:onClick="onAddMessageButtonClick"
-		android:src="?attr/iconMessageNew" />
+		android:scaleType="fitCenter"
+		android:src="?attr/iconMessageNew"
+		android:visibility="invisible" />
 
 	<com.aircandi.ui.widgets.ToolTipRelativeLayout
 		android:id="@+id/tooltips"

@@ -8,10 +8,9 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
-import com.aircandi.components.MessagingManager;
+import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IEntityController;
-import com.aircandi.objects.Action;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -19,7 +18,6 @@ import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Message;
 import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.ServiceMessage;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.MessageForm;
 import com.aircandi.ui.edit.MessageEdit;
@@ -89,17 +87,17 @@ public class Messages extends EntityControllerBase {
 
 		/* User photo */
 
-		UI.setVisibility(holder.userPhotoView, View.GONE);
-		if (holder.userPhotoView != null && entity.creator != null) {
+		UI.setVisibility(holder.userPhoto, View.GONE);
+		if (holder.userPhoto != null && entity.creator != null) {
 		    /*
              * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
 			 */
 			Photo photo = entity.creator.getPhoto();
-			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
-				UI.drawPhoto(holder.userPhotoView, photo);
+			if (holder.userPhoto.getPhoto() == null || !holder.userPhoto.getPhoto().getUri().equals(photo.getUri())) {
+				UI.drawPhoto(holder.userPhoto, photo);
 			}
-			holder.userPhotoView.setTag(entity.creator);
-			UI.setVisibility(holder.userPhotoView, View.VISIBLE);
+			holder.userPhoto.setTag(entity.creator);
+			UI.setVisibility(holder.userPhoto, View.VISIBLE);
 		}
 
 		/* User name */
@@ -179,27 +177,9 @@ public class Messages extends EntityControllerBase {
 			UI.setVisibility(holder.description, View.VISIBLE);
 		}
 
-		/* Alert indicator */
-
-		if (holder.alert != null) {
-			UI.setVisibility(holder.alert, View.INVISIBLE);
-			if (entity.type.equals(Constants.TYPE_APP_ALERT)) {
-				boolean notification = MessagingManager.getInstance().getAlerts().containsKey(entity.id);
-				if (notification) {
-					UI.setVisibility(holder.alert, View.VISIBLE);
-				}
-			}
-			else {
-				boolean notification = MessagingManager.getInstance().getMessages().containsKey(entity.id);
-				if (notification) {
-					UI.setVisibility(holder.alert, View.VISIBLE);
-				}
-			}
-		}
-
         /* Shared entity */
 
-		UI.setVisibility(holder.photoView, View.GONE);
+		UI.setVisibility(holder.photo, View.GONE);
 		UI.setVisibility(((ViewHolderExtended) holder).childCount, View.GONE);
 		UI.setVisibility(view.findViewById(R.id.share_holder), View.GONE);
 
@@ -244,15 +224,15 @@ public class Messages extends EntityControllerBase {
 
 		    /* Photo */
 
-			if (holder.photoView != null) {
+			if (holder.photo != null) {
 				final Photo photo = entity.getPhoto();
 
 				if (entity.photo != null) {
-					if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {
-						holder.photoView.setCenterCrop(false);
-						UI.drawPhoto(holder.photoView, photo);
+					if (holder.photo.getPhoto() == null || !photo.getUri().equals(holder.photo.getPhoto().getUri())) {
+						holder.photo.setCenterCrop(false);
+						UI.drawPhoto(holder.photo, photo);
 					}
-					UI.setVisibility(holder.photoView, View.VISIBLE);
+					UI.setVisibility(holder.photo, View.VISIBLE);
 				}
 			}
 
@@ -291,27 +271,6 @@ public class Messages extends EntityControllerBase {
 	}
 
 	@Override
-	public String getNotificationTicker(ServiceMessage message, String eventCategory) {
-		if (eventCategory.equals(Action.EventCategory.INSERT)) {
-			if (message.action.entity.photo != null && message.action.toEntity != null) {
-				return String.format(StringManager.getString(R.string.label_notification_ticker_photo_insert), message.title, message.action.toEntity.name);
-			}
-			else if (message.action.entity.description != null) {
-				return String.format(StringManager.getString(R.string.label_notification_ticker_message_insert), message.title, message.action.entity.description);
-			}
-		}
-		else if (eventCategory.equals(Action.EventCategory.SHARE)) {
-			if (message.action.entity.photo != null) {
-				return String.format(StringManager.getString(R.string.label_notification_ticker_photo_share), message.title);
-			}
-			else {
-				return String.format(StringManager.getString(R.string.label_notification_ticker_message_share), message.title);
-			}
-		}
-		return super.getNotificationTicker(message, eventCategory);
-	}
-
-	@Override
 	public Entity makeFromMap(Map<String, Object> map, Boolean nameMapping) {
 		return Message.setPropertiesFromMap(new Message(), map, nameMapping);
 	}
@@ -321,6 +280,6 @@ public class Messages extends EntityControllerBase {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static class ViewHolderExtended extends ViewHolder {
-		public TextView childCount;
+		public TextView     childCount;
 	}
 }

@@ -9,8 +9,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.ActivityRecognitionManager;
 import com.aircandi.components.AndroidManager;
@@ -21,14 +21,14 @@ import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.MenuManager;
-import com.aircandi.components.MessagingManager;
+import com.aircandi.components.NotificationManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
@@ -56,9 +56,7 @@ public class SplashForm extends Activity {
 		EntityManager.getEntityCache().clear();
 
 		/* Restart notification tracking */
-		MessagingManager.getInstance().setNewActivity(false);
-		MessagingManager.getInstance().getAlerts().clear();
-		MessagingManager.getInstance().getMessages().clear();
+		NotificationManager.getInstance().setNewNotificationCount(0);
 
 		/* Restart crashlytics to force upload of non-fatal crashes */
 		Reporting.startCrashReporting(this);
@@ -93,7 +91,7 @@ public class SplashForm extends Activity {
 					int maxAttempts = 5;
 					int attempts = 1;
 					while (attempts <= maxAttempts) {
-						result.serviceResponse = MessagingManager.getInstance().registerInstallWithGCM();
+						result.serviceResponse = NotificationManager.getInstance().registerInstallWithGCM();
 						if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 							Logger.i(this, "Install registered with Gcm");
 							break;
@@ -124,7 +122,7 @@ public class SplashForm extends Activity {
 				 * We register installs even if the user is anonymous.
 				 */
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					result = MessagingManager.getInstance().registerInstallWithAircandi();
+					result = NotificationManager.getInstance().registerInstallWithAircandi();
 				}
 				return result;
 			}

@@ -71,7 +71,7 @@ public class CategoryBuilder extends BaseEdit {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mPhotoView = (AirImageView) findViewById(R.id.entity_photo);
+		mPhotoView = (AirImageView) findViewById(R.id.photo);
 
 		mSpinnerCategory = (Spinner) findViewById(R.id.category);
 		mSpinnerSubCategory = (Spinner) findViewById(R.id.sub_category);

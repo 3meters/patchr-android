@@ -17,7 +17,9 @@ public class EntitiesQuery implements IQuery {
 
 	protected Cursor mCursor;
 	protected Boolean mMore = false;
+	protected Boolean mHasExecuted = false;
 	protected Integer mPageSize;
+	protected Integer mPageCount = 0;
 	protected String  mSchema;
 	protected String  mLinkType;
 	protected String  mLinkDirection;
@@ -60,6 +62,7 @@ public class EntitiesQuery implements IQuery {
 		ModelResult result = Patchr.getInstance().getEntityManager().loadEntitiesForEntity(mEntityId, links, mCursor, null);
 
 		if (result.data != null) {
+			mHasExecuted = true;
 			mMore = ((ServiceData) result.serviceResponse.data).more;
 		}
 
@@ -69,6 +72,11 @@ public class EntitiesQuery implements IQuery {
 	@Override
 	public Boolean isMore() {
 		return mMore;
+	}
+
+	@Override
+	public Boolean hasExecuted() {
+		return mHasExecuted;
 	}
 
 	public String getLinkType() {

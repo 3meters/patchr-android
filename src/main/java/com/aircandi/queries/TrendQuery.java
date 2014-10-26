@@ -10,7 +10,9 @@ public class TrendQuery implements IQuery {
 	protected String toSchema;
 	protected String fromSchema;
 	protected String trendType;
-	protected Integer mPageSize = 50;  // Default service limit if nothing is passed
+	protected Integer mPageSize    = 50;  // Default service limit if nothing is passed
+	protected Integer mPageCount   = 0;
+	protected Boolean mHasExecuted = false;
 
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {
@@ -19,12 +21,18 @@ public class TrendQuery implements IQuery {
 		 * in ascending order.
 		 */
 		ModelResult result = Patchr.getInstance().getEntityManager().getTrending(toSchema, fromSchema, trendType);
+		mHasExecuted = true;
 		return result;
 	}
 
 	@Override
 	public Boolean isMore() {
 		return false;
+	}
+
+	@Override
+	public Boolean hasExecuted() {
+		return mHasExecuted;
 	}
 
 	public String getToSchema() {

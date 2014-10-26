@@ -2,6 +2,7 @@ package com.aircandi.ui.widgets;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,7 +58,7 @@ public class BuilderButton extends RelativeLayout {
 
 	public void setText(String text) {
 		if (mTextView != null) {
-			if (text != null && !text.equals("")) {
+			if (!TextUtils.isEmpty(text)) {
 				if (Patchr.themeTone.equals(ThemeTone.DARK)) {
 					mTextView.setTextColor(getResources().getColor(R.color.text_dark));
 				}

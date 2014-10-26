@@ -2,8 +2,8 @@ package com.aircandi.objects;
 
 import android.support.annotation.Nullable;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
@@ -56,7 +56,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@Expose
 	public Number signalFence = -100.0f;
 	@Expose
-	public String visibility;                                    // private|public|hidden
+	@SerializedName(name = "visibility")
+	public String privacy;                                    // private|public|hidden
 	@Expose
 	@SerializedName(name = "_acl")
 	public String placeId;
@@ -73,9 +74,11 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public List<Count> linksOutCounts;
 
 	@Expose(serialize = false, deserialize = true)
-	public String toId;                                            // Used to find entities this entity is linked to
+	public String toId;                                         // Used to find entities this entity is linked to
 	@Expose(serialize = false, deserialize = true)
-	public String fromId;                                        // Used to find entities this entity is linked from
+	public String fromId;                                       // Used to find entities this entity is linked from
+	@Expose(serialize = false, deserialize = true)
+	public String linkId;                                       // Used to update the link used to include this entity in a set
 
 	@Expose(serialize = false, deserialize = true)
 	public List<Entity> entities;
@@ -100,17 +103,17 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	 * Client fields (NONE are transferred)
 	 *--------------------------------------------------------------------------------------------*/
 
-	public Boolean hidden           = false;                    // Flag entities not currently visible because of fencing.
-	public Boolean shareable        = true;                     // Flag whether an entity can be shared or not.
-	public Boolean fuzzy            = false;                    // Flag places with inaccurate locations.
-	public Boolean checked          = false;                    // Used to track selection in lists.
-	public Boolean shortcuts        = false;                    // Do links have shortcuts?
-	public Boolean foundByProximity = false;                    // Was this found based on proximity
-	public Boolean editing          = false;                    // Used to flag when we can't use id to match up.
-	public Boolean highlighted      = false;                    // Used to track one shot highlighting
+	public Boolean hidden           = false;                   // Flag entities not currently visible because of fencing.
+	public Boolean shareable        = true;                    // Flag whether an entity can be shared or not.
+	public Boolean fuzzy            = false;                   // Flag places with inaccurate locations.
+	public Boolean checked          = false;                   // Used to track selection in lists.
+	public Boolean shortcuts        = false;                   // Do links have shortcuts?
+	public Boolean foundByProximity = false;                   // Was this found based on proximity
+	public Boolean editing          = false;                   // Used to flag when we can't use id to match up.
+	public Boolean highlighted      = false;                   // Used to track one shot highlighting
 	public Boolean read             = true;                    // Used to track if the user has browsed.
-	public Boolean autowatchable    = false;                    // Used to track if the user has browsed.
-	public Float distance;                                        // Used to cache most recent distance calculation.
+	public Boolean autowatchable    = false;                   // Used to track if the user has browsed.
+	public Float distance;                                     // Used to cache most recent distance calculation.
 
     /* Entity is not persisted with service, only seeing this for suggested places that
        come from provider. We also use this when injecting a fake beacon or applink. */
@@ -148,12 +151,12 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public Boolean visibleToCurrentUser() {
-		//		if (visibility != null && !visibility.equals(Constants.VISIBILITY_PUBLIC) && !isOwnedByCurrentUser()) {
-		//			Link link = linkByAppUser(Constants.TYPE_LINK_WATCH);
-		//			if (link == null || !link.enabled) {
-		//				return false;
-		//			}
-		//		}
+		if (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser()) {
+			Link link = linkFromAppUser(Constants.TYPE_LINK_WATCH);
+			if (link == null || !link.enabled) {
+				return false;
+			}
+		}
 		return true;
 	}
 
@@ -242,7 +245,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		Boolean oldIsHidden = hidden;
 		this.hidden = false;
 		/*
-	     * Make it harder to fade out than it is to fade in. Entities are only NEW
+		 * Make it harder to fade out than it is to fade in. Entities are only NEW
 		 * for the first scan that discovers them.
 		 */
 		if (signalFence != null) {
@@ -297,8 +300,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public Beacon getActiveBeacon(String type, Boolean primaryOnly) {
-        /*
-         * If an entity has more than one viable link, we choose the one
+	    /*
+	     * If an entity has more than one viable link, we choose the one
 		 * using the following priority:
 		 * 
 		 * - strongest primary
@@ -343,8 +346,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public Beacon getBeaconFromLink(String type, Boolean primaryOnly) {
-        /*
-         * If an entity has more than one viable link, we choose the one
+	    /*
+	     * If an entity has more than one viable link, we choose the one
 		 * using the following priority:
 		 * 
 		 * - first primary
@@ -387,7 +390,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public List<? extends Entity> getLinkedEntitiesByLinkTypeAndSchema(List<String> types, List<String> schemas, Direction direction, Boolean traverse) {
-        /*
+	    /*
          * Currently only called by EntityCache.removeEntityTree
 		 */
 		final List<Entity> entities = new ArrayList<Entity>();
@@ -610,20 +613,26 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return shortcuts;
 	}
 
-	public Boolean byAppUser(String linkType) {
+	public Link linkFromAppUser(String linkType) {
 		if (linksIn != null) {
 			for (Link link : linksIn) {
 				if (link.type.equals(linkType) && link.fromId.equals(Patchr.getInstance().getCurrentUser().id))
-					return true;
+					return link;
 			}
 		}
-		return false;
+		return null;
 	}
 
-	public Link linkByAppUser(String linkType) {
+	public Link linkByAppUser(String linkType, String schema) {
 		if (linksIn != null) {
 			for (Link link : linksIn) {
-				if (link.type.equals(linkType) && link.fromId.equals(Patchr.getInstance().getCurrentUser().id))
+				if (link.type.equals(linkType) && link.targetSchema.equals(schema) && link.creatorId.equals(Patchr.getInstance().getCurrentUser().id))
+					return link;
+			}
+		}
+		if (linksOut != null) {
+			for (Link link : linksOut) {
+				if (link.type.equals(linkType) && link.targetSchema.equals(schema) && link.creatorId.equals(Patchr.getInstance().getCurrentUser().id))
 					return link;
 			}
 		}
@@ -662,6 +671,9 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		else if (prefix.equals("me")) {
 			return Constants.SCHEMA_ENTITY_MESSAGE;
 		}
+		else if (prefix.equals("no")) {
+			return Constants.SCHEMA_ENTITY_NOTIFICATION;
+		}
 		return null;
 	}
 
@@ -680,7 +692,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			entity.subtitle = (String) map.get("subtitle");
 			entity.description = (String) map.get("description");
 			entity.signalFence = (Number) map.get("signalFence");
-			entity.visibility = (String) ((map.get("visibility") != null) ? map.get("visibility") : Constants.VISIBILITY_PUBLIC);
+			entity.privacy = (String) (nameMapping ? map.get("visibility") : map.get("privacy"));
 
 			entity.hidden = (Boolean) ((map.get("hidden") != null) ? map.get("hidden") : false);
 			entity.synthetic = (Boolean) ((map.get("synthetic") != null) ? map.get("synthetic") : false);
@@ -693,6 +705,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 			entity.toId = (String) (nameMapping ? map.get("_to") : map.get("toId"));
 			entity.fromId = (String) (nameMapping ? map.get("_from") : map.get("fromId"));
+			entity.linkId = (String) (nameMapping ? map.get("_link") : map.get("linkId"));
 
 			entity.reason = (String) map.get("reason");
 			entity.score = (Number) map.get("score");

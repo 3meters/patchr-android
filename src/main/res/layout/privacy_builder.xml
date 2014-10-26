@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.aircandi.ui.widgets.AirScrollView
+	android:id="@+id/form_list"
+	style="@style/form_content_layout"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_gravity="center_horizontal"
+	android:paddingRight="16dp"
+	android:fillViewport="true">
+
+	<RadioGroup
+		android:id="@+id/buttons_privacy"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="8dp">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="8dp"
+			android:orientation="vertical">
+
+			<com.aircandi.ui.widgets.AirRadioButton
+				android:id="@+id/button_public"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:onClick="onRadioButtonClicked"
+				android:text="@string/label_place_privacy_public"
+				android:textAppearance="?attr/textAppearanceMediumLarge"
+				tools:text="@string/label_place_privacy_public" />
+
+			<com.aircandi.ui.widgets.AirTextLight
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:paddingLeft="32dp"
+				android:text="@string/label_place_privacy_public_help"
+				android:textColor="?attr/textColorSecondary"
+				tools:text="@string/label_place_privacy_public_help" />
+
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<com.aircandi.ui.widgets.AirRadioButton
+				android:id="@+id/button_private"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:onClick="onRadioButtonClicked"
+				android:text="@string/label_place_privacy_private"
+				android:textAppearance="?attr/textAppearanceMediumLarge"
+				tools:text="@string/label_place_privacy_private" />
+
+			<com.aircandi.ui.widgets.AirTextLight
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:paddingLeft="32dp"
+				android:text="@string/label_place_privacy_private_help"
+				android:textColor="?attr/textColorSecondary"
+				tools:text="@string/label_place_privacy_private_help" />
+
+		</LinearLayout>
+	</RadioGroup>
+
+</com.aircandi.ui.widgets.AirScrollView>

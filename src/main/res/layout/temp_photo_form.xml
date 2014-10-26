@@ -8,7 +8,7 @@
 	tools:ignore="Overdraw">
 
 	<com.aircandi.ui.widgets.AirImageView
-		android:id="@+id/entity_photo"
+		android:id="@+id/photo"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		custom:layout="@layout/widget_photoview_touch"

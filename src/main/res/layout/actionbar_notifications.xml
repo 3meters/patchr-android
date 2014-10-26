@@ -1,34 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout
 	android:id="@+id/notifications_frame"
 	style="@style/selectable_item"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="wrap_content"
-	android:layout_height="match_parent"
+	android:layout_height="@dimen/action_bar_default_height"
 	android:addStatesFromChildren="true"
 	android:clickable="true"
 	android:clipToPadding="false"
-	android:gravity="center"
 	android:minWidth="@dimen/action_button_min_width"
 	tools:ignore="Overdraw">
 
-	<!-- textview is a hack to force the action bar button to the height we want -->
-
-	<com.aircandi.ui.widgets.AirTextView
-		style="@style/actionbar_beacons"
-		android:layout_width="wrap_content"
-		android:layout_height="@dimen/action_bar_default_height"
-		android:layout_gravity="center"
-		android:focusable="false"
-		android:gravity="center"
-		android:visibility="invisible" />
-
-	<ImageView
-		android:id="@+id/notifications_image"
-		style="@style/actionbar_beacons"
+	<LinearLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:src="@drawable/ic_action_alert_dark" />
+		android:layout_centerInParent="true"
+		android:orientation="horizontal">
 
-</FrameLayout>
+		<ImageView
+			android:id="@+id/notifications_image"
+			style="@style/actionbar_beacons"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical"
+			android:src="?attr/iconActionAlert" />
+
+		<FrameLayout
+			android:id="@+id/badge_group"
+			android:layout_width="@dimen/badge_height"
+			android:layout_height="@dimen/badge_height"
+			android:layout_gravity="center_vertical"
+			android:layout_marginLeft="-4dp"
+			android:background="@drawable/bg_round_solid_alert"
+			android:visibility="gone"
+			tools:visibility="gone">
+
+			<com.aircandi.ui.widgets.AirTextView
+				android:id="@+id/badge_count"
+				android:layout_width="@dimen/badge_height"
+				android:layout_height="@dimen/badge_height"
+				android:layout_gravity="center"
+				android:layout_marginRight="1.5dp"
+				android:focusable="false"
+				android:gravity="center"
+				android:textColor="@color/white"
+				android:textSize="12sp"
+				tools:text="99" />
+		</FrameLayout>
+
+	</LinearLayout>
+
+</RelativeLayout>

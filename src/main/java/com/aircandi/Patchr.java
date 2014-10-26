@@ -20,7 +20,6 @@ import android.util.DisplayMetrics;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
-import com.aircandi.components.ActivityDecorator;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DispatchManager;
 import com.aircandi.components.EntityManager;
@@ -34,6 +33,7 @@ import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerDelegate;
 import com.aircandi.components.TrackerGoogleEasy;
 import com.aircandi.controllers.Messages;
+import com.aircandi.controllers.Notifications;
 import com.aircandi.controllers.Places;
 import com.aircandi.controllers.Users;
 import com.aircandi.interfaces.IEntityController;
@@ -125,7 +125,6 @@ public class Patchr extends Application {
 	/* Shared managers */
 	protected MenuManager       mMenuManager;
 	protected EntityManager     mEntityManager;
-	protected ActivityDecorator mActivityDecorator;
 	protected MediaManager      mMediaManager;
 	private   AnimationManager  mAnimationManager;
 
@@ -220,6 +219,7 @@ public class Patchr extends Application {
 		controllerMap.put(Constants.SCHEMA_ENTITY_PLACE, new Places());
 		controllerMap.put(Constants.SCHEMA_ENTITY_USER, new Users());
 		controllerMap.put(Constants.SCHEMA_ENTITY_MESSAGE, new Messages());
+		controllerMap.put(Constants.SCHEMA_ENTITY_NOTIFICATION, new Notifications());
 
 		/* Start out with anonymous user then upgrade to signed in user if possible */
 		Patchr.getInstance().initializeUser();
@@ -230,7 +230,6 @@ public class Patchr extends Application {
 		 * Note: additional setup is done in SplashForm#configure
 		 */
 		/* Inject minimum managers required for notifications */
-		mActivityDecorator = new ActivityDecorator();
 		mEntityManager = new EntityManager().setLinks(new Links());
 
 		/* Inject dispatch manager */
@@ -477,10 +476,6 @@ public class Patchr extends Application {
 		return mContainer;
 	}
 
-	public ActivityDecorator getActivityDecorator() {
-		return mActivityDecorator;
-	}
-
 	public MediaManager getMediaManager() {
 		return mMediaManager;
 	}
@@ -495,11 +490,6 @@ public class Patchr extends Application {
 
 	public Patchr setMenuManager(MenuManager menuManager) {
 		mMenuManager = menuManager;
-		return this;
-	}
-
-	public Patchr setActivityDecorator(ActivityDecorator activityDecorator) {
-		mActivityDecorator = activityDecorator;
 		return this;
 	}
 

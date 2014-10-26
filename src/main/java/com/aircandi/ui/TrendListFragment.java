@@ -22,11 +22,6 @@ public class TrendListFragment extends EntityListFragment {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		super.onProcessingComplete(event);
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/

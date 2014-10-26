@@ -1,9 +1,5 @@
 package com.aircandi.queries;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.aircandi.Patchr;
 import com.aircandi.components.ModelResult;
 import com.aircandi.interfaces.IEntityController;
@@ -14,16 +10,22 @@ import com.aircandi.objects.Links;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.utilities.Maps;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class WatchersQuery implements IQuery {
 
 	protected Cursor mCursor;
-	protected Boolean mMore = false;
+	protected Boolean mMore        = false;
+	protected Boolean mHasExecuted = false;
 	protected Integer mPageSize;
-	protected String  mSchema;
-	protected String  mLinkType;
-	protected String  mLinkDirection;
-	protected Map     mLinkWhere;
-	protected String  mEntityId;
+	protected Integer mPageCount = 0;
+	protected String mSchema;
+	protected String mLinkType;
+	protected String mLinkDirection;
+	protected Map    mLinkWhere;
+	protected String mEntityId;
 
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {
@@ -65,6 +67,7 @@ public class WatchersQuery implements IQuery {
 		ModelResult result = Patchr.getInstance().getEntityManager().loadEntitiesForEntity(mEntityId, links, mCursor, null);
 
 		if (result.data != null) {
+			mHasExecuted = true;
 			mMore = ((ServiceData) result.serviceResponse.data).more;
 		}
 
@@ -74,6 +77,11 @@ public class WatchersQuery implements IQuery {
 	@Override
 	public Boolean isMore() {
 		return mMore;
+	}
+
+	@Override
+	public Boolean hasExecuted() {
+		return mHasExecuted;
 	}
 
 	public String getLinkType() {

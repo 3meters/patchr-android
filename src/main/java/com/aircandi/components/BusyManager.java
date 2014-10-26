@@ -12,8 +12,8 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.WindowManager.BadTokenException;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.events.CancelEvent;
 import com.aircandi.events.ProgressEvent;
@@ -40,11 +40,11 @@ public class BusyManager implements IBusy {
 		BusProvider.getInstance().register(this);
 
 		if (mHeaderActivityBar != null) {
-			ShapeDrawable shape = new ShapeDrawable();
-			shape.setShape(new RectShape());
-			shape.getPaint().setColor(mHeaderActivityBar.getColor());
-			ClipDrawable clipDrawable = new ClipDrawable(shape, Gravity.CENTER, ClipDrawable.HORIZONTAL);
-			mHeaderActivityBar.setProgressDrawable(clipDrawable);
+//			ShapeDrawable shape = new ShapeDrawable();
+//			shape.setShape(new RectShape());
+//			shape.getPaint().setColor(mHeaderActivityBar.getColor());
+//			ClipDrawable clipDrawable = new ClipDrawable(shape, Gravity.CENTER, ClipDrawable.HORIZONTAL);
+//			mHeaderActivityBar.setProgressDrawable(clipDrawable);
 		}
 
 		mRunnableHide = new Runnable() {
@@ -236,7 +236,6 @@ public class BusyManager implements IBusy {
 				stopBodyBusyIndicator();
 			}
 		});
-
 	}
 
 	public void startActionbarBusyIndicator() {
@@ -320,10 +319,5 @@ public class BusyManager implements IBusy {
 
 	public void setRefreshProgress(View refreshProgress) {
 		mRefreshProgress = refreshProgress;
-	}
-
-	@Override
-	public SmoothProgressBar getHeaderActivityBar() {
-		return mHeaderActivityBar;
 	}
 }

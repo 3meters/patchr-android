@@ -4,7 +4,7 @@
 	xmlns:tools="http://schemas.android.com/tools">
 
 	<com.aircandi.ui.widgets.AirImageView
-		android:id="@+id/entity_photo"
+		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
 		android:id="@+id/distance_ignore"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignBottom="@+id/entity_photo"
+		android:layout_alignBottom="@+id/photo"
 		android:layout_alignParentRight="true"
 		android:paddingBottom="12dp"
 		android:paddingRight="10dp"

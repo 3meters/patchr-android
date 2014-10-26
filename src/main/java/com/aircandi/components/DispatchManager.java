@@ -25,19 +25,20 @@ import com.aircandi.ui.HelpForm;
 import com.aircandi.ui.MapForm;
 import com.aircandi.ui.PhotoForm;
 import com.aircandi.ui.PlaceList;
-import com.aircandi.ui.Preferences;
+import com.aircandi.ui.SettingsForm;
+import com.aircandi.ui.SettingsFragment;
 import com.aircandi.ui.SplashForm;
 import com.aircandi.ui.WatcherList;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.edit.FeedbackEdit;
 import com.aircandi.ui.edit.ReportEdit;
-import com.aircandi.ui.edit.TuningEdit;
 import com.aircandi.ui.helpers.AddressBuilder;
 import com.aircandi.ui.helpers.CategoryBuilder;
 import com.aircandi.ui.helpers.LocationPicker;
 import com.aircandi.ui.helpers.PhotoPicker;
 import com.aircandi.ui.helpers.PhotoSourcePicker;
 import com.aircandi.ui.helpers.PlacePicker;
+import com.aircandi.ui.helpers.PrivacyBuilder;
 import com.aircandi.ui.user.PasswordEdit;
 import com.aircandi.ui.user.RegisterEdit;
 import com.aircandi.ui.user.ResetEdit;
@@ -45,6 +46,7 @@ import com.aircandi.ui.user.SignInEdit;
 import com.aircandi.utilities.Debug;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
+import com.aircandi.utilities.Type;
 
 public class DispatchManager {
 
@@ -78,12 +80,26 @@ public class DispatchManager {
 
 		else if (route == Route.BROWSE) {
 
-			if (entity == null) {
-				throw new IllegalArgumentException("Dispatching browse requires entity");
+			String entityId = null;
+			String parentId = null;
+			Boolean synthetic = false;
+			if (entity != null) {
+				entityId = entity.id;
+				parentId = entity.toId;
+				synthetic = entity.synthetic;
+			}
+			else if (extras != null) {
+				entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
+				parentId = extras.getString(Constants.EXTRA_ENTITY_PARENT_ID);
+				synthetic = extras.getBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC, false);
+			}
+
+			if (Type.isFalse(synthetic) && entityId == null) {
+				throw new IllegalArgumentException("Dispatching browse requires entity or extras.entityId");
 			}
 
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
-			controller.view(activity, entity, entity.id, entity.toId, null, extras, true);
+			controller.view(activity, entity, entityId, parentId, null, extras, true);
 		}
 
 		else if (route == Route.EDIT) {
@@ -173,7 +189,7 @@ public class DispatchManager {
 
 		else if (route == Route.SETTINGS) {
 
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, Preferences.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, SettingsForm.class);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PREFERENCES);
 			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
@@ -379,6 +395,19 @@ public class DispatchManager {
 			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO_BUILDER);
 		}
 
+		else if (route == Route.PRIVACY_EDIT) {
+
+			if (entity == null) {
+				throw new IllegalArgumentException("Dispatching privacy edit requires entity");
+			}
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, PrivacyBuilder.class);
+			final Intent intent = intentBuilder.create();
+			intent.putExtra(Constants.EXTRA_PRIVACY, entity.privacy);
+
+			activity.startActivityForResult(intent, Constants.ACTIVITY_PRIVACY_EDIT);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO_BUILDER);
+		}
+
 		else if (route == Route.LOCATION_EDIT) {
 
 			if (entity == null) {
@@ -466,16 +495,6 @@ public class DispatchManager {
 			IntentBuilder intentBuilder = new IntentBuilder(activity, PlacePicker.class);
 			intentBuilder.setExtras(extras);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PLACE_SEARCH);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
-		}
-
-		else if (route == Route.TUNE) {
-
-			if (entity == null)
-				throw new IllegalArgumentException("valid entity required for selected route");
-			IntentBuilder intentBuilder = new IntentBuilder(activity, TuningEdit.class);
-			intentBuilder.setEntity(entity);
-			activity.startActivity(intentBuilder.create());
 			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 

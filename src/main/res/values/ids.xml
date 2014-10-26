@@ -6,7 +6,6 @@
 	<item name="holder_indicator_comments" type="id" />
 
 	<item name="shortcut_holder" type="id" />
-	<item name="footer_holder" type="id" />
 	<item name="share_holder" type="id" />
 	<item name="place_provider" type="id" />
 	<item name="attribution_holder" type="id" />
@@ -14,7 +13,6 @@
 	<item name="stats" type="id" />
 	<item name="section_details" type="id" />
 	<item name="chk_private" type="id" />
-	<item name="holder_private" type="id" />
 	<item name="chk_locked" type="id" />
 	<item name="web_uri" type="id" />
 	<item name="bio" type="id" />

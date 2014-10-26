@@ -23,15 +23,10 @@
 			android:clipToPadding="false"
 			android:divider="@null"
 			android:paddingBottom="4dp"
+			android:scrollingCache="false"
+			android:animationCache="false"
 			android:paddingTop="4dp"
 			android:scrollbars="none" />
 	</com.aircandi.ui.widgets.AirSwipeRefreshLayout>
-
-	<com.aircandi.ui.widgets.AirSquareButton
-		android:id="@+id/button_special"
-		style="@style/button_round"
-		android:layout_width="@dimen/button_round_width"
-		android:layout_height="@dimen/button_round_height"
-		android:layout_centerInParent="true" />
 
 </RelativeLayout>

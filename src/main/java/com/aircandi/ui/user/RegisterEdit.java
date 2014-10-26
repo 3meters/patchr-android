@@ -20,7 +20,7 @@ import com.aircandi.R;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
-import com.aircandi.components.MessagingManager;
+import com.aircandi.components.NotificationManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
@@ -248,7 +248,7 @@ public class RegisterEdit extends BaseEntityEdit {
 					 */
 					final User user = (User) result.data;
 					if (Patchr.getInstance().setCurrentUser(user, true)) {
-						result = MessagingManager.getInstance().registerInstallWithAircandi();
+						result = NotificationManager.getInstance().registerInstallWithAircandi();
 					}
 				}
 				return result;

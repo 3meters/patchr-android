@@ -29,8 +29,6 @@
         <item name="android:actionModeBackground">@drawable/cab_background_top_light</item>
         <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_light</item>
         <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Light</item>
-        
-        
     </style>
 
     <style name="ActionBar.Solid.Light" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
@@ -39,6 +37,13 @@
         <item name="android:backgroundSplit">@drawable/ab_bottom_solid_light</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Light</item>
     </style>
+
+	<style name="ActionBar.Solid.Light.DarkActionbar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
+		<item name="android:background">@drawable/ab_solid_light</item>
+		<item name="android:backgroundStacked">@drawable/ab_stacked_solid_light</item>
+		<item name="android:backgroundSplit">@drawable/ab_bottom_solid_light</item>
+		<item name="android:progressBarStyle">@style/ProgressBar.Light</item>
+	</style>
 
     <style name="ActionBar.Transparent.Light" parent="@android:style/Widget.Holo.Light.ActionBar">
         <item name="android:background">@drawable/ab_transparent_light</item>

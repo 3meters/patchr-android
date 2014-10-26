@@ -35,6 +35,7 @@ public class Constants {
 	public static final String EXTRA_MESSAGE                   = "com.aircandi.EXTRA_MESSAGE";
 	public static final String EXTRA_CATEGORY                  = "com.aircandi.EXTRA_CATEGORY";
 	public static final String EXTRA_LOCATION                  = "com.aircandi.EXTRA_LOCATION";
+	public static final String EXTRA_PRIVACY                   = "com.aircandi.EXTRA_PRIVACY";
 	public static final String EXTRA_VERIFY_URI                = "com.aircandi.EXTRA_VERIFY_URI";
 	public static final String EXTRA_SEARCH_PHRASE             = "com.aircandi.EXTRA_SEARCH_PHRASE";
 	public static final String EXTRA_PHOTO_SOURCE              = "com.aircandi.EXTRA_PHOTO_SOURCE";
@@ -67,6 +68,7 @@ public class Constants {
 	public static final String EXTRA_LIST_NEW_ENABLED          = "com.aircandi.EXTRA_LIST_NEW_ENABLED";
 	public static final String EXTRA_LIST_TITLE                = "com.aircandi.EXTRA_LIST_TITLE";
 	public static final String EXTRA_LIST_TITLE_RESID          = "com.aircandi.EXTRA_LIST_TITLE_RESID";
+	public static final String EXTRA_LIST_EMPTY_RESID          = "com.aircandi.EXTRA_LIST_EMPTY_RESID";
 	public static final String EXTRA_LIST_PAGE_SIZE            = "com.aircandi.EXTRA_LIST_PAGE_SIZE";
 	public static final String EXTRA_LIST_VIEW_TYPE            = "com.aircandi.EXTRA_LIST_VIEW_TYPE";
 	public static final String EXTRA_LIST_ITEM_RESID           = "com.aircandi.EXTRA_LIST_ITEM_RESID";
@@ -159,14 +161,15 @@ public class Constants {
 	public static final int    BING_IMAGE_BYTES_MAX            = 500000;
 	public static final int    BING_IMAGE_DIMENSION_MAX        = 1280;
 
-	public static final String SCHEMA_ANY            = "any";
-	public static final String SCHEMA_ENTITY_PLACE   = "place";
-	public static final String SCHEMA_ENTITY_BEACON  = "beacon";
-	public static final String SCHEMA_ENTITY_USER    = "user";
-	public static final String SCHEMA_ENTITY_PICTURE = "post";  // Used for sharing a photo
-	public static final String SCHEMA_LINK           = "link";
-	public static final String SCHEMA_INTENT         = "intent";
-	public static final String SCHEMA_ENTITY_MESSAGE = "message";
+	public static final String SCHEMA_ANY                 = "any";
+	public static final String SCHEMA_ENTITY_BEACON       = "beacon";
+	public static final String SCHEMA_ENTITY_MESSAGE      = "message";
+	public static final String SCHEMA_ENTITY_NOTIFICATION = "notification";
+	public static final String SCHEMA_ENTITY_PLACE        = "place";
+	public static final String SCHEMA_ENTITY_PICTURE      = "post";  // Used for sharing a photo
+	public static final String SCHEMA_ENTITY_USER         = "user";
+	public static final String SCHEMA_LINK                = "link";
+	public static final String SCHEMA_INTENT              = "intent";
 
 	public static final String ACTION_VIEW      = "view";
 	public static final String ACTION_VIEW_FOR  = "view_for";
@@ -195,10 +198,6 @@ public class Constants {
 	/* Local app */
 	public static final String TYPE_APP_MAP    = "map";
 	public static final String TYPE_APP_INTENT = "intent";
-
-	/* Verb types */
-	public static final String TYPE_APP_WATCH = "watch";
-	public static final String TYPE_APP_ALERT = "alert";
 
 	/* Entity types */
 	public static final String TYPE_APP_PLACE   = "place";
@@ -234,8 +233,9 @@ public class Constants {
 	public static final String PHOTO_SOURCE_TWITTER           = "twitter";
 	public static final String PHOTO_SOURCE_WEBSITE_THUMBNAIL = "website_thumbnail";
 
-	public static final String VISIBILITY_PUBLIC  = "public";
-	public static final String VISIBILITY_PRIVATE = "private";
+	public static final String PRIVACY_PUBLIC  = "public";
+	public static final String PRIVACY_PRIVATE = "private";
+	public static final String PRIVACY_SECRET  = "secret";
 
 	/* Package names */
 	public static final String PACKAGE_NAME_FACEBOOK    = "com.facebook.katana";
@@ -262,6 +262,7 @@ public class Constants {
 	public static final int ACTIVITY_ADDRESS_EDIT        = 800;
 	public static final int ACTIVITY_CATEGORY_EDIT       = 810;
 	public static final int ACTIVITY_LOCATION_EDIT       = 820;
+	public static final int ACTIVITY_PRIVACY_EDIT        = 830;
 	public static final int ACTIVITY_ENTITY_EDIT         = 900;
 	public static final int ACTIVITY_PICTURE_SOURCE_PICK = 950;
 	public static final int ACTIVITY_ENTITY_INSERT       = 960;
@@ -271,17 +272,13 @@ public class Constants {
 	public static final String FRAGMENT_TYPE_CREATE        = "create";
 	public static final String FRAGMENT_TYPE_TREND_POPULAR = "trend_popular";
 	public static final String FRAGMENT_TYPE_TREND_ACTIVE  = "trend_active";
+	public static final String FRAGMENT_TYPE_SETTINGS      = "settings";
+	public static final String FRAGMENT_TYPE_FEEDBACK      = "feedback";
 	public static final String FRAGMENT_TYPE_PROFILE       = "profile";
 	public static final String FRAGMENT_TYPE_HISTORY       = "history";
 	public static final String FRAGMENT_TYPE_MAP           = "map";
 	public static final String FRAGMENT_TYPE_SENT          = "sent";
 	public static final String FRAGMENT_TYPE_MESSAGES      = "messages";
-	public static final String FRAGMENT_TYPE_ALERTS        = "alerts";
-
-	public static final String NAVIGATION_CATEGORY_PLACES   = "places";
-	public static final String NAVIGATION_CATEGORY_TRENDS   = "trends";
-	public static final String NAVIGATION_CATEGORY_NONE     = "none";
-	public static final String NAVIGATION_CATEGORY_MESSAGES = "messages";
 
 	public static final int RESULT_ENTITY_INSERTED        = 100;
 	public static final int RESULT_ENTITY_UPDATED         = 110;

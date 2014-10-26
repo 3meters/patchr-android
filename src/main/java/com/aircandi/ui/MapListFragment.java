@@ -18,10 +18,9 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.LocationManager;
+import com.aircandi.components.Logger;
 import com.aircandi.components.MapManager;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.ProcessingCompleteEvent;
-import com.aircandi.events.ViewLayoutEvent;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Place;
@@ -42,7 +41,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
-import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,15 +52,15 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		, ClusterManager.OnClusterItemInfoWindowClickListener<MapListFragment.EntityItem>
 		, GoogleMap.OnMyLocationButtonClickListener {
 
-
 	protected GoogleMap                  mMap;
 	protected ClusterManager<EntityItem> mClusterManager;
 	protected List<Entity>               mEntities;
 	protected Integer                    mTitleResId;
-	protected Integer       mZoomLevel   = null;
-	protected List<Integer> mMenuResIds  = new ArrayList<Integer>();
-	protected View          mProgressBar = null;
+	protected Integer       mZoomLevel  = null;
+	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
+	protected View          mProgress   = null;
 	protected AirClusterRenderer mClusterRenderer;
+	protected Boolean mFabEnabled = true;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -84,27 +82,26 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		mClusterManager.setOnClusterItemInfoWindowClickListener(this);
 
 		if (root != null) {
-			mProgressBar = new ProgressBar(root.getContext(), null, android.R.attr.progressBarStyleLarge);
+			mProgress = new ProgressBar(root.getContext(), null, android.R.attr.progressBarStyleLarge);
 			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 					UI.getRawPixelsForDisplayPixels(50f),
 					UI.getRawPixelsForDisplayPixels(50f));
 			params.gravity = Gravity.CENTER;
-			mProgressBar.setLayoutParams(params);
-			mProgressBar.setVisibility(View.INVISIBLE);
+			mProgress.setLayoutParams(params);
+			mProgress.setVisibility(View.INVISIBLE);
 
-			((ViewGroup) root).addView(mProgressBar);
+			((ViewGroup) root).addView(mProgress);
 		}
 
 		return root;
 	}
 
-	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		if (mProgressBar != null) {
+	public void onProcessingComplete() {
+		if (mProgress != null) {
 			getActivity().runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mProgressBar.setVisibility(View.INVISIBLE);
+					mProgress.setVisibility(View.INVISIBLE);
 				}
 			});
 		}
@@ -120,7 +117,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 				public void onGlobalLayout() {
 					//noinspection deprecation
 					view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-					BusProvider.getInstance().post(new ViewLayoutEvent());
+					onViewLayout();
 				}
 			});
 		}
@@ -139,6 +136,14 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	public void onViewLayout() {
+		/*
+		 * Called when initial view layout has completed and
+		 * views have been measured and sized.
+		 */
+		Logger.d(this, "Fragment view layout completed");
+	}
 
 	@Override
 	public boolean onMyLocationButtonClick() {
@@ -186,7 +191,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	public void draw() {
 
 		if (mEntities != null) {
-			mProgressBar.setVisibility(View.VISIBLE);
+			mProgress.setVisibility(View.VISIBLE);
 			for (Entity entity : mEntities) {
 				if (entity.getLocation() != null) {
 					AirLocation location = entity.getLocation();
@@ -306,6 +311,15 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	public MapListFragment setZoomLevel(Integer zoomLevel) {
 		mZoomLevel = zoomLevel;
 		return this;
+	}
+
+	public MapListFragment setFabEnabled(Boolean fabEnabled) {
+		mFabEnabled = fabEnabled;
+		return this;
+	}
+
+	public Boolean getFabEnabled() {
+		return mFabEnabled;
 	}
 
 	public List<Integer> getMenuResIds() {

@@ -2,7 +2,6 @@ package com.aircandi.ui.base;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,7 +21,6 @@ import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Link;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Place;
@@ -31,7 +29,6 @@ import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.widgets.ComboButton;
 import com.aircandi.utilities.Booleans;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
@@ -71,30 +68,116 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 	}
 
-	public void beforeDatabind(final BindingMode mode) {
-	    /*
-	     * If cache entity is fresher than the one currently bound to or there is
-		 * a cache entity available, go ahead and draw before we check against the service.
-		 */
-		mEntity = EntityManager.getCacheEntity(mEntityId);
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public void onRefresh() {
+		bind(BindingMode.MANUAL); // Called from Routing
+	}
+
+	@SuppressWarnings("ucd")
+	public void onWatchButtonClick(View view) {
+
+		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			String message = StringManager.getString(R.string.alert_signin_message_watch, mEntity.schema);
+			Dialogs.signinRequired(this, message);
+			return;
+		}
+
 		if (mEntity != null) {
-			if (mEntity instanceof Place) {
-				Patchr.getInstance().setCurrentPlace(mEntity);
-				Logger.v(this, "Setting current place to: " + mEntity.id);
-			}
-			if (mFirstDraw) {
-				draw(null);
-			}
+			watch(false);
 		}
 	}
 
-	public void afterDatabind(final BindingMode mode, ModelResult result) {
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			mLoaded = true;
+	@SuppressWarnings("ucd")
+	public void onEntityClick(View view) {
+		Entity entity = (Entity) view.getTag();
+		Bundle extras = new Bundle();
+		if (Type.isTrue(entity.autowatchable)) {
+			if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
+					, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
+				extras.putBoolean(Constants.EXTRA_AUTO_WATCH, true);
+			}
+		}
+		Patchr.dispatch.route(this, Route.BROWSE, entity, null, extras);
+	}
+
+	@Override
+	@SuppressWarnings("ucd")
+	public void onPhotoClick(View view) {
+		Photo photo = (Photo) view.getTag();
+
+		if (photo != null) {
+			final String jsonPhoto = Json.objectToJson(photo);
+			Bundle extras = new Bundle();
+			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
+			Patchr.dispatch.route(this, Route.PHOTO, null, null, extras);
+		}
+		else if (mEntity.photo != null) {
+			Bundle extras = new Bundle();
+			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mParentId);
+			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, (mListLinkType == null) ? Constants.TYPE_LINK_CONTENT : mListLinkType);
+			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, mEntity.schema);
+			Patchr.dispatch.route(this, Route.PHOTOS, mEntity, null, extras);
 		}
 	}
 
 	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		/*
+		 * Cases that use activity result
+		 * 
+		 * - Candi picker returns entity id for a move
+		 * - Template picker returns type of candi to add as a child
+		 */
+		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
+			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
+				/*
+				 * Guarantees that any cache stamp retrieved for parent entity from the service will not equal
+				 * any cache stamp including itself. Cleared if parent entity is refreshed from the service.
+				 */
+				Patchr.getInstance().getEntityManager().getCacheStampOverrides().put(mParentId, mParentId);
+				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
+					finish();
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+				}
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, intent);
+	}
+
+	@Override
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		Logger.d(this, "Activity saving state");
+	}
+
+	@Override
+	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+		/*
+		 * Will only be called if the activity is destroyed and restored. Restore
+		 * state could be handled in onCreate or here later in the lifecycle after
+		 * everything has been initialized.
+		 */
+		super.onRestoreInstanceState(savedInstanceState);
+		Logger.d(this, "Activity restoring state");
+		//		final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
+		//		if (position != null && mScrollView != null) {
+		//			mScrollView.post(new Runnable() {
+		//				@Override
+		//				public void run() {
+		//					mScrollView.scrollTo(position[0], position[1]);
+		//				}
+		//			});
+		//		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * UI
+	 *--------------------------------------------------------------------------------------------*/
+
 	public void bind(final BindingMode mode) {
 		Logger.d(this, "Binding: mode = " + mode.name().toLowerCase(Locale.US));
 
@@ -178,164 +261,43 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}.execute();
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onRefresh() {
-		bind(BindingMode.MANUAL); // Called from Routing
-	}
-
-	@SuppressWarnings("ucd")
-	public void onWatchButtonClick(View view) {
-
-		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			String message = StringManager.getString(R.string.alert_signin_message_watch, mEntity.schema);
-			Dialogs.signinRequired(this, message);
-			return;
-		}
-
+	public void beforeDatabind(final BindingMode mode) {
+	    /*
+	     * If cache entity is fresher than the one currently bound to or there is
+		 * a cache entity available, go ahead and draw before we check against the service.
+		 */
+		mEntity = EntityManager.getCacheEntity(mEntityId);
 		if (mEntity != null) {
-			watch(false);
-		}
-	}
-
-	@SuppressWarnings("ucd")
-	public void onEntityClick(View view) {
-		Entity entity = (Entity) view.getTag();
-		Bundle extras = new Bundle();
-		if (Type.isTrue(entity.autowatchable)) {
-			if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
-					, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
-				extras.putBoolean(Constants.EXTRA_AUTO_WATCH, true);
+			if (mEntity instanceof Place) {
+				Patchr.getInstance().setCurrentPlace(mEntity);
+				Logger.v(this, "Setting current place to: " + mEntity.id);
+			}
+			if (mFirstDraw) {
+				draw(null);
 			}
 		}
-		Patchr.dispatch.route(this, Route.BROWSE, entity, null, extras);
 	}
 
-	@Override
-	@SuppressWarnings("ucd")
-	public void onPhotoClick(View view) {
-		Photo photo = (Photo) view.getTag();
-
-		if (photo != null) {
-			final String jsonPhoto = Json.objectToJson(photo);
-			Bundle extras = new Bundle();
-			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.dispatch.route(this, Route.PHOTO, null, null, extras);
-		}
-		else if (mEntity.photo != null) {
-			Bundle extras = new Bundle();
-			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mParentId);
-			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, (mListLinkType == null) ? Constants.TYPE_LINK_CONTENT : mListLinkType);
-			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, mEntity.schema);
-			Patchr.dispatch.route(this, Route.PHOTOS, mEntity, null, extras);
+	public void afterDatabind(final BindingMode mode, ModelResult result) {
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			mLoaded = true;
 		}
 	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		/*
-		 * Cases that use activity result
-		 * 
-		 * - Candi picker returns entity id for a move
-		 * - Template picker returns type of candi to add as a child
-		 */
-		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
-			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
-				/*
-				 * Guarantees that any cache stamp retrieved for parent entity from the service will not equal
-				 * any cache stamp including itself. Cleared if parent entity is refreshed from the service.
-				 */
-				Patchr.getInstance().getEntityManager().getCacheStampOverrides().put(mParentId, mParentId);
-				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
-					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
-				}
-			}
-			else if (requestCode == Constants.ACTIVITY_APPLICATION_PICK) {
-
-				if (intent != null && intent.getExtras() != null) {
-
-					final Bundle extras = intent.getExtras();
-					final String entitySchema = extras.getString(Constants.EXTRA_ENTITY_SCHEMA);
-
-					if (entitySchema != null && !entitySchema.equals("")) {
-						extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntityId);
-						extras.putString(Constants.EXTRA_ENTITY_SCHEMA, entitySchema);
-						super.onAdd(extras);
-					}
-				}
-			}
-		}
-		super.onActivityResult(requestCode, resultCode, intent);
-	}
-
-	@Override
-	protected void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		Logger.d(this, "Activity saving state");
-	}
-
-	@Override
-	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-		/*
-		 * Will only be called if the activity is destroyed and restored. Restore
-		 * state could be handled in onCreate or here later in the lifecycle after
-		 * everything has been initialized.
-		 */
-		super.onRestoreInstanceState(savedInstanceState);
-		Logger.d(this, "Activity restoring state");
-		//		final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
-		//		if (position != null && mScrollView != null) {
-		//			mScrollView.post(new Runnable() {
-		//				@Override
-		//				public void run() {
-		//					mScrollView.scrollTo(position[0], position[1]);
-		//				}
-		//			});
-		//		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * UI
-	 *--------------------------------------------------------------------------------------------*/
 
 	public void draw(View view) {}
 
 	protected void drawStats(View view) {}
 
-	protected void drawButtons(View view) {
-
-
-		if (Patchr.getInstance().getCurrentUser() == null
-				|| mEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
-			UI.setVisibility(view.findViewById(R.id.button_holder), View.GONE);
-		}
-		else {
-			UI.setVisibility(view.findViewById(R.id.button_holder), View.VISIBLE);
-
-			ComboButton watched = (ComboButton) view.findViewById(R.id.button_watch);
-			if (watched != null) {
-				UI.setVisibility(watched, View.VISIBLE);
-				Link link = mEntity.linkByAppUser(Constants.TYPE_LINK_WATCH);
-				if (link != null && link.enabled) {
-					final int color = Colors.getColor(R.color.brand_primary);
-					watched.getImageIcon().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-				}
-				else {
-					watched.getImageIcon().setColorFilter(null);
-				}
-			}
-		}
-	}
+	protected void drawButtons(View view) {}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void watch(final boolean autoWatch) {
+
+		final Boolean unrestricted = mEntity.visibleToCurrentUser();
+		final Boolean watching = (mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH) != null);
 
 		new AsyncTask() {
 
@@ -349,25 +311,26 @@ public abstract class BaseEntityForm extends BaseActivity {
 				Thread.currentThread().setName("AsyncWatchEntity");
 				ModelResult result;
 				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-				Boolean enabled = mEntity.visibleToCurrentUser();
-				if (!mEntity.byAppUser(Constants.TYPE_LINK_WATCH)) {
+				if (!watching) {
 
 					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getShortcut();
 					Shortcut toShortcut = mEntity.getShortcut();
 
-					result = Patchr.getInstance().getEntityManager().insertLink(Patchr.getInstance().getCurrentUser().id
+					result = Patchr.getInstance().getEntityManager().insertLink(null
+							, Patchr.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_WATCH
-							, enabled
+							, unrestricted
 							, fromShortcut
 							, toShortcut
-							, "watch_entity_" + mEntity.schema);
+							, mEntity.visibleToCurrentUser() ? "watch_entity_place" : "request_watch_entity"
+							, false);
 				}
 				else {
 					result = Patchr.getInstance().getEntityManager().deleteLink(Patchr.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_WATCH
-							, enabled
+							, unrestricted
 							, mEntity.schema
 							, "unwatch_entity_" + mEntity.schema);
 				}
@@ -378,46 +341,43 @@ public abstract class BaseEntityForm extends BaseActivity {
 			protected void onPostExecute(Object response) {
 				if (isFinishing()) return;
 				ModelResult result = (ModelResult) response;
-				if (!afterWatch(result)) {
-					((ComboButton) findViewById(R.id.button_watch)).getViewAnimator().setDisplayedChild(0);
-					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-						View view = findViewById(android.R.id.content);
-						drawButtons(view);
-						drawStats(view);
+
+				((ComboButton) findViewById(R.id.button_watch)).getViewAnimator().setDisplayedChild(0);
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					View view = findViewById(android.R.id.content);
+					drawButtons(view);
+					drawStats(view);
+					if (mEntity.privacy.equals(Constants.PRIVACY_PRIVATE)) {
+						bind(BindingMode.AUTO);
+					}
+					else {
 						if (autoWatch) {
 							UI.showToastNotification(StringManager.getString(R.string.alert_auto_watch), Toast.LENGTH_SHORT, Gravity.CENTER);
 						}
 					}
-					else {
-						if (result.serviceResponse.statusCodeService != null
-								&& result.serviceResponse.statusCodeService != ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
-							Errors.handleError(BaseEntityForm.this, result.serviceResponse);
-						}
+				}
+				else {
+					if (result.serviceResponse.statusCodeService != null
+							&& result.serviceResponse.statusCodeService != ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
+						Errors.handleError(BaseEntityForm.this, result.serviceResponse);
 					}
 				}
 			}
 		}.execute();
 	}
 
-	protected Boolean afterWatch(ModelResult result) {
-		return false;
-	}
-
 	@Override
 	public Boolean related(String entityId) {
-		return (mEntityId != null && entityId.equals(mEntityId));
-	}
-
-	@Override
-	public Boolean related(Entity entity) {
-		return (mEntity != null && entity.id.equals(mEntity.id));
+		return (mEntityId != null && entityId != null && entityId.equals(mEntityId));
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void onResume() {
 		super.onResume();

@@ -10,24 +10,21 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ViewAnimator;
 
+import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
-import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.objects.Message;
-import com.aircandi.objects.Message.MessageType;
 import com.aircandi.components.Extras;
-import com.aircandi.components.MessagingManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IEntityController;
-import com.aircandi.objects.ViewHolder;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
+import com.aircandi.objects.Message;
+import com.aircandi.objects.Message.MessageType;
 import com.aircandi.objects.Route;
+import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.components.AnimationFactory;
@@ -36,7 +33,6 @@ import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.ui.widgets.ToolTip;
 import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.utilities.UI;
-import com.squareup.otto.Subscribe;
 
 public class MessageListFragment extends EntityListFragment {
 
@@ -62,34 +58,13 @@ public class MessageListFragment extends EntityListFragment {
 			 */
 			mHeaderCandiView = mHeaderView.findViewById(R.id.candi_view);
 			if (mHeaderCandiView != null) {
-				View photo = mHeaderCandiView.findViewById(R.id.entity_photo);
+				View photo = mHeaderCandiView.findViewById(R.id.photo);
 				((AirListView) mListView).addParallaxedView(photo);
 			}
 			/*
 			 * Grab the animator
 			 */
 			mHeaderViewAnimator = (ViewAnimator) mHeaderView.findViewById(R.id.animator_header);
-		}
-
-		if (mListView != null) {
-			mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-				@Override
-				public void onScrollStateChanged(AbsListView view, int scrollState) {
-					if (scrollState == SCROLL_STATE_IDLE && mActivityStream) {
-						if (MessagingManager.getInstance().getNewActivity()) {
-							MessagingManager.getInstance().setNewActivity(false);
-							if (getActivity() != null) {
-								((com.aircandi.ui.AircandiForm) getActivity()).updateActivityAlert();
-							}
-							MessagingManager.getInstance().cancelNotifications();
-						}
-					}
-				}
-
-				@Override
-				public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-				}
-			});
 		}
 
 		return view;
@@ -117,14 +92,7 @@ public class MessageListFragment extends EntityListFragment {
 			extras.setEntityId(entity.id);
 		}
 
-
 		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
-
-		MessagingManager.getInstance().setNewActivity(false);
-		if (MessagingManager.getInstance().getMessages().containsKey(entity.id)) {
-			MessagingManager.getInstance().getMessages().remove(entity.id);
-			mAdapter.notifyDataSetChanged();;
-		}
 	}
 
 	@SuppressWarnings("ucd")
@@ -135,11 +103,6 @@ public class MessageListFragment extends EntityListFragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-	}
-
-	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		super.onProcessingComplete(event);
 	}
 
 	@Override
@@ -189,7 +152,7 @@ public class MessageListFragment extends EntityListFragment {
 		Integer padding = UI.getRawPixelsForDisplayPixels(10f);
 		Integer indent = UI.getRawPixelsForDisplayPixels(10f);
 
-		if (entity.type.equals(Message.MessageType.REPLY)
+		if (entity.type != null && entity.type.equals(Message.MessageType.REPLY)
 				&& link != null
 				&& (((BaseActivity) getActivity()).getEntity() != null
 				&& ((BaseActivity) getActivity()).getEntity().id.equals(link.toId))) {

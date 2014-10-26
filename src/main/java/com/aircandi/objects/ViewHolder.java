@@ -14,20 +14,23 @@ import com.aircandi.ui.widgets.UserView;
 public class ViewHolder {
 
 	public CandiView    candiView;
-	public AirImageView photoView;
+	public AirImageView photo;
 	public TextView     name;
 	public TextView     subtitle;
 	public TextView     description;
 	public TextView     type;
+	public TextView     modifiedDate;
 	public TextView     createdDate;
 	public UserView     creator;
 	public TextView     userName;
-	public AirImageView userPhotoView;
+	public AirImageView userPhoto;
 	public TextView     placeName;
 	public TextView     toName;        // NO_UCD (unused code)
 	public TextView     area;
 	public EntityView   parent;
 	public ViewGroup    share;
+	public AirImageView photoBig;
+	public ImageView photoType;
 	public ImageView    alert;
 
 	public ComboButton overflow;
@@ -37,5 +40,4 @@ public class ViewHolder {
 	public String   photoUri;        // Used for verification after fetching image // NO_UCD (unused code)
 	public Object   data;            // object binding to
 	public TextView comments;
-
 }

@@ -42,7 +42,7 @@
 		android:stretchMode="columnWidth"></com.aircandi.ui.widgets.AirGridView>
 
 	<com.aircandi.ui.widgets.AirSquareButton
-		android:id="@+id/button_special"
+		android:id="@+id/button_bubble"
 		style="@style/button_round"
 		android:layout_width="@dimen/button_round_width"
 		android:layout_height="@dimen/button_round_height"

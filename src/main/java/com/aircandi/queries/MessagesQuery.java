@@ -1,10 +1,7 @@
 package com.aircandi.queries;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.interfaces.IEntityController;
@@ -15,13 +12,18 @@ import com.aircandi.objects.Links;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.utilities.Maps;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MessagesQuery implements IQuery {
 
 	protected Cursor mCursor;
-	protected Boolean mMore     = false;
-	protected Integer mPageSize = 30;
+	protected Boolean mMore      = false;
+	protected Integer mPageSize  = 30;
+	protected Integer mPageCount = 0;
 	protected String mSchema;
 	protected String mEntityId;
+	protected Boolean mHasExecuted = false;
 
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {
@@ -53,6 +55,7 @@ public class MessagesQuery implements IQuery {
 		ModelResult result = ((EntityManager) Patchr.getInstance().getEntityManager()).loadMessages(mEntityId, links, mCursor);
 
 		if (result.data != null) {
+			mHasExecuted = true;
 			mMore = ((ServiceData) result.serviceResponse.data).more;
 		}
 
@@ -62,6 +65,11 @@ public class MessagesQuery implements IQuery {
 	@Override
 	public Boolean isMore() {
 		return mMore;
+	}
+
+	@Override
+	public Boolean hasExecuted() {
+		return mHasExecuted;
 	}
 
 	public MessagesQuery setPageSize(Integer pageSize) {

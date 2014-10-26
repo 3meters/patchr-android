@@ -53,4 +53,5 @@ public class Route {
 	public static int PLACE_LIST         = 53;
 	public static int MAP                = 54;
 	public static int LOCATION_EDIT      = 55;
+	public static int PRIVACY_EDIT       = 56;
 }

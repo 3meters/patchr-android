@@ -70,12 +70,12 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	public Photo() {
 	}
 
-	public Photo(String prefix, String suffix, Number width, Number height, String sourceName) {
+	public Photo(String prefix, String suffix, Number width, Number height, String source) {
 		this.prefix = prefix;
 		this.suffix = suffix;
 		this.width = width;
 		this.height = height;
-		this.source = sourceName;
+		this.source = source;
 	}
 
 	/*--------------------------------------------------------------------------------------------

@@ -14,6 +14,7 @@ import com.aircandi.components.LocationManager;
 import com.aircandi.components.MapManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
@@ -21,6 +22,7 @@ import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Place;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.utilities.Errors;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,6 +103,11 @@ public class MapForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		((MapListFragment) mFragment).onProcessingComplete();
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods

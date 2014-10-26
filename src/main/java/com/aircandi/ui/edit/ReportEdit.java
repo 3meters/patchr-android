@@ -45,7 +45,7 @@ public class ReportEdit extends BaseEntityEdit {
 
 				@Override
 				public void afterTextChanged(Editable s) {
-					mDirty = s.toString() != null || !s.toString().equals("");
+					mDirty = !TextUtils.isEmpty(s);
 				}
 			});
 		}

@@ -11,8 +11,10 @@ import android.net.Uri;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.utilities.Colors;
+import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.Utilities;
+import com.crashlytics.android.Crashlytics;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.Listener;
@@ -40,9 +42,17 @@ public class DownloadManager {
 			Listener listener = new Listener() {
 				@Override
 				public void onImageLoadFailed(Picasso picasso, Uri uri, Exception e) {
+					/*
+					 * Getting 404 Not Found: if image not found.
+					 * Getting 400 Bad Request: if invalid hostname.
+					 * Thrown by OkHttpDownloader.load() as ResponseException.
+					 * Also catching MalformedURLException.
+					 */
+					Reporting.logMessage("Image load failed: " + (uri != null ? uri.toString(): "No uri"));
+					Reporting.logException(e);
 					Logger.w(instance, "Image load failed: " + e.getClass().getSimpleName());
 					Logger.w(instance, "Image load failed: " + e.getMessage());
-					Logger.w(instance, "Image load failed: " + uri.toString());
+					Logger.w(instance, "Image load failed: " + (uri != null ? uri.toString(): "No uri"));
 				}
 			};
 

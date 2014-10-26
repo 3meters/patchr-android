@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
+<com.aircandi.ui.widgets.AirDrawerLayout
 	android:id="@+id/drawer_layout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
@@ -41,18 +41,25 @@
 				custom:spb_color="@color/brand_progress_bar_color" />
 		</LinearLayout>
 
+		<com.aircandi.ui.widgets.AirSquareButton
+			android:id="@+id/button_bubble"
+			style="@style/button_round"
+			android:layout_width="@dimen/button_round_width"
+			android:layout_height="@dimen/button_round_height"
+			android:layout_centerInParent="true" />
+
 		<com.aircandi.ui.widgets.AirTextLight
-			android:id="@+id/footer_holder"
-			style="@style/button_round_glow"
+			android:id="@+id/floating_action_button"
+			style="@style/button_round_glow_text"
 			android:layout_width="@dimen/button_round_medium"
 			android:layout_height="@dimen/button_round_medium"
-			android:clickable="false"
-			android:visibility="invisible"
-			android:onClick="onListViewButtonClick"
+			android:clickable="true"
+			android:onClick="onFabButtonClick"
 			android:tag="map"
 			android:text="@string/label_view_map"
 			android:textAllCaps="true"
-			android:textColor="?attr/textColorButtonLink" />
+			android:textColor="?attr/textColorButtonLink"
+			android:visibility="invisible" />
 
 		<com.aircandi.ui.widgets.ToolTipRelativeLayout
 			android:id="@+id/tooltips"
@@ -78,13 +85,22 @@
 	</RelativeLayout>
 
 	<FrameLayout
-		android:id="@+id/drawer"
+		android:id="@+id/right_drawer"
+		android:layout_width="320dp"
+		android:layout_height="match_parent"
+		android:layout_gravity="end"
+		android:background="?attr/backgroundForm">
+
+	</FrameLayout>
+
+	<FrameLayout
+		android:id="@+id/left_drawer"
 		android:layout_width="240dp"
 		android:layout_height="match_parent"
 		android:layout_gravity="start"
 		android:background="?attr/backgroundForm">
 
-		<include layout="@layout/widget_drawer_main" />
+		<include layout="@layout/widget_drawer_start" />
 	</FrameLayout>
 
-</android.support.v4.widget.DrawerLayout>
+</com.aircandi.ui.widgets.AirDrawerLayout>
