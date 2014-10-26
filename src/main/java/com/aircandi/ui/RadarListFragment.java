@@ -87,6 +87,7 @@ public class RadarListFragment extends EntityListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
+		if (view == null) return null;
 		draw(view);
 		return view;
 	}
