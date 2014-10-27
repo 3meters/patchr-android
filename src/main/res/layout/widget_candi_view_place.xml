@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
 	<com.aircandi.ui.widgets.AirImageView
-		android:id="@+id/entity_photo"
+		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -41,7 +42,7 @@
 			custom:sizeType="thumbnail" />
 
 		<LinearLayout
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
 			android:orientation="vertical">
@@ -57,21 +58,60 @@
 				android:textAppearance="?android:attr/textAppearanceMedium"
 				android:textColor="?attr/textColorCandiView"
 				android:textSize="24sp"
-				android:textStyle="bold" />
+				android:textStyle="bold"
+				tools:text="Dillons Fabulous Birthday" />
 
-			<com.aircandi.ui.widgets.AirTextView
-				android:id="@+id/subtitle"
-				android:layout_width="match_parent"
+			<LinearLayout
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_gravity="center_vertical"
 				android:layout_marginBottom="5dp"
 				android:layout_marginLeft="3dp"
 				android:layout_weight="1"
-				android:ellipsize="middle"
-				android:singleLine="true"
-				android:textAppearance="?attr/textAppearanceExtraSmall"
-				android:textColor="?attr/textColorCandiView"
-				android:textSize="14sp" />
+				android:gravity="center_vertical"
+				android:orientation="horizontal">
+
+				<com.aircandi.ui.widgets.AirTextView
+					android:id="@+id/subtitle"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginRight="4dp"
+					android:ellipsize="end"
+					android:singleLine="true"
+					android:textAllCaps="true"
+					android:textAppearance="?android:textAppearanceSmall"
+					android:textColor="?attr/textColorCandiView"
+					tools:text="Event or place" />
+
+				<LinearLayout
+					android:id="@+id/privacy_group"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:gravity="center_vertical"
+					android:orientation="horizontal">
+
+					<ImageView
+						android:layout_width="20dp"
+						android:layout_height="20dp"
+						android:layout_marginRight="4dp"
+						android:maxHeight="20dp"
+						android:maxWidth="20dp"
+						android:scaleType="fitCenter"
+						android:src="@drawable/ic_action_lock_closed_dark"
+						android:tint="@color/brand_primary" />
+
+					<com.aircandi.ui.widgets.AirTextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/label_place_privacy_private"
+						android:textAllCaps="true"
+						android:textAppearance="?android:textAppearanceSmall"
+						android:textColor="?attr/textColorCandiView"
+						tools:text="@string/label_place_privacy_private" />
+
+				</LinearLayout>
+
+			</LinearLayout>
+
 		</LinearLayout>
 	</LinearLayout>
 
@@ -79,7 +119,7 @@
 		android:id="@+id/distance_ignore"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignBottom="@+id/entity_photo"
+		android:layout_alignBottom="@+id/photo"
 		android:layout_alignParentRight="true"
 		android:paddingBottom="12dp"
 		android:paddingRight="10dp"

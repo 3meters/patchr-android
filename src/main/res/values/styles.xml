@@ -192,13 +192,17 @@
 	</style>
 
 	<style name="button_round_glow" parent="button">
-		<item name="android:padding">16dp</item>
+		<item name="android:padding">26dp</item>
 		<item name="android:layout_margin">15dp</item>
 		<item name="android:layout_alignParentBottom">true</item>
 		<item name="android:layout_alignParentRight">true</item>
 		<item name="android:gravity">center</item>
 		<item name="android:tint">@color/brand_primary</item>
 		<item name="android:background">?attr/backgroundButtonRoundGlow</item>
+	</style>
+
+	<style name="button_round_glow_text" parent="button_round_glow">
+		<item name="android:padding">18dp</item>
 	</style>
 
 	<style name="button_message" parent="selectable_item">

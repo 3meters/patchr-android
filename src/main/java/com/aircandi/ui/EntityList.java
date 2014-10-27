@@ -3,12 +3,13 @@ package com.aircandi.ui;
 import android.os.Bundle;
 import android.view.View;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
+import com.aircandi.events.NotificationEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IEntityController;
-import com.aircandi.events.MessageEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
@@ -56,7 +57,7 @@ public class EntityList extends BaseActivity {
 		             .setMonitor(monitor)
 		             .setListItemResId(mParams.getListItemResId())
 		             .setListViewType(mParams.getListViewType())
-		             .setListButtonMessageResId(mParams.getListNewMessageResId())
+		             .setBubbleButtonMessageResId(mParams.getListNewMessageResId())
 		             .setListLayoutResId(mParams.getListLayoutResId())
 		             .setListLoadingResId(mParams.getListLoadingResId())
 		             .setSelfBindingEnabled(true);
@@ -65,7 +66,7 @@ public class EntityList extends BaseActivity {
 		draw(null);
 	}
 
-	public void draw(View view){
+	public void draw(View view) {
 		IEntityController controller = Patchr.getInstance().getControllerForSchema(mParams.getListLinkSchema());
 		setActivityTitle((mParams.getListTitle() != null) ? mParams.getListTitle() : controller.getName(true));
 	}
@@ -76,13 +77,13 @@ public class EntityList extends BaseActivity {
 
 	@Subscribe
 	@SuppressWarnings("ucd")
-	public void onMessage(final MessageEvent event) {
+	public void onMessage(final NotificationEvent event) {
 		/*
 		 * Refresh the form because something new has been added to it
 		 * like a comment or post.
 		 */
-		if (event.message.action.toEntity != null
-				&& mParams.getEntityId().equals(event.message.action.toEntity.id)) {
+		if (event.notification.parentId != null
+				&& mParams.getEntityId().equals(event.notification.parentId)) {
 
 			runOnUiThread(new Runnable() {
 				@Override
@@ -98,6 +99,11 @@ public class EntityList extends BaseActivity {
 		if (mListFragment != null) {
 			mListFragment.onRefresh();
 		}
+	}
+
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		mListFragment.onProcessingComplete();
 	}
 
 	@SuppressWarnings("ucd")

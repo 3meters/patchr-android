@@ -111,7 +111,7 @@
 		<!-- Photo -->
 
 		<com.aircandi.ui.widgets.AirImageView
-			android:id="@+id/entity_photo"
+			android:id="@+id/photo"
 			style="@style/selectable_image"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

@@ -14,6 +14,7 @@ import com.aircandi.R;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Link;
@@ -31,6 +32,7 @@ import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 @SuppressLint("Registered")
 @SuppressWarnings("ucd")
@@ -45,6 +47,7 @@ public class UserForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
+		mBubbleButton.setEnabled(false);
 		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
 		mLinkProfile = currentUser ? LinkProfile.LINKS_FOR_USER_CURRENT : LinkProfile.LINKS_FOR_USER;
 		mListFragment = new MessageListFragment();
@@ -64,7 +67,7 @@ public class UserForm extends BaseEntityForm {
 		             .setListLayoutResId(R.layout.entity_list_fragment)
 		             .setListLoadingResId(R.layout.temp_listitem_loading)
 		             .setListItemResId(R.layout.temp_listitem_message)
-		             .setListEmptyMessageResId(R.string.label_sent_empty)
+//		             .setListEmptyMessageResId(R.string.label_sent_empty)
 		             .setHeaderViewResId(R.layout.widget_list_header_user)
 		             .setSelfBindingEnabled(false);
 
@@ -91,6 +94,11 @@ public class UserForm extends BaseEntityForm {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		mListFragment.onProcessingComplete();
+	}
+
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
 		mListFragment.onMoreButtonClick(view);
@@ -111,9 +119,18 @@ public class UserForm extends BaseEntityForm {
 			titleResId = R.string.label_drawer_item_create;
 		}
 
+		int emptyResId = 0;
+		if (linkType.equals(Constants.TYPE_LINK_WATCH)) {
+			emptyResId = R.string.label_watching_empty;
+		}
+		else if (linkType.equals(Constants.TYPE_LINK_CREATE)) {
+			emptyResId = R.string.label_created_empty;
+		}
+
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
 		extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, titleResId);
+		extras.putInt(Constants.EXTRA_LIST_EMPTY_RESID, emptyResId);
 
 		Patchr.dispatch.route(this, Route.PLACE_LIST, mEntity, null, extras);
 	}
@@ -122,9 +139,9 @@ public class UserForm extends BaseEntityForm {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	protected void actionBarIcon() {
+	protected void setActionBarIcon() {
 		if (mActionBar != null) {
-			Drawable icon = getResources().getDrawable(R.drawable.img_user_dark);
+			Drawable icon = getResources().getDrawable(R.drawable.ic_home_user_dark);
 			mActionBar.setIcon(icon);
 		}
 	}
@@ -145,12 +162,14 @@ public class UserForm extends BaseEntityForm {
 		Count watching = mEntity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PLACE, true, Link.Direction.out);
 		Count created = mEntity.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PLACE, true, Link.Direction.out);
 
-		if (watching != null) {
-			mButtonWatching.setText(StringManager.getString(R.string.label_user_watching) + ": " + String.valueOf(watching.count.intValue()));
-		}
-		if (created != null) {
-			mButtonCreated.setText(StringManager.getString(R.string.label_user_created) + ": " + String.valueOf(created.count.intValue()));
-		}
+		mButtonWatching.setText(StringManager.getString(R.string.label_user_watching)
+				+ ": " + ((watching != null)
+				          ? String.valueOf(watching.count.intValue())
+				          : StringManager.getString(R.string.label_user_watching_none)));
+		mButtonCreated.setText(StringManager.getString(R.string.label_user_created)
+				+ ": " + ((created != null)
+				          ? String.valueOf(created.count.intValue())
+				          : StringManager.getString(R.string.label_user_created_none)));
 	}
 
 	@Override
@@ -165,7 +184,7 @@ public class UserForm extends BaseEntityForm {
 		User user = (User) mEntity;
 
 		final CandiView candiView = (CandiView) findViewById(R.id.candi_view);
-		final AirImageView photoView = (AirImageView) findViewById(R.id.entity_photo);
+		final AirImageView photoView = (AirImageView) findViewById(R.id.photo);
 		final TextView name = (TextView) findViewById(R.id.name);
 		final TextView subtitle = (TextView) findViewById(R.id.subtitle);
 		final TextView area = (TextView) findViewById(R.id.area);
@@ -216,21 +235,21 @@ public class UserForm extends BaseEntityForm {
 			/* Description section */
 
 			UI.setVisibility(area, View.GONE);
-			if (area != null && user.area != null && !user.area.equals("")) {
+			if (area != null && !TextUtils.isEmpty(user.area)) {
 				area.setText(Html.fromHtml(user.area));
 				UI.setVisibility(area, View.VISIBLE);
 				UI.setVisibility(findViewById(R.id.section_details), View.VISIBLE);
 			}
 
 			UI.setVisibility(webUri, View.GONE);
-			if (webUri != null && user.webUri != null && !user.webUri.equals("")) {
+			if (webUri != null && !TextUtils.isEmpty(user.webUri)) {
 				webUri.setText(Html.fromHtml(user.webUri));
 				UI.setVisibility(webUri, View.VISIBLE);
 				UI.setVisibility(findViewById(R.id.section_details), View.VISIBLE);
 			}
 
 			UI.setVisibility(bio, View.GONE);
-			if (bio != null && user.bio != null && !user.bio.equals("")) {
+			if (bio != null && !TextUtils.isEmpty(user.bio)) {
 				bio.setText(Html.fromHtml(user.bio));
 				UI.setVisibility(bio, View.VISIBLE);
 				UI.setVisibility(findViewById(R.id.section_details), View.VISIBLE);

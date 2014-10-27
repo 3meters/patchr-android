@@ -7,7 +7,7 @@
 	android:layout_height="@dimen/image_medium">
 
 	<com.aircandi.ui.widgets.AirImageView
-		android:id="@+id/entity_photo"
+		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_medium"
 		android:layout_height="@dimen/image_medium"
@@ -23,7 +23,7 @@
 		android:layout_height="wrap_content"
 		android:layout_alignParentTop="true"
 		android:layout_marginTop="5dp"
-		android:layout_toRightOf="@+id/entity_photo"
+		android:layout_toRightOf="@+id/photo"
 		android:ellipsize="end"
 		android:maxLines="3"
 		android:singleLine="false"

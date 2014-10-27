@@ -83,6 +83,7 @@
 	<integer name="page_size_entities">30</integer>
 	<integer name="page_size_users">30</integer>
 	<integer name="page_size_messages">50</integer>
+	<integer name="page_size_notifications">20</integer>
 	<integer name="page_size_replies">50</integer>
 
 </resources>

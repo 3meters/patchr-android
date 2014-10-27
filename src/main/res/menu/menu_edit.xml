@@ -3,7 +3,7 @@
 
 	<item
 		android:id="@+id/edit"
-		android:icon="?attr/iconEdit"
+		android:icon="?attr/iconActionEdit"
 		android:orderInCategory="90"
 		android:showAsAction="ifRoom"
 		android:title="@string/menu_item_edit" />

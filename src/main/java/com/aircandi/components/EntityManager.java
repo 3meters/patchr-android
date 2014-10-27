@@ -8,7 +8,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
-import com.aircandi.components.MessagingManager.Tag;
+import com.aircandi.components.NotificationManager.Tag;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.objects.AirLocation;
@@ -184,7 +184,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public synchronized ModelResult loadAlerts(String entityId, Cursor cursor) {
+	public synchronized ModelResult loadNotifications(String entityId, Cursor cursor) {
 
 		final ModelResult result = new ModelResult();
 
@@ -196,7 +196,7 @@ public class EntityManager {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getAlerts")
+				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getNotifications")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
@@ -529,9 +529,9 @@ public class EntityManager {
 			Logger.i(this, "Activating anonymous user");
 
 			/* Cancel any current notifications in the status bar */
-			MessagingManager.getInstance().cancelNotification(Tag.INSERT);
-			MessagingManager.getInstance().cancelNotification(Tag.ALERT);
-			MessagingManager.getInstance().cancelNotification(Tag.SHARE);
+			NotificationManager.getInstance().cancelNotification(Tag.INSERT);
+			NotificationManager.getInstance().cancelNotification(Tag.NOTIFICATION);
+			NotificationManager.getInstance().cancelNotification(Tag.SHARE);
 
 			/* Clear user settings */
 			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
@@ -561,7 +561,6 @@ public class EntityManager {
 		return result;
 	}
 
-	@SuppressWarnings("ucd")
 	public ModelResult signoutComplete() {
 		final ModelResult result = new ModelResult();
 		/*
@@ -1225,23 +1224,29 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult insertLink(String fromId
+	public ModelResult insertLink(String linkId
+			, String fromId
 			, String toId
 			, String type
 			, Boolean enabled
 			, Shortcut fromShortcut
 			, Shortcut toShortcut
-			, String actionEvent) {
+			, String actionEvent
+			, Boolean skipCache) {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
-		parameters.putString("fromId", fromId);        // required
-		parameters.putString("toId", toId);                // required
-		parameters.putString("type", type);                // required
+		parameters.putString("fromId", fromId);             // required
+		parameters.putString("toId", toId);                 // required
+		parameters.putString("type", type);                 // required
 		parameters.putString("actionEvent", actionEvent);
 
 		if (enabled != null) {
-			parameters.putBoolean("enabled", enabled);        // optional
+			parameters.putBoolean("enabled", enabled);      // optional
+		}
+
+		if (linkId != null) {
+			parameters.putString("linkId", linkId);         // upserts supported so this is optional
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
@@ -1259,17 +1264,16 @@ public class EntityManager {
 		 * We update the cache directly instead of refreshing from the service
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			String action = "entity_" + type;
-			if (enabled != null) {
-				action += action + "_" + (enabled ? "approved" : "requested");
+			if (!skipCache) {
+				mEntityCache.addLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
 			}
-
-			Patchr.tracker.sendEvent(TrackerCategory.LINK, action, toShortcut.schema, 0);
+			Patchr.tracker.sendEvent(TrackerCategory.LINK, actionEvent, toShortcut.schema, 0);
+		}
+		else {
 			/*
 			 * Fail could be because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
 			 */
-			mEntityCache.addLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
 		}
 
 		return result;
@@ -1279,9 +1283,9 @@ public class EntityManager {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
-		parameters.putString("fromId", fromId);        // required
-		parameters.putString("toId", toId);                // required
-		parameters.putString("type", type);                // required
+		parameters.putString("fromId", fromId);             // required
+		parameters.putString("toId", toId);                 // required
+		parameters.putString("type", type);                 // required
 		parameters.putString("actionEvent", actionEvent);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
@@ -1300,9 +1304,15 @@ public class EntityManager {
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			String action = "entity_un" + type;
-			if (enabled != null) {
-				action += action + "_" + (enabled ? "approved" : "requested");
+			String action = null;
+			if (actionEvent != null) {
+				action = actionEvent;
+			}
+			else {
+				action = "entity_un" + type;
+				if (enabled != null) {
+					action += action + "_" + (enabled ? "approved" : "requested");
+				}
 			}
 
 			Patchr.tracker.sendEvent(TrackerCategory.LINK, action, schema, 0);
@@ -1411,39 +1421,6 @@ public class EntityManager {
 			Patchr.tracker.sendEvent(TrackerCategory.LINK, "entity_remove", schema, 0);
 			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 			mEntityCache.removeLink(fromId, toId, type, null);
-		}
-
-		return result;
-	}
-
-	@SuppressWarnings("ucd")
-	public ModelResult enabledLink(String fromId, String toId, String type, Boolean enabled, String actionEvent) {
-		/*
-		 * Will be used to support private patches.
-		 */
-		final ModelResult result = new ModelResult();
-
-		final Bundle parameters = new Bundle();
-		parameters.putString("fromId", fromId);            // required
-		parameters.putString("toId", toId);                    // required
-		parameters.putString("type", type);                    // required
-		parameters.putBoolean("enabled", enabled);            // required
-		parameters.putString("actionEvent", actionEvent);
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "enableLink")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patchr.tracker.sendEvent(TrackerCategory.LINK, "entity_watch_" + (enabled ? "approved" : "requested"), Constants.SCHEMA_ENTITY_PLACE, 0);
 		}
 
 		return result;

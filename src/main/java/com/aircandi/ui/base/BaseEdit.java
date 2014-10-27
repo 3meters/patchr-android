@@ -23,6 +23,7 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 
 	protected Boolean mEditing                = false;
 	protected Boolean mDirty                  = false;
+	protected Boolean mProcessing             = false;
 	protected Integer mDirtyExitTitleResId    = R.string.alert_dirty_exit_title;
 	protected Integer mDirtyExitMessageResId  = R.string.alert_dirty_exit_message;
 	protected Integer mDirtyExitPositiveResId = R.string.alert_dirty_save;
@@ -60,9 +61,9 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 	@Override
 	public void draw(View view) {}
 
-	protected void actionBarIcon() {
+	protected void setActionBarIcon() {
 		if (mActionBar != null) {
-			Drawable icon = getResources().getDrawable(R.drawable.img_edit_dark);
+			Drawable icon = getResources().getDrawable(R.drawable.ic_home_edit_dark);
 			mActionBar.setIcon(icon);
 		}
 	}

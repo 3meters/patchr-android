@@ -3,7 +3,7 @@
 
 	<item
 		android:id="@+id/accept"
-		android:icon="?attr/iconSend"
+		android:icon="?attr/iconActionSend"
 		android:orderInCategory="20"
 		android:showAsAction="always"
 		android:title="@string/menu_item_send" />

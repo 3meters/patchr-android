@@ -25,12 +25,12 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
-import com.aircandi.components.MessagingManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.EntitiesLoadedEvent;
-import com.aircandi.events.MessageEvent;
+import com.aircandi.events.NotificationEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.monitors.EntityMonitor;
@@ -98,6 +98,7 @@ public class MessageForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
+		mBubbleButton.setEnabled(false);
 		mLinkProfile = LinkProfile.LINKS_FOR_MESSAGE;
 
 		mListFragment = new MessageListFragment();
@@ -121,8 +122,7 @@ public class MessageForm extends BaseEntityForm {
 		             .setFooterViewResId(R.layout.widget_list_footer_message)
 		             .setBackgroundResId(R.drawable.selector_item)
 		             .setReverseSort(true)
-		             .setSelfBindingEnabled(false)
-		             .setButtonSpecialEnabled(false);
+		             .setSelfBindingEnabled(false);
 
 		if (mChildId != null) {
 			mHighlight = new Highlight(true);
@@ -136,9 +136,6 @@ public class MessageForm extends BaseEntityForm {
 	public void afterDatabind(final BindingMode mode, ModelResult result) {
 		super.afterDatabind(mode, result);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-            /* Clear notifications and activity indicator */
-			MessagingManager.getInstance().setNewActivity(false);
 			if (mEntityMonitor.changed) {
 				mListFragment.bind(BindingMode.MANUAL);
 			}
@@ -165,7 +162,7 @@ public class MessageForm extends BaseEntityForm {
 		}
 		mFirstDraw = false;
 
-		final AirImageView photoView = (AirImageView) view.findViewById(R.id.entity_photo);
+		final AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
 		final View holderUser = view.findViewById(R.id.holder_user);
 		final View holderPlace = view.findViewById(R.id.holder_place);
 		final TextView description = (TextView) view.findViewById(R.id.description);
@@ -186,7 +183,7 @@ public class MessageForm extends BaseEntityForm {
 		if (share) {
 
 			mEntity.shareable = false;
-			UI.setVisibility(findViewById(R.id.footer_holder), View.GONE);
+			mFab.fadeOut();
 			UI.setVisibility(findViewById(R.id.button_share), View.GONE);
 			UI.setVisibility(findViewById(R.id.divider_replies), View.GONE);
 
@@ -445,13 +442,26 @@ public class MessageForm extends BaseEntityForm {
 	}
 
 	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mListFragment.onProcessingComplete();
+				mFab.fadeIn();
+				mBubbleButton.fadeOut();
+			}
+		});
+	}
+
+	@Subscribe
 	@SuppressWarnings("ucd")
-	public void onMessage(final MessageEvent event) {
+	public void onMessage(final NotificationEvent event) {
 	    /*
-         * Refresh the form because something new has been added to it
+	     * Refresh the form because something new has been added to it
 		 * like a comment or post.
 		 */
-		if (related(event.message.action.toEntity.id)) {
+		if (related(event.notification.parentId)) {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
@@ -570,9 +580,9 @@ public class MessageForm extends BaseEntityForm {
 		builder.startChooser();
 	}
 
-	protected void actionBarIcon() {
+	protected void setActionBarIcon() {
 		if (mActionBar != null) {
-			Drawable icon = getResources().getDrawable(R.drawable.img_message_dark);
+			Drawable icon = getResources().getDrawable(R.drawable.ic_home_message_dark);
 			mActionBar.setIcon(icon);
 		}
 	}

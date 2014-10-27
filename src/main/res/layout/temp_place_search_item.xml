@@ -23,7 +23,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
-		android:layout_toLeftOf="@+id/entity_photo"
+		android:layout_toLeftOf="@+id/photo"
 		android:layout_toRightOf="@+id/indicator"
 		android:orientation="vertical">
 
@@ -47,7 +47,7 @@
 	</LinearLayout>
 
 	<com.aircandi.ui.widgets.AirImageView
-		android:id="@+id/entity_photo"
+		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_small"
 		android:layout_height="@dimen/image_small"

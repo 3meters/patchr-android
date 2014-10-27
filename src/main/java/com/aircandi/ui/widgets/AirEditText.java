@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -88,7 +89,7 @@ public class AirEditText extends EditText {
 
 	private void clearButtonHandler() {
 		final Drawable[] drawables = getCompoundDrawables();
-		if (!hasFocus() || getText().toString().equals("") || getText().toString().length() == 0) {
+		if (!hasFocus() || TextUtils.isEmpty(getText().toString())) {
 			/* Remove clear button */
 			setCompoundDrawables(drawables[0], null, null, null);
 		}

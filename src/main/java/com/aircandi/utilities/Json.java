@@ -15,7 +15,6 @@ import com.aircandi.objects.Photo;
 import com.aircandi.objects.ServiceBase.UpdateScope;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.objects.ServiceEntry;
-import com.aircandi.objects.ServiceMessage;
 import com.aircandi.objects.ServiceObject;
 import com.aircandi.objects.Session;
 import com.aircandi.objects.Shortcut;
@@ -149,7 +148,6 @@ public class Json {
 				}
 				return serviceData;
 			}
-
 		}
 		catch (ParseException e) {
 			Reporting.logException(e);
@@ -192,10 +190,6 @@ public class Json {
 				}
 				else if (objectType == Json.ObjectType.AIR_LOCATION) {
 					list.add(AirLocation.setPropertiesFromMap(new AirLocation(), map, nameMapping));
-				}
-				else if (objectType == Json.ObjectType.SERVICE_MESSAGE) {
-					ServiceMessage message = ServiceMessage.setPropertiesFromMap(new ServiceMessage(), map, nameMapping);
-					list.add(message);
 				}
 				else if (objectType == Json.ObjectType.LINK) {
 					list.add(Link.setPropertiesFromMap(new Link(), map, nameMapping));
@@ -359,8 +353,6 @@ public class Json {
 
 	public static enum ObjectType {
 		ENTITY,
-		//		BEACON,
-		//		USER,
 		SESSION,
 		PHOTO,
 		LINK,
@@ -371,16 +363,11 @@ public class Json {
 		DOCUMENT,
 		NONE,
 		SERVICE_ENTRY,
-		//		APPLINK,
 		SHORTCUT,
 		INSTALL,
-		//		PLACE,
-		//		POST,
-		//		COMMENT,
 		AIR_MARKER,
 		SERVICE_ACTIVITY,
 		SERVICE_MESSAGE,
 		COUNT
 	}
-
 }

@@ -190,9 +190,9 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 	}
 
-	protected void actionBarIcon() {
+	protected void setActionBarIcon() {
 		if (mActionBar != null) {
-			Drawable icon = getResources().getDrawable(R.drawable.img_message_edit_dark);
+			Drawable icon = getResources().getDrawable(R.drawable.ic_home_edit_dark);
 			mActionBar.setIcon(icon);
 		}
 	}
@@ -451,6 +451,10 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 	@Override
 	public void onAccept() {
+
+		if (mProcessing) return;
+		mProcessing = true;
+
 		if (isDirty() || mMessageType.equals(MessageType.SHARE)) {
 			if (validate()) { // validate() also gathers
 
@@ -467,8 +471,12 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 					}
 				}
 			}
+			else {
+				mProcessing = false;
+			}
 		}
 		else {
+			mProcessing = false;
 			onCancel(false);
 		}
 	}

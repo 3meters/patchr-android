@@ -66,11 +66,11 @@ public class MenuManager {
 			 * Fragments set menu items when they are configured which are
 			 * later added in BaseFragment.onCreateOptionsMenu.
 			 */
-			menuInflater.inflate(R.menu.menu_base, menu);
+			menuInflater.inflate(R.menu.menu_sign_in, menu);
 			return true;
 		}
 		else if (activityName.equals("PlaceForm")) {
-			menuInflater.inflate(R.menu.menu_base, menu);
+			menuInflater.inflate(R.menu.menu_sign_in, menu);
 			return true;
 		}
 		else if (activityName.equals("UserForm")) {
@@ -163,19 +163,6 @@ public class MenuManager {
 				menuInflater.inflate(R.menu.menu_cancel, menu);
 				return true;
 			}
-			else if (activityName.equals("PictureForm")) {
-				menuInflater.inflate(R.menu.menu_refresh, menu);
-				menuInflater.inflate(R.menu.menu_add, menu);
-				menuInflater.inflate(R.menu.menu_edit, menu);
-				menuInflater.inflate(R.menu.menu_base, menu);
-				return true;
-			}
-			else if (activityName.equals("CommentForm")) {
-				menuInflater.inflate(R.menu.menu_cancel, menu);
-				menuInflater.inflate(R.menu.menu_base, menu);
-				menuInflater.inflate(R.menu.menu_help, menu);
-				return true;
-			}
 			else if (activityName.equals("PhotoForm")) {
 				menuInflater.inflate(R.menu.menu_cancel, menu);
 				menuInflater.inflate(R.menu.menu_share, menu);
@@ -184,16 +171,16 @@ public class MenuManager {
 			else if (activityName.equals("EntityList")) {
 				menuInflater.inflate(R.menu.menu_refresh, menu);
 				menuInflater.inflate(R.menu.menu_add, menu);
-				menuInflater.inflate(R.menu.menu_base, menu);
+				menuInflater.inflate(R.menu.menu_sign_in, menu);
 				return true;
 			}
 			else if (activityName.equals("MapForm")) {
 				menuInflater.inflate(R.menu.menu_navigate, menu);
-				menuInflater.inflate(R.menu.menu_base, menu);
+				menuInflater.inflate(R.menu.menu_sign_in, menu);
 				return true;
 			}
 			else {
-				menuInflater.inflate(R.menu.menu_base, menu);
+				menuInflater.inflate(R.menu.menu_sign_in, menu);
 				return true;
 			}
 		}

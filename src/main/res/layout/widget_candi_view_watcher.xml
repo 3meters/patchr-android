@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools">
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:showIn="@layout/dummy_relative_layout">
 
 	<com.aircandi.ui.widgets.AirImageView
-		android:id="@+id/entity_photo"
+		android:id="@+id/photo"
 		style="@style/selectable_image"
-		android:layout_width="@dimen/image_medium_small"
-		android:layout_height="@dimen/image_medium_small"
+		android:layout_width="@dimen/image_medium"
+		android:layout_height="@dimen/image_medium"
 		android:layout_marginRight="10dp"
 		android:paddingBottom="8dp"
 		android:paddingLeft="8dp"
@@ -22,11 +23,11 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentTop="true"
-		android:layout_toLeftOf="@+id/distance"
-		android:layout_toRightOf="@+id/entity_photo"
+		android:layout_toRightOf="@+id/photo"
 		android:ellipsize="end"
 		android:paddingTop="8dp"
 		android:singleLine="true"
+		tools:text="Aliza Wenk"
 		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:textStyle="bold" />
 
@@ -36,21 +37,37 @@
 		android:layout_height="wrap_content"
 		android:layout_alignLeft="@+id/name"
 		android:layout_below="@+id/name"
-		android:layout_marginBottom="5dp"
-		android:layout_marginLeft="2dp"
 		android:ellipsize="end"
+		tools:text="Seattle, WA"
 		android:singleLine="true"
 		android:textAppearance="?android:attr/textAppearanceSmall"
 		android:textColor="?textColorSecondary" />
 
-	<RelativeLayout
-		android:id="@+id/holder_owner_edit"
+	<com.aircandi.ui.widgets.AirTextView
+		android:id="@+id/role"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignLeft="@+id/name"
-		android:layout_below="@+id/email"
+		android:layout_below="@+id/area"
+		android:ellipsize="end"
+		tools:text="Owner"
+		tools:visibility="visible"
+		android:visibility="gone"
+		android:singleLine="true"
+		android:textAllCaps="true"
+		android:layout_marginBottom="8dp"
+		android:textAppearance="?android:attr/textAppearanceSmall"
+		android:textColor="@color/brand_primary" />
+
+	<RelativeLayout
+		android:id="@+id/owner_edit_group"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignLeft="@+id/name"
+		android:layout_alignBottom="@+id/photo"
 		android:layout_marginBottom="8dp"
 		android:orientation="horizontal"
+		tools:visibility="visible"
 		android:visibility="gone">
 
 		<com.aircandi.ui.widgets.AirTextLight
@@ -59,16 +76,18 @@
 			android:layout_height="wrap_content"
 			android:layout_centerVertical="true"
 			android:layout_marginRight="8dp"
+			tools:text="Approved:"
 			android:text="@string/label_watcher_enable"
 			android:textAppearance="?android:attr/textAppearanceMedium" />
-
-		<CheckBox
+		
+		<Switch
 			android:id="@+id/switch_enable"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
 			android:layout_centerVertical="true"
+			android:layout_height="wrap_content"
 			android:layout_toRightOf="@+id/enabled"
-			android:onClick="onEnabledClick" />
+			android:onClick="onApprovedClick"/>
+
 	</RelativeLayout>
 
 	<com.aircandi.ui.widgets.ComboButton
@@ -81,6 +100,7 @@
 		android:layout_centerVertical="true"
 		android:onClick="onDeleteRequestClick"
 		android:visibility="gone"
+		tools:visibility="visible"
 		custom:drawable="?attr/iconCancel" />
 
 </merge>

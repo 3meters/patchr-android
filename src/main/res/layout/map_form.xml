@@ -35,4 +35,11 @@
 			custom:spb_color="@color/brand_progress_bar_color" />
 	</LinearLayout>
 
+	<com.aircandi.ui.widgets.AirSquareButton
+		android:id="@+id/button_bubble"
+		style="@style/button_round"
+		android:layout_width="@dimen/button_round_width"
+		android:layout_height="@dimen/button_round_height"
+		android:layout_centerInParent="true" />
+
 </RelativeLayout>

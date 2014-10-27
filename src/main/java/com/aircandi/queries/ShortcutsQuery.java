@@ -10,6 +10,8 @@ public class ShortcutsQuery implements IQuery {
 
 	protected String  mEntityId;
 	protected Integer mPageSize;
+	protected Integer mPageCount   = 0;
+	protected Boolean mHasExecuted = false;
 
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {
@@ -27,6 +29,11 @@ public class ShortcutsQuery implements IQuery {
 	@Override
 	public Boolean isMore() {
 		return false;
+	}
+
+	@Override
+	public Boolean hasExecuted() {
+		return mHasExecuted;
 	}
 
 	@Override

@@ -29,13 +29,14 @@ import com.aircandi.objects.Place;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.ShortcutSettings;
 import com.aircandi.objects.User;
-import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.UI;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @SuppressWarnings("ucd")
 public class CandiView extends RelativeLayout {
@@ -60,6 +61,7 @@ public class CandiView extends RelativeLayout {
 	protected TextView     mLastMessageDate;
 	protected TextView     mWatchCount;
 	protected View         mCandiViewGroup;
+	protected View         mPrivacyGroup;
 	protected LinearLayout mHolderShortcuts;
 	protected LinearLayout mHolderInfo;
 	protected CacheStamp   mCacheStamp;
@@ -105,7 +107,7 @@ public class CandiView extends RelativeLayout {
 		mLayout = (ViewGroup) LayoutInflater.from(getContext()).inflate(mLayoutId, this, true);
 
 		mCandiViewGroup = mLayout.findViewById(R.id.candi_view_group);
-		mPhotoView = (AirImageView) mLayout.findViewById(R.id.entity_photo);
+		mPhotoView = (AirImageView) mLayout.findViewById(R.id.photo);
 		mName = (TextView) mLayout.findViewById(R.id.name);
 		mSubtitle = (TextView) mLayout.findViewById(R.id.subtitle);
 		mArea = (TextView) mLayout.findViewById(R.id.area);
@@ -118,6 +120,7 @@ public class CandiView extends RelativeLayout {
 		mMessageCount = (TextView) mLayout.findViewById(R.id.message_count);
 		mWatchCount = (TextView) mLayout.findViewById(R.id.watch_count);
 		mLastMessageDate = (TextView) mLayout.findViewById(R.id.last_message_date);
+		mPrivacyGroup = (View) mLayout.findViewById(R.id.privacy_group);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -207,7 +210,7 @@ public class CandiView extends RelativeLayout {
 			/* Name */
 
 			setVisibility(mName, View.GONE);
-			if (mName != null && entity.name != null && !entity.name.equals("")) {
+			if (mName != null && !TextUtils.isEmpty(entity.name)) {
 				mName.setText(Html.fromHtml(entity.name));
 				setVisibility(mName, View.VISIBLE);
 			}
@@ -215,9 +218,8 @@ public class CandiView extends RelativeLayout {
 			/* Subtitle */
 
 			setVisibility(mSubtitle, View.GONE);
-			if (mSubtitle != null && entity.subtitle != null && !entity.subtitle.equals("")) {
-				mSubtitle.setText(Html.fromHtml(entity.subtitle.toUpperCase(Locale.US)));
-				setVisibility(mSubtitle, View.VISIBLE);
+			if (mSubtitle != null && !TextUtils.isEmpty(entity.subtitle)) {
+				mSubtitle.setText(Html.fromHtml(entity.subtitle.toUpperCase(Locale.US)).toString());
 			}
 
 			if (entity instanceof User) {
@@ -251,20 +253,21 @@ public class CandiView extends RelativeLayout {
 				if (mSubtitle != null) {
 					setVisibility(mSubtitle, View.INVISIBLE);
 					if (category != null && category.name != null && !category.id.equals("generic")) {
-						if (entity.visibility.equals(Constants.VISIBILITY_PRIVATE)) {
-							mSubtitle.setText(Html.fromHtml(category.name.toUpperCase(Locale.US))
-									+ " " + StringManager.getString(R.string.label_place_private_flag).toUpperCase(Locale.US));
-						}
-						else {
-							mSubtitle.setText(Html.fromHtml(category.name.toUpperCase(Locale.US)));
-						}
+						mSubtitle.setText(Html.fromHtml(category.name.toUpperCase(Locale.US)));
 						setVisibility(mSubtitle, View.VISIBLE);
 					}
 					else {
 						/* No category so show default label */
-						mSubtitle.setText(StringManager.getString(R.string.label_place_category_default).toUpperCase(Locale.US));
+						String subtitle = StringManager.getString(R.string.label_place_category_default).toUpperCase(Locale.US);
+						mSubtitle.setText(subtitle);
 						setVisibility(mSubtitle, View.VISIBLE);
 					}
+				}
+
+				/* Privacy */
+
+				if (mPrivacyGroup != null) {
+					mPrivacyGroup.setVisibility((place.privacy != null && place.privacy.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
 				}
 
 				/* Category photo */
@@ -323,10 +326,6 @@ public class CandiView extends RelativeLayout {
 		setVisibility(mHolderShortcuts, View.GONE);
 		setVisibility(mCount, View.GONE);
 
-		if (entity instanceof Place) {
-			if (!((Place) entity).visibleToCurrentUser()) return;
-		}
-
 		if (mHolderShortcuts != null) {
 
 			ShortcutSettings settings = new ShortcutSettings(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, Direction.in, false, false);
@@ -359,40 +358,29 @@ public class CandiView extends RelativeLayout {
 
 				/* We only show the first two */
 				int shortcutCount = 0;
+				Map<String, Boolean> shortcutMap = new HashMap<String, Boolean>();
 				for (Shortcut shortcut : shortcuts) {
-					if (shortcutCount < Integers.getInteger(R.integer.limit_indicators_radar)) {
-						View view = inflater.inflate(R.layout.temp_indicator_message, mHolderShortcuts, false);
-						TextView name = (TextView) view.findViewById(R.id.indicator_name);
-						TextView message = (TextView) view.findViewById(R.id.indicator_message);
-						name.setText(shortcut.creator.name);
-						if (!TextUtils.isEmpty(shortcut.description)) {
-							message.setText(shortcut.description);
+					if (!shortcutMap.containsKey(shortcut.id)) {
+						if (shortcutCount < Integers.getInteger(R.integer.limit_indicators_radar)) {
+							View view = inflater.inflate(R.layout.temp_indicator_message, mHolderShortcuts, false);
+							TextView message = (TextView) view.findViewById(R.id.indicator_message);
+							if (!TextUtils.isEmpty(shortcut.description)) {
+								message.setText(shortcut.description);
+							}
+							else if (shortcut.photo != null) {
+								message.setText("+photo");
+							}
+							mHolderShortcuts.addView(view);
 						}
-						else if (shortcut.photo != null) {
-							message.setText("+photo");
-						}
-						mHolderShortcuts.addView(view);
+						shortcutMap.put(shortcut.id, true);
+						shortcutCount++;
 					}
-					shortcutCount++;
 				}
 				mShortcuts = shortcuts;
 			}
 
 			if (mShortcuts.size() > 0) {
 				setVisibility(mHolderShortcuts, View.VISIBLE);
-			}
-		}
-
-		/* Last message date */
-		if (mLastMessageDate != null) {
-			ShortcutSettings settings = new ShortcutSettings(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, Direction.in, false, false);
-			List<Shortcut> shortcuts = (List<Shortcut>) entity.getShortcuts(settings, null, new Shortcut.SortByPositionSortDate());
-			if (shortcuts != null && shortcuts.size() > 0) {
-				String compactAgo = DateTime.intervalCompact(shortcuts.get(0).sortDate.longValue(), DateTime.nowDate().getTime(), DateTime.IntervalContext.PAST);
-				mLastMessageDate.setText(compactAgo);
-			}
-			else {
-				mLastMessageDate.setVisibility(INVISIBLE);
 			}
 		}
 
@@ -411,7 +399,7 @@ public class CandiView extends RelativeLayout {
 
 		/* Watch count for nearby list */
 		if (mWatchCount != null) {
-			Count watchCount = entity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, null, Direction.in);
+			Count watchCount = entity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, Direction.in);
 			mWatchCount.setText((watchCount != null) ? String.valueOf(watchCount.count.intValue()) : "0");
 		}
 	}
@@ -420,7 +408,7 @@ public class CandiView extends RelativeLayout {
 
 		View view = LayoutInflater.from(getContext()).inflate(R.layout.temp_radar_link_item, null);
 		view.setId(id);
-		AirImageView photoView = (AirImageView) view.findViewById(R.id.entity_photo);
+		AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
 		TextView label = (TextView) view.findViewById(R.id.name);
 
 		label.setVisibility(View.GONE);
@@ -446,7 +434,7 @@ public class CandiView extends RelativeLayout {
 		View view = findViewById(id);
 		if (view == null) return;
 
-		AirImageView photoView = (AirImageView) view.findViewById(R.id.entity_photo);
+		AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
 		TextView label = (TextView) view.findViewById(R.id.name);
 
 		if (photoView != null && label != null) {
@@ -509,7 +497,7 @@ public class CandiView extends RelativeLayout {
 				}
 			}
 
-			if (!info.equals("")) {
+			if (!TextUtils.isEmpty(info)) {
 				mDistance.setText(Html.fromHtml(info));
 				setVisibility(mDistance, View.VISIBLE);
 			}

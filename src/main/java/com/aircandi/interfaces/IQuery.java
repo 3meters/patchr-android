@@ -10,6 +10,8 @@ public interface IQuery {
 
 	public Boolean isMore();
 
+	public Boolean hasExecuted();
+
 	public String getEntityId();
 
 }

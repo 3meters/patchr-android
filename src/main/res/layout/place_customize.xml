@@ -18,7 +18,7 @@
 		<!-- Public Image -->
 
 		<com.aircandi.ui.widgets.AirImageView
-			android:id="@+id/entity_photo"
+			android:id="@+id/photo"
 			style="@style/selectable_image"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
-			android:layout_alignBottom="@+id/entity_photo"
+			android:layout_alignBottom="@+id/photo"
 			android:background="@drawable/scrim_gradient_medium"
 			android:orientation="vertical">
 
@@ -57,7 +57,7 @@
 			android:id="@+id/holder_body"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_below="@+id/entity_photo"
+			android:layout_below="@+id/photo"
 			android:layout_marginBottom="8dp"
 			android:orientation="vertical">
 
@@ -112,31 +112,6 @@
 				android:layout_marginRight="2dp"
 				custom:textId="@string/label_tuning_tune_no_name" />
 
-			<LinearLayout
-				android:id="@+id/holder_private"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginBottom="8dp"
-				android:layout_marginLeft="2dp"
-				android:layout_marginRight="2dp"
-				android:orientation="vertical">
-
-				<com.aircandi.ui.widgets.AirCheckBox
-					android:id="@+id/chk_private"
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/form_field_height"
-					android:text="@string/label_private"
-					android:textAppearance="?android:attr/textAppearance"
-					custom:textId="@string/label_private" />
-
-				<com.aircandi.ui.widgets.AirTextLight
-					android:id="@+id/hint_private"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:text="@string/label_private_description"
-					android:textAppearance="?android:attr/textAppearance"
-					custom:textId="@string/label_private_description" />
-			</LinearLayout>
 		</LinearLayout>
 	</RelativeLayout>
 

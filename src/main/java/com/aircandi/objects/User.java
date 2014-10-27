@@ -26,7 +26,7 @@ public class User extends Entity {
 	 * service fields
 	 *--------------------------------------------------------------------------------------------*/
 	@Expose
-	public String email;                                        // Required
+	public String  email;                                        // Required
 	@Expose
 	public String  role;
 	@Expose
@@ -68,12 +68,15 @@ public class User extends Entity {
 
 	/*--------------------------------------------------------------------------------------------
 	 * client fields
-	 *--------------------------------------------------------------------------------------------*/    public List<Count> stats;
-	public Session session;
+	 *--------------------------------------------------------------------------------------------*/
+
+	public List<Count> stats;
+	public Session     session;
 
 	/*--------------------------------------------------------------------------------------------
-	 * Set and get
+	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public String getCollection() {
 		return collectionId;
@@ -90,6 +93,7 @@ public class User extends Entity {
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
+
 	public static User setPropertiesFromMap(User entity, Map map, Boolean nameMapping) {
 
 		synchronized (entity) {
@@ -134,4 +138,12 @@ public class User extends Entity {
 		return user;
 	}
 
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static class Role {
+		public static String OWNER  = "owner";
+		public static String MEMBER = "member";
+	}
 }

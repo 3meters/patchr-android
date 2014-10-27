@@ -18,7 +18,6 @@ import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.IntentBuilder;
-import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
@@ -27,7 +26,6 @@ import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoSource;
 import com.aircandi.objects.Place;
-import com.aircandi.objects.ServiceMessage;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.EntityList;
@@ -233,7 +231,7 @@ public abstract class EntityControllerBase implements IEntityController {
 			Place place = (Place) entity;
 			if (holder.subtitle != null) {
 				if (place.subtitle != null) {
-					holder.subtitle.setText(place.subtitle);
+					holder.subtitle.setText(Html.fromHtml(place.subtitle));
 					UI.setVisibility(holder.subtitle, View.VISIBLE);
 				}
 				else {
@@ -245,8 +243,8 @@ public abstract class EntityControllerBase implements IEntityController {
 			}
 		}
 		else {
-			if (holder.subtitle != null && entity.subtitle != null && !entity.subtitle.equals("")) {
-				holder.subtitle.setText(entity.subtitle);
+			if (holder.subtitle != null && !TextUtils.isEmpty(entity.subtitle)) {
+				holder.subtitle.setText(Html.fromHtml(entity.subtitle));
 				UI.setVisibility(holder.subtitle, View.VISIBLE);
 			}
 		}
@@ -286,17 +284,17 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		/* User photo */
 
-		UI.setVisibility(holder.userPhotoView, View.GONE);
-		if (holder.userPhotoView != null && entity.creator != null) {
+		UI.setVisibility(holder.userPhoto, View.GONE);
+		if (holder.userPhoto != null && entity.creator != null) {
 		    /*
 			 * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
 			 */
 			Photo photo = entity.creator.getPhoto();
-			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
-				holder.userPhotoView.setTag(entity.creator);
-				UI.drawPhoto(holder.userPhotoView, photo);
+			if (holder.userPhoto.getPhoto() == null || !holder.userPhoto.getPhoto().getUri().equals(photo.getUri())) {
+				holder.userPhoto.setTag(entity.creator);
+				UI.drawPhoto(holder.userPhoto, photo);
 			}
-			UI.setVisibility(holder.userPhotoView, View.VISIBLE);
+			UI.setVisibility(holder.userPhoto, View.VISIBLE);
 		}
 
 		/* User name */
@@ -305,6 +303,15 @@ public abstract class EntityControllerBase implements IEntityController {
 		if (holder.userName != null && entity.creator != null && entity.creator.name != null && entity.creator.name.length() > 0) {
 			holder.userName.setText(entity.creator.name);
 			UI.setVisibility(holder.userName, View.VISIBLE);
+		}
+
+		/* Modified date */
+
+		UI.setVisibility(holder.modifiedDate, View.GONE);
+		if (holder.modifiedDate != null && entity.modifiedDate != null) {
+			String compactAgo = DateTime.dateStringAt(entity.modifiedDate.longValue());
+			holder.modifiedDate.setText(compactAgo);
+			UI.setVisibility(holder.modifiedDate, View.VISIBLE);
 		}
 
 		/* Created date */
@@ -318,14 +325,14 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		/* Photo */
 
-		UI.setVisibility(holder.photoView, View.GONE);
-		if (holder.photoView != null) {
+		UI.setVisibility(holder.photo, View.GONE);
+		if (holder.photo != null) {
 			final Photo photo = entity.getPhoto();
 			if (photo != null) {
-				if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {
-					UI.drawPhoto(holder.photoView, photo);
+				if (holder.photo.getPhoto() == null || !photo.getUri().equals(holder.photo.getPhoto().getUri())) {
+					UI.drawPhoto(holder.photo, photo);
 				}
-				UI.setVisibility(holder.photoView, View.VISIBLE);
+				UI.setVisibility(holder.photo, View.VISIBLE);
 			}
 		}
 	}
@@ -333,18 +340,21 @@ public abstract class EntityControllerBase implements IEntityController {
 	public void bindHolder(View view, ViewHolder holder) {
 
 		holder.candiView = (CandiView) view.findViewById(R.id.candi_view);
-		holder.photoView = (AirImageView) view.findViewById(R.id.entity_photo);
+		holder.photo = (AirImageView) view.findViewById(R.id.photo);
 		holder.name = (TextView) view.findViewById(R.id.name);
 		holder.subtitle = (TextView) view.findViewById(R.id.subtitle);
 		holder.description = (TextView) view.findViewById(R.id.description);
 		holder.creator = (UserView) view.findViewById(R.id.creator);
 		holder.area = (TextView) view.findViewById(R.id.area);
 		holder.createdDate = (TextView) view.findViewById(R.id.created_date);
+		holder.modifiedDate = (TextView) view.findViewById(R.id.modified_date);
 		holder.comments = (TextView) view.findViewById(R.id.comments);
 		holder.checked = (CheckBox) view.findViewById(R.id.checked);
 		holder.overflow = (ComboButton) view.findViewById(R.id.button_overflow);
 		holder.share = (ViewGroup) view.findViewById(R.id.share);
 		holder.alert = (ImageView) view.findViewById(R.id.alert_indicator);
+		holder.photoBig = (AirImageView) view.findViewById(R.id.photo_big);
+		holder.photoType = (ImageView) view.findViewById(R.id.photo_type);
 
 		if (holder.checked != null) {
 			holder.checked.setOnClickListener(new View.OnClickListener() {
@@ -358,7 +368,7 @@ public abstract class EntityControllerBase implements IEntityController {
 			});
 		}
 
-		holder.userPhotoView = (AirImageView) view.findViewById(R.id.user_photo);
+		holder.userPhoto = (AirImageView) view.findViewById(R.id.user_photo);
 		holder.userName = (TextView) view.findViewById(R.id.user_name);
 		holder.placeName = (TextView) view.findViewById(R.id.place_name);
 		holder.toName = (TextView) view.findViewById(R.id.to_name);
@@ -387,11 +397,6 @@ public abstract class EntityControllerBase implements IEntityController {
 	@Override
 	public Integer getNotificationType(Entity entity) {
 		return NotificationType.NORMAL;
-	}
-
-	@Override
-	public String getNotificationTicker(ServiceMessage message, String eventCategory) {
-		return StringManager.getString(R.string.label_notification_ticker);
 	}
 
 	@Override

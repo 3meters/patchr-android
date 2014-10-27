@@ -52,7 +52,7 @@ public class ResetEdit extends BaseEdit {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
-					update();
+					onResetButtonClick(null);
 					return true;
 				}
 				return false;
@@ -68,25 +68,39 @@ public class ResetEdit extends BaseEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@SuppressWarnings("ucd")
 	public void onResetButtonClick(View view) {
+
+		if (mProcessing) return;
+		mProcessing = true;
+
 		if (!mEmailConfirmed) {
 			if (validate()) {
 				requestReset();
+			}
+			else {
+				mProcessing = false;
 			}
 		}
 		else {
 			if (validate()) {
 				resetAndSignin();
 			}
+			else {
+				mProcessing = false;
+			}
 		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Services
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected boolean validate() {
 		if (!mEmailConfirmed) {
@@ -188,6 +202,7 @@ public class ResetEdit extends BaseEdit {
 					mPassword.setVisibility(View.VISIBLE);
 					mMessage.setText(StringManager.getString(R.string.label_reset_message_password));
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}
@@ -228,6 +243,7 @@ public class ResetEdit extends BaseEdit {
 				else {
 					Errors.handleError(ResetEdit.this, result.serviceResponse);
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}
@@ -235,6 +251,7 @@ public class ResetEdit extends BaseEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.reset_edit;

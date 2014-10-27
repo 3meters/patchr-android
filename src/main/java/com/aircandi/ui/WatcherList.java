@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.Toast;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -18,10 +17,12 @@ import com.aircandi.components.EntityManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Route;
+import com.aircandi.objects.Shortcut;
 import com.aircandi.queries.WatchersQuery;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
@@ -30,7 +31,7 @@ import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Maps;
-import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
 public class WatcherList extends BaseActivity {
@@ -52,6 +53,13 @@ public class WatcherList extends BaseActivity {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
+		mBubbleButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				onShareButtonClick(view);
+			}
+		});
+
 		mListFragment = new WatcherListFragment();
 		EntityMonitor monitor = new EntityMonitor(mEntityId);
 		WatchersQuery query = new WatchersQuery();
@@ -62,10 +70,9 @@ public class WatcherList extends BaseActivity {
 		     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
 		     .setSchema(Constants.SCHEMA_ENTITY_USER);
 
-		if (!mEntity.isOwnedByCurrentUser()) {
-			if (!mEntity.ownerId.equals(ServiceConstants.ADMIN_USER_ID)) {
-				query.setLinkWhere(Maps.asMap("enabled", true));
-			}
+		if (!mEntity.isOwnedByCurrentUser()
+				&& !mEntity.ownerId.equals(ServiceConstants.ADMIN_USER_ID)) {
+			query.setLinkWhere(Maps.asMap("enabled", true));
 		}
 
 		mListFragment.setQuery(query)
@@ -75,10 +82,9 @@ public class WatcherList extends BaseActivity {
 		             .setListLoadingResId(R.layout.temp_listitem_loading)
 		             .setListItemResId(R.layout.temp_listitem_watcher)
 		             .setListEmptyMessageResId(R.string.button_list_watchers_share)
-		             .setListButtonMessageResId(R.string.button_list_watchers_share)
+		             .setBubbleButtonMessageResId(R.string.button_list_watchers_share)
 		             .setSelfBindingEnabled(true)
-		             .setTitleResId(R.string.form_title_watchers)
-		             .setButtonSpecialClickable(true);
+		             .setTitleResId(R.string.form_title_watchers);
 
 		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
 		draw(null);
@@ -93,6 +99,11 @@ public class WatcherList extends BaseActivity {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		mListFragment.onProcessingComplete();
+	}
+
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
 		mListFragment.onMoreButtonClick(view);
@@ -103,10 +114,10 @@ public class WatcherList extends BaseActivity {
 	}
 
 	@SuppressWarnings("ucd")
-	public void onEnabledClick(View view) {
+	public void onApprovedClick(View view) {
 		Entity fromEntity = (Entity) view.getTag();
-		CompoundButton enabled = (CompoundButton) view;
-		enableLink(fromEntity, fromEntity.id, mEntity.id, enabled.isChecked());
+		Boolean approved = ((CompoundButton) view).isChecked();
+		approveMember(fromEntity, fromEntity.linkId, fromEntity.id, mEntity.id, approved);
 	}
 
 	@SuppressWarnings("ucd")
@@ -127,8 +138,8 @@ public class WatcherList extends BaseActivity {
 		                      : R.string.dialog_decline_requested_private_cancel;
 
 		/* Confirm a decline since the user won't be able to undo */
-		final AlertDialog declineDialog = Dialogs.alertDialog(R.drawable.ic_launcher
-				, StringManager.getString(titleResId)
+		final AlertDialog declineDialog = Dialogs.alertDialog(null
+				, null
 				, StringManager.getString(messageResId)
 				, null
 				, this
@@ -140,10 +151,7 @@ public class WatcherList extends BaseActivity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
-							/*
-							 * Need to change this to delete the link
-							 */
-					enableLink(entity, entity.id, mEntity.id, false);
+					deleteMember(entity.id);
 					dialog.dismiss();
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {
@@ -155,43 +163,6 @@ public class WatcherList extends BaseActivity {
 
 		declineDialog.setCanceledOnTouchOutside(false);
 		declineDialog.show();
-	}
-
-	@SuppressWarnings("ucd")
-	public void onLeaveRequestClick(View view) {
-		Entity entity = (Entity) view.getTag();
-
-		/* Warn when leaving a private place */
-		if (mEntity.visibleToCurrentUser() && !mEntity.isOwnedByCurrentUser()) {
-
-			final AlertDialog unwatchDialog = Dialogs.alertDialog(R.drawable.ic_launcher
-					, StringManager.getString(R.string.dialog_unwatch_private_title)
-					, StringManager.getString(R.string.dialog_unwatch_private_message)
-					, null
-					, this
-					, R.string.dialog_unwatch_private_ok
-					, R.string.dialog_unwatch_private_cancel
-					, null
-					, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-						//watch();
-						dialog.dismiss();
-					}
-					else if (which == DialogInterface.BUTTON_NEGATIVE) {
-						dialog.dismiss();
-					}
-				}
-			}
-					, null);
-
-			unwatchDialog.setCanceledOnTouchOutside(false);
-			unwatchDialog.show();
-		}
-
-		UI.showToastNotification(entity.id + " leaving", Toast.LENGTH_SHORT);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -218,16 +189,18 @@ public class WatcherList extends BaseActivity {
 		builder.startChooser();
 	}
 
-	protected void actionBarIcon() {
+	protected void setActionBarIcon() {
 		if (mActionBar != null) {
-			Drawable icon = getResources().getDrawable(R.drawable.img_users_dark);
+			Drawable icon = getResources().getDrawable(R.drawable.ic_img_users_dark);
 			mActionBar.setIcon(icon);
 		}
 	}
 
-	public void enableLink(final Entity entity, final String fromId, final String toId, final Boolean enabled) {
+	public void approveMember(final Entity entity, final String linkId, final String fromId, final String toId, final Boolean enabled) {
 
-		final String actionEvent = "entity_watch_" + (enabled ? "approved" : "requested");
+		final String actionEvent = (enabled ? "approve" : "unapprove") + "_watch_entity" ;
+		final Shortcut toShortcut = new Shortcut();
+		toShortcut.schema = Constants.SCHEMA_ENTITY_PLACE;
 
 		new AsyncTask() {
 
@@ -238,7 +211,15 @@ public class WatcherList extends BaseActivity {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncStatusUpdate");
-				ModelResult result = Patchr.getInstance().getEntityManager().enabledLink(fromId, toId, Constants.TYPE_LINK_WATCH, enabled, actionEvent);
+				ModelResult result = Patchr.getInstance().getEntityManager().insertLink(linkId
+						, fromId
+						, toId
+						, Constants.TYPE_LINK_WATCH
+						, enabled
+						, null
+						, toShortcut
+						, actionEvent
+						, true);
 				return result;
 			}
 
@@ -248,7 +229,6 @@ public class WatcherList extends BaseActivity {
 				ModelResult result = (ModelResult) response;
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					UI.showToastNotification("Status for " + entity.id + " set to: " + (enabled ? "approved" : "requested"), Toast.LENGTH_SHORT);
 					entity.enabled = enabled;
 				}
 				else {
@@ -258,8 +238,43 @@ public class WatcherList extends BaseActivity {
 		}.execute();
 	}
 
+	public void deleteMember(final String fromId) {
+
+		final String actionEvent = "declined_watch_entity";
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncWatchEntity");
+				ModelResult result = Patchr.getInstance().getEntityManager().deleteLink(fromId
+						, mEntity.id
+						, Constants.TYPE_LINK_WATCH
+						, false
+						, mEntity.schema
+						, actionEvent);
+				return result;
+			}
+
+			@Override
+			protected void onPostExecute(Object response) {
+				if (isFinishing()) return;
+				ModelResult result = (ModelResult) response;
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					mListFragment.bind(BindingMode.AUTO);
+				}
+				else {
+					if (result.serviceResponse.statusCodeService != null
+							&& result.serviceResponse.statusCodeService != ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
+						Errors.handleError(WatcherList.this, result.serviceResponse);
+					}
+				}
+			}
+		}.execute();
+	}
+
 	@Override
 	protected int getLayoutId() {
-		return R.layout.entity_list;
+		return R.layout.watcher_list;
 	}
 }

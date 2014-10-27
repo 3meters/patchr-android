@@ -7,6 +7,7 @@ import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.queries.EntitiesQuery;
@@ -14,6 +15,7 @@ import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.utilities.Integers;
+import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
 public class PlaceList extends BaseActivity {
@@ -21,6 +23,7 @@ public class PlaceList extends BaseActivity {
 	private   EntityListFragment mListFragment;
 	protected String             mListLinkType;
 	protected Integer            mListTitleResId;
+	protected Integer            mListEmptyMessageResId;
 
 	@Override
 	public void unpackIntent() {
@@ -32,6 +35,7 @@ public class PlaceList extends BaseActivity {
 			mEntity = EntityManager.getCacheEntity(mEntityId);
 			mListLinkType = extras.getString(com.aircandi.Constants.EXTRA_LIST_LINK_TYPE);
 			mListTitleResId = extras.getInt(com.aircandi.Constants.EXTRA_LIST_TITLE_RESID);
+			mListEmptyMessageResId = extras.getInt(Constants.EXTRA_LIST_EMPTY_RESID);
 		}
 	}
 
@@ -55,10 +59,9 @@ public class PlaceList extends BaseActivity {
 		             .setListViewType(ViewType.LIST)
 		             .setListLayoutResId(R.layout.place_list_fragment)
 		             .setListLoadingResId(R.layout.temp_listitem_loading)
-		             .setListItemResId(R.layout.temp_listitem_radar)
-		             .setListEmptyMessageResId(R.string.label_watching_empty)
+		             .setListItemResId(R.layout.temp_listitem_place)
+		             .setListEmptyMessageResId(mListEmptyMessageResId)
 		             .setTitleResId(mListTitleResId)
-		             .setButtonSpecialClickable(false)
 		             .setSelfBindingEnabled(true);
 
 		setActivityTitle(StringManager.getString(((BaseFragment) mListFragment).getTitleResId()));
@@ -72,6 +75,11 @@ public class PlaceList extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		mListFragment.onProcessingComplete();
+	}
 
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {

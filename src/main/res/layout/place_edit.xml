@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.aircandi.ui.widgets.AirScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:layout_gravity="center_horizontal"
@@ -39,7 +40,7 @@
 			<!-- Public Image -->
 
 			<com.aircandi.ui.widgets.AirImageView
-				android:id="@+id/entity_photo"
+				android:id="@+id/photo"
 				style="@style/selectable_image"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -56,15 +57,16 @@
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_alignBottom="@+id/entity_photo"
-				android:background="@drawable/scrim_gradient_medium"
+				android:layout_alignBottom="@+id/photo"
+				android:layout_alignTop="@+id/photo"
+				android:gravity="bottom|center_horizontal"
+				android:background="@drawable/scrim_gradient_weak"
 				android:orientation="vertical">
 
 				<com.aircandi.ui.widgets.AirTextView
 					android:layout_width="wrap_content"
 					android:layout_height="@dimen/form_field_height"
 					android:layout_gravity="center_horizontal"
-					android:layout_marginTop="50dp"
 					android:gravity="center"
 					android:text="@string/button_change_banner"
 					android:textAppearance="?android:attr/textAppearanceMedium"
@@ -78,7 +80,7 @@
 				android:id="@+id/holder_body"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_below="@+id/entity_photo"
+				android:layout_below="@+id/photo"
 				android:layout_marginBottom="8dp"
 				android:layout_marginTop="8dp"
 				android:orientation="vertical">
@@ -105,6 +107,8 @@
 					android:textSize="24sp"
 					android:visibility="gone" />
 
+				<!-- Location -->
+
 				<FrameLayout
 					android:layout_width="match_parent"
 					android:layout_height="104dp"
@@ -128,17 +132,47 @@
 
 				</FrameLayout>
 
-				<com.aircandi.ui.widgets.BuilderButton
-					android:id="@+id/category"
-					style="@style/selectable_item"
+				<!-- Privacy -->
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@+id/button_privacy"
 					android:layout_width="match_parent"
 					android:layout_height="@dimen/form_field_height"
 					android:layout_marginBottom="8dp"
 					android:layout_marginLeft="4dp"
 					android:layout_marginRight="4dp"
+					android:background="?attr/backgroundButtonBuilder"
 					android:clickable="true"
+					android:drawableRight="?attr/iconForward"
+					android:ellipsize="end"
+					android:gravity="center_vertical"
+					android:inputType="textCapWords"
+					android:onClick="onPrivacyBuilderClick"
+					android:padding="8dp"
+					android:singleLine="true"
+					android:textAppearance="?attr/textAppearanceMediumLarge"
+					tools:text="Privacy: Private" />
+
+				<!-- Category -->
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@+id/button_category"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/form_field_height"
+					android:layout_marginBottom="8dp"
+					android:layout_marginLeft="4dp"
+					android:layout_marginRight="4dp"
+					android:background="?attr/backgroundButtonBuilder"
+					android:clickable="true"
+					android:drawableRight="?attr/iconForward"
+					android:ellipsize="end"
+					android:gravity="center_vertical"
+					android:inputType="textCapWords"
 					android:onClick="onCategoryBuilderClick"
-					custom:hint="@string/hint_place_category" />
+					android:padding="8dp"
+					android:singleLine="true"
+					android:textAppearance="?attr/textAppearanceMediumLarge"
+					tools:text="Category: Tailgate Party" />
 
 				<!-- Tuning -->
 
@@ -186,59 +220,9 @@
 						android:layout_marginLeft="2dp"
 						android:layout_marginRight="2dp"
 						custom:textId="@string/label_tuning_tune_no_name" />
+
 				</LinearLayout>
 
-				<!-- Message -->
-				<!--
-				<com.aircandi.ui.widgets.AirTokenCompleteTextView
-					android:id="@+id/to"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="8dp"
-					android:gravity="center_vertical"
-					android:hint="@string/label_place_drop_to"
-					android:imeOptions="flagNoExtractUi"
-					android:minHeight="65dp"
-					android:textAppearance="?attr/textAppearanceMediumLarge"
-					android:textColorHint="?attr/textColorSecondary"
-					android:visibility="gone" />
-
-				<com.aircandi.ui.widgets.AirTextLight
-					android:id="@+id/label_message"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="8dp"
-					android:layout_marginLeft="2dp"
-					android:layout_marginRight="2dp"
-					android:layout_marginTop="8dp"
-					android:visibility="gone"
-					custom:textId="@string/label_place_create" />-->
-
-				<LinearLayout
-					android:id="@+id/holder_private"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="8dp"
-					android:layout_marginLeft="2dp"
-					android:layout_marginRight="2dp"
-					android:orientation="vertical">
-
-					<com.aircandi.ui.widgets.AirCheckBox
-						android:id="@+id/chk_private"
-						android:layout_width="match_parent"
-						android:layout_height="@dimen/form_field_height"
-						android:text="@string/label_private"
-						android:textAppearance="?android:attr/textAppearance"
-						custom:textId="@string/label_private" />
-
-					<com.aircandi.ui.widgets.AirTextLight
-						android:id="@+id/hint_private"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/label_private_description"
-						android:textAppearance="?android:attr/textAppearance"
-						custom:textId="@string/label_private_description" />
-				</LinearLayout>
 			</LinearLayout>
 
 		</RelativeLayout>

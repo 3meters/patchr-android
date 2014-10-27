@@ -9,5 +9,6 @@ public interface IBind {
 	public enum BindingMode {
 		AUTO,
 		MANUAL,
+		FIRST,
 	}
 }

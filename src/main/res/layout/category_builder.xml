@@ -17,7 +17,7 @@
 		<!-- Public Image -->
 
 		<com.aircandi.ui.widgets.AirImageView
-			android:id="@+id/entity_photo"
+			android:id="@+id/photo"
 			style="@style/picture_framed"
 			android:layout_width="@dimen/image_medium"
 			android:layout_height="@dimen/image_medium"

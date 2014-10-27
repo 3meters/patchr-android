@@ -2,8 +2,8 @@ package com.aircandi.objects;
 
 import android.content.res.Resources;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.service.Expose;
@@ -55,9 +55,12 @@ public class Links extends ServiceObject {
 				 * profile for places regardless of what code path fetches them.
 				 */
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, true, true, limitProximity));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitContent));
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitContent));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
 						, Maps.asMap("_from", currentUser.id)));
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
+						, Maps.asMap("_creator", currentUser.id))
+						.setDirection(Direction.in));
 			}
 			else if (linkProfile == LinkProfile.LINKS_FOR_MESSAGE) {
 
@@ -74,11 +77,11 @@ public class Links extends ServiceObject {
 			}
 			else if (linkProfile == LinkProfile.LINKS_FOR_USER_CURRENT) {
 
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CREATE, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitCreate)
-						.setDirection(Direction.out));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PLACE, true, true, limitCreate)
 						.setDirection(Direction.out));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PLACE, true, true, limitWatch)
+						.setDirection(Direction.out));
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CREATE, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitCreate)
 						.setDirection(Direction.out));
 			}
 			else if (linkProfile == LinkProfile.LINKS_FOR_USER) {
@@ -87,8 +90,6 @@ public class Links extends ServiceObject {
 						.setDirection(Direction.out));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PLACE, false, true, 0)
 						.setDirection(Direction.out));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
-						, Maps.asMap("_from", currentUser.id)));
 			}
 			return links;
 		}

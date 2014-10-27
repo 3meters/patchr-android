@@ -19,7 +19,6 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.LocationManager;
@@ -45,14 +44,16 @@ import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.CacheStamp;
+import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
+import com.aircandi.objects.Link;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.ServiceData;
+import com.aircandi.objects.User;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.widgets.ToolTip;
 import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.ui.widgets.ToolTipView;
@@ -86,6 +87,8 @@ public class RadarListFragment extends EntityListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
+		if (view == null) return null;
+		draw(view);
 		return view;
 	}
 
@@ -242,6 +245,7 @@ public class RadarListFragment extends EntityListFragment {
 				}
 				else {
 					mAdapter.notifyDataSetChanged();
+					BusProvider.getInstance().post(new ProcessingCompleteEvent());
 				}
 				break;
 			}
@@ -344,7 +348,6 @@ public class RadarListFragment extends EntityListFragment {
 				mCacheStamp = Patchr.getInstance().getEntityManager().getCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-					mBusy.hideBusy(false);
 					BusProvider.getInstance().post(new ProcessingCompleteEvent());
 				}
 			}
@@ -365,7 +368,6 @@ public class RadarListFragment extends EntityListFragment {
 
 		if (!NetworkManager.getInstance().isWifiEnabled()
 				&& LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-			mBusy.hideBusy(false);
 			BusProvider.getInstance().post(new ProcessingCompleteEvent());
 		}
 	}
@@ -391,7 +393,6 @@ public class RadarListFragment extends EntityListFragment {
 				
 				/* No more updates are coming */
 				if (LocationManager.getInstance().getLocationLocked() != null) {
-					mBusy.hideBusy(false);
 					showTooltips(false);
 				}
 
@@ -418,33 +419,15 @@ public class RadarListFragment extends EntityListFragment {
 		});
 	}
 
-	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
+	public void onProcessingComplete() {
+		super.onProcessingComplete();   // Kills any busy feedback
 
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				if (mButtonSpecial != null && mButtonSpecialEnabled) {
-					if (mButtonSpecialClickable) {
-						if (mEntities.size() == 0) {
-							lockFooter(true);
-						}
-						else {
-							lockFooter(false);
-						}
-					}
-					showButtonSpecial(mEntities.size() == 0, mListEmptyMessageResId, mHeaderView);
-				}
 				if (!NetworkManager.getInstance().isWifiEnabled()
 						&& !LocationManager.getInstance().isLocationAccessEnabled()) {
-					mFooterHolder.setVisibility(View.INVISIBLE);
-				}
-
-				if (getActivity() instanceof BaseEntityForm) {
-					handleFooter(true, AnimationManager.DURATION_MEDIUM);
-				}
-				else {
-					handleFooter((mAdapter.getCount() > 0), AnimationManager.DURATION_MEDIUM);
+					mFab.fadeOut();
 				}
 			}
 		});
@@ -453,9 +436,10 @@ public class RadarListFragment extends EntityListFragment {
 	@Override
 	public void onRefresh() {
 		/*
-		 * This only gets called by a user clicking the refresh button.
+		 * Called by refresh action or swipe.
 		 */
 		Logger.d(getActivity(), "Starting refresh");
+		mSwipeRefreshLayout.setRefreshing(false);
 		searchForPlaces();
 	}
 
@@ -481,7 +465,7 @@ public class RadarListFragment extends EntityListFragment {
 		LocationManager.getInstance().setLocationMode(LocationMode.OFF);
 
 		/* Kill busy */
-		mBusy.hideBusy(false);
+		BusProvider.getInstance().post(new ProcessingCompleteEvent());
 	}
 
 	@Override
@@ -504,6 +488,49 @@ public class RadarListFragment extends EntityListFragment {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	public void draw(View view) {
+		drawButtons(view);
+	}
+
+	public void drawButtons(View view) {
+
+		User currentUser = Patchr.getInstance().getCurrentUser();
+
+		Boolean anonymous = currentUser.isAnonymous();
+		Count patched = Patchr.getInstance().getCurrentUser().getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PLACE, true, Link.Direction.out);
+
+		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
+		UI.setVisibility(alertGroup, View.GONE);
+		if (alertGroup != null) {
+
+			TextView buttonAlert = (TextView) view.findViewById(R.id.button_alert);
+			if (buttonAlert == null) return;
+
+			View rule = view.findViewById(R.id.rule_alert);
+			if (rule != null && Constants.SUPPORTS_KIT_KAT) {
+				rule.setVisibility(View.GONE);
+			}
+
+			if (anonymous) {
+				buttonAlert.setText(R.string.button_alert_radar_anonymous);
+			}
+			if (patched != null) {
+				buttonAlert.setText(R.string.button_alert_radar);
+			}
+			else {
+				buttonAlert.setText(R.string.button_alert_radar_no_patch);
+			}
+
+			buttonAlert.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					Patchr.dispatch.route(getActivity(), Route.NEW_PLACE, null, null, null);
+				}
+			});
+			UI.setVisibility(alertGroup, View.VISIBLE);
+		}
+	}
+
 	private void searchForPlaces() {
 
 		new AsyncTask() {
@@ -511,7 +538,7 @@ public class RadarListFragment extends EntityListFragment {
 			@Override
 			protected void onPreExecute() {
 				mBusy.showBusy(BusyAction.Scanning);
-				showButtonSpecial(false, null, null);
+				mBubbleButton.fadeOut();
 				Reporting.updateCrashKeys();
 			}
 
@@ -553,12 +580,11 @@ public class RadarListFragment extends EntityListFragment {
 
 				if (!NetworkManager.getInstance().isWifiEnabled()
 						&& !LocationManager.getInstance().isLocationAccessEnabled()) {
-					mBusy.hideBusy(false);
-					lockFooter(true);
+					mFab.setLocked(true);
 					BusProvider.getInstance().post(new ProcessingCompleteEvent());
 				}
 				else {
-					lockFooter(false);
+					mFab.setLocked(false);
 				}
 			}
 		}.execute();
@@ -594,128 +620,6 @@ public class RadarListFragment extends EntityListFragment {
 			}
 		}
 	}
-
-
-	/*--------------------------------------------------------------------------------------------
-	 * UI
-	 *--------------------------------------------------------------------------------------------*/
-
-//	private void doBeaconIndicatorClick() {
-//		if (mBeaconIndicator != null) {
-//			final StringBuilder beaconMessage = new StringBuilder(500);
-//			List<WifiScanResult> wifiList = ProximityManager.getInstance().getWifiList();
-//			synchronized (wifiList) {
-//				if (Patch.getInstance().getCurrentUser() != null
-//						&& Patch.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-//						&& Patch.getInstance().getCurrentUser().developer != null
-//						&& Patch.getInstance().getCurrentUser().developer) {
-//					if (Patch.wifiCount > 0) {
-//						for (WifiScanResult wifi : wifiList) {
-//							if (!wifi.SSID.equals("candi_feed")) {
-//								beaconMessage.append(wifi.SSID + ": (" + String.valueOf(wifi.level) + ") " + wifi.BSSID + System.getProperty("line.separator"));
-//							}
-//						}
-//						beaconMessage.append(System.getProperty("line.separator"));
-//						beaconMessage.append("Wifi fix: "
-//								+ DateTime.interval(ProximityManager.getInstance().mLastWifiUpdate.getTime(), DateTime.nowDate().getTime(),
-//								IntervalContext.PAST));
-//					}
-//
-//					final Location location = LocationManager.getInstance().getLocationLocked();
-//					if (location != null) {
-//						final Date fixDate = new Date(location.getTime());
-//						beaconMessage.append(System.getProperty("line.separator") + "Location fix: "
-//								+ DateTime.interval(fixDate.getTime(), DateTime.nowDate().getTime(), IntervalContext.PAST));
-//						beaconMessage.append(System.getProperty("line.separator") + "Location accuracy: " + String.valueOf(location.getAccuracy()));
-//						beaconMessage.append(System.getProperty("line.separator") + "Location provider: " + location.getProvider());
-//					}
-//					else {
-//						beaconMessage.append(System.getProperty("line.separator") + "Location fix: none");
-//					}
-//				}
-//				else
-//					return;
-//			}
-//			Dialogs.alertDialog(R.drawable.ic_launcher
-//					, StringManager.getString(R.string.alert_beacons_title)
-//					, beaconMessage.toString()
-//					, null
-//					, getActivity()
-//					, android.R.string.ok
-//					, null
-//					, null
-//					, new
-//					DialogInterface.OnClickListener() {
-//
-//						@Override
-//						public void onClick(DialogInterface dialog, int which) {
-//						}
-//					}, null);
-//		}
-//	}
-
-//	public void updateDevIndicator(final List<WifiScanResult> scanList, Location location) {
-//
-//		if (mBeaconIndicator == null) return;
-//
-//		if (scanList != null) {
-//
-//			synchronized (scanList) {
-//				/*
-//				 * In case we get called from a background thread.
-//				 */
-//				getActivity().runOnUiThread(new Runnable() {
-//
-//					@Override
-//					public void run() {
-//
-//						WifiScanResult wifiStrongest = null;
-//						int wifiCount = 0;
-//						for (WifiScanResult wifi : scanList) {
-//							wifiCount++;
-//							if (wifiStrongest == null) {
-//								wifiStrongest = wifi;
-//							}
-//							else if (wifi.level > wifiStrongest.level) {
-//								wifiStrongest = wifi;
-//							}
-//						}
-//
-//						Patch.wifiCount = wifiCount;
-//						mDebugWifi = String.valueOf(wifiCount);
-//					}
-//				});
-//			}
-//		}
-//
-//		if (location != null) {
-//			Location locationLocked = LocationManager.getInstance().getLocationLocked();
-//			if (locationLocked != null) {
-//				if (location.getProvider().equals(locationLocked.getProvider()) && (int) location.getAccuracy() == (int) locationLocked.getAccuracy()) {
-//					mBeaconIndicator.setTextColor(Colors.getColor(R.color.brand_primary));
-//				}
-//				else {
-//					if (Patch.themeTone.equals(ThemeTone.DARK)) {
-//						mBeaconIndicator.setTextColor(Colors.getColor(R.color.text_dark));
-//					}
-//					else {
-//						mBeaconIndicator.setTextColor(Colors.getColor(R.color.text_light));
-//					}
-//				}
-//			}
-//
-//			String debugLocation = location.getProvider().substring(0, 1).toUpperCase(Locale.US);
-//			if (location.hasAccuracy()) {
-//				debugLocation += String.valueOf((int) location.getAccuracy());
-//			}
-//			else {
-//				debugLocation += "--";
-//			}
-//			mDebugLocation = debugLocation;
-//		}
-//
-//		mBeaconIndicator.setText(mDebugWifi + ":" + mDebugLocation);
-//	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
@@ -895,7 +799,6 @@ public class RadarListFragment extends EntityListFragment {
 		@SuppressWarnings({"ucd"})
 		public void onBurstTimeout(final BurstTimeoutEvent event) {
 
-			mBusy.hideBusy(false);
 			BusProvider.getInstance().post(new ProcessingCompleteEvent());
 
 			/* We only show toast if we timeout without getting any location fix */

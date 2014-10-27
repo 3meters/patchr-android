@@ -10,6 +10,7 @@ import android.os.Parcelable;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -179,7 +180,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 	public ViewGroup buildPictureDetail(Photo photo, ViewGroup layout) {
 
-		mPhotoView = (AirImageView) layout.findViewById(R.id.entity_photo);
+		mPhotoView = (AirImageView) layout.findViewById(R.id.photo);
 		layout.setOnTouchListener(new OnTouchListener() {
 
 			@Override
@@ -198,7 +199,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 		/* Title */
 		UI.setVisibility(name, View.GONE);
-		if (photo.getName() != null && !photo.getName().equals("")) {
+		if (!TextUtils.isEmpty(photo.getName())) {
 			name.setText(photo.getName());
 			UI.setVisibility(name, View.VISIBLE);
 		}
@@ -307,7 +308,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 		}
 
 		if (view != null) {
-			AirImageView image = (AirImageView) view.findViewById(R.id.entity_photo);
+			AirImageView image = (AirImageView) view.findViewById(R.id.photo);
 			mImageViewTouch = (ImageViewTouch) image.getImageView();
 			mImageViewTouch.setOnScaleChangeListener(new OnScaleChangeListener() {
 
@@ -323,7 +324,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
-		final AirImageView photoView = (AirImageView) findViewById(R.id.entity_photo);
+		final AirImageView photoView = (AirImageView) findViewById(R.id.photo);
 		final ImageViewTouch imageView = (ImageViewTouch) photoView.getImageView();
 		imageView.setDisplayType(DisplayType.FIT_TO_SCREEN);
 		super.onConfigurationChanged(newConfig);
@@ -378,7 +379,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 				@Override
 				public boolean onShareTargetSelected(ShareActionProvider source, Intent intent) {
 
-					final AirImageView photoView = (AirImageView) findViewById(R.id.entity_photo);
+					final AirImageView photoView = (AirImageView) findViewById(R.id.photo);
 					Bitmap bitmap = ((BitmapDrawable) photoView.getImageView().getDrawable()).getBitmap();
 					File file = MediaManager.copyBitmapToSharePath(bitmap);
 

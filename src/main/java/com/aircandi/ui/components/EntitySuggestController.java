@@ -194,7 +194,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			if (view == null) {
 				view = LayoutInflater.from(mContext).inflate(R.layout.temp_place_search_item, null);
 				holder = new ViewHolder();
-				holder.photoView = (AirImageView) view.findViewById(R.id.entity_photo);
+				holder.photoView = (AirImageView) view.findViewById(R.id.photo);
 				holder.indicator = (ImageView) view.findViewById(R.id.indicator);
 				holder.name = (TextView) view.findViewById(R.id.name);
 				holder.subtitle = (TextView) view.findViewById(R.id.subtitle);

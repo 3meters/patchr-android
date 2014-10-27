@@ -12,8 +12,6 @@ public interface IBusy {
 
 	public void hideBusy(Boolean now);
 
-	public SmoothProgressBar getHeaderActivityBar();
-
 	public enum BusyAction {
 		Loading,
 		Refreshing,

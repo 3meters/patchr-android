@@ -4,12 +4,11 @@ import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
@@ -25,7 +24,6 @@ import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
-import com.aircandi.components.MessagingManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
@@ -37,7 +35,6 @@ import com.aircandi.interfaces.IMonitor;
 import com.aircandi.interfaces.IQuery;
 import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.queries.EntitiesQuery;
@@ -48,10 +45,8 @@ import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.ui.widgets.AirListView.DragDirection;
 import com.aircandi.ui.widgets.AirListView.DragEvent;
 import com.aircandi.ui.widgets.AirListView.OnDragListener;
-import com.aircandi.ui.widgets.AirSwipeRefreshLayout;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
-import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,15 +55,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class EntityListFragment extends BaseFragment implements OnClickListener {
+public class EntityListFragment extends BaseFragment implements OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
 	/* Widgets */
-	protected AbsListView mListView;
-	protected View        mLoadingView;
-	protected View        mHeaderView;
-	protected View        mHeaderCandiView;                                        // NO_UCD (unused code)
-	protected View        mFooterView;
-	protected View        mFooterHolder;
+	protected AbsListView        mListView;
+	protected View               mLoadingView;
+	protected View               mHeaderView;
+	protected View               mHeaderCandiView;                                        // NO_UCD (unused code)
+	protected View               mFooterView;
+	protected SwipeRefreshLayout mSwipeRefreshLayout;
 
 	/* Resources */
 	protected Integer mHeaderViewResId;
@@ -77,18 +72,16 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	protected Integer mListItemResId;
 	protected Integer mListLayoutResId = R.layout.entity_list_fragment;
 	protected Integer mListLoadingResId;
-	protected Integer mListButtonMessageResId;
+	protected Integer mBubbleButtonMessageResId;
 	protected Integer mListEmptyMessageResId;
 
 	/* Configuration */
 	protected String mListViewType;
-	protected Boolean mListPagingEnabled   = true;
-	protected Boolean mParallaxHeader      = false;
-	protected Boolean mEntityCacheEnabled  = true;
-	protected Boolean mFooterHolderEnabled = true;
-	protected Boolean mFooterHolderHidden  = false;
-	protected Boolean mFooterHolderLocked  = false;
-	protected Boolean mReverseSort         = false;
+	protected Boolean mListPagingEnabled  = true;
+	protected Boolean mParallaxHeader     = false;
+	protected Boolean mEntityCacheEnabled = true;
+	protected Boolean mReverseSort        = false;
+	protected Boolean mFabEnabled         = true;
 
 	/* Runtime data */
 	protected Integer mPhotoWidthPixels;
@@ -147,9 +140,10 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 			mLoadingView = LayoutInflater.from(getActivity()).inflate(mListLoadingResId, null);
 		}
 
-		if (mButtonSpecial != null) {
-			if (mButtonSpecialEnabled && mListButtonMessageResId != null) {
-				mButtonSpecial.setText(StringManager.getString(mListButtonMessageResId));
+		if (mBubbleButton != null) {
+			mBubbleButton.show(false);
+			if (mBubbleButton.isEnabled() && mBubbleButtonMessageResId != null) {
+				mBubbleButton.setText(StringManager.getString(mBubbleButtonMessageResId));
 			}
 		}
 
@@ -175,9 +169,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 			mLoadingView.setLayoutParams(params);
 		}
 
-		mFooterHolder = getActivity().findViewById(R.id.footer_holder);
-		if (mFooterHolder != null) {
-
+		if (mFab != null && mFabEnabled && mListView instanceof AirListView) {
 			((AirListView) mListView).setDragListener(new OnDragListener() {
 
 				@Override
@@ -190,7 +182,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 				public boolean onDragEvent(DragEvent event, Float dragX, Float dragY) {
 
 					if (event == DragEvent.DRAG) {
-						handleFooterDrag();
+						handleListDrag();
 					}
 					return false;
 				}
@@ -213,38 +205,15 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		}
 
 		/* Hookup swipe refresh */
-		final AirSwipeRefreshLayout swipeRefreshLayout = (AirSwipeRefreshLayout) view.findViewById(R.id.swipe);
+		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe);
 
-		if (swipeRefreshLayout != null) {
-			swipeRefreshLayout.setColorSchemeResources(R.color.brand_progress_bar_color
+		if (mSwipeRefreshLayout != null) {
+			mSwipeRefreshLayout.setColorSchemeResources(R.color.brand_progress_bar_color
 					, R.color.brand_progress_bar_color
 					, R.color.brand_progress_bar_color
 					, R.color.brand_progress_bar_color);
 
-			swipeRefreshLayout.setOnTouchListener(new OnTouchListener() {
-
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					if (event.getAction() == MotionEvent.ACTION_UP) {
-						if (mFooterHolder != null) {
-							handleFooter(true, AnimationManager.DURATION_MEDIUM);
-						}
-					}
-					return false;
-				}
-			});
-
-			swipeRefreshLayout.setOnRefreshListener(new AirSwipeRefreshLayout.OnRefreshListener() {
-
-				@Override
-				public void onRefresh() {
-					swipeRefreshLayout.setRefreshing(false);
-					EntityListFragment.this.onRefresh();
-					if (mFooterHolder != null) {
-						handleFooter(true, AnimationManager.DURATION_MEDIUM);
-					}
-				}
-			});
+			mSwipeRefreshLayout.setOnRefreshListener(this);
 		}
 
 		return view;
@@ -253,18 +222,10 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	@Override
 	protected void preBind() {}
 
+	protected void adapterAdd(ListAdapter adapter) {}
+
 	@Override
 	public void bind(final BindingMode mode) {
-
-		/*
-		 * Guard binding if this is a private place and user isn't approved
-		 */
-		Entity entity = ((BaseActivity) getActivity()).getEntity();
-		if (entity instanceof Place) {
-			if (!entity.visibleToCurrentUser()) {
-				return;
-			}
-		}
 
 		Logger.d(this, "Binding called: mode = " + mode.name().toLowerCase(Locale.US));
 		/*
@@ -282,7 +243,10 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncBindEntityList");
 				ModelResult result = new ModelResult();
-				if (mode == BindingMode.MANUAL
+				if (mode == BindingMode.FIRST && mQuery.hasExecuted()) {
+					return result;
+				}
+				else if (mode == BindingMode.MANUAL
 						|| (mEntities != null && mEntities.size() == 0)
 						|| (mMonitor.isChanged() && mMonitor.activity)) {
 					mBusy.showBusy(mLoaded ? BusyAction.Refreshing : BusyAction.Loading);
@@ -302,7 +266,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 			protected void onPostExecute(Object response) {
 				ModelResult result = (ModelResult) response;
 
-				mBusy.hideBusy(false);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (result.data != null) {
 
@@ -313,6 +276,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 						for (Entity entity : (List<Entity>) result.data) {
 							mAdapter.add(entity);
 						}
+
 						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
 						draw(null);
 					}
@@ -322,25 +286,11 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 					BusProvider.getInstance().post(new ProcessingCompleteEvent());
 				}
 				else {
+					BusProvider.getInstance().post(new ProcessingCompleteEvent());
 					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 			}
 		}.execute();
-	}
-
-	@Override
-	protected void postBind() {
-		/*
-		 * Clear notifications and activity indicator if visible, acting as an
-		 * activity stream and binding for the first time.
-		 */
-		if (mFirstBind && mActivityStream && getUserVisibleHint()) {
-			MessagingManager.getInstance().setNewActivity(false);
-			if (getActivity() != null) {
-				((AircandiForm) getActivity()).updateActivityAlert();
-			}
-			MessagingManager.getInstance().cancelNotifications();
-		}
 	}
 
 	@Override
@@ -379,7 +329,13 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 
 	@Override
 	public void onRefresh() {
+		/*
+		 * Called by swipe refresh or from AircandiForm triggered by menu item.
+		 * Super class calls bind(BindingMode.Manual). The swipe refresh is shut
+		 * down and other busy ui takes over.
+		 */
 		saveListPosition();
+		mSwipeRefreshLayout.setRefreshing(false);
 		super.onRefresh();
 	}
 
@@ -392,26 +348,39 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		scrollToTop(mListView);
 	}
 
-	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
+	public void onProcessingComplete() {
 
-		if (mButtonSpecial != null && mButtonSpecialEnabled) {
-			if (mButtonSpecialClickable) {
-				if (mEntities.size() == 0) {
-					lockFooter(true);
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mBusy.hideBusy(false);
+				if (mBubbleButton.isEnabled()) {
+					if (mEntities.size() == 0) {
+						mFab.setLocked(true);
+						mBubbleButton.setText(mListEmptyMessageResId);
+						mBubbleButton.fadeIn();
+					}
+					else {
+						mFab.setLocked(false);
+						mBubbleButton.fadeOut();
+					}
 				}
-				else {
-					lockFooter(false);
+
+				if (getActivity() instanceof BaseEntityForm) {
+					if (mEntities.size() > 0) {
+						mFab.slideIn(AnimationManager.DURATION_SHORT);
+					}
+					else {
+						mFab.slideOut(AnimationManager.DURATION_SHORT);
+					}
+				}
+				else if (getActivity() instanceof AircandiForm) {
+					if (mAdapter.getCount() == 0) {
+						mFab.fadeOut();
+					}
 				}
 			}
-			showButtonSpecial(mEntities.size() == 0, mListEmptyMessageResId, mHeaderView);
-		}
-		if (getActivity() instanceof BaseEntityForm) {
-			handleFooter(true, AnimationManager.DURATION_MEDIUM);
-		}
-		else {
-			handleFooter((mAdapter.getCount() > 0), AnimationManager.DURATION_MEDIUM);
-		}
+		});
 	}
 
 	@Override
@@ -565,54 +534,14 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		gridView.setColumnWidth(mPhotoWidthPixels);
 	}
 
-	public void handleFooterDrag() {
+	public void handleListDrag() {
 		DragDirection direction = ((AirListView) mListView).getDragDirectionLast();
-		handleFooter((direction == DragDirection.DOWN), AnimationManager.DURATION_SHORT);
-	}
-
-	public void handleFooter(Boolean show, Integer duration) {
-
-		if (mFooterHolder == null) return;
-		if (mFooterHolderLocked) return;
-		if (!mFooterHolderEnabled) return;
-
-		/* Slide if visible */
-		if (mFooterHolder.getVisibility() == View.VISIBLE && mFooterHolder.getAlpha() == 1) {
-
-			if (show && (mFooterHolderHidden || mFooterHolder.getTranslationY() != 0)) {
-				ObjectAnimator animator = ObjectAnimator.ofFloat(mFooterHolder
-						, "translationY"
-						, mFooterHolder.getHeight()
-						, 0);
-
-				animator.setDuration(duration).start();
-				mFooterHolderHidden = false;
-				mFooterHolder.setClickable(true);
-			}
-			else if (!show && (!mFooterHolderHidden || mFooterHolder.getTranslationY() == 0)) {
-				ObjectAnimator animator = ObjectAnimator.ofFloat(mFooterHolder
-						, "translationY"
-						, 0
-						, mFooterHolder.getHeight());
-
-				animator.setDuration(duration).start();
-				mFooterHolderHidden = true;
-				mFooterHolder.setClickable(false);
-			}
+		if (direction == DragDirection.DOWN) {
+			mFab.slideIn(AnimationManager.DURATION_SHORT);
 		}
-
-		/* Fade if not visible */
 		else {
-			mFooterHolder.setVisibility(View.VISIBLE);
-			mFooterHolder.setClickable(show);
-			ObjectAnimator anim = ObjectAnimator.ofFloat(mFooterHolder, "alpha", show ? 0f : 1f, show ? 1f : 0f);
-			anim.setDuration(AnimationManager.DURATION_MEDIUM);
-			anim.start();
+			mFab.slideOut(AnimationManager.DURATION_SHORT);
 		}
-	}
-
-	protected void lockFooter(Boolean lock) {
-		mFooterHolderLocked = lock;
 	}
 
 	protected ListAdapter getAdapter() {
@@ -644,8 +573,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		return mHighlightEntities;
 	}
 
-	public EntityListFragment setListButtonMessageResId(Integer listButtonMessageResId) {
-		mListButtonMessageResId = listButtonMessageResId;
+	public EntityListFragment setBubbleButtonMessageResId(Integer bubbleButtonMessageResId) {
+		mBubbleButtonMessageResId = bubbleButtonMessageResId;
 		return this;
 	}
 
@@ -730,12 +659,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 	}
 
 	@SuppressWarnings("ucd")
-	public EntityListFragment setFooterEnabled(Boolean footerEnabled) {
-		mFooterHolderEnabled = footerEnabled;
-		return this;
-	}
-
-	@SuppressWarnings("ucd")
 	public EntityListFragment setEntityCacheEnabled(Boolean entityCacheEnabled) {
 		mEntityCacheEnabled = entityCacheEnabled;
 		return this;
@@ -783,15 +706,13 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		 * pre-create fragments even if they aren't visible yet.
 		 */
 		super.onResume();
-		resume();
-	}
-
-	protected void resume() {
 		if (mSelfBindingEnabled && (getActivity() != null && !getActivity().isFinishing())) {
 			bind(BindingMode.AUTO);
 		}
-		if (mFooterHolder != null) {
-			handleFooter(true, AnimationManager.DURATION_MEDIUM);
+
+		ObjectAnimator anim = mFab.slideIn(AnimationManager.DURATION_SHORT);
+		if (anim != null) {
+			anim.setStartDelay(500);
 		}
 	}
 
@@ -814,12 +735,21 @@ public class EntityListFragment extends BaseFragment implements OnClickListener 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 
-			if (mListPagingEnabled && mQuery != null && mQuery.isMore() && position == mEntities.size() && mEntities.size() > 0)
+			if (mListPagingEnabled
+					&& mQuery != null
+					&& mQuery.isMore()
+					&& position == mEntities.size()
+					&& mEntities.size() > 0)
 				return mLoadingView;
 
 			View view = convertView;
 
-			if (mListPagingEnabled && position >= mEntities.size() && position < (mVisibleColumns * mVisibleRows)) {
+			if (mListPagingEnabled
+					&& position >= mEntities.size()
+					&& position < (mVisibleColumns * mVisibleRows)) {
+				/*
+				 * Make the widget used to request more list items.
+				 */
 				if (view == null || view.findViewById(R.id.item_placeholder) == null) {
 					view = LayoutInflater.from(getActivity()).inflate(R.layout.temp_listitem_empty, null);
 					if (mListView instanceof GridView) {

@@ -19,7 +19,7 @@ import com.aircandi.Patchr;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
-import com.aircandi.components.MessagingManager;
+import com.aircandi.components.NotificationManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
@@ -132,7 +132,7 @@ public class SignInEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncSignIn");
 				ModelResult result = Patchr.getInstance().getEntityManager().signin(email, password, SignInEdit.class.getSimpleName());
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					result = MessagingManager.getInstance().registerInstallWithAircandi();
+					result = NotificationManager.getInstance().registerInstallWithAircandi();
 				}
 				return result;
 			}

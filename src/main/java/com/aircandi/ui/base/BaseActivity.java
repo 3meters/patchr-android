@@ -1,10 +1,14 @@
 package com.aircandi.ui.base;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -14,25 +18,29 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.R.color;
 import com.aircandi.components.AndroidManager;
@@ -47,6 +55,7 @@ import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.interfaces.IBind;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IForm;
 import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.Entity;
@@ -55,7 +64,6 @@ import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AircandiForm;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
@@ -69,13 +77,15 @@ import java.util.Map;
 
 public abstract class BaseActivity extends Activity implements OnRefreshListener, IForm, IBind {
 
-	protected ActionBar     mActionBar;
-	public    View          mActionBarView;
-	protected String        mActivityTitle;
-	protected Entity        mEntity;
-	protected String        mEntityId;
-	public    String        mForId;
-	protected SimpleMonitor mEntityMonitor;
+	protected ActionBar            mActionBar;
+	public    View                 mActionBarView;
+	protected BubbleButton         mBubbleButton;
+	protected FloatingActionButton mFab;
+	protected String               mActivityTitle;
+	protected Entity               mEntity;
+	protected String               mEntityId;
+	public    String               mForId;
+	protected SimpleMonitor        mEntityMonitor;
 
 	/* Fragments */
 	protected Map<String, Fragment> mFragments = new HashMap<String, Fragment>();
@@ -104,7 +114,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	protected Boolean mInvalidated  = false;
 	protected Boolean mClickEnabled = false;                        // NO_UCD (unused code)
 	protected Boolean mLoaded       = false;
-	protected Button mButtonSpecial;
+	protected Boolean mProcessing   = false;
 
 	/* Theme */
 	protected String mPrefTheme;
@@ -144,6 +154,19 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			super.onCreate(savedInstanceState);
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
+			/* View layout event */
+			final View view = getWindow().getDecorView().findViewById(android.R.id.content);
+			if (view != null && view.getViewTreeObserver().isAlive()) {
+				view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+					public void onGlobalLayout() {
+						//noinspection deprecation
+						view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+						onViewLayout();
+					}
+				});
+			}
+
 			/* Event sequence */
 			unpackIntent();
 			initialize(savedInstanceState);
@@ -164,11 +187,9 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	public void initialize(Bundle savedInstanceState) {
 		/* Base Ui */
 		mBusy = new BusyManager(this);
-		mButtonSpecial = (Button) findViewById(R.id.button_special);
-		if (mButtonSpecial != null) {
-			mButtonSpecial.setAlpha(0);
-			mButtonSpecial.setClickable(false);
-		}
+		mFab = new FloatingActionButton(findViewById(R.id.floating_action_button));
+		mBubbleButton = new BubbleButton(findViewById(R.id.button_bubble));
+		mBubbleButton.show(false);
 	}
 
 	protected void configureActionBar() {
@@ -189,7 +210,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		if (mActionBar != null) {
 			mActionBar.setDisplayShowTitleEnabled(true);
 			mActionBar.setDisplayHomeAsUpEnabled(true);
-			actionBarIcon();
+			setActionBarIcon();
 			/*
 			 * Force the display of the action bar overflow item
 			 */
@@ -205,19 +226,17 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		}
 	}
 
-	public void setCurrentFragment(String fragmentType) {}
-
-	protected void actionBarIcon() {
-		if (mActionBar != null) {
-			Drawable icon = Patchr.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
-			icon.setColorFilter(Colors.getColor(color.white), PorterDuff.Mode.SRC_ATOP);
-			mActionBar.setIcon(icon);
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	public void onViewLayout() {
+		/*
+		 * Called when initial view layout has completed and
+		 * views have been measured and sized.
+		 */
+		Logger.d(this, "Activity view layout completed");
+	}
 
 	@SuppressWarnings("ucd")
 	public void onOverflowButtonClick(View view) {
@@ -237,11 +256,9 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	}
 
 	@Override
-	public void onRefresh() {
-	}
+	public void onRefresh() {}
 
-	public void onAccept() {
-	}
+	public void onAccept() {}
 
 	@Override
 	public void onAdd(Bundle extras) {
@@ -277,12 +294,10 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	}
 
 	@Override
-	public void onHelp() {
-	}
+	public void onHelp() {}
 
 	@Override
-	public void onError() {
-	}
+	public void onError() {}
 
 	@Override
 	public void onLowMemory() {
@@ -302,6 +317,11 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		//		}
 		Patchr.resultCode = Activity.RESULT_OK;
 		super.onActivityResult(requestCode, resultCode, intent);
+	}
+
+	@Override
+	public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+		return super.onCreateView(parent, name, context, attrs);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -347,24 +367,25 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		return null;
 	}
 
+	public FloatingActionButton getFab() {
+		return mFab;
+	}
+
+	public BubbleButton getBubbleButton() {
+		return mBubbleButton;
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	public void setCurrentFragment(String fragmentType) {}
 
 	@Override
 	public void draw(View view) {}
 
 	@Override
 	public void bind(BindingMode mode) {}
-
-	protected void showButtonSpecial(Boolean visible, String message) {
-		if (mButtonSpecial != null) {
-			if (message != null) {
-				mButtonSpecial.setText(message);
-			}
-			AnimationManager.showViewAnimate(mButtonSpecial, visible, false, AnimationManager.DURATION_MEDIUM);
-		}
-	}
 
 	public BusyManager getBusy() {
 		return mBusy;
@@ -432,6 +453,14 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		}
 				, null);
 		dialog.setCanceledOnTouchOutside(false);
+	}
+
+	protected void setActionBarIcon() {
+		if (mActionBar != null) {
+			Drawable icon = Patchr.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
+			icon.setColorFilter(Colors.getColor(color.white), PorterDuff.Mode.SRC_ATOP);
+			mActionBar.setIcon(icon);
+		}
 	}
 
 	public void confirmRemove(final String toId) {
@@ -518,6 +547,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 				else {
 					Errors.handleError(BaseActivity.this, result.serviceResponse);
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}
@@ -539,7 +569,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRemoveEntity");
 				final ModelResult result = Patchr.getInstance().getEntityManager()
-				                                   .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove");
+				                                 .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove");
 				isCancelled();
 				return result;
 			}
@@ -562,12 +592,9 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 				else {
 					Errors.handleError(BaseActivity.this, result.serviceResponse);
 				}
+				mProcessing = false;
 			}
 		}.execute();
-	}
-
-	public Boolean related(Entity entity) {
-		return false;
 	}
 
 	public Boolean related(String entityId) {
@@ -575,8 +602,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	}
 
 	@Override
-	public void share() {
-	}
+	public void share() {}
 
 	public void setTheme(Boolean isDialog, Boolean isTransparent) {
 		mPrefTheme = Patchr.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
@@ -629,7 +655,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		/* Dev prefs */
 
 		if (!Patchr.getInstance().getPrefEnableDev()
-		             .equals(Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false))) {
+		           .equals(Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false))) {
 			mPrefChangeRefreshUiNeeded = true;
 			Logger.d(this, "Pref change: dev ui");
 		}
@@ -651,6 +677,13 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		return view.findViewById(resId);
 	}
 
+	public Boolean getInvalidated() {
+		return mInvalidated;
+	}
+
+	public void setInvalidated(Boolean invalidated) {
+		mInvalidated = invalidated;
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
@@ -660,8 +693,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Logger.v(this, "Creating options menu");
 		/*
-		 * Android 2.3 or lower: called when user hits the menu button for the first time.
-		 * 
 		 * Android 3.0 or higher:
 		 * 1) called when activity is first started.
 		 * 2) when switching fragments.
@@ -828,7 +859,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		Patchr.getInstance().setCurrentActivity(this);
 		mClickEnabled = true;
 		if (!isFinishing()) {
-			actionBarIcon(); // Hack: Icon gets lost sometimes so refresh
+			setActionBarIcon(); // Hack: Icon gets lost sometimes so refresh
 		}
 		/*
 		 * We always check to make sure play services are working properly. This call will finish 
@@ -873,15 +904,278 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public Boolean getInvalidated() {
-		return mInvalidated;
+	public class FloatingActionButton {
+
+		private View mView;
+		private Boolean mEnabled = true;
+		private Boolean mLocked  = false;
+		private Boolean mHidden  = false;
+
+		public FloatingActionButton(View view) {
+			mView = view;
+		}
+
+		public void click() {
+			if (!mEnabled) {
+				throw new RuntimeException("Cannot call click while not enabled");
+			}
+			if (mView != null) {
+				mView.callOnClick();
+			}
+		}
+
+		public void show(final Boolean visible) {
+			if (mView != null) {
+				mView.setVisibility(visible ? View.VISIBLE : View.GONE);
+			}
+		}
+
+		public ObjectAnimator fadeIn() {
+			if (mView == null || (mView.getVisibility() == View.VISIBLE && mView.getAlpha() == 1f))
+				return null;
+			mView.setAlpha(0f);
+			mView.setVisibility(View.VISIBLE);
+			ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 1f);
+			anim.setDuration(AnimationManager.DURATION_MEDIUM);
+			anim.addListener(new SimpleAnimationListener() {
+				@Override
+				public void onAnimationStart(Animator animator) {
+					mView.setClickable(true);
+					animator.removeAllListeners();
+				}
+			});
+			anim.start();
+			return anim;
+		}
+
+		public ObjectAnimator fadeOut() {
+			if (mView == null || (mView.getVisibility() == View.GONE && mView.getAlpha() == 0f))
+				return null;
+			ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 0f);
+			anim.setDuration(AnimationManager.DURATION_MEDIUM);
+			anim.addListener(new SimpleAnimationListener() {
+				@Override
+				public void onAnimationEnd(Animator animator) {
+					mView.setClickable(false);
+					mView.setVisibility(View.GONE);
+					animator.removeAllListeners();
+				}
+			});
+			anim.start();
+			return anim;
+		}
+
+		public ObjectAnimator slideOut(Integer duration) {
+			if (mLocked) return null;
+			if (mHidden || mView == null || mView.getTranslationY() != 0) return null;
+			ObjectAnimator anim = ObjectAnimator.ofFloat(mView
+					, "translationY"
+					, mView.getHeight());
+			anim.setDuration(duration);
+			anim.addListener(new SimpleAnimationListener() {
+				@Override
+				public void onAnimationEnd(Animator animator) {
+					mView.setClickable(false);
+					animator.removeAllListeners();
+					mHidden = true;
+				}
+			});
+			anim.start();
+			return anim;
+		}
+
+		public ObjectAnimator slideIn(Integer duration) {
+			if (mLocked) return null;
+			if (!mHidden || mView.getTranslationY() == 0) return null;
+			ObjectAnimator anim = ObjectAnimator.ofFloat(mView
+					, "translationY"
+					, 0);
+			anim.setDuration(duration);
+			anim.addListener(new SimpleAnimationListener() {
+				@Override
+				public void onAnimationEnd(Animator animator) {
+					mView.setClickable(true);
+					animator.removeAllListeners();
+					mHidden = false;
+				}
+			});
+			anim.start();
+			return anim;
+		}
+
+		public void setEnabled(Boolean enabled) {
+			if (!enabled) {
+				fadeOut();
+			}
+			else {
+				fadeIn();
+			}
+			mEnabled = enabled;
+		}
+
+		public Boolean isEnabled() {
+			return mEnabled;
+		}
+
+		public void setLocked(Boolean locked) {
+			mLocked = locked;
+		}
+
+		public Boolean isLocked() {
+			return mLocked;
+		}
+
+		public void setTag(Object tag) {
+			if (!mEnabled) {
+				throw new RuntimeException("Cannot call setTag while not enabled");
+			}
+			if (mView != null) {
+				mView.setTag(tag);
+			}
+		}
+
+		public void setText(int labelResId) {
+			String label = StringManager.getString(labelResId);
+			setText(label);
+		}
+
+		public void setText(String label) {
+			if (!mEnabled) {
+				throw new RuntimeException("Cannot call setText while not enabled");
+			}
+			if (mView != null) {
+				if (!(mView instanceof TextView)) {
+					throw new RuntimeException("Cannot call setText if not a TextView");
+				}
+				((TextView) mView).setText(label);
+			}
+		}
 	}
 
-	public void setInvalidated(Boolean invalidated) {
-		mInvalidated = invalidated;
+	public static class BubbleButton {
+
+		private View mView;
+		private Boolean mEnabled = true;
+
+		public BubbleButton(View view) {
+			mView = view;
+		}
+
+		public void show(final Boolean visible) {
+			if (mView != null) {
+				mView.setVisibility(visible ? View.VISIBLE : View.GONE);
+			}
+		}
+
+		public ObjectAnimator fadeIn() {
+			if (mView == null || (mView.getVisibility() == View.VISIBLE && mView.getAlpha() == 1f))
+				return null;
+			Logger.d(this, "Bubble: fading in");
+			ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 1f);
+			mView.setAlpha(0f);
+			mView.setVisibility(View.VISIBLE);
+			anim.setDuration(AnimationManager.DURATION_MEDIUM);
+			anim.addListener(new SimpleAnimationListener() {
+				@Override
+				public void onAnimationStart(Animator animator) {
+					animator.removeAllListeners();
+				}
+			});
+			anim.start();
+			return anim;
+		}
+
+		public ObjectAnimator fadeOut() {
+			if (mView == null || (mView.getVisibility() == View.GONE && mView.getAlpha() == 0f))
+				return null;
+			Logger.d(this, "Bubble: fading out");
+			ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 0f);
+			anim.setDuration(AnimationManager.DURATION_MEDIUM);
+			anim.addListener(new SimpleAnimationListener() {
+				@Override
+				public void onAnimationEnd(Animator animator) {
+					mView.setVisibility(View.GONE);
+					animator.removeAllListeners();
+				}
+			});
+			anim.start();
+			return anim;
+		}
+
+		public void position(final View header, final Integer headerHeightProjected) {
+
+			if (mView != null && header != null) {
+
+				ViewTreeObserver vto = header.getViewTreeObserver();
+				vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+					@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+					@SuppressWarnings("deprecation")
+					@Override
+					public void onGlobalLayout() {
+
+						if (Patchr.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+							RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mView.getLayoutParams());
+							params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+							int headerHeight = (headerHeightProjected != null)
+							                   ? headerHeightProjected
+							                   : header.getHeight();
+							params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(100f);
+							mView.setLayoutParams(params);
+						}
+						else {
+							RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mView.getLayoutParams());
+							params.addRule(RelativeLayout.CENTER_IN_PARENT);
+							mView.setLayoutParams(params);
+						}
+
+						if (Constants.SUPPORTS_JELLY_BEAN) {
+							header.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+						}
+						else {
+							header.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+						}
+					}
+				});
+			}
+		}
+
+		public void setEnabled(Boolean enabled) {
+			if (!enabled) {
+				fadeOut();
+			}
+			else {
+				fadeIn();
+			}
+			mEnabled = enabled;
+		}
+
+		public Boolean isEnabled() {
+			return mEnabled;
+		}
+
+		public void setText(int labelResId) {
+			String label = StringManager.getString(labelResId);
+			setText(label);
+		}
+
+		public void setText(String label) {
+			if (!mEnabled) {
+				throw new RuntimeException("Cannot call setText while not enabled");
+			}
+			if (mView != null) {
+				if (!(mView instanceof TextView || mView instanceof Button)) {
+					throw new RuntimeException("Cannot call setText if not a TextView");
+				}
+				((TextView) mView).setText(label);
+			}
+		}
+
+		public void setOnClickListener(View.OnClickListener listener) {
+			mView.setOnClickListener(listener);
+		}
 	}
 
-	@SuppressWarnings("ucd")
 	public enum ServiceOperation {
 		SIGNIN,
 		PASSWORD_CHANGE,
@@ -900,5 +1194,19 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before, int count) {
 		}
+	}
+
+	public static class SimpleAnimationListener implements Animator.AnimatorListener {
+		@Override
+		public void onAnimationStart(Animator animator) {}
+
+		@Override
+		public void onAnimationEnd(Animator animator) {}
+
+		@Override
+		public void onAnimationCancel(Animator animator) {}
+
+		@Override
+		public void onAnimationRepeat(Animator animator) {}
 	}
 }

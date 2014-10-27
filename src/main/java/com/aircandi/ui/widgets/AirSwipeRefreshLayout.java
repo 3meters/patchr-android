@@ -3,8 +3,10 @@ package com.aircandi.ui.widgets;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 
 import com.aircandi.R;
+import com.aircandi.components.Logger;
 
 @SuppressWarnings("ucd")
 public class AirSwipeRefreshLayout extends android.support.v4.widget.SwipeRefreshLayout {
@@ -41,6 +43,17 @@ public class AirSwipeRefreshLayout extends android.support.v4.widget.SwipeRefres
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		getParent().requestDisallowInterceptTouchEvent(true);
+		return super.onTouchEvent(event);
+	}
+
+	public void requestDrawerDisallowInterceptTouchEvent(boolean disallow){
+		getParent().requestDisallowInterceptTouchEvent(disallow);
+	}
+
 	@Override
 	public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measuredWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -53,9 +66,11 @@ public class AirSwipeRefreshLayout extends android.support.v4.widget.SwipeRefres
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------------------------
 	 * Properties
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 }

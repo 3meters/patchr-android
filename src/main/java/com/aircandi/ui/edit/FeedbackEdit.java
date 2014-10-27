@@ -3,6 +3,7 @@ package com.aircandi.ui.edit;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -45,7 +46,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 
 				@Override
 				public void afterTextChanged(Editable s) {
-					mDirty = s.toString() != null || !s.toString().equals("");
+					mDirty = !TextUtils.isEmpty(s);
 				}
 			});
 		}
@@ -102,6 +103,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 
 	@Override
 	protected void insert() {
+
 		Logger.i(this, "Insert feedback");
 
 		new AsyncTask() {
@@ -131,6 +133,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 				else {
 					Errors.handleError(FeedbackEdit.this, result.serviceResponse);
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}

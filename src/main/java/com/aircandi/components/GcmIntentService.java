@@ -11,21 +11,13 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.interfaces.IEntityController;
-import com.aircandi.objects.Action.EventCategory;
-import com.aircandi.objects.EventType;
-import com.aircandi.objects.Message;
-import com.aircandi.objects.MessageTriggers;
-import com.aircandi.objects.ServiceMessage;
-import com.aircandi.ui.AircandiForm;
+import com.aircandi.objects.Entity;
+import com.aircandi.objects.Notification;
+import com.aircandi.objects.User;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @SuppressLint("Registered")
 public class GcmIntentService extends IntentService {
@@ -52,109 +44,67 @@ public class GcmIntentService extends IntentService {
 				 * Called when our server sends a message to GCM, and GCM delivers it to the install. If the message
 				 * has a payload, its contents are available as extras in the intent.
 				 */
-				String jsonMessage = extras.getString("message");
-				ServiceMessage serviceMessage = (ServiceMessage) Json.jsonToObject(jsonMessage, Json.ObjectType.SERVICE_MESSAGE);
-				/*
-				 * If the primary entity of the message isn't one we have a controller for, it won't be deserialized
-				 * and entity will be null. That is a good reason to discard the message.
-				 */
-				if (serviceMessage == null || serviceMessage.action.entity == null) return;
+				String jsonNotification = extras.getString(Constants.SCHEMA_ENTITY_NOTIFICATION);
+				Notification notification = (Notification) Json.jsonToObject(jsonNotification, Json.ObjectType.ENTITY);
+				if (notification == null) return;
 
-				/* Is this a message event we know how to handle */
-				if (serviceMessage.action.getEventCategory().equals(EventCategory.UNKNOWN))
+				User currentUser = Patchr.getInstance().getCurrentUser();
+				if (notification.userId != null && currentUser != null && currentUser.id.equals(notification.userId))
 					return;
-				if (!isValidSchema(serviceMessage)) return;
-				if (!isValidEvent(serviceMessage)) return;
 
 				/*
 				 * Tickle activity date on current user to flag auto refresh for activity list. This service
 				 * can be woken up when we don't have a current user. We do this regardless of whether
 				 * the application is in the foreground or not.
 				 */
-				if (Patchr.getInstance().getCurrentUser() != null) {
-					Patchr.getInstance().getCurrentUser().activityDate = serviceMessage.sentDate;
+				if (currentUser != null) {
+					currentUser.activityDate = notification.sentDate;
 				}
 
 				/* Tickle activity date on entity manager because that is monitored by radar. */
-				if ((serviceMessage.action.entity != null && serviceMessage.action.entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE))
-						|| (serviceMessage.action.toEntity != null && serviceMessage.action.toEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE))) {
+				String targetSchema = Entity.getSchemaForId(notification.targetId);
+				if (targetSchema != null && targetSchema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 					Patchr.getInstance().getEntityManager().setActivityDate(DateTime.nowDate().getTime());
 				}
 
-				/* Do some cache stuffing */
-
-				/*
-				 * Hmm, if this is a message for a place, the place will get replace with this toEntity which
-				 * is not exactly a full monty place entity. It's ok if its a new place not in the cache
-				 * because it provides context info for things like messages.
-				 */
-				if (serviceMessage.action.toEntity != null) {
-					if (!EntityManager.getEntityCache().containsKey(serviceMessage.action.toEntity.id)) {
-						EntityManager.getEntityCache().upsertEntity(serviceMessage.action.toEntity);
-						serviceMessage.action.entity.toId = serviceMessage.action.toEntity.id;
-					}
-				}
-
 				/* Track */
-				if (serviceMessage.action.entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-					Message message = (Message) serviceMessage.action.entity;
-					if (message.type.equals(Constants.TYPE_APP_ALERT)) {
-						MessagingManager.getInstance().getAlerts().put(message.id, message);
-						MessagingManager.getInstance().setNewAlert(true);
-					}
-					else {
-						MessagingManager.getInstance().getMessages().put(message.id, message);
-						MessagingManager.getInstance().setNewMessage(true);
-					}
-				}
+				NotificationManager.getInstance().getNotifications().put(notification.id, notification);
+				NotificationManager.getInstance().setNewNotificationCount(NotificationManager.getInstance().getNewNotificationCount() + 1);
 
 				/*
 				 * BACKGROUND, NEARBY, OR TARGET NOT VISIBLE
 				 */
 
 				Boolean background = (Patchr.getInstance().getCurrentActivity() == null);
-				Boolean targetVisible = targetContextVisible(serviceMessage);
+				Boolean showingTarget = showingEntity(notification.targetId);
 
-				if (background || !targetVisible || serviceMessage.getTriggerCategory().equals(MessageTriggers.TriggerType.NEARBY)) {
+				if (background
+						|| !showingTarget
+						|| notification.priority.intValue() == Notification.Priority.ONE) {
 
-					if (!serviceMessage.getTriggerCategory().equals(MessageTriggers.TriggerType.NEARBY)) {
-						MessagingManager.getInstance().setNewMessage(true);
-					}
-
-					if (background || serviceMessage.getTriggerCategory().equals(MessageTriggers.TriggerType.NEARBY)) {
+					if (background || notification.trigger.equals(Notification.TriggerType.NEARBY)) {
 
 						/* Build intent that can be used in association with the notification */
-						if (serviceMessage.action.entity != null) {
-							if (serviceMessage.action.entity.type != null && serviceMessage.action.entity.type.equals(Constants.TYPE_APP_ALERT)) {
-								if (serviceMessage.action.toEntity != null) {
-									IEntityController controller = Patchr.getInstance().getControllerForSchema(serviceMessage.action.toEntity.schema);
-									if (controller != null) {
-										Extras bundle = new Extras().setForceRefresh(true);
-										serviceMessage.intent = controller.view(Patchr.applicationContext, null, serviceMessage.action.toEntity.id, null, null,
-												bundle.getExtras(),
-												false);
-									}
-								}
-							}
-							else {
-								IEntityController controller = Patchr.getInstance().getControllerForSchema(serviceMessage.action.entity.schema);
-								if (controller != null) {
-									Extras bundle = new Extras().setForceRefresh(true);
-									String parentId = (serviceMessage.action.toEntity != null) ? serviceMessage.action.toEntity.id : null;
-									serviceMessage.intent = controller.view(Patchr.applicationContext, null, serviceMessage.action.entity.id, parentId, null,
-											bundle.getExtras(),
-											false);
-								}
-							}
+						IEntityController controller = Patchr.getInstance().getControllerForSchema(targetSchema);
+						if (controller != null) {
+							Extras bundle = new Extras().setForceRefresh(true);
+							String parentId = (notification.parentId != null) ? notification.parentId : null;
+							notification.intent = controller.view(Patchr.applicationContext
+									, null
+									, notification.targetId
+									, parentId
+									, null
+									, bundle.getExtras()
+									, false);
 						}
 
-					    /* Customize title and subtitle before broadcasting */
-						Patchr.getInstance().getActivityDecorator().decorate(serviceMessage);
-
-					    /* Send notification */
-						MessagingManager.getInstance().notificationForMessage(serviceMessage, Patchr.applicationContext);
+					    /*
+					     * Send notification - includes sound notification
+					     */
+						NotificationManager.getInstance().statusNotification(notification, Patchr.applicationContext);
 					}
 					else {
+						/* Chirp */
 						MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);
 					}
 				}
@@ -164,56 +114,23 @@ public class GcmIntentService extends IntentService {
 				 */
 
 				else {
+					/* Chirp */
+					MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);
+
+					/* Vibrate */
 					Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 					if (vibrator != null && vibrator.hasVibrator()) {
 						vibrator.vibrate(new long[]{0, 400, 400, 400}, -1);
 					}
-					MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);
 				}
 
-				/* Trigger event so subscribers can decide if they care about the activity */
-				MessagingManager.getInstance().broadcastMessage(serviceMessage);
+				/* Trigger event so subscribers can decide if they care about the notification */
+				NotificationManager.getInstance().broadcastNotification(notification);
 			}
 		}
 
 		/* Release the wake lock provided by WakefulBroadcastReceiver */
 		GcmBroadcastReceiver.completeWakefulIntent(intent);
-	}
-
-	protected Boolean targetContextVisible(ServiceMessage message) {
-		/*
-		 * If user is currently on the activities list, it will be auto refreshed
-		 * so don't show indicator in the tab.
-		 */
-		Boolean showingEntity = false;
-		if (message.action.toEntity != null) {
-			showingEntity = showingEntity(message.action.toEntity.id);
-		}
-		return (showingEntity);
-	}
-
-	protected Boolean shouldTriggerVibratorAlert(ServiceMessage message) {
-		/*
-		 * If user is currently on the activities list, it will be auto refreshed
-		 * so don't show indicator in the tab.
-		 */
-		Boolean showingActivities = showingActivities();
-		Boolean showingEntity = false;
-		if (message.action.toEntity != null) {
-			showingEntity = showingEntity(message.action.toEntity.id);
-		}
-		return !(showingActivities || showingEntity);
-	}
-
-	protected Boolean showingActivities() {
-		android.app.Activity currentActivity = Patchr.getInstance().getCurrentActivity();
-		if (currentActivity != null && currentActivity.getClass().equals(AircandiForm.class)) {
-			BaseFragment fragment = (BaseFragment) ((AircandiForm) currentActivity).getCurrentFragment();
-			if (fragment != null && fragment.isActivityStream()) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	protected Boolean showingEntity(String entityId) {
@@ -222,34 +139,5 @@ public class GcmIntentService extends IntentService {
 			return ((BaseActivity) currentActivity).related(entityId);
 		}
 		return false;
-	}
-
-	protected Boolean isValidSchema(ServiceMessage message) {
-		String[] validSchemas = {com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE, Constants.SCHEMA_ENTITY_PLACE};
-		String[] validToSchemas = {com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE, Constants.SCHEMA_ENTITY_PLACE, Constants.SCHEMA_ENTITY_USER};
-
-		if (message.action.entity != null) {
-			if (!Arrays.asList(validSchemas).contains(message.action.entity.schema)) return false;
-		}
-		if (message.action.toEntity != null) {
-			if (!Arrays.asList(validToSchemas).contains(message.action.toEntity.schema))
-				return false;
-		}
-
-		return true;
-	}
-
-	protected Boolean isValidEvent(ServiceMessage message) {
-		List<String> events = new ArrayList<String>();
-		events.add(EventType.INSERT_PLACE);
-		events.add(EventType.INSERT_MESSAGE);
-		events.add(EventType.INSERT_MESSAGE_SHARE);
-		events.add(EventType.INSERT_LINK_WATCH);
-
-		if (message.action.entity != null) {
-			if (!events.contains(message.action.event)) return false;
-		}
-
-		return true;
 	}
 }

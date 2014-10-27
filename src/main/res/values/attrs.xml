@@ -78,11 +78,14 @@
 		<attr name="backgroundAccuracyNone" format="color|reference" />
 		<attr name="backgroundBalloon" format="color|reference" />
 		<attr name="backgroundBalloonOnGray" format="color|reference" />
+
 		<attr name="backgroundButton" format="color|reference" />
 		<attr name="backgroundButtonLink" format="color|reference" />
+		<attr name="backgroundButtonBuilder" format="color|reference" />
 		<attr name="backgroundButtonRound" format="color|reference" />
 		<attr name="backgroundButtonRoundGlow" format="color|reference" />
 		<attr name="backgroundButtonShare" format="color|reference" />
+
 		<attr name="backgroundCandi" format="color|reference" />
 		<attr name="backgroundCard" format="color|reference" />
 		<attr name="backgroundCardField" format="color|reference" />
@@ -100,6 +103,7 @@
 		<attr name="backgroundTooltipLayer" format="color|reference" />
 		<attr name="badgeColor" format="color|reference" />
 		<attr name="badgeColorSynthetic" format="color|reference" />
+
 		<attr name="imgLogo" format="reference" />
 		<attr name="iconAccept" format="reference" />
 		<attr name="iconAdd" format="reference" />
@@ -110,7 +114,6 @@
 		<attr name="iconCancel" format="reference" />
 		<attr name="iconClear" format="reference" />
 		<attr name="iconDelete" format="reference" />
-		<attr name="iconDrawer" format="reference" />
 		<attr name="iconEdit" format="reference" />
 		<attr name="iconExit" format="reference" />
 		<attr name="iconForward" format="reference" />
@@ -122,11 +125,11 @@
 		<attr name="iconInfo" format="reference" />
 		<attr name="iconKey" format="reference" />
 		<attr name="iconLike" format="reference" />
-		<attr name="iconLikeInvert" format="reference" />
 		<attr name="iconList" format="reference" />
 		<attr name="iconLocation" format="reference" />
 		<attr name="iconLocked" format="reference" />
 		<attr name="iconMap" format="reference" />
+		<attr name="iconMediaMessage" format="reference" />
 		<attr name="iconMessage" format="reference" />
 		<attr name="iconMessageNew" format="reference" />
 		<attr name="iconMore" format="reference" />
@@ -152,7 +155,20 @@
 		<attr name="iconUser" format="reference" />
 		<attr name="iconUsers" format="reference" />
 		<attr name="iconWatch" format="reference" />
-		<attr name="iconWatchInvert" format="reference" />
+
+		<attr name="iconActionAccept" format="reference" />
+		<attr name="iconActionAdd" format="reference" />
+		<attr name="iconActionAlert" format="reference" />
+		<attr name="iconActionCancel" format="reference" />
+		<attr name="iconActionEdit" format="reference" />
+		<attr name="iconActionReload" format="reference" />
+		<attr name="iconActionSearch" format="reference" />
+		<attr name="iconActionSend" format="reference" />
+		<attr name="iconActionShare" format="reference" />
+		<attr name="iconActionSignal" format="reference" />
+		<attr name="iconActionUsers" format="reference" />
+		<attr name="iconActionWatch" format="reference" />
+
 	</declare-styleable>
 
 	<declare-styleable name="AirTextView">
@@ -243,29 +259,4 @@
 	<declare-styleable name="AirCheckBoxPreference">
 		<attr name="keyId" />
 	</declare-styleable>
-	<!--
-	<declare-styleable name="SmoothProgressBar">
-		<attr name="spbStyle" format="reference" />
-		<attr name="spb_color" format="color" />
-		<attr name="spb_stroke_width" format="dimension" />
-		<attr name="spb_stroke_separator_length" format="dimension" />
-		<attr name="spb_sections_count" format="integer" />
-		<attr name="spb_speed" format="float" />
-		<attr name="spb_progressiveStart_speed" format="float" />
-		<attr name="spb_progressiveStop_speed" format="float" />
-		<attr name="spb_interpolator" format="enum">
-			<enum name="spb_interpolator_accelerate" value="0" />
-			<enum name="spb_interpolator_linear" value="1" />
-			<enum name="spb_interpolator_acceleratedecelerate" value="2" />
-			<enum name="spb_interpolator_decelerate" value="3" />
-		</attr>
-		<attr name="spb_reversed" format="boolean" />
-		<attr name="spb_mirror_mode" format="boolean" />
-		<attr name="spb_colors" format="reference" />
-		<attr name="spb_progressiveStart_activated" format="boolean" />
-		<attr name="spb_background" format="reference" />
-		<attr name="spb_generate_background_with_colors" format="boolean" />
-		<attr name="spb_gradients" format="boolean" />
-	</declare-styleable>-->
-
 </resources>

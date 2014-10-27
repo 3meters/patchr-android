@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingBottom="4dp"
+	android:paddingTop="8dp"
+	android:paddingLeft="8dp"
+	android:paddingRight="8dp">
+
+	<RelativeLayout
+		android:id="@+id/alert_group"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="?attr/backgroundCard">
+
+		<com.aircandi.ui.widgets.AirTextView
+			android:id="@+id/button_alert"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/form_field_height"
+			android:background="@drawable/selector_link_button"
+			android:clickable="true"
+			android:ellipsize="end"
+			android:gravity="center"
+			android:padding="8dp"
+			android:singleLine="true"
+			android:textAllCaps="true"
+			android:textAppearance="?android:attr/textAppearance"
+			android:textColor="@color/holo_blue_light"
+			tools:text="Create a patch"
+			tools:textAllCaps="true" />
+
+		<View
+			android:id="@+id/rule_alert"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_divider_height"
+			android:layout_alignParentBottom="true"
+			android:background="?attr/ruleColor" />
+
+	</RelativeLayout>
+
+</RelativeLayout>

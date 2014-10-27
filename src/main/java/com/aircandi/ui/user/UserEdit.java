@@ -215,7 +215,7 @@ public class UserEdit extends BaseEntityEdit {
 			Dialogs.alertDialogSimple(this, null, StringManager.getString(R.string.error_invalid_email));
 			return false;
 		}
-		if (mWebUri != null && mWebUri.getText().toString() != null && !mWebUri.getText().toString().equals("")) {
+		if (mWebUri != null && !TextUtils.isEmpty(mWebUri.getText().toString())) {
 			if (!Utilities.validWebUri(mWebUri.getText().toString())) {
 				Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 						, null

@@ -2,19 +2,22 @@ package com.aircandi.ui;
 
 import android.app.Activity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Extras;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
+import com.aircandi.objects.User;
 import com.aircandi.objects.ViewHolder;
+import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.widgets.ComboButton;
-import com.squareup.otto.Subscribe;
+import com.aircandi.utilities.UI;
 
 public class WatcherListFragment extends EntityListFragment {
 
@@ -36,11 +39,6 @@ public class WatcherListFragment extends EntityListFragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-	}
-
-	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		super.onProcessingComplete(event);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -71,18 +69,35 @@ public class WatcherListFragment extends EntityListFragment {
 
 		controller.bind(entity, view);
 
-		//		if (holder.candiView != null) {
-		//			ViewGroup layout = holder.candiView.getLayout();
-		//			Entity parent = ((BaseActivity) getActivity()).getEntity();
-		//			Boolean isOwner = entity.id.equals(parent.ownerId);
+		if (holder.candiView != null) {
+			ViewGroup layout = holder.candiView.getLayout();
+			Entity parent = ((BaseActivity) getActivity()).getEntity();
+			Boolean isOwner = entity.id.equals(parent.ownerId);
 
-		//			layout.findViewById(R.id.holder_owner_edit).setVisibility((parent.isOwnedByCurrentUser() && !isOwner) ? View.VISIBLE : View.GONE);
-		//			layout.findViewById(R.id.button_delete).setVisibility((parent.isOwnedByCurrentUser() && !isOwner) ? View.VISIBLE : View.GONE);
+			TextView role = (TextView) layout.findViewById(R.id.role);
+			View editGroup = layout.findViewById(R.id.owner_edit_group);
+			View deleteButton = layout.findViewById(R.id.button_delete);
 
-		//			((ViewHolderExtended) holder).delete.setTag(entity);
-		//			((ViewHolderExtended) holder).enable.setTag(entity);
-		//			((ViewHolderExtended) holder).enable.setChecked(entity.enabled);
-		//		}
+			UI.setVisibility(role, View.GONE);
+			UI.setVisibility(editGroup, View.GONE);
+			UI.setVisibility(deleteButton, View.GONE);
+
+			if (isOwner) {
+				role.setText(User.Role.OWNER);
+				UI.setVisibility(layout.findViewById(R.id.role), View.VISIBLE);
+			}
+			else {
+				if (parent.privacy != null
+						&& parent.privacy.equals(Constants.PRIVACY_PRIVATE)
+						&& parent.isOwnedByCurrentUser()) {
+					((ViewHolderExtended) holder).delete.setTag(entity);
+					((ViewHolderExtended) holder).enable.setTag(entity);
+					((ViewHolderExtended) holder).enable.setChecked(entity.enabled);
+					UI.setVisibility(editGroup, View.VISIBLE);
+					UI.setVisibility(deleteButton, View.VISIBLE);
+				}
+			}
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------

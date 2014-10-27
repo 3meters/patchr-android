@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -133,12 +134,12 @@ public class PhotoPicker extends BaseActivity {
 				mDefaultSearch = extras.getString(Constants.EXTRA_SEARCH_PHRASE);
 			}
 
-			if (mDefaultSearch != null && !mDefaultSearch.equals("")) {
+			if (!TextUtils.isEmpty(mDefaultSearch)) {
 				mSearch.setText(mDefaultSearch);
 			}
 			else {
 				String lastSearch = Patchr.settings.getString(StringManager.getString(R.string.setting_picture_search_last), null);
-				if (lastSearch != null && !lastSearch.equals("")) {
+				if (!TextUtils.isEmpty(lastSearch)) {
 					mSearch.setText(lastSearch);
 				}
 			}
@@ -230,7 +231,7 @@ public class PhotoPicker extends BaseActivity {
 
 	@Override
 	public void bind(BindingMode mode) {
-		if (mPlacePhotoMode || (mQuery != null && !mQuery.equals(""))) {
+		if (mPlacePhotoMode || !TextUtils.isEmpty(mQuery)) {
 			mGridView.setAdapter(new EndlessImageAdapter(mImages));
 		}
 	}
@@ -468,7 +469,8 @@ public class PhotoPicker extends BaseActivity {
 
 									@Override
 									public void run() {
-										showButtonSpecial(true, StringManager.getString(R.string.label_photo_picker_empty) + " " + mEntity.name);
+										mBubbleButton.setText(StringManager.getString(R.string.label_photo_picker_empty) + " " + mEntity.name);
+										mBubbleButton.fadeIn();
 									}
 								});
 							}
@@ -496,7 +498,7 @@ public class PhotoPicker extends BaseActivity {
 			}
 			else {
 				String queryDecorated = mQuery;
-				if (queryDecorated == null || queryDecorated.equals("")) {
+				if (TextUtils.isEmpty(queryDecorated)) {
 					queryDecorated = QUERY_DEFAULT;
 				}
 				else {
@@ -517,7 +519,8 @@ public class PhotoPicker extends BaseActivity {
 
 								@Override
 								public void run() {
-									showButtonSpecial(true, StringManager.getString(R.string.label_photo_picker_empty) + " " + mQuery);
+									mBubbleButton.setText(StringManager.getString(R.string.label_photo_picker_empty) + " " + mQuery);
+									mBubbleButton.fadeIn();
 								}
 							});
 						}
@@ -591,7 +594,7 @@ public class PhotoPicker extends BaseActivity {
 			if (view == null) {
 				view = LayoutInflater.from(PhotoPicker.this).inflate(R.layout.temp_picture_search_item, null);
 				holder = new ViewHolder();
-				holder.photoView = (AirImageView) view.findViewById(R.id.entity_photo);
+				holder.photoView = (AirImageView) view.findViewById(R.id.photo);
 				Integer nudge = mResources.getDimensionPixelSize(R.dimen.grid_item_height_kick);
 				final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mPhotoWidthPixels, mPhotoWidthPixels - nudge);
 				holder.photoView.setLayoutParams(params);
