@@ -78,20 +78,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 	}
 
 	@SuppressWarnings("ucd")
-	public void onWatchButtonClick(View view) {
-
-		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			String message = StringManager.getString(R.string.alert_signin_message_watch, mEntity.schema);
-			Dialogs.signinRequired(this, message);
-			return;
-		}
-
-		if (mEntity != null) {
-			watch(false);
-		}
-	}
-
-	@SuppressWarnings("ucd")
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
 		Bundle extras = new Bundle();
@@ -362,6 +348,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 						Errors.handleError(BaseEntityForm.this, result.serviceResponse);
 					}
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}

@@ -211,11 +211,14 @@ public class PlaceForm extends BaseEntityForm {
 		}
 	}
 
-	@Override
 	@SuppressWarnings("ucd")
 	public void onWatchButtonClick(View view) {
 
+		if (mProcessing) return;
+		mProcessing = true;
+
 		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			mProcessing = false;
 			String message = StringManager.getString(R.string.alert_signin_message_watch, mEntity.schema);
 			Dialogs.signinRequired(this, message);
 			return;
@@ -240,6 +243,9 @@ public class PlaceForm extends BaseEntityForm {
 					if (which == DialogInterface.BUTTON_POSITIVE) {
 						mJustApproved = false;
 						watch(false);
+					}
+					else {
+						mProcessing = false;
 					}
 				}
 			}, null);

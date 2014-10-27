@@ -23,6 +23,7 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 
 	protected Boolean mEditing                = false;
 	protected Boolean mDirty                  = false;
+	protected Boolean mProcessing             = false;
 	protected Integer mDirtyExitTitleResId    = R.string.alert_dirty_exit_title;
 	protected Integer mDirtyExitMessageResId  = R.string.alert_dirty_exit_message;
 	protected Integer mDirtyExitPositiveResId = R.string.alert_dirty_save;

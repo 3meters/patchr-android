@@ -10,10 +10,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -215,10 +211,14 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	}
 
 	public void onAccept() {
+
+		if (mProcessing) return;
+		mProcessing = true;
+
 		if (isDirty()) {
 			if (validate()) {
 			    /*
-	             * Pull all the control values back into the entity object. Validate
+			     * Pull all the control values back into the entity object. Validate
 				 * does that too but we don't know if validate is always being performed.
 				 */
 				gather();
@@ -227,6 +227,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
                     /*
 					 * Using the intent just to pass data.
 					 */
+					mProcessing = false;
 					final IntentBuilder intentBuilder = new IntentBuilder();
 					intentBuilder.setEntity(mEntity);
 					setResultCode(Constants.RESULT_ENTITY_EDITED, intentBuilder.create());
@@ -242,8 +243,12 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					}
 				}
 			}
+			else {
+				mProcessing = false;
+			}
 		}
 		else {
+			mProcessing = false;
 			onCancel(false);
 		}
 	}
@@ -616,6 +621,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				else {
 					Errors.handleError(BaseEntityEdit.this, serviceResponse);
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}
@@ -734,6 +740,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				else {
 					Errors.handleError(BaseEntityEdit.this, serviceResponse);
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}

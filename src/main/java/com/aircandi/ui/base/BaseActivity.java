@@ -32,8 +32,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
@@ -116,6 +114,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	protected Boolean mInvalidated  = false;
 	protected Boolean mClickEnabled = false;                        // NO_UCD (unused code)
 	protected Boolean mLoaded       = false;
+	protected Boolean mProcessing   = false;
 
 	/* Theme */
 	protected String mPrefTheme;
@@ -548,6 +547,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 				else {
 					Errors.handleError(BaseActivity.this, result.serviceResponse);
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}
@@ -592,6 +592,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 				else {
 					Errors.handleError(BaseActivity.this, result.serviceResponse);
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}

@@ -103,6 +103,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 
 	@Override
 	protected void insert() {
+
 		Logger.i(this, "Insert feedback");
 
 		new AsyncTask() {
@@ -132,6 +133,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 				else {
 					Errors.handleError(FeedbackEdit.this, result.serviceResponse);
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}

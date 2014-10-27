@@ -102,9 +102,16 @@ public class RegisterEdit extends BaseEntityEdit {
 
 	@Override
 	public void onAccept() {
+
+		if (mProcessing) return;
+		mProcessing = true;
+
 		if (validate()) {
 			gather();
 			update();
+		}
+		else {
+			mProcessing = false;
 		}
 	}
 
@@ -283,6 +290,7 @@ public class RegisterEdit extends BaseEntityEdit {
 				else {
 					Errors.handleError(RegisterEdit.this, result.serviceResponse);
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}

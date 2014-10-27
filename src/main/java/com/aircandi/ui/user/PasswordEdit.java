@@ -49,8 +49,15 @@ public class PasswordEdit extends BaseEdit {
 	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	public void onAccept() {
+
+		if (mProcessing) return;
+		mProcessing = true;
+
 		if (validate()) {
 			update();
+		}
+		else {
+			mProcessing = false;
 		}
 	}
 
@@ -96,6 +103,7 @@ public class PasswordEdit extends BaseEdit {
 				else {
 					Errors.handleError(PasswordEdit.this, result.serviceResponse);
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}

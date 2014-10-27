@@ -125,6 +125,7 @@ public class ReportEdit extends BaseEntityEdit {
 
 	@Override
 	protected void insert() {
+
 		Logger.i(this, "Insert report");
 
 		new AsyncTask() {
@@ -154,6 +155,7 @@ public class ReportEdit extends BaseEntityEdit {
 				else {
 					Errors.handleError(ReportEdit.this, result.serviceResponse);
 				}
+				mProcessing = false;
 			}
 		}.execute();
 	}
