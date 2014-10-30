@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.aircandi.ui.widgets.AirSwipeRefreshLayout
+	android:id="@+id/swipe"
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:layout_centerHorizontal="true">
 
-	<com.aircandi.ui.widgets.AirSwipeRefreshLayout
-		android:id="@+id/swipe"
+	<com.aircandi.ui.widgets.AirListView
+		android:id="@+id/list"
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:custom="http://schemas.android.com/apk/res-auto"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_centerHorizontal="true">
+		android:layout_alignParentTop="true"
+		android:layout_centerHorizontal="true"
+		android:animationCache="false"
+		android:cacheColorHint="#00000000"
+		android:divider="?attr/ruleColor"
+		android:dividerHeight="@dimen/rule_divider_height"
+		android:footerDividersEnabled="false"
+		android:listSelector="#00000000"
+		android:scrollbars="none"
+		android:scrollingCache="false"
+		custom:parallax_factor="1.9" />
 
-		<com.aircandi.ui.widgets.AirListView
-			android:id="@+id/list"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_alignParentTop="true"
-			android:layout_centerHorizontal="true"
-			android:animationCache="false"
-			android:cacheColorHint="#00000000"
-			android:divider="?attr/ruleColor"
-			android:dividerHeight="@dimen/rule_divider_height"
-			android:footerDividersEnabled="false"
-			android:listSelector="#00000000"
-			android:scrollbars="none"
-			android:scrollingCache="false"
-			custom:parallax_factor="1.9" />
-	</com.aircandi.ui.widgets.AirSwipeRefreshLayout>
-
-</RelativeLayout>
+</com.aircandi.ui.widgets.AirSwipeRefreshLayout>

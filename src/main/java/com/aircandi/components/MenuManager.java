@@ -239,8 +239,13 @@ public class MenuManager {
 		else if (route == Route.REMOVE) {
 			if (forId == null) return false;
 			String forSchema = com.aircandi.objects.Entity.getSchemaForId(forId);
+			/*
+			 * Message can be listed for places or current user.
+			 */
 			if (forSchema.equals(com.aircandi.Constants.SCHEMA_ENTITY_USER))
 				return false;
+			else
+				return Patchr.getInstance().getMenuManager().canUserRemoveFromPlace(entity);
 		}
 		else if (route == Route.EDIT)
 			return Patchr.getInstance().getMenuManager().canUserEdit(entity);

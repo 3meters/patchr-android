@@ -537,6 +537,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 				}
 
+				/*
+				 * Entity has a photo that needs to be stored in s3. Usually either a user
+				 * photo from anywhere or a local photo from the device camera or gallery.
+				 */
 				Bitmap bitmap = null;
 				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
 
@@ -562,6 +566,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							                        .get();
 
 							if (isCancelled()) return null;
+						}
+						catch (OutOfMemoryError err) {
+							/* Give up and log it */
+							Reporting.logMessage("OutOfMemoryError: uri: " + mEntity.getPhoto().getUri());
+							throw err;
 						}
 						catch (IOException ignore) {}
 					}

@@ -2,7 +2,7 @@
 <com.aircandi.ui.widgets.AirDrawerLayout
 	android:id="@+id/drawer_layout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
@@ -13,33 +13,7 @@
 		<FrameLayout
 			android:id="@+id/fragment_holder"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:background="?attr/backgroundCardField" />
-
-		<ProgressBar
-			android:id="@+id/progress"
-			style="@style/progress"
-			android:layout_width="@dimen/progress_width"
-			android:layout_height="@dimen/progress_height"
-			android:visibility="visible" />
-
-		<LinearLayout
-			android:id="@+id/holder_progress_bar"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_alignParentTop="true"
-			android:background="?attr/backgroundForm"
-			android:orientation="vertical">
-
-			<com.aircandi.ui.widgets.SmoothProgressBar
-				android:id="@+id/progress_bar"
-				style="@style/progress_bar"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/progress_bar_height"
-				android:indeterminate="true"
-				android:visibility="gone"
-				custom:spb_color="@color/brand_progress_bar_color" />
-		</LinearLayout>
+			android:layout_height="match_parent" />
 
 		<com.aircandi.ui.widgets.AirSquareButton
 			android:id="@+id/button_bubble"
@@ -85,15 +59,6 @@
 	</RelativeLayout>
 
 	<FrameLayout
-		android:id="@+id/right_drawer"
-		android:layout_width="320dp"
-		android:layout_height="match_parent"
-		android:layout_gravity="end"
-		android:background="?attr/backgroundForm">
-
-	</FrameLayout>
-
-	<FrameLayout
 		android:id="@+id/left_drawer"
 		android:layout_width="240dp"
 		android:layout_height="match_parent"
@@ -102,5 +67,28 @@
 
 		<include layout="@layout/widget_drawer_start" />
 	</FrameLayout>
+
+	<RelativeLayout
+		android:id="@+id/right_drawer"
+		android:layout_width="320dp"
+		android:layout_height="match_parent"
+		android:layout_gravity="end"
+		android:background="?attr/backgroundForm">
+
+		<FrameLayout
+			android:id="@+id/fragment_holder_notifications"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent" />
+
+		<com.aircandi.ui.widgets.AirSquareButton
+			android:id="@+id/button_bubble_notifications"
+			style="@style/button_round"
+			android:layout_width="@dimen/button_round_width"
+			android:layout_height="@dimen/button_round_height"
+			android:layout_centerInParent="true"
+			android:visibility="gone"
+			tools:text="No notifications" />
+
+	</RelativeLayout>
 
 </com.aircandi.ui.widgets.AirDrawerLayout>

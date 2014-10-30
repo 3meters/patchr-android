@@ -18,6 +18,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.InputType;
 import android.util.TypedValue;
 import android.view.MenuItem;
@@ -81,6 +82,7 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 		initialize();
 	}
 
+	@SuppressLint("ResourceAsColor")
 	private void initialize() {
 
 		/* Set dividers */
@@ -110,6 +112,12 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 		}
 
 		mBusy = new BusyManager(this);
+		SwipeRefreshLayout swipeRefreshNotifications = (SwipeRefreshLayout) findViewById(R.id.swipe);
+		if (swipeRefreshNotifications != null) {
+			swipeRefreshNotifications.setProgressBackgroundColor(R.color.brand_primary);
+			swipeRefreshNotifications.setColorSchemeResources(R.color.white);
+			mBusy.setSwipeRefresh(swipeRefreshNotifications);
+		}
 
 		/* Listen for theme change */
 		Preference pref = findPreference(StringManager.getString(R.string.pref_theme));

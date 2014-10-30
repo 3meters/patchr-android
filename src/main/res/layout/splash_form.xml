@@ -13,23 +13,6 @@
 		android:scaleType="centerCrop"
 		android:src="@drawable/splash" />
 
-	<ProgressBar
-		android:id="@+id/progress"
-		style="@style/progress"
-		android:layout_width="@dimen/progress_width"
-		android:layout_height="@dimen/progress_height"
-		android:visibility="gone" />
-
-	<com.aircandi.ui.widgets.SmoothProgressBar
-		android:id="@+id/progress_bar"
-		style="@style/smooth_progress_bar"
-		android:layout_width="match_parent"
-		android:layout_height="@dimen/progress_bar_height"
-		android:indeterminate="true"
-		android:visibility="gone"
-		custom:spb_background="@null"
-		custom:spb_color="@color/brand_progress_bar_splash_color" />
-
 	<LinearLayout
 		android:id="@+id/dialog"
 		android:layout_width="280dp"
@@ -58,10 +41,10 @@
 				android:id="@+id/logo"
 				android:layout_width="50dp"
 				android:layout_height="50dp"
-				android:layout_marginTop="4dp"
-				android:tint="@color/brand_primary"
 				android:layout_gravity="center_vertical"
-				android:src="?attr/imgLogo" />
+				android:layout_marginTop="4dp"
+				android:src="?attr/imgLogo"
+				android:tint="@color/brand_primary" />
 
 			<LinearLayout
 				android:layout_width="wrap_content"
@@ -75,13 +58,13 @@
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_vertical"
 					android:gravity="center_vertical"
+					android:paddingTop="8dp"
 					android:textAppearance="?attr/textAppearanceExtraLarge"
 					android:textColor="#bbffffff"
 					android:textScaleX="0.8"
 					android:textSize="48sp"
-					android:paddingTop="8dp"
-					tools:text="@string/name_app"
-					custom:textId="@string/name_app" />
+					custom:textId="@string/name_app"
+					tools:text="@string/name_app" />
 			</LinearLayout>
 		</LinearLayout>
 
@@ -143,5 +126,16 @@
 				custom:layout="@layout/widget_combo_button_splash" />
 		</LinearLayout>
 	</LinearLayout>
+
+	<com.aircandi.ui.widgets.AirSwipeRefreshLayout
+		android:id="@+id/swipe"
+		android:layout_width="match_parent"
+		android:layout_marginTop="24dp"
+		android:layout_height="48dp">
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content" />
+	</com.aircandi.ui.widgets.AirSwipeRefreshLayout>
 
 </RelativeLayout>

@@ -98,6 +98,7 @@
 		<attr name="backgroundProgressMessage" format="color|reference" />
 		<attr name="backgroundProgress" format="color|reference" />
 		<attr name="backgroundSpinner" format="color|reference" />
+		<attr name="backgroundSwipeRefresh" format="color|reference" />
 		<attr name="backgroundToken" format="color|reference" />
 		<attr name="backgroundTooltip" format="color|reference" />
 		<attr name="backgroundTooltipLayer" format="color|reference" />

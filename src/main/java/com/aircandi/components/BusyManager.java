@@ -1,12 +1,10 @@
 package com.aircandi.components;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.graphics.drawable.ClipDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
-import android.view.Gravity;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
@@ -21,32 +19,25 @@ import com.aircandi.interfaces.IBusy;
 import com.aircandi.ui.widgets.SmoothProgressBar;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Reporting;
+import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
 public class BusyManager implements IBusy {
 
-	private Activity          mActivity;
-	private ProgressDialog    mProgressDialog;
-	private View              mRefreshImage;
-	private View              mRefreshProgress;
-	private Runnable          mRunnableHide;
-	private Runnable          mRunnableShow;
-	private Long              mBusyStartedTime;
-	private SmoothProgressBar mHeaderActivityBar;
+	private   Activity           mActivity;
+	private   ProgressDialog     mProgressDialog;
+	private   View               mRefreshImage;
+	private   View               mRefreshProgress;
+	private   Runnable           mRunnableHide;
+	private   Runnable           mRunnableShow;
+	private   Long               mBusyStartedTime;
+	private   SmoothProgressBar  mHeaderActivityBar;
+	protected SwipeRefreshLayout mSwipeRefreshLayout;
 
+	@SuppressLint("ResourceAsColor")
 	public BusyManager(Activity activity) {
 		mActivity = activity;
-		mHeaderActivityBar = (SmoothProgressBar) mActivity.findViewById(R.id.progress_bar);
 		BusProvider.getInstance().register(this);
-
-		if (mHeaderActivityBar != null) {
-//			ShapeDrawable shape = new ShapeDrawable();
-//			shape.setShape(new RectShape());
-//			shape.getPaint().setColor(mHeaderActivityBar.getColor());
-//			ClipDrawable clipDrawable = new ClipDrawable(shape, Gravity.CENTER, ClipDrawable.HORIZONTAL);
-//			mHeaderActivityBar.setProgressDrawable(clipDrawable);
-		}
-
 		mRunnableHide = new Runnable() {
 
 			@Override
@@ -83,27 +74,21 @@ public class BusyManager implements IBusy {
 						/*
 						 * Initial data load for an activity/fragment.
 						 */
-						startBodyBusyIndicator();
-						mBusyStartedTime = null;
-						return; // Skips activating busy minimum
+						startSwipeRefreshIndicator();
+//						mBusyStartedTime = null;
+//						return; // Skips activating busy minimum
 					}
 					else if (busyAction == BusyAction.Refreshing) {
 						/*
 						 * Refreshing data for activity/fragment that is already showing data.
 						 */
-						startBarBusyIndicator();
+						startSwipeRefreshIndicator();
 					}
 					else if (busyAction == BusyAction.Scanning) {
 						/*
 						 * Scanning for places.
 						 */
-						startBarBusyIndicator();
-					}
-					else if (busyAction == BusyAction.Action) {
-						/*
-						 * Making a service call but not showing a message
-						 */
-						startBodyBusyIndicator();
+						startSwipeRefreshIndicator();
 					}
 					else if (busyAction == BusyAction.Update) {
 						/*
@@ -234,6 +219,7 @@ public class BusyManager implements IBusy {
 				stopActionbarBusyIndicator();
 				stopBarBusyIndicator();
 				stopBodyBusyIndicator();
+				stopSwipeRefreshIndicator();
 			}
 		});
 	}
@@ -259,6 +245,13 @@ public class BusyManager implements IBusy {
 		}
 	}
 
+	public void startSwipeRefreshIndicator() {
+		if (mSwipeRefreshLayout != null && !mSwipeRefreshLayout.isRefreshing()) {
+			mSwipeRefreshLayout.setEnabled(false);
+			mSwipeRefreshLayout.setRefreshing(true);
+		}
+	}
+
 	public void stopActionbarBusyIndicator() {
 		if (mRefreshImage != null && mRefreshImage.getVisibility() != View.VISIBLE) {
 			mRefreshProgress.setVisibility(View.GONE);
@@ -276,6 +269,13 @@ public class BusyManager implements IBusy {
 		final View progress = mActivity.findViewById(R.id.progress);
 		if (progress != null && progress.getVisibility() != View.GONE) {
 			progress.setVisibility(View.GONE);
+		}
+	}
+
+	public void stopSwipeRefreshIndicator() {
+		if (mSwipeRefreshLayout != null && mSwipeRefreshLayout.isRefreshing()) {
+			mSwipeRefreshLayout.setRefreshing(false);
+			mSwipeRefreshLayout.setEnabled(true);
 		}
 	}
 
@@ -319,5 +319,13 @@ public class BusyManager implements IBusy {
 
 	public void setRefreshProgress(View refreshProgress) {
 		mRefreshProgress = refreshProgress;
+	}
+
+	public void setSwipeRefresh(SwipeRefreshLayout swipeRefreshLayout) {
+		mSwipeRefreshLayout = swipeRefreshLayout;
+	}
+
+	public SwipeRefreshLayout getSwipeRefresh() {
+		return mSwipeRefreshLayout;
 	}
 }

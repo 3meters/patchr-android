@@ -13,24 +13,6 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
-		<LinearLayout
-			android:id="@+id/holder_progress_bar"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="top"
-			android:background="?attr/backgroundForm"
-			android:orientation="vertical">
-
-			<com.aircandi.ui.widgets.SmoothProgressBar
-				android:id="@+id/progress_bar"
-				style="@style/smooth_progress_bar"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/progress_bar_height"
-				android:indeterminate="true"
-				android:visibility="gone"
-				custom:spb_color="@color/brand_progress_bar_color" />
-		</LinearLayout>
-
 		<RelativeLayout
 			style="@style/form_content_layout"
 			android:layout_width="match_parent"
@@ -59,8 +41,8 @@
 				android:layout_height="wrap_content"
 				android:layout_alignBottom="@+id/photo"
 				android:layout_alignTop="@+id/photo"
-				android:gravity="bottom|center_horizontal"
 				android:background="@drawable/scrim_gradient_weak"
+				android:gravity="bottom|center_horizontal"
 				android:orientation="vertical">
 
 				<com.aircandi.ui.widgets.AirTextView

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -21,9 +22,9 @@ import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.MenuManager;
-import com.aircandi.components.NotificationManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.components.NotificationManager;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
@@ -32,6 +33,7 @@ import com.aircandi.objects.User;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
+import com.aircandi.utilities.UI;
 
 @SuppressLint("Registered")
 public class SplashForm extends Activity {
@@ -48,9 +50,18 @@ public class SplashForm extends Activity {
 		initialize();
 	}
 
+	@SuppressLint("ResourceAsColor")
 	protected void initialize() {
 
 		mBusy = new BusyManager(this);
+		SwipeRefreshLayout swipeRefreshNotifications = (SwipeRefreshLayout) findViewById(R.id.swipe);
+		if (swipeRefreshNotifications != null) {
+			swipeRefreshNotifications.setProgressBackgroundColor(R.color.brand_primary);
+			swipeRefreshNotifications.setColorSchemeResources(R.color.white);
+			mBusy.setSwipeRefresh(swipeRefreshNotifications);
+		}
+
+		mBusy.getSwipeRefresh().setProgressViewOffset(true, UI.getRawPixelsForDisplayPixels(48f), UI.getRawPixelsForDisplayPixels(48f));
 
 		/* Always reset the entity cache */
 		EntityManager.getEntityCache().clear();
@@ -93,11 +104,11 @@ public class SplashForm extends Activity {
 					while (attempts <= maxAttempts) {
 						result.serviceResponse = NotificationManager.getInstance().registerInstallWithGCM();
 						if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-							Logger.i(this, "Install registered with Gcm");
+							Logger.i(SplashForm.this, "Install registered with Gcm");
 							break;
 						}
 						else {
-							Logger.w(this, "Install failed to register with Gcm, attempt = " + attempts);
+							Logger.w(SplashForm.this, "Install failed to register with Gcm, attempt = " + attempts);
 							try {
 								Thread.sleep(2000);
 							}
@@ -132,7 +143,7 @@ public class SplashForm extends Activity {
 				ModelResult result = (ModelResult) response;
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Logger.i(this, "Splash initialized");
+					Logger.i(SplashForm.this, "Splash initialized");
 					if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
 						showButtons(Buttons.ACCOUNT);
 					}
@@ -155,7 +166,6 @@ public class SplashForm extends Activity {
 					}
 				}
 			}
-
 		}.execute();
 	}
 
@@ -164,9 +174,9 @@ public class SplashForm extends Activity {
 		 * Only called when app is first started
 		 */
 		Patchr.getInstance()
-		        .setMenuManager(new MenuManager())
-		        .setMediaManager(new MediaManager().initSoundPool())
-		        .setAnimationManager(new AnimationManager());
+		      .setMenuManager(new MenuManager())
+		      .setMediaManager(new MediaManager().initSoundPool())
+		      .setAnimationManager(new AnimationManager());
 
 
 		/* Stash last known location but doesn't start location updates */

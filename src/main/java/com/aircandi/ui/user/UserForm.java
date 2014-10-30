@@ -67,7 +67,6 @@ public class UserForm extends BaseEntityForm {
 		             .setListLayoutResId(R.layout.entity_list_fragment)
 		             .setListLoadingResId(R.layout.temp_listitem_loading)
 		             .setListItemResId(R.layout.temp_listitem_message)
-//		             .setListEmptyMessageResId(R.string.label_sent_empty)
 		             .setHeaderViewResId(R.layout.widget_list_header_user)
 		             .setSelfBindingEnabled(false);
 

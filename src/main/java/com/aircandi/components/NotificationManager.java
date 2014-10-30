@@ -65,7 +65,7 @@ public class NotificationManager {
 		 * 
 		 * Called on a background thread.
 		 * 
-		 * PlayService library check is performed in SplashForm before call this function.
+		 * PlayService library check is performed in SplashForm before calling this function.
 		 * 
 		 * Returns as not registered if no registration id or version has changed which clears any current registration
 		 * id forcing us to fetch a new one. Registration id and associated app version code are stored in the gcm
@@ -117,7 +117,7 @@ public class NotificationManager {
 		final SharedPreferences prefs = getGcmPreferences(context);
 		int versionCode = Patchr.getVersionCode(Patchr.applicationContext, NotificationManager.class);
 
-		Logger.i(this, "Saving GCM registrationId for app version code " + String.valueOf(versionCode));
+		Logger.i(this, "GCM: saving gcm registrationId for app version code " + String.valueOf(versionCode));
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putString(StringManager.getString(R.string.setting_gcm_registration_id), registrationId);
 		editor.putInt(StringManager.getString(R.string.setting_gcm_version_code), versionCode);
@@ -128,7 +128,7 @@ public class NotificationManager {
 		final SharedPreferences prefs = getGcmPreferences(context);
 		String registrationId = prefs.getString(StringManager.getString(R.string.setting_gcm_registration_id), "");
 		if (registrationId.isEmpty()) {
-			Logger.i(this, "GCM registration not found in settings.");
+			Logger.i(this, "GCM: registration not found in settings.");
 			return "";
 		}
 		// Check if app was updated; if so, it must clear the registration ID
@@ -137,9 +137,10 @@ public class NotificationManager {
 		int registeredVersionCode = prefs.getInt(StringManager.getString(R.string.setting_gcm_version_code), Integer.MIN_VALUE);
 		int currentVersionCode = Patchr.getVersionCode(Patchr.applicationContext, NotificationManager.class);
 		if (registeredVersionCode != currentVersionCode) {
-			Logger.i(this, "GCM app version changed.");
+			Logger.i(this, "GCM: app version changed.");
 			return "";
 		}
+		Logger.i(this, "GCM: app version unchanged so using locally cached registrationId.");
 		return registrationId;
 	}
 

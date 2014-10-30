@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.aircandi.ui.widgets.AirSwipeRefreshLayout
+	android:id="@+id/swipe"
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:ignore="UnusedResources">
+	android:layout_centerHorizontal="true">
 
 	<com.aircandi.ui.widgets.AirListView
 		android:id="@+id/list"
@@ -22,4 +23,4 @@
 		android:scrollingCache="false"
 		custom:parallax_factor="1.9" />
 
-</RelativeLayout>
+</com.aircandi.ui.widgets.AirSwipeRefreshLayout>
