@@ -477,7 +477,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 		if (linkCounts != null) {
 			for (Count linkCount : linkCounts) {
-				if ((type == null || linkCount.type.equals(type))
+				if (type == null || (linkCount.type != null && linkCount.type.equals(type))
 						&& (schema == null || linkCount.schema.equals(schema))
 						&& (enabled == null || linkCount.enabled.equals(enabled))) return linkCount;
 			}

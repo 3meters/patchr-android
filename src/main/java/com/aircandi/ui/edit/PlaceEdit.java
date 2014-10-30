@@ -114,6 +114,7 @@ public class PlaceEdit extends BaseEntityEdit {
 		}
 	}
 
+	@SuppressLint("ResourceAsColor")
 	@Override
 	public void draw(View view) {
 		/*

@@ -439,7 +439,6 @@ public class RadarListFragment extends EntityListFragment {
 		 * Called by refresh action or swipe.
 		 */
 		Logger.d(getActivity(), "Starting refresh");
-		mSwipeRefreshLayout.setRefreshing(false);
 		searchForPlaces();
 	}
 

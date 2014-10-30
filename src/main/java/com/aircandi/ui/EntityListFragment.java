@@ -1,6 +1,7 @@
 package com.aircandi.ui;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
+import com.aircandi.components.BusyManager;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
@@ -45,6 +47,7 @@ import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.ui.widgets.AirListView.DragDirection;
 import com.aircandi.ui.widgets.AirListView.DragEvent;
 import com.aircandi.ui.widgets.AirListView.OnDragListener;
+import com.aircandi.ui.widgets.AirSwipeRefreshLayout;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
 
@@ -58,12 +61,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class EntityListFragment extends BaseFragment implements OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
 	/* Widgets */
-	protected AbsListView        mListView;
-	protected View               mLoadingView;
-	protected View               mHeaderView;
-	protected View               mHeaderCandiView;                                        // NO_UCD (unused code)
-	protected View               mFooterView;
-	protected SwipeRefreshLayout mSwipeRefreshLayout;
+	protected AbsListView mListView;
+	protected View        mLoadingView;
+	protected View        mHeaderView;
+	protected View        mHeaderCandiView;                                        // NO_UCD (unused code)
+	protected View        mFooterView;
 
 	/* Resources */
 	protected Integer mHeaderViewResId;
@@ -116,6 +118,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		}
 	}
 
+	@SuppressLint("ResourceAsColor")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
@@ -204,19 +207,23 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 			}
 		}
 
-		/* Hookup swipe refresh */
-		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe);
-
-		if (mSwipeRefreshLayout != null) {
-			mSwipeRefreshLayout.setColorSchemeResources(R.color.brand_progress_bar_color
-					, R.color.brand_progress_bar_color
-					, R.color.brand_progress_bar_color
-					, R.color.brand_progress_bar_color);
-
-			mSwipeRefreshLayout.setOnRefreshListener(this);
-		}
+		bindBusy(view);
 
 		return view;
+	}
+
+	@SuppressLint("ResourceAsColor")
+	protected void bindBusy(View view) {
+
+		mBusy = new BusyManager(getActivity());
+		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe);
+		if (swipeRefresh != null) {
+			swipeRefresh.setProgressBackgroundColor(R.color.brand_primary);
+			swipeRefresh.setColorSchemeResources(R.color.white);
+			swipeRefresh.setProgressViewEndTarget(true, UI.getRawPixelsForDisplayPixels(56f));
+			swipeRefresh.setOnRefreshListener(this);
+			mBusy.setSwipeRefresh(swipeRefresh);
+		}
 	}
 
 	@Override
@@ -335,7 +342,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		 * down and other busy ui takes over.
 		 */
 		saveListPosition();
-		mSwipeRefreshLayout.setRefreshing(false);
 		super.onRefresh();
 	}
 
@@ -354,6 +360,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 			@Override
 			public void run() {
 				mBusy.hideBusy(false);
+
 				if (mBubbleButton.isEnabled()) {
 					if (mEntities.size() == 0) {
 						mFab.setLocked(true);

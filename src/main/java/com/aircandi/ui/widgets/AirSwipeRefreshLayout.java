@@ -4,15 +4,17 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.AbsListView;
+import android.widget.ListView;
 
 import com.aircandi.R;
-import com.aircandi.components.Logger;
 
 @SuppressWarnings("ucd")
 public class AirSwipeRefreshLayout extends android.support.v4.widget.SwipeRefreshLayout {
 
-	private final Context mContext;
-	private       Integer mMaxWidth;
+	private final Context     mContext;
+	private       Integer     mMaxWidth;
 
 	public AirSwipeRefreshLayout(Context context) {
 		super(context);
@@ -50,7 +52,7 @@ public class AirSwipeRefreshLayout extends android.support.v4.widget.SwipeRefres
 		return super.onTouchEvent(event);
 	}
 
-	public void requestDrawerDisallowInterceptTouchEvent(boolean disallow){
+	public void requestDrawerDisallowInterceptTouchEvent(boolean disallow) {
 		getParent().requestDisallowInterceptTouchEvent(disallow);
 	}
 
@@ -64,12 +66,25 @@ public class AirSwipeRefreshLayout extends android.support.v4.widget.SwipeRefres
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 
+//	@Override
+//	public boolean canChildScrollUp() {
+//		if (mList != null) {
+//			Integer headerCount = ((ListView) mList).getHeaderViewsCount();
+//			View view = mList.getChildAt(0);
+//			int topOffset = (view == null) ? 0 : (headerCount == 0) ? view.getTop() : (view.getTop() - view.getPaddingTop());
+//			return (topOffset < 0);
+//		}
+//		return true;
+//	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/

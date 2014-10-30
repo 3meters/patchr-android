@@ -1,18 +1,16 @@
 package com.aircandi.ui;
 
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,6 +19,7 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.BusyManager;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MapManager;
@@ -36,8 +35,8 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
-import com.aircandi.queries.NotificationsQuery;
 import com.aircandi.queries.EntitiesQuery;
+import com.aircandi.queries.NotificationsQuery;
 import com.aircandi.queries.TrendQuery;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
@@ -128,6 +127,7 @@ public class AircandiForm extends BaseActivity {
 		}
 	}
 
+	@SuppressLint("ResourceAsColor")
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
@@ -246,7 +246,7 @@ public class AircandiForm extends BaseActivity {
 
 		getFragmentManager()
 				.beginTransaction()
-				.replace(R.id.right_drawer, mFragmentNotifications)
+				.replace(R.id.fragment_holder_notifications, mFragmentNotifications)
 				.commit();
 
 		mTooltips = (ToolTipRelativeLayout) findViewById(R.id.tooltips);
@@ -337,6 +337,7 @@ public class AircandiForm extends BaseActivity {
 		else if (mCurrentFragment instanceof MapListFragment) {
 			((MapListFragment) mCurrentFragment).onProcessingComplete();
 		}
+		((EntityListFragment) mFragmentNotifications).onProcessingComplete();
 	}
 
 	@SuppressWarnings("ucd")
@@ -645,6 +646,7 @@ public class AircandiForm extends BaseActivity {
 				.beginTransaction()
 				.replace(R.id.fragment_holder, fragment)
 				.commit();
+
 		mPrevFragmentTag = mCurrentFragmentTag;
 		mCurrentFragmentTag = fragmentType;
 		mCurrentFragment = fragment;

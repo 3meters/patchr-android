@@ -22,6 +22,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
+import com.aircandi.components.BusyManager;
 import com.aircandi.components.Logger;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IBusy;
@@ -57,9 +58,9 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	 * - onDetach
 	 */
 
-	public    Entity    mEntity;
-	protected Resources mResources;
-	protected IBusy     mBusy;
+	public    Entity      mEntity;
+	protected Resources   mResources;
+	protected BusyManager mBusy;
 	protected Boolean mIsVisible          = false;
 	protected Boolean mFeed               = false;
 	protected Boolean mSelfBindingEnabled = true;
@@ -89,7 +90,9 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		/* Called when the fragment has been associated with the activity. */
 		super.onAttach(activity);
 		Logger.d(this, "Fragment attached");
-		mBusy = ((BaseActivity) getActivity()).getBusy();
+		if (mBusy == null) {
+			mBusy = ((BaseActivity) getActivity()).getBusy();
+		}
 	}
 
 	@Override

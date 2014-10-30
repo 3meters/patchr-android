@@ -22,31 +22,13 @@ API key: AIzaSyCF9Nlm-CGETdgwP1ktNyAoKVgcUGuMzTA
  
 9D:CB:2E:05:32:71:46:83:0D:9E:7F:3C:AC:03:A7:7A:55:F9:F2:28;com.aircandi
 9D:CB:2E:05:32:71:46:83:0D:9E:7F:3C:AC:03:A7:7A:55:F9:F2:28;com.aircandi.aruba
+9D:CB:2E:05:32:71:46:83:0D:9E:7F:3C:AC:03:A7:7A:55:F9:F2:28;com.aircandi.catalina
 59:36:79:A3:9E:A1:E5:1F:88:26:7F:8C:08:DE:DE:01:F2:2F:1C:ED;com.aircandi
 59:36:79:A3:9E:A1:E5:1F:88:26:7F:8C:08:DE:DE:01:F2:2F:1C:ED;com.aircandi.aruba
-
-Activated on:
-Aug 19, 2013 9:38 AM
-
----------------------------------------------------------------------------------------------------
-
-API key: AIzaSyDxWYEbp7sRM9xmOBMsqRhK6kbFlWYQPEo
-
-9D:CB:2E:05:32:71:46:83:0D:9E:7F:3C:AC:03:A7:7A:55:F9:F2:28;com.aircandi.barbados
-59:36:79:A3:9E:A1:E5:1F:88:26:7F:8C:08:DE:DE:01:F2:2F:1C:ED;com.aircandi.barbados
-
-Activated on:
-Aug 19, 2013 9:38 AM
-
----------------------------------------------------------------------------------------------------
-
-API key: AIzaSyCq-TgeWzyK-iUod3Bs9uRpj4992xGlEZ8
-
-9D:CB:2E:05:32:71:46:83:0D:9E:7F:3C:AC:03:A7:7A:55:F9:F2:28;com.aircandi.catalina
 59:36:79:A3:9E:A1:E5:1F:88:26:7F:8C:08:DE:DE:01:F2:2F:1C:ED;com.aircandi.catalina
 
 Activated on:
-Apr 20, 2014, 12:45PM
+Aug 19, 2013 9:38 AM
 
 ---------------------------------------------------------------------------------------------------
 

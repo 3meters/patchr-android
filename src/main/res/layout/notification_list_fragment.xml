@@ -1,44 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
+<com.aircandi.ui.widgets.AirSwipeRefreshLayout
+	android:id="@+id/swipe_notifications"
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:ignore="UnusedResources">
+	android:background="?attr/backgroundCardField">
 
-	<com.aircandi.ui.widgets.AirSwipeRefreshLayout
-		android:id="@+id/swipe"
+	<com.aircandi.ui.widgets.AirDrawerListView
+		android:id="@+id/list"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:background="?attr/backgroundCardField">
+		android:animationCache="false"
+		android:cacheColorHint="#00000000"
+		android:divider="?attr/ruleColor"
+		android:dividerHeight="@dimen/rule_divider_height"
+		android:footerDividersEnabled="false"
+		android:headerDividersEnabled="false"
+		android:listSelector="#00000000"
+		android:scrollbars="none"
+		android:scrollingCache="false" />
 
-		<com.aircandi.ui.widgets.AirDrawerListView
-			android:id="@+id/list"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:animationCache="false"
-			android:cacheColorHint="#00000000"
-			android:divider="?attr/ruleColor"
-			android:dividerHeight="@dimen/rule_divider_height"
-			android:footerDividersEnabled="false"
-			android:headerDividersEnabled="false"
-			android:listSelector="#00000000"
-			android:scrollbars="none"
-			android:scrollingCache="false" />
-	</com.aircandi.ui.widgets.AirSwipeRefreshLayout>
-
-	<ProgressBar
-		android:id="@+id/progress"
-		style="@style/progress"
-		android:layout_width="@dimen/progress_width"
-		android:layout_height="@dimen/progress_height"
-		android:visibility="visible" />
-
-	<com.aircandi.ui.widgets.AirSquareButton
-		android:id="@+id/button_bubble_drawer"
-		style="@style/button_round"
-		android:layout_width="@dimen/button_round_width"
-		android:layout_height="@dimen/button_round_height"
-		tools:text="No notifications"
-		android:layout_centerInParent="true" />
-
-</RelativeLayout>
+</com.aircandi.ui.widgets.AirSwipeRefreshLayout>

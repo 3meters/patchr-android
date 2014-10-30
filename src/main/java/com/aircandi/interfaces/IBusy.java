@@ -17,7 +17,6 @@ public interface IBusy {
 		Refreshing,
 		ActionWithMessage,
 		Scanning,
-		Update,
-		Action
+		Update
 	}
 }

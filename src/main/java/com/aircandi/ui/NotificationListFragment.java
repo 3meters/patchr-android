@@ -1,7 +1,9 @@
 package com.aircandi.ui;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +13,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
-import com.aircandi.components.Logger;
+import com.aircandi.components.BusyManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
@@ -30,24 +32,23 @@ import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class NotificationListFragment extends MessageListFragment {
 
-	protected View                      mProgress;
 	protected BaseActivity.BubbleButton mDrawerBubbleButton;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@SuppressLint("ResourceAsColor")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
+
 		if (view != null) {
-			mProgress = view.findViewById(R.id.progress);
-			mDrawerBubbleButton = new BaseActivity.BubbleButton(view.findViewById(R.id.button_bubble_drawer));
+			mDrawerBubbleButton = new BaseActivity.BubbleButton(getActivity().findViewById(R.id.button_bubble_notifications));
 			mDrawerBubbleButton.show(false);
 		}
 		return view;
@@ -90,9 +91,38 @@ public class NotificationListFragment extends MessageListFragment {
 		}
 	}
 
+	@Override
+	public void onProcessingComplete() {
+
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mBusy.hideBusy(false);
+				if (mAdapter.getCount() == 0) {
+					mDrawerBubbleButton.setText(R.string.label_notifications_empty);
+					mDrawerBubbleButton.fadeIn();
+				}
+			}
+		});
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	@SuppressLint("ResourceAsColor")
+	protected void bindBusy(View view) {
+
+		mBusy = new BusyManager(getActivity());
+		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_notifications);
+		if (swipeRefresh != null) {
+			swipeRefresh.setProgressBackgroundColor(R.color.holo_blue_light);
+			swipeRefresh.setColorSchemeResources(R.color.white);
+			swipeRefresh.setOnRefreshListener(this);
+			mBusy.setSwipeRefresh(swipeRefresh);
+		}
+	}
 
 	@Override
 	public void bind(final BindingMode mode) {
@@ -104,7 +134,6 @@ public class NotificationListFragment extends MessageListFragment {
 			@Override
 			protected void onPreExecute() {
 				mDrawerBubbleButton.show(false);
-				mProgress.setVisibility(View.VISIBLE);
 			}
 
 			@Override
@@ -159,12 +188,6 @@ public class NotificationListFragment extends MessageListFragment {
 
 						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
 						draw(null);
-					}
-
-					mProgress.setVisibility(View.GONE);
-					if (mAdapter.getCount() == 0) {
-						mDrawerBubbleButton.setText(R.string.label_notifications_empty);
-						mDrawerBubbleButton.fadeIn();
 					}
 
 					mLoaded = true;

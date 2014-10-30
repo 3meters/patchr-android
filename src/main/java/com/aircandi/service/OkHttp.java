@@ -3,6 +3,7 @@ package com.aircandi.service;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.utilities.Reporting;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -54,13 +55,14 @@ public class OkHttp extends BaseConnection {
 
 		final ServiceResponse serviceResponse = new ServiceResponse();
 		Response response = null;
+		AirHttpRequest airRequest = null;
 		Request.Builder builder = new Request.Builder().tag(serviceRequest.getTag());
 
 		try {
 
 			/* Build okttp request */
 
-			final AirHttpRequest airRequest = BaseConnection.buildHttpRequest(serviceRequest);
+			airRequest = BaseConnection.buildHttpRequest(serviceRequest);
 			builder.url(airRequest.uri);
 
 			for (AirHttpRequest.Header header : airRequest.headers) {
@@ -106,6 +108,18 @@ public class OkHttp extends BaseConnection {
 				serviceResponse.contentLength = response.body().contentLength();
 				return serviceResponse;
 			}
+		}
+		catch (OutOfMemoryError error) {
+			if (response != null) {
+				if (response.isSuccessful()) {
+					String contentType = getContentType(response, airRequest);
+					Long contentLength = response.body().contentLength();
+					Reporting.logMessage("OutOfMemoryError: success response:"
+							+ " contentType: " + contentType
+							+ " contentLength: " + String.valueOf(contentLength));
+				}
+			}
+			throw error;
 		}
 		catch (IOException exception) {
 			/*
