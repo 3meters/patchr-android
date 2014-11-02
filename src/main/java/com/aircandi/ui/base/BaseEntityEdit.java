@@ -550,6 +550,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						                        .centerInside()
 						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 						                        .get();
+						DownloadManager.logBitmap(BaseEntityEdit.this, bitmap);
 						if (isCancelled()) return null;
 					}
 					catch (OutOfMemoryError error) {
@@ -564,6 +565,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 							                        .get();
+							DownloadManager.logBitmap(BaseEntityEdit.this, bitmap);
 
 							if (isCancelled()) return null;
 						}
@@ -667,6 +669,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 							                        .get();
+							DownloadManager.logBitmap(BaseEntityEdit.this, bitmap);
 							if (isCancelled()) return null;
 						}
 						catch (OutOfMemoryError error) {
@@ -681,6 +684,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 								                        .centerInside()
 								                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 								                        .get();
+								DownloadManager.logBitmap(BaseEntityEdit.this, bitmap);
 								if (isCancelled()) return null;
 							}
 							catch (IOException ignore) {}

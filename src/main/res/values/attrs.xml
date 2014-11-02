@@ -10,6 +10,7 @@
 	<attr name="colorize" format="boolean" />
 	<attr name="drawable" format="reference" />
 	<attr name="drawableScale" format="float" />
+	<attr name="fit" format="boolean" />
 	<attr name="sizeHint" format="dimension" />
 	<attr name="sizeType" format="enum">
 		<enum name="fullsize" value="0" />
@@ -191,12 +192,13 @@
 		<attr name="textId" />
 	</declare-styleable>
 	<declare-styleable name="AirImageView">
-		<attr name="layout" />
-		<attr name="showBusy" />
-		<attr name="sizeHint" />
 		<attr name="aspectRatio" />
 		<attr name="aspectRatioEnabled" />
 		<attr name="dominantMeasurement" />
+		<attr name="fit" />
+		<attr name="layout" />
+		<attr name="showBusy" />
+		<attr name="sizeHint" />
 		<attr name="sizeType" />
 	</declare-styleable>
 	<declare-styleable name="CandiView">

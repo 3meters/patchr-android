@@ -8,7 +8,7 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
 import com.aircandi.events.NotificationEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
@@ -18,8 +18,6 @@ import com.aircandi.ui.base.BaseActivity;
 import com.squareup.otto.Subscribe;
 
 public class EntityList extends BaseActivity {
-
-	private EntityListFragment mListFragment;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -42,7 +40,7 @@ public class EntityList extends BaseActivity {
 		super.initialize(savedInstanceState);
 		if (this.isFinishing()) return;
 
-		mListFragment = new EntityListFragment();
+		mCurrentFragment = new EntityListFragment();
 
 		EntityMonitor monitor = new EntityMonitor(mParams.getEntityId());
 
@@ -53,7 +51,7 @@ public class EntityList extends BaseActivity {
 		     .setPageSize(mParams.getListPageSize())
 		     .setSchema(mParams.getListLinkSchema());
 
-		mListFragment.setQuery(query)
+		((EntityListFragment)mCurrentFragment).setQuery(query)
 		             .setMonitor(monitor)
 		             .setListItemResId(mParams.getListItemResId())
 		             .setListViewType(mParams.getListViewType())
@@ -62,7 +60,7 @@ public class EntityList extends BaseActivity {
 		             .setListLoadingResId(mParams.getListLoadingResId())
 		             .setSelfBindingEnabled(true);
 
-		getFragmentManager().beginTransaction().replace(R.id.fragment_holder, mListFragment).commit();
+		getFragmentManager().beginTransaction().replace(R.id.fragment_holder, mCurrentFragment).commit();
 		draw(null);
 	}
 
@@ -96,14 +94,13 @@ public class EntityList extends BaseActivity {
 
 	@Override
 	public void onRefresh() {
-		if (mListFragment != null) {
-			mListFragment.onRefresh();
+		if (mCurrentFragment != null) {
+			((EntityListFragment)mCurrentFragment).onRefresh();
 		}
 	}
 
 	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		mListFragment.onProcessingComplete();
+	public void onProcessingFinished(ProcessingFinishedEvent event) {
 	}
 
 	@SuppressWarnings("ucd")
@@ -113,7 +110,7 @@ public class EntityList extends BaseActivity {
 
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
-		mListFragment.onMoreButtonClick(view);
+		((EntityListFragment)mCurrentFragment).onMoreButtonClick(view);
 	}
 
 	@Override

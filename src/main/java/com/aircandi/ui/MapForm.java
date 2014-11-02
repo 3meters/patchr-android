@@ -14,7 +14,7 @@ import com.aircandi.components.LocationManager;
 import com.aircandi.components.MapManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MapForm extends BaseEntityForm {
-
-	private Fragment mFragment;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -78,7 +76,7 @@ public class MapForm extends BaseEntityForm {
 
 							List<Entity> entities = new ArrayList<Entity>();
 							entities.add(mEntity);
-							((MapListFragment) mFragment)
+							((MapListFragment) mCurrentFragment)
 									.setEntities(entities)
 									.setZoomLevel(MapManager.ZOOM_SCALE_NEARBY)
 									.draw();
@@ -92,7 +90,7 @@ public class MapForm extends BaseEntityForm {
 			else {
 				List<Entity> entities = new ArrayList<Entity>();
 				entities.add(mEntity);
-				((MapListFragment) mFragment)
+				((MapListFragment) mCurrentFragment)
 						.setEntities(entities)
 						.setZoomLevel(MapManager.ZOOM_SCALE_NEARBY)
 						.draw();
@@ -105,8 +103,8 @@ public class MapForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		((MapListFragment) mFragment).onProcessingComplete();
+	public void onProcessingFinished(ProcessingFinishedEvent event) {
+		((MapListFragment) mCurrentFragment).onProcessingFinished();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -115,10 +113,10 @@ public class MapForm extends BaseEntityForm {
 
 	@Override
 	public void setCurrentFragment(String fragmentType) {
-		mFragment = new MapListFragment();
+		mCurrentFragment = new MapListFragment();
 		getFragmentManager()
 				.beginTransaction()
-				.replace(R.id.fragment_holder, mFragment)
+				.replace(R.id.fragment_holder, mCurrentFragment)
 				.commit();
 	}
 

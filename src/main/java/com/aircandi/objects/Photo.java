@@ -184,12 +184,13 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 				else if (source.equals(PhotoSource.generic)) {
 					photoUri = prefix;
 				}
+
 				if (wrapped && Type.isTrue(proxyActive) && proxyWidth != null) {
 					if (this.width != null && this.height != null) {
 						Orientation orientation = (this.width.intValue() >= this.height.intValue())
 						                          ? Orientation.LANDSCAPE
 						                          : Orientation.PORTRAIT;
-						photoUri = mImageProxy.convert(photoUri, proxyWidth.intValue(), orientation);
+						photoUri = mImageProxy.convert(photoUri, this.width.intValue(), orientation);
 					}
 					else {
 						photoUri = mImageProxy.convert(photoUri, proxyWidth.intValue(), Orientation.LANDSCAPE);

@@ -150,6 +150,7 @@
 			custom:aspectRatio="@dimen/aspect_ratio_message_item_image"
 			custom:aspectRatioEnabled="true"
 			custom:dominantMeasurement="width"
+			custom:fit="true"
 			custom:layout="@layout/widget_webimageview"
 			custom:sizeHint="@dimen/image_super_large"
 			custom:sizeType="fullsize_capped" />

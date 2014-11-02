@@ -25,7 +25,6 @@ import com.aircandi.components.BusProvider;
 import com.aircandi.components.BusyManager;
 import com.aircandi.components.Logger;
 import com.aircandi.interfaces.IBind;
-import com.aircandi.interfaces.IBusy;
 import com.aircandi.interfaces.IForm;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
@@ -64,16 +63,14 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	protected Boolean mIsVisible          = false;
 	protected Boolean mFeed               = false;
 	protected Boolean mSelfBindingEnabled = true;
-	protected Boolean mFabEnabled         = true;
 
 	protected Boolean mLoaded      = false; // Used to control busy feedback
 	protected Integer mScrollState = OnScrollListener.SCROLL_STATE_IDLE;
 
-	private   AirAutoCompleteTextView           mTo;
-	private   View                              mToImage;
-	private   View                              mToProgress;
-	private   EntitySuggestController           mEntitySuggest;
-	protected BaseActivity.FloatingActionButton mFab;
+	private AirAutoCompleteTextView mTo;
+	private View                    mToImage;
+	private View                    mToProgress;
+	private EntitySuggestController mEntitySuggest;
 
 	protected BaseActivity.BubbleButton mBubbleButton;
 
@@ -115,7 +112,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		final View view = inflater.inflate(getLayoutId(), container, false);
 
 		mBubbleButton = ((BaseActivity) getActivity()).getBubbleButton();
-		mFab = ((BaseActivity) getActivity()).getFab();
 
 		return view;
 	}
@@ -158,6 +154,10 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	@Override
 	public void onRefresh() {
 		bind(BindingMode.MANUAL); // Called from Routing
+	}
+
+	public void onProcessingFinished() {
+		mBusy.hideBusy(false);
 	}
 
 	@Override
@@ -240,11 +240,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		return this;
 	}
 
-	public BaseFragment setFabEnabled(Boolean fabEnabled) {
-		mFabEnabled = fabEnabled;
-		return this;
-	}
-
 	public Boolean isFeed() {
 		return mFeed;
 	}
@@ -263,10 +258,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 
 	protected int getLayoutId() {
 		return 0;
-	}
-
-	public Boolean getFabEnabled() {
-		return mFabEnabled;
 	}
 
 	public Integer getScrollState() {

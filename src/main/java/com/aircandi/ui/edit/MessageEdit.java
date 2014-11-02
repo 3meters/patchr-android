@@ -4,10 +4,10 @@ import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -26,6 +26,7 @@ import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.MediaManager;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.CancelEvent;
 import com.aircandi.interfaces.IEntityController;
@@ -50,7 +51,6 @@ import com.squareup.picasso.Target;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -151,7 +151,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		});
 
 		/*
-	     * Make sure that we don't already have a place set when
+		 * Make sure that we don't already have a place set when
 		 * handling a share intent.
 		 */
 		Intent intent = getIntent();
@@ -255,32 +255,48 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 						if (intent.getType() != null) {
 							if (intent.getType().indexOf("image/") != -1 || intent.getParcelableExtra(Intent.EXTRA_STREAM) != null) {
 
-								Uri photoUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+								final Uri photoUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
 								if (photoUri != null) {
 
-									try {
-										InputStream stream = getContentResolver().openInputStream(photoUri);
-										Bitmap bitmap = BitmapFactory.decodeStream(stream);
-										stream.close();
-										File file = MediaManager.copyBitmapToSharePath(bitmap);
+									new AsyncTask() {
 
-										if (file != null) {
-											Photo photo = new Photo()
-													.setPrefix(MediaManager.getSharePathUri().toString())
-													.setStore(true);
-											onPhotoSelected(photo); // mDirty gets set in this method
-											mDirty = false;
+										@Override
+										protected Object doInBackground(Object... params) {
+											Thread.currentThread().setName("AsyncShareBitmap");
+											ModelResult result = new ModelResult();
+
+											try {
+
+												Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
+												                               .load(photoUri)
+												                               .get();
+												File file = MediaManager.copyBitmapToSharePath(bitmap);
+
+												if (file != null) {
+													Photo photo = new Photo()
+															.setPrefix(MediaManager.getSharePathUri().toString())
+															.setStore(true);
+													onPhotoSelected(photo); // mDirty gets set in this method
+													mDirty = false;
+												}
+												else {
+													UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
+												}
+											}
+											catch (FileNotFoundException e) {
+												Reporting.logException(e);
+											}
+											catch (IOException e) {
+												Reporting.logException(e);
+											}
+											return result;
 										}
-										else {
-											UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
+
+										@Override
+										protected void onPostExecute(Object response) {
+											draw(null);
 										}
-									}
-									catch (FileNotFoundException e) {
-										Reporting.logException(e);
-									}
-									catch (IOException e) {
-										Reporting.logException(e);
-									}
+									}.execute();
 								}
 							}
 						}
@@ -308,31 +324,47 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 					 */
 					if (intent.getType().indexOf("image/") != -1 || intent.getParcelableExtra(Intent.EXTRA_STREAM) != null) {
 
-						Uri photoUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+						final Uri photoUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
 						if (photoUri != null) {
 
-							try {
-								InputStream stream = getContentResolver().openInputStream(photoUri);
-								Bitmap bitmap = BitmapFactory.decodeStream(stream);
-								stream.close();
-								File file = MediaManager.copyBitmapToSharePath(bitmap);
+							new AsyncTask() {
 
-								if (file != null) {
-									Photo photo = new Photo()
-											.setPrefix(MediaManager.getSharePathUri().toString())
-											.setStore(true);
-									onPhotoSelected(photo); // mDirty gets set in this method
+								@Override
+								protected Object doInBackground(Object... params) {
+									Thread.currentThread().setName("AsyncShareBitmap");
+									ModelResult result = new ModelResult();
+
+									try {
+
+										Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
+										                               .load(photoUri)
+										                               .get();
+										File file = MediaManager.copyBitmapToSharePath(bitmap);
+
+										if (file != null) {
+											Photo photo = new Photo()
+													.setPrefix(MediaManager.getSharePathUri().toString())
+													.setStore(true);
+											onPhotoSelected(photo); // mDirty gets set in this method
+										}
+										else {
+											UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
+										}
+									}
+									catch (FileNotFoundException e) {
+										Reporting.logException(e);
+									}
+									catch (IOException e) {
+										Reporting.logException(e);
+									}
+									return result;
 								}
-								else {
-									UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
+
+								@Override
+								protected void onPostExecute(Object response) {
+									draw(null);
 								}
-							}
-							catch (FileNotFoundException e) {
-								Reporting.logException(e);
-							}
-							catch (IOException e) {
-								Reporting.logException(e);
-							}
+							}.execute();
 						}
 					}
 				}
@@ -591,7 +623,8 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 						@Override
 						public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
-							DownloadManager.checkDebug(bitmap, loadedFrom);
+							DownloadManager.decorate(bitmap, loadedFrom);
+							DownloadManager.logBitmap(MessageEdit.this, bitmap, mPhotoView.getImageView());
 							final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
 							UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true, AnimationManager.fadeInMedium());
 							onChangedPhoto();

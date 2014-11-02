@@ -217,6 +217,7 @@ public class RegisterEdit extends BaseEntityEdit {
 						                        .centerInside()
 						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 						                        .get();
+						DownloadManager.logBitmap(RegisterEdit.this, bitmap);
 						if (isCancelled()) return null;
 					}
 					catch (OutOfMemoryError error) {
@@ -231,6 +232,7 @@ public class RegisterEdit extends BaseEntityEdit {
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 							                        .get();
+							DownloadManager.logBitmap(RegisterEdit.this, bitmap);
 
 							if (isCancelled()) return null;
 						}

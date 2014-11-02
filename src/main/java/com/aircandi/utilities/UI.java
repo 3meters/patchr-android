@@ -1,6 +1,7 @@
 package com.aircandi.utilities;
 
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -8,17 +9,19 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
@@ -104,7 +107,7 @@ public class UI {
 			}
 		}
 
-		String imageUri = photo.getUriWrapped();
+		final String imageUri = photo.getUriWrapped();
 
 		if (Photo.isDrawable(imageUri)) {
 			Integer drawableId = Photo.getResourceIdFromUri(photoView.getContext(), imageUri);
@@ -117,17 +120,49 @@ public class UI {
 			}
 		}
 		else {
-			RequestCreator request = DownloadManager.with(Patchr.applicationContext)
-			                                        .load(imageUri)
-			                                        .config(Config.RGB_565)
-			                                        .placeholder(null);
+			Logger.v(UI.class, "Bitmap: uri: " + imageUri);
+			if (photoView.getFit()) {
+				Logger.v(UI.class, "Bitmap: Auto-fitting image for photoView");
+				photoView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
-			if (photoView.getCenterCrop()) {
-				request.centerCrop();
-				request.resize(photoView.getSizeHint(), photoView.getSizeHint());
+					@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+					@SuppressWarnings("deprecation")
+					@Override
+					public void onGlobalLayout() {
+
+						int width = photoView.getImageView().getWidth();
+						int height = photoView.getImageView().getHeight();
+						RequestCreator request = DownloadManager.with(Patchr.applicationContext)
+						                                        .load(imageUri)
+						                                        .config(Config.RGB_565)
+						                                        .placeholder(null)
+						                                        .resize(width, height);
+						if (photoView.isCenterCrop()) {
+							request.centerCrop();
+						}
+						request.into(photoView);
+
+						if (Constants.SUPPORTS_JELLY_BEAN) {
+							photoView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+						}
+						else {
+							photoView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+						}
+					}
+				});
+			}
+			else {
+				RequestCreator request = DownloadManager.with(Patchr.applicationContext)
+				                                        .load(imageUri)
+				                                        .config(Config.RGB_565)
+				                                        .placeholder(null);
+				if (photoView.isCenterCrop()) {
+					request.centerCrop();
+					request.resize(photoView.getSizeHint(), photoView.getSizeHint());
+				}
+				request.into(photoView);
 			}
 
-			request.into(photoView);
 		}
 	}
 
@@ -195,6 +230,10 @@ public class UI {
 		TypedValue a = new TypedValue();
 		context.getTheme().resolveAttribute(attr, a, true);
 		return a.resourceId;
+	}
+
+	public static Integer getDimension(Integer dimenResId) {
+		return Patchr.applicationContext.getResources().getDimensionPixelSize(dimenResId);
 	}
 
 	/*--------------------------------------------------------------------------------------------

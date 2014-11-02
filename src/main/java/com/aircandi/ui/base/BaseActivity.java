@@ -64,6 +64,8 @@ import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AircandiForm;
+import com.aircandi.ui.EntityListFragment;
+import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
@@ -75,7 +77,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class BaseActivity extends Activity implements OnRefreshListener, IForm, IBind {
+public abstract class BaseActivity extends Activity implements OnRefreshListener, AirListView.OnDragListener, IForm, IBind {
 
 	protected ActionBar            mActionBar;
 	public    View                 mActionBarView;
@@ -238,6 +240,21 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		Logger.d(this, "Activity view layout completed");
 	}
 
+	public void onDragBottom() {
+		/* Getting twitchy behavior so disabling for now */
+		//handleFooter(true, AnimationManager.DURATION_MEDIUM);
+	}
+
+	public boolean onDragEvent(AirListView.DragEvent event, Float dragX, Float dragY) {
+		/*
+		 * Fired by list fragments.
+		 */
+		if (event == AirListView.DragEvent.DRAG) {
+			handleListDrag();
+		}
+		return false;
+	}
+
 	@SuppressWarnings("ucd")
 	public void onOverflowButtonClick(View view) {
 		popupMenu(view);
@@ -367,10 +384,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		return null;
 	}
 
-	public FloatingActionButton getFab() {
-		return mFab;
-	}
-
 	public BubbleButton getBubbleButton() {
 		return mBubbleButton;
 	}
@@ -386,6 +399,17 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 	@Override
 	public void bind(BindingMode mode) {}
+
+	public void handleListDrag() {
+		AirListView listView = (AirListView) ((EntityListFragment) mCurrentFragment).getListView();
+		AirListView.DragDirection direction = listView.getDragDirectionLast();
+		if (direction == AirListView.DragDirection.DOWN) {
+			mFab.slideIn(AnimationManager.DURATION_SHORT);
+		}
+		else {
+			mFab.slideOut(AnimationManager.DURATION_SHORT);
+		}
+	}
 
 	public BusyManager getBusy() {
 		return mBusy;
@@ -867,6 +891,14 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		 * be fixed, then resume will be called again.
 		 */
 		AndroidManager.checkPlayServices(this);
+
+		/* Slides it in only if it is currently out. */
+		if (mFab != null) {
+			ObjectAnimator anim = mFab.slideIn(AnimationManager.DURATION_SHORT);
+			if (anim != null) {
+				anim.setStartDelay(500);
+			}
+		}
 	}
 
 	@Override
@@ -910,6 +942,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		private Boolean mEnabled = true;
 		private Boolean mLocked  = false;
 		private Boolean mHidden  = false;
+		private Boolean mSliding = false;
 
 		public FloatingActionButton(View view) {
 			mView = view;
@@ -931,9 +964,15 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		}
 
 		public ObjectAnimator fadeIn() {
+			/*
+			 * Skips if already visible and full opacity. Always ensures
+			 * default position.
+			 */
 			if (mView == null || (mView.getVisibility() == View.VISIBLE && mView.getAlpha() == 1f))
 				return null;
+
 			mView.setAlpha(0f);
+			mView.setTranslationY(0f);
 			mView.setVisibility(View.VISIBLE);
 			ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 1f);
 			anim.setDuration(AnimationManager.DURATION_MEDIUM);
@@ -949,9 +988,15 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		}
 
 		public ObjectAnimator fadeOut() {
+			/*
+			 * Skips if already gone and fully transparent. Always ensures
+			 * default position.
+			 */
 			if (mView == null || (mView.getVisibility() == View.GONE && mView.getAlpha() == 0f))
 				return null;
+
 			ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 0f);
+			mView.setTranslationY(0f);
 			anim.setDuration(AnimationManager.DURATION_MEDIUM);
 			anim.addListener(new SimpleAnimationListener() {
 				@Override
@@ -966,8 +1011,12 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		}
 
 		public ObjectAnimator slideOut(Integer duration) {
-			if (mLocked) return null;
-			if (mHidden || mView == null || mView.getTranslationY() != 0) return null;
+			/*
+			 * Skips if locked, sliding or already hidden.
+			 */
+			if (mLocked || mSliding || mHidden) return null;
+
+			mSliding = true;
 			ObjectAnimator anim = ObjectAnimator.ofFloat(mView
 					, "translationY"
 					, mView.getHeight());
@@ -978,6 +1027,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 					mView.setClickable(false);
 					animator.removeAllListeners();
 					mHidden = true;
+					mSliding = false;
 				}
 			});
 			anim.start();
@@ -985,8 +1035,12 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		}
 
 		public ObjectAnimator slideIn(Integer duration) {
-			if (mLocked) return null;
-			if (!mHidden || mView.getTranslationY() == 0) return null;
+			/*
+			 * Skips if locked, sliding or not hidden.
+			 */
+			if (mLocked || mSliding || !mHidden) return null;
+
+			mSliding = true;
 			ObjectAnimator anim = ObjectAnimator.ofFloat(mView
 					, "translationY"
 					, 0);
@@ -997,6 +1051,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 					mView.setClickable(true);
 					animator.removeAllListeners();
 					mHidden = false;
+					mSliding = false;
 				}
 			});
 			anim.start();

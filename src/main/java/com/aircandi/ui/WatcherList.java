@@ -17,7 +17,7 @@ import com.aircandi.components.EntityManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
@@ -35,8 +35,6 @@ import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
 public class WatcherList extends BaseActivity {
-
-	private EntityListFragment mListFragment;
 
 	@Override
 	public void unpackIntent() {
@@ -60,7 +58,7 @@ public class WatcherList extends BaseActivity {
 			}
 		});
 
-		mListFragment = new WatcherListFragment();
+		mCurrentFragment = new WatcherListFragment();
 		EntityMonitor monitor = new EntityMonitor(mEntityId);
 		WatchersQuery query = new WatchersQuery();
 
@@ -75,24 +73,24 @@ public class WatcherList extends BaseActivity {
 			query.setLinkWhere(Maps.asMap("enabled", true));
 		}
 
-		mListFragment.setQuery(query)
-		             .setMonitor(monitor)
-		             .setListViewType(ViewType.LIST)
-		             .setListLayoutResId(R.layout.watcher_list_fragment)
-		             .setListLoadingResId(R.layout.temp_listitem_loading)
-		             .setListItemResId(R.layout.temp_listitem_watcher)
-		             .setListEmptyMessageResId(R.string.button_list_watchers_share)
-		             .setBubbleButtonMessageResId(R.string.button_list_watchers_share)
-		             .setSelfBindingEnabled(true)
-		             .setTitleResId(R.string.form_title_watchers);
+		((EntityListFragment) mCurrentFragment).setQuery(query)
+		                                       .setMonitor(monitor)
+		                                       .setListViewType(ViewType.LIST)
+		                                       .setListLayoutResId(R.layout.watcher_list_fragment)
+		                                       .setListLoadingResId(R.layout.temp_listitem_loading)
+		                                       .setListItemResId(R.layout.temp_listitem_watcher)
+		                                       .setListEmptyMessageResId(R.string.button_list_watchers_share)
+		                                       .setBubbleButtonMessageResId(R.string.button_list_watchers_share)
+		                                       .setSelfBindingEnabled(true)
+		                                       .setTitleResId(R.string.form_title_watchers);
 
-		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
+		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mCurrentFragment).commit();
 		draw(null);
 	}
 
 	@Override
 	public void draw(View view) {
-		setActivityTitle(StringManager.getString(((BaseFragment) mListFragment).getTitleResId()));
+		setActivityTitle(StringManager.getString(((BaseFragment) mCurrentFragment).getTitleResId()));
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -100,13 +98,29 @@ public class WatcherList extends BaseActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		mListFragment.onProcessingComplete();
+	public void onProcessingFinished(ProcessingFinishedEvent event) {
+
+		mBusy.hideBusy(false);
+
+		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
+		final Integer count = fragment.getAdapter().getCount();
+
+		((BaseFragment) mCurrentFragment).onProcessingFinished();
+
+		if (mBubbleButton.isEnabled()) {
+			if (count == 0) {
+				mBubbleButton.setText(fragment.getListEmptyMessageResId());
+				mBubbleButton.fadeIn();
+			}
+			else {
+				mBubbleButton.fadeOut();
+			}
+		}
 	}
 
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
-		mListFragment.onMoreButtonClick(view);
+		((EntityListFragment) mCurrentFragment).onMoreButtonClick(view);
 	}
 
 	public void onShareButtonClick(View view) {
@@ -198,7 +212,7 @@ public class WatcherList extends BaseActivity {
 
 	public void approveMember(final Entity entity, final String linkId, final String fromId, final String toId, final Boolean enabled) {
 
-		final String actionEvent = (enabled ? "approve" : "unapprove") + "_watch_entity" ;
+		final String actionEvent = (enabled ? "approve" : "unapprove") + "_watch_entity";
 		final Shortcut toShortcut = new Shortcut();
 		toShortcut.schema = Constants.SCHEMA_ENTITY_PLACE;
 
@@ -261,7 +275,7 @@ public class WatcherList extends BaseActivity {
 				if (isFinishing()) return;
 				ModelResult result = (ModelResult) response;
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					mListFragment.bind(BindingMode.AUTO);
+					((EntityListFragment) mCurrentFragment).bind(BindingMode.AUTO);
 				}
 				else {
 					if (result.serviceResponse.statusCodeService != null

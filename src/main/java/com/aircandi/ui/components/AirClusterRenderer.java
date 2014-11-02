@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.utilities.Colors;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
@@ -89,7 +89,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	/**
 	 * If cluster size is less than this size, display individual markers.
 	 */
-	private static final int MIN_CLUSTER_SIZE = 4;
+	private static final int MIN_CLUSTER_SIZE = 20;
 
 	/**
 	 * The currently displayed set of clusters.
@@ -420,7 +420,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 			}
 
 			markerModifier.waitUntilFree();
-			BusProvider.getInstance().post(new ProcessingCompleteEvent());
+			BusProvider.getInstance().post(new ProcessingFinishedEvent());
 
 			mMarkers = newMarkers;
 			AirClusterRenderer.this.mClusters = clusters;

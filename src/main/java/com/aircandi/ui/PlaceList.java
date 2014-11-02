@@ -7,7 +7,7 @@ import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.queries.EntitiesQuery;
@@ -20,7 +20,6 @@ import com.squareup.otto.Subscribe;
 @SuppressWarnings("ucd")
 public class PlaceList extends BaseActivity {
 
-	private   EntityListFragment mListFragment;
 	protected String             mListLinkType;
 	protected Integer            mListTitleResId;
 	protected Integer            mListEmptyMessageResId;
@@ -43,7 +42,7 @@ public class PlaceList extends BaseActivity {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mListFragment = new EntityListFragment();
+		mCurrentFragment = new EntityListFragment();
 		EntityMonitor monitor = new EntityMonitor(mEntityId);
 		EntitiesQuery query = new EntitiesQuery();
 
@@ -53,7 +52,7 @@ public class PlaceList extends BaseActivity {
 		     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
 		     .setSchema(Constants.SCHEMA_ENTITY_PLACE);
 
-		mListFragment.setQuery(query)
+		((EntityListFragment)mCurrentFragment).setQuery(query)
 		             .setMonitor(monitor)
 		             .setListPagingEnabled(true)
 		             .setListViewType(ViewType.LIST)
@@ -64,11 +63,11 @@ public class PlaceList extends BaseActivity {
 		             .setTitleResId(mListTitleResId)
 		             .setSelfBindingEnabled(true);
 
-		setActivityTitle(StringManager.getString(((BaseFragment) mListFragment).getTitleResId()));
+		setActivityTitle(StringManager.getString(((BaseFragment) mCurrentFragment).getTitleResId()));
 
 		getFragmentManager()
 				.beginTransaction()
-				.add(R.id.fragment_holder, mListFragment)
+				.add(R.id.fragment_holder, mCurrentFragment)
 				.commit();
 	}
 
@@ -77,13 +76,12 @@ public class PlaceList extends BaseActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		mListFragment.onProcessingComplete();
+	public void onProcessingFinished(ProcessingFinishedEvent event) {
 	}
 
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
-		mListFragment.onMoreButtonClick(view);
+		((EntityListFragment)mCurrentFragment).onMoreButtonClick(view);
 	}
 
 	@Override

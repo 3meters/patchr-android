@@ -47,6 +47,7 @@ public class AirImageView extends FrameLayout implements Target {
 	private boolean   mShowBusy   = true;
 	private ScaleType mScaleType  = ScaleType.CENTER_CROP;
 	private Boolean   mCenterCrop = true;
+	private Boolean   mFit        = false;
 	private Integer mLayoutId;
 	private float   mAspectRatio;
 	private boolean mAspectRatioEnabled;
@@ -84,6 +85,7 @@ public class AirImageView extends FrameLayout implements Target {
 
 		final TypedArray ta = context.obtainStyledAttributes(attributes, R.styleable.AirImageView, defStyle, 0);
 
+		mFit = ta.getBoolean(R.styleable.AirImageView_fit, false);
 		mSizeHint = ta.getDimensionPixelSize(R.styleable.AirImageView_sizeHint, Integer.MAX_VALUE);
 		mSizeType = SizeType.values()[ta.getInteger(R.styleable.AirImageView_sizeType, SizeType.FULLSIZE.ordinal())];
 		mShowBusy = ta.getBoolean(R.styleable.AirImageView_showBusy, true);
@@ -192,6 +194,9 @@ public class AirImageView extends FrameLayout implements Target {
 
 	@Override
 	public void onBitmapFailed(Drawable drawable) {
+		/*
+		 * Other code has taken over how the bitmap is handled.
+		 */
 		if (mTarget != null) {
 			mTarget.onBitmapFailed(drawable);
 		}
@@ -204,13 +209,17 @@ public class AirImageView extends FrameLayout implements Target {
 	}
 
 	@Override
-	public void onBitmapLoaded(Bitmap bm, LoadedFrom loadedFrom) {
+	public void onBitmapLoaded(Bitmap inBitmap, LoadedFrom loadedFrom) {
+		/*
+		 * Other code has taken over how the bitmap is handled.
+		 */
 		if (mTarget != null) {
-			mTarget.onBitmapLoaded(bm, loadedFrom);
+			mTarget.onBitmapLoaded(inBitmap, loadedFrom);
 		}
 		else {
-			Bitmap bitmap = DownloadManager.checkDebug(bm, loadedFrom);
-			DownloadManager.checkDebug(bitmap, loadedFrom);
+			/* Just pass through if image debug dev setting is off */
+			Bitmap bitmap = DownloadManager.decorate(inBitmap, loadedFrom);
+			DownloadManager.logBitmap(this, bitmap, mImageMain);
 			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
 			UI.showDrawableInImageView(bitmapDrawable, mImageMain, true, AnimationManager.fadeInMedium());
 			showMissing(false);
@@ -222,6 +231,9 @@ public class AirImageView extends FrameLayout implements Target {
 
 	@Override
 	public void onPrepareLoad(Drawable drawable) {
+		/*
+		 * Other code has taken over how the bitmap is handled.
+		 */
 		if (mTarget != null) {
 			mTarget.onPrepareLoad(drawable);
 		}
@@ -321,7 +333,7 @@ public class AirImageView extends FrameLayout implements Target {
 		return this;
 	}
 
-	public Boolean getCenterCrop() {
+	public Boolean isCenterCrop() {
 		return mCenterCrop;
 	}
 
@@ -340,6 +352,15 @@ public class AirImageView extends FrameLayout implements Target {
 
 	public Target getTarget() {
 		return mTarget;
+	}
+
+	public Boolean getFit() {
+		return mFit;
+	}
+
+	public AirImageView setFit(Boolean fit) {
+		mFit = fit;
+		return this;
 	}
 
 	public AirImageView setTarget(Target target) {

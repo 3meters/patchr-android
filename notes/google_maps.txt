@@ -37,6 +37,9 @@ admin@3meters.com
 
 NOTES
 
-When switching api keys or changing entries, make sure the application version using the old api key is uninstalled. I was
-having a problem getting the new api key to work until I started with fresh install.
+API key is set in AndroidManifest.
+
+When switching api keys or changing entries, it might be necessary to uninstall the application version using the old api key. I was
+having a problem getting the new api key to work until I started with fresh install. I have also had things work fine with a key
+changes and no re-install.
 

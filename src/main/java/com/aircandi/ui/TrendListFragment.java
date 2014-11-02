@@ -10,9 +10,7 @@ import com.aircandi.R;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.ViewHolder;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
-import com.squareup.otto.Subscribe;
 
 public class TrendListFragment extends EntityListFragment {
 
