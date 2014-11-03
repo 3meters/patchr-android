@@ -94,34 +94,22 @@ public class UI {
 		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
 		 * Fit on photo is used when target size is desired and known only after view layout.
 		 */
-		photo.setProxy(false);
-		if (photoView.getFitType() == AirImageView.FitType.NONE) {
-			/*
-			 * We even cap fullsize if the device has minimal memory.
-			 */
-			if (Patchr.memoryClass < 48) {
-				Logger.i(UI.class, "Screen pixels: "
-						+ getScreenWidthRawPixels(Patchr.applicationContext)
-						+ " x " + getScreenHeightRawPixels(Patchr.applicationContext));
-				photo.setProxy(true, Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
-			}
-		}
-
-		if (Photo.isDrawable(photo.getUri())) {
-
-			String imageUri = photo.getUriWrapped();
-			Integer drawableId = Photo.getResourceIdFromUri(photoView.getContext(), imageUri);
+		if (photo.source.equals(Photo.PhotoSource.resource)) {
+			Integer drawableId = photo.getResId();
 			if (drawableId != null) {
 				DownloadManager.with(Patchr.applicationContext)
 				               .load(drawableId)
 				               .placeholder(null)
 				               .into(photoView);
 			}
-			return;
 		}
 		else {
-
-			if (photoView.getFitType() == AirImageView.FitType.FIXED) {
+			photo.setProxy(false);
+			if (photoView.getFitType() == AirImageView.FitType.NONE) {
+				Logger.v(UI.class, "Bitmap: Max sizing image for photoView");
+				photo.setProxy(true, Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
+			}
+			else if (photoView.getFitType() == AirImageView.FitType.FIXED) {
 				Logger.v(UI.class, "Bitmap: Fixed sizing image for photoView");
 				photo.setProxy(true, photoView.getSizeHint(), photoView.getSizeHint());
 			}

@@ -7,7 +7,6 @@ import android.view.View;
 
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
-import com.aircandi.objects.Photo;
 import com.aircandi.objects.ViewHolder;
 
 import java.util.Map;
@@ -31,10 +30,6 @@ public interface IEntityController {
 	public Entity makeNew();
 
 	public Entity makeFromMap(Map<String, Object> map, Boolean nameMapping);
-
-	public Photo getDefaultPhoto(String type);
-
-	public Photo getPlaceholderPhoto(String type);
 
 	public Integer getNotificationType(Entity entity);
 

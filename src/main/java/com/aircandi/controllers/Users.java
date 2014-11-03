@@ -1,13 +1,9 @@
 package com.aircandi.controllers;
 
-import com.aircandi.Patchr;
-import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
-import com.aircandi.objects.Photo;
-import com.aircandi.objects.Photo.PhotoSource;
 import com.aircandi.objects.User;
 import com.aircandi.ui.user.UserEdit;
 import com.aircandi.ui.user.UserForm;
@@ -35,14 +31,6 @@ public class Users extends EntityControllerBase {
 		entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME); // Temporary
 		entity.signalFence = -100.0f;
 		return entity;
-	}
-
-	@Override
-	public Photo getDefaultPhoto(String type) {
-		String prefix = Patchr.themeTone.equals(ThemeTone.LIGHT) ? "img_user_generic_light" : "img_user_generic_dark";
-		String source = PhotoSource.resource;
-		Photo photo = new Photo(prefix, null, null, null, source);
-		return photo;
 	}
 
 	@Override

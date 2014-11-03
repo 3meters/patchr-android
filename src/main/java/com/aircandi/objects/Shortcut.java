@@ -140,6 +140,7 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Photo getPhoto() {
 		Photo photo = this.photo;
 		if (photo == null) {

@@ -9,7 +9,6 @@ import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.StringManager;
-import com.aircandi.controllers.EntityControllerBase;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.CacheStamp.StampSource;
 import com.aircandi.objects.Link.Direction;
@@ -198,9 +197,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		Photo photo = this.photo;
 		if (photo == null) {
 			photo = getDefaultPhoto();
-			if (photo == null) {
-				photo = EntityControllerBase.getDefaultPhoto();
-			}
 			if (photo != null) {
 				photo.usingDefault = true;
 			}
@@ -208,14 +204,13 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return photo;
 	}
 
-	public Photo getDefaultPhoto() {
-		IEntityController controller = Patchr.getInstance().getControllerForSchema(this.schema);
-		return ((controller != null) ? controller.getDefaultPhoto(this.type) : null);
-	}
-
-	public Photo getPlaceholderPhoto() {
-		IEntityController controller = Patchr.getInstance().getControllerForSchema(this.schema);
-		return ((controller != null) ? controller.getPlaceholderPhoto(this.type) : null);
+	protected Photo getDefaultPhoto() {
+		String prefix = (Patchr.themeTone == null || Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
+		                ? "img_placeholder_bw_light"
+		                : "img_placeholder_bw_dark";
+		String source = Photo.PhotoSource.resource;
+		Photo photo = new Photo(prefix, null, null, null, source);
+		return photo;
 	}
 
 	public AirLocation getLocation() {

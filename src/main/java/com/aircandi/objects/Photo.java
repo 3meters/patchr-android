@@ -106,6 +106,14 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return photo;
 	}
 
+	public Integer getResId() {
+		if (!this.source.equals(PhotoSource.resource)) {
+			throw new IllegalArgumentException("Photo source must be resource");
+		}
+		Integer resId = getResourceIdFromResourceName(Patchr.applicationContext, this.prefix);
+		return resId;
+	}
+
 	public String getUri() {
 		return getSizedUri(width, height, false);
 	}
@@ -240,6 +248,18 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		thumbnail.setUrl(getSizedUri(100, 100, true));
 		imageResult.setThumbnail(thumbnail);
 		return imageResult;
+	}
+
+	public static Integer getResourceIdFromResourceName(Context context, String resourceName) {
+
+		final String resolvedResourceName = resolveResourceName(context, resourceName);
+		if (resolvedResourceName != null) {
+			final int resourceId = Patchr.applicationContext.getResources().getIdentifier(resolvedResourceName
+					, "drawable"
+					, Patchr.getInstance().getPackageName());
+			return resourceId;
+		}
+		return null;
 	}
 
 	public static Integer getResourceIdFromUri(Context context, String uri) {
