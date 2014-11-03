@@ -88,7 +88,7 @@
 					android:layout_centerVertical="true"
 					android:layout_toLeftOf="@+id/button_map"
 					android:onClick="onShareButtonClick"
-					custom:drawable="@drawable/ic_img_share_dark" />
+					custom:drawable="@drawable/ic_img_user_add_dark" />
 
 				<com.aircandi.ui.widgets.ComboButton
 					android:id="@+id/button_map"
