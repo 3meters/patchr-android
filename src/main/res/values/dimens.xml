@@ -28,11 +28,6 @@
 
 	<!-- Image categories -->
 
-	<dimen name="image_category_thumbnail">100dp</dimen>
-	<dimen name="image_category_preview">200dp</dimen>
-	<dimen name="image_category_preview_large">350dp</dimen>
-	<dimen name="image_category_fullsize_capped">500dp</dimen>
-	<dimen name="image_category_fullsize">1000dp</dimen>
 	<item name="aspect_ratio_place_image" format="float" type="dimen">0.5</item>
 	<item name="aspect_ratio_message_image" format="float" type="dimen">0.75</item>
 	<item name="aspect_ratio_message_item_image" format="float" type="dimen">0.5</item>

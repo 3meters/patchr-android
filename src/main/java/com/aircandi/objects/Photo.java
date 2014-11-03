@@ -4,14 +4,13 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.TypedValue;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.ImageResult.Thumbnail;
 import com.aircandi.service.Expose;
-import com.aircandi.ui.widgets.AirImageView.SizeType;
 import com.aircandi.utilities.Type;
 
 import java.io.Serializable;
@@ -27,7 +26,8 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	/*
 	 * sourceName: aircandi, foursquare, external
 	 */
-	private static final long serialVersionUID = 4979315562693226461L;
+	private static final long            serialVersionUID = 4979315562693226461L;
+	private              GooglePlusProxy mImageResizer    = new GooglePlusProxy();
 
 	@Expose
 	public String prefix;
@@ -60,12 +60,10 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	public Shortcut shortcut;
 	public Boolean store = false;
 
-	public Number  sizeType    = SizeType.FULLSIZE.ordinal();
-	public Boolean proxyActive = false;
-	public Number proxyWidth;
-	public Number proxyHeight;
-
-	private GooglePlusProxy mImageProxy = new GooglePlusProxy();
+	public Boolean resizerActive = false;
+	public Boolean resizerUsed = false;
+	public Number resizerWidth;
+	public Number resizerHeight;
 
 	public Photo() {
 	}
@@ -81,6 +79,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	public static Photo setPropertiesFromMap(Photo photo, Map map, Boolean nameMapping) {
 
 		photo.prefix = (String) map.get("prefix");
@@ -96,10 +95,9 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		photo.colorizeKey = (String) map.get("colorizeKey");
 		photo.usingDefault = (Boolean) map.get("usingDefault");
 		photo.store = (Boolean) map.get("store");
-		photo.proxyActive = (Boolean) map.get("proxyActive");
-		photo.proxyWidth = (Number) map.get("proxyWidth");
-		photo.proxyHeight = (Number) map.get("proxyHeight");
-		photo.sizeType = (Number) map.get("sizeType");
+		photo.resizerActive = (Boolean) map.get("resizerActive");
+		photo.resizerWidth = (Number) map.get("resizerWidth");
+		photo.resizerHeight = (Number) map.get("resizerHeight");
 
 		if (map.get("user") != null) {
 			photo.user = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("user"), nameMapping);
@@ -144,11 +142,11 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 			else if (source.equals(PhotoSource.foursquare)) {
 
 				photoUri = prefix;
-				if (wrapped && Type.isTrue(proxyActive) && proxyWidth != null) {
-					photoUri = prefix + String.valueOf(proxyWidth.intValue()) + "x" + String.valueOf(proxyHeight.intValue()) + suffix;
+				if (wrapped && Type.isTrue(resizerActive) && resizerWidth != null) {
+					photoUri = prefix + String.valueOf(resizerWidth.intValue()) + "x" + String.valueOf(resizerHeight.intValue()) + suffix;
 				}
 				else {
-		            /* Sometimes we have height/width info and sometimes we don't */
+				    /* Sometimes we have height/width info and sometimes we don't */
 					Integer width = (maxWidth != null) ? maxWidth.intValue() : 256;
 					Integer height = (maxHeight != null) ? maxHeight.intValue() : 256;
 					if (prefix != null && suffix != null) {
@@ -159,8 +157,8 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 			else if (source.equals(PhotoSource.google)) {
 
 				Integer width = (maxWidth != null) ? maxWidth.intValue() : Constants.IMAGE_DIMENSION_MAX;
-				if (wrapped && Type.isTrue(proxyActive) && proxyWidth != null) {
-					width = proxyWidth.intValue();
+				if (wrapped && Type.isTrue(resizerActive) && resizerWidth != null) {
+					width = resizerWidth.intValue();
 				}
 				if (prefix.contains("?")) {
 					photoUri = prefix + "&maxwidth=" + String.valueOf(width);
@@ -185,15 +183,25 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 					photoUri = prefix;
 				}
 
-				if (wrapped && Type.isTrue(proxyActive) && proxyWidth != null) {
+				if (wrapped && Type.isTrue(resizerActive) && resizerWidth != null) {
+					/*
+					 * If photo comes with native height/width then use it otherwise
+					 * resize based on width.
+					 */
+					resizerUsed = true;
 					if (this.width != null && this.height != null) {
-						Orientation orientation = (this.width.intValue() >= this.height.intValue())
-						                          ? Orientation.LANDSCAPE
-						                          : Orientation.PORTRAIT;
-						photoUri = mImageProxy.convert(photoUri, this.width.intValue(), orientation);
+
+						Float photoAspectRatio = this.width.floatValue() / this.height.floatValue();
+						Float targetAspectRatio = this.resizerWidth.floatValue() / this.resizerHeight.floatValue();
+
+						ResizeDimension dimension = (targetAspectRatio >= photoAspectRatio) ? ResizeDimension.WIDTH : ResizeDimension.HEIGHT;
+
+						photoUri = mImageResizer.convert(photoUri
+								, dimension == ResizeDimension.WIDTH ? resizerWidth.intValue() : resizerHeight.intValue()
+								, dimension);
 					}
 					else {
-						photoUri = mImageProxy.convert(photoUri, proxyWidth.intValue(), Orientation.LANDSCAPE);
+						photoUri = mImageResizer.convert(photoUri, resizerWidth.intValue(), ResizeDimension.WIDTH);
 					}
 				}
 			}
@@ -304,6 +312,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Number getCreatedAt() {
 		return createdDate;
 	}
@@ -331,10 +340,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return this;
 	}
 
-	public String getPrefix() {
-		return prefix;
-	}
-
 	public Photo setPrefix(String prefix) {
 		this.prefix = prefix;
 		return this;
@@ -345,35 +350,9 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return this;
 	}
 
-	public Number getWidth() {
-		return width;
-	}
-
-	public Photo setWidth(Number width) {
-		this.width = width;
-		return this;
-	}
-
-	public Number getHeight() {
-		return height;
-	}
-
-	public Photo setHeight(Number height) {
-		this.height = height;
-		return this;
-	}
-
-	public String getSource() {
-		return source;
-	}
-
 	public Photo setSource(String source) {
 		this.source = source;
 		return this;
-	}
-
-	public Boolean getStore() {
-		return store;
 	}
 
 	public Photo setStore(Boolean store) {
@@ -381,82 +360,55 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return this;
 	}
 
-	public Boolean getProxyActive() {
-		return proxyActive;
-	}
-
-	public SizeType getSizeType() {
-		return SizeType.values()[sizeType.intValue()];
-	}
-
 	public Photo setProxy(Boolean proxyActive) {
-		setProxy(proxyActive, null);
+		setProxy(proxyActive, null, null);
 		return this;
 	}
 
-	public Photo setProxy(Boolean proxyActive, SizeType sizeType) {
-		this.proxyActive = proxyActive;
+	public Photo setProxy(Boolean proxyActive, Integer height, Integer width) {
+		this.resizerActive = proxyActive;
+		this.resizerUsed = false;
 		if (proxyActive) {
-			this.sizeType = sizeType.ordinal();
-			if (sizeType == SizeType.FULLSIZE) {
-				this.proxyWidth = Patchr.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_fullsize);
-				this.proxyHeight = Patchr.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_fullsize);
-			}
-			else if (sizeType == SizeType.PREVIEW) {
-				this.proxyWidth = Patchr.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_preview);
-				this.proxyHeight = Patchr.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_preview);
-			}
-			else if (sizeType == SizeType.PREVIEW_LARGE) {
-				this.proxyWidth = Patchr.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_preview_large);
-				this.proxyHeight = Patchr.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_preview_large);
-			}
-			else if (sizeType == SizeType.THUMBNAIL) {
-				this.proxyWidth = Patchr.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_thumbnail);
-				this.proxyHeight = Patchr.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_thumbnail);
-			}
-			else if (sizeType == SizeType.FULLSIZE_CAPPED) {
-				this.proxyWidth = Patchr.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_fullsize_capped);
-				this.proxyHeight = Patchr.applicationContext.getResources().getDimensionPixelSize(R.dimen.image_category_fullsize_capped);
-			}
+			this.resizerWidth = width;
+			this.resizerHeight = height;
 		}
 		else {
-			this.sizeType = SizeType.FULLSIZE.ordinal();
-			this.proxyWidth = null;
-			this.proxyHeight = null;
+			this.resizerWidth = null;
+			this.resizerHeight = null;
 		}
 		return this;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/ 	/*
-     * Any photo from the device (camera, gallery) is store in s3 and source = aircandi
-	 * Any search photo is not stored in s3 and source = generic
-	 * Any place photo from foursquare stays there and photo.source = foursquare
+	 *--------------------------------------------------------------------------------------------*/
+	/*
+	 * Any photo from the device (camera, gallery) is store in s3 and source = aircandi.
+	 * Any search photo is not stored in s3 and source = generic.
+	 * Any search photo used for user profile ist stored in s3.
+	 * Any place photo from foursquare stays there and photo.source = foursquare.
 	 */
-
 	public static class PhotoSource {
 
-		public static String generic = "generic";                // set in photo picker when using third party photo.
-		public static String bing    = "bing";                    // set when thumbnail is coming straight from bing.
+		public static String generic = "generic";                           // set in photo picker when using third party photo.
+		public static String bing    = "bing";                              // set when thumbnail is coming straight from bing.
 
-		public static String aircandi            = "aircandi";                // legacy that maps to aircandi_images
-		public static String aircandi_images     = "aircandi.images";        // set when photo is stored by us and used to construct full uri to image data (s3)
-		public static String aircandi_thumbnails = "aircandi.thumbnails";    // set when photo is stored by us and used to construct full uri to image data (s3)
+		public static String aircandi            = "aircandi";              // legacy that maps to aircandi_images
+		public static String aircandi_images     = "aircandi.images";       // set when photo is stored by us and used to construct full uri to image data (s3)
+		public static String aircandi_thumbnails = "aircandi.thumbnails";   // set when photo is stored by us and used to construct full uri to image data (s3)
 		public static String aircandi_users      = "aircandi.users";        // set when photo is stored by us and used to construct full uri to image data (s3)
 
-		public static String foursquare = "foursquare";            // set when photo is stored by us and used to construct full uri to image data (s3)
-		public static String facebook   = "facebook";                // set if photo comes from facebook - used for applinks
-		public static String twitter    = "twitter";                // set if photo comes from twitter - used for applinks
-		public static String google     = "google";                // set if photo comes from google - used for applinks
-		public static String yelp       = "yelp";                    // set if photo comes from yelp - used for applinks // NO_UCD (unused code)
+		public static String foursquare = "foursquare";                     // set when photo is stored by us and used to construct full uri to image data (s3)
+		public static String facebook   = "facebook";                       // set if photo comes from facebook - used for applinks
+		public static String twitter    = "twitter";                        // set if photo comes from twitter - used for applinks
+		public static String google     = "google";                         // set if photo comes from google - used for applinks
+		public static String yelp       = "yelp";                           // set if photo comes from yelp - used for applinks // NO_UCD (unused code)
 
 		/* System sources */
 
 		public static String resource          = "resource";                // set as default for shortcut and applink photos
 		public static String assets_applinks   = "assets.applinks";        // used when targeting something like the default applink icons
 		public static String assets_categories = "assets.categories";        // ditto to above
-
 	}
 
 	public static enum PhotoType {
@@ -470,16 +422,21 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		PORTRAIT
 	}
 
+	public static enum ResizeDimension {
+		HEIGHT,
+		WIDTH
+	}
+
 	private class GooglePlusProxy implements Serializable {
 		private static final long   serialVersionUID = 4979315502693226461L;
 		/*
 		 * Setting refresh to 60 minutes.
 		 */
-		public               String baseWidth        = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_w=%d&refresh=3600";
-		public               String baseHeight       = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_h=%d&refresh=3600";
+		public               String baseWidth        = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_w=%d&no_expand=1&refresh=3600";
+		public               String baseHeight       = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_h=%d&no_expand=1&refresh=3600";
 
-		public String convert(String uri, Integer size, Orientation orientation) {
-			String base = (orientation == Orientation.LANDSCAPE) ? baseWidth : baseHeight;
+		public String convert(String uri, Integer size, ResizeDimension dimension) {
+			String base = (dimension == ResizeDimension.WIDTH) ? baseWidth : baseHeight;
 			String converted = String.format(base, Uri.encode(uri), size);
 			return converted;
 		}

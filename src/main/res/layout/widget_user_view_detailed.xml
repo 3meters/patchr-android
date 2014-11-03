@@ -62,7 +62,7 @@
 		android:layout_marginRight="5dp"
 		android:scaleType="centerCrop"
 		custom:layout="@layout/widget_webimageview"
-		custom:sizeType="thumbnail"
+		custom:fitType="fixed"
 		custom:sizeHint="@dimen/image_extra_small" />
 
 	<LinearLayout

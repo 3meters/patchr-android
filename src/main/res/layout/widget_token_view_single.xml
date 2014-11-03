@@ -38,7 +38,7 @@
 		custom:layout="@layout/widget_webimageview_candi_view"
 		custom:showBusy="true"
 		custom:sizeHint="@dimen/image_extra_small"
-		custom:sizeType="thumbnail" />
+		custom:fitType="fixed" />
 
 	<ImageView
 		android:id="@+id/button_delete"

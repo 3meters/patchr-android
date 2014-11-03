@@ -41,17 +41,15 @@ public class AirImageView extends FrameLayout implements Target {
 	private Target mTarget;
 	private final Handler mThreadHandler = new Handler();
 
-	private Integer  mSizeHint;
-	private SizeType mSizeType;
-
 	private boolean   mShowBusy   = true;
 	private ScaleType mScaleType  = ScaleType.CENTER_CROP;
 	private Boolean   mCenterCrop = true;
-	private Boolean   mFit        = false;
 	private Integer mLayoutId;
 	private float   mAspectRatio;
 	private boolean mAspectRatioEnabled;
 	private int     mDominantMeasurement;
+	private Integer mSizeHint;
+	private FitType mFitType;
 
 	public static final int MEASUREMENT_WIDTH  = 0;
 	public static final int MEASUREMENT_HEIGHT = 1;
@@ -85,9 +83,8 @@ public class AirImageView extends FrameLayout implements Target {
 
 		final TypedArray ta = context.obtainStyledAttributes(attributes, R.styleable.AirImageView, defStyle, 0);
 
-		mFit = ta.getBoolean(R.styleable.AirImageView_fit, false);
+		mFitType = FitType.values()[ta.getInteger(R.styleable.AirImageView_fitType, FitType.NONE.ordinal())];
 		mSizeHint = ta.getDimensionPixelSize(R.styleable.AirImageView_sizeHint, Integer.MAX_VALUE);
-		mSizeType = SizeType.values()[ta.getInteger(R.styleable.AirImageView_sizeType, SizeType.FULLSIZE.ordinal())];
 		mShowBusy = ta.getBoolean(R.styleable.AirImageView_showBusy, true);
 		mLayoutId = ta.getResourceId(R.styleable.AirImageView_layout, R.layout.widget_webimageview);
 		mAspectRatio = ta.getFloat(R.styleable.AirImageView_aspectRatio, DEFAULT_ASPECT_RATIO);
@@ -265,7 +262,7 @@ public class AirImageView extends FrameLayout implements Target {
 
 			@Override
 			public void run() {
-				if (mSizeType == SizeType.THUMBNAIL) {
+				if (mSizeHint != null && UI.getDisplayPixelsForRawPixels(mSizeHint.floatValue()) <= 100) {
 					/*
 					 * Use image instead of message
 					 */
@@ -312,24 +309,16 @@ public class AirImageView extends FrameLayout implements Target {
 		return this;
 	}
 
+	public FitType getFitType() {
+		return mFitType;
+	}
+
 	public Photo getPhoto() {
 		return mPhoto;
 	}
 
 	public AirImageView setPhoto(Photo photo) {
 		mPhoto = photo;
-		return this;
-	}
-
-	/**
-	 * @return Desired download width in pixels.
-	 */
-	public SizeType getSizeType() {
-		return mSizeType;
-	}
-
-	public AirImageView setSizeType(SizeType sizeType) {
-		mSizeType = sizeType;
 		return this;
 	}
 
@@ -352,15 +341,6 @@ public class AirImageView extends FrameLayout implements Target {
 
 	public Target getTarget() {
 		return mTarget;
-	}
-
-	public Boolean getFit() {
-		return mFit;
-	}
-
-	public AirImageView setFit(Boolean fit) {
-		mFit = fit;
-		return this;
 	}
 
 	public AirImageView setTarget(Target target) {
@@ -425,15 +405,13 @@ public class AirImageView extends FrameLayout implements Target {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public enum SizeType {
+	public enum FitType {
 		/*
 		 * Always append new enum items because there is a
 		 * dependency on ordering for persistence.
 		 */
-		FULLSIZE,
-		PREVIEW,
-		THUMBNAIL,
-		FULLSIZE_CAPPED,
-		PREVIEW_LARGE
+		AUTO,
+		FIXED,
+		NONE,
 	}
 }

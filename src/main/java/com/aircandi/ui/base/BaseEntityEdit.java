@@ -253,7 +253,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		}
 	}
 
-	@SuppressWarnings("ucd")
 	public void onChangePhotoButtonClick(View view) {
 
 		/* Ensure photo logic has the latest property values */

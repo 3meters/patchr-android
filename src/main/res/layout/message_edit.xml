@@ -211,8 +211,7 @@
 							android:scaleType="centerCrop"
 							custom:layout="@layout/widget_webimageview"
 							custom:showBusy="false"
-							custom:sizeHint="@dimen/image_super_large"
-							custom:sizeType="fullsize_capped" />
+							custom:fitType="auto" />
 
 						<ImageView
 							android:id="@+id/photo_delete"

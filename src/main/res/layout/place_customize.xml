@@ -30,8 +30,7 @@
 			custom:aspectRatioEnabled="true"
 			custom:dominantMeasurement="width"
 			custom:layout="@layout/widget_webimageview_candi_view"
-			custom:sizeHint="@dimen/image_super_large"
-			custom:sizeType="preview_large" />
+			custom:fitType="auto" />
 
 		<LinearLayout
 			android:layout_width="match_parent"

@@ -13,7 +13,6 @@
 		android:adjustViewBounds="true"
 		android:scaleType="centerCrop"
 		custom:layout="@layout/widget_webimageview"
-		custom:sizeHint="@dimen/image_medium"
-		custom:sizeType="thumbnail" />
+		custom:fitType="auto" />
 
 </FrameLayout>

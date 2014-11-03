@@ -6,19 +6,9 @@
 	<attr name="keyId" format="integer" />
 	<attr name="label" format="integer|string" />
 	<attr name="maxWidth" format="dimension" />
-	<attr name="showBusy" format="boolean" />
-	<attr name="colorize" format="boolean" />
 	<attr name="drawable" format="reference" />
 	<attr name="drawableScale" format="float" />
-	<attr name="fit" format="boolean" />
-	<attr name="sizeHint" format="dimension" />
-	<attr name="sizeType" format="enum">
-		<enum name="fullsize" value="0" />
-		<enum name="preview" value="1" />
-		<enum name="thumbnail" value="2" />
-		<enum name="fullsize_capped" value="3" />
-		<enum name="preview_large" value="4" />
-	</attr>
+
 	<attr name="parallax_factor" format="float" />
 	<attr name="inner_parallax_factor" format="float" />
 	<attr name="parallax_views_num" format="integer" />
@@ -34,14 +24,22 @@
 	<attr name="checkAll" format="string" />
 	<attr name="separator" format="string" />
 	<attr name="prefix" format="string" />
+	<attr name="showBusy" format="boolean" />
+	<attr name="colorize" format="boolean" />
 
-	<!-- Fixed aspect ratio -->
+	<!-- Images -->
 	<attr name="aspectRatio" format="float" />
 	<attr name="aspectRatioEnabled" format="boolean" />
 	<attr name="dominantMeasurement">
 		<enum name="width" value="0" />
 		<enum name="height" value="1" />
 	</attr>
+	<attr name="fitType" format="enum">
+		<enum name="auto" value="0" />
+		<enum name="fixed" value="1" />
+		<enum name="none" value="2" />
+	</attr>
+	<attr name="sizeHint" format="dimension" />
 
 	<!-- Theme attributes -->
 	<declare-styleable name="AircandiTheme">
@@ -195,11 +193,10 @@
 		<attr name="aspectRatio" />
 		<attr name="aspectRatioEnabled" />
 		<attr name="dominantMeasurement" />
-		<attr name="fit" />
+		<attr name="fitType" />
 		<attr name="layout" />
 		<attr name="showBusy" />
 		<attr name="sizeHint" />
-		<attr name="sizeType" />
 	</declare-styleable>
 	<declare-styleable name="CandiView">
 		<attr name="layout" />

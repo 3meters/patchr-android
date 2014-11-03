@@ -12,9 +12,9 @@
 		android:layout_height="@dimen/image_small"
 		android:layout_marginRight="5dp"
 		android:scaleType="centerCrop"
+		custom:fitType="fixed"
 		custom:layout="@layout/widget_webimageview_framed"
 		custom:showBusy="true"
-		custom:sizeType="thumbnail"
 		custom:sizeHint="@dimen/image_small" />
 
 	<LinearLayout

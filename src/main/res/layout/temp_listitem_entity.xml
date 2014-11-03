@@ -15,7 +15,7 @@
 		android:layout_alignParentTop="true"
 		android:layout_marginRight="10dp"
 		custom:layout="@layout/widget_webimageview_candi_view"
-		custom:sizeType="thumbnail"
+		custom:fitType="fixed"
 		custom:sizeHint="@dimen/image_medium" />
 
 	<LinearLayout

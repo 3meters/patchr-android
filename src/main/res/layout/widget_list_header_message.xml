@@ -67,10 +67,10 @@
 			android:layout_height="@dimen/image_small"
 			android:layout_marginRight="5dp"
 			android:scaleType="centerCrop"
+			custom:fitType="fixed"
 			custom:layout="@layout/widget_webimageview_framed"
 			custom:showBusy="true"
-			custom:sizeHint="@dimen/image_small"
-			custom:sizeType="thumbnail" />
+			custom:sizeHint="@dimen/image_small" />
 
 		<RelativeLayout
 			android:id="@+id/holder_author"
@@ -158,17 +158,16 @@
 		custom:aspectRatioEnabled="true"
 		custom:dominantMeasurement="width"
 		custom:layout="@layout/widget_webimageview"
-		custom:sizeHint="@dimen/image_super_large"
-		custom:sizeType="fullsize_capped" />
+		custom:fitType="auto" />
 
 	<!-- Share entity -->
 
 	<RelativeLayout
 		android:id="@+id/share_holder"
-		android:layout_marginLeft="@dimen/form_body_padding"
-		android:layout_marginRight="@dimen/form_body_padding"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="@dimen/form_body_padding"
+		android:layout_marginRight="@dimen/form_body_padding">
 
 		<FrameLayout
 			android:id="@+id/share"
@@ -202,9 +201,9 @@
 		android:layout_height="wrap_content"
 		android:layout_marginTop="16dp"
 		android:orientation="horizontal"
-		android:visibility="gone"
 		android:paddingLeft="@dimen/form_body_padding"
-		android:paddingRight="@dimen/form_body_padding">
+		android:paddingRight="@dimen/form_body_padding"
+		android:visibility="gone">
 
 		<com.aircandi.ui.widgets.AirTextLight
 			android:layout_width="wrap_content"
@@ -212,14 +211,14 @@
 			android:layout_gravity="top"
 			android:paddingTop="8dp"
 			android:text="@string/label_message_to_prefix"
-			android:textColor="?attr/textColorSecondary"
-			android:textAppearance="?attr/textAppearanceMediumLarge" />
+			android:textAppearance="?attr/textAppearanceMediumLarge"
+			android:textColor="?attr/textColorSecondary" />
 
 		<com.aircandi.ui.widgets.FlowLayout
 			android:id="@+id/flow_recipients"
 			android:layout_width="match_parent"
-			android:clickable="false"
-			android:layout_height="wrap_content" />
+			android:layout_height="wrap_content"
+			android:clickable="false" />
 	</LinearLayout>
 
 	<View

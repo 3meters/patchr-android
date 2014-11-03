@@ -72,7 +72,7 @@
 							custom:layout="@layout/widget_webimageview_candi_view"
 							custom:showBusy="true"
 							custom:sizeHint="@dimen/image_large"
-							custom:sizeType="preview" />
+							custom:fitType="fixed"/>
 					</FrameLayout>
 
 					<com.aircandi.ui.widgets.ComboButton

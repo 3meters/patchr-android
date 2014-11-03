@@ -74,7 +74,7 @@
 					custom:layout="@layout/widget_webimageview_framed"
 					custom:showBusy="true"
 					custom:sizeHint="@dimen/image_medium"
-					custom:sizeType="thumbnail" />
+					custom:fitType="fixed" />
 
 				<com.aircandi.ui.widgets.ComboButton
 					android:id="@+id/button_change_image"

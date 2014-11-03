@@ -13,7 +13,7 @@
 		android:layout_height="match_parent"
 		custom:layout="@layout/widget_photoview_touch"
 		custom:showBusy="true"
-		custom:sizeType="fullsize" />
+		custom:fitType="none" />
 
 	<LinearLayout
 		android:layout_width="match_parent"

@@ -313,7 +313,6 @@ public class CandiView extends RelativeLayout {
 
 			Photo photo = mEntity.getPhoto();
 			if (mPhotoView.getPhoto() == null || !photo.getUri().equals(mPhotoView.getPhoto().getUri())) {
-				photo.setWidth(mPhotoView.getSizeHint());
 				mPhotoView.setTag(photo);
 				UI.drawPhoto(mPhotoView, photo);
 			}
