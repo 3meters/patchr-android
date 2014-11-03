@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.net.Uri;
+import android.view.View;
 
 import com.aircandi.Patchr;
 import com.aircandi.R;
@@ -14,10 +15,18 @@ import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.Utilities;
-import com.crashlytics.android.Crashlytics;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.Listener;
+
+/*
+ * Bitmap memory management
+ *
+ * Uploads:
+ *
+ * Bitmaps are sized so that max dimension = 1280 pixels (4.9MB max without alpha channel). If OOM error
+ * then we try to create the bitmap again at 640 pixels max (1.2 max).
+ */
 
 @SuppressWarnings("ucd")
 public class DownloadManager {
@@ -48,11 +57,11 @@ public class DownloadManager {
 					 * Thrown by OkHttpDownloader.load() as ResponseException.
 					 * Also catching MalformedURLException.
 					 */
-					Reporting.logMessage("Image load failed: " + (uri != null ? uri.toString(): "No uri"));
+					Reporting.logMessage("Image load failed: " + (uri != null ? uri.toString() : "No uri"));
 					Reporting.logException(e);
 					Logger.w(instance, "Image load failed: " + e.getClass().getSimpleName());
 					Logger.w(instance, "Image load failed: " + e.getMessage());
-					Logger.w(instance, "Image load failed: " + (uri != null ? uri.toString(): "No uri"));
+					Logger.w(instance, "Image load failed: " + (uri != null ? uri.toString() : "No uri"));
 				}
 			};
 
@@ -65,7 +74,30 @@ public class DownloadManager {
 		return instance;
 	}
 
-	public static Bitmap checkDebug(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static void logBitmap(Object context, Bitmap bitmap, View target) {
+		logBitmap(context, bitmap);
+		if (target != null) {
+			Integer width = target.getWidth();
+			Integer height = target.getHeight();
+			Bitmap.Config config = bitmap.getConfig();
+			Integer size = (width * height * getBytesPerPixel(config));
+			Logger.v(context.getClass().getSimpleName(), String.format("Bitmap target:  context = %1$s, height = %2$s, width = %3$s, size = %4$s", context.getClass().getSimpleName(), height, width, size));
+		}
+	}
+
+	public static void logBitmap(Object context, Bitmap bitmap) {
+		Integer width = bitmap.getWidth();
+		Integer height = bitmap.getHeight();
+		Bitmap.Config config = bitmap.getConfig();
+		Integer size = (width * height * getBytesPerPixel(config));
+		Logger.v(context.getClass().getSimpleName(), String.format("Bitmap created: context = %1$s, height = %2$s, width = %3$s, size = %4$s, config = %5$s", context.getClass().getSimpleName(), height, width, size, config.name()));
+	}
+
+	public static Bitmap decorate(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
 
 		Bitmap mutableBitmap = bitmap;
 		if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_image_debug), false)
@@ -109,5 +141,24 @@ public class DownloadManager {
 		path.lineTo(p3.x, p3.y);
 
 		return path;
+	}
+
+	/**
+	 * A helper function to return the byte usage per pixel of a bitmap based on its configuration.
+	 */
+	private static int getBytesPerPixel(Bitmap.Config config) {
+		if (config == Bitmap.Config.ARGB_8888) {
+			return 4;
+		}
+		else if (config == Bitmap.Config.RGB_565) {
+			return 2;
+		}
+		else if (config == Bitmap.Config.ARGB_4444) {
+			return 2;
+		}
+		else if (config == Bitmap.Config.ALPHA_8) {
+			return 1;
+		}
+		return 1;
 	}
 }

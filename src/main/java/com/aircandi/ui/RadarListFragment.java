@@ -38,7 +38,7 @@ import com.aircandi.events.EntitiesByProximityFinishedEvent;
 import com.aircandi.events.EntitiesChangedEvent;
 import com.aircandi.events.LocationChangedEvent;
 import com.aircandi.events.PlacesNearLocationFinishedEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.monitors.SimpleMonitor;
@@ -245,7 +245,7 @@ public class RadarListFragment extends EntityListFragment {
 				}
 				else {
 					mAdapter.notifyDataSetChanged();
-					BusProvider.getInstance().post(new ProcessingCompleteEvent());
+					BusProvider.getInstance().post(new ProcessingFinishedEvent());
 				}
 				break;
 			}
@@ -348,7 +348,7 @@ public class RadarListFragment extends EntityListFragment {
 				mCacheStamp = Patchr.getInstance().getEntityManager().getCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-					BusProvider.getInstance().post(new ProcessingCompleteEvent());
+					BusProvider.getInstance().post(new ProcessingFinishedEvent());
 				}
 			}
 		});
@@ -368,7 +368,7 @@ public class RadarListFragment extends EntityListFragment {
 
 		if (!NetworkManager.getInstance().isWifiEnabled()
 				&& LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-			BusProvider.getInstance().post(new ProcessingCompleteEvent());
+			BusProvider.getInstance().post(new ProcessingFinishedEvent());
 		}
 	}
 
@@ -419,20 +419,6 @@ public class RadarListFragment extends EntityListFragment {
 		});
 	}
 
-	public void onProcessingComplete() {
-		super.onProcessingComplete();   // Kills any busy feedback
-
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (!NetworkManager.getInstance().isWifiEnabled()
-						&& !LocationManager.getInstance().isLocationAccessEnabled()) {
-					mFab.fadeOut();
-				}
-			}
-		});
-	}
-
 	@Override
 	public void onRefresh() {
 		/*
@@ -464,7 +450,7 @@ public class RadarListFragment extends EntityListFragment {
 		LocationManager.getInstance().setLocationMode(LocationMode.OFF);
 
 		/* Kill busy */
-		BusProvider.getInstance().post(new ProcessingCompleteEvent());
+		BusProvider.getInstance().post(new ProcessingFinishedEvent());
 	}
 
 	@Override
@@ -575,15 +561,6 @@ public class RadarListFragment extends EntityListFragment {
 					else {
 						UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
 					}
-				}
-
-				if (!NetworkManager.getInstance().isWifiEnabled()
-						&& !LocationManager.getInstance().isLocationAccessEnabled()) {
-					mFab.setLocked(true);
-					BusProvider.getInstance().post(new ProcessingCompleteEvent());
-				}
-				else {
-					mFab.setLocked(false);
 				}
 			}
 		}.execute();
@@ -724,7 +701,7 @@ public class RadarListFragment extends EntityListFragment {
 					boolean isSignificantlyMoreAccurate = (accuracyImprovement >= 1.5);
 					if (!isSignificantlyMoreAccurate) {
 						if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-							BusProvider.getInstance().post(new ProcessingCompleteEvent());
+							BusProvider.getInstance().post(new ProcessingFinishedEvent());
 						}
 						return;
 					}
@@ -776,7 +753,7 @@ public class RadarListFragment extends EntityListFragment {
 								BusProvider.getInstance().post(new PlacesNearLocationFinishedEvent());
 								BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
 								if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-									BusProvider.getInstance().post(new ProcessingCompleteEvent());
+									BusProvider.getInstance().post(new ProcessingFinishedEvent());
 								}
 							}
 							else {
@@ -788,7 +765,7 @@ public class RadarListFragment extends EntityListFragment {
 				}
 				else {
 					if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-						BusProvider.getInstance().post(new ProcessingCompleteEvent());
+						BusProvider.getInstance().post(new ProcessingFinishedEvent());
 					}
 				}
 			}
@@ -798,7 +775,7 @@ public class RadarListFragment extends EntityListFragment {
 		@SuppressWarnings({"ucd"})
 		public void onBurstTimeout(final BurstTimeoutEvent event) {
 
-			BusProvider.getInstance().post(new ProcessingCompleteEvent());
+			BusProvider.getInstance().post(new ProcessingFinishedEvent());
 
 			/* We only show toast if we timeout without getting any location fix */
 			if (LocationManager.getInstance().getLocationLocked() == null) {

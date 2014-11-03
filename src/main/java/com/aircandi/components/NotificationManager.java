@@ -21,6 +21,7 @@ import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
+import com.aircandi.utilities.UI;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.IOException;
@@ -200,13 +201,13 @@ public class NotificationManager {
 			String photoUri = notification.photo.getUri();
 
 			try {
-				Integer width = Patchr.applicationContext.getResources().getDimensionPixelSize(R.dimen.notification_large_icon_width);
 				@SuppressWarnings("SuspiciousNameCombination")
 				Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
 				                               .load(photoUri)
 				                               .centerCrop()
-				                               .resize(width, width)
+				                               .resizeDimen(R.dimen.notification_large_icon_width, R.dimen.notification_large_icon_width)
 				                               .get();
+				DownloadManager.logBitmap(this, bitmap);
 
 				builder.setLargeIcon(bitmap);
 			}
@@ -239,7 +240,10 @@ public class NotificationManager {
 		try {
 			Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
 			                               .load(imageUri)
+			                               .centerCrop()
+			                               .resizeDimen(R.dimen.notification_big_picture_width, R.dimen.notification_big_picture_height)
 			                               .get();
+			DownloadManager.logBitmap(this, bitmap);
 			NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle()
 					.bigPicture(bitmap)
 					.setBigContentTitle(notification.name)

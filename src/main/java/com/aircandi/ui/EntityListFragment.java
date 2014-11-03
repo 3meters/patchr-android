@@ -1,6 +1,5 @@
 package com.aircandi.ui;
 
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -21,7 +20,6 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
-import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.BusyManager;
 import com.aircandi.components.EntityManager;
@@ -30,7 +28,7 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.EntitiesLoadedEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.interfaces.IMonitor;
@@ -41,13 +39,8 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.widgets.AirListView;
-import com.aircandi.ui.widgets.AirListView.DragDirection;
-import com.aircandi.ui.widgets.AirListView.DragEvent;
-import com.aircandi.ui.widgets.AirListView.OnDragListener;
-import com.aircandi.ui.widgets.AirSwipeRefreshLayout;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
 
@@ -114,7 +107,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 			startActivity(intent);
 		}
 		else {
-			mAdapter = getAdapter();
+			mAdapter = new ListAdapter(mEntities);
 		}
 	}
 
@@ -143,6 +136,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 			mLoadingView = LayoutInflater.from(getActivity()).inflate(mListLoadingResId, null);
 		}
 
+		/* Pulled from host activity by super */
 		if (mBubbleButton != null) {
 			mBubbleButton.show(false);
 			if (mBubbleButton.isEnabled() && mBubbleButtonMessageResId != null) {
@@ -172,24 +166,9 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 			mLoadingView.setLayoutParams(params);
 		}
 
-		if (mFab != null && mFabEnabled && mListView instanceof AirListView) {
-			((AirListView) mListView).setDragListener(new OnDragListener() {
-
-				@Override
-				public void onDragBottom() {
-					/* Getting twitchy behavior so disabling for now */
-					//handleFooter(true, AnimationManager.DURATION_MEDIUM);
-				}
-
-				@Override
-				public boolean onDragEvent(DragEvent event, Float dragX, Float dragY) {
-
-					if (event == DragEvent.DRAG) {
-						handleListDrag();
-					}
-					return false;
-				}
-			});
+		/* Pulled from host activity by super */
+		if (mListView != null && mFabEnabled) {
+			((AirListView) mListView).setDragListener((BaseActivity) getActivity());
 		}
 
 		/*
@@ -290,10 +269,10 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 					postBind();
 					mLoaded = true;
 					mFirstBind = false;
-					BusProvider.getInstance().post(new ProcessingCompleteEvent());
+					BusProvider.getInstance().post(new ProcessingFinishedEvent());
 				}
 				else {
-					BusProvider.getInstance().post(new ProcessingCompleteEvent());
+					BusProvider.getInstance().post(new ProcessingFinishedEvent());
 					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 			}
@@ -352,42 +331,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 	@Override
 	public void onScollToTop() {
 		scrollToTop(mListView);
-	}
-
-	public void onProcessingComplete() {
-
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				mBusy.hideBusy(false);
-
-				if (mBubbleButton.isEnabled()) {
-					if (mEntities.size() == 0) {
-						mFab.setLocked(true);
-						mBubbleButton.setText(mListEmptyMessageResId);
-						mBubbleButton.fadeIn();
-					}
-					else {
-						mFab.setLocked(false);
-						mBubbleButton.fadeOut();
-					}
-				}
-
-				if (getActivity() instanceof BaseEntityForm) {
-					if (mEntities.size() > 0) {
-						mFab.slideIn(AnimationManager.DURATION_SHORT);
-					}
-					else {
-						mFab.slideOut(AnimationManager.DURATION_SHORT);
-					}
-				}
-				else if (getActivity() instanceof AircandiForm) {
-					if (mAdapter.getCount() == 0) {
-						mFab.fadeOut();
-					}
-				}
-			}
-		});
 	}
 
 	@Override
@@ -541,20 +484,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		gridView.setColumnWidth(mPhotoWidthPixels);
 	}
 
-	public void handleListDrag() {
-		DragDirection direction = ((AirListView) mListView).getDragDirectionLast();
-		if (direction == DragDirection.DOWN) {
-			mFab.slideIn(AnimationManager.DURATION_SHORT);
-		}
-		else {
-			mFab.slideOut(AnimationManager.DURATION_SHORT);
-		}
-	}
-
-	protected ListAdapter getAdapter() {
-		return new ListAdapter(mEntities);
-	}
-
 	@SuppressWarnings("ucd")
 	public void removeHeaderView() {
 		if (mHeaderView != null) {
@@ -566,26 +495,11 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public String getActivityTitle() {
-		BaseActivity activity = (BaseActivity) getActivity();
-		return (String) ((activity.getActivityTitle() != null) ? activity.getActivityTitle() : getActivity().getTitle());
-	}
-
-	@Override
-	protected int getLayoutId() {
-		return mListLayoutResId;
-	}
-
-	public Map<String, Highlight> getHighlightEntities() {
-		return mHighlightEntities;
-	}
-
 	public EntityListFragment setBubbleButtonMessageResId(Integer bubbleButtonMessageResId) {
 		mBubbleButtonMessageResId = bubbleButtonMessageResId;
 		return this;
 	}
 
-	@SuppressWarnings("ucd")
 	public EntityListFragment setListEmptyMessageResId(Integer listEmptyMessageResId) {
 		mListEmptyMessageResId = listEmptyMessageResId;
 		return this;
@@ -677,6 +591,33 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		return this;
 	}
 
+	public EntityListFragment setFabEnabled(Boolean fabEnabled) {
+		mFabEnabled = fabEnabled;
+		return this;
+	}
+
+	public Boolean getFabEnabled() {
+		return mFabEnabled;
+	}
+
+	public Integer getListEmptyMessageResId() {
+		return mListEmptyMessageResId;
+	}
+
+	public String getActivityTitle() {
+		BaseActivity activity = (BaseActivity) getActivity();
+		return (String) ((activity.getActivityTitle() != null) ? activity.getActivityTitle() : getActivity().getTitle());
+	}
+
+	@Override
+	protected int getLayoutId() {
+		return mListLayoutResId;
+	}
+
+	public Map<String, Highlight> getHighlightEntities() {
+		return mHighlightEntities;
+	}
+
 	public View getHeaderView() {
 		return mHeaderView;
 	}
@@ -697,6 +638,10 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		return mEntities;
 	}
 
+	public ListAdapter getAdapter() {
+		return mAdapter;
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
@@ -715,11 +660,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		super.onResume();
 		if (mSelfBindingEnabled && (getActivity() != null && !getActivity().isFinishing())) {
 			bind(BindingMode.AUTO);
-		}
-
-		ObjectAnimator anim = mFab.slideIn(AnimationManager.DURATION_SHORT);
-		if (anim != null) {
-			anim.setStartDelay(500);
 		}
 	}
 

@@ -283,9 +283,12 @@ public class CandiView extends RelativeLayout {
 						}
 					}
 					else {
+						/*
+						 * Fall back to default.
+						 */
 						DownloadManager.with(Patchr.applicationContext)
 						               .load(R.drawable.default_88)
-						               .placeholder(null)
+								.centerCrop()
 								.resize(mCategoryPhoto.getSizeHint(), mCategoryPhoto.getSizeHint())    // Memory size
 								.into(mCategoryPhoto);
 					}
@@ -313,7 +316,6 @@ public class CandiView extends RelativeLayout {
 
 			Photo photo = mEntity.getPhoto();
 			if (mPhotoView.getPhoto() == null || !photo.getUri().equals(mPhotoView.getPhoto().getUri())) {
-				photo.setWidth(mPhotoView.getSizeHint());
 				mPhotoView.setTag(photo);
 				UI.drawPhoto(mPhotoView, photo);
 			}

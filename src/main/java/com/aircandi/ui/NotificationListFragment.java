@@ -18,14 +18,13 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.events.NotificationEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.interfaces.IBusy;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Notification;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.ViewHolder;
-import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
@@ -36,8 +35,6 @@ import java.util.Map;
 
 public class NotificationListFragment extends MessageListFragment {
 
-	protected BaseActivity.BubbleButton mDrawerBubbleButton;
-
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
@@ -46,11 +43,6 @@ public class NotificationListFragment extends MessageListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
-
-		if (view != null) {
-			mDrawerBubbleButton = new BaseActivity.BubbleButton(getActivity().findViewById(R.id.button_bubble_notifications));
-			mDrawerBubbleButton.show(false);
-		}
 		return view;
 	}
 
@@ -64,7 +56,6 @@ public class NotificationListFragment extends MessageListFragment {
 				if (mEntities.contains(event.notification)) {
 					mEntities.remove(event.notification);
 				}
-				mDrawerBubbleButton.fadeOut();
 				mAdapter.insert(event.notification, 0);
 				mAdapter.notifyDataSetChanged();
 			}
@@ -89,21 +80,6 @@ public class NotificationListFragment extends MessageListFragment {
 				mAdapter.notifyDataSetChanged();
 			}
 		}
-	}
-
-	@Override
-	public void onProcessingComplete() {
-
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				mBusy.hideBusy(false);
-				if (mAdapter.getCount() == 0) {
-					mDrawerBubbleButton.setText(R.string.label_notifications_empty);
-					mDrawerBubbleButton.fadeIn();
-				}
-			}
-		});
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -132,9 +108,7 @@ public class NotificationListFragment extends MessageListFragment {
 		new AsyncTask() {
 
 			@Override
-			protected void onPreExecute() {
-				mDrawerBubbleButton.show(false);
-			}
+			protected void onPreExecute() {}
 
 			@Override
 			protected Object doInBackground(Object... params) {
@@ -192,10 +166,10 @@ public class NotificationListFragment extends MessageListFragment {
 
 					mLoaded = true;
 					mFirstBind = false;
-					BusProvider.getInstance().post(new ProcessingCompleteEvent());
+					BusProvider.getInstance().post(new ProcessingFinishedEvent());
 				}
 				else {
-					BusProvider.getInstance().post(new ProcessingCompleteEvent());
+					BusProvider.getInstance().post(new ProcessingFinishedEvent());
 					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 			}

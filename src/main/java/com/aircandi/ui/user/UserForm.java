@@ -14,7 +14,7 @@ import com.aircandi.R;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Link;
@@ -26,6 +26,7 @@ import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.EntityListFragment;
 import com.aircandi.ui.MessageListFragment;
 import com.aircandi.ui.base.BaseEntityForm;
+import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
@@ -38,7 +39,6 @@ import com.squareup.otto.Subscribe;
 @SuppressWarnings("ucd")
 public class UserForm extends BaseEntityForm {
 
-	private EntityListFragment mListFragment;
 	private TextView           mButtonWatching;
 	private TextView           mButtonCreated;
 	private View               mButtonEdit;
@@ -50,7 +50,7 @@ public class UserForm extends BaseEntityForm {
 		mBubbleButton.setEnabled(false);
 		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
 		mLinkProfile = currentUser ? LinkProfile.LINKS_FOR_USER_CURRENT : LinkProfile.LINKS_FOR_USER;
-		mListFragment = new MessageListFragment();
+		mCurrentFragment = new MessageListFragment();
 
 		EntityMonitor monitor = new EntityMonitor(mEntityId);
 		EntitiesQuery query = new EntitiesQuery();
@@ -61,7 +61,7 @@ public class UserForm extends BaseEntityForm {
 		     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
 		     .setSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
 
-		mListFragment.setQuery(query)
+		((EntityListFragment)mCurrentFragment).setQuery(query)
 		             .setMonitor(monitor)
 		             .setListViewType(EntityListFragment.ViewType.LIST)
 		             .setListLayoutResId(R.layout.entity_list_fragment)
@@ -70,7 +70,7 @@ public class UserForm extends BaseEntityForm {
 		             .setHeaderViewResId(R.layout.widget_list_header_user)
 		             .setSelfBindingEnabled(false);
 
-		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mListFragment).commit();
+		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mCurrentFragment).commit();
 	}
 
 	@Override
@@ -81,10 +81,10 @@ public class UserForm extends BaseEntityForm {
 		if (!currentUser) return;
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			if (mEntityMonitor.changed) {
-				mListFragment.bind(BindingMode.MANUAL);
+				((EntityListFragment)mCurrentFragment).bind(BindingMode.MANUAL);
 			}
 			else {
-				mListFragment.bind(mode);
+				((EntityListFragment)mCurrentFragment).bind(mode);
 			}
 		}
 	}
@@ -94,13 +94,14 @@ public class UserForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		mListFragment.onProcessingComplete();
+	public void onProcessingFinished(ProcessingFinishedEvent event) {
+		mBusy.hideBusy(false);
+		((BaseFragment) mCurrentFragment).onProcessingFinished();
 	}
 
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
-		mListFragment.onMoreButtonClick(view);
+		((EntityListFragment)mCurrentFragment).onMoreButtonClick(view);
 	}
 
 	public void onEditButtonClick(View view) {

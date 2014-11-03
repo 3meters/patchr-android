@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+	style="@style/selectable_item"
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	style="@style/selectable_item"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:paddingBottom="2dp"
@@ -33,8 +34,8 @@
 			android:layout_height="wrap_content"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:textStyle="bold"
-			tools:text="@string/dummy_title_short"
-			custom:textId="@string/dummy_title_short" />
+			custom:textId="@string/dummy_title_short"
+			tools:text="@string/dummy_title_short" />
 
 		<com.aircandi.ui.widgets.AirTextView
 			android:id="@+id/subtitle"
@@ -42,8 +43,8 @@
 			android:layout_height="wrap_content"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:textColor="?attr/textColorSecondary"
-			tools:text="@string/dummy_subtitle"
-			custom:textId="@string/dummy_subtitle" />
+			custom:textId="@string/dummy_subtitle"
+			tools:text="@string/dummy_subtitle" />
 	</LinearLayout>
 
 	<com.aircandi.ui.widgets.AirImageView
@@ -53,8 +54,9 @@
 		android:layout_height="@dimen/image_small"
 		android:layout_alignParentRight="true"
 		android:layout_alignParentTop="true"
+		custom:config="rgb_565"
+		custom:fitType="fixed"
 		custom:layout="@layout/widget_webimageview_candi_view"
-		custom:sizeType="thumbnail"
 		custom:sizeHint="@dimen/image_small" />
 
 </RelativeLayout>

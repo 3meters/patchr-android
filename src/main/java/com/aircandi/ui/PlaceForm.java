@@ -1,5 +1,6 @@
 package com.aircandi.ui;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -32,7 +33,7 @@ import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.BubbleButtonEvent;
 import com.aircandi.events.NotificationEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Count;
@@ -71,7 +72,6 @@ public class PlaceForm extends BaseEntityForm {
 	protected Boolean mWaitForContent = true;
 	protected Boolean mAutoWatch      = false;
 	protected Boolean mJustApproved   = false;
-	private   Fragment              mFragment;
 	protected ToolTipRelativeLayout mTooltips;
 
 	@Override
@@ -133,30 +133,44 @@ public class PlaceForm extends BaseEntityForm {
 		 * list header height.
 		 */
 		View header = ((EntityListFragment) mCurrentFragment).getHeaderView();
+		AirImageView headerPhoto = (AirImageView) header.findViewById(R.id.photo);
 		if (header != null) {
 			mBubbleButton.position(header, null);
 		}
 	}
 
 	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		((EntityListFragment) mFragment).onProcessingComplete();
+	public void onProcessingFinished(ProcessingFinishedEvent event) {
+
+		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
+		final Integer count = fragment.getAdapter().getCount();
 
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 
+				mBusy.hideBusy(false);
+				((BaseFragment) mCurrentFragment).onProcessingFinished();
+				/*
+				 * Non-members can't add messages to private patches.
+				 */
 				if (mEntity != null && mEntity.privacy != null
 						&& mEntity.privacy.equals(Constants.PRIVACY_PRIVATE)
 						&& !mEntity.visibleToCurrentUser()) {
-
 					mFab.fadeOut();
-					mFab.slideIn(AnimationManager.DURATION_SHORT);
 				}
 				else {
-					((EntityListFragment) mFragment).onProcessingComplete();
 					mFab.fadeIn();
-					mBubbleButton.fadeOut();
+				}
+
+				if (mBubbleButton.isEnabled()) {
+					if (count == 0) {
+						mBubbleButton.setText(fragment.getListEmptyMessageResId());
+						mBubbleButton.fadeIn();
+					}
+					else {
+						mBubbleButton.fadeOut();
+					}
 				}
 			}
 		});
@@ -345,7 +359,7 @@ public class PlaceForm extends BaseEntityForm {
 		 */
 		if (fragmentType.equals(com.aircandi.Constants.FRAGMENT_TYPE_MESSAGES)) {
 
-			mFragment = new MessageListFragment();
+			mCurrentFragment = new MessageListFragment();
 
 			EntityMonitor monitor = new EntityMonitor(mEntityId);
 			EntitiesQuery query = new EntitiesQuery();
@@ -356,7 +370,7 @@ public class PlaceForm extends BaseEntityForm {
 			     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
 			     .setSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
 
-			((EntityListFragment) mFragment)
+			((EntityListFragment) mCurrentFragment)
 					.setMonitor(monitor)
 					.setQuery(query)
 					.setListViewType(EntityListFragment.ViewType.LIST)
@@ -369,10 +383,10 @@ public class PlaceForm extends BaseEntityForm {
 					.setFooterViewResId(R.layout.widget_list_footer_message)
 					.setSelfBindingEnabled(false);
 
-			((BaseFragment) mFragment).getMenuResIds().add(R.menu.menu_refresh);
-			((BaseFragment) mFragment).getMenuResIds().add(R.menu.menu_edit_place);
-			((BaseFragment) mFragment).getMenuResIds().add(R.menu.menu_delete);
-			((BaseFragment) mFragment).getMenuResIds().add(R.menu.menu_report);
+			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_refresh);
+			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_edit_place);
+			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_delete);
+			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_report);
 		}
 
 		else {
@@ -380,12 +394,11 @@ public class PlaceForm extends BaseEntityForm {
 		}
 
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		ft.replace(R.id.fragment_holder, mFragment);
+		ft.replace(R.id.fragment_holder, mCurrentFragment);
 		ft.commit();
 
 		mPrevFragmentTag = mCurrentFragmentTag;
 		mCurrentFragmentTag = fragmentType;
-		mCurrentFragment = mFragment;
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools">
+	xmlns:custom="http://schemas.android.com/apk/res-auto">
 
 	<com.aircandi.ui.widgets.AirImageView
 		android:id="@+id/photo"
@@ -11,10 +10,10 @@
 		android:scaleType="centerCrop"
 		custom:aspectRatio="@dimen/aspect_ratio_place_image"
 		custom:aspectRatioEnabled="true"
+		custom:config="rgb_565"
 		custom:dominantMeasurement="width"
-		custom:layout="@layout/widget_webimageview_candi_view"
-		custom:sizeHint="@dimen/image_super_large"
-		custom:sizeType="preview_large" />
+		custom:fitType="auto"
+		custom:layout="@layout/widget_webimageview_candi_view" />
 
 	<LinearLayout
 		android:id="@+id/info_holder"
@@ -37,9 +36,9 @@
 			android:layout_marginRight="10dp"
 			android:adjustViewBounds="true"
 			android:scaleType="fitCenter"
+			custom:fitType="fixed"
 			custom:layout="@layout/widget_webimageview"
-			custom:sizeHint="@dimen/image_small"
-			custom:sizeType="thumbnail" />
+			custom:sizeHint="@dimen/image_small" />
 
 		<LinearLayout
 			android:layout_width="wrap_content"

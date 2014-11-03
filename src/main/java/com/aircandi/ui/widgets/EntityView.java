@@ -128,7 +128,8 @@ public class EntityView extends LinearLayout {
 		                    /*
                              * Called on main thread and whether bitmap was loaded from network or memory.
                              */
-							DownloadManager.checkDebug(bitmap, loadedFrom);
+							DownloadManager.decorate(bitmap, loadedFrom);
+							DownloadManager.logBitmap(EntityView.this, bitmap, mPhotoView.getImageView());
 							final BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
 							if (mAnimateDisabled) {
 								mPhotoView.getImageView().setImageDrawable(bitmapDrawable);

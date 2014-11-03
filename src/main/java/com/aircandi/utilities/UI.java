@@ -1,6 +1,7 @@
 package com.aircandi.utilities;
 
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -8,17 +9,19 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
@@ -26,8 +29,6 @@ import com.aircandi.components.Logger;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Place;
 import com.aircandi.ui.widgets.AirImageView;
-import com.aircandi.ui.widgets.AirImageView.SizeType;
-import com.squareup.picasso.RequestCreator;
 
 @SuppressWarnings("ucd")
 public class UI {
@@ -38,15 +39,98 @@ public class UI {
 
 	public static void drawPhoto(final AirImageView photoView, final Photo photo) {
 	    /*
-	     * There are only a few places that don't use this code to handle images:
+	     * There are only a few places that don't use this code to display images:
 		 * - Notification icons - can't use AirImageView
 		 * - Actionbar icons - can't use AirImageView (shortcutpicker, placeform)
-		 * - Photo detail - can't use AirImageView, using ImageViewTouch
 		 */
-
 		photoView.getImageView().setImageDrawable(null);
 		photoView.setPhoto(photo);
-		aircandi(photoView, photo);
+
+		if (photoView.getFitType() == AirImageView.FitType.NONE
+				|| photoView.getFitType() == AirImageView.FitType.FIXED) {
+			loadView(photoView, photo);
+		}
+		else if (photoView.getFitType() == AirImageView.FitType.AUTO) {
+			if (photoView.getImageView().getWidth() != 0) {
+				loadView(photoView, photo);
+			}
+			else {
+				photoView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+					@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+					@SuppressWarnings("deprecation")
+					@Override
+					public void onGlobalLayout() {
+						loadView(photoView, photo);
+						if (Constants.SUPPORTS_JELLY_BEAN) {
+							photoView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+						}
+						else {
+							photoView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+						}
+					}
+				});
+			}
+		}
+	}
+
+	public static void loadView(final AirImageView photoView, final Photo photo) {
+		/*
+		 * This is the only place in the code that turns on proxy handling.
+		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
+		 * Fit on photo is used when target size is desired and known only after view layout.
+		 */
+		int width = photoView.getImageView().getWidth();
+		int height = photoView.getImageView().getHeight();
+
+		if (photoView.getFitType() == AirImageView.FitType.NONE) {
+			width = Constants.IMAGE_DIMENSION_MAX;
+			height = Constants.IMAGE_DIMENSION_MAX;
+		}
+		else if (photoView.getFitType() == AirImageView.FitType.FIXED) {
+			width = photoView.getSizeHint();
+			height = photoView.getSizeHint();
+		}
+
+		if (photo.source.equals(Photo.PhotoSource.resource)) {
+
+			Integer drawableId = photo.getResId();
+			if (drawableId != null) {
+				Config config = photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565;
+				DownloadManager.with(Patchr.applicationContext).load(drawableId)
+						.centerCrop()   // Needed so resize() keeps aspect ratio
+						.resize(width, height)
+						.config(config)
+						.into(photoView);
+			}
+		}
+		else if (photo.source.equals(Photo.PhotoSource.file)) {
+
+			String imageUri = photo.getUri();
+			Config config = photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565;
+			DownloadManager.with(Patchr.applicationContext).load(imageUri)
+					.centerCrop()   // Needed so resize() keeps aspect ratio
+					.resize(width, height)
+					.config(config)
+					.into(photoView);
+		}
+		else {
+
+			photo.setProxy(true, height, width);
+			String imageUri = photo.getUriWrapped();
+			Logger.v(UI.class, "Bitmap: uri: " + imageUri);
+			Config config = photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565;
+
+			DownloadManager.with(Patchr.applicationContext).load(imageUri)
+			               .config(config)
+			               .into(photoView);
+		}
+
+		/* Final step */
+		colorizeView(photoView, photo);
+	}
+
+	public static void colorizeView(final AirImageView photoView, final Photo photo) {
 		/*
 		 * Special color treatment if enabled.
 		 */
@@ -86,65 +170,26 @@ public class UI {
 		}
 	}
 
-	public static void aircandi(final AirImageView photoView, final Photo photo) {
-
-		photo.setProxy(false);
-		if (photoView.getSizeType() != SizeType.FULLSIZE) {
-			photo.setProxy(true, photoView.getSizeType());
-		}
-		else {
-			/*
-			 * We even cap fullsize if the device has minimal memory.
-			 */
-			if (Patchr.memoryClass < 48) {
-				Logger.i(UI.class, "Screen pixels: "
-						+ getScreenWidthRawPixels(Patchr.applicationContext)
-						+ " x " + getScreenHeightRawPixels(Patchr.applicationContext));
-				photo.setProxy(true, SizeType.FULLSIZE_CAPPED);
-			}
-		}
-
-		String imageUri = photo.getUriWrapped();
-
-		if (Photo.isDrawable(imageUri)) {
-			Integer drawableId = Photo.getResourceIdFromUri(photoView.getContext(), imageUri);
-			if (drawableId != null) {
-				DownloadManager.with(Patchr.applicationContext)
-				               .load(drawableId)
-				               .placeholder(null)
-						.resize(photoView.getSizeHint(), photoView.getSizeHint())    // Memory size
-						.into(photoView);
-			}
-		}
-		else {
-			RequestCreator request = DownloadManager.with(Patchr.applicationContext)
-			                                        .load(imageUri)
-			                                        .config(Config.RGB_565)
-			                                        .placeholder(null);
-
-			if (photoView.getCenterCrop()) {
-				request.centerCrop();
-				request.resize(photoView.getSizeHint(), photoView.getSizeHint());
-			}
-
-			request.into(photoView);
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Utilities
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static int getRawPixelsForDisplayPixels(Float displayPixels) {
 		final DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
-		final int pixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, displayPixels, metrics);
-		return pixels;
+		final int rawPixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, displayPixels, metrics);
+		return rawPixels;
 	}
 
 	public static int getRawPixelsForScaledPixels(Float scaledPixels) {
 		final DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
 		final int pixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, scaledPixels, metrics);
 		return pixels;
+	}
+
+	public static int getDisplayPixelsForRawPixels(Float rawPixels) {
+		final DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+		float displayPixels = rawPixels / (metrics.densityDpi / 160f);
+		return (int) displayPixels;
 	}
 
 	public static float getScreenWidthDisplayPixels(Context context) {
@@ -195,6 +240,10 @@ public class UI {
 		TypedValue a = new TypedValue();
 		context.getTheme().resolveAttribute(attr, a, true);
 		return a.resourceId;
+	}
+
+	public static Integer getDimension(Integer dimenResId) {
+		return Patchr.applicationContext.getResources().getDimensionPixelSize(dimenResId);
 	}
 
 	/*--------------------------------------------------------------------------------------------

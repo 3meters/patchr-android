@@ -45,12 +45,13 @@
 		android:layout_alignTop="@+id/holder_content"
 		android:layout_marginRight="10dp"
 		android:src="@drawable/img_placeholder_logo_bw"
-		custom:sizeHint="@dimen/image_small"
-		custom:sizeType="thumbnail" />
+		custom:config="rgb_565"
+		custom:fitType="fixed"
+		custom:sizeHint="@dimen/image_small" />
 
 	<LinearLayout
 		android:id="@+id/holder_content"
-		android:layout_width="wrap_content"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/holder_place"
 		android:layout_toRightOf="@+id/user_photo"
@@ -104,9 +105,9 @@
 			android:id="@+id/description"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:paddingRight="4dp"
 			android:ellipsize="end"
-			android:maxLines="5" />
+			android:maxLines="5"
+			android:paddingRight="4dp" />
 
 		<!-- Photo -->
 
@@ -115,17 +116,17 @@
 			style="@style/selectable_image"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginLeft="2dp"
-			android:layout_marginTop="7dp"
-			android:layout_marginRight="4dp"
 			android:layout_marginBottom="4dp"
+			android:layout_marginLeft="2dp"
+			android:layout_marginRight="4dp"
+			android:layout_marginTop="7dp"
 			android:scaleType="centerCrop"
 			custom:aspectRatio="@dimen/aspect_ratio_message_item_image"
 			custom:aspectRatioEnabled="true"
+			custom:config="rgb_565"
 			custom:dominantMeasurement="width"
-			custom:layout="@layout/widget_webimageview"
-			custom:sizeHint="@dimen/image_super_large"
-			custom:sizeType="fullsize_capped" />
+			custom:fitType="auto"
+			custom:layout="@layout/widget_webimageview" />
 
 	</LinearLayout>
 

@@ -349,7 +349,7 @@
 	<string name="label_place_edit_category">Category</string>
 	<string name="label_place_edit_privacy">Privacy</string>
 	<string name="label_place_privacy_public">Public</string>
-	<string name="label_place_privacy_private">Closed</string>
+	<string name="label_place_privacy_private">Private</string>
 	<string name="label_place_privacy_public_help">Anyone can see the patch, its members and their messages.</string>
 	<string name="label_place_privacy_private_help">Anyone can find the patch and see who\'s in it. Only members can see messages.</string>
 

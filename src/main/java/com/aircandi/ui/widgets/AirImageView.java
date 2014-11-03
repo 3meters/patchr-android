@@ -41,9 +41,6 @@ public class AirImageView extends FrameLayout implements Target {
 	private Target mTarget;
 	private final Handler mThreadHandler = new Handler();
 
-	private Integer  mSizeHint;
-	private SizeType mSizeType;
-
 	private boolean   mShowBusy   = true;
 	private ScaleType mScaleType  = ScaleType.CENTER_CROP;
 	private Boolean   mCenterCrop = true;
@@ -51,6 +48,9 @@ public class AirImageView extends FrameLayout implements Target {
 	private float   mAspectRatio;
 	private boolean mAspectRatioEnabled;
 	private int     mDominantMeasurement;
+	private Integer mSizeHint;
+	private FitType mFitType;
+	private Bitmap.Config mConfig = Bitmap.Config.ARGB_8888;
 
 	public static final int MEASUREMENT_WIDTH  = 0;
 	public static final int MEASUREMENT_HEIGHT = 1;
@@ -84,8 +84,9 @@ public class AirImageView extends FrameLayout implements Target {
 
 		final TypedArray ta = context.obtainStyledAttributes(attributes, R.styleable.AirImageView, defStyle, 0);
 
+		mFitType = FitType.values()[ta.getInteger(R.styleable.AirImageView_fitType, FitType.NONE.ordinal())];
+		mConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.AirImageView_config, Bitmap.Config.ARGB_8888.ordinal())];
 		mSizeHint = ta.getDimensionPixelSize(R.styleable.AirImageView_sizeHint, Integer.MAX_VALUE);
-		mSizeType = SizeType.values()[ta.getInteger(R.styleable.AirImageView_sizeType, SizeType.FULLSIZE.ordinal())];
 		mShowBusy = ta.getBoolean(R.styleable.AirImageView_showBusy, true);
 		mLayoutId = ta.getResourceId(R.styleable.AirImageView_layout, R.layout.widget_webimageview);
 		mAspectRatio = ta.getFloat(R.styleable.AirImageView_aspectRatio, DEFAULT_ASPECT_RATIO);
@@ -192,6 +193,9 @@ public class AirImageView extends FrameLayout implements Target {
 
 	@Override
 	public void onBitmapFailed(Drawable drawable) {
+		/*
+		 * Other code has taken over how the bitmap is handled.
+		 */
 		if (mTarget != null) {
 			mTarget.onBitmapFailed(drawable);
 		}
@@ -204,13 +208,17 @@ public class AirImageView extends FrameLayout implements Target {
 	}
 
 	@Override
-	public void onBitmapLoaded(Bitmap bm, LoadedFrom loadedFrom) {
+	public void onBitmapLoaded(Bitmap inBitmap, LoadedFrom loadedFrom) {
+		/*
+		 * Other code has taken over how the bitmap is handled.
+		 */
 		if (mTarget != null) {
-			mTarget.onBitmapLoaded(bm, loadedFrom);
+			mTarget.onBitmapLoaded(inBitmap, loadedFrom);
 		}
 		else {
-			Bitmap bitmap = DownloadManager.checkDebug(bm, loadedFrom);
-			DownloadManager.checkDebug(bitmap, loadedFrom);
+			/* Just pass through if image debug dev setting is off */
+			Bitmap bitmap = DownloadManager.decorate(inBitmap, loadedFrom);
+			DownloadManager.logBitmap(this, bitmap, mImageMain);
 			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
 			UI.showDrawableInImageView(bitmapDrawable, mImageMain, true, AnimationManager.fadeInMedium());
 			showMissing(false);
@@ -222,6 +230,9 @@ public class AirImageView extends FrameLayout implements Target {
 
 	@Override
 	public void onPrepareLoad(Drawable drawable) {
+		/*
+		 * Other code has taken over how the bitmap is handled.
+		 */
 		if (mTarget != null) {
 			mTarget.onPrepareLoad(drawable);
 		}
@@ -253,7 +264,7 @@ public class AirImageView extends FrameLayout implements Target {
 
 			@Override
 			public void run() {
-				if (mSizeType == SizeType.THUMBNAIL) {
+				if (mSizeHint != null && UI.getDisplayPixelsForRawPixels(mSizeHint.floatValue()) <= 100) {
 					/*
 					 * Use image instead of message
 					 */
@@ -300,6 +311,14 @@ public class AirImageView extends FrameLayout implements Target {
 		return this;
 	}
 
+	public FitType getFitType() {
+		return mFitType;
+	}
+
+	public Bitmap.Config getConfig() {
+		return mConfig;
+	}
+
 	public Photo getPhoto() {
 		return mPhoto;
 	}
@@ -309,19 +328,7 @@ public class AirImageView extends FrameLayout implements Target {
 		return this;
 	}
 
-	/**
-	 * @return Desired download width in pixels.
-	 */
-	public SizeType getSizeType() {
-		return mSizeType;
-	}
-
-	public AirImageView setSizeType(SizeType sizeType) {
-		mSizeType = sizeType;
-		return this;
-	}
-
-	public Boolean getCenterCrop() {
+	public Boolean isCenterCrop() {
 		return mCenterCrop;
 	}
 
@@ -404,15 +411,13 @@ public class AirImageView extends FrameLayout implements Target {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public enum SizeType {
+	public enum FitType {
 		/*
 		 * Always append new enum items because there is a
 		 * dependency on ordering for persistence.
 		 */
-		FULLSIZE,
-		PREVIEW,
-		THUMBNAIL,
-		FULLSIZE_CAPPED,
-		PREVIEW_LARGE
+		AUTO,
+		FIXED,
+		NONE,
 	}
 }

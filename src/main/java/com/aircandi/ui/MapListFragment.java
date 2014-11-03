@@ -60,7 +60,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
 	protected View          mProgress   = null;
 	protected AirClusterRenderer mClusterRenderer;
-	protected Boolean mFabEnabled = true;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -96,15 +95,15 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		return root;
 	}
 
-	public void onProcessingComplete() {
-		if (mProgress != null) {
-			getActivity().runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
+	public void onProcessingFinished() {
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (mProgress != null) {
 					mProgress.setVisibility(View.INVISIBLE);
 				}
-			});
-		}
+			}
+		});
 	}
 
 	@Override
@@ -311,15 +310,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	public MapListFragment setZoomLevel(Integer zoomLevel) {
 		mZoomLevel = zoomLevel;
 		return this;
-	}
-
-	public MapListFragment setFabEnabled(Boolean fabEnabled) {
-		mFabEnabled = fabEnabled;
-		return this;
-	}
-
-	public Boolean getFabEnabled() {
-		return mFabEnabled;
 	}
 
 	public List<Integer> getMenuResIds() {

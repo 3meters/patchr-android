@@ -1348,6 +1348,7 @@ public class EntityManager {
 					                        .centerInside()
 					                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 					                        .get();
+					DownloadManager.logBitmap(this, bitmap);
 				}
 				catch (IOException ignore) {}
 

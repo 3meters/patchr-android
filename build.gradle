@@ -30,8 +30,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 21
-        versionCode 177
-        versionName '1.4.1'
+        versionCode 178
+        versionName '1.4.2'
         /*
          * Official package name used by the Google Play store.
          * WARNING: Changing this will create a new app with no history.

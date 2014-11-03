@@ -348,7 +348,7 @@ public class PlaceEdit extends BaseEntityEdit {
 						mDirty = true;
 						((Place) mEntity).privacy = privacy;
 						mButtonPrivacy.setTag(privacy);
-						String value = (privacy.equals(Constants.PRIVACY_PUBLIC)) ? "Public" : "Closed";
+						String value = (privacy.equals(Constants.PRIVACY_PUBLIC)) ? "Public" : "Private";
 						mButtonPrivacy.setText("Privacy: " + value);
 						drawPhoto();
 					}

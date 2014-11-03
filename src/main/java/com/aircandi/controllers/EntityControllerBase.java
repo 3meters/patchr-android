@@ -24,7 +24,6 @@ import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Photo.PhotoSource;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
@@ -375,16 +374,6 @@ public abstract class EntityControllerBase implements IEntityController {
 	}
 
 	@Override
-	public Photo getDefaultPhoto(String type) {
-		return EntityControllerBase.getDefaultPhoto();
-	}
-
-	@Override
-	public Photo getPlaceholderPhoto(String type) {
-		return getDefaultPhoto(type);
-	}
-
-	@Override
 	public String getName(Boolean plural) {
 		return (plural ? mSchema + "s" : mSchema);
 	}
@@ -436,12 +425,4 @@ public abstract class EntityControllerBase implements IEntityController {
 		return this;
 	}
 
-	public static Photo getDefaultPhoto() {
-		String prefix = (Patchr.themeTone == null || Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
-		                ? "img_placeholder_bw_light"
-		                : "img_placeholder_bw_dark";
-		String source = PhotoSource.resource;
-		Photo photo = new Photo(prefix, null, null, null, source);
-		return photo;
-	}
 }

@@ -71,10 +71,11 @@
 					android:minWidth="@dimen/image_medium"
 					android:onClick="onChangePhotoButtonClick"
 					android:scaleType="centerCrop"
+					custom:config="rgb_565"
+					custom:fitType="fixed"
 					custom:layout="@layout/widget_webimageview_framed"
 					custom:showBusy="true"
-					custom:sizeHint="@dimen/image_medium"
-					custom:sizeType="thumbnail" />
+					custom:sizeHint="@dimen/image_medium" />
 
 				<com.aircandi.ui.widgets.ComboButton
 					android:id="@+id/button_change_image"
@@ -141,9 +142,9 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="12dp"
+				android:orientation="horizontal"
 				android:paddingLeft="4dp"
-				android:paddingRight="4dp"
-				android:orientation="horizontal">
+				android:paddingRight="4dp">
 
 				<com.aircandi.ui.widgets.AirTextLight
 					android:id="@+id/terms"

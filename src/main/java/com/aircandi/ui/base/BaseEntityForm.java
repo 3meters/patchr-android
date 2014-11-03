@@ -1,5 +1,6 @@
 package com.aircandi.ui.base;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -13,6 +14,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
+import com.aircandi.components.AnimationManager;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
@@ -30,7 +32,6 @@ import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.widgets.ComboButton;
 import com.aircandi.utilities.Booleans;
 import com.aircandi.utilities.DateTime;
-import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
@@ -161,7 +162,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * UI
+	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void bind(final BindingMode mode) {
@@ -275,10 +276,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 	protected void drawStats(View view) {}
 
 	protected void drawButtons(View view) {}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
 
 	public void watch(final boolean autoWatch) {
 

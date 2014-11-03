@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,15 +18,15 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.BusyManager;
 import com.aircandi.components.FontManager;
+import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MapManager;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.NotificationEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.monitors.TrendMonitor;
 import com.aircandi.objects.CacheStamp;
@@ -49,8 +48,6 @@ import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
-
-import java.util.Locale;
 
 /*
  * Library Notes
@@ -95,14 +92,15 @@ public class AircandiForm extends BaseActivity {
 	protected Number  mPauseDate;
 	protected Boolean mConfiguredForAnonymous;
 
-	protected DrawerLayout          mDrawerLayout;
-	protected View                  mDrawerLeft;
-	protected View                  mDrawerRight;
-	protected ActionBarDrawerToggle mDrawerToggle;
-	protected Fragment              mFragmentNotifications;
-	protected View                  mNotificationsBadgeGroup;
-	protected TextView              mNotificationsBadgeCount;
-	protected View                  mNotificationActionIcon;
+	protected DrawerLayout              mDrawerLayout;
+	protected View                      mDrawerLeft;
+	protected View                      mDrawerRight;
+	protected ActionBarDrawerToggle     mDrawerToggle;
+	protected Fragment                  mFragmentNotifications;
+	protected View                      mNotificationsBadgeGroup;
+	protected TextView                  mNotificationsBadgeCount;
+	protected View                      mNotificationActionIcon;
+	protected BaseActivity.BubbleButton mDrawerBubbleButton;
 
 	protected Boolean mFinishOnClose   = false;
 	protected Boolean mLeftDrawerOpen  = false;
@@ -206,7 +204,9 @@ public class AircandiForm extends BaseActivity {
 					}
 					else if (slideOffset < .45 && mRightDrawerOpen) {
 						mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, mDrawerRight);
-						setActivityTitle(mTitle);
+						if (!mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
+							setActivityTitle(StringManager.getString(((BaseFragment) mCurrentFragment).getTitleResId()));
+						}
 						mRightDrawerOpen = false;
 					}
 				}
@@ -215,6 +215,8 @@ public class AircandiForm extends BaseActivity {
 
 		/* Set the drawer toggle as the DrawerListener */
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+		mDrawerBubbleButton = new BaseActivity.BubbleButton(findViewById(R.id.button_bubble_notifications));
 
 		/* Check if the device is tethered */
 		tetherAlert();
@@ -240,8 +242,8 @@ public class AircandiForm extends BaseActivity {
 				.setListItemResId(R.layout.temp_listitem_notification)
 				.setListLoadingResId(R.layout.temp_listitem_loading_notifications)
 				.setListEmptyMessageResId(R.string.label_notifications_empty)
-				.setSelfBindingEnabled(false)
 				.setFabEnabled(false)
+				.setSelfBindingEnabled(false)
 				.setTitleResId(R.string.label_feed_alerts_title);
 
 		getFragmentManager()
@@ -330,14 +332,63 @@ public class AircandiForm extends BaseActivity {
 	}
 
 	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		if (mCurrentFragment instanceof EntityListFragment) {
-			((EntityListFragment) mCurrentFragment).onProcessingComplete();
-		}
-		else if (mCurrentFragment instanceof MapListFragment) {
-			((MapListFragment) mCurrentFragment).onProcessingComplete();
-		}
-		((EntityListFragment) mFragmentNotifications).onProcessingComplete();
+	public void onProcessingFinished(ProcessingFinishedEvent event) {
+		/*
+		 * Can be called from ui or background thread.
+		 */
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				mBusy.hideBusy(false);
+				/*
+				 * Notification list
+				 */
+				final EntityListFragment fragmentNotifications = (EntityListFragment) mFragmentNotifications;
+				if (mDrawerLayout.isDrawerOpen(mDrawerRight)) {
+					final Integer countNotifications = fragmentNotifications.getAdapter().getCount();
+					fragmentNotifications.onProcessingFinished();
+					if (mDrawerBubbleButton.isEnabled()) {
+						if (countNotifications == 0) {
+							mDrawerBubbleButton.setText(fragmentNotifications.getListEmptyMessageResId());
+							mDrawerBubbleButton.fadeIn();
+						}
+						else {
+							mDrawerBubbleButton.fadeOut();
+						}
+					}
+				}
+				/*
+				 * Current list fragment
+				 */
+				if (mCurrentFragment instanceof EntityListFragment) {
+					final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
+					final Integer count = fragment.getAdapter().getCount();
+
+					((BaseFragment) mCurrentFragment).onProcessingFinished();
+					if (mCurrentFragment instanceof RadarListFragment) {
+						if (!NetworkManager.getInstance().isWifiEnabled()
+								&& !LocationManager.getInstance().isLocationAccessEnabled()) {
+							mFab.fadeOut();
+						}
+					}
+
+					if (mBubbleButton.isEnabled()) {
+						if (count == 0) {
+							mBubbleButton.setText(fragment.getListEmptyMessageResId());
+							mBubbleButton.fadeIn();
+						}
+						else {
+							mBubbleButton.fadeOut();
+						}
+					}
+				}
+				else if (mCurrentFragment instanceof MapListFragment) {
+					((MapListFragment) mCurrentFragment).onProcessingFinished();
+				}
+			}
+		});
 	}
 
 	@SuppressWarnings("ucd")
@@ -417,6 +468,7 @@ public class AircandiForm extends BaseActivity {
 				if (mCurrentFragment != null && mCurrentFragment instanceof BaseFragment) {
 					((BaseFragment) mCurrentFragment).bind(BindingMode.AUTO);
 				}
+				mDrawerBubbleButton.fadeOut();
 				updateNotificationIndicator();
 			}
 		});
@@ -456,7 +508,6 @@ public class AircandiForm extends BaseActivity {
 						.setListItemResId(R.layout.temp_listitem_radar)
 						.setListEmptyMessageResId(R.string.label_radar_empty)
 						.setHeaderViewResId(R.layout.widget_list_header_nearby)
-						.setFabEnabled(true)
 						.setTitleResId(R.string.label_radar_title);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
@@ -489,7 +540,6 @@ public class AircandiForm extends BaseActivity {
 				                               .setListLayoutResId(R.layout.place_list_fragment)
 				                               .setListEmptyMessageResId(R.string.label_watching_empty)
 				                               .setTitleResId(R.string.label_watch_title)
-				                               .setFabEnabled(true)
 				                               .setSelfBindingEnabled(true);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
@@ -522,7 +572,6 @@ public class AircandiForm extends BaseActivity {
 				                               .setListLayoutResId(R.layout.place_list_fragment)
 				                               .setListEmptyMessageResId(R.string.label_created_empty)
 				                               .setTitleResId(R.string.label_create_title)
-				                               .setFabEnabled(true)
 				                               .setSelfBindingEnabled(true);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
@@ -554,7 +603,6 @@ public class AircandiForm extends BaseActivity {
 				                               .setListLayoutResId(R.layout.trends_list_fragment)
 				                               .setListEmptyMessageResId(R.string.label_created_empty)
 				                               .setTitleResId(R.string.label_trends_popular)
-				                               .setFabEnabled(true)
 				                               .setSelfBindingEnabled(true);
 
 				((TrendListFragment) fragment).setCountLabelResId(R.string.label_trends_count_popular);
@@ -588,7 +636,6 @@ public class AircandiForm extends BaseActivity {
 				                               .setListLayoutResId(R.layout.trends_list_fragment)
 				                               .setListEmptyMessageResId(R.string.label_created_empty)
 				                               .setTitleResId(R.string.label_trends_active)
-				                               .setFabEnabled(true)
 				                               .setSelfBindingEnabled(true);
 
 				((TrendListFragment) fragment).setCountLabelResId(R.string.label_trends_count_active);
@@ -628,7 +675,6 @@ public class AircandiForm extends BaseActivity {
 
 		if (!fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
 			setActivityTitle(StringManager.getString(((BaseFragment) fragment).getTitleResId()));
-			mFab.setEnabled(((BaseFragment) fragment).getFabEnabled());
 		}
 		else {
 			((MapListFragment) fragment)
@@ -639,7 +685,6 @@ public class AircandiForm extends BaseActivity {
 			if (!mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
 				((MapListFragment) fragment).setZoomLevel(MapManager.ZOOM_SCALE_COUNTY);
 			}
-			mFab.setEnabled(((MapListFragment) fragment).getFabEnabled());
 		}
 
 		getFragmentManager()
@@ -828,23 +873,7 @@ public class AircandiForm extends BaseActivity {
 		if (notifications != null) {
 			notifications.setVisible(!(open));
 		}
-
-			/* Don't need to show the user email in two places */
-		if (Patchr.getInstance().getCurrentUser() != null && Patchr.getInstance().getCurrentUser().name != null) {
-			String subtitle = null;
-			if (!open) {
-				if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-					subtitle = Patchr.getInstance().getCurrentUser().name.toUpperCase(Locale.US);
-				}
-				else {
-					subtitle = Patchr.getInstance().getCurrentUser().email.toLowerCase(Locale.US);
-				}
-			}
-			mActionBar.setSubtitle(subtitle);
-		}
 	}
-
-
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
@@ -858,12 +887,7 @@ public class AircandiForm extends BaseActivity {
 		if (mActionBar != null
 				&& Patchr.getInstance().getCurrentUser() != null
 				&& Patchr.getInstance().getCurrentUser().name != null) {
-			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-				mActionBar.setSubtitle(Patchr.getInstance().getCurrentUser().name.toUpperCase(Locale.US));
-			}
-			else {
-				mActionBar.setSubtitle(Patchr.getInstance().getCurrentUser().email.toLowerCase(Locale.US));
-			}
+			//mActionBar.setSubtitle(Patchr.getInstance().getCurrentUser().name.toUpperCase(Locale.US));
 		}
 
 		/* Make sure we are configured properly depending on user status */

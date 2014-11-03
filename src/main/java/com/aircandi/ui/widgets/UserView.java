@@ -67,7 +67,6 @@ public class UserView extends RelativeLayout {
 		if (!isInEditMode()) {
 			mPhotoView = (AirImageView) mBoundView.findViewById(R.id.widget_photo);
 			mName = (TextView) mBoundView.findViewById(R.id.widget_name);
-			mEmail = (TextView) mBoundView.findViewById(R.id.widget_email);
 			mArea = (TextView) mBoundView.findViewById(R.id.area);
 			mLabel = (TextView) mBoundView.findViewById(R.id.label);
 			mTimeSince = (TextView) mBoundView.findViewById(R.id.timesince);

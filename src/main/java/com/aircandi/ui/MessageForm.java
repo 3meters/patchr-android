@@ -30,7 +30,7 @@ import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.events.NotificationEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.monitors.EntityMonitor;
@@ -47,6 +47,7 @@ import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.EntityListFragment.Highlight;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseEntityForm;
+import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.ui.widgets.FlowLayout;
@@ -62,9 +63,8 @@ import java.util.List;
 
 public class MessageForm extends BaseEntityForm {
 
-	private EntityListFragment mListFragment;
-	private String             mChildId;
-	private Highlight          mHighlight;
+	private String    mChildId;
+	private Highlight mHighlight;
 	private List<Entity> mTos = new ArrayList<Entity>();
 
 	@Override
@@ -101,7 +101,7 @@ public class MessageForm extends BaseEntityForm {
 		mBubbleButton.setEnabled(false);
 		mLinkProfile = LinkProfile.LINKS_FOR_MESSAGE;
 
-		mListFragment = new MessageListFragment();
+		mCurrentFragment = new MessageListFragment();
 
 		EntityMonitor monitor = new EntityMonitor(mEntityId);
 		EntitiesQuery query = new EntitiesQuery();
@@ -112,24 +112,24 @@ public class MessageForm extends BaseEntityForm {
 		     .setPageSize(Integers.getInteger(R.integer.page_size_replies))
 		     .setSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
 
-		mListFragment.setQuery(query)
-		             .setMonitor(monitor)
-		             .setListItemResId(R.layout.temp_listitem_message)
-		             .setListViewType(ViewType.LIST)
-		             .setListLayoutResId(R.layout.entity_list_fragment)
-		             .setListLoadingResId(R.layout.temp_listitem_loading)
-		             .setHeaderViewResId(R.layout.widget_list_header_message)
-		             .setFooterViewResId(R.layout.widget_list_footer_message)
-		             .setBackgroundResId(R.drawable.selector_item)
-		             .setReverseSort(true)
-		             .setSelfBindingEnabled(false);
+		((EntityListFragment) mCurrentFragment).setQuery(query)
+		                                       .setMonitor(monitor)
+		                                       .setListItemResId(R.layout.temp_listitem_message)
+		                                       .setListViewType(ViewType.LIST)
+		                                       .setListLayoutResId(R.layout.entity_list_fragment)
+		                                       .setListLoadingResId(R.layout.temp_listitem_loading)
+		                                       .setHeaderViewResId(R.layout.widget_list_header_message)
+		                                       .setFooterViewResId(R.layout.widget_list_footer_message)
+		                                       .setBackgroundResId(R.drawable.selector_item)
+		                                       .setReverseSort(true)
+		                                       .setSelfBindingEnabled(false);
 
 		if (mChildId != null) {
 			mHighlight = new Highlight(true);
-			mListFragment.getHighlightEntities().put(mChildId, mHighlight);
+			((MessageListFragment) mCurrentFragment).getHighlightEntities().put(mChildId, mHighlight);
 		}
 
-		getFragmentManager().beginTransaction().replace(R.id.fragment_holder, mListFragment).commit();
+		getFragmentManager().beginTransaction().replace(R.id.fragment_holder, mCurrentFragment).commit();
 	}
 
 	@Override
@@ -137,10 +137,10 @@ public class MessageForm extends BaseEntityForm {
 		super.afterDatabind(mode, result);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			if (mEntityMonitor.changed) {
-				mListFragment.bind(BindingMode.MANUAL);
+				((EntityListFragment) mCurrentFragment).bind(BindingMode.MANUAL);
 			}
 			else {
-				mListFragment.bind(mode);
+				((EntityListFragment) mCurrentFragment).bind(mode);
 			}
 		}
 	}
@@ -183,7 +183,6 @@ public class MessageForm extends BaseEntityForm {
 		if (share) {
 
 			mEntity.shareable = false;
-			mFab.fadeOut();
 			UI.setVisibility(findViewById(R.id.button_share), View.GONE);
 			UI.setVisibility(findViewById(R.id.divider_replies), View.GONE);
 
@@ -437,19 +436,28 @@ public class MessageForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onEntitiesLoaded(final EntitiesLoadedEvent event) {
 		if (mHighlight != null && !mHighlight.hasFired()) {
-			mListFragment.setListPositionToEntity(mChildId);
+			((EntityListFragment) mCurrentFragment).setListPositionToEntity(mChildId);
 		}
 	}
 
 	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
+	public void onProcessingFinished(ProcessingFinishedEvent event) {
 
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				mListFragment.onProcessingComplete();
-				mFab.fadeIn();
+
+				mBusy.hideBusy(false);
+				((BaseFragment) mCurrentFragment).onProcessingFinished();
+
 				mBubbleButton.fadeOut();
+				Boolean share = (mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
+				if (share) {
+					mFab.fadeOut();
+				}
+				else {
+					mFab.fadeIn();
+				}
 			}
 		});
 	}
@@ -465,7 +473,7 @@ public class MessageForm extends BaseEntityForm {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mListFragment.bind(BindingMode.AUTO);
+					((EntityListFragment) mCurrentFragment).bind(BindingMode.AUTO);
 				}
 			});
 		}
@@ -546,7 +554,7 @@ public class MessageForm extends BaseEntityForm {
 					}
 					else {
 						mHighlight = new Highlight(true);
-						mListFragment.getHighlightEntities().put(mChildId, mHighlight);
+						((MessageListFragment) mCurrentFragment).getHighlightEntities().put(mChildId, mHighlight);
 					}
 				}
 			}

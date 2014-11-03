@@ -17,8 +17,9 @@
 		android:layout_alignParentLeft="true"
 		android:layout_marginRight="5dp"
 		android:scaleType="centerCrop"
+		custom:config="rgb_565"
+		custom:fitType="fixed"
 		custom:layout="@layout/widget_webimageview"
-		custom:sizeType="thumbnail"
 		custom:sizeHint="@dimen/image_extra_small" />
 
 	<LinearLayout
@@ -32,9 +33,9 @@
 			android:id="@+id/widget_name"
 			style="@style/candi_user"
 			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
 			android:ellipsize="end"
 			android:singleLine="true"
-			android:layout_height="wrap_content"
 			android:textColor="?attr/textColorButtonLink"
 			android:textStyle="bold" />
 	</LinearLayout>
