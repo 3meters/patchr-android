@@ -50,6 +50,7 @@ public class AirImageView extends FrameLayout implements Target {
 	private int     mDominantMeasurement;
 	private Integer mSizeHint;
 	private FitType mFitType;
+	private Bitmap.Config mConfig = Bitmap.Config.ARGB_8888;
 
 	public static final int MEASUREMENT_WIDTH  = 0;
 	public static final int MEASUREMENT_HEIGHT = 1;
@@ -84,6 +85,7 @@ public class AirImageView extends FrameLayout implements Target {
 		final TypedArray ta = context.obtainStyledAttributes(attributes, R.styleable.AirImageView, defStyle, 0);
 
 		mFitType = FitType.values()[ta.getInteger(R.styleable.AirImageView_fitType, FitType.NONE.ordinal())];
+		mConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.AirImageView_config, Bitmap.Config.ARGB_8888.ordinal())];
 		mSizeHint = ta.getDimensionPixelSize(R.styleable.AirImageView_sizeHint, Integer.MAX_VALUE);
 		mShowBusy = ta.getBoolean(R.styleable.AirImageView_showBusy, true);
 		mLayoutId = ta.getResourceId(R.styleable.AirImageView_layout, R.layout.widget_webimageview);
@@ -311,6 +313,10 @@ public class AirImageView extends FrameLayout implements Target {
 
 	public FitType getFitType() {
 		return mFitType;
+	}
+
+	public Bitmap.Config getConfig() {
+		return mConfig;
 	}
 
 	public Photo getPhoto() {

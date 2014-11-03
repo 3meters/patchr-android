@@ -12,7 +12,8 @@
 		android:layout_height="wrap_content"
 		android:adjustViewBounds="true"
 		android:scaleType="centerCrop"
-		custom:layout="@layout/widget_webimageview"
-		custom:fitType="auto" />
+		custom:config="rgb_565"
+		custom:fitType="auto"
+		custom:layout="@layout/widget_webimageview" />
 
 </FrameLayout>

@@ -40,6 +40,10 @@
 		<enum name="none" value="2" />
 	</attr>
 	<attr name="sizeHint" format="dimension" />
+	<attr name="config" format="enum">
+		<enum name="rgb_565" value="1" />
+		<enum name="argb_8888" value="3" />
+	</attr>
 
 	<!-- Theme attributes -->
 	<declare-styleable name="AircandiTheme">
@@ -192,6 +196,7 @@
 	<declare-styleable name="AirImageView">
 		<attr name="aspectRatio" />
 		<attr name="aspectRatioEnabled" />
+		<attr name="config" />
 		<attr name="dominantMeasurement" />
 		<attr name="fitType" />
 		<attr name="layout" />

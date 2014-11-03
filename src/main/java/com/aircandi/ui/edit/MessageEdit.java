@@ -266,16 +266,19 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 											ModelResult result = new ModelResult();
 
 											try {
-
 												Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
 												                               .load(photoUri)
+												                               .centerInside()
+												                               .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 												                               .get();
+
 												File file = MediaManager.copyBitmapToSharePath(bitmap);
 
 												if (file != null) {
 													Photo photo = new Photo()
 															.setPrefix(MediaManager.getSharePathUri().toString())
-															.setStore(true);
+															.setStore(true)
+															.setSource(Photo.PhotoSource.file);
 													onPhotoSelected(photo); // mDirty gets set in this method
 													mDirty = false;
 												}
@@ -338,13 +341,17 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 										Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
 										                               .load(photoUri)
+										                               .centerInside()
+										                               .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 										                               .get();
+
 										File file = MediaManager.copyBitmapToSharePath(bitmap);
 
 										if (file != null) {
 											Photo photo = new Photo()
 													.setPrefix(MediaManager.getSharePathUri().toString())
-													.setStore(true);
+													.setStore(true)
+													.setSource(Photo.PhotoSource.file);
 											onPhotoSelected(photo); // mDirty gets set in this method
 										}
 										else {
@@ -631,8 +638,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 						}
 
 						@Override
-						public void onPrepareLoad(Drawable arg0) {
-						}
+						public void onPrepareLoad(Drawable arg0) {}
 					});
 
 					UI.drawPhoto(mPhotoView, mEntity.getPhoto());

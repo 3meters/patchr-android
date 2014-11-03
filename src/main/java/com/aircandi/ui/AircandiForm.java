@@ -49,8 +49,6 @@ import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
-import java.util.Locale;
-
 /*
  * Library Notes
  * 
@@ -206,7 +204,9 @@ public class AircandiForm extends BaseActivity {
 					}
 					else if (slideOffset < .45 && mRightDrawerOpen) {
 						mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, mDrawerRight);
-						setActivityTitle(mTitle);
+						if (!mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
+							setActivityTitle(StringManager.getString(((BaseFragment) mCurrentFragment).getTitleResId()));
+						}
 						mRightDrawerOpen = false;
 					}
 				}
@@ -217,7 +217,6 @@ public class AircandiForm extends BaseActivity {
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
 		mDrawerBubbleButton = new BaseActivity.BubbleButton(findViewById(R.id.button_bubble_notifications));
-		mDrawerBubbleButton.show(false);
 
 		/* Check if the device is tethered */
 		tetherAlert();
@@ -347,15 +346,17 @@ public class AircandiForm extends BaseActivity {
 				 * Notification list
 				 */
 				final EntityListFragment fragmentNotifications = (EntityListFragment) mFragmentNotifications;
-				final Integer countNotifications = fragmentNotifications.getAdapter().getCount();
-				fragmentNotifications.onProcessingFinished();
-				if (mDrawerBubbleButton.isEnabled()) {
-					if (countNotifications == 0) {
-						mDrawerBubbleButton.setText(fragmentNotifications.getListEmptyMessageResId());
-						mDrawerBubbleButton.fadeIn();
-					}
-					else {
-						mDrawerBubbleButton.fadeOut();
+				if (mDrawerLayout.isDrawerOpen(mDrawerRight)) {
+					final Integer countNotifications = fragmentNotifications.getAdapter().getCount();
+					fragmentNotifications.onProcessingFinished();
+					if (mDrawerBubbleButton.isEnabled()) {
+						if (countNotifications == 0) {
+							mDrawerBubbleButton.setText(fragmentNotifications.getListEmptyMessageResId());
+							mDrawerBubbleButton.fadeIn();
+						}
+						else {
+							mDrawerBubbleButton.fadeOut();
+						}
 					}
 				}
 				/*
@@ -872,23 +873,7 @@ public class AircandiForm extends BaseActivity {
 		if (notifications != null) {
 			notifications.setVisible(!(open));
 		}
-
-			/* Don't need to show the user email in two places */
-		if (Patchr.getInstance().getCurrentUser() != null && Patchr.getInstance().getCurrentUser().name != null) {
-			String subtitle = null;
-			if (!open) {
-				if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-					subtitle = Patchr.getInstance().getCurrentUser().name.toUpperCase(Locale.US);
-				}
-				else {
-					subtitle = Patchr.getInstance().getCurrentUser().email.toLowerCase(Locale.US);
-				}
-			}
-			mActionBar.setSubtitle(subtitle);
-		}
 	}
-
-
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
@@ -902,12 +887,7 @@ public class AircandiForm extends BaseActivity {
 		if (mActionBar != null
 				&& Patchr.getInstance().getCurrentUser() != null
 				&& Patchr.getInstance().getCurrentUser().name != null) {
-			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-				mActionBar.setSubtitle(Patchr.getInstance().getCurrentUser().name.toUpperCase(Locale.US));
-			}
-			else {
-				mActionBar.setSubtitle(Patchr.getInstance().getCurrentUser().email.toLowerCase(Locale.US));
-			}
+			//mActionBar.setSubtitle(Patchr.getInstance().getCurrentUser().name.toUpperCase(Locale.US));
 		}
 
 		/* Make sure we are configured properly depending on user status */

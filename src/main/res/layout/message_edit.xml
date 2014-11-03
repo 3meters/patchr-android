@@ -62,11 +62,11 @@
 					android:id="@+id/to"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:gravity="center_vertical"
-					android:imeOptions="flagNoExtractUi"
 					android:completionHint="@string/label_share_completion_hint"
 					android:completionHintView="@layout/dropdown_search_hint"
+					android:gravity="center_vertical"
 					android:hint="@string/label_share_to_hint"
+					android:imeOptions="flagNoExtractUi"
 					android:minHeight="65dp"
 					android:textAppearance="?attr/textAppearanceMediumLarge"
 					custom:prefix="@string/label_message_to_prefix" />
@@ -209,9 +209,11 @@
 							android:layout_height="wrap_content"
 							android:minWidth="@dimen/image_extra_extra_large"
 							android:scaleType="centerCrop"
+							custom:config="rgb_565"
+							custom:fitType="fixed"
 							custom:layout="@layout/widget_webimageview"
 							custom:showBusy="false"
-							custom:fitType="auto" />
+							custom:sizeHint="300dp" />
 
 						<ImageView
 							android:id="@+id/photo_delete"

@@ -14,9 +14,10 @@
 		android:layout_height="@dimen/image_medium"
 		android:layout_marginRight="10dp"
 		android:scaleType="centerCrop"
+		custom:config="rgb_565"
+		custom:fitType="fixed"
 		custom:layout="@layout/widget_webimageview_candi_view"
-		custom:sizeHint="@dimen/image_medium"
-		custom:fitType="fixed" />
+		custom:sizeHint="@dimen/image_medium" />
 
 	<com.aircandi.ui.widgets.AirTextLight
 		android:id="@+id/name"

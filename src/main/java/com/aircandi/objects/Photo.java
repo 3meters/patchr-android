@@ -61,7 +61,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	public Boolean store = false;
 
 	public Boolean resizerActive = false;
-	public Boolean resizerUsed = false;
+	public Boolean resizerUsed   = false;
 	public Number resizerWidth;
 	public Number resizerHeight;
 
@@ -234,6 +234,14 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return uri.toLowerCase(Locale.US).startsWith("resource:");
 	}
 
+	public static Boolean hasAlpha(Photo photo) {
+		/*
+		 * We assume alpha unless we see a jpg|jpeg.
+		 */
+		String uri = photo.getUri();
+		return (!(uri.toLowerCase(Locale.US).contains(".jpg") || uri.toLowerCase(Locale.US).contains(".jpeg")));
+	}
+
 	public ImageResult getAsImageResult() {
 
 		final ImageResult imageResult = new ImageResult();
@@ -316,16 +324,14 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	@Override
 	public Photo clone() {
 		try {
-			final Photo photo = (Photo) super.clone();
-
+			Photo photo = (Photo) super.clone();
 			if (user != null) {
-				photo.user = user.clone();
+				photo.user = (User) user.clone();
 			}
-
 			return photo;
 		}
-		catch (final CloneNotSupportedException ex) {
-			throw new AssertionError();
+		catch (CloneNotSupportedException e) {
+			throw new RuntimeException("Photo not clonable");
 		}
 	}
 
@@ -426,9 +432,10 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 
 		/* System sources */
 
-		public static String resource          = "resource";                // set as default for shortcut and applink photos
-		public static String assets_applinks   = "assets.applinks";        // used when targeting something like the default applink icons
-		public static String assets_categories = "assets.categories";        // ditto to above
+		public static String resource          = "resource";                // set when using default
+		public static String file              = "file";                    // set when using a photo from device (camera|gallery)
+		public static String assets_applinks   = "assets.applinks";         // used when targeting something like the default applink icons
+		public static String assets_categories = "assets.categories";       // ditto to above
 	}
 
 	public static enum PhotoType {

@@ -67,6 +67,7 @@
 			android:layout_height="@dimen/image_small"
 			android:layout_marginRight="5dp"
 			android:scaleType="centerCrop"
+			custom:config="rgb_565"
 			custom:fitType="fixed"
 			custom:layout="@layout/widget_webimageview_framed"
 			custom:showBusy="true"
@@ -156,9 +157,10 @@
 		android:visibility="gone"
 		custom:aspectRatio="@dimen/aspect_ratio_message_image"
 		custom:aspectRatioEnabled="true"
+		custom:config="rgb_565"
 		custom:dominantMeasurement="width"
-		custom:layout="@layout/widget_webimageview"
-		custom:fitType="auto" />
+		custom:fitType="auto"
+		custom:layout="@layout/widget_webimageview" />
 
 	<!-- Share entity -->
 

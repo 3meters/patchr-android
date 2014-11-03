@@ -162,7 +162,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * UI
+	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void bind(final BindingMode mode) {
@@ -276,10 +276,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 	protected void drawStats(View view) {}
 
 	protected void drawButtons(View view) {}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
 
 	public void watch(final boolean autoWatch) {
 

@@ -1014,7 +1014,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			/*
 			 * Skips if locked, sliding or already hidden.
 			 */
-			if (mLocked || mSliding || mHidden) return null;
+			if (mLocked || mSliding || mHidden || mView == null) return null;
 
 			mSliding = true;
 			ObjectAnimator anim = ObjectAnimator.ofFloat(mView

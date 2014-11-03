@@ -14,9 +14,10 @@
 		android:paddingLeft="8dp"
 		android:paddingTop="8dp"
 		android:scaleType="centerCrop"
+		custom:config="rgb_565"
+		custom:fitType="fixed"
 		custom:layout="@layout/widget_webimageview_candi_view"
-		custom:sizeHint="@dimen/image_medium"
-		custom:fitType="fixed" />
+		custom:sizeHint="@dimen/image_medium" />
 
 	<com.aircandi.ui.widgets.AirTextLight
 		android:id="@+id/name"
@@ -27,9 +28,9 @@
 		android:ellipsize="end"
 		android:paddingTop="8dp"
 		android:singleLine="true"
-		tools:text="Aliza Wenk"
 		android:textAppearance="?android:attr/textAppearanceMedium"
-		android:textStyle="bold" />
+		android:textStyle="bold"
+		tools:text="Aliza Wenk" />
 
 	<com.aircandi.ui.widgets.AirTextView
 		android:id="@+id/area"
@@ -38,10 +39,10 @@
 		android:layout_alignLeft="@+id/name"
 		android:layout_below="@+id/name"
 		android:ellipsize="end"
-		tools:text="Seattle, WA"
 		android:singleLine="true"
 		android:textAppearance="?android:attr/textAppearanceSmall"
-		android:textColor="?textColorSecondary" />
+		android:textColor="?textColorSecondary"
+		tools:text="Seattle, WA" />
 
 	<com.aircandi.ui.widgets.AirTextView
 		android:id="@+id/role"
@@ -49,26 +50,26 @@
 		android:layout_height="wrap_content"
 		android:layout_alignLeft="@+id/name"
 		android:layout_below="@+id/area"
+		android:layout_marginBottom="8dp"
 		android:ellipsize="end"
-		tools:text="Owner"
-		tools:visibility="visible"
-		android:visibility="gone"
 		android:singleLine="true"
 		android:textAllCaps="true"
-		android:layout_marginBottom="8dp"
 		android:textAppearance="?android:attr/textAppearanceSmall"
-		android:textColor="@color/brand_primary" />
+		android:textColor="@color/brand_primary"
+		android:visibility="gone"
+		tools:text="Owner"
+		tools:visibility="visible" />
 
 	<RelativeLayout
 		android:id="@+id/owner_edit_group"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignLeft="@+id/name"
 		android:layout_alignBottom="@+id/photo"
+		android:layout_alignLeft="@+id/name"
 		android:layout_marginBottom="8dp"
 		android:orientation="horizontal"
-		tools:visibility="visible"
-		android:visibility="gone">
+		android:visibility="gone"
+		tools:visibility="visible">
 
 		<com.aircandi.ui.widgets.AirTextLight
 			android:id="@+id/enabled"
@@ -76,17 +77,17 @@
 			android:layout_height="wrap_content"
 			android:layout_centerVertical="true"
 			android:layout_marginRight="8dp"
-			tools:text="Approved:"
 			android:text="@string/label_watcher_enable"
-			android:textAppearance="?android:attr/textAppearanceMedium" />
-		
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			tools:text="Approved:" />
+
 		<Switch
 			android:id="@+id/switch_enable"
 			android:layout_width="wrap_content"
-			android:layout_centerVertical="true"
 			android:layout_height="wrap_content"
+			android:layout_centerVertical="true"
 			android:layout_toRightOf="@+id/enabled"
-			android:onClick="onApprovedClick"/>
+			android:onClick="onApprovedClick" />
 
 	</RelativeLayout>
 
@@ -100,7 +101,7 @@
 		android:layout_centerVertical="true"
 		android:onClick="onDeleteRequestClick"
 		android:visibility="gone"
-		tools:visibility="visible"
-		custom:drawable="?attr/iconCancel" />
+		custom:drawable="?attr/iconCancel"
+		tools:visibility="visible" />
 
 </merge>

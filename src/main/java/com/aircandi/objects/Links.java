@@ -64,13 +64,13 @@ public class Links extends ServiceObject {
 			}
 			else if (linkProfile == LinkProfile.LINKS_FOR_MESSAGE) {
 
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1)
+						.setDirection(Direction.both));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE, true, true, 1)
 						.setDirection(Direction.out));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1)
-						.setDirection(Direction.both));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PLACE, true, true, 1)
 						.setDirection(Direction.out));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_SHARE, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1)
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1)
 						.setDirection(Direction.out));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, true, true, 5)
 						.setDirection(Direction.out));
@@ -81,7 +81,7 @@ public class Links extends ServiceObject {
 						.setDirection(Direction.out));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PLACE, true, true, limitWatch)
 						.setDirection(Direction.out));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CREATE, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitCreate)
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitCreate)
 						.setDirection(Direction.out));
 			}
 			else if (linkProfile == LinkProfile.LINKS_FOR_USER) {

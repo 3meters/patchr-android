@@ -224,7 +224,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				gather();
 
 				if (mSkipSave) {
-                    /*
+	                /*
 					 * Using the intent just to pass data.
 					 */
 					mProcessing = false;
@@ -299,7 +299,8 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					MediaManager.scanMedia(Uri.parse("file:" + image.getFilePathOriginal()));
 					Photo photo = new Photo()
 							.setPrefix(photoUri.toString())
-							.setStore(true);
+							.setStore(true)
+							.setSource(Photo.PhotoSource.file);
 					onPhotoSelected(photo);
 				}
 			}

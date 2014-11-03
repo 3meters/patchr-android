@@ -33,6 +33,7 @@
 		android:layout_width="@dimen/image_extra_small"
 		android:layout_height="@dimen/image_extra_small"
 		android:layout_gravity="center_vertical"
+		custom:config="rgb_565"
 		custom:fitType="fixed"
 		custom:layout="@layout/widget_webimageview_candi_view"
 		custom:showBusy="true"

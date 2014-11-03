@@ -13,9 +13,10 @@
 		android:layout_height="@dimen/image_tiny"
 		android:layout_marginRight="3dp"
 		android:scaleType="centerCrop"
+		custom:config="rgb_565"
+		custom:fitType="fixed"
 		custom:layout="@layout/widget_webimageview"
 		custom:showBusy="true"
-		custom:fitType="fixed"
 		custom:sizeHint="@dimen/image_tiny" />
 
 	<com.aircandi.ui.widgets.AirTextView

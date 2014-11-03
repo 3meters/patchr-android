@@ -39,15 +39,98 @@ public class UI {
 
 	public static void drawPhoto(final AirImageView photoView, final Photo photo) {
 	    /*
-	     * There are only a few places that don't use this code to handle images:
+	     * There are only a few places that don't use this code to display images:
 		 * - Notification icons - can't use AirImageView
 		 * - Actionbar icons - can't use AirImageView (shortcutpicker, placeform)
-		 * - Photo detail - can't use AirImageView, using ImageViewTouch
 		 */
-
 		photoView.getImageView().setImageDrawable(null);
 		photoView.setPhoto(photo);
-		aircandi(photoView, photo);
+
+		if (photoView.getFitType() == AirImageView.FitType.NONE
+				|| photoView.getFitType() == AirImageView.FitType.FIXED) {
+			loadView(photoView, photo);
+		}
+		else if (photoView.getFitType() == AirImageView.FitType.AUTO) {
+			if (photoView.getImageView().getWidth() != 0) {
+				loadView(photoView, photo);
+			}
+			else {
+				photoView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+					@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+					@SuppressWarnings("deprecation")
+					@Override
+					public void onGlobalLayout() {
+						loadView(photoView, photo);
+						if (Constants.SUPPORTS_JELLY_BEAN) {
+							photoView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+						}
+						else {
+							photoView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+						}
+					}
+				});
+			}
+		}
+	}
+
+	public static void loadView(final AirImageView photoView, final Photo photo) {
+		/*
+		 * This is the only place in the code that turns on proxy handling.
+		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
+		 * Fit on photo is used when target size is desired and known only after view layout.
+		 */
+		int width = photoView.getImageView().getWidth();
+		int height = photoView.getImageView().getHeight();
+
+		if (photoView.getFitType() == AirImageView.FitType.NONE) {
+			width = Constants.IMAGE_DIMENSION_MAX;
+			height = Constants.IMAGE_DIMENSION_MAX;
+		}
+		else if (photoView.getFitType() == AirImageView.FitType.FIXED) {
+			width = photoView.getSizeHint();
+			height = photoView.getSizeHint();
+		}
+
+		if (photo.source.equals(Photo.PhotoSource.resource)) {
+
+			Integer drawableId = photo.getResId();
+			if (drawableId != null) {
+				Config config = photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565;
+				DownloadManager.with(Patchr.applicationContext).load(drawableId)
+						.centerCrop()   // Needed so resize() keeps aspect ratio
+						.resize(width, height)
+						.config(config)
+						.into(photoView);
+			}
+		}
+		else if (photo.source.equals(Photo.PhotoSource.file)) {
+
+			String imageUri = photo.getUri();
+			Config config = photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565;
+			DownloadManager.with(Patchr.applicationContext).load(imageUri)
+					.centerCrop()   // Needed so resize() keeps aspect ratio
+					.resize(width, height)
+					.config(config)
+					.into(photoView);
+		}
+		else {
+
+			photo.setProxy(true, height, width);
+			String imageUri = photo.getUriWrapped();
+			Logger.v(UI.class, "Bitmap: uri: " + imageUri);
+			Config config = photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565;
+
+			DownloadManager.with(Patchr.applicationContext).load(imageUri)
+			               .config(config)
+			               .into(photoView);
+		}
+
+		/* Final step */
+		colorizeView(photoView, photo);
+	}
+
+	public static void colorizeView(final AirImageView photoView, final Photo photo) {
 		/*
 		 * Special color treatment if enabled.
 		 */
@@ -83,93 +166,6 @@ public class UI {
 				(photoView.findViewById(R.id.color_layer)).setBackgroundResource(0);
 				(photoView.findViewById(R.id.color_layer)).setVisibility(View.GONE);
 				(photoView.findViewById(R.id.reverse_layer)).setVisibility(View.GONE);
-			}
-		}
-	}
-
-	public static void aircandi(final AirImageView photoView, final Photo photo) {
-
-		/*
-		 * This is the only place in the code that turns on proxy handling.
-		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
-		 * Fit on photo is used when target size is desired and known only after view layout.
-		 */
-		if (photo.source.equals(Photo.PhotoSource.resource)) {
-			Integer drawableId = photo.getResId();
-			if (drawableId != null) {
-				DownloadManager.with(Patchr.applicationContext)
-				               .load(drawableId)
-				               .placeholder(null)
-				               .into(photoView);
-			}
-		}
-		else {
-			photo.setProxy(false);
-			if (photoView.getFitType() == AirImageView.FitType.NONE) {
-				Logger.v(UI.class, "Bitmap: Max sizing image for photoView");
-				photo.setProxy(true, Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
-			}
-			else if (photoView.getFitType() == AirImageView.FitType.FIXED) {
-				Logger.v(UI.class, "Bitmap: Fixed sizing image for photoView");
-				photo.setProxy(true, photoView.getSizeHint(), photoView.getSizeHint());
-			}
-			else if (photoView.getFitType() == AirImageView.FitType.AUTO) {
-				int width = photoView.getImageView().getWidth();
-				int height = photoView.getImageView().getHeight();
-				if (width != 0) {
-					Logger.v(UI.class, "Bitmap: Auto-fitting image for photoView, view already sized");
-					photo.setProxy(true, height, width);
-				}
-				else {
-					Logger.v(UI.class, "Bitmap: Auto-fitting image for photoView, waiting for view to be sized");
-					photoView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-
-						@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-						@SuppressWarnings("deprecation")
-						@Override
-						public void onGlobalLayout() {
-
-							int width = photoView.getImageView().getWidth();
-							int height = photoView.getImageView().getHeight();
-							photo.setProxy(true, height, width);
-							String imageUri = photo.getUriWrapped();
-
-							Logger.v(UI.class, "Bitmap: uri: " + imageUri);
-							DownloadManager.with(Patchr.applicationContext)
-							               .load(imageUri)
-							               .placeholder(null)
-							               .config(Config.RGB_565)
-							               .into(photoView);
-
-							if (Constants.SUPPORTS_JELLY_BEAN) {
-								photoView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-							}
-							else {
-								photoView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-							}
-						}
-					});
-					return;
-				}
-			}
-
-			String imageUri = photo.getUriWrapped();
-			Logger.v(UI.class, "Bitmap: uri: " + imageUri);
-			if (photo.resizerUsed || photoView.getFitType() == AirImageView.FitType.NONE) {
-				DownloadManager.with(Patchr.applicationContext)
-				               .load(imageUri)
-				               .config(Config.RGB_565)
-				               .placeholder(null)
-				               .into(photoView);
-			}
-			else {
-				DownloadManager.with(Patchr.applicationContext)
-				               .load(imageUri)
-				               .config(Config.RGB_565)
-				               .resize(photo.resizerWidth.intValue(), photo.resizerHeight.intValue())
-				               .centerCrop()
-				               .placeholder(null)
-				               .into(photoView);
 			}
 		}
 	}

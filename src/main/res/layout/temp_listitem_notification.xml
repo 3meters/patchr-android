@@ -21,8 +21,8 @@
 		android:layout_marginRight="10dp"
 		android:layout_marginTop="2dp"
 		android:src="@drawable/img_placeholder_logo_bw"
-		custom:sizeHint="@dimen/image_small"
-		custom:fitType="fixed" />
+		custom:fitType="fixed"
+		custom:sizeHint="@dimen/image_small" />
 
 	<LinearLayout
 		android:id="@+id/holder_content"
@@ -54,9 +54,9 @@
 			android:id="@+id/description"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:ellipsize="end"
-			android:maxLines="5" />
+			android:maxLines="5"
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 
 		<!-- Photo -->
 
@@ -71,15 +71,16 @@
 			android:scaleType="centerCrop"
 			custom:aspectRatio="@dimen/aspect_ratio_message_item_image"
 			custom:aspectRatioEnabled="true"
+			custom:config="rgb_565"
 			custom:dominantMeasurement="width"
-			custom:layout="@layout/widget_webimageview"
-			custom:fitType="auto" />
+			custom:fitType="auto"
+			custom:layout="@layout/widget_webimageview" />
 
 		<LinearLayout
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="4dp"
 			android:layout_marginBottom="8dp"
+			android:layout_marginTop="4dp"
 			android:orientation="horizontal">
 
 			<ImageView
@@ -87,18 +88,18 @@
 				android:layout_width="16dp"
 				android:layout_height="16dp"
 				android:layout_gravity="center_vertical"
-				android:src="?attr/iconMessage"
 				android:layout_marginLeft="2dp"
 				android:layout_marginRight="4dp"
 				android:alpha="0.8"
+				android:src="?attr/iconMessage"
 				android:tint="@color/brand_primary" />
 
 			<com.aircandi.ui.widgets.AirTextLight
 				android:id="@+id/modified_date"
 				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
 				android:layout_gravity="center_vertical"
 				android:textAppearance="?android:attr/textAppearanceSmall"
-				android:layout_height="wrap_content"
 				android:textColor="?attr/textColorSecondary"
 				tools:text="10:48pm Sept 11" />
 
@@ -110,10 +111,10 @@
 		android:id="@+id/alert_indicator"
 		android:layout_width="@dimen/image_micro"
 		android:layout_height="@dimen/image_micro"
-		android:layout_alignParentRight="true"
 		android:layout_alignParentBottom="true"
+		android:layout_alignParentRight="true"
 		android:src="@drawable/img_blue_dot"
-		tools:visibility="visible"
-		android:visibility="invisible" />
+		android:visibility="invisible"
+		tools:visibility="visible" />
 
 </RelativeLayout>
