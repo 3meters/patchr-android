@@ -20,9 +20,9 @@ import com.squareup.otto.Subscribe;
 @SuppressWarnings("ucd")
 public class PlaceList extends BaseActivity {
 
-	protected String             mListLinkType;
-	protected Integer            mListTitleResId;
-	protected Integer            mListEmptyMessageResId;
+	protected String  mListLinkType;
+	protected Integer mListTitleResId;
+	protected Integer mListEmptyMessageResId;
 
 	@Override
 	public void unpackIntent() {
@@ -52,23 +52,28 @@ public class PlaceList extends BaseActivity {
 		     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
 		     .setSchema(Constants.SCHEMA_ENTITY_PLACE);
 
-		((EntityListFragment)mCurrentFragment).setQuery(query)
-		             .setMonitor(monitor)
-		             .setListPagingEnabled(true)
-		             .setListViewType(ViewType.LIST)
-		             .setListLayoutResId(R.layout.place_list_fragment)
-		             .setListLoadingResId(R.layout.temp_listitem_loading)
-		             .setListItemResId(R.layout.temp_listitem_place)
-		             .setListEmptyMessageResId(mListEmptyMessageResId)
-		             .setTitleResId(mListTitleResId)
-		             .setSelfBindingEnabled(true);
-
-		setActivityTitle(StringManager.getString(((BaseFragment) mCurrentFragment).getTitleResId()));
+		((EntityListFragment) mCurrentFragment).setQuery(query)
+		                                       .setMonitor(monitor)
+		                                       .setListPagingEnabled(true)
+		                                       .setListViewType(ViewType.LIST)
+		                                       .setListLayoutResId(R.layout.place_list_fragment)
+		                                       .setListLoadingResId(R.layout.temp_listitem_loading)
+		                                       .setListItemResId(R.layout.temp_listitem_place)
+		                                       .setListEmptyMessageResId(mListEmptyMessageResId)
+		                                       .setTitleResId(mListTitleResId)
+		                                       .setSelfBindingEnabled(true);
 
 		getFragmentManager()
 				.beginTransaction()
 				.add(R.id.fragment_holder, mCurrentFragment)
 				.commit();
+
+		draw(null);
+	}
+
+	@Override
+	public void draw(View view) {
+		setActivityTitle(StringManager.getString(((BaseFragment) mCurrentFragment).getTitleResId()));
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -77,11 +82,27 @@ public class PlaceList extends BaseActivity {
 
 	@Subscribe
 	public void onProcessingFinished(ProcessingFinishedEvent event) {
+		mBusy.hideBusy(false);
+
+		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
+		final Integer count = fragment.getAdapter().getCount();
+
+		((BaseFragment) mCurrentFragment).onProcessingFinished();
+
+		if (mBubbleButton.isEnabled()) {
+			if (count == 0) {
+				mBubbleButton.setText(fragment.getListEmptyMessageResId());
+				mBubbleButton.fadeIn();
+			}
+			else {
+				mBubbleButton.fadeOut();
+			}
+		}
 	}
 
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
-		((EntityListFragment)mCurrentFragment).onMoreButtonClick(view);
+		((EntityListFragment) mCurrentFragment).onMoreButtonClick(view);
 	}
 
 	@Override

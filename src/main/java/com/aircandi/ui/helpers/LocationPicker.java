@@ -3,6 +3,7 @@ package com.aircandi.ui.helpers;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Toast;
 
@@ -105,6 +106,12 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 		mDirty = true;
 	}
 
+	@Override
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		if (mMapView != null) mMapView.onSaveInstanceState(outState);
+		super.onSaveInstanceState(outState);
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -175,20 +182,26 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 
 	@Override
 	public void onResume() {
-		mMapView.onResume();
+		if (mMapView != null) mMapView.onResume();
 		super.onResume();
+	}
+
+	@Override
+	public void onPause() {
+		if (mMapView != null) mMapView.onPause();
+		super.onPause();
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		mMapView.onDestroy();
+		if (mMapView != null) mMapView.onDestroy();
 	}
 
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
-		mMapView.onLowMemory();
+		if (mMapView != null) mMapView.onLowMemory();
 	}
 
 	/*--------------------------------------------------------------------------------------------

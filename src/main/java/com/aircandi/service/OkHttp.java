@@ -33,9 +33,9 @@ public class OkHttp extends BaseConnection {
 	 * - Doesn't retry if IOException is during response streaming.
 	 */
 
-	public static final MediaType MEDIA_TYPE_TEXT  = MediaType.parse("text/plain");
-	public static final MediaType MEDIA_TYPE_HTML  = MediaType.parse("text/html");
-	public static final MediaType MEDIA_TYPE_JSON  = MediaType.parse("application/json");
+	public static final MediaType MEDIA_TYPE_TEXT = MediaType.parse("text/plain");
+	public static final MediaType MEDIA_TYPE_HTML = MediaType.parse("text/html");
+	public static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json");
 
 	private OkHttpClient client;
 
@@ -93,6 +93,9 @@ public class OkHttp extends BaseConnection {
 			serviceResponse.statusMessage = response.message();
 			serviceResponse.activityName = serviceRequest.getActivityName();
 			serviceResponse.tag = serviceRequest.getTag();
+			serviceResponse.data = response.body().string();
+			serviceResponse.contentType = getContentType(response, airRequest);
+			serviceResponse.contentLength = response.body().contentLength();
 
 			if (!response.isSuccessful()) {
 				/*
@@ -100,14 +103,8 @@ public class OkHttp extends BaseConnection {
 				 */
 				logErrorResponse(response);
 				serviceResponse.responseCode = ResponseCode.FAILED;
-				return serviceResponse;
 			}
-			else {
-				serviceResponse.data = response.body().string();
-				serviceResponse.contentType = getContentType(response, airRequest);
-				serviceResponse.contentLength = response.body().contentLength();
-				return serviceResponse;
-			}
+			return serviceResponse;
 		}
 		catch (OutOfMemoryError error) {
 			if (response != null) {
@@ -210,7 +207,6 @@ public class OkHttp extends BaseConnection {
 				}
 			}
 		});
-
 	}
 
 	private void logErrorResponse(Response response) {

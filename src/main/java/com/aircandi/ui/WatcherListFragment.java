@@ -51,7 +51,7 @@ public class WatcherListFragment extends EntityListFragment {
 	}
 
 	@Override
-	protected void bindListItem(Entity entity, View view) {
+	protected void bindListItem(Entity entity, View view, String groupTag) {
 
 		IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
 
@@ -60,14 +60,14 @@ public class WatcherListFragment extends EntityListFragment {
 			holder = new ViewHolderExtended();
 
 			((ViewHolderExtended) holder).enable = (CompoundButton) view.findViewById(R.id.switch_enable);
-			((ViewHolderExtended) holder).delete = (ComboButton) view.findViewById(R.id.button_delete);
+			((ViewHolderExtended) holder).delete = (ComboButton) view.findViewById(R.id.button_delete_watcher);
 
 			controller.bindHolder(view, holder);
 			view.setTag(holder);
 		}
 		holder.data = entity;
 
-		controller.bind(entity, view);
+		controller.bind(entity, view, groupTag);
 
 		if (holder.candiView != null) {
 			ViewGroup layout = holder.candiView.getLayout();
@@ -76,7 +76,7 @@ public class WatcherListFragment extends EntityListFragment {
 
 			TextView role = (TextView) layout.findViewById(R.id.role);
 			View editGroup = layout.findViewById(R.id.owner_edit_group);
-			View deleteButton = layout.findViewById(R.id.button_delete);
+			View deleteButton = layout.findViewById(R.id.button_delete_watcher);
 
 			UI.setVisibility(role, View.GONE);
 			UI.setVisibility(editGroup, View.GONE);

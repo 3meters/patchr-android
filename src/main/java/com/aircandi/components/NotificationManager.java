@@ -21,13 +21,10 @@ import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
-import com.aircandi.utilities.UI;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("ucd")

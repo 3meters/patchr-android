@@ -17,6 +17,7 @@ import com.aircandi.components.StringManager;
 import com.aircandi.objects.Document;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.interfaces.IBusy.BusyAction;
+import com.aircandi.ui.components.SimpleTextWatcher;
 import com.aircandi.ui.widgets.AirEditText;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.DateTime;

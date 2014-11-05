@@ -9,8 +9,6 @@ public abstract class ParallaxedViewBase {
 	protected WeakReference<View> mView;
 	protected int                 mLastOffset; // NO_UCD (unused code)
 
-	abstract protected void translatePreICS(View view, float offset);
-
 	protected ParallaxedViewBase(View view) {
 		this.mLastOffset = 0;
 		this.mView = new WeakReference<View>(view);

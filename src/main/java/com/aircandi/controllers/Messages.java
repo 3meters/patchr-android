@@ -8,7 +8,6 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
-import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Count;
@@ -50,7 +49,7 @@ public class Messages extends EntityControllerBase {
 		return entity;
 	}
 
-	public void bind(Entity entity, View view) {
+	public void bind(Entity entity, View view, String groupTag) {
 
         /* Configure holder if we didn't get one ready to go */
 		ViewHolder holder = (ViewHolder) view.getTag();
@@ -94,6 +93,7 @@ public class Messages extends EntityControllerBase {
 			 */
 			Photo photo = entity.creator.getPhoto();
 			if (holder.userPhoto.getPhoto() == null || !holder.userPhoto.getPhoto().getUri().equals(photo.getUri())) {
+				holder.userPhoto.setGroupTag(groupTag);
 				UI.drawPhoto(holder.userPhoto, photo);
 			}
 			holder.userPhoto.setTag(entity.creator);
@@ -211,7 +211,7 @@ public class Messages extends EntityControllerBase {
 			holder.share.removeAllViews();
 			View shareView = LayoutInflater.from(view.getContext()).inflate(layoutResId, null, false);
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(shareEntity.schema);
-			controller.bind(shareEntity, shareView);
+			controller.bind(shareEntity, shareView, groupTag);
 			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				shareEntity.autowatchable = true;
 			}
@@ -230,6 +230,7 @@ public class Messages extends EntityControllerBase {
 				if (entity.photo != null) {
 					if (holder.photo.getPhoto() == null || !photo.getUri().equals(holder.photo.getPhoto().getUri())) {
 						holder.photo.setCenterCrop(false);
+						holder.photo.setGroupTag(groupTag);
 						UI.drawPhoto(holder.photo, photo);
 					}
 					UI.setVisibility(holder.photo, View.VISIBLE);

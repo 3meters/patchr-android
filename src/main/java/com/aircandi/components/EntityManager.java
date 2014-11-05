@@ -8,8 +8,8 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
-import com.aircandi.components.NotificationManager.Tag;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.components.NotificationManager.Tag;
 import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
@@ -1262,18 +1262,15 @@ public class EntityManager {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
 		 * We update the cache directly instead of refreshing from the service
+		 *
+		 * Could fail because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
+		 * prevents any user from liking the same entity more than once. Should be safe to ignore.
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			if (!skipCache) {
 				mEntityCache.addLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
 			}
 			Patchr.tracker.sendEvent(TrackerCategory.LINK, actionEvent, toShortcut.schema, 0);
-		}
-		else {
-			/*
-			 * Fail could be because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
-			 * prevents any user from liking the same entity more than once.
-			 */
 		}
 
 		return result;
@@ -1304,7 +1301,7 @@ public class EntityManager {
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			String action = null;
+			String action;
 			if (actionEvent != null) {
 				action = actionEvent;
 			}

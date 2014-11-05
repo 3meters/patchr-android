@@ -42,7 +42,7 @@
 		custom:fitType="fixed" />
 
 	<ImageView
-		android:id="@+id/button_delete"
+		android:id="@+id/button_delete_watcher"
 		android:layout_width="@dimen/image_extra_small"
 		android:layout_height="@dimen/image_extra_small"
 		android:layout_gravity="center_vertical"

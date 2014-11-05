@@ -1,6 +1,5 @@
 package com.aircandi.ui;
 
-import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;

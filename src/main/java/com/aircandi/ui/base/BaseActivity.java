@@ -1,14 +1,11 @@
 package com.aircandi.ui.base;
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -18,12 +15,8 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,10 +25,8 @@ import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,6 +56,8 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.ui.EntityListFragment;
+import com.aircandi.ui.components.BubbleController;
+import com.aircandi.ui.components.FloatingActionController;
 import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
@@ -79,15 +72,15 @@ import java.util.Map;
 
 public abstract class BaseActivity extends Activity implements OnRefreshListener, AirListView.OnDragListener, IForm, IBind {
 
-	protected ActionBar            mActionBar;
-	public    View                 mActionBarView;
-	protected BubbleButton         mBubbleButton;
-	protected FloatingActionButton mFab;
-	protected String               mActivityTitle;
-	protected Entity               mEntity;
-	protected String               mEntityId;
-	public    String               mForId;
-	protected SimpleMonitor        mEntityMonitor;
+	protected ActionBar                mActionBar;
+	public    View                     mActionBarView;
+	protected BubbleController         mBubbleButton;
+	protected FloatingActionController mFab;
+	protected String                   mActivityTitle;
+	protected Entity                   mEntity;
+	protected String                   mEntityId;
+	public    String                   mForId;
+	protected SimpleMonitor            mEntityMonitor;
 
 	/* Fragments */
 	protected Map<String, Fragment> mFragments = new HashMap<String, Fragment>();
@@ -189,8 +182,8 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	public void initialize(Bundle savedInstanceState) {
 		/* Base Ui */
 		mBusy = new BusyManager(this);
-		mFab = new FloatingActionButton(findViewById(R.id.floating_action_button));
-		mBubbleButton = new BubbleButton(findViewById(R.id.button_bubble));
+		mFab = new FloatingActionController(findViewById(R.id.floating_action_button));
+		mBubbleButton = new BubbleController(findViewById(R.id.button_bubble));
 		mBubbleButton.show(false);
 	}
 
@@ -324,21 +317,8 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-		//		if (requestCode == AndroidManager.PLAY_SERVICES_RESOLUTION_REQUEST) {
-		//			if (resultCode == RESULT_CANCELED) {
-		//				UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unavailable), Toast.LENGTH_LONG);
-		//				finish();
-		//				return;
-		//			}
-		//		}
 		Patchr.resultCode = Activity.RESULT_OK;
 		super.onActivityResult(requestCode, resultCode, intent);
-	}
-
-	@Override
-	public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-		return super.onCreateView(parent, name, context, attrs);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -384,7 +364,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		return null;
 	}
 
-	public BubbleButton getBubbleButton() {
+	public BubbleController getBubbleController() {
 		return mBubbleButton;
 	}
 
@@ -880,6 +860,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		Logger.d(this, "Activity resuming");
 		Patchr.activityResumed();
 		BusProvider.getInstance().register(this);
+		BusProvider.getInstance().register(mBusy);
 		Patchr.getInstance().setCurrentActivity(this);
 		mClickEnabled = true;
 		if (!isFinishing()) {
@@ -906,6 +887,10 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		super.onPause();
 		Logger.d(this, "Activity pausing");
 		BusProvider.getInstance().unregister(this);
+		if (mBusy != null) {
+			BusProvider.getInstance().unregister(mBusy);
+			mBusy.onPause();
+		}
 		clearReferences();
 		Patchr.activityPaused();
 	}
@@ -936,332 +921,8 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public class FloatingActionButton {
-
-		private View mView;
-		private Boolean mEnabled = true;
-		private Boolean mLocked  = false;
-		private Boolean mHidden  = false;
-		private Boolean mSliding = false;
-
-		public FloatingActionButton(View view) {
-			mView = view;
-		}
-
-		public void click() {
-			if (!mEnabled) {
-				throw new RuntimeException("Cannot call click while not enabled");
-			}
-			if (mView != null) {
-				mView.callOnClick();
-			}
-		}
-
-		public void show(final Boolean visible) {
-			if (mView != null) {
-				mView.setVisibility(visible ? View.VISIBLE : View.GONE);
-			}
-		}
-
-		public ObjectAnimator fadeIn() {
-			/*
-			 * Skips if already visible and full opacity. Always ensures
-			 * default position.
-			 */
-			if (mView == null || (mView.getVisibility() == View.VISIBLE && mView.getAlpha() == 1f))
-				return null;
-
-			mView.setAlpha(0f);
-			mView.setTranslationY(0f);
-			mView.setVisibility(View.VISIBLE);
-			ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 1f);
-			anim.setDuration(AnimationManager.DURATION_MEDIUM);
-			anim.addListener(new SimpleAnimationListener() {
-				@Override
-				public void onAnimationStart(Animator animator) {
-					mView.setClickable(true);
-					animator.removeAllListeners();
-				}
-			});
-			anim.start();
-			return anim;
-		}
-
-		public ObjectAnimator fadeOut() {
-			/*
-			 * Skips if already gone and fully transparent. Always ensures
-			 * default position.
-			 */
-			if (mView == null || (mView.getVisibility() == View.GONE && mView.getAlpha() == 0f))
-				return null;
-
-			ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 0f);
-			mView.setTranslationY(0f);
-			anim.setDuration(AnimationManager.DURATION_MEDIUM);
-			anim.addListener(new SimpleAnimationListener() {
-				@Override
-				public void onAnimationEnd(Animator animator) {
-					mView.setClickable(false);
-					mView.setVisibility(View.GONE);
-					animator.removeAllListeners();
-				}
-			});
-			anim.start();
-			return anim;
-		}
-
-		public ObjectAnimator slideOut(Integer duration) {
-			/*
-			 * Skips if locked, sliding or already hidden.
-			 */
-			if (mLocked || mSliding || mHidden || mView == null) return null;
-
-			mSliding = true;
-			ObjectAnimator anim = ObjectAnimator.ofFloat(mView
-					, "translationY"
-					, mView.getHeight());
-			anim.setDuration(duration);
-			anim.addListener(new SimpleAnimationListener() {
-				@Override
-				public void onAnimationEnd(Animator animator) {
-					mView.setClickable(false);
-					animator.removeAllListeners();
-					mHidden = true;
-					mSliding = false;
-				}
-			});
-			anim.start();
-			return anim;
-		}
-
-		public ObjectAnimator slideIn(Integer duration) {
-			/*
-			 * Skips if locked, sliding or not hidden.
-			 */
-			if (mLocked || mSliding || !mHidden) return null;
-
-			mSliding = true;
-			ObjectAnimator anim = ObjectAnimator.ofFloat(mView
-					, "translationY"
-					, 0);
-			anim.setDuration(duration);
-			anim.addListener(new SimpleAnimationListener() {
-				@Override
-				public void onAnimationEnd(Animator animator) {
-					mView.setClickable(true);
-					animator.removeAllListeners();
-					mHidden = false;
-					mSliding = false;
-				}
-			});
-			anim.start();
-			return anim;
-		}
-
-		public void setEnabled(Boolean enabled) {
-			if (!enabled) {
-				fadeOut();
-			}
-			else {
-				fadeIn();
-			}
-			mEnabled = enabled;
-		}
-
-		public Boolean isEnabled() {
-			return mEnabled;
-		}
-
-		public void setLocked(Boolean locked) {
-			mLocked = locked;
-		}
-
-		public Boolean isLocked() {
-			return mLocked;
-		}
-
-		public void setTag(Object tag) {
-			if (!mEnabled) {
-				throw new RuntimeException("Cannot call setTag while not enabled");
-			}
-			if (mView != null) {
-				mView.setTag(tag);
-			}
-		}
-
-		public void setText(int labelResId) {
-			String label = StringManager.getString(labelResId);
-			setText(label);
-		}
-
-		public void setText(String label) {
-			if (!mEnabled) {
-				throw new RuntimeException("Cannot call setText while not enabled");
-			}
-			if (mView != null) {
-				if (!(mView instanceof TextView)) {
-					throw new RuntimeException("Cannot call setText if not a TextView");
-				}
-				((TextView) mView).setText(label);
-			}
-		}
-	}
-
-	public static class BubbleButton {
-
-		private View mView;
-		private Boolean mEnabled = true;
-
-		public BubbleButton(View view) {
-			mView = view;
-		}
-
-		public void show(final Boolean visible) {
-			if (mView != null) {
-				mView.setVisibility(visible ? View.VISIBLE : View.GONE);
-			}
-		}
-
-		public ObjectAnimator fadeIn() {
-			if (mView == null || (mView.getVisibility() == View.VISIBLE && mView.getAlpha() == 1f))
-				return null;
-			Logger.d(this, "Bubble: fading in");
-			ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 1f);
-			mView.setAlpha(0f);
-			mView.setVisibility(View.VISIBLE);
-			anim.setDuration(AnimationManager.DURATION_MEDIUM);
-			anim.addListener(new SimpleAnimationListener() {
-				@Override
-				public void onAnimationStart(Animator animator) {
-					animator.removeAllListeners();
-				}
-			});
-			anim.start();
-			return anim;
-		}
-
-		public ObjectAnimator fadeOut() {
-			if (mView == null || (mView.getVisibility() == View.GONE && mView.getAlpha() == 0f))
-				return null;
-			Logger.d(this, "Bubble: fading out");
-			ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 0f);
-			anim.setDuration(AnimationManager.DURATION_MEDIUM);
-			anim.addListener(new SimpleAnimationListener() {
-				@Override
-				public void onAnimationEnd(Animator animator) {
-					mView.setVisibility(View.GONE);
-					animator.removeAllListeners();
-				}
-			});
-			anim.start();
-			return anim;
-		}
-
-		public void position(final View header, final Integer headerHeightProjected) {
-
-			if (mView != null && header != null) {
-
-				ViewTreeObserver vto = header.getViewTreeObserver();
-				vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-
-					@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-					@SuppressWarnings("deprecation")
-					@Override
-					public void onGlobalLayout() {
-
-						if (Patchr.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-							RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mView.getLayoutParams());
-							params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-							int headerHeight = (headerHeightProjected != null)
-							                   ? headerHeightProjected
-							                   : header.getHeight();
-							params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(100f);
-							mView.setLayoutParams(params);
-						}
-						else {
-							RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mView.getLayoutParams());
-							params.addRule(RelativeLayout.CENTER_IN_PARENT);
-							mView.setLayoutParams(params);
-						}
-
-						if (Constants.SUPPORTS_JELLY_BEAN) {
-							header.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-						}
-						else {
-							header.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-						}
-					}
-				});
-			}
-		}
-
-		public void setEnabled(Boolean enabled) {
-			if (!enabled) {
-				fadeOut();
-			}
-			else {
-				fadeIn();
-			}
-			mEnabled = enabled;
-		}
-
-		public Boolean isEnabled() {
-			return mEnabled;
-		}
-
-		public void setText(int labelResId) {
-			String label = StringManager.getString(labelResId);
-			setText(label);
-		}
-
-		public void setText(String label) {
-			if (!mEnabled) {
-				throw new RuntimeException("Cannot call setText while not enabled");
-			}
-			if (mView != null) {
-				if (!(mView instanceof TextView || mView instanceof Button)) {
-					throw new RuntimeException("Cannot call setText if not a TextView");
-				}
-				((TextView) mView).setText(label);
-			}
-		}
-
-		public void setOnClickListener(View.OnClickListener listener) {
-			mView.setOnClickListener(listener);
-		}
-	}
-
 	public enum ServiceOperation {
 		SIGNIN,
 		PASSWORD_CHANGE,
-	}
-
-	public static class SimpleTextWatcher implements TextWatcher {
-
-		@Override
-		public void afterTextChanged(Editable s) {
-		}
-
-		@Override
-		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-		}
-
-		@Override
-		public void onTextChanged(CharSequence s, int start, int before, int count) {
-		}
-	}
-
-	public static class SimpleAnimationListener implements Animator.AnimatorListener {
-		@Override
-		public void onAnimationStart(Animator animator) {}
-
-		@Override
-		public void onAnimationEnd(Animator animator) {}
-
-		@Override
-		public void onAnimationCancel(Animator animator) {}
-
-		@Override
-		public void onAnimationRepeat(Animator animator) {}
 	}
 }

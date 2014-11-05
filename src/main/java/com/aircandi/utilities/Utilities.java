@@ -3,11 +3,10 @@ package com.aircandi.utilities;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 
+import com.aircandi.Constants;
 import com.aircandi.Patchr;
-import com.aircandi.components.Logger;
 
 import java.util.regex.Pattern;
 
@@ -56,27 +55,16 @@ public class Utilities {
 		UNDEFINED
 	}
 
-	public static int calculateMemoryCacheSize(Context context) {
-		/*
-		 * Get memory class of this device, exceeding this amount will throw an
-		 * OutOfMemory exception.
-		 */
-		ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-		int memClass = am.getMemoryClass();
+	public static int maxMemoryMB() {
+		return (int) (Runtime.getRuntime().maxMemory() / Constants.SIZE_MEGABYTES);
+	}
 
-		final boolean largeHeap = (context.getApplicationInfo().flags & ApplicationInfo.FLAG_LARGE_HEAP) != 0;
-		if (largeHeap) {
-			memClass = am.getLargeMemoryClass();
-		}
+	public static int freeMemoryMB() {
+		return (int) (Runtime.getRuntime().freeMemory() / Constants.SIZE_MEGABYTES);
+	}
 
-		Logger.i(context, "Device memory class: " + String.valueOf(memClass));
-		Patchr.memoryClass = memClass;
-
-		/* Use 1/4th of the available memory for this memory cache. */
-		final int cacheSize = (memClass << 10 << 10) >> 2;
-		Logger.i(context, "Memory cache size: " + String.valueOf(cacheSize));
-
-		return cacheSize;
+	public static int totalMemoryMB() {
+		return (int) (Runtime.getRuntime().totalMemory() / Constants.SIZE_MEGABYTES);
 	}
 
 	private static final Pattern EMAIL_ADDRESS                    = Pattern.compile(

@@ -92,7 +92,7 @@
 	</RelativeLayout>
 
 	<com.aircandi.ui.widgets.ComboButton
-		android:id="@+id/button_delete"
+		android:id="@+id/button_delete_watcher"
 		style="@style/button"
 		android:layout_width="@dimen/button_height"
 		android:layout_height="@dimen/button_height"

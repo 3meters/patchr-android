@@ -1,7 +1,5 @@
 package com.aircandi.interfaces;
 
-import com.aircandi.ui.widgets.SmoothProgressBar;
-
 public interface IBusy {
 
 	public void showBusy(BusyAction busyAction);

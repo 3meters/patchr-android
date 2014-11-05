@@ -29,8 +29,10 @@ import com.aircandi.interfaces.IForm;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.AircandiForm;
+import com.aircandi.ui.components.BubbleController;
 import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.ui.widgets.AirAutoCompleteTextView;
+import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
 
@@ -60,6 +62,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	public    Entity      mEntity;
 	protected Resources   mResources;
 	protected BusyManager mBusy;
+	protected String      mGroupTag;
 	protected Boolean mIsVisible          = false;
 	protected Boolean mFeed               = false;
 	protected Boolean mSelfBindingEnabled = true;
@@ -72,7 +75,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	private View                    mToProgress;
 	private EntitySuggestController mEntitySuggest;
 
-	protected BaseActivity.BubbleButton mBubbleButton;
+	protected BubbleController mBubbleButton;
 
 	/* Resources */
 	protected Integer mTitleResId;
@@ -102,6 +105,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		 */
 		setHasOptionsMenu(true);
 		mResources = getResources();
+		mGroupTag = String.valueOf(DateTime.nowDate().getTime());
 	}
 
 	@Override
@@ -111,7 +115,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 
 		final View view = inflater.inflate(getLayoutId(), container, false);
 
-		mBubbleButton = ((BaseActivity) getActivity()).getBubbleButton();
+		mBubbleButton = ((BaseActivity) getActivity()).getBubbleController();
 
 		return view;
 	}
@@ -384,6 +388,9 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		 */
 		Logger.d(this, "Fragment pause");
 		BusProvider.getInstance().unregister(this);
+		if (mBusy != null) {
+			mBusy.onPause();
+		}
 		super.onPause();
 	}
 

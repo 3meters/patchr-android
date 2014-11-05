@@ -8,8 +8,6 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
-import com.aircandi.components.Logger;
-
 public class AirDrawerLayout extends DrawerLayout {
 
 	private GestureDetectorCompat mDetector;

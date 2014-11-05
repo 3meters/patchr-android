@@ -20,7 +20,6 @@ import android.widget.TextView;
 import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
-import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.objects.Photo;
 import com.aircandi.utilities.UI;
@@ -51,6 +50,7 @@ public class AirImageView extends FrameLayout implements Target {
 	private Integer mSizeHint;
 	private FitType mFitType;
 	private Bitmap.Config mConfig = Bitmap.Config.ARGB_8888;
+	private String mGroupTag;
 
 	public static final int MEASUREMENT_WIDTH  = 0;
 	public static final int MEASUREMENT_HEIGHT = 1;
@@ -220,7 +220,7 @@ public class AirImageView extends FrameLayout implements Target {
 			Bitmap bitmap = DownloadManager.decorate(inBitmap, loadedFrom);
 			DownloadManager.logBitmap(this, bitmap, mImageMain);
 			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
-			UI.showDrawableInImageView(bitmapDrawable, mImageMain, true, AnimationManager.fadeInMedium());
+			UI.showDrawableInImageView(bitmapDrawable, mImageMain, true);
 			showMissing(false);
 			if (mShowBusy) {
 				showLoading(false);
@@ -272,7 +272,7 @@ public class AirImageView extends FrameLayout implements Target {
 					if (visible) {
 						Integer resId = Patchr.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.img_broken_100_light : R.drawable.img_broken_100_dark;
 						Drawable drawable = getResources().getDrawable(resId);
-						UI.showDrawableInImageView(drawable, mImageMain, true, AnimationManager.fadeInMedium());
+						UI.showDrawableInImageView(drawable, mImageMain, true);
 					}
 				}
 				else {
@@ -351,6 +351,15 @@ public class AirImageView extends FrameLayout implements Target {
 
 	public AirImageView setTarget(Target target) {
 		mTarget = target;
+		return this;
+	}
+
+	public String getGroupTag() {
+		return mGroupTag;
+	}
+
+	public AirImageView setGroupTag(String group) {
+		mGroupTag = group;
 		return this;
 	}
 

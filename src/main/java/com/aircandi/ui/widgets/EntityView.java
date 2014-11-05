@@ -15,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aircandi.R;
-import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Entity;
@@ -73,7 +72,7 @@ public class EntityView extends LinearLayout {
 			mName = (TextView) mBoundView.findViewById(R.id.entity_view_name);
 			mSubtitle = (TextView) mBoundView.findViewById(R.id.entity_view_subtitle);
 			mLabel = (TextView) mBoundView.findViewById(R.id.entity_view_label);
-			mButtonDelete = (ImageView) mBoundView.findViewById(R.id.button_delete);
+			mButtonDelete = (ImageView) mBoundView.findViewById(R.id.button_delete_watcher);
 		}
 	}
 
@@ -138,7 +137,7 @@ public class EntityView extends LinearLayout {
 								}
 							}
 							else {
-								UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true, AnimationManager.fadeInMedium());
+								UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
 							}
 						}
 

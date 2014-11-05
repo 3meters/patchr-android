@@ -162,7 +162,7 @@ public class CandiView extends RelativeLayout {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void databind(Entity entity, IndicatorOptions options) {
+	public void databind(Entity entity, IndicatorOptions options, String groupId) {
 		synchronized (entity) {
 			options.forceUpdate = true;
 			/*
@@ -194,7 +194,7 @@ public class CandiView extends RelativeLayout {
 
 			/* Primary candi image */
 
-			drawPhoto();
+			drawPhoto(groupId);
 
 			/* Background color */
 
@@ -279,6 +279,7 @@ public class CandiView extends RelativeLayout {
 						Photo photo = category.photo.clone();
 						if (!Photo.same(mCategoryPhoto.getPhoto(), photo)) {
 							photo.colorize = false;
+							mCategoryPhoto.setGroupTag(groupId);
 							UI.drawPhoto(mCategoryPhoto, photo);
 						}
 					}
@@ -286,10 +287,9 @@ public class CandiView extends RelativeLayout {
 						/*
 						 * Fall back to default.
 						 */
-						DownloadManager.with(Patchr.applicationContext)
-						               .load(R.drawable.default_88)
-								.centerCrop()
+						DownloadManager.with(Patchr.applicationContext).load(R.drawable.default_88)
 								.resize(mCategoryPhoto.getSizeHint(), mCategoryPhoto.getSizeHint())    // Memory size
+								.centerCrop()
 								.into(mCategoryPhoto);
 					}
 					mCategoryPhoto.setVisibility(View.VISIBLE);
@@ -306,7 +306,7 @@ public class CandiView extends RelativeLayout {
 		}
 	}
 
-	protected void drawPhoto() {
+	protected void drawPhoto(String groupId) {
 
 		if (mPhotoView != null) {
 
@@ -317,6 +317,7 @@ public class CandiView extends RelativeLayout {
 			Photo photo = mEntity.getPhoto();
 			if (mPhotoView.getPhoto() == null || !photo.getUri().equals(mPhotoView.getPhoto().getUri())) {
 				mPhotoView.setTag(photo);
+				mPhotoView.setGroupTag(groupId);
 				UI.drawPhoto(mPhotoView, photo);
 			}
 		}

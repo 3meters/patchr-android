@@ -11,7 +11,6 @@ import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
@@ -32,8 +31,8 @@ public class AirListView extends ListView implements OnScrollListener {
 	private       float          mDragX;
 	private       float          mDragY;
 	private DragDirection mDragDirectionLast = DragDirection.NONE;
-	private GestureDetectorCompat mDetector;
-	private Integer               mMaxWidth;
+	protected GestureDetectorCompat mDetector;
+	private   Integer               mMaxWidth;
 
 	private static final float   DEFAULT_PARALLAX_FACTOR = 1.9F;
 	private static final boolean DEFAULT_IS_CIRCULAR     = false;
@@ -79,6 +78,8 @@ public class AirListView extends ListView implements OnScrollListener {
 		mIsCircular = typeArray.getBoolean(R.styleable.AirListView_circular_parallax, DEFAULT_IS_CIRCULAR);
 		mMaxWidth = typeArray.getDimensionPixelSize(R.styleable.AirListView_maxWidth
 				, mContext.getResources().getDimensionPixelSize(R.dimen.list_max_width));
+
+		setOnScrollListener(this);
 
 		typeArray.recycle();
 	}
@@ -232,7 +233,7 @@ public class AirListView extends ListView implements OnScrollListener {
 		if (mHeaderView == null) return;
 
 		View topChild = getChildAt(0);
-		Integer scrollPosition;
+		int scrollPosition;
 		if (topChild == null) {
 			scrollPosition = 0;
 		}
@@ -342,6 +343,10 @@ public class AirListView extends ListView implements OnScrollListener {
 		mDragDirectionLast = dragDirectionLast;
 	}
 
+	public void setListener(OnScrollListener listener) {
+		mListener = listener;
+	}
+
 	public Drawable getActionBarBackgroundDrawable() {
 		return mActionBarBackgroundDrawable;
 	}
@@ -362,15 +367,6 @@ public class AirListView extends ListView implements OnScrollListener {
 
 		public ParallaxedView(View view) {
 			super(view);
-		}
-
-		@Override
-		protected void translatePreICS(View view, float offset) {
-			TranslateAnimation ta = new TranslateAnimation(0, 0, offset, offset);
-			ta.setDuration(0);
-			ta.setFillAfter(true);
-			view.setAnimation(ta);
-			ta.start();
 		}
 	}
 
@@ -393,16 +389,17 @@ public class AirListView extends ListView implements OnScrollListener {
 
 	public interface OnDragListener {
 		public boolean onDragEvent(DragEvent event, Float dragX, Float dragY);
+
 		public void onDragBottom();
 	}
 
-	public enum DragEvent {
+	public static enum DragEvent {
 		DRAG,
 		STOP,
 		FLING
 	}
 
-	public enum DragDirection {
+	public static enum DragDirection {
 		NONE,
 		UP,
 		DOWN

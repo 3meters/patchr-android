@@ -54,9 +54,9 @@
 
 					<ImageView
 						android:layout_width="56dp"
-						android:padding="8dp"
 						android:layout_height="match_parent"
 						android:layout_marginRight="4dp"
+						android:padding="8dp"
 						android:scaleType="fitCenter"
 						android:src="@drawable/ic_img_users_dark" />
 
@@ -65,9 +65,9 @@
 						android:layout_width="wrap_content"
 						android:layout_height="match_parent"
 						android:gravity="center_vertical"
-						tools:text="12"
 						android:textAppearance="?android:attr/textAppearanceMedium"
-						android:textColor="?attr/textColorCandiView" />
+						android:textColor="?attr/textColorCandiView"
+						tools:text="12" />
 				</LinearLayout>
 
 				<com.aircandi.ui.widgets.ComboButton
@@ -97,7 +97,6 @@
 					android:layout_height="@dimen/button_height"
 					android:layout_alignParentRight="true"
 					android:layout_centerVertical="true"
-
 					android:onClick="onMapButtonClick"
 					custom:drawable="@drawable/ic_img_location_dark" />
 

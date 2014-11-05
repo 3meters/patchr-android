@@ -21,16 +21,17 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.ImageResult;
 import com.aircandi.objects.ImageResult.Thumbnail;
@@ -45,7 +46,6 @@ import com.aircandi.service.ServiceRequest;
 import com.aircandi.service.ServiceRequest.AuthType;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirAutoCompleteTextView;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.AirTextView;
@@ -84,7 +84,7 @@ public class PhotoPicker extends BaseActivity {
 	private Provider mProvider;
 	private Integer  mPhotoWidthPixels;
 
-	private static final long   PAGE_SIZE     = 30L;
+	private static final long   PAGE_SIZE     = 49L;
 	private static final long   LIST_MAX      = 300L;
 	private static final String QUERY_PREFIX  = "";
 	private static final String QUERY_DEFAULT = "wallpaper unusual places";
@@ -236,7 +236,7 @@ public class PhotoPicker extends BaseActivity {
 		}
 	}
 
-	public void draw(View view){
+	public void draw(View view) {
 		if (mPlacePhotoMode) {
 			setActivityTitle(mEntity.name);
 		}
@@ -386,6 +386,15 @@ public class PhotoPicker extends BaseActivity {
 
 				if (usable) {
 					usable = (imageResult.getThumbnail() != null && imageResult.getThumbnail().getUrl() != null);
+				}
+
+				if (usable) {
+					for (ImageResult image : mImages) {
+						if (image.getThumbnail().getUrl().equals(imageResult.getThumbnail().getUrl())) {
+							usable = false;
+							break;
+						}
+					}
 				}
 
 				if (usable) {
@@ -626,5 +635,4 @@ public class PhotoPicker extends BaseActivity {
 		public AirImageView photoView;
 		public ImageResult  data; // NO_UCD (unused code)
 	}
-
 }

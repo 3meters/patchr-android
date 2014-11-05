@@ -35,6 +35,7 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.service.ServiceResponse;
+import com.aircandi.ui.components.SimpleTextWatcher;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
@@ -170,13 +171,13 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 
 			/* Configure UI */
-			UI.setVisibility(findViewById(R.id.button_delete), View.GONE);
+			UI.setVisibility(findViewById(R.id.button_delete_watcher), View.GONE);
 			if (entity.ownerId != null
 					&& (entity.ownerId.equals(Patchr.getInstance().getCurrentUser().id)
 					|| (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
 					&& Patchr.getInstance().getCurrentUser().developer != null
 					&& Patchr.getInstance().getCurrentUser().developer))) {
-				UI.setVisibility(findViewById(R.id.button_delete), View.VISIBLE);
+				UI.setVisibility(findViewById(R.id.button_delete_watcher), View.VISIBLE);
 			}
 			mFirstDraw = false;
 		}

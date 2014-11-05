@@ -519,6 +519,9 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 		super.onPause();
 		Logger.d(this, "Activity pausing");
 		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+		if (mBusy != null) {
+			mBusy.onPause();
+		}
 	}
 
 	@Override

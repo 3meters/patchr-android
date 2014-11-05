@@ -320,6 +320,9 @@ public class SplashForm extends Activity {
 		super.onPause();
 		Logger.d(this, "Splash pause");
 		clearReferences();
+		if (mBusy != null) {
+			mBusy.onPause();
+		}
 	}
 
 	@Override

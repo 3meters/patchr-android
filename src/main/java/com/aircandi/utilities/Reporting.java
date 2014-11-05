@@ -26,6 +26,11 @@ public class Reporting {
 		Crashlytics.setFloat("beacons_visible", ProximityManager.getInstance().getWifiList().size());
 		Crashlytics.setString("device_name", AndroidManager.getInstance().getDeviceName());
 
+		/* Memory info */
+		Crashlytics.setFloat("memory_max_mb", Utilities.maxMemoryMB());
+		Crashlytics.setFloat("memory_total_mb", Utilities.totalMemoryMB());
+		Crashlytics.setFloat("memory_free_mb", Utilities.freeMemoryMB());
+
 		/* Identifies device/install combo */
 		Crashlytics.setApplicationInstallationIdentifier(Patchr.getinstallId());
 

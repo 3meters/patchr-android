@@ -200,7 +200,7 @@ public class UserForm extends BaseEntityForm {
 			options.showIfZero = true;
 			options.imageSizePixels = 15;
 			options.iconsEnabled = false;
-			candiView.databind(mEntity, options);
+			candiView.databind(mEntity, options, null);
 		}
 		else {
 			UI.setVisibility(photoView, View.GONE);

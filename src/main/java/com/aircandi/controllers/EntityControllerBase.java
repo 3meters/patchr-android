@@ -178,7 +178,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		return intent;
 	}
 
-	public void bind(Entity entity, View view) {
+	public void bind(Entity entity, View view, String groupTag) {
 
         /* Configure holder if we didn't get one ready to go */
 		ViewHolder holder = (ViewHolder) view.getTag();
@@ -193,7 +193,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		UI.setVisibility(holder.candiView, View.GONE);
 		if (holder.candiView != null) {
-			holder.candiView.databind(entity, new CandiView.IndicatorOptions());
+			holder.candiView.databind(entity, new CandiView.IndicatorOptions(), groupTag);
 			UI.setVisibility(holder.candiView, View.VISIBLE);
 			return;
 		}

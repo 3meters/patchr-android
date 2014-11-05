@@ -11,7 +11,9 @@ import java.util.Map;
 @SuppressWarnings("ucd")
 public class AirLocation extends ServiceObject implements Cloneable, Serializable {
 
-	private static final long serialVersionUID = 455904759787968585L;
+	private static final long                      serialVersionUID = 455904759787968585L;
+	private static final android.location.Location fromLocation     = new android.location.Location("from");
+	private static final android.location.Location toLocation       = new android.location.Location("to");
 
 	@Expose
 	public Number lat;
@@ -69,17 +71,11 @@ public class AirLocation extends ServiceObject implements Cloneable, Serializabl
 
 	public Float distanceTo(AirLocation location) {
 
-		Float distance;
+		fromLocation.setLatitude(this.lat.doubleValue());
+		fromLocation.setLongitude(this.lng.doubleValue());
+		toLocation.setLatitude(location.lat.doubleValue());
+		toLocation.setLongitude(location.lng.doubleValue());
 
-		final android.location.Location locationThis = new android.location.Location(this.provider);
-		locationThis.setLatitude(this.lat.doubleValue());
-		locationThis.setLongitude(this.lng.doubleValue());
-
-		final android.location.Location locationTo = new android.location.Location("place");
-		locationTo.setLatitude(location.lat.doubleValue());
-		locationTo.setLongitude(location.lng.doubleValue());
-
-		distance = locationThis.distanceTo(locationTo);
-		return distance;
+		return fromLocation.distanceTo(toLocation);
 	}
 }

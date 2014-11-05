@@ -27,7 +27,6 @@ import com.aircandi.objects.Photo;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Place.ReasonType;
 import com.aircandi.objects.User;
-import com.aircandi.ui.base.BaseActivity.SimpleTextWatcher;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.AirTokenCompleteTextView;
 import com.aircandi.ui.widgets.TokenCompleteTextView;

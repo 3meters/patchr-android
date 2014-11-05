@@ -35,30 +35,33 @@ public class Logger {
 		VERBOSE
 	}
 
+	private static StringBuilder stringBuilder = new StringBuilder();
+
 	private static void Log(LogLevel logLevel, Object taskContext, String msgFormat) {
 		Log(logLevel, taskContext, msgFormat, null);
 	}
 
 	private static void Log(LogLevel logLevel, Object taskContext, String msgFormat, Throwable t) {
 
-		String task = "";
+		stringBuilder.setLength(0);
 		if (taskContext != null) {
-			task = "[" + Thread.currentThread().getName() + "]: " + taskContext.getClass().getSimpleName() + ": ";
+			stringBuilder.append("[" + Thread.currentThread().getName() + "]: " + taskContext.getClass().getSimpleName() + ": ");
 		}
+
 		if (logLevel == LogLevel.ERROR) {
-			Log.e(StringManager.getString(R.string.name_app), task + msgFormat, t);
+			Log.e(StringManager.getString(R.string.name_app), stringBuilder.append(msgFormat).toString(), t);
 		}
 		else if (logLevel == LogLevel.WARNING) {
-			Log.w(StringManager.getString(R.string.name_app), task + msgFormat, t);
+			Log.w(StringManager.getString(R.string.name_app), stringBuilder.append(msgFormat).toString(), t);
 		}
 		else if (logLevel == LogLevel.INFO) {
-			Log.i(StringManager.getString(R.string.name_app), task + msgFormat, t);
+			Log.i(StringManager.getString(R.string.name_app), stringBuilder.append(msgFormat).toString(), t);
 		}
 		else if (logLevel == LogLevel.DEBUG) {
-			Log.d(StringManager.getString(R.string.name_app), task + msgFormat, t);
+			Log.d(StringManager.getString(R.string.name_app), stringBuilder.append(msgFormat).toString(), t);
 		}
 		else if (logLevel == LogLevel.VERBOSE) {
-			Log.v(StringManager.getString(R.string.name_app), task + msgFormat, t);
+			Log.v(StringManager.getString(R.string.name_app), stringBuilder.append(msgFormat).toString(), t);
 		}
 	}
 

@@ -1,6 +1,5 @@
 package com.aircandi.ui;
 
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -12,7 +11,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,18 +18,18 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.ImageView;
-import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.StringManager;
+import com.aircandi.interfaces.IBind;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.ImageResult;
 import com.aircandi.objects.Link.Direction;
@@ -41,7 +39,6 @@ import com.aircandi.objects.ServiceBase;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.ShortcutSettings;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.interfaces.IBind;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.AirViewPager;
 import com.aircandi.ui.widgets.UserView;
@@ -65,13 +62,13 @@ public class PhotoForm extends BaseActivity implements IBind {
 	private List<Photo> mPhotosForPaging = new ArrayList<Photo>();
 	private AirViewPager mViewPager;
 	private Boolean mPagingEnabled = true;
-	private String              mForEntityId;
-	private Entity              mForEntity;
-	private String              mListLinkType;
-	private String              mListLinkSchema;
-	private ImageViewTouch      mImageViewTouch;
-	private ShareActionProvider mShareActionProvider;
-	private AirImageView        mPhotoView;
+	private String         mForEntityId;
+	private Entity         mForEntity;
+	private String         mListLinkType;
+	private String         mListLinkSchema;
+	private ImageViewTouch mImageViewTouch;
+	private AirImageView   mPhotoView;
+	private MenuItem       mShareMenuItem;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -175,8 +172,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	}
 
 	@Override
-	public void draw(View view) {
-	}
+	public void draw(View view) {}
 
 	public ViewGroup buildPictureDetail(Photo photo, ViewGroup layout) {
 
@@ -218,9 +214,6 @@ public class PhotoForm extends BaseActivity implements IBind {
 		holder.photoView.setCenterCrop(false);
 		UI.drawPhoto(holder.photoView, photo);
 
-		/* Sharing */
-		share(photo);
-
 		return layout;
 	}
 
@@ -244,7 +237,6 @@ public class PhotoForm extends BaseActivity implements IBind {
 		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
 		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
 		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
-
 	}
 
 	private void updateViewPager() {
@@ -334,26 +326,30 @@ public class PhotoForm extends BaseActivity implements IBind {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	private void share(Photo photo) {
+	@Override
+	public void share() {
 
-		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this)
-		                                                             .setSubject(String.format(StringManager.getString(R.string.label_photo_share_subject)
-				                                                             , Patchr.getInstance().getCurrentUser().name))
-		                                                             .setType("image/jpeg").setStream(MediaManager.getSharePathUri());
+		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
+		builder.setType("image/jpeg").setStream(MediaManager.getSharePathUri());
+		builder.setSubject(String.format(StringManager.getString(R.string.label_photo_share_subject), Patchr.getInstance().getCurrentUser().name));
 
-		Intent intent = builder.getIntent();
+		builder.getIntent()
+		       .putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName())
+		       .putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
 
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
-
-		if (mShareActionProvider != null) {
-			mShareActionProvider.setShareIntent(intent);
-		}
+		builder.startChooser();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+	}
+
+	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
 	@Override
@@ -364,40 +360,23 @@ public class PhotoForm extends BaseActivity implements IBind {
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
+	public boolean onOptionsItemSelected(MenuItem item) {
+		/*
+		 * Time to put the photo where the share handler can find it.
+		 */
+		if (item.getItemId() == R.id.share) {
+			final AirImageView photoView = (AirImageView) findViewById(R.id.photo);
+			Bitmap bitmap = ((BitmapDrawable) photoView.getImageView().getDrawable()).getBitmap();
+			File file = MediaManager.copyBitmapToSharePath(bitmap);
 
-		// Locate MenuItem with ShareActionProvider
-		MenuItem item = menu.findItem(R.id.share);
-
-		if (getActionBar() != null) {
-			mShareActionProvider = new ShareActionProvider(getActionBar().getThemedContext());
-			mShareActionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
-			mShareActionProvider.setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
-
-				@Override
-				public boolean onShareTargetSelected(ShareActionProvider source, Intent intent) {
-
-					final AirImageView photoView = (AirImageView) findViewById(R.id.photo);
-					Bitmap bitmap = ((BitmapDrawable) photoView.getImageView().getDrawable()).getBitmap();
-					File file = MediaManager.copyBitmapToSharePath(bitmap);
-
-					if (file == null) {
-						UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
-						return true;
-					}
-
-					return false;
-				}
-			});
-			item.setActionProvider(mShareActionProvider);
+			if (file == null) {
+				UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
+				return true;
+			}
 		}
-
-		if (mPhoto != null) {
-			share(mPhoto);
-		}
-
+		Patchr.dispatch.route(this, Patchr.dispatch.routeForMenuId(item.getItemId()), mEntity, null, null);
 		return true;
 	}
 
@@ -462,7 +441,6 @@ public class PhotoForm extends BaseActivity implements IBind {
 		@Override
 		public void restoreState(Parcelable state, ClassLoader loader) {
 		}
-
 	}
 
 	public static class ViewHolder {

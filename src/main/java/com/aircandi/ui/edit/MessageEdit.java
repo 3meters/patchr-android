@@ -22,7 +22,6 @@ import android.widget.ViewAnimator;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.MediaManager;
@@ -312,7 +311,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				else if (intent.getType() != null) {
 
 					/* Intent with text from another application */
-					if (!selfSend && (intent.getType().equals("text/plain") || intent.getStringExtra(Intent.EXTRA_TEXT) != null)) {
+					if (intent.getType().equals("text/plain") || intent.getStringExtra(Intent.EXTRA_TEXT) != null) {
 						String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
 						if (sharedText != null) {
 							mDirty = true;
@@ -437,7 +436,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				mShareHolder.setVisibility(View.VISIBLE);
 				View shareView = LayoutInflater.from(this).inflate(layoutResId, mShare, true);
 				IEntityController controller = Patchr.getInstance().getControllerForSchema(mShareSchema);
-				controller.bind(mShareEntity, shareView);
+				controller.bind(mShareEntity, shareView, null);
 
 				if (mShareSchema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)) {
 					UI.setEnabled(shareView, false);
@@ -633,7 +632,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 							DownloadManager.decorate(bitmap, loadedFrom);
 							DownloadManager.logBitmap(MessageEdit.this, bitmap, mPhotoView.getImageView());
 							final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
-							UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true, AnimationManager.fadeInMedium());
+							UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
 							onChangedPhoto();
 						}
 
@@ -752,9 +751,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				if (mTos.size() > 0) {
 					message.placeId = mTos.get(0).id;
 				}
-			}
-			else if (mMessageType.equals(MessageType.SHARE)) {
-
 			}
 		}
 	}

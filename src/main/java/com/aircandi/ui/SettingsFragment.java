@@ -15,10 +15,10 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
+import android.support.annotation.NonNull;
 import android.text.InputType;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -92,32 +92,34 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = super.onCreateView(inflater, container, savedInstanceState);
 
 		/* Set dividers */
-		ListView list = (ListView) root.findViewById(android.R.id.list);
-		list.setDividerHeight(UI.getRawPixelsForDisplayPixels(0.5f));
-		if (Patchr.themeTone.equals(ThemeTone.DARK)) {
-			int color = getResources().getColor(R.color.stroke_button_dark);
-			int[] colors = {color, color, color};
-			list.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, colors));
-		}
-		else {
-			int color = getResources().getColor(R.color.stroke_button_light);
-			int[] colors = {color, color, color};
-			list.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, colors));
-		}
+		if (root != null) {
+			ListView list = (ListView) root.findViewById(android.R.id.list);
+			list.setDividerHeight(UI.getRawPixelsForDisplayPixels(0.5f));
+			if (Patchr.themeTone.equals(ThemeTone.DARK)) {
+				int color = getResources().getColor(R.color.stroke_button_dark);
+				int[] colors = {color, color, color};
+				list.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, colors));
+			}
+			else {
+				int color = getResources().getColor(R.color.stroke_button_light);
+				int[] colors = {color, color, color};
+				list.setDivider(new GradientDrawable(Orientation.RIGHT_LEFT, colors));
+			}
 
 		/* Configure action bar */
-		if (getActivity().getActionBar() != null) {
-			getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-			getActivity().getActionBar().setDisplayShowHomeEnabled(true);
-			getActivity().getActionBar().setTitle(StringManager.getString(R.string.form_title_preferences));
-			getActivity().getActionBar().setIcon(Patchr.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
-		}
+			if (getActivity().getActionBar() != null) {
+				getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+				getActivity().getActionBar().setDisplayShowHomeEnabled(true);
+				getActivity().getActionBar().setTitle(StringManager.getString(R.string.form_title_preferences));
+				getActivity().getActionBar().setIcon(Patchr.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark));
+			}
 
-		initialize();
+			initialize();
+		}
 		return root;
 	}
 
@@ -339,7 +341,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 	}
 
 	@Override
-	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, @NonNull Preference preference) {
 		super.onPreferenceTreeClick(preferenceScreen, preference);
 
 		/* If the user has clicked on a preference screen, set up the action bar */
@@ -423,7 +425,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 	private void clearReferences() {
 		Activity currentActivity = Patchr.getInstance().getCurrentActivity();
-		if (currentActivity != null && currentActivity.equals(this)) {
+		if (currentActivity != null && currentActivity.equals(getActivity())) {
 			Patchr.getInstance().setCurrentActivity(null);
 		}
 	}

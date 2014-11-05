@@ -207,7 +207,8 @@ public class Patchr extends Application {
 		catch (Exception ignore) {}
 
 		/* Establish device memory class */
-		Utilities.calculateMemoryCacheSize(getApplicationContext());
+		Patchr.memoryClass = Utilities.maxMemoryMB();
+		Logger.i(this, "Device memory class: " + String.valueOf(memoryClass));
 
 		/* Inject configuration */
 		openContainer(StringManager.getString(R.string.id_container), RefreshMode.STANDARD);
