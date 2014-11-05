@@ -15,7 +15,6 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -25,7 +24,6 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
-import com.aircandi.components.Logger;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Place;
 import com.aircandi.ui.widgets.AirImageView;
@@ -96,33 +94,28 @@ public class UI {
 
 			Integer drawableId = photo.getResId();
 			if (drawableId != null) {
-				Config config = photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565;
 				DownloadManager.with(Patchr.applicationContext).load(drawableId)
 						.centerCrop()   // Needed so resize() keeps aspect ratio
 						.resize(width, height)
-						.config(config)
+						.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : Constants.GROUP_TAG_DEFAULT)
+						.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565)
 						.into(photoView);
 			}
 		}
 		else if (photo.source.equals(Photo.PhotoSource.file)) {
-
-			String imageUri = photo.getUri();
-			Config config = photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565;
-			DownloadManager.with(Patchr.applicationContext).load(imageUri)
+			DownloadManager.with(Patchr.applicationContext).load(photo.getUri())
 					.centerCrop()   // Needed so resize() keeps aspect ratio
 					.resize(width, height)
-					.config(config)
+					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : Constants.GROUP_TAG_DEFAULT)
+					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565)
 					.into(photoView);
 		}
 		else {
 
 			photo.setProxy(true, height, width);
-			String imageUri = photo.getUriWrapped();
-			Logger.v(UI.class, "Bitmap: uri: " + imageUri);
-			Config config = photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565;
-
-			DownloadManager.with(Patchr.applicationContext).load(imageUri)
-			               .config(config)
+			DownloadManager.with(Patchr.applicationContext).load(photo.getUriWrapped())
+			               .tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : Constants.GROUP_TAG_DEFAULT)
+			               .config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565)
 			               .into(photoView);
 		}
 
@@ -269,7 +262,7 @@ public class UI {
 		});
 	}
 
-	public static void showDrawableInImageView(final Drawable drawable, final ImageView imageView, final boolean animate, final Animation animation) {
+	public static void showDrawableInImageView(final Drawable drawable, final ImageView imageView, final boolean animate) {
 		/*
 		 * Make sure this on the main thread
 		 */
@@ -279,7 +272,6 @@ public class UI {
 			public void run() {
 				if (imageView != null) {
 					imageView.setImageDrawable(drawable);
-					imageView.clearAnimation();
 					imageView.invalidate();
 
 					if (animate) {

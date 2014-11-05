@@ -40,6 +40,7 @@ import com.aircandi.queries.TrendQuery;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseFragment;
+import com.aircandi.ui.components.BubbleController;
 import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Booleans;
@@ -92,15 +93,15 @@ public class AircandiForm extends BaseActivity {
 	protected Number  mPauseDate;
 	protected Boolean mConfiguredForAnonymous;
 
-	protected DrawerLayout              mDrawerLayout;
-	protected View                      mDrawerLeft;
-	protected View                      mDrawerRight;
-	protected ActionBarDrawerToggle     mDrawerToggle;
-	protected Fragment                  mFragmentNotifications;
-	protected View                      mNotificationsBadgeGroup;
-	protected TextView                  mNotificationsBadgeCount;
-	protected View                      mNotificationActionIcon;
-	protected BaseActivity.BubbleButton mDrawerBubbleButton;
+	protected DrawerLayout          mDrawerLayout;
+	protected View                  mDrawerLeft;
+	protected View                  mDrawerRight;
+	protected ActionBarDrawerToggle mDrawerToggle;
+	protected Fragment              mFragmentNotifications;
+	protected View                  mNotificationsBadgeGroup;
+	protected TextView              mNotificationsBadgeCount;
+	protected View                  mNotificationActionIcon;
+	protected BubbleController      mDrawerBubbleButton;
 
 	protected Boolean mFinishOnClose   = false;
 	protected Boolean mLeftDrawerOpen  = false;
@@ -173,6 +174,7 @@ public class AircandiForm extends BaseActivity {
 				if (drawerView.getId() == R.id.right_drawer) {
 					NotificationManager.getInstance().setNewNotificationCount(0);
 					NotificationManager.getInstance().cancelNotifications();
+					updateNotificationIndicator();
 					((BaseFragment) mFragmentNotifications).bind(BindingMode.AUTO);
 				}
 			}
@@ -216,7 +218,7 @@ public class AircandiForm extends BaseActivity {
 		/* Set the drawer toggle as the DrawerListener */
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-		mDrawerBubbleButton = new BaseActivity.BubbleButton(findViewById(R.id.button_bubble_notifications));
+		mDrawerBubbleButton = new BubbleController(findViewById(R.id.button_bubble_notifications));
 
 		/* Check if the device is tethered */
 		tetherAlert();
@@ -491,7 +493,7 @@ public class AircandiForm extends BaseActivity {
 		/*
 		 * Fragment menu items are in addition to any menu items added by the parent activity.
 		 */
-		Fragment fragment = null;
+		Fragment fragment;
 
 		if (mFragments.containsKey(fragmentType)) {
 			fragment = mFragments.get(fragmentType);
@@ -673,10 +675,10 @@ public class AircandiForm extends BaseActivity {
 			mFragments.put(fragmentType, fragment);
 		}
 
-		if (!fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
+		if (fragment instanceof BaseFragment) {
 			setActivityTitle(StringManager.getString(((BaseFragment) fragment).getTitleResId()));
 		}
-		else {
+		else if (fragment instanceof MapListFragment) {
 			((MapListFragment) fragment)
 					.setEntities(((EntityListFragment) getCurrentFragment()).getEntities())
 					.setTitleResId(((EntityListFragment) getCurrentFragment()).getTitleResId())
@@ -882,13 +884,6 @@ public class AircandiForm extends BaseActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-
-		/* Show current user */
-		if (mActionBar != null
-				&& Patchr.getInstance().getCurrentUser() != null
-				&& Patchr.getInstance().getCurrentUser().name != null) {
-			//mActionBar.setSubtitle(Patchr.getInstance().getCurrentUser().name.toUpperCase(Locale.US));
-		}
 
 		/* Make sure we are configured properly depending on user status */
 		configureDrawer();

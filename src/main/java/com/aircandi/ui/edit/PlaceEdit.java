@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.location.Address;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -334,7 +335,7 @@ public class PlaceEdit extends BaseEntityEdit {
 							mDirty = true;
 							((Place) mEntity).category = categoryUpdated;
 							mButtonCategory.setTag(categoryUpdated);
-							mButtonCategory.setText(categoryUpdated != null ? "Category: " + categoryUpdated.name : "Category: None");
+							mButtonCategory.setText("Category: " + categoryUpdated.name);
 							drawPhoto();
 						}
 					}
@@ -372,6 +373,12 @@ public class PlaceEdit extends BaseEntityEdit {
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
+	}
+
+	@Override
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		if (mMapView != null) mMapView.onSaveInstanceState(outState);
+		super.onSaveInstanceState(outState);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -686,6 +693,12 @@ public class PlaceEdit extends BaseEntityEdit {
 	public void onResume() {
 		if (mMapView != null) mMapView.onResume();
 		super.onResume();
+	}
+
+	@Override
+	public void onPause() {
+		if (mMapView != null) mMapView.onPause();
+		super.onPause();
 	}
 
 	@Override

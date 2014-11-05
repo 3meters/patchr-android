@@ -16,7 +16,6 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Links;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.User;

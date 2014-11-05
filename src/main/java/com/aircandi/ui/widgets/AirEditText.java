@@ -13,7 +13,7 @@ import android.widget.EditText;
 
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
-import com.aircandi.ui.base.BaseActivity.SimpleTextWatcher;
+import com.aircandi.ui.components.SimpleTextWatcher;
 
 public class AirEditText extends EditText {
 

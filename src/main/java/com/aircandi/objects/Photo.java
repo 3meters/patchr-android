@@ -27,7 +27,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	 * sourceName: aircandi, foursquare, external
 	 */
 	private static final long            serialVersionUID = 4979315562693226461L;
-	private              GooglePlusProxy mImageResizer    = new GooglePlusProxy();
+	private static final GooglePlusProxy imageResizer     = new GooglePlusProxy();
 
 	@Expose
 	public String prefix;
@@ -124,97 +124,96 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 
 	private String getSizedUri(Number maxWidth, Number maxHeight, Boolean wrapped) {
 
-		String photoUri = prefix;
+		if (source == null) return prefix;
 
-		if (source != null) {
-			if (source.equals(PhotoSource.resource)) {
-
-				photoUri = "resource:" + prefix;
-			}
-			else if (source.equals(PhotoSource.assets_categories)) {
-
-				photoUri = ServiceConstants.URL_PROXIBASE_SERVICE_ASSETS_CATEGORIES + prefix + String.valueOf(88) + suffix;
-			}
-			else if (source.equals(PhotoSource.assets_applinks)) {
-
-				photoUri = ServiceConstants.URL_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS + prefix;
-			}
-			else if (source.equals(PhotoSource.bing)) {
-
-				photoUri = prefix;
-			}
-			else if (source.equals(PhotoSource.facebook)) {
-
-				photoUri = prefix;
-			}
-			else if (source.equals(PhotoSource.foursquare)) {
-
-				photoUri = prefix;
-				if (wrapped && Type.isTrue(resizerActive) && resizerWidth != null) {
-					photoUri = prefix + String.valueOf(resizerWidth.intValue()) + "x" + String.valueOf(resizerHeight.intValue()) + suffix;
-				}
-				else {
-				    /* Sometimes we have height/width info and sometimes we don't */
-					Integer width = (maxWidth != null) ? maxWidth.intValue() : 256;
-					Integer height = (maxHeight != null) ? maxHeight.intValue() : 256;
-					if (prefix != null && suffix != null) {
-						photoUri = prefix + String.valueOf(width.intValue()) + "x" + String.valueOf(height.intValue()) + suffix;
-					}
-				}
-			}
-			else if (source.equals(PhotoSource.google)) {
-
-				Integer width = (maxWidth != null) ? maxWidth.intValue() : Constants.IMAGE_DIMENSION_MAX;
-				if (wrapped && Type.isTrue(resizerActive) && resizerWidth != null) {
-					width = resizerWidth.intValue();
-				}
-				if (prefix.contains("?")) {
-					photoUri = prefix + "&maxwidth=" + String.valueOf(width);
-				}
-				else {
-					photoUri = prefix + "?maxwidth=" + String.valueOf(width);
-				}
+		if (source.equals(PhotoSource.resource)) {
+			return ("resource:" + prefix);
+		}
+		else if (source.equals(PhotoSource.assets_categories)) {
+			return (ServiceConstants.URL_PROXIBASE_SERVICE_ASSETS_CATEGORIES + prefix + String.valueOf(88) + suffix);
+		}
+		else if (source.equals(PhotoSource.assets_applinks)) {
+			return (ServiceConstants.URL_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS + prefix);
+		}
+		else if (source.equals(PhotoSource.bing)) {
+			return prefix;
+		}
+		else if (source.equals(PhotoSource.facebook)) {
+			return prefix;
+		}
+		else if (source.equals(PhotoSource.foursquare)) {
+			if (wrapped && Type.isTrue(resizerActive) && resizerWidth != null) {
+				return (prefix + String.valueOf(resizerWidth.intValue()) + "x" + String.valueOf(resizerHeight.intValue()) + suffix);
 			}
 			else {
-
-				if (source.equals(PhotoSource.aircandi)
-						|| source.equals(PhotoSource.aircandi_images)) {
-					photoUri = StringManager.getString(R.string.url_media_images) + prefix;
-				}
-				else if (source.equals(PhotoSource.aircandi_thumbnails)) {
-					photoUri = StringManager.getString(R.string.url_media_thumbnails) + prefix;
-				}
-				else if (source.equals(PhotoSource.aircandi_users)) {
-					photoUri = StringManager.getString(R.string.url_media_users) + prefix;
-				}
-				else if (source.equals(PhotoSource.generic)) {
-					photoUri = prefix;
-				}
-
-				if (wrapped && Type.isTrue(resizerActive) && resizerWidth != null) {
-					/*
-					 * If photo comes with native height/width then use it otherwise
-					 * resize based on width.
-					 */
-					resizerUsed = true;
-					if (this.width != null && this.height != null) {
-
-						Float photoAspectRatio = this.width.floatValue() / this.height.floatValue();
-						Float targetAspectRatio = this.resizerWidth.floatValue() / this.resizerHeight.floatValue();
-
-						ResizeDimension dimension = (targetAspectRatio >= photoAspectRatio) ? ResizeDimension.WIDTH : ResizeDimension.HEIGHT;
-
-						photoUri = mImageResizer.convert(photoUri
-								, dimension == ResizeDimension.WIDTH ? resizerWidth.intValue() : resizerHeight.intValue()
-								, dimension);
-					}
-					else {
-						photoUri = mImageResizer.convert(photoUri, resizerWidth.intValue(), ResizeDimension.WIDTH);
-					}
+				    /* Sometimes we have height/width info and sometimes we don't */
+				Integer width = (maxWidth != null) ? maxWidth.intValue() : 256;
+				Integer height = (maxHeight != null) ? maxHeight.intValue() : 256;
+				if (prefix != null && suffix != null) {
+					return (prefix + String.valueOf(width.intValue()) + "x" + String.valueOf(height.intValue()) + suffix);
 				}
 			}
+			return prefix;
 		}
-		return photoUri;
+		else if (source.equals(PhotoSource.google)) {
+			int width = (maxWidth != null) ? maxWidth.intValue() : Constants.IMAGE_DIMENSION_MAX;
+			if (wrapped && Type.isTrue(resizerActive) && resizerWidth != null) {
+				width = resizerWidth.intValue();
+			}
+
+			if (prefix.contains("?")) {
+				return (prefix + "&maxwidth=" + String.valueOf(width));
+			}
+			else {
+				return (prefix + "?maxwidth=" + String.valueOf(width));
+			}
+		}
+		else {
+
+			StringBuilder builder = new StringBuilder();
+			if (source.equals(PhotoSource.aircandi)
+					|| source.equals(PhotoSource.aircandi_images)) {
+				builder.append(StringManager.getString(R.string.url_media_images) + prefix);
+			}
+			else if (source.equals(PhotoSource.aircandi_thumbnails)) {
+				builder.append(StringManager.getString(R.string.url_media_thumbnails) + prefix);
+			}
+			else if (source.equals(PhotoSource.aircandi_users)) {
+				builder.append(StringManager.getString(R.string.url_media_users) + prefix);
+			}
+			else if (source.equals(PhotoSource.generic)) {
+				builder.append(prefix);
+			}
+			else if (source.equals(PhotoSource.yelp)) {
+				builder.append(prefix);
+			}
+			else {
+				builder.append(prefix);
+			}
+
+			if (wrapped && Type.isTrue(resizerActive) && resizerWidth != null) {
+				/*
+				 * If photo comes with native height/width then use it otherwise
+				 * resize based on width.
+				 */
+				resizerUsed = true;
+				if (this.width != null && this.height != null) {
+
+					Float photoAspectRatio = this.width.floatValue() / this.height.floatValue();
+					Float targetAspectRatio = this.resizerWidth.floatValue() / this.resizerHeight.floatValue();
+
+					ResizeDimension dimension = (targetAspectRatio >= photoAspectRatio) ? ResizeDimension.WIDTH : ResizeDimension.HEIGHT;
+
+					return (imageResizer.convert(builder.toString()
+							, dimension == ResizeDimension.WIDTH ? resizerWidth.intValue() : resizerHeight.intValue()
+							, dimension));
+				}
+				else {
+					return (imageResizer.convert(builder.toString(), resizerWidth.intValue(), ResizeDimension.WIDTH));
+				}
+			}
+			return builder.toString();
+		}
 	}
 
 	public static String getPhotoSourceByPhotoType(PhotoType photoType) {
@@ -454,13 +453,13 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		WIDTH
 	}
 
-	private class GooglePlusProxy implements Serializable {
+	private static class GooglePlusProxy implements Serializable {
 		private static final long   serialVersionUID = 4979315502693226461L;
 		/*
 		 * Setting refresh to 60 minutes.
 		 */
-		public               String baseWidth        = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_w=%d&no_expand=1&refresh=3600";
-		public               String baseHeight       = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_h=%d&no_expand=1&refresh=3600";
+		public static        String baseWidth        = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_w=%d&no_expand=1&refresh=3600";
+		public static        String baseHeight       = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_h=%d&no_expand=1&refresh=3600";
 
 		public String convert(String uri, Integer size, ResizeDimension dimension) {
 			String base = (dimension == ResizeDimension.WIDTH) ? baseWidth : baseHeight;

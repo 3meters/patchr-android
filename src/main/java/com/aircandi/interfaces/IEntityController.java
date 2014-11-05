@@ -23,7 +23,7 @@ public interface IEntityController {
 
 	public Intent insert(Context context, Bundle extras, Boolean start);
 
-	public void bind(Entity entity, View view);
+	public void bind(Entity entity, View view, String groupTag);
 
 	public void bindHolder(View view, ViewHolder viewHolder);
 

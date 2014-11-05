@@ -396,7 +396,7 @@ public class MessageForm extends BaseEntityForm {
 			shareFrame.removeAllViews();
 			View shareView = LayoutInflater.from(this).inflate(layoutResId, null, false);
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(shareEntity.schema);
-			controller.bind(shareEntity, shareView);
+			controller.bind(shareEntity, shareView, null);
 			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				shareEntity.autowatchable = true;
 			}
@@ -573,13 +573,11 @@ public class MessageForm extends BaseEntityForm {
 
 		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
 
-		builder.setSubject(String.format(StringManager.getString(R.string.label_message_share_subject)
-				, Patchr.getInstance().getCurrentUser().name));
-
-		builder.setType("text/plain");
-		builder.setText(String.format(StringManager.getString(R.string.label_message_share_body), mEntityId));
 		builder.setChooserTitle(String.format(StringManager.getString(R.string.label_message_share_title)
 				, (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase)));
+		builder.setType("text/plain");
+		builder.setSubject(String.format(StringManager.getString(R.string.label_message_share_subject), Patchr.getInstance().getCurrentUser().name));
+		builder.setText(String.format(StringManager.getString(R.string.label_message_share_body), mEntityId));
 
 		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
 		builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);

@@ -25,14 +25,10 @@ public class ActivityRecognitionService extends IntentService {
 			ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
 			DetectedActivity mostProbableActivity = result.getMostProbableActivity();
 
-			/* Get the probability that this activity is the user's actual activity */
-			int confidence = mostProbableActivity.getConfidence();
-
-			/* Get an integer describing the type of activity */
-			int activityType = mostProbableActivity.getType();
-
 			/* Pass to activity recognition manager which in turn may trigger a bus event */
-			ActivityRecognitionManager.getInstance().setActivityType(activityType, confidence);
+			ActivityRecognitionManager.getInstance().setActivityType(
+					mostProbableActivity.getType() /* Get an integer describing the type of activity */,
+					mostProbableActivity.getConfidence() /* Get the probability that this activity is the user's actual activity */);
 		}
 	}
 }

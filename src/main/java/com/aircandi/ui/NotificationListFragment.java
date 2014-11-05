@@ -215,10 +215,10 @@ public class NotificationListFragment extends MessageListFragment {
 		}.execute();
 	}
 
-	protected void bindListItem(Entity entity, View view) {
+	protected void bindListItem(Entity entity, View view, String groupTag) {
 
 		IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
-		controller.bind(entity, view);
+		controller.bind(entity, view, groupTag);
 
 		ViewHolder holder = (ViewHolder) view.getTag();
 		Notification notification = (Notification) entity;

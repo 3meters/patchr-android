@@ -14,8 +14,6 @@ import com.aircandi.R;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.Type;
-import com.aircandi.utilities.Utilities;
-import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.Listener;
 
@@ -31,9 +29,10 @@ import com.squareup.picasso.Picasso.Listener;
 @SuppressWarnings("ucd")
 public class DownloadManager {
 
-	private static Picasso instance = null;
-	public static LruCache mPicassoMemoryCache;
-	private static final Paint DEBUG_PAINT = new Paint();
+	private static       Picasso instance         = null;
+	private static final Paint   DEBUG_PAINT      = new Paint();
+	private static final String  logBitmapTarget  = "Bitmap target:  context = %1$s, height = %2$s, width = %3$s, size = %4$s";
+	private static final String  logBitmapCreated = "Bitmap created: context = %1$s, height = %2$s, width = %3$s, size = %4$s, config = %5$s";
 
 	public static Picasso getInstance() {
 		return instance;
@@ -42,10 +41,6 @@ public class DownloadManager {
 	public static Picasso with(Context context) {
 
 		if (instance == null) {
-
-			/* Picasso uses 15% default but we stretch it to ~25% */
-			Integer cacheSize = Utilities.calculateMemoryCacheSize(Patchr.applicationContext);
-			mPicassoMemoryCache = new LruCache(cacheSize);
 
 			/* So we can sniff failures */
 			Listener listener = new Listener() {
@@ -68,7 +63,6 @@ public class DownloadManager {
 			/* Automatically uses okhttp if library is included */
 			instance = new Picasso.Builder(Patchr.applicationContext)
 					.listener(listener)
-					.memoryCache(mPicassoMemoryCache)
 					.build();
 		}
 		return instance;
@@ -85,16 +79,16 @@ public class DownloadManager {
 			Integer height = target.getHeight();
 			Bitmap.Config config = bitmap.getConfig();
 			Integer size = (width * height * getBytesPerPixel(config));
-			Logger.v(context.getClass().getSimpleName(), String.format("Bitmap target:  context = %1$s, height = %2$s, width = %3$s, size = %4$s", context.getClass().getSimpleName(), height, width, size));
+			Logger.v(context.getClass().getSimpleName(), String.format(logBitmapTarget, context.getClass().getSimpleName(), height, width, size));
 		}
 	}
 
 	public static void logBitmap(Object context, Bitmap bitmap) {
-		Integer width = bitmap.getWidth();
-		Integer height = bitmap.getHeight();
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
 		Bitmap.Config config = bitmap.getConfig();
-		Integer size = (width * height * getBytesPerPixel(config));
-		Logger.v(context.getClass().getSimpleName(), String.format("Bitmap created: context = %1$s, height = %2$s, width = %3$s, size = %4$s, config = %5$s", context.getClass().getSimpleName(), height, width, size, config.name()));
+		int size = (width * height * getBytesPerPixel(config));
+		Logger.v(context.getClass().getSimpleName(), String.format(logBitmapCreated, context.getClass().getSimpleName(), height, width, size, config.name()));
 	}
 
 	public static Bitmap decorate(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {

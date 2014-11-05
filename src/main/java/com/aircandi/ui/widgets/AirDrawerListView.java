@@ -6,14 +6,11 @@ import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.widget.ListView;
 
 import com.aircandi.components.Logger;
 
 @SuppressWarnings("ucd")
-public class AirDrawerListView extends ListView {
-
-	private GestureDetectorCompat mDetector;
+public class AirDrawerListView extends AirListView {
 
 	public AirDrawerListView(Context context) {
 		super(context);

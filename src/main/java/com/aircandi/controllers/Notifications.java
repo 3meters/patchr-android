@@ -28,8 +28,8 @@ public class Notifications extends EntityControllerBase {
 		return entity;
 	}
 
-	public void bind(Entity entity, View view) {
-		super.bind(entity, view);
+	public void bind(Entity entity, View view, String groupTag) {
+		super.bind(entity, view, groupTag);
 	}
 
 		@Override

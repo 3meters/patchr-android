@@ -22,6 +22,7 @@ import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.BusyManager;
+import com.aircandi.components.DownloadManager;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
@@ -51,7 +52,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class EntityListFragment extends BaseFragment implements OnClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class EntityListFragment extends BaseFragment implements OnClickListener, SwipeRefreshLayout.OnRefreshListener, AbsListView.OnScrollListener {
 
 	/* Widgets */
 	protected AbsListView mListView;
@@ -131,6 +132,9 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		mLoaded = false;
 		mFirstBind = true;
 		mListView = (AbsListView) view.findViewById(R.id.list);
+		if (mListView != null) {
+			((AirListView) mListView).setListener(this);
+		}
 
 		if (mListLoadingResId != null) {
 			mLoadingView = LayoutInflater.from(getActivity()).inflate(mListLoadingResId, null);
@@ -331,6 +335,21 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 	@Override
 	public void onScollToTop() {
 		scrollToTop(mListView);
+	}
+
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+		if (scrollState == SCROLL_STATE_IDLE) {
+			DownloadManager.getInstance().resumeTag(mGroupTag);
+		}
+		else if (scrollState == SCROLL_STATE_FLING) {
+			DownloadManager.getInstance().pauseTag(mGroupTag);
+		}
+	}
+
+	@Override
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+		/* Do nothing */
 	}
 
 	@Override
@@ -669,6 +688,14 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		saveListPosition();
 	}
 
+	@Override
+	public void onDestroyView() {
+		if (DownloadManager.getInstance() != null) {
+			DownloadManager.getInstance().cancelTag(mGroupTag);
+		}
+		super.onDestroy();
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
@@ -728,7 +755,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 				}
 
 				if (entity != null) {
-					bindListItem(entity, view);
+					bindListItem(entity, view, mGroupTag);
 					view.setClickable(true);
 					view.setOnClickListener(EntityListFragment.this);
 				}
@@ -769,9 +796,9 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		}
 	}
 
-	protected void bindListItem(Entity entity, View view) {
+	protected void bindListItem(Entity entity, View view, String groupTag) {
 		IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
-		controller.bind(entity, view);
+		controller.bind(entity, view, groupTag);
 
 		/* Special highlighting */
 

@@ -19,25 +19,25 @@ import com.aircandi.interfaces.IBusy;
 import com.aircandi.ui.widgets.SmoothProgressBar;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Reporting;
-import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
+
+import java.lang.ref.WeakReference;
 
 public class BusyManager implements IBusy {
 
-	private   Activity           mActivity;
-	private   ProgressDialog     mProgressDialog;
-	private   View               mRefreshImage;
-	private   View               mRefreshProgress;
-	private   Runnable           mRunnableHide;
-	private   Runnable           mRunnableShow;
-	private   Long               mBusyStartedTime;
-	private   SmoothProgressBar  mHeaderActivityBar;
-	protected SwipeRefreshLayout mSwipeRefreshLayout;
+	private   Activity            mActivity;
+	private   ProgressDialog      mProgressDialog;
+	private   WeakReference<View> mRefreshImage;
+	private   WeakReference<View> mRefreshProgress;
+	private   Runnable            mRunnableHide;
+	private   Runnable            mRunnableShow;
+	private   Long                mBusyStartedTime;
+	private   SmoothProgressBar   mHeaderActivityBar;
+	protected SwipeRefreshLayout  mSwipeRefreshLayout;
 
 	@SuppressLint("ResourceAsColor")
 	public BusyManager(Activity activity) {
 		mActivity = activity;
-		BusProvider.getInstance().register(this);
 		mRunnableHide = new Runnable() {
 
 			@Override
@@ -75,8 +75,8 @@ public class BusyManager implements IBusy {
 						 * Initial data load for an activity/fragment.
 						 */
 						startSwipeRefreshIndicator();
-//						mBusyStartedTime = null;
-//						return; // Skips activating busy minimum
+						//						mBusyStartedTime = null;
+						//						return; // Skips activating busy minimum
 					}
 					else if (busyAction == BusyAction.Refreshing) {
 						/*
@@ -192,7 +192,6 @@ public class BusyManager implements IBusy {
 
 	@Override
 	public void hideBusy(Boolean noDelay) {
-
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
@@ -225,9 +224,9 @@ public class BusyManager implements IBusy {
 	}
 
 	public void startActionbarBusyIndicator() {
-		if (mRefreshImage != null && mRefreshProgress.getVisibility() != View.VISIBLE) {
-			mRefreshImage.setVisibility(View.GONE);
-			mRefreshProgress.setVisibility(View.VISIBLE);
+		if (mRefreshImage != null && mRefreshImage.get() != null && mRefreshProgress.get().getVisibility() != View.VISIBLE) {
+			mRefreshImage.get().setVisibility(View.GONE);
+			mRefreshProgress.get().setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -253,9 +252,9 @@ public class BusyManager implements IBusy {
 	}
 
 	public void stopActionbarBusyIndicator() {
-		if (mRefreshImage != null && mRefreshImage.getVisibility() != View.VISIBLE) {
-			mRefreshProgress.setVisibility(View.GONE);
-			mRefreshImage.setVisibility(View.VISIBLE);
+		if (mRefreshImage != null && mRefreshImage.get() != null && mRefreshImage.get().getVisibility() != View.VISIBLE) {
+			mRefreshProgress.get().setVisibility(View.GONE);
+			mRefreshImage.get().setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -314,11 +313,11 @@ public class BusyManager implements IBusy {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void setRefreshImage(View refreshImage) {
-		mRefreshImage = refreshImage;
+		mRefreshImage = new WeakReference<View>(refreshImage);
 	}
 
 	public void setRefreshProgress(View refreshProgress) {
-		mRefreshProgress = refreshProgress;
+		mRefreshProgress = new WeakReference<View>(refreshProgress);
 	}
 
 	public void setSwipeRefresh(SwipeRefreshLayout swipeRefreshLayout) {
@@ -327,5 +326,13 @@ public class BusyManager implements IBusy {
 
 	public SwipeRefreshLayout getSwipeRefresh() {
 		return mSwipeRefreshLayout;
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
+
+	public void onPause() {
+		hideBusy(true);
 	}
 }

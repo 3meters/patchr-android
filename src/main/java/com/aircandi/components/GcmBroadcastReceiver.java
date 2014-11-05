@@ -1,15 +1,10 @@
 package com.aircandi.components;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
 import android.support.v4.content.WakefulBroadcastReceiver;
-
-import com.aircandi.R;
-import com.aircandi.ui.SplashForm;
 
 /**
  * This {@code WakefulBroadcastReceiver} takes care of creating and managing a

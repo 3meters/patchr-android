@@ -26,7 +26,6 @@ import com.aircandi.ui.MapForm;
 import com.aircandi.ui.PhotoForm;
 import com.aircandi.ui.PlaceList;
 import com.aircandi.ui.SettingsForm;
-import com.aircandi.ui.SettingsFragment;
 import com.aircandi.ui.SplashForm;
 import com.aircandi.ui.WatcherList;
 import com.aircandi.ui.base.BaseActivity;

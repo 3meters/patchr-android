@@ -25,7 +25,7 @@ public class TrendListFragment extends EntityListFragment {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
-	protected void bindListItem(Entity entity, View view) {
+	protected void bindListItem(Entity entity, View view, String groupTag) {
 
 		IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
 
@@ -42,7 +42,7 @@ public class TrendListFragment extends EntityListFragment {
 		}
 		holder.data = entity;
 
-		controller.bind(entity, view);
+		controller.bind(entity, view, groupTag);
 
 		/*
 		 * Trending data

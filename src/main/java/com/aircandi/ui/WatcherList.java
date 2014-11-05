@@ -138,9 +138,6 @@ public class WatcherList extends BaseActivity {
 	public void onDeleteRequestClick(View view) {
 
 		final Entity entity = (Entity) view.getTag();
-		Integer titleResId = entity.enabled
-		                     ? R.string.dialog_decline_approved_private_title
-		                     : R.string.dialog_decline_requested_private_title;
 		Integer messageResId = entity.enabled
 		                       ? R.string.dialog_decline_approved_private_message
 		                       : R.string.dialog_decline_requested_private_message;

@@ -109,6 +109,9 @@ public class Constants {
 	public static final int DIST_TWO_KILOMETERS      = 2000;
 	public static final int DIST_FIVE_KILOMETERS     = 5000;
 
+	public static final int SIZE_KILOBYTES = 1024;
+	public static final int SIZE_MEGABYTES = SIZE_KILOBYTES * SIZE_KILOBYTES;
+
 	/* Wifi scanning */
 	public static final int INTERVAL_SCAN_WIFI           = TIME_ONE_MINUTE;
 	public static final int INTERVAL_CATEGORIES_DOWNLOAD = TIME_ONE_SECOND;
@@ -299,6 +302,8 @@ public class Constants {
 	public static final String INSTALL_TYPE_RANDOM     = "random_uuid";
 	public static final String INSTALL_TYPE_ANDROID_ID = "android_id";
 	public static final String INSTALL_TYPE_SERIAL     = "serial_num";
+
+	public static final String GROUP_TAG_DEFAULT = "global";
 
 	/*
 	 * Update criteria for active and passive location updates.

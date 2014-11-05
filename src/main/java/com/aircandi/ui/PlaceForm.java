@@ -1,9 +1,7 @@
 package com.aircandi.ui;
 
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,7 +25,6 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
-import com.aircandi.components.AnimationManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
@@ -133,7 +130,6 @@ public class PlaceForm extends BaseEntityForm {
 		 * list header height.
 		 */
 		View header = ((EntityListFragment) mCurrentFragment).getHeaderView();
-		AirImageView headerPhoto = (AirImageView) header.findViewById(R.id.photo);
 		if (header != null) {
 			mBubbleButton.position(header, null);
 		}
@@ -342,9 +338,6 @@ public class PlaceForm extends BaseEntityForm {
 				int screenWidth = (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) ? metrics.widthPixels : metrics.heightPixels;
 				mBubbleButton.position(header, (int) (screenWidth * typedValue.getFloat()));
 			}
-			else {
-				mBubbleButton.position(header, null);
-			}
 		}
 	}
 
@@ -504,7 +497,7 @@ public class PlaceForm extends BaseEntityForm {
 			options.showIfZero = true;
 			options.imageSizePixels = 15;
 			options.iconsEnabled = false;
-			candiViewInfo.databind(mEntity, options);
+			candiViewInfo.databind(mEntity, options, null);
 		}
 
 		drawStats(view);
@@ -566,7 +559,7 @@ public class PlaceForm extends BaseEntityForm {
 			options.showIfZero = true;
 			options.imageSizePixels = 15;
 			options.iconsEnabled = false;
-			candiView.databind(mEntity, options);
+			candiView.databind(mEntity, options, null);
 		}
 		else {
 			UI.setVisibility(photoView, View.GONE);
@@ -637,7 +630,6 @@ public class PlaceForm extends BaseEntityForm {
 	@Override
 	public void drawButtons(View view) {
 
-		Boolean watching = (mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH) != null);
 		Boolean restricted = (mEntity.privacy != null && mEntity.privacy.equals(Constants.PRIVACY_PRIVATE));
 		Boolean messaged = (mEntity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
 
@@ -693,7 +685,6 @@ public class PlaceForm extends BaseEntityForm {
 				rule.setVisibility(View.GONE);
 			}
 
-			Count messageCount = mEntity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, Direction.in);
 			Count requestCount = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, false, Direction.in);
 
 			/* Owner */

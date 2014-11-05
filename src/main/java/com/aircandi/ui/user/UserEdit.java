@@ -19,6 +19,7 @@ import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
 import com.aircandi.ui.base.BaseEntityEdit;
+import com.aircandi.ui.components.SimpleTextWatcher;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
