@@ -63,3 +63,4 @@ $RECYCLE.BIN/
 *.msp
 /catalina/src/main/assets/crashlytics-build.properties
 /catalina/src/main/res/values/com_crashlytics_export_strings.xml
+/dumps
