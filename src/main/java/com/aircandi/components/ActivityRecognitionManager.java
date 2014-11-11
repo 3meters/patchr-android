@@ -8,8 +8,8 @@ import android.content.IntentSender;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.events.ActivityStateEvent;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Reporting;
@@ -64,7 +64,7 @@ public class ActivityRecognitionManager implements
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
-	 * *--------------------------------------------------------------------------------------------*/
+	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	public void onConnected(Bundle extras) {
@@ -111,7 +111,7 @@ public class ActivityRecognitionManager implements
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
-	 * *--------------------------------------------------------------------------------------------*/
+	 *--------------------------------------------------------------------------------------------*/
 
 	public void setActivityType(Integer activityType, Integer confidence) {
 
@@ -119,8 +119,8 @@ public class ActivityRecognitionManager implements
 
 		if (mActivityRecognitionClient == null) return;
 
-		if (activityType == DetectedActivity.UNKNOWN ||
-				activityType == DetectedActivity.TILTING) return;
+		if (activityType == DetectedActivity.UNKNOWN
+				|| activityType == DetectedActivity.TILTING) return;
 
 		mActivityTypeConfidence = confidence;
 		mActivityTypePrevious = mActivityTypeCurrent;
@@ -211,7 +211,8 @@ public class ActivityRecognitionManager implements
 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
-	 * *--------------------------------------------------------------------------------------------*/
+	 *--------------------------------------------------------------------------------------------*/
+
 	public Integer getActivityType() {
 		return mActivityTypeCurrent;
 	}
@@ -226,7 +227,8 @@ public class ActivityRecognitionManager implements
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 * *--------------------------------------------------------------------------------------------*/
+	 *--------------------------------------------------------------------------------------------*/
+
 	public Integer getActivityStateThreshold() {
 		return mActivityStateThreshold;
 	}
@@ -246,5 +248,4 @@ public class ActivityRecognitionManager implements
 		MOVING,
 		STILL
 	}
-
 }

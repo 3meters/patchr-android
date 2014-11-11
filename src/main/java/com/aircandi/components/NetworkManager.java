@@ -203,7 +203,7 @@ public class NetworkManager {
 
 					Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
 					if ((Integer) serviceData.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode) {
-						return new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
+						serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
 					}
 					else if (serviceData.error != null && serviceData.error.code != null) {
 						serviceResponse.statusCodeService = serviceData.error.code.floatValue();

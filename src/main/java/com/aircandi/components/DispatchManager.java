@@ -43,7 +43,6 @@ import com.aircandi.ui.user.RegisterEdit;
 import com.aircandi.ui.user.ResetEdit;
 import com.aircandi.ui.user.SignInEdit;
 import com.aircandi.utilities.Debug;
-import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 
@@ -103,11 +102,11 @@ public class DispatchManager {
 
 		else if (route == Route.EDIT) {
 
-			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-				String message = StringManager.getString(R.string.alert_signin_message_edit, schema);
-				Dialogs.signinRequired(activity, message);
-				return;
-			}
+			//			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			//				String message = StringManager.getString(R.string.alert_signin_message_edit, schema);
+			//				Dialogs.signinRequired(activity, message);
+			//				return;
+			//			}
 
 			if (entity == null) {
 				throw new IllegalArgumentException("Dispatching edit requires entity");
@@ -146,21 +145,19 @@ public class DispatchManager {
 
 		else if (route == Route.NEW) {
 
-			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-				if (schema == null) {
-					throw new IllegalArgumentException("Handling anonymous new requires schema");
-				}
-				String message = StringManager.getString(R.string.alert_signin_message_add, schema);
-				if (schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-					message = StringManager.getString(R.string.alert_signin_message_place_new, schema);
-				}
-				Dialogs.signinRequired(activity, message);
+			//			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			//				if (schema == null) {
+			//					throw new IllegalArgumentException("Handling anonymous new requires schema");
+			//				}
+			//				String message = StringManager.getString(R.string.alert_signin_message_add, schema);
+			//				if (schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+			//					message = StringManager.getString(R.string.alert_signin_message_place_new, schema);
+			//				}
+			//				Dialogs.signinRequired(activity, message);
+			//				return;
+			//			}
+			if (!Patchr.getInstance().getMenuManager().canUserAdd(entity)) {
 				return;
-			}
-			else {
-				if (!Patchr.getInstance().getMenuManager().canUserAdd(entity)) {
-					return;
-				}
 			}
 
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);

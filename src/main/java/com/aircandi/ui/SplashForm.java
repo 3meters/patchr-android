@@ -38,7 +38,8 @@ import com.aircandi.utilities.UI;
 @SuppressLint("Registered")
 public class SplashForm extends Activity {
 
-	public BusyManager mBusy;
+	protected SwipeRefreshLayout  mSwipeRefreshLayout;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,15 +54,13 @@ public class SplashForm extends Activity {
 	@SuppressLint("ResourceAsColor")
 	protected void initialize() {
 
-		mBusy = new BusyManager(this);
-		SwipeRefreshLayout swipeRefreshNotifications = (SwipeRefreshLayout) findViewById(R.id.swipe);
-		if (swipeRefreshNotifications != null) {
-			swipeRefreshNotifications.setProgressBackgroundColor(R.color.brand_primary);
-			swipeRefreshNotifications.setColorSchemeResources(R.color.white);
-			mBusy.setSwipeRefresh(swipeRefreshNotifications);
+		mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
+		if (mSwipeRefreshLayout != null) {
+			mSwipeRefreshLayout.setProgressBackgroundColor(R.color.brand_primary);
+			mSwipeRefreshLayout.setColorSchemeResources(R.color.white);
+			mSwipeRefreshLayout.setEnabled(false);
+			mSwipeRefreshLayout.setProgressViewOffset(true, UI.getRawPixelsForDisplayPixels(48f), UI.getRawPixelsForDisplayPixels(48f));
 		}
-
-		mBusy.getSwipeRefresh().setProgressViewOffset(true, UI.getRawPixelsForDisplayPixels(48f), UI.getRawPixelsForDisplayPixels(48f));
 
 		/* Always reset the entity cache */
 		EntityManager.getEntityCache().clear();
@@ -88,7 +87,8 @@ public class SplashForm extends Activity {
 
 	private void prepareToRun() {
 
-		mBusy.showBusy(BusyAction.Refreshing);
+		mSwipeRefreshLayout.setProgressViewOffset(true, UI.getRawPixelsForDisplayPixels(48f), UI.getRawPixelsForDisplayPixels(48f));
+		mSwipeRefreshLayout.setRefreshing(true);
 
 		new AsyncTask() {
 
@@ -180,7 +180,7 @@ public class SplashForm extends Activity {
 
 
 		/* Stash last known location but doesn't start location updates */
-		LocationManager.getInstance().initialize(getApplicationContext());
+		//LocationManager.getInstance().initialize(getApplicationContext());
 
 		/* Starts activity recognition */
 		ActivityRecognitionManager.getInstance().initialize(getApplicationContext());
@@ -214,7 +214,7 @@ public class SplashForm extends Activity {
 	}
 
 	private void showButtons(Buttons buttons) {
-		mBusy.hideBusy(false);
+		mSwipeRefreshLayout.setRefreshing(false);
 		if (buttons == Buttons.NONE) {
 			findViewById(R.id.button_retry_holder).setVisibility(View.GONE);
 			findViewById(R.id.button_holder).setVisibility(View.GONE);
@@ -230,7 +230,7 @@ public class SplashForm extends Activity {
 	}
 
 	private void updateRequired() {
-		mBusy.hideBusy(false);
+		mSwipeRefreshLayout.setRefreshing(false);
 		Dialogs.updateApp(this);
 	}
 
@@ -320,9 +320,7 @@ public class SplashForm extends Activity {
 		super.onPause();
 		Logger.d(this, "Splash pause");
 		clearReferences();
-		if (mBusy != null) {
-			mBusy.onPause();
-		}
+		mSwipeRefreshLayout.setRefreshing(false);
 	}
 
 	@Override

@@ -114,6 +114,7 @@ public class UI {
 
 			photo.setProxy(true, height, width);
 			DownloadManager.with(Patchr.applicationContext).load(photo.getUriWrapped())
+			               .placeholder(UI.getResIdForAttribute(photoView.getContext(), R.attr.backgroundPlaceholder))
 			               .tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : Constants.GROUP_TAG_DEFAULT)
 			               .config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565)
 			               .into(photoView);

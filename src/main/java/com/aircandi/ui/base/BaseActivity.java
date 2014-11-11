@@ -630,7 +630,9 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		setTheme(themeId);
 		final TypedValue resourceName = new TypedValue();
 		if (getTheme().resolveAttribute(R.attr.themeTone, resourceName, true)) {
-			Patchr.themeTone = (String) resourceName.coerceToString();
+			if (resourceName.coerceToString() != null) {
+				Patchr.themeTone = (String) resourceName.coerceToString();
+			}
 		}
 	}
 

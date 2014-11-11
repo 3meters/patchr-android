@@ -85,15 +85,15 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			mMessageType = extras.getString(com.aircandi.Constants.EXTRA_MESSAGE_TYPE);
+			mMessageType = extras.getString(Constants.EXTRA_MESSAGE_TYPE);
 			if (mMessageType == null) {
 				mMessageType = MessageType.ROOT;
 			}
 			mMessage = extras.getString(Constants.EXTRA_MESSAGE);
 			mReplyPlaceId = extras.getString(Constants.EXTRA_PLACE_ID);
-			mReplyRootId = extras.getString(com.aircandi.Constants.EXTRA_MESSAGE_ROOT_ID);
-			mReplyToId = extras.getString(com.aircandi.Constants.EXTRA_MESSAGE_REPLY_TO_ID);
-			mReplyToName = extras.getString(com.aircandi.Constants.EXTRA_MESSAGE_REPLY_TO_NAME);
+			mReplyRootId = extras.getString(Constants.EXTRA_MESSAGE_ROOT_ID);
+			mReplyToId = extras.getString(Constants.EXTRA_MESSAGE_REPLY_TO_ID);
+			mReplyToName = extras.getString(Constants.EXTRA_MESSAGE_REPLY_TO_NAME);
 			mSuggestScope = EntityManager.SuggestScope.values()[extras.getInt(Constants.EXTRA_SUGGEST_SCOPE
 					, EntityManager.SuggestScope.PLACES.ordinal())];
 			mToMode = ToMode.values()[extras.getInt(Constants.EXTRA_TO_MODE, ToMode.SINGLE.ordinal())];
@@ -109,9 +109,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		 * because of a sharing intent and we need a signed in user. If user
 		 * signs in they will be routed back to this form again.
 		 */
-		if (!Patchr.firstStartApp && Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			Patchr.firstStartIntent = getIntent();
-			Patchr.dispatch.route(this, Route.SPLASH, null, null, null);
+		if (!isFinishing()) {
+			if (!Patchr.firstStartApp && Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				Patchr.firstStartIntent = getIntent();
+				Patchr.dispatch.route(this, Route.SPLASH, null, null, null);
+			}
 		}
 	}
 
@@ -119,7 +121,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mEntitySchema = com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE;
+		mEntitySchema = Constants.SCHEMA_ENTITY_MESSAGE;
 
 		if (Patchr.getInstance().getCurrentPlace() != null) {
 			mToEditable = false;
@@ -215,7 +217,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			}
 
 			/*
-             * Check to see if some data for this new message was passed
+	         * Check to see if some data for this new message was passed
 			 * in the intent.
 			 */
 			Intent intent = getIntent();
@@ -240,7 +242,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 					if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 						mEntity.description = String.format(StringManager.getString(R.string.label_place_share_body_self), mShareEntity.name);
 					}
-					else if (mShareSchema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)) {
+					else if (mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 						if (mShareEntity.place != null) {
 							mEntity.description = String.format(StringManager.getString(R.string.label_message_share_body_self), mShareEntity.creator.name, mShareEntity.place.name);
 						}
@@ -423,7 +425,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				layoutResId = R.layout.temp_share_place;
 			}
-			else if (mShareSchema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)) {
+			else if (mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				layoutResId = R.layout.temp_share_message;
 			}
 			else if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PICTURE)) {
@@ -431,14 +433,14 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			}
 
 			if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE)
-					|| mShareSchema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)) {
+					|| mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				mAnimatorPhoto.setVisibility(View.GONE);
 				mShareHolder.setVisibility(View.VISIBLE);
 				View shareView = LayoutInflater.from(this).inflate(layoutResId, mShare, true);
 				IEntityController controller = Patchr.getInstance().getControllerForSchema(mShareSchema);
 				controller.bind(mShareEntity, shareView, null);
 
-				if (mShareSchema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)) {
+				if (mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 					UI.setEnabled(shareView, false);
 				}
 			}
@@ -637,7 +639,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 						}
 
 						@Override
-						public void onPrepareLoad(Drawable arg0) {}
+						public void onPrepareLoad(Drawable drawable) {
+							if (drawable != null) {
+								mPhotoView.getImageView().setBackgroundDrawable(drawable);
+							}
+						}
 					});
 
 					UI.drawPhoto(mPhotoView, mEntity.getPhoto());

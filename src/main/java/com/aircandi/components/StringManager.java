@@ -66,7 +66,7 @@ public class StringManager {
 				, schema);
 	}
 
-	public static String getString(String string, Context context, Resources resources, String schema) {
+	public static synchronized String getString(String string, Context context, Resources resources, String schema) {
 
 		stringBuilder.setLength(0);
 		stringBuilder.trimToSize();

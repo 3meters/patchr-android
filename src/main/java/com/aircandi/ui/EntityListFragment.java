@@ -133,7 +133,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		mFirstBind = true;
 		mListView = (AbsListView) view.findViewById(R.id.list);
 		if (mListView != null) {
-			((AirListView) mListView).setListener(this);
+			((AirListView) mListView).setScrollListener(this);
 		}
 
 		if (mListLoadingResId != null) {
@@ -237,7 +237,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 					return result;
 				}
 				else if (mode == BindingMode.MANUAL
-						|| (mEntities != null && mEntities.size() == 0)
+						|| mFirstBind
+//						|| (mEntities != null && mEntities.size() == 0)
 						|| (mMonitor.isChanged() && mMonitor.activity)) {
 					mBusy.showBusy(mLoaded ? BusyAction.Refreshing : BusyAction.Loading);
 

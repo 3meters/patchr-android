@@ -22,7 +22,6 @@ import com.aircandi.R;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.LocationManager;
-import com.aircandi.components.LocationManager.LocationMode;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.NetworkManager;
@@ -133,21 +132,20 @@ public class RadarListFragment extends EntityListFragment {
 				if (LocationManager.getInstance().isLocationAccessEnabled()) {
 					bindReason = "No location processed";
 					mBusy.showBusy(BusyAction.Scanning);
-					LocationManager.getInstance().setLocationLocked(null);
-					LocationManager.getInstance().setLocationMode(LocationMode.BURST);
+					LocationManager.getInstance().requestLocation(getActivity());
 					break;
 				}
 			}
 
 			if (LocationManager.getInstance().getLocationLocked() == null) {
 				/*
-				 * Gets set everytime we accept a location change in onLocationChange. Means
-				 * we didn't get an acceptable fix yet from either the network or gps providers.
+				 * Gets set everytime we accept a location change in onLocationBroadcast. Means
+				 * we didn't get an acceptable fix yet from the fused provider.
 				 */
 				if (LocationManager.getInstance().isLocationAccessEnabled()) {
 					bindReason = "No locked location";
 					mBusy.showBusy(BusyAction.Scanning);
-					LocationManager.getInstance().setLocationMode(LocationMode.BURST);
+					LocationManager.getInstance().requestLocation(getActivity());
 					break;
 				}
 			}
@@ -318,7 +316,10 @@ public class RadarListFragment extends EntityListFragment {
 					@Override
 					protected void onPostExecute(Object result) {
 						final ServiceResponse serviceResponse = (ServiceResponse) result;
-						if (serviceResponse.responseCode != ResponseCode.SUCCESS) {
+						if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+							LocationManager.getInstance().requestLocation(getActivity());
+						}
+						else {
 							onError();
 							Errors.handleError(getActivity(), serviceResponse);
 						}
@@ -366,10 +367,7 @@ public class RadarListFragment extends EntityListFragment {
 				, "places_near_location_downloaded"
 				, NetworkManager.getInstance().getNetworkType());
 
-		if (!NetworkManager.getInstance().isWifiEnabled()
-				&& LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-			BusProvider.getInstance().post(new ProcessingFinishedEvent());
-		}
+		BusProvider.getInstance().post(new ProcessingFinishedEvent());
 	}
 
 	@Subscribe
@@ -390,6 +388,10 @@ public class RadarListFragment extends EntityListFragment {
 				mEntities.clear();
 				mEntities.addAll(entities);
 				mAdapter.notifyDataSetChanged();
+
+				if (entities.size() >= 2) {
+					BusProvider.getInstance().post(new ProcessingFinishedEvent());
+				}
 				
 				/* No more updates are coming */
 				if (LocationManager.getInstance().getLocationLocked() != null) {
@@ -443,12 +445,6 @@ public class RadarListFragment extends EntityListFragment {
 
 	@Override
 	public void onError() {
-		/*
-		 * Location updates can trigger service calls. Gets restarted
-		 * when the user manually triggers a refresh.
-		 */
-		LocationManager.getInstance().setLocationMode(LocationMode.OFF);
-
 		/* Kill busy */
 		BusProvider.getInstance().post(new ProcessingFinishedEvent());
 	}
@@ -474,6 +470,7 @@ public class RadarListFragment extends EntityListFragment {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void draw(View view) {
+		mAdapter.notifyDataSetChanged();
 		drawButtons(view);
 	}
 
@@ -536,17 +533,10 @@ public class RadarListFragment extends EntityListFragment {
 				if (NetworkManager.getInstance().isWifiEnabled()) {
 					ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
 				}
-
-				/* We give the beacon query a bit of a head start */
-				if (LocationManager.getInstance().isLocationAccessEnabled()) {
-					mHandler.postDelayed(new Runnable() {
-
-						@Override
-						public void run() {
-							LocationManager.getInstance().setLocationLocked(null);
-							LocationManager.getInstance().setLocationMode(LocationMode.BURST);
-						}
-					}, 500);
+				else {
+					if (LocationManager.getInstance().isLocationAccessEnabled()) {
+						LocationManager.getInstance().requestLocation(getActivity());
+					}
 				}
 
 				return null;
@@ -560,6 +550,9 @@ public class RadarListFragment extends EntityListFragment {
 					}
 					else {
 						UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
+					}
+					if (!NetworkManager.getInstance().isWifiEnabled()) {
+						BusProvider.getInstance().post(new ProcessingFinishedEvent());
 					}
 				}
 			}
@@ -637,7 +630,6 @@ public class RadarListFragment extends EntityListFragment {
 		super.onStart();
 
 		BusProvider.getInstance().register(mLocationHandler);
-		LocationManager.getInstance().setLocationMode(LocationMode.OFF);
 
 		/* Start foreground activity recognition - stop proximity manager from background recognition */
 		try {
@@ -650,12 +642,9 @@ public class RadarListFragment extends EntityListFragment {
 	public void onStop() {
 		/*
 		 * Fired when fragment is being deactivated.
-		 * 
-		 * Stop any location burst that might be active unless this activity is being restarted. We do this because
-		 * there is a race condition that can stop location burst after it has been started by the reload.
 		 */
-		LocationManager.getInstance().setLocationMode(LocationMode.OFF);
 		BusProvider.getInstance().unregister(mLocationHandler);
+		LocationManager.getInstance().stop();
 		/*
 		 * Start background activity recognition with proximity manager as the listener.
 		 */
@@ -674,8 +663,7 @@ public class RadarListFragment extends EntityListFragment {
 
 	/* Stub for future use because I hate bind() */
 	@SuppressWarnings("ucd")
-	public class RadarMonitor extends SimpleMonitor {
-	}
+	public class RadarMonitor extends SimpleMonitor {}
 
 	public class LocationHandler {
 
@@ -700,9 +688,7 @@ public class RadarListFragment extends EntityListFragment {
 					final float accuracyImprovement = locationLocked.getAccuracy() / locationCandidate.getAccuracy();
 					boolean isSignificantlyMoreAccurate = (accuracyImprovement >= 1.5);
 					if (!isSignificantlyMoreAccurate) {
-						if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-							BusProvider.getInstance().post(new ProcessingFinishedEvent());
-						}
+						BusProvider.getInstance().post(new ProcessingFinishedEvent());
 						return;
 					}
 					reason = "accuracy";
@@ -719,6 +705,10 @@ public class RadarListFragment extends EntityListFragment {
 
 				Logger.d(getActivity(), "Location changed event: location accepted: " + reason);
 				LocationManager.getInstance().setLocationLocked(locationCandidate);
+
+				if (locationCandidate.getAccuracy() <= LocationManager.ACCURACY_PREFERRED) {
+					LocationManager.getInstance().stop();
+				}
 
 				final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 				if (location != null && !location.zombie) {
@@ -752,9 +742,7 @@ public class RadarListFragment extends EntityListFragment {
 								final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null, null);
 								BusProvider.getInstance().post(new PlacesNearLocationFinishedEvent());
 								BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
-								if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-									BusProvider.getInstance().post(new ProcessingFinishedEvent());
-								}
+								BusProvider.getInstance().post(new ProcessingFinishedEvent());
 							}
 							else {
 								onError();
@@ -764,9 +752,7 @@ public class RadarListFragment extends EntityListFragment {
 					}.execute();
 				}
 				else {
-					if (LocationManager.getInstance().getLocationMode() != LocationMode.BURST) {
-						BusProvider.getInstance().post(new ProcessingFinishedEvent());
-					}
+					BusProvider.getInstance().post(new ProcessingFinishedEvent());
 				}
 			}
 		}

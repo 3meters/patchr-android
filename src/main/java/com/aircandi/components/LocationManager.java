@@ -7,7 +7,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
@@ -30,10 +29,7 @@ import java.util.List;
 import java.util.Locale;
 
 @SuppressWarnings("ucd")
-public class LocationManager implements
-                             GooglePlayServicesClient.ConnectionCallbacks,
-                             GooglePlayServicesClient.OnConnectionFailedListener,
-                             LocationListener {
+public class LocationManager {
 
 	public static final Double RADIUS_EARTH_MILES      = 3958.75;
 	public static final Double RADIUS_EARTH_KILOMETERS = 6371.0;
@@ -43,19 +39,35 @@ public class LocationManager implements
 	public static final float  FeetToMetersConversion  = 0.3048f;
 
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-	private final static int ACCURACY_PREFERRED                    = 50;
+	public final static int ACCURACY_PREFERRED                    = 50;
 
 	protected android.location.LocationManager mLocationManager;
 	protected LocationClient                   mLocationClient;
 	protected LocationRequest                  mLocationRequest;
-	protected LocationMode mLocationMode = LocationMode.NONE;
-	private Runnable    mBurstTimeout;
-	private AirLocation mAirLocationLocked;
-
-	private Location mLocationLast;
-	private Location mLocationLocked;
+	protected LocationListener                 mLocationListener;
+	private   Runnable                         mLocationTimeout;
+	private   AirLocation                      mAirLocationLocked;
+	private   Location                         mLocationLast;
+	private   Location                         mLocationLocked;
 
 	private LocationManager() {
+		mLocationManager = (android.location.LocationManager) Patchr.applicationContext.getSystemService(Context.LOCATION_SERVICE);
+		mLocationTimeout = new Runnable() {
+
+			@Override
+			public void run() {
+
+				Logger.d(LocationManager.this, "Location fix attempt aborted: timeout: ** done **");
+				Patchr.stopwatch2.segmentTime("Location fix attempt aborted: timeout");
+				Patchr.mainThreadHandler.removeCallbacks(mLocationTimeout);
+
+				Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
+						, "location_timeout"
+						, NetworkManager.getInstance().getNetworkType());
+
+				BusProvider.getInstance().post(new BurstTimeoutEvent());
+			}
+		};
 	}
 
 	private static class LocationManagerHolder {
@@ -66,194 +78,117 @@ public class LocationManager implements
 		return LocationManagerHolder.instance;
 	}
 
-	public void initialize(Context applicationContext) {
+	public void requestLocation(final Context context) {
 
-		Logger.d(this, "Initializing the LocationManager");
-
-		/* Timeout handler */
-		mBurstTimeout = new Runnable() {
-
-			@Override
-			public void run() {
-
-				Logger.d(LocationManager.this, "Location fix attempt aborted: timeout: ** done **");
-				Patchr.stopwatch2.segmentTime("Location fix attempt aborted: timeout");
-				Patchr.mainThreadHandler.removeCallbacks(mBurstTimeout);
-
-				Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
-						, "location_timeout"
-						, NetworkManager.getInstance().getNetworkType());
-
-				setLocationMode(LocationMode.OFF);
-				BusProvider.getInstance().post(new BurstTimeoutEvent());
-			}
-		};
-
-		/* Reset */
-		mLocationLast = null;
 		mLocationLocked = null;
-		mAirLocationLocked = null;
-		mLocationMode = LocationMode.NONE;
 
-		/* Only used to check if location services are enabled */
-		mLocationManager = (android.location.LocationManager) applicationContext.getSystemService(Context.LOCATION_SERVICE);
+		/* For now we use high accuracy in all cases */
+		final int priority = NetworkManager.getInstance().isWifiEnabled()
+		                     ? LocationRequest.PRIORITY_HIGH_ACCURACY
+		                     : LocationRequest.PRIORITY_HIGH_ACCURACY;
 
-		mLocationRequest = LocationRequest.create();
-		mLocationClient = new LocationClient(applicationContext, this, this);
+		Reporting.updateCrashKeys();
+		mLocationClient = new LocationClient(context,
+
+				new GooglePlayServicesClient.ConnectionCallbacks() {
+
+					@Override
+					public void onConnected(Bundle bundle) {
+						mLocationRequest = LocationRequest.create()
+						                                         .setPriority(priority)
+						                                         .setInterval(Constants.TIME_FIVE_SECONDS)
+						                                         .setFastestInterval(Constants.TIME_FIVE_SECONDS)
+						                                         .setNumUpdates(5)
+						                                         .setExpirationDuration(Constants.TIME_THIRTY_SECONDS);
+						mLocationListener = new LocationListener() {
+
+							@Override
+							public void onLocationChanged(Location location) {
+								Logger.d(context, "Location changed: " + (location == null ? "null" : location.toString()));
+								if (Patchr.stopwatch2.isStarted()) {
+									Patchr.stopwatch2.segmentTime("Lock location: update: accuracy = " + (location.hasAccuracy() ? location.getAccuracy() : "none"));
+								}
+								if (location.hasAccuracy()) {
+									if (Patchr.getInstance().getPrefEnableDev()) {
+										UI.showToastNotification("Location accuracy: " + location.getAccuracy(), Toast.LENGTH_SHORT);
+									}
+									if (location.getAccuracy() <= ACCURACY_PREFERRED) {
+										Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
+												, "location_accepted"
+												, NetworkManager.getInstance().getNetworkType());
+									}
+								}
+								mLocationLast = location;
+								BusProvider.getInstance().post(new LocationChangedEvent(mLocationLast));
+							}
+						};
+
+						mLocationClient.requestLocationUpdates(mLocationRequest, mLocationListener);
+
+						/* We don't get a callback so setup a more official timeout */
+						Patchr.mainThreadHandler.postDelayed(mLocationTimeout, Constants.TIME_THIRTY_SECONDS);
+					}
+
+					@Override
+					public void onDisconnected() {}
+				},
+
+				new GooglePlayServicesClient.OnConnectionFailedListener() {
+
+					@Override
+					public void onConnectionFailed(ConnectionResult connectionResult) {
+						/*
+						 * Google Play services can resolve some errors it detects.
+						 * If the error has a resolution, try sending an Intent to
+						 * start a Google Play services activity that can resolve
+						 * error.
+						 */
+						if (connectionResult.hasResolution()) {
+							try {
+								/* Start an Activity that tries to resolve the error */
+								connectionResult.startResolutionForResult((Activity) Patchr.applicationContext
+										, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+							}
+							catch (IntentSender.SendIntentException e) {
+								/* Thrown if Google Play services canceled the original PendingIntent */
+								Reporting.logException(e);
+							}
+						}
+						else {
+							AndroidManager.showPlayServicesErrorDialog(connectionResult.getErrorCode()
+									, Patchr.getInstance().getCurrentActivity());
+						}
+					}
+				});
+
 		mLocationClient.connect();
+	}
+
+	public void stop() {
+		if (mLocationClient != null && mLocationListener != null && mLocationClient.isConnected()) {
+			mLocationClient.removeLocationUpdates(mLocationListener);
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onLocationChanged(Location location) {
-
-		if (location == null) {
-			Logger.d(this, "Location update: cleared");
-			mLocationLast = null;
-		}
-		else {
-			if (Patchr.stopwatch2.isStarted()) {
-				Patchr.stopwatch2.segmentTime("Lock location: update: accuracy = " + (location.hasAccuracy() ? location.getAccuracy() : "none"));
-			}
-
-			if (mLocationMode == LocationMode.BURST) {
-				if (location.hasAccuracy()) {
-					if (Patchr.getInstance().getPrefEnableDev()) {
-						UI.showToastNotification("Location accuracy: " + location.getAccuracy(), Toast.LENGTH_SHORT);
-					}
-					if (location.getAccuracy() <= ACCURACY_PREFERRED) {
-						Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
-								, "location_accepted"
-								, NetworkManager.getInstance().getNetworkType());
-
-						setLocationMode(LocationMode.OFF);
-					}
-				}
-			}
-			mLocationLast = location;
-			BusProvider.getInstance().post(new LocationChangedEvent(mLocationLast));
-		}
-	}
-
-	@Override
-	public void onConnected(Bundle extras) {
-		try {
-			mLocationLast = mLocationClient.getLastLocation();
-			processMode();
-		}
-		catch (IllegalStateException ignore) {}
-	}
-
-	@Override
-	public void onDisconnected() {
-		/*
-		 * We attempt to rebuild our connection to the play services.
-		 */
-		new Handler().post(new Runnable() {
-			@Override
-			public void run() {
-				mLocationClient = new LocationClient(Patchr.applicationContext, LocationManager.this, LocationManager.this);
-				mLocationClient.connect();
-			}
-		});
-	}
-
-	@Override
-	public void onConnectionFailed(ConnectionResult connectionResult) {
-		/*
-		 * Google Play services can resolve some errors it detects.
-		 * If the error has a resolution, try sending an Intent to
-		 * start a Google Play services activity that can resolve
-		 * error.
-		 */
-		if (connectionResult.hasResolution()) {
-			try {
-				/* Start an Activity that tries to resolve the error */
-				connectionResult.startResolutionForResult((Activity) Patchr.applicationContext
-						, CONNECTION_FAILURE_RESOLUTION_REQUEST);
-				/*
-				 * Thrown if Google Play services canceled the original
-				 * PendingIntent
-				 */
-			}
-			catch (IntentSender.SendIntentException e) {
-				Reporting.logException(e);
-			}
-		}
-		else {
-			/*
-			 * If no resolution is available, display a dialog to the
-			 * user with the error.
-			 */
-			AndroidManager.showPlayServicesErrorDialog(connectionResult.getErrorCode(), Patchr.getInstance().getCurrentActivity());
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void setLocationMode(LocationMode locationMode) {
-		/*
-		 * This is the external entry point that triggers use of the
-		 * play services location client.
-		 */
-		Reporting.updateCrashKeys();
-		Logger.d(LocationManager.this, "Location mode changed to: " + locationMode.name());
-		mLocationMode = locationMode;
-		processMode();
-	}
-
-	public void processMode() {
-
-		if (!mLocationClient.isConnected()) {
-			mLocationClient.connect();
-			if (mLocationMode != LocationMode.NONE) {
-				Patchr.mainThreadHandler.postDelayed(mBurstTimeout, Constants.TIME_THIRTY_SECONDS);
-			}
-		}
-		else {
-			try {
-				mLocationClient.removeLocationUpdates(this);
-				if (mLocationMode == LocationMode.BURST) {
-					Patchr.stopwatch2.start("location_lock", "Lock location: start");
-					Logger.d(LocationManager.this, "Lock location started");
-					onLocationChanged(null);
-					mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-					mLocationRequest.setInterval(Constants.TIME_FIVE_SECONDS);
-					mLocationRequest.setFastestInterval(Constants.TIME_FIVE_SECONDS);
-					Patchr.mainThreadHandler.postDelayed(mBurstTimeout, Constants.TIME_THIRTY_SECONDS);
-					mLocationClient.requestLocationUpdates(mLocationRequest, this);
-				}
-				else if (mLocationMode == LocationMode.OFF) {
-					if (Patchr.stopwatch2.isStarted()) {
-						Patchr.stopwatch2.stop("Lock location: stopped");
-					}
-					Logger.d(LocationManager.this, "Lock location stopped: ** done **");
-					Patchr.mainThreadHandler.removeCallbacks(mBurstTimeout);
-					mLocationMode = LocationMode.NONE;
-				}
-			}
-			catch (Exception ignore) {}
-		}
-	}
+	/* Public */
 
 	public Boolean hasMoved(Location locationCandidate) {
-
 		if (mLocationLocked == null) return true;
 		final float distance = mLocationLocked.distanceTo(locationCandidate);
 		return (distance >= mLocationRequest.getSmallestDisplacement());
 	}
 
-	private boolean isProviderEnabled(String provider) {
-		return mLocationManager.isProviderEnabled(provider);
-	}
-
 	public boolean isLocationAccessEnabled() {
-		return isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER) || isProviderEnabled(android.location.LocationManager.GPS_PROVIDER);
+		return (mLocationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
+				|| mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER));
 	}
 
 	public ModelResult getAddressForLocation(final AirLocation location) {
@@ -304,7 +239,6 @@ public class LocationManager implements
 		return result;
 	}
 
-
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
@@ -323,67 +257,47 @@ public class LocationManager implements
 			mAirLocationLocked.zombie = true;
 		}
 		else {
-			mAirLocationLocked = getAirLocationForLockedLocation();
-		}
-	}
 
-	public void setAirLocationLocked(AirLocation airLocationLocked) {
-		mAirLocationLocked = airLocationLocked;
+			if (mLocationLocked == null || !mLocationLocked.hasAccuracy()) {
+				mAirLocationLocked = null;
+				return;
+			}
+
+			AirLocation location = new AirLocation();
+
+			synchronized (mLocationLocked) {
+
+				if (Patchr.usingEmulator) {
+					location = new AirLocation(47.616245, -122.201645); // earls
+					location.provider = "emulator_lucky";
+				}
+				else {
+					location.lat = mLocationLocked.getLatitude();
+					location.lng = mLocationLocked.getLongitude();
+
+					if (mLocationLocked.hasAltitude()) {
+						location.altitude = mLocationLocked.getAltitude();
+					}
+					if (mLocationLocked.hasAccuracy()) {
+						/* In meters. */
+						location.accuracy = mLocationLocked.getAccuracy();
+					}
+					if (mLocationLocked.hasBearing()) {
+						/* Direction of travel in degrees East of true North. */
+						location.bearing = mLocationLocked.getBearing();
+					}
+					if (mLocationLocked.hasSpeed()) {
+						/* Speed of the device over ground in meters/second. */
+						location.speed = mLocationLocked.getSpeed();
+					}
+					location.provider = mLocationLocked.getProvider();
+				}
+			}
+			mAirLocationLocked = location;
+		}
 	}
 
 	public AirLocation getAirLocationLocked() {
 		return mAirLocationLocked;
-	}
-
-	public LocationMode getLocationMode() {
-		return mLocationMode;
-	}
-
-	private AirLocation getAirLocationForLockedLocation() {
-
-		AirLocation location = new AirLocation();
-
-		if (mLocationLocked == null || !mLocationLocked.hasAccuracy()) return null;
-
-		synchronized (mLocationLocked) {
-
-			if (Patchr.usingEmulator) {
-				location = new AirLocation(47.616245, -122.201645); // earls
-				location.provider = "emulator_lucky";
-			}
-			else {
-				location.lat = mLocationLocked.getLatitude();
-				location.lng = mLocationLocked.getLongitude();
-
-				if (mLocationLocked.hasAltitude()) {
-					location.altitude = mLocationLocked.getAltitude();
-				}
-				if (mLocationLocked.hasAccuracy()) {
-					/* In meters. */
-					location.accuracy = mLocationLocked.getAccuracy();
-				}
-				if (mLocationLocked.hasBearing()) {
-					/* Direction of travel in degrees East of true North. */
-					location.bearing = mLocationLocked.getBearing();
-				}
-				if (mLocationLocked.hasSpeed()) {
-					/* Speed of the device over ground in meters/second. */
-					location.speed = mLocationLocked.getSpeed();
-				}
-				location.provider = mLocationLocked.getProvider();
-			}
-		}
-
-		return location;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
-
-	public enum LocationMode {
-		BURST,
-		OFF,
-		NONE
 	}
 }

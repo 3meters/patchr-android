@@ -114,7 +114,7 @@ public class PlaceForm extends BaseEntityForm {
 		mBubbleButton.setEnabled(false);
 
 		/* Default fragment */
-		mNextFragmentTag = com.aircandi.Constants.FRAGMENT_TYPE_MESSAGES;
+		mNextFragmentTag = Constants.FRAGMENT_TYPE_MESSAGES;
 
 		mLinkProfile = LinkProfile.LINKS_FOR_PLACE;
 	}
@@ -182,8 +182,8 @@ public class PlaceForm extends BaseEntityForm {
 			}
 			extras.putString(Constants.EXTRA_MESSAGE, message);
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntityId);
-			extras.putString(com.aircandi.Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
-			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+			extras.putString(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
+			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 			Patchr.dispatch.route(this, Route.NEW, null, null, extras);
 			return;
 		}
@@ -350,7 +350,7 @@ public class PlaceForm extends BaseEntityForm {
 		/*
 		 * Fragment menu items are in addition to any menu items added by the parent activity.
 		 */
-		if (fragmentType.equals(com.aircandi.Constants.FRAGMENT_TYPE_MESSAGES)) {
+		if (fragmentType.equals(Constants.FRAGMENT_TYPE_MESSAGES)) {
 
 			mCurrentFragment = new MessageListFragment();
 
@@ -361,19 +361,19 @@ public class PlaceForm extends BaseEntityForm {
 			     .setLinkDirection(Direction.in.name())
 			     .setLinkType(Constants.TYPE_LINK_CONTENT)
 			     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
-			     .setSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+			     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
 
 			((EntityListFragment) mCurrentFragment)
 					.setMonitor(monitor)
 					.setQuery(query)
-					.setListViewType(EntityListFragment.ViewType.LIST)
-					.setListLayoutResId(R.layout.message_list_place_fragment)
-					.setListLoadingResId(R.layout.temp_listitem_loading)
-					.setListItemResId(R.layout.temp_listitem_message)
-					.setListEmptyMessageResId(R.string.button_list_share)
-					.setBubbleButtonMessageResId(R.string.button_list_share)
 					.setHeaderViewResId(R.layout.widget_list_header_place)
 					.setFooterViewResId(R.layout.widget_list_footer_message)
+					.setListEmptyMessageResId(R.string.button_list_share)
+					.setListItemResId(R.layout.temp_listitem_message)
+					.setListLayoutResId(R.layout.message_list_place_fragment)
+					.setListLoadingResId(R.layout.temp_listitem_loading)
+					.setListViewType(EntityListFragment.ViewType.LIST)
+					.setBubbleButtonMessageResId(R.string.button_list_share)
 					.setSelfBindingEnabled(false);
 
 			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_refresh);
@@ -386,9 +386,10 @@ public class PlaceForm extends BaseEntityForm {
 			return;
 		}
 
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		ft.replace(R.id.fragment_holder, mCurrentFragment);
-		ft.commit();
+		getFragmentManager()
+				.beginTransaction()
+				.replace(R.id.fragment_holder, mCurrentFragment)
+				.commit();
 
 		mPrevFragmentTag = mCurrentFragmentTag;
 		mCurrentFragmentTag = fragmentType;
