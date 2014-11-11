@@ -1080,7 +1080,7 @@ public class EntityManager {
 		 */
 		ModelResult result = deleteEntity(entityId, cacheOnly);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS && seedParentId != null) {
-			result = removeLinks(entityId, seedParentId, Constants.TYPE_LINK_CONTENT, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE, "remove");
+			result = removeLinks(entityId, seedParentId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, "remove");
 		}
 		return result;
 	}

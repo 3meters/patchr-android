@@ -142,7 +142,10 @@ public class EntityView extends LinearLayout {
 						}
 
 						@Override
-						public void onPrepareLoad(Drawable arg0) {
+						public void onPrepareLoad(Drawable drawable) {
+							if (drawable != null) {
+								mPhotoView.getImageView().setBackgroundDrawable(drawable);
+							}
 						}
 					});
 

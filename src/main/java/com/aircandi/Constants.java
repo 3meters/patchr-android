@@ -9,7 +9,7 @@ import android.util.Log;
 public class Constants {
 
 	public static final int     LOG_LEVEL           = Patchr.DEBUG ? Log.VERBOSE : Log.DEBUG;
-	public static final boolean ERROR_LEVEL_VERBOSE = false;
+	public static final int     ERROR_LEVEL         = Log.VERBOSE;
 
 	/* Activity parameters */
 	public static final String EXTRA_ENTITY_PARENT_ID = "com.aircandi.EXTRA_PARENT_ENTITY_ID";

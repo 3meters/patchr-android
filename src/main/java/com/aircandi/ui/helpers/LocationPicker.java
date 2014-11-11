@@ -54,11 +54,6 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-	}
-
-	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 

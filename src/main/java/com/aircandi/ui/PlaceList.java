@@ -32,8 +32,8 @@ public class PlaceList extends BaseActivity {
 		if (extras != null) {
 			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
 			mEntity = EntityManager.getCacheEntity(mEntityId);
-			mListLinkType = extras.getString(com.aircandi.Constants.EXTRA_LIST_LINK_TYPE);
-			mListTitleResId = extras.getInt(com.aircandi.Constants.EXTRA_LIST_TITLE_RESID);
+			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
+			mListTitleResId = extras.getInt(Constants.EXTRA_LIST_TITLE_RESID);
 			mListEmptyMessageResId = extras.getInt(Constants.EXTRA_LIST_EMPTY_RESID);
 		}
 	}

@@ -221,19 +221,20 @@
 
 	<string name="error_connection_walled_garden">You may need to sign in to enable internet access.</string>
 	<string name="error_connection_airplane_mode">You are not connected to the network. Turn off Airplane Mode?</string>
-	<string name="error_connection_none">You appear to be offline or are not connected to the network.</string>
-	<string name="error_connection_poor">Your network connection is weak. Try again and it might work</string>
-	<string name="error_connection_reset">The file is not available. The connection was interrupted.</string>
-	<string name="error_service_unavailable">[@string/name_app]\'s servers are overloaded. Please excuse us!</string>
-	<string name="error_client_unknown_host">The website you entered can\'t be found.</string>
+	<string name="error_connection_none">You appear to be offline or not connected to a network.</string>
+	<string name="error_connection_poor">Your network connection is haywire. Try again and it might work.</string>
+	<string name="error_connection_reset">Your network connection was interrupted.</string>
+	<string name="error_client_unknown_host">Host can\'t be resolved by dns.</string>
 	<string name="error_client_request_error">[@string/name_app] request error</string>
-	<string name="error_client_request_stream_error">Connection was interrupted. Try again and it might work.</string>
+	<string name="error_client_request_stream_error">Your network connection was interrupted. Try again and it might work.</string>
 	<string name="error_client_request_not_found">Resource not found</string>
-	<string name="error_service_gateway_timeout">[@string/name_app]\'s servers are overloaded. Please excuse us!</string>
+	<string name="error_service_gateway_timeout">The servers might be overloaded.</string>
+	<string name="error_service_unavailable">Your network connection is poor or the servers are overloaded.</string>
 	<string name="error_service_unknown">Oops, something went wrong. Try again and it might work.</string>
 	<string name="error_service_unknown_status">Internal 500 service error.</string>
 	<string name="error_service_unknown_exception">Unhandled exception, sorry about that!</string>
 	<string name="error_service_file_not_found">File couldn\'t be found.</string>
+	<string name="error_service_unhandled_request_error">Unhandled request error</string>
 
 	<string name="error_missing_message_to">Select a [@string/container_singular_lowercase] for this message.</string>
 	<string name="error_missing_message_content">Select a photo or enter a message.</string>

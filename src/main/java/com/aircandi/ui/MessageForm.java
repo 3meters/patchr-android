@@ -110,26 +110,30 @@ public class MessageForm extends BaseEntityForm {
 		     .setLinkDirection(Direction.in.name())
 		     .setLinkType(Constants.TYPE_LINK_CONTENT)
 		     .setPageSize(Integers.getInteger(R.integer.page_size_replies))
-		     .setSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+		     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
 
-		((EntityListFragment) mCurrentFragment).setQuery(query)
-		                                       .setMonitor(monitor)
-		                                       .setListItemResId(R.layout.temp_listitem_message)
-		                                       .setListViewType(ViewType.LIST)
-		                                       .setListLayoutResId(R.layout.entity_list_fragment)
-		                                       .setListLoadingResId(R.layout.temp_listitem_loading)
-		                                       .setHeaderViewResId(R.layout.widget_list_header_message)
-		                                       .setFooterViewResId(R.layout.widget_list_footer_message)
-		                                       .setBackgroundResId(R.drawable.selector_item)
-		                                       .setReverseSort(true)
-		                                       .setSelfBindingEnabled(false);
+		((EntityListFragment) mCurrentFragment)
+				.setMonitor(monitor)
+				.setQuery(query)
+				.setHeaderViewResId(R.layout.widget_list_header_message)
+				.setFooterViewResId(R.layout.widget_list_footer_message)
+				.setListItemResId(R.layout.temp_listitem_message)
+				.setListLayoutResId(R.layout.entity_list_fragment)
+				.setListLoadingResId(R.layout.temp_listitem_loading)
+				.setListViewType(ViewType.LIST)
+				.setBackgroundResId(R.drawable.selector_item)
+				.setReverseSort(true)
+				.setSelfBindingEnabled(false);
 
 		if (mChildId != null) {
 			mHighlight = new Highlight(true);
 			((MessageListFragment) mCurrentFragment).getHighlightEntities().put(mChildId, mHighlight);
 		}
 
-		getFragmentManager().beginTransaction().replace(R.id.fragment_holder, mCurrentFragment).commit();
+		getFragmentManager()
+				.beginTransaction()
+				.replace(R.id.fragment_holder, mCurrentFragment)
+				.commit();
 	}
 
 	@Override
@@ -245,7 +249,7 @@ public class MessageForm extends BaseEntityForm {
 			if (toName != null) {
 
 				Message message = (Message) mEntity;
-				Link linkMessage = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+				Link linkMessage = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE);
 
 				String toLabel;
 				if (message.replyTo != null) {
@@ -374,7 +378,7 @@ public class MessageForm extends BaseEntityForm {
 				shareEntity = linkEntity.shortcut.getAsEntity();
 			}
 			if (shareEntity == null) {
-				linkEntity = mEntity.getParentLink(Constants.TYPE_LINK_SHARE, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+				linkEntity = mEntity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_MESSAGE);
 				if (linkEntity != null) {
 					shareEntity = linkEntity.shortcut.getAsEntity();
 				}
@@ -389,7 +393,7 @@ public class MessageForm extends BaseEntityForm {
 			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				layoutResId = R.layout.temp_button_share_place;
 			}
-			else if (shareEntity.schema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)) {
+			else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				layoutResId = R.layout.temp_button_share_message;
 			}
 
@@ -485,15 +489,15 @@ public class MessageForm extends BaseEntityForm {
 
 		String rootId = mEntity.type.equals(MessageType.ROOT) ? mEntity.id : ((Message) mEntity).rootId;
 
-		extras.putString(com.aircandi.Constants.EXTRA_MESSAGE_ROOT_ID, rootId);
+		extras.putString(Constants.EXTRA_MESSAGE_ROOT_ID, rootId);
 		extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, rootId);
-		extras.putString(com.aircandi.Constants.EXTRA_MESSAGE_TYPE, MessageType.REPLY);
+		extras.putString(Constants.EXTRA_MESSAGE_TYPE, MessageType.REPLY);
 		extras.putString(Constants.EXTRA_PLACE_ID, mEntity.placeId);
 
 		if (mEntity.creator != null) {
-			extras.putString(com.aircandi.Constants.EXTRA_MESSAGE_REPLY_TO_ID, mEntity.creator.id);
+			extras.putString(Constants.EXTRA_MESSAGE_REPLY_TO_ID, mEntity.creator.id);
 			if (!TextUtils.isEmpty(mEntity.creator.name)) {
-				extras.putString(com.aircandi.Constants.EXTRA_MESSAGE_REPLY_TO_NAME, mEntity.creator.name);
+				extras.putString(Constants.EXTRA_MESSAGE_REPLY_TO_NAME, mEntity.creator.name);
 			}
 		}
 
@@ -531,7 +535,7 @@ public class MessageForm extends BaseEntityForm {
 
 	@Override
 	public void onAdd(Bundle extras) {
-		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 		super.onAdd(extras);
 	}
 
@@ -545,16 +549,18 @@ public class MessageForm extends BaseEntityForm {
 		 */
 		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
 			if (requestCode == Constants.ACTIVITY_ENTITY_INSERT) {
-				mChildId = intent.getStringExtra(Constants.EXTRA_ENTITY_CHILD_ID);
-				if (mChildId != null) {
+				if (intent != null) {
+					mChildId = intent.getStringExtra(Constants.EXTRA_ENTITY_CHILD_ID);
+					if (mChildId != null) {
 					/* If reply to reply then finish */
-					if (mEntity.type != null && mEntity.type.equals(MessageType.REPLY)) {
-						finish();
-						Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
-					}
-					else {
-						mHighlight = new Highlight(true);
-						((MessageListFragment) mCurrentFragment).getHighlightEntities().put(mChildId, mHighlight);
+						if (mEntity.type != null && mEntity.type.equals(MessageType.REPLY)) {
+							finish();
+							Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+						}
+						else {
+							mHighlight = new Highlight(true);
+							((MessageListFragment) mCurrentFragment).getHighlightEntities().put(mChildId, mHighlight);
+						}
 					}
 				}
 			}
@@ -581,7 +587,7 @@ public class MessageForm extends BaseEntityForm {
 
 		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
 		builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 
 		builder.startChooser();
 	}

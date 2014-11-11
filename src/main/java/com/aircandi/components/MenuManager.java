@@ -233,7 +233,7 @@ public class MenuManager {
 		if (entity == null)
 			return false;
 		else if (route == Route.ADD) {
-			if (entity.schema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE))
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE))
 				return true;
 		}
 		else if (route == Route.REMOVE) {
@@ -242,7 +242,7 @@ public class MenuManager {
 			/*
 			 * Message can be listed for places or current user.
 			 */
-			if (forSchema.equals(com.aircandi.Constants.SCHEMA_ENTITY_USER))
+			if (forSchema.equals(Constants.SCHEMA_ENTITY_USER))
 				return false;
 			else
 				return Patchr.getInstance().getMenuManager().canUserRemoveFromPlace(entity);

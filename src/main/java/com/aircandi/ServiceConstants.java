@@ -4,13 +4,13 @@ package com.aircandi;
 @SuppressWarnings("ucd")
 public final class ServiceConstants {
 
-	public static final int TIMEOUT_CONNECTION   = 20000;
-	public static final int TIMEOUT_SOCKET_READ  = 30000;
-	public static final int TIMEOUT_SOCKET_WRITE = 30000;
+	public static final int TIMEOUT_CONNECTION   = 5000;
+	public static final int TIMEOUT_SOCKET_READ  = 10000;
+	public static final int TIMEOUT_SOCKET_WRITE = 20000;
 
 	public static final int TIMEOUT_APPLINK_SEARCH  = 10000;
 	public static final int TIMEOUT_APPLINK_REFRESH = 10000;
-	public static final int TIMEOUT_PLACE_QUERIES   = 20000;
+	public static final int TIMEOUT_PLACE_QUERIES   = 10000;
 	public static final int TIMEOUT_PLACE_SUGGEST   = 2000;
 
 	public static final String WALLED_GARDEN_URI               = "http://clients3.google.com/generate_204";
@@ -52,7 +52,7 @@ public final class ServiceConstants {
 	public static final String  PLACE_SUGGEST_PROVIDER = "google";
 	public static final Integer PLACE_SUGGEST_RADIUS   = 20000000;
 
-	public static final String PLACE_NEAR_PROVIDERS        = "foursquare|google";
+	public static final String PLACE_NEAR_PROVIDERS        = "none";
 	/*
 	 * Nearby = 20 minutes walking = 1 mile = 1609 meters.
 	 */
@@ -74,8 +74,6 @@ public final class ServiceConstants {
 	public static final float SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS         = 401.1f;
 	public static final float SERVICE_STATUS_CODE_UNAUTHORIZED_SESSION_EXPIRED     = 401.2f;                                                                
 	public static final float SERVICE_STATUS_CODE_UNAUTHORIZED_NOT_HUMAN           = 401.3f;                                                                
-	public static final float SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL               = 401.4f;                                                                
-	public static final float SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_VALIDATED = 401.5f;                                                                
 
 	public static final float SERVICE_STATUS_CODE_FORBIDDEN                    = 403.0f;                                                                
 	public static final float SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE          = 403.1f;                                                                

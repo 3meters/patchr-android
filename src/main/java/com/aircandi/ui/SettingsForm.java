@@ -76,7 +76,9 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 
 		final TypedValue resourceName = new TypedValue();
 		if (getTheme().resolveAttribute(R.attr.themeTone, resourceName, true)) {
-			Patchr.themeTone = (String) resourceName.coerceToString();
+			if (resourceName.coerceToString() != null) {
+				Patchr.themeTone = (String) resourceName.coerceToString();
+			}
 		}
 
 		initialize();

@@ -32,7 +32,6 @@ import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 public class AirImageView extends FrameLayout implements Target {
 
 	private ImageView   mImageMain;
-	private ImageView   mImageZoom;
 	private ProgressBar mProgressBar;
 	private TextView    mMissingMessage;
 
@@ -40,7 +39,7 @@ public class AirImageView extends FrameLayout implements Target {
 	private Target mTarget;
 	private final Handler mThreadHandler = new Handler();
 
-	private boolean   mShowBusy   = true;
+	private boolean   mShowBusy   = false;
 	private ScaleType mScaleType  = ScaleType.CENTER_CROP;
 	private Boolean   mCenterCrop = true;
 	private Integer mLayoutId;
@@ -228,6 +227,7 @@ public class AirImageView extends FrameLayout implements Target {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onPrepareLoad(Drawable drawable) {
 		/*
@@ -237,6 +237,9 @@ public class AirImageView extends FrameLayout implements Target {
 			mTarget.onPrepareLoad(drawable);
 		}
 		else {
+			if (drawable != null) {
+				mImageMain.setBackgroundDrawable(drawable);
+			}
 			showMissing(false);
 			if (mShowBusy) {
 				showLoading(true);
@@ -293,10 +296,6 @@ public class AirImageView extends FrameLayout implements Target {
 	public AirImageView setImageView(ImageView imageView) {
 		mImageMain = imageView;
 		return this;
-	}
-
-	public ImageView getImageZoom() {
-		return mImageZoom;
 	}
 
 	/**

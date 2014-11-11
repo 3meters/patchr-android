@@ -30,7 +30,7 @@ public class Messages extends EntityControllerBase {
 
 	public Messages() {
 		mColorPrimary = R.color.holo_blue_dark;
-		mSchema = com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE;
+		mSchema = Constants.SCHEMA_ENTITY_MESSAGE;
 		mBrowseClass = MessageForm.class;
 		mEditClass = MessageEdit.class;
 		mNewClass = MessageEdit.class;
@@ -118,7 +118,7 @@ public class Messages extends EntityControllerBase {
 			if (holder.toName != null) {
 
 				Message message = (Message) entity;
-				Link linkMessage = entity.getParentLink(Constants.TYPE_LINK_CONTENT, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+				Link linkMessage = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE);
 
 				String toLabel;
 				if (message.replyTo != null) {
@@ -191,7 +191,7 @@ public class Messages extends EntityControllerBase {
 				shareEntity = linkEntity.shortcut.getAsEntity();
 			}
 			if (shareEntity == null) {
-				linkEntity = entity.getParentLink(Constants.TYPE_LINK_SHARE, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+				linkEntity = entity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_MESSAGE);
 				if (linkEntity != null) {
 					shareEntity = linkEntity.shortcut.getAsEntity();
 				}
@@ -204,7 +204,7 @@ public class Messages extends EntityControllerBase {
 			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				layoutResId = R.layout.temp_button_share_place;
 			}
-			else if (shareEntity.schema.equals(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)) {
+			else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				layoutResId = R.layout.temp_button_share_message;
 			}
 
@@ -240,7 +240,7 @@ public class Messages extends EntityControllerBase {
 		    /* Info about child links */
 
 			if (((ViewHolderExtended) holder).childCount != null) {
-				Count count = entity.getCount(Constants.TYPE_LINK_CONTENT, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE, null, Link.Direction.in);
+				Count count = entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, null, Link.Direction.in);
 				Integer linkCount = (count != null) ? count.count.intValue() : 0;
 				if (linkCount > 0) {
 					((ViewHolderExtended) holder).childCount.setText(String.valueOf(linkCount) + ((linkCount == 1) ? " reply" : " replies"));

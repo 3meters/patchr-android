@@ -234,7 +234,7 @@ public class AircandiForm extends BaseActivity {
 
 		query.setEntityId(Patchr.getInstance().getCurrentUser().id)
 		     .setPageSize(Integers.getInteger(R.integer.page_size_notifications))
-		     .setSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+		     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
 
 		((EntityListFragment) mFragmentNotifications)
 				.setMonitor(monitor)
@@ -439,7 +439,7 @@ public class AircandiForm extends BaseActivity {
 	@Override
 	public void onAdd(Bundle extras) {
 		if (!extras.containsKey(Constants.EXTRA_ENTITY_SCHEMA)) {
-			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 		}
 		extras.putString(Constants.EXTRA_MESSAGE, StringManager.getString(R.string.label_message_new_message));
 		Patchr.dispatch.route(this, Route.NEW, null, null, extras);
@@ -625,7 +625,7 @@ public class AircandiForm extends BaseActivity {
 				TrendQuery query = new TrendQuery();
 
 				query.setToSchema(Constants.SCHEMA_ENTITY_PLACE)
-				     .setFromSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE)
+				     .setFromSchema(Constants.SCHEMA_ENTITY_MESSAGE)
 				     .setTrendType(Constants.TYPE_LINK_CONTENT);
 
 				((EntityListFragment) fragment).setQuery(query)

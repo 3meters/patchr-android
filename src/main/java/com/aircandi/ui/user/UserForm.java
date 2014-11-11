@@ -59,7 +59,7 @@ public class UserForm extends BaseEntityForm {
 		     .setLinkDirection(Link.Direction.out.name())
 		     .setLinkType(Constants.TYPE_LINK_CREATE)
 		     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
-		     .setSchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+		     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
 
 		((EntityListFragment)mCurrentFragment).setQuery(query)
 		             .setMonitor(monitor)

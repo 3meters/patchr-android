@@ -47,13 +47,23 @@ public class DownloadManager {
 				@Override
 				public void onImageLoadFailed(Picasso picasso, Uri uri, Exception e) {
 					/*
-					 * Getting 404 Not Found: if image not found.
-					 * Getting 400 Bad Request: if invalid hostname.
+					 * 404 Not Found: if image not found.
+					 * 400 Bad Request: if invalid hostname.
+					 * 502 Bad Gateway.
+					 * 504 Unsatisfiable request (only-if-cached). This is returned by Picasso when the network
+					 * isn't available and the image isn't cached.
+					 *
 					 * Thrown by OkHttpDownloader.load() as ResponseException.
 					 * Also catching MalformedURLException.
 					 */
-					Reporting.logMessage("Image load failed: " + (uri != null ? uri.toString() : "No uri"));
-					Reporting.logException(e);
+					boolean expected = (e.getMessage().contains("404")
+							|| e.getMessage().contains("400")
+							|| e.getMessage().contains("504")
+							|| e.getMessage().contains("502"));
+					if (!expected) {
+						Reporting.logMessage("Image load failed with unexpected code: " + (uri != null ? uri.toString() : "No uri"));
+						Reporting.logException(e);
+					}
 					Logger.w(instance, "Image load failed: " + e.getClass().getSimpleName());
 					Logger.w(instance, "Image load failed: " + e.getMessage());
 					Logger.w(instance, "Image load failed: " + (uri != null ? uri.toString() : "No uri"));

@@ -15,6 +15,11 @@ import com.aircandi.interfaces.IBind;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
+import com.aircandi.ui.edit.FeedbackEdit;
+import com.aircandi.ui.edit.ReportEdit;
+import com.aircandi.ui.user.RegisterEdit;
+import com.aircandi.ui.user.ResetEdit;
+import com.aircandi.ui.user.SignInEdit;
 import com.aircandi.utilities.Dialogs;
 
 import java.util.List;
@@ -33,8 +38,20 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
 		if (!isFinishing()) {
+			/* Extra guarding to prevent edit ui from being launched by anonymous users */
+			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				if (!(this instanceof SignInEdit
+						|| this instanceof RegisterEdit
+						|| this instanceof ResetEdit
+						|| this instanceof FeedbackEdit
+						|| this instanceof ReportEdit)) {
+					finish();
+					return;
+				}
+			}
 			bind(BindingMode.AUTO);
 		}
 	}

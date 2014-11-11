@@ -26,6 +26,8 @@ import net.minidev.json.parser.ContainerFactory;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
+import org.json.JSONObject;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -88,6 +90,8 @@ public class Json {
 			List<LinkedHashMap<String, Object>> maps;
 
 			JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+
+			/* Lets us direct which implementations to use for lists and maps */
 			ContainerFactory containerFactory = new ContainerFactory() {
 				@Override
 				public Map createObjectContainer() {
@@ -150,9 +154,11 @@ public class Json {
 			}
 		}
 		catch (ParseException e) {
+			Reporting.logMessage(jsonString);
 			Reporting.logException(e);
 		}
 		catch (Exception e) {
+			Reporting.logMessage(jsonString);
 			Reporting.logException(e);
 		}
 		return null;

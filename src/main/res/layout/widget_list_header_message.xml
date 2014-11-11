@@ -149,6 +149,7 @@
 		style="@style/selectable_image"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:background="?attr/backgroundPlaceholder"
 		android:clickable="true"
 		android:onClick="onPhotoClick"
 		android:paddingLeft="@dimen/form_body_padding"

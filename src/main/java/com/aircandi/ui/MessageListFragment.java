@@ -74,8 +74,8 @@ public class MessageListFragment extends EntityListFragment {
 	public void onClick(View v) {
 		final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
 
-		Extras extras = new Extras().setEntitySchema(com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
-		Link link = entity.getParentLink(Constants.TYPE_LINK_CONTENT, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+		Extras extras = new Extras().setEntitySchema(Constants.SCHEMA_ENTITY_MESSAGE);
+		Link link = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE);
 		/*
 		 * We show replies as part of the parent message when the user is clicking from a list
 		 * that isn't showing the parent message.
@@ -148,7 +148,7 @@ public class MessageListFragment extends EntityListFragment {
 
 		/* Special formatting for replies when show with parent message */
 
-		Link link = entity.getParentLink(Constants.TYPE_LINK_CONTENT, com.aircandi.Constants.SCHEMA_ENTITY_MESSAGE);
+		Link link = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE);
 		Integer padding = UI.getRawPixelsForDisplayPixels(10f);
 		Integer indent = UI.getRawPixelsForDisplayPixels(10f);
 
