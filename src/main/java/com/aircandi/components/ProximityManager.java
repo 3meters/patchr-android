@@ -42,8 +42,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ProximityManager {
 
@@ -373,9 +375,13 @@ public class ProximityManager {
 		Logger.d(this, "Updating beacons for the current install");
 
 		/* Construct string array of the beacon ids */
-		List<String> beaconIds = new ArrayList<String>();
-		for (WifiScanResult result : scanList) {
-			beaconIds.add("be." + result.BSSID);
+		List<String> beaconIds = new CopyOnWriteArrayList<String>();
+		synchronized (scanList) {
+			Iterator it = scanList.iterator();
+			while (it.hasNext()) {
+				WifiScanResult result = (WifiScanResult) it.next();
+				beaconIds.add("be." + result.BSSID);
+			}
 		}
 
 		/* Add current registrationId */
