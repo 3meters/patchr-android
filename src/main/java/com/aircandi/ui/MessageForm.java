@@ -455,7 +455,7 @@ public class MessageForm extends BaseEntityForm {
 				((BaseFragment) mCurrentFragment).onProcessingFinished();
 
 				mBubbleButton.fadeOut();
-				Boolean share = (mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
+				Boolean share = (mEntity != null && mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
 				if (share) {
 					mFab.fadeOut();
 				}

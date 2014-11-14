@@ -82,7 +82,10 @@ public class LocationManager {
 
 		mLocationLocked = null;
 
-		/* For now we use high accuracy in all cases */
+		/*
+		 * For now we use high accuracy in all cases so we know how location is
+		 * being determined.
+		 */
 		final int priority = NetworkManager.getInstance().isWifiEnabled()
 		                     ? LocationRequest.PRIORITY_HIGH_ACCURACY
 		                     : LocationRequest.PRIORITY_HIGH_ACCURACY;

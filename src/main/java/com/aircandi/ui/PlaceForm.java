@@ -670,7 +670,7 @@ public class PlaceForm extends BaseEntityForm {
 		/*
 		 * We can map it if we have an address or a decent location fix.
 		 */
-		if (!place.fuzzy || !TextUtils.isEmpty(place.address)) {
+		if (place.location != null || !TextUtils.isEmpty(place.address)) {
 			UI.setVisibility(view.findViewById(R.id.button_map), View.VISIBLE);
 		}
 

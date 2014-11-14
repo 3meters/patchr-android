@@ -215,8 +215,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 		if (mProcessing) return;
 		mProcessing = true;
-
-		if (isDirty()) {
+		/*
+		 * We assume that by accepting while creating a patch, the users intention is
+		 * to commit even if nothing is dirty.
+		 */
+		if (!mEditing || isDirty()) {
 			if (validate()) {
 			    /*
 			     * Pull all the control values back into the entity object. Validate
@@ -225,7 +228,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				gather();
 
 				if (mSkipSave) {
-	                /*
+		            /*
 					 * Using the intent just to pass data.
 					 */
 					mProcessing = false;

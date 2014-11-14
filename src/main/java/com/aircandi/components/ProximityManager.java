@@ -10,8 +10,8 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.ActivityRecognitionManager.ActivityState;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -45,7 +45,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ProximityManager {
 
@@ -370,13 +369,13 @@ public class ProximityManager {
 		 * to update the beacons currently associated with this device and install.
 		 */
 		ServiceResponse serviceResponse = new ServiceResponse();
-		if (scanList.size() == 0) return serviceResponse;
-
-		Logger.d(this, "Updating beacons for the current install");
+		List<String> beaconIds = new ArrayList<String>();
 
 		/* Construct string array of the beacon ids */
-		List<String> beaconIds = new CopyOnWriteArrayList<String>();
 		synchronized (scanList) {
+			if (scanList.size() == 0) return serviceResponse;
+			Logger.d(this, "Updating beacons for the current install");
+
 			Iterator it = scanList.iterator();
 			while (it.hasNext()) {
 				WifiScanResult result = (WifiScanResult) it.next();

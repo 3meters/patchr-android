@@ -7,7 +7,7 @@
 	<string name="form_title_profile" tools:ignore="UnusedResources">Profile</string>
 	<string name="form_title_password" tools:ignore="UnusedResources">Change password</string>
 	<string name="form_title_signin" tools:ignore="UnusedResources">Sign in</string>
-	<string name="form_title_signup" tools:ignore="UnusedResources">Sign up</string>
+	<string name="form_title_signup" tools:ignore="UnusedResources">Join</string>
 	<string name="form_title_preferences" tools:ignore="UnusedResources">[@string/name_app] settings</string>
 	<string name="form_title_feedback" tools:ignore="UnusedResources">Send feedback</string>
 	<string name="form_title_report" tools:ignore="UnusedResources">Report a problem</string>
@@ -200,8 +200,8 @@
 	<string name="error_signin_invalid_signin">Wrong email and password combination.</string>
 	<string name="error_invalid_email">Email address is invalid.</string>
 	<string name="error_session_expired_title">Session expired</string>
-	<string name="error_session_expired">Your login session expired. Please re-sign in.</string>
-	<string name="error_session_invalid">Your login session is invalid. Please re-sign in.</string>
+	<string name="error_session_expired">Your login session expired. Please sign in again.</string>
+	<string name="error_session_invalid">Your login session is invalid. Please sign in again.</string>
 	<string name="error_email_not_found">The email address could not be found.</string>
 	<string name="error_install_not_found">This email address has not been used with this installation. Please contact support to reset your password</string>
 
@@ -219,8 +219,8 @@
 
 	<!-- Errors: connectivity -->
 
-	<string name="error_connection_walled_garden">You may need to sign in to enable internet access.</string>
-	<string name="error_connection_airplane_mode">You are not connected to the network. Turn off Airplane Mode?</string>
+	<string name="error_connection_walled_garden">To enable internet access, you may need to use a browser to sign in on the wifi network.</string>
+	<string name="error_connection_airplane_mode">You are not connected to a network. Check if you have Airplane Mode on.</string>
 	<string name="error_connection_none">You appear to be offline or not connected to a network.</string>
 	<string name="error_connection_poor">Your network connection is haywire. Try again and it might work.</string>
 	<string name="error_connection_reset">Your network connection was interrupted.</string>
