@@ -254,21 +254,14 @@ public class Place extends Entity implements Cloneable, Serializable {
 			else {
 				/*
 				 * Ordering
-				 * 1. has distance and not fuzzy
-				 * 2. fuzzy 
-				 * 3. distance is null
+				 * 1. has distance
+				 * 2. distance is null
 				 */
 				if (object1.distance == null && object2.distance == null)
 					return 0;
 				else if (object1.distance == null && object2.distance != null)
 					return 1;
 				else if (object2.distance == null && object1.distance != null)
-					return -1;
-				else if (object1.fuzzy && object2.fuzzy)
-					return 0;
-				else if (object1.fuzzy)
-					return 1;
-				else if (object2.fuzzy)
 					return -1;
 				else if (object1.distance != null && object1.distance.intValue() < object2.distance.intValue())
 					return -1;

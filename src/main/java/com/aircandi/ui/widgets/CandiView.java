@@ -464,9 +464,6 @@ public class CandiView extends RelativeLayout {
 			if (distance == null) {
 				info = "--";
 			}
-			else if (entity.fuzzy) {
-				info = "nearby";
-			}
 			else if (distance == -1f) { // $codepro.audit.disable floatComparison
 				info = "--";
 			}
@@ -493,10 +490,8 @@ public class CandiView extends RelativeLayout {
 						&& Patchr.getInstance().getCurrentUser().developer) {
 					info = target + info;
 				}
-				else {
-					if (feet <= 60) {
-						info = "here";
-					}
+				else if (feet <= 60) {
+					info = "here";
 				}
 			}
 
