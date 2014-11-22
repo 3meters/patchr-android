@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!--
+		Info on what is being tracked is output to logcat
+		Jayma: We are overriding this in TrackGoogleEasy.applicationStart();
+	-->
+	<string name="ga_logLevel">warning</string>
+
+	<!--
+		Set how often auto dispatch gets fired in seconds.
+		Note: The default is 30 minutes which is crazy. iOS default is 2 minutes so
+		we are going to be a bit aggresive and make it one minute for ship.
+		For testing/debut it's fine to go with something super fast like 10 seconds.
+		Jayma: We are overriding this in TrackGoogleEasy.applicationStart();
+	-->
+	<integer name="ga_dispatchPeriod">60</integer>
+</resources>
