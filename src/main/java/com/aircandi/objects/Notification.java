@@ -108,7 +108,7 @@ public class Notification extends Entity implements Cloneable, Serializable {
 	public static class NotificationType {
 		public static String MESSAGE = "message";
 		public static String MEDIA   = "media";
-		public static String PLACE   = "place";
+		public static String PLACE   = "patch";
 		public static String SHARE   = "share";
 		public static String WATCH   = "watch";
 	}

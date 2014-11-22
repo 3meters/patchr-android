@@ -44,7 +44,6 @@ import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IForm;
@@ -64,7 +63,6 @@ import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
-import com.aircandi.utilities.Utilities;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -311,7 +309,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 	@Override
 	public void onLowMemory() {
-		Patchr.tracker.sendEvent(TrackerCategory.SYSTEM, "memory_low", null, Utilities.getMemoryAvailable());
 		super.onLowMemory();
 	}
 
@@ -470,7 +467,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	public void confirmRemove(final String toId) {
 
 		String message = String.format(StringManager.getString(R.string.alert_remove_message_single_no_name), mEntity.name);
-		Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE);
+		Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
 		if (linkPlace != null) {
 			message = String.format(StringManager.getString(R.string.alert_remove_message_single), linkPlace.shortcut.name);
 		}
@@ -573,7 +570,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRemoveEntity");
 				final ModelResult result = Patchr.getInstance().getEntityManager()
-				                                 .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove");
+				                                 .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove_entity_message");
 				isCancelled();
 				return result;
 			}
@@ -843,7 +840,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		super.onStart();
 		if (!isFinishing()) {
 			Logger.d(this, "Activity starting");
-			Patchr.tracker.activityStart(this);
 
 			if (mPrefChangeReloadNeeded) {
 
@@ -901,7 +897,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	protected void onStop() {
 		Logger.d(this, "Activity stopping");
 		super.onStop();
-		Patchr.tracker.activityStop(this);
 	}
 
 	@Override

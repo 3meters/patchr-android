@@ -25,7 +25,7 @@
 		style="@style/button_round_glow"
 		android:layout_width="@dimen/button_round_medium"
 		android:layout_height="@dimen/button_round_medium"
-		android:onClick="onAddMessageButtonClick"
+		android:onClick="onAddPatchButtonClick"
 		android:scaleType="fitCenter"
 		android:src="?attr/iconMessageNew"
 		android:visibility="invisible" />

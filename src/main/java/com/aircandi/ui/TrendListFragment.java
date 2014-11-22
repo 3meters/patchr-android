@@ -1,7 +1,5 @@
 package com.aircandi.ui;
 
-import java.util.Locale;
-
 import android.view.View;
 import android.widget.TextView;
 
@@ -9,8 +7,10 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IEntityController;
-import com.aircandi.objects.ViewHolder;
 import com.aircandi.objects.Entity;
+import com.aircandi.objects.ViewHolder;
+
+import java.util.Locale;
 
 public class TrendListFragment extends EntityListFragment {
 

@@ -19,6 +19,27 @@
 			android:layout_height="match_parent"
 			android:gravity="center_vertical|top">
 
+			<!-- Category -->
+
+			<com.aircandi.ui.widgets.AirTextLight
+				android:id="@+id/button_category"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/form_field_height"
+				android:layout_marginBottom="8dp"
+				android:layout_marginLeft="4dp"
+				android:layout_marginRight="4dp"
+				android:background="?attr/backgroundButtonBuilder"
+				android:clickable="true"
+				android:drawableRight="?attr/iconForward"
+				android:ellipsize="end"
+				android:gravity="center_vertical"
+				android:inputType="textCapWords"
+				android:onClick="onCategoryBuilderClick"
+				android:padding="8dp"
+				android:singleLine="true"
+				android:textAppearance="?attr/textAppearanceMediumLarge"
+				tools:text="Type: Party" />
+
 			<!-- Public Image -->
 
 			<com.aircandi.ui.widgets.AirImageView
@@ -26,6 +47,9 @@
 				style="@style/selectable_image"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_below="@+id/button_category"
+				android:layout_marginLeft="4dp"
+				android:layout_marginRight="4dp"
 				android:clickable="true"
 				android:onClick="onChangePhotoButtonClick"
 				android:scaleType="centerCrop"
@@ -41,6 +65,8 @@
 				android:layout_height="wrap_content"
 				android:layout_alignBottom="@+id/photo"
 				android:layout_alignTop="@+id/photo"
+				android:layout_marginLeft="4dp"
+				android:layout_marginRight="4dp"
 				android:background="@drawable/scrim_gradient_weak"
 				android:gravity="bottom|center_horizontal"
 				android:orientation="vertical">
@@ -74,7 +100,7 @@
 					android:layout_marginBottom="6dp"
 					android:layout_weight="0"
 					android:drawableRight="?attr/iconClear"
-					android:hint="@string/hint_place_title"
+					android:hint="@string/hint_patch_title"
 					android:inputType="textCapSentences|textNoSuggestions"
 					android:textAppearance="?attr/textAppearanceMediumLarge" />
 
@@ -114,6 +140,27 @@
 
 				</FrameLayout>
 
+				<!-- Place -->
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@+id/button_place"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/form_field_height"
+					android:layout_marginBottom="8dp"
+					android:layout_marginLeft="4dp"
+					android:layout_marginRight="4dp"
+					android:background="?attr/backgroundButtonBuilder"
+					android:clickable="true"
+					android:drawableRight="?attr/iconForward"
+					android:ellipsize="end"
+					android:gravity="center_vertical"
+					android:inputType="textCapWords"
+					android:onClick="onPlacePickerClick"
+					android:padding="8dp"
+					android:singleLine="true"
+					android:textAppearance="?attr/textAppearanceMediumLarge"
+					tools:text="Place: Current location" />
+
 				<!-- Privacy -->
 
 				<com.aircandi.ui.widgets.AirTextLight
@@ -134,27 +181,6 @@
 					android:singleLine="true"
 					android:textAppearance="?attr/textAppearanceMediumLarge"
 					tools:text="Privacy: Private" />
-
-				<!-- Category -->
-
-				<com.aircandi.ui.widgets.AirTextLight
-					android:id="@+id/button_category"
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/form_field_height"
-					android:layout_marginBottom="8dp"
-					android:layout_marginLeft="4dp"
-					android:layout_marginRight="4dp"
-					android:background="?attr/backgroundButtonBuilder"
-					android:clickable="true"
-					android:drawableRight="?attr/iconForward"
-					android:ellipsize="end"
-					android:gravity="center_vertical"
-					android:inputType="textCapWords"
-					android:onClick="onCategoryBuilderClick"
-					android:padding="8dp"
-					android:singleLine="true"
-					android:textAppearance="?attr/textAppearanceMediumLarge"
-					tools:text="Category: Tailgate Party" />
 
 				<!-- Tuning -->
 

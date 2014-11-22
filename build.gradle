@@ -30,8 +30,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 21
-        versionCode 181
-        versionName '1.4.5'
+        versionCode 182
+        versionName '1.5.0'
         /*
          * Official package name used by the Google Play store.
          * WARNING: Changing this will create a new app with no history.
@@ -75,6 +75,7 @@ dependencies {
 
     //noinspection GradleDependency,GradleDependency
     compile 'com.android.support:support-v4:21.+'
+    compile 'com.android.support:palette-v7:21.+'
     compile 'com.google.android.gms:play-services:6.1.+'
     compile 'com.squareup.okhttp:okhttp:2.0.0'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
@@ -87,7 +88,6 @@ dependencies {
     compile 'com.crashlytics.android:crashlytics:1.+'
     compile files('libs/aws-android-sdk-2.0.5-core.jar')
     compile files('libs/aws-android-sdk-2.0.5-s3.jar')
-    compile files('libs/google-analytics-services-v3.jar')
     compile files('libs/image-chooser-library.jar')
     compile files('libs/imageviewtouch.jar')
     compile files('libs/tokenautocomplete-1.2.1.jar')

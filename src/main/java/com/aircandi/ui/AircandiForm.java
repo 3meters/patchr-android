@@ -201,7 +201,7 @@ public class AircandiForm extends BaseActivity {
 				else if (drawerView.getId() == R.id.right_drawer) {
 					if (slideOffset > .55 && !mRightDrawerOpen) {
 						mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, mDrawerRight);
-						setActivityTitle(StringManager.getString(R.string.label_notifications_title));
+						setActivityTitle(StringManager.getString(R.string.form_title_notifications));
 						mRightDrawerOpen = true;
 					}
 					else if (slideOffset < .45 && mRightDrawerOpen) {
@@ -245,8 +245,7 @@ public class AircandiForm extends BaseActivity {
 				.setListLoadingResId(R.layout.temp_listitem_loading_notifications)
 				.setListEmptyMessageResId(R.string.label_notifications_empty)
 				.setFabEnabled(false)
-				.setSelfBindingEnabled(false)
-				.setTitleResId(R.string.label_feed_alerts_title);
+				.setSelfBindingEnabled(false);
 
 		getFragmentManager()
 				.beginTransaction()
@@ -369,7 +368,7 @@ public class AircandiForm extends BaseActivity {
 					final Integer count = fragment.getAdapter().getCount();
 
 					((BaseFragment) mCurrentFragment).onProcessingFinished();
-					if (mCurrentFragment instanceof RadarListFragment) {
+					if (mCurrentFragment instanceof NearbyListFragment) {
 						if (!NetworkManager.getInstance().isWifiEnabled()
 								&& !LocationManager.getInstance().isLocationAccessEnabled()) {
 							mFab.fadeOut();
@@ -504,13 +503,13 @@ public class AircandiForm extends BaseActivity {
 
 			if (fragmentType.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
 
-				fragment = new RadarListFragment()
+				fragment = new NearbyListFragment()
 						.setListViewType(ViewType.LIST)
-						.setListLayoutResId(R.layout.radar_fragment)
-						.setListItemResId(R.layout.temp_listitem_radar)
+						.setListLayoutResId(R.layout.nearby_fragment)
+						.setListItemResId(R.layout.temp_listitem_nearby)
 						.setListEmptyMessageResId(R.string.label_radar_empty)
 						.setHeaderViewResId(R.layout.widget_list_header_nearby)
-						.setTitleResId(R.string.label_radar_title);
+						.setTitleResId(R.string.form_title_nearby);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh_special);
@@ -531,18 +530,19 @@ public class AircandiForm extends BaseActivity {
 				     .setLinkDirection(Link.Direction.out.name())
 				     .setLinkType(Constants.TYPE_LINK_WATCH)
 				     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
-				     .setSchema(Constants.SCHEMA_ENTITY_PLACE);
+				     .setSchema(Constants.SCHEMA_ENTITY_PATCH);
 
-				((EntityListFragment) fragment).setQuery(query)
-				                               .setMonitor(monitor)
-				                               .setListPagingEnabled(true)
-				                               .setListItemResId(R.layout.temp_listitem_place)
-				                               .setListLoadingResId(R.layout.temp_listitem_loading)
-				                               .setListViewType(ViewType.LIST)
-				                               .setListLayoutResId(R.layout.place_list_fragment)
-				                               .setListEmptyMessageResId(R.string.label_watching_empty)
-				                               .setTitleResId(R.string.label_watch_title)
-				                               .setSelfBindingEnabled(true);
+				((EntityListFragment) fragment)
+						.setMonitor(monitor)
+						.setQuery(query)
+						.setListPagingEnabled(true)
+						.setListItemResId(R.layout.temp_listitem_patch)
+						.setListLoadingResId(R.layout.temp_listitem_loading)
+						.setListViewType(ViewType.LIST)
+						.setListLayoutResId(R.layout.patch_list_fragment)
+						.setListEmptyMessageResId(R.string.label_watching_empty)
+						.setTitleResId(R.string.form_title_watch)
+						.setSelfBindingEnabled(true);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
@@ -563,17 +563,17 @@ public class AircandiForm extends BaseActivity {
 				     .setLinkDirection(Link.Direction.out.name())
 				     .setLinkType(Constants.TYPE_LINK_CREATE)
 				     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
-				     .setSchema(Constants.SCHEMA_ENTITY_PLACE);
+				     .setSchema(Constants.SCHEMA_ENTITY_PATCH);
 
 				((EntityListFragment) fragment).setQuery(query)
 				                               .setMonitor(monitor)
 				                               .setListPagingEnabled(true)
-				                               .setListItemResId(R.layout.temp_listitem_place)
+				                               .setListItemResId(R.layout.temp_listitem_patch)
 				                               .setListLoadingResId(R.layout.temp_listitem_loading)
 				                               .setListViewType(ViewType.LIST)
-				                               .setListLayoutResId(R.layout.place_list_fragment)
+				                               .setListLayoutResId(R.layout.patch_list_fragment)
 				                               .setListEmptyMessageResId(R.string.label_created_empty)
-				                               .setTitleResId(R.string.label_create_title)
+				                               .setTitleResId(R.string.form_title_create)
 				                               .setSelfBindingEnabled(true);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
@@ -591,7 +591,7 @@ public class AircandiForm extends BaseActivity {
 				TrendMonitor monitor = new TrendMonitor();
 				TrendQuery query = new TrendQuery();
 
-				query.setToSchema(Constants.SCHEMA_ENTITY_PLACE)
+				query.setToSchema(Constants.SCHEMA_ENTITY_PATCH)
 				     .setFromSchema(Constants.SCHEMA_ENTITY_USER)
 				     .setTrendType(Constants.TYPE_LINK_WATCH);
 
@@ -604,7 +604,7 @@ public class AircandiForm extends BaseActivity {
 				                               .setListViewType(ViewType.LIST)
 				                               .setListLayoutResId(R.layout.trends_list_fragment)
 				                               .setListEmptyMessageResId(R.string.label_created_empty)
-				                               .setTitleResId(R.string.label_trends_popular)
+				                               .setTitleResId(R.string.form_title_trends_popular)
 				                               .setSelfBindingEnabled(true);
 
 				((TrendListFragment) fragment).setCountLabelResId(R.string.label_trends_count_popular);
@@ -624,7 +624,7 @@ public class AircandiForm extends BaseActivity {
 				TrendMonitor monitor = new TrendMonitor();
 				TrendQuery query = new TrendQuery();
 
-				query.setToSchema(Constants.SCHEMA_ENTITY_PLACE)
+				query.setToSchema(Constants.SCHEMA_ENTITY_PATCH)
 				     .setFromSchema(Constants.SCHEMA_ENTITY_MESSAGE)
 				     .setTrendType(Constants.TYPE_LINK_CONTENT);
 
@@ -637,7 +637,7 @@ public class AircandiForm extends BaseActivity {
 				                               .setListViewType(ViewType.LIST)
 				                               .setListLayoutResId(R.layout.trends_list_fragment)
 				                               .setListEmptyMessageResId(R.string.label_created_empty)
-				                               .setTitleResId(R.string.label_trends_active)
+				                               .setTitleResId(R.string.form_title_trends_active)
 				                               .setSelfBindingEnabled(true);
 
 				((TrendListFragment) fragment).setCountLabelResId(R.string.label_trends_count_active);
@@ -898,8 +898,8 @@ public class AircandiForm extends BaseActivity {
 		 * OnResume gets called after OnCreate (always) and whenever the activity is being brought back to the
 		 * foreground. Not guaranteed but is usually called just before the activity receives focus.
 		 */
-		Patchr.getInstance().setCurrentPlace(null);
-		Logger.v(this, "Setting current place to null");
+		Patchr.getInstance().setCurrentPatch(null);
+		Logger.v(this, "Setting current patch to null");
 		if (mPauseDate != null) {
 			final Long interval = DateTime.nowDate().getTime() - mPauseDate.longValue();
 			if (interval > Constants.INTERVAL_TETHER_ALERT) {

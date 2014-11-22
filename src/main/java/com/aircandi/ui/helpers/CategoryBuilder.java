@@ -16,19 +16,19 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
-import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.Category;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEdit;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
@@ -130,11 +130,6 @@ public class CategoryBuilder extends BaseEdit {
 		}.execute();
 	}
 
-	public void draw(View view) {
-		super.draw(view);
-		setActivityTitle(StringManager.getString(R.string.dialog_category_builder_title));
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
@@ -234,7 +229,7 @@ public class CategoryBuilder extends BaseEdit {
 		final CategoryAdapter adapter = new CategoryAdapter(CategoryBuilder.this
 				, mSpinnerItem
 				, categories
-				, R.string.hint_place_category);
+				, R.string.hint_patch_category);
 
 		mSpinnerCategory.setVisibility(View.VISIBLE);
 		mSpinnerCategory.setClickable(true);
@@ -287,7 +282,7 @@ public class CategoryBuilder extends BaseEdit {
 			final CategoryAdapter adapter = new CategoryAdapter(CategoryBuilder.this
 					, mSpinnerItem
 					, categories
-					, R.string.hint_place_sub_category);
+					, R.string.hint_patch_sub_category);
 
 			mSpinnerSubCategory.setVisibility(View.VISIBLE);
 			mSpinnerSubCategory.setClickable(true);
@@ -351,7 +346,7 @@ public class CategoryBuilder extends BaseEdit {
 			final CategoryAdapter adapter = new CategoryAdapter(CategoryBuilder.this
 					, mSpinnerItem
 					, categories
-					, R.string.hint_place_sub_category);
+					, R.string.hint_patch_sub_category);
 
 			mSpinnerSubSubCategory.setVisibility(View.VISIBLE);
 			mSpinnerSubSubCategory.setClickable(true);

@@ -296,7 +296,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 				mEntitySuggest = new EntitySuggestController(getActivity());
 			}
 
-			mEntitySuggest.setInput((AutoCompleteTextView) mTo);
+			mEntitySuggest.setSearchInput((AutoCompleteTextView) mTo);
 			mEntitySuggest.setSearchImage(mToImage);
 			mEntitySuggest.setSearchProgress(mToProgress);
 			mEntitySuggest.init();
@@ -312,7 +312,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 					if (entity.synthetic) {
 						final String jsonEntity = Json.objectToJson(entity);
 						extras.putString(Constants.EXTRA_ENTITY, jsonEntity);
-						extras.putBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC, true);
 					}
 					Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
 				}
@@ -365,7 +364,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	@Override
 	public void onStart() {
 		Logger.d(this, "Fragment start");
-		Patchr.tracker.fragmentStart(this);
 		super.onStart();
 	}
 

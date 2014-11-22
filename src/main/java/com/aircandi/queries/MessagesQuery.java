@@ -32,7 +32,7 @@ public class MessagesQuery implements IQuery {
 		 * - Sorting is applied to links not the entities on the service side.
 		 */
 		List<String> toSchemas = new ArrayList<String>();
-		toSchemas.add(Constants.SCHEMA_ENTITY_PLACE);
+		toSchemas.add(Constants.SCHEMA_ENTITY_PATCH);
 		toSchemas.add(Constants.SCHEMA_ENTITY_USER);
 
 		List<String> linkTypes = new ArrayList<String>();

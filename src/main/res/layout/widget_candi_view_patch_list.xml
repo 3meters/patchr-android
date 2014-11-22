@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	android:id="@+id/candi_view_group"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="@dimen/image_medium_large">
+
+	<com.aircandi.ui.widgets.AirImageView
+		android:id="@+id/photo"
+		style="@style/selectable_image"
+		android:layout_width="@dimen/image_medium"
+		android:layout_height="@dimen/image_medium_large"
+		android:scaleType="centerCrop"
+		custom:config="rgb_565"
+		custom:fitType="fixed"
+		custom:layout="@layout/widget_webimageview_candi_view"
+		custom:sizeHint="@dimen/image_medium_large" />
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+		android:layout_toRightOf="@+id/photo"
+		android:paddingBottom="8dp"
+		android:paddingLeft="10dp"
+		android:paddingRight="10dp"
+		android:paddingTop="8dp">
+
+		<com.aircandi.ui.widgets.AirTextView
+			android:id="@+id/place_name"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_toLeftOf="@+id/distance"
+			android:ellipsize="end"
+			android:singleLine="true"
+			android:textAllCaps="true"
+			android:textAppearance="?attr/textAppearanceExtraSmall"
+			android:textColor="?textColorSecondary"
+			tools:text="Peaks Frozen Yogurt" />
+
+		<com.aircandi.ui.widgets.AirTextLight
+			android:id="@+id/name"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/place_name"
+			android:layout_toLeftOf="@+id/distance"
+			android:ellipsize="end"
+			android:singleLine="true"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textStyle="bold"
+			custom:textId="@string/dummy_title_short"
+			tools:text="@string/dummy_title_short" />
+
+		<LinearLayout
+			android:id="@+id/category_group"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignLeft="@+id/name"
+			android:layout_marginBottom="8dp"
+			android:layout_below="@+id/name"
+			android:gravity="center_vertical"
+			android:orientation="horizontal">
+
+			<com.aircandi.ui.widgets.AirTextView
+				android:id="@+id/category_name"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginRight="2dp"
+				android:ellipsize="end"
+				android:singleLine="true"
+				android:textAllCaps="true"
+				android:textAppearance="?attr/textAppearanceExtraSmall"
+				android:textColor="?textColorSecondary"
+				tools:text="Event Patch" />
+
+			<LinearLayout
+				android:id="@+id/privacy_group"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:gravity="center_vertical"
+				android:orientation="horizontal">
+
+				<ImageView
+					android:layout_width="20dp"
+					android:layout_height="20dp"
+					android:layout_marginRight="1dp"
+					android:maxHeight="20dp"
+					android:maxWidth="20dp"
+					android:scaleType="fitCenter"
+					android:src="@drawable/ic_action_lock_closed_dark"
+					android:tint="@color/brand_primary" />
+
+			</LinearLayout>
+
+		</LinearLayout>
+
+		<com.aircandi.ui.widgets.AirTextView
+			android:id="@+id/distance"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:textColor="?textColorSecondary"
+			tools:text="1.3 mi" />
+
+		<com.aircandi.ui.widgets.AirTextView
+			android:id="@+id/count"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:layout_alignParentRight="true"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:textColor="@color/brand_primary"
+			tools:text="+24" />
+
+		<LinearLayout
+			android:id="@+id/shortcuts"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignLeft="@+id/name"
+			android:layout_below="@+id/category_group"
+			android:layout_toLeftOf="@+id/count"
+			android:orientation="vertical" />
+	</RelativeLayout>
+
+</RelativeLayout>

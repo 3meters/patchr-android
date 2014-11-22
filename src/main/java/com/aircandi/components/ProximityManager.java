@@ -27,7 +27,7 @@ import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Document;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
-import com.aircandi.objects.Place;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.widgets.ListPreferenceMultiSelect;
@@ -287,7 +287,7 @@ public class ProximityManager {
 			beaconIds.add(beacon.id);
 		}
 
-		Integer removeCount = mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_PLACE, null, true);
+		Integer removeCount = mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_PATCH, null, true);
 		Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
 
 		/*
@@ -296,7 +296,7 @@ public class ProximityManager {
 		if (beaconIds.size() == 0) {
 			mLastBeaconLoadDate = DateTime.nowDate().getTime();
 
-			/* All cached place entities that qualify based on current distance pref setting */
+			/* All cached patch entities that qualify based on current distance pref setting */
 			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null, null);
 			Patchr.stopwatch1.segmentTime("Entities for beacons: no beacons to process - exiting");
 
@@ -324,7 +324,7 @@ public class ProximityManager {
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			mLastBeaconLoadDate = ((ServiceData) serviceResponse.data).date.longValue();
 
-			/* All cached place entities that qualify based on current distance pref setting */
+			/* All cached patch entities that qualify based on current distance pref setting */
 			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null, null);
 			Patchr.stopwatch1.segmentTime("Entities for beacons: objects processed");
 			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
@@ -341,23 +341,23 @@ public class ProximityManager {
 	public synchronized ServiceResponse getEntitiesNearLocation(AirLocation location) {
 
 		/* Clean out all synthetics */
-		Integer removeCount = mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_PLACE, null, false);
+		Integer removeCount = mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_PATCH, null, false);
 		Logger.v(this, "Removed synthetic places from cache: count = " + String.valueOf(removeCount));
 
 		/*
-		 * We find all aircandi place entities in the cache via proximity that are active based
-		 * on the current search parameters (beacons and search radius) and could be supplied by the place provider. We
-		 * create an array of the provider place id's and pass them so they can be excluded from the places
+		 * We find all aircandi patch entities in the cache via proximity that are active based
+		 * on the current search parameters (beacons and search radius) and could be supplied by the patch provider. We
+		 * create an array of the provider patch id's and pass them so they can be excluded from the places
 		 * that get returned.
 		 */
 		final List<String> excludePlaceIds = new ArrayList<String>();
 		for (Entity entity : Patchr.getInstance().getEntityManager().getPlaces(false, true)) {
-			Place place = (Place) entity;
+			Patch place = (Patch) entity;
 			excludePlaceIds.add(place.id);
 		}
 
 		ServiceResponse serviceResponse = mEntityCache.loadEntitiesNearLocation(location
-				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_PLACE)
+				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_PATCH)
 				, excludePlaceIds);
 
 		return serviceResponse;

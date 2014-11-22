@@ -9,38 +9,43 @@
 	android:paddingBottom="2dp"
 	android:paddingTop="2dp">
 
-	<ImageView
-		android:id="@+id/indicator"
-		android:layout_width="25dp"
-		android:layout_height="25dp"
-		android:layout_centerVertical="true"
-		android:layout_marginLeft="5dp"
-		android:layout_marginRight="5dp"
-		android:scaleType="centerCrop"
-		android:src="?attr/iconWatch" />
-
 	<LinearLayout
 		android:id="@+id/holder_body"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
 		android:layout_toLeftOf="@+id/photo"
-		android:layout_toRightOf="@+id/indicator"
 		android:orientation="vertical">
 
 		<com.aircandi.ui.widgets.AirTextLight
 			android:id="@+id/name"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:ellipsize="end"
+			android:singleLine="true"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:textStyle="bold"
 			custom:textId="@string/dummy_title_short"
 			tools:text="@string/dummy_title_short" />
 
 		<com.aircandi.ui.widgets.AirTextView
-			android:id="@+id/subtitle"
+			android:id="@+id/category_name"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:ellipsize="end"
+			android:singleLine="true"
+			android:textAllCaps="true"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:textColor="?attr/textColorSecondary"
+			custom:textId="@string/dummy_category_name"
+			tools:text="@string/dummy_category_name" />
+
+		<com.aircandi.ui.widgets.AirTextView
+			android:id="@+id/subhead"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:ellipsize="end"
+			android:singleLine="true"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:textColor="?attr/textColorSecondary"
 			custom:textId="@string/dummy_subtitle"
@@ -50,13 +55,13 @@
 	<com.aircandi.ui.widgets.AirImageView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
-		android:layout_width="@dimen/image_small"
-		android:layout_height="@dimen/image_small"
+		android:layout_width="@dimen/image_medium_small"
+		android:layout_height="@dimen/image_medium_small"
 		android:layout_alignParentRight="true"
 		android:layout_alignParentTop="true"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
 		custom:layout="@layout/widget_webimageview_candi_view"
-		custom:sizeHint="@dimen/image_small" />
+		custom:sizeHint="@dimen/image_medium_small" />
 
 </RelativeLayout>

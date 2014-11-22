@@ -38,8 +38,6 @@ public class AboutForm extends BaseActivity {
 	@Override
 	public void draw(View view) {
 
-		setActivityTitle(StringManager.getString(R.string.label_about_title));
-
 		final String year = new SimpleDateFormat("yyyy", Locale.US).format(Calendar.getInstance().getTime());
 		final String company = StringManager.getString(R.string.name_company);
 		final String copyrightSymbol = StringManager.getString(R.string.symbol_copyright);

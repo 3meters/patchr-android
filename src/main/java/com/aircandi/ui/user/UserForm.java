@@ -159,8 +159,8 @@ public class UserForm extends BaseEntityForm {
 			UI.setVisibility(mButtonEdit, View.VISIBLE);
 		}
 
-		Count watching = mEntity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PLACE, true, Link.Direction.out);
-		Count created = mEntity.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PLACE, true, Link.Direction.out);
+		Count watching = mEntity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
+		Count created = mEntity.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
 
 		mButtonWatching.setText(StringManager.getString(R.string.label_user_watching)
 				+ ": " + ((watching != null)
@@ -179,21 +179,17 @@ public class UserForm extends BaseEntityForm {
 			view = findViewById(android.R.id.content);
 		}
 		mFirstDraw = false;
-		setActivityTitle(mEntity.name);
 
 		User user = (User) mEntity;
 
 		final CandiView candiView = (CandiView) findViewById(R.id.candi_view);
 		final AirImageView photoView = (AirImageView) findViewById(R.id.photo);
 		final TextView name = (TextView) findViewById(R.id.name);
-		final TextView subtitle = (TextView) findViewById(R.id.subtitle);
 		final TextView area = (TextView) findViewById(R.id.area);
-		final TextView webUri = (TextView) findViewById(R.id.web_uri);
-		final TextView bio = (TextView) findViewById(R.id.bio);
 
 		if (candiView != null) {
 			/*
-			 * This is a place entity with a fancy image widget
+			 * This is a patch entity with a fancy image widget
 			 */
 			IndicatorOptions options = new IndicatorOptions();
 			options.watchingEnabled = false;
@@ -223,36 +219,13 @@ public class UserForm extends BaseEntityForm {
 				}
 			}
 
-			UI.setVisibility(subtitle, View.GONE);
-			if (subtitle != null) {
-				subtitle.setText(null);
-				if (!TextUtils.isEmpty(user.area)) {
-					subtitle.setText(Html.fromHtml(user.area));
-					UI.setVisibility(subtitle, View.VISIBLE);
-				}
-			}
-
-			/* Description section */
-
 			UI.setVisibility(area, View.GONE);
-			if (area != null && !TextUtils.isEmpty(user.area)) {
-				area.setText(Html.fromHtml(user.area));
-				UI.setVisibility(area, View.VISIBLE);
-				UI.setVisibility(findViewById(R.id.section_details), View.VISIBLE);
-			}
-
-			UI.setVisibility(webUri, View.GONE);
-			if (webUri != null && !TextUtils.isEmpty(user.webUri)) {
-				webUri.setText(Html.fromHtml(user.webUri));
-				UI.setVisibility(webUri, View.VISIBLE);
-				UI.setVisibility(findViewById(R.id.section_details), View.VISIBLE);
-			}
-
-			UI.setVisibility(bio, View.GONE);
-			if (bio != null && !TextUtils.isEmpty(user.bio)) {
-				bio.setText(Html.fromHtml(user.bio));
-				UI.setVisibility(bio, View.VISIBLE);
-				UI.setVisibility(findViewById(R.id.section_details), View.VISIBLE);
+			if (area != null) {
+				area.setText(null);
+				if (!TextUtils.isEmpty(user.area)) {
+					area.setText(Html.fromHtml(user.area));
+					UI.setVisibility(area, View.VISIBLE);
+				}
 			}
 
 			if (user.stats != null) {

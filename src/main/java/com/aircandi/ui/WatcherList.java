@@ -138,13 +138,13 @@ public class WatcherList extends BaseActivity {
 	public void onDeleteRequestClick(View view) {
 
 		final Entity entity = (Entity) view.getTag();
-		Integer messageResId = entity.enabled
+		Integer messageResId = entity.linkEnabled
 		                       ? R.string.dialog_decline_approved_private_message
 		                       : R.string.dialog_decline_requested_private_message;
-		Integer okResId = entity.enabled
+		Integer okResId = entity.linkEnabled
 		                  ? R.string.dialog_decline_approved_private_ok
 		                  : R.string.dialog_decline_requested_private_ok;
-		Integer cancelResId = entity.enabled
+		Integer cancelResId = entity.linkEnabled
 		                      ? R.string.dialog_decline_approved_private_cancel
 		                      : R.string.dialog_decline_requested_private_cancel;
 
@@ -185,17 +185,17 @@ public class WatcherList extends BaseActivity {
 
 		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
 
-		builder.setSubject(String.format(StringManager.getString(R.string.label_place_share_subject)
+		builder.setSubject(String.format(StringManager.getString(R.string.label_patch_share_subject)
 				, (mEntity.name != null) ? mEntity.name : "A"));
 
 		builder.setType("text/plain");
-		builder.setText(String.format(StringManager.getString(R.string.label_place_share_body), mEntityId));
-		builder.setChooserTitle(String.format(StringManager.getString(R.string.label_place_share_title)
+		builder.setText(String.format(StringManager.getString(R.string.label_patch_share_body), mEntityId));
+		builder.setChooserTitle(String.format(StringManager.getString(R.string.label_patch_share_title)
 				, (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase)));
 
 		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
 		builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PLACE);
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
 
 		builder.startChooser();
 	}
@@ -211,7 +211,7 @@ public class WatcherList extends BaseActivity {
 
 		final String actionEvent = (enabled ? "approve" : "unapprove") + "_watch_entity";
 		final Shortcut toShortcut = new Shortcut();
-		toShortcut.schema = Constants.SCHEMA_ENTITY_PLACE;
+		toShortcut.schema = Constants.SCHEMA_ENTITY_PATCH;
 
 		new AsyncTask() {
 
@@ -240,7 +240,7 @@ public class WatcherList extends BaseActivity {
 				ModelResult result = (ModelResult) response;
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					entity.enabled = enabled;
+					entity.linkEnabled = enabled;
 				}
 				else {
 					Errors.handleError(WatcherList.this, result.serviceResponse);

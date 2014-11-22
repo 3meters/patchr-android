@@ -14,21 +14,21 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
-import com.aircandi.components.NotificationManager;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.ui.base.BaseEntityEdit;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Type;
@@ -118,11 +118,6 @@ public class RegisterEdit extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	public void draw(View view) {
-		super.draw(view);
-		setActivityTitle(StringManager.getString(R.string.label_register_title));
-	}
 
 	@Override
 	protected String getLinkType() {

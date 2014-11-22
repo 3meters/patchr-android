@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
-import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.events.BurstTimeoutEvent;
 import com.aircandi.events.LocationChangedEvent;
 import com.aircandi.objects.AirLocation;
@@ -79,7 +78,7 @@ public class LocationManagerOld implements
 				Patchr.stopwatch2.segmentTime("Location fix attempt aborted: timeout");
 				Patchr.mainThreadHandler.removeCallbacks(mBurstTimeout);
 
-				Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
+				Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
 						, "location_timeout"
 						, NetworkManager.getInstance().getNetworkType());
 
@@ -156,7 +155,7 @@ public class LocationManagerOld implements
 						UI.showToastNotification("Location accuracy: " + location.getAccuracy(), Toast.LENGTH_SHORT);
 					}
 					if (location.getAccuracy() <= ACCURACY_PREFERRED) {
-						Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
+						Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
 								, "location_accepted"
 								, NetworkManager.getInstance().getNetworkType());
 

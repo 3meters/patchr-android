@@ -15,16 +15,15 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
-import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.AirApplication;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.StringManager;
-import com.aircandi.objects.Place;
-import com.aircandi.ui.base.BasePicker;
 import com.aircandi.interfaces.IBind.BindingMode;
+import com.aircandi.ui.base.BasePicker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,17 +66,6 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 			                                ? R.drawable.ic_action_camera_light
 			                                : R.drawable.ic_action_camera_dark
 					, StringManager.getString(R.string.dialog_photo_source_camera), null, Constants.PHOTO_SOURCE_CAMERA));
-		}
-
-		/* Add place photo option if this is a place entity */
-		if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-			Place place = (Place) mEntity;
-			if (place.getProvider().type != null && place.getProvider().type.equals(Constants.TYPE_PROVIDER_FOURSQUARE)) {
-				listData.add(new AirApplication(Patchr.themeTone.equals(ThemeTone.LIGHT)
-				                                ? R.drawable.ic_action_location_light
-				                                : R.drawable.ic_action_location_dark
-						, StringManager.getString(R.string.dialog_photo_source_place), null, Constants.PHOTO_SOURCE_PLACE));
-			}
 		}
 
 		/* Everyone gets the default option */

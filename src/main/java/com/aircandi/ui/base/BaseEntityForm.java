@@ -22,8 +22,8 @@ import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Links;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
@@ -163,6 +163,11 @@ public abstract class BaseEntityForm extends BaseActivity {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	public void configureActionBar(){
+		super.configureActionBar();
+		mActionBar.setDisplayShowTitleEnabled(false);
+	}
+
 	public void bind(final BindingMode mode) {
 		Logger.d(this, "Binding: mode = " + mode.name().toLowerCase(Locale.US));
 
@@ -210,9 +215,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 							if (mParentId != null) {
 								mEntity.toId = mParentId;
 							}
-							if (mEntity instanceof Place) {
-								Patchr.getInstance().setCurrentPlace(mEntity);
-								Logger.v(this, "Setting current place to: " + mEntity.id);
+							if (mEntity instanceof Patch) {
+								Patchr.getInstance().setCurrentPatch(mEntity);
+								Logger.v(this, "Setting current patch to: " + mEntity.id);
 							}
 							draw(null);
 						}
@@ -253,9 +258,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 */
 		mEntity = EntityManager.getCacheEntity(mEntityId);
 		if (mEntity != null) {
-			if (mEntity instanceof Place) {
-				Patchr.getInstance().setCurrentPlace(mEntity);
-				Logger.v(this, "Setting current place to: " + mEntity.id);
+			if (mEntity instanceof Patch) {
+				Patchr.getInstance().setCurrentPatch(mEntity);
+				Logger.v(this, "Setting current patch to: " + mEntity.id);
 			}
 			if (mFirstDraw) {
 				draw(null);
@@ -376,9 +381,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 * - User profile could have been updated and we don't catch that.
 		 */
 		if (!isFinishing()) {
-			if (mEntity instanceof Place) {
-				Patchr.getInstance().setCurrentPlace(mEntity);
-				Logger.v(this, "Setting current place to: " + mEntity.id);
+			if (mEntity instanceof Patch) {
+				Patchr.getInstance().setCurrentPatch(mEntity);
+				Logger.v(this, "Setting current patch to: " + mEntity.id);
 			}
 
 			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);

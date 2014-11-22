@@ -66,7 +66,7 @@
 		android:layout_alignLeft="@+id/name"
 		android:layout_below="@+id/area"
 		android:layout_marginBottom="8dp"
-		android:text="@string/label_place_owner_flag"
+		android:text="@string/label_patch_owner_flag"
 		android:textColor="@color/brand_primary" />
 
 	<View

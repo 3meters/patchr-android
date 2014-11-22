@@ -26,8 +26,6 @@ import net.minidev.json.parser.ContainerFactory;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
-import org.json.JSONObject;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;

@@ -18,13 +18,11 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.DownloadManager;
-import com.aircandi.components.IntentBuilder;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager;
 import com.aircandi.components.StringManager;
-import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Beacon;
@@ -60,8 +58,8 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	protected ImageChooserManager mImageChooserManager;
 	protected AsyncTask           mTaskService;
 
-	protected Boolean mBrokenLink       = false;
-	protected Boolean mProximityInvalid = false;
+	protected Boolean mBrokenLink        = false;
+	protected Boolean mProximityDisabled = false;
 
 	protected Integer mInsertProgressResId = R.string.progress_saving;
 	protected Integer mUpdateProgressResId = R.string.progress_updating;
@@ -146,13 +144,13 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		if (mEntity != null) {
 
 			final Entity entity = mEntity;
-			if (mEditing) {
-				String title = !TextUtils.isEmpty(mEntity.name) ? mEntity.name : mEntity.schema;
-				setActivityTitle(title);
-			}
-			else {
-				setActivityTitle(StringManager.getString(R.string.label_edit_new_title) + " " + mEntity.getLabelForSchema());
-			}
+			//			if (mEditing) {
+			//				String title = !TextUtils.isEmpty(mEntity.name) ? mEntity.name : mEntity.schema;
+			//				setActivityTitle(title);
+			//			}
+			//			else {
+			//				setActivityTitle(StringManager.getString(R.string.label_edit_new_title) + " " + mEntity.getLabelForSchema());
+			//			}
 
 			/* Content */
 
@@ -212,7 +210,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	}
 
 	public void onAccept() {
-
 		if (mProcessing) return;
 		mProcessing = true;
 		/*
@@ -226,26 +223,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				 * does that too but we don't know if validate is always being performed.
 				 */
 				gather();
-
-				if (mSkipSave) {
-		            /*
-					 * Using the intent just to pass data.
-					 */
-					mProcessing = false;
-					final IntentBuilder intentBuilder = new IntentBuilder();
-					intentBuilder.setEntity(mEntity);
-					setResultCode(Constants.RESULT_ENTITY_EDITED, intentBuilder.create());
-					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.FORM_TO_PAGE);
-				}
-				else {
-					if (mEditing) {
-						update();
-					}
-					else {
-						insert();
-					}
-				}
+				accept();
 			}
 			else {
 				mProcessing = false;
@@ -298,7 +276,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			@Override
 			public void run() {
 				if (image != null) {
-					Patchr.tracker.sendEvent(TrackerCategory.UX, "photo_used_from_device", null, 0);
+					Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_used_from_device", null, 0);
 					final Uri photoUri = Uri.parse("file:" + image.getFilePathOriginal());
 					MediaManager.scanMedia(Uri.parse("file:" + image.getFilePathOriginal()));
 					Photo photo = new Photo()
@@ -350,10 +328,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 							photoFromCamera();
 						}
-						else if (photoSource.equals(Constants.PHOTO_SOURCE_PLACE)) {
-
-							photoFromPlace(mEntity);
-						}
 						else if (photoSource.equals(Constants.PHOTO_SOURCE_DEFAULT)
 								|| photoSource.equals(Constants.PHOTO_SOURCE_WEBSITE_THUMBNAIL)) {
 
@@ -364,18 +338,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 			else if (requestCode == Constants.ACTIVITY_PHOTO_SEARCH) {
 
-				Patchr.tracker.sendEvent(TrackerCategory.UX, "photo_select_using_search", null, 0);
-				if (intent != null && intent.getExtras() != null) {
-
-					final Bundle extras = intent.getExtras();
-					final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
-					final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
-					onPhotoSelected(photo);
-				}
-			}
-			else if (requestCode == Constants.ACTIVITY_PHOTO_PICK_PLACE) {
-
-				Patchr.tracker.sendEvent(TrackerCategory.UX, "photo_select_from_place", null, 0);
+				Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_select_using_search", null, 0);
 				if (intent != null && intent.getExtras() != null) {
 
 					final Bundle extras = intent.getExtras();
@@ -400,6 +363,15 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	public void accept() {
+		if (mEditing) {
+			update();
+		}
+		else {
+			insert();
+		}
+	}
+
 	protected String getLinkType() {
 		return null;
 	}
@@ -421,7 +393,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		/*
 		 * Setting the photo to null will trigger correct default handling.
 		 */
-		Patchr.tracker.sendEvent(TrackerCategory.UX, "photo_set_to_default", null, 0);
+		Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_set_to_default", null, 0);
 		onPhotoSelected(null);
 	}
 
@@ -535,8 +507,8 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 				mEntity.toId = mParentId;
 
-				/* We only send beacons if a place is being inserted */
-				if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE) && !mProximityInvalid) {
+				/* We only send beacons if a patch is being inserted */
+				if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH) && !mProximityDisabled) {
 					beacons = ProximityManager.getInstance().getStrongestBeacons(ServiceConstants.PROXIMITY_BEACON_COVERAGE);
 					primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 				}

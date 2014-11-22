@@ -12,6 +12,8 @@ import com.aircandi.components.NetworkManager;
 import com.aircandi.components.ProximityManager;
 import com.aircandi.objects.User;
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.StandardExceptionParser;
 
 import java.util.Locale;
 
@@ -122,5 +124,64 @@ public class Reporting {
 		 */
 		String stacktrace = Log.getStackTraceString(e);
 		Crashlytics.log(stacktrace);
+	}
+
+	public static void sendEvent(String category, String action, String target, long value) {
+		/*
+		 * Arguments should be free of whitespace.
+		 */
+		try {
+			Patchr.tracker.send(new HitBuilders.EventBuilder()
+					.setCategory(category)
+					.setAction(action)
+					.setLabel(target)
+					.setValue(value)
+					.build());
+		}
+		catch (Exception e) {
+			Reporting.logException(e);
+		}
+	}
+
+	public static void sendTiming(String category, Long timing, String name, String label) {
+		/*
+		 * Arguments should be free of whitespace.
+		 */
+		try {
+			Patchr.tracker.send(new HitBuilders.TimingBuilder()
+					.setCategory(category)
+					.setValue(timing)
+					.setVariable(name)
+					.setLabel(label)
+					.build());
+		}
+		catch (Exception e) {
+			Reporting.logException(e);
+		}
+	}
+
+	public static void sendException(Exception exception) {
+		/*
+		 * Arguments should be free of whitespace.
+		 */
+		try {
+			Patchr.tracker.send(new HitBuilders.ExceptionBuilder()
+					.setDescription(new StandardExceptionParser(Patchr.applicationContext, null)
+							.getDescription(Thread.currentThread().getName(), exception))
+					.setFatal(false)
+					.build());
+		}
+		catch (Exception e) {
+			Reporting.logException(e);
+		}
+	}
+
+	public static class TrackerCategory {
+		public static String UX          = "ux";
+		public static String SYSTEM      = "system";
+		public static String EDIT        = "editing";
+		public static String LINK        = "linking";
+		public static String USER        = "user";
+		public static String PERFORMANCE = "performance";
 	}
 }

@@ -24,9 +24,9 @@ public class MenuManager {
 		String activityName = activity.getClass().getSimpleName();
 		android.view.MenuInflater inflater = activity.getMenuInflater();
 
-		if (activityName.equals("PlaceForm")) {
+		if (activityName.equals("PatchForm")) {
 			if (canUserEdit(entity)) {
-				inflater.inflate(R.menu.menu_edit_place, menu);
+				inflater.inflate(R.menu.menu_edit_patch, menu);
 			}
 			inflater.inflate(R.menu.menu_report, menu);
 		}
@@ -69,7 +69,7 @@ public class MenuManager {
 			menuInflater.inflate(R.menu.menu_sign_in, menu);
 			return true;
 		}
-		else if (activityName.equals("PlaceForm")) {
+		else if (activityName.equals("PatchForm")) {
 			menuInflater.inflate(R.menu.menu_sign_in, menu);
 			return true;
 		}
@@ -159,7 +159,7 @@ public class MenuManager {
 
 			/* BROWSE */
 
-			if (activityName.equals("HelpForm") || activityName.equals("AboutForm")) {
+			if (activityName.equals("AboutForm")) {
 				menuInflater.inflate(R.menu.menu_cancel, menu);
 				return true;
 			}
@@ -207,7 +207,7 @@ public class MenuManager {
 		if (entity == null) return false;
 		if (entity.type.equals(Constants.TYPE_LINK_SHARE)) return false;
 
-		Link placeLink = entity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE, entity.placeId, Direction.out);
+		Link placeLink = entity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH, entity.placeId, Direction.out);
 		return placeLink != null
 				&& placeLink.ownerId.equals(Patchr.getInstance().getCurrentUser().id)
 				&& !entity.ownerId.equals(Patchr.getInstance().getCurrentUser().id);
@@ -220,7 +220,7 @@ public class MenuManager {
 		if (entity.isOwnedByCurrentUser() || entity.isOwnedBySystem()) return true;
 
 		/* Locked */
-		return !entity.locked;
+		return Type.isFalse(entity.locked);
 	}
 
 	public Boolean canUserShare(Entity entity) {

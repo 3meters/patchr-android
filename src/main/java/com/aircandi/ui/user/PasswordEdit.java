@@ -5,15 +5,15 @@ import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.ui.base.BaseEdit;
 import com.aircandi.interfaces.IBusy.BusyAction;
+import com.aircandi.ui.base.BaseEdit;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;

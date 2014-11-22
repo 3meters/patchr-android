@@ -33,8 +33,8 @@ import com.aircandi.interfaces.IBind;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.ImageResult;
 import com.aircandi.objects.Link.Direction;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.ServiceBase;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.ShortcutSettings;
@@ -128,7 +128,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 					mForEntity = EntityManager.getCacheEntity(mForEntityId);
 					if (mForEntity != null) {
 						ShortcutSettings settings = new ShortcutSettings(mListLinkType, mListLinkSchema, Direction.out, false, false);
-						settings.appClass = Place.class;
+						settings.appClass = Patch.class;
 						List<Shortcut> shortcuts = mForEntity.getShortcuts(settings, new ServiceBase.SortByPositionSortDate(), null);
 						for (Shortcut shortcut : shortcuts) {
 							Photo photo = shortcut.getPhoto();

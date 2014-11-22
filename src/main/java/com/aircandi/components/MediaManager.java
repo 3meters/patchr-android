@@ -45,7 +45,7 @@ public class MediaManager {
 	 * MessageForm: If user shares message with photo, we copy the photo to pinned share file
 	 * and pass uri pointer to the app shared to.
 	 * 
-	 * PlaceForm: If user shares patch with photo, we copy the photo to pinned share file
+	 * PatchForm: If user shares patch with photo, we copy the photo to pinned share file
 	 * and pass uri pointer to the app shared to.
 	 * 
 	 * Photo Management

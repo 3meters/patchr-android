@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.location.Address;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -35,11 +34,13 @@ import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Category;
+import com.aircandi.objects.Entity;
+import com.aircandi.objects.Link;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEntityEdit;
-import com.aircandi.ui.widgets.BuilderButton;
 import com.aircandi.ui.widgets.ComboButton;
 import com.aircandi.ui.widgets.ToolTip;
 import com.aircandi.ui.widgets.ToolTipRelativeLayout;
@@ -47,6 +48,7 @@ import com.aircandi.ui.widgets.ToolTipView;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
+import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.ViewId;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -63,7 +65,7 @@ import com.squareup.otto.Subscribe;
 import java.util.List;
 
 @SuppressLint("Registered")
-public class PlaceEdit extends BaseEntityEdit {
+public class PatchEdit extends BaseEntityEdit {
 
 	protected ToolTipRelativeLayout mTooltips;
 
@@ -72,15 +74,29 @@ public class PlaceEdit extends BaseEntityEdit {
 	private   ComboButton mButtonUntune;
 	private   TextView    mButtonCategory;
 	private   TextView    mButtonPrivacy;
+	private   TextView    mButtonPlace;
 	protected MapView     mMapView;
 	protected GoogleMap   mMap;
 	protected Marker      mMarker;
+	protected Entity      mPlace;
 
 	private Boolean mTuned           = false;
 	private Boolean mUntuned         = false;
 	private Boolean mTuningInProcess = false;
 	private Boolean mUntuning        = false;
 	private Boolean mFirstTune       = true;
+	private Boolean mPlaceDirty      = false;
+
+	public void unpackIntent() {
+		super.unpackIntent();
+		final Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			final String json = extras.getString(Constants.EXTRA_ENTITY_PARENT);
+			if (json != null) {
+				mPlace = (Entity) Json.jsonToObject(json, Json.ObjectType.ENTITY);
+			}
+		}
+	}
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -89,6 +105,7 @@ public class PlaceEdit extends BaseEntityEdit {
 		mButtonTune = (ComboButton) findViewById(R.id.button_tune);
 		mButtonUntune = (ComboButton) findViewById(R.id.button_untune);
 		mButtonCategory = (TextView) findViewById(R.id.button_category);
+		mButtonPlace = (TextView) findViewById(R.id.button_place);
 		mButtonPrivacy = (TextView) findViewById(R.id.button_privacy);
 		mMapView = (MapView) findViewById(R.id.mapview);
 
@@ -121,51 +138,77 @@ public class PlaceEdit extends BaseEntityEdit {
 		/*
 		 * Only called when the activity is being created.
 		 */
-		Place place = (Place) mEntity;
+		Patch patch = (Patch) mEntity;
 
 		if (!mEditing) {
-			final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
-			if (location != null) {
-				if (place.location == null) {
-					place.location = new AirLocation();
+			if (mPlace != null) {
+				/*
+				 * Place was passed in for default linking.
+				 */
+				((Patch) mEntity).location = mPlace.location;
+				mProximityDisabled = true;
+			}
+			else {
+				final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+				if (location != null) {
+					if (patch.location == null) {
+						patch.location = new AirLocation();
+					}
+					patch.location.lat = location.lat;
+					patch.location.lng = location.lng;
+					patch.location.accuracy = location.accuracy;
 				}
-				place.location.lat = location.lat;
-				place.location.lng = location.lng;
-				place.location.accuracy = location.accuracy;
-				place.provider.aircandi = Patchr.getInstance().getCurrentUser().id;
 			}
 		}
 
-		if (mMapView != null && place.location != null) {
+		if (mMapView != null && patch.location != null) {
 			mMap.clear();
 			mMarker = mMap.addMarker(new MarkerOptions()
 					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
 					.position(new LatLng(mEntity.location.lat.doubleValue(), mEntity.location.lng.doubleValue()))
 					.draggable(true));
 			mMarker.setAnchor(0.5f, 0.5f);
-			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(place.location.lat.doubleValue(), place.location.lng.doubleValue()), 17));
+			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(patch.location.lat.doubleValue(), patch.location.lng.doubleValue()), 17));
 		}
 
 		if (mButtonPrivacy != null) {
-			mButtonPrivacy.setTag(place.privacy);
-			String value = (place.privacy.equals(Constants.PRIVACY_PUBLIC))
-			               ? StringManager.getString(R.string.label_place_privacy_public)
-			               : StringManager.getString(R.string.label_place_privacy_private);
-			mButtonPrivacy.setText(StringManager.getString(R.string.label_place_edit_privacy) + ": " + value);
+			mButtonPrivacy.setTag(patch.privacy);
+			String value = (patch.privacy.equals(Constants.PRIVACY_PUBLIC))
+			               ? StringManager.getString(R.string.label_patch_privacy_public)
+			               : StringManager.getString(R.string.label_patch_privacy_private);
+			mButtonPrivacy.setText(StringManager.getString(R.string.label_patch_edit_privacy) + ": " + value);
 		}
 
 		if (mButtonCategory != null) {
-			mButtonCategory.setTag(place.category);
-			mButtonCategory.setText(place.category != null
-			                        ? StringManager.getString(R.string.label_place_edit_category) + ": " + place.category.name
-			                        : StringManager.getString(R.string.label_place_edit_category) + ": None");
+			mButtonCategory.setTag(patch.category);
+			mButtonCategory.setText(patch.category != null
+			                        ? StringManager.getString(R.string.label_patch_edit_category) + ": " + patch.category.name
+			                        : StringManager.getString(R.string.label_patch_edit_category) + ": None");
+		}
+
+		if (mButtonPlace != null) {
+			mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": None");
+			if (!mEditing) {
+				if (mPlace != null) {
+					mButtonPlace.setTag(mPlace);
+					mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": " + mPlace.name);
+				}
+			}
+			else {
+				Link linkPlace = patch.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
+				if (linkPlace != null) {
+					Entity place = linkPlace.shortcut.getAsEntity();
+					mButtonPlace.setTag(place);
+					mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": " + place.name);
+				}
+			}
 		}
 
 		/* Tuning buttons */
 		UI.setVisibility(findViewById(R.id.group_tune), View.GONE);
 		if (mEditing) {
 			UI.setVisibility(findViewById(R.id.group_tune), View.VISIBLE);
-			final Boolean hasActiveProximityLink = place.hasActiveProximity();
+			final Boolean hasActiveProximityLink = patch.hasActiveProximity();
 			if (hasActiveProximityLink) {
 				mFirstTune = false;
 				mButtonUntune.setVisibility(View.VISIBLE);
@@ -173,8 +216,6 @@ public class PlaceEdit extends BaseEntityEdit {
 		}
 
 		/* Help message */
-		UI.setVisibility(findViewById(R.id.label_message), mEditing ? View.GONE : View.VISIBLE);
-		UI.setVisibility(findViewById(R.id.label_to), mEditing ? View.GONE : View.VISIBLE);
 		UI.setVisibility(findViewById(R.id.to), mEditing ? View.GONE : View.VISIBLE);
 
 		super.draw(view);
@@ -223,7 +264,7 @@ public class PlaceEdit extends BaseEntityEdit {
 
 				@Override
 				public void run() {
-					Logger.d(PlaceEdit.this, "Query wifi scan received event: locking beacons");
+					Logger.d(PatchEdit.this, "Query wifi scan received event: locking beacons");
 					if (event.wifiList != null) {
 						ProximityManager.getInstance().lockBeacons();
 					}
@@ -258,7 +299,7 @@ public class PlaceEdit extends BaseEntityEdit {
 
 				@Override
 				public void run() {
-					Logger.d(PlaceEdit.this, "Beacons locked event: tune entity");
+					Logger.d(PatchEdit.this, "Beacons locked event: tune entity");
 					tuneProximity();
 				}
 			});
@@ -273,13 +314,13 @@ public class PlaceEdit extends BaseEntityEdit {
 	}
 
 	@SuppressWarnings("ucd")
-	public void onAddressBuilderClick(View view) {
-		Patchr.dispatch.route(this, Route.ADDRESS_EDIT, mEntity, null, null);
+	public void onCategoryBuilderClick(View view) {
+		Patchr.dispatch.route(this, Route.CATEGORY_EDIT, mEntity, null, null);
 	}
 
 	@SuppressWarnings("ucd")
-	public void onCategoryBuilderClick(View view) {
-		Patchr.dispatch.route(this, Route.CATEGORY_EDIT, mEntity, null, null);
+	public void onPlacePickerClick(View view) {
+		Patchr.dispatch.route(this, Route.PLACE_SEARCH, mEntity, null, null);
 	}
 
 	public void onPrivacyBuilderClick(View view) {
@@ -309,23 +350,7 @@ public class PlaceEdit extends BaseEntityEdit {
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
 		if (resultCode != Activity.RESULT_CANCELED) {
-			if (requestCode == Constants.ACTIVITY_ADDRESS_EDIT) {
-				if (intent != null && intent.getExtras() != null) {
-					mDirty = true;
-					final Bundle extras = intent.getExtras();
-
-					final String jsonPlace = extras.getString(Constants.EXTRA_PLACE);
-					if (jsonPlace != null) {
-						final Place placeUpdated = (Place) Json.jsonToObject(jsonPlace, Json.ObjectType.ENTITY);
-						if (placeUpdated.phone != null) {
-							placeUpdated.phone = placeUpdated.phone.replaceAll("[^\\d.]", "");
-						}
-						mEntity = placeUpdated;
-						((BuilderButton) findViewById(R.id.address)).setText(((Place) mEntity).address);
-					}
-				}
-			}
-			else if (requestCode == Constants.ACTIVITY_CATEGORY_EDIT) {
+			if (requestCode == Constants.ACTIVITY_CATEGORY_EDIT) {
 				if (intent != null && intent.getExtras() != null) {
 					final Bundle extras = intent.getExtras();
 					final String jsonCategory = extras.getString(Constants.EXTRA_CATEGORY);
@@ -333,11 +358,32 @@ public class PlaceEdit extends BaseEntityEdit {
 						final Category categoryUpdated = (Category) Json.jsonToObject(jsonCategory, Json.ObjectType.CATEGORY);
 						if (categoryUpdated != null) {
 							mDirty = true;
-							((Place) mEntity).category = categoryUpdated;
+							((Patch) mEntity).category = categoryUpdated;
 							mButtonCategory.setTag(categoryUpdated);
 							mButtonCategory.setText("Category: " + categoryUpdated.name);
 							drawPhoto();
 						}
+					}
+				}
+			}
+			else if (requestCode == Constants.ACTIVITY_PLACE_SEARCH) {
+				if (intent == null || intent.getExtras() == null) {
+					mDirty = true;
+					mButtonPlace.setTag(null);
+					mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": None");
+				}
+				else {
+					final Bundle extras = intent.getExtras();
+					final String json = extras.getString(Constants.EXTRA_ENTITY);
+					if (json != null) {
+						final Place place = (Place) Json.jsonToObject(json, Json.ObjectType.ENTITY);
+						mDirty = true;
+						mButtonPlace.setTag(place);
+						mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": " + place.name);
+						((Patch) mEntity).location = place.location;
+						mMarker.setPosition(new LatLng(place.location.lat.doubleValue(), place.location.lng.doubleValue()));
+						mProximityDisabled = true;
+						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(((Patch) mEntity).location.lat.doubleValue(), ((Patch) mEntity).location.lng.doubleValue()), 16));
 					}
 				}
 			}
@@ -347,7 +393,7 @@ public class PlaceEdit extends BaseEntityEdit {
 					final String privacy = extras.getString(Constants.EXTRA_PRIVACY);
 					if (privacy != null) {
 						mDirty = true;
-						((Place) mEntity).privacy = privacy;
+						((Patch) mEntity).privacy = privacy;
 						mButtonPrivacy.setTag(privacy);
 						String value = (privacy.equals(Constants.PRIVACY_PUBLIC)) ? "Public" : "Private";
 						mButtonPrivacy.setText("Privacy: " + value);
@@ -363,15 +409,16 @@ public class PlaceEdit extends BaseEntityEdit {
 						final AirLocation locationUpdated = (AirLocation) Json.jsonToObject(json, Json.ObjectType.AIR_LOCATION);
 						if (locationUpdated != null) {
 							mDirty = true;
-							((Place) mEntity).location = locationUpdated;
+							((Patch) mEntity).location = locationUpdated;
 							mMarker.setPosition(new LatLng(locationUpdated.lat.doubleValue(), locationUpdated.lng.doubleValue()));
-							mProximityInvalid = true;
-							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(((Place) mEntity).location.lat.doubleValue(), ((Place) mEntity).location.lng.doubleValue()), 16));
+							mProximityDisabled = true;
+							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(((Patch) mEntity).location.lat.doubleValue(), ((Patch) mEntity).location.lng.doubleValue()), 16));
 						}
 					}
 				}
 			}
 		}
+
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
@@ -384,6 +431,103 @@ public class PlaceEdit extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	public void accept() {
+
+		if (placeDirty()) {
+
+			mTaskService = new AsyncTask() {
+
+				@Override
+				protected void onPreExecute() {
+					mBusy.showBusy(BusyAction.Update);
+				}
+
+				@Override
+				protected Object doInBackground(Object... params) {
+					Thread.currentThread().setName("AsyncInsertPlace");
+
+					ModelResult result = new ModelResult();
+					Link placeLink = mEntity.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
+					Place place = (Place) mButtonPlace.getTag();
+
+					/* Adding a new place. */
+					if (place != null && Type.isTrue(place.synthetic)) {
+						result = Patchr.getInstance().getEntityManager().insertEntity(place, null, null, null, null, true);
+						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+							Entity insertedPlace = (Entity) result.data;
+							place.id = insertedPlace.id;
+							place.synthetic = false;
+						}
+					}
+
+					/* Link management */
+					if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+
+						/* Existing link so delete it */
+						if (placeLink != null) {
+							result = Patchr.getInstance().getEntityManager().deleteLink(mEntity.id
+									, placeLink.shortcut.id
+									, Constants.TYPE_LINK_PROXIMITY
+									, true
+									, Constants.SCHEMA_ENTITY_PLACE
+									, "delete_link_proximity");
+						}
+
+						/* Add link */
+						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS
+								&& place != null) {
+							result = Patchr.getInstance().getEntityManager().insertLink(null
+									, mEntity.id
+									, place.id
+									, Constants.TYPE_LINK_PROXIMITY
+									, true
+									, null
+									, null
+									, "insert_link_proximity"
+									, true);
+						}
+					}
+					return result;
+				}
+
+				@Override
+				protected void onPostExecute(Object response) {
+					ModelResult result = (ModelResult) response;
+					if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+						if (mEditing) {
+							update();
+						}
+						else {
+							insert();
+						}
+					}
+					else {
+						Errors.handleError(PatchEdit.this, result.serviceResponse);
+					}
+				}
+			}.execute();
+			return;
+		}
+
+		if (mEditing) {
+			update();
+		}
+		else {
+			insert();
+		}
+	}
+
+	@Override
+	protected void beforeInsert(Entity entity, List<Link> links) {
+	    /*
+	     * We link patches to the places if needed. Called on background thread.
+		 */
+		if (mButtonPlace.getTag() != null) {
+			final Place place = (Place) mButtonPlace.getTag();
+			links.add(new Link(place.id, Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE));
+		}
+	}
 
 	@Override
 	protected boolean afterInsert() {
@@ -401,10 +545,10 @@ public class PlaceEdit extends BaseEntityEdit {
 	protected boolean afterUpdate() {
 	    /*
 	     * Only called if the update was successful. Called on main ui thread.
-	     * If proximity links are now invalid because the place was manually moved
+	     * If proximity links are now invalid because the patch was manually moved
 	     * to a new location then clear all the links.
 		 */
-		if (mProximityInvalid) {
+		if (mProximityDisabled) {
 			clearProximity();
 			return false;
 		}
@@ -509,9 +653,32 @@ public class PlaceEdit extends BaseEntityEdit {
 				UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
 				setResultCode(Activity.RESULT_OK);
 				finish();
-				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(PlaceEdit.this, TransitionType.FORM_TO_PAGE);
+				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(PatchEdit.this, TransitionType.FORM_TO_PAGE);
 			}
 		}.execute();
+	}
+
+	private boolean placeDirty() {
+
+		final Link placeLink = mEntity.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
+
+		final Boolean originalLink = (placeLink != null);
+		final Boolean newLink = (mButtonPlace.getTag() != null);
+
+		/* Staying unlinked */
+		if (!originalLink && !newLink)
+			return false;
+
+		/* Staying linked so compare targets */
+		if (originalLink && newLink) {
+			String oldId = placeLink.shortcut.id;
+			String newId = ((Entity) mButtonPlace.getTag()).id;
+			if (oldId.equals(newId))
+				return false;
+		}
+
+		/* Making a change */
+		return true;
 	}
 
 	@Override
@@ -519,11 +686,11 @@ public class PlaceEdit extends BaseEntityEdit {
 		if (!super.validate()) return false;
 
 		gather();
-		Place place = (Place) mEntity;
-		if (place.name == null) {
+		Patch patch = (Patch) mEntity;
+		if (patch.name == null) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
-					, StringManager.getString(R.string.error_missing_place_name)
+					, StringManager.getString(R.string.error_missing_patch_name)
 					, null
 					, this
 					, android.R.string.ok
@@ -532,14 +699,6 @@ public class PlaceEdit extends BaseEntityEdit {
 		}
 
 		return true;
-	}
-
-	@Override
-	protected void gather() {
-		super.gather();
-		if (!mEditing) {
-			((Place) mEntity).provider.aircandi = Patchr.getInstance().getCurrentUser().id;
-		}
 	}
 
 	@Override
@@ -556,7 +715,7 @@ public class PlaceEdit extends BaseEntityEdit {
 			mTooltips.requestLayout();
 
 			ToolTipView part1 = mTooltips.showTooltip(new ToolTip()
-					.withText(StringManager.getString(R.string.tooltip_place_new_part1))
+					.withText(StringManager.getString(R.string.tooltip_patch_new_part1))
 					.withShadow(true)
 					.withArrow(false)
 					.setMaxWidth(UI.getRawPixelsForDisplayPixels(250f))
@@ -569,7 +728,7 @@ public class PlaceEdit extends BaseEntityEdit {
 			part1.setLayoutParams(params);
 
 			ToolTipView part2 = mTooltips.showTooltip(new ToolTip()
-					.withText(StringManager.getString(R.string.tooltip_place_new_part2))
+					.withText(StringManager.getString(R.string.tooltip_patch_new_part2))
 					.withShadow(true)
 					.withArrow(false)
 					.setMaxWidth(UI.getRawPixelsForDisplayPixels(250f))
@@ -580,7 +739,7 @@ public class PlaceEdit extends BaseEntityEdit {
 			part2.addRule(RelativeLayout.BELOW, part1.getId());
 
 			ToolTipView part3 = mTooltips.showTooltip(new ToolTip()
-					.withText(StringManager.getString(R.string.tooltip_place_new_part3))
+					.withText(StringManager.getString(R.string.tooltip_patches_new_part3))
 					.withShadow(true)
 					.withArrow(false)
 					.setMaxWidth(UI.getRawPixelsForDisplayPixels(250f))
@@ -616,46 +775,6 @@ public class PlaceEdit extends BaseEntityEdit {
 		uiSettings.setCompassEnabled(false);
 
 		MapsInitializer.initialize(this);
-	}
-
-	public void lookupAddressForLocation(final AirLocation location) {
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncAddressForLocation");
-				ModelResult result = LocationManager.getInstance().getAddressForLocation(location);
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object modelResult) {
-				if (isFinishing()) return;
-
-				final ModelResult result = (ModelResult) modelResult;
-
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
-
-					List<Address> addresses = (List<Address>) result.data;
-					Address geolookup = addresses.get(0);
-
-					Place place = (Place) mEntity;
-
-					place.address = geolookup.getAddressLine(0);
-					place.city = geolookup.getLocality();
-					place.region = geolookup.getAdminArea();
-					place.postalCode = geolookup.getPostalCode();
-					place.country = geolookup.getCountryName();
-				}
-				else {
-					Errors.handleError(PlaceEdit.this, result.serviceResponse);
-				}
-			}
-		}.execute();
 	}
 
  	/*--------------------------------------------------------------------------------------------
@@ -719,6 +838,6 @@ public class PlaceEdit extends BaseEntityEdit {
 
 	@Override
 	protected int getLayoutId() {
-		return (mLayoutResId != null && mLayoutResId != 0) ? mLayoutResId : R.layout.place_edit;
+		return (mLayoutResId != null && mLayoutResId != 0) ? mLayoutResId : R.layout.patch_edit;
 	}
 }

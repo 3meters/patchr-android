@@ -18,6 +18,7 @@ import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Place;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.utilities.Errors;
@@ -31,69 +32,71 @@ public class MapForm extends BaseEntityForm {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-		mLinkProfile = LinkProfile.LINKS_FOR_PLACE;
+		mLinkProfile = LinkProfile.LINKS_FOR_PATCH;
 		mNextFragmentTag = Constants.FRAGMENT_TYPE_MAP;
 	}
 
 	@Override
 	public void draw(View view) {
 		mFirstDraw = false;
-		if (!TextUtils.isEmpty(mEntity.name)) {
-			setActivityTitle(mEntity.name);
-		}
+//		if (!TextUtils.isEmpty(mEntity.name)) {
+//			setActivityTitle(mEntity.name);
+//		}
 
-		if (mEntity.getLocation() != null) {
-			final String address = ((Place) mEntity).getAddressString(true);
-			if (((Place) mEntity).fuzzy && !TextUtils.isEmpty(address)) {
+		if ((mEntity instanceof Place || mEntity instanceof Patch) && mEntity.getLocation() != null) {
+			if (mEntity instanceof Place) {
+				final String address = ((Place) mEntity).getAddressString(true);
+				if (((Place) mEntity).fuzzy && !TextUtils.isEmpty(address)) {
 
-				new AsyncTask() {
+					new AsyncTask() {
 
-					@Override
-					protected void onPreExecute() {
-						mBusy.showBusy(BusyAction.Loading);
-					}
-
-					@Override
-					protected Object doInBackground(Object... params) {
-						Thread.currentThread().setName("AsyncMarkMapLocation");
-						ModelResult result = LocationManager.getInstance().getLocationFromAddress(address);
-						return result;
-					}
-
-					@Override
-					protected void onPostExecute(Object modelResult) {
-						if (isFinishing()) return;
-
-						final ModelResult result = (ModelResult) modelResult;
-						mBusy.hideBusy(false);
-
-						if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-							AirLocation location = (AirLocation) result.data;
-							mEntity.location = location;
-							mEntity.fuzzy = false;
-
-							List<Entity> entities = new ArrayList<Entity>();
-							entities.add(mEntity);
-							((MapListFragment) mCurrentFragment)
-									.setEntities(entities)
-									.setZoomLevel(MapManager.ZOOM_SCALE_NEARBY)
-									.draw();
+						@Override
+						protected void onPreExecute() {
+							mBusy.showBusy(BusyAction.Loading);
 						}
-						else {
-							Errors.handleError(MapForm.this, result.serviceResponse);
+
+						@Override
+						protected Object doInBackground(Object... params) {
+							Thread.currentThread().setName("AsyncMarkMapLocation");
+							ModelResult result = LocationManager.getInstance().getLocationFromAddress(address);
+							return result;
 						}
-					}
-				}.execute();
+
+						@Override
+						protected void onPostExecute(Object modelResult) {
+							if (isFinishing()) return;
+
+							final ModelResult result = (ModelResult) modelResult;
+							mBusy.hideBusy(false);
+
+							if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+
+								AirLocation location = (AirLocation) result.data;
+								mEntity.location = location;
+								mEntity.fuzzy = false;
+
+								List<Entity> entities = new ArrayList<Entity>();
+								entities.add(mEntity);
+								((MapListFragment) mCurrentFragment)
+										.setEntities(entities)
+										.setZoomLevel(MapManager.ZOOM_SCALE_NEARBY)
+										.draw();
+							}
+							else {
+								Errors.handleError(MapForm.this, result.serviceResponse);
+							}
+						}
+					}.execute();
+					return;
+				}
 			}
-			else {
-				List<Entity> entities = new ArrayList<Entity>();
-				entities.add(mEntity);
-				((MapListFragment) mCurrentFragment)
-						.setEntities(entities)
-						.setZoomLevel(MapManager.ZOOM_SCALE_NEARBY)
-						.draw();
-			}
+
+			List<Entity> entities = new ArrayList<Entity>();
+			entities.add(mEntity);
+			((MapListFragment) mCurrentFragment)
+					.setEntities(entities)
+					.setZoomLevel(MapManager.ZOOM_SCALE_NEARBY)
+					.draw();
 		}
 	}
 
@@ -128,10 +131,9 @@ public class MapForm extends BaseEntityForm {
 
 		if (item.getItemId() == R.id.navigate) {
 			AirLocation location = mEntity.getLocation();
-			String address = ((Place) mEntity).getAddressString(true);
-
-			if (!((Place) mEntity).fuzzy) {
-				address = null;
+			String address = null;
+			if (mEntity instanceof Place && mEntity.fuzzy) {
+				address = ((Place) mEntity).getAddressString(true);
 			}
 
 			AndroidManager.getInstance().callMapNavigation(this

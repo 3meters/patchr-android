@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ViewFlipper;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
 import com.aircandi.components.TabManager;
@@ -28,8 +28,6 @@ import com.squareup.otto.Subscribe;
 
 public class UserEdit extends BaseEntityEdit {
 
-	private EditText mBio;
-	private EditText mWebUri;
 	private EditText mArea;
 	private EditText mEmail;
 
@@ -43,37 +41,9 @@ public class UserEdit extends BaseEntityEdit {
 		mTabManager.initialize();
 		mTabManager.doRestoreInstanceState(savedInstanceState);
 
-		mBio = (EditText) findViewById(R.id.bio);
-		mWebUri = (EditText) findViewById(R.id.web_uri);
 		mArea = (EditText) findViewById(R.id.area);
 		mEmail = (EditText) findViewById(R.id.email);
 
-		if (mBio != null) {
-			mBio.addTextChangedListener(new SimpleTextWatcher() {
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					if (!s.toString().equals(((User) mEntity).bio)) {
-						if (!mFirstDraw) {
-							mDirty = true;
-						}
-					}
-				}
-			});
-		}
-		if (mWebUri != null) {
-			mWebUri.addTextChangedListener(new SimpleTextWatcher() {
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					if (!s.toString().equals(((User) mEntity).webUri)) {
-						if (!mFirstDraw) {
-							mDirty = true;
-						}
-					}
-				}
-			});
-		}
 		if (mArea != null) {
 			mArea.addTextChangedListener(new SimpleTextWatcher() {
 
@@ -87,6 +57,7 @@ public class UserEdit extends BaseEntityEdit {
 				}
 			});
 		}
+
 		if (mEmail != null) {
 			mEmail.addTextChangedListener(new SimpleTextWatcher() {
 
@@ -107,12 +78,6 @@ public class UserEdit extends BaseEntityEdit {
 		super.draw(view);
 
 		User user = (User) mEntity;
-		if (mBio != null && !TextUtils.isEmpty(user.bio)) {
-			mBio.setText(user.bio);
-		}
-		if (mWebUri != null && !TextUtils.isEmpty(user.webUri)) {
-			mWebUri.setText(user.webUri);
-		}
 		if (mArea != null && !TextUtils.isEmpty(user.area)) {
 			mArea.setText(user.area);
 		}
@@ -184,14 +149,8 @@ public class UserEdit extends BaseEntityEdit {
 		if (mEmail != null) {
 			user.email = Type.emptyAsNull(mEmail.getText().toString().trim());
 		}
-		if (mBio != null) {
-			user.bio = Type.emptyAsNull(mBio.getText().toString().trim());
-		}
 		if (mArea != null) {
 			user.area = Type.emptyAsNull(mArea.getText().toString().trim());
-		}
-		if (mWebUri != null) {
-			user.webUri = Type.emptyAsNull(mWebUri.getText().toString().trim());
 		}
 	}
 
@@ -215,18 +174,6 @@ public class UserEdit extends BaseEntityEdit {
 		if (!Utilities.validEmail(mEmail.getText().toString())) {
 			Dialogs.alertDialogSimple(this, null, StringManager.getString(R.string.error_invalid_email));
 			return false;
-		}
-		if (mWebUri != null && !TextUtils.isEmpty(mWebUri.getText().toString())) {
-			if (!Utilities.validWebUri(mWebUri.getText().toString())) {
-				Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-						, null
-						, StringManager.getString(R.string.error_weburi_invalid)
-						, null
-						, this
-						, android.R.string.ok
-						, null, null, null, null);
-				return false;
-			}
 		}
 		return true;
 	}

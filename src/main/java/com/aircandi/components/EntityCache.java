@@ -3,8 +3,8 @@ package com.aircandi.components;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -73,7 +73,7 @@ public class EntityCache implements Map<String, Entity> {
 
 			if (loadedEntities != null && loadedEntities.size() > 0) {
 			    /*
-	             * Clear out any cache stamp overrides.
+			     * Clear out any cache stamp overrides.
 				 */
 				for (Entity entity : loadedEntities) {
 					if (Patchr.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
@@ -238,26 +238,24 @@ public class EntityCache implements Map<String, Entity> {
 		return serviceResponse;
 	}
 
-	public ServiceResponse loadEntitiesNearLocation(AirLocation location, Links linkOptions, List<String> excludePlaceIds) {
+	public ServiceResponse loadEntitiesNearLocation(AirLocation location, Links linkOptions, List<String> excludeIds) {
 
 		final Bundle parameters = new Bundle();
 
 		parameters.putString("location", "object:" + Json.objectToJson(location));
 		parameters.putInt("limit", Patchr.applicationContext.getResources().getInteger(R.integer.limit_places_radar));
-		parameters.putInt("timeout", ServiceConstants.TIMEOUT_PLACE_QUERIES);
-		parameters.putInt("radius", ServiceConstants.PLACE_NEAR_RADIUS);
-		parameters.putString("provider", ServiceConstants.PLACE_NEAR_PROVIDERS);
+		parameters.putInt("radius", ServiceConstants.PATCH_NEAR_RADIUS);
 
 		if (linkOptions != null) {
 			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
 		}
 
-		if (excludePlaceIds != null && excludePlaceIds.size() > 0) {
-			parameters.putStringArrayList("excludePlaceIds", (ArrayList<String>) excludePlaceIds);
+		if (excludeIds != null && excludeIds.size() > 0) {
+			parameters.putStringArrayList("excludeIds", (ArrayList<String>) excludeIds);
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PLACES + "near")
+				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PATCHES + "near")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
@@ -279,13 +277,12 @@ public class EntityCache implements Map<String, Entity> {
 			for (Entity entity : entities) {
 				entity.foundByProximity = false;
 
-				if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+				if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 					entity.locked = false;
-					entity.enabled = true;
 				}
 			}
 
-			/* Push place entities to cache */
+			/* Push patch entities to cache */
 			upsertEntities(entities);
 		}
 
@@ -545,23 +542,21 @@ public class EntityCache implements Map<String, Entity> {
 		Entity entity;
 		while (iter.hasNext()) {
 			entity = get(iter.next());
-			if (!entity.isHidden()) {
-				if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
-					if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
-						if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
-							if (radius == null) {
+			if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
+				if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
+					if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
+						if (radius == null) {
+							entities.add(entity);
+						}
+						else {
+							Float distance = entity.getDistance(true);
+							if (distance != null && distance <= radius) {
 								entities.add(entity);
 							}
-							else {
-								Float distance = entity.getDistance(true);
-								if (distance != null && distance <= radius) {
+							else if (distance == null) {
+								Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
+								if (beacon != null) {
 									entities.add(entity);
-								}
-								else if (distance == null) {
-									Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
-									if (beacon != null) {
-										entities.add(entity);
-									}
 								}
 							}
 						}
@@ -583,23 +578,21 @@ public class EntityCache implements Map<String, Entity> {
 		while (iter.hasNext()) {
 			entity = get(iter.next());
 			if ((entity.toId != null && entity.toId.equals(entityId)) || (entity.fromId != null && entity.fromId.equals(entityId))) {
-				if (!entity.isHidden()) {
-					if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
-						if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
-							if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
-								if (radius == null) {
+				if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
+					if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
+						if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
+							if (radius == null) {
+								entities.add(entity);
+							}
+							else {
+								Float distance = entity.getDistance(true);
+								if (distance != null && distance <= radius) {
 									entities.add(entity);
 								}
-								else {
-									Float distance = entity.getDistance(true);
-									if (distance != null && distance <= radius) {
+								else if (distance == null) {
+									Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
+									if (beacon != null) {
 										entities.add(entity);
-									}
-									else if (distance == null) {
-										Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
-										if (beacon != null) {
-											entities.add(entity);
-										}
 									}
 								}
 							}

@@ -16,7 +16,7 @@ public class ViewHolder {
 	public CandiView    candiView;
 	public AirImageView photo;
 	public TextView     name;
-	public TextView     subtitle;
+	public TextView     subhead;
 	public TextView     description;
 	public TextView     type;
 	public TextView     modifiedDate;
@@ -24,13 +24,16 @@ public class ViewHolder {
 	public UserView     creator;
 	public TextView     userName;
 	public AirImageView userPhoto;
-	public TextView     placeName;
+	public TextView     patchName;
+	public AirImageView patchPhoto;
+	public TextView     categoryName;
+	public AirImageView categoryPhoto;
 	public TextView     toName;        // NO_UCD (unused code)
 	public TextView     area;
 	public EntityView   parent;
 	public ViewGroup    share;
 	public AirImageView photoBig;
-	public ImageView photoType;
+	public ImageView    photoType;
 	public ImageView    alert;
 
 	public ComboButton overflow;

@@ -10,7 +10,6 @@ import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NotificationManager.Tag;
-import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.CacheStamp;
@@ -26,10 +25,10 @@ import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Log;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoType;
 import com.aircandi.objects.Place;
-import com.aircandi.objects.Provider;
 import com.aircandi.objects.Proximity;
 import com.aircandi.objects.ServiceBase.UpdateScope;
 import com.aircandi.objects.ServiceData;
@@ -42,6 +41,7 @@ import com.aircandi.service.ServiceRequest;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
+import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 
@@ -269,13 +269,9 @@ public class EntityManager {
 
 		final ModelResult result = new ModelResult();
 
-		final Bundle parameters = new Bundle();
-		parameters.putString("source", "foursquare");
-
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PLACES + "categories")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
+				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PATCHES + "categories")
+				.setRequestType(RequestType.GET)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -318,7 +314,7 @@ public class EntityManager {
 		ModelResult result = getApplinks(entities, null, timeout, waitForContent, false);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patchr.tracker.sendEvent(TrackerCategory.UX, "applinks_verify", null, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.UX, "applinks_verify", null, 0);
 		}
 		return result;
 	}
@@ -326,7 +322,7 @@ public class EntityManager {
 	public ModelResult refreshApplinks(List<Entity> applinks, Integer timeout, Boolean waitForContent) {
 		ModelResult result = getApplinks(applinks, null, timeout, waitForContent, true);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patchr.tracker.sendEvent(TrackerCategory.UX, "applinks_refresh", null, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.UX, "applinks_refresh", null, 0);
 		}
 		return result;
 	}
@@ -334,7 +330,7 @@ public class EntityManager {
 	public ModelResult searchApplinks(List<Entity> applinks, String placeId, Integer timeout, Boolean waitForContent) {
 		ModelResult result = getApplinks(applinks, placeId, timeout, waitForContent, false);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patchr.tracker.sendEvent(TrackerCategory.UX, "applinks_search", null, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.UX, "applinks_search", null, 0);
 		}
 		return result;
 	}
@@ -405,7 +401,24 @@ public class EntityManager {
 		parameters.putLong("limit", limit);
 		parameters.putString("_user", userId); // So service can handle places the current user is watching
 
+		if (suggestScope == SuggestScope.PLACES) {
+			parameters.putBoolean("places", true);
+		}
+		else if (suggestScope == SuggestScope.PATCHES) {
+			parameters.putBoolean("patches", true);
+		}
+		else if (suggestScope == SuggestScope.USERS) {
+			parameters.putBoolean("users", true);
+		}
+		else if (suggestScope == SuggestScope.PATCHES_USERS) {
+			parameters.putBoolean("patches", true);
+			parameters.putBoolean("users", true);
+		}
+
 		if (suggestScope != SuggestScope.USERS) {
+			/*
+			 * Foursquare won't return anything if lat/lng isn't provided.
+			 */
 			if (location != null) {
 				parameters.putString("location", "object:" + Json.objectToJson(location));
 				parameters.putInt("radius", ServiceConstants.PLACE_SUGGEST_RADIUS);
@@ -414,7 +427,7 @@ public class EntityManager {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_SUGGEST + (suggestScope == SuggestScope.PLACES ? "/places" : (suggestScope == SuggestScope.USERS) ? "/users" : ""))
+				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_SUGGEST)
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);
@@ -430,36 +443,6 @@ public class EntityManager {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
 			result.serviceResponse.data = serviceData;
 			result.data = (List<Entity>) serviceData.data;
-		}
-		return result;
-	}
-
-	public ModelResult getPlacePhotos(Provider provider, long count, long offset) {
-		final ModelResult result = new ModelResult();
-
-		final Bundle parameters = new Bundle();
-		parameters.putString("provider", provider.type);
-		parameters.putString("id", provider.id);
-		parameters.putLong("limit", count);
-		parameters.putLong("skip", offset);
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PLACES + "photos")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.PHOTO, Json.ServiceDataWrapper.TRUE);
-			final List<Photo> photos = (List<Photo>) serviceData.data;
-			result.serviceResponse.data = photos;
 		}
 		return result;
 	}
@@ -513,7 +496,7 @@ public class EntityManager {
 			user.session = serviceData.session;
 			Patchr.getInstance().setCurrentUser(user, true);
 
-			Patchr.tracker.sendEvent(TrackerCategory.USER, "user_signin", null, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signin", null, 0);
 			Logger.i(this, "User signed in: " + Patchr.getInstance().getCurrentUser().name);
 		}
 		return result;
@@ -581,7 +564,7 @@ public class EntityManager {
 		/*
 		 * We treat user as signed out even if the service call failed.
 		 */
-		Patchr.tracker.sendEvent(TrackerCategory.USER, "user_signout", null, 0);
+		Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signout", null, 0);
 		Logger.i(this, "User signed out: "
 				+ Patchr.getInstance().getCurrentUser().name
 				+ " (" + Patchr.getInstance().getCurrentUser().id + ")");
@@ -626,7 +609,7 @@ public class EntityManager {
 			user.session = serviceData.session;
 			Patchr.getInstance().setCurrentUser(user, true);
 
-			Patchr.tracker.sendEvent(TrackerCategory.USER, "password_change", null, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, "password_change", null, 0);
 			Logger.i(this, "User changed password: " + Patchr.getInstance().getCurrentUser().name);
 		}
 		return result;
@@ -648,7 +631,7 @@ public class EntityManager {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patchr.tracker.sendEvent(TrackerCategory.USER, "request_password_reset", null, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, "request_password_reset", null, 0);
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
@@ -678,14 +661,14 @@ public class EntityManager {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			Patchr.tracker.sendEvent(TrackerCategory.USER, "password_reset", null, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, "password_reset", null, 0);
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
 			Patchr.getInstance().setCurrentUser(user, true);
 
-			Patchr.tracker.sendEvent(TrackerCategory.USER, "user_signin", null, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signin", null, 0);
 			Logger.i(this, "Password reset and user signed in: " + Patchr.getInstance().getCurrentUser().name);
 		}
 
@@ -696,7 +679,7 @@ public class EntityManager {
 		ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
-		parameters.putString("secret", Patchr.getInstance().getContainer().getString(Patchr.USER_SECRET));
+		parameters.putString("secret", ContainerManager.getContainerHolder().getContainer().getString(Patchr.USER_SECRET));
 		parameters.putString("installId", Patchr.getinstallId());
 		user.id = null; // remove temp id we assigned
 
@@ -713,7 +696,7 @@ public class EntityManager {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			Patchr.tracker.sendEvent(TrackerCategory.USER, "user_register", null, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_register", null, 0);
 			String jsonResponse = (String) result.serviceResponse.data;
 			ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			user = serviceData.user;
@@ -825,8 +808,7 @@ public class EntityManager {
 			/* Construct entity, link, and observation */
 			final Bundle parameters = new Bundle();
 
-			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-				Place place = (Place) entity;
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 
 				/* Primary beacon id */
 				if (primaryBeacon != null) {
@@ -871,33 +853,21 @@ public class EntityManager {
 					}
 					parameters.putStringArrayList("beacons", (ArrayList<String>) beaconStrings);
 				}
-
-				/* Sources configuration */
-				if (!place.getProvider().type.equals("aircandi")) {
-					parameters.putBoolean("waitForContent", waitForContent);
-				}
-
-				/* Provider id if this is a custom place */
-				if (place.provider.aircandi != null) {
-					place.provider.aircandi = entity.id;
-				}
 			}
-			else {
 
-				/* Link */
-				if (links != null && links.size() > 0) {
-					final List<String> linkStrings = new ArrayList<String>();
-					for (Link link : links) {
-						linkStrings.add("object:" + Json.objectToJson(link, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
-					}
-					parameters.putStringArrayList("links", (ArrayList<String>) linkStrings);
+			/* Link */
+			if (links != null && links.size() > 0) {
+				final List<String> linkStrings = new ArrayList<String>();
+				for (Link link : links) {
+					linkStrings.add("object:" + Json.objectToJson(link, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 				}
+				parameters.putStringArrayList("links", (ArrayList<String>) linkStrings);
 			}
 
 			/* Entity */
 			parameters.putString("entity", "object:" + Json.objectToJson(entity, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 
-            /* Upsizing a suggest place routes through this routine */
+            /* Upsizing a suggest patch routes through this routine */
 			if (entity.synthetic) {
 				parameters.putBoolean("skipNotifications", true);
 			}
@@ -918,7 +888,7 @@ public class EntityManager {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 			String action = entity.synthetic ? "entity_upsize" : "entity_insert";
-			Patchr.tracker.sendEvent(TrackerCategory.EDIT, action, entity.schema, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.EDIT, action, entity.schema, 0);
 			Json.ObjectType serviceDataType = Json.ObjectType.ENTITY;
 
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -938,7 +908,7 @@ public class EntityManager {
 
 			result.data = insertedEntity;
 
-			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				mActivityDate = DateTime.nowDate().getTime();
 			}
 		}
@@ -995,7 +965,7 @@ public class EntityManager {
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patchr.tracker.sendEvent(TrackerCategory.EDIT, "entity_update", entity.schema, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.EDIT, "entity_update", entity.schema, 0);
 			/*
 			 * Optimization: We crawl entities in the cache and update embedded
 			 * user objects so we don't have to refresh all the affected entities
@@ -1005,7 +975,7 @@ public class EntityManager {
 				mEntityCache.updateEntityUser(entity);
 			}
 
-			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				mActivityDate = DateTime.nowDate().getTime();
 			}
 		}
@@ -1054,7 +1024,7 @@ public class EntityManager {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 			if (entity != null) {
-				Patchr.tracker.sendEvent(TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
+				Reporting.sendEvent(Reporting.TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
 			}
 			entity = mEntityCache.removeEntityTree(entityId);
 			/*
@@ -1066,7 +1036,7 @@ public class EntityManager {
 			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 			mEntityCache.removeLink(Patchr.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
 
-			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				mActivityDate = DateTime.nowDate().getTime();
 			}
 		}
@@ -1080,7 +1050,7 @@ public class EntityManager {
 		 */
 		ModelResult result = deleteEntity(entityId, cacheOnly);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS && seedParentId != null) {
-			result = removeLinks(entityId, seedParentId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, "remove");
+			result = removeLinks(entityId, seedParentId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, "remove_entity_message");
 		}
 		return result;
 	}
@@ -1157,7 +1127,7 @@ public class EntityManager {
 
 		/* Reproduce the service call effect locally */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patchr.tracker.sendEvent(TrackerCategory.LINK, untuning ? "place_untune" : "place_tune", null, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.LINK, untuning ? "place_untune" : "place_tune", null, 0);
 
 			if (beacons != null) {
 				for (Beacon beacon : beacons) {
@@ -1270,7 +1240,7 @@ public class EntityManager {
 			if (!skipCache) {
 				mEntityCache.addLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
 			}
-			Patchr.tracker.sendEvent(TrackerCategory.LINK, actionEvent, toShortcut.schema, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.LINK, actionEvent, Entity.getSchemaForId(toId), 0);
 		}
 
 		return result;
@@ -1312,7 +1282,7 @@ public class EntityManager {
 				}
 			}
 
-			Patchr.tracker.sendEvent(TrackerCategory.LINK, action, schema, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.LINK, action, schema, 0);
 			/*
 			 * Fail could be because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
@@ -1384,7 +1354,7 @@ public class EntityManager {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patchr.tracker.sendEvent(TrackerCategory.EDIT, "entity_replace_entities", schema, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.EDIT, "entity_replace_entities", schema, 0);
 		}
 		return result;
 	}
@@ -1416,7 +1386,7 @@ public class EntityManager {
 		 * We update the cache directly instead of refreshing from the service
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patchr.tracker.sendEvent(TrackerCategory.LINK, "entity_remove", schema, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.LINK, "entity_remove", schema, 0);
 			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 			mEntityCache.removeLink(fromId, toId, type, null);
 		}
@@ -1432,18 +1402,18 @@ public class EntityManager {
 		ModelResult result = new ModelResult();
 
 		/*
-		 * Places ranked by message count
-		 * https://api.aircandi.com/v1/stats/to/places/from/messages?type=content
+		 * Patches ranked by message count
+		 * https://api.aircandi.com/v1/stats/to/patches/from/messages?type=content
 		 * 
-		 * Places ranked by watchers
-		 * https://api.aircandi.com/v1/stats/to/places/from/users?type=watch
+		 * Patches ranked by watchers
+		 * https://api.aircandi.com/v1/stats/to/patches/from/users?type=watch
 		 * watch
 		 */
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_STATS
-						+ "to/" + toSchema + "s"
-						+ "/from/" + fromSchema + "s"
+						+ "to/" + toSchema + (toSchema == Constants.SCHEMA_ENTITY_PATCH ? "es" : "s")
+						+ "/from/" + fromSchema + (fromSchema == Constants.SCHEMA_ENTITY_PATCH ? "es" : "s")
 						+ "?type=" + trendType)
 				.setRequestType(RequestType.GET)
 				.setResponseFormat(ResponseFormat.JSON);
@@ -1512,7 +1482,7 @@ public class EntityManager {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patchr.tracker.sendEvent(TrackerCategory.USER, document.type + "_insert", document.type, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, document.type + "_insert", document.type, 0);
 		}
 
 		return result;
@@ -1534,7 +1504,7 @@ public class EntityManager {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patchr.tracker.sendEvent(TrackerCategory.USER, document.type + "_insert", document.type, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, document.type + "_insert", document.type, 0);
 		}
 
 		return result;
@@ -1588,7 +1558,7 @@ public class EntityManager {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Patchr.tracker.sendEvent(TrackerCategory.USER, "invite_send", null, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, "invite_send", null, 0);
 		}
 
 		return result;
@@ -1624,10 +1594,10 @@ public class EntityManager {
 		return serviceResponse;
 	}
 
-	public ModelResult upsizeSynthetic(Place synthetic, Boolean waitForContent) {
+	public ModelResult upsize(Place place, Boolean waitForContent) {
 
 		/* Decorate and clone */
-		final Entity entity = Place.upsizeFromSynthetic(synthetic);
+		final Entity entity = Place.upsize(place);
 
 		/* insert in database */
 		ModelResult result = insertEntity(entity, waitForContent);
@@ -1637,7 +1607,7 @@ public class EntityManager {
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Entity upsized = (Entity) result.data;
-			mEntityCache.removeEntityTree(synthetic.id);
+			mEntityCache.removeEntityTree(place.id);
 			mEntityCache.upsertEntity(upsized);
 		}
 
@@ -1657,15 +1627,15 @@ public class EntityManager {
 		//				StringManager.getString(R.string.pref_search_radius),
 		//				StringManager.getString(R.string.pref_search_radius_default)));
 
-		Integer searchRangeMeters = ServiceConstants.PLACE_NEAR_RADIUS;
+		Integer searchRangeMeters = ServiceConstants.PATCH_NEAR_RADIUS;
 
-		List<Place> places = (List<Place>) EntityManager.getEntityCache().getCacheEntities(
-				Constants.SCHEMA_ENTITY_PLACE,
+		List<Patch> places = (List<Patch>) EntityManager.getEntityCache().getCacheEntities(
+				Constants.SCHEMA_ENTITY_PATCH,
 				Constants.TYPE_ANY,
 				searchRangeMeters,
 				proximity);
 
-		Collections.sort(places, new Place.SortByProximityAndDistance());
+		Collections.sort(places, new Patch.SortByProximityAndDistance());
 		Number limit = Patchr.applicationContext.getResources().getInteger(R.integer.limit_places_radar);
 
 		return (places.size() > limit.intValue()) ? places.subList(0, limit.intValue()) : places;
@@ -1751,8 +1721,10 @@ public class EntityManager {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static enum SuggestScope {
+		PATCHES,
 		PLACES,
 		USERS,
+		PATCHES_USERS,
 		ALL
 	}
 }

@@ -36,7 +36,7 @@
 		android:completionHintView="@layout/dropdown_search_hint"
 		android:drawableRight="?attr/iconClear"
 		android:dropDownWidth="wrap_content"
-		android:hint="@string/label_search_hint"
+		android:hint="@string/label_search_patches_hint"
 		android:imeOptions="flagNoExtractUi"
 		android:textColor="?attr/textColorPure"
 		android:textColorHint="?attr/textColorHint" />

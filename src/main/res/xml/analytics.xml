@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="TypographyDashes">
+
+	<!--
+		By default, the reported app name and version come from the package.
+		Every aircandi application has a unique tracking id
+	-->
+	<string name="ga_trackingId">UA-33660954-5</string>
+	<!--
+		 Set to true to track time spent in each Activity.
+		 Set to false to track application-level information only. Default is false.
+	-->
+	<bool name="ga_autoActivityTracking">true</bool>
+	<!--
+		Enable automatic exception tracking. This does not conflict with
+		Crashlytics exception reporting.
+	-->
+	<bool name="ga_reportUncaughtExceptions">true</bool>
+	<!--
+		The amount of time (in seconds) your application can stay in the background before the 
+		session is ended. Default is 30 seconds. Negative value disables EasyTracker session management.
+	-->
+	<integer name="ga_sessionTimeout">120</integer>
+
+	<!-- Privacy settings that strips the last octet of the IP before storage in service -->
+	<bool name="ga_anonymizeIp">false</bool>
+
+	<!-- The screen names that will appear in the reporting -->
+
+	<screenName name="com.aircandi.ui.AircandiForm">AircandiForm</screenName>
+	<screenName name="com.aircandi.ui.EntityList">EntityList</screenName>
+	<screenName name="com.aircandi.ui.MapForm">MapForm</screenName>
+	<screenName name="com.aircandi.ui.PhotoForm">PhotoForm</screenName>
+	<screenName name="com.aircandi.ui.PatchForm">PatchForm</screenName>
+	<screenName name="com.aircandi.ui.PlaceForm">PlaceForm</screenName>
+	<screenName name="com.aircandi.ui.Preferences">Preferences</screenName>
+	<screenName name="com.aircandi.ui.SplashForm">SplashForm</screenName>
+	<screenName name="com.aircandi.ui.AboutForm">AboutForm</screenName>
+	<screenName name="com.aircandi.ui.MessageForm">MessageForm</screenName>
+	<screenName name="com.aircandi.ui.WatcherList">WatcherList</screenName>
+	<screenName name="com.aircandi.ui.PatchList">PatchList</screenName>
+
+	<screenName name="com.aircandi.ui.TrendListFragment">TrendList</screenName>
+	<screenName name="com.aircandi.ui.NearbyListFragment">NearbyList</screenName>
+	<screenName name="com.aircandi.ui.MapListFragment">MapList</screenName>
+	<screenName name="com.aircandi.ui.EntityListFragment">PatchList</screenName>
+
+	<!-- Edit -->
+
+	<screenName name="com.aircandi.ui.edit.FeedbackEdit">FeedbackEdit</screenName>
+	<screenName name="com.aircandi.ui.edit.ReportEdit">ReportEdit</screenName>
+	<screenName name="com.aircandi.ui.edit.PatchEdit">PatchEdit</screenName>
+	<screenName name="com.aircandi.ui.edit.MessageEdit">MessageEdit</screenName>
+
+	<!-- User -->
+
+	<screenName name="com.aircandi.ui.user.PasswordEdit">PasswordEdit</screenName>
+	<screenName name="com.aircandi.ui.user.RegisterEdit">RegisterEdit</screenName>
+	<screenName name="com.aircandi.ui.user.ResetEdit">ResetEdit</screenName>
+	<screenName name="com.aircandi.ui.user.SignInEdit">SigninEdit</screenName>
+	<screenName name="com.aircandi.ui.user.UserEdit">UserEdit</screenName>
+	<screenName name="com.aircandi.ui.user.UserForm">UserForm</screenName>
+
+	<!-- Builders -->
+
+	<screenName name="com.aircandi.ui.helpers.AddressBuilder">AddressBuilder</screenName>
+	<screenName name="com.aircandi.ui.helpers.CategoryBuilder">CategoryBuilder</screenName>
+	<screenName name="com.aircandi.ui.helpers.LocationPicker">LocationPicker</screenName>
+	<screenName name="com.aircandi.ui.helpers.PhotoPicker">PhotoPicker</screenName>
+	<screenName name="com.aircandi.ui.helpers.PlacePicker">PlacePicker</screenName>
+	<screenName name="com.aircandi.ui.helpers.PhotoSourcePicker">PhotoSourcePicker</screenName>
+
+</resources>

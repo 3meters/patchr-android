@@ -8,8 +8,8 @@ import android.util.Log;
 @SuppressWarnings("ucd")
 public class Constants {
 
-	public static final int     LOG_LEVEL           = Patchr.DEBUG ? Log.VERBOSE : Log.DEBUG;
-	public static final int     ERROR_LEVEL         = Log.VERBOSE;
+	public static final int LOG_LEVEL   = Patchr.DEBUG ? Log.VERBOSE : Log.DEBUG;
+	public static final int ERROR_LEVEL = Log.VERBOSE;
 
 	/* Activity parameters */
 	public static final String EXTRA_ENTITY_PARENT_ID = "com.aircandi.EXTRA_PARENT_ENTITY_ID";
@@ -20,9 +20,10 @@ public class Constants {
 	public static final String EXTRA_ENTITY_TYPE      = "com.aircandi.EXTRA_ENTITY_TYPE";
 	public static final String EXTRA_ENTITIES         = "com.aircandi.EXTRA_ENTITIES";
 	public static final String EXTRA_ENTITY           = "com.aircandi.EXTRA_ENTITY";
+	public static final String EXTRA_ENTITY_PARENT    = "com.aircandi.EXTRA_ENTITY_PARENT";
 
-	public static final String EXTRA_PLACE    = "com.aircandi.EXTRA_PLACE";
-	public static final String EXTRA_PLACE_ID = "com.aircandi.EXTRA_PLACE_ID";
+	public static final String EXTRA_PATCH    = "com.aircandi.EXTRA_PATCH";
+	public static final String EXTRA_PATCH_ID = "com.aircandi.EXTRA_PATCH_ID";
 
 	public static final String EXTRA_URI = "com.aircandi.EXTRA_URI";
 
@@ -39,7 +40,6 @@ public class Constants {
 	public static final String EXTRA_VERIFY_URI                = "com.aircandi.EXTRA_VERIFY_URI";
 	public static final String EXTRA_SEARCH_PHRASE             = "com.aircandi.EXTRA_SEARCH_PHRASE";
 	public static final String EXTRA_PHOTO_SOURCE              = "com.aircandi.EXTRA_PHOTO_SOURCE";
-	public static final String EXTRA_UPSIZE_SYNTHETIC          = "com.aircandi.EXTRA_UPSIZE_SYNTHETIC";
 	public static final String EXTRA_PAGING_ENABLED            = "com.aircandi.EXTRA_PAGING_ENABLED";
 	public static final String EXTRA_PHOTO                     = "com.aircandi.EXTRA_PHOTO";
 	public static final String EXTRA_REFRESH_FROM_SERVICE      = "com.aircandi.EXTRA_REFRESH_FORCE";
@@ -168,6 +168,7 @@ public class Constants {
 	public static final String SCHEMA_ENTITY_BEACON       = "beacon";
 	public static final String SCHEMA_ENTITY_MESSAGE      = "message";
 	public static final String SCHEMA_ENTITY_NOTIFICATION = "notification";
+	public static final String SCHEMA_ENTITY_PATCH        = "patch";
 	public static final String SCHEMA_ENTITY_PLACE        = "place";
 	public static final String SCHEMA_ENTITY_PICTURE      = "post";  // Used for sharing a photo
 	public static final String SCHEMA_ENTITY_USER         = "user";
@@ -203,7 +204,7 @@ public class Constants {
 	public static final String TYPE_APP_INTENT = "intent";
 
 	/* Entity types */
-	public static final String TYPE_APP_PLACE   = "place";
+	public static final String TYPE_APP_PATCH   = "patch";
 	public static final String TYPE_APP_USER    = "user";
 	public static final String TYPE_APP_MESSAGE = "message";
 
@@ -231,7 +232,6 @@ public class Constants {
 	public static final String PHOTO_SOURCE_SEARCH            = "search";
 	public static final String PHOTO_SOURCE_GALLERY           = "gallery";
 	public static final String PHOTO_SOURCE_CAMERA            = "camera";
-	public static final String PHOTO_SOURCE_PLACE             = "place";
 	public static final String PHOTO_SOURCE_FACEBOOK          = "facebook";
 	public static final String PHOTO_SOURCE_TWITTER           = "twitter";
 	public static final String PHOTO_SOURCE_WEBSITE_THUMBNAIL = "website_thumbnail";
@@ -252,7 +252,6 @@ public class Constants {
 	public static final int ACTIVITY_PHOTO_PICK_DEVICE   = 300;
 	public static final int ACTIVITY_PHOTO_SEARCH        = 305;
 	public static final int ACTIVITY_PHOTO_MAKE          = 310;
-	public static final int ACTIVITY_PHOTO_PICK_PLACE    = 315;
 	public static final int ACTIVITY_PLACE_SEARCH        = 320;
 	public static final int ACTIVITY_SIGNIN              = 400;
 	public static final int ACTIVITY_RESET_AND_SIGNIN    = 410;
@@ -282,6 +281,7 @@ public class Constants {
 	public static final String FRAGMENT_TYPE_MAP           = "map";
 	public static final String FRAGMENT_TYPE_SENT          = "sent";
 	public static final String FRAGMENT_TYPE_MESSAGES      = "messages";
+	public static final String FRAGMENT_TYPE_PATCHES       = "patches";
 
 	public static final int RESULT_ENTITY_INSERTED        = 100;
 	public static final int RESULT_ENTITY_UPDATED         = 110;

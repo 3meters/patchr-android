@@ -32,7 +32,7 @@
 		custom:textId="@string/dummy_title_short" />
 
 	<com.aircandi.ui.widgets.AirTextView
-		android:id="@+id/subtitle"
+		android:id="@+id/category_name"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignLeft="@+id/name"

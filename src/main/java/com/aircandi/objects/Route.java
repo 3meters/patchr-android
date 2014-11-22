@@ -7,7 +7,6 @@ public class Route {
 	public static int NEW                = 2;
 	public static int EDIT               = 3;
 	public static int BROWSE             = 4;
-	public static int HELP               = 5;
 	public static int PHOTO              = 7;
 	public static int PHOTOS             = 8;
 	public static int SHORTCUT           = 9;

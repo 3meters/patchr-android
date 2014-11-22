@@ -42,7 +42,7 @@
 		tools:text="Dillons Fabulous Party" />
 
 	<LinearLayout
-		android:id="@+id/subtitle_group"
+		android:id="@+id/category_group"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignLeft="@+id/name"
@@ -53,7 +53,7 @@
 		android:orientation="horizontal">
 
 		<com.aircandi.ui.widgets.AirTextView
-			android:id="@+id/subtitle"
+			android:id="@+id/category_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginRight="4dp"
@@ -81,15 +81,6 @@
 				android:src="@drawable/ic_action_lock_closed_dark"
 				android:tint="@color/brand_primary" />
 
-			<com.aircandi.ui.widgets.AirTextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/label_place_privacy_private"
-				android:textAllCaps="true"
-				android:textAppearance="?attr/textAppearanceExtraSmall"
-				android:textColor="@color/brand_primary"
-				tools:text="@string/label_place_privacy_private" />
-
 		</LinearLayout>
 
 	</LinearLayout>
@@ -99,7 +90,7 @@
 		android:layout_height="wrap_content"
 		android:layout_alignBottom="@+id/photo"
 		android:layout_alignLeft="@+id/name"
-		android:layout_below="@+id/subtitle_group"
+		android:layout_below="@+id/category_group"
 		android:gravity="bottom"
 		android:orientation="horizontal"
 		android:paddingBottom="4dp">

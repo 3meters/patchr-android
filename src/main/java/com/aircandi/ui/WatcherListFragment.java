@@ -92,7 +92,7 @@ public class WatcherListFragment extends EntityListFragment {
 						&& parent.isOwnedByCurrentUser()) {
 					((ViewHolderExtended) holder).delete.setTag(entity);
 					((ViewHolderExtended) holder).enable.setTag(entity);
-					((ViewHolderExtended) holder).enable.setChecked(entity.enabled);
+					((ViewHolderExtended) holder).enable.setChecked(entity.linkEnabled);
 					UI.setVisibility(editGroup, View.VISIBLE);
 					UI.setVisibility(deleteButton, View.VISIBLE);
 				}

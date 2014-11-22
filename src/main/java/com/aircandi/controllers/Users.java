@@ -29,7 +29,6 @@ public class Users extends EntityControllerBase {
 		Entity entity = new User();
 		entity.schema = mSchema;
 		entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME); // Temporary
-		entity.signalFence = -100.0f;
 		return entity;
 	}
 

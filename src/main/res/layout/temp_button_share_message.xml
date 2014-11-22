@@ -7,10 +7,10 @@
 	android:layout_height="wrap_content"
 	android:baselineAligned="false">
 
-	<!-- Place context -->
+	<!-- Patch context -->
 
 	<LinearLayout
-		android:id="@+id/holder_place"
+		android:id="@+id/holder_patch"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignLeft="@+id/holder_content"
@@ -18,7 +18,7 @@
 		android:orientation="horizontal">
 
 		<com.aircandi.ui.widgets.AirTextLight
-			android:id="@+id/place_name"
+			android:id="@+id/patch_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
@@ -44,7 +44,6 @@
 		android:layout_height="@dimen/image_small"
 		android:layout_alignTop="@+id/holder_content"
 		android:layout_marginRight="10dp"
-		android:src="@drawable/img_placeholder_logo_bw"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
 		custom:sizeHint="@dimen/image_small" />
@@ -53,7 +52,7 @@
 		android:id="@+id/holder_content"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/holder_place"
+		android:layout_below="@+id/holder_patch"
 		android:layout_toRightOf="@+id/user_photo"
 		android:orientation="vertical">
 

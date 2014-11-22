@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 
-import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
@@ -33,9 +32,6 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 	protected Integer mDirtyExitMessageResId  = R.string.alert_dirty_exit_message;
 	protected Integer mDirtyExitPositiveResId = R.string.alert_dirty_save;
 
-	/* Inputs */
-	protected Boolean mSkipSave = false;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
@@ -53,14 +49,6 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 				}
 			}
 			bind(BindingMode.AUTO);
-		}
-	}
-
-	@Override
-	public void unpackIntent() {
-		final Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			mSkipSave = extras.getBoolean(Constants.EXTRA_SKIP_SAVE, false);
 		}
 	}
 
@@ -112,51 +100,28 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 	protected void update() {}
 
 	protected void confirmDirtyExit() {
-		if (!mSkipSave) {
-			final AlertDialog dialog = Dialogs.alertDialog(null
-					, StringManager.getString(mDirtyExitTitleResId)
-					, StringManager.getString(mDirtyExitMessageResId)
-					, null
-					, BaseEdit.this
-					, mDirtyExitPositiveResId
-					, android.R.string.cancel
-					, R.string.alert_dirty_discard
-					, new DialogInterface.OnClickListener() {
+		final AlertDialog dialog = Dialogs.alertDialog(null
+				, StringManager.getString(mDirtyExitTitleResId)
+				, StringManager.getString(mDirtyExitMessageResId)
+				, null
+				, BaseEdit.this
+				, mDirtyExitPositiveResId
+				, android.R.string.cancel
+				, R.string.alert_dirty_discard
+				, new DialogInterface.OnClickListener() {
 
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-						onAccept();
-					}
-					else if (which == DialogInterface.BUTTON_NEUTRAL) {
-						Patchr.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
-					}
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					onAccept();
+				}
+				else if (which == DialogInterface.BUTTON_NEUTRAL) {
+					Patchr.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
 				}
 			}
-					, null);
-			dialog.setCanceledOnTouchOutside(false);
 		}
-		else {
-			final AlertDialog dialog = Dialogs.alertDialog(null
-					, StringManager.getString(mDirtyExitTitleResId)
-					, StringManager.getString(mDirtyExitMessageResId)
-					, null
-					, BaseEdit.this
-					, R.string.alert_dirty_discard
-					, android.R.string.cancel
-					, null
-					, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-						Patchr.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
-					}
-				}
-			}
-					, null);
-			dialog.setCanceledOnTouchOutside(false);
-		}
+				, null);
+		dialog.setCanceledOnTouchOutside(false);
 	}
 
 	protected boolean validate() {

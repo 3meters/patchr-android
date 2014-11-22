@@ -74,7 +74,7 @@ public final class Errors {
 		 * Perform any follow-up actions.
 		 */
 		if (errorResponse.track) {
-			Patchr.tracker.sendException(serviceResponse.exception);
+			Reporting.sendException(serviceResponse.exception);
 		}
 
 		if (errorResponse.signout) {

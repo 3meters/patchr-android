@@ -14,24 +14,22 @@ import com.aircandi.R;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AboutForm;
 import com.aircandi.ui.AircandiForm;
-import com.aircandi.ui.HelpForm;
 import com.aircandi.ui.MapForm;
+import com.aircandi.ui.PatchList;
 import com.aircandi.ui.PhotoForm;
-import com.aircandi.ui.PlaceList;
 import com.aircandi.ui.SettingsForm;
 import com.aircandi.ui.SplashForm;
 import com.aircandi.ui.WatcherList;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.edit.FeedbackEdit;
 import com.aircandi.ui.edit.ReportEdit;
-import com.aircandi.ui.helpers.AddressBuilder;
 import com.aircandi.ui.helpers.CategoryBuilder;
 import com.aircandi.ui.helpers.LocationPicker;
 import com.aircandi.ui.helpers.PhotoPicker;
@@ -43,6 +41,7 @@ import com.aircandi.ui.user.RegisterEdit;
 import com.aircandi.ui.user.ResetEdit;
 import com.aircandi.ui.user.SignInEdit;
 import com.aircandi.utilities.Debug;
+import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 
@@ -89,7 +88,6 @@ public class DispatchManager {
 			else if (extras != null) {
 				entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
 				parentId = extras.getString(Constants.EXTRA_ENTITY_PARENT_ID);
-				synthetic = extras.getBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC, false);
 			}
 
 			if (Type.isFalse(synthetic) && entityId == null) {
@@ -102,22 +100,22 @@ public class DispatchManager {
 
 		else if (route == Route.EDIT) {
 
-			//			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			//				String message = StringManager.getString(R.string.alert_signin_message_edit, schema);
-			//				Dialogs.signinRequired(activity, message);
-			//				return;
-			//			}
+			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				String message = StringManager.getString(R.string.alert_signin_message_edit, schema);
+				Dialogs.signinRequired(activity, message);
+				return;
+			}
 
 			if (entity == null) {
 				throw new IllegalArgumentException("Dispatching edit requires entity");
 			}
 
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
-			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE) && entity.isOwnedBySystem()) {
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH) && entity.isOwnedBySystem()) {
 				if (extras == null) {
 					extras = new Bundle();
 				}
-				extras.putInt(Constants.EXTRA_LAYOUT_RESID, R.layout.place_customize);
+				extras.putInt(Constants.EXTRA_LAYOUT_RESID, R.layout.patch_customize);
 			}
 			controller.edit(activity, entity, extras, true);
 		}
@@ -133,7 +131,7 @@ public class DispatchManager {
 				extras = new Bundle();
 			}
 
-			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_PLACE);
+			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
 
 			((BaseActivity) activity).onAdd(extras);
 		}
@@ -145,17 +143,18 @@ public class DispatchManager {
 
 		else if (route == Route.NEW) {
 
-			//			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			//				if (schema == null) {
-			//					throw new IllegalArgumentException("Handling anonymous new requires schema");
-			//				}
-			//				String message = StringManager.getString(R.string.alert_signin_message_add, schema);
-			//				if (schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-			//					message = StringManager.getString(R.string.alert_signin_message_place_new, schema);
-			//				}
-			//				Dialogs.signinRequired(activity, message);
-			//				return;
-			//			}
+			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				if (schema == null) {
+					throw new IllegalArgumentException("Handling anonymous new requires schema");
+				}
+				String message = StringManager.getString(R.string.alert_signin_message_add, schema);
+				if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+					message = StringManager.getString(R.string.alert_signin_message_patch_new, schema);
+				}
+				Dialogs.signinRequired(activity, message);
+				return;
+			}
+
 			if (!Patchr.getInstance().getMenuManager().canUserAdd(entity)) {
 				return;
 			}
@@ -217,19 +216,6 @@ public class DispatchManager {
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, AboutForm.class);
 			activity.startActivity(intentBuilder.create());
 			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
-		}
-
-		else if (route == Route.HELP) {
-
-			if (extras == null) {
-				((BaseActivity) activity).onHelp();
-			}
-			else {
-				IntentBuilder intentBuilder = new IntentBuilder(activity, HelpForm.class);
-				intentBuilder.setExtras(extras);
-				activity.startActivity(intentBuilder.create());
-				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_HELP);
-			}
 		}
 
 		else if (route == Route.PHOTOS) {
@@ -366,14 +352,6 @@ public class DispatchManager {
 			activity.finish();
 		}
 
-		else if (route == Route.ADDRESS_EDIT) {
-
-			IntentBuilder intentBuilder = new IntentBuilder(activity, AddressBuilder.class);
-			intentBuilder.setEntity(entity);
-			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ADDRESS_EDIT);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
-		}
-
 		else if (route == Route.CATEGORY_EDIT) {
 
 			if (entity == null) {
@@ -382,8 +360,8 @@ public class DispatchManager {
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, CategoryBuilder.class);
 			final Intent intent = intentBuilder.create();
 
-			if (((Place) entity).category != null) {
-				final String json = Json.objectToJson(((Place) entity).category);
+			if (((Patch) entity).category != null) {
+				final String json = Json.objectToJson(((Patch) entity).category);
 				intent.putExtra(Constants.EXTRA_CATEGORY, json);
 			}
 
@@ -412,8 +390,8 @@ public class DispatchManager {
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, LocationPicker.class);
 			final Intent intent = intentBuilder.create();
 
-			if (((Place) entity).location != null) {
-				final String json = Json.objectToJson(((Place) entity).location);
+			if (((Patch) entity).location != null) {
+				final String json = Json.objectToJson(((Patch) entity).location);
 				intent.putExtra(Constants.EXTRA_LOCATION, json);
 				intent.putExtra(Constants.EXTRA_TITLE, entity.name);
 			}
@@ -476,16 +454,6 @@ public class DispatchManager {
 			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
 		}
 
-		else if (route == Route.PHOTO_PLACE_SEARCH) {
-
-			if (entity == null)
-				throw new IllegalArgumentException("valid entity required for selected route");
-			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoPicker.class);
-			intentBuilder.setEntityId(entity.id);
-			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PHOTO_PICK_PLACE);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
-		}
-
 		else if (route == Route.PLACE_SEARCH) {
 
 			IntentBuilder intentBuilder = new IntentBuilder(activity, PlacePicker.class);
@@ -517,7 +485,7 @@ public class DispatchManager {
 				throw new IllegalArgumentException("Dispatching watchers requires entity");
 			}
 
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, PlaceList.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, PatchList.class);
 			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.create());
 			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
@@ -543,8 +511,6 @@ public class DispatchManager {
 
 		if (itemId == R.id.edit)
 			return Route.EDIT;
-		else if (itemId == R.id.help)
-			return Route.HELP;
 		else if (itemId == R.id.settings)
 			return Route.SETTINGS;
 		else if (itemId == android.R.id.home)

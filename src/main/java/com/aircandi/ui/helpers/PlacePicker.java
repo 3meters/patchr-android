@@ -1,70 +1,75 @@
 package com.aircandi.ui.helpers;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ListView;
 
-import com.aircandi.Patchr;
+import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.components.StringManager;
+import com.aircandi.components.EntityManager;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Place;
-import com.aircandi.objects.Place.ReasonType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.components.EntitySuggestController;
-import com.aircandi.ui.widgets.AirTokenCompleteTextView;
+import com.aircandi.utilities.Json;
 
-/*
- * We often will get duplicates because the ordering of images isn't
- * guaranteed while paging.
- */
 public class PlacePicker extends BaseActivity {
 
-	private EntitySuggestController  mEntitySuggest;
-	private AirTokenCompleteTextView mTo;
+	private EntitySuggestController mEntitySuggest;
+
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	public void onClearButtonClick(View view) {
+		setResultCode(Activity.RESULT_OK);
+		finish();
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-
-		mTo = (AirTokenCompleteTextView) this.findViewById(R.id.to);
 		mEntitySuggest = new EntitySuggestController(this);
 		bind(BindingMode.AUTO);
 	}
 
-	public void draw(View view) {
-		setActivityTitle(StringManager.getString(R.string.dialog_place_picker_search_title));
-	}
+	@Override
+	public void bind(BindingMode mode) {
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
+		mEntitySuggest
+				.setSearchInput((EditText) findViewById(R.id.search_input))
+				.setSearchImage(findViewById(R.id.search_image))
+				.setSearchProgress(findViewById(R.id.search_progress))
+				.setListView((ListView) findViewById(R.id.list))
+				.setSuggestScope(EntityManager.SuggestScope.PLACES)
+				.init();
+
+		((ListView) findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Entity entity = (Entity) mEntitySuggest.getAdapter().getItem(position);
+				final Intent intent = new Intent();
+				final String json = Json.objectToJson(entity);
+				intent.putExtra(Constants.EXTRA_ENTITY, json);
+				setResultCode(Activity.RESULT_OK, intent);
+				finish();
+			}
+		});
+
+		draw(null);
+	}
 
 	@Override
 	protected int getLayoutId() {
 		return R.layout.place_picker;
-	}
-
-	@Override
-	public void bind(BindingMode mode) {
-		Entity currentPlace = Patchr.getInstance().getCurrentPlace();
-		if (currentPlace != null) {
-			((Place) currentPlace).reason = ReasonType.LOCATION;
-			((Place) currentPlace).score = 20;
-			mEntitySuggest.getSeedEntities().add(currentPlace);
-		}
-		mEntitySuggest.setInput((AirTokenCompleteTextView) findViewById(R.id.to));
-		mEntitySuggest.init();
-		draw(null);
 	}
 }

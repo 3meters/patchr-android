@@ -37,7 +37,7 @@
 		android:drawableRight="?attr/iconClear"
 		android:dropDownHorizontalOffset="-90dp"
 		android:dropDownWidth="match_parent"
-		android:hint="@string/label_search_hint"
+		android:hint="@string/label_search_patches_hint"
 		android:imeOptions="flagNoExtractUi"
 		android:textColor="?attr/textColorPure"
 		android:textColorHint="?attr/textColorHint" />

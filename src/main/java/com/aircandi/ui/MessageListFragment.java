@@ -1,15 +1,11 @@
 package com.aircandi.ui;
 
-import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.drawable.TransitionDrawable;
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ViewAnimator;
 
 import com.aircandi.Constants;
@@ -26,10 +22,6 @@ import com.aircandi.objects.Message.MessageType;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.ui.base.BaseEntityForm;
-import com.aircandi.ui.components.AnimationFactory;
-import com.aircandi.ui.components.AnimationFactory.FlipDirection;
-import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.ui.widgets.ToolTip;
 import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.utilities.UI;
@@ -42,33 +34,18 @@ public class MessageListFragment extends EntityListFragment {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-		View view = super.onCreateView(inflater, container, savedInstanceState);
-
-		/* Draw the header */
-		if (((BaseActivity) getActivity()).getEntity() != null) {
-			((BaseEntityForm) getActivity()).draw(view);
-		}
-
-		if (mHeaderView != null) {
-		    /*
-			 * Parallax the photo
-			 */
-			mHeaderCandiView = mHeaderView.findViewById(R.id.candi_view);
-			if (mHeaderCandiView != null) {
-				View photo = mHeaderCandiView.findViewById(R.id.photo);
-				((AirListView) mListView).addParallaxedView(photo);
-			}
-			/*
-			 * Grab the animator
-			 */
-			mHeaderViewAnimator = (ViewAnimator) mHeaderView.findViewById(R.id.animator_header);
-		}
-
-		return view;
-	}
+//	@Override
+//	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+//
+//		View view = super.onCreateView(inflater, container, savedInstanceState);
+//
+//		/* Draw the header */
+//		if (((BaseActivity) getActivity()).getEntity() != null) {
+//			((BaseEntityForm) getActivity()).draw(view);
+//		}
+//
+//		return view;
+//	}
 
 	@Override
 	public void onClick(View v) {
@@ -93,16 +70,6 @@ public class MessageListFragment extends EntityListFragment {
 		}
 
 		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
-	}
-
-	@SuppressWarnings("ucd")
-	public void onHeaderClick(View view) {
-		AnimationFactory.flipTransition(mHeaderViewAnimator, FlipDirection.BOTTOM_TOP, 200);
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
 	}
 
 	@Override
@@ -165,8 +132,8 @@ public class MessageListFragment extends EntityListFragment {
 
 	public void showTooltips() {
 
-		if (getActivity() instanceof PlaceForm) {
-			ToolTipRelativeLayout tooltipLayer = ((PlaceForm) getActivity()).mTooltips;
+		if (getActivity() instanceof PatchForm) {
+			ToolTipRelativeLayout tooltipLayer = ((PatchForm) getActivity()).mTooltips;
 			if (!tooltipLayer.hasShot()) {
 				tooltipLayer.setVisibility(View.VISIBLE);
 				tooltipLayer.setClickable(true);
@@ -176,7 +143,7 @@ public class MessageListFragment extends EntityListFragment {
 				View anchor = getActivity().findViewById(R.id.button_watch);
 				if (anchor != null) {
 					tooltipLayer.showTooltipForView(new ToolTip()
-							.withText(StringManager.getString(R.string.tooltip_place_watch))
+							.withText(StringManager.getString(R.string.tooltip_patch_watch))
 							.setMaxWidth(UI.getRawPixelsForDisplayPixels(120f))
 							.withShadow(true)
 							.setArrowPosition(ToolTip.ArrowPosition.BELOW)

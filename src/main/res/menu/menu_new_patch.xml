@@ -6,6 +6,6 @@
 		android:icon="?attr/iconActionAdd"
 		android:orderInCategory="5"
 		android:showAsAction="ifRoom"
-		android:title="@string/menu_item_new_place" />
+		android:title="@string/menu_item_new_patch" />
 
 </menu>

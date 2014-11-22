@@ -30,6 +30,8 @@ public class Link extends ServiceBase {
 	public String    toId;
 	@Expose
 	public Proximity proximity;
+	@Expose
+	public Boolean   enabled;
 
 	@Expose(serialize = false, deserialize = true)
 	public String fromSchema;
@@ -43,8 +45,7 @@ public class Link extends ServiceBase {
 	@Expose(serialize = false, deserialize = true)
 	public List<Count> stats;
 
-	public Link() {
-	}
+	public Link() {}
 
 	public Link(String toId, String type, String targetSchema) {
 		this.toId = toId;
@@ -62,6 +63,7 @@ public class Link extends ServiceBase {
 	/*--------------------------------------------------------------------------------------------
 	 * Set and get
 	 *--------------------------------------------------------------------------------------------*/
+
 	public Integer getProximityScore() {
 		Integer score = 0;
 		if (this.stats != null) {
@@ -126,6 +128,7 @@ public class Link extends ServiceBase {
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
+
 	public static Link setPropertiesFromMap(Link link, Map map, Boolean nameMapping) {
 
 		link = (Link) ServiceBase.setPropertiesFromMap(link, map, nameMapping);
@@ -135,6 +138,7 @@ public class Link extends ServiceBase {
 		link.fromSchema = (String) map.get("fromSchema");
 		link.toSchema = (String) map.get("toSchema");
 		link.targetSchema = (String) map.get("targetSchema");
+		link.enabled = (Boolean) map.get("enabled");
 
 		if (map.get("proximity") != null) {
 			link.proximity = Proximity.setPropertiesFromMap(new Proximity(), (HashMap<String, Object>) map.get("proximity"), nameMapping);
@@ -169,7 +173,9 @@ public class Link extends ServiceBase {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public enum Direction {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public enum Direction {
 		in,
 		out,
 		both

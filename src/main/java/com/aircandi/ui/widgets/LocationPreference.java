@@ -19,8 +19,8 @@ import android.widget.Toast;
 
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.objects.Document;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
@@ -171,7 +171,9 @@ public class LocationPreference extends AirListPreference {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    private class ListAdapter extends ArrayAdapter<Document> {
+	 *--------------------------------------------------------------------------------------------*/
+
+	private class ListAdapter extends ArrayAdapter<Document> {
 
 		@Override
 		public int getCount() {
@@ -195,11 +197,11 @@ public class LocationPreference extends AirListPreference {
 			if (itemData != null) {
 				((TextView) view.findViewById(R.id.name)).setText(itemData.name);
 
-				UI.setVisibility(view.findViewById(R.id.subtitle), View.GONE);
+				UI.setVisibility(view.findViewById(R.id.subhead), View.GONE);
 				if (itemData.modifiedDate != null) {
 					String date = DateTime.dateString(itemData.modifiedDate.longValue(), DateTime.DATE_FORMAT_DEFAULT);
-					((TextView) view.findViewById(R.id.subtitle)).setText(date);
-					UI.setVisibility(view.findViewById(R.id.subtitle), View.VISIBLE);
+					((TextView) view.findViewById(R.id.subhead)).setText(date);
+					UI.setVisibility(view.findViewById(R.id.subhead), View.VISIBLE);
 				}
 				((RadioButton) view.findViewById(R.id.checked)).setChecked(position == mCurrentIndex);
 				((RadioButton) view.findViewById(R.id.checked)).setClickable(false);

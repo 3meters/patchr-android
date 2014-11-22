@@ -18,7 +18,7 @@ import com.aircandi.utilities.Integers;
 import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
-public class PlaceList extends BaseActivity {
+public class PatchList extends BaseActivity {
 
 	protected String  mListLinkType;
 	protected Integer mListTitleResId;
@@ -50,15 +50,15 @@ public class PlaceList extends BaseActivity {
 		     .setLinkDirection(Direction.out.name())
 		     .setLinkType(mListLinkType)
 		     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
-		     .setSchema(Constants.SCHEMA_ENTITY_PLACE);
+		     .setSchema(Constants.SCHEMA_ENTITY_PATCH);
 
 		((EntityListFragment) mCurrentFragment).setQuery(query)
 		                                       .setMonitor(monitor)
 		                                       .setListPagingEnabled(true)
 		                                       .setListViewType(ViewType.LIST)
-		                                       .setListLayoutResId(R.layout.place_list_fragment)
+		                                       .setListLayoutResId(R.layout.patch_list_fragment)
 		                                       .setListLoadingResId(R.layout.temp_listitem_loading)
-		                                       .setListItemResId(R.layout.temp_listitem_place)
+		                                       .setListItemResId(R.layout.temp_listitem_patch)
 		                                       .setListEmptyMessageResId(mListEmptyMessageResId)
 		                                       .setTitleResId(mListTitleResId)
 		                                       .setSelfBindingEnabled(true);

@@ -168,12 +168,13 @@ public class MessageForm extends BaseEntityForm {
 
 		final AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
 		final View holderUser = view.findViewById(R.id.holder_user);
-		final View holderPlace = view.findViewById(R.id.holder_place);
+		final View holderPatch = view.findViewById(R.id.holder_patch);
 		final TextView description = (TextView) view.findViewById(R.id.description);
+		final AirImageView patchPhotoView = (AirImageView) view.findViewById(R.id.patch_photo);
+		final TextView patchName = (TextView) view.findViewById(R.id.patch_name);
 		final AirImageView userPhotoView = (AirImageView) view.findViewById(R.id.user_photo);
 		final TextView userName = (TextView) view.findViewById(R.id.user_name);
 		final TextView toName = (TextView) view.findViewById(R.id.to_name);
-		final TextView placeName = (TextView) view.findViewById(R.id.place_name);
 		final TextView createdDate = (TextView) view.findViewById(R.id.created_date);
 		final FlowLayout flowLayout = (FlowLayout) view.findViewById(R.id.flow_recipients);
 		final ViewGroup shareHolder = (ViewGroup) view.findViewById(R.id.share_holder);
@@ -220,21 +221,33 @@ public class MessageForm extends BaseEntityForm {
 			}
 		}
 
-		/* Message place context */
+		/* Message patch context */
 
-		UI.setVisibility(holderPlace, View.GONE);
-		if (holderPlace != null) {
+		UI.setVisibility(holderPatch, View.GONE);
+		if (holderPatch != null) {
 			if (share) {
-				placeName.setText(StringManager.getString(R.string.label_message_shared));
-				UI.setVisibility(holderPlace, View.VISIBLE);
-				UI.setEnabled(holderPlace, false);
+				patchName.setText(StringManager.getString(R.string.label_message_shared));
+				UI.setVisibility(holderPatch, View.VISIBLE);
+				UI.setEnabled(holderPatch, false);
 			}
 			else {
-				Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE);
+				Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
 				if (linkPlace != null) {
-					holderPlace.setTag(mEntity);
-					placeName.setText(linkPlace.shortcut.name);
-					UI.setVisibility(holderPlace, View.VISIBLE);
+					holderPatch.setTag(mEntity);
+
+					/* Name */
+					patchName.setText(linkPlace.shortcut.name);
+					UI.setVisibility(holderPatch, View.VISIBLE);
+
+					/* Photo */
+					Photo photo = linkPlace.shortcut.photo;
+					if (photo == null) {
+						photo = Entity.getDefaultPhoto(Constants.SCHEMA_ENTITY_PATCH);
+					}
+					if (patchPhotoView.getPhoto() == null || !patchPhotoView.getPhoto().getUri().equals(photo.getUri())) {
+						UI.drawPhoto(patchPhotoView, photo);
+					}
+					UI.setVisibility(patchPhotoView, View.VISIBLE);
 				}
 			}
 		}
@@ -264,6 +277,7 @@ public class MessageForm extends BaseEntityForm {
 					if (mEntity.creator != null && mEntity.creator.name != null) {
 
 						if (linkMessage != null
+								&& linkMessage.shortcut != null
 								&& linkMessage.shortcut.creator != null
 								&& linkMessage.shortcut.creator.name != null) {
 
@@ -283,7 +297,7 @@ public class MessageForm extends BaseEntityForm {
 					}
 				}
 
-				if (linkMessage != null) {
+				if (linkMessage != null && linkMessage.shortcut != null) {
 					Entity linkEntity = linkMessage.shortcut.getAsEntity();
 					toName.setTag(linkEntity);
 					toName.setOnClickListener(new OnClickListener() {
@@ -373,7 +387,7 @@ public class MessageForm extends BaseEntityForm {
 		UI.setVisibility(photoView, View.GONE);
 		Entity shareEntity = null;
 		if (share) {
-			Link linkEntity = mEntity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PLACE);
+			Link linkEntity = mEntity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH);
 			if (linkEntity != null) {
 				shareEntity = linkEntity.shortcut.getAsEntity();
 			}
@@ -390,8 +404,8 @@ public class MessageForm extends BaseEntityForm {
             /* Message that shares an entity */
 
 			int layoutResId = 0;
-			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-				layoutResId = R.layout.temp_button_share_place;
+			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+				layoutResId = R.layout.temp_button_share_patch;
 			}
 			else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				layoutResId = R.layout.temp_button_share_message;
@@ -401,7 +415,7 @@ public class MessageForm extends BaseEntityForm {
 			View shareView = LayoutInflater.from(this).inflate(layoutResId, null, false);
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(shareEntity.schema);
 			controller.bind(shareEntity, shareView, null);
-			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				shareEntity.autowatchable = true;
 			}
 			shareFrame.setTag(shareEntity);
@@ -492,7 +506,7 @@ public class MessageForm extends BaseEntityForm {
 		extras.putString(Constants.EXTRA_MESSAGE_ROOT_ID, rootId);
 		extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, rootId);
 		extras.putString(Constants.EXTRA_MESSAGE_TYPE, MessageType.REPLY);
-		extras.putString(Constants.EXTRA_PLACE_ID, mEntity.placeId);
+		extras.putString(Constants.EXTRA_PATCH_ID, mEntity.placeId);
 
 		if (mEntity.creator != null) {
 			extras.putString(Constants.EXTRA_MESSAGE_REPLY_TO_ID, mEntity.creator.id);
@@ -505,9 +519,9 @@ public class MessageForm extends BaseEntityForm {
 	}
 
 	@SuppressWarnings("ucd")
-	public void onPlaceClick(View view) {
+	public void onPatchClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Patchr.dispatch.route(MessageForm.this, Route.BROWSE, entity.place, null, null);
+		Patchr.dispatch.route(MessageForm.this, Route.BROWSE, entity.patch, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -615,7 +629,7 @@ public class MessageForm extends BaseEntityForm {
 
 		String message = String.format(StringManager.getString(R.string.alert_delete_message_message_no_name), mEntity.name);
 		if (mEntity.type.equals(MessageType.ROOT)) {
-			Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE);
+			Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
 			if (linkPlace != null) {
 				message = String.format(StringManager.getString(R.string.alert_delete_message_message), linkPlace.shortcut.name);
 			}

@@ -151,7 +151,7 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		return photo;
 	}
 
-	public Photo getDefaultPhoto() {
+	private Photo getDefaultPhoto() {
 		String prefix = "img_placeholder";
 		String source = PhotoSource.resource;
 		if (this.schema != null && this.creator != null) {

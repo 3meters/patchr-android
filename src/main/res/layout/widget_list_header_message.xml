@@ -9,36 +9,42 @@
 	android:orientation="vertical">
 
 	<RelativeLayout
-		android:id="@+id/holder_place"
+		android:id="@+id/holder_patch"
 		style="@style/selectable_item"
 		android:layout_width="match_parent"
-		android:layout_height="@dimen/button_height"
+		android:layout_height="wrap_content"
 		android:clickable="true"
-		android:onClick="onPlaceClick"
-		android:paddingLeft="@dimen/form_body_padding"
-		android:paddingRight="@dimen/form_body_padding">
+		android:onClick="onPatchClick"
+		android:paddingLeft="@dimen/form_body_padding">
 
 		<com.aircandi.ui.widgets.AirTextLight
-			android:id="@+id/place_name"
+			android:id="@+id/patch_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
 			android:layout_centerVertical="true"
 			android:layout_marginRight="8dp"
-			android:layout_toLeftOf="@+id/logo"
+			android:layout_toLeftOf="@+id/patch_photo"
 			android:ellipsize="end"
 			android:singleLine="true"
 			android:textAppearance="@style/text_appearance_medium"
 			android:textColor="@color/brand_primary" />
 
-		<ImageView
-			android:id="@+id/logo"
-			android:layout_width="32dp"
-			android:layout_height="32dp"
+		<com.aircandi.ui.widgets.AirImageView
+			android:id="@+id/patch_photo"
+			style="@style/selectable_image"
+			android:layout_width="@dimen/image_medium"
+			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
-			android:layout_centerVertical="true"
-			android:src="@drawable/img_logo_dark"
-			android:tint="@color/brand_primary" />
+			android:scaleType="centerCrop"
+			custom:aspectRatio="@dimen/aspect_ratio_place_image"
+			custom:aspectRatioEnabled="true"
+			custom:config="rgb_565"
+			custom:dominantMeasurement="width"
+			custom:fitType="fixed"
+			custom:layout="@layout/widget_webimageview"
+			custom:showBusy="true"
+			custom:sizeHint="@dimen/image_small" />
 	</RelativeLayout>
 
 	<View
@@ -69,7 +75,7 @@
 			android:scaleType="centerCrop"
 			custom:config="rgb_565"
 			custom:fitType="fixed"
-			custom:layout="@layout/widget_webimageview_framed"
+			custom:layout="@layout/widget_webimageview"
 			custom:showBusy="true"
 			custom:sizeHint="@dimen/image_small" />
 
@@ -149,11 +155,11 @@
 		style="@style/selectable_image"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_marginLeft="@dimen/form_body_padding"
+		android:layout_marginRight="@dimen/form_body_padding"
 		android:background="?attr/backgroundPlaceholder"
 		android:clickable="true"
 		android:onClick="onPhotoClick"
-		android:layout_marginLeft="@dimen/form_body_padding"
-		android:layout_marginRight="@dimen/form_body_padding"
 		android:scaleType="centerCrop"
 		android:visibility="gone"
 		custom:aspectRatio="@dimen/aspect_ratio_message_image"

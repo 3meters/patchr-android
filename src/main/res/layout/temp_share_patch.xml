@@ -10,7 +10,7 @@
 		android:layout_height="wrap_content"
 		android:background="?attr/backgroundCard"
 		custom:colorize="false"
-		custom:layout="@layout/widget_candi_view_radar" />
+		custom:layout="@layout/widget_candi_view_nearby" />
 
 	<!-- The rules must be ordered below the candi view so they overdraw in the z-order. -->
 

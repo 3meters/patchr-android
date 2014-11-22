@@ -14,6 +14,7 @@ import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.ViewAnimator;
 import android.widget.ViewSwitcher;
 
 import com.aircandi.Constants;
@@ -40,7 +41,9 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseActivity;
+import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
+import com.aircandi.ui.components.AnimationFactory;
 import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
@@ -55,11 +58,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class EntityListFragment extends BaseFragment implements OnClickListener, SwipeRefreshLayout.OnRefreshListener, AbsListView.OnScrollListener {
 
 	/* Widgets */
-	protected AbsListView mListView;
-	protected View        mLoadingView;
-	protected View        mHeaderView;
-	protected View        mHeaderCandiView;                                        // NO_UCD (unused code)
-	protected View        mFooterView;
+	protected AbsListView  mListView;
+	protected View         mLoadingView;
+	protected View         mHeaderView;
+	protected View         mHeaderCandiView;                                        // NO_UCD (unused code)
+	private   ViewAnimator mHeaderViewAnimator;
+	protected View         mFooterView;
 
 	/* Resources */
 	protected Integer mHeaderViewResId;
@@ -190,6 +194,26 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 			}
 		}
 
+		if (mHeaderView != null) {
+
+			/* Draw the header */
+			if (((BaseActivity) getActivity()).getEntity() != null) {
+				((BaseEntityForm) getActivity()).draw(view);
+			}
+			/*
+			 * Parallax the photo
+			 */
+			mHeaderCandiView = mHeaderView.findViewById(R.id.candi_view);
+			if (mHeaderCandiView != null) {
+				View photo = mHeaderCandiView.findViewById(R.id.photo);
+				((AirListView) mListView).addParallaxedView(photo);
+			}
+			/*
+			 * Grab the animator
+			 */
+			mHeaderViewAnimator = (ViewAnimator) mHeaderView.findViewById(R.id.animator_header);
+		}
+
 		bindBusy(view);
 
 		return view;
@@ -238,7 +262,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 				}
 				else if (mode == BindingMode.MANUAL
 						|| mFirstBind
-//						|| (mEntities != null && mEntities.size() == 0)
+						//						|| (mEntities != null && mEntities.size() == 0)
 						|| (mMonitor.isChanged() && mMonitor.activity)) {
 					mBusy.showBusy(mLoaded ? BusyAction.Refreshing : BusyAction.Loading);
 
@@ -316,6 +340,11 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 			}
 			Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
 		}
+	}
+
+	@SuppressWarnings("ucd")
+	public void onHeaderClick(View view) {
+		AnimationFactory.flipTransition(mHeaderViewAnimator, AnimationFactory.FlipDirection.BOTTOM_TOP, 200);
 	}
 
 	@Override

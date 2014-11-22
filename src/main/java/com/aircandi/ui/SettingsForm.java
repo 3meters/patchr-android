@@ -36,6 +36,7 @@ import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.BusyManager;
+import com.aircandi.components.ContainerManager;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
@@ -255,15 +256,15 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 		final Preference prefTagRefresh = findPreference(StringManager.getString(R.string.pref_tag_refresh));
 		if (prefTagRefresh != null) {
 			prefTagRefresh.setSummary("Last refresh: "
-					+ DateTime.dateString(Patchr.getInstance().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
+					+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
 			prefTagRefresh.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					prefTagRefresh.setSummary("Refreshing...");
-					Patchr.getInstance().getContainer().refresh();
+					ContainerManager.getContainerHolder().refresh();
 					prefTagRefresh.setSummary("Last refresh: "
-							+ DateTime.dateString(Patchr.getInstance().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
+							+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
 					return true;
 				}
 			});
@@ -273,7 +274,6 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 	private void enableDeveloper(Boolean enable) {
 		findPreference(StringManager.getString(R.string.pref_testing_screen)).setEnabled(enable);
 		findPreference(StringManager.getString(R.string.pref_tag_refresh)).setEnabled(enable);
-		Patchr.tracker.enableDeveloper(enable);
 		DownloadManager.getInstance().setDebugging(enable);
 	}
 
@@ -503,7 +503,6 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Patchr.tracker.activityStart(this);
 		handleAnonymous();
 	}
 
@@ -529,7 +528,6 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 	@Override
 	protected void onStop() {
 		super.onStop();
-		Patchr.tracker.activityStop(this);
 	}
 
 	@Override

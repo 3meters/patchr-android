@@ -1,6 +1,7 @@
 package com.aircandi.ui.components;
 
 import android.content.Context;
+import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -10,22 +11,26 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.LocationManager;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.AirLocation;
+import com.aircandi.objects.Category;
 import com.aircandi.objects.Entity;
+import com.aircandi.objects.Patch;
+import com.aircandi.objects.Patch.ReasonType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Place;
-import com.aircandi.objects.Place.ReasonType;
 import com.aircandi.objects.User;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.AirTokenCompleteTextView;
@@ -47,10 +52,11 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 	private List<Entity> mSeedEntities      = new ArrayList<Entity>();
 	private Boolean      mSuggestInProgress = false;
+
 	private ArrayAdapter                        mAdapter;
 	private Context                             mContext;
 	private AbsListView                         mListView;
-	private AutoCompleteTextView                mInput;
+	private EditText                            mSearchInput;
 	private View                                mSearchProgress;
 	private View                                mSearchImage;
 	private Integer                             mWatchResId;
@@ -64,6 +70,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	private EntityManager.SuggestScope mSuggestScope = EntityManager.SuggestScope.PLACES;
 
 	public EntitySuggestController(Context context) {
+
 		mContext = context;
 		mAdapter = new SuggestArrayAdapter(mSeedEntities);
 
@@ -82,14 +89,37 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	public void init() {
 
 		/* Bind to adapter */
-		if (mInput instanceof AirTokenCompleteTextView) {
-			AirTokenCompleteTextView input = (AirTokenCompleteTextView) mInput;
+		if (mSearchInput instanceof AirTokenCompleteTextView) {
+			AirTokenCompleteTextView input = (AirTokenCompleteTextView) mSearchInput;
 			input.allowDuplicates(false);
 			input.setDeletionStyle(TokenCompleteTextView.TokenDeleteStyle.Clear);
 			input.setTokenClickStyle(TokenCompleteTextView.TokenClickStyle.Select);
 			input.setTokenListener(mTokenListener != null ? mTokenListener : this);
 		}
-		mInput.setAdapter(mAdapter);
+
+		if (mSearchInput instanceof AutoCompleteTextView) {
+			((AutoCompleteTextView) mSearchInput).setAdapter(mAdapter);
+		}
+		else if (mListView != null) {
+			((ListView) mListView).setAdapter(mAdapter);
+			mSearchInput.addTextChangedListener(new SimpleTextWatcher() {
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					String input = s.toString();
+					if (!TextUtils.isEmpty(input) && input.length() >= 3) {
+						mAdapter.getFilter().filter(input);
+					}
+					else {
+						mAdapter.clear();
+						if (mSeedEntities != null && mSeedEntities.size() > 0) {
+							mAdapter.add(mSeedEntities.get(0));
+						}
+						mAdapter.notifyDataSetChanged();
+					}
+				}
+			});
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -100,7 +130,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	public void onTokenAdded(Object o) {
 		Entity entity = (Entity) o;
 
-		/* Add place to auto complete array */
+		/* Add patch to auto complete array */
 		try {
 			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(
 					StringManager.getString(R.string.setting_place_searches), "{}"));
@@ -115,8 +145,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	}
 
 	@Override
-	public void onTokenRemoved(Object o) {
-	}
+	public void onTokenRemoved(Object o) {}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
@@ -126,8 +155,8 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public EntitySuggestController setInput(AutoCompleteTextView input) {
-		mInput = input;
+	public EntitySuggestController setSearchInput(EditText input) {
+		mSearchInput = input;
 		return this;
 	}
 
@@ -161,8 +190,21 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		return this;
 	}
 
+	public EntitySuggestController setListView(AbsListView listView) {
+		mListView = listView;
+		return this;
+	}
+
+	public AbsListView getListView() {
+		return mListView;
+	}
+
 	public List<Entity> getSeedEntities() {
 		return mSeedEntities;
+	}
+
+	public ArrayAdapter getAdapter() {
+		return mAdapter;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -194,9 +236,9 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 				view = LayoutInflater.from(mContext).inflate(R.layout.temp_place_search_item, null);
 				holder = new ViewHolder();
 				holder.photoView = (AirImageView) view.findViewById(R.id.photo);
-				holder.indicator = (ImageView) view.findViewById(R.id.indicator);
 				holder.name = (TextView) view.findViewById(R.id.name);
-				holder.subtitle = (TextView) view.findViewById(R.id.subtitle);
+				holder.subhead = (TextView) view.findViewById(R.id.subhead);
+				holder.categoryName = (TextView) view.findViewById(R.id.category_name);
 				view.setTag(holder);
 			}
 			else {
@@ -213,26 +255,31 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 					UI.setVisibility(holder.name, View.VISIBLE);
 				}
 
-				UI.setVisibility(holder.subtitle, View.GONE);
-				if (holder.subtitle != null) {
+				UI.setVisibility(holder.categoryName, View.GONE);
+				if (entity instanceof Patch) {
+					Category category = ((Patch)entity).category;
+					if (category != null && !TextUtils.isEmpty(category.name)) {
+						holder.categoryName.setText(Html.fromHtml(category.name));
+						UI.setVisibility(holder.categoryName, View.VISIBLE);
+					}
+				}
+
+				UI.setVisibility(holder.subhead, View.GONE);
+				if (holder.subhead != null) {
 					if (entity instanceof Place) {
 						Place place = (Place) entity;
 						String address = place.getAddressString(false);
 
 						if (!TextUtils.isEmpty(address)) {
-							holder.subtitle.setText(address);
-							UI.setVisibility(holder.subtitle, View.VISIBLE);
-						}
-						else if (place.category != null && !TextUtils.isEmpty(place.category.name)) {
-							holder.subtitle.setText(Html.fromHtml(place.category.name));
-							UI.setVisibility(holder.subtitle, View.VISIBLE);
+							holder.subhead.setText(address);
+							UI.setVisibility(holder.subhead, View.VISIBLE);
 						}
 					}
 					else if (entity instanceof User) {
 						User user = (User) entity;
 						if (!TextUtils.isEmpty(user.area)) {
-							holder.subtitle.setText(user.area);
-							UI.setVisibility(holder.subtitle, View.VISIBLE);
+							holder.subhead.setText(user.area);
+							UI.setVisibility(holder.subhead, View.VISIBLE);
 						}
 					}
 				}
@@ -251,7 +298,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 				UI.setVisibility(holder.indicator, View.INVISIBLE);
 				if (holder.indicator != null) {
-					if (entity instanceof Place) {
+					if (entity instanceof Patch) {
 						if (entity.reason != null) {
 							if (entity.reason.equals(ReasonType.WATCH)) {
 								holder.indicator.setImageResource(mWatchResId);
@@ -295,7 +342,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 					if (chars != null && chars.length() > 0) {
 
 						if (mSearchProgress != null) {
-							mInput.post(new Runnable() {
+							mSearchInput.post(new Runnable() {
 								@Override
 								public void run() {
 									mSearchImage.setVisibility(View.INVISIBLE);
@@ -324,7 +371,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 						}
 					}
 					else {
-				        /* Add all seed entities */
+					    /* Add all seed entities */
 						result.values = mSeedEntities;
 						result.count = mSeedEntities.size();
 					}
@@ -337,11 +384,11 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			@SuppressWarnings("unchecked")
 			@Override
 			protected void publishResults(CharSequence constraint, FilterResults results) {
-                /*
-                 * Called on UI thread.
+			    /*
+		         * Called on UI thread.
                  */
 				if (mSearchProgress != null) {
-					mInput.post(new Runnable() {
+					mSearchInput.post(new Runnable() {
 						@Override
 						public void run() {
 							mSearchImage.setVisibility(View.VISIBLE);
@@ -388,9 +435,10 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	public static class ViewHolder {
 
 		public TextView     name;
+		public TextView     subhead;
+		public TextView     categoryName;
 		public AirImageView photoView;
 		public ImageView    indicator;
-		public TextView     subtitle;
 		public String       photoUri;    // Used for verification after fetching image // NO_UCD (unused code)
 		public Object       data;        // object binding to
 	}

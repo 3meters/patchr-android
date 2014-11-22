@@ -23,7 +23,7 @@ import com.aircandi.components.MapManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Place;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.components.AirClusterRenderer;
 import com.aircandi.utilities.Dialogs;
@@ -213,7 +213,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 					 * One only one entity then center on it.
 					 */
 					if (mEntities.size() == 1) {
-						Place place = (Place) mEntities.get(0);
+						Patch place = (Patch) mEntities.get(0);
 						AirLocation location = place.getLocation();
 						if (location != null) {
 							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), mZoomLevel));
@@ -364,8 +364,8 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 		@Override
 		protected void onBeforeClusterItemRendered(final EntityItem entityItem, final MarkerOptions markerOptions) {
-			if (entityItem.mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-				final Place place = (Place) entityItem.mEntity;
+			if (entityItem.mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+				final Patch place = (Patch) entityItem.mEntity;
 				markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker));
 				markerOptions.title(!(TextUtils.isEmpty(place.name)) ? place.name : StringManager.getString(R.string.container_singular));
 				markerOptions.snippet((place.category != null && !TextUtils.isEmpty(place.category.name)) ? place.category.name : null);

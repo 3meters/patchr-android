@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v7.graphics.Palette;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -49,7 +50,8 @@ public class AirImageView extends FrameLayout implements Target {
 	private Integer mSizeHint;
 	private FitType mFitType;
 	private Bitmap.Config mConfig = Bitmap.Config.ARGB_8888;
-	private String mGroupTag;
+	private String                       mGroupTag;
+	private Palette.PaletteAsyncListener mPaletteListener;
 
 	public static final int MEASUREMENT_WIDTH  = 0;
 	public static final int MEASUREMENT_HEIGHT = 1;
@@ -119,7 +121,7 @@ public class AirImageView extends FrameLayout implements Target {
 				mImageMain.setScaleType(mScaleType);
 			}
 			if (isInEditMode()) {
-				mImageMain.setImageResource(R.drawable.img_placeholder_logo);
+				mImageMain.setImageResource(R.drawable.img_dummy);
 			}
 			mImageMain.invalidate();
 		}
@@ -215,7 +217,11 @@ public class AirImageView extends FrameLayout implements Target {
 			mTarget.onBitmapLoaded(inBitmap, loadedFrom);
 		}
 		else {
-			/* Just pass through if image debug dev setting is off */
+			if (mPaletteListener != null) {
+				Palette palette = Palette.generate(inBitmap);
+				mPaletteListener.onGenerated(palette);
+			}
+			/* Just passes through if image debug dev setting is off */
 			Bitmap bitmap = DownloadManager.decorate(inBitmap, loadedFrom);
 			DownloadManager.logBitmap(this, bitmap, mImageMain);
 			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
@@ -359,6 +365,15 @@ public class AirImageView extends FrameLayout implements Target {
 
 	public AirImageView setGroupTag(String group) {
 		mGroupTag = group;
+		return this;
+	}
+
+	public Palette.PaletteAsyncListener getPaletteListener() {
+		return mPaletteListener;
+	}
+
+	public AirImageView setPaletteListener(Palette.PaletteAsyncListener paletteListener) {
+		mPaletteListener = paletteListener;
 		return this;
 	}
 

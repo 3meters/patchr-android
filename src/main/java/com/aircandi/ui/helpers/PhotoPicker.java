@@ -25,7 +25,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.ContainerManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
@@ -37,14 +37,12 @@ import com.aircandi.objects.ImageResult;
 import com.aircandi.objects.ImageResult.Thumbnail;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoSource;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.Provider;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.service.RequestType;
 import com.aircandi.service.ResponseFormat;
 import com.aircandi.service.ServiceRequest;
 import com.aircandi.service.ServiceRequest.AuthType;
-import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.widgets.AirAutoCompleteTextView;
 import com.aircandi.ui.widgets.AirImageView;
@@ -80,9 +78,8 @@ public class PhotoPicker extends BaseActivity {
 	private List<String> mPreviousSearches = new ArrayList<String>();
 	private ArrayAdapter<String> mSearchAdapter;
 	private String               mTitleOptional;
-	private Boolean mPlacePhotoMode = false;
-	private Provider mProvider;
-	private Integer  mPhotoWidthPixels;
+	private Provider             mProvider;
+	private Integer              mPhotoWidthPixels;
 
 	private static final long   PAGE_SIZE     = 49L;
 	private static final long   LIST_MAX      = 300L;
@@ -90,19 +87,9 @@ public class PhotoPicker extends BaseActivity {
 	private static final String QUERY_DEFAULT = "wallpaper unusual places";
 
 	@Override
-	public void unpackIntent() {
-		super.unpackIntent();
-
-		final Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-		}
-	}
-
-	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (!isFinishing() && !mPlacePhotoMode) {
+		if (!isFinishing()) {
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 		}
 	}
@@ -111,61 +98,48 @@ public class PhotoPicker extends BaseActivity {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		if (mEntityId != null) {
-			mPlacePhotoMode = true;
-		}
-
 		mSearch = (AirAutoCompleteTextView) findViewById(R.id.search_text);
 
-		if (mPlacePhotoMode) {
-			mEntity = EntityManager.getCacheEntity(mEntityId);
-			mProvider = ((Place) mEntity).getProvider();
-			mSearch.setVisibility(View.GONE);
-			mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_searching);
+		int inputType = mSearch.getInputType();
+		inputType &= ~InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE;
+		mSearch.setRawInputType(inputType);
+
+		final Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			mDefaultSearch = extras.getString(Constants.EXTRA_SEARCH_PHRASE);
+		}
+
+		if (!TextUtils.isEmpty(mDefaultSearch)) {
+			mSearch.setText(mDefaultSearch);
 		}
 		else {
-
-			int inputType = mSearch.getInputType();
-			inputType &= ~InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE;
-			mSearch.setRawInputType(inputType);
-
-			final Bundle extras = getIntent().getExtras();
-			if (extras != null) {
-				mDefaultSearch = extras.getString(Constants.EXTRA_SEARCH_PHRASE);
+			String lastSearch = Patchr.settings.getString(StringManager.getString(R.string.setting_picture_search_last), null);
+			if (!TextUtils.isEmpty(lastSearch)) {
+				mSearch.setText(lastSearch);
 			}
-
-			if (!TextUtils.isEmpty(mDefaultSearch)) {
-				mSearch.setText(mDefaultSearch);
-			}
-			else {
-				String lastSearch = Patchr.settings.getString(StringManager.getString(R.string.setting_picture_search_last), null);
-				if (!TextUtils.isEmpty(lastSearch)) {
-					mSearch.setText(lastSearch);
-				}
-			}
-
-			mSearch.setOnKeyListener(new OnKeyListener() {
-				@Override
-				public boolean onKey(View view, int keyCode, KeyEvent event) {
-					if (keyCode == KeyEvent.KEYCODE_ENTER) {
-						startSearch(view);
-						return true;
-					}
-					else
-						return false;
-				}
-			});
-
-			mSearch.setOnItemClickListener(new OnItemClickListener() {
-
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					startSearch(view);
-				}
-			});
-
-			mSearch.requestFocus();
 		}
+
+		mSearch.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View view, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER) {
+					startSearch(view);
+					return true;
+				}
+				else
+					return false;
+			}
+		});
+
+		mSearch.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				startSearch(view);
+			}
+		});
+
+		mSearch.requestFocus();
 
 		mGridView = (GridView) findViewById(R.id.grid);
 
@@ -217,31 +191,16 @@ public class PhotoPicker extends BaseActivity {
 			}
 		});
 
-		if (mPlacePhotoMode) {
-			bind(BindingMode.AUTO);
-			draw(null);
-		}
-		else {
 			/* Autocomplete */
-			initAutoComplete();
-			bindAutoCompleteAdapter();
-			draw(null);
-		}
+		initAutoComplete();
+		bindAutoCompleteAdapter();
+		draw(null);
 	}
 
 	@Override
 	public void bind(BindingMode mode) {
-		if (mPlacePhotoMode || !TextUtils.isEmpty(mQuery)) {
+		if (!TextUtils.isEmpty(mQuery)) {
 			mGridView.setAdapter(new EndlessImageAdapter(mImages));
-		}
-	}
-
-	public void draw(View view) {
-		if (mPlacePhotoMode) {
-			setActivityTitle(mEntity.name);
-		}
-		else {
-			setActivityTitle(StringManager.getString(R.string.dialog_photo_picker_search_title));
 		}
 	}
 
@@ -351,7 +310,7 @@ public class PhotoPicker extends BaseActivity {
 		final ServiceRequest serviceRequest = new ServiceRequest(bingUrl, RequestType.GET, ResponseFormat.JSON);
 		serviceRequest.setAuthType(AuthType.BASIC)
 		              .setUserName(null)
-		              .setPassword(Patchr.getInstance().getContainer().getString(Patchr.BING_ACCESS_KEY));
+		              .setPassword(ContainerManager.getContainerHolder().getContainer().getString(Patchr.BING_ACCESS_KEY));
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -408,11 +367,6 @@ public class PhotoPicker extends BaseActivity {
 		return result;
 	}
 
-	private ServiceResponse loadPlaceImages(long count, long offset) {
-		final ModelResult result = Patchr.getInstance().getEntityManager().getPlacePhotos(mProvider, count, offset);
-		return result.serviceResponse;
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
@@ -460,99 +414,52 @@ public class PhotoPicker extends BaseActivity {
 			 * available, the pending view is appended.
 			 */
 			mMoreImages.clear();
-			if (mPlacePhotoMode) {
+			String queryDecorated = mQuery;
+			if (TextUtils.isEmpty(queryDecorated)) {
+				queryDecorated = QUERY_DEFAULT;
+			}
+			else {
+				queryDecorated = (QUERY_PREFIX + " " + queryDecorated).trim();
+			}
 
-				Place place = (Place) mEntity;
-				/*
-				 * Place provider is foursquare
-				 */
-				if (place.getProvider().type != null && place.getProvider().type.equals("foursquare")) {
+			ModelResult result = loadSearchImages(queryDecorated, PAGE_SIZE, mOffset, Constants.BING_IMAGE_BYTES_MAX, Constants.BING_IMAGE_DIMENSION_MAX);
+			ServiceData serviceData = (ServiceData) result.serviceResponse.data;
 
-					ServiceResponse serviceResponse = loadPlaceImages(PAGE_SIZE, mOffset);
-					mBusy.hideBusy(false);
-					if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-						final List<Photo> photos = (ArrayList<Photo>) serviceResponse.data;
-						if (photos.size() == 0) {
-							if (mOffset == 0) {
-								runOnUiThread(new Runnable() {
+			mBusy.hideBusy(false);
+			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-									@Override
-									public void run() {
-										mBubbleButton.setText(StringManager.getString(R.string.label_photo_picker_empty) + " " + mEntity.name);
-										mBubbleButton.fadeIn();
-									}
-								});
+				mMoreImages = (ArrayList<ImageResult>) result.data;
+
+				if (mMoreImages.size() == 0) {
+					if (mOffset == 0) {
+						runOnUiThread(new Runnable() {
+
+							@Override
+							public void run() {
+								mBubbleButton.setText(StringManager.getString(R.string.label_photo_picker_empty) + " " + mQuery);
+								mBubbleButton.fadeIn();
 							}
-							return false;
-						}
-						else {
-							mMoreImages = new ArrayList<ImageResult>();
-							for (Photo photo : photos) {
-								ImageResult imageResult = photo.getAsImageResult();
-								imageResult.setPhoto(photo);
-								mMoreImages.add(imageResult);
-							}
-							mOffset += PAGE_SIZE;
-							return mMoreImages.size() >= PAGE_SIZE;
-						}
+						});
 					}
-					else {
-						Errors.handleError(PhotoPicker.this, serviceResponse);
-						return false;
-					}
+					return false;
 				}
 				else {
-					return false;
+					Logger.d(this, "Query Bing for more images: start = " + String.valueOf(mOffset)
+							+ " new total = "
+							+ String.valueOf(getWrappedAdapter().getCount() + mMoreImages.size()));
+
+					if (!serviceData.more) {
+						return false;
+					}
+					else {
+						mOffset += serviceData.count.intValue();
+						return (getWrappedAdapter().getCount() + mMoreImages.size()) < LIST_MAX;
+					}
 				}
 			}
 			else {
-				String queryDecorated = mQuery;
-				if (TextUtils.isEmpty(queryDecorated)) {
-					queryDecorated = QUERY_DEFAULT;
-				}
-				else {
-					queryDecorated = (QUERY_PREFIX + " " + queryDecorated).trim();
-				}
-
-				ModelResult result = loadSearchImages(queryDecorated, PAGE_SIZE, mOffset, Constants.BING_IMAGE_BYTES_MAX, Constants.BING_IMAGE_DIMENSION_MAX);
-				ServiceData serviceData = (ServiceData) result.serviceResponse.data;
-
-				mBusy.hideBusy(false);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-					mMoreImages = (ArrayList<ImageResult>) result.data;
-
-					if (mMoreImages.size() == 0) {
-						if (mOffset == 0) {
-							runOnUiThread(new Runnable() {
-
-								@Override
-								public void run() {
-									mBubbleButton.setText(StringManager.getString(R.string.label_photo_picker_empty) + " " + mQuery);
-									mBubbleButton.fadeIn();
-								}
-							});
-						}
-						return false;
-					}
-					else {
-						Logger.d(this, "Query Bing for more images: start = " + String.valueOf(mOffset)
-								+ " new total = "
-								+ String.valueOf(getWrappedAdapter().getCount() + mMoreImages.size()));
-
-						if (!serviceData.more) {
-							return false;
-						}
-						else {
-							mOffset += serviceData.count.intValue();
-							return (getWrappedAdapter().getCount() + mMoreImages.size()) < LIST_MAX;
-						}
-					}
-				}
-				else {
-					Errors.handleError(PhotoPicker.this, result.serviceResponse);
-					return false;
-				}
+				Errors.handleError(PhotoPicker.this, result.serviceResponse);
+				return false;
 			}
 		}
 

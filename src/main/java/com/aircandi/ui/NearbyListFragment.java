@@ -30,13 +30,12 @@ import com.aircandi.components.ProximityManager;
 import com.aircandi.components.ProximityManager.RefreshReason;
 import com.aircandi.components.ProximityManager.ScanReason;
 import com.aircandi.components.StringManager;
-import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.events.BeaconsLockedEvent;
 import com.aircandi.events.BurstTimeoutEvent;
 import com.aircandi.events.EntitiesByProximityFinishedEvent;
 import com.aircandi.events.EntitiesChangedEvent;
 import com.aircandi.events.LocationChangedEvent;
-import com.aircandi.events.PlacesNearLocationFinishedEvent;
+import com.aircandi.events.PatchesNearLocationFinishedEvent;
 import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
@@ -46,7 +45,7 @@ import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
-import com.aircandi.objects.Place;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.objects.User;
@@ -66,7 +65,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RadarListFragment extends EntityListFragment {
+public class NearbyListFragment extends EntityListFragment {
 
 	private final Handler mHandler = new Handler();
 
@@ -264,7 +263,7 @@ public class RadarListFragment extends EntityListFragment {
 
 	@Override
 	public void onClick(View view) {
-		final Place entity = (Place) ((ViewHolder) view.getTag()).data;
+		final Patch entity = (Patch) ((ViewHolder) view.getTag()).data;
 		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
 	}
 
@@ -279,7 +278,7 @@ public class RadarListFragment extends EntityListFragment {
 			public void run() {
 				Patchr.stopwatch1.segmentTime("Wifi scan received event fired");
 
-				Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
+				Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
 						, "wifi_scan_finished"
 						, NetworkManager.getInstance().getNetworkType());
 
@@ -340,7 +339,7 @@ public class RadarListFragment extends EntityListFragment {
 
 				Logger.d(getActivity(), "Entities for beacons finished event: ** done **");
 				Patchr.stopwatch1.segmentTime("Entities by proximity finished event fired");
-				Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
+				Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
 						, "places_by_proximity_downloaded"
 						, NetworkManager.getInstance().getNetworkType());
 
@@ -357,13 +356,13 @@ public class RadarListFragment extends EntityListFragment {
 
 	@Subscribe
 	@SuppressWarnings({"ucd"})
-	public void onPlacesNearLocationFinished(final PlacesNearLocationFinishedEvent event) {
+	public void onPlacesNearLocationFinished(final PatchesNearLocationFinishedEvent event) {
 		/*
 		 * No application logic here, just tracking.
 		 */
-		Logger.d(getActivity(), "Places near location finished event: ** done **");
-		Patchr.stopwatch2.stop("Location processing: Places near location complete");
-		Patchr.tracker.sendTiming(TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
+		Logger.d(getActivity(), "Patches near location finished event: ** done **");
+		Patchr.stopwatch2.stop("Location processing: Patches near location complete");
+		Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
 				, "places_near_location_downloaded"
 				, NetworkManager.getInstance().getNetworkType());
 
@@ -437,13 +436,6 @@ public class RadarListFragment extends EntityListFragment {
 	}
 
 	@Override
-	public void onHelp() {
-		Bundle extras = new Bundle();
-		extras.putInt(Constants.EXTRA_HELP_ID, R.layout.radar_help);
-		Patchr.dispatch.route(getActivity(), Route.HELP, null, null, extras);
-	}
-
-	@Override
 	public void onError() {
 		/* Kill busy */
 		BusProvider.getInstance().post(new ProcessingFinishedEvent());
@@ -479,7 +471,7 @@ public class RadarListFragment extends EntityListFragment {
 		User currentUser = Patchr.getInstance().getCurrentUser();
 
 		Boolean anonymous = currentUser.isAnonymous();
-		Count patched = Patchr.getInstance().getCurrentUser().getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PLACE, true, Link.Direction.out);
+		Count patched = Patchr.getInstance().getCurrentUser().getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
 
 		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
 		UI.setVisibility(alertGroup, View.GONE);
@@ -581,7 +573,7 @@ public class RadarListFragment extends EntityListFragment {
 			View searchView = getActivity().getWindow().getDecorView().findViewById(R.id.new_place);
 			if (searchView != null) {
 				tooltipLayer.showTooltipForView(new ToolTip()
-						.withText(StringManager.getString(R.string.tooltip_action_item_place_new))
+						.withText(StringManager.getString(R.string.tooltip_action_item_patch_new))
 						.withShadow(true)
 						.withArrow(true)
 						.setMaxWidth(UI.getRawPixelsForDisplayPixels(120f))
@@ -740,7 +732,7 @@ public class RadarListFragment extends EntityListFragment {
 							if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 								Patchr.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
 								final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null, null);
-								BusProvider.getInstance().post(new PlacesNearLocationFinishedEvent());
+								BusProvider.getInstance().post(new PatchesNearLocationFinishedEvent());
 								BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
 								BusProvider.getInstance().post(new ProcessingFinishedEvent());
 							}

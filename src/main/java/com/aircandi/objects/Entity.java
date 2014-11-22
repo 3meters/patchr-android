@@ -14,7 +14,6 @@ import com.aircandi.objects.CacheStamp.StampSource;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
-import com.aircandi.utilities.Booleans;
 import com.aircandi.utilities.Type;
 
 import java.io.Serializable;
@@ -53,13 +52,11 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@Expose
 	public AirLocation location;
 	@Expose
-	public Number signalFence = -100.0f;
-	@Expose
 	@SerializedName(name = "visibility")
-	public String privacy;                                    // private|public|hidden
+	public String      privacy;                                    // private|public|hidden
 	@Expose
 	@SerializedName(name = "_acl")
-	public String placeId;
+	public String      placeId;
 
 	/* Synthetic fields */
 
@@ -73,19 +70,21 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public List<Count> linksOutCounts;
 
 	@Expose(serialize = false, deserialize = true)
-	public String toId;                                         // Used to find entities this entity is linked to
+	public String  toId;                                         // Used to find entities this entity is linked to
 	@Expose(serialize = false, deserialize = true)
-	public String fromId;                                       // Used to find entities this entity is linked from
+	public String  fromId;                                       // Used to find entities this entity is linked from
 	@Expose(serialize = false, deserialize = true)
-	public String linkId;                                       // Used to update the link used to include this entity in a set
+	public String  linkId;                                       // Used to update the link used to include this entity in a set
+	@Expose(serialize = false, deserialize = true)
+	public Boolean linkEnabled;                                       // Used to update the link used to include this entity in a set
 
 	@Expose(serialize = false, deserialize = true)
 	public List<Entity> entities;
 
-	/* Place (synthesized for the client) */
+	/* Patch (synthesized for the client) */
 
 	@Expose(serialize = false, deserialize = true)
-	public Place place;
+	public Patch patch;
 
 	/* Stat fields (synthesized for the client) */
 
@@ -196,7 +195,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Photo getPhoto() {
 		Photo photo = this.photo;
 		if (photo == null) {
-			photo = getDefaultPhoto();
+			photo = getDefaultPhoto(this.schema);
 			if (photo != null) {
 				photo.usingDefault = true;
 			}
@@ -204,12 +203,32 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return photo;
 	}
 
-	protected Photo getDefaultPhoto() {
-		String prefix = (Patchr.themeTone == null || Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
-		                ? "img_placeholder_bw_light"
-		                : "img_placeholder_bw_dark";
-		String source = Photo.PhotoSource.resource;
-		Photo photo = new Photo(prefix, null, null, null, source);
+	public static Photo getDefaultPhoto(String schema) {
+
+		String prefix = null;
+		if (schema != null) {
+			if (schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+				prefix = "img_default_place_b";
+			}
+			else if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+				prefix = (Patchr.themeTone == null || Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
+				         ? "img_default_patch_light"
+				         : "img_default_patch_dark";
+			}
+			else if (schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+				prefix = (Patchr.themeTone == null || Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
+				         ? "img_default_user_light"
+				         : "img_default_user_dark";
+			}
+		}
+
+		if (prefix == null) {
+			prefix = (Patchr.themeTone == null || Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
+			         ? "img_default_patch_light"
+			         : "img_default_patch_dark";
+		}
+
+		Photo photo = new Photo(prefix, null, null, null, Photo.PhotoSource.resource);
 		return photo;
 	}
 
@@ -236,30 +255,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return loc;
 	}
 
-	public Boolean isHidden() {
-		Boolean oldIsHidden = hidden;
-		this.hidden = false;
-		/*
-		 * Make it harder to fade out than it is to fade in. Entities are only NEW
-		 * for the first scan that discovers them.
-		 */
-		if (signalFence != null) {
-			float signalThresholdFluid = signalFence.floatValue();
-			Beacon beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
-			if (beacon != null) {
-				if (!oldIsHidden) {
-					signalThresholdFluid = signalFence.floatValue() - 5;
-				}
-
-				/* Hide entities that are not within entity declared virtual range */
-				if (Booleans.getBoolean(R.bool.entity_fencing_enabled) && beacon.signal.intValue() < signalThresholdFluid) {
-					this.hidden = true;
-				}
-			}
-		}
-		return this.hidden;
-	}
-
 	public Float getDistance(Boolean refresh) {
 
 		if (refresh || distance == null) {
@@ -278,15 +273,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 					if (entityLocation.accuracy != null
 							&& entityLocation.accuracy.intValue() > Constants.MINIMUM_ACCURACY_FOR_DISTANCE_DISPLAY) {
 						fuzzy = true;
-					}
-					else if (this instanceof Place) {
-						Place place = (Place) this;
-						if (place.provider.yelp != null) {
-							fuzzy = true;
-						}
-						if (place.provider.google != null || place.provider.factual != null) {
-							fuzzy = false;
-						}
 					}
 				}
 			}
@@ -386,7 +372,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public List<? extends Entity> getLinkedEntitiesByLinkTypeAndSchema(List<String> types, List<String> schemas, Direction direction, Boolean traverse) {
 	    /*
-         * Currently only called by EntityCache.removeEntityTree
+	     * Currently only called by EntityCache.removeEntityTree
 		 */
 		final List<Entity> entities = new ArrayList<Entity>();
 		if (linksIn != null) {
@@ -551,7 +537,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 						if (settings.synthetic == null || link.shortcut.isSynthetic().equals(settings.synthetic)) {
 							if (settings.linkBroken
 									|| (!settings.linkBroken && (link.shortcut.validatedDate == null || link.shortcut.validatedDate.longValue() != -1))) {
-                                /*
+			                    /*
                                  * Must clone or the groups added below will cause circular references
 								 * that choke serializing to json.
 								 */
@@ -638,7 +624,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public String getLabelForSchema() {
 		String label = this.schema;
-		if (label.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+		if (label.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 			label = StringManager.getString(R.string.container_singular_lowercase);
 		}
 		return label;
@@ -646,7 +632,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public static String getLabelForSchema(String schema) {
 		String label = schema;
-		if (label.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+		if (label.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 			label = StringManager.getString(R.string.container_singular_lowercase);
 		}
 		return label;
@@ -659,6 +645,9 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		}
 		else if (prefix.equals("pl")) {
 			return Constants.SCHEMA_ENTITY_PLACE;
+		}
+		else if (prefix.equals("pa")) {
+			return Constants.SCHEMA_ENTITY_PATCH;
 		}
 		else if (prefix.equals("us")) {
 			return Constants.SCHEMA_ENTITY_USER;
@@ -686,7 +675,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 			entity.subtitle = (String) map.get("subtitle");
 			entity.description = (String) map.get("description");
-			entity.signalFence = (Number) map.get("signalFence");
 			entity.privacy = (String) (nameMapping ? map.get("visibility") : map.get("privacy"));
 
 			entity.hidden = (Boolean) ((map.get("hidden") != null) ? map.get("hidden") : false);
@@ -701,6 +689,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			entity.toId = (String) (nameMapping ? map.get("_to") : map.get("toId"));
 			entity.fromId = (String) (nameMapping ? map.get("_from") : map.get("fromId"));
 			entity.linkId = (String) (nameMapping ? map.get("_link") : map.get("linkId"));
+			entity.linkEnabled = (Boolean) ((map.get("linkEnabled") != null) ? map.get("linkEnabled") : true);
 
 			entity.reason = (String) map.get("reason");
 			entity.score = (Number) map.get("score");
@@ -715,8 +704,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 				entity.location = AirLocation.setPropertiesFromMap(new AirLocation(), (HashMap<String, Object>) map.get("location"), nameMapping);
 			}
 
-			if (map.get("place") != null) {
-				entity.place = Place.setPropertiesFromMap(new Place(), (HashMap<String, Object>) map.get("place"), nameMapping);
+			if (map.get("patch") != null) {
+				entity.patch = Patch.setPropertiesFromMap(new Patch(), (HashMap<String, Object>) map.get("patch"), nameMapping);
 			}
 
 			if (map.get("linksIn") != null) {
@@ -788,8 +777,11 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			if (photo != null) {
 				entity.photo = photo.clone();
 			}
-			if (place != null) {
-				entity.place = place.clone();
+			if (patch != null) {
+				entity.patch = patch.clone();
+			}
+			if (location != null) {
+				entity.location = location.clone();
 			}
 		}
 		return entity;

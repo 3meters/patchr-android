@@ -119,6 +119,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	}
 
 	public String getUriWrapped() {
+		/* Only called from UI.loadView */
 		return getSizedUri(width, height, true);
 	}
 
@@ -130,7 +131,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 			return ("resource:" + prefix);
 		}
 		else if (source.equals(PhotoSource.assets_categories)) {
-			return (ServiceConstants.URL_PROXIBASE_SERVICE_ASSETS_CATEGORIES + prefix + String.valueOf(88) + suffix);
+			return (ServiceConstants.URL_PROXIBASE_SERVICE_ASSETS_CATEGORIES + prefix);
 		}
 		else if (source.equals(PhotoSource.assets_applinks)) {
 			return (ServiceConstants.URL_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS + prefix);
@@ -152,6 +153,12 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 				if (prefix != null && suffix != null) {
 					return (prefix + String.valueOf(width.intValue()) + "x" + String.valueOf(height.intValue()) + suffix);
 				}
+			}
+			return prefix;
+		}
+		else if (source.equals(PhotoSource.foursquare_icon)) {
+			if (prefix != null && suffix != null) {
+				return (prefix + "88" + suffix);
 			}
 			return prefix;
 		}
@@ -411,7 +418,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	 * Any photo from the device (camera, gallery) is store in s3 and source = aircandi.
 	 * Any search photo is not stored in s3 and source = generic.
 	 * Any search photo used for user profile ist stored in s3.
-	 * Any place photo from foursquare stays there and photo.source = foursquare.
+	 * Any patch photo from foursquare stays there and photo.source = foursquare.
 	 */
 	public static class PhotoSource {
 
@@ -423,11 +430,12 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		public static String aircandi_thumbnails = "aircandi.thumbnails";   // set when photo is stored by us and used to construct full uri to image data (s3)
 		public static String aircandi_users      = "aircandi.users";        // set when photo is stored by us and used to construct full uri to image data (s3)
 
-		public static String foursquare = "foursquare";                     // set when photo is stored by us and used to construct full uri to image data (s3)
-		public static String facebook   = "facebook";                       // set if photo comes from facebook - used for applinks
-		public static String twitter    = "twitter";                        // set if photo comes from twitter - used for applinks
-		public static String google     = "google";                         // set if photo comes from google - used for applinks
-		public static String yelp       = "yelp";                           // set if photo comes from yelp - used for applinks // NO_UCD (unused code)
+		public static String foursquare      = "foursquare";                     // set if photo comes from facebook - used for place photos
+		public static String foursquare_icon = "foursquare.icon";           // set if icon comes from facebook - used for place categories
+		public static String facebook        = "facebook";                       // set if photo comes from facebook - used for applinks
+		public static String twitter         = "twitter";                        // set if photo comes from twitter - used for applinks
+		public static String google          = "google";                         // set if photo comes from google - used for applinks
+		public static String yelp            = "yelp";                           // set if photo comes from yelp - used for applinks // NO_UCD (unused code)
 
 		/* System sources */
 

@@ -27,6 +27,10 @@ public interface IEntityController {
 
 	public void bindHolder(View view, ViewHolder viewHolder);
 
+	public boolean supportsEdit();
+
+	public boolean supportsInsert();
+
 	public Entity makeNew();
 
 	public Entity makeFromMap(Map<String, Object> map, Boolean nameMapping);

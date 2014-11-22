@@ -27,17 +27,17 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:onClick="onRadioButtonClicked"
-				android:text="@string/label_place_privacy_public"
+				android:text="@string/label_patch_privacy_public"
 				android:textAppearance="?attr/textAppearanceMediumLarge"
-				tools:text="@string/label_place_privacy_public" />
+				tools:text="@string/label_patch_privacy_public" />
 
 			<com.aircandi.ui.widgets.AirTextLight
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:paddingLeft="32dp"
-				android:text="@string/label_place_privacy_public_help"
+				android:text="@string/label_patch_privacy_public_help"
 				android:textColor="?attr/textColorSecondary"
-				tools:text="@string/label_place_privacy_public_help" />
+				tools:text="@string/label_patch_privacy_public_help" />
 
 		</LinearLayout>
 
@@ -51,17 +51,17 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:onClick="onRadioButtonClicked"
-				android:text="@string/label_place_privacy_private"
+				android:text="@string/label_patch_privacy_private"
 				android:textAppearance="?attr/textAppearanceMediumLarge"
-				tools:text="@string/label_place_privacy_private" />
+				tools:text="@string/label_patch_privacy_private" />
 
 			<com.aircandi.ui.widgets.AirTextLight
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:paddingLeft="32dp"
-				android:text="@string/label_place_privacy_private_help"
+				android:text="@string/label_patch_privacy_private_help"
 				android:textColor="?attr/textColorSecondary"
-				tools:text="@string/label_place_privacy_private_help" />
+				tools:text="@string/label_patch_privacy_private_help" />
 
 		</LinearLayout>
 	</RadioGroup>

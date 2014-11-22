@@ -2,6 +2,7 @@ package com.aircandi.ui.widgets;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.PorterDuff;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -22,13 +23,16 @@ import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Category;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
+import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoSource;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.ShortcutSettings;
 import com.aircandi.objects.User;
+import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.UI;
 
@@ -51,14 +55,15 @@ public class CandiView extends RelativeLayout {
 
 	protected AirImageView mPhotoView;
 	protected AirImageView mCategoryPhoto;
+	protected TextView     mCategoryName;
+	protected TextView     mPlaceName;
 	protected TextView     mName;
-	protected TextView     mSubtitle;
+	protected TextView     mSubhead;
 	protected TextView     mEmail;
 	protected TextView     mArea;
 	protected TextView     mDistance;
 	protected TextView     mCount;
 	protected TextView     mMessageCount;
-	protected TextView     mLastMessageDate;
 	protected TextView     mWatchCount;
 	protected View         mCandiViewGroup;
 	protected View         mPrivacyGroup;
@@ -109,17 +114,18 @@ public class CandiView extends RelativeLayout {
 		mCandiViewGroup = mLayout.findViewById(R.id.candi_view_group);
 		mPhotoView = (AirImageView) mLayout.findViewById(R.id.photo);
 		mName = (TextView) mLayout.findViewById(R.id.name);
-		mSubtitle = (TextView) mLayout.findViewById(R.id.subtitle);
+		mSubhead = (TextView) mLayout.findViewById(R.id.subhead);
 		mArea = (TextView) mLayout.findViewById(R.id.area);
 		mEmail = (TextView) mLayout.findViewById(R.id.email);
 		mDistance = (TextView) mLayout.findViewById(R.id.distance);
-		mCategoryPhoto = (AirImageView) mLayout.findViewById(R.id.subtitle_badge);
+		mCategoryName = (TextView) mLayout.findViewById(R.id.category_name);
+		mCategoryPhoto = (AirImageView) mLayout.findViewById(R.id.category_photo);
+		mPlaceName = (TextView) mLayout.findViewById(R.id.place_name);
 		mHolderShortcuts = (LinearLayout) mLayout.findViewById(R.id.shortcuts);
 		mHolderInfo = (LinearLayout) mLayout.findViewById(R.id.info_holder);
 		mCount = (TextView) mLayout.findViewById(R.id.count);
 		mMessageCount = (TextView) mLayout.findViewById(R.id.message_count);
 		mWatchCount = (TextView) mLayout.findViewById(R.id.watch_count);
-		mLastMessageDate = (TextView) mLayout.findViewById(R.id.last_message_date);
 		mPrivacyGroup = (View) mLayout.findViewById(R.id.privacy_group);
 	}
 
@@ -168,7 +174,7 @@ public class CandiView extends RelativeLayout {
 			/*
 			 * If it is the same entity and it hasn't changed then nothing to do
 			 */
-			if (!entity.synthetic) { // Leaving this in case we ever use a candiview to display a suggested place.
+			if (!entity.synthetic) { // Leaving this in case we ever use a candiview to display a suggested patch.
 				if (mEntity != null && entity.id.equals(mEntity.id) && mCacheStamp.equals(entity.getCacheStamp())) {
 					mEntity = entity;
 					showDistance(entity);
@@ -200,10 +206,10 @@ public class CandiView extends RelativeLayout {
 
 			if (mCandiViewGroup != null && mColorize) {
 				String colorizeKey = null;
-				if (mEntity instanceof Place && ((Place) mEntity).category != null) {
-					colorizeKey = ((Place) mEntity).category.name;
+				if (mEntity instanceof Patch && ((Patch) mEntity).category != null) {
+					colorizeKey = ((Patch) mEntity).category.name;
 				}
-				Integer colorResId = Place.getCategoryColorResId(colorizeKey);
+				Integer colorResId = Patch.getCategoryColorResId(colorizeKey);
 				mCandiViewGroup.setBackgroundResource(colorResId);
 			}
 
@@ -215,17 +221,12 @@ public class CandiView extends RelativeLayout {
 				setVisibility(mName, View.VISIBLE);
 			}
 
-			/* Subtitle */
-
-			setVisibility(mSubtitle, View.GONE);
-			if (mSubtitle != null && !TextUtils.isEmpty(entity.subtitle)) {
-				mSubtitle.setText(Html.fromHtml(entity.subtitle.toUpperCase(Locale.US)).toString());
-			}
+			setVisibility(mSubhead, View.GONE);
 
 			if (entity instanceof User) {
 				User user = (User) entity;
 
-				/* Email */
+					/* Email */
 
 				setVisibility(mEmail, View.GONE);
 				if (mEmail != null && !TextUtils.isEmpty(user.email)) {
@@ -233,7 +234,7 @@ public class CandiView extends RelativeLayout {
 					setVisibility(mEmail, View.VISIBLE);
 				}
 
-				/* Area */
+					/* Area */
 
 				setVisibility(mArea, View.GONE);
 				if (mArea != null && !TextUtils.isEmpty(user.area)) {
@@ -242,32 +243,50 @@ public class CandiView extends RelativeLayout {
 				}
 			}
 
-			/* Place specific info */
+			/* Patch specific info */
 
-			/* We take over the subtitle field and use it for categories */
-			if (entity instanceof Place) {
+			if (entity instanceof Patch) {
 
-				Place place = (Place) entity;
+				Patch patch = (Patch) entity;
 
-				Category category = place.category;
-				if (mSubtitle != null) {
-					setVisibility(mSubtitle, View.INVISIBLE);
+				/* Place name */
+
+				setVisibility(mPlaceName, View.GONE);
+				if (mPlaceName != null) {
+					Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
+					if (linkPlace != null) {
+						mPlaceName.setText(linkPlace.shortcut.name);
+						UI.setVisibility(mPlaceName, View.VISIBLE);
+					}
+				}
+
+				/* Category name */
+
+				Category category = patch.category;
+				setVisibility(mCategoryName, View.GONE);
+				if (mCategoryName != null) {
+					setVisibility(mCategoryName, View.INVISIBLE);
 					if (category != null && category.name != null && !category.id.equals("generic")) {
-						mSubtitle.setText(Html.fromHtml(category.name.toUpperCase(Locale.US)));
-						setVisibility(mSubtitle, View.VISIBLE);
+						if (patch instanceof Place) {
+							mCategoryName.setText(Html.fromHtml((category.name).toUpperCase(Locale.US)));
+						}
+						else {
+							mCategoryName.setText(Html.fromHtml((category.name + " patch").toUpperCase(Locale.US)));
+						}
+						setVisibility(mCategoryName, View.VISIBLE);
 					}
 					else {
 						/* No category so show default label */
-						String subtitle = StringManager.getString(R.string.label_place_category_default).toUpperCase(Locale.US);
-						mSubtitle.setText(subtitle);
-						setVisibility(mSubtitle, View.VISIBLE);
+						String categoryName = StringManager.getString(R.string.label_patch_category_default).toUpperCase(Locale.US);
+						mCategoryName.setText(categoryName);
+						setVisibility(mCategoryName, View.VISIBLE);
 					}
 				}
 
 				/* Privacy */
 
 				if (mPrivacyGroup != null) {
-					mPrivacyGroup.setVisibility((place.privacy != null && place.privacy.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
+					mPrivacyGroup.setVisibility((patch.privacy != null && patch.privacy.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
 				}
 
 				/* Category photo */
@@ -284,25 +303,26 @@ public class CandiView extends RelativeLayout {
 						}
 					}
 					else {
-						/*
-						 * Fall back to default.
-						 */
+							/*
+							 * Fall back to default.
+							 */
 						DownloadManager.with(Patchr.applicationContext).load(R.drawable.default_88)
 								.resize(mCategoryPhoto.getSizeHint(), mCategoryPhoto.getSizeHint())    // Memory size
 								.centerCrop()
 								.into(mCategoryPhoto);
 					}
+					mCategoryPhoto.getImageView().setColorFilter(Colors.getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 					mCategoryPhoto.setVisibility(View.VISIBLE);
 				}
+
+				/* Indicators */
+
+				showIndicators(entity, options);
+
+				/* Distance */
+
+				showDistance(entity);
 			}
-
-			/* Indicators */
-
-			showIndicators(entity, options);
-
-			/* Distance */
-
-			showDistance(entity);
 		}
 	}
 
@@ -387,7 +407,7 @@ public class CandiView extends RelativeLayout {
 			}
 		}
 
-		/* Message count for place list */
+		/* Message count for patch list */
 		Count messageCount = entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, null, Direction.in);
 		if (mCount != null && messageCount != null && messageCount.count.intValue() > Integers.getInteger(R.integer.limit_indicators_radar)) {
 			Integer extras = messageCount.count.intValue() - Integers.getInteger(R.integer.limit_indicators_radar);
@@ -409,7 +429,7 @@ public class CandiView extends RelativeLayout {
 
 	protected void addIndicator(Integer id, String photoUri, String name, Integer sizePixels, IndicatorOptions options) {
 
-		View view = LayoutInflater.from(getContext()).inflate(R.layout.temp_radar_link_item, null);
+		View view = LayoutInflater.from(getContext()).inflate(R.layout.temp_nearby_link_item, null);
 		view.setId(id);
 		AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
 		TextView label = (TextView) view.findViewById(R.id.name);
@@ -512,7 +532,7 @@ public class CandiView extends RelativeLayout {
 		}
 	}
 
-	public void setPlace(Place place) {
+	public void setPlace(Patch place) {
 		mEntity = place;
 	}
 

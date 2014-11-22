@@ -26,8 +26,6 @@ public class Action extends ServiceObject implements Cloneable, Serializable {
 	public Entity entity;
 	@Expose
 	public Entity toEntity;
-	@Expose
-	public Entity fromEntity;
 
 	public static Action setPropertiesFromMap(Action action, Map map, Boolean nameMapping) {
 	    /*
@@ -50,15 +48,6 @@ public class Action extends ServiceObject implements Cloneable, Serializable {
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
 			if (controller != null) {
 				action.toEntity = controller.makeFromMap(entityMap, nameMapping);
-			}
-		}
-
-		if (map.get("fromEntity") != null) {
-			Map<String, Object> entityMap = (HashMap<String, Object>) map.get("fromEntity");
-			String schema = (String) entityMap.get("schema");
-			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
-			if (controller != null) {
-				action.fromEntity = controller.makeFromMap(entityMap, nameMapping);
 			}
 		}
 
