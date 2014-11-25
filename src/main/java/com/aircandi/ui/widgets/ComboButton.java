@@ -41,7 +41,7 @@ public class ComboButton extends RelativeLayout {
 		if (attrs != null) {
 
 			final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ComboButton, defStyle, 0);
-			mLayoutResId = ta.getResourceId(R.styleable.ComboButton_layout, R.layout.widget_combo_button);
+			mLayoutResId = ta.getResourceId(R.styleable.ComboButton_layoutId, R.layout.widget_combo_button);
 			mDrawableResId = ta.getResourceId(R.styleable.ComboButton_drawable, 0);
 			Integer labelResId = ta.getResourceId(R.styleable.ComboButton_label, 0);
 

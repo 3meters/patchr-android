@@ -24,6 +24,7 @@ import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Notification;
 import com.aircandi.objects.Route;
+import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Errors;
@@ -73,6 +74,7 @@ public class NotificationListFragment extends MessageListFragment {
 			extras.putString(Constants.EXTRA_ENTITY_ID, notification.targetId);
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, notification.parentId);
 
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 			Patchr.dispatch.route(getActivity(), Route.BROWSE, null, null, extras);
 
 			if (NotificationManager.getInstance().getNotifications().containsKey(entity.id)) {
@@ -93,7 +95,7 @@ public class NotificationListFragment extends MessageListFragment {
 		mBusy = new BusyManager(getActivity());
 		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_notifications);
 		if (swipeRefresh != null) {
-			swipeRefresh.setProgressBackgroundColor(R.color.holo_blue_light);
+			swipeRefresh.setProgressBackgroundColor(R.color.brand_accent);
 			swipeRefresh.setColorSchemeResources(R.color.white);
 			swipeRefresh.setOnRefreshListener(this);
 			mBusy.setSwipeRefresh(swipeRefresh);
@@ -282,15 +284,7 @@ public class NotificationListFragment extends MessageListFragment {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
- 	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 }

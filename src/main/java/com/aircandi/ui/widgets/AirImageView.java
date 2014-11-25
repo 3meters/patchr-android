@@ -89,7 +89,7 @@ public class AirImageView extends FrameLayout implements Target {
 		mConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.AirImageView_config, Bitmap.Config.ARGB_8888.ordinal())];
 		mSizeHint = ta.getDimensionPixelSize(R.styleable.AirImageView_sizeHint, Integer.MAX_VALUE);
 		mShowBusy = ta.getBoolean(R.styleable.AirImageView_showBusy, true);
-		mLayoutId = ta.getResourceId(R.styleable.AirImageView_layout, R.layout.widget_webimageview);
+		mLayoutId = ta.getResourceId(R.styleable.AirImageView_layoutId, R.layout.widget_webimageview);
 		mAspectRatio = ta.getFloat(R.styleable.AirImageView_aspectRatio, DEFAULT_ASPECT_RATIO);
 		mAspectRatioEnabled = ta.getBoolean(R.styleable.AirImageView_aspectRatioEnabled,
 				DEFAULT_ASPECT_RATIO_ENABLED);

@@ -73,6 +73,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected String getLinkType() {
 		return null;
@@ -83,9 +84,6 @@ public class FeedbackEdit extends BaseEntityEdit {
 		mFeedback.data.put("message", mDescription.getText().toString().trim());
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Services
-	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected boolean validate() {
 		if (!super.validate()) return false;
@@ -139,11 +137,6 @@ public class FeedbackEdit extends BaseEntityEdit {
 		}.execute();
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.feedback_edit;

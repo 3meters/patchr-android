@@ -282,7 +282,7 @@ public class RegisterEdit extends BaseEntityEdit {
 							Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(RegisterEdit.this, TransitionType.FORM_TO_PAGE);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(RegisterEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Errors.handleError(RegisterEdit.this, result.serviceResponse);

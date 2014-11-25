@@ -3,22 +3,18 @@ package com.aircandi.ui.edit;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
+import com.aircandi.components.EntityManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
@@ -26,7 +22,6 @@ import com.aircandi.components.NetworkManager;
 import com.aircandi.components.ProximityManager;
 import com.aircandi.components.ProximityManager.ScanReason;
 import com.aircandi.components.StringManager;
-import com.aircandi.components.TabManager;
 import com.aircandi.events.BeaconsLockedEvent;
 import com.aircandi.events.CancelEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
@@ -42,15 +37,11 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.ui.widgets.ComboButton;
-import com.aircandi.ui.widgets.ToolTip;
-import com.aircandi.ui.widgets.ToolTipRelativeLayout;
-import com.aircandi.ui.widgets.ToolTipView;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
-import com.aircandi.utilities.ViewId;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -67,9 +58,6 @@ import java.util.List;
 @SuppressLint("Registered")
 public class PatchEdit extends BaseEntityEdit {
 
-	protected ToolTipRelativeLayout mTooltips;
-
-	private   TabManager  mTabManager;
 	private   ComboButton mButtonTune;
 	private   ComboButton mButtonUntune;
 	private   TextView    mButtonCategory;
@@ -115,20 +103,6 @@ public class PatchEdit extends BaseEntityEdit {
 			if (checkReady()) {
 				setUpMap();
 			}
-		}
-
-		if (mEntity == null || (mEntity.ownerId != null && (mEntity.ownerId.equals(Patchr.getInstance().getCurrentUser().id)))) {
-			ViewFlipper flipper = (ViewFlipper) findViewById(R.id.flipper_form);
-			if (flipper != null) {
-				mTabManager = new TabManager(Constants.TABS_ENTITY_FORM_ID, mActionBar, (ViewFlipper) findViewById(R.id.flipper_form));
-				mTabManager.initialize();
-				mTabManager.doRestoreInstanceState(savedInstanceState);
-			}
-		}
-
-		mTooltips = (ToolTipRelativeLayout) findViewById(R.id.tooltips);
-		if (mTooltips != null) {
-			mTooltips.setSingleShot(Constants.TOOLTIPS_PLACE_EDIT_ID);
 		}
 	}
 
@@ -320,7 +294,16 @@ public class PatchEdit extends BaseEntityEdit {
 
 	@SuppressWarnings("ucd")
 	public void onPlacePickerClick(View view) {
-		Patchr.dispatch.route(this, Route.PLACE_SEARCH, mEntity, null, null);
+		Bundle extras = new Bundle();
+		extras.putInt(Constants.EXTRA_SEARCH_SCOPE, EntityManager.SuggestScope.PLACES.ordinal());
+		extras.putBoolean(Constants.EXTRA_SEARCH_RETURN_ENTITY, true);
+		if (mButtonPlace.getTag() != null) {
+			Entity entity = (Entity) mButtonPlace.getTag();
+			extras.putBoolean(Constants.EXTRA_SEARCH_CLEAR_BUTTON, true);
+			extras.putString(Constants.EXTRA_SEARCH_CLEAR_BUTTON_MESSAGE, StringManager.getString(R.string.button_clear_place));
+			extras.putString(Constants.EXTRA_SEARCH_PHRASE, entity.name);
+		}
+		Patchr.dispatch.route(this, Route.SEARCH, mEntity, null, extras);
 	}
 
 	public void onPrivacyBuilderClick(View view) {
@@ -330,20 +313,6 @@ public class PatchEdit extends BaseEntityEdit {
 	@SuppressWarnings("ucd")
 	public void onLocationBuilderClick(View view) {
 		Patchr.dispatch.route(this, Route.LOCATION_EDIT, mEntity, null, null);
-	}
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		if (mTooltips != null) {
-			View view = findViewById(R.id.tooltips);
-			view.post(new Runnable() {
-				@Override
-				public void run() {
-					showTooltips();
-				}
-			});
-		}
 	}
 
 	@Override
@@ -366,7 +335,7 @@ public class PatchEdit extends BaseEntityEdit {
 					}
 				}
 			}
-			else if (requestCode == Constants.ACTIVITY_PLACE_SEARCH) {
+			else if (requestCode == Constants.ACTIVITY_SEARCH) {
 				if (intent == null || intent.getExtras() == null) {
 					mDirty = true;
 					mButtonPlace.setTag(null);
@@ -653,7 +622,7 @@ public class PatchEdit extends BaseEntityEdit {
 				UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
 				setResultCode(Activity.RESULT_OK);
 				finish();
-				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(PatchEdit.this, TransitionType.FORM_TO_PAGE);
+				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(PatchEdit.this, TransitionType.FORM_BACK);
 			}
 		}.execute();
 	}
@@ -706,49 +675,6 @@ public class PatchEdit extends BaseEntityEdit {
 		return Constants.TYPE_LINK_PROXIMITY;
 	}
 
-	public void showTooltips() {
-
-		if (mTooltips != null && !mTooltips.hasShot()) {
-			mTooltips.setClickable(true);
-			mTooltips.setVisibility(View.VISIBLE);
-			mTooltips.clear();
-			mTooltips.requestLayout();
-
-			ToolTipView part1 = mTooltips.showTooltip(new ToolTip()
-					.withText(StringManager.getString(R.string.tooltip_patch_new_part1))
-					.withShadow(true)
-					.withArrow(false)
-					.setMaxWidth(UI.getRawPixelsForDisplayPixels(250f))
-					.withAnimationType(ToolTip.AnimationType.FROM_SELF));
-			part1.setId(ViewId.getInstance().getUniqueId());
-			part1.addRule(RelativeLayout.CENTER_HORIZONTAL);
-
-			RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) part1.getLayoutParams();
-			params.setMargins(0, UI.getRawPixelsForDisplayPixels(40f), 0, 0);
-			part1.setLayoutParams(params);
-
-			ToolTipView part2 = mTooltips.showTooltip(new ToolTip()
-					.withText(StringManager.getString(R.string.tooltip_patch_new_part2))
-					.withShadow(true)
-					.withArrow(false)
-					.setMaxWidth(UI.getRawPixelsForDisplayPixels(250f))
-					.withAnimationType(ToolTip.AnimationType.FROM_SELF));
-			part2.setId(ViewId.getInstance().getUniqueId());
-			part2.setMinimumWidth(UI.getRawPixelsForDisplayPixels(250f));
-			part2.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			part2.addRule(RelativeLayout.BELOW, part1.getId());
-
-			ToolTipView part3 = mTooltips.showTooltip(new ToolTip()
-					.withText(StringManager.getString(R.string.tooltip_patches_new_part3))
-					.withShadow(true)
-					.withArrow(false)
-					.setMaxWidth(UI.getRawPixelsForDisplayPixels(250f))
-					.withAnimationType(ToolTip.AnimationType.FROM_SELF));
-			part3.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			part3.addRule(RelativeLayout.BELOW, part2.getId());
-		}
-	}
-
 	private boolean checkReady() {
 		/*
 		 * Parent activity performs play services check. We can't get to
@@ -775,33 +701,6 @@ public class PatchEdit extends BaseEntityEdit {
 		uiSettings.setCompassEnabled(false);
 
 		MapsInitializer.initialize(this);
-	}
-
- 	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
-		boolean result = super.onCreateOptionsMenu(menu);
-		if (mTooltips != null) {
-			View view = findViewById(R.id.tooltips);
-			view.post(new Runnable() {
-				@Override
-				public void run() {
-					showTooltips();
-				}
-			});
-		}
-		return result;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (mTooltips != null) {
-			mTooltips.hide(false);
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	/*--------------------------------------------------------------------------------------------

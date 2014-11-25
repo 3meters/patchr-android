@@ -363,6 +363,20 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	public void configureActionBar() {
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayShowTitleEnabled(true);  // Dont show title
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);    // Show navigation indicator
+		}
+
+		getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
+			}
+		});
+	}
+
 	public void accept() {
 		if (mEditing) {
 			update();
@@ -602,7 +616,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						}
 						setResultCode(Activity.RESULT_OK);
 						finish();
-						Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_TO_PAGE);
+						Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_BACK);
 					}
 				}
 				else {
@@ -723,7 +737,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
 						setResultCode(Activity.RESULT_OK);
 						finish();
-						Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_TO_PAGE);
+						Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_BACK);
 					}
 				}
 				else {
@@ -733,12 +747,4 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 		}.execute();
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
 }

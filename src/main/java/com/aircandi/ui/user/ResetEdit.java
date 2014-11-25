@@ -238,7 +238,7 @@ public class ResetEdit extends BaseEdit {
 
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_TO_PAGE);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Errors.handleError(ResetEdit.this, result.serviceResponse);

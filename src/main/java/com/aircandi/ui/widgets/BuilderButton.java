@@ -34,7 +34,7 @@ public class BuilderButton extends RelativeLayout {
 		super(context, attrs, defStyle);
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.BuilderButton, defStyle, 0);
 		mHint = ta.getString(R.styleable.BuilderButton_hint);
-		mLayoutId = ta.getResourceId(R.styleable.BuilderButton_layout, R.layout.widget_builder_button);
+		mLayoutId = ta.getResourceId(R.styleable.BuilderButton_layoutId, R.layout.widget_builder_button);
 		ta.recycle();
 
 		initialize();

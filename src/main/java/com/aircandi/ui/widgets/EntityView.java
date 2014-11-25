@@ -51,7 +51,7 @@ public class EntityView extends LinearLayout {
 
 		if (attrs != null) {
 			final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.EntityView, defStyle, 0);
-			mLayoutResId = ta.getResourceId(R.styleable.EntityView_layout, R.layout.widget_entity_view);
+			mLayoutResId = ta.getResourceId(R.styleable.EntityView_layoutId, R.layout.widget_entity_view);
 			mLabelResId = ta.getResourceId(R.styleable.EntityView_label, 0);
 
 			ta.recycle();

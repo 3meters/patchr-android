@@ -67,9 +67,9 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 	public void draw(View view) {}
 
 	protected void setActionBarIcon() {
-		if (mActionBar != null) {
+		if (getSupportActionBar() != null) {
 			Drawable icon = getResources().getDrawable(R.drawable.ic_home_edit_dark);
-			mActionBar.setIcon(icon);
+			getSupportActionBar().setIcon(icon);
 		}
 	}
 

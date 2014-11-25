@@ -13,8 +13,6 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -48,7 +46,6 @@ import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
 import com.aircandi.ui.widgets.ComboButton;
-import com.aircandi.ui.widgets.ToolTipRelativeLayout;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Booleans;
 import com.aircandi.utilities.Colors;
@@ -65,7 +62,6 @@ public class PatchForm extends BaseEntityForm {
 	protected Boolean mWaitForContent = true;
 	protected Boolean mAutoWatch      = false;
 	protected Boolean mJustApproved   = false;
-	protected ToolTipRelativeLayout mTooltips;
 
 	@Override
 	public void unpackIntent() {
@@ -104,8 +100,6 @@ public class PatchForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mTooltips = (ToolTipRelativeLayout) findViewById(R.id.tooltips);
-		mTooltips.setSingleShot(Constants.TOOLTIPS_PLACE_BROWSE_ID);
 		mBubbleButton.setEnabled(false);
 
 		/* Default fragment */
@@ -270,13 +264,6 @@ public class PatchForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
 		((EntityListFragment) mCurrentFragment).onMoreButtonClick(view);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onMapButtonClick(View view) {
-		if (mEntity != null) {
-			Patchr.dispatch.route(this, Route.MAP, mEntity, null, null);
-		}
 	}
 
 	@Subscribe
@@ -624,7 +611,7 @@ public class PatchForm extends BaseEntityForm {
 				UI.setVisibility(watched, View.VISIBLE);
 				Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
 				if (link != null && link.enabled) {
-					final int color = Colors.getColor(R.color.brand_primary);
+					final int color = Colors.getColor(R.color.brand_accent);
 					watched.getImageIcon().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
 				}
 				else {
@@ -642,14 +629,6 @@ public class PatchForm extends BaseEntityForm {
 		else {
 			UI.setVisibility(view.findViewById(R.id.button_watch), View.VISIBLE);
 			UI.setVisibility(findViewById(R.id.button_share), View.VISIBLE);
-		}
-
-		UI.setVisibility(view.findViewById(R.id.button_map), View.GONE);
-		/*
-		 * We can map it if we have an address or a decent location fix.
-		 */
-		if (place.location != null) {
-			UI.setVisibility(view.findViewById(R.id.button_map), View.VISIBLE);
 		}
 
 		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
@@ -777,28 +756,5 @@ public class PatchForm extends BaseEntityForm {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem menuItem = menu.findItem(com.aircandi.R.id.share);
-		if (menuItem != null) {
-			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.SHARE, mEntity, mForId));
-		}
-		return super.onPrepareOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		mTooltips.hide(false);
-		return super.onOptionsItemSelected(item);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 }

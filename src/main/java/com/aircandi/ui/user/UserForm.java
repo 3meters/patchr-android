@@ -73,21 +73,6 @@ public class UserForm extends BaseEntityForm {
 		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mCurrentFragment).commit();
 	}
 
-	@Override
-	public void afterDatabind(BindingMode mode, ModelResult result) {
-		super.afterDatabind(mode, result);
-
-		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
-		if (!currentUser) return;
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			if (mEntityMonitor.changed) {
-				((EntityListFragment)mCurrentFragment).bind(BindingMode.MANUAL);
-			}
-			else {
-				((EntityListFragment)mCurrentFragment).bind(mode);
-			}
-		}
-	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
@@ -99,7 +84,6 @@ public class UserForm extends BaseEntityForm {
 		((BaseFragment) mCurrentFragment).onProcessingFinished();
 	}
 
-	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
 		((EntityListFragment)mCurrentFragment).onMoreButtonClick(view);
 	}
@@ -139,10 +123,26 @@ public class UserForm extends BaseEntityForm {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Override
+	public void afterDatabind(BindingMode mode, ModelResult result) {
+		super.afterDatabind(mode, result);
+
+		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
+		if (!currentUser) return;
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			if (mEntityMonitor.changed) {
+				((EntityListFragment)mCurrentFragment).bind(BindingMode.MANUAL);
+			}
+			else {
+				((EntityListFragment)mCurrentFragment).bind(mode);
+			}
+		}
+	}
+
 	protected void setActionBarIcon() {
-		if (mActionBar != null) {
+		if (getSupportActionBar() != null) {
 			Drawable icon = getResources().getDrawable(R.drawable.ic_home_user_dark);
-			mActionBar.setIcon(icon);
+			getSupportActionBar().setIcon(icon);
 		}
 	}
 
@@ -241,7 +241,4 @@ public class UserForm extends BaseEntityForm {
 		return R.layout.user_form;
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
 }

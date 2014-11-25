@@ -11,8 +11,6 @@ import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -607,9 +605,9 @@ public class MessageForm extends BaseEntityForm {
 	}
 
 	protected void setActionBarIcon() {
-		if (mActionBar != null) {
+		if (getSupportActionBar() != null) {
 			Drawable icon = getResources().getDrawable(R.drawable.ic_home_message_dark);
-			mActionBar.setIcon(icon);
+			getSupportActionBar().setIcon(icon);
 		}
 	}
 
@@ -695,29 +693,12 @@ public class MessageForm extends BaseEntityForm {
 		}.execute();
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem menuItem = menu.findItem(com.aircandi.R.id.share);
-		if (menuItem != null) {
-			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.SHARE, mEntity, mForId));
-		}
-		return super.onPrepareOptionsMenu(menu);
+	protected int getLayoutId() {
+		return R.layout.message_form;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected int getLayoutId() {
-		return R.layout.message_form;
-	}
 }

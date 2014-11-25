@@ -43,7 +43,6 @@ public class TrendListFragment extends EntityListFragment {
 		holder.data = entity;
 
 		controller.bind(entity, view, groupTag);
-
 		/*
 		 * Trending data
 		 */
@@ -70,10 +69,6 @@ public class TrendListFragment extends EntityListFragment {
 		mCountLabelResId = countLabelResId;
 		return this;
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle

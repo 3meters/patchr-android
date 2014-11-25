@@ -81,7 +81,7 @@ public class PrivacyBuilder extends BaseEntityEdit {
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ public class PrivacyBuilder extends BaseEntityEdit {
 		intent.putExtra(Constants.EXTRA_PRIVACY, mPrivacy);
 		setResultCode(Activity.RESULT_OK, intent);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
 
 	@Override

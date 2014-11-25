@@ -201,9 +201,9 @@ public class WatcherList extends BaseActivity {
 	}
 
 	protected void setActionBarIcon() {
-		if (mActionBar != null) {
+		if (getSupportActionBar() != null) {
 			Drawable icon = getResources().getDrawable(R.drawable.ic_img_users_dark);
-			mActionBar.setIcon(icon);
+			getSupportActionBar().setIcon(icon);
 		}
 	}
 

@@ -95,7 +95,7 @@ public class CandiView extends RelativeLayout {
 
 		if (attrs != null) {
 			final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.CandiView, defStyle, 0);
-			mLayoutId = ta.getResourceId(R.styleable.CandiView_layout, R.layout.widget_candi_view);
+			mLayoutId = ta.getResourceId(R.styleable.CandiView_layoutId, R.layout.widget_candi_view);
 			mColorize = ta.getBoolean(R.styleable.CandiView_colorize, true);
 			mAspectRatio = ta.getFloat(R.styleable.AirImageView_aspectRatio, DEFAULT_ASPECT_RATIO);
 			mAspectRatioEnabled = ta.getBoolean(R.styleable.AirImageView_aspectRatioEnabled,

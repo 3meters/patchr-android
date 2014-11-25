@@ -148,7 +148,7 @@ public class SignInEdit extends BaseEdit {
 
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_TO_PAGE);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Errors.handleError(SignInEdit.this, result.serviceResponse);
@@ -188,7 +188,7 @@ public class SignInEdit extends BaseEdit {
 			if (resultCode == Constants.RESULT_USER_SIGNED_IN) {
 				setResultCode(Constants.RESULT_USER_SIGNED_IN);
 				finish();
-				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_TO_PAGE);
+				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_BACK);
 			}
 		}
 

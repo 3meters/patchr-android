@@ -70,7 +70,7 @@ public class AboutForm extends BaseActivity {
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_PAGE);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.FORM_BACK);
 	}
 
 	@SuppressWarnings("ucd")
@@ -89,23 +89,21 @@ public class AboutForm extends BaseActivity {
 	}
 
 	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	protected int getLayoutId() {
+		return R.layout.about_form;
+	}
+
+	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void onResume() {
 		super.onResume();
 		bind(BindingMode.AUTO);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
-	@Override
-	protected int getLayoutId() {
-		return R.layout.about_form;
 	}
 }

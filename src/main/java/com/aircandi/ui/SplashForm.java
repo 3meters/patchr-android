@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -33,7 +34,7 @@ import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 
 @SuppressLint("Registered")
-public class SplashForm extends Activity {
+public class SplashForm extends ActionBarActivity {
 
 	protected SwipeRefreshLayout  mSwipeRefreshLayout;
 
@@ -43,7 +44,6 @@ public class SplashForm extends Activity {
 		super.onCreate(savedInstanceState);
 		Logger.d(this, "Splash create");
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-		requestWindowFeature((int) Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.splash_form);
 		initialize();
 	}

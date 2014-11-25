@@ -142,7 +142,7 @@ public class CategoryBuilder extends BaseEdit {
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -178,15 +178,11 @@ public class CategoryBuilder extends BaseEdit {
 		}
 		setResultCode(Activity.RESULT_OK, intent);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
+	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
 	private void setCategoryIndexes() {

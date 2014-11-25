@@ -100,12 +100,118 @@ public class PhotoForm extends BaseActivity implements IBind {
 		bind(BindingMode.AUTO);
 	}
 
-	@Override
-	protected void configureActionBar() {
-		super.configureActionBar();
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 
-		if (mActionBar != null) {
-			mActionBar.setSubtitle("double-tap to zoom");
+	public void onZoomIn() {
+		mImageViewTouch.setDoubleTapDirection(1);
+		float scale = mImageViewTouch.getScale();
+		float targetScale;
+		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
+		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
+		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
+	}
+
+	public void onZoomOut() {
+		mImageViewTouch.setDoubleTapDirection(-1);
+		float scale = mImageViewTouch.getScale();
+		float targetScale;
+		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
+		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
+		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
+	}
+
+	private void updateViewPager() {
+		if (mViewPager == null) {
+
+			mViewPager = (AirViewPager) findViewById(R.id.view_pager);
+			mViewPager.setPageTransformer(true, new AnimationManager.DepthPageTransformer());
+			mViewPager.setVisibility(View.VISIBLE);
+			mViewPager.setOnTouchListener(new OnTouchListener() {
+
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					/*
+					 * ViewPager ignores any gesture it doesn't see as a horizontal move or fling.
+					 */
+					int action = event.getAction();
+					switch (action & MotionEvent.ACTION_MASK) {
+						case MotionEvent.ACTION_UP:
+							return false;
+					}
+					return false;
+				}
+			});
+
+			mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+
+				@Override
+				public void onPageScrollStateChanged(int state) {
+					super.onPageScrollStateChanged(state);
+					if (state == ViewPager.SCROLL_STATE_IDLE) {
+						Logger.v(this, "Page idle");
+						bindImageViewTouch(null);
+					}
+				}
+
+				@Override
+				public void onPageSelected(int position) {
+					Logger.v(this, "Page selected");
+				}
+			});
+
+			mViewPager.setAdapter(new PhotoPagerAdapter());
+
+			synchronized (mPhotosForPaging) {
+				for (int i = 0; i < mPhotosForPaging.size(); i++) {
+					if (mPhotosForPaging.get(i).getUri() != null) {
+						if (mPhotosForPaging.get(i).getUri().equals(mPhoto.getUri())) {
+							mViewPager.setCurrentItem(i, false);
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	protected void bindImageViewTouch(ViewGroup layout) {
+		ViewGroup view = layout;
+		if (mPagingEnabled) {
+			view = (ViewGroup) mViewPager.findViewWithTag("page" + mViewPager.getCurrentItem());
+		}
+
+		if (view != null) {
+			AirImageView image = (AirImageView) view.findViewById(R.id.photo);
+			mImageViewTouch = (ImageViewTouch) image.getImageView();
+			mImageViewTouch.setOnScaleChangeListener(new OnScaleChangeListener() {
+
+				@Override
+				public void onScaleChanged(float scale) {
+					if (mViewPager != null) {
+						mViewPager.setSwipeable(scale <= 1.01f);
+					}
+				}
+			});
+		}
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		final AirImageView photoView = (AirImageView) findViewById(R.id.photo);
+		final ImageViewTouch imageView = (ImageViewTouch) photoView.getImageView();
+		imageView.setDisplayType(DisplayType.FIT_TO_SCREEN);
+		super.onConfigurationChanged(newConfig);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	protected void configureActionBar() {
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setSubtitle("double-tap to zoom");
 		}
 	}
 
@@ -217,115 +323,6 @@ public class PhotoForm extends BaseActivity implements IBind {
 		return layout;
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	public void onZoomIn() {
-		mImageViewTouch.setDoubleTapDirection(1);
-		float scale = mImageViewTouch.getScale();
-		float targetScale;
-		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
-		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
-		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
-	}
-
-	public void onZoomOut() {
-		mImageViewTouch.setDoubleTapDirection(-1);
-		float scale = mImageViewTouch.getScale();
-		float targetScale;
-		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
-		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
-		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
-	}
-
-	private void updateViewPager() {
-		if (mViewPager == null) {
-
-			mViewPager = (AirViewPager) findViewById(R.id.view_pager);
-			mViewPager.setPageTransformer(true, new AnimationManager.DepthPageTransformer());
-			mViewPager.setVisibility(View.VISIBLE);
-			mViewPager.setOnTouchListener(new OnTouchListener() {
-
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					/*
-					 * ViewPager ignores any gesture it doesn't see as a horizontal move or fling.
-					 */
-					int action = event.getAction();
-					switch (action & MotionEvent.ACTION_MASK) {
-						case MotionEvent.ACTION_UP:
-							return false;
-					}
-					return false;
-				}
-			});
-
-			mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-
-				@Override
-				public void onPageScrollStateChanged(int state) {
-					super.onPageScrollStateChanged(state);
-					if (state == ViewPager.SCROLL_STATE_IDLE) {
-						Logger.v(this, "Page idle");
-						bindImageViewTouch(null);
-					}
-				}
-
-				@Override
-				public void onPageSelected(int position) {
-					Logger.v(this, "Page selected");
-				}
-			});
-
-			mViewPager.setAdapter(new PhotoPagerAdapter());
-
-			synchronized (mPhotosForPaging) {
-				for (int i = 0; i < mPhotosForPaging.size(); i++) {
-					if (mPhotosForPaging.get(i).getUri() != null) {
-						if (mPhotosForPaging.get(i).getUri().equals(mPhoto.getUri())) {
-							mViewPager.setCurrentItem(i, false);
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	protected void bindImageViewTouch(ViewGroup layout) {
-		ViewGroup view = layout;
-		if (mPagingEnabled) {
-			view = (ViewGroup) mViewPager.findViewWithTag("page" + mViewPager.getCurrentItem());
-		}
-
-		if (view != null) {
-			AirImageView image = (AirImageView) view.findViewById(R.id.photo);
-			mImageViewTouch = (ImageViewTouch) image.getImageView();
-			mImageViewTouch.setOnScaleChangeListener(new OnScaleChangeListener() {
-
-				@Override
-				public void onScaleChanged(float scale) {
-					if (mViewPager != null) {
-						mViewPager.setSwipeable(scale <= 1.01f);
-					}
-				}
-			});
-		}
-	}
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		final AirImageView photoView = (AirImageView) findViewById(R.id.photo);
-		final ImageViewTouch imageView = (ImageViewTouch) photoView.getImageView();
-		imageView.setDisplayType(DisplayType.FIT_TO_SCREEN);
-		super.onConfigurationChanged(newConfig);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
 	@Override
 	public void share() {
 
@@ -340,6 +337,11 @@ public class PhotoForm extends BaseActivity implements IBind {
 		builder.startChooser();
 	}
 
+	@Override
+	protected int getLayoutId() {
+		return R.layout.photo_form;
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
@@ -347,14 +349,6 @@ public class PhotoForm extends BaseActivity implements IBind {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
-	@Override
-	protected int getLayoutId() {
-		return R.layout.photo_form;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -376,7 +370,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 				return true;
 			}
 		}
-		Patchr.dispatch.route(this, Patchr.dispatch.routeForMenuId(item.getItemId()), mEntity, null, null);
+		super.onOptionsItemSelected(item);
 		return true;
 	}
 

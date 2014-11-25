@@ -81,7 +81,7 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
 
 	@Override
@@ -125,7 +125,7 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 		intent.putExtra(Constants.EXTRA_LOCATION, json);
 		setResultCode(Activity.RESULT_OK, intent);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_TO_FORM);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
 
 	private boolean checkReady() {

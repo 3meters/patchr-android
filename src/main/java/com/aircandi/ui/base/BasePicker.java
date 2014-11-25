@@ -66,7 +66,7 @@ public abstract class BasePicker extends Activity {
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.DRILL_BACK);
 	}
 
 	@Override
@@ -119,10 +119,6 @@ public abstract class BasePicker extends Activity {
 		setResult(resultCode, intent);
 		Patchr.resultCode = resultCode;
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle

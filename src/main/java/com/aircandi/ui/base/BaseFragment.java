@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -279,82 +280,33 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		 * so any dependencies must have already been created.
 		 */
 		Logger.d(this, "Creating fragment options menu");
-
 		for (Integer menuResId : mMenuResIds) {
 			inflater.inflate(menuResId, menu);
 		}
-
-		/* If fragment has a search action then configure it */
-
-		final MenuItem item = menu.findItem(R.id.search);
-		if (item != null) {
-			mTo = (AirAutoCompleteTextView) item.getActionView().findViewById(R.id.search_input);
-			mToImage = item.getActionView().findViewById(R.id.search_image);
-			mToProgress = item.getActionView().findViewById(R.id.search_progress);
-
-			if (mEntitySuggest == null) {
-				mEntitySuggest = new EntitySuggestController(getActivity());
-			}
-
-			mEntitySuggest.setSearchInput((AutoCompleteTextView) mTo);
-			mEntitySuggest.setSearchImage(mToImage);
-			mEntitySuggest.setSearchProgress(mToProgress);
-			mEntitySuggest.init();
-
-			mTo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					item.collapseActionView();
-					Entity entity = (Entity) mTo.getAdapter().getItem(position);
-
-					Bundle extras = new Bundle();
-					if (entity.synthetic) {
-						final String jsonEntity = Json.objectToJson(entity);
-						extras.putString(Constants.EXTRA_ENTITY, jsonEntity);
-					}
-					Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
-				}
-			});
-
-			item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-
-				@Override
-				public boolean onMenuItemActionExpand(MenuItem item) {
-
-					mTo.setText(null);
-
-					mTo.post(new Runnable() {
-						@Override
-						public void run() {
-							mTo.requestFocus();
-							UI.showSoftInput(mTo);
-						}
-					});
-					return true;
-				}
-
-				@Override
-				public boolean onMenuItemActionCollapse(MenuItem menuItem) {
-					UI.hideSoftInput(mTo);
-					return true;
-				}
-			});
-		}
-
+		configureStandardMenuItems(menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
-	@SuppressWarnings("ucd")
-	public boolean onCreatePopupMenu(android.view.Menu menu) {
-		Logger.d(this, "Creating fragment options menu");
-		return Patchr.getInstance().getMenuManager().onCreatePopupMenu(getActivity(), menu, mEntity);
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Patchr.dispatch.route(getActivity(), Patchr.dispatch.routeForMenuId(item.getItemId()), null, null, null);
+		return true;
 	}
 
-	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		Logger.d(this, "Preparing fragment options menu");
-		super.onPrepareOptionsMenu(menu);
+	public void configureStandardMenuItems(Menu menu) {
+
+		/* Remove menu items per policy */
+		Entity entity = ((BaseActivity) getActivity()).getEntity();
+
+		MenuItem item = menu.findItem(R.id.edit);
+		if (item != null) {
+			item.setVisible(Patchr.getInstance().getMenuManager().canUserEdit(entity));
+		}
+
+		item = menu.findItem(R.id.delete);
+		if (item != null) {
+			item.setVisible(Patchr.getInstance().getMenuManager().canUserDelete(entity));
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------

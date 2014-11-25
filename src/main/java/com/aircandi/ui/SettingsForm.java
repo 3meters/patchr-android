@@ -29,7 +29,6 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -44,7 +43,6 @@ import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.Document;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.ui.components.ShotStateStore;
 import com.aircandi.ui.widgets.BeaconPreference;
 import com.aircandi.ui.widgets.ListPreferenceMultiSelect;
 import com.aircandi.ui.widgets.LocationPreference;
@@ -188,20 +186,6 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 			});
 		}
 
-		/* Listen for tutorial reset click */
-		pref = findPreference("Pref_Reset_Tutorials");
-		if (pref != null) {
-			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					ShotStateStore.resetTooltips(Patchr.applicationContext);
-					UI.showToastNotification("Tooltips restored", Toast.LENGTH_SHORT);
-					return true;
-				}
-			});
-		}
-
 		/* Listen for signin/out click */
 		pref = findPreference("Pref_Signin_Signout");
 		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -291,6 +275,7 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (requestCode == Constants.ACTIVITY_SIGNIN) {
@@ -350,6 +335,7 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	private void setSummaries(PreferenceGroup prefGroup) {
 		/*
 		 * Walk and set the current pref values in the UI
@@ -483,6 +469,7 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == android.R.id.home) {
@@ -492,7 +479,7 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 			 */
 			setResult(Activity.RESULT_CANCELED);
 			finish();
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.FORM_BACK);
 		}
 		return true;
 	}
@@ -500,6 +487,7 @@ public class SettingsForm extends PreferenceActivity implements OnSharedPreferen
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void onStart() {
 		super.onStart();

@@ -1,6 +1,7 @@
 package com.aircandi.ui.components;
 
 import android.content.Context;
+import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
@@ -53,12 +54,15 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	private List<Entity> mSeedEntities      = new ArrayList<Entity>();
 	private Boolean      mSuggestInProgress = false;
 
-	private ArrayAdapter                        mAdapter;
-	private Context                             mContext;
-	private AbsListView                         mListView;
-	private EditText                            mSearchInput;
-	private View                                mSearchProgress;
-	private View                                mSearchImage;
+	private ArrayAdapter mAdapter;
+	private Context      mContext;
+	private AbsListView  mListView;
+
+	private EditText   mSearchInput;
+	private SearchView mSearchView;
+	private View       mSearchProgress;
+	private View       mSearchImage;
+
 	private Integer                             mWatchResId;
 	private Integer                             mLocationResId;
 	private Integer                             mUserResId;
@@ -100,25 +104,44 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		if (mSearchInput instanceof AutoCompleteTextView) {
 			((AutoCompleteTextView) mSearchInput).setAdapter(mAdapter);
 		}
-		else if (mListView != null) {
+		else if (mSearchInput instanceof EditText && mListView != null) {
 			((ListView) mListView).setAdapter(mAdapter);
 			mSearchInput.addTextChangedListener(new SimpleTextWatcher() {
 
 				@Override
 				public void afterTextChanged(Editable s) {
-					String input = s.toString();
-					if (!TextUtils.isEmpty(input) && input.length() >= 3) {
-						mAdapter.getFilter().filter(input);
-					}
-					else {
-						mAdapter.clear();
-						if (mSeedEntities != null && mSeedEntities.size() > 0) {
-							mAdapter.add(mSeedEntities.get(0));
-						}
-						mAdapter.notifyDataSetChanged();
-					}
+					textChanged(s.toString());
 				}
 			});
+		}
+		else if (mSearchView != null && mListView != null) {
+			((ListView) mListView).setAdapter(mAdapter);
+			mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+				@Override
+				public boolean onQueryTextSubmit(String s) {
+					textChanged(s);
+					return true;
+				}
+
+				@Override
+				public boolean onQueryTextChange(String s) {
+					textChanged(s);
+					return true;
+				}
+			});
+		}
+	}
+
+	public void textChanged(String input) {
+		if (!TextUtils.isEmpty(input) && input.length() >= 3) {
+			mAdapter.getFilter().filter(input);
+		}
+		else {
+			mAdapter.clear();
+			if (mSeedEntities != null && mSeedEntities.size() > 0) {
+				mAdapter.add(mSeedEntities.get(0));
+			}
+			mAdapter.notifyDataSetChanged();
 		}
 	}
 
@@ -195,6 +218,15 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		return this;
 	}
 
+	public EntitySuggestController setSearchView(SearchView searchView) {
+		mSearchView = searchView;
+		return this;
+	}
+
+	public SearchView getSearchView() {
+		return mSearchView;
+	}
+
 	public AbsListView getListView() {
 		return mListView;
 	}
@@ -257,7 +289,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 				UI.setVisibility(holder.categoryName, View.GONE);
 				if (entity instanceof Patch) {
-					Category category = ((Patch)entity).category;
+					Category category = ((Patch) entity).category;
 					if (category != null && !TextUtils.isEmpty(category.name)) {
 						holder.categoryName.setText(Html.fromHtml(category.name));
 						UI.setVisibility(holder.categoryName, View.VISIBLE);
@@ -385,7 +417,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			@Override
 			protected void publishResults(CharSequence constraint, FilterResults results) {
 			    /*
-		         * Called on UI thread.
+			     * Called on UI thread.
                  */
 				if (mSearchProgress != null) {
 					mSearchInput.post(new Runnable() {

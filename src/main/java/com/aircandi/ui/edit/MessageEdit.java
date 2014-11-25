@@ -24,6 +24,7 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.EntityManager;
+import com.aircandi.components.EntityManager.SuggestScope;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
@@ -94,8 +95,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			mReplyRootId = extras.getString(Constants.EXTRA_MESSAGE_ROOT_ID);
 			mReplyToId = extras.getString(Constants.EXTRA_MESSAGE_REPLY_TO_ID);
 			mReplyToName = extras.getString(Constants.EXTRA_MESSAGE_REPLY_TO_NAME);
-			mSuggestScope = EntityManager.SuggestScope.values()[extras.getInt(Constants.EXTRA_SUGGEST_SCOPE
-					, EntityManager.SuggestScope.PLACES.ordinal())];
+			mSuggestScope = SuggestScope.values()[extras.getInt(Constants.EXTRA_SEARCH_SCOPE, SuggestScope.PLACES.ordinal())];
 			mToMode = ToMode.values()[extras.getInt(Constants.EXTRA_TO_MODE, ToMode.SINGLE.ordinal())];
 			mToEditable = extras.getBoolean(Constants.EXTRA_TO_EDITABLE, true);
 		}
@@ -193,9 +193,9 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	}
 
 	protected void setActionBarIcon() {
-		if (mActionBar != null) {
+		if (getSupportActionBar() != null) {
 			Drawable icon = getResources().getDrawable(R.drawable.ic_home_edit_dark);
-			mActionBar.setIcon(icon);
+			getSupportActionBar().setIcon(icon);
 		}
 	}
 

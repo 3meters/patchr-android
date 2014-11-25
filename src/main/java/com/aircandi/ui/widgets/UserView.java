@@ -55,7 +55,7 @@ public class UserView extends RelativeLayout {
 		super(context, attrs, defStyle);
 
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.UserView, defStyle, 0);
-		final int layoutId = ta.getResourceId(R.styleable.UserView_layout, R.layout.widget_user_view_detailed);
+		final int layoutId = ta.getResourceId(R.styleable.UserView_layoutId, R.layout.widget_user_view_detailed);
 		mLabelResId = ta.getResourceId(R.styleable.UserView_label, 0);
 		mBoundView = (ViewGroup) LayoutInflater.from(getContext()).inflate(layoutId, null);
 
@@ -73,7 +73,6 @@ public class UserView extends RelativeLayout {
 			mImageLocked = (ImageView) mBoundView.findViewById(R.id.image_locked);
 			mImageWatched = (ImageView) mBoundView.findViewById(R.id.image_watched);
 			mWatchCount = (TextView) mBoundView.findViewById(R.id.watch_count);
-			mOverflowButton = (ComboButton) mBoundView.findViewById(R.id.button_overflow);
 		}
 
 		removeAllViews();

@@ -7,12 +7,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,13 +45,10 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.ServiceData;
+import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.service.ServiceResponse;
-import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.ui.widgets.ToolTip;
-import com.aircandi.ui.widgets.ToolTipRelativeLayout;
-import com.aircandi.ui.widgets.ToolTipView;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
@@ -264,7 +258,9 @@ public class NearbyListFragment extends EntityListFragment {
 	@Override
 	public void onClick(View view) {
 		final Patch entity = (Patch) ((ViewHolder) view.getTag()).data;
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
+		Bundle extras = new Bundle();
+		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
 	}
 
 	@Subscribe
@@ -392,14 +388,6 @@ public class NearbyListFragment extends EntityListFragment {
 					BusProvider.getInstance().post(new ProcessingFinishedEvent());
 				}
 				
-				/* No more updates are coming */
-				if (LocationManager.getInstance().getLocationLocked() != null) {
-					showTooltips(false);
-				}
-
-				/* Show map button if we have some entities to map */
-				//handleFooter((entities.size() > 0), AnimationManager.DURATION_MEDIUM);
-
 				if (event.source.equals("onLocationChanged")) {
 					mAtLeastOneLocationProcessed = true;
 				}
@@ -445,16 +433,6 @@ public class NearbyListFragment extends EntityListFragment {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		mAdapter.notifyDataSetChanged();
-		if (mEntities.size() > 0 || LocationManager.getInstance().getLocationLocked() != null) {
-			MenuItem menuItem = ((BaseActivity) getActivity()).getMenu().findItem(R.id.search);
-			final View searchView = menuItem.getActionView();
-			searchView.post(new Runnable() {
-				@Override
-				public void run() {
-					showTooltips(true);
-				}
-			});
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -549,65 +527,6 @@ public class NearbyListFragment extends EntityListFragment {
 				}
 			}
 		}.execute();
-	}
-
-	public void showTooltips(boolean force) {
-
-		ToolTipRelativeLayout tooltipLayer = ((AircandiForm) getActivity()).mTooltips;
-
-		if ((force || tooltipLayer.getVisibility() != View.VISIBLE) && !tooltipLayer.hasShot()) {
-			tooltipLayer.setClickable(true);
-			tooltipLayer.setVisibility(View.VISIBLE);
-			tooltipLayer.clear();
-			tooltipLayer.requestLayout();
-
-			ToolTipView tooltipView = tooltipLayer.showTooltip(new ToolTip()
-					.withText(StringManager.getString(R.string.tooltip_list_nearby))
-					.withShadow(true)
-					.withArrow(false)
-					.setMaxWidth(UI.getRawPixelsForDisplayPixels(250f))
-					.withAnimationType(ToolTip.AnimationType.FROM_SELF));
-
-			tooltipView.addRule(RelativeLayout.CENTER_IN_PARENT);
-
-			View searchView = getActivity().getWindow().getDecorView().findViewById(R.id.new_place);
-			if (searchView != null) {
-				tooltipLayer.showTooltipForView(new ToolTip()
-						.withText(StringManager.getString(R.string.tooltip_action_item_patch_new))
-						.withShadow(true)
-						.withArrow(true)
-						.setMaxWidth(UI.getRawPixelsForDisplayPixels(120f))
-						.withAnimationType(ToolTip.AnimationType.FROM_TOP), searchView);
-			}
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		/*
-		 * SUPER HACK: runnable will only be posted once the view for search has
-		 * gone through measure/layout. That's when it's safe to process tooltips
-		 * for action bar items.
-		 */
-		//		MenuItem menuItem = menu.findItem(R.id.search);
-		//		final View searchView = menuItem.getActionView();
-		//		searchView.post(new Runnable() {
-		//			@Override
-		//			public void run() {
-		//				showTooltips();
-		//			}
-		//		});
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		Patchr.dispatch.route(getActivity(), Patchr.dispatch.routeForMenuId(item.getItemId()), null, null, null);
-		return true;
 	}
 
 	/*--------------------------------------------------------------------------------------------

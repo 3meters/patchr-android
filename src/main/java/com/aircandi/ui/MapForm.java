@@ -3,12 +3,10 @@ package com.aircandi.ui;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.MenuItem;
 import android.view.View;
 
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.components.AndroidManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.MapManager;
 import com.aircandi.components.ModelResult;
@@ -39,9 +37,6 @@ public class MapForm extends BaseEntityForm {
 	@Override
 	public void draw(View view) {
 		mFirstDraw = false;
-//		if (!TextUtils.isEmpty(mEntity.name)) {
-//			setActivityTitle(mEntity.name);
-//		}
 
 		if ((mEntity instanceof Place || mEntity instanceof Patch) && mEntity.getLocation() != null) {
 			if (mEntity instanceof Place) {
@@ -122,38 +117,12 @@ public class MapForm extends BaseEntityForm {
 				.commit();
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
-		if (item.getItemId() == R.id.navigate) {
-			AirLocation location = mEntity.getLocation();
-			String address = null;
-			if (mEntity instanceof Place && mEntity.fuzzy) {
-				address = ((Place) mEntity).getAddressString(true);
-			}
-
-			AndroidManager.getInstance().callMapNavigation(this
-					, location.lat.doubleValue()
-					, location.lng.doubleValue()
-					, address
-					, mEntity.name);
-			return true;
-		}
-		else {
-			return super.onOptionsItemSelected(item);
-		}
+	protected int getLayoutId() {
+		return R.layout.map_form;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected int getLayoutId() {
-		return R.layout.map_form;
-	}
 }

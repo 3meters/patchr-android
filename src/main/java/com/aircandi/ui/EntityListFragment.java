@@ -38,6 +38,7 @@ import com.aircandi.interfaces.IQuery;
 import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
+import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseActivity;
@@ -338,7 +339,9 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 					return;
 				}
 			}
-			Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
+			Bundle extras = new Bundle();
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+			Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
 		}
 	}
 
@@ -690,10 +693,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 	public ListAdapter getAdapter() {
 		return mAdapter;
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle

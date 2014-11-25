@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class BaseEntityForm extends BaseActivity {
 
 	protected Integer mLinkProfile;
+	protected Integer mTransitionType;
 
 	/* Inputs */
 	@SuppressWarnings("ucd")
@@ -56,6 +57,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 			mParentId = extras.getString(Constants.EXTRA_ENTITY_PARENT_ID);
 			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
 			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
+			mTransitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
 		}
 	}
 
@@ -163,9 +165,18 @@ public abstract class BaseEntityForm extends BaseActivity {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void configureActionBar(){
-		super.configureActionBar();
-		mActionBar.setDisplayShowTitleEnabled(false);
+	public void configureActionBar() {
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);    // Show navigation indicator
+		}
+
+		getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
+			}
+		});
 	}
 
 	public void bind(final BindingMode mode) {
@@ -359,10 +370,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
 
@@ -385,9 +392,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 				Patchr.getInstance().setCurrentPatch(mEntity);
 				Logger.v(this, "Setting current patch to: " + mEntity.id);
 			}
-
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
-
 			bind(BindingMode.AUTO);    // check to see if the cache stamp is stale
 		}
 	}
