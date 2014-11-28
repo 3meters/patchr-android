@@ -29,7 +29,7 @@
 		android:textStyle="bold" />
 
 	<com.aircandi.ui.widgets.AirTextView
-		android:id="@+id/subtitle"
+		android:id="@+id/category_name"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/name"
@@ -46,7 +46,7 @@
 		android:id="@+id/candi_form_address"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/subtitle"
+		android:layout_below="@+id/category_name"
 		android:layout_marginLeft="8dp"
 		android:layout_marginRight="8dp" />
 
@@ -60,17 +60,6 @@
 		android:layout_marginRight="10dp"
 		android:textAppearance="?android:attr/textAppearanceSmall"
 		android:textColor="?textColorSecondary" />
-
-	<com.aircandi.ui.widgets.UserView
-		android:id="@+id/user"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:paddingBottom="8dp"
-		android:layout_marginBottom="8dp"
-		android:layout_marginLeft="8dp"
-		android:layout_marginRight="8dp"
-		custom:layout="@layout/widget_user_view_detailed_horizontal" />
 
 	<View
 		android:id="@+id/shadow"

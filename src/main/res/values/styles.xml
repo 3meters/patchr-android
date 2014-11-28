@@ -69,6 +69,9 @@
 		<item name="android:paddingLeft">2dp</item>
 	</style>
 
+	<style name="toolbar">
+	</style>
+
 	<style name="picture">
 		<item name="android:adjustViewBounds">true</item>
 	</style>
@@ -151,6 +154,10 @@
 		<item name="android:paddingLeft">2dp</item>
 	</style>
 
+	<style name="form_checkbox" parent="android:Widget.CompoundButton.CheckBox">
+		<item name="android:textAppearance">?android:attr/textAppearance</item>
+	</style>
+
 	<style name="label_fancy">
 		<item name="android:textAppearance">?attr/textAppearanceTiny</item>
 		<item name="android:paddingLeft">12dp</item>
@@ -162,24 +169,34 @@
 		<item name="android:paddingLeft">2dp</item>
 	</style>
 
+	<style name="form_edit" parent="@android:style/Widget.EditText">
+		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+		<item name="android:textColorHint">?android:attr/textColorHint</item>
+	</style>
+
 	<style name="form_text_small">
 		<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
 		<item name="android:paddingLeft">2dp</item>
 	</style>
 
-	<style name="button" parent="selectable_item">
+	<style name="button">
 		<item name="android:minHeight">@dimen/button_height</item>
-		<item name="layout">@layout/widget_combo_button</item>
+		<item name="android:textAllCaps">true</item>
+		<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
 	</style>
 
-	<style name="button_link" parent="selectable_item">
-		<item name="android:minHeight">@dimen/button_height</item>
-		<item name="layout">@layout/widget_combo_button_link</item>
+	<style name="button_flat" parent="button">
+		<item name="android:textColor">?attr/textColorButtonLink</item>
+		<item name="android:background">?android:attr/selectableItemBackground</item>
 	</style>
 
-	<style name="button_link_no_outline" parent="selectable_item">
-		<item name="android:minHeight">@dimen/button_height</item>
-		<item name="layout">@layout/widget_combo_button_link_no_outline</item>
+	<style name="button_link" parent="button">
+		<item name="android:textColor">?attr/textColorButtonLink</item>
+		<item name="android:background">?attr/backgroundButtonLink</item>
+	</style>
+
+	<style name="button_outline" parent="button">
+		<item name="android:background">?attr/backgroundButtonLink</item>
 	</style>
 
 	<style name="button_round" parent="button">
@@ -192,7 +209,7 @@
 	</style>
 
 	<style name="button_round_glow" parent="button">
-		<item name="android:padding">26dp</item>
+		<item name="android:padding">0dp</item>
 		<item name="android:layout_margin">15dp</item>
 		<item name="android:layout_alignParentBottom">true</item>
 		<item name="android:layout_alignParentRight">true</item>
@@ -225,29 +242,14 @@
 		<item name="android:background">?attr/backgroundBalloonOnGray</item>
 	</style>
 
-	<style name="form_edit" parent="@android:style/Widget.EditText">
-		<item name="android:textAppearance">?android:attr/textAppearance</item>
-		<item name="android:textColorHint">?android:attr/textColorHint</item>
-	</style>
-
-	<style name="form_checkbox" parent="android:Widget.CompoundButton.CheckBox">
-		<item name="android:textAppearance">?android:attr/textAppearance</item>
-	</style>
-
+	<!-- Used for spinner item layout -->
 	<style name="form_spinner_item" parent="android:Widget.DropDownItem.Spinner">
-		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-		<item name="android:gravity">center_vertical</item>
-		<item name="android:paddingTop">8dp</item>
-		<item name="android:paddingBottom">8dp</item>
-		<item name="android:paddingLeft">8dp</item>
-		<item name="android:paddingRight">8dp</item>
+		<item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
 	</style>
 
 	<style name="form_spinner" parent="android:Widget.TextView.SpinnerItem">
-		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+		<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
 		<item name="android:gravity">center_vertical</item>
-		<item name="android:paddingLeft">4dp</item>
-		<item name="android:paddingRight">4dp</item>
 		<item name="android:background">#00000000</item>
 	</style>
 
@@ -280,22 +282,6 @@
 		<item name="android:gravity">center_vertical|left</item>
 		<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
 		<item name="android:textColor">?attr/textColor</item>
-	</style>
-
-	<!-- Smooth progress bar -->
-
-	<style name="smooth_progress_bar" parent="SmoothProgressBar">
-		<item name="spb_color">@color/spb_default_color</item>
-		<item name="spb_sections_count">@integer/spb_default_sections_count</item>
-		<item name="spb_speed">0.5</item>
-		<item name="spb_stroke_width">@dimen/spb_default_stroke_width</item>
-		<item name="spb_stroke_separator_length">@dimen/spb_default_stroke_separator_length</item>
-		<item name="spb_reversed">@bool/spb_default_reversed</item>
-		<item name="spb_mirror_mode">@bool/spb_default_mirror_mode</item>
-		<item name="spb_progressiveStart_activated">@bool/spb_default_progressiveStart_activated</item>
-		<item name="spb_background">?attr/backgroundProgress</item>
-		<item name="spb_generate_background_with_colors">false</item>
-		<item name="spb_gradients">false</item>
 	</style>
 
 </resources>

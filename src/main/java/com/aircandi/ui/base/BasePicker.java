@@ -7,14 +7,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
+import com.aircandi.interfaces.IBind.BindingMode;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.interfaces.IBind.BindingMode;
 import com.aircandi.utilities.Json;
 
 public abstract class BasePicker extends Activity {
@@ -66,7 +66,7 @@ public abstract class BasePicker extends Activity {
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
 	}
 
 	@Override
@@ -119,10 +119,6 @@ public abstract class BasePicker extends Activity {
 		setResult(resultCode, intent);
 		Patchr.resultCode = resultCode;
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle

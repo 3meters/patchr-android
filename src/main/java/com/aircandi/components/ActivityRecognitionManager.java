@@ -156,7 +156,7 @@ public class ActivityRecognitionManager implements
 			mDetectionMode = DetectionMode.STILL;
 			if (Patchr.getInstance().getPrefEnableDev()) {
 				MediaManager.playSound(MediaManager.SOUND_ACTIVITY_CHANGE, 1.0f, 1);
-				UI.showToastNotification("Activity recognition: throttling down", Toast.LENGTH_SHORT);
+				UI.showToastNotification("Activity recognition: slowing updates", Toast.LENGTH_SHORT);
 			}
 		}
 		else if ((mActivityStateCurrent == ActivityState.DEPARTING || mActivityStateCurrent == ActivityState.MOVING)
@@ -165,7 +165,7 @@ public class ActivityRecognitionManager implements
 			mDetectionMode = DetectionMode.MOVING;
 			if (Patchr.getInstance().getPrefEnableDev()) {
 				MediaManager.playSound(MediaManager.SOUND_ACTIVITY_CHANGE, 1.0f, 3);
-				UI.showToastNotification("Activity recognition: throttling up", Toast.LENGTH_SHORT);
+				UI.showToastNotification("Activity recognition: faster updates", Toast.LENGTH_SHORT);
 			}
 		}
 

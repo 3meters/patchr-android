@@ -29,7 +29,7 @@ import java.util.Map;
 public class Messages extends EntityControllerBase {
 
 	public Messages() {
-		mColorPrimary = R.color.holo_blue_dark;
+		mColorPrimary = R.color.brand_accent;
 		mSchema = Constants.SCHEMA_ENTITY_MESSAGE;
 		mBrowseClass = MessageForm.class;
 		mEditClass = MessageEdit.class;
@@ -45,7 +45,6 @@ public class Messages extends EntityControllerBase {
 		Entity entity = new Message();
 		entity.schema = mSchema;
 		entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME); // Temporary
-		entity.signalFence = -100.0f;
 		return entity;
 	}
 
@@ -64,22 +63,22 @@ public class Messages extends EntityControllerBase {
 
 		Boolean share = (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE));
 
-		/* Place context */
+		/* Patch context */
 
-		UI.setVisibility(holder.placeName, View.GONE);
-		if (holder.placeName != null) {
+		UI.setVisibility(holder.patchName, View.GONE);
+		if (holder.patchName != null) {
 			if (share) {
-				holder.placeName.setText(StringManager.getString(R.string.label_message_shared));
-				UI.setVisibility(holder.placeName, View.VISIBLE);
+				holder.patchName.setText(StringManager.getString(R.string.label_message_shared));
+				UI.setVisibility(holder.patchName, View.VISIBLE);
 			}
 			else {
-				Entity parentEntity = entity.place;
+				Entity parentEntity = entity.patch;
 				if (parentEntity == null) {
 					parentEntity = EntityManager.getCacheEntity(entity.placeId);
 				}
 				if (parentEntity != null) {
-					holder.placeName.setText(parentEntity.name);
-					UI.setVisibility(holder.placeName, View.VISIBLE);
+					holder.patchName.setText(parentEntity.name);
+					UI.setVisibility(holder.patchName, View.VISIBLE);
 				}
 			}
 		}
@@ -133,6 +132,7 @@ public class Messages extends EntityControllerBase {
 					if (entity.creator != null && entity.creator.name != null) {
 
 						if (linkMessage != null
+								&& linkMessage.shortcut != null
 								&& linkMessage.shortcut.creator != null
 								&& linkMessage.shortcut.creator.name != null) {
 
@@ -186,7 +186,7 @@ public class Messages extends EntityControllerBase {
 		Entity shareEntity = null;
 
 		if (share) {
-			Link linkEntity = entity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PLACE);
+			Link linkEntity = entity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH);
 			if (linkEntity != null) {
 				shareEntity = linkEntity.shortcut.getAsEntity();
 			}
@@ -201,8 +201,8 @@ public class Messages extends EntityControllerBase {
 		if (shareEntity != null) {
 
 			int layoutResId = 0;
-			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-				layoutResId = R.layout.temp_button_share_place;
+			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+				layoutResId = R.layout.temp_button_share_patch;
 			}
 			else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				layoutResId = R.layout.temp_button_share_message;
@@ -212,7 +212,7 @@ public class Messages extends EntityControllerBase {
 			View shareView = LayoutInflater.from(view.getContext()).inflate(layoutResId, null, false);
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(shareEntity.schema);
 			controller.bind(shareEntity, shareView, groupTag);
-			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				shareEntity.autowatchable = true;
 			}
 			holder.share.setTag(shareEntity);

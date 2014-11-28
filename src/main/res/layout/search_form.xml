@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/include_toolbar_actionbar" />
+
+	<com.aircandi.ui.widgets.AirRelativeLayout
+		android:id="@+id/view"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_gravity="center_horizontal"
+		android:padding="8dp">
+
+		<RelativeLayout
+			android:id="@+id/holder_button_clear"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/toolbar"
+			android:layout_marginLeft="4dp"
+			android:layout_marginRight="4dp"
+			android:visibility="gone"
+			tools:visibility="visible">
+
+			<com.aircandi.ui.widgets.AirButton
+				android:id="@+id/button_clear"
+				style="@style/button_flat"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:onClick="onClearButtonClick"
+				tools:text="Clear linked place" />
+
+			<View
+				android:id="@+id/rule_alert"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/rule_divider_height"
+				android:layout_below="@id/button_clear"
+				android:background="?attr/ruleColor" />
+
+		</RelativeLayout>
+
+		<com.aircandi.ui.widgets.AirListView
+			android:id="@+id/list"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_below="@+id/holder_button_clear"
+			android:layout_marginLeft="4dp"
+			android:layout_marginRight="4dp"
+			android:animationCache="false"
+			android:cacheColorHint="#00000000"
+			android:divider="?attr/ruleColor"
+			android:dividerHeight="@dimen/rule_divider_height"
+			android:listSelector="#00000000"
+			android:paddingTop="0dp"
+			android:scrollingCache="false" />
+
+		<include
+			android:id="@+id/button_bubble"
+			layout="@layout/include_bubble" />
+
+		<ProgressBar
+			android:id="@+id/progress"
+			style="@style/progress"
+			android:layout_width="@dimen/progress_width"
+			android:layout_height="@dimen/progress_height"
+			android:visibility="gone" />
+
+	</com.aircandi.ui.widgets.AirRelativeLayout>
+
+</LinearLayout>

@@ -13,12 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 
-import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
@@ -27,14 +24,11 @@ import com.aircandi.components.Logger;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IForm;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Route;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.ui.components.BubbleController;
 import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.ui.widgets.AirAutoCompleteTextView;
 import com.aircandi.utilities.DateTime;
-import com.aircandi.utilities.Json;
-import com.aircandi.utilities.UI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -256,7 +250,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		return mMenuResIds;
 	}
 
-	public int getTitleResId() {
+	public Integer getTitleResId() {
 		return mTitleResId;
 	}
 
@@ -279,83 +273,33 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		 * so any dependencies must have already been created.
 		 */
 		Logger.d(this, "Creating fragment options menu");
-
 		for (Integer menuResId : mMenuResIds) {
 			inflater.inflate(menuResId, menu);
 		}
-
-		/* If fragment has a search action then configure it */
-
-		final MenuItem item = menu.findItem(R.id.search);
-		if (item != null) {
-			mTo = (AirAutoCompleteTextView) item.getActionView().findViewById(R.id.search_input);
-			mToImage = item.getActionView().findViewById(R.id.search_image);
-			mToProgress = item.getActionView().findViewById(R.id.search_progress);
-
-			if (mEntitySuggest == null) {
-				mEntitySuggest = new EntitySuggestController(getActivity());
-			}
-
-			mEntitySuggest.setInput((AutoCompleteTextView) mTo);
-			mEntitySuggest.setSearchImage(mToImage);
-			mEntitySuggest.setSearchProgress(mToProgress);
-			mEntitySuggest.init();
-
-			mTo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					item.collapseActionView();
-					Entity entity = (Entity) mTo.getAdapter().getItem(position);
-
-					Bundle extras = new Bundle();
-					if (entity.synthetic) {
-						final String jsonEntity = Json.objectToJson(entity);
-						extras.putString(Constants.EXTRA_ENTITY, jsonEntity);
-						extras.putBoolean(Constants.EXTRA_UPSIZE_SYNTHETIC, true);
-					}
-					Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
-				}
-			});
-
-			item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-
-				@Override
-				public boolean onMenuItemActionExpand(MenuItem item) {
-
-					mTo.setText(null);
-
-					mTo.post(new Runnable() {
-						@Override
-						public void run() {
-							mTo.requestFocus();
-							UI.showSoftInput(mTo);
-						}
-					});
-					return true;
-				}
-
-				@Override
-				public boolean onMenuItemActionCollapse(MenuItem menuItem) {
-					UI.hideSoftInput(mTo);
-					return true;
-				}
-			});
-		}
-
+		configureStandardMenuItems(menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
-	@SuppressWarnings("ucd")
-	public boolean onCreatePopupMenu(android.view.Menu menu) {
-		Logger.d(this, "Creating fragment options menu");
-		return Patchr.getInstance().getMenuManager().onCreatePopupMenu(getActivity(), menu, mEntity);
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Patchr.dispatch.route(getActivity(), Patchr.dispatch.routeForMenuId(item.getItemId()), null, null);
+		return true;
 	}
 
-	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		Logger.d(this, "Preparing fragment options menu");
-		super.onPrepareOptionsMenu(menu);
+	public void configureStandardMenuItems(Menu menu) {
+
+		/* Remove menu items per policy */
+		Entity entity = ((BaseActivity) getActivity()).getEntity();
+
+		MenuItem item = menu.findItem(R.id.edit);
+		if (item != null) {
+			item.setVisible(Patchr.getInstance().getMenuManager().canUserEdit(entity));
+		}
+
+		item = menu.findItem(R.id.delete);
+		if (item != null) {
+			item.setVisible(Patchr.getInstance().getMenuManager().canUserDelete(entity));
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -365,7 +309,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	@Override
 	public void onStart() {
 		Logger.d(this, "Fragment start");
-		Patchr.tracker.fragmentStart(this);
 		super.onStart();
 	}
 

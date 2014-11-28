@@ -3,14 +3,14 @@ package com.aircandi.utilities;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
-import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.Patchr;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Document;
 import com.aircandi.objects.Log;
-import com.aircandi.objects.Place;
+import com.aircandi.objects.Patch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,9 +21,9 @@ public class Debug {
 	public static void insertBeacon() {
 
 		final Document document = new Document();
-		if (Patchr.getInstance().getCurrentPlace() != null) {
+		if (Patchr.getInstance().getCurrentPatch() != null) {
 
-			Place place = (Place) Patchr.getInstance().getCurrentPlace();
+			Patch place = (Patch) Patchr.getInstance().getCurrentPatch();
 			Beacon beacon = place.getBeaconFromLink(Constants.TYPE_LINK_PROXIMITY, true);
 
 			if (beacon != null) {
@@ -54,7 +54,7 @@ public class Debug {
 				}.execute();
 			}
 			else {
-				UI.showToastNotification("The place doesn't have any beacons", Toast.LENGTH_SHORT);
+				UI.showToastNotification("The patch doesn't have any beacons", Toast.LENGTH_SHORT);
 			}
 		}
 	}

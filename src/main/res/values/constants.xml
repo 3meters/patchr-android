@@ -46,7 +46,7 @@
 	<string name="splash_button_signin">Sign in</string>
 	<string name="splash_button_start">Guest</string>
 	<string name="splash_button_retry">Retry</string>
-	<string name="splash_button_signup">Join [@string/name_app]</string>
+	<string name="splash_button_signup">Join Patchr</string>
 
 	<!-- Attribution -->
 
@@ -57,10 +57,6 @@
 	<!-- Feedback -->
 
 	<string name="feedback_message">How can we make [@string/name_app] better for you?</string>
-
-	<!-- Runtime settings -->
-
-	<bool name="entity_fencing_enabled">false</bool>
 
 	<!-- Content links -->
 

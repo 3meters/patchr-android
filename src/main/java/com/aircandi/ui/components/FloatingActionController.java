@@ -2,23 +2,31 @@ package com.aircandi.ui.components;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.aircandi.Patchr;
+import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.StringManager;
 
 public class FloatingActionController {
 	private View mView;
-	private Boolean        mEnabled      = true;
-	private Boolean        mLocked       = false;
-	private Boolean        mHidden       = false;
-	private Boolean        mSliding      = false;
+	private Boolean mEnabled = true;
+	private Boolean mLocked  = false;
+	private Boolean mHidden  = false;
+	private Boolean mSliding = false;
+	private ImageView mFabIcon;
 	private ObjectAnimator mSlideInAnim  = ObjectAnimator.ofFloat(null, "translationY", 0);
 	private ObjectAnimator mSlideOutAnim = ObjectAnimator.ofFloat(null, "translationY", 0);
 
 	public FloatingActionController(View view) {
 		mView = view;
+		if (view != null) {
+			mFabIcon = (ImageView) view.findViewById(R.id.fab_image);
+		}
 	}
 
 	public void click() {
@@ -173,6 +181,18 @@ public class FloatingActionController {
 				throw new RuntimeException("Cannot call setText if not a TextView");
 			}
 			((TextView) mView).setText(label);
+		}
+	}
+
+	public void setIcon(Integer drawableResId) {
+		if (mFabIcon != null) {
+			mFabIcon.setImageDrawable(Patchr.applicationContext.getResources().getDrawable(drawableResId));
+		}
+	}
+
+	public void setIcon(Drawable drawable) {
+		if (mFabIcon != null) {
+			mFabIcon.setImageDrawable(drawable);
 		}
 	}
 }

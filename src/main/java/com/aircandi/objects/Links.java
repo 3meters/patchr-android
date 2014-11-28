@@ -49,15 +49,20 @@ public class Links extends ServiceObject {
 			Number limitWatch = resources.getInteger(R.integer.limit_links_watch_default);
 			Number limitContent = resources.getInteger(R.integer.limit_links_content_default);
 
-			if (linkProfile == LinkProfile.LINKS_FOR_PLACE || linkProfile == LinkProfile.LINKS_FOR_BEACONS) {
+			if (linkProfile == LinkProfile.LINKS_FOR_PATCH || linkProfile == LinkProfile.LINKS_FOR_BEACONS) {
 				/*
 				 * These are the same because LINKS_FOR_BEACONS is used to produce places and we want the same link
 				 * profile for places regardless of what code path fetches them.
 				 */
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, true, true, limitProximity));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitContent));
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, true, true, limitProximity)
+						.setDirection(Direction.out));
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE, true, true, 1)
+						.setDirection(Direction.out));
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitContent)
+						.setDirection(Direction.both));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
-						, Maps.asMap("_from", currentUser.id)));
+						, Maps.asMap("_from", currentUser.id))
+						.setDirection(Direction.in));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
 						, Maps.asMap("_creator", currentUser.id))
 						.setDirection(Direction.in));
@@ -66,9 +71,9 @@ public class Links extends ServiceObject {
 
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1)
 						.setDirection(Direction.both));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE, true, true, 1)
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH, true, true, 1)
 						.setDirection(Direction.out));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PLACE, true, true, 1)
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH, true, true, 1)
 						.setDirection(Direction.out));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1)
 						.setDirection(Direction.out));
@@ -77,18 +82,18 @@ public class Links extends ServiceObject {
 			}
 			else if (linkProfile == LinkProfile.LINKS_FOR_USER_CURRENT) {
 
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PLACE, true, true, limitCreate)
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, true, limitCreate)
 						.setDirection(Direction.out));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PLACE, true, true, limitWatch)
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, true, true, limitWatch)
 						.setDirection(Direction.out));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitCreate)
 						.setDirection(Direction.out));
 			}
 			else if (linkProfile == LinkProfile.LINKS_FOR_USER) {
 
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PLACE, false, true, 0)
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, false, true, 0)
 						.setDirection(Direction.out));
-				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PLACE, false, true, 0)
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, false, true, 0)
 						.setDirection(Direction.out));
 			}
 			return links;

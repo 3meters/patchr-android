@@ -15,16 +15,15 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
-import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.components.AirApplication;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.StringManager;
-import com.aircandi.objects.Place;
-import com.aircandi.ui.base.BasePicker;
 import com.aircandi.interfaces.IBind.BindingMode;
+import com.aircandi.objects.TransitionType;
+import com.aircandi.ui.base.BasePicker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +44,24 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		mListView.setOnItemClickListener(this);
 	}
 
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		final PickerItem choice = (PickerItem) view.getTag();
+		final Intent intent = new Intent();
+		intent.putExtra(Constants.EXTRA_PHOTO_SOURCE, choice.schema);
+		setResultCode(Activity.RESULT_OK, intent);
+		finish();
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	public void bind(BindingMode mode) {
 
@@ -52,40 +69,29 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		final List<Object> listData = new ArrayList<Object>();
 
 		/* Everyone gets these options */
-		listData.add(new AirApplication(Patchr.themeTone.equals(ThemeTone.LIGHT)
-		                                ? R.drawable.ic_action_search_light : R.drawable.ic_action_search_dark
-				, StringManager.getString(R.string.dialog_photo_source_search), null, Constants.PHOTO_SOURCE_SEARCH));
+		listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
+		                            ? R.drawable.ic_action_search_light : R.drawable.ic_action_search_dark
+				, StringManager.getString(R.string.dialog_photo_source_search), Constants.PHOTO_SOURCE_SEARCH));
 
-		listData.add(new AirApplication(Patchr.themeTone.equals(ThemeTone.LIGHT)
-		                                ? R.drawable.ic_action_tiles_large_light
-		                                : R.drawable.ic_action_tiles_large_dark
-				, StringManager.getString(R.string.dialog_photo_source_gallery), null, Constants.PHOTO_SOURCE_GALLERY));
+		listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
+		                            ? R.drawable.ic_action_tiles_large_light
+		                            : R.drawable.ic_action_tiles_large_dark
+				, StringManager.getString(R.string.dialog_photo_source_gallery), Constants.PHOTO_SOURCE_GALLERY));
 
 		/* Only show the camera choice if there is one and there is a place to store the image */
 		if (MediaManager.canCaptureWithCamera()) {
-			listData.add(new AirApplication(Patchr.themeTone.equals(ThemeTone.LIGHT)
-			                                ? R.drawable.ic_action_camera_light
-			                                : R.drawable.ic_action_camera_dark
-					, StringManager.getString(R.string.dialog_photo_source_camera), null, Constants.PHOTO_SOURCE_CAMERA));
-		}
-
-		/* Add place photo option if this is a place entity */
-		if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-			Place place = (Place) mEntity;
-			if (place.getProvider().type != null && place.getProvider().type.equals(Constants.TYPE_PROVIDER_FOURSQUARE)) {
-				listData.add(new AirApplication(Patchr.themeTone.equals(ThemeTone.LIGHT)
-				                                ? R.drawable.ic_action_location_light
-				                                : R.drawable.ic_action_location_dark
-						, StringManager.getString(R.string.dialog_photo_source_place), null, Constants.PHOTO_SOURCE_PLACE));
-			}
+			listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
+			                            ? R.drawable.ic_action_camera_light
+			                            : R.drawable.ic_action_camera_dark
+					, StringManager.getString(R.string.dialog_photo_source_camera), Constants.PHOTO_SOURCE_CAMERA));
 		}
 
 		/* Everyone gets the default option */
 		if (mEntity.type == null) {
-			listData.add(new AirApplication(Patchr.themeTone.equals(ThemeTone.LIGHT)
-			                                ? R.drawable.ic_action_picture_light
-			                                : R.drawable.ic_action_picture_dark
-					, StringManager.getString(R.string.dialog_photo_source_default), null, Constants.PHOTO_SOURCE_DEFAULT));
+			listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
+			                            ? R.drawable.ic_action_picture_light
+			                            : R.drawable.ic_action_picture_dark
+					, StringManager.getString(R.string.dialog_photo_source_default), Constants.PHOTO_SOURCE_DEFAULT));
 		}
 
 		mName.setText(StringManager.getString(R.string.dialog_photo_source_title));
@@ -94,17 +100,9 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		mListView.setAdapter(mListAdapter);
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		final AirApplication choice = (AirApplication) view.getTag();
-		final Intent intent = new Intent();
-		intent.putExtra(Constants.EXTRA_PHOTO_SOURCE, choice.schema);
-		setResultCode(Activity.RESULT_OK, intent);
-		finish();
+	protected int getLayoutId() {
+		return R.layout.photo_source_picker;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -123,7 +121,7 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = convertView;
-			final AirApplication itemData = (AirApplication) items.get(position);
+			final PickerItem itemData = (PickerItem) items.get(position);
 
 			if (view == null) {
 				view = LayoutInflater.from(PhotoSourcePicker.this).inflate(R.layout.temp_listitem_photo_source, null);
@@ -138,12 +136,18 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		}
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
+	private class PickerItem {
 
-	@Override
-	protected int getLayoutId() {
-		return R.layout.photo_source_picker;
+		public Integer iconResId;
+		public String  title;
+		public String  schema;
+
+		public PickerItem() {}
+
+		public PickerItem(Integer iconResId, String title, String schema) {
+			this.iconResId = iconResId;
+			this.title = title;
+			this.schema = schema;
+		}
 	}
 }

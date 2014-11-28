@@ -151,7 +151,7 @@ public class Extras {
 	@SuppressWarnings("ucd")
 	public Extras setPlaceId(String placeId) {
 		if (placeId != null) {
-			mExtras.putString(Constants.EXTRA_PLACE_ID, placeId);
+			mExtras.putString(Constants.EXTRA_PATCH_ID, placeId);
 		}
 		return this;
 	}
@@ -255,7 +255,7 @@ public class Extras {
 	}
 
 	public String getPlaceId() {
-		return mExtras.getString(Constants.EXTRA_PLACE_ID);
+		return mExtras.getString(Constants.EXTRA_PATCH_ID);
 	}
 
 	public Integer getListNewMessageResId() {

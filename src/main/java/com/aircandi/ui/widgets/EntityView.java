@@ -51,7 +51,7 @@ public class EntityView extends LinearLayout {
 
 		if (attrs != null) {
 			final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.EntityView, defStyle, 0);
-			mLayoutResId = ta.getResourceId(R.styleable.EntityView_layout, R.layout.widget_entity_view);
+			mLayoutResId = ta.getResourceId(R.styleable.EntityView_layoutId, R.layout.widget_entity_view);
 			mLabelResId = ta.getResourceId(R.styleable.EntityView_label, 0);
 
 			ta.recycle();
@@ -72,7 +72,7 @@ public class EntityView extends LinearLayout {
 			mName = (TextView) mBoundView.findViewById(R.id.entity_view_name);
 			mSubtitle = (TextView) mBoundView.findViewById(R.id.entity_view_subtitle);
 			mLabel = (TextView) mBoundView.findViewById(R.id.entity_view_label);
-			mButtonDelete = (ImageView) mBoundView.findViewById(R.id.button_delete_watcher);
+			mButtonDelete = (ImageView) mBoundView.findViewById(R.id.button_delete_entity);
 		}
 	}
 
@@ -144,6 +144,7 @@ public class EntityView extends LinearLayout {
 						@Override
 						public void onPrepareLoad(Drawable drawable) {
 							if (drawable != null) {
+								//noinspection deprecation
 								mPhotoView.getImageView().setBackgroundDrawable(drawable);
 							}
 						}

@@ -24,9 +24,11 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Place;
 import com.aircandi.ui.widgets.AirImageView;
+import com.squareup.picasso.RequestCreator;
+import com.squareup.picasso.Transformation;
 
 @SuppressWarnings("ucd")
 public class UI {
@@ -36,6 +38,10 @@ public class UI {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static void drawPhoto(final AirImageView photoView, final Photo photo) {
+		drawPhoto(photoView, photo, null);
+	}
+
+	public static void drawPhoto(final AirImageView photoView, final Photo photo, final Transformation transform) {
 	    /*
 	     * There are only a few places that don't use this code to display images:
 		 * - Notification icons - can't use AirImageView
@@ -46,11 +52,11 @@ public class UI {
 
 		if (photoView.getFitType() == AirImageView.FitType.NONE
 				|| photoView.getFitType() == AirImageView.FitType.FIXED) {
-			loadView(photoView, photo);
+			loadView(photoView, photo, transform);
 		}
 		else if (photoView.getFitType() == AirImageView.FitType.AUTO) {
 			if (photoView.getImageView().getWidth() != 0) {
-				loadView(photoView, photo);
+				loadView(photoView, photo, transform);
 			}
 			else {
 				photoView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -59,7 +65,7 @@ public class UI {
 					@SuppressWarnings("deprecation")
 					@Override
 					public void onGlobalLayout() {
-						loadView(photoView, photo);
+						loadView(photoView, photo, transform);
 						if (Constants.SUPPORTS_JELLY_BEAN) {
 							photoView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 						}
@@ -72,9 +78,9 @@ public class UI {
 		}
 	}
 
-	public static void loadView(final AirImageView photoView, final Photo photo) {
+	public static void loadView(final AirImageView photoView, final Photo photo, final Transformation transform) {
 		/*
-		 * This is the only place in the code that turns on proxy handling.
+		 * This is the only patch in the code that turns on proxy handling.
 		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
 		 * Fit on photo is used when target size is desired and known only after view layout.
 		 */
@@ -94,30 +100,45 @@ public class UI {
 
 			Integer drawableId = photo.getResId();
 			if (drawableId != null) {
-				DownloadManager.with(Patchr.applicationContext).load(drawableId)
+				RequestCreator creator = DownloadManager
+						.with(Patchr.applicationContext)
+						.load(drawableId)
 						.centerCrop()   // Needed so resize() keeps aspect ratio
 						.resize(width, height)
-						.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : Constants.GROUP_TAG_DEFAULT)
-						.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565)
-						.into(photoView);
+						.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.GROUP_TAG_DEFAULT)
+						.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
+				if (transform != null) {
+					creator.transform(transform);
+				}
+				creator.into(photoView);
 			}
 		}
 		else if (photo.source.equals(Photo.PhotoSource.file)) {
-			DownloadManager.with(Patchr.applicationContext).load(photo.getUri())
+			RequestCreator creator = DownloadManager
+					.with(Patchr.applicationContext)
+					.load(photo.getUri())
 					.centerCrop()   // Needed so resize() keeps aspect ratio
 					.resize(width, height)
-					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : Constants.GROUP_TAG_DEFAULT)
-					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565)
-					.into(photoView);
+					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.GROUP_TAG_DEFAULT)
+					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
+			if (transform != null) {
+				creator.transform(transform);
+			}
+			creator.into(photoView);
 		}
 		else {
 
 			photo.setProxy(true, height, width);
-			DownloadManager.with(Patchr.applicationContext).load(photo.getUriWrapped())
-			               .placeholder(UI.getResIdForAttribute(photoView.getContext(), R.attr.backgroundPlaceholder))
-			               .tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : Constants.GROUP_TAG_DEFAULT)
-			               .config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565)
-			               .into(photoView);
+			RequestCreator creator = DownloadManager
+					.with(Patchr.applicationContext)
+					.load(photo.getUriWrapped())
+					.placeholder(UI.getResIdForAttribute(photoView.getContext(), R.attr.backgroundPlaceholder))
+					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.GROUP_TAG_DEFAULT)
+					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
+			if (transform != null) {
+				creator.transform(transform);
+			}
+			creator.into(photoView);
 		}
 
 		/* Final step */
@@ -139,10 +160,10 @@ public class UI {
 				}
 			}
 			else {
-				final int color = Place.getCategoryColor(photo.colorizeKey);
+				final int color = Patch.getCategoryColor(photo.colorizeKey);
 				photoView.getImageView().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
 
-				Integer colorResId = Place.getCategoryColorResId(photo.colorizeKey);
+				Integer colorResId = Patch.getCategoryColorResId(photo.colorizeKey);
 				if (photoView.findViewById(R.id.color_layer) != null) {
 					(photoView.findViewById(R.id.color_layer)).setBackgroundResource(colorResId);
 					(photoView.findViewById(R.id.color_layer)).setVisibility(View.VISIBLE);

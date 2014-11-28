@@ -22,7 +22,7 @@
 			android:layout_height="wrap_content"
 			android:background="?attr/backgroundCard"
 			custom:colorize="false"
-			custom:layout="@layout/widget_candi_view_user" />
+			custom:layoutId="@layout/widget_candi_view_user" />
 
 		<ImageView
 			android:id="@+id/button_edit"
@@ -54,7 +54,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
 			android:clickable="true"
-			android:drawableLeft="?attr/iconActionWatch"
+			android:drawableLeft="?attr/iconDrawerWatch"
 			android:drawablePadding="8dp"
 			android:ellipsize="end"
 			android:gravity="center_vertical"
@@ -79,7 +79,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
 			android:clickable="true"
-			android:drawableLeft="?attr/iconActionEdit"
+			android:drawableLeft="?attr/iconDrawerCreate"
 			android:drawablePadding="8dp"
 			android:ellipsize="end"
 			android:gravity="center_vertical"

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	tools:context=".ui.PatchForm">
+
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/include_toolbar_actionbar" />
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<FrameLayout
+			android:id="@+id/fragment_holder"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_centerHorizontal="true"
+			android:background="?attr/backgroundCardField" />
+
+		<include
+			android:id="@+id/button_bubble"
+			layout="@layout/include_bubble" />
+
+		<RelativeLayout
+			android:id="@+id/floating_action_button"
+			style="@style/button_round_glow"
+			android:layout_width="@dimen/button_round_medium"
+			android:layout_height="@dimen/button_round_medium"
+			android:clickable="true"
+			android:onClick="onAddMessageButtonClick"
+			android:visibility="invisible"
+			tools:visibility="visible">
+
+			<ImageView
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_margin="8dp"
+				android:background="@drawable/bg_round_accent" />
+
+			<ImageView
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:padding="26dp"
+				android:scaleType="fitCenter"
+				android:src="?attr/iconMessageNew"
+				android:tint="@color/white" />
+
+		</RelativeLayout>
+
+	</RelativeLayout>
+
+</LinearLayout>

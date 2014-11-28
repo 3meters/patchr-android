@@ -24,6 +24,7 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.EntityManager;
+import com.aircandi.components.EntityManager.SuggestScope;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
@@ -90,12 +91,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				mMessageType = MessageType.ROOT;
 			}
 			mMessage = extras.getString(Constants.EXTRA_MESSAGE);
-			mReplyPlaceId = extras.getString(Constants.EXTRA_PLACE_ID);
+			mReplyPlaceId = extras.getString(Constants.EXTRA_PATCH_ID);
 			mReplyRootId = extras.getString(Constants.EXTRA_MESSAGE_ROOT_ID);
 			mReplyToId = extras.getString(Constants.EXTRA_MESSAGE_REPLY_TO_ID);
 			mReplyToName = extras.getString(Constants.EXTRA_MESSAGE_REPLY_TO_NAME);
-			mSuggestScope = EntityManager.SuggestScope.values()[extras.getInt(Constants.EXTRA_SUGGEST_SCOPE
-					, EntityManager.SuggestScope.PLACES.ordinal())];
+			mSuggestScope = SuggestScope.values()[extras.getInt(Constants.EXTRA_SEARCH_SCOPE, SuggestScope.PLACES.ordinal())];
 			mToMode = ToMode.values()[extras.getInt(Constants.EXTRA_TO_MODE, ToMode.SINGLE.ordinal())];
 			mToEditable = extras.getBoolean(Constants.EXTRA_TO_EDITABLE, true);
 		}
@@ -112,7 +112,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		if (!isFinishing()) {
 			if (!Patchr.firstStartApp && Patchr.getInstance().getCurrentUser().isAnonymous()) {
 				Patchr.firstStartIntent = getIntent();
-				Patchr.dispatch.route(this, Route.SPLASH, null, null, null);
+				Patchr.dispatch.route(this, Route.SPLASH, null, null);
 			}
 		}
 	}
@@ -123,7 +123,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 		mEntitySchema = Constants.SCHEMA_ENTITY_MESSAGE;
 
-		if (Patchr.getInstance().getCurrentPlace() != null) {
+		if (Patchr.getInstance().getCurrentPatch() != null) {
 			mToEditable = false;
 		}
 
@@ -143,7 +143,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		mButtonToClear = (ImageView) findViewById(R.id.to_clear);
 		mButtonPhotoDelete = (ImageView) findViewById(R.id.photo_delete);
 		mShareHolder = (ViewGroup) findViewById(R.id.share_holder);
-		mShare = (ViewGroup) findViewById(R.id.share);
+		mShare = (ViewGroup) findViewById(R.id.share_entity);
 		mTo = (AirTokenCompleteTextView) findViewById(R.id.to);
 		mTo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override
@@ -152,7 +152,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		});
 
 		/*
-		 * Make sure that we don't already have a place set when
+		 * Make sure that we don't already have a patch set when
 		 * handling a share intent.
 		 */
 		Intent intent = getIntent();
@@ -163,7 +163,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			mToMode = ToMode.MULTIPLE;
 			mToEditable = true;
 
-			Patchr.getInstance().setCurrentPlace(null);
+			Patchr.getInstance().setCurrentPatch(null);
 			onEntityClearButtonClick(null);
 
 			mDirtyExitTitleResId = R.string.alert_dirty_share_exit_title;
@@ -179,22 +179,16 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		                        : R.layout.widget_token_view);
 
 		mEntitySuggest = new EntitySuggestController(this)
-				.setInput(mTo)
+				.setSearchInput(mTo)
 				.setTokenListener(this)
 				.setSuggestScope(mSuggestScope);
+
 		mEntitySuggest.init();
 
 		if (mMessage != null) {
 			TextView message = (TextView) findViewById(R.id.content_message);
 			message.setText(mMessage);
 			message.setVisibility(View.VISIBLE);
-		}
-	}
-
-	protected void setActionBarIcon() {
-		if (mActionBar != null) {
-			Drawable icon = getResources().getDrawable(R.drawable.ic_home_edit_dark);
-			mActionBar.setIcon(icon);
 		}
 	}
 
@@ -239,15 +233,15 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 					mShareSchema = extras.getString(Constants.EXTRA_SHARE_SCHEMA);
 					mShareEntity = EntityManager.getCacheEntity(mShareId);
 
-					if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-						mEntity.description = String.format(StringManager.getString(R.string.label_place_share_body_self), mShareEntity.name);
+					if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+						mEntity.description = String.format(StringManager.getString(R.string.label_patch_share_body_self), mShareEntity.name);
 					}
 					else if (mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-						if (mShareEntity.place != null) {
-							mEntity.description = String.format(StringManager.getString(R.string.label_message_share_body_self), mShareEntity.creator.name, mShareEntity.place.name);
+						if (mShareEntity.patch != null) {
+							mEntity.description = String.format(StringManager.getString(R.string.label_message_share_body_self), mShareEntity.creator.name, mShareEntity.patch.name);
 						}
 						else {
-							mEntity.description = String.format(StringManager.getString(R.string.label_message_share_body_self_no_place), mShareEntity.creator.name);
+							mEntity.description = String.format(StringManager.getString(R.string.label_message_share_body_self_no_patch), mShareEntity.creator.name);
 						}
 					}
 					else if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PICTURE)) {
@@ -402,13 +396,13 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 		UI.setVisibility(mAnimatorTo, View.VISIBLE);
 
-		/* We don't allow the place to be changed when editing */
+		/* We don't allow the patch to be changed when editing */
 		if ((mMessageType != null && mMessageType.equals(MessageType.REPLY))
 				|| mEditing) {
 			UI.setVisibility(mAnimatorTo, View.GONE);
 		}
 		else {
-			Entity currentPlace = Patchr.getInstance().getCurrentPlace();
+			Entity currentPlace = Patchr.getInstance().getCurrentPatch();
 			if (currentPlace != null) {
 				mTo.addObject(currentPlace);
 			}
@@ -422,8 +416,8 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		if (mMessageType.equals(MessageType.SHARE)) {
 
 			int layoutResId = 0;
-			if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-				layoutResId = R.layout.temp_share_place;
+			if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+				layoutResId = R.layout.temp_share_patch;
 			}
 			else if (mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				layoutResId = R.layout.temp_share_message;
@@ -432,7 +426,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				mButtonPhotoDelete.setVisibility(View.GONE);
 			}
 
-			if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PLACE)
+			if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PATCH)
 					|| mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				mAnimatorPhoto.setVisibility(View.GONE);
 				mShareHolder.setVisibility(View.VISIBLE);
@@ -498,7 +492,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		if (isDirty() || mMessageType.equals(MessageType.SHARE)) {
 			if (validate()) { // validate() also gathers
 
-				/* Upsize the place we are sending to if needed */
 				if (mMessageType != null && mMessageType.equals(MessageType.REPLY)) {
 					insert();
 				}
@@ -641,6 +634,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 						@Override
 						public void onPrepareLoad(Drawable drawable) {
 							if (drawable != null) {
+								//noinspection deprecation
 								mPhotoView.getImageView().setBackgroundDrawable(drawable);
 							}
 						}
@@ -685,6 +679,13 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
     /*--------------------------------------------------------------------------------------------
      * Methods
      *--------------------------------------------------------------------------------------------*/
+
+	public void configureActionBar() {
+		super.configureActionBar();
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setTitle(mEditing ? R.string.form_title_message_edit: R.string.form_title_message_new);
+		}
+	}
 
 	protected void setEntity() {
 		final EntityView entityView = (EntityView) findViewById(R.id.entity_view);
@@ -776,11 +777,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			if (mParentId != null) {
 				links.add(new Link(mParentId, getLinkType(), mEntity.schema));
 			}
-			links.add(new Link(mEntity.placeId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE));
+			links.add(new Link(mEntity.placeId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH));
 		}
 		else if (mMessageType.equals(MessageType.ROOT)) {
 			for (Entity to : mTos) {
-				links.add(new Link(to.id, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE));
+				links.add(new Link(to.id, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH));
 			}
 		}
 		else if (mMessageType.equals(MessageType.SHARE)) {
@@ -799,9 +800,9 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
          * Only called if the insert was successful. Called on main ui thread.
 		 */
 		if (!mMessageType.equals(MessageType.SHARE)) {
-			Entity currentPlace = Patchr.getInstance().getCurrentPlace();
+			Entity currentPlace = Patchr.getInstance().getCurrentPatch();
 			if (mTos.size() > 0 && (currentPlace == null || !currentPlace.id.equals(mTos.get(0).id))) {
-				Patchr.dispatch.route(this, Route.BROWSE, mTos.get(0), null, null);
+				Patchr.dispatch.route(this, Route.BROWSE, mTos.get(0), null);
 			}
 		}
 		return true;

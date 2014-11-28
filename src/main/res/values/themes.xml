@@ -20,14 +20,13 @@
 		- Custom line and text colors in pages, forms, buttons.
 	-->
 
-	<style name="Theme"></style>
-
-	<style name="aircandi_theme_dark" parent="android:Theme.Holo">
+	<style name="aircandi_theme_dark" parent="Theme.AppCompat.NoActionBar">
 
 		<item name="themeTone">dark</item>
 		<item name="android:windowBackground">@color/background_dark</item>
-		<item name="android:windowContentOverlay">@null</item>
-		<item name="android:windowNoTitle">false</item>
+		<item name="colorPrimary">@color/brand_primary</item>
+		<item name="colorPrimaryDark">@color/brand_primary_dark</item>
+		<item name="colorAccent">@color/brand_accent</item>
 
 		<!-- Default overrides -->
 
@@ -35,7 +34,6 @@
 		<item name="android:checkboxStyle">@style/form_checkbox</item>
 		<item name="android:listViewStyle">@style/list_view</item>
 		<item name="android:textViewStyle">@style/text_view</item>
-		<item name="spbStyle">@style/smooth_progress_bar</item>
 
 		<item name="android:textColorPrimary">@color/text_dark</item>
 		<item name="android:textAppearance">@style/text_appearance</item>
@@ -56,13 +54,12 @@
 		<item name="textColorHint">@color/text_hint_dark</item>
 		<item name="textColorAlert">@color/text_alert_dark</item>
 		<item name="textColorUnfocused">@color/text_dark</item>
-		<item name="textColorButtonLink">@color/brand_primary</item>
+		<item name="textColorButtonLink">@color/brand_accent</item>
 		<item name="textColorBullet">@color/brand_primary</item>
 		<item name="textColorBars">@color/text_dark</item>
 		<item name="textColorProgress">@color/text_dark</item>
 		<item name="textColorCandiView">@color/text_color</item>
 		<item name="textColorCandiViewSynthetic">@color/text_color</item>
-		<item name="textColorTooltip">@color/text_color</item>
 		<item name="textOutlineRadar">true</item>
 		<item name="textSelector">@color/selector_text_dark</item>
 		<item name="textSelectorLink">@color/selector_link_text_dark</item>
@@ -79,7 +76,7 @@
 		<item name="backgroundAccuracyNone">@color/background_button_dark</item>
 		<item name="backgroundButton">@drawable/selector_button_dark</item>
 		<item name="backgroundButtonBuilder">@drawable/selector_builder_button_dark</item>
-		<item name="backgroundButtonLink">@drawable/bg_button_link_dark</item>
+		<item name="backgroundButtonLink">@drawable/selector_button_link_dark</item>
 		<item name="backgroundButtonRound">@drawable/selector_button_circle_dark</item>
 		<item name="backgroundButtonRoundGlow">@drawable/selector_button_circle_glow_dark</item>
 		<item name="backgroundButtonShare">@drawable/selector_button_share_dark</item>
@@ -98,8 +95,6 @@
 		<item name="backgroundPlaceholder">@drawable/bg_placeholder_dark</item>
 		<item name="backgroundSwipeRefresh">@color/background_progress_dark</item>
 		<item name="backgroundToken">@drawable/selector_token_dark</item>
-		<item name="backgroundTooltip">@color/holo_blue_dark</item>
-		<item name="backgroundTooltipLayer">@color/transparent</item>
 
 		<!-- Images and icons -->
 
@@ -113,6 +108,7 @@
 		<item name="iconCancel">@drawable/ic_action_cancel_dark</item>
 		<item name="iconClear">@drawable/ic_action_cancel_dark</item>
 		<item name="iconDelete">@drawable/ic_action_trash_dark</item>
+		<item name="iconDirections">@drawable/ic_action_directions_dark</item>
 		<item name="iconEdit">@drawable/ic_action_edit_dark</item>
 		<item name="iconExit">@drawable/ic_action_exit_dark</item>
 		<item name="iconForward">@drawable/ic_action_forward_dark</item>
@@ -124,10 +120,10 @@
 		<item name="iconInfo">@drawable/ic_action_info_dark</item>
 		<item name="iconKey">@drawable/ic_action_key_dark</item>
 		<item name="iconLike">@drawable/ic_action_heart_dark</item>
-		<item name="iconList">@drawable/ic_action_list_dark</item>
+		<item name="iconList">@drawable/ic_list_dark</item>
 		<item name="iconLocation">@drawable/ic_img_location_dark</item>
 		<item name="iconLocked">@drawable/ic_action_lock_closed_dark</item>
-		<item name="iconMap">@drawable/ic_action_map_dark</item>
+		<item name="iconMap">@drawable/ic_map_dark</item>
 		<item name="iconMediaMessage">@drawable/ic_img_media_message_dark</item>
 		<item name="iconMessage">@drawable/ic_img_message_dark</item>
 		<item name="iconMessageNew">@drawable/ic_img_message_light</item>
@@ -138,12 +134,12 @@
 		<item name="iconPatch">@drawable/ic_img_patch_dark</item>
 		<item name="iconPicture">@drawable/ic_img_picture_dark</item>
 		<item name="iconPlaceNew">@drawable/ic_action_place_new_dark</item>
-		<item name="iconReload">@drawable/ic_action_refresh_dark</item>
+		<item name="iconRefresh">@drawable/ic_action_refresh_dark</item>
 		<item name="iconSave">@drawable/ic_action_tick_dark</item>
 		<item name="iconSearch">@drawable/ic_action_search_dark</item>
 		<item name="iconSend">@drawable/ic_action_send_dark</item>
 		<item name="iconSettings">@drawable/ic_action_settings_dark</item>
-		<item name="iconShare">@drawable/ic_img_share_dark</item>
+		<item name="iconShare">@drawable/ic_share_dark</item>
 		<item name="iconSignal">@drawable/ic_action_signal_dark</item>
 		<item name="iconStarOff">@drawable/ic_action_star_0_dark</item>
 		<item name="iconStarOn">@drawable/ic_action_star_10_dark</item>
@@ -155,12 +151,14 @@
 
 	</style>
 
-	<style name="aircandi_theme_light" parent="android:Theme.Holo.Light">
+	<style name="aircandi_theme_light" parent="Theme.AppCompat.Light.NoActionBar">
 
 		<item name="themeTone">light</item>
 		<item name="android:windowBackground">@color/background_light</item>
-		<item name="android:windowContentOverlay">@null</item>
-		<item name="android:windowNoTitle">false</item>
+		<item name="colorPrimary">@color/brand_primary</item>
+		<item name="colorPrimaryDark">@color/brand_primary_dark</item>
+		<item name="colorAccent">@color/brand_accent</item>
+
 
 		<!-- Default overrides -->
 
@@ -168,7 +166,6 @@
 		<item name="android:checkboxStyle">@style/form_checkbox</item>
 		<item name="android:listViewStyle">@style/list_view</item>
 		<item name="android:textViewStyle">@style/text_view</item>
-		<item name="spbStyle">@style/smooth_progress_bar</item>
 
 		<item name="android:textColorPrimary">@color/text_light</item>
 		<item name="android:textAppearance">@style/text_appearance</item>
@@ -189,13 +186,12 @@
 		<item name="textColorSecondary">@color/text_secondary_light</item>
 		<item name="textColorAlert">@color/text_alert_light</item>
 		<item name="textColorUnfocused">@color/text_light</item>
-		<item name="textColorButtonLink">@color/brand_primary</item>
+		<item name="textColorButtonLink">@color/brand_accent</item>
 		<item name="textColorBullet">@color/brand_primary</item>
 		<item name="textColorBars">@color/text_light</item>
 		<item name="textColorProgress">@color/text_light</item>
 		<item name="textColorCandiView">@color/text_color</item>
 		<item name="textColorCandiViewSynthetic">@color/text_color</item>
-		<item name="textColorTooltip">@color/text_color</item>
 		<item name="textOutlineRadar">false</item>
 		<item name="textSelector">@color/selector_text_light</item>
 		<item name="textSelectorLink">@color/selector_link_text_light</item>
@@ -212,7 +208,7 @@
 		<item name="backgroundAccuracyNone">@color/background_button_light</item>
 		<item name="backgroundButton">@drawable/selector_button_light</item>
 		<item name="backgroundButtonBuilder">@drawable/selector_builder_button_light</item>
-		<item name="backgroundButtonLink">@drawable/bg_button_link_light</item>
+		<item name="backgroundButtonLink">@drawable/selector_button_link_light</item>
 		<item name="backgroundButtonRound">@drawable/selector_button_circle_light</item>
 		<item name="backgroundButtonRoundGlow">@drawable/selector_button_circle_glow_light</item>
 		<item name="backgroundButtonShare">@drawable/selector_button_share_light</item>
@@ -231,8 +227,6 @@
 		<item name="backgroundPlaceholder">@drawable/bg_placeholder_light</item>
 		<item name="backgroundSwipeRefresh">@color/gray_05_pcnt</item>
 		<item name="backgroundToken">@drawable/selector_token_light</item>
-		<item name="backgroundTooltip">@color/holo_blue_dark</item>
-		<item name="backgroundTooltipLayer">@color/transparent</item>
 
 		<!-- Images and icons -->
 
@@ -246,6 +240,7 @@
 		<item name="iconCancel">@drawable/ic_action_cancel_light</item>
 		<item name="iconClear">@drawable/ic_action_cancel_light</item>
 		<item name="iconDelete">@drawable/ic_action_trash_light</item>
+		<item name="iconDirections">@drawable/ic_action_directions_light</item>
 		<item name="iconEdit">@drawable/ic_img_edit_light</item>
 		<item name="iconExit">@drawable/ic_action_exit_light</item>
 		<item name="iconForward">@drawable/ic_action_forward_light</item>
@@ -257,10 +252,10 @@
 		<item name="iconInbox">@drawable/ic_action_inbox_light</item>
 		<item name="iconInfo">@drawable/ic_action_info_light</item>
 		<item name="iconLike">@drawable/ic_action_heart_light</item>
-		<item name="iconList">@drawable/ic_action_list_light</item>
+		<item name="iconList">@drawable/ic_list_light</item>
 		<item name="iconLocation">@drawable/ic_img_location_light</item>
 		<item name="iconLocked">@drawable/ic_action_lock_closed_light</item>
-		<item name="iconMap">@drawable/ic_action_map_light</item>
+		<item name="iconMap">@drawable/ic_map_light</item>
 		<item name="iconMediaMessage">@drawable/ic_img_media_message_light</item>
 		<item name="iconMessage">@drawable/ic_img_message_light</item>
 		<item name="iconMessageNew">@drawable/ic_img_message_light</item>
@@ -271,12 +266,12 @@
 		<item name="iconPatch">@drawable/ic_img_patch_light</item>
 		<item name="iconPicture">@drawable/ic_img_picture_light</item>
 		<item name="iconPlaceNew">@drawable/ic_action_place_new_light</item>
-		<item name="iconReload">@drawable/ic_action_refresh_light</item>
+		<item name="iconRefresh">@drawable/ic_action_refresh_light</item>
 		<item name="iconSave">@drawable/ic_action_tick_light</item>
 		<item name="iconSearch">@drawable/ic_action_search_light</item>
 		<item name="iconSend">@drawable/ic_action_send_light</item>
 		<item name="iconSettings">@drawable/ic_action_settings_light</item>
-		<item name="iconShare">@drawable/ic_img_share_light</item>
+		<item name="iconShare">@drawable/ic_share_light</item>
 		<item name="iconSignal">@drawable/ic_action_signal_light</item>
 		<item name="iconStarOff">@drawable/ic_action_star_0_light</item>
 		<item name="iconStarOn">@drawable/ic_action_star_10_light</item>
@@ -290,25 +285,18 @@
 
 	<style name="aircandi_theme_midnight" parent="aircandi_theme_dark">
 
-		<item name="android:actionBarSize">@dimen/action_bar_default_height</item>
-		<item name="android:actionBarItemBackground">@drawable/selectable_background_dark</item>
-		<item name="android:popupMenuStyle">@style/PopupMenu.Dark</item>
-		<item name="android:dropDownListViewStyle">@style/DropDownListView.Dark</item>
-		<item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Dark</item>
-		<item name="android:actionDropDownStyle">@style/DropDownNav.Dark</item>
-		<item name="android:actionBarStyle">@style/actionbar_style_dark</item>
-		<item name="android:actionModeBackground">@drawable/cab_background_top_dark</item>
-		<item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_dark</item>
-		<item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Dark</item>
-
 		<!-- Action bar icons -->
 
 		<item name="iconActionAccept">@drawable/ic_action_tick_dark</item>
 		<item name="iconActionAdd">@drawable/ic_action_add_dark</item>
 		<item name="iconActionAlert">@drawable/ic_action_alert_dark</item>
 		<item name="iconActionCancel">@drawable/ic_action_cancel_dark</item>
+		<item name="iconActionDelete">@drawable/ic_action_delete_dark</item>
+		<item name="iconActionDirections">@drawable/ic_action_directions_dark</item>
 		<item name="iconActionEdit">@drawable/ic_action_edit_dark</item>
-		<item name="iconActionReload">@drawable/ic_action_refresh_dark</item>
+		<item name="iconActionInvite">@drawable/ic_action_person_add_dark</item>
+		<item name="iconActionMap">@drawable/ic_action_map_dark</item>
+		<item name="iconActionRefresh">@drawable/ic_action_refresh_dark</item>
 		<item name="iconActionSearch">@drawable/ic_action_search_dark</item>
 		<item name="iconActionSend">@drawable/ic_action_send_dark</item>
 		<item name="iconActionShare">@drawable/ic_action_share_dark</item>
@@ -316,28 +304,57 @@
 		<item name="iconActionUsers">@drawable/ic_action_users_dark</item>
 		<item name="iconActionWatch">@drawable/ic_action_watch_dark</item>
 
+		<!-- Navigation drawer icons -->
+
+		<item name="iconDrawerNearby">@drawable/ic_action_signal_dark</item>
+		<item name="iconDrawerWatch">@drawable/ic_action_watch_dark</item>
+		<item name="iconDrawerCreate">@drawable/ic_action_edit_dark</item>
+		<item name="iconDrawerTrendActive">@drawable/ic_action_line_chart_dark</item>
+		<item name="iconDrawerTrendPopular">@drawable/ic_action_users_dark</item>
+		<item name="iconDrawerSettings">@drawable/ic_action_settings_dark</item>
+		<item name="iconDrawerSend">@drawable/ic_action_send_dark</item>
+
 	</style>
 
 	<style name="aircandi_theme_snow" parent="aircandi_theme_light">
 
-		<item name="android:actionBarSize">@dimen/action_bar_default_height</item>
-		<item name="android:actionBarItemBackground">@drawable/selectable_background_light</item>
-		<item name="android:popupMenuStyle">@style/PopupMenu.Light</item>
-		<item name="android:dropDownListViewStyle">@style/DropDownListView.Light</item>
-		<item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Light</item>
-		<item name="android:actionDropDownStyle">@style/DropDownNav.Light</item>
-		<item name="android:actionBarStyle">@style/actionbar_style_light</item>
-		<item name="android:actionModeBackground">@drawable/cab_background_top_light</item>
-		<item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_light</item>
-		<item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Light</item>
-
 		<!-- Action bar icons -->
 
+		<item name="iconActionAccept">@drawable/ic_action_tick_dark</item>
+		<item name="iconActionAdd">@drawable/ic_action_add_dark</item>
+		<item name="iconActionAlert">@drawable/ic_action_alert_dark</item>
+		<item name="iconActionCancel">@drawable/ic_action_cancel_dark</item>
+		<item name="iconActionDelete">@drawable/ic_action_delete_dark</item>
+		<item name="iconActionDirections">@drawable/ic_action_directions_dark</item>
+		<item name="iconActionEdit">@drawable/ic_action_edit_dark</item>
+		<item name="iconActionInvite">@drawable/ic_action_person_add_dark</item>
+		<item name="iconActionMap">@drawable/ic_action_map_dark</item>
+		<item name="iconActionRefresh">@drawable/ic_action_refresh_dark</item>
+		<item name="iconActionSearch">@drawable/ic_action_search_dark</item>
+		<item name="iconActionSend">@drawable/ic_action_send_dark</item>
+		<item name="iconActionShare">@drawable/ic_action_share_dark</item>
+		<item name="iconActionSignal">@drawable/ic_action_signal_dark</item>
+		<item name="iconActionUsers">@drawable/ic_action_users_dark</item>
+		<item name="iconActionWatch">@drawable/ic_action_watch_dark</item>
+
+		<!-- Navigation drawer icons -->
+
+		<item name="iconDrawerNearby">@drawable/ic_action_signal_light</item>
+		<item name="iconDrawerWatch">@drawable/ic_action_watch_light</item>
+		<item name="iconDrawerCreate">@drawable/ic_action_edit_light</item>
+		<item name="iconDrawerTrendActive">@drawable/ic_action_line_chart_light</item>
+		<item name="iconDrawerTrendPopular">@drawable/ic_action_users_light</item>
+		<item name="iconDrawerSettings">@drawable/ic_action_settings_light</item>
+		<item name="iconDrawerSend">@drawable/ic_action_send_light</item>
+
+		<!--
 		<item name="iconActionAccept">@drawable/ic_action_tick_light</item>
 		<item name="iconActionAdd">@drawable/ic_action_add_light</item>
 		<item name="iconActionAlert">@drawable/ic_action_alert_light</item>
 		<item name="iconActionCancel">@drawable/ic_action_cancel_light</item>
 		<item name="iconActionEdit">@drawable/ic_action_edit_light</item>
+		<item name="iconActionInvite">@drawable/ic_action_person_add_light</item>
+		<item name="iconActionMap">@drawable/ic_action_map_light</item>
 		<item name="iconActionReload">@drawable/ic_action_refresh_light</item>
 		<item name="iconActionSearch">@drawable/ic_action_search_light</item>
 		<item name="iconActionSend">@drawable/ic_action_send_light</item>
@@ -345,10 +362,16 @@
 		<item name="iconActionSignal">@drawable/ic_action_signal_light</item>
 		<item name="iconActionUsers">@drawable/ic_action_users_light</item>
 		<item name="iconActionWatch">@drawable/ic_action_watch_light</item>
+		-->
 
 	</style>
 
-	<!-- ActionBar title text -->
+	<!-- Spinners -->
+
+	<style name="aircandi_spinner" parent=""/>
+
+
+	<!-- ActionBar title text
 
 	<style name="actionbar_style_light" parent="@style/ActionBar.Solid.Light">
 		<item name="android:titleTextStyle">@style/actionbar_title_text_light</item>
@@ -374,7 +397,7 @@
 
 	<style name="actionbar_subtitle_text_dark" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Subtitle">
 		<item name="android:textColor">@color/gray_10_pcnt</item>
-	</style>
+	</style>-->
 
 	<!-- Dialog Themes -->
 
@@ -397,7 +420,7 @@
 		<!-- Drawables and backgrounds -->
 
 		<item name="backgroundPictureFramed">@drawable/bg_image_framed_dark</item>
-		<item name="backgroundButton">@drawable/selector_link_button</item>
+		<item name="backgroundButton">@drawable/selector_button_link_dark</item>
 
 	</style>
 

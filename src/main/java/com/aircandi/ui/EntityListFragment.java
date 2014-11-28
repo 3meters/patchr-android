@@ -14,6 +14,7 @@ import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.ViewAnimator;
 import android.widget.ViewSwitcher;
 
 import com.aircandi.Constants;
@@ -37,10 +38,13 @@ import com.aircandi.interfaces.IQuery;
 import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
+import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseActivity;
+import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
+import com.aircandi.ui.components.AnimationFactory;
 import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
@@ -55,11 +59,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class EntityListFragment extends BaseFragment implements OnClickListener, SwipeRefreshLayout.OnRefreshListener, AbsListView.OnScrollListener {
 
 	/* Widgets */
-	protected AbsListView mListView;
-	protected View        mLoadingView;
-	protected View        mHeaderView;
-	protected View        mHeaderCandiView;                                        // NO_UCD (unused code)
-	protected View        mFooterView;
+	protected AbsListView  mListView;
+	protected View         mLoadingView;
+	protected View         mHeaderView;
+	protected View         mHeaderCandiView;                                        // NO_UCD (unused code)
+	private   ViewAnimator mHeaderViewAnimator;
+	protected View         mFooterView;
 
 	/* Resources */
 	protected Integer mHeaderViewResId;
@@ -190,6 +195,26 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 			}
 		}
 
+		if (mHeaderView != null) {
+
+			/* Draw the header */
+			if (((BaseActivity) getActivity()).getEntity() != null) {
+				((BaseEntityForm) getActivity()).draw(view);
+			}
+			/*
+			 * Parallax the photo
+			 */
+			mHeaderCandiView = mHeaderView.findViewById(R.id.candi_view);
+			if (mHeaderCandiView != null) {
+				View photo = mHeaderCandiView.findViewById(R.id.photo);
+				((AirListView) mListView).addParallaxedView(photo);
+			}
+			/*
+			 * Grab the animator
+			 */
+			mHeaderViewAnimator = (ViewAnimator) mHeaderView.findViewById(R.id.animator_header);
+		}
+
 		bindBusy(view);
 
 		return view;
@@ -201,8 +226,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		mBusy = new BusyManager(getActivity());
 		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe);
 		if (swipeRefresh != null) {
-			swipeRefresh.setProgressBackgroundColor(R.color.brand_primary);
-			swipeRefresh.setColorSchemeResources(R.color.white);
+			swipeRefresh.setProgressBackgroundColor(R.color.white);
+			swipeRefresh.setColorSchemeResources(R.color.brand_primary);
 			swipeRefresh.setProgressViewEndTarget(true, UI.getRawPixelsForDisplayPixels(56f));
 			swipeRefresh.setOnRefreshListener(this);
 			mBusy.setSwipeRefresh(swipeRefresh);
@@ -238,7 +263,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 				}
 				else if (mode == BindingMode.MANUAL
 						|| mFirstBind
-//						|| (mEntities != null && mEntities.size() == 0)
+						//						|| (mEntities != null && mEntities.size() == 0)
 						|| (mMonitor.isChanged() && mMonitor.activity)) {
 					mBusy.showBusy(mLoaded ? BusyAction.Refreshing : BusyAction.Loading);
 
@@ -303,19 +328,25 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		}
 		else {
 
+			Bundle extras = new Bundle();
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 			final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
 			if (mQuery instanceof EntitiesQuery) {
 				String linkType = ((EntitiesQuery) mQuery).getLinkType();
 				if (linkType != null) {
-					Bundle extras = new Bundle();
 					extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
 					extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, ((EntitiesQuery) mQuery).getEntityId());
-					Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
+					Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
 					return;
 				}
 			}
-			Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, null);
+			Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
 		}
+	}
+
+	@SuppressWarnings("ucd")
+	public void onHeaderClick(View view) {
+		AnimationFactory.flipTransition(mHeaderViewAnimator, AnimationFactory.FlipDirection.BOTTOM_TOP, 200);
 	}
 
 	@Override
@@ -661,10 +692,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 	public ListAdapter getAdapter() {
 		return mAdapter;
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle

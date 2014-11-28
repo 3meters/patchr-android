@@ -38,8 +38,6 @@ public class AboutForm extends BaseActivity {
 	@Override
 	public void draw(View view) {
 
-		setActivityTitle(StringManager.getString(R.string.label_about_title));
-
 		final String year = new SimpleDateFormat("yyyy", Locale.US).format(Calendar.getInstance().getTime());
 		final String company = StringManager.getString(R.string.name_company);
 		final String copyrightSymbol = StringManager.getString(R.string.symbol_copyright);
@@ -57,9 +55,9 @@ public class AboutForm extends BaseActivity {
 				&& Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
 				&& Patchr.getInstance().getCurrentUser().developer != null
 				&& Patchr.getInstance().getCurrentUser().developer) {
-			((TextView) findViewById(R.id.install_id)).setText(Patchr.getinstallId());
-			((TextView) findViewById(R.id.install_type)).setText("Id type: " + Patchr.getInstallType());
-			((TextView) findViewById(R.id.install_date)).setText(DateTime.dateString(Patchr.getInstallDate(), DateTime.DATE_FORMAT_DEFAULT));
+			((TextView) findViewById(R.id.install_id)).setText(Patchr.getInstance().getinstallId());
+			((TextView) findViewById(R.id.install_type)).setText("Id type: " + Patchr.getInstance().getInstallType());
+			((TextView) findViewById(R.id.install_date)).setText(DateTime.dateString(Patchr.getInstance().getInstallDate(), DateTime.DATE_FORMAT_DEFAULT));
 			findViewById(R.id.holder_footer).setVisibility(View.VISIBLE);
 		}
 	}
@@ -72,42 +70,40 @@ public class AboutForm extends BaseActivity {
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_PAGE);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.FORM_BACK);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onTermsButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.TERMS, null, null, null);
+		Patchr.dispatch.route(this, Route.TERMS, null, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onPrivacyButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.PRIVACY, null, null, null);
+		Patchr.dispatch.route(this, Route.PRIVACY, null, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onLegalButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.LEGAL, null, null, null);
+		Patchr.dispatch.route(this, Route.LEGAL, null, null);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	protected int getLayoutId() {
+		return R.layout.about_form;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected void onResume() {
 		super.onResume();
 		bind(BindingMode.AUTO);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
-	@Override
-	protected int getLayoutId() {
-		return R.layout.about_form;
 	}
 }

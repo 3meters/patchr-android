@@ -13,7 +13,7 @@
 		android:layout_height="match_parent"
 		custom:config="rgb_565"
 		custom:fitType="none"
-		custom:layout="@layout/widget_photoview_touch"
+		custom:layoutId="@layout/widget_photoview_touch"
 		custom:showBusy="true" />
 
 	<LinearLayout
@@ -35,7 +35,7 @@
 			android:id="@+id/author"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			custom:layout="@layout/widget_user_view_text_only_dark" />
+			custom:layoutId="@layout/widget_user_view_text_only_dark" />
 	</LinearLayout>
 
 </RelativeLayout>

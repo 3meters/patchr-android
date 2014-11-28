@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:clickable="true"
 	android:orientation="vertical">
 
 	<!-- Current user -->
-
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="@dimen/rule_divider_height"
-		android:background="?attr/ruleColor" />
 
 	<com.aircandi.ui.widgets.UserView
 		android:id="@+id/user_current"
@@ -21,7 +15,7 @@
 		android:background="?attr/backgroundFormSecondary"
 		android:clickable="true"
 		android:onClick="onEntityClick"
-		custom:layout="@layout/widget_user_view_drawer" />
+		custom:layoutId="@layout/widget_user_view_drawer" />
 
 	<com.aircandi.ui.widgets.AirScrollView
 		android:layout_width="match_parent"
@@ -46,10 +40,10 @@
 					android:layout_gravity="center_vertical"
 					android:layout_marginLeft="12dp"
 					android:layout_marginTop="8dp"
-					android:text="@string/label_drawer_section_places"
+					android:text="@string/label_drawer_section_patches"
 					android:textAppearance="?android:attr/textAppearance"
 					android:textColor="@color/brand_primary"
-					custom:textId="@string/label_drawer_section_places" />
+					custom:textId="@string/label_drawer_section_patches" />
 
 				<View
 					android:layout_width="match_parent"
@@ -76,7 +70,7 @@
 					android:layout_marginRight="6dp"
 					android:focusable="false"
 					android:padding="3dp"
-					android:src="?attr/iconActionSignal" />
+					android:src="?attr/iconDrawerNearby" />
 
 				<com.aircandi.ui.widgets.AirTextLight
 					android:id="@id/name"
@@ -113,7 +107,7 @@
 					android:layout_marginRight="6dp"
 					android:focusable="false"
 					android:padding="3dp"
-					android:src="?attr/iconActionWatch" />
+					android:src="?attr/iconDrawerWatch" />
 
 				<com.aircandi.ui.widgets.AirTextLight
 					android:id="@id/name"
@@ -150,7 +144,7 @@
 					android:layout_marginRight="6dp"
 					android:focusable="false"
 					android:padding="3dp"
-					android:src="?attr/iconActionEdit" />
+					android:src="?attr/iconDrawerCreate" />
 
 				<com.aircandi.ui.widgets.AirTextLight
 					android:id="@id/name"
@@ -207,7 +201,7 @@
 					android:layout_marginRight="6dp"
 					android:focusable="false"
 					android:padding="3dp"
-					android:src="?attr/iconTrend" />
+					android:src="?attr/iconDrawerTrendActive" />
 
 				<com.aircandi.ui.widgets.AirTextLight
 					android:id="@id/name"
@@ -243,7 +237,7 @@
 					android:layout_marginLeft="12dp"
 					android:layout_marginRight="6dp"
 					android:focusable="false"
-					android:src="?attr/iconActionUsers" />
+					android:src="?attr/iconDrawerTrendPopular" />
 
 				<com.aircandi.ui.widgets.AirTextLight
 					android:id="@id/name"
@@ -300,7 +294,7 @@
 					android:layout_marginRight="6dp"
 					android:focusable="false"
 					android:padding="3dp"
-					android:src="?attr/iconSettings" />
+					android:src="?attr/iconDrawerSettings" />
 
 				<com.aircandi.ui.widgets.AirTextLight
 					android:id="@id/name"
@@ -336,7 +330,7 @@
 					android:layout_marginLeft="12dp"
 					android:layout_marginRight="6dp"
 					android:focusable="false"
-					android:src="?attr/iconSend" />
+					android:src="?attr/iconDrawerSend" />
 
 				<com.aircandi.ui.widgets.AirTextLight
 					android:id="@id/name"
@@ -354,7 +348,6 @@
 				android:layout_height="@dimen/rule_divider_height"
 				android:background="?attr/ruleColor" />
 		</LinearLayout>
-
 
 	</com.aircandi.ui.widgets.AirScrollView>
 

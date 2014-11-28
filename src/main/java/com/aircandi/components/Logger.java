@@ -20,7 +20,7 @@ public class Logger {
 	 * INFO = 4
 	 * Reporting that is part of normal operation.
 	 * 
-	 * DEBUG = 3
+	 * debug = 3
 	 * Information that is needed to track down bugs either locally or via remote crash reports.
 	 * 
 	 * VERBOSE = 2
@@ -125,7 +125,7 @@ public class Logger {
 	}
 
 	/**
-	 * DEBUG: Compiled in but stripped at runtime.
+	 * debug: Compiled in but stripped at runtime.
 	 * This level of logging should be used to further note what is happening on the device that could be relevant to
 	 * investigate and debug unexpected behaviors. You should log only what is needed to gather enough information about
 	 * what is going on about your component. If your debug logs are dominating the log then you probably should be

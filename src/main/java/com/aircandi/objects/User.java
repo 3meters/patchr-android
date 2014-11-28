@@ -2,7 +2,6 @@ package com.aircandi.objects;
 
 import android.support.annotation.Nullable;
 
-import com.aircandi.Patchr;
 import com.aircandi.ServiceConstants;
 import com.aircandi.service.Expose;
 
@@ -77,15 +76,6 @@ public class User extends Entity {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	public Photo getDefaultPhoto() {
-		String prefix = (Patchr.themeTone == null || Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
-		                ? "img_user_generic_light"
-		                : "img_user_generic_dark";
-		String source = Photo.PhotoSource.resource;
-		Photo photo = new Photo(prefix, null, null, null, source);
-		return photo;
-	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties

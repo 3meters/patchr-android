@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.aircandi.Constants;
@@ -16,7 +17,6 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.ui.widgets.ComboButton;
 import com.aircandi.utilities.UI;
 
 public class WatcherListFragment extends EntityListFragment {
@@ -33,7 +33,7 @@ public class WatcherListFragment extends EntityListFragment {
 				.setEntitySchema(Constants.SCHEMA_ENTITY_USER)
 				.setEntityId(entity.id);
 
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
+		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras.getExtras());
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class WatcherListFragment extends EntityListFragment {
 			holder = new ViewHolderExtended();
 
 			((ViewHolderExtended) holder).enable = (CompoundButton) view.findViewById(R.id.switch_enable);
-			((ViewHolderExtended) holder).delete = (ComboButton) view.findViewById(R.id.button_delete_watcher);
+			((ViewHolderExtended) holder).delete = (ImageButton) view.findViewById(R.id.button_delete_watcher);
 
 			controller.bindHolder(view, holder);
 			view.setTag(holder);
@@ -92,7 +92,7 @@ public class WatcherListFragment extends EntityListFragment {
 						&& parent.isOwnedByCurrentUser()) {
 					((ViewHolderExtended) holder).delete.setTag(entity);
 					((ViewHolderExtended) holder).enable.setTag(entity);
-					((ViewHolderExtended) holder).enable.setChecked(entity.enabled);
+					((ViewHolderExtended) holder).enable.setChecked(entity.linkEnabled);
 					UI.setVisibility(editGroup, View.VISIBLE);
 					UI.setVisibility(deleteButton, View.VISIBLE);
 				}
@@ -103,18 +103,17 @@ public class WatcherListFragment extends EntityListFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
+
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
 	public class ViewHolderExtended extends ViewHolder {
 		public CompoundButton enable; // NO_UCD (unused code)
-		public ComboButton    delete; // NO_UCD (unused code)
+		public ImageButton    delete; // NO_UCD (unused code)
 	}
 }

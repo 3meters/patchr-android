@@ -6,7 +6,7 @@
 		android:key="Pref_General_Category"
 		android:title="@string/pref_category_title_general">
 
-		<com.aircandi.ui.widgets.AirListPreference
+		<ListPreference
 			android:id="@+id/Pref_Theme"
 			android:defaultValue="@string/pref_theme_default"
 			android:dialogTitle="@string/pref_theme_dialog_title"
@@ -21,35 +21,35 @@
 			android:key="Pref_Notifications_Screen"
 			android:title="Notifications">
 
-			<com.aircandi.ui.widgets.AirCheckBoxPreference
+			<CheckBoxPreference
 				android:id="@+id/Pref_Notifications_Nearby"
 				android:defaultValue="@bool/pref_notifications_nearby_default"
 				android:summary="@string/pref_notifications_nearby_summary"
 				android:title="@string/pref_notifications_nearby_title"
 				custom:keyId="@string/pref_messages_nearby" />
 
-			<com.aircandi.ui.widgets.AirCheckBoxPreference
+			<CheckBoxPreference
 				android:id="@+id/Pref_Notifications_Watch"
 				android:defaultValue="@bool/pref_notifications_watch_default"
 				android:summary="@string/pref_notifications_watch_summary"
 				android:title="@string/pref_notifications_watch_title"
 				custom:keyId="@string/pref_messages_watch" />
 
-			<com.aircandi.ui.widgets.AirCheckBoxPreference
+			<CheckBoxPreference
 				android:id="@+id/Pref_Notifications_Own"
 				android:defaultValue="@bool/pref_notifications_own_default"
 				android:summary="@string/pref_notifications_own_summary"
 				android:title="@string/pref_notifications_own_title"
 				custom:keyId="@string/pref_messages_own" />
 
-			<com.aircandi.ui.widgets.AirCheckBoxPreference
+			<CheckBoxPreference
 				android:id="@+id/Pref_Notifications_Share"
 				android:defaultValue="@bool/pref_notifications_share_default"
 				android:summary="@string/pref_notifications_share_summary"
 				android:title="@string/pref_notifications_share_title"
 				custom:keyId="@string/pref_messages_share" />
 
-			<com.aircandi.ui.widgets.AirCheckBoxPreference
+			<CheckBoxPreference
 				android:id="@+id/Pref_Sound_Effects"
 				android:defaultValue="@bool/pref_sound_effects_default"
 				android:summary="@string/pref_sound_effects_summary"
@@ -58,7 +58,7 @@
 
 		</PreferenceScreen>
 
-		<com.aircandi.ui.widgets.AirCheckBoxPreference
+		<CheckBoxPreference
 			android:id="@+id/Pref_Auto_Watch"
 			android:defaultValue="@bool/pref_auto_watch_default"
 			android:summary="@string/pref_auto_watch_summary"
@@ -69,9 +69,6 @@
 			android:key="Pref_Feedback"
 			android:title="Feedback" />
 
-		<Preference
-			android:key="Pref_Reset_Tutorials"
-			android:title="Restore tooltips" />
 	</PreferenceCategory>
 
 	<PreferenceCategory

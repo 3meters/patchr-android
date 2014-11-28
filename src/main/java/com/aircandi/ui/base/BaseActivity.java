@@ -2,7 +2,6 @@ package com.aircandi.ui.base;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -12,75 +11,82 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.PopupMenu;
-import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.R.color;
 import com.aircandi.components.AndroidManager;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.BusyManager;
 import com.aircandi.components.Extras;
-import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IForm;
 import com.aircandi.monitors.SimpleMonitor;
+import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.ui.EntityListFragment;
+import com.aircandi.ui.PhotoForm;
 import com.aircandi.ui.components.BubbleController;
 import com.aircandi.ui.components.FloatingActionController;
 import com.aircandi.ui.widgets.AirListView;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
-import com.aircandi.utilities.Utilities;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class BaseActivity extends Activity implements OnRefreshListener, AirListView.OnDragListener, IForm, IBind {
+public abstract class BaseActivity extends ActionBarActivity implements OnRefreshListener, AirListView.OnDragListener, IForm, IBind {
 
-	protected ActionBar                mActionBar;
-	public    View                     mActionBarView;
 	protected BubbleController         mBubbleButton;
 	protected FloatingActionController mFab;
-	protected String                   mActivityTitle;
-	protected Entity                   mEntity;
-	protected String                   mEntityId;
-	public    String                   mForId;
-	protected SimpleMonitor            mEntityMonitor;
+	private   Toolbar                  mActionBarToolbar;
+
+	protected View     mNotificationsBadgeGroup;
+	protected TextView mNotificationsBadgeCount;
+	protected View     mNotificationActionIcon;
+
+	protected DrawerLayout          mDrawerLayout;
+	protected View                  mDrawerLeft;
+	protected View                  mDrawerRight;
+	protected ActionBarDrawerToggle mDrawerToggle;
+
+	protected String        mActivityTitle;
+	protected Entity        mEntity;
+	protected String        mEntityId;
+	public    String        mForId;
+	protected SimpleMonitor mEntityMonitor;
 
 	/* Fragments */
 	protected Map<String, Fragment> mFragments = new HashMap<String, Fragment>();
@@ -90,7 +96,8 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	protected String   mPrevFragmentTag;
 
 	/* Inputs */
-	protected Extras mParams = new Extras();
+	protected Extras  mParams         = new Extras();
+	protected Integer mTransitionType = TransitionType.FORM_TO;
 
 	/* Resources */
 	protected Integer mDeleteProgressResId = R.string.progress_deleting;
@@ -114,9 +121,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	/* Theme */
 	protected String mPrefTheme;
 
-	/* Menus */
-	protected Menu mMenu;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 	    /*
@@ -127,7 +131,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		if (Patchr.firstStartApp) {
 			Logger.d(this, "App unstarted: redirecting to splash");
 			Patchr.firstStartIntent = getIntent();
-			Patchr.dispatch.route(this, Route.SPLASH, null, null, null);
+			Patchr.dispatch.route(this, Route.SPLASH, null, null);
 			super.onCreate(savedInstanceState);
 			finish();
 		}
@@ -165,9 +169,14 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			/* Event sequence */
 			unpackIntent();
 			initialize(savedInstanceState);
-			configureActionBar();
 			setCurrentFragment(mNextFragmentTag);
+			getActionBarToolbar(); // Init the toolbar as action bar
 		}
+	}
+
+	protected void onPostCreate(Bundle savedInstanceState) {
+		configureActionBar();
+		super.onPostCreate(savedInstanceState);
 	}
 
 	@Override
@@ -175,6 +184,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mLayoutResId = extras.getInt(Constants.EXTRA_LAYOUT_RESID);
+			mTransitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
 		}
 	}
 
@@ -185,40 +195,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		mFab = new FloatingActionController(findViewById(R.id.floating_action_button));
 		mBubbleButton = new BubbleController(findViewById(R.id.button_bubble));
 		mBubbleButton.show(false);
-	}
-
-	protected void configureActionBar() {
-
-		if (mActionBar == null) {
-			mActionBar = getActionBar();
-			mActionBarView = getActionBarView();
-			if (mActionBar != null) {
-				try {
-					/* Use reflection to get the actionbar title TextView and set the custom font. May break in updates. */
-					Integer actionBarTitleId = Class.forName("com.android.internal.R$id").getField("action_bar_title").getInt(null);
-					FontManager.getInstance().setTypefaceDefault((TextView) findViewById(actionBarTitleId));
-				}
-				catch (Exception ignore) {}
-			}
-		}
-
-		if (mActionBar != null) {
-			mActionBar.setDisplayShowTitleEnabled(true);
-			mActionBar.setDisplayHomeAsUpEnabled(true);
-			setActionBarIcon();
-			/*
-			 * Force the display of the action bar overflow item
-			 */
-			try {
-				ViewConfiguration config = ViewConfiguration.get(this);
-				Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-				if (menuKeyField != null) {
-					menuKeyField.setAccessible(true);
-					menuKeyField.setBoolean(config, false);
-				}
-			}
-			catch (Exception ignore) {}
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -249,11 +225,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	}
 
 	@SuppressWarnings("ucd")
-	public void onOverflowButtonClick(View view) {
-		popupMenu(view);
-	}
-
-	@SuppressWarnings("ucd")
 	public void onPhotoClick(View view) {
 		Photo photo = (Photo) view.getTag();
 
@@ -261,7 +232,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			final String jsonPhoto = Json.objectToJson(photo);
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.dispatch.route(this, Route.PHOTO, null, null, extras);
+			Patchr.dispatch.route(this, Route.PHOTO, null, extras);
 		}
 	}
 
@@ -273,23 +244,59 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	@Override
 	public void onAdd(Bundle extras) {
 		/* Schema target is in the extras */
-		Patchr.dispatch.route(this, Route.NEW, mEntity, null, extras);
+		Patchr.dispatch.route(this, Route.NEW, mEntity, extras);
 	}
 
 	@Override
 	public void onBackPressed() {
+		if (mDrawerLayout != null) {
+			if (mDrawerLayout.isDrawerOpen(mDrawerRight)) {
+				mNotificationActionIcon.animate().rotation(0f).setDuration(200);
+				mDrawerLayout.closeDrawer(mDrawerRight);
+				return;
+			}
+			else if (mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
+				mDrawerLayout.closeDrawer(mDrawerLeft);
+				return;
+			}
+		}
+
+		if (mCurrentFragmentTag != null && mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP) && mFab != null) {
+			mFab.click();
+			return;
+		}
+
 		if (BaseActivity.this instanceof AircandiForm) {
 			super.onBackPressed();
 		}
 		else {
-			Patchr.dispatch.route(this, Route.CANCEL, null, null, null);
+			Patchr.dispatch.route(this, Route.CANCEL, null, null);
 		}
 	}
 
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_BACK);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, getExitTransitionType());
+	}
+
+	protected Integer getExitTransitionType() {
+		Integer transitionType = TransitionType.FORM_BACK;
+		if (mTransitionType != TransitionType.FORM_TO) {
+			if (mTransitionType == TransitionType.DRILL_TO) {
+				transitionType = TransitionType.DRILL_BACK;
+			}
+			else if (mTransitionType == TransitionType.BUILDER_TO) {
+				transitionType = TransitionType.BUILDER_BACK;
+			}
+			else if (mTransitionType == TransitionType.VIEW_TO) {
+				transitionType = TransitionType.VIEW_BACK;
+			}
+			else if (mTransitionType == TransitionType.DIALOG_TO) {
+				transitionType = TransitionType.DIALOG_BACK;
+			}
+		}
+		return transitionType;
 	}
 
 	@Override
@@ -300,7 +307,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 	@SuppressWarnings("ucd")
 	public void onCancelButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.CANCEL, null, null, null);
+		Patchr.dispatch.route(this, Route.CANCEL, null, null);
 	}
 
 	@Override
@@ -311,7 +318,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 
 	@Override
 	public void onLowMemory() {
-		Patchr.tracker.sendEvent(TrackerCategory.SYSTEM, "memory_low", null, Utilities.getMemoryAvailable());
 		super.onLowMemory();
 	}
 
@@ -322,63 +328,43 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
-
-	protected int getLayoutId() {
-		return 0;
-	}
-
-	public void setActivityTitle(String title) {
-		mActivityTitle = title;
-		if (mActionBar != null) {
-			mActionBar.setTitle(title);
-		}
-	}
-
-	public String getActivityTitle() {
-		return (String) ((mActivityTitle != null) ? mActivityTitle : getTitle());
-	}
-
-	protected Boolean isDialog() {
-		return false;
-	}
-
-	protected Boolean isTransparent() {
-		return false;
-	}
-
-	public String getEntityId() {
-		return mEntityId;
-	}
-
-	public Entity getEntity() {
-		return mEntity;
-	}
-
-	public Menu getMenu() {
-		return mMenu;
-	}
-
-	public Fragment getCurrentFragment() {
-		return null;
-	}
-
-	public BubbleController getBubbleController() {
-		return mBubbleButton;
-	}
-
-	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void setCurrentFragment(String fragmentType) {}
+
+	protected void configureActionBar() {
+		/*
+		 * By default we show the nav indicator and the title.
+		 */
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayShowTitleEnabled(true);
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		}
+
+		getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
+			}
+		});
+	}
 
 	@Override
 	public void draw(View view) {}
 
 	@Override
 	public void bind(BindingMode mode) {}
+
+	protected Toolbar getActionBarToolbar() {
+		if (mActionBarToolbar == null) {
+			mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar);
+			if (mActionBarToolbar != null) {
+				setSupportActionBar(mActionBarToolbar);
+			}
+		}
+		return mActionBarToolbar;
+	}
 
 	public void handleListDrag() {
 		AirListView listView = (AirListView) ((EntityListFragment) mCurrentFragment).getListView();
@@ -425,7 +411,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 							if (activity instanceof BaseActivity) {
 								((BaseActivity) activity).mBusy.hideBusy(false);
 							}
-							Patchr.dispatch.route(activity, Route.SPLASH, null, null, null);
+							Patchr.dispatch.route(activity, Route.SPLASH, null, null);
 						}
 					}
 				}.execute();
@@ -459,18 +445,10 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		dialog.setCanceledOnTouchOutside(false);
 	}
 
-	protected void setActionBarIcon() {
-		if (mActionBar != null) {
-			Drawable icon = Patchr.applicationContext.getResources().getDrawable(R.drawable.img_logo_dark);
-			icon.setColorFilter(Colors.getColor(color.white), PorterDuff.Mode.SRC_ATOP);
-			mActionBar.setIcon(icon);
-		}
-	}
-
 	public void confirmRemove(final String toId) {
 
 		String message = String.format(StringManager.getString(R.string.alert_remove_message_single_no_name), mEntity.name);
-		Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PLACE);
+		Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
 		if (linkPlace != null) {
 			message = String.format(StringManager.getString(R.string.alert_remove_message_single), linkPlace.shortcut.name);
 		}
@@ -573,7 +551,7 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRemoveEntity");
 				final ModelResult result = Patchr.getInstance().getEntityManager()
-				                                 .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove");
+				                                 .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove_entity_message");
 				isCancelled();
 				return result;
 			}
@@ -692,6 +670,49 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	}
 
 	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
+
+	protected int getLayoutId() {
+		return 0;
+	}
+
+	public void setActivityTitle(String title) {
+		mActivityTitle = title;
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setTitle(title);
+		}
+	}
+
+	public String getActivityTitle() {
+		return (String) ((mActivityTitle != null) ? mActivityTitle : getTitle());
+	}
+
+	protected Boolean isDialog() {
+		return false;
+	}
+
+	protected Boolean isTransparent() {
+		return false;
+	}
+
+	public String getEntityId() {
+		return mEntityId;
+	}
+
+	public Entity getEntity() {
+		return mEntity;
+	}
+
+	public Fragment getCurrentFragment() {
+		return null;
+	}
+
+	public BubbleController getBubbleController() {
+		return mBubbleButton;
+	}
+
+	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
 
@@ -699,35 +720,64 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Logger.v(this, "Creating options menu");
 		/*
-		 * Android 3.0 or higher:
-		 * 1) called when activity is first started.
-		 * 2) when switching fragments.
-		 * 
-		 * onCreate->onStart->onResume->onCreateOptionsMenu-
+		 * - activity is first started.
+		 * - switching fragments.
+		 * - after invalidateOptionsMenu.
+		 * - after onResume in lifecycle.
 		 */
 		Patchr.getInstance().getMenuManager().onCreateOptionsMenu(this, menu);
-		mMenu = menu;
+		configureStandardMenuItems(menu);
 
 		return true;
 	}
 
-	public boolean onCreatePopupMenu(android.view.Menu menu, Entity entity) {
-		return Patchr.getInstance().getMenuManager().onCreatePopupMenu(this, menu, (entity != null) ? entity : mEntity);
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		Bundle extras = null;
+		if (item.getItemId() == android.R.id.home) {
+			if (mDrawerToggle != null) {
+				mDrawerToggle.onOptionsItemSelected(item);
+			}
+			if (mDrawerLayout != null) {
+				if (mDrawerLayout.isDrawerOpen(mDrawerRight)) {
+					mNotificationActionIcon.animate().rotation(0f).setDuration(200);
+					mDrawerLayout.closeDrawer(mDrawerRight);
+				}
+			}
+			return true;
+		}
+
+		if (item.getItemId() == R.id.remove && mEntity.placeId != null) {
+		    /*
+		     * We use placeId instead of toId so we can removed replies where
+             * toId points to the root message.
+             */
+			extras = new Bundle();
+			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntity.placeId);
+		}
+
+		if (item.getItemId() == R.id.navigate) {
+			AirLocation location = mEntity.getLocation();
+			String address = null;
+			if (mEntity instanceof Place && mEntity.fuzzy) {
+				address = ((Place) mEntity).getAddressString(true);
+			}
+
+			AndroidManager.getInstance().callMapNavigation(this
+					, location.lat.doubleValue()
+					, location.lng.doubleValue()
+					, address
+					, mEntity.name);
+			return true;
+		}
+
+		Patchr.dispatch.route(this, Patchr.dispatch.routeForMenuId(item.getItemId()), mEntity, extras);
+		return true;
 	}
 
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		Logger.v(this, "Preparing options menu");
-		/*
-		 * Android 2.3 or lower:
-		 * 1) called after every call to onCreateOptionsMenu,
-		 * 
-		 * Android 3.0 or higher:
-		 * 1) after every call to onCreateOptionsMenu.
-		 * 2) after invalidateOptionsMenu->onCreateOptionsMenu.
-		 * 3) every time overflow menu is opened.
-		 * 4) when navigation drawer is opened.
-		 */
+	protected void configureStandardMenuItems(Menu menu) {
+
 		MenuItem menuItem = menu.findItem(R.id.edit);
 		if (menuItem != null) {
 			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.EDIT, mEntity, mForId));
@@ -754,14 +804,21 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			menuItem.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
 		}
 
+		menuItem = menu.findItem(R.id.share);
+		if (menuItem != null) {
+			if (this instanceof PhotoForm) {
+				menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.SHARE, mEntity, mForId));
+			}
+		}
+
 		final MenuItem refresh = menu.findItem(R.id.refresh);
 		if (refresh != null) {
 			if (mBusy != null) {
-				mBusy.setRefreshImage(refresh.getActionView().findViewById(R.id.refresh_image));
-				mBusy.setRefreshProgress(refresh.getActionView().findViewById(R.id.refresh_progress));
+				mBusy.setRefreshImage(MenuItemCompat.getActionView(refresh).findViewById(R.id.refresh_image));
+				mBusy.setRefreshProgress(MenuItemCompat.getActionView(refresh).findViewById(R.id.refresh_progress));
 			}
 
-			refresh.getActionView().findViewById(R.id.refresh_frame).setOnClickListener(new View.OnClickListener() {
+			MenuItemCompat.getActionView(refresh).findViewById(R.id.refresh_frame).setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
 					/*
@@ -773,57 +830,33 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 			});
 		}
 
-		return true;
-	}
+		final MenuItem notifications = menu.findItem(R.id.notifications);
+		if (notifications != null) {
+			mNotificationActionIcon = MenuItemCompat.getActionView(notifications).findViewById(R.id.notifications_image);
+			MenuItemCompat.getActionView(notifications).findViewById(R.id.notifications_frame).setOnClickListener(new View.OnClickListener() {
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
-		Bundle extras = null;
-		if (item.getItemId() == R.id.remove && mEntity.placeId != null) {
-		    /*
-		     * We use placeId instead of toId so we can removed replies where
-             * toId points to the root message.
-             */
-			extras = new Bundle();
-			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntity.placeId);
-		}
-		Patchr.dispatch.route(this, Patchr.dispatch.routeForMenuId(item.getItemId()), mEntity, null, extras);
-		return true;
-	}
-
-	@Override
-	public void invalidateOptionsMenu() {
-		Logger.v(this, "Invalidating options menu");
-		super.invalidateOptionsMenu();
-	}
-
-	@SuppressLint("NewApi")
-	public void popupMenu(View view) {
-
-		final Entity entity = (Entity) view.getTag();
-		PopupMenu popupMenu = new PopupMenu(this, view);
-		onCreatePopupMenu(popupMenu.getMenu(), (entity != null) ? entity : mEntity);
-		popupMenu.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-
-			@Override
-			public boolean onMenuItemClick(android.view.MenuItem item) {
-
-				if (item.getItemId() == R.id.report) {
-					Bundle extras = new Bundle();
-					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, mEntity.schema);
-					Patchr.dispatch.route(BaseActivity.this, Route.REPORT, (entity != null) ? entity : mEntity, null, extras);
-					return true;
+				@Override
+				public void onClick(View view) {
+					if (mDrawerLayout.isDrawerOpen(Gravity.START)) {
+						mDrawerLayout.closeDrawer(mDrawerLeft);
+					}
+					if (mDrawerLayout.isDrawerOpen(Gravity.END)) {
+						mNotificationActionIcon.animate().rotation(0f).setDuration(200);
+						mDrawerLayout.closeDrawer(mDrawerRight);
+					}
+					else {
+						mNotificationActionIcon.animate().rotation(90f).setDuration(200);
+						mDrawerLayout.openDrawer(mDrawerRight);
+					}
 				}
-				else {
-					Patchr.dispatch.route(BaseActivity.this, Patchr.dispatch.routeForMenuId(item.getItemId())
-							, (entity != null) ? entity : mEntity, null, new Bundle());
-					return true;
-				}
+			});
+
+			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				View view = MenuItemCompat.getActionView(notifications);
+				mNotificationsBadgeGroup = view.findViewById(R.id.badge_group);
+				mNotificationsBadgeCount = (TextView) view.findViewById(R.id.badge_count);
 			}
-		});
-
-		popupMenu.show();
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -843,7 +876,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		super.onStart();
 		if (!isFinishing()) {
 			Logger.d(this, "Activity starting");
-			Patchr.tracker.activityStart(this);
 
 			if (mPrefChangeReloadNeeded) {
 
@@ -865,9 +897,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 		BusProvider.getInstance().register(mBusy);
 		Patchr.getInstance().setCurrentActivity(this);
 		mClickEnabled = true;
-		if (!isFinishing()) {
-			setActionBarIcon(); // Hack: Icon gets lost sometimes so refresh
-		}
 		/*
 		 * We always check to make sure play services are working properly. This call will finish 
 		 * the activity if play services are missing and can't be installed. If play services can
@@ -901,7 +930,6 @@ public abstract class BaseActivity extends Activity implements OnRefreshListener
 	protected void onStop() {
 		Logger.d(this, "Activity stopping");
 		super.onStop();
-		Patchr.tracker.activityStop(this);
 	}
 
 	@Override

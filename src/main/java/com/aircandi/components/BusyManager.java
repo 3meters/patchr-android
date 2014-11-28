@@ -16,7 +16,6 @@ import com.aircandi.R;
 import com.aircandi.events.CancelEvent;
 import com.aircandi.events.ProgressEvent;
 import com.aircandi.interfaces.IBusy;
-import com.aircandi.ui.widgets.SmoothProgressBar;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Reporting;
 import com.squareup.otto.Subscribe;
@@ -32,7 +31,6 @@ public class BusyManager implements IBusy {
 	private   Runnable            mRunnableHide;
 	private   Runnable            mRunnableShow;
 	private   Long                mBusyStartedTime;
-	private   SmoothProgressBar   mHeaderActivityBar;
 	protected SwipeRefreshLayout  mSwipeRefreshLayout;
 
 	@SuppressLint("ResourceAsColor")
@@ -75,8 +73,6 @@ public class BusyManager implements IBusy {
 						 * Initial data load for an activity/fragment.
 						 */
 						startSwipeRefreshIndicator();
-						//						mBusyStartedTime = null;
-						//						return; // Skips activating busy minimum
 					}
 					else if (busyAction == BusyAction.Refreshing) {
 						/*
@@ -94,7 +90,7 @@ public class BusyManager implements IBusy {
 						/*
 						 * Updating the UI because of some new data like a location update.
 						 */
-						startBarBusyIndicator();
+						startSwipeRefreshIndicator();
 					}
 					else if (busyAction == BusyAction.ActionWithMessage) {
 						/*
@@ -216,7 +212,6 @@ public class BusyManager implements IBusy {
 			@Override
 			public void run() {
 				stopActionbarBusyIndicator();
-				stopBarBusyIndicator();
 				stopBodyBusyIndicator();
 				stopSwipeRefreshIndicator();
 			}
@@ -237,13 +232,6 @@ public class BusyManager implements IBusy {
 		}
 	}
 
-	public void startBarBusyIndicator() {
-		if (mHeaderActivityBar != null && mHeaderActivityBar.getVisibility() != View.VISIBLE) {
-			mHeaderActivityBar.setIndeterminate(true);
-			mHeaderActivityBar.setVisibility(View.VISIBLE);
-		}
-	}
-
 	public void startSwipeRefreshIndicator() {
 		if (mSwipeRefreshLayout != null && !mSwipeRefreshLayout.isRefreshing()) {
 			mSwipeRefreshLayout.setEnabled(false);
@@ -255,12 +243,6 @@ public class BusyManager implements IBusy {
 		if (mRefreshImage != null && mRefreshImage.get() != null && mRefreshImage.get().getVisibility() != View.VISIBLE) {
 			mRefreshProgress.get().setVisibility(View.GONE);
 			mRefreshImage.get().setVisibility(View.VISIBLE);
-		}
-	}
-
-	public void stopBarBusyIndicator() {
-		if (mHeaderActivityBar != null && mHeaderActivityBar.getVisibility() != View.GONE) {
-			mHeaderActivityBar.setVisibility(View.GONE);
 		}
 	}
 

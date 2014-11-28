@@ -46,13 +46,14 @@
 		android:layout_alignParentBottom="true"
 		android:gravity="center_horizontal">
 
-		<com.aircandi.ui.widgets.ComboButton
+		<com.aircandi.ui.widgets.AirButton
 			android:id="@+id/button_cancel"
-			style="@style/button"
+			style="@style/button_flat"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:onClick="onCancelButtonClick"
-			custom:label="@string/button_cancel" />
+			android:textColor="?attr/textColor"
+			android:text="@string/button_cancel" />
 	</LinearLayout>
 
 </RelativeLayout>

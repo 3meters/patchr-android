@@ -1,95 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.aircandi.ui.widgets.AirDrawerLayout
-	android:id="@+id/drawer_layout"
+<LinearLayout
+
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	tools:context=".ui.AircandiForm">
 
-	<RelativeLayout
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/include_toolbar_actionbar" />
+
+	<com.aircandi.ui.widgets.AirDrawerLayout
+		android:id="@+id/drawer_layout"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:background="?attr/backgroundCardField">
+		android:layout_height="match_parent">
 
-		<FrameLayout
-			android:id="@+id/fragment_holder"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent" />
-
-		<com.aircandi.ui.widgets.AirSquareButton
-			android:id="@+id/button_bubble"
-			style="@style/button_round"
-			android:layout_width="@dimen/button_round_width"
-			android:layout_height="@dimen/button_round_height"
-			android:layout_centerInParent="true" />
-
-		<com.aircandi.ui.widgets.AirTextLight
-			android:id="@+id/floating_action_button"
-			style="@style/button_round_glow_text"
-			android:layout_width="@dimen/button_round_medium"
-			android:layout_height="@dimen/button_round_medium"
-			android:clickable="true"
-			android:onClick="onFabButtonClick"
-			android:tag="map"
-			android:text="@string/label_view_map"
-			android:textAllCaps="true"
-			android:textColor="?attr/textColorButtonLink"
-			android:visibility="invisible" />
-
-		<com.aircandi.ui.widgets.ToolTipRelativeLayout
-			android:id="@+id/tooltips"
+		<RelativeLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:background="?attr/backgroundTooltipLayer"
-			android:visibility="gone">
+			android:background="?attr/backgroundCardField">
 
-			<ImageView
-				android:id="@+id/tooltips_cancel"
-				android:layout_width="35dp"
-				android:layout_height="35dp"
-				android:layout_alignParentRight="true"
-				android:layout_alignParentTop="true"
-				android:layout_margin="8dp"
-				android:background="@drawable/selector_button_circle_overlay"
-				android:duplicateParentState="true"
-				android:padding="4dp"
-				android:scaleType="centerCrop"
-				android:src="@drawable/ic_action_cancel_dark" />
-		</com.aircandi.ui.widgets.ToolTipRelativeLayout>
+			<FrameLayout
+				android:id="@+id/fragment_holder"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_centerHorizontal="true" />
 
-	</RelativeLayout>
+			<include
+				android:id="@+id/button_bubble"
+				layout="@layout/include_bubble" />
 
-	<FrameLayout
-		android:id="@+id/left_drawer"
-		android:layout_width="240dp"
-		android:layout_height="match_parent"
-		android:layout_gravity="start"
-		android:background="?attr/backgroundForm">
+			<RelativeLayout
+				android:id="@+id/floating_action_button"
+				style="@style/button_round_glow"
+				android:layout_width="@dimen/button_round_medium"
+				android:layout_height="@dimen/button_round_medium"
+				android:clickable="true"
+				android:onClick="onFabButtonClick"
+				android:tag="map"
+				android:visibility="invisible"
+				tools:visibility="visible">
 
-		<include layout="@layout/widget_drawer_start" />
-	</FrameLayout>
+				<ImageView
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:layout_margin="8dp"
+					android:background="@drawable/bg_round_accent" />
 
-	<RelativeLayout
-		android:id="@+id/right_drawer"
-		android:layout_width="320dp"
-		android:layout_height="match_parent"
-		android:layout_gravity="end"
-		android:background="?attr/backgroundForm">
+				<ImageView
+					android:id="@+id/fab_image"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:padding="18dp"
+					android:scaleType="fitCenter"
+					android:src="?attr/iconMap"
+					android:tint="@color/white" />
+
+			</RelativeLayout>
+
+		</RelativeLayout>
 
 		<FrameLayout
-			android:id="@+id/fragment_holder_notifications"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent" />
+			android:id="@+id/left_drawer"
+			android:layout_width="240dp"
+			android:layout_height="match_parent"
+			android:layout_gravity="left|start"
+			android:background="?attr/backgroundForm">
 
-		<com.aircandi.ui.widgets.AirSquareButton
-			android:id="@+id/button_bubble_notifications"
-			style="@style/button_round"
-			android:layout_width="@dimen/button_round_width"
-			android:layout_height="@dimen/button_round_height"
-			android:layout_centerInParent="true"
-			android:visibility="gone"
-			tools:text="No notifications" />
+			<include layout="@layout/widget_drawer_start" />
+		</FrameLayout>
 
-	</RelativeLayout>
+		<RelativeLayout
+			android:id="@+id/right_drawer"
+			android:layout_width="320dp"
+			android:layout_height="match_parent"
+			android:layout_gravity="end"
+			android:background="?attr/backgroundForm">
 
-</com.aircandi.ui.widgets.AirDrawerLayout>
+			<FrameLayout
+				android:id="@+id/fragment_holder_notifications"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
+
+			<com.aircandi.ui.widgets.SquareButton
+				android:id="@+id/button_bubble_notifications"
+				style="@style/button_round"
+				android:layout_width="@dimen/button_round_width"
+				android:layout_height="@dimen/button_round_height"
+				android:layout_centerInParent="true"
+				android:visibility="gone"
+				tools:text="No notifications" />
+
+		</RelativeLayout>
+
+	</com.aircandi.ui.widgets.AirDrawerLayout>
+</LinearLayout>

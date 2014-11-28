@@ -11,12 +11,11 @@ import android.net.Uri;
 import android.view.View;
 import android.widget.Toast;
 
-import com.aircandi.Patchr;
 import com.aircandi.Constants;
+import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
-import com.aircandi.components.TrackerBase.TrackerCategory;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
@@ -120,11 +119,12 @@ public class Dialogs {
 				, null
 				, new DialogInterface.OnClickListener() {
 
+			@SuppressWarnings("deprecation")
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					try {
-						Patchr.tracker.sendEvent(TrackerCategory.UX, "aircandi_update_button_click", "com.aircandi", 0);
+						Reporting.sendEvent(Reporting.TrackerCategory.UX, "aircandi_update_button_click", "com.aircandi", 0);
 						Logger.d(this, "Update: navigating to market install/update page");
 						final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update)));
 						intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -141,7 +141,7 @@ public class Dialogs {
 						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
 					}
 					dialog.dismiss();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.EXTERNAL_TO);
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {
 					dialog.dismiss();
@@ -176,8 +176,8 @@ public class Dialogs {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
-					Patchr.tracker.sendEvent(TrackerCategory.UX, "aircandi_location_settings_button_click", "com.aircandi", 0);
-					Patchr.dispatch.route(activity, Route.SETTINGS_LOCATION, null, null, null);
+					Reporting.sendEvent(Reporting.TrackerCategory.UX, "aircandi_location_settings_button_click", "com.aircandi", 0);
+					Patchr.dispatch.route(activity, Route.SETTINGS_LOCATION, null, null);
 					dialog.dismiss();
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {

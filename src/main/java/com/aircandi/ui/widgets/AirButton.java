@@ -28,7 +28,7 @@ public class AirButton extends Button {
 		ta.recycle();
 
 		if (!isInEditMode()) {
-			FontManager.getInstance().setTypefaceRegular(this);
+			FontManager.getInstance().setTypefaceLight(this);
 			if (textId != 0) {
 				super.setText(StringManager.getString(textId, context, getResources()));
 			}

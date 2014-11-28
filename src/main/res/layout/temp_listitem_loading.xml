@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
+<ViewSwitcher
 	android:id="@+id/animator_more"
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="80sp"
 	android:padding="10dp">
 
-	<com.aircandi.ui.widgets.ComboButton
+	<com.aircandi.ui.widgets.AirButton
 		android:id="@+id/button_more"
-		style="@style/button_link"
+		style="@style/button_outline"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/button_height"
 		android:layout_gravity="center"
 		android:onClick="onMoreButtonClick"
-		custom:label="@string/label_list_more" />
+		android:text="@string/label_list_more" />
 
 	<ProgressBar
 		android:id="@+id/progress_more"

@@ -16,7 +16,7 @@
 		android:scaleType="centerCrop"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
-		custom:layout="@layout/widget_webimageview_candi_view"
+		custom:layoutId="@layout/widget_webimageview_candi_view"
 		custom:sizeHint="@dimen/image_medium" />
 
 	<com.aircandi.ui.widgets.AirTextLight
@@ -91,9 +91,9 @@
 
 	</RelativeLayout>
 
-	<com.aircandi.ui.widgets.ComboButton
+	<ImageButton
 		android:id="@+id/button_delete_watcher"
-		style="@style/button"
+		style="@style/button_flat"
 		android:layout_width="@dimen/button_height"
 		android:layout_height="@dimen/button_height"
 		android:layout_alignParentRight="true"
@@ -101,7 +101,7 @@
 		android:layout_centerVertical="true"
 		android:onClick="onDeleteRequestClick"
 		android:visibility="gone"
-		custom:drawable="?attr/iconCancel"
+		android:src="?attr/iconCancel"
 		tools:visibility="visible" />
 
 </merge>

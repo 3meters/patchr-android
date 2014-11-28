@@ -36,7 +36,6 @@ public class UserView extends RelativeLayout {
 	private TextView     mLabel;
 	private TextView     mWatchCount;
 	private TextView     mTimeSince;
-	private ComboButton  mOverflowButton;
 
 	private Entity  mUser;
 	private Integer mLabelResId;
@@ -55,7 +54,7 @@ public class UserView extends RelativeLayout {
 		super(context, attrs, defStyle);
 
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.UserView, defStyle, 0);
-		final int layoutId = ta.getResourceId(R.styleable.UserView_layout, R.layout.widget_user_view_detailed);
+		final int layoutId = ta.getResourceId(R.styleable.UserView_layoutId, R.layout.widget_user_view_detailed);
 		mLabelResId = ta.getResourceId(R.styleable.UserView_label, 0);
 		mBoundView = (ViewGroup) LayoutInflater.from(getContext()).inflate(layoutId, null);
 
@@ -73,7 +72,6 @@ public class UserView extends RelativeLayout {
 			mImageLocked = (ImageView) mBoundView.findViewById(R.id.image_locked);
 			mImageWatched = (ImageView) mBoundView.findViewById(R.id.image_watched);
 			mWatchCount = (TextView) mBoundView.findViewById(R.id.watch_count);
-			mOverflowButton = (ComboButton) mBoundView.findViewById(R.id.button_overflow);
 		}
 
 		removeAllViews();
@@ -88,9 +86,6 @@ public class UserView extends RelativeLayout {
 		mUser = entity;
 		mDate = date;
 		this.setTag(entity);
-		if (mOverflowButton != null) {
-			mOverflowButton.setTag(entity);
-		}
 		draw();
 	}
 
@@ -98,12 +93,6 @@ public class UserView extends RelativeLayout {
 		User user = (User) mUser;
 
 		if (user != null) {
-			if (mOverflowButton != null) {
-				if (user.isAnonymous()) {
-					mOverflowButton.setVisibility(user.isAnonymous() ? View.GONE : View.VISIBLE);
-				}
-			}
-
 			if (mLabel != null) {
 				if (mLabelResId != 0) {
 					mLabel.setText(StringManager.getString(mLabelResId));

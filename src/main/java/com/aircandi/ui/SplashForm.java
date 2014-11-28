@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 
 import com.aircandi.Constants;
@@ -16,16 +16,13 @@ import com.aircandi.R;
 import com.aircandi.components.ActivityRecognitionManager;
 import com.aircandi.components.AndroidManager;
 import com.aircandi.components.AnimationManager;
-import com.aircandi.components.BusyManager;
 import com.aircandi.components.EntityManager;
-import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.MenuManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NotificationManager;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Route;
@@ -36,7 +33,7 @@ import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 
 @SuppressLint("Registered")
-public class SplashForm extends Activity {
+public class SplashForm extends ActionBarActivity {
 
 	protected SwipeRefreshLayout  mSwipeRefreshLayout;
 
@@ -46,7 +43,6 @@ public class SplashForm extends Activity {
 		super.onCreate(savedInstanceState);
 		Logger.d(this, "Splash create");
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-		requestWindowFeature((int) Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.splash_form);
 		initialize();
 	}
@@ -193,7 +189,7 @@ public class SplashForm extends Activity {
 			startActivity(Patchr.firstStartIntent);
 		}
 		else {
-			Patchr.dispatch.route(this, Route.HOME, null, null, null);
+			Patchr.dispatch.route(this, Route.HOME, null, null);
 		}
 
 		/* Always ok to make sure firstStartIntent isn't still around */
@@ -248,7 +244,7 @@ public class SplashForm extends Activity {
 			updateRequired();
 			return;
 		}
-		Patchr.dispatch.route(this, Route.SIGNIN, null, null, null);
+		Patchr.dispatch.route(this, Route.SIGNIN, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -257,7 +253,7 @@ public class SplashForm extends Activity {
 			updateRequired();
 			return;
 		}
-		Patchr.dispatch.route(this, Route.REGISTER, null, null, null);
+		Patchr.dispatch.route(this, Route.REGISTER, null, null);
 	}
 
 	@SuppressWarnings("ucd")

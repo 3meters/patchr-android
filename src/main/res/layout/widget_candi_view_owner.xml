@@ -18,7 +18,7 @@
 		android:scaleType="centerCrop"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
-		custom:layout="@layout/widget_webimageview_candi_view"
+		custom:layoutId="@layout/widget_webimageview_candi_view"
 		custom:sizeHint="@dimen/image_medium" />
 
 	<com.aircandi.ui.widgets.AirTextLight
@@ -66,7 +66,7 @@
 		android:layout_alignLeft="@+id/name"
 		android:layout_below="@+id/area"
 		android:layout_marginBottom="8dp"
-		android:text="@string/label_place_owner_flag"
+		android:text="@string/label_patch_owner_flag"
 		android:textColor="@color/brand_primary" />
 
 	<View

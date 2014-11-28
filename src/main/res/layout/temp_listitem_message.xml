@@ -20,10 +20,10 @@
 		android:src="@drawable/img_blue_dot"
 		android:visibility="invisible" />
 
-	<!-- Place context -->
+	<!-- Patch context -->
 
 	<LinearLayout
-		android:id="@+id/holder_place"
+		android:id="@+id/holder_patch"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignLeft="@+id/holder_content"
@@ -31,7 +31,7 @@
 		android:orientation="horizontal">
 
 		<com.aircandi.ui.widgets.AirTextLight
-			android:id="@+id/place_name"
+			android:id="@+id/patch_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
@@ -60,7 +60,6 @@
 		android:layout_marginTop="2dp"
 		android:clickable="true"
 		android:onClick="onEntityClick"
-		android:src="@drawable/img_placeholder_logo_bw"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
 		custom:sizeHint="@dimen/image_small" />
@@ -69,7 +68,7 @@
 		android:id="@+id/holder_content"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/holder_place"
+		android:layout_below="@+id/holder_patch"
 		android:layout_toRightOf="@+id/user_photo"
 		android:orientation="vertical">
 
@@ -154,7 +153,7 @@
 			custom:config="rgb_565"
 			custom:dominantMeasurement="width"
 			custom:fitType="auto"
-			custom:layout="@layout/widget_webimageview" />
+			custom:layoutId="@layout/widget_webimageview" />
 
 		<!-- Share entity -->
 
@@ -167,7 +166,7 @@
 			android:layout_marginTop="12dp">
 
 			<FrameLayout
-				android:id="@+id/share"
+				android:id="@+id/share_entity"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:background="?attr/backgroundButtonShare"
@@ -177,13 +176,13 @@
 			<View
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/rule_highlight_height"
-				android:layout_alignTop="@id/share"
+				android:layout_alignTop="@id/share_entity"
 				android:background="?attr/cardHighlightColor" />
 
 			<View
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/rule_shadow_height"
-				android:layout_alignBottom="@id/share"
+				android:layout_alignBottom="@id/share_entity"
 				android:background="?attr/cardShadowColor" />
 
 		</RelativeLayout>

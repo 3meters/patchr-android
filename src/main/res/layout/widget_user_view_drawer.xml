@@ -14,14 +14,13 @@
 		android:scaleType="centerCrop"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
-		custom:layout="@layout/widget_webimageview"
+		custom:layoutId="@layout/widget_webimageview"
 		custom:sizeHint="60dp" />
 
 	<LinearLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
-		android:layout_toLeftOf="@+id/button_overflow"
 		android:layout_toRightOf="@+id/widget_photo"
 		android:orientation="vertical">
 
@@ -31,7 +30,8 @@
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
 			android:singleLine="true"
-			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:textColor="@color/brand_primary_dark"
+			android:textAppearance="?android:attr/textAppearance"
 			custom:textId="@string/label_drawer_item_nearby" />
 
 		<com.aircandi.ui.widgets.AirTextLight
@@ -42,15 +42,5 @@
 			android:singleLine="true"
 			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</LinearLayout>
-
-	<com.aircandi.ui.widgets.ComboButton
-		android:id="@+id/button_overflow"
-		style="@style/button"
-		android:layout_width="@dimen/button_height"
-		android:layout_height="@dimen/button_height"
-		android:layout_alignParentRight="true"
-		android:layout_centerVertical="true"
-		android:onClick="onOverflowButtonClick"
-		custom:drawable="?attr/iconOverflow" />
 
 </RelativeLayout>

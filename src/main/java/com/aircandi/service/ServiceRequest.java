@@ -36,7 +36,6 @@ public class ServiceRequest {
 	private Bundle          mParameters;
 	private RequestType     mRequestType;
 	private ResponseFormat  mResponseFormat;
-	private RequestListener mRequestListener;
 	private Session         mSession;
 	private String          mUserName;
 	private String          mPassword;
@@ -98,10 +97,6 @@ public class ServiceRequest {
 
 	public RequestType getRequestType() {
 		return mRequestType;
-	}
-
-	public RequestListener getRequestListener() {
-		return mRequestListener;
 	}
 
 	public ResponseFormat getResponseFormat() {
@@ -168,12 +163,6 @@ public class ServiceRequest {
 
 	public ServiceRequest setRequestType(RequestType requestType) {
 		mRequestType = requestType;
-		return this;
-	}
-
-	@SuppressWarnings("ucd")
-	public ServiceRequest setRequestListener(RequestListener requestListener) {
-		mRequestListener = requestListener;
 		return this;
 	}
 

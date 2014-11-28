@@ -12,5 +12,6 @@
 
 	<integer name="limit_places_radar">50</integer>
 	<integer name="anim_extra_long">300</integer>
+	<integer name="anim_short_medium_duration">250</integer>
 
 </resources>

@@ -56,9 +56,6 @@ public abstract class ServiceBase extends ServiceObject {
 	@Expose(serialize = false, deserialize = true)
 	public String namelc;
 
-	@Expose(serialize = false, deserialize = true)
-	public Boolean enabled = true;                    // promoted from link for convenience
-
 	/* PropertyValue bags */
 
 	@Expose
@@ -129,7 +126,6 @@ public abstract class ServiceBase extends ServiceObject {
 		base.name = (String) map.get("name");
 		base.schema = (String) map.get("schema");
 		base.type = (String) map.get("type");
-		base.enabled = (Boolean) map.get("enabled");
 		base.locked = (Boolean) map.get("locked");
 		base.position = (Number) map.get("position");
 		base.data = (HashMap<String, Object>) map.get("data");

@@ -3,20 +3,39 @@
 
 	<!-- Titles -->
 
-	<string name="form_title_photo" tools:ignore="UnusedResources">Photo</string>
-	<string name="form_title_profile" tools:ignore="UnusedResources">Profile</string>
-	<string name="form_title_password" tools:ignore="UnusedResources">Change password</string>
-	<string name="form_title_signin" tools:ignore="UnusedResources">Sign in</string>
-	<string name="form_title_signup" tools:ignore="UnusedResources">Join</string>
-	<string name="form_title_preferences" tools:ignore="UnusedResources">[@string/name_app] settings</string>
-	<string name="form_title_feedback" tools:ignore="UnusedResources">Send feedback</string>
-	<string name="form_title_report" tools:ignore="UnusedResources">Report a problem</string>
-	<string name="form_title_reset" tools:ignore="UnusedResources">Password reset</string>
-	<string name="form_title_invite" tools:ignore="UnusedResources">Send invitations</string>
-	<string name="form_title_tune" tools:ignore="UnusedResources">Tune</string>
-	<string name="form_title_watchers" tools:ignore="UnusedResources">Watchers</string>
-	<string name="form_title_privacy" tools:ignore="UnusedResources">Patch privacy</string>
-	<string name="form_title_message">Message</string>
+	<string name="form_title_user_form" tools:ignore="UnusedResources">Profile</string>
+	<string name="form_title_photo_form" tools:ignore="UnusedResources">Photo</string>
+	<string name="form_title_about_form" tools:ignore="UnusedResources">About Patchr</string>
+	<string name="form_title_map_form" tools:ignore="UnusedResources">Map</string>
+	<string name="form_title_search_form" tools:ignore="UnusedResources">Search</string>
+	<string name="form_title_settings_form" tools:ignore="UnusedResources">Settings</string>
+
+	<string name="form_title_patch_edit" tools:ignore="UnusedResources">Edit patch</string>
+	<string name="form_title_patch_new" tools:ignore="UnusedResources">New patch</string>
+	<string name="form_title_message_edit" tools:ignore="UnusedResources">Edit message</string>
+	<string name="form_title_message_new" tools:ignore="UnusedResources">Compose</string>
+	<string name="form_title_user_edit" tools:ignore="UnusedResources">Edit profile</string>
+	<string name="form_title_feedback_edit" tools:ignore="UnusedResources">Send feedback</string>
+	<string name="form_title_report_edit" tools:ignore="UnusedResources">Report a problem</string>
+	<string name="form_title_password_edit" tools:ignore="UnusedResources">Change password</string>
+	<string name="form_title_signin_edit" tools:ignore="UnusedResources">Sign in</string>
+	<string name="form_title_register_edit" tools:ignore="UnusedResources">Join Patchr</string>
+	<string name="form_title_reset_edit" tools:ignore="UnusedResources">Password reset</string>
+
+	<string name="form_title_privacy_builder" tools:ignore="UnusedResources">Privacy setting</string>
+	<string name="form_title_category_builder" tools:ignore="UnusedResources">Category</string>
+	<string name="form_title_photo_picker" tools:ignore="UnusedResources">Photo search</string>
+	<string name="form_title_location_picker" tools:ignore="UnusedResources">Set patch location</string>
+
+
+	<string name="form_title_patch_list" tools:ignore="UnusedResources">Patches</string>
+	<string name="form_title_watching_list" tools:ignore="UnusedResources">Watchers</string>
+	<string name="form_title_nearby" tools:ignore="UnusedResources">Nearby</string>
+	<string name="form_title_watch" tools:ignore="UnusedResources">Watching</string>
+	<string name="form_title_create" tools:ignore="UnusedResources">My patches</string>
+	<string name="form_title_trends_popular" tools:ignore="UnusedResources">Most popular</string>
+	<string name="form_title_trends_active" tools:ignore="UnusedResources">Most active</string>
+	<string name="form_title_notifications" tools:ignore="UnusedResources">Notifications</string>
 
 	<!-- Menus -->
 
@@ -33,16 +52,18 @@
 	<string name="menu_item_signout">Sign out</string>
 	<string name="menu_item_signin">Sign in</string>
 	<string name="menu_item_send">Send</string>
+	<string name="menu_item_invite">Invite</string>
+	<string name="menu_item_map">Map location</string>
 	<string name="menu_item_feedback">Feedback</string>
 	<string name="menu_item_delete">Delete</string>
 	<string name="menu_item_remove">Remove</string>
 	<string name="menu_item_accept">Accept</string>
 	<string name="menu_item_cancel">Cancel</string>
-	<string name="menu_item_new_place">New patch</string>
-	<string name="menu_item_edit_place">Edit</string>
+	<string name="menu_item_new_patch">New patch</string>
+	<string name="menu_item_edit_patch">Edit</string>
 	<string name="menu_item_edit_message">Edit</string>
 	<string name="menu_item_share_message">Share</string>
-	<string name="menu_item_share_place">Invite</string>
+	<string name="menu_item_share_patch">Invite</string>
 
 	<!-- Popups -->
 
@@ -50,10 +71,9 @@
 
 	<!-- Help -->
 
-	<string name="help_radar_browse_places">Radar finds [@string/container_plural_lowercase] nearby you can browse and interact with.</string>
-	<string name="help_radar_new_places">Use the action bar to make and share custom [@string/container_plural_lowercase].</string>
-	<string name="help_place_tune">Tune [@string/container_plural_lowercase] to make them better.</string>
-	<string name="help_place_add">Use the action bar to add pictures and comments.</string>
+	<string name="help_nearby_browse_patches">Radar finds [@string/container_plural_lowercase] nearby you can browse and interact with.</string>
+	<string name="help_nearby_new_patches">Use the action bar to make and share custom [@string/container_plural_lowercase].</string>
+	<string name="help_patch_tune">Tune [@string/container_plural_lowercase] to make them better.</string>
 
 	<!-- Dialogs -->
 
@@ -68,7 +88,6 @@
 	<string name="dialog_photo_source_search">Search for photos</string>
 	<string name="dialog_photo_source_gallery">Select a gallery photo</string>
 	<string name="dialog_photo_source_camera">Take a new photo</string>
-	<string name="dialog_photo_source_place">Select a place photo</string>
 	<string name="dialog_photo_source_default">Default</string>
 	<string name="dialog_update_title">Update available</string>
 	<string name="dialog_update_message">Please update to the latest version of [@string/name_app].</string>
@@ -131,7 +150,7 @@
 	<string name="alert_signin_message">Sign in to use this feature.</string>
 	<string name="alert_signin_message_add">Sign in to post [@schema]s.</string>
 	<string name="alert_signin_message_edit">Sign in to edit [@schema]s.</string>
-	<string name="alert_signin_message_place_tune">Sign in to tune [@string/container_plural_lowercase].</string>
+	<string name="alert_signin_message_patch_tune">Sign in to tune [@string/container_plural_lowercase].</string>
 
 	<!-- Alerts: confirm dirty -->
 
@@ -161,7 +180,7 @@
 
 	<string name="alert_switch_public_to_private" tools:ignore="UnusedResources">Please review the watchers for this [@string/container_singular_lowercase] after switching to private.</string>
 
-	<!-- Alerts: confirm unwatch private place -->
+	<!-- Alerts: confirm unwatch private patch -->
 
 	<string name="alert_unwatch_positive">Leave</string>
 	<string name="alert_unwatch_message">A new request will be required to rejoin this [@string/container_singular_lowercase]</string>
@@ -178,7 +197,7 @@
 	<string name="alert_delete_message_message_no_name">Are you sure you want to delete this message?</string>
 
 	<string name="alert_signin_message_watch">Sign in to watch [@schema]es.</string>
-	<string name="alert_signin_message_place_new">Sign in to create a new [@string/container_singular_lowercase].</string>
+	<string name="alert_signin_message_patch_new">Sign in to create a new [@string/container_singular_lowercase].</string>
 
 	<!-- Errors -->
 
@@ -215,7 +234,7 @@
 	<string name="error_missing_password">Enter a password.</string>
 	<string name="error_missing_message">Enter a message.</string>
 	<string name="error_missing_report_option">Choose a reason.</string>
-	<string name="error_missing_place_name">Enter a name.</string>
+	<string name="error_missing_patch_name">Enter a name for the patch.</string>
 
 	<!-- Errors: connectivity -->
 
@@ -274,6 +293,7 @@
 	<string name="button_privacy">Privacy policy</string>
 	<string name="button_legal">Open source licenses</string>
 	<string name="button_forgot_password">Forgot password?</string>
+	<string name="button_clear_place">Clear linked place</string>
 
 	<string name="button_tuning_tune">I\'m here</string>
 	<string name="button_tuning_untune">I\'m not here</string>
@@ -284,11 +304,12 @@
 	<string name="button_list_watch_request_cancel">Cancel join request</string>
 
 	<string name="button_list_share">Invite friends to this patch</string>
-	<string name="button_place_share">Invite</string>
+	<string name="button_patch_share">Invite</string>
 	<string name="button_list_watchers_share">Invite friends to this patch</string>
 	<string name="button_just_approved">Approved! Invite your friends</string>
 	<string name="button_just_approved_no_message">Approved! Post your first message</string>
 	<string name="button_no_message">Post your first message</string>
+	<string name="button_list_add_patch">Add a patch to this place</string>
 
 	<plurals name="button_pending_requests">
 		<item quantity="one">One member request</item>
@@ -312,7 +333,8 @@
 	<string name="label_locked_description" tools:ignore="UnusedResources">Users can browse but not add content</string>
 	<string name="label_private">Private</string>
 	<string name="label_register_title">Join [@string/name_app]</string>
-	<string name="label_search_hint">Search patches</string>
+	<string name="label_search_patches_hint">Search patches</string>
+	<string name="label_search_places_hint">Search places</string>
 	<string name="label_search_completion_hint">Pick a patch to browse.</string>
 	<string name="label_location_edit_message">Tap or tap and hold to set the location for the [@string/container_singular_lowercase].</string>
 
@@ -347,12 +369,13 @@
 	<string name="label_section_banner">Great banner</string>
 	<string name="label_section_tuning">Lock it in</string>
 
-	<string name="label_place_edit_category">Category</string>
-	<string name="label_place_edit_privacy">Privacy</string>
-	<string name="label_place_privacy_public">Public</string>
-	<string name="label_place_privacy_private">Private</string>
-	<string name="label_place_privacy_public_help">Anyone can see the patch, its members and their messages.</string>
-	<string name="label_place_privacy_private_help">Anyone can find the patch and see who\'s in it. Only members can see messages.</string>
+	<string name="label_patch_edit_category">Type</string>
+	<string name="label_patch_edit_place">Linked place</string>
+	<string name="label_patch_edit_privacy">Privacy</string>
+	<string name="label_patch_privacy_public">Public</string>
+	<string name="label_patch_privacy_private">Private</string>
+	<string name="label_patch_privacy_public_help">Anyone can see the patch, its members and their messages.</string>
+	<string name="label_patch_privacy_private_help">Anyone can find the patch and see who\'s in it. Only members can see messages.</string>
 
 	<string name="label_edit_new_title">New</string>
 
@@ -361,29 +384,24 @@
 	<string name="label_drawer_open">Open drawer</string>
 	<string name="label_drawer_close">Close drawer</string>
 
-	<string name="label_radar_title">Nearby</string>
-	<string name="label_watch_title">Watching</string>
-	<string name="label_create_title">My [@string/container_plural_lowercase]</string>
-	<string name="label_notifications_title">Notifications</string>
-
-	<string name="label_place_private_flag">Private</string>
-	<string name="label_place_category_default">Place or event</string>
-	<string name="label_place_hidden_flag" tools:ignore="UnusedResources">(Secret)</string>
-	<string name="label_place_owner_flag" tools:ignore="UnusedResources">(Owner)</string>
+	<string name="label_patch_private_flag">Private</string>
+	<string name="label_patch_category_default">Group or event</string>
+	<string name="label_patch_hidden_flag" tools:ignore="UnusedResources">(Secret)</string>
+	<string name="label_patch_owner_flag" tools:ignore="UnusedResources">(Owner)</string>
 	<string name="label_indicator_watching" tools:ignore="UnusedResources">Watchers</string>
 	<string name="label_indicator_watch_requests" tools:ignore="UnusedResources">Requests</string>
 
 	<!-- Labels: Sharing -->
 
-	<string name="label_place_share_title">Invite people to \'%1$s\' using&#8230;</string>
-	<string name="label_place_share_subject">\'%1$s\' [@string/container_singular_lowercase]</string>
-	<string name="label_place_share_body_install" tools:ignore="UnusedResources">Get the [@string/name_app] app at\u0020</string>
-    <string name="label_place_share_body">
-        "You\'ve been invited to a [@string/container_singular_lowercase]! \n\nhttp://patchr.com/patch/%1$s \n\n[@string/label_place_share_body_install][@string/uri_play_store]"
+	<string name="label_patch_share_title">Invite people to \'%1$s\' using&#8230;</string>
+	<string name="label_patch_share_subject">\'%1$s\' [@string/container_singular_lowercase]</string>
+	<string name="label_patch_share_body_install" tools:ignore="UnusedResources">Get the [@string/name_app] app at\u0020</string>
+    <string name="label_patch_share_body">
+        "You\'ve been invited to a [@string/container_singular_lowercase]! \n\nhttp://patchr.com/patch/%1$s \n\n[@string/label_patch_share_body_install][@string/uri_play_store]"
     </string>
 
-	<string name="label_place_share_body_self">"Checkout the \'%1$s\' [@string/container_singular_lowercase]!"</string>
-	<string name="label_place_share_body_self_oncreate">"Checkout the \'%1$s\' [@string/container_singular_lowercase] I just dropped!"</string>
+	<string name="label_patch_share_body_self">"Check out the \'%1$s\' [@string/container_singular_lowercase]!"</string>
+	<string name="label_patch_share_body_self_oncreate">"Check out the \'%1$s\' [@string/container_singular_lowercase] I just dropped!"</string>
 
 	<string name="label_message_share_subject">[@string/name_app] message shared by %1$s</string>
 	<string name="label_message_share_body_install" tools:ignore="UnusedResources">Get the [@string/name_app] app at\u0020</string>
@@ -391,12 +409,12 @@
         "A message has been shared with you! \n\nhttp://patchr.com/message/%1$s \n\n[@string/label_message_share_body_install][@string/uri_play_store]"
     </string>
 
-	<string name="label_message_share_body_self">"Checkout %1$s\'s message to the \'%2$s\' [@string/container_singular_lowercase]!"</string>
-	<string name="label_message_share_body_self_no_place">"Checkout %1$s\'s message to a [@string/container_singular_lowercase]!"</string>
+	<string name="label_message_share_body_self">"Check out %1$s\'s message to the \'%2$s\' [@string/container_singular_lowercase]!"</string>
+	<string name="label_message_share_body_self_no_patch">"Check out %1$s\'s message to a [@string/container_singular_lowercase]!"</string>
 
 	<string name="label_photo_share_subject">[@string/name_app] photo shared by %1$s</string>
     <string name="label_photo_share_body_self">
-        "Checkout this [@string/name_app] photo!"
+        "Check out this [@string/name_app] photo!"
     </string>
 
 	<!-- Labels: Empty -->
@@ -408,6 +426,7 @@
 	<!-- Labels: Misc -->
 
 	<string name="label_message_to_prefix">"To:  "</string>
+	<string name="label_spinner_patch_type">Select patch type</string>
 
 	<string name="label_user_watching_none">none yet</string>
 	<string name="label_user_created_none">none yet</string>
@@ -417,12 +436,10 @@
 	<string name="label_sent_empty">No messages posted yet</string>
 	<string name="label_feed_messages_title">Messages</string>
 	<string name="label_feed_alerts_title">Alerts</string>
-	<string name="label_tuning_tune_no_name">If you are currently at the location for this [@string/container_singular_lowercase], help make [@string/name_app] better by tuning the [@string/container_singular_lowercase] for faster discovery.</string>
+	<string name="label_tuning_tune_no_name">If you are currently at the location for this patch, help make Patchr better by tuning the patch for faster discovery.</string>
 	<string name="label_message_share_title">Share message to&#8230;</string>
 	<string name="label_private_description" tools:ignore="UnusedResources">Users can only see posted messages if you approve their watch request.</string>
 
-	<string name="label_trends_popular">Most popular</string>
-	<string name="label_trends_active">Most active</string>
 	<string name="label_trends_count_popular">Watchers</string>
 	<string name="label_trends_count_active">Messages</string>
 	<string name="label_trends_header_message_popular">[@string/container_plural] with the most watchers.</string>
@@ -437,14 +454,17 @@
 	<string name="label_message_edit_message">Edit your message to: %1$s.</string>
 	<string name="label_message_shared">Shared by</string>
 
+	<string name="label_message_new_patch">Make a patch.</string>
+	<string name="label_message_new_to_place">Make a patch for: %1$s.</string>
+
 	<string name="label_register_message">You\'ll love [@string/name_app]! Join to post messages, create patches and share with your friends.</string>
 	<string name="label_search">Patchr</string>
 	<string name="label_share_to_hint">type to search users</string>
 	<string name="label_share_completion_hint">Pick users to share with.</string>
 
-	<string name="label_notification_ticker_place_insert">%1$s: dropped a [@string/container_singular_lowercase]</string>
-	<string name="label_notification_ticker_place_insert_nearby">%1$s: dropped a [@string/container_singular_lowercase] nearby</string>
-	<string name="label_notification_ticker_place_share">%1$s: invited you to a [@string/container_singular_lowercase]</string>
+	<string name="label_notification_ticker_patch_insert">%1$s: dropped a [@string/container_singular_lowercase]</string>
+	<string name="label_notification_ticker_patch_insert_nearby">%1$s: dropped a [@string/container_singular_lowercase] nearby</string>
+	<string name="label_notification_ticker_patch_share">%1$s: invited you to a [@string/container_singular_lowercase]</string>
 	<string name="label_notification_ticker_message_insert">%1$s: %2$s</string>
 	<string name="label_notification_ticker_message_share">%1$s: shared a message with you</string>
 	<string name="label_notification_ticker_photo_insert">%1$s: posted a photo to \'%2$s\'</string>
@@ -459,7 +479,7 @@
 	<string name="label_notification_message_reply_nearby_subtitle">Replied to a message at a %1$s nearby.</string>
 	<string name="label_notification_message_reply_watchto_subtitle">Replied to a message at a %1$s you are watching.</string>
 	<string name="label_notification_message_reply_ownto_subtitle">Replied to a message at a %1$s of yours.</string>
-	<string name="label_notification_place_nearby_subtitle">Dropped a new patch nearby.</string>
+	<string name="label_notification_patch_nearby_subtitle">Dropped a new patch nearby.</string>
 	<string name="label_notification_share_subtitle">Shared with you.</string>
 	<string name="label_notification_watch_subtitle">Started watching a patch of yours: %1$s</string>
 
@@ -474,7 +494,7 @@
 	<string name="label_tab_item_profile">Profile</string>
 	<string name="label_tab_item_account">Account</string>
 
-	<string name="label_drawer_section_places">PATCHES</string>
+	<string name="label_drawer_section_patches">PATCHES</string>
 	<string name="label_drawer_section_trending">TRENDING</string>
 	<string name="label_drawer_section_more">MORE</string>
 
@@ -489,27 +509,27 @@
 	<string name="label_user_watching">Watching</string>
 	<string name="label_user_created">Owner</string>
 
-	<string name="tooltip_place_new_part1">
+	<string name="tooltip_patch_new_part1">
 		Patches let a group of people share messages about places and events!
 	</string>
-	<string name="tooltip_place_new_part2">
+	<string name="tooltip_patch_new_part2">
 		" &#8226; Parties and sporting events\n &#8226; Family vacations\n &#8226; Projects and meetings"
 	</string>
-	<string name="tooltip_place_new_part3">
+	<string name="tooltip_patches_new_part3">
 		This patch will be locked to your current location.
 		Invite some friends and get the conversation started!
 	</string>
-	<string name="tooltip_action_item_place_new">Tap to create a new patch.</string>
+	<string name="tooltip_action_item_patch_new">Tap to create a new patch.</string>
 	<string name="tooltip_list_nearby">Your world is filled with patches! Discover them or create one of your own.</string>
-	<string name="tooltip_place_watch">Stay connected to patches by tapping the watch button.</string>
-	<string name="tooltip_place_share" tools:ignore="UnusedResources">Invite your friends to this patch.</string>
+	<string name="tooltip_patch_watch">Stay connected to patches by tapping the watch button.</string>
+	<string name="tooltip_patch_share" tools:ignore="UnusedResources">Invite your friends to this patch.</string>
 
 	<!-- Hints -->
 
-	<string name="hint_place_title">Name</string>
-	<string name="hint_place_category">Set category</string>
-	<string name="hint_place_privacy">Set privacy</string>
-	<string name="hint_place_sub_category">Set subcategory</string>
+	<string name="hint_patch_title">Title</string>
+	<string name="hint_patch_category">Patch type</string>
+	<string name="hint_patch_privacy">Set privacy</string>
+	<string name="hint_patch_sub_category">Set subcategory</string>
 	<string name="hint_phone">Phone</string>
 	<string name="hint_address">Address</string>
 	<string name="hint_state">State</string>
@@ -525,6 +545,7 @@
 	<string name="dummy_title" tools:ignore="UnusedResources">Zoka Coffee Roaster &amp; Tea Company</string>
 	<string name="dummy_title_short" tools:ignore="UnusedResources">Zoka Coffee</string>
 	<string name="dummy_subtitle" tools:ignore="UnusedResources">Roasters &amp; Tea Company</string>
+	<string name="dummy_category_name" tools:ignore="UnusedResources">Coffee Shop</string>
 	<string name="dummy_subtitle_notification" tools:ignore="UnusedResources">added a picture to a [@string/container_singular_lowercase] you are watching.</string>
 	<string name="dummy_name" tools:ignore="UnusedResources">Jay Massena</string>
 	<string name="dummy_alert" tools:ignore="UnusedResources">Link failed verification</string>
@@ -539,7 +560,7 @@
 	<string name="dummy_install_type" tools:ignore="UnusedResources">serial_num</string>
 	<string name="dummy_number" tools:ignore="UnusedResources">10</string>
 	<string name="dummy_item_count" tools:ignore="UnusedResources">10 replies</string>
-	<string name="dummy_place_stat" tools:ignore="UnusedResources">28 places</string>
+	<string name="dummy_patch_stat" tools:ignore="UnusedResources">28 patches</string>
 	<string name="dummy_timesince" tools:ignore="UnusedResources">10 minutes ago</string>
 	<string name="dummy_timesince_short" tools:ignore="UnusedResources">10m</string>
 	<string name="dummy_type" tools:ignore="UnusedResources">bouncing</string>

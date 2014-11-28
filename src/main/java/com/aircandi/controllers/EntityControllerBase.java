@@ -20,18 +20,15 @@ import com.aircandi.components.EntityManager;
 import com.aircandi.components.IntentBuilder;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.NotificationType;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
-import com.aircandi.ui.EntityList;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
-import com.aircandi.ui.widgets.ComboButton;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
@@ -46,7 +43,6 @@ public abstract class EntityControllerBase implements IEntityController {
 
 	protected Class<?> mEditClass;
 	protected Class<?> mNewClass;
-	protected Class<?> mListClass = EntityList.class;
 
 	protected String  mListViewType = ViewType.LIST;
 	protected Integer mPageSize     = Integers.getInteger(R.integer.page_size_entities);
@@ -99,49 +95,23 @@ public abstract class EntityControllerBase implements IEntityController {
 		Intent intent = intentBuilder.create();
 
 		if (start) {
+			Integer transitionType = TransitionType.FORM_TO;
+			if (extras != null) {
+				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
+			}
 			context.startActivity(intent);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, transitionType);
 		}
 
 		return intent;
 	}
 
-	/*
-	 * Browse a set of child entities for a particular parent entity.
-	 */
-	@Override
-	public Intent viewFor(Context context
-			, Entity entity
-			, String entityId
-			, String linkType
-			, Direction direction
-			, String title
-			, Boolean newEnabled
-			, Boolean start) {
+	public boolean supportsEdit() {
+		return (mEditClass != null);
+	}
 
-		IntentBuilder intentBuilder = new IntentBuilder(context, mListClass);
-		intentBuilder
-				.setEntityId(entityId)
-				.setListTitle(title)
-				.setListLinkType(linkType)
-				.setListLinkDirection((direction != null) ? direction.name() : Direction.in.name())
-				.setListLinkSchema(mSchema)
-				.setListPageSize(mPageSize)
-				.setListViewType(mListViewType)
-				.setListItemResId(mListItemResId)
-				.setLayoutResId(mListLayoutResId)
-				.setListLoadingResId(mListLoadingResId)
-				.setListNewMessageResId(mListNewMessageResId)
-				.setListNewEnabled(newEnabled);
-
-		Intent intent = intentBuilder.create();
-
-		if (start) {
-			context.startActivity(intentBuilder.create());
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
-		}
-
-		return intent;
+	public boolean supportsInsert() {
+		return (mNewClass != null);
 	}
 
 	@Override
@@ -155,7 +125,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			((Activity) context).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ENTITY_EDIT);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
 		}
 
 		return intent;
@@ -172,7 +142,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			((Activity) context).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ENTITY_INSERT);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
 		}
 
 		return intent;
@@ -207,14 +177,6 @@ public abstract class EntityControllerBase implements IEntityController {
 			UI.setVisibility(holder.checked, View.VISIBLE);
 		}
 
-		/* Overflow button */
-
-		UI.setVisibility(holder.overflow, View.GONE);
-		if (holder.overflow != null) {
-			holder.overflow.setTag(entity);
-			UI.setVisibility(holder.overflow, View.VISIBLE);
-		}
-
 		/* Name */
 
 		UI.setVisibility(holder.name, View.GONE);
@@ -223,28 +185,25 @@ public abstract class EntityControllerBase implements IEntityController {
 			UI.setVisibility(holder.name, View.VISIBLE);
 		}
 
-		/* Subtitle */
+		/* Subhead */
 
-		UI.setVisibility(holder.subtitle, View.GONE);
-		if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-			Place place = (Place) entity;
-			if (holder.subtitle != null) {
-				if (place.subtitle != null) {
-					holder.subtitle.setText(Html.fromHtml(place.subtitle));
-					UI.setVisibility(holder.subtitle, View.VISIBLE);
-				}
-				else {
-					if (place.category != null && !TextUtils.isEmpty(place.category.name)) {
-						holder.subtitle.setText(Html.fromHtml(place.category.name));
-						UI.setVisibility(holder.subtitle, View.VISIBLE);
-					}
-				}
-			}
+		UI.setVisibility(holder.subhead, View.GONE);
+		if (holder.subhead != null && !TextUtils.isEmpty(entity.subtitle)) {
+			holder.subhead.setText(Html.fromHtml(entity.subtitle));
+			UI.setVisibility(holder.subhead, View.VISIBLE);
 		}
-		else {
-			if (holder.subtitle != null && !TextUtils.isEmpty(entity.subtitle)) {
-				holder.subtitle.setText(Html.fromHtml(entity.subtitle));
-				UI.setVisibility(holder.subtitle, View.VISIBLE);
+
+		/* Category */
+
+		UI.setVisibility(holder.categoryName, View.GONE);
+		if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)
+				|| entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+			Patch patch = (Patch) entity;
+			if (holder.categoryName != null) {
+				if (patch.category != null && !TextUtils.isEmpty(patch.category.name)) {
+					holder.categoryName.setText(Html.fromHtml(patch.category.name + " Patch"));
+					UI.setVisibility(holder.categoryName, View.VISIBLE);
+				}
 			}
 		}
 
@@ -256,18 +215,32 @@ public abstract class EntityControllerBase implements IEntityController {
 			UI.setVisibility(holder.description, View.VISIBLE);
 		}
 
-		/* Place context */
+		/* Patch photo */
 
-		UI.setVisibility(holder.placeName, View.GONE);
-		if (holder.placeName != null) {
-			Entity parentEntity = entity.place;
-			if (parentEntity == null) {
-				parentEntity = EntityManager.getCacheEntity(entity.placeId);
+		Entity parentEntity = entity.patch;
+		if (parentEntity == null) {
+			parentEntity = EntityManager.getCacheEntity(entity.placeId);
+		}
+
+		UI.setVisibility(holder.patchPhoto, View.GONE);
+		if (holder.patchPhoto != null && parentEntity != null) {
+			Photo photo = parentEntity.photo;
+			if (photo == null) {
+				photo = Entity.getDefaultPhoto(Constants.SCHEMA_ENTITY_PATCH);
 			}
-			if (parentEntity != null) {
-				holder.placeName.setText(parentEntity.name);
-				UI.setVisibility(holder.placeName, View.VISIBLE);
+			if (holder.patchPhoto.getPhoto() == null || !holder.patchPhoto.getPhoto().getUri().equals(photo.getUri())) {
+				holder.patchPhoto.setTag(parentEntity);
+				UI.drawPhoto(holder.patchPhoto, photo);
 			}
+			UI.setVisibility(holder.patchPhoto, View.VISIBLE);
+		}
+
+		/* Patch name */
+
+		UI.setVisibility(holder.patchName, View.GONE);
+		if (holder.patchName != null && parentEntity != null) {
+			holder.patchName.setText(parentEntity.name);
+			UI.setVisibility(holder.patchName, View.VISIBLE);
 		}
 
 		/* Creator */
@@ -341,16 +314,14 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.candiView = (CandiView) view.findViewById(R.id.candi_view);
 		holder.photo = (AirImageView) view.findViewById(R.id.photo);
 		holder.name = (TextView) view.findViewById(R.id.name);
-		holder.subtitle = (TextView) view.findViewById(R.id.subtitle);
+		holder.subhead = (TextView) view.findViewById(R.id.subhead);
 		holder.description = (TextView) view.findViewById(R.id.description);
 		holder.creator = (UserView) view.findViewById(R.id.creator);
 		holder.area = (TextView) view.findViewById(R.id.area);
 		holder.createdDate = (TextView) view.findViewById(R.id.created_date);
 		holder.modifiedDate = (TextView) view.findViewById(R.id.modified_date);
 		holder.comments = (TextView) view.findViewById(R.id.comments);
-		holder.checked = (CheckBox) view.findViewById(R.id.checked);
-		holder.overflow = (ComboButton) view.findViewById(R.id.button_overflow);
-		holder.share = (ViewGroup) view.findViewById(R.id.share);
+		holder.share = (ViewGroup) view.findViewById(R.id.share_entity);
 		holder.alert = (ImageView) view.findViewById(R.id.alert_indicator);
 		holder.photoBig = (AirImageView) view.findViewById(R.id.photo_big);
 		holder.photoType = (ImageView) view.findViewById(R.id.photo_type);
@@ -369,7 +340,9 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		holder.userPhoto = (AirImageView) view.findViewById(R.id.user_photo);
 		holder.userName = (TextView) view.findViewById(R.id.user_name);
-		holder.placeName = (TextView) view.findViewById(R.id.place_name);
+		holder.patchPhoto = (AirImageView) view.findViewById(R.id.patch_photo);
+		holder.patchName = (TextView) view.findViewById(R.id.patch_name);
+		holder.categoryName = (TextView) view.findViewById(R.id.category_name);
 		holder.toName = (TextView) view.findViewById(R.id.to_name);
 	}
 
@@ -389,7 +362,9 @@ public abstract class EntityControllerBase implements IEntityController {
 	}
 
 	@Override
-	public abstract Entity makeNew();
+	public Entity makeNew() {
+		return null;
+	}
 
 	@Override
 	public Integer getLinkProfile() {
@@ -418,11 +393,4 @@ public abstract class EntityControllerBase implements IEntityController {
 		mNewClass = newClass;
 		return this;
 	}
-
-	@Override
-	public IEntityController setListClass(Class<?> listClass) {
-		mListClass = listClass;
-		return this;
-	}
-
 }

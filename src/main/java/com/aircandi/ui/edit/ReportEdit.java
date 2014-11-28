@@ -11,12 +11,12 @@ import android.widget.Toast;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
+import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.Document;
 import com.aircandi.ui.base.BaseEntityEdit;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.ui.components.SimpleTextWatcher;
 import com.aircandi.ui.widgets.AirEditText;
 import com.aircandi.ui.widgets.UserView;
@@ -75,6 +75,7 @@ public class ReportEdit extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+	
 	@Override
 	public void onAccept() {
 		if (validate()) {
@@ -91,6 +92,7 @@ public class ReportEdit extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected String getLinkType() {
 		return null;
@@ -105,9 +107,6 @@ public class ReportEdit extends BaseEntityEdit {
 		mReport.data.put("target", mEntityId);
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Services
-	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected boolean validate() {
 		if (!super.validate()) return false;
@@ -161,11 +160,6 @@ public class ReportEdit extends BaseEntityEdit {
 		}.execute();
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
 	@Override
 	protected int getLayoutId() {
 		return R.layout.report_edit;
