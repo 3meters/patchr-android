@@ -480,20 +480,14 @@ public class DispatchManager {
 
 		if (itemId == R.id.edit)
 			return Route.EDIT;
-		else if (itemId == R.id.settings)
-			return Route.SETTINGS;
 		else if (itemId == android.R.id.home)
 			return Route.CANCEL;
 		else if (itemId == R.id.signout)
 			return Route.SIGNOUT;
 		else if (itemId == R.id.signin)
 			return Route.SIGNIN;
-		else if (itemId == R.id.feedback)
-			return Route.FEEDBACK;
 		else if (itemId == R.id.report)
 			return Route.REPORT;
-		else if (itemId == R.id.cancel)
-			return Route.CANCEL;
 		else if (itemId == R.id.accept)
 			return Route.ACCEPT;
 		else if (itemId == R.id.refresh)

@@ -88,15 +88,6 @@ public class SearchForm extends BaseActivity {
 					.setSuggestScope(mSuggestScope)
 					.init();
 		}
-		else {
-			mEntitySuggest
-					.setSearchInput((EditText) findViewById(R.id.search_input))
-					.setSearchImage(findViewById(R.id.search_image))
-					.setSearchProgress(findViewById(R.id.search_progress))
-					.setListView((ListView) findViewById(R.id.list))
-					.setSuggestScope(mSuggestScope)
-					.init();
-		}
 
 		((ListView) findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
