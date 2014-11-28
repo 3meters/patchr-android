@@ -55,6 +55,7 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.ui.EntityListFragment;
+import com.aircandi.ui.PhotoForm;
 import com.aircandi.ui.components.BubbleController;
 import com.aircandi.ui.components.FloatingActionController;
 import com.aircandi.ui.widgets.AirListView;
@@ -95,7 +96,7 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 	protected String   mPrevFragmentTag;
 
 	/* Inputs */
-	protected Extras mParams = new Extras();
+	protected Extras  mParams         = new Extras();
 	protected Integer mTransitionType = TransitionType.FORM_TO;
 
 	/* Resources */
@@ -130,7 +131,7 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 		if (Patchr.firstStartApp) {
 			Logger.d(this, "App unstarted: redirecting to splash");
 			Patchr.firstStartIntent = getIntent();
-			Patchr.dispatch.route(this, Route.SPLASH, null, null, null);
+			Patchr.dispatch.route(this, Route.SPLASH, null, null);
 			super.onCreate(savedInstanceState);
 			finish();
 		}
@@ -193,9 +194,7 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 		mBusy = new BusyManager(this);
 		mFab = new FloatingActionController(findViewById(R.id.floating_action_button));
 		mBubbleButton = new BubbleController(findViewById(R.id.button_bubble));
-		if (mBubbleButton != null) {
-			mBubbleButton.show(false);
-		}
+		mBubbleButton.show(false);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -233,7 +232,7 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 			final String jsonPhoto = Json.objectToJson(photo);
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.dispatch.route(this, Route.PHOTO, null, null, extras);
+			Patchr.dispatch.route(this, Route.PHOTO, null, extras);
 		}
 	}
 
@@ -245,7 +244,7 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 	@Override
 	public void onAdd(Bundle extras) {
 		/* Schema target is in the extras */
-		Patchr.dispatch.route(this, Route.NEW, mEntity, null, extras);
+		Patchr.dispatch.route(this, Route.NEW, mEntity, extras);
 	}
 
 	@Override
@@ -271,20 +270,33 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 			super.onBackPressed();
 		}
 		else {
-			Patchr.dispatch.route(this, Route.CANCEL, null, null, null);
+			Patchr.dispatch.route(this, Route.CANCEL, null, null);
 		}
 	}
 
 	public void onCancel(Boolean force) {
+		setResultCode(Activity.RESULT_CANCELED);
+		finish();
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, getExitTransitionType());
+	}
+
+	protected Integer getExitTransitionType() {
 		Integer transitionType = TransitionType.FORM_BACK;
 		if (mTransitionType != TransitionType.FORM_TO) {
 			if (mTransitionType == TransitionType.DRILL_TO) {
 				transitionType = TransitionType.DRILL_BACK;
 			}
+			else if (mTransitionType == TransitionType.BUILDER_TO) {
+				transitionType = TransitionType.BUILDER_BACK;
+			}
+			else if (mTransitionType == TransitionType.VIEW_TO) {
+				transitionType = TransitionType.VIEW_BACK;
+			}
+			else if (mTransitionType == TransitionType.DIALOG_TO) {
+				transitionType = TransitionType.DIALOG_BACK;
+			}
 		}
-		setResultCode(Activity.RESULT_CANCELED);
-		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, transitionType);
+		return transitionType;
 	}
 
 	@Override
@@ -295,7 +307,7 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 
 	@SuppressWarnings("ucd")
 	public void onCancelButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.CANCEL, null, null, null);
+		Patchr.dispatch.route(this, Route.CANCEL, null, null);
 	}
 
 	@Override
@@ -321,7 +333,22 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 
 	public void setCurrentFragment(String fragmentType) {}
 
-	protected void configureActionBar() {}
+	protected void configureActionBar() {
+		/*
+		 * By default we show the nav indicator and the title.
+		 */
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayShowTitleEnabled(true);
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		}
+
+		getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
+			}
+		});
+	}
 
 	@Override
 	public void draw(View view) {}
@@ -384,7 +411,7 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 							if (activity instanceof BaseActivity) {
 								((BaseActivity) activity).mBusy.hideBusy(false);
 							}
-							Patchr.dispatch.route(activity, Route.SPLASH, null, null, null);
+							Patchr.dispatch.route(activity, Route.SPLASH, null, null);
 						}
 					}
 				}.execute();
@@ -745,7 +772,7 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 			return true;
 		}
 
-		Patchr.dispatch.route(this, Patchr.dispatch.routeForMenuId(item.getItemId()), mEntity, null, extras);
+		Patchr.dispatch.route(this, Patchr.dispatch.routeForMenuId(item.getItemId()), mEntity, extras);
 		return true;
 	}
 
@@ -777,9 +804,11 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 			menuItem.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
 		}
 
-		menuItem = menu.findItem(com.aircandi.R.id.share);
+		menuItem = menu.findItem(R.id.share);
 		if (menuItem != null) {
-			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.SHARE, mEntity, mForId));
+			if (this instanceof PhotoForm) {
+				menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.SHARE, mEntity, mForId));
+			}
 		}
 
 		final MenuItem refresh = menu.findItem(R.id.refresh);

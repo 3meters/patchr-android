@@ -112,7 +112,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		if (!isFinishing()) {
 			if (!Patchr.firstStartApp && Patchr.getInstance().getCurrentUser().isAnonymous()) {
 				Patchr.firstStartIntent = getIntent();
-				Patchr.dispatch.route(this, Route.SPLASH, null, null, null);
+				Patchr.dispatch.route(this, Route.SPLASH, null, null);
 			}
 		}
 	}
@@ -143,7 +143,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		mButtonToClear = (ImageView) findViewById(R.id.to_clear);
 		mButtonPhotoDelete = (ImageView) findViewById(R.id.photo_delete);
 		mShareHolder = (ViewGroup) findViewById(R.id.share_holder);
-		mShare = (ViewGroup) findViewById(R.id.share);
+		mShare = (ViewGroup) findViewById(R.id.share_entity);
 		mTo = (AirTokenCompleteTextView) findViewById(R.id.to);
 		mTo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override
@@ -189,13 +189,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			TextView message = (TextView) findViewById(R.id.content_message);
 			message.setText(mMessage);
 			message.setVisibility(View.VISIBLE);
-		}
-	}
-
-	protected void setActionBarIcon() {
-		if (getSupportActionBar() != null) {
-			Drawable icon = getResources().getDrawable(R.drawable.ic_home_edit_dark);
-			getSupportActionBar().setIcon(icon);
 		}
 	}
 
@@ -499,7 +492,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		if (isDirty() || mMessageType.equals(MessageType.SHARE)) {
 			if (validate()) { // validate() also gathers
 
-				/* Upsize the patch we are sending to if needed */
 				if (mMessageType != null && mMessageType.equals(MessageType.REPLY)) {
 					insert();
 				}
@@ -642,6 +634,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 						@Override
 						public void onPrepareLoad(Drawable drawable) {
 							if (drawable != null) {
+								//noinspection deprecation
 								mPhotoView.getImageView().setBackgroundDrawable(drawable);
 							}
 						}
@@ -686,6 +679,13 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
     /*--------------------------------------------------------------------------------------------
      * Methods
      *--------------------------------------------------------------------------------------------*/
+
+	public void configureActionBar() {
+		super.configureActionBar();
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setTitle(mEditing ? R.string.form_title_message_edit: R.string.form_title_message_new);
+		}
+	}
 
 	protected void setEntity() {
 		final EntityView entityView = (EntityView) findViewById(R.id.entity_view);
@@ -802,7 +802,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		if (!mMessageType.equals(MessageType.SHARE)) {
 			Entity currentPlace = Patchr.getInstance().getCurrentPatch();
 			if (mTos.size() > 0 && (currentPlace == null || !currentPlace.id.equals(mTos.get(0).id))) {
-				Patchr.dispatch.route(this, Route.BROWSE, mTos.get(0), null, null);
+				Patchr.dispatch.route(this, Route.BROWSE, mTos.get(0), null);
 			}
 		}
 		return true;

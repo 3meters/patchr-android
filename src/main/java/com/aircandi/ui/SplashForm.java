@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 
 import com.aircandi.Constants;
@@ -190,7 +189,7 @@ public class SplashForm extends ActionBarActivity {
 			startActivity(Patchr.firstStartIntent);
 		}
 		else {
-			Patchr.dispatch.route(this, Route.HOME, null, null, null);
+			Patchr.dispatch.route(this, Route.HOME, null, null);
 		}
 
 		/* Always ok to make sure firstStartIntent isn't still around */
@@ -245,7 +244,7 @@ public class SplashForm extends ActionBarActivity {
 			updateRequired();
 			return;
 		}
-		Patchr.dispatch.route(this, Route.SIGNIN, null, null, null);
+		Patchr.dispatch.route(this, Route.SIGNIN, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -254,7 +253,7 @@ public class SplashForm extends ActionBarActivity {
 			updateRequired();
 			return;
 		}
-		Patchr.dispatch.route(this, Route.REGISTER, null, null, null);
+		Patchr.dispatch.route(this, Route.REGISTER, null, null);
 	}
 
 	@SuppressWarnings("ucd")

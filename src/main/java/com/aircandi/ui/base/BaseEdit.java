@@ -3,7 +3,6 @@ package com.aircandi.ui.base;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 
@@ -16,9 +15,9 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.edit.FeedbackEdit;
 import com.aircandi.ui.edit.ReportEdit;
-import com.aircandi.ui.user.RegisterEdit;
-import com.aircandi.ui.user.ResetEdit;
-import com.aircandi.ui.user.SignInEdit;
+import com.aircandi.ui.edit.RegisterEdit;
+import com.aircandi.ui.edit.ResetEdit;
+import com.aircandi.ui.edit.SignInEdit;
 import com.aircandi.utilities.Dialogs;
 
 import java.util.List;
@@ -66,13 +65,6 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 	@Override
 	public void draw(View view) {}
 
-	protected void setActionBarIcon() {
-		if (getSupportActionBar() != null) {
-			Drawable icon = getResources().getDrawable(R.drawable.ic_home_edit_dark);
-			getSupportActionBar().setIcon(icon);
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
@@ -116,7 +108,7 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 					onAccept();
 				}
 				else if (which == DialogInterface.BUTTON_NEUTRAL) {
-					Patchr.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null, null);
+					Patchr.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null);
 				}
 			}
 		}

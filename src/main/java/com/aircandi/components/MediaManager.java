@@ -62,6 +62,7 @@ public class MediaManager {
 	private static String shareFileName     = "photo.jpeg";
 	public static  String tempDirectoryName = ".Patchr";
 
+	@SuppressWarnings("deprecation")
 	public MediaManager initSoundPool() {
 		soundPool = new SoundPool(4, streamType, 100);
 		audioManager = (AudioManager) Patchr.applicationContext.getSystemService(Context.AUDIO_SERVICE);

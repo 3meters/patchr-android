@@ -70,7 +70,7 @@
 		android:layout_marginBottom="8dp"
 		android:layout_marginLeft="8dp"
 		android:layout_marginRight="8dp"
-		custom:layout="@layout/widget_user_view_detailed_horizontal" />
+		custom:layoutId="@layout/widget_user_view_detailed_horizontal" />
 
 	<View
 		android:id="@+id/shadow"

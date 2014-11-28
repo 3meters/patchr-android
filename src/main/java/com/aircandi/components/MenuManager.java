@@ -17,42 +17,6 @@ import com.aircandi.utilities.Type;
 
 public class MenuManager {
 
-	public boolean onCreatePopupMenu(Activity activity, android.view.Menu menu, Entity entity) {
-
-		/* Browsing */
-
-		String activityName = activity.getClass().getSimpleName();
-		android.view.MenuInflater inflater = activity.getMenuInflater();
-
-		if (activityName.equals("PatchForm")) {
-			if (canUserEdit(entity)) {
-				inflater.inflate(R.menu.menu_edit_patch, menu);
-			}
-			inflater.inflate(R.menu.menu_report, menu);
-		}
-		else if (activityName.equals("UserForm")) {
-			if (canUserEdit(entity)) {
-				inflater.inflate(R.menu.menu_edit_user, menu);
-				inflater.inflate(R.menu.menu_sign_out, menu);
-			}
-			else {
-				inflater.inflate(R.menu.menu_report, menu);
-			}
-		}
-		else if (activityName.equals("AircandiForm")
-				&& entity != null
-				&& entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-			if (canUserEdit(entity)) {
-				inflater.inflate(R.menu.menu_edit_user, menu);
-				inflater.inflate(R.menu.menu_sign_out, menu);
-			}
-		}
-		else
-			inflater.inflate(R.menu.menu_report, menu);
-
-		return true;
-	}
-
 	public boolean onCreateOptionsMenu(Activity activity, Menu menu) {
 
 		/* Browsing */
@@ -66,11 +30,19 @@ public class MenuManager {
 			 * Fragments set menu items when they are configured which are
 			 * later added in BaseFragment.onCreateOptionsMenu.
 			 */
+			menuInflater.inflate(R.menu.menu_notifications, menu);
 			menuInflater.inflate(R.menu.menu_sign_in, menu);
 			return true;
 		}
 		else if (activityName.equals("PatchForm")) {
 			menuInflater.inflate(R.menu.menu_sign_in, menu);
+			menuInflater.inflate(R.menu.menu_invite, menu);
+			menuInflater.inflate(R.menu.menu_map, menu);
+			return true;
+		}
+		else if (activityName.equals("PlaceForm")) {
+			menuInflater.inflate(R.menu.menu_sign_in, menu);
+			menuInflater.inflate(R.menu.menu_map, menu);
 			return true;
 		}
 		else if (activityName.equals("UserForm")) {
@@ -99,91 +71,80 @@ public class MenuManager {
 			menuInflater.inflate(R.menu.menu_report, menu);
 			return true;
 		}
-		else if (activityName.contains("MessageEdit")) {
-			Boolean editing = ((BaseEdit) activity).isEditing();
-			if (editing) {
-				menuInflater.inflate(R.menu.menu_accept, menu);
-			}
-			else {
-				menuInflater.inflate(R.menu.menu_send, menu);
-			}
-			menuInflater.inflate(R.menu.menu_cancel, menu);
+		else if (activityName.equals("SearchForm")) {
+			menuInflater.inflate(R.menu.menu_search_compat, menu);
+			return true;
+		}
+		else if (activityName.equals("AboutForm")) {
+			return true;
+		}
+		else if (activityName.equals("PhotoForm")) {
+			menuInflater.inflate(R.menu.menu_share_photo, menu);
+			return true;
+		}
+		else if (activityName.equals("EntityList")) {
+			menuInflater.inflate(R.menu.menu_refresh, menu);
+			menuInflater.inflate(R.menu.menu_add, menu);
+			menuInflater.inflate(R.menu.menu_sign_in, menu);
+			return true;
+		}
+		else if (activityName.equals("MapForm")) {
+			menuInflater.inflate(R.menu.menu_navigate, menu);
+			menuInflater.inflate(R.menu.menu_sign_in, menu);
 			return true;
 		}
 
 		/* Editing */
 
-		else if (activityName.equals("ReportEdit")
-				|| activityName.equals("FeedbackEdit")) {
-			menuInflater.inflate(R.menu.menu_cancel, menu);
-			menuInflater.inflate(R.menu.menu_send, menu);
-			return true;
-		}
-		else if (activityName.equals("ApplinkListEdit")) {
-			menuInflater.inflate(R.menu.menu_refresh, menu);
-			menuInflater.inflate(R.menu.menu_cancel, menu);
-			menuInflater.inflate(R.menu.menu_accept, menu);
-			return true;
-		}
-		else if (activityName.equals("CommentEdit")
-				|| activityName.equals("ApplinkEdit")
-				|| activityName.equals("UserEdit")
-				|| activityName.equals("PasswordEdit")
-				|| activityName.equals("TuningEdit")
-				|| activityName.contains("SignInEdit")
-				|| activityName.contains("LocationPicker")) {
-			menuInflater.inflate(R.menu.menu_cancel, menu);
-			menuInflater.inflate(R.menu.menu_accept, menu);
-			return true;
-		}
-		else if (activityName.equals("ResetEdit")) {
-			menuInflater.inflate(R.menu.menu_cancel, menu);
-			return true;
-		}
-		else if (activityName.contains("Edit")) {
-			menuInflater.inflate(R.menu.menu_cancel, menu);
+		if (activityName.contains("PatchEdit")) {
 			menuInflater.inflate(R.menu.menu_accept, menu);
 			menuInflater.inflate(R.menu.menu_delete, menu);
 			return true;
 		}
+		else if (activityName.contains("MessageEdit")) {
+			Boolean editing = ((BaseEdit) activity).isEditing();
+			if (editing) {
+				menuInflater.inflate(R.menu.menu_accept, menu);
+				menuInflater.inflate(R.menu.menu_delete, menu);
+			}
+			else {
+				menuInflater.inflate(R.menu.menu_send, menu);
+			}
+			return true;
+		}
+		else if (activityName.equals("SignInEdit")) {
+			menuInflater.inflate(R.menu.menu_sign_in, menu);
+			menuInflater.inflate(R.menu.menu_accept, menu);
+			return true;
+		}
+		else if (activityName.equals("ReportEdit")
+				|| activityName.equals("FeedbackEdit")) {
+			menuInflater.inflate(R.menu.menu_send, menu);
+			return true;
+		}
+		else if (activityName.equals("UserEdit")
+				|| activityName.equals("PasswordEdit")
+				|| activityName.contains("LocationPicker")) {
+			menuInflater.inflate(R.menu.menu_accept, menu);
+			return true;
+		}
+		else if (activityName.equals("ResetEdit")) {
+			menuInflater.inflate(R.menu.menu_accept, menu);
+			return true;
+		}
+		else if (activityName.equals("RegisterEdit")) {
+			menuInflater.inflate(R.menu.menu_accept, menu);
+			return true;
+		}
 		else if (activityName.contains("Builder")) {
-			menuInflater.inflate(R.menu.menu_cancel, menu);
 			menuInflater.inflate(R.menu.menu_accept, menu);
 			return true;
 		}
 		else if (activityName.contains("Picker")) {
-			menuInflater.inflate(R.menu.menu_cancel, menu);
+			menuInflater.inflate(R.menu.menu_accept, menu);
 			return true;
 		}
-		else {
-
-			/* BROWSE */
-
-			if (activityName.equals("AboutForm")) {
-				menuInflater.inflate(R.menu.menu_cancel, menu);
-				return true;
-			}
-			else if (activityName.equals("PhotoForm")) {
-				menuInflater.inflate(R.menu.menu_cancel, menu);
-				menuInflater.inflate(R.menu.menu_share, menu);
-				return true;
-			}
-			else if (activityName.equals("EntityList")) {
-				menuInflater.inflate(R.menu.menu_refresh, menu);
-				menuInflater.inflate(R.menu.menu_add, menu);
-				menuInflater.inflate(R.menu.menu_sign_in, menu);
-				return true;
-			}
-			else if (activityName.equals("MapForm")) {
-				menuInflater.inflate(R.menu.menu_navigate, menu);
-				menuInflater.inflate(R.menu.menu_sign_in, menu);
-				return true;
-			}
-			else {
-				menuInflater.inflate(R.menu.menu_sign_in, menu);
-				return true;
-			}
-		}
+		return false;
 	}
 
 	public Boolean canUserEdit(Entity entity) {
@@ -241,7 +202,7 @@ public class MenuManager {
 			String forSchema = com.aircandi.objects.Entity.getSchemaForId(forId);
 			/*
 			 * Message can be listed for places or current user.
-			 */
+		 */
 			if (forSchema.equals(Constants.SCHEMA_ENTITY_USER))
 				return false;
 			else

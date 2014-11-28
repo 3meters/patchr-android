@@ -84,17 +84,37 @@ public class AnimationManager {
 		/*
 		 * Default android animations are used unless overridden here.
 		 */
-		if (transitionType == TransitionType.PAGE_TO_HELP) {
+		if (transitionType == TransitionType.VIEW_TO) {
 			activity.overridePendingTransition(R.anim.fade_in_short, R.anim.hold);
 		}
-		else if (transitionType == TransitionType.HELP_TO_PAGE) {
+		else if (transitionType == TransitionType.VIEW_BACK) {
 			activity.overridePendingTransition(R.anim.hold, R.anim.fade_out_short);
 		}
-		else if (transitionType == TransitionType.FORM_TO_BUILDER) {
+		else if (transitionType == TransitionType.DRILL_TO) {
+			activity.overridePendingTransition(R.anim.slide_in_right, R.anim.fade_zoom_out);
+		}
+		else if (transitionType == TransitionType.DRILL_BACK) {
+			activity.overridePendingTransition(R.anim.fade_zoom_in, R.anim.slide_out_right);
+		}
+		else if (transitionType == TransitionType.FORM_TO) {
+			activity.overridePendingTransition(R.anim.slide_in_right, R.anim.fade_zoom_out);
+		}
+		else if (transitionType == TransitionType.FORM_BACK) {
+			activity.overridePendingTransition(R.anim.fade_zoom_in, R.anim.slide_out_right);
+		}
+		else if (transitionType == TransitionType.BUILDER_TO) {
 			activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 		}
-		else if (transitionType == TransitionType.BUILDER_TO_FORM) {
+		else if (transitionType == TransitionType.BUILDER_BACK) {
 			activity.overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+		}
+		else //noinspection StatementWithEmptyBody
+		    if (transitionType == TransitionType.DIALOG_TO) {
+			/* Do default */
+		}
+		else //noinspection StatementWithEmptyBody
+			if (transitionType == TransitionType.DIALOG_BACK) {
+			/* Do default */
 		}
 	}
 

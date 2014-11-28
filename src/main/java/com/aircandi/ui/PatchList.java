@@ -73,7 +73,10 @@ public class PatchList extends BaseActivity {
 
 	@Override
 	public void draw(View view) {
-		setActivityTitle(StringManager.getString(((BaseFragment) mCurrentFragment).getTitleResId()));
+		Integer titleResId = ((BaseFragment) mCurrentFragment).getTitleResId();
+		if (titleResId != null) {
+			setActivityTitle(StringManager.getString(titleResId));
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------

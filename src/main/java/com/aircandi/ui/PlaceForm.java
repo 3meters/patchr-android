@@ -2,10 +2,7 @@ package com.aircandi.ui;
 
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -22,13 +19,9 @@ import com.aircandi.events.BubbleButtonEvent;
 import com.aircandi.events.NotificationEvent;
 import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.monitors.EntityMonitor;
-import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.LinkProfile;
-import com.aircandi.objects.Photo;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseEntityForm;
@@ -36,9 +29,6 @@ import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
-import com.aircandi.ui.widgets.ComboButton;
-import com.aircandi.ui.widgets.UserView;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Json;
@@ -138,7 +128,7 @@ public class PlaceForm extends BaseEntityForm {
 			final String json = Json.objectToJson(mEntity);
 			extras.putString(Constants.EXTRA_ENTITY_PARENT, json);
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
-			Patchr.dispatch.route(this, Route.NEW, null, null, extras);
+			Patchr.dispatch.route(this, Route.NEW, null, extras);
 			return;
 		}
 		if (Type.isTrue(mEntity.locked)) {
@@ -172,14 +162,12 @@ public class PlaceForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onMapButtonClick(View view) {
 		if (mEntity != null) {
-			Patchr.dispatch.route(this, Route.MAP, mEntity, null, null);
+			Patchr.dispatch.route(this, Route.MAP, mEntity, null);
 		}
 	}
 
 	@Subscribe
-	public void onBubbleButton(BubbleButtonEvent event) {
-		UI.setVisibility(findViewById(R.id.button_share), event.visible ? View.GONE : View.VISIBLE);
-	}
+	public void onBubbleButton(BubbleButtonEvent event) {}
 
 	@SuppressWarnings("ucd")
 	public void onAddPatchButtonClick(View view) {
@@ -221,6 +209,64 @@ public class PlaceForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	public void draw(View view) {
+
+		if (view == null) {
+			view = findViewById(android.R.id.content);
+		}
+		mFirstDraw = false;
+
+		/* Photo overlayed with info */
+		final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
+		if (candiView != null) {
+			/*
+			 * This is a place entity with a fancy image widget
+			 */
+			IndicatorOptions options = new IndicatorOptions();
+			options.showIfZero = true;
+			options.imageSizePixels = 15;
+			options.iconsEnabled = false;
+			candiView.databind(mEntity, options, null);
+		}
+
+		final CandiView candiViewInfo = (CandiView) view.findViewById(R.id.candi_view_info);
+		if (candiViewInfo != null) {
+			/*
+			 * This is a place entity with a fancy image widget
+			 */
+			IndicatorOptions options = new IndicatorOptions();
+			options.showIfZero = true;
+			options.imageSizePixels = 15;
+			options.iconsEnabled = false;
+			candiViewInfo.databind(mEntity, options, null);
+		}
+
+		/* Alert button */
+
+		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
+		UI.setVisibility(alertGroup, View.GONE);
+		if (alertGroup != null) {
+
+			TextView buttonAlert = (TextView) view.findViewById(R.id.button_alert);
+			if (buttonAlert == null) return;
+
+			View rule = view.findViewById(R.id.rule_alert);
+			if (rule != null && Constants.SUPPORTS_KIT_KAT) {
+				rule.setVisibility(View.GONE);
+			}
+
+			buttonAlert.setText(StringManager.getString(R.string.button_list_add_patch));
+			buttonAlert.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					onAddPatchButtonClick(view);
+				}
+			});
+
+			UI.setVisibility(alertGroup, View.VISIBLE);
+		}
+	}
 
 	@Override
 	public void setCurrentFragment(String fragmentType) {
@@ -270,6 +316,13 @@ public class PlaceForm extends BaseEntityForm {
 		mCurrentFragmentTag = fragmentType;
 	}
 
+	public void configureActionBar() {
+		super.configureActionBar();
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
+		}
+	}
+
 	@Override
 	public void afterDatabind(final BindingMode mode, ModelResult result) {
 		super.afterDatabind(mode, result);
@@ -289,191 +342,6 @@ public class PlaceForm extends BaseEntityForm {
 					fragment.bind(mode);
 				}
 			}
-		}
-	}
-
-	public void draw(View view) {
-		/*
-		 * For now, we assume that the candi form isn't recycled.
-		 *
-		 * We leave most of the views visible by default so they are visible in the layout editor.
-		 *
-		 * - WebImageView primary image is visible by default
-		 * - WebImageView child views are gone by default
-		 * - Header views are visible by default
-		 */
-
-		if (view == null) {
-			view = findViewById(android.R.id.content);
-		}
-		mFirstDraw = false;
-
-		/*
-		 * Drawing is broken up so sections can be selectively overridden.
-		 */
-
-		/* Photo overlayed with info */
-		drawBanner(view);
-
-		/* Buttons */
-		drawButtons(view);
-
-		final CandiView candiViewInfo = (CandiView) view.findViewById(R.id.candi_view_info);
-		final TextView address = (TextView) view.findViewById(R.id.candi_form_address);
-		final UserView userView = (UserView) view.findViewById(R.id.user);
-
-		if (candiViewInfo != null) {
-			/*
-			 * This is a place entity with a fancy image widget
-			 */
-			IndicatorOptions options = new IndicatorOptions();
-			options.showIfZero = true;
-			options.imageSizePixels = 15;
-			options.iconsEnabled = false;
-			candiViewInfo.databind(mEntity, options, null);
-		}
-
-		drawStats(view);
-
-		/* Patch specific info */
-
-		final Place place = (Place) mEntity;
-
-		UI.setVisibility(address, View.GONE);
-		if (address != null) {
-			String addressBlock = place.getAddressBlock();
-
-			if (place.phone != null) {
-				addressBlock += "<br/>" + place.getFormattedPhone();
-			}
-
-			if (!"".equals(addressBlock)) {
-				address.setText(Html.fromHtml(addressBlock));
-				UI.setVisibility(address, View.VISIBLE);
-			}
-		}
-	}
-
-	protected void drawBanner(View view) {
-
-		final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
-		final AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
-		final TextView name = (TextView) view.findViewById(R.id.name);
-		final TextView category_name = (TextView) view.findViewById(R.id.category_name);
-
-		/* Primary candi image */
-
-		if (candiView != null) {
-			/*
-			 * This is a place entity with a fancy image widget
-			 */
-			IndicatorOptions options = new IndicatorOptions();
-			options.showIfZero = true;
-			options.imageSizePixels = 15;
-			options.iconsEnabled = false;
-			candiView.databind(mEntity, options, null);
-		}
-		else {
-			UI.setVisibility(photoView, View.GONE);
-			if (photoView != null) {
-				Photo photo = mEntity.getPhoto();
-				UI.drawPhoto(photoView, photo);
-				if (Type.isFalse(photo.usingDefault)) {
-					photoView.setClickable(true);
-				}
-				UI.setVisibility(photoView, View.VISIBLE);
-			}
-
-			UI.setVisibility(name, View.GONE);
-			if (name != null) {
-				name.setText(null);
-				if (!TextUtils.isEmpty(mEntity.name)) {
-					name.setText(Html.fromHtml(mEntity.name));
-					UI.setVisibility(name, View.VISIBLE);
-				}
-			}
-
-			UI.setVisibility(category_name, View.GONE);
-			if (category_name != null) {
-				category_name.setText(null);
-				if (!TextUtils.isEmpty(mEntity.subtitle)) {
-					category_name.setText(Html.fromHtml(mEntity.subtitle));
-					UI.setVisibility(category_name, View.VISIBLE);
-				}
-			}
-		}
-	}
-
-	@Override
-	protected void drawStats(View view) {
-
-		TextView watchersCount = (TextView) view.findViewById(R.id.watchers_count);
-		if (watchersCount != null) {
-			Count count = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, true, Direction.in);
-			if (count == null) {
-				count = new Count(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, null, 0);
-			}
-			watchersCount.setText(String.valueOf(count.count.intValue()));
-		}
-	}
-
-	@Override
-	public void drawButtons(View view) {
-
-		Boolean restricted = (mEntity.privacy != null && mEntity.privacy.equals(Constants.PRIVACY_PRIVATE));
-		Boolean messaged = (mEntity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
-
-		if (mEntity.id != null && mEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
-			UI.setVisibility(view.findViewById(R.id.button_holder), View.GONE);
-		}
-		else {
-			UI.setVisibility(view.findViewById(R.id.button_holder), View.VISIBLE);
-
-			/* Watch button coloring */
-			ComboButton watched = (ComboButton) view.findViewById(R.id.button_watch);
-			if (watched != null) {
-				UI.setVisibility(watched, View.VISIBLE);
-				Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
-				if (link != null && link.enabled) {
-					final int color = Colors.getColor(R.color.brand_primary);
-					watched.getImageIcon().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-				}
-				else {
-					watched.getImageIcon().setColorFilter(null);
-				}
-			}
-		}
-
-		Place place = (Place) mEntity;
-
-		if (restricted && !mEntity.visibleToCurrentUser()) {
-			UI.setVisibility(view.findViewById(R.id.button_watch), View.INVISIBLE);
-		}
-		else {
-			UI.setVisibility(view.findViewById(R.id.button_watch), View.VISIBLE);
-		}
-
-		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
-		UI.setVisibility(alertGroup, View.GONE);
-		if (alertGroup != null) {
-
-			TextView buttonAlert = (TextView) view.findViewById(R.id.button_alert);
-			if (buttonAlert == null) return;
-
-			View rule = view.findViewById(R.id.rule_alert);
-			if (rule != null && Constants.SUPPORTS_KIT_KAT) {
-				rule.setVisibility(View.GONE);
-			}
-
-			buttonAlert.setText(StringManager.getString(R.string.button_list_add_patch));
-			buttonAlert.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					onAddPatchButtonClick(view);
-				}
-			});
-
-			UI.setVisibility(alertGroup, View.VISIBLE);
 		}
 	}
 

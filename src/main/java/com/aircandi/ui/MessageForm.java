@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -134,27 +133,156 @@ public class MessageForm extends BaseEntityForm {
 				.commit();
 	}
 
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	@SuppressWarnings("ucd")
+	public void onEntitiesLoaded(final EntitiesLoadedEvent event) {
+		if (mHighlight != null && !mHighlight.hasFired()) {
+			((EntityListFragment) mCurrentFragment).setListPositionToEntity(mChildId);
+		}
+	}
+
+	@Subscribe
+	public void onProcessingFinished(ProcessingFinishedEvent event) {
+
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+
+				mBusy.hideBusy(false);
+				((BaseFragment) mCurrentFragment).onProcessingFinished();
+
+				mBubbleButton.fadeOut();
+				Boolean share = (mEntity != null && mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
+				if (share) {
+					mFab.fadeOut();
+				}
+				else {
+					mFab.fadeIn();
+				}
+			}
+		});
+	}
+
+	@Subscribe
+	@SuppressWarnings("ucd")
+	public void onMessage(final NotificationEvent event) {
+	    /*
+	     * Refresh the form because something new has been added to it
+		 * like a comment or post.
+		 */
+		if (related(event.notification.parentId)) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					((EntityListFragment) mCurrentFragment).bind(BindingMode.AUTO);
+				}
+			});
+		}
+	}
+
+	@SuppressWarnings("ucd")
+	public void onReplyClick(View view) {
+		Bundle extras = new Bundle();
+
+		String rootId = mEntity.type.equals(MessageType.ROOT) ? mEntity.id : ((Message) mEntity).rootId;
+
+		extras.putString(Constants.EXTRA_MESSAGE_ROOT_ID, rootId);
+		extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, rootId);
+		extras.putString(Constants.EXTRA_MESSAGE_TYPE, MessageType.REPLY);
+		extras.putString(Constants.EXTRA_PATCH_ID, mEntity.placeId);
+
+		if (mEntity.creator != null) {
+			extras.putString(Constants.EXTRA_MESSAGE_REPLY_TO_ID, mEntity.creator.id);
+			if (!TextUtils.isEmpty(mEntity.creator.name)) {
+				extras.putString(Constants.EXTRA_MESSAGE_REPLY_TO_NAME, mEntity.creator.name);
+			}
+		}
+
+		onAdd(extras);
+	}
+
+	@SuppressWarnings("ucd")
+	public void onPatchClick(View view) {
+		Entity entity = (Entity) view.getTag();
+		Patchr.dispatch.route(MessageForm.this, Route.BROWSE, entity.patch, null);
+	}
+
+	@SuppressWarnings("ucd")
+	public void onEditClick(View view) {
+		Bundle extras = new Bundle();
+		Patchr.dispatch.route(this, Route.EDIT, mEntity, extras);
+	}
+
+	@SuppressWarnings("ucd")
+	public void onDeleteClick(View view) {
+		Patchr.dispatch.route(this, Route.DELETE, mEntity, null);
+	}
+
+	@SuppressWarnings("ucd")
+	public void onRemoveClick(View view) {
+		Bundle extras = new Bundle();
+		extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, (String) view.getTag());
+		Patchr.dispatch.route(this, Route.REMOVE, mEntity, extras);
+	}
+
+	@SuppressWarnings("ucd")
+	public void onShareClick(View view) {
+		share();
+	}
+
 	@Override
-	public void afterDatabind(final BindingMode mode, ModelResult result) {
-		super.afterDatabind(mode, result);
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			if (mEntityMonitor.changed) {
-				((EntityListFragment) mCurrentFragment).bind(BindingMode.MANUAL);
+	public void onAdd(Bundle extras) {
+		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+		super.onAdd(extras);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		/*
+		 * Cases that use activity result
+		 * 
+		 * - Candi picker returns entity id for a move
+		 * - Template picker returns type of candi to add as a child
+		 */
+		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
+			if (requestCode == Constants.ACTIVITY_ENTITY_INSERT) {
+				if (intent != null) {
+					mChildId = intent.getStringExtra(Constants.EXTRA_ENTITY_CHILD_ID);
+					if (mChildId != null) {
+					/* If reply to reply then finish */
+						if (mEntity.type != null && mEntity.type.equals(MessageType.REPLY)) {
+							finish();
+							Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+						}
+						else {
+							mHighlight = new Highlight(true);
+							((MessageListFragment) mCurrentFragment).getHighlightEntities().put(mChildId, mHighlight);
+						}
+					}
+				}
 			}
 			else {
-				((EntityListFragment) mCurrentFragment).bind(mode);
+				super.onActivityResult(requestCode, resultCode, intent);
 			}
 		}
 	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void draw(View view) {
 	    /*
 	     * For now, we assume that the candi form isn't recycled.
-		 * 
+		 *
 		 * We leave most of the views visible by default so they are visible in the layout editor.
-		 * 
+		 *
 		 * - WebImageView primary image is visible by default
 		 * - WebImageView child views are gone by default
 		 * - Header views are visible by default
@@ -176,7 +304,7 @@ public class MessageForm extends BaseEntityForm {
 		final TextView createdDate = (TextView) view.findViewById(R.id.created_date);
 		final FlowLayout flowLayout = (FlowLayout) view.findViewById(R.id.flow_recipients);
 		final ViewGroup shareHolder = (ViewGroup) view.findViewById(R.id.share_holder);
-		final ViewGroup shareFrame = (ViewGroup) view.findViewById(R.id.share);
+		final ViewGroup shareFrame = (ViewGroup) view.findViewById(R.id.share_entity);
 		final ViewGroup toHolder = (ViewGroup) view.findViewById(R.id.to_holder);
 
         /* Share */
@@ -186,36 +314,33 @@ public class MessageForm extends BaseEntityForm {
 		if (share) {
 
 			mEntity.shareable = false;
-			UI.setVisibility(findViewById(R.id.button_share), View.GONE);
 			UI.setVisibility(findViewById(R.id.divider_replies), View.GONE);
 
-			if (mEntity.ownerId.equals(Patchr.getInstance().getCurrentUser().id)) {
-				UI.setVisibility(toHolder, View.VISIBLE);
+			UI.setVisibility(toHolder, View.VISIBLE);
 
-				flowLayout.setSpacingHorizontal(UI.getRawPixelsForDisplayPixels(4f));
-				flowLayout.setSpacingVertical(UI.getRawPixelsForDisplayPixels(4f));
-				flowLayout.setClickable(false);
+			flowLayout.setSpacingHorizontal(UI.getRawPixelsForDisplayPixels(4f));
+			flowLayout.setSpacingVertical(UI.getRawPixelsForDisplayPixels(4f));
+			flowLayout.setClickable(false);
 
             /* Check for recipients */
-				List<Link> links = mEntity.getLinks(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, null, Direction.out);
-				for (Link link : links) {
-					mTos.add(link.shortcut.getAsEntity());
-				}
+			List<Link> links = mEntity.getLinks(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, null, Direction.out);
+			for (Link link : links) {
+				mTos.add(link.shortcut.getAsEntity());
+			}
 
-				for (Entity entity : mTos) {
+			for (Entity entity : mTos) {
 
-					EntityView entityView = new EntityView(this);
-					entityView.setLayout(R.layout.widget_token_view);
-					entityView.initialize();
-					entityView.databind(entity);
-					entityView.setClickable(false);
+				EntityView entityView = new EntityView(this);
+				entityView.setLayout(R.layout.widget_token_view);
+				entityView.initialize();
+				entityView.databind(entity);
+				entityView.setClickable(false);
 
-					FlowLayout.LayoutParams params = new FlowLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-					params.setCenterHorizontal(false);
-					entityView.setLayoutParams(params);
+				FlowLayout.LayoutParams params = new FlowLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				params.setCenterHorizontal(false);
+				entityView.setLayoutParams(params);
 
-					flowLayout.addView(entityView);
-				}
+				flowLayout.addView(entityView);
 			}
 		}
 
@@ -303,7 +428,7 @@ public class MessageForm extends BaseEntityForm {
 						@Override
 						public void onClick(View view) {
 							Entity entity = (Entity) view.getTag();
-							Patchr.dispatch.route(MessageForm.this, Route.BROWSE, entity, null, null);
+							Patchr.dispatch.route(MessageForm.this, Route.BROWSE, entity, null);
 						}
 					});
 				}
@@ -419,14 +544,12 @@ public class MessageForm extends BaseEntityForm {
 			shareFrame.setTag(shareEntity);
 			shareFrame.addView(shareView);
 
-			UI.setVisibility(findViewById(R.id.divider_buttons), View.GONE);
 			UI.setVisibility(shareHolder, View.VISIBLE);
 		}
 		else {
 
 		    /* Message that includes a photo */
 
-			UI.setVisibility(findViewById(R.id.divider_buttons), View.VISIBLE);
 			if (photoView != null) {
 				if (!Photo.same(photoView.getPhoto(), mEntity.getPhoto())) {
 					if (mEntity.photo != null) {
@@ -438,153 +561,30 @@ public class MessageForm extends BaseEntityForm {
 				}
 				if (mEntity.photo != null) {
 					UI.setVisibility(photoView, View.VISIBLE);
-					UI.setVisibility(findViewById(R.id.divider_buttons), View.GONE);
 				}
 			}
 		}
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onEntitiesLoaded(final EntitiesLoadedEvent event) {
-		if (mHighlight != null && !mHighlight.hasFired()) {
-			((EntityListFragment) mCurrentFragment).setListPositionToEntity(mChildId);
+	public void configureActionBar() {
+		super.configureActionBar();
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
 		}
-	}
-
-	@Subscribe
-	public void onProcessingFinished(ProcessingFinishedEvent event) {
-
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-
-				mBusy.hideBusy(false);
-				((BaseFragment) mCurrentFragment).onProcessingFinished();
-
-				mBubbleButton.fadeOut();
-				Boolean share = (mEntity != null && mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
-				if (share) {
-					mFab.fadeOut();
-				}
-				else {
-					mFab.fadeIn();
-				}
-			}
-		});
-	}
-
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onMessage(final NotificationEvent event) {
-	    /*
-	     * Refresh the form because something new has been added to it
-		 * like a comment or post.
-		 */
-		if (related(event.notification.parentId)) {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					((EntityListFragment) mCurrentFragment).bind(BindingMode.AUTO);
-				}
-			});
-		}
-	}
-
-	@SuppressWarnings("ucd")
-	public void onReplyClick(View view) {
-		Bundle extras = new Bundle();
-
-		String rootId = mEntity.type.equals(MessageType.ROOT) ? mEntity.id : ((Message) mEntity).rootId;
-
-		extras.putString(Constants.EXTRA_MESSAGE_ROOT_ID, rootId);
-		extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, rootId);
-		extras.putString(Constants.EXTRA_MESSAGE_TYPE, MessageType.REPLY);
-		extras.putString(Constants.EXTRA_PATCH_ID, mEntity.placeId);
-
-		if (mEntity.creator != null) {
-			extras.putString(Constants.EXTRA_MESSAGE_REPLY_TO_ID, mEntity.creator.id);
-			if (!TextUtils.isEmpty(mEntity.creator.name)) {
-				extras.putString(Constants.EXTRA_MESSAGE_REPLY_TO_NAME, mEntity.creator.name);
-			}
-		}
-
-		onAdd(extras);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onPatchClick(View view) {
-		Entity entity = (Entity) view.getTag();
-		Patchr.dispatch.route(MessageForm.this, Route.BROWSE, entity.patch, null, null);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onEditClick(View view) {
-		Bundle extras = new Bundle();
-		Patchr.dispatch.route(this, Route.EDIT, mEntity, null, extras);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onDeleteClick(View view) {
-		Patchr.dispatch.route(this, Route.DELETE, mEntity, null, null);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onRemoveClick(View view) {
-		Bundle extras = new Bundle();
-		extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, (String) view.getTag());
-		Patchr.dispatch.route(this, Route.REMOVE, mEntity, null, extras);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onShareClick(View view) {
-		share();
 	}
 
 	@Override
-	public void onAdd(Bundle extras) {
-		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-		super.onAdd(extras);
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		/*
-		 * Cases that use activity result
-		 * 
-		 * - Candi picker returns entity id for a move
-		 * - Template picker returns type of candi to add as a child
-		 */
-		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
-			if (requestCode == Constants.ACTIVITY_ENTITY_INSERT) {
-				if (intent != null) {
-					mChildId = intent.getStringExtra(Constants.EXTRA_ENTITY_CHILD_ID);
-					if (mChildId != null) {
-					/* If reply to reply then finish */
-						if (mEntity.type != null && mEntity.type.equals(MessageType.REPLY)) {
-							finish();
-							Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
-						}
-						else {
-							mHighlight = new Highlight(true);
-							((MessageListFragment) mCurrentFragment).getHighlightEntities().put(mChildId, mHighlight);
-						}
-					}
-				}
+	public void afterDatabind(final BindingMode mode, ModelResult result) {
+		super.afterDatabind(mode, result);
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			if (mEntityMonitor.changed) {
+				((EntityListFragment) mCurrentFragment).bind(BindingMode.MANUAL);
 			}
 			else {
-				super.onActivityResult(requestCode, resultCode, intent);
+				((EntityListFragment) mCurrentFragment).bind(mode);
 			}
 		}
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	public void share() {
@@ -602,13 +602,6 @@ public class MessageForm extends BaseEntityForm {
 		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 
 		builder.startChooser();
-	}
-
-	protected void setActionBarIcon() {
-		if (getSupportActionBar() != null) {
-			Drawable icon = getResources().getDrawable(R.drawable.ic_home_message_dark);
-			getSupportActionBar().setIcon(icon);
-		}
 	}
 
 	@Override

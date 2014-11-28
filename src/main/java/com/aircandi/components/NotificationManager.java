@@ -96,7 +96,7 @@ public class NotificationManager {
 
 		Install install = new Install(Patchr.getInstance().getCurrentUser().id
 				, registrationId
-				, Patchr.getinstallId());
+				, Patchr.getInstance().getinstallId());
 
 		install.clientVersionName = Patchr.getVersionName(Patchr.applicationContext, AircandiForm.class);
 		install.clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);

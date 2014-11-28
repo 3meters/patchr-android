@@ -24,6 +24,7 @@ import com.aircandi.components.StringManager;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Patch;
+import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.components.AirClusterRenderer;
 import com.aircandi.utilities.Dialogs;
@@ -180,7 +181,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 	@Override
 	public void onClusterItemInfoWindowClick(EntityItem entityItem) {
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entityItem.mEntity, null, null);
+		Patchr.dispatch.route(getActivity(), Route.BROWSE, entityItem.mEntity, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -365,8 +366,13 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		@Override
 		protected void onBeforeClusterItemRendered(final EntityItem entityItem, final MarkerOptions markerOptions) {
 			if (entityItem.mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				final Patch place = (Patch) entityItem.mEntity;
+				final Patch patch = (Patch) entityItem.mEntity;
 				markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker));
+				markerOptions.title(!(TextUtils.isEmpty(patch.name)) ? patch.name : StringManager.getString(R.string.container_singular));
+				markerOptions.snippet((patch.category != null && !TextUtils.isEmpty(patch.category.name)) ? patch.category.name : null);
+			}
+			else if (entityItem.mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+				final Place place = (Place) entityItem.mEntity;
 				markerOptions.title(!(TextUtils.isEmpty(place.name)) ? place.name : StringManager.getString(R.string.container_singular));
 				markerOptions.snippet((place.category != null && !TextUtils.isEmpty(place.category.name)) ? place.category.name : null);
 			}

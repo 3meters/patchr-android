@@ -241,7 +241,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		gather();
 
 		/* Route it */
-		Patchr.dispatch.route(this, Route.PHOTO_SOURCE, mEntity, null, null);
+		Patchr.dispatch.route(this, Route.PHOTO_SOURCE, mEntity, null);
 		onChangingPhoto();
 	}
 
@@ -291,7 +291,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Patchr.dispatch.route(this, Route.BROWSE, entity, null, null);
+		Patchr.dispatch.route(this, Route.BROWSE, entity, null);
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -362,20 +362,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	public void configureActionBar() {
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().setDisplayShowTitleEnabled(true);  // Dont show title
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);    // Show navigation indicator
-		}
-
-		getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onBackPressed();
-			}
-		});
-	}
 
 	public void accept() {
 		if (mEditing) {
@@ -467,11 +453,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	protected void photoSearch(String defaultSearch) {
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_SEARCH_PHRASE, defaultSearch);
-		Patchr.dispatch.route(this, Route.PHOTO_SEARCH, null, null, extras);
+		Patchr.dispatch.route(this, Route.PHOTO_SEARCH, null, extras);
 	}
 
 	protected void photoFromPlace(Entity entity) {
-		Patchr.dispatch.route(this, Route.PHOTO_PLACE_SEARCH, entity, null, null);
+		Patchr.dispatch.route(this, Route.PHOTO_PLACE_SEARCH, entity, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------

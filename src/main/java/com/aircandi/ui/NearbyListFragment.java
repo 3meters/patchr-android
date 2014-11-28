@@ -1,7 +1,6 @@
 package com.aircandi.ui;
 
 import android.content.res.Configuration;
-import android.location.Location;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,7 +23,6 @@ import com.aircandi.components.MediaManager;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager;
-import com.aircandi.components.ProximityManager.RefreshReason;
 import com.aircandi.components.ProximityManager.ScanReason;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.BeaconsLockedEvent;
@@ -56,7 +54,6 @@ import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NearbyListFragment extends EntityListFragment {
@@ -86,168 +83,17 @@ public class NearbyListFragment extends EntityListFragment {
 
 	@Override
 	public void bind(BindingMode mode) {
-		Logger.d(this, "Binding called: mode = " + mode.name().toLowerCase(Locale.US));
 		/*
-		 * Cases that trigger a search
-		 * 
-		 * - First time radar is run
-		 * - Preference change
-		 * - Didn't complete location fix before user switched away from radar
-		 * - While away, user enabled wifi
-		 * - Beacons we used for last fix have changed
-		 * - Beacon fix is thirty minutes old or more
-		 * 
-		 * Cases that trigger a ui refresh
-		 * 
-		 * - Preference change
-		 * - EntityModel has changed since last search
+		 * Only called in response to parent form receiving a push notification. Example
+		 * is a new patch was created nearby and we want to show it.
 		 */
-
-		String bindReason = null;
-		//noinspection LoopStatementThatDoesntLoop
-		while (true) {
-
-			if (mEntities.size() == 0) {
-				/*
-				 * This is either our first run or our last search turned up zilch (which could happen if you were in
-				 * the middle of the ocean for instance.
-				 */
-				bindReason = "Empty";
-				searchForPlaces();
-				break;
-			}
-
-			if (!mAtLeastOneLocationProcessed) {
-				/*
-				 * User navigated away before first location entities could be processed by
-				 * radar and displayed. Location could have been locked.
-				 */
-				if (LocationManager.getInstance().isLocationAccessEnabled()) {
-					bindReason = "No location processed";
-					mBusy.showBusy(BusyAction.Scanning);
-					LocationManager.getInstance().requestLocation(getActivity());
-					break;
-				}
-			}
-
-			if (LocationManager.getInstance().getLocationLocked() == null) {
-				/*
-				 * Gets set everytime we accept a location change in onLocationBroadcast. Means
-				 * we didn't get an acceptable fix yet from the fused provider.
-				 */
-				if (LocationManager.getInstance().isLocationAccessEnabled()) {
-					bindReason = "No locked location";
-					mBusy.showBusy(BusyAction.Scanning);
-					LocationManager.getInstance().requestLocation(getActivity());
-					break;
-				}
-			}
-
-			RefreshReason reason = ProximityManager.getInstance().beaconRefreshNeeded(LocationManager.getInstance().getLocationLocked());
-			if (reason != RefreshReason.NONE) {
-
-				bindReason = reason.name().toLowerCase(Locale.US);
-				searchForPlaces();
-				break;
-			}
-
-			if (!NetworkManager.getInstance().getWifiState().equals(mWifiStateLastSearch)) {
-				/*
-				 * Wifi has enabled/disabled since our last search
-				 */
-				if (NetworkManager.getInstance().getWifiState() == WifiManager.WIFI_STATE_DISABLED) {
-
-					bindReason = "Wifi switched off";
-					NetworkManager.WIFI_AP_STATE wifiApState = NetworkManager.getInstance().getWifiApState();
-					if (wifiApState != null && (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLED)) {
-						Logger.d(getActivity(), "Wifi Ap enabled, clearing beacons");
-						UI.showToastNotification("Hotspot or tethering enabled", Toast.LENGTH_SHORT);
-					}
-					else {
-						UI.showToastNotification("Wifi disabled", Toast.LENGTH_SHORT);
-					}
-					ProximityManager.getInstance().getWifiList().clear();
-					EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
-					LocationManager.getInstance().setLocationLocked(null);
-				}
-				else if (NetworkManager.getInstance().getWifiState() == WifiManager.WIFI_STATE_ENABLED) {
-
-					bindReason = "Wifi switched on";
-					UI.showToastNotification("Wifi enabled", Toast.LENGTH_SHORT);
-					searchForPlaces();
-				}
-				break;
-			}
-
-			if ((ProximityManager.getInstance().getLastBeaconLockedDate() != null && mEntityModelBeaconDate != null)
-					&& (ProximityManager.getInstance().getLastBeaconLockedDate().longValue() > mEntityModelBeaconDate.longValue())) {
-				/*
-				 * The beacons we are locked to have changed while we were away so we need to
-				 * search for new places linked to beacons.
-				 */
-				bindReason = "New locked beacons";
-				mEntityModelBeaconDate = ProximityManager.getInstance().getLastBeaconLockedDate();
-				new AsyncTask() {
-
-					@Override
-					protected Object doInBackground(Object... params) {
-						Thread.currentThread().setName("AsyncGetEntitiesForBeacons");
-						final ServiceResponse serviceResponse = ProximityManager.getInstance().getEntitiesByProximity();
-						return serviceResponse;
-					}
-
-					@Override
-					protected void onPostExecute(Object result) {
-						final ServiceResponse serviceResponse = (ServiceResponse) result;
-						if (serviceResponse.responseCode != ResponseCode.SUCCESS) {
-							onError();
-							Errors.handleError(getActivity(), serviceResponse);
-						}
-					}
-				}.execute();
-				break;
-			}
-			else {
-
-				CacheStamp cacheStamp = Patchr.getInstance().getEntityManager().getCacheStamp();
-				if (mCacheStamp != null && !mCacheStamp.equals(cacheStamp)) {
-					/*
-					 * EntityManager stamp gets updated when places are inserted/updated/deleted
-					 */
-					bindReason = "Data changed";
-					new AsyncTask() {
-
-						@Override
-						protected Object doInBackground(Object... params) {
-							Thread.currentThread().setName("AsyncGetEntitiesForBeacons");
-							final ServiceResponse serviceResponse = ProximityManager.getInstance().getEntitiesByProximity();
-							return serviceResponse;
-						}
-
-						@Override
-						protected void onPostExecute(Object result) {
-							final ServiceResponse serviceResponse = (ServiceResponse) result;
-							if (serviceResponse.responseCode != ResponseCode.SUCCESS) {
-								onError();
-								Errors.handleError(getActivity(), serviceResponse);
-							}
-						}
-					}.execute();
-				}
-				else {
-					mAdapter.notifyDataSetChanged();
-					BusProvider.getInstance().post(new ProcessingFinishedEvent());
-				}
-				break;
-			}
+		CacheStamp cacheStamp = Patchr.getInstance().getEntityManager().getCacheStamp();
+		if (mCacheStamp != null && !mCacheStamp.equals(cacheStamp)) {
+			searchForPatches();
 		}
-
-		if (bindReason != null) {
-			Logger.d(getActivity(), "Radar bind: " + bindReason);
-
-			if (Patchr.getInstance().getPrefEnableDev()) {
-				UI.showToastNotification("Radar bind: " + bindReason, Toast.LENGTH_SHORT);
-			}
+		else {
+			mAdapter.notifyDataSetChanged();
+			BusProvider.getInstance().post(new ProcessingFinishedEvent());
 		}
 	}
 
@@ -260,7 +106,7 @@ public class NearbyListFragment extends EntityListFragment {
 		final Patch entity = (Patch) ((ViewHolder) view.getTag()).data;
 		Bundle extras = new Bundle();
 		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
+		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
 	@Subscribe
@@ -311,10 +157,7 @@ public class NearbyListFragment extends EntityListFragment {
 					@Override
 					protected void onPostExecute(Object result) {
 						final ServiceResponse serviceResponse = (ServiceResponse) result;
-						if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-							LocationManager.getInstance().requestLocation(getActivity());
-						}
-						else {
+						if (serviceResponse.responseCode != ResponseCode.SUCCESS) {
 							onError();
 							Errors.handleError(getActivity(), serviceResponse);
 						}
@@ -346,6 +189,49 @@ public class NearbyListFragment extends EntityListFragment {
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
 					BusProvider.getInstance().post(new ProcessingFinishedEvent());
 				}
+				else {
+
+					final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+					if (location != null) {
+
+						new AsyncTask() {
+
+							@Override
+							protected void onPreExecute() {
+								Reporting.updateCrashKeys();
+							}
+
+							@Override
+							protected Object doInBackground(Object... params) {
+								Logger.d(getActivity(), "Location changed event: getting places near location");
+								Thread.currentThread().setName("AsyncGetPlacesNearLocation");
+								Patchr.stopwatch2.start("location_processing", "Location processing: get places near location");
+								ServiceResponse serviceResponse = ProximityManager.getInstance().getEntitiesNearLocation(location);
+								return serviceResponse;
+							}
+
+							@Override
+							protected void onPostExecute(Object result) {
+								final ServiceResponse serviceResponse = (ServiceResponse) result;
+
+								if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+									Patchr.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
+									final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null /* proximity not required */);
+									BusProvider.getInstance().post(new PatchesNearLocationFinishedEvent()); // Just tracking
+									BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
+									BusProvider.getInstance().post(new ProcessingFinishedEvent());
+								}
+								else {
+									onError();
+									Errors.handleError(getActivity(), serviceResponse);
+								}
+							}
+						}.execute();
+					}
+					else {
+						BusProvider.getInstance().post(new ProcessingFinishedEvent());
+					}
+				}
 			}
 		});
 	}
@@ -361,8 +247,6 @@ public class NearbyListFragment extends EntityListFragment {
 		Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
 				, "places_near_location_downloaded"
 				, NetworkManager.getInstance().getNetworkType());
-
-		BusProvider.getInstance().post(new ProcessingFinishedEvent());
 	}
 
 	@Subscribe
@@ -387,7 +271,7 @@ public class NearbyListFragment extends EntityListFragment {
 				if (entities.size() >= 2) {
 					BusProvider.getInstance().post(new ProcessingFinishedEvent());
 				}
-				
+
 				if (event.source.equals("onLocationChanged")) {
 					mAtLeastOneLocationProcessed = true;
 				}
@@ -414,13 +298,31 @@ public class NearbyListFragment extends EntityListFragment {
 		 * Called by refresh action or swipe.
 		 */
 		Logger.d(getActivity(), "Starting refresh");
-		searchForPlaces();
+		if (LocationManager.getInstance().isLocationAccessEnabled()) {
+			mBusy.showBusy(BusyAction.Scanning);
+			LocationManager.getInstance().requestLocationUpdates(getActivity());  // Location triggers sequence
+		}
+		else {
+			if (!mLocationDialogShot.get()) {
+				Dialogs.locationServicesDisabled(getActivity(), mLocationDialogShot);
+			}
+			else {
+				UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
+			}
+			if (NetworkManager.getInstance().isWifiEnabled()) {
+				mBusy.showBusy(BusyAction.Scanning);
+				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);         // Still try proximity
+			}
+			else {
+				BusProvider.getInstance().post(new ProcessingFinishedEvent());
+			}
+		}
 	}
 
 	@Override
 	public void onAdd(Bundle extras) {
 		/* Schema target is in the extras */
-		Patchr.dispatch.route(getActivity(), Route.NEW, null, null, extras);
+		Patchr.dispatch.route(getActivity(), Route.NEW, null, extras);
 	}
 
 	@Override
@@ -476,14 +378,14 @@ public class NearbyListFragment extends EntityListFragment {
 			buttonAlert.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					Patchr.dispatch.route(getActivity(), Route.NEW_PLACE, null, null, null);
+					Patchr.dispatch.route(getActivity(), Route.NEW_PLACE, null, null);
 				}
 			});
 			UI.setVisibility(alertGroup, View.VISIBLE);
 		}
 	}
 
-	private void searchForPlaces() {
+	private void searchForPatches() {
 
 		new AsyncTask() {
 
@@ -492,6 +394,9 @@ public class NearbyListFragment extends EntityListFragment {
 				mBusy.showBusy(BusyAction.Scanning);
 				mBubbleButton.fadeOut();
 				Reporting.updateCrashKeys();
+				if (Patchr.getInstance().getPrefEnableDev()) {
+					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
+				}
 			}
 
 			@Override
@@ -504,27 +409,9 @@ public class NearbyListFragment extends EntityListFragment {
 					ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
 				}
 				else {
-					if (LocationManager.getInstance().isLocationAccessEnabled()) {
-						LocationManager.getInstance().requestLocation(getActivity());
-					}
+					BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 				}
-
 				return null;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-					if (!mLocationDialogShot.get()) {
-						Dialogs.locationServicesDisabled(getActivity(), mLocationDialogShot);
-					}
-					else {
-						UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
-					}
-					if (!NetworkManager.getInstance().isWifiEnabled()) {
-						BusProvider.getInstance().post(new ProcessingFinishedEvent());
-					}
-				}
 			}
 		}.execute();
 	}
@@ -541,6 +428,7 @@ public class NearbyListFragment extends EntityListFragment {
 		super.onStart();
 
 		BusProvider.getInstance().register(mLocationHandler);
+		onRefresh();
 
 		/* Start foreground activity recognition - stop proximity manager from background recognition */
 		try {
@@ -552,7 +440,11 @@ public class NearbyListFragment extends EntityListFragment {
 	@Override
 	public void onStop() {
 		/*
-		 * Fired when fragment is being deactivated.
+		 * Triggers
+		 * - Switching to another fragment.
+		 * - Switching to launcher.
+		 * - Killing activity.
+		 * - Navigating to another activity.
 		 */
 		BusProvider.getInstance().unregister(mLocationHandler);
 		LocationManager.getInstance().stop();
@@ -582,85 +474,15 @@ public class NearbyListFragment extends EntityListFragment {
 		@SuppressWarnings({"ucd"})
 		public void onLocationChanged(final LocationChangedEvent event) {
 			/*
-			 * LocationManager has a very low bar for passing along the first location fix.
+			 * Location changes are a primary trigger for a patch query sequence.
 			 */
-			final Location locationCandidate = event.location;
+			if (event.location != null) {
 
-			if (locationCandidate != null) {
-
-				String reason = "first";
-
-				final Location locationLocked = LocationManager.getInstance().getLocationLocked();
-
-				if (locationLocked != null) {
-					/*
-					 * Filter out locations that are not a solid improvement in accuracy.
-					 */
-					final float accuracyImprovement = locationLocked.getAccuracy() / locationCandidate.getAccuracy();
-					boolean isSignificantlyMoreAccurate = (accuracyImprovement >= 1.5);
-					if (!isSignificantlyMoreAccurate) {
-						BusProvider.getInstance().post(new ProcessingFinishedEvent());
-						return;
-					}
-					reason = "accuracy";
-				}
-
-				String message = "Radar location lock:";
-				message += " lat: " + locationCandidate.getLatitude();
-				message += " lng: " + locationCandidate.getLongitude();
-				message += " acc: " + locationCandidate.getAccuracy();
-
-				if (Patchr.getInstance().getPrefEnableDev()) {
-					UI.showToastNotification(message, Toast.LENGTH_SHORT);
-				}
-
-				Logger.d(getActivity(), "Location changed event: location accepted: " + reason);
-				LocationManager.getInstance().setLocationLocked(locationCandidate);
-
-				if (locationCandidate.getAccuracy() <= LocationManager.ACCURACY_PREFERRED) {
-					LocationManager.getInstance().stop();
-				}
-
+				LocationManager.getInstance().setLocationLocked(event.location);
 				final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+
 				if (location != null && !location.zombie) {
-
-					new AsyncTask() {
-
-						@Override
-						protected void onPreExecute() {
-							Reporting.updateCrashKeys();
-							mBusy.showBusy(BusyAction.Update);
-						}
-
-						@Override
-						protected Object doInBackground(Object... params) {
-
-							Logger.d(getActivity(), "Location changed event: getting places near location");
-							Thread.currentThread().setName("AsyncGetPlacesNearLocation");
-							Patchr.stopwatch2.start("location_processing", "Location processing: get places near location");
-
-							final ServiceResponse serviceResponse = ProximityManager.getInstance().getEntitiesNearLocation(location);
-
-							return serviceResponse;
-						}
-
-						@Override
-						protected void onPostExecute(Object result) {
-							final ServiceResponse serviceResponse = (ServiceResponse) result;
-
-							if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-								Patchr.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
-								final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null, null);
-								BusProvider.getInstance().post(new PatchesNearLocationFinishedEvent());
-								BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
-								BusProvider.getInstance().post(new ProcessingFinishedEvent());
-							}
-							else {
-								onError();
-								Errors.handleError(getActivity(), serviceResponse);
-							}
-						}
-					}.execute();
+					searchForPatches();
 				}
 				else {
 					BusProvider.getInstance().post(new ProcessingFinishedEvent());

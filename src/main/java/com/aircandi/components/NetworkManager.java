@@ -319,7 +319,7 @@ public class NetworkManager {
 	public boolean isWalledGardenConnection() {
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.WALLED_GARDEN_URI)
+				.setUri(ServiceConstants.URI_WALLED_GARDEN)
 				.setRequestType(RequestType.GET)
 				.setResponseFormat(ResponseFormat.NONE)
 				.setErrorCheck(false);

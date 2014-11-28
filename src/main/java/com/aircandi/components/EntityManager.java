@@ -2,7 +2,6 @@ package com.aircandi.components;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.text.TextUtils;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -28,7 +27,6 @@ import com.aircandi.objects.Log;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoType;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.Proximity;
 import com.aircandi.objects.ServiceBase.UpdateScope;
 import com.aircandi.objects.ServiceData;
@@ -42,7 +40,6 @@ import com.aircandi.service.ServiceResponse;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Reporting;
-import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 
 import java.io.BufferedReader;
@@ -308,89 +305,6 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult verifyApplink(Entity applink, Integer timeout, Boolean waitForContent) {
-		List<Entity> entities = new ArrayList<Entity>();
-		entities.add(applink);
-		ModelResult result = getApplinks(entities, null, timeout, waitForContent, false);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.UX, "applinks_verify", null, 0);
-		}
-		return result;
-	}
-
-	public ModelResult refreshApplinks(List<Entity> applinks, Integer timeout, Boolean waitForContent) {
-		ModelResult result = getApplinks(applinks, null, timeout, waitForContent, true);
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.UX, "applinks_refresh", null, 0);
-		}
-		return result;
-	}
-
-	public ModelResult searchApplinks(List<Entity> applinks, String placeId, Integer timeout, Boolean waitForContent) {
-		ModelResult result = getApplinks(applinks, placeId, timeout, waitForContent, false);
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.UX, "applinks_search", null, 0);
-		}
-		return result;
-	}
-
-	public ModelResult getApplinks(List<Entity> applinks, String placeId, Integer timeout, Boolean waitForContent, Boolean refreshOnly) {
-		final ModelResult result = new ModelResult();
-		final Bundle parameters = new Bundle();
-
-		if (placeId != null) {
-			parameters.putString("placeId", placeId);
-		}
-
-		if (refreshOnly != null) {
-			parameters.putBoolean("refreshOnly", refreshOnly);
-		}
-
-		final List<String> entityStrings = new ArrayList<String>();
-		for (Entity applink : applinks) {
-			entityStrings.add("object:" + Json.objectToJson(applink, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
-		}
-		parameters.putStringArrayList("applinks", (ArrayList<String>) entityStrings);
-
-		if (Type.isTrue(waitForContent)) {
-			parameters.putBoolean("waitForContent", waitForContent);
-		}
-
-		if (timeout == null) {
-			timeout = ServiceConstants.TIMEOUT_APPLINK_SEARCH;
-		}
-
-		parameters.putInt("timeout", timeout);
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_APPLINKS + "get")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
-			result.data = serviceData.data; // updated collection of applinks
-			/*
-			 * Make sure all applinks have at least a temp id
-			 */
-			if (result.data != null) {
-				List<Entity> entities = (List<Entity>) result.data;
-				for (Entity entity : entities) {
-					if (TextUtils.isEmpty(entity.id)) {
-						entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME_EXTENDED); // Temporary
-					}
-				}
-			}
-		}
-
-		return result;
-	}
-
 	public ModelResult suggest(String input, SuggestScope suggestScope, String userId, AirLocation location, long limit) {
 		final ModelResult result = new ModelResult();
 
@@ -477,7 +391,7 @@ public class EntityManager {
 		final Bundle parameters = new Bundle();
 		parameters.putString("email", email);
 		parameters.putString("password", password);
-		parameters.putString("installId", Patchr.getinstallId());
+		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_AUTH + "signin")
@@ -586,7 +500,7 @@ public class EntityManager {
 		parameters.putString("userId", userId);
 		parameters.putString("oldPassword", passwordOld);
 		parameters.putString("newPassword", passwordNew);
-		parameters.putString("installId", Patchr.getinstallId());
+		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "changepw")
@@ -620,7 +534,7 @@ public class EntityManager {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("email", email);
-		parameters.putString("installId", Patchr.getinstallId());
+		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "reqresetpw")
@@ -647,7 +561,7 @@ public class EntityManager {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("password", password);
-		parameters.putString("installId", Patchr.getinstallId());
+		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "resetpw")
@@ -680,7 +594,7 @@ public class EntityManager {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("secret", ContainerManager.getContainerHolder().getContainer().getString(Patchr.USER_SECRET));
-		parameters.putString("installId", Patchr.getinstallId());
+		parameters.putString("installId", Patchr.getInstance().getinstallId());
 		user.id = null; // remove temp id we assigned
 
 		ServiceRequest serviceRequest = new ServiceRequest()
@@ -894,16 +808,16 @@ public class EntityManager {
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, serviceDataType, Json.ServiceDataWrapper.TRUE);
 			final Entity insertedEntity = (Entity) serviceData.data;
-				/*
-				 * Optimization: Add soft 'create' link so user entity doesn't have to be refetched
-				 */
+			/*
+			 * Optimization: Add soft 'create' link so user entity doesn't have to be refetched
+			 */
 			if (!entity.synthetic) {
 				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 				mEntityCache.addLink(Patchr.getInstance().getCurrentUser().id
 						, insertedEntity.id
 						, Constants.TYPE_LINK_CREATE
 						, null
-						, Patchr.getInstance().getCurrentUser().getShortcut(), insertedEntity.getShortcut());
+						, Patchr.getInstance().getCurrentUser().getAsShortcut(), insertedEntity.getAsShortcut());
 			}
 
 			result.data = insertedEntity;
@@ -1293,72 +1207,6 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult replaceEntitiesForEntity(String entityId, List<Entity> entitiesForEntity, String schema) {
-		/*
-		 * Updates activityDate in the database:
-		 * - on the parent entity
-		 * - on any other upstream entities
-		 * - disabled links are not followed
-		 * - like/create/watch/proximity links are not followed
-		 */
-		final ModelResult result = new ModelResult();
-
-		/* Upload new images to S3 as needed. */
-		for (Entity entity : entitiesForEntity) {
-			Bitmap bitmap = null;
-			if (entity.photo != null && Type.isTrue(entity.photo.store)) {
-
-				/* Synchronous call to get the bitmap */
-				try {
-					bitmap = DownloadManager.with(Patchr.applicationContext)
-					                        .load(entity.getPhoto().getUri())
-					                        .centerInside()
-					                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-					                        .get();
-					DownloadManager.logBitmap(this, bitmap);
-				}
-				catch (IOException ignore) {}
-
-				PhotoType photoType = PhotoType.GENERAL;
-				if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-					photoType = PhotoType.USER;
-				}
-				result.serviceResponse = storeImageAtS3(entity, null, bitmap, photoType);
-				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) return result;
-			}
-		}
-
-		final Bundle parameters = new Bundle();
-		parameters.putString("entityId", entityId);
-
-		final List<String> entityStrings = new ArrayList<String>();
-		for (Entity entity : entitiesForEntity) {
-			if (entity.isTempId()) {
-				entity.id = null;
-			}
-			entityStrings.add("object:" + Json.objectToJson(entity, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
-		}
-		parameters.putStringArrayList("entities", (ArrayList<String>) entityStrings);
-		parameters.putString("schema", schema);
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "replaceEntitiesForEntity")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.EDIT, "entity_replace_entities", schema, 0);
-		}
-		return result;
-	}
-
 	public ModelResult removeLinks(String fromId, String toId, String type, String schema, String actionEvent) {
 		/*
 		 * Service method is specialized for messages.
@@ -1412,8 +1260,8 @@ public class EntityManager {
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_STATS
-						+ "to/" + toSchema + (toSchema == Constants.SCHEMA_ENTITY_PATCH ? "es" : "s")
-						+ "/from/" + fromSchema + (fromSchema == Constants.SCHEMA_ENTITY_PATCH ? "es" : "s")
+						+ "to/" + toSchema + (toSchema.equals(Constants.SCHEMA_ENTITY_PATCH) ? "es" : "s")
+						+ "/from/" + fromSchema + (fromSchema.equals(Constants.SCHEMA_ENTITY_PATCH) ? "es" : "s")
 						+ "?type=" + trendType)
 				.setRequestType(RequestType.GET)
 				.setResponseFormat(ResponseFormat.JSON);
@@ -1594,26 +1442,6 @@ public class EntityManager {
 		return serviceResponse;
 	}
 
-	public ModelResult upsize(Place place, Boolean waitForContent) {
-
-		/* Decorate and clone */
-		final Entity entity = Place.upsize(place);
-
-		/* insert in database */
-		ModelResult result = insertEntity(entity, waitForContent);
-
-		/*
-		 * Remove synthetic from the cache and add database entity
-		 */
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Entity upsized = (Entity) result.data;
-			mEntityCache.removeEntityTree(place.id);
-			mEntityCache.upsertEntity(upsized);
-		}
-
-		return result;
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Utilities
 	 *--------------------------------------------------------------------------------------------*/
@@ -1622,10 +1450,7 @@ public class EntityManager {
 	 * Cache queries
 	 *--------------------------------------------------------------------------------------------*/
 
-	public List<? extends Entity> getPlaces(Boolean synthetic, Boolean proximity) {
-		//		Integer searchRangeMeters = Integer.parseInt(Aircandi.settings.getString(
-		//				StringManager.getString(R.string.pref_search_radius),
-		//				StringManager.getString(R.string.pref_search_radius_default)));
+	public List<? extends Entity> getPlaces(Boolean proximity) {
 
 		Integer searchRangeMeters = ServiceConstants.PATCH_NEAR_RADIUS;
 

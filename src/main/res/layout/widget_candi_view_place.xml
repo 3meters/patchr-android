@@ -16,7 +16,7 @@
 		custom:config="rgb_565"
 		custom:dominantMeasurement="width"
 		custom:fitType="auto"
-		custom:layout="@layout/widget_webimageview_candi_view" />
+		custom:layoutId="@layout/widget_webimageview_candi_view" />
 
 	<LinearLayout
 		android:id="@+id/info_holder"
@@ -25,36 +25,21 @@
 		android:layout_alignParentBottom="true"
 		android:background="@drawable/scrim_gradient_medium"
 		android:orientation="horizontal"
-		android:paddingBottom="40dp"
+		android:paddingBottom="8dp"
 		android:paddingLeft="70dp"
-		android:paddingRight="15dp"
+		android:paddingRight="8dp"
 		android:paddingTop="10dp">
 
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
-			android:orientation="vertical">
-
-			<com.aircandi.ui.widgets.AirTextLight
-				android:id="@+id/name"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center_vertical"
-				android:layout_weight="1"
-				android:ellipsize="end"
-				android:maxLines="2"
-				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:textColor="?attr/textColorCandiView"
-				android:textSize="24sp"
-				android:textStyle="bold"
-				tools:text="Dillons Fabulous Birthday" />
+			android:orientation="vertical"
+			tools:ignore="UselessParent">
 
 			<LinearLayout
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_marginBottom="5dp"
-				android:layout_marginLeft="3dp"
 				android:layout_weight="1"
 				android:gravity="center_vertical"
 				android:orientation="horizontal">
@@ -72,6 +57,20 @@
 					tools:text="Event or place" />
 
 			</LinearLayout>
+
+			<com.aircandi.ui.widgets.AirTextLight
+				android:id="@+id/name"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:layout_weight="1"
+				android:ellipsize="end"
+				android:maxLines="2"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				android:textColor="?attr/textColorCandiView"
+				android:textSize="24sp"
+				android:textStyle="bold"
+				tools:text="Dillons Fabulous Birthday" />
 
 		</LinearLayout>
 	</LinearLayout>

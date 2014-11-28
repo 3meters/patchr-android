@@ -85,11 +85,12 @@ public final class Errors {
 			 * Mostly because a more current client version is required.
 			 */
 			if (activity != null && !activity.getClass().getSimpleName().equals("SplashForm")) {
-				Patchr.dispatch.route(activity, Route.SPLASH, null, null, null);
+				Patchr.dispatch.route(activity, Route.SPLASH, null, null);
 			}
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	public static final ErrorResponse getErrorResponse(Context context, ServiceResponse serviceResponse) {
 
 		if (serviceResponse.statusCode != null) {
@@ -247,7 +248,6 @@ public final class Errors {
 				 * - SocketException: thrown during socket creation or setting options, we don't have a connection
 				 * - SocketTimeoutException: Timeout trying to send/receive data to the service (might not be up).
 				 *
-				 * - WalledGardenException: have a connection but user was taken to a different host than requested
 				 * - ClientProtocolException: malformed request and a bug.
 				 * - NotFoundException: Reached service but requested something that isn't there.
 				 * - UnauthorizedException: Reached service but user doesn't have needed permissions.

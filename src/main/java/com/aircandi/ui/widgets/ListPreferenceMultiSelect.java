@@ -5,13 +5,13 @@ import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
+import android.preference.ListPreference;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.ListView;
 
 import com.aircandi.R;
-import com.aircandi.components.StringManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +33,7 @@ import java.util.List;
  * Whether you decide to then use those attributes is up to you.
  */
 @SuppressWarnings("ucd")
-public class ListPreferenceMultiSelect extends AirListPreference {
+public class ListPreferenceMultiSelect extends ListPreference {
 	public static final String DEFAULT_SEPARATOR = "OV=I=XseparatorX=I=VO";
 	private             String mSeparator        = DEFAULT_SEPARATOR;
 	private             String mCheckAllKey      = null;
@@ -49,16 +49,11 @@ public class ListPreferenceMultiSelect extends AirListPreference {
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ListPreferenceMultiSelect);
 		mCheckAllKey = ta.getString(R.styleable.ListPreferenceMultiSelect_checkAll);
 		final String separator = ta.getString(R.styleable.ListPreferenceMultiSelect_separator);
-		Integer keyId = ta.getResourceId(R.styleable.AirListPreference_keyId, 0);
 
 		ta.recycle();
 
 		if (separator != null) {
 			mSeparator = separator;
-		}
-
-		if (keyId != 0) {
-			super.setKey(StringManager.getString(keyId, context, context.getResources()));
 		}
 
 		/* Initialize the boolean array to the same size as number of entries */

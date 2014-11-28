@@ -145,12 +145,11 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 		mMap.setMyLocationEnabled(true);
 		mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		mMap.setLocationSource(null);
-		mMap.setMyLocationEnabled(false);
 
 		UiSettings uiSettings = mMap.getUiSettings();
 
 		uiSettings.setZoomControlsEnabled(true);
-		uiSettings.setMyLocationButtonEnabled(false);
+		uiSettings.setMyLocationButtonEnabled(true);
 		uiSettings.setAllGesturesEnabled(true);
 		uiSettings.setCompassEnabled(true);
 

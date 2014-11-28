@@ -105,7 +105,7 @@ public class UI {
 						.load(drawableId)
 						.centerCrop()   // Needed so resize() keeps aspect ratio
 						.resize(width, height)
-						.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : Constants.GROUP_TAG_DEFAULT)
+						.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.GROUP_TAG_DEFAULT)
 						.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
 				if (transform != null) {
 					creator.transform(transform);
@@ -119,7 +119,7 @@ public class UI {
 					.load(photo.getUri())
 					.centerCrop()   // Needed so resize() keeps aspect ratio
 					.resize(width, height)
-					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : Constants.GROUP_TAG_DEFAULT)
+					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.GROUP_TAG_DEFAULT)
 					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
 			if (transform != null) {
 				creator.transform(transform);
@@ -133,7 +133,7 @@ public class UI {
 					.with(Patchr.applicationContext)
 					.load(photo.getUriWrapped())
 					.placeholder(UI.getResIdForAttribute(photoView.getContext(), R.attr.backgroundPlaceholder))
-					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : Constants.GROUP_TAG_DEFAULT)
+					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.GROUP_TAG_DEFAULT)
 					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
 			if (transform != null) {
 				creator.transform(transform);

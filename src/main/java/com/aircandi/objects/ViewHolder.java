@@ -7,7 +7,6 @@ import android.widget.TextView;
 
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
-import com.aircandi.ui.widgets.ComboButton;
 import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.ui.widgets.UserView;
 
@@ -36,7 +35,6 @@ public class ViewHolder {
 	public ImageView    photoType;
 	public ImageView    alert;
 
-	public ComboButton overflow;
 	public CheckBox    checked;
 	public Integer     position;        // Used to optimize item view rendering // NO_UCD (unused code)
 

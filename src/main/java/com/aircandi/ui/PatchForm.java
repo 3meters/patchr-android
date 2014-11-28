@@ -15,7 +15,9 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ViewAnimator;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -45,7 +47,6 @@ import com.aircandi.ui.components.CircleTransform;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
-import com.aircandi.ui.widgets.ComboButton;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Booleans;
 import com.aircandi.utilities.Colors;
@@ -173,7 +174,7 @@ public class PatchForm extends BaseEntityForm {
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntityId);
 			extras.putString(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-			Patchr.dispatch.route(this, Route.NEW, null, null, extras);
+			Patchr.dispatch.route(this, Route.NEW, null, extras);
 			return;
 		}
 		if (Type.isTrue(mEntity.locked)) {
@@ -206,7 +207,7 @@ public class PatchForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onPlaceClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Patchr.dispatch.route(PatchForm.this, Route.BROWSE, entity, null, null);
+		Patchr.dispatch.route(PatchForm.this, Route.BROWSE, entity, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -257,7 +258,7 @@ public class PatchForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onWatchersButtonClick(View view) {
 		if (mEntity != null) {
-			Patchr.dispatch.route(this, Route.WATCHERS, mEntity, null, null);
+			Patchr.dispatch.route(this, Route.WATCHERS, mEntity, null);
 		}
 	}
 
@@ -267,9 +268,7 @@ public class PatchForm extends BaseEntityForm {
 	}
 
 	@Subscribe
-	public void onBubbleButton(BubbleButtonEvent event) {
-		UI.setVisibility(findViewById(R.id.button_share), event.visible ? View.GONE : View.VISIBLE);
-	}
+	public void onBubbleButton(BubbleButtonEvent event) {}
 
 	@SuppressWarnings("ucd")
 	public void onAddMessageButtonClick(View view) {
@@ -283,14 +282,14 @@ public class PatchForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onShareButtonClick(View view) {
 		if (mEntity != null) {
-			Patchr.dispatch.route(this, Route.SHARE, mEntity, null, null);
+			Patchr.dispatch.route(this, Route.SHARE, mEntity, null);
 		}
 	}
 
 	@SuppressWarnings("ucd")
 	public void onEditButtonClick(View view) {
 		if (mEntity != null) {
-			Patchr.dispatch.route(this, Route.EDIT, mEntity, null, new Bundle());
+			Patchr.dispatch.route(this, Route.EDIT, mEntity, new Bundle());
 		}
 	}
 
@@ -326,115 +325,12 @@ public class PatchForm extends BaseEntityForm {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void setCurrentFragment(String fragmentType) {
-		/*
-		 * Fragment menu items are in addition to any menu items added by the parent activity.
-		 */
-		if (fragmentType.equals(Constants.FRAGMENT_TYPE_MESSAGES)) {
-
-			mCurrentFragment = new MessageListFragment();
-
-			EntityMonitor monitor = new EntityMonitor(mEntityId);
-			EntitiesQuery query = new EntitiesQuery();
-
-			query.setEntityId(mEntityId)
-			     .setLinkDirection(Direction.in.name())
-			     .setLinkType(Constants.TYPE_LINK_CONTENT)
-			     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
-			     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
-
-			((EntityListFragment) mCurrentFragment)
-					.setMonitor(monitor)
-					.setQuery(query)
-					.setHeaderViewResId(R.layout.widget_list_header_patch)
-					.setFooterViewResId(R.layout.widget_list_footer_message)
-					.setListEmptyMessageResId(R.string.button_list_share)
-					.setListItemResId(R.layout.temp_listitem_message)
-					.setListLayoutResId(R.layout.message_list_patch_fragment)
-					.setListLoadingResId(R.layout.temp_listitem_loading)
-					.setListViewType(EntityListFragment.ViewType.LIST)
-					.setBubbleButtonMessageResId(R.string.button_list_share)
-					.setSelfBindingEnabled(false);
-
-			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_refresh);
-			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_edit_patch);
-			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_delete);
-			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_report);
-		}
-
-		else {
-			return;
-		}
-
-		getFragmentManager()
-				.beginTransaction()
-				.replace(R.id.fragment_holder, mCurrentFragment)
-				.commit();
-
-		mPrevFragmentTag = mCurrentFragmentTag;
-		mCurrentFragmentTag = fragmentType;
-	}
-
-	@Override
-	public void share() {
-
-		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
-
-		builder.setSubject(String.format(StringManager.getString(R.string.label_patch_share_subject)
-				, (mEntity.name != null) ? mEntity.name : "A"));
-
-		builder.setType("text/plain");
-		builder.setText(String.format(StringManager.getString(R.string.label_patch_share_body), mEntityId));
-		builder.setChooserTitle(String.format(StringManager.getString(R.string.label_patch_share_title)
-				, (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase)));
-
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
-
-		builder.startChooser();
-	}
-
-	@Override
-	public void afterDatabind(final BindingMode mode, ModelResult result) {
-		super.afterDatabind(mode, result);
-
-		if (mAutoWatch && mEntity != null) {
-			Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
-			if (link == null) {
-			    /* User is not already watching this */
-				if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
-						, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
-					watch(true);
-				}
-			}
-		}
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-		    /*
-			 * In case upsizing has changed the id we original bound to.
-			 */
-			if (mCurrentFragment instanceof EntityListFragment) {
-				EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-				((EntityMonitor) fragment.getMonitor()).setEntityId(mEntityId);
-				((EntitiesQuery) fragment.getQuery()).setEntityId(mEntityId);
-				if (mEntityMonitor.changed) {
-					fragment.bind(BindingMode.MANUAL);
-				}
-				else {
-					fragment.bind(mode);
-				}
-			}
-		}
-	}
-
 	public void draw(View view) {
 		/*
 		 * For now, we assume that the candi form isn't recycled.
-		 * 
+		 *
 		 * We leave most of the views visible by default so they are visible in the layout editor.
-		 * 
+		 *
 		 * - WebImageView primary image is visible by default
 		 * - WebImageView child views are gone by default
 		 * - Header views are visible by default
@@ -444,7 +340,6 @@ public class PatchForm extends BaseEntityForm {
 			view = findViewById(android.R.id.content);
 		}
 		mFirstDraw = false;
-		//setActivityTitle(mEntity.name);
 
 		final View holderPlace = view.findViewById(R.id.holder_place);
 		final AirImageView placePhotoView = (AirImageView) view.findViewById(R.id.place_photo);
@@ -476,61 +371,6 @@ public class PatchForm extends BaseEntityForm {
 		}
 
 		/* Photo overlayed with info */
-		drawBanner(view);
-
-		/* Buttons */
-		drawButtons(view);
-
-		final CandiView candiViewInfo = (CandiView) view.findViewById(R.id.candi_view_info);
-		final TextView description = (TextView) view.findViewById(R.id.description);
-		final UserView userView = (UserView) view.findViewById(R.id.user);
-
-		if (candiViewInfo != null) {
-			/*
-			 * This is a patch entity with a fancy image widget
-			 */
-			IndicatorOptions options = new IndicatorOptions();
-			options.showIfZero = true;
-			options.imageSizePixels = 15;
-			options.iconsEnabled = false;
-			candiViewInfo.databind(mEntity, options, null);
-		}
-
-		drawStats(view);
-
-		/* Patch specific info */
-
-		final Patch place = (Patch) mEntity;
-
-		UI.setVisibility(description, View.GONE);
-		if (description != null && !TextUtils.isEmpty(place.description)) {
-			description.setText(Html.fromHtml(place.description));
-			UI.setVisibility(description, View.VISIBLE);
-		}
-
-		/* Creator (on info side) */
-
-		UI.setVisibility(userView, View.GONE);
-		if (userView != null) {
-			if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				if (mEntity.isOwnedBySystem()) {
-					User admin = new User();
-					admin.name = StringManager.getString(R.string.name_app);
-					admin.id = ServiceConstants.ANONYMOUS_USER_ID;
-					userView.setLabel(R.string.label_owned_by);
-					userView.databind(admin);
-				}
-				else {
-					userView.setTag(mEntity.creator);
-					userView.setLabel(R.string.label_owned_by);
-					userView.databind(mEntity.creator, mEntity.createdDate != null ? mEntity.createdDate.longValue() : null);
-				}
-				UI.setVisibility(userView, View.VISIBLE);
-			}
-		}
-	}
-
-	protected void drawBanner(View view) {
 
 		final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
 		final AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
@@ -578,18 +418,54 @@ public class PatchForm extends BaseEntityForm {
 				}
 			}
 		}
-	}
 
-	@Override
-	protected void drawStats(View view) {
+		/* Buttons */
+		drawButtons(view);
 
-		TextView watchersCount = (TextView) view.findViewById(R.id.watchers_count);
-		if (watchersCount != null) {
-			Count count = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, true, Direction.in);
-			if (count == null) {
-				count = new Count(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, null, 0);
+		final CandiView candiViewInfo = (CandiView) view.findViewById(R.id.candi_view_info);
+		final TextView description = (TextView) view.findViewById(R.id.description);
+		final UserView userView = (UserView) view.findViewById(R.id.user);
+
+		if (candiViewInfo != null) {
+			/*
+			 * This is a patch entity with a fancy image widget
+			 */
+			IndicatorOptions options = new IndicatorOptions();
+			options.showIfZero = true;
+			options.imageSizePixels = 15;
+			options.iconsEnabled = false;
+			candiViewInfo.databind(mEntity, options, null);
+		}
+
+		/* Patch specific info */
+
+		final Patch place = (Patch) mEntity;
+
+		UI.setVisibility(description, View.GONE);
+		if (description != null && !TextUtils.isEmpty(place.description)) {
+			description.setText(Html.fromHtml(place.description));
+			UI.setVisibility(description, View.VISIBLE);
+		}
+
+		/* Creator (on info side) */
+
+		UI.setVisibility(userView, View.GONE);
+		if (userView != null) {
+			if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+				if (mEntity.isOwnedBySystem()) {
+					User admin = new User();
+					admin.name = StringManager.getString(R.string.name_app);
+					admin.id = ServiceConstants.ANONYMOUS_USER_ID;
+					userView.setLabel(R.string.label_owned_by);
+					userView.databind(admin);
+				}
+				else {
+					userView.setTag(mEntity.creator);
+					userView.setLabel(R.string.label_owned_by);
+					userView.databind(mEntity.creator, mEntity.createdDate != null ? mEntity.createdDate.longValue() : null);
+				}
+				UI.setVisibility(userView, View.VISIBLE);
 			}
-			watchersCount.setText(String.valueOf(count.count.intValue()));
 		}
 	}
 
@@ -606,29 +482,37 @@ public class PatchForm extends BaseEntityForm {
 			UI.setVisibility(view.findViewById(R.id.button_holder), View.VISIBLE);
 
 			/* Watch button coloring */
-			ComboButton watched = (ComboButton) view.findViewById(R.id.button_watch);
+			ViewAnimator watched = (ViewAnimator) view.findViewById(R.id.button_watch);
 			if (watched != null) {
 				UI.setVisibility(watched, View.VISIBLE);
 				Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
+				ImageView image = (ImageView) watched.findViewById(R.id.button_image);
 				if (link != null && link.enabled) {
-					final int color = Colors.getColor(R.color.brand_accent);
-					watched.getImageIcon().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+					final int color = Colors.getColor(R.color.brand_primary);
+					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
 				}
 				else {
-					watched.getImageIcon().setColorFilter(null);
+					image.setColorFilter(null);
 				}
+			}
+
+			TextView watchersCount = (TextView) view.findViewById(R.id.watchers_count);
+			if (watchersCount != null) {
+				Count count = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, true, Direction.in);
+				if (count == null) {
+					count = new Count(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, null, 0);
+				}
+				watchersCount.setText(String.valueOf(count.count.intValue()));
 			}
 		}
 
 		Patch place = (Patch) mEntity;
 
 		if (restricted && !mEntity.visibleToCurrentUser()) {
-			UI.setVisibility(findViewById(R.id.button_share), View.INVISIBLE);
 			UI.setVisibility(view.findViewById(R.id.button_watch), View.INVISIBLE);
 		}
 		else {
 			UI.setVisibility(view.findViewById(R.id.button_watch), View.VISIBLE);
-			UI.setVisibility(findViewById(R.id.button_share), View.VISIBLE);
 		}
 
 		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
@@ -744,6 +628,116 @@ public class PatchForm extends BaseEntityForm {
 						}
 					});
 					UI.setVisibility(alertGroup, View.VISIBLE);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void setCurrentFragment(String fragmentType) {
+		/*
+		 * Fragment menu items are in addition to any menu items added by the parent activity.
+		 */
+		if (fragmentType.equals(Constants.FRAGMENT_TYPE_MESSAGES)) {
+
+			mCurrentFragment = new MessageListFragment();
+
+			EntityMonitor monitor = new EntityMonitor(mEntityId);
+			EntitiesQuery query = new EntitiesQuery();
+
+			query.setEntityId(mEntityId)
+			     .setLinkDirection(Direction.in.name())
+			     .setLinkType(Constants.TYPE_LINK_CONTENT)
+			     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
+			     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
+
+			((EntityListFragment) mCurrentFragment)
+					.setMonitor(monitor)
+					.setQuery(query)
+					.setHeaderViewResId(R.layout.widget_list_header_patch)
+					.setFooterViewResId(R.layout.widget_list_footer_message)
+					.setListEmptyMessageResId(R.string.button_list_share)
+					.setListItemResId(R.layout.temp_listitem_message)
+					.setListLayoutResId(R.layout.message_list_patch_fragment)
+					.setListLoadingResId(R.layout.temp_listitem_loading)
+					.setListViewType(EntityListFragment.ViewType.LIST)
+					.setBubbleButtonMessageResId(R.string.button_list_share)
+					.setSelfBindingEnabled(false);
+
+			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_refresh);
+			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_edit_patch);
+			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_delete);
+			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_report);
+		}
+
+		else {
+			return;
+		}
+
+		getFragmentManager()
+				.beginTransaction()
+				.replace(R.id.fragment_holder, mCurrentFragment)
+				.commit();
+
+		mPrevFragmentTag = mCurrentFragmentTag;
+		mCurrentFragmentTag = fragmentType;
+	}
+
+	public void configureActionBar() {
+		super.configureActionBar();
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
+		}
+	}
+
+	@Override
+	public void share() {
+
+		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
+
+		builder.setSubject(String.format(StringManager.getString(R.string.label_patch_share_subject)
+				, (mEntity.name != null) ? mEntity.name : "A"));
+
+		builder.setType("text/plain");
+		builder.setText(String.format(StringManager.getString(R.string.label_patch_share_body), mEntityId));
+		builder.setChooserTitle(String.format(StringManager.getString(R.string.label_patch_share_title)
+				, (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase)));
+
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
+		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
+
+		builder.startChooser();
+	}
+
+	@Override
+	public void afterDatabind(final BindingMode mode, ModelResult result) {
+		super.afterDatabind(mode, result);
+
+		if (mAutoWatch && mEntity != null) {
+			Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
+			if (link == null) {
+			    /* User is not already watching this */
+				if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
+						, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
+					watch(true);
+				}
+			}
+		}
+
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+		    /*
+			 * In case upsizing has changed the id we original bound to.
+			 */
+			if (mCurrentFragment instanceof EntityListFragment) {
+				EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
+				((EntityMonitor) fragment.getMonitor()).setEntityId(mEntityId);
+				((EntitiesQuery) fragment.getQuery()).setEntityId(mEntityId);
+				if (mEntityMonitor.changed) {
+					fragment.bind(BindingMode.MANUAL);
+				}
+				else {
+					fragment.bind(mode);
 				}
 			}
 		}

@@ -536,10 +536,12 @@ public class EntityCache implements Map<String, Entity> {
 	 * Cache reads (local only)
 	 *--------------------------------------------------------------------------------------------*/
 
+	@SuppressWarnings("ConstantConditions")
 	public synchronized List<? extends Entity> getCacheEntities(String schema, String type, Integer radius, Boolean proximity) {
 		List<Entity> entities = new ArrayList<Entity>();
 		final Iterator iter = keySet().iterator();
 		Entity entity;
+
 		while (iter.hasNext()) {
 			entity = get(iter.next());
 			if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {

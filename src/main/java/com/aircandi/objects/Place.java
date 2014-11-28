@@ -138,6 +138,7 @@ public class Place extends Patch implements Cloneable, Serializable {
 		return addressString;
 	}
 
+	@SuppressWarnings("deprecation")
 	public String getFormattedPhone() {
 		return PhoneNumberUtils.formatNumber(phone);
 	}

@@ -14,7 +14,7 @@
 		android:scaleType="centerCrop"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
-		custom:layout="@layout/widget_webimageview_framed"
+		custom:layoutId="@layout/widget_webimageview_framed"
 		custom:showBusy="true"
 		custom:sizeHint="@dimen/image_small" />
 

@@ -2,11 +2,18 @@ package com.aircandi.ui.edit;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +22,7 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
+import com.aircandi.components.FontManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
@@ -36,7 +44,7 @@ import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEntityEdit;
-import com.aircandi.ui.widgets.ComboButton;
+import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
@@ -58,15 +66,21 @@ import java.util.List;
 @SuppressLint("Registered")
 public class PatchEdit extends BaseEntityEdit {
 
-	private   ComboButton mButtonTune;
-	private   ComboButton mButtonUntune;
-	private   TextView    mButtonCategory;
-	private   TextView    mButtonPrivacy;
-	private   TextView    mButtonPlace;
-	protected MapView     mMapView;
-	protected GoogleMap   mMap;
-	protected Marker      mMarker;
-	protected Entity      mPlace;
+	private   Button       mButtonTune;
+	private   Button       mButtonUntune;
+	private   View         mButtonSpacer;
+	private   TextView     mButtonPrivacy;
+	private   TextView     mButtonPlace;
+	protected AirImageView mPhotoViewPlace;
+	protected MapView      mMapView;
+	protected GoogleMap    mMap;
+	protected Marker       mMarker;
+	protected Entity       mPlace;
+
+	private Spinner        mSpinnerCategory;
+	private List<Category> mCategories;
+	private Integer        mSpinnerItemResId;
+	private Category       mOriginalCategory;
 
 	private Boolean mTuned           = false;
 	private Boolean mUntuned         = false;
@@ -90,12 +104,14 @@ public class PatchEdit extends BaseEntityEdit {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mButtonTune = (ComboButton) findViewById(R.id.button_tune);
-		mButtonUntune = (ComboButton) findViewById(R.id.button_untune);
-		mButtonCategory = (TextView) findViewById(R.id.button_category);
+		mButtonTune = (Button) findViewById(R.id.button_tune);
+		mButtonUntune = (Button) findViewById(R.id.button_untune);
 		mButtonPlace = (TextView) findViewById(R.id.button_place);
 		mButtonPrivacy = (TextView) findViewById(R.id.button_privacy);
 		mMapView = (MapView) findViewById(R.id.mapview);
+		mPhotoViewPlace = (AirImageView) findViewById(R.id.place_photo);
+		mButtonSpacer = findViewById(R.id.spacer);
+		mSpinnerCategory = (Spinner) findViewById(R.id.spinner_category);
 
 		if (mMapView != null) {
 			mMapView.onCreate(savedInstanceState);
@@ -106,11 +122,28 @@ public class PatchEdit extends BaseEntityEdit {
 		}
 	}
 
+	@Override
+	public void bind(BindingMode mode) {
+		super.bind(mode);
+
+		if (Patchr.getInstance().getEntityManager().getCategories().size() == 0) {
+			loadCategories();
+		}
+		else {
+			mCategories = Patchr.getInstance().getEntityManager().getCategories();
+			if (mCategories != null) {
+				mOriginalCategory = ((Patch) mEntity).category;
+				initCategorySpinner();
+			}
+		}
+		draw(null);
+	}
+
 	@SuppressLint("ResourceAsColor")
 	@Override
 	public void draw(View view) {
 		/*
-		 * Only called when the activity is being created.
+		 * Only called when the activity is first created.
 		 */
 		Patch patch = (Patch) mEntity;
 
@@ -153,19 +186,16 @@ public class PatchEdit extends BaseEntityEdit {
 			mButtonPrivacy.setText(StringManager.getString(R.string.label_patch_edit_privacy) + ": " + value);
 		}
 
-		if (mButtonCategory != null) {
-			mButtonCategory.setTag(patch.category);
-			mButtonCategory.setText(patch.category != null
-			                        ? StringManager.getString(R.string.label_patch_edit_category) + ": " + patch.category.name
-			                        : StringManager.getString(R.string.label_patch_edit_category) + ": None");
-		}
-
 		if (mButtonPlace != null) {
+			UI.setVisibility(mPhotoViewPlace, View.GONE);
+
 			mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": None");
 			if (!mEditing) {
 				if (mPlace != null) {
 					mButtonPlace.setTag(mPlace);
 					mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": " + mPlace.name);
+					UI.drawPhoto(mPhotoViewPlace, mPlace.getPhoto());
+					UI.setVisibility(mPhotoViewPlace, View.VISIBLE);
 				}
 			}
 			else {
@@ -174,6 +204,8 @@ public class PatchEdit extends BaseEntityEdit {
 					Entity place = linkPlace.shortcut.getAsEntity();
 					mButtonPlace.setTag(place);
 					mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": " + place.name);
+					UI.drawPhoto(mPhotoViewPlace, place.getPhoto());
+					UI.setVisibility(mPhotoViewPlace, View.VISIBLE);
 				}
 			}
 		}
@@ -182,15 +214,14 @@ public class PatchEdit extends BaseEntityEdit {
 		UI.setVisibility(findViewById(R.id.group_tune), View.GONE);
 		if (mEditing) {
 			UI.setVisibility(findViewById(R.id.group_tune), View.VISIBLE);
+			UI.setVisibility(mButtonSpacer, View.GONE);
 			final Boolean hasActiveProximityLink = patch.hasActiveProximity();
 			if (hasActiveProximityLink) {
 				mFirstTune = false;
-				mButtonUntune.setVisibility(View.VISIBLE);
+				UI.setVisibility(mButtonUntune, View.VISIBLE);
+				UI.setVisibility(mButtonSpacer, View.VISIBLE);
 			}
 		}
-
-		/* Help message */
-		UI.setVisibility(findViewById(R.id.to), mEditing ? View.GONE : View.VISIBLE);
 
 		super.draw(view);
 	}
@@ -248,11 +279,11 @@ public class PatchEdit extends BaseEntityEdit {
 						 */
 						mBusy.hideBusy(false);
 						if (mUntuning) {
-							mButtonUntune.setLabel(R.string.button_tuning_tuned);
+							mButtonUntune.setText(R.string.button_tuning_tuned);
 							mUntuned = true;
 						}
 						else {
-							mButtonTune.setLabel(R.string.button_tuning_tuned);
+							mButtonTune.setText(R.string.button_tuning_tuned);
 							mTuned = true;
 						}
 						mButtonTune.forceLayout();
@@ -288,58 +319,40 @@ public class PatchEdit extends BaseEntityEdit {
 	}
 
 	@SuppressWarnings("ucd")
-	public void onCategoryBuilderClick(View view) {
-		Patchr.dispatch.route(this, Route.CATEGORY_EDIT, mEntity, null, null);
-	}
-
-	@SuppressWarnings("ucd")
 	public void onPlacePickerClick(View view) {
 		Bundle extras = new Bundle();
 		extras.putInt(Constants.EXTRA_SEARCH_SCOPE, EntityManager.SuggestScope.PLACES.ordinal());
 		extras.putBoolean(Constants.EXTRA_SEARCH_RETURN_ENTITY, true);
+		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.BUILDER_TO);
+
 		if (mButtonPlace.getTag() != null) {
 			Entity entity = (Entity) mButtonPlace.getTag();
 			extras.putBoolean(Constants.EXTRA_SEARCH_CLEAR_BUTTON, true);
 			extras.putString(Constants.EXTRA_SEARCH_CLEAR_BUTTON_MESSAGE, StringManager.getString(R.string.button_clear_place));
 			extras.putString(Constants.EXTRA_SEARCH_PHRASE, entity.name);
 		}
-		Patchr.dispatch.route(this, Route.SEARCH, mEntity, null, extras);
+		Patchr.dispatch.route(this, Route.SEARCH, mEntity, extras);
 	}
 
 	public void onPrivacyBuilderClick(View view) {
-		Patchr.dispatch.route(this, Route.PRIVACY_EDIT, mEntity, null, null);
+		Patchr.dispatch.route(this, Route.PRIVACY_EDIT, mEntity, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onLocationBuilderClick(View view) {
-		Patchr.dispatch.route(this, Route.LOCATION_EDIT, mEntity, null, null);
+		Patchr.dispatch.route(this, Route.LOCATION_EDIT, mEntity, null);
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
 		if (resultCode != Activity.RESULT_CANCELED) {
-			if (requestCode == Constants.ACTIVITY_CATEGORY_EDIT) {
-				if (intent != null && intent.getExtras() != null) {
-					final Bundle extras = intent.getExtras();
-					final String jsonCategory = extras.getString(Constants.EXTRA_CATEGORY);
-					if (jsonCategory != null) {
-						final Category categoryUpdated = (Category) Json.jsonToObject(jsonCategory, Json.ObjectType.CATEGORY);
-						if (categoryUpdated != null) {
-							mDirty = true;
-							((Patch) mEntity).category = categoryUpdated;
-							mButtonCategory.setTag(categoryUpdated);
-							mButtonCategory.setText("Category: " + categoryUpdated.name);
-							drawPhoto();
-						}
-					}
-				}
-			}
-			else if (requestCode == Constants.ACTIVITY_SEARCH) {
+			if (requestCode == Constants.ACTIVITY_SEARCH) {
 				if (intent == null || intent.getExtras() == null) {
 					mDirty = true;
 					mButtonPlace.setTag(null);
 					mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": None");
+					UI.setVisibility(mPhotoViewPlace, View.GONE);
 				}
 				else {
 					final Bundle extras = intent.getExtras();
@@ -349,6 +362,9 @@ public class PatchEdit extends BaseEntityEdit {
 						mDirty = true;
 						mButtonPlace.setTag(place);
 						mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": " + place.name);
+						UI.drawPhoto(mPhotoViewPlace, place.getPhoto());
+						UI.setVisibility(mPhotoViewPlace, View.VISIBLE);
+
 						((Patch) mEntity).location = place.location;
 						mMarker.setPosition(new LatLng(place.location.lat.doubleValue(), place.location.lng.doubleValue()));
 						mProximityDisabled = true;
@@ -401,6 +417,13 @@ public class PatchEdit extends BaseEntityEdit {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	public void configureActionBar() {
+		super.configureActionBar();
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setTitle(mEditing ? R.string.form_title_patch_edit : R.string.form_title_patch_new);
+		}
+	}
+
 	public void accept() {
 
 		if (placeDirty()) {
@@ -442,10 +465,12 @@ public class PatchEdit extends BaseEntityEdit {
 									, Constants.SCHEMA_ENTITY_PLACE
 									, "delete_link_proximity");
 						}
-
-						/* Add link */
+						/*
+						 * If editing then add link here otherwise it will be added when
+						 * the entity is inserted
+						 */
 						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS
-								&& place != null) {
+								&& mEditing && place != null) {
 							result = Patchr.getInstance().getEntityManager().insertLink(null
 									, mEntity.id
 									, place.id
@@ -506,7 +531,7 @@ public class PatchEdit extends BaseEntityEdit {
 		if (mInsertedResId != null && mInsertedResId != 0) {
 			UI.showToastNotification(StringManager.getString(mInsertedResId), Toast.LENGTH_SHORT);
 		}
-		Patchr.dispatch.route(this, Route.BROWSE, mEntity, null, null);
+		Patchr.dispatch.route(this, Route.BROWSE, mEntity, null);
 		return true;
 	}
 
@@ -522,6 +547,82 @@ public class PatchEdit extends BaseEntityEdit {
 			return false;
 		}
 		return true;
+	}
+
+	private void loadCategories() {
+		new AsyncTask() {
+
+			@Override
+			protected void onPreExecute() {
+				mBusy.showBusy(BusyAction.Loading);
+			}
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncLoadCategories");
+				final ModelResult result = Patchr.getInstance().getEntityManager().loadCategories();
+				return result;
+			}
+
+			@Override
+			protected void onPostExecute(Object response) {
+				final ModelResult result = (ModelResult) response;
+				mBusy.hideBusy(false);
+				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+					mCategories = Patchr.getInstance().getEntityManager().getCategories();
+					if (mCategories != null) {
+						initCategorySpinner();
+					}
+				}
+			}
+		}.execute();
+	}
+
+	private void initCategorySpinner() {
+
+		final Patch entity = (Patch) mEntity;
+		final List<String> categories = Patchr.getInstance().getEntityManager().getCategoriesAsStringArray(mCategories);
+		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(PatchEdit.this
+				, R.layout.spinner_item
+				, categories);
+
+		adapter.setDropDownViewResource(R.layout.temp_listitem_dropdown_spinner);
+
+		mSpinnerCategory.setVisibility(View.VISIBLE);
+		mSpinnerCategory.setClickable(true);
+		mSpinnerCategory.setAdapter(adapter);
+
+		if (entity.category != null) {
+			int index = 0;
+			for (Category category : mCategories) {
+				if (category.id.equals(entity.category.id)) {
+					mSpinnerCategory.setSelection(index);
+					break;
+				}
+				index++;
+			}
+		}
+
+		mSpinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				if (position < mCategories.size()) {
+					if (entity.category == null || !entity.category.id.equals(mCategories.get(position).id)) {
+						mDirty = true;
+						entity.category = mCategories.get(position);
+					}
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {}
+		});
+
+		/* Encourages the user to select a patch type when they are creating a new patch. */
+		if (!mEditing && mEntity != null) {
+			mSpinnerCategory.performClick();
+		}
 	}
 
 	private void tuneProximity() {
@@ -561,13 +662,13 @@ public class PatchEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPostExecute(Object response) {
-				setProgressBarIndeterminateVisibility(false);
+				setSupportProgressBarIndeterminateVisibility(false);
 				mBusy.hideBusy(false);
 
 				if (mTuned || mUntuned) {
 				    /* Undoing a tuning */
-					mButtonTune.setLabel(R.string.button_tuning_tune);
-					mButtonUntune.setLabel(R.string.button_tuning_untune);
+					mButtonTune.setText(R.string.button_tuning_tune);
+					mButtonUntune.setText(R.string.button_tuning_untune);
 					mUntuned = false;
 					mTuned = false;
 					if (!mFirstTune) {
@@ -580,13 +681,13 @@ public class PatchEdit extends BaseEntityEdit {
 				else {
 					/* Tuning or untuning */
 					if (mUntuning) {
-						mButtonUntune.setLabel(R.string.button_tuning_tuned);
-						mButtonTune.setLabel(R.string.button_tuning_undo);
+						mButtonUntune.setText(R.string.button_tuning_tuned);
+						mButtonTune.setText(R.string.button_tuning_undo);
 						mUntuned = true;
 					}
 					else {
-						mButtonTune.setLabel(R.string.button_tuning_tuned);
-						mButtonUntune.setLabel(R.string.button_tuning_undo);
+						mButtonTune.setText(R.string.button_tuning_tuned);
+						mButtonUntune.setText(R.string.button_tuning_undo);
 						mTuned = true;
 						if (mButtonUntune.getVisibility() != View.VISIBLE) {
 							mButtonUntune.setVisibility(View.VISIBLE);
@@ -703,6 +804,11 @@ public class PatchEdit extends BaseEntityEdit {
 		MapsInitializer.initialize(this);
 	}
 
+	@Override
+	protected int getLayoutId() {
+		return (mLayoutResId != null && mLayoutResId != 0) ? mLayoutResId : R.layout.patch_edit;
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
@@ -735,8 +841,34 @@ public class PatchEdit extends BaseEntityEdit {
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	protected int getLayoutId() {
-		return (mLayoutResId != null && mLayoutResId != 0) ? mLayoutResId : R.layout.patch_edit;
+	private class CategoryAdapter extends ArrayAdapter {
+
+		private final List<String> mCategories;
+
+		private CategoryAdapter(Context context, int textViewResourceId, List categories) {
+			super(context, textViewResourceId, categories);
+			mCategories = categories;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+
+			final View view = super.getView(position, convertView, parent);
+			final TextView text = (TextView) view.findViewById(R.id.text1);
+			FontManager.getInstance().setTypefaceLight(text);
+			text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+
+			if (position == getCount()) {
+				text.setText("");
+				text.setHint(mCategories.get(getCount())); //"Hint to be displayed"
+			}
+
+			return view;
+		}
+
+		@Override
+		public int getCount() {
+			return super.getCount() - 1; // you dont display last item. It is used as hint.
+		}
 	}
 }

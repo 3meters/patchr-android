@@ -65,9 +65,10 @@ public class CandiView extends RelativeLayout {
 	protected TextView     mCount;
 	protected TextView     mMessageCount;
 	protected TextView     mWatchCount;
+	protected TextView     mAddress;
 	protected View         mCandiViewGroup;
 	protected View         mPrivacyGroup;
-	protected LinearLayout mHolderShortcuts;
+	protected LinearLayout mHolderPreviews;
 	protected LinearLayout mHolderInfo;
 	protected CacheStamp   mCacheStamp;
 	private   float        mAspectRatio;
@@ -121,12 +122,13 @@ public class CandiView extends RelativeLayout {
 		mCategoryName = (TextView) mLayout.findViewById(R.id.category_name);
 		mCategoryPhoto = (AirImageView) mLayout.findViewById(R.id.category_photo);
 		mPlaceName = (TextView) mLayout.findViewById(R.id.place_name);
-		mHolderShortcuts = (LinearLayout) mLayout.findViewById(R.id.shortcuts);
+		mHolderPreviews = (LinearLayout) mLayout.findViewById(R.id.previews);
 		mHolderInfo = (LinearLayout) mLayout.findViewById(R.id.info_holder);
 		mCount = (TextView) mLayout.findViewById(R.id.count);
 		mMessageCount = (TextView) mLayout.findViewById(R.id.message_count);
 		mWatchCount = (TextView) mLayout.findViewById(R.id.watch_count);
 		mPrivacyGroup = (View) mLayout.findViewById(R.id.privacy_group);
+		mAddress = (TextView) mLayout.findViewById(R.id.candi_form_address);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -323,6 +325,25 @@ public class CandiView extends RelativeLayout {
 
 				showDistance(entity);
 			}
+
+			if (entity instanceof Place) {
+				Place place = (Place) entity;
+				/* Address */
+
+				setVisibility(mAddress, View.GONE);
+				if (mAddress != null) {
+					String addressBlock = place.getAddressBlock();
+
+					if (place.phone != null) {
+						addressBlock += "<br/>" + place.getFormattedPhone();
+					}
+
+					if (!"".equals(addressBlock)) {
+						mAddress.setText(Html.fromHtml(addressBlock));
+						UI.setVisibility(mAddress, View.VISIBLE);
+					}
+				}
+			}
 		}
 	}
 
@@ -346,10 +367,10 @@ public class CandiView extends RelativeLayout {
 	public void showIndicators(Entity entity, IndicatorOptions options) {
 
 		/* Indicators */
-		setVisibility(mHolderShortcuts, View.GONE);
+		setVisibility(mHolderPreviews, View.GONE);
 		setVisibility(mCount, View.GONE);
 
-		if (mHolderShortcuts != null) {
+		if (mHolderPreviews != null) {
 
 			ShortcutSettings settings = new ShortcutSettings(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, Direction.in, false, false);
 			List<Shortcut> shortcuts = (List<Shortcut>) entity.getShortcuts(settings, null, new Shortcut.SortByPositionSortDate());
@@ -375,7 +396,7 @@ public class CandiView extends RelativeLayout {
 			}
 
 			if (dirty) {
-				mHolderShortcuts.removeAllViews();
+				mHolderPreviews.removeAllViews();
 
 				final LayoutInflater inflater = LayoutInflater.from(this.getContext());
 
@@ -385,7 +406,7 @@ public class CandiView extends RelativeLayout {
 				for (Shortcut shortcut : shortcuts) {
 					if (!shortcutMap.containsKey(shortcut.id)) {
 						if (shortcutCount < Integers.getInteger(R.integer.limit_indicators_radar)) {
-							View view = inflater.inflate(R.layout.temp_indicator_message, mHolderShortcuts, false);
+							View view = inflater.inflate(R.layout.temp_indicator_message, mHolderPreviews, false);
 							TextView message = (TextView) view.findViewById(R.id.indicator_message);
 							if (!TextUtils.isEmpty(shortcut.description)) {
 								message.setText(shortcut.description);
@@ -393,7 +414,7 @@ public class CandiView extends RelativeLayout {
 							else if (shortcut.photo != null) {
 								message.setText("+photo");
 							}
-							mHolderShortcuts.addView(view);
+							mHolderPreviews.addView(view);
 						}
 						shortcutMap.put(shortcut.id, true);
 						shortcutCount++;
@@ -403,7 +424,7 @@ public class CandiView extends RelativeLayout {
 			}
 
 			if (mShortcuts.size() > 0) {
-				setVisibility(mHolderShortcuts, View.VISIBLE);
+				setVisibility(mHolderPreviews, View.VISIBLE);
 			}
 		}
 
@@ -449,7 +470,7 @@ public class CandiView extends RelativeLayout {
 			photoView.setVisibility(View.GONE);
 		}
 
-		mHolderShortcuts.addView(view);
+		mHolderPreviews.addView(view);
 	}
 
 	public void updateIndicator(Integer id, String value) {

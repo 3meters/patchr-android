@@ -3,7 +3,6 @@ package com.aircandi.utilities;
 import com.aircandi.Patchr;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.AirLocation;
-import com.aircandi.objects.AirMarker;
 import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Category;
 import com.aircandi.objects.Count;
@@ -179,9 +178,6 @@ public class Json {
 					if (controller != null) {
 						list.add(controller.makeFromMap(map, nameMapping));
 					}
-				}
-				else if (objectType == Json.ObjectType.AIR_MARKER) {
-					list.add(AirMarker.setPropertiesFromMap(new AirMarker(), map, nameMapping));
 				}
 				else if (objectType == Json.ObjectType.SESSION) {
 					list.add(Session.setPropertiesFromMap(new Session(), map, nameMapping));

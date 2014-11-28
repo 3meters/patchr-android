@@ -28,7 +28,6 @@ public class Route {
 	public static int SETTINGS_LOCATION  = 25;
 	public static int SETTINGS_WIFI      = 26;
 	public static int ADDRESS_EDIT       = 27;
-	public static int CATEGORY_EDIT      = 28;
 	public static int PASSWORD_CHANGE    = 29;
 	public static int PASSWORD_RESET     = 30;
 	public static int SPLASH             = 31;
@@ -49,8 +48,9 @@ public class Route {
 	public static int REMOVE             = 50;
 	public static int WATCHERS           = 51;
 	public static int NAVIGATE           = 52;
-	public static int PLACE_LIST         = 53;
+	public static int PATCH_LIST         = 53;
 	public static int MAP                = 54;
 	public static int LOCATION_EDIT      = 55;
 	public static int PRIVACY_EDIT       = 56;
+	public static int SEARCH             = 57;
 }

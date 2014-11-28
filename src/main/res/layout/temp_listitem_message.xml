@@ -153,7 +153,7 @@
 			custom:config="rgb_565"
 			custom:dominantMeasurement="width"
 			custom:fitType="auto"
-			custom:layout="@layout/widget_webimageview" />
+			custom:layoutId="@layout/widget_webimageview" />
 
 		<!-- Share entity -->
 
@@ -166,7 +166,7 @@
 			android:layout_marginTop="12dp">
 
 			<FrameLayout
-				android:id="@+id/share"
+				android:id="@+id/share_entity"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:background="?attr/backgroundButtonShare"
@@ -176,13 +176,13 @@
 			<View
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/rule_highlight_height"
-				android:layout_alignTop="@id/share"
+				android:layout_alignTop="@id/share_entity"
 				android:background="?attr/cardHighlightColor" />
 
 			<View
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/rule_shadow_height"
-				android:layout_alignBottom="@id/share"
+				android:layout_alignBottom="@id/share_entity"
 				android:background="?attr/cardShadowColor" />
 
 		</RelativeLayout>

@@ -1,14 +1,13 @@
 // $codepro.audit.disable fileComment
 package com.aircandi;
 
-import android.graphics.Bitmap.Config;
 import android.os.Build;
 import android.util.Log;
 
 @SuppressWarnings("ucd")
 public class Constants {
 
-	public static final int LOG_LEVEL   = Patchr.DEBUG ? Log.VERBOSE : Log.DEBUG;
+	public static final int LOG_LEVEL   = Patchr.debug ? Log.VERBOSE : Log.DEBUG;
 	public static final int ERROR_LEVEL = Log.VERBOSE;
 
 	/* Activity parameters */
@@ -32,57 +31,50 @@ public class Constants {
 	public static final String EXTRA_MESSAGE_REPLY_TO_ID   = "com.aircandi.EXTRA_MESSAGE_REPLY_TO_ID";
 	public static final String EXTRA_MESSAGE_REPLY_TO_NAME = "com.aircandi.EXTRA_MESSAGE_REPLY_TO_NAME";
 
-	public static final String EXTRA_LAYOUT_RESID              = "com.aircandi.EXTRA_LAYOUT_RESID";
-	public static final String EXTRA_MESSAGE                   = "com.aircandi.EXTRA_MESSAGE";
-	public static final String EXTRA_CATEGORY                  = "com.aircandi.EXTRA_CATEGORY";
-	public static final String EXTRA_LOCATION                  = "com.aircandi.EXTRA_LOCATION";
-	public static final String EXTRA_PRIVACY                   = "com.aircandi.EXTRA_PRIVACY";
-	public static final String EXTRA_VERIFY_URI                = "com.aircandi.EXTRA_VERIFY_URI";
-	public static final String EXTRA_SEARCH_PHRASE             = "com.aircandi.EXTRA_SEARCH_PHRASE";
-	public static final String EXTRA_PHOTO_SOURCE              = "com.aircandi.EXTRA_PHOTO_SOURCE";
-	public static final String EXTRA_PAGING_ENABLED            = "com.aircandi.EXTRA_PAGING_ENABLED";
-	public static final String EXTRA_PHOTO                     = "com.aircandi.EXTRA_PHOTO";
-	public static final String EXTRA_REFRESH_FROM_SERVICE      = "com.aircandi.EXTRA_REFRESH_FORCE";
-	public static final String EXTRA_HELP_ID                   = "com.aircandi.EXTRA_HELP_ID";
-	public static final String EXTRA_SHORTCUTS                 = "com.aircandi.EXTRA_SHORTCUTS";
-	public static final String EXTRA_MARKERS                   = "com.aircandi.EXTRA_MARKERS";
-	public static final String EXTRA_SKIP_SAVE                 = "com.aircandi.EXTRA_EDIT_ONLY";
-	public static final String EXTRA_TAB_POSITION              = "com.aircandi.EXTRA_TAB_POSITION";
-	public static final String EXTRA_SHORTCUT_TYPE             = "com.aircandi.EXTRA_SHORTCUT_TYPE";
-	public static final String EXTRA_TITLE                     = "com.aircandi.EXTRA_TITLE";
-	public static final String EXTRA_FRAGMENT_TYPE             = "com.aircandi.EXTRA_FRAGMENT_TYPE";
-	public static final String EXTRA_NOTIFICATIONS_CLEAR_COUNT = "com.aircandi.EXTRA_NOTIFICATIONS_CLEAR_COUNT";
-	public static final String EXTRA_TO_MODE                   = "com.aircandi.EXTRA_TO_MODE";
-	public static final String EXTRA_TO_EDITABLE               = "com.aircandi.EXTRA_TO_EDITABLE";
-	public static final String EXTRA_SUGGEST_SCOPE             = "com.aircandi.EXTRA_SUGGEST_SCOPE";
-	public static final String EXTRA_SHARE_SOURCE              = "com.aircandi.EXTRA_SHARE_SOURCE";
-	public static final String EXTRA_SHARE_ID                  = "com.aircandi.EXTRA_SHARE_ID";
-	public static final String EXTRA_SHARE_SCHEMA              = "com.aircandi.EXTRA_SHARE_SCHEMA";
-	public static final String EXTRA_SHARE_PATCH               = "com.aircandi.EXTRA_SHARE_PATCH";
-	public static final String EXTRA_AUTO_WATCH                = "com.aircandi.EXTRA_AUTO_WATCH";
+	public static final String EXTRA_LAYOUT_RESID                = "com.aircandi.EXTRA_LAYOUT_RESID";
+	public static final String EXTRA_MESSAGE                     = "com.aircandi.EXTRA_MESSAGE";
+	public static final String EXTRA_CATEGORY                    = "com.aircandi.EXTRA_CATEGORY";
+	public static final String EXTRA_LOCATION                    = "com.aircandi.EXTRA_LOCATION";
+	public static final String EXTRA_PRIVACY                     = "com.aircandi.EXTRA_PRIVACY";
+	public static final String EXTRA_SEARCH_PHRASE               = "com.aircandi.EXTRA_SEARCH_PHRASE";
+	public static final String EXTRA_SEARCH_SCOPE                = "com.aircandi.EXTRA_SEARCH_SCOPE";
+	public static final String EXTRA_SEARCH_RETURN_ENTITY        = "com.aircandi.EXTRA_SEARCH_RETURN_ENTITY";
+	public static final String EXTRA_SEARCH_CLEAR_BUTTON         = "com.aircandi.EXTRA_SEARCH_CLEAR_BUTTON";
+	public static final String EXTRA_SEARCH_CLEAR_BUTTON_MESSAGE = "com.aircandi.EXTRA_SEARCH_CLEAR_BUTTON_MESSAGE";
+	public static final String EXTRA_PHOTO_SOURCE                = "com.aircandi.EXTRA_PHOTO_SOURCE";
+	public static final String EXTRA_PHOTO                       = "com.aircandi.EXTRA_PHOTO";
+	public static final String EXTRA_REFRESH_FROM_SERVICE        = "com.aircandi.EXTRA_REFRESH_FORCE";
+	public static final String EXTRA_TITLE                       = "com.aircandi.EXTRA_TITLE";
+	public static final String EXTRA_FRAGMENT_TYPE               = "com.aircandi.EXTRA_FRAGMENT_TYPE";
+	public static final String EXTRA_TO_MODE                     = "com.aircandi.EXTRA_TO_MODE";
+	public static final String EXTRA_TO_EDITABLE                 = "com.aircandi.EXTRA_TO_EDITABLE";
+	public static final String EXTRA_SHARE_SOURCE                = "com.aircandi.EXTRA_SHARE_SOURCE";
+	public static final String EXTRA_SHARE_ID                    = "com.aircandi.EXTRA_SHARE_ID";
+	public static final String EXTRA_SHARE_SCHEMA                = "com.aircandi.EXTRA_SHARE_SCHEMA";
+	public static final String EXTRA_SHARE_PATCH                 = "com.aircandi.EXTRA_SHARE_PATCH";
+	public static final String EXTRA_AUTO_WATCH                  = "com.aircandi.EXTRA_AUTO_WATCH";
+	public static final String EXTRA_TRANSITION_TYPE             = "com.aircandi.EXTRA_TRANSITION_TYPE";
 
 	/* Activity parameters: lists */
-	public static final String EXTRA_LIST_LINK_TYPE            = "com.aircandi.EXTRA_LIST_LINK_TYPE";
-	public static final String EXTRA_LIST_LINK_SCHEMA          = "com.aircandi.EXTRA_LIST_SCHEMA";
-	public static final String EXTRA_LIST_LINK_DIRECTION       = "com.aircandi.EXTRA_LIST_DIRECTION";
-	public static final String EXTRA_LIST_NEW_ENABLED          = "com.aircandi.EXTRA_LIST_NEW_ENABLED";
-	public static final String EXTRA_LIST_TITLE                = "com.aircandi.EXTRA_LIST_TITLE";
-	public static final String EXTRA_LIST_TITLE_RESID          = "com.aircandi.EXTRA_LIST_TITLE_RESID";
-	public static final String EXTRA_LIST_EMPTY_RESID          = "com.aircandi.EXTRA_LIST_EMPTY_RESID";
-	public static final String EXTRA_LIST_PAGE_SIZE            = "com.aircandi.EXTRA_LIST_PAGE_SIZE";
-	public static final String EXTRA_LIST_VIEW_TYPE            = "com.aircandi.EXTRA_LIST_VIEW_TYPE";
-	public static final String EXTRA_LIST_ITEM_RESID           = "com.aircandi.EXTRA_LIST_ITEM_RESID";
-	public static final String EXTRA_LIST_LOADING_RESID        = "com.aircandi.EXTRA_LIST_LOADING_RESID";
-	public static final String EXTRA_LIST_NEW_MESSAGE_RESID    = "com.aircandi.EXTRA_LIST_NEW_MESSAGE_RESID";
-	public static final String EXTRA_LIST_PAGING_ENABLED       = "com.aircandi.EXTRA_LIST_PAGING_ENABLED";
-	public static final String EXTRA_LIST_ENTITY_CACHE_ENABLED = "com.aircandi.EXTRA_LIST_ENTITY_CACHE_ENABLED";
-	public static final String EXTRA_LIST_PARALLAX_HEADER      = "com.aircandi.EXTRA_LIST_PARALLAX_HEADER";
+	public static final String EXTRA_LIST_LINK_TYPE         = "com.aircandi.EXTRA_LIST_LINK_TYPE";
+	public static final String EXTRA_LIST_LINK_SCHEMA       = "com.aircandi.EXTRA_LIST_SCHEMA";
+	public static final String EXTRA_LIST_LINK_DIRECTION    = "com.aircandi.EXTRA_LIST_DIRECTION";
+	public static final String EXTRA_LIST_NEW_ENABLED       = "com.aircandi.EXTRA_LIST_NEW_ENABLED";
+	public static final String EXTRA_LIST_TITLE             = "com.aircandi.EXTRA_LIST_TITLE";
+	public static final String EXTRA_LIST_TITLE_RESID       = "com.aircandi.EXTRA_LIST_TITLE_RESID";
+	public static final String EXTRA_LIST_EMPTY_RESID       = "com.aircandi.EXTRA_LIST_EMPTY_RESID";
+	public static final String EXTRA_LIST_PAGE_SIZE         = "com.aircandi.EXTRA_LIST_PAGE_SIZE";
+	public static final String EXTRA_LIST_VIEW_TYPE         = "com.aircandi.EXTRA_LIST_VIEW_TYPE";
+	public static final String EXTRA_LIST_ITEM_RESID        = "com.aircandi.EXTRA_LIST_ITEM_RESID";
+	public static final String EXTRA_LIST_LOADING_RESID     = "com.aircandi.EXTRA_LIST_LOADING_RESID";
+	public static final String EXTRA_LIST_NEW_MESSAGE_RESID = "com.aircandi.EXTRA_LIST_NEW_MESSAGE_RESID";
 
 	/* Interval helpers */
 	public static final int MILLS_PER_SECOND     = 1000;
 	public static final int TIME_ONE_SECOND      = MILLS_PER_SECOND;
 	public static final int TIME_FIVE_SECONDS    = MILLS_PER_SECOND * 5;
 	public static final int TIME_TEN_SECONDS     = MILLS_PER_SECOND * 10;
+	public static final int TIME_FIFTEEN_SECONDS = MILLS_PER_SECOND * 15;
 	public static final int TIME_TWENTY_SECONDS  = MILLS_PER_SECOND * 20;
 	public static final int TIME_THIRTY_SECONDS  = MILLS_PER_SECOND * 30;
 	public static final int TIME_ONE_MINUTE      = MILLS_PER_SECOND * 60;
@@ -113,56 +105,30 @@ public class Constants {
 	public static final int SIZE_MEGABYTES = SIZE_KILOBYTES * SIZE_KILOBYTES;
 
 	/* Wifi scanning */
-	public static final int INTERVAL_SCAN_WIFI           = TIME_ONE_MINUTE;
-	public static final int INTERVAL_CATEGORIES_DOWNLOAD = TIME_ONE_SECOND;
-	public static final int INTERVAL_UPDATE_CHECK        = TIME_SIXTY_MINUTES;
-	public static final int INTERVAL_REFRESH             = TIME_TEN_MINUTES;
-	public static final int INTERVAL_TETHER_ALERT        = TIME_SIXTY_MINUTES * 12;
-	public static final int DISTANCE_REFRESH             = DIST_TWO_HUNDRED_METERS;
+	public static final int INTERVAL_REFRESH      = TIME_TEN_MINUTES;
+	public static final int INTERVAL_TETHER_ALERT = TIME_SIXTY_MINUTES * 12;
+	public static final int DISTANCE_REFRESH      = DIST_TWO_HUNDRED_METERS;
 
 	/* Ui */
-	public static final int   MAX_Y_OVERSCROLL_DISTANCE      = 0;
-	public static final float DIALOGS_DIM_AMOUNT             = 0.5f;
-	public static final float POPUP_DIM_AMOUNT               = 0.0f;
-	public static final int   INTERVAL_BUSY_MINIMUM          = 1000;
-	public static final int   INTERVAL_BUSY_DELAY            = 0;
-	public static final int   INTERVAL_PROGRESS_CANCEL_DELAY = 5000;
+	public static final int   MAX_Y_OVERSCROLL_DISTANCE = 0;
+	public static final float DIALOGS_DIM_AMOUNT        = 0.5f;
+	public static final int   INTERVAL_BUSY_MINIMUM     = 1000;
+	public static final int   INTERVAL_BUSY_DELAY       = 0;
 
-	public static final int TABS_PRIMARY_ID     = 1;
-	public static final int TABS_USER_FORM_ID   = 2;
-	public static final int TABS_USER_EDIT_ID   = 3;
-	public static final int TABS_ENTITY_FORM_ID = 4;
-
-	public static final long TOOLTIPS_PATCH_LIST_ID   = 100;
-	public static final long TOOLTIPS_PLACE_EDIT_ID   = 101;
-	public static final long TOOLTIPS_PLACE_BROWSE_ID = 102;
-
-	public static final int    RADAR_BEACON_SIGNAL_BUCKET_SIZE = 1;
+	public static final int RADAR_BEACON_SIGNAL_BUCKET_SIZE = 1;
 	/*
 	 * Using quality = 70 for jpeg compression reduces image file size by 85% with
 	 * an acceptable degradation of image quality. A 1280x960 image went from
 	 * 1007K to 152K.
 	 */
-	public static final int    IMAGE_QUALITY_S3                = 70;                                                                                        // $codepro.audit.disable constantNamingConvention
-	/*
-	 * Will handle a typical 5 megapixel 2560x1920 image that has been sampled by two to 1280x960
-	 * Sampling by 4 produces 640x480. Assumes four channel ARGB including alpha.
-	 */
-	public static final int    IMAGE_MEMORY_BYTES_MAX          = 4915200;                                                                                    // 4 megapixels
-	/*
-	 * We can choke processing super large images before we ever get a chance to downsample plus they
-	 * take forever and eat the users data allowance.
-	 */
-	public static final int    IMAGE_DOWNLOAD_BYTES_MAX        = 4915200;                                                                                    // 4 megapixels
-	public static final int    IMAGE_DOWNLOAD_BYTES_MIN        = 128;                                                                                        // 4 megapixels
-	public static final Config IMAGE_CONFIG_DEFAULT            = Config.ARGB_8888;
+	public static final int IMAGE_QUALITY_S3                = 70;
 	/*
 	 * Consistent with 5 megapixel sampled by two.
 	 */
-	public static final int    IMAGE_DIMENSION_MAX             = 1280;
-	public static final int    IMAGE_DIMENSION_REDUCED         = 640;
-	public static final int    BING_IMAGE_BYTES_MAX            = 500000;
-	public static final int    BING_IMAGE_DIMENSION_MAX        = 1280;
+	public static final int IMAGE_DIMENSION_MAX             = 1280;
+	public static final int IMAGE_DIMENSION_REDUCED         = 640;
+	public static final int BING_IMAGE_BYTES_MAX            = 500000;
+	public static final int BING_IMAGE_DIMENSION_MAX        = 1280;
 
 	public static final String SCHEMA_ANY                 = "any";
 	public static final String SCHEMA_ENTITY_BEACON       = "beacon";
@@ -175,10 +141,7 @@ public class Constants {
 	public static final String SCHEMA_LINK                = "link";
 	public static final String SCHEMA_INTENT              = "intent";
 
-	public static final String ACTION_VIEW      = "view";
-	public static final String ACTION_VIEW_FOR  = "view_for";
-	public static final String ACTION_VIEW_AUTO = "view_auto";
-	public static final String ACTION_INSERT    = "insert";
+	public static final String ACTION_VIEW = "view";
 
 	public static final String TYPE_ANY             = "any";
 	public static final String TYPE_APP_FACEBOOK    = "facebook";
@@ -198,15 +161,9 @@ public class Constants {
 	public static final String TYPE_APP_GOOGLEPLACE = "googleplace";
 	public static final String TYPE_APP_GOOGLEPLUS  = "googleplus";
 	public static final String TYPE_APP_INSTAGRAM   = "instagram";
-
-	/* Local app */
-	public static final String TYPE_APP_MAP    = "map";
-	public static final String TYPE_APP_INTENT = "intent";
+	public static final String TYPE_APP_MAP         = "map";
 
 	/* Entity types */
-	public static final String TYPE_APP_PATCH   = "patch";
-	public static final String TYPE_APP_USER    = "user";
-	public static final String TYPE_APP_MESSAGE = "message";
 
 	public static final String TYPE_LINK_PROXIMITY = "proximity";
 	public static final String TYPE_LINK_WATCH     = "watch";
@@ -252,7 +209,7 @@ public class Constants {
 	public static final int ACTIVITY_PHOTO_PICK_DEVICE   = 300;
 	public static final int ACTIVITY_PHOTO_SEARCH        = 305;
 	public static final int ACTIVITY_PHOTO_MAKE          = 310;
-	public static final int ACTIVITY_PLACE_SEARCH        = 320;
+	public static final int ACTIVITY_SEARCH              = 325;
 	public static final int ACTIVITY_SIGNIN              = 400;
 	public static final int ACTIVITY_RESET_AND_SIGNIN    = 410;
 	public static final int ACTIVITY_COMMENT             = 430;
@@ -297,31 +254,10 @@ public class Constants {
 	public static final boolean SUPPORTS_JELLY_BEAN         = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN;
 	public static final boolean SUPPORTS_JELLY_BEAN_MR1     = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
 	public static final boolean SUPPORTS_KIT_KAT            = android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+	public static final boolean SUPPORTS_LOLLIPOP           = android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 
 	/* Install id */
 	public static final String INSTALL_TYPE_RANDOM     = "random_uuid";
 	public static final String INSTALL_TYPE_ANDROID_ID = "android_id";
 	public static final String INSTALL_TYPE_SERIAL     = "serial_num";
-
-	public static final String GROUP_TAG_DEFAULT = "global";
-
-	/*
-	 * Update criteria for active and passive location updates.
-	 *
-	 * We use aggresive criteria for passive updates because they are free
-	 * and we aren't doing any processing in response to them.
-	 */
-	public static final long MAXIMUM_AGE           = Constants.TIME_THIRTY_MINUTES;
-	public static final long MAXIMUM_AGE_PREFERRED = Constants.TIME_TWO_MINUTES;
-	public static final long BUSY_TIMEOUT          = Constants.TIME_THIRTY_SECONDS;
-
-	public static final int     MIN_DISTANCE_UPDATES                  = DIST_FIFTY_METERS;
-	public static final Integer MINIMUM_ACCURACY                      = DIST_ONE_KILOMETER;
-	public static final Integer MINIMUM_ACCURACY_FOR_DISTANCE_DISPLAY = DIST_FIVE_HUNDRED_METERS;
-	public static final Integer DESIRED_ACCURACY_GPS                  = DIST_THIRTY_METERS;
-	public static final Integer DESIRED_ACCURACY_NETWORK              = DIST_THIRTY_METERS;
-	public static final Integer DESIRED_ACCURACY                      = DIST_THIRTY_METERS;
-
-	/* Used to filter for notification that active location update provider has been disabled */
-	public static final String ACTIVE_LOCATION_UPDATE_PROVIDER_DISABLED = "com.aircandi.location.active_location_update_provider_disabled";
 }

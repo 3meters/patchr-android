@@ -35,14 +35,14 @@
 		android:layout_height="@dimen/image_extra_small"
 		android:layout_gravity="center_vertical"
 		android:layout_weight="0"
-		custom:layout="@layout/widget_webimageview_candi_view"
+		custom:layoutId="@layout/widget_webimageview_candi_view"
 		custom:config="rgb_565"
 		custom:showBusy="true"
 		custom:sizeHint="@dimen/image_extra_small"
 		custom:fitType="fixed" />
 
 	<ImageView
-		android:id="@+id/button_delete_watcher"
+		android:id="@+id/button_delete_entity"
 		android:layout_width="@dimen/image_extra_small"
 		android:layout_height="@dimen/image_extra_small"
 		android:layout_gravity="center_vertical"

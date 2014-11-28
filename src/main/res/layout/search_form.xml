@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:orientation="vertical">
 
 	<include
 		android:id="@+id/toolbar"
@@ -20,18 +21,17 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/toolbar"
+			android:layout_marginLeft="4dp"
+			android:layout_marginRight="4dp"
 			android:visibility="gone"
 			tools:visibility="visible">
 
-			<Button
+			<com.aircandi.ui.widgets.AirButton
 				android:id="@+id/button_clear"
+				style="@style/button_flat"
 				android:layout_width="match_parent"
-				android:layout_height="@dimen/form_field_height"
-				android:background="@drawable/selector_link_button"
+				android:layout_height="wrap_content"
 				android:onClick="onClearButtonClick"
-				android:textAllCaps="true"
-				android:textAppearance="?android:attr/textAppearance"
-				android:textColor="@color/brand_accent"
 				tools:text="Clear linked place" />
 
 			<View

@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.ViewHolder;
 
 import java.util.Map;
@@ -15,9 +14,6 @@ import java.util.Map;
 public interface IEntityController {
 
 	public Intent view(Context context, Entity entity, String entityId, String parentId, String linkType, Bundle extras, Boolean start);
-
-	public Intent viewFor(Context context, Entity entity, String entityId, String linkType, Direction direction, String title, Boolean newEnabled,
-	                      Boolean start);
 
 	public Intent edit(Context context, Entity entity, Bundle extras, Boolean start);
 
@@ -50,7 +46,4 @@ public interface IEntityController {
 	public IEntityController setEditClass(Class<?> editClass);
 
 	public IEntityController setNewClass(Class<?> newClass);
-
-	public IEntityController setListClass(Class<?> listClass);
-
 }

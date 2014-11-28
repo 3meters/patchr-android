@@ -2,7 +2,6 @@ package com.aircandi.ui;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
@@ -81,8 +80,7 @@ public class WatcherList extends BaseActivity {
 		                                       .setListItemResId(R.layout.temp_listitem_watcher)
 		                                       .setListEmptyMessageResId(R.string.button_list_watchers_share)
 		                                       .setBubbleButtonMessageResId(R.string.button_list_watchers_share)
-		                                       .setSelfBindingEnabled(true)
-		                                       .setTitleResId(R.string.form_title_watchers);
+		                                       .setSelfBindingEnabled(true);
 
 		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mCurrentFragment).commit();
 		draw(null);
@@ -90,7 +88,10 @@ public class WatcherList extends BaseActivity {
 
 	@Override
 	public void draw(View view) {
-		setActivityTitle(StringManager.getString(((BaseFragment) mCurrentFragment).getTitleResId()));
+		Integer titleResId = ((BaseFragment) mCurrentFragment).getTitleResId();
+		if (titleResId != null) {
+			setActivityTitle(StringManager.getString(titleResId));
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -124,7 +125,7 @@ public class WatcherList extends BaseActivity {
 	}
 
 	public void onShareButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.SHARE, mEntity, null, null);
+		Patchr.dispatch.route(this, Route.SHARE, mEntity, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -198,13 +199,6 @@ public class WatcherList extends BaseActivity {
 		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
 
 		builder.startChooser();
-	}
-
-	protected void setActionBarIcon() {
-		if (getSupportActionBar() != null) {
-			Drawable icon = getResources().getDrawable(R.drawable.ic_img_users_dark);
-			getSupportActionBar().setIcon(icon);
-		}
 	}
 
 	public void approveMember(final Entity entity, final String linkId, final String fromId, final String toId, final Boolean enabled) {

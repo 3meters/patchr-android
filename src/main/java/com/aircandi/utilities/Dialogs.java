@@ -119,6 +119,7 @@ public class Dialogs {
 				, null
 				, new DialogInterface.OnClickListener() {
 
+			@SuppressWarnings("deprecation")
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
@@ -140,7 +141,7 @@ public class Dialogs {
 						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
 					}
 					dialog.dismiss();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.PAGE_TO_FORM);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.EXTERNAL_TO);
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {
 					dialog.dismiss();
@@ -176,7 +177,7 @@ public class Dialogs {
 			public void onClick(DialogInterface dialog, int which) {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					Reporting.sendEvent(Reporting.TrackerCategory.UX, "aircandi_location_settings_button_click", "com.aircandi", 0);
-					Patchr.dispatch.route(activity, Route.SETTINGS_LOCATION, null, null, null);
+					Patchr.dispatch.route(activity, Route.SETTINGS_LOCATION, null, null);
 					dialog.dismiss();
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {

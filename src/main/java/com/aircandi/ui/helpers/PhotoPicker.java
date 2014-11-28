@@ -37,8 +37,8 @@ import com.aircandi.objects.ImageResult;
 import com.aircandi.objects.ImageResult.Thumbnail;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoSource;
-import com.aircandi.objects.Provider;
 import com.aircandi.objects.ServiceData;
+import com.aircandi.objects.TransitionType;
 import com.aircandi.service.RequestType;
 import com.aircandi.service.ResponseFormat;
 import com.aircandi.service.ServiceRequest;
@@ -78,7 +78,6 @@ public class PhotoPicker extends BaseActivity {
 	private List<String> mPreviousSearches = new ArrayList<String>();
 	private ArrayAdapter<String> mSearchAdapter;
 	private String               mTitleOptional;
-	private Provider             mProvider;
 	private Integer              mPhotoWidthPixels;
 
 	private static final long   PAGE_SIZE     = 49L;
@@ -98,6 +97,7 @@ public class PhotoPicker extends BaseActivity {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
+		mTransitionType = TransitionType.DIALOG_TO;
 		mSearch = (AirAutoCompleteTextView) findViewById(R.id.search_text);
 
 		int inputType = mSearch.getInputType();
@@ -300,7 +300,7 @@ public class PhotoPicker extends BaseActivity {
 			Reporting.logException(e);
 		}
 
-		final String bingUrl = ServiceConstants.URL_PROXIBASE_SEARCH_IMAGES
+		final String bingUrl = ServiceConstants.URI_PROXIBASE_SEARCH_IMAGES
 				+ "?Query=" + query
 				+ "&Market=%27en-US%27&Adult=%27Strict%27&ImageFilters=%27size%3alarge%27"
 				+ "&$top=" + String.valueOf(count + 1)

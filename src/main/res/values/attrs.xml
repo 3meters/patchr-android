@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<attr name="layout" format="integer" />
+	<attr name="layoutId" format="integer" />
 	<attr name="textId" format="integer" />
 	<attr name="keyId" format="integer" />
 	<attr name="label" format="integer|string" />
@@ -71,7 +71,6 @@
 		<attr name="textColorProgress" format="color|reference" />
 		<attr name="textColorCandiView" format="color|reference" />
 		<attr name="textColorCandiViewSynthetic" format="color|reference" />
-		<attr name="textColorTooltip" format="color|reference" />
 		<attr name="textSelector" format="color|reference" />
 		<attr name="textSelectorLink" format="color|reference" />
 		<attr name="highlightColor" format="color|reference" />
@@ -103,8 +102,6 @@
 		<attr name="backgroundSpinner" format="color|reference" />
 		<attr name="backgroundSwipeRefresh" format="color|reference" />
 		<attr name="backgroundToken" format="color|reference" />
-		<attr name="backgroundTooltip" format="color|reference" />
-		<attr name="backgroundTooltipLayer" format="color|reference" />
 		<attr name="badgeColor" format="color|reference" />
 		<attr name="badgeColorSynthetic" format="color|reference" />
 
@@ -118,6 +115,7 @@
 		<attr name="iconCancel" format="reference" />
 		<attr name="iconClear" format="reference" />
 		<attr name="iconDelete" format="reference" />
+		<attr name="iconDirections" format="reference" />
 		<attr name="iconEdit" format="reference" />
 		<attr name="iconExit" format="reference" />
 		<attr name="iconForward" format="reference" />
@@ -144,7 +142,7 @@
 		<attr name="iconPatch" format="reference" />
 		<attr name="iconPicture" format="reference" />
 		<attr name="iconPlaceNew" format="reference" />
-		<attr name="iconReload" format="reference" />
+		<attr name="iconRefresh" format="reference" />
 		<attr name="iconSave" format="reference" />
 		<attr name="iconSearch" format="reference" />
 		<attr name="iconSend" format="reference" />
@@ -164,14 +162,26 @@
 		<attr name="iconActionAdd" format="reference" />
 		<attr name="iconActionAlert" format="reference" />
 		<attr name="iconActionCancel" format="reference" />
+		<attr name="iconActionDelete" format="reference" />
+		<attr name="iconActionDirections" format="reference" />
 		<attr name="iconActionEdit" format="reference" />
-		<attr name="iconActionReload" format="reference" />
+		<attr name="iconActionInvite" format="reference" />
+		<attr name="iconActionMap" format="reference" />
+		<attr name="iconActionRefresh" format="reference" />
 		<attr name="iconActionSearch" format="reference" />
 		<attr name="iconActionSend" format="reference" />
 		<attr name="iconActionShare" format="reference" />
 		<attr name="iconActionSignal" format="reference" />
 		<attr name="iconActionUsers" format="reference" />
 		<attr name="iconActionWatch" format="reference" />
+
+		<attr name="iconDrawerNearby" format="reference" />
+		<attr name="iconDrawerWatch" format="reference" />
+		<attr name="iconDrawerCreate" format="reference" />
+		<attr name="iconDrawerTrendActive" format="reference" />
+		<attr name="iconDrawerTrendPopular" format="reference" />
+		<attr name="iconDrawerSettings" format="reference" />
+		<attr name="iconDrawerSend" format="reference" />
 
 	</declare-styleable>
 
@@ -199,29 +209,23 @@
 		<attr name="config" />
 		<attr name="dominantMeasurement" />
 		<attr name="fitType" />
-		<attr name="layout" />
+		<attr name="layoutId" />
 		<attr name="showBusy" />
 		<attr name="sizeHint" />
 	</declare-styleable>
 	<declare-styleable name="CandiView">
-		<attr name="layout" />
+		<attr name="layoutId" />
 		<attr name="colorize" />
 		<attr name="aspectRatio" />
 		<attr name="aspectRatioEnabled" />
 		<attr name="dominantMeasurement" />
 	</declare-styleable>
-	<declare-styleable name="ComboButton">
-		<attr name="layout" />
-		<attr name="label" />
-		<attr name="drawable" />
-		<attr name="drawableScale" />
-	</declare-styleable>
 	<declare-styleable name="UserView">
-		<attr name="layout" />
+		<attr name="layoutId" />
 		<attr name="label" />
 	</declare-styleable>
 	<declare-styleable name="EntityView">
-		<attr name="layout" />
+		<attr name="layoutId" />
 		<attr name="label" />
 	</declare-styleable>
 	<declare-styleable name="AirListView">
@@ -247,21 +251,11 @@
 		<attr name="prefix" />
 	</declare-styleable>
 	<declare-styleable name="HorizontalScrollLayout">
-		<attr name="layout" />
-	</declare-styleable>
-	<declare-styleable name="BuilderButton">
-		<attr name="layout" />
-		<attr name="hint" />
+		<attr name="layoutId" />
 	</declare-styleable>
 	<declare-styleable name="ListPreferenceMultiSelect">
 		<attr name="keyId" />
 		<attr name="checkAll" />
 		<attr name="separator" />
-	</declare-styleable>
-	<declare-styleable name="AirListPreference">
-		<attr name="keyId" />
-	</declare-styleable>
-	<declare-styleable name="AirCheckBoxPreference">
-		<attr name="keyId" />
 	</declare-styleable>
 </resources>

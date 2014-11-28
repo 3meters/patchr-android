@@ -61,6 +61,7 @@
 		android:name=".Patchr"
 		android:allowBackup="false"
 		android:icon="@drawable/ic_launcher"
+		android:theme="@style/aircandi_theme_snow"
 		android:label="@string/name_app">
 
 		<!-- Analytics -->
@@ -117,6 +118,7 @@
 		</activity>
 		<activity
 			android:name="com.aircandi.ui.AircandiForm"
+			android:label="@string/form_title_nearby"
 			android:configChanges="orientation|keyboardHidden|screenSize">
 			<meta-data
 				android:name="android.app.searchable"
@@ -160,43 +162,51 @@
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.user.UserForm"
+			android:name=".ui.UserForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_user_form"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name="com.aircandi.ui.PhotoForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_photo_form"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name="com.aircandi.ui.MapForm"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_map_form"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name="com.aircandi.ui.SearchForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name="com.aircandi.ui.AboutForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/name_app"
+			android:label="@string/form_title_about_form"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Lists -->
 
 		<activity
-			android:name="com.aircandi.ui.EntityList"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:windowSoftInputMode="stateHidden" />
-		<activity
 			android:name="com.aircandi.ui.WatcherList"
 			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_watching_list"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name="com.aircandi.ui.PatchList"
 			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_patch_list"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Editing -->
 
+		<!-- MessageEdit Note: label setting is used in android share picker -->
 		<activity
 			android:name="com.aircandi.ui.edit.MessageEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/name_app"
+			android:icon="@drawable/ic_launcher"
 			android:windowSoftInputMode="stateHidden">
 			<intent-filter>
 				<action android:name="android.intent.action.SEND" />
@@ -223,27 +233,27 @@
 			android:label="@string/form_title_report_edit"
 			android:windowSoftInputMode="adjustResize" />
 		<activity
-			android:name="com.aircandi.ui.user.UserEdit"
+			android:name=".ui.edit.UserEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_user_edit"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.user.SignInEdit"
+			android:name=".ui.edit.SignInEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_signin_edit"
 			android:windowSoftInputMode="adjustResize" />
 		<activity
-			android:name="com.aircandi.ui.user.RegisterEdit"
+			android:name=".ui.edit.RegisterEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_register_edit"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.user.ResetEdit"
+			android:name=".ui.edit.ResetEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_reset_edit"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.user.PasswordEdit"
+			android:name=".ui.edit.PasswordEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_password_edit"
 			android:windowSoftInputMode="stateHidden" />
@@ -253,26 +263,18 @@
 		<activity
 			android:name="com.aircandi.ui.helpers.PhotoPicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_photo_picker"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name="com.aircandi.ui.helpers.LocationPicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:windowSoftInputMode="stateHidden" />
-		<activity
-			android:name="com.aircandi.ui.helpers.PlacePicker"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_place_picker"
+			android:label="@string/form_title_location_picker"
 			android:windowSoftInputMode="stateHidden" />
 		<!-- Theme setting required to get dialog treatment for all theming -->
 		<activity
 			android:name="com.aircandi.ui.helpers.PhotoSourcePicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:theme="@style/aircandi_theme_dialog_light"
-			android:windowSoftInputMode="stateHidden" />
-		<activity
-			android:name="com.aircandi.ui.helpers.CategoryBuilder"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_category_builder"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name="com.aircandi.ui.helpers.PrivacyBuilder"
@@ -283,12 +285,12 @@
 		<!-- Misc -->
 
 		<activity
-			android:name=".ui.SettingsForm"
+			android:name="com.aircandi.ui.SettingsForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_settings_form"
 			android:exported="false">
 			<intent-filter>
 				<action android:name="com.aircandi.Preferences" />
-
 				<category android:name="android.intent.category.PREFERENCE" />
 			</intent-filter>
 		</activity>

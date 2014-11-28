@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,12 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 
-import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
@@ -28,14 +24,11 @@ import com.aircandi.components.Logger;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IForm;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Route;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.ui.components.BubbleController;
 import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.ui.widgets.AirAutoCompleteTextView;
 import com.aircandi.utilities.DateTime;
-import com.aircandi.utilities.Json;
-import com.aircandi.utilities.UI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -257,7 +250,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		return mMenuResIds;
 	}
 
-	public int getTitleResId() {
+	public Integer getTitleResId() {
 		return mTitleResId;
 	}
 
@@ -289,7 +282,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Patchr.dispatch.route(getActivity(), Patchr.dispatch.routeForMenuId(item.getItemId()), null, null, null);
+		Patchr.dispatch.route(getActivity(), Patchr.dispatch.routeForMenuId(item.getItemId()), null, null);
 		return true;
 	}
 

@@ -206,7 +206,7 @@ public class AircandiForm extends BaseActivity {
 					extras.putBoolean(Constants.EXTRA_AUTO_WATCH, true);
 				}
 			}
-			Patchr.dispatch.route(this, Route.BROWSE, entity, null, extras);
+			Patchr.dispatch.route(this, Route.BROWSE, entity, extras);
 		}
 		if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
 			mDrawerLayout.closeDrawer(mDrawerLeft);
@@ -244,7 +244,7 @@ public class AircandiForm extends BaseActivity {
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 		}
 		extras.putString(Constants.EXTRA_MESSAGE, StringManager.getString(R.string.label_message_new_message));
-		Patchr.dispatch.route(this, Route.NEW, null, null, extras);
+		Patchr.dispatch.route(this, Route.NEW, null, extras);
 	}
 
 	@Override
@@ -448,14 +448,14 @@ public class AircandiForm extends BaseActivity {
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_SETTINGS)) {
 
 				mNextFragmentTag = mCurrentFragmentTag;
-				Patchr.dispatch.route(this, Route.SETTINGS, null, null, null);
+				Patchr.dispatch.route(this, Route.SETTINGS, null, null);
 				return;
 			}
 
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_FEEDBACK)) {
 
 				mNextFragmentTag = mCurrentFragmentTag;
-				Patchr.dispatch.route(this, Route.FEEDBACK, null, null, null);
+				Patchr.dispatch.route(this, Route.FEEDBACK, null, null);
 				return;
 			}
 
@@ -555,9 +555,9 @@ public class AircandiForm extends BaseActivity {
 			mFab.setTag(mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)
 			            ? mPrevFragmentTag
 			            : Constants.FRAGMENT_TYPE_MAP);
-			mFab.setText(StringManager.getString(mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)
-			                                     ? R.string.label_view_list
-			                                     : R.string.label_view_map));
+			mFab.setIcon(mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)
+			                                     ? R.drawable.ic_list_dark
+			                                     : R.drawable.ic_map_dark);
 			mFab.fadeIn();
 		}
 		else {
@@ -596,6 +596,7 @@ public class AircandiForm extends BaseActivity {
 	}
 
 	protected void configureActionBar() {
+		super.configureActionBar();
 	    /*
 	     * Only called when form is created
 		 */

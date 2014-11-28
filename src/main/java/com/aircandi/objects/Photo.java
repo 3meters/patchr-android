@@ -57,7 +57,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	public String name;
 	public String description;
 	public Boolean usingDefault = false;
-	public Shortcut shortcut;
 	public Boolean store = false;
 
 	public Boolean resizerActive = false;

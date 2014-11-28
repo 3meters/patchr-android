@@ -21,7 +21,7 @@
 			android:layout_height="wrap_content"
 			android:background="?attr/backgroundCard"
 			custom:colorize="false"
-			custom:layout="@layout/widget_candi_view_trend" />
+			custom:layoutId="@layout/widget_candi_view_trend" />
 	</FrameLayout>
 
 </RelativeLayout>

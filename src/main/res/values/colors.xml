@@ -9,10 +9,21 @@
 
 	<!-- Branding colors -->
 
-	<color name="brand_primary">#ffff8800</color>
-	<color name="brand_accent">#ffffbb33</color>
-	<color name="brand_secondary">#ffbf6600</color>
-	<color name="brand_pressed">#88bf6600</color>
+	<color name="brand_primary">#ffFB8C00</color>
+	<color name="brand_primary_light">#ffffb74d</color>
+	<color name="brand_primary_dark">#ffef6c00</color>
+	<color name="brand_accent">#ff00b0ff</color>
+
+	<!--
+	<color name="brand_primary">#ffff5722</color>
+	<color name="brand_primary_light">#ffffccb3</color>
+	<color name="brand_primary_dark">#ffe64a19</color>
+	-->
+
+	<!-- Base colors -->
+
+	<color name="background_button_pressed_light">#64999999</color>
+
 
 	<!-- Branding icon colors -->
 
@@ -48,7 +59,7 @@
 
 	<color name="stroke_placeholder_dark">@color/gray_90_pcnt</color>
 	<color name="stroke_button_dark">@color/gray_70_pcnt</color>
-	<color name="stroke_balloon_dark">@color/brand_secondary</color>
+	<color name="stroke_balloon_dark">@color/brand_primary_dark</color>
 	<color name="stroke_button_share_dark">@color/transparent</color>
 	<color name="stroke_button_round_dark">@color/gray_70_pcnt</color>
 
@@ -69,28 +80,26 @@
 	<color name="background_dark">@color/black</color>
 	<color name="background_secondary_dark">@color/gray_85_pcnt</color>
 	<color name="background_progress_dark">@color/gray_50_pcnt</color>
-	<color name="background_highlight_dark">@color/brand_pressed</color>
+	<color name="background_highlight_dark">@color/background_button_pressed_light</color>
 	<color name="background_placeholder_dark">#22ffffff</color>
 	<color name="background_button_dark">@color/gray_80_pcnt</color>
 	<color name="background_button_round_dark">@color/gray_80_pcnt</color>
-	<color name="background_balloon_dark">@color/brand_secondary</color>
+	<color name="background_balloon_dark">@color/brand_primary_dark</color>
 	<color name="background_help_dark">@color/overlay_help</color>
 	<color name="background_token_dark">@color/overlay_help</color>
 	<color name="background_button_share_dark">@color/gray_90_pcnt</color>
-	<color name="background_tooltip_layer_dark">#66000000</color>
 
 	<!-- Backgrounds light -->
 
 	<color name="background_light">@color/white</color>
 	<color name="background_secondary_light">@color/gray_15_pcnt</color>
 	<color name="background_progress_light">@color/gray_15_pcnt</color>
-	<color name="background_highlight_light">@color/brand_pressed</color>
+	<color name="background_highlight_light">@color/background_button_pressed_light</color>
 	<color name="background_placeholder_light">#11000000</color>
-	<color name="background_button_light">@color/gray_20_pcnt</color>
+	<color name="background_button_light">#1f000000</color>
 	<color name="background_balloon_light">@color/gray_10_pcnt</color>
 	<color name="background_help_light">@color/overlay_help</color>
 	<color name="background_button_share_light">@color/gray_05_pcnt</color>
-	<color name="background_tooltip_layer_light">#66000000</color>
 	<color name="background_button_round_light">#eeffffff</color>
 
 	<!-- Backgrounds gray -->
@@ -99,8 +108,8 @@
 
 	<!-- Backgrounds all -->
 
-	<color name="background_pressed">@color/brand_pressed</color>
-	<color name="background_button_pressed">@color/brand_pressed</color>
+	<color name="background_pressed">@color/background_button_pressed_light</color>
+	<color name="background_button_pressed">@color/background_button_pressed_light</color>
 	<color name="background_picture_detail">@color/gray_85_pcnt</color>
 	<color name="pressed_highlight_color">#660099cc</color>
 

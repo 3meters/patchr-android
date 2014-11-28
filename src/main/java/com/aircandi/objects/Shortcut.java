@@ -7,7 +7,6 @@ import com.aircandi.objects.Photo.PhotoSource;
 import com.aircandi.service.Expose;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.Map;
 public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 
 	private static final long                      serialVersionUID = 4979315562693226461L;
-	public static final  Map<String, ShortcutMeta> shortcutMeta     = Collections.synchronizedMap(new HashMap<String, ShortcutMeta>());
 
 	@Expose
 	public String      id;
@@ -63,12 +61,13 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 	public Integer        count;
 	public List<Shortcut> group;
 	public Boolean synthetic = false;
-	public String linkType;                                                                                // so we know if entity shortcut represents is targeted via like/watch/content etc.
+	public String linkType;                // so we know if entity shortcut represents is targeted via like/watch/content etc.
 	public Intent intent;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
+
 	public static Shortcut setPropertiesFromMap(Shortcut shortcut, Map map, Boolean nameMapping) {
 		/*
 		 * Need to include any properties that need to survive encode/decoded between activities.
@@ -103,8 +102,16 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		return shortcut;
 	}
 
-	public static Shortcut builder(Entity entity, String schema, String type, String action, String name, String subtitle, String image, Integer position, Boolean content,
-	                               Boolean synthetic) {
+	public static Shortcut builder(Entity entity
+			, String schema
+			, String type
+			, String action
+			, String name
+			, String subtitle
+			, String image
+			, Integer position
+			, Boolean content
+			, Boolean synthetic) {
 
 		Shortcut shortcut = new Shortcut()
 				.setAppId(entity.id)
@@ -136,10 +143,6 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 			throw new AssertionError();
 		}
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
 
 	public Photo getPhoto() {
 		Photo photo = this.photo;
@@ -193,7 +196,7 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Set/get
+	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 	public String getName() {
 		return name;

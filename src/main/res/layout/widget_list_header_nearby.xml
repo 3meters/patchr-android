@@ -4,31 +4,26 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:paddingBottom="4dp"
-	android:paddingTop="8dp"
 	android:paddingLeft="8dp"
-	android:paddingRight="8dp">
+	android:paddingRight="8dp"
+	android:paddingTop="8dp">
 
 	<RelativeLayout
 		android:id="@+id/alert_group"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="?attr/backgroundCard">
+		android:background="?attr/backgroundCard"
+		tools:ignore="UselessParent">
 
-		<com.aircandi.ui.widgets.AirTextView
+		<Button
 			android:id="@+id/button_alert"
+			style="@style/button_flat"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
-			android:background="@drawable/selector_link_button"
-			android:clickable="true"
-			android:ellipsize="end"
 			android:gravity="center"
 			android:padding="8dp"
-			android:singleLine="true"
-			android:textAllCaps="true"
 			android:textAppearance="?android:attr/textAppearance"
-			android:textColor="@color/holo_blue_light"
-			tools:text="Create a patch"
-			tools:textAllCaps="true" />
+			tools:text="Create a patch" />
 
 		<View
 			android:id="@+id/rule_alert"

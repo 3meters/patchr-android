@@ -5,8 +5,8 @@ import com.aircandi.R;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.User;
-import com.aircandi.ui.user.UserEdit;
-import com.aircandi.ui.user.UserForm;
+import com.aircandi.ui.edit.UserEdit;
+import com.aircandi.ui.UserForm;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
 

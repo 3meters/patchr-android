@@ -25,7 +25,7 @@
 				android:id="@+id/candi_view"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				custom:layout="@layout/widget_candi_view_place" />
+				custom:layoutId="@layout/widget_candi_view_place" />
 
 			<View
 				android:layout_width="match_parent"
@@ -34,24 +34,6 @@
 				android:background="?attr/ruleColor"
 				android:visibility="gone" />
 
-			<RelativeLayout
-				android:id="@+id/button_holder"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignBottom="@+id/candi_view"
-				android:paddingLeft="62dp">
-
-				<com.aircandi.ui.widgets.ComboButton
-					android:id="@+id/button_map"
-					style="@style/button"
-					android:layout_width="@dimen/button_height"
-					android:layout_height="@dimen/button_height"
-					android:layout_alignParentRight="true"
-					android:layout_centerVertical="true"
-					android:onClick="onMapButtonClick"
-					custom:drawable="@drawable/ic_img_location_dark" />
-
-			</RelativeLayout>
 		</RelativeLayout>
 
 		<RelativeLayout
@@ -72,23 +54,8 @@
 				android:layout_height="match_parent"
 				android:background="?attr/backgroundCard"
 				custom:colorize="false"
-				custom:layout="@layout/widget_candi_view_place_info" />
+				custom:layoutId="@layout/widget_candi_view_place_info" />
 
-			<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignBottom="@+id/candi_view_info"
-				android:layout_alignParentRight="true"
-				android:orientation="horizontal">
-
-				<com.aircandi.ui.widgets.ComboButton
-					android:id="@+id/button_map_info"
-					style="@style/button"
-					android:layout_width="@dimen/button_height"
-					android:layout_height="@dimen/button_height"
-					android:onClick="onMapButtonClick"
-					custom:drawable="?attr/iconLocation" />
-			</LinearLayout>
 		</RelativeLayout>
 
 	</ViewAnimator>
@@ -104,19 +71,13 @@
 		android:layout_marginTop="8dp"
 		android:background="?attr/backgroundCard">
 
-		<com.aircandi.ui.widgets.AirTextView
+		<Button
 			android:id="@+id/button_alert"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
-			android:background="@drawable/selector_link_button"
-			android:clickable="true"
-			android:ellipsize="end"
+			style="@style/button_flat"
 			android:gravity="center"
 			android:padding="8dp"
-			android:singleLine="true"
-			android:textAllCaps="true"
-			android:textAppearance="?android:attr/textAppearance"
-			android:textColor="@color/holo_blue_light"
 			tools:text="Create a patch" />
 
 		<View

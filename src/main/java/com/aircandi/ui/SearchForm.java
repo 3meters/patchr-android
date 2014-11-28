@@ -21,7 +21,6 @@ import com.aircandi.R;
 import com.aircandi.components.EntityManager.SuggestScope;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
-import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.utilities.Json;
@@ -43,12 +42,7 @@ public class SearchForm extends BaseActivity {
 	public void onClearButtonClick(View view) {
 		setResultCode(Activity.RESULT_OK);
 		finish();
-	}
-
-	public void onCancel(Boolean force) {
-		setResultCode(Activity.RESULT_CANCELED);
-		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.VIEW_BACK);
+		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, getExitTransitionType());
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -84,20 +78,6 @@ public class SearchForm extends BaseActivity {
 		}
 	}
 
-	protected void configureActionBar() {
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().setDisplayShowTitleEnabled(true);  // Dont show title
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);    // Show navigation indicator
-		}
-
-		getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onBackPressed();
-			}
-		});
-	}
-
 	@Override
 	public void bind(BindingMode mode) {
 
@@ -128,10 +108,10 @@ public class SearchForm extends BaseActivity {
 					intent.putExtra(Constants.EXTRA_ENTITY, json);
 					setResultCode(Activity.RESULT_OK, intent);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SearchForm.this, TransitionType.VIEW_BACK);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SearchForm.this, getExitTransitionType());
 				}
 				else {
-					Patchr.dispatch.route(SearchForm.this, Route.BROWSE, entity, null, null);
+					Patchr.dispatch.route(SearchForm.this, Route.BROWSE, entity, null);
 				}
 			}
 		});
@@ -171,7 +151,7 @@ public class SearchForm extends BaseActivity {
 				public boolean onClose() {
 					setResultCode(Activity.RESULT_CANCELED);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SearchForm.this, TransitionType.VIEW_BACK);
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SearchForm.this, getExitTransitionType());
 					return false;
 				}
 			});

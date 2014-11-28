@@ -226,8 +226,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		mBusy = new BusyManager(getActivity());
 		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe);
 		if (swipeRefresh != null) {
-			swipeRefresh.setProgressBackgroundColor(R.color.brand_primary);
-			swipeRefresh.setColorSchemeResources(R.color.white);
+			swipeRefresh.setProgressBackgroundColor(R.color.white);
+			swipeRefresh.setColorSchemeResources(R.color.brand_primary);
 			swipeRefresh.setProgressViewEndTarget(true, UI.getRawPixelsForDisplayPixels(56f));
 			swipeRefresh.setOnRefreshListener(this);
 			mBusy.setSwipeRefresh(swipeRefresh);
@@ -328,20 +328,19 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		}
 		else {
 
+			Bundle extras = new Bundle();
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 			final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
 			if (mQuery instanceof EntitiesQuery) {
 				String linkType = ((EntitiesQuery) mQuery).getLinkType();
 				if (linkType != null) {
-					Bundle extras = new Bundle();
 					extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
 					extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, ((EntitiesQuery) mQuery).getEntityId());
-					Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
+					Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
 					return;
 				}
 			}
-			Bundle extras = new Bundle();
-			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-			Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras);
+			Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
 		}
 	}
 

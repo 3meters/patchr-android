@@ -29,10 +29,11 @@ import com.squareup.picasso.Picasso.Listener;
 @SuppressWarnings("ucd")
 public class DownloadManager {
 
-	private static       Picasso instance         = null;
-	private static final Paint   DEBUG_PAINT      = new Paint();
-	private static final String  logBitmapTarget  = "Bitmap target:  context = %1$s, height = %2$s, width = %3$s, size = %4$s";
-	private static final String  logBitmapCreated = "Bitmap created: context = %1$s, height = %2$s, width = %3$s, size = %4$s, config = %5$s";
+	private static       Picasso instance          = null;
+	private static final Paint   DEBUG_PAINT       = new Paint();
+	private static final String  logBitmapTarget   = "Bitmap target:  context = %1$s, height = %2$s, width = %3$s, size = %4$s";
+	private static final String  logBitmapCreated  = "Bitmap created: context = %1$s, height = %2$s, width = %3$s, size = %4$s, config = %5$s";
+	public static final  String  GROUP_TAG_DEFAULT = "global";
 
 	public static Picasso getInstance() {
 		return instance;

@@ -5,10 +5,10 @@
 	<solid android:color="#66000000" />
 
 	<corners
-		android:bottomLeftRadius="@dimen/tooltip_corner_radius"
-		android:bottomRightRadius="@dimen/tooltip_corner_radius"
-		android:topLeftRadius="@dimen/tooltip_corner_radius"
-		android:topRightRadius="@dimen/tooltip_corner_radius" />
+		android:bottomLeftRadius="4dp"
+		android:bottomRightRadius="4dp"
+		android:topLeftRadius="4dp"
+		android:topRightRadius="4dp" />
 
 	<padding
 		android:bottom="@dimen/button_padding"

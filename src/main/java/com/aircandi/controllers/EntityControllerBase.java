@@ -20,18 +20,15 @@ import com.aircandi.components.EntityManager;
 import com.aircandi.components.IntentBuilder;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
-import com.aircandi.ui.EntityList;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
-import com.aircandi.ui.widgets.ComboButton;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
@@ -46,7 +43,6 @@ public abstract class EntityControllerBase implements IEntityController {
 
 	protected Class<?> mEditClass;
 	protected Class<?> mNewClass;
-	protected Class<?> mListClass = EntityList.class;
 
 	protected String  mListViewType = ViewType.LIST;
 	protected Integer mPageSize     = Integers.getInteger(R.integer.page_size_entities);
@@ -99,46 +95,12 @@ public abstract class EntityControllerBase implements IEntityController {
 		Intent intent = intentBuilder.create();
 
 		if (start) {
+			Integer transitionType = TransitionType.FORM_TO;
+			if (extras != null) {
+				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
+			}
 			context.startActivity(intent);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
-		}
-
-		return intent;
-	}
-
-	/*
-	 * Browse a set of child entities for a particular parent entity.
-	 */
-	@Override
-	public Intent viewFor(Context context
-			, Entity entity
-			, String entityId
-			, String linkType
-			, Direction direction
-			, String title
-			, Boolean newEnabled
-			, Boolean start) {
-
-		IntentBuilder intentBuilder = new IntentBuilder(context, mListClass);
-		intentBuilder
-				.setEntityId(entityId)
-				.setListTitle(title)
-				.setListLinkType(linkType)
-				.setListLinkDirection((direction != null) ? direction.name() : Direction.in.name())
-				.setListLinkSchema(mSchema)
-				.setListPageSize(mPageSize)
-				.setListViewType(mListViewType)
-				.setListItemResId(mListItemResId)
-				.setLayoutResId(mListLayoutResId)
-				.setListLoadingResId(mListLoadingResId)
-				.setListNewMessageResId(mListNewMessageResId)
-				.setListNewEnabled(newEnabled);
-
-		Intent intent = intentBuilder.create();
-
-		if (start) {
-			context.startActivity(intentBuilder.create());
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, transitionType);
 		}
 
 		return intent;
@@ -163,7 +125,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			((Activity) context).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ENTITY_EDIT);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
 		}
 
 		return intent;
@@ -180,7 +142,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			((Activity) context).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ENTITY_INSERT);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.PAGE_TO_PAGE);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
 		}
 
 		return intent;
@@ -213,14 +175,6 @@ public abstract class EntityControllerBase implements IEntityController {
 			holder.checked.setChecked(entity.checked);
 			holder.checked.setTag(entity);
 			UI.setVisibility(holder.checked, View.VISIBLE);
-		}
-
-		/* Overflow button */
-
-		UI.setVisibility(holder.overflow, View.GONE);
-		if (holder.overflow != null) {
-			holder.overflow.setTag(entity);
-			UI.setVisibility(holder.overflow, View.VISIBLE);
 		}
 
 		/* Name */
@@ -367,8 +321,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.createdDate = (TextView) view.findViewById(R.id.created_date);
 		holder.modifiedDate = (TextView) view.findViewById(R.id.modified_date);
 		holder.comments = (TextView) view.findViewById(R.id.comments);
-		holder.overflow = (ComboButton) view.findViewById(R.id.button_overflow);
-		holder.share = (ViewGroup) view.findViewById(R.id.share);
+		holder.share = (ViewGroup) view.findViewById(R.id.share_entity);
 		holder.alert = (ImageView) view.findViewById(R.id.alert_indicator);
 		holder.photoBig = (AirImageView) view.findViewById(R.id.photo_big);
 		holder.photoType = (ImageView) view.findViewById(R.id.photo_type);
@@ -438,12 +391,6 @@ public abstract class EntityControllerBase implements IEntityController {
 	@Override
 	public IEntityController setNewClass(Class<?> newClass) {
 		mNewClass = newClass;
-		return this;
-	}
-
-	@Override
-	public IEntityController setListClass(Class<?> listClass) {
-		mListClass = listClass;
 		return this;
 	}
 }

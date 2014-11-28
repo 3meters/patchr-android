@@ -34,7 +34,7 @@ public class Reporting {
 		Crashlytics.setFloat("memory_free_mb", Utilities.freeMemoryMB());
 
 		/* Identifies device/install combo */
-		Crashlytics.setApplicationInstallationIdentifier(Patchr.getinstallId());
+		Crashlytics.setApplicationInstallationIdentifier(Patchr.getInstance().getinstallId());
 
 		Location location = LocationManager.getInstance().getLocationLocked();
 		if (location != null) {

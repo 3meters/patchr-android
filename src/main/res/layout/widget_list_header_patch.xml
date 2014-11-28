@@ -20,11 +20,11 @@
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
 			android:layout_centerVertical="true"
-			android:paddingRight="@dimen/image_medium"
 			android:ellipsize="end"
+			android:paddingRight="@dimen/image_medium"
 			android:singleLine="true"
 			android:textAppearance="@style/text_appearance_medium"
-			android:textColor="@color/brand_primary" />
+			android:textColor="@color/brand_primary_dark" />
 
 	</RelativeLayout>
 
@@ -55,7 +55,7 @@
 				android:id="@+id/candi_view"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				custom:layout="@layout/widget_candi_view_patch" />
+				custom:layoutId="@layout/widget_candi_view_patch" />
 
 			<View
 				android:layout_width="match_parent"
@@ -69,7 +69,34 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignBottom="@+id/candi_view"
-				android:paddingLeft="48dp">
+				android:paddingLeft="64dp">
+
+				<ViewAnimator
+					android:id="@+id/button_watch"
+					android:layout_width="@dimen/button_height"
+					android:layout_height="@dimen/button_height"
+					android:clickable="true"
+					android:onClick="onWatchButtonClick">
+
+					<ImageView
+						android:id="@+id/button_image"
+						android:layout_width="24dp"
+						android:layout_height="24dp"
+						android:adjustViewBounds="true"
+						android:layout_gravity="center"
+						android:alpha="0.8"
+						android:scaleType="fitCenter"
+						android:src="@drawable/ic_img_watch_dark" />
+
+					<ProgressBar
+						android:id="@+id/button_progress"
+						android:layout_width="24dp"
+						android:layout_gravity="center"
+						android:layout_height="24dp"
+						android:focusable="true"
+						android:maxHeight="30dp"
+						android:minHeight="30dp" />
+				</ViewAnimator>
 
 				<LinearLayout
 					android:id="@+id/button_watchers"
@@ -77,10 +104,9 @@
 					android:layout_width="wrap_content"
 					android:layout_height="@dimen/button_height"
 					android:layout_centerVertical="true"
+					android:layout_toRightOf="@+id/button_watch"
 					android:onClick="onWatchersButtonClick"
-					android:orientation="horizontal"
-					android:paddingLeft="16dp"
-					android:paddingRight="16dp">
+					android:orientation="horizontal">
 
 					<ImageView
 						android:layout_width="56dp"
@@ -99,36 +125,6 @@
 						android:textColor="?attr/textColorCandiView"
 						tools:text="12" />
 				</LinearLayout>
-
-				<com.aircandi.ui.widgets.ComboButton
-					android:id="@+id/button_watch"
-					style="@style/button"
-					android:layout_width="@dimen/button_height"
-					android:layout_height="@dimen/button_height"
-					android:layout_centerVertical="true"
-					android:layout_toRightOf="@+id/button_watchers"
-					android:onClick="onWatchButtonClick"
-					custom:drawable="@drawable/ic_img_watch_dark" />
-
-				<com.aircandi.ui.widgets.ComboButton
-					android:id="@+id/button_share"
-					style="@style/button"
-					android:layout_width="@dimen/button_height"
-					android:layout_height="@dimen/button_height"
-					android:layout_centerVertical="true"
-					android:layout_toLeftOf="@+id/button_map"
-					android:onClick="onShareButtonClick"
-					custom:drawable="@drawable/ic_img_user_add_dark" />
-
-				<com.aircandi.ui.widgets.ComboButton
-					android:id="@+id/button_map"
-					style="@style/button"
-					android:layout_width="@dimen/button_height"
-					android:layout_height="@dimen/button_height"
-					android:layout_alignParentRight="true"
-					android:layout_centerVertical="true"
-					android:onClick="onMapButtonClick"
-					custom:drawable="@drawable/ic_img_location_dark" />
 
 			</RelativeLayout>
 		</RelativeLayout>
@@ -151,23 +147,8 @@
 				android:layout_height="match_parent"
 				android:background="?attr/backgroundCard"
 				custom:colorize="false"
-				custom:layout="@layout/widget_candi_view_patch_info" />
+				custom:layoutId="@layout/widget_candi_view_patch_info" />
 
-			<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignBottom="@+id/candi_view_info"
-				android:layout_alignParentRight="true"
-				android:orientation="horizontal">
-
-				<com.aircandi.ui.widgets.ComboButton
-					android:id="@+id/button_map_info"
-					style="@style/button"
-					android:layout_width="@dimen/button_height"
-					android:layout_height="@dimen/button_height"
-					android:onClick="onMapButtonClick"
-					custom:drawable="?attr/iconLocation" />
-			</LinearLayout>
 		</RelativeLayout>
 
 	</ViewAnimator>
@@ -176,16 +157,16 @@
 		android:id="@+id/place_photo"
 		android:layout_width="@dimen/image_medium"
 		android:layout_height="@dimen/image_medium"
-		android:background="@drawable/bg_round_light"
-		android:padding="3dp"
-		android:layout_margin="10dp"
 		android:layout_alignParentRight="true"
-		android:scaleType="centerCrop"
-		custom:config="rgb_565"
+		android:layout_margin="10dp"
+		android:background="@drawable/bg_round_light"
 		android:clickable="true"
 		android:onClick="onPlaceClick"
+		android:padding="3dp"
+		android:scaleType="centerCrop"
+		custom:config="rgb_565"
 		custom:fitType="fixed"
-		custom:layout="@layout/widget_webimageview"
+		custom:layoutId="@layout/widget_webimageview"
 		custom:showBusy="true"
 		custom:sizeHint="@dimen/image_medium" />
 
@@ -195,20 +176,14 @@
 		android:layout_height="wrap_content"
 		android:layout_below="@id/animator_header">
 
-		<com.aircandi.ui.widgets.AirTextView
+		<Button
 			android:id="@+id/button_alert"
+			style="@style/button_flat"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
-			android:background="@drawable/selector_link_button"
-			android:clickable="true"
-			android:ellipsize="end"
 			android:gravity="center"
-			android:onClick="onWatchersButtonClick"
 			android:padding="8dp"
-			android:singleLine="true"
-			android:textAllCaps="true"
-			android:textAppearance="?android:attr/textAppearance"
-			android:textColor="@color/holo_blue_light" />
+			tools:text="Create a patch" />
 
 		<View
 			android:id="@+id/rule_alert"

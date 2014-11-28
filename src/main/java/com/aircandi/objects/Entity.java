@@ -122,7 +122,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public Shortcut getShortcut() {
+	public Shortcut getAsShortcut() {
 		Shortcut shortcut = new Shortcut()
 				.setAppId(id)
 				.setId(id)
@@ -269,11 +269,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 				if (entityLocation != null && deviceLocation != null) {
 					distance = deviceLocation.distanceTo(entityLocation);
-					fuzzy = false;
-					if (entityLocation.accuracy != null
-							&& entityLocation.accuracy.intValue() > Constants.MINIMUM_ACCURACY_FOR_DISTANCE_DISPLAY) {
-						fuzzy = true;
-					}
+					fuzzy = (entityLocation.accuracy != null
+							&& entityLocation.accuracy.intValue() > LocationManager.FUZZY_THRESHOLD);
 				}
 			}
 		}
@@ -537,7 +534,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 						if (settings.synthetic == null || link.shortcut.isSynthetic().equals(settings.synthetic)) {
 							if (settings.linkBroken
 									|| (!settings.linkBroken && (link.shortcut.validatedDate == null || link.shortcut.validatedDate.longValue() != -1))) {
-			                    /*
+				                /*
                                  * Must clone or the groups added below will cause circular references
 								 * that choke serializing to json.
 								 */

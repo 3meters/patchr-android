@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
+import android.widget.ViewAnimator;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -27,7 +28,6 @@ import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.ui.widgets.ComboButton;
 import com.aircandi.utilities.Booleans;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Errors;
@@ -88,7 +88,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 				extras.putBoolean(Constants.EXTRA_AUTO_WATCH, true);
 			}
 		}
-		Patchr.dispatch.route(this, Route.BROWSE, entity, null, extras);
+		Patchr.dispatch.route(this, Route.BROWSE, entity, extras);
 	}
 
 	@Override
@@ -100,14 +100,14 @@ public abstract class BaseEntityForm extends BaseActivity {
 			final String jsonPhoto = Json.objectToJson(photo);
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.dispatch.route(this, Route.PHOTO, null, null, extras);
+			Patchr.dispatch.route(this, Route.PHOTO, null, extras);
 		}
 		else if (mEntity.photo != null) {
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mParentId);
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, (mListLinkType == null) ? Constants.TYPE_LINK_CONTENT : mListLinkType);
 			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, mEntity.schema);
-			Patchr.dispatch.route(this, Route.PHOTOS, mEntity, null, extras);
+			Patchr.dispatch.route(this, Route.PHOTOS, mEntity, extras);
 		}
 	}
 
@@ -150,34 +150,11 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 */
 		super.onRestoreInstanceState(savedInstanceState);
 		Logger.d(this, "Activity restoring state");
-		//		final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
-		//		if (position != null && mScrollView != null) {
-		//			mScrollView.post(new Runnable() {
-		//				@Override
-		//				public void run() {
-		//					mScrollView.scrollTo(position[0], position[1]);
-		//				}
-		//			});
-		//		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	public void configureActionBar() {
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);    // Show navigation indicator
-		}
-
-		getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onBackPressed();
-			}
-		});
-	}
 
 	public void bind(final BindingMode mode) {
 		Logger.d(this, "Binding: mode = " + mode.name().toLowerCase(Locale.US));
@@ -300,7 +277,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 			@Override
 			protected void onPreExecute() {
-				((ComboButton) findViewById(R.id.button_watch)).getViewAnimator().setDisplayedChild(1);
+				((ViewAnimator) findViewById(R.id.button_watch)).setDisplayedChild(1);
 			}
 
 			@Override
@@ -310,8 +287,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 				if (!watching) {
 
-					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getShortcut();
-					Shortcut toShortcut = mEntity.getShortcut();
+					/* Used as part of link management */
+					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
+					Shortcut toShortcut = mEntity.getAsShortcut();
 
 					result = Patchr.getInstance().getEntityManager().insertLink(null
 							, Patchr.getInstance().getCurrentUser().id
@@ -339,11 +317,10 @@ public abstract class BaseEntityForm extends BaseActivity {
 				if (isFinishing()) return;
 				ModelResult result = (ModelResult) response;
 
-				((ComboButton) findViewById(R.id.button_watch)).getViewAnimator().setDisplayedChild(0);
+				((ViewAnimator) findViewById(R.id.button_watch)).setDisplayedChild(0);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					View view = findViewById(android.R.id.content);
 					drawButtons(view);
-					drawStats(view);
 					if (mEntity.privacy.equals(Constants.PRIVACY_PRIVATE)) {
 						bind(BindingMode.AUTO);
 					}

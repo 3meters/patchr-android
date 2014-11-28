@@ -4,25 +4,20 @@ package com.aircandi;
 @SuppressWarnings("ucd")
 public final class ServiceConstants {
 
-	public static final int TIMEOUT_CONNECTION   = 5000;
-	public static final int TIMEOUT_SOCKET_READ  = 10000;
-	public static final int TIMEOUT_SOCKET_WRITE = 20000;
+	public static final int TIMEOUT_CONNECTION    = 5000;
+	public static final int TIMEOUT_SOCKET_READ   = 10000;
+	public static final int TIMEOUT_SOCKET_WRITE  = 20000;
+	public static final int TIMEOUT_PLACE_SUGGEST = 2000;
 
-	public static final int TIMEOUT_APPLINK_SEARCH  = 10000;
-	public static final int TIMEOUT_APPLINK_REFRESH = 10000;
-	public static final int TIMEOUT_PLACE_QUERIES   = 10000;
-	public static final int TIMEOUT_PLACE_SUGGEST   = 2000;
-
-	public static final String WALLED_GARDEN_URI               = "http://clients3.google.com/generate_204";
-	public static final int    WALLED_GARDEN_SOCKET_TIMEOUT_MS = 5000;
-
+	public static final String URI_WALLED_GARDEN           = "http://clients3.google.com/generate_204";
+	public static final String URI_PROXIBASE_SEARCH_IMAGES = "https://api.datamarket.azure.com/Bing/Search/v1/Image";
 	/*
 	 * Used when trying to verify that a network connection is available. The retries
 	 * are used to allow for the case where the connecting process is underway.
 	 */
-	public static final int CONNECT_TRIES           = 15;
-	public static final int CONNECT_WAIT            = 1000;
-	public static final int DEFAULT_MAX_CONNECTIONS = 50;
+	public static final int    CONNECT_TRIES               = 15;
+	public static final int    CONNECT_WAIT                = 1000;
+	public static final int    DEFAULT_MAX_CONNECTIONS     = 50;
 
 	public static final String ADMIN_USER_ID     = "us.000000.00000.000.000000";
 	public static final String ANONYMOUS_USER_ID = "us.000000.00000.000.111111";
@@ -47,18 +42,14 @@ public final class ServiceConstants {
 	public static final String URL_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS = URL_PROXIBASE_SERVICE + PATH_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS;
 	public static final String URL_PROXIBASE_SERVICE_ASSETS_CATEGORIES    = URL_PROXIBASE_SERVICE + PATH_PROXIBASE_SERVICE_ASSETS_CATEGORIES;
 
-	public static final String URL_PROXIBASE_SEARCH_IMAGES = "https://api.datamarket.azure.com/Bing/Search/v1/Image";
-
-	public static final String  PLACE_SUGGEST_PROVIDER = "google";
-	public static final Integer PLACE_SUGGEST_RADIUS   = 80000; // ~50 miles
-
-	public static final String PLACE_NEAR_PROVIDERS        = "none";
+	public static final String  PLACE_SUGGEST_PROVIDER      = "google";
+	public static final Integer PLACE_SUGGEST_RADIUS        = 80000; // ~50 miles
 	/*
 	 * Nearby = 20 minutes walking = 1 mile = 1609 meters.
 	 */
-	public static final int    PATCH_NEAR_RADIUS           = 10000;
-	public static final int    PROXIMITY_BEACON_COVERAGE   = 5;
-	public static final int    PROXIMITY_BEACON_UNCOVERAGE = 50;
+	public static final int     PATCH_NEAR_RADIUS           = 10000;
+	public static final int     PROXIMITY_BEACON_COVERAGE   = 5;
+	public static final int     PROXIMITY_BEACON_UNCOVERAGE = 50;
 
 	public static final float SERVICE_STATUS_CODE_BAD_REQUEST          = 400.0f;
 	public static final float SERVICE_STATUS_CODE_MISSING_PARAM        = 400.1f;

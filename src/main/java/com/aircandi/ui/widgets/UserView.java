@@ -36,7 +36,6 @@ public class UserView extends RelativeLayout {
 	private TextView     mLabel;
 	private TextView     mWatchCount;
 	private TextView     mTimeSince;
-	private ComboButton  mOverflowButton;
 
 	private Entity  mUser;
 	private Integer mLabelResId;
@@ -87,9 +86,6 @@ public class UserView extends RelativeLayout {
 		mUser = entity;
 		mDate = date;
 		this.setTag(entity);
-		if (mOverflowButton != null) {
-			mOverflowButton.setTag(entity);
-		}
 		draw();
 	}
 
@@ -97,12 +93,6 @@ public class UserView extends RelativeLayout {
 		User user = (User) mUser;
 
 		if (user != null) {
-			if (mOverflowButton != null) {
-				if (user.isAnonymous()) {
-					mOverflowButton.setVisibility(user.isAnonymous() ? View.GONE : View.VISIBLE);
-				}
-			}
-
 			if (mLabel != null) {
 				if (mLabelResId != 0) {
 					mLabel.setText(StringManager.getString(mLabelResId));

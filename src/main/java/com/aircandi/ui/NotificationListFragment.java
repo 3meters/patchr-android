@@ -75,7 +75,7 @@ public class NotificationListFragment extends MessageListFragment {
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, notification.parentId);
 
 			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-			Patchr.dispatch.route(getActivity(), Route.BROWSE, null, null, extras);
+			Patchr.dispatch.route(getActivity(), Route.BROWSE, null, extras);
 
 			if (NotificationManager.getInstance().getNotifications().containsKey(entity.id)) {
 				NotificationManager.getInstance().getNotifications().get(entity.id).read = true;
@@ -95,8 +95,8 @@ public class NotificationListFragment extends MessageListFragment {
 		mBusy = new BusyManager(getActivity());
 		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_notifications);
 		if (swipeRefresh != null) {
-			swipeRefresh.setProgressBackgroundColor(R.color.brand_accent);
-			swipeRefresh.setColorSchemeResources(R.color.white);
+			swipeRefresh.setProgressBackgroundColor(R.color.white);
+			swipeRefresh.setColorSchemeResources(R.color.brand_accent);
 			swipeRefresh.setOnRefreshListener(this);
 			mBusy.setSwipeRefresh(swipeRefresh);
 		}

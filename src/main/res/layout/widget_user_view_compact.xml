@@ -19,7 +19,7 @@
 		android:scaleType="centerCrop"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
-		custom:layout="@layout/widget_webimageview"
+		custom:layoutId="@layout/widget_webimageview"
 		custom:sizeHint="@dimen/image_extra_small" />
 
 	<LinearLayout
@@ -36,7 +36,7 @@
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
 			android:singleLine="true"
-			android:textColor="?attr/textColorButtonLink"
+			android:textColor="@color/brand_primary_dark"
 			android:textStyle="bold" />
 	</LinearLayout>
 

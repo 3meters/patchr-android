@@ -29,7 +29,7 @@ import java.util.Map;
 public class Messages extends EntityControllerBase {
 
 	public Messages() {
-		mColorPrimary = R.color.holo_blue_dark;
+		mColorPrimary = R.color.brand_accent;
 		mSchema = Constants.SCHEMA_ENTITY_MESSAGE;
 		mBrowseClass = MessageForm.class;
 		mEditClass = MessageEdit.class;

@@ -3,23 +3,33 @@
 
 	<!-- Titles -->
 
-	<string name="form_title_photo" tools:ignore="UnusedResources">Photo</string>
-	<string name="form_title_preferences" tools:ignore="UnusedResources">Settings</string>
-	<string name="form_title_patch_edit" tools:ignore="UnusedResources">Patch</string>
-	<string name="form_title_message_edit" tools:ignore="UnusedResources">Compose</string>
-	<string name="form_title_user_edit" tools:ignore="UnusedResources">Profile</string>
+	<string name="form_title_user_form" tools:ignore="UnusedResources">Profile</string>
+	<string name="form_title_photo_form" tools:ignore="UnusedResources">Photo</string>
+	<string name="form_title_about_form" tools:ignore="UnusedResources">About Patchr</string>
+	<string name="form_title_map_form" tools:ignore="UnusedResources">Map</string>
+	<string name="form_title_search_form" tools:ignore="UnusedResources">Search</string>
+	<string name="form_title_settings_form" tools:ignore="UnusedResources">Settings</string>
+
+	<string name="form_title_patch_edit" tools:ignore="UnusedResources">Edit patch</string>
+	<string name="form_title_patch_new" tools:ignore="UnusedResources">New patch</string>
+	<string name="form_title_message_edit" tools:ignore="UnusedResources">Edit message</string>
+	<string name="form_title_message_new" tools:ignore="UnusedResources">Compose</string>
+	<string name="form_title_user_edit" tools:ignore="UnusedResources">Edit profile</string>
 	<string name="form_title_feedback_edit" tools:ignore="UnusedResources">Send feedback</string>
 	<string name="form_title_report_edit" tools:ignore="UnusedResources">Report a problem</string>
 	<string name="form_title_password_edit" tools:ignore="UnusedResources">Change password</string>
 	<string name="form_title_signin_edit" tools:ignore="UnusedResources">Sign in</string>
 	<string name="form_title_register_edit" tools:ignore="UnusedResources">Join Patchr</string>
 	<string name="form_title_reset_edit" tools:ignore="UnusedResources">Password reset</string>
+
 	<string name="form_title_privacy_builder" tools:ignore="UnusedResources">Privacy setting</string>
 	<string name="form_title_category_builder" tools:ignore="UnusedResources">Category</string>
 	<string name="form_title_photo_picker" tools:ignore="UnusedResources">Photo search</string>
-	<string name="form_title_place_picker" tools:ignore="UnusedResources">Link to a place</string>
+	<string name="form_title_location_picker" tools:ignore="UnusedResources">Set patch location</string>
 
-	<string name="form_title_watchers" tools:ignore="UnusedResources">Watchers</string>
+
+	<string name="form_title_patch_list" tools:ignore="UnusedResources">Patches</string>
+	<string name="form_title_watching_list" tools:ignore="UnusedResources">Watchers</string>
 	<string name="form_title_nearby" tools:ignore="UnusedResources">Nearby</string>
 	<string name="form_title_watch" tools:ignore="UnusedResources">Watching</string>
 	<string name="form_title_create" tools:ignore="UnusedResources">My patches</string>
@@ -42,6 +52,8 @@
 	<string name="menu_item_signout">Sign out</string>
 	<string name="menu_item_signin">Sign in</string>
 	<string name="menu_item_send">Send</string>
+	<string name="menu_item_invite">Invite</string>
+	<string name="menu_item_map">Map location</string>
 	<string name="menu_item_feedback">Feedback</string>
 	<string name="menu_item_delete">Delete</string>
 	<string name="menu_item_remove">Remove</string>
@@ -281,7 +293,7 @@
 	<string name="button_privacy">Privacy policy</string>
 	<string name="button_legal">Open source licenses</string>
 	<string name="button_forgot_password">Forgot password?</string>
-	<string name="button_clear_place">No linked place</string>
+	<string name="button_clear_place">Clear linked place</string>
 
 	<string name="button_tuning_tune">I\'m here</string>
 	<string name="button_tuning_untune">I\'m not here</string>
@@ -388,8 +400,8 @@
         "You\'ve been invited to a [@string/container_singular_lowercase]! \n\nhttp://patchr.com/patch/%1$s \n\n[@string/label_patch_share_body_install][@string/uri_play_store]"
     </string>
 
-	<string name="label_patch_share_body_self">"Checkout the \'%1$s\' [@string/container_singular_lowercase]!"</string>
-	<string name="label_patch_share_body_self_oncreate">"Checkout the \'%1$s\' [@string/container_singular_lowercase] I just dropped!"</string>
+	<string name="label_patch_share_body_self">"Check out the \'%1$s\' [@string/container_singular_lowercase]!"</string>
+	<string name="label_patch_share_body_self_oncreate">"Check out the \'%1$s\' [@string/container_singular_lowercase] I just dropped!"</string>
 
 	<string name="label_message_share_subject">[@string/name_app] message shared by %1$s</string>
 	<string name="label_message_share_body_install" tools:ignore="UnusedResources">Get the [@string/name_app] app at\u0020</string>
@@ -397,12 +409,12 @@
         "A message has been shared with you! \n\nhttp://patchr.com/message/%1$s \n\n[@string/label_message_share_body_install][@string/uri_play_store]"
     </string>
 
-	<string name="label_message_share_body_self">"Checkout %1$s\'s message to the \'%2$s\' [@string/container_singular_lowercase]!"</string>
-	<string name="label_message_share_body_self_no_patch">"Checkout %1$s\'s message to a [@string/container_singular_lowercase]!"</string>
+	<string name="label_message_share_body_self">"Check out %1$s\'s message to the \'%2$s\' [@string/container_singular_lowercase]!"</string>
+	<string name="label_message_share_body_self_no_patch">"Check out %1$s\'s message to a [@string/container_singular_lowercase]!"</string>
 
 	<string name="label_photo_share_subject">[@string/name_app] photo shared by %1$s</string>
     <string name="label_photo_share_body_self">
-        "Checkout this [@string/name_app] photo!"
+        "Check out this [@string/name_app] photo!"
     </string>
 
 	<!-- Labels: Empty -->
@@ -414,6 +426,7 @@
 	<!-- Labels: Misc -->
 
 	<string name="label_message_to_prefix">"To:  "</string>
+	<string name="label_spinner_patch_type">Select patch type</string>
 
 	<string name="label_user_watching_none">none yet</string>
 	<string name="label_user_created_none">none yet</string>
@@ -423,7 +436,7 @@
 	<string name="label_sent_empty">No messages posted yet</string>
 	<string name="label_feed_messages_title">Messages</string>
 	<string name="label_feed_alerts_title">Alerts</string>
-	<string name="label_tuning_tune_no_name">If you are currently at the location for this [@string/container_singular_lowercase], help make [@string/name_app] better by tuning the [@string/container_singular_lowercase] for faster discovery.</string>
+	<string name="label_tuning_tune_no_name">If you are currently at the location for this patch, help make Patchr better by tuning the patch for faster discovery.</string>
 	<string name="label_message_share_title">Share message to&#8230;</string>
 	<string name="label_private_description" tools:ignore="UnusedResources">Users can only see posted messages if you approve their watch request.</string>
 
@@ -514,7 +527,7 @@
 	<!-- Hints -->
 
 	<string name="hint_patch_title">Title</string>
-	<string name="hint_patch_category">Set category</string>
+	<string name="hint_patch_category">Patch type</string>
 	<string name="hint_patch_privacy">Set privacy</string>
 	<string name="hint_patch_sub_category">Set subcategory</string>
 	<string name="hint_phone">Phone</string>

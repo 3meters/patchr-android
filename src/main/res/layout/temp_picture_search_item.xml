@@ -14,6 +14,6 @@
 		android:scaleType="centerCrop"
 		custom:config="rgb_565"
 		custom:fitType="auto"
-		custom:layout="@layout/widget_webimageview" />
+		custom:layoutId="@layout/widget_webimageview" />
 
 </FrameLayout>

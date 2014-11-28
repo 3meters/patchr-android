@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto">
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
 		android:id="@+id/share"
-		android:orderInCategory="10"
-		android:showAsAction="never"
-		android:title="@string/menu_item_share_message" />
+		android:icon="?attr/iconActionShare"
+		android:orderInCategory="5"
+		android:title="@string/menu_item_share"
+		app:showAsAction="always|withText" />
 
 </menu>

@@ -55,9 +55,9 @@ public class AboutForm extends BaseActivity {
 				&& Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
 				&& Patchr.getInstance().getCurrentUser().developer != null
 				&& Patchr.getInstance().getCurrentUser().developer) {
-			((TextView) findViewById(R.id.install_id)).setText(Patchr.getinstallId());
-			((TextView) findViewById(R.id.install_type)).setText("Id type: " + Patchr.getInstallType());
-			((TextView) findViewById(R.id.install_date)).setText(DateTime.dateString(Patchr.getInstallDate(), DateTime.DATE_FORMAT_DEFAULT));
+			((TextView) findViewById(R.id.install_id)).setText(Patchr.getInstance().getinstallId());
+			((TextView) findViewById(R.id.install_type)).setText("Id type: " + Patchr.getInstance().getInstallType());
+			((TextView) findViewById(R.id.install_date)).setText(DateTime.dateString(Patchr.getInstance().getInstallDate(), DateTime.DATE_FORMAT_DEFAULT));
 			findViewById(R.id.holder_footer).setVisibility(View.VISIBLE);
 		}
 	}
@@ -75,17 +75,17 @@ public class AboutForm extends BaseActivity {
 
 	@SuppressWarnings("ucd")
 	public void onTermsButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.TERMS, null, null, null);
+		Patchr.dispatch.route(this, Route.TERMS, null, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onPrivacyButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.PRIVACY, null, null, null);
+		Patchr.dispatch.route(this, Route.PRIVACY, null, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onLegalButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.LEGAL, null, null, null);
+		Patchr.dispatch.route(this, Route.LEGAL, null, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------

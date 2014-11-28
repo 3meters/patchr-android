@@ -20,7 +20,7 @@
 			android:scaleType="centerCrop"
 			custom:config="rgb_565"
 			custom:fitType="fixed"
-			custom:layout="@layout/widget_webimageview_candi_view"
+			custom:layoutId="@layout/widget_webimageview_candi_view"
 			custom:sizeHint="@dimen/image_medium_large" />
 
 		<LinearLayout
@@ -122,7 +122,7 @@
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
 					android:textAppearance="?attr/textAppearanceExtraLarge"
-					android:textColor="@color/holo_blue_light"
+					android:textColor="@color/brand_accent"
 					android:textSize="28sp"
 					tools:text="31" />
 
@@ -156,7 +156,7 @@
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
 					android:textAppearance="?attr/textAppearanceExtraLarge"
-					android:textColor="@color/holo_blue_light"
+					android:textColor="@color/brand_accent"
 					android:textSize="28sp"
 					tools:text="12" />
 

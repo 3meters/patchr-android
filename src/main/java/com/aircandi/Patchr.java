@@ -71,38 +71,27 @@ public class Patchr extends Application {
 
 	public static SharedPreferences        settings;
 	public static SharedPreferences.Editor settingsEditor;
+	public static Context                  applicationContext;
+	public static Handler                  mainThreadHandler;
+	public static PackageManager           packageManager;
+	public static DispatchManager          dispatch;
+	public static Tracker                  tracker;
+	public static GoogleAnalytics          analytics;
+	public static DisplayMetrics           displayMetrics;
+	public static Integer                  memoryClass;
+	public static Stopwatch                stopwatch1;
+	public static Stopwatch                stopwatch2;
+	public static String                   themeTone;
 
-	public static Context applicationContext;
-
-	public static Handler         mainThreadHandler;
-	public static PackageManager  packageManager;
-	public static DispatchManager dispatch;
-	public static Map<String, IEntityController> controllerMap = new HashMap<String, IEntityController>();
-
-	public static Tracker         tracker;
-	public static GoogleAnalytics analytics;
-
-	public static DisplayMetrics displayMetrics;
-	public static Integer        memoryClass;
-
-	public static Stopwatch stopwatch1;
-	public static Stopwatch stopwatch2;
-
-	public static  Boolean firstStartApp    = true;
-	public static  Boolean DEBUG            = false;
-	public static  Intent  firstStartIntent = null;
-	private static Boolean activityVisible  = false;
-	public static  Boolean usingEmulator    = false;
-	public static  Integer wifiCount        = 0;
-
-	public static String themeTone;
-
-	public static Boolean applicationUpdateRequired = false;
-
-	private static String  uniqueId   = null;
-	private static Long    uniqueDate = null;
-	private static String  uniqueType = null;
-	public static  Integer resultCode = Activity.RESULT_OK;
+	public static  Map<String, IEntityController> controllerMap             = new HashMap<String, IEntityController>();
+	public static  Boolean                        firstStartApp             = true;
+	public static  Boolean                        debug                     = false;
+	public static  Intent                         firstStartIntent          = null;
+	private static Boolean                        activityVisible           = false;
+	public static  Boolean                        usingEmulator             = false;
+	public static  Integer                        wifiCount                 = 0;
+	public static  Boolean                        applicationUpdateRequired = false;
+	public static  Integer                        resultCode                = Activity.RESULT_OK;
 
 	/* Container values */
 	public static String AWS_ACCESS_KEY  = "aws-access-key";
@@ -130,6 +119,11 @@ public class Patchr extends Application {
 	protected MediaManager     mMediaManager;
 	private   AnimationManager mAnimationManager;
 
+	/* Install id components */
+	private String mUniqueId;
+	private Long   mUniqueDate;
+	private String mUniqueType;
+
 	public static Patchr getInstance() {
 		return singletonObject;
 	}
@@ -142,7 +136,7 @@ public class Patchr extends Application {
 		 */
 		super.onCreate();
 		singletonObject = this;
-		DEBUG = (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE));
+		debug = (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE));
 		singletonObject.initializeInstance();
 		Logger.d(this, "Application created");
 	}
@@ -179,7 +173,7 @@ public class Patchr extends Application {
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
 
 		/* Make sure unique id is initialized */
-		Patchr.getinstallId();
+		getinstallId();
 
 		/* Setup the analytics tracker */
 		analytics = GoogleAnalytics.getInstance(this);
@@ -373,50 +367,50 @@ public class Patchr extends Application {
 		}
 	}
 
-	public synchronized static String getInstallType() {
-		if (uniqueType == null) {
+	public synchronized String getInstallType() {
+		if (mUniqueType == null) {
 			getinstallId();
 		}
-		return uniqueType;
+		return mUniqueType;
 	}
 
-	public synchronized static Long getInstallDate() {
-		if (uniqueDate == null) {
+	public synchronized Long getInstallDate() {
+		if (mUniqueDate == null) {
 			getinstallId();
 		}
-		return uniqueDate;
+		return mUniqueDate;
 	}
 
-	public synchronized static String getinstallId() {
-		if (uniqueId == null) {
-			uniqueId = Patchr.settings.getString(StringManager.getString(R.string.setting_unique_id), null);
-			uniqueDate = Patchr.settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
-			uniqueType = Patchr.settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
-			if (uniqueId == null || uniqueType == null) {
+	public synchronized String getinstallId() {
+		if (mUniqueId == null) {
+			mUniqueId = Patchr.settings.getString(StringManager.getString(R.string.setting_unique_id), null);
+			mUniqueDate = Patchr.settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
+			mUniqueType = Patchr.settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
+			if (mUniqueId == null || mUniqueType == null) {
 				if (Build.SERIAL != null && !Build.SERIAL.equals("unknown")) {
-					uniqueId = Build.SERIAL;
-					uniqueType = Constants.INSTALL_TYPE_SERIAL;
+					mUniqueId = Build.SERIAL;
+					mUniqueType = Constants.INSTALL_TYPE_SERIAL;
 				}
 				else {
 					String androidId = Settings.Secure.getString(applicationContext.getContentResolver(), Settings.Secure.ANDROID_ID);
 					if (androidId != null) {
-						uniqueId = androidId;
-						uniqueType = Constants.INSTALL_TYPE_ANDROID_ID;
+						mUniqueId = androidId;
+						mUniqueType = Constants.INSTALL_TYPE_ANDROID_ID;
 					}
 					else {
-						uniqueId = UUID.randomUUID().toString();
-						uniqueType = Constants.INSTALL_TYPE_RANDOM;
+						mUniqueId = UUID.randomUUID().toString();
+						mUniqueType = Constants.INSTALL_TYPE_RANDOM;
 					}
 				}
-				uniqueId += "." + applicationContext.getPackageName();
-				uniqueDate = DateTime.nowDate().getTime();
-				Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id_type), uniqueType);
-				Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id), uniqueId);
-				Patchr.settingsEditor.putLong(StringManager.getString(R.string.setting_unique_id_date), uniqueDate);
+				mUniqueId += "." + applicationContext.getPackageName();
+				mUniqueDate = DateTime.nowDate().getTime();
+				Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id_type), mUniqueType);
+				Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id), mUniqueId);
+				Patchr.settingsEditor.putLong(StringManager.getString(R.string.setting_unique_id_date), mUniqueDate);
 				Patchr.settingsEditor.commit();
 			}
 		}
-		return uniqueId;
+		return mUniqueId;
 	}
 
 	public static class ThemeTone {

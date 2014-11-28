@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:orientation="vertical">
 
-	<FrameLayout
-		android:id="@+id/fragment_holder"
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/include_toolbar_actionbar" />
+
+	<RelativeLayout
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:background="?attr/backgroundCardField" />
+		android:layout_height="match_parent">
 
-	<com.aircandi.ui.widgets.AirSquareButton
-		android:id="@+id/button_bubble"
-		style="@style/button_round"
-		android:layout_width="@dimen/button_round_width"
-		android:layout_height="@dimen/button_round_height"
-		android:layout_centerInParent="true" />
+		<FrameLayout
+			android:id="@+id/fragment_holder"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="?attr/backgroundCardField" />
 
-</RelativeLayout>
+		<include
+			android:id="@+id/button_bubble"
+			layout="@layout/include_bubble" />
+
+	</RelativeLayout>
+
+</LinearLayout>

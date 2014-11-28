@@ -1,8 +1,6 @@
 package com.aircandi.ui;
 
-import android.content.res.Configuration;
 import android.graphics.drawable.TransitionDrawable;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.ViewAnimator;
 
@@ -11,7 +9,6 @@ import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.Extras;
-import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -67,7 +64,7 @@ public class MessageListFragment extends EntityListFragment {
 		}
 
 		extras.getExtras().putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, null, extras.getExtras());
+		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras.getExtras());
 	}
 
 	/*--------------------------------------------------------------------------------------------
