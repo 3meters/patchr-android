@@ -45,7 +45,7 @@ public class UserForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mBubbleButton.setEnabled(false);
+		mEmptyView.setEnabled(false);
 		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
 		mLinkProfile = currentUser ? LinkProfile.LINKS_FOR_USER_CURRENT : LinkProfile.LINKS_FOR_USER;
 		mCurrentFragment = new MessageListFragment();

@@ -7,7 +7,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Matrix;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.DisplayMetrics;
@@ -24,7 +23,6 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
-import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.ui.widgets.AirImageView;
 import com.squareup.picasso.RequestCreator;
@@ -142,47 +140,7 @@ public class UI {
 		}
 
 		/* Final step */
-		colorizeView(photoView, photo);
-	}
-
-	public static void colorizeView(final AirImageView photoView, final Photo photo) {
-		/*
-		 * Special color treatment if enabled.
-		 */
-		if (photo.colorize != null && photo.colorize) {
-			if (photo.color != null) {
-				photoView.getImageView().setColorFilter(photo.color, PorterDuff.Mode.SRC_ATOP);
-				photoView.getImageView().setBackgroundResource(0);
-				if (photoView.findViewById(R.id.color_layer) != null) {
-					(photoView.findViewById(R.id.color_layer)).setBackgroundResource(0);
-					(photoView.findViewById(R.id.color_layer)).setVisibility(View.GONE);
-					(photoView.findViewById(R.id.reverse_layer)).setVisibility(View.GONE);
-				}
-			}
-			else {
-				final int color = Patch.getCategoryColor(photo.colorizeKey);
-				photoView.getImageView().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
-
-				Integer colorResId = Patch.getCategoryColorResId(photo.colorizeKey);
-				if (photoView.findViewById(R.id.color_layer) != null) {
-					(photoView.findViewById(R.id.color_layer)).setBackgroundResource(colorResId);
-					(photoView.findViewById(R.id.color_layer)).setVisibility(View.VISIBLE);
-					(photoView.findViewById(R.id.reverse_layer)).setVisibility(View.VISIBLE);
-				}
-				else {
-					photoView.getImageView().setBackgroundResource(colorResId);
-				}
-			}
-		}
-		else {
-			photoView.getImageView().clearColorFilter();
-			photoView.getImageView().setBackgroundResource(0);
-			if (photoView.findViewById(R.id.color_layer) != null) {
-				(photoView.findViewById(R.id.color_layer)).setBackgroundResource(0);
-				(photoView.findViewById(R.id.color_layer)).setVisibility(View.GONE);
-				(photoView.findViewById(R.id.reverse_layer)).setVisibility(View.GONE);
-			}
-		}
+		photoView.getImageView().setBackgroundResource(0);
 	}
 
 	/*--------------------------------------------------------------------------------------------

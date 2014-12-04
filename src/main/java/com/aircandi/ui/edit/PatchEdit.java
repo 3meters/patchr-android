@@ -32,6 +32,7 @@ import com.aircandi.components.ProximityManager.ScanReason;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.BeaconsLockedEvent;
 import com.aircandi.events.CancelEvent;
+import com.aircandi.events.LocationChangedEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
@@ -68,14 +69,14 @@ public class PatchEdit extends BaseEntityEdit {
 
 	private   Button       mButtonTune;
 	private   Button       mButtonUntune;
-	private   View         mButtonSpacer;
 	private   TextView     mButtonPrivacy;
 	private   TextView     mButtonPlace;
+	private   TextView     mLocationLabel;
 	protected AirImageView mPhotoViewPlace;
 	protected MapView      mMapView;
 	protected GoogleMap    mMap;
 	protected Marker       mMarker;
-	protected Entity       mPlace;
+	protected Entity       mPlaceToLinkTo;
 
 	private Spinner        mSpinnerCategory;
 	private List<Category> mCategories;
@@ -95,7 +96,7 @@ public class PatchEdit extends BaseEntityEdit {
 		if (extras != null) {
 			final String json = extras.getString(Constants.EXTRA_ENTITY_PARENT);
 			if (json != null) {
-				mPlace = (Entity) Json.jsonToObject(json, Json.ObjectType.ENTITY);
+				mPlaceToLinkTo = (Entity) Json.jsonToObject(json, Json.ObjectType.ENTITY);
 			}
 		}
 	}
@@ -110,8 +111,8 @@ public class PatchEdit extends BaseEntityEdit {
 		mButtonPrivacy = (TextView) findViewById(R.id.button_privacy);
 		mMapView = (MapView) findViewById(R.id.mapview);
 		mPhotoViewPlace = (AirImageView) findViewById(R.id.place_photo);
-		mButtonSpacer = findViewById(R.id.spacer);
 		mSpinnerCategory = (Spinner) findViewById(R.id.spinner_category);
+		mLocationLabel = (TextView) findViewById(R.id.location_label);
 
 		if (mMapView != null) {
 			mMapView.onCreate(savedInstanceState);
@@ -136,23 +137,15 @@ public class PatchEdit extends BaseEntityEdit {
 				initCategorySpinner();
 			}
 		}
-		draw(null);
-	}
 
-	@SuppressLint("ResourceAsColor")
-	@Override
-	public void draw(View view) {
-		/*
-		 * Only called when the activity is first created.
-		 */
 		Patch patch = (Patch) mEntity;
 
 		if (!mEditing) {
-			if (mPlace != null) {
+			if (mPlaceToLinkTo != null) {
 				/*
 				 * Place was passed in for default linking.
 				 */
-				((Patch) mEntity).location = mPlace.location;
+				((Patch) mEntity).location = mPlaceToLinkTo.location;
 				mProximityDisabled = true;
 			}
 			else {
@@ -164,19 +157,29 @@ public class PatchEdit extends BaseEntityEdit {
 					patch.location.lat = location.lat;
 					patch.location.lng = location.lng;
 					patch.location.accuracy = location.accuracy;
+					patch.location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
 				}
 			}
 		}
-
-		if (mMapView != null && patch.location != null) {
-			mMap.clear();
-			mMarker = mMap.addMarker(new MarkerOptions()
-					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
-					.position(new LatLng(mEntity.location.lat.doubleValue(), mEntity.location.lng.doubleValue()))
-					.draggable(true));
-			mMarker.setAnchor(0.5f, 0.5f);
-			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(patch.location.lat.doubleValue(), patch.location.lng.doubleValue()), 17));
+		else {
+			Link linkPlace = patch.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
+			if (linkPlace != null) {
+				mPlaceToLinkTo = linkPlace.shortcut.getAsEntity();
+			}
 		}
+
+		draw(null);
+	}
+
+	@SuppressLint("ResourceAsColor")
+	@Override
+	public void draw(View view) {
+		/*
+		 * Only called when the activity is first created.
+		 */
+		Patch patch = (Patch) mEntity;
+
+		drawLocation();
 
 		if (mButtonPrivacy != null) {
 			mButtonPrivacy.setTag(patch.privacy);
@@ -190,23 +193,11 @@ public class PatchEdit extends BaseEntityEdit {
 			UI.setVisibility(mPhotoViewPlace, View.GONE);
 
 			mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": None");
-			if (!mEditing) {
-				if (mPlace != null) {
-					mButtonPlace.setTag(mPlace);
-					mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": " + mPlace.name);
-					UI.drawPhoto(mPhotoViewPlace, mPlace.getPhoto());
-					UI.setVisibility(mPhotoViewPlace, View.VISIBLE);
-				}
-			}
-			else {
-				Link linkPlace = patch.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
-				if (linkPlace != null) {
-					Entity place = linkPlace.shortcut.getAsEntity();
-					mButtonPlace.setTag(place);
-					mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": " + place.name);
-					UI.drawPhoto(mPhotoViewPlace, place.getPhoto());
-					UI.setVisibility(mPhotoViewPlace, View.VISIBLE);
-				}
+			if (mPlaceToLinkTo != null) {
+				mButtonPlace.setTag(mPlaceToLinkTo);
+				mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": " + mPlaceToLinkTo.name);
+				UI.drawPhoto(mPhotoViewPlace, mPlaceToLinkTo.getPhoto());
+				UI.setVisibility(mPhotoViewPlace, View.VISIBLE);
 			}
 		}
 
@@ -214,21 +205,90 @@ public class PatchEdit extends BaseEntityEdit {
 		UI.setVisibility(findViewById(R.id.group_tune), View.GONE);
 		if (mEditing) {
 			UI.setVisibility(findViewById(R.id.group_tune), View.VISIBLE);
-			UI.setVisibility(mButtonSpacer, View.GONE);
 			final Boolean hasActiveProximityLink = patch.hasActiveProximity();
 			if (hasActiveProximityLink) {
 				mFirstTune = false;
 				UI.setVisibility(mButtonUntune, View.VISIBLE);
-				UI.setVisibility(mButtonSpacer, View.VISIBLE);
 			}
 		}
 
 		super.draw(view);
 	}
 
+	public void drawLocation() {
+
+		Patch patch = (Patch) mEntity;
+		if (mMapView != null && patch.location != null) {
+
+			mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
+
+			if (patch.location.provider != null) {
+				if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_USER)) {
+					mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_user));
+				}
+				else if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_PLACE)) {
+					if (mPlaceToLinkTo != null) {
+						mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_place));
+					}
+					else {
+						mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_unknown));
+					}
+				}
+				else if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
+					if (mEditing) {
+						mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
+					}
+					else {
+						mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_google_new));
+					}
+				}
+			}
+
+			mMap.clear();
+			mMarker = mMap.addMarker(new MarkerOptions()
+					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
+					.position(new LatLng(patch.location.lat.doubleValue(), patch.location.lng.doubleValue())));
+			mMarker.setAnchor(0.5f, 0.5f);
+			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(patch.location.lat.doubleValue(), patch.location.lng.doubleValue()), 17));
+			mMapView.invalidate();
+		}
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	@SuppressWarnings({"ucd"})
+	public void onLocationChanged(final LocationChangedEvent event) {
+		/*
+		 * Getting location updates because we are inserting a patch and
+		 * location services are enabled.
+		 */
+		if (event.location != null) {
+
+			LocationManager.getInstance().setLocationLocked(event.location);
+			final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+
+			if (location != null) {
+
+				Patch patch = (Patch) mEntity;
+				if (patch.location == null) {
+					patch.location = new AirLocation();
+					patch.location.lat = location.lat;
+					patch.location.lng = location.lng;
+					patch.location.accuracy = location.accuracy;
+					patch.location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
+				}
+				else if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
+					patch.location.lat = location.lat;
+					patch.location.lng = location.lng;
+					patch.location.accuracy = location.accuracy;
+				}
+				drawLocation();
+			}
+		}
+	}
 
 	@SuppressWarnings("ucd")
 	public void onTuneButtonClick(View view) {
@@ -350,6 +410,7 @@ public class PatchEdit extends BaseEntityEdit {
 			if (requestCode == Constants.ACTIVITY_SEARCH) {
 				if (intent == null || intent.getExtras() == null) {
 					mDirty = true;
+					mPlaceToLinkTo = null;
 					mButtonPlace.setTag(null);
 					mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": None");
 					UI.setVisibility(mPhotoViewPlace, View.GONE);
@@ -360,17 +421,13 @@ public class PatchEdit extends BaseEntityEdit {
 					if (json != null) {
 						final Place place = (Place) Json.jsonToObject(json, Json.ObjectType.ENTITY);
 						mDirty = true;
-						mButtonPlace.setTag(place);
-						mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": " + place.name);
-						UI.drawPhoto(mPhotoViewPlace, place.getPhoto());
-						UI.setVisibility(mPhotoViewPlace, View.VISIBLE);
-
 						((Patch) mEntity).location = place.location;
-						mMarker.setPosition(new LatLng(place.location.lat.doubleValue(), place.location.lng.doubleValue()));
+						((Patch) mEntity).location.provider = Constants.LOCATION_PROVIDER_PLACE;
 						mProximityDisabled = true;
-						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(((Patch) mEntity).location.lat.doubleValue(), ((Patch) mEntity).location.lng.doubleValue()), 16));
+						mPlaceToLinkTo = place;
 					}
 				}
+				draw(null);
 			}
 			else if (requestCode == Constants.ACTIVITY_PRIVACY_EDIT) {
 				if (intent != null && intent.getExtras() != null) {
@@ -379,10 +436,7 @@ public class PatchEdit extends BaseEntityEdit {
 					if (privacy != null) {
 						mDirty = true;
 						((Patch) mEntity).privacy = privacy;
-						mButtonPrivacy.setTag(privacy);
-						String value = (privacy.equals(Constants.PRIVACY_PUBLIC)) ? "Public" : "Private";
-						mButtonPrivacy.setText("Privacy: " + value);
-						drawPhoto();
+						draw(null);
 					}
 				}
 			}
@@ -391,13 +445,13 @@ public class PatchEdit extends BaseEntityEdit {
 					final Bundle extras = intent.getExtras();
 					final String json = extras.getString(Constants.EXTRA_LOCATION);
 					if (json != null) {
-						final AirLocation locationUpdated = (AirLocation) Json.jsonToObject(json, Json.ObjectType.AIR_LOCATION);
-						if (locationUpdated != null) {
+						final AirLocation location = (AirLocation) Json.jsonToObject(json, Json.ObjectType.AIR_LOCATION);
+						if (location != null) {
 							mDirty = true;
-							((Patch) mEntity).location = locationUpdated;
-							mMarker.setPosition(new LatLng(locationUpdated.lat.doubleValue(), locationUpdated.lng.doubleValue()));
+							((Patch) mEntity).location = location;
+							((Patch) mEntity).location.provider = Constants.LOCATION_PROVIDER_USER;
+							draw(null);
 							mProximityDisabled = true;
-							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(((Patch) mEntity).location.lat.doubleValue(), ((Patch) mEntity).location.lng.doubleValue()), 16));
 						}
 					}
 				}
@@ -550,32 +604,11 @@ public class PatchEdit extends BaseEntityEdit {
 	}
 
 	private void loadCategories() {
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				mBusy.showBusy(BusyAction.Loading);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncLoadCategories");
-				final ModelResult result = Patchr.getInstance().getEntityManager().loadCategories();
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-				mBusy.hideBusy(false);
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
-					mCategories = Patchr.getInstance().getEntityManager().getCategories();
-					if (mCategories != null) {
-						initCategorySpinner();
-					}
-				}
-			}
-		}.execute();
+		ModelResult result = Patchr.getInstance().getEntityManager().loadCategories(true /* refresh */);
+		mCategories = (List<Category>) result.data;
+		if (mCategories != null) {
+			initCategorySpinner();
+		}
 	}
 
 	private void initCategorySpinner() {
@@ -816,12 +849,18 @@ public class PatchEdit extends BaseEntityEdit {
 	@Override
 	public void onResume() {
 		if (mMapView != null) mMapView.onResume();
+		if (!mEditing && LocationManager.getInstance().isLocationAccessEnabled()) {
+			LocationManager.getInstance().requestLocationUpdates(this);  // Location triggers sequence
+		}
 		super.onResume();
 	}
 
 	@Override
 	public void onPause() {
 		if (mMapView != null) mMapView.onPause();
+		if (!mEditing) {
+			LocationManager.getInstance().stop();
+		}
 		super.onPause();
 	}
 

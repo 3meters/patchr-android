@@ -235,6 +235,6 @@
 		android:id="@+id/divider_replies"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/rule_header_height"
-		android:background="@color/brand_primary" />
+		android:background="@color/brand_primary_dark" />
 
 </LinearLayout>

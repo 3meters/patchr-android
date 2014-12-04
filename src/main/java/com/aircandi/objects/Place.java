@@ -66,20 +66,6 @@ public class Place extends Patch implements Cloneable, Serializable {
 		return entity;
 	}
 
-	@Override
-	public Photo getPhoto() {
-		Photo photo = this.photo;
-		if (photo == null) {
-			if (category != null && category.photo != null) {
-				photo = category.photo.clone();
-			}
-			else {
-				photo = getDefaultPhoto(this.schema);
-			}
-		}
-		return photo;
-	}
-
 	public Provider getProvider() {
 		if (provider.aircandi != null)
 			return new Provider(provider.aircandi, Constants.TYPE_PROVIDER_AIRCANDI);

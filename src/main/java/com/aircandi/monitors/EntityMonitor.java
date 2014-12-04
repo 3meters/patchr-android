@@ -6,6 +6,7 @@ import com.aircandi.components.Logger;
 import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.User;
+import com.aircandi.ui.PatchForm;
 
 public class EntityMonitor extends SimpleMonitor {
 
@@ -39,6 +40,7 @@ public class EntityMonitor extends SimpleMonitor {
 		}
 
 		if (entity == null) {
+			Logger.v(PatchForm.class, "Entity monitor didn't find entity in cache");
 			this.activity = true;
 			this.modified = true;
 			this.changed = true;
@@ -46,6 +48,7 @@ public class EntityMonitor extends SimpleMonitor {
 			return true;
 		}
 		else {
+			Logger.v(PatchForm.class, "Entity monitor found entity in cache");
 			CacheStamp cacheStamp = entity.getCacheStamp();
 			if (mCacheStamp != null) {
 

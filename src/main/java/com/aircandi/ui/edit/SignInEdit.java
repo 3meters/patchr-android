@@ -161,10 +161,20 @@ public class SignInEdit extends BaseEdit {
 
 	@Override
 	protected boolean validate() {
-		if (mPassword.getText().length() < 6) {
+		if (mPassword.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_password)
+					, null
+					, this
+					, android.R.string.ok
+					, null, null, null, null);
+			return false;
+		}
+		if (mPassword.getText().length() < 6) {
+			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
+					, null
+					, StringManager.getString(R.string.error_missing_password_weak)
 					, null
 					, this
 					, android.R.string.ok

@@ -1,6 +1,7 @@
 package com.aircandi.components;
 
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.aircandi.Constants;
@@ -262,23 +263,45 @@ public class EntityManager {
 		return cacheStampService;
 	}
 
-	public synchronized ModelResult loadCategories() {
+	public synchronized ModelResult loadCategories(boolean refresh) {
 
-		final ModelResult result = new ModelResult();
+		ModelResult result = new ModelResult();
 
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PATCHES + "categories")
-				.setRequestType(RequestType.GET)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.CATEGORY, Json.ServiceDataWrapper.TRUE);
+		/* Loads from local to initialize */
+		if (mCategories.size() == 0) {
+			final String json = "{\"data\":" + loadJsonFromResources (R.raw.categories_patch) + "}";
+			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(json, Json.ObjectType.CATEGORY, Json.ServiceDataWrapper.TRUE);
 			mCategories = (List<Category>) serviceData.data;
-			result.serviceResponse.data = mCategories;
 		}
+
+		/* Fetch categories from service so we have the freshest for the next call. */
+		if (refresh) {
+			new AsyncTask() {
+
+				@Override
+				protected Object doInBackground(Object... params) {
+					Thread.currentThread().setName("AsyncLoadCategories");
+
+					final ServiceRequest serviceRequest = new ServiceRequest()
+							.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PATCHES + "categories")
+							.setRequestType(RequestType.GET)
+							.setResponseFormat(ResponseFormat.JSON);
+
+					ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+
+					if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+						Logger.v(EntityManager.this, "Patch categories refreshed");
+						final String json = (String) serviceResponse.data;
+						final ServiceData serviceData = (ServiceData) Json.jsonToObjects(json, Json.ObjectType.CATEGORY, Json.ServiceDataWrapper.TRUE);
+						mCategories = (List<Category>) serviceData.data;
+					}
+					return null;
+				}
+			}.execute();
+		}
+
+		result.data = mCategories;
+
 		return result;
 	}
 
@@ -336,7 +359,7 @@ public class EntityManager {
 			if (location != null) {
 				parameters.putString("location", "object:" + Json.objectToJson(location));
 				parameters.putInt("radius", ServiceConstants.PLACE_SUGGEST_RADIUS);
-				parameters.putInt("timeout", ServiceConstants.TIMEOUT_PLACE_SUGGEST);
+				parameters.putInt("timeout", ServiceConstants.TIMEOUT_SERVICE_PLACE_SUGGEST);
 			}
 		}
 
@@ -737,7 +760,7 @@ public class EntityManager {
 
 					for (Beacon beacon : beacons) {
 						AirLocation location = LocationManager.getInstance().getAirLocationLocked();
-						if (location != null && !location.zombie) {
+						if (location != null) {
 
 							beacon.location = new AirLocation();
 
@@ -988,7 +1011,7 @@ public class EntityManager {
 			for (Beacon beacon : beacons) {
 				if (primaryBeacon != null && beacon.id.equals(primaryBeacon.id)) {
 					AirLocation location = LocationManager.getInstance().getAirLocationLocked();
-					if (location != null && !location.zombie) {
+					if (location != null) {
 
 						beacon.location = new AirLocation();
 
@@ -1442,6 +1465,38 @@ public class EntityManager {
 		return serviceResponse;
 	}
 
+	public ModelResult checkShare(String entityId, String userId) {
+
+		final ModelResult result = new ModelResult();
+
+		final Bundle parameters = new Bundle();
+		parameters.putString("entityId", entityId);
+		parameters.putString("userId", userId);
+
+		final ServiceRequest serviceRequest = new ServiceRequest()
+				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "checkShare")
+				.setRequestType(RequestType.METHOD)
+				.setParameters(parameters)
+				.setResponseFormat(ResponseFormat.JSON);
+
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
+		}
+
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			final String json = (String) result.serviceResponse.data;
+			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(json, Json.ObjectType.LINK, Json.ServiceDataWrapper.TRUE);
+			if (serviceData.data != null) {
+				final List<Link> links = (List<Link>) serviceData.data;
+				result.data = links;
+			}
+		}
+
+		return result;
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Utilities
 	 *--------------------------------------------------------------------------------------------*/
@@ -1492,6 +1547,34 @@ public class EntityManager {
 			final String jsonEntity = text.toString();
 			final Entity entity = (Entity) Json.jsonToObject(jsonEntity, objectType);
 			return entity;
+		}
+		catch (IOException exception) {
+			return null;
+		}
+		finally {
+			try {
+				if (inputStream != null)
+					inputStream.close();
+				if (reader != null)
+					reader.close();
+			}
+			catch (IOException ignore) {}
+		}
+	}
+
+	public String loadJsonFromResources(Integer entityResId) {
+		InputStream inputStream = null;
+		BufferedReader reader = null;
+		try {
+			inputStream = Patchr.applicationContext.getResources().openRawResource(entityResId);
+			reader = new BufferedReader(new InputStreamReader(inputStream));
+			final StringBuilder text = new StringBuilder(10000);
+			String line;
+			while ((line = reader.readLine()) != null) {
+				text.append(line);
+			}
+			final String json = text.toString();
+			return json;
 		}
 		catch (IOException exception) {
 			return null;

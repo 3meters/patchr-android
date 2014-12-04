@@ -76,7 +76,12 @@
 		<attr name="highlightColor" format="color|reference" />
 		<attr name="cardShadowColor" format="color|reference" />
 		<attr name="cardHighlightColor" format="color|reference" />
+		<attr name="refreshColor" format="color|reference" />
+		<attr name="refreshColorBackground" format="color|reference" />
+		<attr name="refreshColorNotifications" format="color|reference" />
+		<attr name="refreshColorBackgroundNotifications" format="color|reference" />
 		<attr name="textOutlineRadar" format="boolean" />
+
 		<attr name="backgroundAccuracyNone" format="color|reference" />
 		<attr name="backgroundBalloon" format="color|reference" />
 		<attr name="backgroundBalloonOnGray" format="color|reference" />
@@ -166,6 +171,7 @@
 		<attr name="iconActionDirections" format="reference" />
 		<attr name="iconActionEdit" format="reference" />
 		<attr name="iconActionInvite" format="reference" />
+		<attr name="iconActionList" format="reference" />
 		<attr name="iconActionMap" format="reference" />
 		<attr name="iconActionRefresh" format="reference" />
 		<attr name="iconActionSearch" format="reference" />

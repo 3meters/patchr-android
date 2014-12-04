@@ -208,6 +208,10 @@ public class PhotoPicker extends BaseActivity {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	public void onAccept() {
+		startSearch(null);
+	}
+
 	@SuppressWarnings("ucd")
 	public void onSearchClick(View view) {
 		startSearch(view);
@@ -422,6 +426,12 @@ public class PhotoPicker extends BaseActivity {
 				queryDecorated = (QUERY_PREFIX + " " + queryDecorated).trim();
 			}
 
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mEmptyView.fadeOut();
+				}
+			});
 			ModelResult result = loadSearchImages(queryDecorated, PAGE_SIZE, mOffset, Constants.BING_IMAGE_BYTES_MAX, Constants.BING_IMAGE_DIMENSION_MAX);
 			ServiceData serviceData = (ServiceData) result.serviceResponse.data;
 
@@ -436,8 +446,8 @@ public class PhotoPicker extends BaseActivity {
 
 							@Override
 							public void run() {
-								mBubbleButton.setText(StringManager.getString(R.string.label_photo_picker_empty) + " " + mQuery);
-								mBubbleButton.fadeIn();
+								mEmptyView.setText(StringManager.getString(R.string.label_photo_picker_empty) + " " + mQuery);
+								mEmptyView.fadeIn();
 							}
 						});
 					}

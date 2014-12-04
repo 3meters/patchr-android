@@ -52,7 +52,7 @@ public class Constants {
 	public static final String EXTRA_SHARE_ID                    = "com.aircandi.EXTRA_SHARE_ID";
 	public static final String EXTRA_SHARE_SCHEMA                = "com.aircandi.EXTRA_SHARE_SCHEMA";
 	public static final String EXTRA_SHARE_PATCH                 = "com.aircandi.EXTRA_SHARE_PATCH";
-	public static final String EXTRA_AUTO_WATCH                  = "com.aircandi.EXTRA_AUTO_WATCH";
+	public static final String EXTRA_PRE_APPROVED                = "com.aircandi.EXTRA_PRE_APPROVED";
 	public static final String EXTRA_TRANSITION_TYPE             = "com.aircandi.EXTRA_TRANSITION_TYPE";
 
 	/* Activity parameters: lists */
@@ -196,6 +196,10 @@ public class Constants {
 	public static final String PRIVACY_PUBLIC  = "public";
 	public static final String PRIVACY_PRIVATE = "private";
 	public static final String PRIVACY_SECRET  = "secret";
+
+	public static final String LOCATION_PROVIDER_GOOGLE = "fused";
+	public static final String LOCATION_PROVIDER_USER   = "user";
+	public static final String LOCATION_PROVIDER_PLACE  = "place";
 
 	/* Package names */
 	public static final String PACKAGE_NAME_FACEBOOK    = "com.facebook.katana";

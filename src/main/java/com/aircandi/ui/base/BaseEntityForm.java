@@ -5,20 +5,15 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
-import android.widget.ViewAnimator;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
-import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
@@ -26,16 +21,12 @@ import com.aircandi.objects.Links;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
-import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.utilities.Booleans;
-import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BaseEntityForm extends BaseActivity {
@@ -83,10 +74,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		Entity entity = (Entity) view.getTag();
 		Bundle extras = new Bundle();
 		if (Type.isTrue(entity.autowatchable)) {
-			if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
-					, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
-				extras.putBoolean(Constants.EXTRA_AUTO_WATCH, true);
-			}
+			extras.putBoolean(Constants.EXTRA_PRE_APPROVED, true);
 		}
 		Patchr.dispatch.route(this, Route.BROWSE, entity, extras);
 	}
@@ -157,7 +145,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void bind(final BindingMode mode) {
-		Logger.d(this, "Binding: mode = " + mode.name().toLowerCase(Locale.US));
 
 		final AtomicBoolean refreshNeeded = new AtomicBoolean(false);
 		final AtomicBoolean redrawNeeded = new AtomicBoolean(mInvalidated);
@@ -165,13 +152,13 @@ public abstract class BaseEntityForm extends BaseActivity {
 		new AsyncTask() {
 
 			@Override
-			protected void onPreExecute() {
-				beforeDatabind(mode);
-			}
+			protected void onPreExecute() {}
 
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncGetEntity");
+
+				beforeDatabind(mode);
 				ModelResult result = new ModelResult();
 
 				if (mEntityMonitor.isChanged()) {
@@ -205,8 +192,8 @@ public abstract class BaseEntityForm extends BaseActivity {
 							}
 							if (mEntity instanceof Patch) {
 								Patchr.getInstance().setCurrentPatch(mEntity);
-								Logger.v(this, "Setting current patch to: " + mEntity.id);
 							}
+							configureStandardMenuItems(mOptionMenu);
 							draw(null);
 						}
 						else {
@@ -217,6 +204,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 					}
 					else if (redrawNeeded.get()) {
 						if (mEntity != null) {
+							configureStandardMenuItems(mOptionMenu);
 							draw(null);
 						}
 					}
@@ -241,6 +229,8 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	public void beforeDatabind(final BindingMode mode) {
 	    /*
+	     * Called from background thread.
+	     *
 	     * If cache entity is fresher than the one currently bound to or there is
 		 * a cache entity available, go ahead and draw before we check against the service.
 		 */
@@ -251,7 +241,12 @@ public abstract class BaseEntityForm extends BaseActivity {
 				Logger.v(this, "Setting current patch to: " + mEntity.id);
 			}
 			if (mFirstDraw) {
-				draw(null);
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						draw(null);
+					}
+				});
 			}
 		}
 	}
@@ -267,79 +262,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 	protected void drawStats(View view) {}
 
 	protected void drawButtons(View view) {}
-
-	public void watch(final boolean autoWatch) {
-
-		final Boolean unrestricted = mEntity.visibleToCurrentUser();
-		final Boolean watching = (mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH) != null);
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				((ViewAnimator) findViewById(R.id.button_watch)).setDisplayedChild(1);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncWatchEntity");
-				ModelResult result;
-				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-				if (!watching) {
-
-					/* Used as part of link management */
-					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
-					Shortcut toShortcut = mEntity.getAsShortcut();
-
-					result = Patchr.getInstance().getEntityManager().insertLink(null
-							, Patchr.getInstance().getCurrentUser().id
-							, mEntity.id
-							, Constants.TYPE_LINK_WATCH
-							, unrestricted
-							, fromShortcut
-							, toShortcut
-							, mEntity.visibleToCurrentUser() ? "watch_entity_place" : "request_watch_entity"
-							, false);
-				}
-				else {
-					result = Patchr.getInstance().getEntityManager().deleteLink(Patchr.getInstance().getCurrentUser().id
-							, mEntity.id
-							, Constants.TYPE_LINK_WATCH
-							, unrestricted
-							, mEntity.schema
-							, "unwatch_entity_" + mEntity.schema);
-				}
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				if (isFinishing()) return;
-				ModelResult result = (ModelResult) response;
-
-				((ViewAnimator) findViewById(R.id.button_watch)).setDisplayedChild(0);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					View view = findViewById(android.R.id.content);
-					drawButtons(view);
-					if (mEntity.privacy.equals(Constants.PRIVACY_PRIVATE)) {
-						bind(BindingMode.AUTO);
-					}
-					else {
-						if (autoWatch) {
-							UI.showToastNotification(StringManager.getString(R.string.alert_auto_watch), Toast.LENGTH_SHORT, Gravity.CENTER);
-						}
-					}
-				}
-				else {
-					if (result.serviceResponse.statusCodeService != null
-							&& result.serviceResponse.statusCodeService != ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
-						Errors.handleError(BaseEntityForm.this, result.serviceResponse);
-					}
-				}
-				mProcessing = false;
-			}
-		}.execute();
-	}
 
 	@Override
 	public Boolean related(String entityId) {

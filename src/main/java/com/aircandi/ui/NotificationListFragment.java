@@ -26,6 +26,7 @@ import com.aircandi.objects.Notification;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
+import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
@@ -95,8 +96,8 @@ public class NotificationListFragment extends MessageListFragment {
 		mBusy = new BusyManager(getActivity());
 		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_notifications);
 		if (swipeRefresh != null) {
-			swipeRefresh.setProgressBackgroundColor(R.color.white);
-			swipeRefresh.setColorSchemeResources(R.color.brand_accent);
+			swipeRefresh.setColorSchemeColors(Colors.getColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorNotifications)));
+			swipeRefresh.setProgressBackgroundColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorBackgroundNotifications));
 			swipeRefresh.setOnRefreshListener(this);
 			mBusy.setSwipeRefresh(swipeRefresh);
 		}

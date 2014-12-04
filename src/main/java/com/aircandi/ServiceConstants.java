@@ -4,10 +4,10 @@ package com.aircandi;
 @SuppressWarnings("ucd")
 public final class ServiceConstants {
 
-	public static final int TIMEOUT_CONNECTION    = 5000;
-	public static final int TIMEOUT_SOCKET_READ   = 10000;
-	public static final int TIMEOUT_SOCKET_WRITE  = 20000;
-	public static final int TIMEOUT_PLACE_SUGGEST = 2000;
+	public static final int TIMEOUT_CONNECTION            = 5000;
+	public static final int TIMEOUT_SOCKET_READ           = 20000;
+	public static final int TIMEOUT_SOCKET_WRITE          = 20000;
+	public static final int TIMEOUT_SERVICE_PLACE_SUGGEST = 2000;
 
 	public static final String URI_WALLED_GARDEN           = "http://clients3.google.com/generate_204";
 	public static final String URI_PROXIBASE_SEARCH_IMAGES = "https://api.datamarket.azure.com/Bing/Search/v1/Image";
@@ -65,6 +65,7 @@ public final class ServiceConstants {
 	public static final float SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS     = 401.1f;
 	public static final float SERVICE_STATUS_CODE_UNAUTHORIZED_SESSION_EXPIRED = 401.2f;
 	public static final float SERVICE_STATUS_CODE_UNAUTHORIZED_NOT_HUMAN       = 401.3f;
+	public static final float SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND = 401.4f;
 
 	public static final float SERVICE_STATUS_CODE_FORBIDDEN                    = 403.0f;
 	public static final float SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE          = 403.1f;

@@ -41,6 +41,7 @@
 		android:layout_marginLeft="2dp"
 		android:ellipsize="middle"
 		android:singleLine="true"
+		android:textAllCaps="true"
 		android:textAppearance="?attr/textAppearanceExtraSmall"
 		android:textColor="?textColorSecondary"
 		custom:textId="@string/dummy_tags" />

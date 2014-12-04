@@ -21,6 +21,7 @@ import com.aircandi.components.IntentBuilder;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.Notification;
 import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
@@ -215,11 +216,19 @@ public abstract class EntityControllerBase implements IEntityController {
 			UI.setVisibility(holder.description, View.VISIBLE);
 		}
 
-		/* Patch photo */
+		/* Parent patch photo (if one) */
 
-		Entity parentEntity = entity.patch;
-		if (parentEntity == null) {
-			parentEntity = EntityManager.getCacheEntity(entity.placeId);
+		Entity parentEntity = null;
+		if (entity instanceof Notification) {
+			if (((Notification) entity).parentId != null) {
+				parentEntity = EntityManager.getCacheEntity(((Notification) entity).parentId);
+			}
+		}
+		else {
+			parentEntity = entity.patch;
+			if (parentEntity == null && entity.patchId != null) {
+				parentEntity = EntityManager.getCacheEntity(entity.patchId);
+			}
 		}
 
 		UI.setVisibility(holder.patchPhoto, View.GONE);

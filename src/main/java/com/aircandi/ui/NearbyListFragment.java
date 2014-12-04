@@ -93,7 +93,6 @@ public class NearbyListFragment extends EntityListFragment {
 		}
 		else {
 			mAdapter.notifyDataSetChanged();
-			BusProvider.getInstance().post(new ProcessingFinishedEvent());
 		}
 	}
 
@@ -112,6 +111,8 @@ public class NearbyListFragment extends EntityListFragment {
 	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onQueryWifiScanReceived(final QueryWifiScanReceivedEvent event) {
+
+		if (getActivity() == null || getActivity().isFinishing()) return;
 
 		Reporting.updateCrashKeys();
 		getActivity().runOnUiThread(new Runnable() {
@@ -140,6 +141,7 @@ public class NearbyListFragment extends EntityListFragment {
 	@SuppressWarnings("ucd")
 	public void onBeaconsLocked(BeaconsLockedEvent event) {
 
+		if (getActivity() == null || getActivity().isFinishing()) return;
 		getActivity().runOnUiThread(new Runnable() {
 
 			@Override
@@ -171,6 +173,7 @@ public class NearbyListFragment extends EntityListFragment {
 	@SuppressWarnings("ucd")
 	public void onEntitiesByProximityFinished(EntitiesByProximityFinishedEvent event) {
 
+		if (getActivity() == null || getActivity().isFinishing()) return;
 		getActivity().runOnUiThread(new Runnable() {
 
 			@Override
@@ -253,6 +256,7 @@ public class NearbyListFragment extends EntityListFragment {
 	@SuppressWarnings("ucd")
 	public void onEntitiesChanged(final EntitiesChangedEvent event) {
 
+		if (getActivity() == null || getActivity().isFinishing()) return;
 		getActivity().runOnUiThread(new Runnable() {
 
 			@Override
@@ -392,7 +396,7 @@ public class NearbyListFragment extends EntityListFragment {
 			@Override
 			protected void onPreExecute() {
 				mBusy.showBusy(BusyAction.Scanning);
-				mBubbleButton.fadeOut();
+				mEmptyController.fadeOut();
 				Reporting.updateCrashKeys();
 				if (Patchr.getInstance().getPrefEnableDev()) {
 					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
@@ -420,13 +424,7 @@ public class NearbyListFragment extends EntityListFragment {
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onStart() {
-		/*
-		 * Called everytime the fragment is started or restarted.
-		 */
-		super.onStart();
-
+	protected void start() {
 		BusProvider.getInstance().register(mLocationHandler);
 		onRefresh();
 
@@ -437,27 +435,22 @@ public class NearbyListFragment extends EntityListFragment {
 		catch (Exception ignore) {}
 	}
 
-	@Override
-	public void onStop() {
-		/*
-		 * Triggers
-		 * - Switching to another fragment.
-		 * - Switching to launcher.
-		 * - Killing activity.
-		 * - Navigating to another activity.
-		 */
-		BusProvider.getInstance().unregister(mLocationHandler);
+	protected void pause() {
 		LocationManager.getInstance().stop();
-		/*
-		 * Start background activity recognition with proximity manager as the listener.
-		 */
+	}
+
+	protected void stop() {
+		try {
+			BusProvider.getInstance().unregister(mLocationHandler);
+		}
+		catch (Exception ignore){}
+
+		 /* Start background activity recognition with proximity manager as the listener. */
 		ProximityManager.getInstance().setLastBeaconInstallUpdate(null);
 		ProximityManager.getInstance().register();
 
 		/* Kill busy */
 		mBusy.hideBusy(false);
-
-		super.onStop();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -481,7 +474,7 @@ public class NearbyListFragment extends EntityListFragment {
 				LocationManager.getInstance().setLocationLocked(event.location);
 				final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 
-				if (location != null && !location.zombie) {
+				if (location != null) {
 					searchForPatches();
 				}
 				else {

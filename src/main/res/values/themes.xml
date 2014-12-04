@@ -70,6 +70,10 @@
 		<item name="ruleColorStrong">@color/rule_60_dark</item>
 		<item name="cardShadowColor">@color/transparent</item>
 		<item name="cardHighlightColor">@color/rule_15_dark</item>
+		<item name="refreshColor">@color/white</item>
+		<item name="refreshColorBackground">@color/background_refresh_dark</item>
+		<item name="refreshColorNotifications">@color/white</item>
+		<item name="refreshColorBackgroundNotifications">@color/brand_accent</item>
 
 		<!-- Backgrounds -->
 
@@ -100,7 +104,7 @@
 
 		<item name="imgLogo">@drawable/img_logo_dark</item>
 		<item name="iconAccept">@drawable/ic_action_tick_dark</item>
-		<item name="iconAdd">@drawable/ic_action_add_dark</item>
+		<item name="iconAdd">@drawable/ic_add_dark</item>
 		<item name="iconAlert">@drawable/ic_action_alert_dark</item>
 		<item name="iconAndroid">@drawable/ic_action_android_dark</item>
 		<item name="iconCall">@drawable/ic_action_dialer_dark</item>
@@ -139,7 +143,7 @@
 		<item name="iconSearch">@drawable/ic_action_search_dark</item>
 		<item name="iconSend">@drawable/ic_action_send_dark</item>
 		<item name="iconSettings">@drawable/ic_action_settings_dark</item>
-		<item name="iconShare">@drawable/ic_share_dark</item>
+		<item name="iconShare">@drawable/ic_img_share_dark</item>
 		<item name="iconSignal">@drawable/ic_action_signal_dark</item>
 		<item name="iconStarOff">@drawable/ic_action_star_0_dark</item>
 		<item name="iconStarOn">@drawable/ic_action_star_10_dark</item>
@@ -202,6 +206,10 @@
 		<item name="ruleColorStrong">@color/rule_60_light</item>
 		<item name="cardShadowColor">@color/gray_20_pcnt</item>
 		<item name="cardHighlightColor">@color/transparent</item>
+		<item name="refreshColor">@color/brand_primary</item>
+		<item name="refreshColorBackground">@color/background_refresh_light</item>
+		<item name="refreshColorNotifications">@color/brand_accent</item>
+		<item name="refreshColorBackgroundNotifications">@color/background_refresh_light</item>
 
 		<!-- Drawables and backgrounds -->
 
@@ -232,7 +240,7 @@
 
 		<item name="imgLogo">@drawable/img_logo_dark</item>
 		<item name="iconAccept">@drawable/ic_action_tick_light</item>
-		<item name="iconAdd">@drawable/ic_action_add_light</item>
+		<item name="iconAdd">@drawable/ic_add_light</item>
 		<item name="iconAlert">@drawable/ic_action_alert_light</item>
 		<item name="iconAndroid">@drawable/ic_action_android_light</item>
 		<item name="iconCall">@drawable/ic_action_dialer_light</item>
@@ -271,7 +279,7 @@
 		<item name="iconSearch">@drawable/ic_action_search_light</item>
 		<item name="iconSend">@drawable/ic_action_send_light</item>
 		<item name="iconSettings">@drawable/ic_action_settings_light</item>
-		<item name="iconShare">@drawable/ic_share_light</item>
+		<item name="iconShare">@drawable/ic_img_share_light</item>
 		<item name="iconSignal">@drawable/ic_action_signal_light</item>
 		<item name="iconStarOff">@drawable/ic_action_star_0_light</item>
 		<item name="iconStarOn">@drawable/ic_action_star_10_light</item>
@@ -295,6 +303,7 @@
 		<item name="iconActionDirections">@drawable/ic_action_directions_dark</item>
 		<item name="iconActionEdit">@drawable/ic_action_edit_dark</item>
 		<item name="iconActionInvite">@drawable/ic_action_person_add_dark</item>
+		<item name="iconActionList">@drawable/ic_action_list_dark</item>
 		<item name="iconActionMap">@drawable/ic_action_map_dark</item>
 		<item name="iconActionRefresh">@drawable/ic_action_refresh_dark</item>
 		<item name="iconActionSearch">@drawable/ic_action_search_dark</item>
@@ -328,6 +337,7 @@
 		<item name="iconActionDirections">@drawable/ic_action_directions_dark</item>
 		<item name="iconActionEdit">@drawable/ic_action_edit_dark</item>
 		<item name="iconActionInvite">@drawable/ic_action_person_add_dark</item>
+		<item name="iconActionList">@drawable/ic_action_list_dark</item>
 		<item name="iconActionMap">@drawable/ic_action_map_dark</item>
 		<item name="iconActionRefresh">@drawable/ic_action_refresh_dark</item>
 		<item name="iconActionSearch">@drawable/ic_action_search_dark</item>

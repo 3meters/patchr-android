@@ -237,7 +237,6 @@
 				android:layout_below="@+id/content_group"
 				android:background="?attr/backgroundCardField"
 				android:orientation="vertical"
-				android:padding="15dp"
 				android:visibility="gone">
 
 				<FrameLayout

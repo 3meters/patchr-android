@@ -38,7 +38,8 @@
 		android:id="@+id/animator_header"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_below="@+id/holder_place">
+		android:layout_below="@+id/holder_place"
+		tools:layout_height="180dp">
 
 		<RelativeLayout
 			android:layout_width="match_parent"
@@ -82,8 +83,8 @@
 						android:id="@+id/button_image"
 						android:layout_width="24dp"
 						android:layout_height="24dp"
-						android:adjustViewBounds="true"
 						android:layout_gravity="center"
+						android:adjustViewBounds="true"
 						android:alpha="0.8"
 						android:scaleType="fitCenter"
 						android:src="@drawable/ic_img_watch_dark" />
@@ -91,8 +92,8 @@
 					<ProgressBar
 						android:id="@+id/button_progress"
 						android:layout_width="24dp"
-						android:layout_gravity="center"
 						android:layout_height="24dp"
+						android:layout_gravity="center"
 						android:focusable="true"
 						android:maxHeight="30dp"
 						android:minHeight="30dp" />
@@ -174,7 +175,7 @@
 		android:id="@+id/alert_group"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@id/animator_header">
+		android:layout_below="@+id/animator_header">
 
 		<Button
 			android:id="@+id/button_alert"
@@ -183,13 +184,14 @@
 			android:layout_height="@dimen/form_field_height"
 			android:gravity="center"
 			android:padding="8dp"
+			android:textAppearance="?android:attr/textAppearance"
 			tools:text="Create a patch" />
 
 		<View
 			android:id="@+id/rule_alert"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/rule_divider_height"
-			android:layout_alignParentBottom="true"
+			android:layout_below="@+id/button_alert"
 			android:background="?attr/ruleColor" />
 
 	</RelativeLayout>

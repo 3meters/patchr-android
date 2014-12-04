@@ -748,7 +748,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 			if (mMessageType.equals(MessageType.REPLY)) {
 				if (mReplyPlaceId != null) {
-					message.placeId = mReplyPlaceId;
+					message.patchId = mReplyPlaceId;
 				}
 				if (mReplyRootId != null) {
 					message.rootId = mReplyRootId;
@@ -756,7 +756,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			}
 			else if (mMessageType.equals(MessageType.ROOT)) {
 				if (mTos.size() > 0) {
-					message.placeId = mTos.get(0).id;
+					message.patchId = mTos.get(0).id;
 				}
 			}
 		}
@@ -777,7 +777,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			if (mParentId != null) {
 				links.add(new Link(mParentId, getLinkType(), mEntity.schema));
 			}
-			links.add(new Link(mEntity.placeId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH));
+			links.add(new Link(mEntity.patchId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH));
 		}
 		else if (mMessageType.equals(MessageType.ROOT)) {
 			for (Entity to : mTos) {

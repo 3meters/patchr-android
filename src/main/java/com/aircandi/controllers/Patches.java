@@ -2,9 +2,11 @@ package com.aircandi.controllers;
 
 import com.aircandi.Constants;
 import com.aircandi.R;
+import com.aircandi.objects.Category;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Patch;
+import com.aircandi.objects.Photo;
 import com.aircandi.ui.PatchForm;
 import com.aircandi.ui.edit.PatchEdit;
 import com.aircandi.utilities.DateTime;
@@ -30,10 +32,10 @@ public class Patches extends EntityControllerBase {
 		entity.schema = mSchema;
 		entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME); // Temporary
 		entity.privacy = Constants.PRIVACY_PRIVATE;
-//		entity.category = new Category();
-//		entity.category.id = "general";
-//		entity.category.name = "General";
-//		entity.category.photo = new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories);
+		entity.category = new Category();
+		entity.category.id = "chat";
+		entity.category.name = "Chat";
+		entity.category.photo = new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories);
 
 		return entity;
 	}

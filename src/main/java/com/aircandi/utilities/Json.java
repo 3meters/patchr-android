@@ -73,7 +73,7 @@ public class Json {
 		return object;
 	}
 
-	public static Object jsonToObjects(final String jsonString, final Json.ObjectType objectType, Json.ServiceDataWrapper serviceDataWrapper) {
+	public static Object jsonToObjects(final String json, final Json.ObjectType objectType, Json.ServiceDataWrapper serviceDataWrapper) {
 
 		/*
 		 * serviceDataWrapper
@@ -101,17 +101,18 @@ public class Json {
 				}
 			};
 
-			Map<String, Object> rootMap = (LinkedHashMap<String, Object>) parser.parse(jsonString, containerFactory);
-
 			if (serviceDataWrapper == Json.ServiceDataWrapper.FALSE) {
 
+				Map<String, Object> rootMap = (LinkedHashMap<String, Object>) parser.parse(json, containerFactory);
 				maps = new ArrayList<LinkedHashMap<String, Object>>();
 				maps.add((LinkedHashMap<String, Object>) rootMap);
+
 				Object object = Json.mapsToObjects(maps, objectType, false);
 				return object;
 			}
 			else {
 
+				Map<String, Object> rootMap = (LinkedHashMap<String, Object>) parser.parse(json, containerFactory);
 				ServiceData serviceData = ServiceData.setPropertiesFromMap(new ServiceData(), rootMap, true);
 				/*
 				 * The data property of ServiceData is always an array even
@@ -151,11 +152,11 @@ public class Json {
 			}
 		}
 		catch (ParseException e) {
-			Reporting.logMessage(jsonString);
+			Reporting.logMessage(json);
 			Reporting.logException(e);
 		}
 		catch (Exception e) {
-			Reporting.logMessage(jsonString);
+			Reporting.logMessage(json);
 			Reporting.logException(e);
 		}
 		return null;

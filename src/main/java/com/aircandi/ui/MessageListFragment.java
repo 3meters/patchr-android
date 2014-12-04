@@ -28,19 +28,6 @@ public class MessageListFragment extends EntityListFragment {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-//	@Override
-//	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//
-//		View view = super.onCreateView(inflater, container, savedInstanceState);
-//
-//		/* Draw the header */
-//		if (((BaseActivity) getActivity()).getEntity() != null) {
-//			((BaseEntityForm) getActivity()).draw(view);
-//		}
-//
-//		return view;
-//	}
-
 	@Override
 	public void onClick(View v) {
 		final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
@@ -70,11 +57,6 @@ public class MessageListFragment extends EntityListFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected void postBind() {
-		super.postBind();
-	}
 
 	@Override
 	protected void bindListItem(Entity entity, View view, String groupTag) {

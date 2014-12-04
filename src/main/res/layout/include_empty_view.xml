@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.aircandi.ui.widgets.SquareButton
+
 	style="@style/button_round"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="@dimen/button_round_width"
 	android:layout_height="@dimen/button_round_height"
 	android:layout_centerInParent="true"
-	android:clickable="true" />
+	android:clickable="false"
+	android:textAllCaps="false"
+	android:textColor="?attr/textColorSecondary"
+	android:visibility="gone"
+	tools:text="@string/label_radar_empty"
+	tools:visibility="visible" />
 

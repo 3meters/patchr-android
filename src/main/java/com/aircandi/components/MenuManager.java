@@ -10,6 +10,7 @@ import com.aircandi.R;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseEdit;
@@ -72,7 +73,7 @@ public class MenuManager {
 			return true;
 		}
 		else if (activityName.equals("SearchForm")) {
-			menuInflater.inflate(R.menu.menu_search_compat, menu);
+			menuInflater.inflate(R.menu.menu_search_view, menu);
 			return true;
 		}
 		else if (activityName.equals("AboutForm")) {
@@ -97,8 +98,8 @@ public class MenuManager {
 		/* Editing */
 
 		if (activityName.contains("PatchEdit")) {
-			menuInflater.inflate(R.menu.menu_accept, menu);
-			menuInflater.inflate(R.menu.menu_delete, menu);
+			menuInflater.inflate(R.menu.menu_save, menu);
+			menuInflater.inflate(R.menu.menu_delete_patch, menu);
 			return true;
 		}
 		else if (activityName.contains("MessageEdit")) {
@@ -140,6 +141,10 @@ public class MenuManager {
 			menuInflater.inflate(R.menu.menu_accept, menu);
 			return true;
 		}
+		else if (activityName.contains("PhotoPicker")) {
+			menuInflater.inflate(R.menu.menu_search_start, menu);
+			return true;
+		}
 		else if (activityName.contains("Picker")) {
 			menuInflater.inflate(R.menu.menu_accept, menu);
 			return true;
@@ -168,7 +173,7 @@ public class MenuManager {
 		if (entity == null) return false;
 		if (entity.type.equals(Constants.TYPE_LINK_SHARE)) return false;
 
-		Link placeLink = entity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH, entity.placeId, Direction.out);
+		Link placeLink = entity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH, entity.patchId, Direction.out);
 		return placeLink != null
 				&& placeLink.ownerId.equals(Patchr.getInstance().getCurrentUser().id)
 				&& !entity.ownerId.equals(Patchr.getInstance().getCurrentUser().id);
@@ -185,8 +190,19 @@ public class MenuManager {
 	}
 
 	public Boolean canUserShare(Entity entity) {
-		if (entity == null || entity.shareable == null) return false;
-		return entity.shareable;
+		/*
+		 * Must be owner or member to share a private patch. Anyone
+		 * can share a public patch. For messages, we assume that if
+		 * you can see the message you have the ability to share it.
+		 */
+		if (entity == null) return false;
+		if (!entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+			return true;
+		}
+		else {
+			Patch patch = (Patch) entity;
+			return (patch.isVisibleToCurrentUser() || patch.isOwnedByCurrentUser());
+		}
 	}
 
 	public Boolean showAction(Integer route, Entity entity, String forId) {

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<navigationModel
+  ns = "http://schemas.android.com?import=com.android.tools.idea.editors.navigation.model.*">
+  <locations  
+    class = "java.util.ArrayList">
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.PatchForm"/>
+      <point      
+        x = "480"      
+        y = "2080"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.AircandiForm"/>
+      <point      
+        x = "550"      
+        y = "2170"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.helpers.PrivacyBuilder"/>
+      <point      
+        x = "640"      
+        y = "2240"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.PhotoForm"/>
+      <point      
+        x = "650"      
+        y = "2270"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.helpers.LocationPicker"/>
+      <point      
+        x = "800"      
+        y = "2420"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.edit.PasswordEdit"/>
+      <point      
+        x = "750"      
+        y = "2370"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.edit.RegisterEdit"/>
+      <point      
+        x = "700"      
+        y = "2320"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.helpers.PhotoPicker"/>
+      <point      
+        x = "900"      
+        y = "2520"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.AboutForm"/>
+      <point      
+        x = "850"      
+        y = "2470"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.PlaceForm"/>
+      <point      
+        x = "950"      
+        y = "2570"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.helpers.PhotoSourcePicker"/>
+      <point      
+        x = "1000"      
+        y = "2620"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.MapForm"/>
+      <point      
+        x = "1050"      
+        y = "2670"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.edit.UserEdit"/>
+      <point      
+        x = "1100"      
+        y = "2720"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.SettingsForm"/>
+      <point      
+        x = "1150"      
+        y = "2770"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.SplashForm"/>
+      <point      
+        x = "1200"      
+        y = "2820"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.edit.PatchEdit"/>
+      <point      
+        x = "1250"      
+        y = "2870"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.UserForm"/>
+      <point      
+        x = "1300"      
+        y = "2920"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.MenuState"      
+        xmlResourceName = "menu_search_view"/>
+      <point      
+        x = "2080"      
+        y = "160"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.edit.MessageEdit"/>
+      <point      
+        x = "1350"      
+        y = "2970"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.edit.ReportEdit"/>
+      <point      
+        x = "1400"      
+        y = "3020"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.edit.FeedbackEdit"/>
+      <point      
+        x = "1450"      
+        y = "3070"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.SearchForm"/>
+      <point      
+        x = "480"      
+        y = "160"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.edit.SignInEdit"/>
+      <point      
+        x = "1500"      
+        y = "3120"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.MessageForm"/>
+      <point      
+        x = "1550"      
+        y = "3170"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.PatchList"/>
+      <point      
+        x = "1600"      
+        y = "3220"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.WatcherList"/>
+      <point      
+        x = "1650"      
+        y = "3270"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.aircandi.ui.edit.ResetEdit"/>
+      <point      
+        x = "1700"      
+        y = "3320"/>
+    </statePointEntry>
+  </locations>
+</navigationModel>

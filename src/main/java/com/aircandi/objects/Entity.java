@@ -56,7 +56,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public String      privacy;                                    // private|public|hidden
 	@Expose
 	@SerializedName(name = "_acl")
-	public String      placeId;
+	public String      patchId;
 
 	/* Synthetic fields */
 
@@ -102,7 +102,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	 *--------------------------------------------------------------------------------------------*/
 
 	public Boolean hidden           = false;                   // Flag entities not currently visible because of fencing.
-	public Boolean shareable        = true;                    // Flag whether an entity can be shared or not.
 	public Boolean fuzzy            = false;                   // Flag places with inaccurate locations.
 	public Boolean checked          = false;                   // Used to track selection in lists.
 	public Boolean shortcuts        = false;                   // Do links have shortcuts?
@@ -148,7 +147,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return (id != null && id.substring(0, 5).equals("temp:"));
 	}
 
-	public Boolean visibleToCurrentUser() {
+	public Boolean isVisibleToCurrentUser() {
 		if (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser()) {
 			Link link = linkFromAppUser(Constants.TYPE_LINK_WATCH);
 			if (link == null || !link.enabled) {
@@ -156,6 +155,14 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			}
 		}
 		return true;
+	}
+
+	public Boolean isRestricted() {
+		return (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC));
+	}
+
+	public Boolean isRestrictedForCurrentUser() {
+		return (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser());
 	}
 
 	public Boolean isOwnedByCurrentUser() {
@@ -211,9 +218,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 				prefix = "img_default_place_b";
 			}
 			else if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				prefix = (Patchr.themeTone == null || Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
-				         ? "img_default_patch_light"
-				         : "img_default_patch_dark";
+				prefix = "img_default_patch";
 			}
 			else if (schema.equals(Constants.SCHEMA_ENTITY_USER)) {
 				prefix = (Patchr.themeTone == null || Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
@@ -233,35 +238,41 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public AirLocation getLocation() {
-		AirLocation loc = null;
-		Entity parent = getParent(null, null);
+		/*
+		 * We do n
+		 */
+		AirLocation _location = null;
 
-		if (parent != null) {
-			loc = parent.location;
-		}
-		else {
-			final Beacon beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
-			if (beacon != null) {
-				loc = beacon.location;
-			}
-		}
-		if (loc == null
-				&& this.location != null
+		if (this.location != null
 				&& this.location.lat != null
 				&& this.location.lng != null) {
-			loc = new AirLocation(this.location.lat.doubleValue(), this.location.lng.doubleValue());
-			loc.accuracy = this.location.accuracy;
+			_location = new AirLocation(this.location.lat.doubleValue(), this.location.lng.doubleValue());
+			_location.accuracy = this.location.accuracy;
+			_location.provider = this.location.provider;
 		}
-		return loc;
+
+		if (_location == null) {
+			final Beacon beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
+			if (beacon != null) {
+				_location = beacon.location;
+			}
+		}
+
+		return _location;
 	}
 
 	public Float getDistance(Boolean refresh) {
+		/*
+		 * Priority order:
+		 * - Linked to currently visible primary beacon.
+		 * - Has a location.
+		 */
 
 		if (refresh || distance == null) {
 			distance = null;
 			final Beacon beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
 			if (beacon != null) {
-				distance = beacon.getDistance(refresh);
+				distance = beacon.getDistance(refresh);  // Estimate based on signal strength
 			}
 			else {
 				final AirLocation entityLocation = getLocation();
@@ -418,10 +429,11 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 					}
 				}
 			}
-			return null;
 		}
-		else
+		else if (toId != null) {
 			return EntityManager.getCacheEntity(toId);
+		}
+		return null;
 	}
 
 	public Link getParentLink(String type, String targetSchema) {
@@ -534,7 +546,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 						if (settings.synthetic == null || link.shortcut.isSynthetic().equals(settings.synthetic)) {
 							if (settings.linkBroken
 									|| (!settings.linkBroken && (link.shortcut.validatedDate == null || link.shortcut.validatedDate.longValue() != -1))) {
-				                /*
+							    /*
                                  * Must clone or the groups added below will cause circular references
 								 * that choke serializing to json.
 								 */
@@ -678,7 +690,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			entity.synthetic = (Boolean) ((map.get("synthetic") != null) ? map.get("synthetic") : false);
 			entity.shortcuts = (Boolean) ((map.get("shortcuts") != null) ? map.get("shortcuts") : false);
 			entity.checked = (Boolean) ((map.get("checked") != null) ? map.get("checked") : false);
-			entity.placeId = (String) (nameMapping ? map.get("_acl") : map.get("placeId"));
+			entity.patchId = (String) (nameMapping ? map.get("_acl") : map.get("patchId"));
 			entity.editing = (Boolean) ((map.get("editing") != null) ? map.get("checked") : false);
 			entity.highlighted = (Boolean) ((map.get("highlighted") != null) ? map.get("highlighted") : false);
 			entity.read = (Boolean) ((map.get("read") != null) ? map.get("read") : false);
