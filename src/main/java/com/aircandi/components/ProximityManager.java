@@ -24,7 +24,6 @@ import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Cursor;
-import com.aircandi.objects.Document;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Patch;
@@ -32,7 +31,6 @@ import com.aircandi.objects.ServiceData;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.widgets.ListPreferenceMultiSelect;
 import com.aircandi.utilities.DateTime;
-import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Maps;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
@@ -44,7 +42,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 public class ProximityManager {
 
@@ -188,13 +185,6 @@ public class ProximityManager {
 							mWifiList.add(mWifiEmpty);
 						}
 
-						final String testingBeacon = Patchr.settings.getString(StringManager.getString(R.string.pref_demo_beacons), "{\"name\":\"natural\"}");
-						Document demoBeacon = (Document) Json.jsonToObject(testingBeacon, Json.ObjectType.DOCUMENT);
-
-						if (!demoBeacon.name.toLowerCase(Locale.US).equals("natural")) {
-							mWifiList.add(new WifiScanResult((String) demoBeacon.data.get("bssid"), (String) demoBeacon.data.get("ssid"), -30, true));
-						}
-
 						Collections.sort(mWifiList, new WifiScanResult.SortWifiBySignalLevel());
 
 						mLastWifiUpdate = DateTime.nowDate();
@@ -286,14 +276,13 @@ public class ProximityManager {
 			beaconIds.add(beacon.id);
 		}
 
-		/* Clean out all patches found via proximity */
-		Integer removeCount = mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
-		Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
-
-		/*
-		 * Early exit if there aren't any beacons around
-		 */
+		/* Early exit if there aren't any beacons around */
 		if (beaconIds.size() == 0) {
+
+			/* Clean out all patches found via proximity */
+			Integer removeCount = mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
+			Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
+
 			mLastBeaconLoadDate = DateTime.nowDate().getTime();
 
 			/* All cached patch entities that qualify based on current distance pref setting */

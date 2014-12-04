@@ -28,17 +28,16 @@ import com.aircandi.utilities.Json;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("ucd")
 public class EntityCache implements Map<String, Entity> {
 
-	private final Map<String, Entity> mCacheMap = Collections.synchronizedMap(new HashMap<String, Entity>());
+	private final Map<String, Entity> mCacheMap = new ConcurrentHashMap<String, Entity>();
 
 	/*--------------------------------------------------------------------------------------------
 	 * Cache loading from service
@@ -209,6 +208,10 @@ public class EntityCache implements Map<String, Entity> {
 			stopwatch.segmentTime("Load entities: service call complete");
 		}
 
+		/* Clean out all patches found via proximity before shoving in the latest */
+		Integer removeCount = EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
+		Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
+
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
@@ -300,8 +303,13 @@ public class EntityCache implements Map<String, Entity> {
 	}
 
 	public synchronized Entity upsertEntity(Entity entity) {
-		removeEntityTree(entity.id);
+
+		/* Replace in cache */
 		put(entity.id, entity);
+
+		/* Clean out linked entities so they are refetched as needed. */
+		removeLinkedEntities(entity.id);
+
 		return get(entity.id);
 	}
 
@@ -446,6 +454,26 @@ public class EntityCache implements Map<String, Entity> {
 			}
 		}
 		return removedEntity;
+	}
+
+	public synchronized Entity removeLinkedEntities(String entityId) {
+		/*
+		 * Clean out entity and every entity related to entity. Is not recursive
+		 */
+		Entity entity = get(entityId);
+		if (entity != null) {
+			/*
+			 * getLinked..() with traverse = true will return entities that are multiple links away.
+			 * We get both strong and weak linked entities.
+			 */
+			List<String> types = new ArrayList<String>();
+			types.add(Constants.TYPE_LINK_CONTENT);
+			List<Entity> entities = (List<Entity>) entity.getLinkedEntitiesByLinkTypeAndSchema(types, null, Direction.in, true);
+			for (Entity childEntity : entities) {
+				remove(childEntity.id);
+			}
+		}
+		return entity;
 	}
 
 	public synchronized Integer removeEntities(String schema, String type, Boolean foundByProximity) {

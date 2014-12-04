@@ -74,7 +74,6 @@ public class NetworkManager {
 	 * 
 	 * - Connection timeout is the max time allowed to make initial connection with the remote server.
 	 * - Sockettimeout is the max inactivity time allowed between two consecutive data packets.
-	 * - AndroidHttpClient sets both to 60 seconds.
 	 */
 
 	/*
@@ -129,7 +128,7 @@ public class NetworkManager {
 		mConnectivityManager = (ConnectivityManager) mApplicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
 		/*
-		 * Setting system properties needed for HttpUrlConnection
+		 * Setting system properties. Okhttp picks these up for its connection pooling.
 		 */
 		System.setProperty("http.maxConnections", String.valueOf(ServiceConstants.DEFAULT_MAX_CONNECTIONS));
 		System.setProperty("http.keepAlive", "true");

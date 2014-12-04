@@ -95,7 +95,7 @@ public class MessageForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mBubbleButton.setEnabled(false);
+		mEmptyView.setEnabled(false);
 		mLinkProfile = LinkProfile.LINKS_FOR_MESSAGE;
 
 		mCurrentFragment = new MessageListFragment();
@@ -155,7 +155,7 @@ public class MessageForm extends BaseEntityForm {
 				mBusy.hideBusy(false);
 				((BaseFragment) mCurrentFragment).onProcessingFinished();
 
-				mBubbleButton.fadeOut();
+				mEmptyView.fadeOut();
 				Boolean share = (mEntity != null && mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
 				if (share) {
 					mFab.fadeOut();
@@ -193,7 +193,7 @@ public class MessageForm extends BaseEntityForm {
 		extras.putString(Constants.EXTRA_MESSAGE_ROOT_ID, rootId);
 		extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, rootId);
 		extras.putString(Constants.EXTRA_MESSAGE_TYPE, MessageType.REPLY);
-		extras.putString(Constants.EXTRA_PATCH_ID, mEntity.placeId);
+		extras.putString(Constants.EXTRA_PATCH_ID, mEntity.patchId);
 
 		if (mEntity.creator != null) {
 			extras.putString(Constants.EXTRA_MESSAGE_REPLY_TO_ID, mEntity.creator.id);
@@ -313,7 +313,6 @@ public class MessageForm extends BaseEntityForm {
 
 		if (share) {
 
-			mEntity.shareable = false;
 			UI.setVisibility(findViewById(R.id.divider_replies), View.GONE);
 
 			UI.setVisibility(toHolder, View.VISIBLE);
@@ -509,15 +508,20 @@ public class MessageForm extends BaseEntityForm {
 		UI.setVisibility(shareHolder, View.GONE);
 		UI.setVisibility(photoView, View.GONE);
 		Entity shareEntity = null;
+		Link linkEntity = null;
 		if (share) {
-			Link linkEntity = mEntity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH);
+			linkEntity = mEntity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH);
 			if (linkEntity != null) {
-				shareEntity = linkEntity.shortcut.getAsEntity();
+				if (linkEntity.shortcut != null) {
+					shareEntity = linkEntity.shortcut.getAsEntity();
+				}
 			}
 			if (shareEntity == null) {
 				linkEntity = mEntity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_MESSAGE);
 				if (linkEntity != null) {
-					shareEntity = linkEntity.shortcut.getAsEntity();
+					if (linkEntity.shortcut != null) {
+						shareEntity = linkEntity.shortcut.getAsEntity();
+					}
 				}
 			}
 		}
@@ -545,6 +549,25 @@ public class MessageForm extends BaseEntityForm {
 			shareFrame.addView(shareView);
 
 			UI.setVisibility(shareHolder, View.VISIBLE);
+		}
+		else if (shareEntity == null && linkEntity != null) {
+
+			/* Message that shares an entity but shortcut was blocked */
+
+			if (linkEntity.targetSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+
+				shareFrame.removeAllViews();
+				View shareView = LayoutInflater.from(this).inflate(R.layout.temp_button_share_message_blocked, null, false);
+
+				Entity entity = new Message();
+				entity.schema = Constants.SCHEMA_ENTITY_MESSAGE;
+				entity.id = linkEntity.toId;
+
+				shareFrame.setTag(entity);
+				shareFrame.addView(shareView);
+
+				UI.setVisibility(shareHolder, View.VISIBLE);
+			}
 		}
 		else {
 
@@ -608,7 +631,7 @@ public class MessageForm extends BaseEntityForm {
 	public Boolean related(String entityId) {
 		Boolean related = super.related(entityId);
 		if (!related) {
-			if (mEntity != null && mEntity.placeId != null && mEntity.placeId.equals(entityId)) {
+			if (mEntity != null && mEntity.patchId != null && mEntity.patchId.equals(entityId)) {
 				return true;
 			}
 		}
@@ -659,7 +682,7 @@ public class MessageForm extends BaseEntityForm {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
-				String seedParentId = mEntity.type.equals(MessageType.ROOT) ? mEntity.placeId : null;
+				String seedParentId = mEntity.type.equals(MessageType.ROOT) ? mEntity.patchId : null;
 				final ModelResult result = ((EntityManager) Patchr.getInstance().getEntityManager()).deleteMessage(mEntity.id, false, seedParentId);
 				return result;
 			}

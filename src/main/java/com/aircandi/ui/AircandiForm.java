@@ -2,6 +2,7 @@ package com.aircandi.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -38,9 +39,8 @@ import com.aircandi.queries.TrendQuery;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseFragment;
-import com.aircandi.ui.components.BubbleController;
+import com.aircandi.ui.components.EmptyController;
 import com.aircandi.ui.widgets.UserView;
-import com.aircandi.utilities.Booleans;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Type;
@@ -53,8 +53,8 @@ public class AircandiForm extends BaseActivity {
 	protected Number  mPauseDate;
 	protected Boolean mConfiguredForAnonymous;
 
-	protected Fragment         mFragmentNotifications;
-	protected BubbleController mDrawerBubbleButton;
+	protected Fragment        mFragmentNotifications;
+	protected EmptyController mDrawerEmptyController;
 
 	protected Boolean mFinishOnClose   = false;
 	protected Boolean mLeftDrawerOpen  = false;
@@ -69,13 +69,17 @@ public class AircandiForm extends BaseActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		FontManager.getInstance().setTypefaceMedium((TextView) findViewById(R.id.item_nearby).findViewById(R.id.name));
 	}
 
 	@SuppressLint("ResourceAsColor")
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
+
+		View view = findViewById(R.id.item_nearby);
+		if (view != null) {
+			FontManager.getInstance().setTypefaceMedium((TextView) view.findViewById(R.id.name));
+		}
 
 		mUserView = (UserView) findViewById(R.id.user_current);
 		if (mUserView != null) {
@@ -84,8 +88,7 @@ public class AircandiForm extends BaseActivity {
 
 		mDrawerLeft = findViewById(R.id.left_drawer);
 		mDrawerRight = findViewById(R.id.right_drawer);
-
-		mDrawerBubbleButton = new BubbleController(findViewById(R.id.button_bubble_notifications));
+		mDrawerEmptyController = new EmptyController(findViewById(R.id.button_bubble_notifications));
 
 		/* Check if the device is tethered */
 		tetherAlert();
@@ -118,7 +121,6 @@ public class AircandiForm extends BaseActivity {
 				.beginTransaction()
 				.replace(R.id.fragment_holder_notifications, mFragmentNotifications)
 				.commit();
-
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -153,13 +155,13 @@ public class AircandiForm extends BaseActivity {
 				if (mDrawerLayout.isDrawerOpen(mDrawerRight)) {
 					final Integer countNotifications = fragmentNotifications.getAdapter().getCount();
 					fragmentNotifications.onProcessingFinished();
-					if (mDrawerBubbleButton.isEnabled()) {
+					if (mDrawerEmptyController.isEnabled()) {
 						if (countNotifications == 0) {
-							mDrawerBubbleButton.setText(fragmentNotifications.getListEmptyMessageResId());
-							mDrawerBubbleButton.fadeIn();
+							mDrawerEmptyController.setText(fragmentNotifications.getListEmptyMessageResId());
+							mDrawerEmptyController.fadeIn();
 						}
 						else {
-							mDrawerBubbleButton.fadeOut();
+							mDrawerEmptyController.fadeOut();
 						}
 					}
 				}
@@ -171,20 +173,21 @@ public class AircandiForm extends BaseActivity {
 					final Integer count = fragment.getAdapter().getCount();
 
 					((BaseFragment) mCurrentFragment).onProcessingFinished();
+
+					if (mEmptyView.isEnabled()) {
+						if (count == 0) {
+							mEmptyView.setText(fragment.getListEmptyMessageResId());
+							mEmptyView.fadeIn();
+						}
+						else {
+							mEmptyView.fadeOut();
+						}
+					}
+
 					if (mCurrentFragment instanceof NearbyListFragment) {
 						if (!NetworkManager.getInstance().isWifiEnabled()
 								&& !LocationManager.getInstance().isLocationAccessEnabled()) {
 							mFab.fadeOut();
-						}
-					}
-
-					if (mBubbleButton.isEnabled()) {
-						if (count == 0) {
-							mBubbleButton.setText(fragment.getListEmptyMessageResId());
-							mBubbleButton.fadeIn();
-						}
-						else {
-							mBubbleButton.fadeOut();
 						}
 					}
 				}
@@ -201,10 +204,7 @@ public class AircandiForm extends BaseActivity {
 		if (!(entity.schema.equals(Constants.SCHEMA_ENTITY_USER) && ((User) entity).isAnonymous())) {
 			Bundle extras = new Bundle();
 			if (Type.isTrue(entity.autowatchable)) {
-				if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
-						, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
-					extras.putBoolean(Constants.EXTRA_AUTO_WATCH, true);
-				}
+				extras.putBoolean(Constants.EXTRA_PRE_APPROVED, true);
 			}
 			Patchr.dispatch.route(this, Route.BROWSE, entity, extras);
 		}
@@ -248,13 +248,6 @@ public class AircandiForm extends BaseActivity {
 	}
 
 	@Override
-	public void onHelp() {
-		if (mCurrentFragment != null) {
-			((BaseFragment) mCurrentFragment).onHelp();
-		}
-	}
-
-	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		if (mDrawerToggle != null) {
@@ -272,16 +265,15 @@ public class AircandiForm extends BaseActivity {
 				if (mCurrentFragment != null && mCurrentFragment instanceof BaseFragment) {
 					((BaseFragment) mCurrentFragment).bind(BindingMode.AUTO);
 				}
-				mDrawerBubbleButton.fadeOut();
-				updateNotificationIndicator();
+				mDrawerEmptyController.fadeOut();
+				updateNotificationIndicator(false);
 			}
 		});
 	}
 
 	@SuppressWarnings("ucd")
 	public void onFabButtonClick(View view) {
-		mNextFragmentTag = (String) view.getTag();
-		setCurrentFragment(mNextFragmentTag);
+		Patchr.dispatch.route(this, Route.NEW_PLACE, null, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -289,8 +281,11 @@ public class AircandiForm extends BaseActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
-	public void setCurrentFragment(String fragmentType) {
-		Logger.i(this, "setCurrentFragment called");
+	public synchronized void setCurrentFragment(String fragmentType) {
+		/*
+		 * Called from BaseActivity.onCreate (once), configureActionBar and DispatchManager.
+		 */
+		Logger.i(this, "setCurrentFragment entered");
 		/*
 		 * Fragment menu items are in addition to any menu items added by the parent activity.
 		 */
@@ -313,8 +308,7 @@ public class AircandiForm extends BaseActivity {
 						.setHeaderViewResId(R.layout.widget_list_header_nearby)
 						.setTitleResId(R.string.form_title_nearby);
 
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh_special);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
@@ -345,8 +339,7 @@ public class AircandiForm extends BaseActivity {
 						.setTitleResId(R.string.form_title_watch)
 						.setSelfBindingEnabled(true);
 
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
@@ -376,8 +369,7 @@ public class AircandiForm extends BaseActivity {
 				                               .setTitleResId(R.string.form_title_create)
 				                               .setSelfBindingEnabled(true);
 
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
@@ -408,8 +400,7 @@ public class AircandiForm extends BaseActivity {
 
 				((TrendListFragment) fragment).setCountLabelResId(R.string.label_trends_count_popular);
 
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
@@ -440,8 +431,7 @@ public class AircandiForm extends BaseActivity {
 
 				((TrendListFragment) fragment).setCountLabelResId(R.string.label_trends_count_active);
 
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_refresh);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_new_patch);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
@@ -462,6 +452,7 @@ public class AircandiForm extends BaseActivity {
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
 
 				fragment = new MapListFragment();
+				((MapListFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_list);
 			}
 
 			else {
@@ -479,22 +470,38 @@ public class AircandiForm extends BaseActivity {
 			((MapListFragment) fragment)
 					.setEntities(((EntityListFragment) getCurrentFragment()).getEntities())
 					.setTitleResId(((EntityListFragment) getCurrentFragment()).getTitleResId())
+					.setListFragment(mCurrentFragmentTag)
 					.setZoomLevel(null);
 
 			if (!mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
 				((MapListFragment) fragment).setZoomLevel(MapManager.ZOOM_SCALE_COUNTY);
 			}
+
+			mFab.fadeOut();
 		}
 
-		getFragmentManager()
-				.beginTransaction()
-				.replace(R.id.fragment_holder, fragment)
-				.commit();
+		if (fragment instanceof EntityListFragment) {
+			mFab.fadeIn();
+		}
+
+		/* We hide/show to save the trouble of rebuilding the fragments. */
+		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		ft.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+		if (mCurrentFragment != null) {
+			ft.hide(mCurrentFragment);
+		}
+		if (fragment.isHidden()) {
+			ft.show(fragment);
+		}
+		else {
+			ft.add(R.id.fragment_holder, fragment);
+		}
+		ft.commit();
 
 		mPrevFragmentTag = mCurrentFragmentTag;
 		mCurrentFragmentTag = fragmentType;
 		mCurrentFragment = fragment;
-		updateFab();
+		Logger.i(this, "setCurrentFragment exited");
 	}
 
 	public Fragment getCurrentFragment() {
@@ -515,14 +522,14 @@ public class AircandiForm extends BaseActivity {
 		}
 	}
 
-	public void updateNotificationIndicator() {
+	public void updateNotificationIndicator(Boolean ifDrawerVisible) {
 
 		Logger.v(this, "updateNotificationIndicator for menus");
 
 		Boolean showingNotifications = (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(Gravity.END));
 		Integer newNotificationCount = NotificationManager.getInstance().getNewNotificationCount();
 
-		if (!showingNotifications && mNotificationsBadgeGroup != null) {
+		if ((ifDrawerVisible || !showingNotifications) && mNotificationsBadgeGroup != null) {
 			if (newNotificationCount > 0) {
 				mNotificationsBadgeCount.setText(String.valueOf(newNotificationCount));
 				mNotificationsBadgeGroup.setVisibility(View.VISIBLE);
@@ -543,25 +550,6 @@ public class AircandiForm extends BaseActivity {
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_more_settings).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_more_feedback).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceMedium((TextView) mCurrentNavView.findViewById(R.id.name));
-		}
-	}
-
-	protected void updateFab() {
-		/*
-		 * Called everytime a fragment is loaded.
-		 */
-		if (mFab.isEnabled()) {
-
-			mFab.setTag(mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)
-			            ? mPrevFragmentTag
-			            : Constants.FRAGMENT_TYPE_MAP);
-			mFab.setIcon(mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)
-			                                     ? R.drawable.ic_list_dark
-			                                     : R.drawable.ic_map_dark);
-			mFab.fadeIn();
-		}
-		else {
-			mFab.fadeOut();
 		}
 	}
 
@@ -597,8 +585,8 @@ public class AircandiForm extends BaseActivity {
 
 	protected void configureActionBar() {
 		super.configureActionBar();
-	    /*
-	     * Only called when form is created
+		/*
+		 * Only called when form is created
 		 */
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerLayout.setFocusableInTouchMode(false);
@@ -619,7 +607,7 @@ public class AircandiForm extends BaseActivity {
 				}
 				else if (drawerView.getId() == R.id.right_drawer) {
 					NotificationManager.getInstance().setNewNotificationCount(0);
-					updateNotificationIndicator();
+					updateNotificationIndicator(false);
 				}
 			}
 
@@ -630,7 +618,7 @@ public class AircandiForm extends BaseActivity {
 				if (drawerView.getId() == R.id.right_drawer) {
 					NotificationManager.getInstance().setNewNotificationCount(0);
 					NotificationManager.getInstance().cancelNotifications();
-					updateNotificationIndicator();
+					updateNotificationIndicator(true);
 					((BaseFragment) mFragmentNotifications).bind(BindingMode.AUTO);
 				}
 			}
@@ -706,7 +694,7 @@ public class AircandiForm extends BaseActivity {
 
 		/* Manage activity alert */
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			updateNotificationIndicator();
+			updateNotificationIndicator(false);
 		}
 
 		/* In case the user was edited from the drawer */

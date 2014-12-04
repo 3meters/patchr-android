@@ -9,23 +9,6 @@
 		android:background="?attr/backgroundPictureFramed"
 		android:visibility="visible" />
 
-	<View
-		android:id="@+id/color_layer"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_gravity="center"
-		android:layout_margin="3dp"
-		android:visibility="gone" />
-
-	<View
-		android:id="@+id/reverse_layer"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_gravity="center"
-		android:layout_margin="3dp"
-		android:background="@color/overlay_gray_light"
-		android:visibility="gone" />
-
 	<ProgressBar
 		android:id="@+id/image_progress"
 		android:layout_width="@dimen/progress_small_width"

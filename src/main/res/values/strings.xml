@@ -58,12 +58,15 @@
 	<string name="menu_item_delete">Delete</string>
 	<string name="menu_item_remove">Remove</string>
 	<string name="menu_item_accept">Accept</string>
+	<string name="menu_item_save">Save</string>
 	<string name="menu_item_cancel">Cancel</string>
 	<string name="menu_item_new_patch">New patch</string>
 	<string name="menu_item_edit_patch">Edit</string>
 	<string name="menu_item_edit_message">Edit</string>
 	<string name="menu_item_share_message">Share</string>
 	<string name="menu_item_share_patch">Invite</string>
+	<string name="menu_item_view_as_map">View as map</string>
+	<string name="menu_item_view_as_list">View as list</string>
 
 	<!-- Popups -->
 
@@ -186,6 +189,13 @@
 	<string name="alert_unwatch_message">A new request will be required to rejoin this [@string/container_singular_lowercase]</string>
 	<string name="alert_unwatch_confirmation">You are no longer a member of this [@string/container_singular_lowercase].</string>
 
+	<!-- Alerts: confirm pre-approved patch -->
+
+	<string name="alert_autowatch_positive">Join now</string>
+	<string name="alert_autowatch_negative">Later</string>
+	<string name="alert_autowatch_message">The owner of this patch has already approved you as a member!</string>
+	<string name="alert_autowatch_confirmation">You are now a member of this patch.</string>
+
 	<string name="alert_dirty_send">Post</string>
 	<string name="alert_dirty_exit_title_message">Message</string>
 	<string name="alert_dirty_exit_message_message">Do you want to post your message?</string>
@@ -216,13 +226,16 @@
 	<string name="error_change_password_unauthorized">Old password is invalid.</string>
 	<string name="error_whitelist_unauthorized">This is an invitation-only beta. Only invited users are able to register user accounts.</string>
 	<string name="error_unverified_unauthorized">The email address for the account has not been verified.</string>
-	<string name="error_signin_invalid_signin">Wrong email and password combination.</string>
 	<string name="error_invalid_email">Email address is invalid.</string>
 	<string name="error_session_expired_title">Session expired</string>
 	<string name="error_session_expired">Your login session expired. Please sign in again.</string>
 	<string name="error_session_invalid">Your login session is invalid. Please sign in again.</string>
 	<string name="error_email_not_found">The email address could not be found.</string>
 	<string name="error_install_not_found">This email address has not been used with this installation. Please contact support to reset your password</string>
+
+	<string name="error_signin_failed">Wrong email and password combination.</string>
+	<string name="error_signin_password_incorrect">The password is incorrect.</string>
+	<string name="error_signin_email_not_found">The email address couldn\'t be found.</string>
 
 	<!-- Errors: validation -->
 
@@ -320,6 +333,9 @@
 	<string name="button_alert_radar_anonymous">Sign in and make a patch</string>
 	<string name="button_alert_radar_no_patch">Make your first patch</string>
 
+	<string name="button_text_expand">More</string>
+	<string name="button_text_collapse">Less</string>
+
 	<!-- Labels -->
 
 	<string name="label_fullname">Full name</string>
@@ -337,6 +353,12 @@
 	<string name="label_search_places_hint">Search places</string>
 	<string name="label_search_completion_hint">Pick a patch to browse.</string>
 	<string name="label_location_edit_message">Tap or tap and hold to set the location for the [@string/container_singular_lowercase].</string>
+
+	<string name="label_location_provider_google_new">Location: You are here</string>
+	<string name="label_location_provider_google">Location: Patch was created here</string>
+	<string name="label_location_provider_user">Location: You set this location</string>
+	<string name="label_location_provider_place">Location: Linked place is here</string>
+	<string name="label_location_provider_unknown">Location: Last location set</string>
 
 	<string name="label_about_install">Install</string>
 	<string name="label_about_title">About [@string/name_app]</string>
@@ -391,6 +413,8 @@
 	<string name="label_indicator_watching" tools:ignore="UnusedResources">Watchers</string>
 	<string name="label_indicator_watch_requests" tools:ignore="UnusedResources">Requests</string>
 
+	<string name="label_message_share_blocked">View the message</string>
+
 	<!-- Labels: Sharing -->
 
 	<string name="label_patch_share_title">Invite people to \'%1$s\' using&#8230;</string>
@@ -419,7 +443,7 @@
 
 	<!-- Labels: Empty -->
 
-	<string name="label_radar_empty">No [@string/container_plural_lowercase] found nearby</string>
+	<string name="label_radar_empty">No patches found nearby</string>
 	<string name="label_photo_picker_empty">No photos found for</string>
 	<string name="label_photo_missing">Unable to download photo</string>
 
@@ -527,6 +551,7 @@
 	<!-- Hints -->
 
 	<string name="hint_patch_title">Title</string>
+	<string name="hint_patch_description">About</string>
 	<string name="hint_patch_category">Patch type</string>
 	<string name="hint_patch_privacy">Set privacy</string>
 	<string name="hint_patch_sub_category">Set subcategory</string>

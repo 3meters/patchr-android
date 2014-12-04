@@ -144,13 +144,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		if (mEntity != null) {
 
 			final Entity entity = mEntity;
-			//			if (mEditing) {
-			//				String title = !TextUtils.isEmpty(mEntity.name) ? mEntity.name : mEntity.schema;
-			//				setActivityTitle(title);
-			//			}
-			//			else {
-			//				setActivityTitle(StringManager.getString(R.string.label_edit_new_title) + " " + mEntity.getLabelForSchema());
-			//			}
 
 			/* Content */
 

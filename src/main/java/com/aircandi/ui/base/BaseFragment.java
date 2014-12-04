@@ -25,7 +25,7 @@ import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IForm;
 import com.aircandi.objects.Entity;
 import com.aircandi.ui.AircandiForm;
-import com.aircandi.ui.components.BubbleController;
+import com.aircandi.ui.components.EmptyController;
 import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.ui.widgets.AirAutoCompleteTextView;
 import com.aircandi.utilities.DateTime;
@@ -69,7 +69,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	private View                    mToProgress;
 	private EntitySuggestController mEntitySuggest;
 
-	protected BubbleController mBubbleButton;
+	protected EmptyController mEmptyController;
 
 	/* Resources */
 	protected Integer mTitleResId;
@@ -109,7 +109,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 
 		final View view = inflater.inflate(getLayoutId(), container, false);
 
-		mBubbleButton = ((BaseActivity) getActivity()).getBubbleController();
+		mEmptyController = ((BaseActivity) getActivity()).getBubbleController();
 
 		return view;
 	}
@@ -147,6 +147,22 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	public void onDetach() {
 		super.onDetach();
 		Logger.d(this, "Fragment detached");
+	}
+
+	public void onHiddenChanged(boolean hidden) {
+		/*
+		 * Called when switching fragments but not when switching
+		 * away from the activity hosting the fragment(s).
+		 */
+		Logger.d(this, "Fragment hidden: " + hidden);
+		if (hidden) {
+			pause();
+			stop();
+		}
+		else {
+			start();
+			resume();
+		}
 	}
 
 	@Override
@@ -219,6 +235,24 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	@Override
 	public void share() {}
 
+	protected void resume() {
+		BusProvider.getInstance().register(this);
+		if (getActivity() != null && getActivity() instanceof AircandiForm) {
+			((AircandiForm) getActivity()).updateNotificationIndicator(false);
+		}
+	}
+
+	protected void pause() {
+		BusProvider.getInstance().unregister(this);
+		if (mBusy != null) {
+			mBusy.onPause();
+		}
+	}
+
+	protected void start(){}
+
+	protected void stop(){}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
@@ -276,8 +310,8 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		for (Integer menuResId : mMenuResIds) {
 			inflater.inflate(menuResId, menu);
 		}
-		configureStandardMenuItems(menu);
 		super.onCreateOptionsMenu(menu, inflater);
+		configureStandardMenuItems(menu);
 	}
 
 	@Override
@@ -300,6 +334,21 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		if (item != null) {
 			item.setVisible(Patchr.getInstance().getMenuManager().canUserDelete(entity));
 		}
+
+		item = menu.findItem(R.id.share);
+		if (item != null) {
+			item.setVisible(Patchr.getInstance().getMenuManager().canUserShare(entity));
+		}
+
+		item = menu.findItem(R.id.share_photo);
+		if (item != null) {
+			item.setVisible(Patchr.getInstance().getMenuManager().canUserShare(entity));
+		}
+
+		item = menu.findItem(R.id.invite);
+		if (item != null) {
+			item.setVisible(Patchr.getInstance().getMenuManager().canUserShare(entity));
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -308,18 +357,18 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 
 	@Override
 	public void onStart() {
+		/*
+		 * Called everytime the fragment is started or restarted.
+		 */
 		Logger.d(this, "Fragment start");
+		start();
 		super.onStart();
 	}
 
 	@Override
 	public void onResume() {
 		Logger.d(this, "Fragment resume");
-		BusProvider.getInstance().register(this);
-		if (getActivity() != null && getActivity() instanceof AircandiForm) {
-			((AircandiForm) getActivity()).updateNotificationIndicator();
-		}
-
+		resume();
 		super.onResume();
 	}
 
@@ -330,23 +379,28 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		 * because they might not come back.
 		 */
 		Logger.d(this, "Fragment pause");
-		BusProvider.getInstance().unregister(this);
-		if (mBusy != null) {
-			mBusy.onPause();
-		}
+		pause();
 		super.onPause();
 	}
 
 	@Override
 	public void onStop() {
+		/*
+		 * Triggers
+		 * - Switching to another fragment.
+		 * - Switching to launcher.
+		 * - Killing activity.
+		 * - Navigating to another activity.
+		 */
 		Logger.d(this, "Fragment stop");
+		stop();
 		super.onStop();
 	}
 
 	@Override
 	public void onDestroyView() {
 		Logger.d(this, "Fragment destroy view");
-		super.onDestroy();
+		super.onDestroyView();
 	}
 
 	@Override

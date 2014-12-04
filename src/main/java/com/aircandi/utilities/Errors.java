@@ -43,7 +43,8 @@ public final class Errors {
 		/*
 		 * First show any required UI
 		 */
-		if (errorResponse.errorResponseType == ResponseType.AUTO) {
+		if (errorResponse.errorResponseType == ResponseType.AUTO
+				|| errorResponse.errorResponseType == ResponseType.DIALOG) {
 			if (activity != null) {
 				final String errorMessage = errorResponse.errorMessage;
 				Patchr.mainThreadHandler.post(new Runnable() {
@@ -155,11 +156,18 @@ public final class Errors {
 								if (serviceResponse.activityName.equals("PasswordEdit"))
 									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_change_password_unauthorized));
 								else if (serviceResponse.activityName.equals("SignInEdit"))
-									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signin_invalid_signin));
+									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signin_password_incorrect));
 							}
 							ErrorResponse errorResponse = new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_session_invalid));
 							errorResponse.splash = true;
 							return errorResponse;
+						}
+
+						if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND) {
+							if (serviceResponse.activityName != null) {
+								if (serviceResponse.activityName.equals("SignInEdit"))
+									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signin_failed));
+							}
 						}
 					}
 				}

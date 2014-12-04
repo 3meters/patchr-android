@@ -27,6 +27,7 @@ import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
+import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
@@ -53,7 +54,7 @@ public class SplashForm extends ActionBarActivity {
 		mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
 		if (mSwipeRefreshLayout != null) {
 			mSwipeRefreshLayout.setProgressBackgroundColor(R.color.brand_primary);
-			mSwipeRefreshLayout.setColorSchemeResources(R.color.white);
+			mSwipeRefreshLayout.setColorSchemeColors(Colors.getColor(R.color.white));
 			mSwipeRefreshLayout.setEnabled(false);
 			mSwipeRefreshLayout.setProgressViewOffset(true, UI.getRawPixelsForDisplayPixels(48f), UI.getRawPixelsForDisplayPixels(48f));
 		}
@@ -175,9 +176,6 @@ public class SplashForm extends ActionBarActivity {
 		      .setAnimationManager(new AnimationManager());
 
 
-		/* Stash last known location but doesn't start location updates */
-		//LocationManager.getInstance().initialize(getApplicationContext());
-
 		/* Starts activity recognition */
 		ActivityRecognitionManager.getInstance().initialize(getApplicationContext());
 
@@ -190,6 +188,7 @@ public class SplashForm extends ActionBarActivity {
 		}
 		else {
 			Patchr.dispatch.route(this, Route.HOME, null, null);
+			finish();
 		}
 
 		/* Always ok to make sure firstStartIntent isn't still around */
@@ -200,13 +199,13 @@ public class SplashForm extends ActionBarActivity {
 		 * are getting a warning about lost windows because the activity hadn't completely
 		 * started before it was being killed.
 		 */
-		Patchr.mainThreadHandler.postDelayed(new Runnable() {
-
-			@Override
-			public void run() {
-				finish();
-			}
-		}, 1000);
+//		Patchr.mainThreadHandler.postDelayed(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				finish();
+//			}
+//		}, 1000);
 	}
 
 	private void showButtons(Buttons buttons) {

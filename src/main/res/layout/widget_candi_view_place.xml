@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
 
 	<com.aircandi.ui.widgets.AirImageView
 		android:id="@+id/photo"
@@ -18,73 +19,58 @@
 		custom:fitType="auto"
 		custom:layoutId="@layout/widget_webimageview_candi_view" />
 
-	<LinearLayout
-		android:id="@+id/info_holder"
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/rule_divider_height"
+		android:layout_marginBottom="16dp"
+		android:background="?attr/ruleColor" />
+
+	<com.aircandi.ui.widgets.AirTextLight
+		android:id="@+id/name"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:background="@drawable/scrim_gradient_medium"
-		android:orientation="horizontal"
-		android:paddingBottom="8dp"
-		android:paddingLeft="70dp"
-		android:paddingRight="8dp"
-		android:paddingTop="10dp">
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:orientation="vertical"
-			tools:ignore="UselessParent">
-
-			<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:gravity="center_vertical"
-				android:orientation="horizontal">
-
-				<com.aircandi.ui.widgets.AirTextView
-					android:id="@+id/category_name"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginRight="4dp"
-					android:ellipsize="end"
-					android:singleLine="true"
-					android:textAllCaps="true"
-					android:textAppearance="?android:textAppearanceSmall"
-					android:textColor="?attr/textColorCandiView"
-					tools:text="Event or place" />
-
-			</LinearLayout>
-
-			<com.aircandi.ui.widgets.AirTextLight
-				android:id="@+id/name"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center_vertical"
-				android:layout_weight="1"
-				android:ellipsize="end"
-				android:maxLines="2"
-				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:textColor="?attr/textColorCandiView"
-				android:textSize="24sp"
-				android:textStyle="bold"
-				tools:text="Dillons Fabulous Birthday" />
-
-		</LinearLayout>
-	</LinearLayout>
+		android:layout_marginBottom="8dp"
+		android:layout_marginLeft="12dp"
+		android:layout_marginRight="12dp"
+		android:ellipsize="end"
+		android:singleLine="true"
+		android:textAppearance="?android:attr/textAppearanceMedium"
+		android:textSize="24sp"
+		android:textStyle="bold"
+		tools:text="@string/dummy_title" />
 
 	<com.aircandi.ui.widgets.AirTextView
-		android:id="@+id/distance_ignore"
+		android:id="@+id/category_name"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="8dp"
+		android:layout_marginLeft="12dp"
+		android:layout_marginRight="12dp"
+		android:ellipsize="middle"
+		android:singleLine="true"
+		android:textAllCaps="true"
+		android:textAppearance="?attr/textAppearanceExtraSmall"
+		android:textColor="?textColorSecondary"
+		android:textSize="14sp"
+		tools:text="@string/dummy_category_name" />
+
+	<com.aircandi.ui.widgets.AirTextLight
+		android:id="@+id/candi_form_address"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="8dp"
+		android:layout_marginLeft="12dp"
+		android:layout_marginRight="12dp"
+		tools:text="@string/dummy_address" />
+
+	<com.aircandi.ui.widgets.AirTextView
+		android:id="@+id/distance"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignBottom="@+id/photo"
-		android:layout_alignParentRight="true"
-		android:paddingBottom="12dp"
-		android:paddingRight="10dp"
+		android:layout_marginLeft="12dp"
+		android:layout_marginRight="12dp"
 		android:textAppearance="?android:attr/textAppearanceSmall"
-		android:textColor="?attr/textColorCandiView"
-		android:visibility="gone" />
+		android:textColor="?textColorSecondary"
+		tools:text="1.2 mi" />
 
-</RelativeLayout>
+</LinearLayout>

@@ -42,13 +42,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	@Expose
 	public Number createdDate;
 
-	@Expose(serialize = false, deserialize = true)
-	public Boolean colorize = false;
-	@Expose(serialize = false, deserialize = true)
-	public String  colorizeKey;
-	@Expose(serialize = false, deserialize = true)
-	public Integer color;
-
 	/* Only comes from foursquare */
 	@Expose(serialize = false, deserialize = true)
 	public Entity user;
@@ -89,9 +82,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		photo.createdDate = (Number) map.get("createdDate");
 		photo.name = (String) map.get("name");
 		photo.description = (String) map.get("description");
-		photo.color = (Integer) map.get("color");
-		photo.colorize = (Boolean) map.get("colorize");
-		photo.colorizeKey = (String) map.get("colorizeKey");
 		photo.usingDefault = (Boolean) map.get("usingDefault");
 		photo.store = (Boolean) map.get("store");
 		photo.resizerActive = (Boolean) map.get("resizerActive");

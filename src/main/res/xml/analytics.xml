@@ -37,7 +37,7 @@
 	<screenName name="com.aircandi.ui.SearchForm">SearchForm</screenName>
 	<screenName name="com.aircandi.ui.SettingsForm">SettingsForm</screenName>
 	<screenName name="com.aircandi.ui.SplashForm">SplashForm</screenName>
-	<screenName name="com.aircandi.ui.user.UserForm">UserForm</screenName>
+	<screenName name="com.aircandi.ui.UserForm">UserForm</screenName>
 	<screenName name="com.aircandi.ui.WatcherList">WatcherList</screenName>
 
 	<screenName name="com.aircandi.ui.MapListFragment">MapList</screenName>
@@ -49,13 +49,13 @@
 
 	<screenName name="com.aircandi.ui.edit.FeedbackEdit">FeedbackEdit</screenName>
 	<screenName name="com.aircandi.ui.edit.MessageEdit">MessageEdit</screenName>
-	<screenName name="com.aircandi.ui.user.PasswordEdit">PasswordEdit</screenName>
+	<screenName name="com.aircandi.ui.edit.PasswordEdit">PasswordEdit</screenName>
 	<screenName name="com.aircandi.ui.edit.PatchEdit">PatchEdit</screenName>
-	<screenName name="com.aircandi.ui.user.RegisterEdit">RegisterEdit</screenName>
+	<screenName name="com.aircandi.ui.edit.RegisterEdit">RegisterEdit</screenName>
 	<screenName name="com.aircandi.ui.edit.ReportEdit">ReportEdit</screenName>
-	<screenName name="com.aircandi.ui.user.ResetEdit">ResetEdit</screenName>
-	<screenName name="com.aircandi.ui.user.SignInEdit">SigninEdit</screenName>
-	<screenName name="com.aircandi.ui.user.UserEdit">UserEdit</screenName>
+	<screenName name="com.aircandi.ui.edit.ResetEdit">ResetEdit</screenName>
+	<screenName name="com.aircandi.ui.edit.SignInEdit">SigninEdit</screenName>
+	<screenName name="com.aircandi.ui.edit.UserEdit">UserEdit</screenName>
 
 	<!-- Builders -->
 

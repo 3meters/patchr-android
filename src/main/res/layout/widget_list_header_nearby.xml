@@ -29,7 +29,7 @@
 			android:id="@+id/rule_alert"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/rule_divider_height"
-			android:layout_alignParentBottom="true"
+			android:layout_below="@+id/button_alert"
 			android:background="?attr/ruleColor" />
 
 	</RelativeLayout>

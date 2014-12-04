@@ -242,8 +242,6 @@ public class Patchr extends Application {
 
 	public void snapshotPreferences() {
 		mPrefTheme = Patchr.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
-		mPrefSearchRadius = Patchr.settings.getString(StringManager.getString(R.string.pref_search_radius),
-				StringManager.getString(R.string.pref_search_radius_default));
 		mPrefEnableDev = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
 		mPrefTestingBeacons = Patchr.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
 	}

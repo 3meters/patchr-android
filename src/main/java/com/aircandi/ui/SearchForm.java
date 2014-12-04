@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 
 import com.aircandi.Constants;
@@ -129,8 +128,8 @@ public class SearchForm extends BaseActivity {
 		 * This is the best event to do the work of setting up the search stuff.
 		 */
 		MenuInflater menuInflater = getMenuInflater();
-		menuInflater.inflate(R.menu.menu_search_compat, menu);
-		final MenuItem searchItem = menu.findItem(R.id.search_compat);
+		menuInflater.inflate(R.menu.menu_search_view, menu);
+		final MenuItem searchItem = menu.findItem(R.id.search_view);
 
 		if (searchItem != null) {
 			final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);

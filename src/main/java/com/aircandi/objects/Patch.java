@@ -3,16 +3,12 @@ package com.aircandi.objects;
 import android.support.annotation.Nullable;
 
 import com.aircandi.Constants;
-import com.aircandi.R;
 import com.aircandi.service.Expose;
-import com.aircandi.utilities.Colors;
 
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * @author Jayma
@@ -41,54 +37,10 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public Photo getPhoto() {
-		Photo photo = this.photo;
-		if (photo == null) {
-			if (category != null && category.photo != null) {
-				photo = category.photo.clone();
-			}
-			else {
-				photo = getDefaultPhoto(this.schema);
-			}
-		}
-		return photo;
-	}
-
 	public String getBeaconId() {
 		final Beacon beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
 		if (beacon != null) return beacon.id;
 		return null;
-	}
-
-	public static Integer getCategoryColor(String categoryName) {
-		int colorResId = getCategoryColorResId(categoryName);
-		return Colors.getColor(colorResId);
-	}
-
-	public static Integer getCategoryColorResId(String categoryName) {
-		int colorResId = R.color.gray_50_pcnt;
-		if (categoryName != null && !categoryName.toLowerCase(Locale.US).equals("generic")) {
-
-			final Random rand = new Random(categoryName.hashCode());
-			final int colorIndex = rand.nextInt(5 - 1 + 1) + 1;
-			if (colorIndex == 1) {
-				colorResId = R.color.holo_blue_dark;
-			}
-			else if (colorIndex == 2) {
-				colorResId = R.color.holo_orange_dark;
-			}
-			else if (colorIndex == 3) {
-				colorResId = R.color.holo_green_dark;
-			}
-			else if (colorIndex == 4) {
-				colorResId = R.color.holo_purple_dark;
-			}
-			else if (colorIndex == 5) {
-				colorResId = R.color.holo_red_dark;
-			}
-		}
-		return colorResId;
 	}
 
 	@Override

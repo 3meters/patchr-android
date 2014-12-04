@@ -7,22 +7,27 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
+import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
@@ -39,6 +44,7 @@ import com.aircandi.objects.Message;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
+import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.User;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseEntityForm;
@@ -48,21 +54,26 @@ import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
 import com.aircandi.ui.widgets.UserView;
-import com.aircandi.utilities.Booleans;
 import com.aircandi.utilities.Colors;
+import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
+import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
+import java.util.List;
+
 @SuppressLint("Registered")
 public class PatchForm extends BaseEntityForm {
 
-	protected Boolean mWaitForContent = true;
-	protected Boolean mAutoWatch      = false;
-	protected Boolean mJustApproved   = false;
+	protected Boolean mPreApproved       = null;                // Set from intent or by first watch request
+	protected Boolean mPreApprovedPush   = null;                // Pre-approval push passed in
+	protected Boolean mJustApproved      = false;               // Set in onMessage via notification
+	protected Boolean mRestrictedForUser = false;               // Set in draw
+	protected Integer mWatchStatus       = WatchStatus.NONE;    // Set in draw
 
 	@Override
 	public void unpackIntent() {
@@ -78,7 +89,7 @@ public class PatchForm extends BaseEntityForm {
 			if (jsonEntity != null) {
 				mEntity = (Entity) Json.jsonToObject(jsonEntity, Json.ObjectType.ENTITY);
 			}
-			mAutoWatch = extras.getBoolean(Constants.EXTRA_AUTO_WATCH);
+			mPreApprovedPush = extras.getBoolean(Constants.EXTRA_PRE_APPROVED);  // Defaults to false
 		}
 
 		Intent intent = getIntent();
@@ -87,11 +98,11 @@ public class PatchForm extends BaseEntityForm {
 			if (uri != null) {
 				if (uri.getPath().contains("/patch/")) {
 					mEntityId = uri.getPath().replace("/patch/", "");
-					mAutoWatch = true;
+					mPreApprovedPush = true;
 				}
 				else if (uri.getPath().contains("/patch/")) {
 					mEntityId = uri.getPath().replace("/patch/", "");
-					mAutoWatch = true;
+					mPreApprovedPush = true;
 				}
 			}
 		}
@@ -101,7 +112,7 @@ public class PatchForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mBubbleButton.setEnabled(false);
+		mEmptyView.setEnabled(false);
 
 		/* Default fragment */
 		mNextFragmentTag = Constants.FRAGMENT_TYPE_MESSAGES;
@@ -121,7 +132,7 @@ public class PatchForm extends BaseEntityForm {
 		 */
 		View header = ((EntityListFragment) mCurrentFragment).getHeaderView();
 		if (header != null) {
-			mBubbleButton.position(header, null);
+			mEmptyView.position(header, null);
 		}
 	}
 
@@ -142,20 +153,20 @@ public class PatchForm extends BaseEntityForm {
 				 */
 				if (mEntity != null && mEntity.privacy != null
 						&& mEntity.privacy.equals(Constants.PRIVACY_PRIVATE)
-						&& !mEntity.visibleToCurrentUser()) {
+						&& !mEntity.isVisibleToCurrentUser()) {
 					mFab.fadeOut();
 				}
 				else {
 					mFab.fadeIn();
 				}
 
-				if (mBubbleButton.isEnabled()) {
+				if (mEmptyView.isEnabled()) {
 					if (count == 0) {
-						mBubbleButton.setText(fragment.getListEmptyMessageResId());
-						mBubbleButton.fadeIn();
+						mEmptyView.setText(fragment.getListEmptyMessageResId());
+						mEmptyView.fadeIn();
 					}
 					else {
-						mBubbleButton.fadeOut();
+						mEmptyView.fadeOut();
 					}
 				}
 			}
@@ -223,36 +234,29 @@ public class PatchForm extends BaseEntityForm {
 			return;
 		}
 
-		/* User (non-owner) wants to unwatch a private patch */
-		if (mEntity.privacy.equals(Constants.PRIVACY_PRIVATE)
-				&& mEntity.visibleToCurrentUser()
-				&& !mEntity.isOwnedByCurrentUser()) {
-			final AlertDialog dialog = Dialogs.alertDialog(null
-					, null
-					, StringManager.getString(R.string.alert_unwatch_message)
-					, null
-					, this
-					, R.string.alert_unwatch_positive
-					, android.R.string.cancel
-					, null
-					, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-						mJustApproved = false;
-						watch(false);
-					}
-					else {
-						mProcessing = false;
-					}
-				}
-			}, null);
-			dialog.setCanceledOnTouchOutside(false);
-			return;
+		/* Cancel request */
+		if (mWatchStatus == WatchStatus.WATCHING) {
+			if (mEntity.isRestrictedForCurrentUser()) {
+				confirmLeave();
+			}
+			else {
+				watch(false /* delete */);
+			}
 		}
-
-		watch(false);
+		else if (mWatchStatus == WatchStatus.REQUESTED) {
+			watch(false /* delete */);
+		}
+		else if (mWatchStatus == WatchStatus.NONE) {
+			if (mPreApproved == null) {
+				shareCheck();   // Checks for pre-approved and if true then chains to confirmJoin else watch
+			}
+			else if (mPreApproved) {
+				confirmJoin(); // Chains to watch() if user confirms else ends
+			}
+			else {
+				watch(true /* insert */);
+			}
+		}
 	}
 
 	@SuppressWarnings("ucd")
@@ -265,6 +269,21 @@ public class PatchForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
 		((EntityListFragment) mCurrentFragment).onMoreButtonClick(view);
+	}
+
+	@SuppressWarnings("ucd")
+	public void onExpandDescriptionButtonClick(View view) {
+		TextView description = (TextView) findViewById(R.id.description);
+		Button buttonMore = (Button) findViewById(R.id.button_more);
+		if (description != null) {
+			int maxLines = Integers.getInteger(R.integer.max_lines_patch_description);
+			boolean collapsed = ((String)buttonMore.getTag()).equals("collapsed");
+			description.setMaxLines(collapsed ? Integer.MAX_VALUE : maxLines);
+			buttonMore.setText(StringManager.getString(collapsed
+			                                           ? R.string.button_text_collapse
+			                                           : R.string.button_text_expand));
+			buttonMore.setTag(collapsed ? "expanded" : "collapsed");
+		}
 	}
 
 	@Subscribe
@@ -295,6 +314,15 @@ public class PatchForm extends BaseEntityForm {
 
 	@SuppressWarnings("ucd")
 	public void onHeaderClick(View view) {
+		TextView description = (TextView) findViewById(R.id.description);
+		if (description != null) {
+			int maxLines = Integers.getInteger(R.integer.max_lines_patch_description);
+			boolean collapsed = (maxLines == 3);
+			if (!collapsed) {
+				onExpandDescriptionButtonClick(null);
+			}
+		}
+
 		((MessageListFragment) mCurrentFragment).onHeaderClick(view);
 	}
 
@@ -316,7 +344,7 @@ public class PatchForm extends BaseEntityForm {
 				/* Pass the projected header height */
 				final DisplayMetrics metrics = getResources().getDisplayMetrics();
 				int screenWidth = (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) ? metrics.widthPixels : metrics.heightPixels;
-				mBubbleButton.position(header, (int) (screenWidth * typedValue.getFloat()));
+				mEmptyView.position(header, (int) (screenWidth * typedValue.getFloat()));
 			}
 		}
 	}
@@ -325,6 +353,7 @@ public class PatchForm extends BaseEntityForm {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	@SuppressWarnings("ConstantConditions")
 	public void draw(View view) {
 		/*
 		 * For now, we assume that the candi form isn't recycled.
@@ -335,11 +364,16 @@ public class PatchForm extends BaseEntityForm {
 		 * - WebImageView child views are gone by default
 		 * - Header views are visible by default
 		 */
-
+		Logger.v(this, "Draw called");
 		if (view == null) {
 			view = findViewById(android.R.id.content);
 		}
 		mFirstDraw = false;
+
+		/* Some state management */
+		Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
+		mRestrictedForUser = mEntity.isRestrictedForCurrentUser();
+		mWatchStatus = (link == null) ? WatchStatus.NONE : (link.enabled) ? WatchStatus.WATCHING : WatchStatus.REQUESTED;
 
 		final View holderPlace = view.findViewById(R.id.holder_place);
 		final AirImageView placePhotoView = (AirImageView) view.findViewById(R.id.place_photo);
@@ -425,6 +459,7 @@ public class PatchForm extends BaseEntityForm {
 		final CandiView candiViewInfo = (CandiView) view.findViewById(R.id.candi_view_info);
 		final TextView description = (TextView) view.findViewById(R.id.description);
 		final UserView userView = (UserView) view.findViewById(R.id.user);
+		final Button buttonMore = (Button) view.findViewById(R.id.button_more);
 
 		if (candiViewInfo != null) {
 			/*
@@ -442,9 +477,14 @@ public class PatchForm extends BaseEntityForm {
 		final Patch place = (Patch) mEntity;
 
 		UI.setVisibility(description, View.GONE);
+		UI.setVisibility(buttonMore, View.GONE);
 		if (description != null && !TextUtils.isEmpty(place.description)) {
 			description.setText(Html.fromHtml(place.description));
 			UI.setVisibility(description, View.VISIBLE);
+			buttonMore.setText(StringManager.getString(R.string.button_text_expand));
+			//if (description.getLineCount() > 3) {
+			UI.setVisibility(buttonMore, View.VISIBLE);
+			//}
 		}
 
 		/* Creator (on info side) */
@@ -472,7 +512,6 @@ public class PatchForm extends BaseEntityForm {
 	@Override
 	public void drawButtons(View view) {
 
-		Boolean restricted = (mEntity.privacy != null && mEntity.privacy.equals(Constants.PRIVACY_PRIVATE));
 		Boolean messaged = (mEntity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
 
 		if (mEntity.id != null && mEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
@@ -508,24 +547,12 @@ public class PatchForm extends BaseEntityForm {
 
 		Patch place = (Patch) mEntity;
 
-		if (restricted && !mEntity.visibleToCurrentUser()) {
-			UI.setVisibility(view.findViewById(R.id.button_watch), View.INVISIBLE);
-		}
-		else {
-			UI.setVisibility(view.findViewById(R.id.button_watch), View.VISIBLE);
-		}
-
 		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
 		UI.setVisibility(alertGroup, View.GONE);
 		if (alertGroup != null) {
 
 			TextView buttonAlert = (TextView) view.findViewById(R.id.button_alert);
 			if (buttonAlert == null) return;
-
-			View rule = view.findViewById(R.id.rule_alert);
-			if (rule != null && Constants.SUPPORTS_KIT_KAT) {
-				rule.setVisibility(View.GONE);
-			}
 
 			Count requestCount = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, false, Direction.in);
 
@@ -559,32 +586,28 @@ public class PatchForm extends BaseEntityForm {
 				}
 			}
 
-			/* Member */
+			/* Members and non-members */
 
 			else {
-				if (restricted && !mEntity.visibleToCurrentUser()) {
-
-					Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
-					if (link != null && !link.enabled) {
-						buttonAlert.setText(R.string.button_list_watch_request_cancel);
-						buttonAlert.setOnClickListener(new View.OnClickListener() {
-							@Override
-							public void onClick(View view) {
-								onWatchButtonClick(view);
-							}
-						});
-						UI.setVisibility(alertGroup, View.VISIBLE);
-					}
-					else {
-						buttonAlert.setText(R.string.button_list_watch_request);
-						buttonAlert.setOnClickListener(new View.OnClickListener() {
-							@Override
-							public void onClick(View view) {
-								onWatchButtonClick(view);
-							}
-						});
-						UI.setVisibility(alertGroup, View.VISIBLE);
-					}
+				if (mWatchStatus == WatchStatus.REQUESTED) {
+					buttonAlert.setText(R.string.button_list_watch_request_cancel);
+					buttonAlert.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View view) {
+							onWatchButtonClick(view);
+						}
+					});
+					UI.setVisibility(alertGroup, View.VISIBLE);
+				}
+				else if (mWatchStatus == WatchStatus.NONE) {
+					buttonAlert.setText(R.string.button_list_watch_request);
+					buttonAlert.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View view) {
+							onWatchButtonClick(view);
+						}
+					});
+					UI.setVisibility(alertGroup, View.VISIBLE);
 				}
 				else if (mJustApproved) {
 					if (messaged) {
@@ -690,6 +713,75 @@ public class PatchForm extends BaseEntityForm {
 		}
 	}
 
+	public void watch(final boolean activate) {
+
+		final boolean enabled = (!mRestrictedForUser || Type.isTrue(mPreApproved));
+
+		new AsyncTask() {
+
+			@Override
+			protected void onPreExecute() {
+				((ViewAnimator) findViewById(R.id.button_watch)).setDisplayedChild(1);
+			}
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncWatchEntity");
+				ModelResult result;
+				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+
+				if (activate) {
+
+					/* Used as part of link management */
+					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
+					Shortcut toShortcut = mEntity.getAsShortcut();
+
+					result = Patchr.getInstance().getEntityManager().insertLink(null
+							, Patchr.getInstance().getCurrentUser().id
+							, mEntity.id
+							, Constants.TYPE_LINK_WATCH
+							, enabled
+							, fromShortcut
+							, toShortcut
+							, mEntity.isVisibleToCurrentUser() ? "watch_entity_place" : "request_watch_entity"
+							, false);
+				}
+				else {
+					result = Patchr.getInstance().getEntityManager().deleteLink(Patchr.getInstance().getCurrentUser().id
+							, mEntity.id
+							, Constants.TYPE_LINK_WATCH
+							, enabled
+							, mEntity.schema
+							, "unwatch_entity_" + mEntity.schema);
+				}
+				return result;
+			}
+
+			@Override
+			protected void onPostExecute(Object response) {
+				if (isFinishing()) return;
+				ModelResult result = (ModelResult) response;
+
+				((ViewAnimator) findViewById(R.id.button_watch)).setDisplayedChild(0);
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					bind(BindingMode.AUTO); // Triggers redraw including buttons and updates state
+					//					View view = findViewById(android.R.id.content);
+					//					drawButtons(view);
+					if (activate && enabled && mEntity.privacy.equals(Constants.PRIVACY_PRIVATE)) {
+						UI.showToastNotification(StringManager.getString(R.string.alert_auto_watch), Toast.LENGTH_SHORT, Gravity.CENTER);
+					}
+				}
+				else {
+					if (result.serviceResponse.statusCodeService != null
+							&& result.serviceResponse.statusCodeService != ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
+						Errors.handleError(PatchForm.this, result.serviceResponse);
+					}
+				}
+				mProcessing = false;
+			}
+		}.execute();
+	}
+
 	@Override
 	public void share() {
 
@@ -710,19 +802,96 @@ public class PatchForm extends BaseEntityForm {
 		builder.startChooser();
 	}
 
+	protected void shareCheck() {
+
+		new AsyncTask() {
+
+			@Override
+			protected void onPreExecute() {}
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncShareCheck");
+				ModelResult result = Patchr.getInstance().getEntityManager().checkShare(mEntity.id, Patchr.getInstance().getCurrentUser().id);
+				return result;
+			}
+
+			@Override
+			protected void onPostExecute(Object response) {
+				if (isFinishing()) return;
+				ModelResult result = (ModelResult) response;
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					List<Link> links = (List<Link>) result.data;
+					if (links != null && links.size() == 0) {
+						watch(true /* activate */);
+					}
+					else {
+						mPreApproved = true;
+						confirmJoin();
+					}
+				}
+			}
+		}.execute();
+	}
+
+	protected void confirmJoin() {
+		final AlertDialog dialog = Dialogs.alertDialog(null
+				, null
+				, StringManager.getString(R.string.alert_autowatch_message)
+				, null
+				, this
+				, R.string.alert_autowatch_positive
+				, R.string.alert_autowatch_negative
+				, null
+				, new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					watch(true /* activate */);
+				}
+				else {
+					mProcessing = false;
+				}
+			}
+		}, null);
+		dialog.setCanceledOnTouchOutside(false);
+	}
+
+	protected void confirmLeave() {
+		/* User (non-owner) wants to unwatch a private patch */
+		final AlertDialog dialog = Dialogs.alertDialog(null
+				, null
+				, StringManager.getString(R.string.alert_unwatch_message)
+				, null
+				, this
+				, R.string.alert_unwatch_positive
+				, android.R.string.cancel
+				, null
+				, new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					mJustApproved = false;
+					watch(false /* delete */);
+				}
+				else {
+					mProcessing = false;
+				}
+			}
+		}, null);
+		dialog.setCanceledOnTouchOutside(false);
+	}
+
 	@Override
 	public void afterDatabind(final BindingMode mode, ModelResult result) {
 		super.afterDatabind(mode, result);
 
-		if (mAutoWatch && mEntity != null) {
-			Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
-			if (link == null) {
-			    /* User is not already watching this */
-				if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_auto_watch)
-						, Booleans.getBoolean(R.bool.pref_auto_watch_default))) {
-					watch(true);
-				}
-			}
+		/* Not watching a restricted patch and pre-approved */
+		if (mWatchStatus == WatchStatus.NONE && mRestrictedForUser && Type.isTrue(mPreApprovedPush) && mEntity != null) {
+			confirmJoin();
+			return;
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -748,7 +917,9 @@ public class PatchForm extends BaseEntityForm {
 		return R.layout.patch_form;
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
+	public static class WatchStatus {
+		public static int NONE      = 0;
+		public static int WATCHING  = 1;
+		public static int REQUESTED = 2;
+	}
 }

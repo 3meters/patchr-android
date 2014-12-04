@@ -46,6 +46,7 @@ import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.components.AnimationFactory;
 import com.aircandi.ui.widgets.AirListView;
+import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
 
@@ -146,16 +147,16 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		}
 
 		/* Pulled from host activity by super */
-		if (mBubbleButton != null) {
-			mBubbleButton.show(false);
-			if (mBubbleButton.isEnabled() && mBubbleButtonMessageResId != null) {
-				mBubbleButton.setText(StringManager.getString(mBubbleButtonMessageResId));
+		if (mEmptyController != null) {
+			mEmptyController.show(false);
+			if (mEmptyController.isEnabled() && mBubbleButtonMessageResId != null) {
+				mEmptyController.setText(StringManager.getString(mBubbleButtonMessageResId));
 			}
 		}
 
 		if (mHeaderViewResId != null && mListView != null && mListViewType.equals(ViewType.LIST)) {
 			mHeaderView = inflater.inflate(mHeaderViewResId, mListView, false);
-			if (mParallaxHeader) {
+			if (mParallaxHeader && mListView instanceof AirListView) {
 				((AirListView) mListView).addParallaxedHeaderView(mHeaderView);
 			}
 			else {
@@ -188,7 +189,9 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		 */
 		if (mListView != null) {
 			if (mListViewType.equals(ViewType.LIST)) {
-				((ListView) mListView).setAdapter(mAdapter);
+				if (isAdded()) {
+					((ListView) mListView).setAdapter(mAdapter);
+				}
 			}
 			else if (mListViewType.equals(ViewType.GRID)) {
 				((GridView) mListView).setAdapter(mAdapter);
@@ -205,7 +208,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 			 * Parallax the photo
 			 */
 			mHeaderCandiView = mHeaderView.findViewById(R.id.candi_view);
-			if (mHeaderCandiView != null) {
+			if (mHeaderCandiView != null && mListView instanceof AirListView) {
 				View photo = mHeaderCandiView.findViewById(R.id.photo);
 				((AirListView) mListView).addParallaxedView(photo);
 			}
@@ -226,9 +229,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		mBusy = new BusyManager(getActivity());
 		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe);
 		if (swipeRefresh != null) {
-			swipeRefresh.setProgressBackgroundColor(R.color.white);
-			swipeRefresh.setColorSchemeResources(R.color.brand_primary);
-			swipeRefresh.setProgressViewEndTarget(true, UI.getRawPixelsForDisplayPixels(56f));
+			swipeRefresh.setColorSchemeColors(Colors.getColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColor)));
+			swipeRefresh.setProgressBackgroundColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorBackground));
 			swipeRefresh.setOnRefreshListener(this);
 			mBusy.setSwipeRefresh(swipeRefresh);
 		}
@@ -236,8 +238,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 
 	@Override
 	protected void preBind() {}
-
-	protected void adapterAdd(ListAdapter adapter) {}
 
 	@Override
 	public void bind(final BindingMode mode) {
@@ -280,6 +280,11 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 
 			@Override
 			protected void onPostExecute(Object response) {
+				/*
+				 * This could return after the host activity is gone.
+				 */
+				if (getActivity() == null || getActivity().isFinishing()) return;
+
 				ModelResult result = (ModelResult) response;
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -294,7 +299,12 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 						}
 
 						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
-						draw(null);
+						if (getActivity() != null && !getActivity().isFinishing()) {
+							configureStandardMenuItems(((BaseActivity) getActivity()).getOptionMenu());
+						}
+						if (isAdded()) {
+							draw(null);
+						}
 					}
 					postBind();
 					mLoaded = true;
@@ -312,9 +322,8 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 	@Override
 	public void draw(View view) {
 		Logger.i(this, "Draw called for EntityListFragement");
-
 		mAdapter.notifyDataSetChanged();
-		BusProvider.getInstance().post(new EntitiesLoadedEvent()); // Used to trigger item highlighting
+		BusProvider.getInstance().post(new EntitiesLoadedEvent()); // Used by MessageForm to trigger item highlighting
 	}
 
 	/*--------------------------------------------------------------------------------------------

@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.PixelFormat;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
@@ -25,7 +24,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,8 +53,9 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.ui.EntityListFragment;
+import com.aircandi.ui.MapListFragment;
 import com.aircandi.ui.PhotoForm;
-import com.aircandi.ui.components.BubbleController;
+import com.aircandi.ui.components.EmptyController;
 import com.aircandi.ui.components.FloatingActionController;
 import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.utilities.Dialogs;
@@ -67,11 +66,13 @@ import com.aircandi.utilities.UI;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class BaseActivity extends ActionBarActivity implements OnRefreshListener, AirListView.OnDragListener, IForm, IBind {
+public abstract class BaseActivity extends ActionBarActivity
+		implements OnRefreshListener, AirListView.OnDragListener, IForm, IBind {
 
-	protected BubbleController         mBubbleButton;
+	protected EmptyController          mEmptyView;
 	protected FloatingActionController mFab;
 	private   Toolbar                  mActionBarToolbar;
+	protected Menu                     mOptionMenu;
 
 	protected View     mNotificationsBadgeGroup;
 	protected TextView mNotificationsBadgeCount;
@@ -161,7 +162,7 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 					public void onGlobalLayout() {
 						//noinspection deprecation
 						view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-						onViewLayout();
+						onViewLayout();  // Only used by PatchForm
 					}
 				});
 			}
@@ -193,8 +194,8 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 		/* Base Ui */
 		mBusy = new BusyManager(this);
 		mFab = new FloatingActionController(findViewById(R.id.floating_action_button));
-		mBubbleButton = new BubbleController(findViewById(R.id.button_bubble));
-		mBubbleButton.show(false);
+		mEmptyView = new EmptyController(findViewById(R.id.empty_view));
+		mEmptyView.show(false);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -261,8 +262,13 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 			}
 		}
 
-		if (mCurrentFragmentTag != null && mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP) && mFab != null) {
-			mFab.click();
+		if (mCurrentFragmentTag != null && mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
+			String listFragment = ((MapListFragment)getCurrentFragment()).getListFragment();
+			if (listFragment != null) {
+				Bundle extras = new Bundle();
+				extras.putString(Constants.EXTRA_FRAGMENT_TYPE, listFragment);
+				Patchr.dispatch.route(this, Route.VIEW_AS_LIST, null, extras);
+			}
 			return;
 		}
 
@@ -627,15 +633,6 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 			mPrefChangeReloadNeeded = true;
 		}
 
-		if (!Patchr
-				.getInstance()
-				.getPrefSearchRadius()
-				.equals(Patchr.settings.getString(StringManager.getString(R.string.pref_search_radius),
-						StringManager.getString(R.string.pref_search_radius_default)))) {
-			mPrefChangeNewSearchNeeded = true;
-			Logger.d(this, "Pref change: search radius");
-		}
-
 		/* Dev prefs */
 
 		if (!Patchr.getInstance().getPrefEnableDev()
@@ -655,11 +652,12 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 		}
 	}
 
-	public View getActionBarView() {
-		View view = getWindow().getDecorView();
-		int resId = getResources().getIdentifier("action_bar_container", "id", "android");
-		return view.findViewById(resId);
-	}
+//  TODO: Remove if not needed
+//	public View getActionBarView() {
+//		View view = getWindow().getDecorView();
+//		int resId = getResources().getIdentifier("action_bar_container", "id", "android");
+//		return view.findViewById(resId);
+//	}
 
 	public Boolean getInvalidated() {
 		return mInvalidated;
@@ -688,6 +686,10 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 		return (String) ((mActivityTitle != null) ? mActivityTitle : getTitle());
 	}
 
+	public Menu getOptionMenu() {
+		return mOptionMenu;
+	}
+
 	protected Boolean isDialog() {
 		return false;
 	}
@@ -708,8 +710,8 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 		return null;
 	}
 
-	public BubbleController getBubbleController() {
-		return mBubbleButton;
+	public EmptyController getBubbleController() {
+		return mEmptyView;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -726,8 +728,8 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 		 * - after onResume in lifecycle.
 		 */
 		Patchr.getInstance().getMenuManager().onCreateOptionsMenu(this, menu);
+		mOptionMenu = menu;
 		configureStandardMenuItems(menu);
-
 		return true;
 	}
 
@@ -748,13 +750,13 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 			return true;
 		}
 
-		if (item.getItemId() == R.id.remove && mEntity.placeId != null) {
+		if (item.getItemId() == R.id.remove && mEntity.patchId != null) {
 		    /*
-		     * We use placeId instead of toId so we can removed replies where
+		     * We use patchId instead of toId so we can removed replies where
              * toId points to the root message.
              */
 			extras = new Bundle();
-			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntity.placeId);
+			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntity.patchId);
 		}
 
 		if (item.getItemId() == R.id.navigate) {
@@ -940,12 +942,13 @@ public abstract class BaseActivity extends ActionBarActivity implements OnRefres
 		clearReferences();
 	}
 
-	@Override
-	public void onAttachedToWindow() {
-		super.onAttachedToWindow();
-		final Window window = getWindow();
-		window.setFormat(PixelFormat.RGBA_8888);
-	}
+// TODO: Remove this if not needed
+//	@Override
+//	public void onAttachedToWindow() {
+//		super.onAttachedToWindow();
+//		final Window window = getWindow();
+//		window.setFormat(PixelFormat.RGBA_8888);
+//	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes

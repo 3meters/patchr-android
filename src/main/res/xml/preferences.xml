@@ -8,14 +8,14 @@
 
 		<ListPreference
 			android:id="@+id/Pref_Theme"
+			android:key="@string/pref_theme"
 			android:defaultValue="@string/pref_theme_default"
 			android:dialogTitle="@string/pref_theme_dialog_title"
 			android:entries="@array/theme_entries"
 			android:entryValues="@array/theme_values"
 			android:negativeButtonText="@string/dialog_cancel"
 			android:positiveButtonText="@string/dialog_ok"
-			android:title="@string/pref_theme_title"
-			custom:keyId="@string/pref_theme" />
+			android:title="@string/pref_theme_title" />
 
 		<PreferenceScreen
 			android:key="Pref_Notifications_Screen"
@@ -26,44 +26,37 @@
 				android:defaultValue="@bool/pref_notifications_nearby_default"
 				android:summary="@string/pref_notifications_nearby_summary"
 				android:title="@string/pref_notifications_nearby_title"
-				custom:keyId="@string/pref_messages_nearby" />
+				android:key="@string/pref_messages_nearby" />
 
 			<CheckBoxPreference
 				android:id="@+id/Pref_Notifications_Watch"
 				android:defaultValue="@bool/pref_notifications_watch_default"
 				android:summary="@string/pref_notifications_watch_summary"
 				android:title="@string/pref_notifications_watch_title"
-				custom:keyId="@string/pref_messages_watch" />
+				android:key="@string/pref_messages_watch" />
 
 			<CheckBoxPreference
 				android:id="@+id/Pref_Notifications_Own"
 				android:defaultValue="@bool/pref_notifications_own_default"
 				android:summary="@string/pref_notifications_own_summary"
 				android:title="@string/pref_notifications_own_title"
-				custom:keyId="@string/pref_messages_own" />
+				android:key="@string/pref_messages_own" />
 
 			<CheckBoxPreference
 				android:id="@+id/Pref_Notifications_Share"
 				android:defaultValue="@bool/pref_notifications_share_default"
 				android:summary="@string/pref_notifications_share_summary"
 				android:title="@string/pref_notifications_share_title"
-				custom:keyId="@string/pref_messages_share" />
+				android:key="@string/pref_messages_share" />
 
 			<CheckBoxPreference
 				android:id="@+id/Pref_Sound_Effects"
 				android:defaultValue="@bool/pref_sound_effects_default"
 				android:summary="@string/pref_sound_effects_summary"
 				android:title="@string/pref_sound_effects_title"
-				custom:keyId="@string/pref_sound_effects" />
+				android:key="@string/pref_sound_effects" />
 
 		</PreferenceScreen>
-
-		<CheckBoxPreference
-			android:id="@+id/Pref_Auto_Watch"
-			android:defaultValue="@bool/pref_auto_watch_default"
-			android:summary="@string/pref_auto_watch_summary"
-			android:title="@string/pref_auto_watch_title"
-			custom:keyId="@string/pref_auto_watch" />
 
 		<Preference
 			android:key="Pref_Feedback"

@@ -12,7 +12,7 @@
 	<color name="brand_primary">#ffFB8C00</color>
 	<color name="brand_primary_light">#ffffb74d</color>
 	<color name="brand_primary_dark">#ffef6c00</color>
-	<color name="brand_accent">#ff00b0ff</color>
+	<color name="brand_accent">#ff00c0ff</color>
 
 	<!--
 	<color name="brand_primary">#ffff5722</color>
@@ -88,6 +88,7 @@
 	<color name="background_help_dark">@color/overlay_help</color>
 	<color name="background_token_dark">@color/overlay_help</color>
 	<color name="background_button_share_dark">@color/gray_90_pcnt</color>
+	<color name="background_refresh_dark">@color/brand_primary_dark</color>
 
 	<!-- Backgrounds light -->
 
@@ -101,6 +102,7 @@
 	<color name="background_help_light">@color/overlay_help</color>
 	<color name="background_button_share_light">@color/gray_05_pcnt</color>
 	<color name="background_button_round_light">#eeffffff</color>
+	<color name="background_refresh_light">@color/white</color>
 
 	<!-- Backgrounds gray -->
 

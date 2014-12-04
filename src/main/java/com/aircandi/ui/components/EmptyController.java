@@ -17,12 +17,12 @@ import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.utilities.UI;
 
-public class BubbleController {
+public class EmptyController {
 
 	private View mView;
 	private Boolean mEnabled = true;
 
-	public BubbleController(View view) {
+	public EmptyController(View view) {
 		mView = view;
 	}
 

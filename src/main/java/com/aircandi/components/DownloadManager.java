@@ -98,8 +98,10 @@ public class DownloadManager {
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
 		Bitmap.Config config = bitmap.getConfig();
-		int size = (width * height * getBytesPerPixel(config));
-		Logger.v(context.getClass().getSimpleName(), String.format(logBitmapCreated, context.getClass().getSimpleName(), height, width, size, config.name()));
+		if (config != null) {
+			int size = (width * height * getBytesPerPixel(config));
+			Logger.v(context.getClass().getSimpleName(), String.format(logBitmapCreated, context.getClass().getSimpleName(), height, width, size, config.name()));
+		}
 	}
 
 	public static Bitmap decorate(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {

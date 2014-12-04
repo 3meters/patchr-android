@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -16,7 +18,6 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.BusProvider;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MapManager;
@@ -55,31 +56,44 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 	protected GoogleMap                  mMap;
 	protected ClusterManager<EntityItem> mClusterManager;
+	protected AirClusterRenderer         mClusterRenderer;
 	protected List<Entity>               mEntities;
 	protected Integer                    mTitleResId;
+	protected String                     mListFragment;
 	protected Integer       mZoomLevel  = null;
 	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
 	protected View          mProgress   = null;
-	protected AirClusterRenderer mClusterRenderer;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = super.onCreateView(inflater, container, savedInstanceState);
 
+		/*
+		 * Any objects obtained from GoogleMap are associated with the view and will be
+		 * leaked if held beyond view lifetime.
+		 */
 		mMap = getMap();
-		mClusterManager = new ClusterManager<EntityItem>(getActivity(), mMap);
-		mClusterRenderer = new EntityRenderer(getActivity());
-		mClusterManager.setRenderer(mClusterRenderer);
+		if (mMap != null) {
+			mClusterManager = new ClusterManager<EntityItem>(getActivity(), mMap);
+			mClusterRenderer = new EntityRenderer(getActivity());
+			mClusterManager.setRenderer(mClusterRenderer);
 
-		mMap.setOnCameraChangeListener(mClusterManager);
-		mMap.setOnMarkerClickListener(mClusterManager);
-		mMap.setOnInfoWindowClickListener(mClusterManager);
-		mMap.setOnMyLocationButtonClickListener(this);
+			mMap.setOnCameraChangeListener(mClusterManager);
+			mMap.setOnMarkerClickListener(mClusterManager);
+			mMap.setOnInfoWindowClickListener(mClusterManager);
+			mMap.setOnMyLocationButtonClickListener(this);
 
-		mClusterManager.setOnClusterClickListener(this);
-		mClusterManager.setOnClusterInfoWindowClickListener(this);
-		mClusterManager.setOnClusterItemClickListener(this);
-		mClusterManager.setOnClusterItemInfoWindowClickListener(this);
+			mClusterManager.setOnClusterClickListener(this);
+			mClusterManager.setOnClusterInfoWindowClickListener(this);
+			mClusterManager.setOnClusterItemClickListener(this);
+			mClusterManager.setOnClusterItemInfoWindowClickListener(this);
+		}
 
 		if (root != null) {
 			mProgress = new ProgressBar(root.getContext(), null, android.R.attr.progressBarStyleLarge);
@@ -145,6 +159,26 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		Logger.d(this, "Fragment view layout completed");
 	}
 
+	public void onHiddenChanged(boolean hidden) {
+		/*
+		 * Called when switching fragments but not when switching
+		 * away from the activity hosting the fragment(s).
+		 */
+		Logger.d(this, "Fragment hidden: " + hidden);
+		if (hidden) {
+			pause();
+			stop();
+		}
+		else {
+			start();
+			resume();
+			// We can draw if we already have entities
+			if (mEntities != null) {
+				draw();
+			}
+		}
+	}
+
 	@Override
 	public boolean onMyLocationButtonClick() {
 		if (!LocationManager.getInstance().isLocationAccessEnabled()) {
@@ -190,6 +224,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 	public void draw() {
 
+		mClusterManager.clearItems();
 		if (mEntities != null) {
 			mProgress.setVisibility(View.VISIBLE);
 			for (Entity entity : mEntities) {
@@ -225,7 +260,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 					 */
 					else {
 						if (mZoomLevel != null) {
-							Location location = LocationManager.getInstance().getLocationLast();
+							Location location = LocationManager.getInstance().getLocationLocked();
 							if (location != null) {
 								LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mZoomLevel));
@@ -248,6 +283,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 							}
 						}
 					}
+					onProcessingFinished();
 				}
 			});
 		}
@@ -270,7 +306,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		mMap.setMyLocationEnabled(true);
 		mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		mMap.setLocationSource(null);
-		mMap.setPadding(0, 0, 0, UI.getRawPixelsForDisplayPixels(80f));
 
 		UiSettings uiSettings = mMap.getUiSettings();
 
@@ -294,6 +329,22 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		return bounds;
 	}
 
+	protected void resume() {
+		super.onResume();
+	}
+
+	protected void pause() {
+		super.onPause();
+	}
+
+	protected void start(){
+		super.onStart();
+	}
+
+	protected void stop(){
+		super.onStop();
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
@@ -313,8 +364,34 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		return this;
 	}
 
+	public MapListFragment setListFragment(String listFragment) {
+		mListFragment = listFragment;
+		return this;
+	}
+
+	public String getListFragment() {
+		return mListFragment;
+	}
+
 	public List<Integer> getMenuResIds() {
 		return mMenuResIds;
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		/*
+		 * This is triggered by onCreate in some android versions
+		 * so any dependencies must have already been created.
+		 */
+		Logger.d(this, "Creating fragment options menu");
+		for (Integer menuResId : mMenuResIds) {
+			inflater.inflate(menuResId, menu);
+		}
+		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -323,14 +400,26 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 	@Override
 	public void onResume() {
-		BusProvider.getInstance().register(this);
+		resume();
 		super.onResume();
 	}
 
 	@Override
 	public void onPause() {
-		BusProvider.getInstance().unregister(this);
+		pause();
 		super.onPause();
+	}
+
+	@Override
+	public void onDestroyView() {
+		Logger.d(this, "Fragment destroy view");
+		super.onDestroyView();
+	}
+
+	@Override
+	public void onDestroy() {
+		Logger.d(this, "Fragment destroy");
+		super.onDestroy();
 	}
 
 	/*--------------------------------------------------------------------------------------------

@@ -204,17 +204,6 @@ public class CandiView extends RelativeLayout {
 
 			drawPhoto(groupId);
 
-			/* Background color */
-
-			if (mCandiViewGroup != null && mColorize) {
-				String colorizeKey = null;
-				if (mEntity instanceof Patch && ((Patch) mEntity).category != null) {
-					colorizeKey = ((Patch) mEntity).category.name;
-				}
-				Integer colorResId = Patch.getCategoryColorResId(colorizeKey);
-				mCandiViewGroup.setBackgroundResource(colorResId);
-			}
-
 			/* Name */
 
 			setVisibility(mName, View.GONE);
@@ -299,7 +288,6 @@ public class CandiView extends RelativeLayout {
 					if (category != null) {
 						Photo photo = category.photo.clone();
 						if (!Photo.same(mCategoryPhoto.getPhoto(), photo)) {
-							photo.colorize = false;
 							mCategoryPhoto.setGroupTag(groupId);
 							UI.drawPhoto(mCategoryPhoto, photo);
 						}

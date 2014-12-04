@@ -53,4 +53,6 @@ public class Route {
 	public static int LOCATION_EDIT      = 55;
 	public static int PRIVACY_EDIT       = 56;
 	public static int SEARCH             = 57;
+	public static int VIEW_AS_MAP        = 58;
+	public static int VIEW_AS_LIST       = 59;
 }

@@ -1,6 +1,7 @@
 package com.aircandi.components;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AboutForm;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.ui.MapForm;
+import com.aircandi.ui.MapListFragment;
 import com.aircandi.ui.PatchList;
 import com.aircandi.ui.PhotoForm;
 import com.aircandi.ui.SearchForm;
@@ -287,6 +289,26 @@ public class DispatchManager {
 			((PhotoForm) activity).onZoomOut();
 		}
 
+		else if (route == Route.VIEW_AS_LIST) {
+
+			Fragment fragment = ((AircandiForm) activity).getCurrentFragment();
+			String listFragment = ((MapListFragment)fragment).getListFragment();
+			if (listFragment == null) {
+				listFragment = Constants.FRAGMENT_TYPE_NEARBY;
+			}
+			((AircandiForm) activity).setCurrentFragment(listFragment);
+		}
+
+		else if (route == Route.VIEW_AS_MAP) {
+
+			((AircandiForm) activity).setCurrentFragment(Constants.FRAGMENT_TYPE_MAP);
+		}
+
+		else if (route == Route.ZOOM_OUT) {
+
+			((PhotoForm) activity).onZoomOut();
+		}
+
 		else if (route == Route.SIGNOUT) {
 
 			BaseActivity.signout(activity, false);
@@ -494,8 +516,6 @@ public class DispatchManager {
 			return Route.REFRESH;
 		else if (itemId == R.id.add)
 			return Route.ADD;
-		else if (itemId == R.id.new_place)
-			return Route.NEW_PLACE;
 		else if (itemId == R.id.invite)
 			return Route.SHARE;
 		else if (itemId == R.id.share)
@@ -512,6 +532,10 @@ public class DispatchManager {
 			return Route.SEARCH;
 		else if (itemId == R.id.map)
 			return Route.MAP;
+		else if (itemId == R.id.view_as_list)
+			return Route.VIEW_AS_LIST;
+		else if (itemId == R.id.view_as_map)
+			return Route.VIEW_AS_MAP;
 
 		return Route.UNKNOWN;
 	}

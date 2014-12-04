@@ -92,13 +92,13 @@ public class PatchList extends BaseActivity {
 
 		((BaseFragment) mCurrentFragment).onProcessingFinished();
 
-		if (mBubbleButton.isEnabled()) {
+		if (mEmptyView.isEnabled()) {
 			if (count == 0) {
-				mBubbleButton.setText(fragment.getListEmptyMessageResId());
-				mBubbleButton.fadeIn();
+				mEmptyView.setText(fragment.getListEmptyMessageResId());
+				mEmptyView.fadeIn();
 			}
 			else {
-				mBubbleButton.fadeOut();
+				mEmptyView.fadeOut();
 			}
 		}
 	}

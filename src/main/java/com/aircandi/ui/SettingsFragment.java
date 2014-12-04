@@ -55,6 +55,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		//setTheme();
 		super.onCreate(savedInstanceState);
 
 		/* Load preferences layout */
@@ -166,21 +167,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 			});
 		}
 
-		/* Listen for clear history click */
-		pref = findPreference("Pref_Button_Clear_History");
-		if (pref != null) {
-			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					/*
-					 * Alert and then clear browse history
-					 */
-					return true; // we handled it
-				}
-			});
-		}
-
 		/* Listen for about click */
 		pref = findPreference("Pref_About");
 		if (pref != null) {
@@ -283,6 +269,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 	private void enableDeveloper(Boolean enable) {
 		findPreference(StringManager.getString(R.string.pref_testing_screen)).setEnabled(enable);
+		findPreference(StringManager.getString(R.string.pref_enable_image_debug)).setEnabled(enable);
 		findPreference(StringManager.getString(R.string.pref_tag_refresh)).setEnabled(enable);
 		DownloadManager.getInstance().setDebugging(enable);
 	}
@@ -362,6 +349,18 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 					dialog.dismiss();
 				}
 			});
+		}
+	}
+
+	private void setTheme() {
+		final String prefTheme = Patchr.settings.getString(StringManager.getString(R.string.pref_theme)
+				, StringManager.getString(R.string.pref_theme_default));
+
+		if (prefTheme.equals("aircandi_theme_snow")) {
+			getActivity().setTheme(R.style.aircandi_theme_snow);
+		}
+		else {
+			getActivity().setTheme(R.style.aircandi_theme_midnight);
 		}
 	}
 

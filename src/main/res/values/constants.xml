@@ -35,7 +35,7 @@
 
 	<!-- Late binding: Aircandi applications always subclass GcmIntentService -->
 
-	<string name="class_gcm_intent_service">com.aircandi.components.GcmIntentService</string>
+	<string name="class_gcm_intent_service" tools:ignore="UnusedResources">com.aircandi.components.GcmIntentService</string>
 
 	<!-- Tag manager -->
 
