@@ -383,7 +383,7 @@ public class PatchEdit extends BaseEntityEdit {
 		Bundle extras = new Bundle();
 		extras.putInt(Constants.EXTRA_SEARCH_SCOPE, EntityManager.SuggestScope.PLACES.ordinal());
 		extras.putBoolean(Constants.EXTRA_SEARCH_RETURN_ENTITY, true);
-		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.BUILDER_TO);
+		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
 
 		if (mButtonPlace.getTag() != null) {
 			Entity entity = (Entity) mButtonPlace.getTag();

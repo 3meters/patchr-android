@@ -113,6 +113,13 @@ public class SearchForm extends BaseActivity {
 		draw(null);
 	}
 
+	public void configureActionBar() {
+		super.configureActionBar();
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
+		}
+	}
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.search_form;
