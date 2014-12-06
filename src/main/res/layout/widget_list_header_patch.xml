@@ -12,7 +12,9 @@
 		android:layout_height="50dp"
 		android:clickable="true"
 		android:onClick="onPlaceClick"
-		android:paddingLeft="@dimen/form_body_padding">
+		android:paddingLeft="@dimen/form_body_padding"
+		android:visibility="gone"
+		tools:visibility="visible">
 
 		<com.aircandi.ui.widgets.AirTextLight
 			android:id="@+id/place_name"
@@ -24,7 +26,8 @@
 			android:paddingRight="@dimen/image_medium"
 			android:singleLine="true"
 			android:textAppearance="@style/text_appearance_medium"
-			android:textColor="@color/brand_primary_dark" />
+			android:textColor="@color/brand_primary_dark"
+			tools:text="Ranchero Deluxo" />
 
 	</RelativeLayout>
 
@@ -165,11 +168,13 @@
 		android:onClick="onPlaceClick"
 		android:padding="3dp"
 		android:scaleType="centerCrop"
+		android:visibility="gone"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
 		custom:layoutId="@layout/widget_webimageview"
 		custom:showBusy="true"
-		custom:sizeHint="@dimen/image_medium" />
+		custom:sizeHint="@dimen/image_medium"
+		tools:visibility="visible" />
 
 	<RelativeLayout
 		android:id="@+id/alert_group"
@@ -192,7 +197,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/rule_divider_height"
 			android:layout_below="@+id/button_alert"
-			android:background="?attr/ruleColor" />
+			android:background="?attr/ruleColorAccent" />
 
 	</RelativeLayout>
 </RelativeLayout>
