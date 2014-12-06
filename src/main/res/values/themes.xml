@@ -67,6 +67,7 @@
 		<item name="badgeColorSynthetic">@color/text_dark</item>
 		<item name="highlightColor">@color/background_highlight_dark</item>
 		<item name="ruleColor">@color/rule_30_dark</item>
+		<item name="ruleColorAccent">@color/brand_primary_dark</item>
 		<item name="ruleColorStrong">@color/rule_60_dark</item>
 		<item name="cardShadowColor">@color/transparent</item>
 		<item name="cardHighlightColor">@color/rule_15_dark</item>
@@ -203,6 +204,7 @@
 		<item name="badgeColorSynthetic">@color/text_dark</item>
 		<item name="highlightColor">@color/background_highlight_light</item>
 		<item name="ruleColor">@color/rule_15_light</item>
+		<item name="ruleColorAccent">@color/brand_primary</item>
 		<item name="ruleColorStrong">@color/rule_60_light</item>
 		<item name="cardShadowColor">@color/gray_20_pcnt</item>
 		<item name="cardHighlightColor">@color/transparent</item>

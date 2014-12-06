@@ -57,6 +57,7 @@
 		<attr name="candiListTitleStyle" format="reference" />
 		<attr name="ruleColor" format="color|reference" />
 		<attr name="ruleColorStrong" format="color|reference" />
+		<attr name="ruleColorAccent" format="color|reference" />
 		<attr name="textColor" format="color|reference" />
 		<attr name="textColorInverse" format="color|reference" />
 		<attr name="textColorPure" format="color|reference" />

@@ -452,10 +452,14 @@ public class DispatchManager {
 
 		else if (route == Route.SEARCH) {
 
-			Integer transitionType = TransitionType.DRILL_TO;
+			Integer transitionType = TransitionType.VIEW_TO;
 			if (extras != null) {
-				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
 			}
+			else {
+				extras = new Bundle();
+			}
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, transitionType);
 
 			IntentBuilder intentBuilder = new IntentBuilder(activity, SearchForm.class);
 			intentBuilder.setExtras(extras);

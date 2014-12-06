@@ -8,6 +8,7 @@ gradlew
 gradlew.bat
 gradle/
 build/
+releases/
 
 # Used by crashlytics
 .crashlytics_data

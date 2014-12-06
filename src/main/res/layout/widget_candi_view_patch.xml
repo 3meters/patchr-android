@@ -55,7 +55,7 @@
 					android:textAllCaps="true"
 					android:textAppearance="?android:textAppearanceSmall"
 					android:textColor="?attr/textColorCandiView"
-					tools:text="Event or place" />
+					tools:text="Birthday Party Patch" />
 
 				<LinearLayout
 					android:id="@+id/privacy_group"
