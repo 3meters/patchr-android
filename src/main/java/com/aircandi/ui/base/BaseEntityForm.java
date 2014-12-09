@@ -152,7 +152,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 		new AsyncTask() {
 
 			@Override
-			protected void onPreExecute() {}
+			protected void onPreExecute() {
+				mBusy.show(BusyAction.Refreshing_Empty);
+			}
 
 			@Override
 			protected Object doInBackground(Object... params) {
@@ -166,7 +168,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 				}
 
 				if (refreshNeeded.get() || mode == BindingMode.MANUAL) {
-					mBusy.showBusy(mLoaded ? BusyAction.Refreshing : BusyAction.Loading);
+					mBusy.show(mLoaded ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
 				}
 
 				if (refreshNeeded.get()) {
@@ -182,7 +184,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 				if (isFinishing()) return;
 
 				final ModelResult result = (ModelResult) modelResult;
-				mBusy.hideBusy(false);
+				mBusy.hide(false);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (refreshNeeded.get()) {
 						if (result.data != null) {
@@ -197,7 +199,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 							draw(null);
 						}
 						else {
-							mBusy.hideBusy(true);
+							mBusy.hide(true);
 							UI.showToastNotification("This item has been deleted", Toast.LENGTH_SHORT);
 							finish();
 						}

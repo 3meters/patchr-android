@@ -1,6 +1,8 @@
 package com.aircandi.components;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -15,19 +17,18 @@ import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.ActivityRecognitionClient;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.DetectedActivity;
 
 @SuppressWarnings("ucd")
 public class ActivityRecognitionManager implements
-                                        GooglePlayServicesClient.ConnectionCallbacks,
-                                        GooglePlayServicesClient.OnConnectionFailedListener {
+                                        GoogleApiClient.ConnectionCallbacks,
+                                        GoogleApiClient.OnConnectionFailedListener {
 
-	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-
-	protected ActivityRecognitionClient mActivityRecognitionClient;
-	protected PendingIntent             mActivityRecognitionPendingIntent;
+	protected GoogleApiClient mGoogleApiClient;
+	protected PendingIntent   mActivityRecognitionPendingIntent;
 
 	private Integer mActivityTypeCurrent  = DetectedActivity.STILL;
 	private Integer mActivityTypePrevious = DetectedActivity.STILL;
@@ -36,15 +37,16 @@ public class ActivityRecognitionManager implements
 	private Long          mActivityStateStart;
 	private ActivityState mActivityStateCandidate;
 
-	private ActivityState mActivityStateCurrent   = ActivityState.STILL;
-	private Integer       mActivityStateThreshold = Constants.TIME_TEN_SECONDS;
+	private   ActivityState mActivityStateCurrent   = ActivityState.STILL;
+	private   Integer       mActivityStateThreshold = Constants.TIME_TEN_SECONDS;
+	protected Boolean       mInProgress             = false;
+	protected Integer       mDetectionInterval      = Constants.TIME_THIRTY_SECONDS;
+	protected DetectionMode mDetectionMode          = DetectionMode.MOVING;
 
-	protected Boolean       mInProgress        = false;
-	protected Integer       mDetectionInterval = Constants.TIME_THIRTY_SECONDS;
-	protected DetectionMode mDetectionMode     = DetectionMode.MOVING;
+	private static final int REQUEST_RESOLVE_ERROR = 1001;
+	private boolean mResolvingError = false;
 
-	private ActivityRecognitionManager() {
-	}
+	private ActivityRecognitionManager() {}
 
 	private static class ActivityRecognitionManagerHolder {
 		public static final ActivityRecognitionManager instance = new ActivityRecognitionManager();
@@ -56,7 +58,11 @@ public class ActivityRecognitionManager implements
 
 	public void initialize(Context applicationContext) {
 		Logger.i(this, "Initializing the ActivityRecognitionManager");
-		mActivityRecognitionClient = new ActivityRecognitionClient(applicationContext, this, this);
+		mGoogleApiClient = new GoogleApiClient.Builder(applicationContext)
+				.addApi(ActivityRecognition.API)
+				.addConnectionCallbacks(this)
+				.addOnConnectionFailedListener(this)
+				.build();
 		Intent intent = new Intent(applicationContext, ActivityRecognitionService.class);
 		mActivityRecognitionPendingIntent = PendingIntent.getService(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		startUpdates(Constants.TIME_ONE_MINUTE, Constants.TIME_TWO_MINUTES);
@@ -68,44 +74,48 @@ public class ActivityRecognitionManager implements
 
 	@Override
 	public void onConnected(Bundle extras) {
-		mActivityRecognitionClient.requestActivityUpdates(mDetectionInterval, mActivityRecognitionPendingIntent);
+
+		/* Start updates */
+		ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient
+				, mDetectionInterval
+				, mActivityRecognitionPendingIntent);
+
 		mInProgress = false;
-		mActivityRecognitionClient.disconnect();
+		mGoogleApiClient.disconnect();
 	}
 
 	@Override
-	public void onDisconnected() {
+	public void onConnectionSuspended(int i) {
 		mInProgress = false;
-		mActivityRecognitionClient = null;
+		mGoogleApiClient = null;
 	}
 
 	@Override
-	public void onConnectionFailed(ConnectionResult connectionResult) {
+	public void onConnectionFailed(ConnectionResult result) {
 		/*
-		 * Google Play services can resolve some errors it detects. If the error has a resolution, try sending an Intent
-		 * to start a Google Play services activity that can resolve error.
+		 * Google Play services can resolve some errors it detects. If the error has a
+		 * resolution, try sending an Intent to start a Google Play services activity
+		 * that can resolve error.
 		 */
 		mInProgress = false;
-		if (connectionResult.hasResolution()) {
+		if (mResolvingError) {
+			return;
+		}
+		else if (result.hasResolution()) {
 			try {
-				/* Start an Activity that tries to resolve the error */
-				connectionResult.startResolutionForResult((Activity) Patchr.applicationContext
-						, CONNECTION_FAILURE_RESOLUTION_REQUEST);
-				/*
-				 * Thrown if Google Play services canceled the original
-				 * PendingIntent
-				 */
+				mResolvingError = true;
+				result.startResolutionForResult((Activity) Patchr.applicationContext, REQUEST_RESOLVE_ERROR);
 			}
 			catch (IntentSender.SendIntentException e) {
+				/* There was an error with the resolution intent. Try again. */
 				Reporting.logException(e);
+				mGoogleApiClient.connect();
 			}
 		}
 		else {
-			/*
-			 * If no resolution is available, display a dialog to the
-			 * user with the error.
-			 */
-			AndroidManager.showPlayServicesErrorDialog(connectionResult.getErrorCode(), Patchr.getInstance().getCurrentActivity());
+			/* Display a dialog to the user with the error. */
+			AndroidManager.showPlayServicesErrorDialog(result.getErrorCode(), Patchr.getInstance().getCurrentActivity());
+			mResolvingError = true;
 		}
 	}
 
@@ -117,7 +127,7 @@ public class ActivityRecognitionManager implements
 
 		Logger.v(this, getNameFromType(activityType) + ": " + confidence);
 
-		if (mActivityRecognitionClient == null) return;
+		if (mGoogleApiClient == null) return;
 
 		if (activityType == DetectedActivity.UNKNOWN
 				|| activityType == DetectedActivity.TILTING) return;
@@ -179,11 +189,11 @@ public class ActivityRecognitionManager implements
 	}
 
 	public void startUpdates(Integer detectionInterval, Integer stateThreshold) {
-		if (!mInProgress) {
+		if (!mInProgress && !mResolvingError) {
 			mDetectionInterval = detectionInterval;
 			mActivityStateThreshold = stateThreshold;
 			mInProgress = true;
-			mActivityRecognitionClient.connect();
+			mGoogleApiClient.connect();
 		}
 	}
 
@@ -225,10 +235,6 @@ public class ActivityRecognitionManager implements
 		return mActivityTypeConfidence;
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
-
 	public Integer getActivityStateThreshold() {
 		return mActivityStateThreshold;
 	}
@@ -236,6 +242,10 @@ public class ActivityRecognitionManager implements
 	public void setActivityStateThreshold(Integer activityStateThreshold) {
 		mActivityStateThreshold = activityStateThreshold;
 	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/
 
 	public enum ActivityState {
 		STILL,

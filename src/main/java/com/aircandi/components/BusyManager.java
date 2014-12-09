@@ -4,11 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.WindowManager.BadTokenException;
+import android.widget.ProgressBar;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -20,27 +22,25 @@ import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Reporting;
 import com.squareup.otto.Subscribe;
 
-import java.lang.ref.WeakReference;
-
 public class BusyManager implements IBusy {
 
-	private   Activity            mActivity;
-	private   ProgressDialog      mProgressDialog;
-	private   WeakReference<View> mRefreshImage;
-	private   WeakReference<View> mRefreshProgress;
-	private   Runnable            mRunnableHide;
-	private   Runnable            mRunnableShow;
-	private   Long                mBusyStartedTime;
-	protected SwipeRefreshLayout  mSwipeRefreshLayout;
+	private Activity           mActivity;
+	private Runnable           mRunnableHide;
+	private Runnable           mRunnableShow;
+	private Long               mBusyStartedTime;
+	private SwipeRefreshLayout mSwipeRefreshLayout;
+	private ProgressDialog     mProgressDialog;
+	private ProgressBar        mProgressBar;
 
 	@SuppressLint("ResourceAsColor")
 	public BusyManager(Activity activity) {
 		mActivity = activity;
+		mProgressBar = (ProgressBar) mActivity.findViewById(R.id.progress);
 		mRunnableHide = new Runnable() {
 
 			@Override
 			public void run() {
-				hideBusy(false);
+				hide(false);
 			}
 		};
 	}
@@ -50,12 +50,12 @@ public class BusyManager implements IBusy {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
-	public void showBusy(final BusyAction busyAction) {
-		showBusy(busyAction, null);
+	public void show(final BusyAction busyAction) {
+		show(busyAction, null);
 	}
 
 	@Override
-	public void showBusy(final BusyAction busyAction, final Object message) {
+	public void show(final BusyAction busyAction, final Object message) {
 
 		/*
 		 * Make sure there are no pending busys waiting.
@@ -68,17 +68,23 @@ public class BusyManager implements IBusy {
 			@Override
 			public void run() {
 				try {
-					if (busyAction == BusyAction.Loading) {
+					if (busyAction == BusyAction.Refreshing_Empty) {
 						/*
 						 * Initial data load for an activity/fragment.
 						 */
-						startSwipeRefreshIndicator();
+						startBodyBusyIndicator();
 					}
 					else if (busyAction == BusyAction.Refreshing) {
 						/*
 						 * Refreshing data for activity/fragment that is already showing data.
 						 */
 						startSwipeRefreshIndicator();
+					}
+					else if (busyAction == BusyAction.Scanning_Empty) {
+						/*
+						 * Scanning for places.
+						 */
+						startBodyBusyIndicator();
 					}
 					else if (busyAction == BusyAction.Scanning) {
 						/*
@@ -88,8 +94,10 @@ public class BusyManager implements IBusy {
 					}
 					else if (busyAction == BusyAction.Update) {
 						/*
-						 * Updating the UI because of some new data like a location update.
+						 * Pushing an edit or insert to the server. We show progress dialog if a photo
+						 * update can be canceled.
 						 */
+						startBodyBusyIndicator();
 						startSwipeRefreshIndicator();
 					}
 					else if (busyAction == BusyAction.ActionWithMessage) {
@@ -128,10 +136,10 @@ public class BusyManager implements IBusy {
 			}
 		};
 
-		Patchr.mainThreadHandler.postDelayed(mRunnableShow, (busyAction == BusyAction.Loading) ? Constants.INTERVAL_BUSY_DELAY : 0);
+		Patchr.mainThreadHandler.postDelayed(mRunnableShow, (busyAction == BusyAction.Refreshing_Empty) ? Constants.INTERVAL_BUSY_DELAY : 0);
 	}
 
-	public void showProgress() {
+	public void showProgressDialog() {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
@@ -163,7 +171,9 @@ public class BusyManager implements IBusy {
 								progressDialog.dismiss();
 							}
 						});
+
 						progressDialog.show();
+
 						if (Patchr.displayMetrics != null) {
 							progressDialog.getWindow().setLayout((int) (Patchr.displayMetrics.widthPixels * 0.7), LayoutParams.WRAP_CONTENT);
 						}
@@ -178,16 +188,8 @@ public class BusyManager implements IBusy {
 		Patchr.mainThreadHandler.postDelayed(mRunnableShow, 0);
 	}
 
-	@Subscribe
-	public void onProgressEvent(ProgressEvent event) {
-		if (mProgressDialog != null && mProgressDialog.isShowing() && !mProgressDialog.isIndeterminate()) {
-			Logger.v(this, "Progress event: " + event.percent + "%");
-			mProgressDialog.setProgress((int) event.percent);
-		}
-	}
-
 	@Override
-	public void hideBusy(Boolean noDelay) {
+	public void hide(Boolean noDelay) {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
@@ -211,24 +213,28 @@ public class BusyManager implements IBusy {
 
 			@Override
 			public void run() {
-				stopActionbarBusyIndicator();
 				stopBodyBusyIndicator();
 				stopSwipeRefreshIndicator();
 			}
 		});
 	}
 
-	public void startActionbarBusyIndicator() {
-		if (mRefreshImage != null && mRefreshImage.get() != null && mRefreshProgress.get().getVisibility() != View.VISIBLE) {
-			mRefreshImage.get().setVisibility(View.GONE);
-			mRefreshProgress.get().setVisibility(View.VISIBLE);
+	@Subscribe
+	public void onProgressEvent(ProgressEvent event) {
+		if (mProgressDialog != null && mProgressDialog.isShowing() && !mProgressDialog.isIndeterminate()) {
+			Logger.v(this, "Progress event: " + event.percent + "%");
+			mProgressDialog.setProgress((int) event.percent);
 		}
 	}
 
 	public void startBodyBusyIndicator() {
-		final View progress = mActivity.findViewById(R.id.progress);
-		if (progress != null && progress.getVisibility() != View.VISIBLE) {
-			progress.setVisibility(View.VISIBLE);
+		if (mProgressBar != null) {
+			if (mProgressBar instanceof ContentLoadingProgressBar) {
+				((ContentLoadingProgressBar) mProgressBar).show();
+			}
+			else {
+				mProgressBar.setVisibility(View.VISIBLE);
+			}
 		}
 	}
 
@@ -239,17 +245,14 @@ public class BusyManager implements IBusy {
 		}
 	}
 
-	public void stopActionbarBusyIndicator() {
-		if (mRefreshImage != null && mRefreshImage.get() != null && mRefreshImage.get().getVisibility() != View.VISIBLE) {
-			mRefreshProgress.get().setVisibility(View.GONE);
-			mRefreshImage.get().setVisibility(View.VISIBLE);
-		}
-	}
-
 	public void stopBodyBusyIndicator() {
-		final View progress = mActivity.findViewById(R.id.progress);
-		if (progress != null && progress.getVisibility() != View.GONE) {
-			progress.setVisibility(View.GONE);
+		if (mProgressBar != null) {
+			if (mProgressBar instanceof ContentLoadingProgressBar) {
+				((ContentLoadingProgressBar) mProgressBar).hide();
+			}
+			else {
+				mProgressBar.setVisibility(View.GONE);
+			}
 		}
 	}
 
@@ -294,14 +297,6 @@ public class BusyManager implements IBusy {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void setRefreshImage(View refreshImage) {
-		mRefreshImage = new WeakReference<View>(refreshImage);
-	}
-
-	public void setRefreshProgress(View refreshProgress) {
-		mRefreshProgress = new WeakReference<View>(refreshProgress);
-	}
-
 	public void setSwipeRefresh(SwipeRefreshLayout swipeRefreshLayout) {
 		mSwipeRefreshLayout = swipeRefreshLayout;
 	}
@@ -315,6 +310,6 @@ public class BusyManager implements IBusy {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void onPause() {
-		hideBusy(true);
+		hide(true);
 	}
 }

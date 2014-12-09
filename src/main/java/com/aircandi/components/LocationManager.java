@@ -18,10 +18,10 @@ import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,8 +29,8 @@ import java.util.Locale;
 
 @SuppressWarnings("ucd")
 public class LocationManager implements
-                             GooglePlayServicesClient.ConnectionCallbacks,
-                             GooglePlayServicesClient.OnConnectionFailedListener {
+                             GoogleApiClient.ConnectionCallbacks,
+                             GoogleApiClient.OnConnectionFailedListener {
 
 	public static final Double RADIUS_EARTH_MILES      = 3958.75;
 	public static final Double RADIUS_EARTH_KILOMETERS = 6371.0;
@@ -39,13 +39,14 @@ public class LocationManager implements
 	public static final float  MetersToYardsConversion = 1.09361f;
 	public static final float  FeetToMetersConversion  = 0.3048f;
 
-	private final static int     CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-	public final static  int     ACCURACY_PREFERRED                    = 50;
-	public final static  float   MIN_DISPLACEMENT                      = 50.0f;
-	public static final  Integer FUZZY_THRESHOLD                       = Constants.DIST_FIVE_HUNDRED_METERS;
+	private static final int     REQUEST_RESOLVE_ERROR = 1001;
+	private              boolean mResolvingError       = false;
+	public final static  int     ACCURACY_PREFERRED    = 50;
+	public final static  float   MIN_DISPLACEMENT      = 50.0f;
+	public static final  Integer FUZZY_THRESHOLD       = Constants.DIST_FIVE_HUNDRED_METERS;
 
 	protected android.location.LocationManager mLocationManager;        // Just so we can get config info
-	protected LocationClient                   mLocationClient;
+	protected GoogleApiClient                  mGoogleApiClient;
 	protected LocationRequest                  mLocationRequest;
 	protected LocationListener                 mLocationListener;
 
@@ -65,7 +66,12 @@ public class LocationManager implements
 
 	private LocationManager() {
 
-		mLocationClient = new LocationClient(Patchr.applicationContext, this, this);
+		mGoogleApiClient = new GoogleApiClient.Builder(Patchr.applicationContext)
+				.addApi(LocationServices.API)
+				.addConnectionCallbacks(this)
+				.addOnConnectionFailedListener(this)
+				.build();
+
 		mLocationManager = (android.location.LocationManager) Patchr.applicationContext.getSystemService(Context.LOCATION_SERVICE);
 		mLocationTimeout = new Runnable() {
 
@@ -94,7 +100,9 @@ public class LocationManager implements
 	public void onConnected(Bundle bundle) {
 
 		/* Start updates */
-		mLocationClient.requestLocationUpdates(mLocationRequest, mLocationListener);
+		LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient
+				, mLocationRequest
+				, mLocationListener);
 
 		/* We don't get a callback so setup a more official timeout */
 		if (mUseTimeout) {
@@ -104,37 +112,41 @@ public class LocationManager implements
 	}
 
 	@Override
-	public void onDisconnected() {
+	public void onConnectionSuspended(int i) {
 		/*
 		 * When we disconnect on purpose, we also clear the listener. If listener
 		 * still exists then try to reconnect and continue location processing.
 		 */
 		if (mLocationListener != null) {
-			mLocationClient.connect();
+			mGoogleApiClient.connect();
 		}
 	}
 
 	@Override
-	public void onConnectionFailed(ConnectionResult connectionResult) {
+	public void onConnectionFailed(ConnectionResult result) {
 		/*
-		 * Google Play services can resolve some errors it detects. If the error has
-		 * a resolution, try sending an Intent to start a Google Play services activity
+		 * Google Play services can resolve some errors it detects. If the error has a
+		 * resolution, try sending an Intent to start a Google Play services activity
 		 * that can resolve error.
 		 */
-		if (connectionResult.hasResolution()) {
+		if (mResolvingError) {
+			return;
+		}
+		else if (result.hasResolution()) {
 			try {
-				/* Start an Activity that tries to resolve the error */
-				connectionResult.startResolutionForResult((Activity) Patchr.applicationContext
-						, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+				mResolvingError = true;
+				result.startResolutionForResult((Activity) Patchr.applicationContext, REQUEST_RESOLVE_ERROR);
 			}
 			catch (IntentSender.SendIntentException e) {
-				/* Thrown if Google Play services cancelled the original PendingIntent */
+				/* There was an error with the resolution intent. Try again. */
 				Reporting.logException(e);
+				mGoogleApiClient.connect();
 			}
 		}
 		else {
-			AndroidManager.showPlayServicesErrorDialog(connectionResult.getErrorCode()
-					, Patchr.getInstance().getCurrentActivity());
+			/* Display a dialog to the user with the error. */
+			AndroidManager.showPlayServicesErrorDialog(result.getErrorCode(), Patchr.getInstance().getCurrentActivity());
+			mResolvingError = true;
 		}
 	}
 
@@ -149,8 +161,8 @@ public class LocationManager implements
 
 		/* Make sure we are starting from a disconnected state */
 		Patchr.mainThreadHandler.removeCallbacks(mLocationTimeout);
-		if (mLocationClient != null && (mLocationClient.isConnected() || mLocationClient.isConnecting())) {
-			mLocationClient.disconnect();
+		if (mGoogleApiClient != null && (mGoogleApiClient.isConnected() || mGoogleApiClient.isConnecting())) {
+			mGoogleApiClient.disconnect();
 		}
 
 		/* Location request */
@@ -188,7 +200,7 @@ public class LocationManager implements
 		};
 
 		mUseTimeout = false;
-		mLocationClient.connect();
+		mGoogleApiClient.connect();
 	}
 
 	public void requestCurrentLocation(final Context context) {
@@ -198,8 +210,8 @@ public class LocationManager implements
 
 		/* Make sure we are starting from a disconnected state */
 		Patchr.mainThreadHandler.removeCallbacks(mLocationTimeout);
-		if (mLocationClient != null && (mLocationClient.isConnected() || mLocationClient.isConnecting())) {
-			mLocationClient.disconnect();
+		if (mGoogleApiClient != null && (mGoogleApiClient.isConnected() || mGoogleApiClient.isConnecting())) {
+			mGoogleApiClient.disconnect();
 		}
 
 		mLocationRequest = LocationRequest.create()
@@ -239,13 +251,13 @@ public class LocationManager implements
 		};
 
 		mUseTimeout = true;
-		mLocationClient.connect();
+		mGoogleApiClient.connect();
 	}
 
 	public void stop() {
 		Patchr.mainThreadHandler.removeCallbacks(mLocationTimeout);
-		if (mLocationClient != null && (mLocationClient.isConnected() || mLocationClient.isConnecting())) {
-			mLocationClient.disconnect();
+		if (mGoogleApiClient != null && (mGoogleApiClient.isConnected() || mGoogleApiClient.isConnecting())) {
+			mGoogleApiClient.disconnect();
 		}
 	}
 

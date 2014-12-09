@@ -63,7 +63,7 @@
 		android:scaleType="centerCrop"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
-		custom:layoutId="@layout/widget_webimageview"
+		custom:layoutId="@layout/widget_imageview"
 		custom:sizeHint="@dimen/image_extra_small" />
 
 	<LinearLayout

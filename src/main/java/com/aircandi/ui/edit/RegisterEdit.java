@@ -191,10 +191,10 @@ public class RegisterEdit extends BaseEntityEdit {
 			@Override
 			protected void onPreExecute() {
 				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
-					mBusy.showProgress();
+					mBusy.showProgressDialog();
 				}
 				else {
-					mBusy.showBusy(BusyAction.Update);
+					mBusy.show(BusyAction.Update);
 				}
 			}
 
@@ -244,7 +244,7 @@ public class RegisterEdit extends BaseEntityEdit {
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
-				mBusy.hideBusy(true);
+				mBusy.hide(true);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					/*
@@ -267,7 +267,7 @@ public class RegisterEdit extends BaseEntityEdit {
 				 * - During service calls assuming okhttp catches the interrupt.
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
-				mBusy.hideBusy(true);
+				mBusy.hide(true);
 				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
 			}
 

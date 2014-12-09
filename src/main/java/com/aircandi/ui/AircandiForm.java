@@ -43,6 +43,7 @@ import com.aircandi.ui.components.EmptyController;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
+import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
@@ -88,7 +89,7 @@ public class AircandiForm extends BaseActivity {
 
 		mDrawerLeft = findViewById(R.id.left_drawer);
 		mDrawerRight = findViewById(R.id.right_drawer);
-		mDrawerEmptyController = new EmptyController(findViewById(R.id.button_bubble_notifications));
+		mDrawerEmptyController = new EmptyController(findViewById(R.id.empty_view_notifications).findViewById(R.id.empty_message));
 
 		/* Check if the device is tethered */
 		tetherAlert();
@@ -147,7 +148,7 @@ public class AircandiForm extends BaseActivity {
 			@Override
 			public void run() {
 
-				mBusy.hideBusy(false);
+				mBusy.hide(false);
 				/*
 				 * Notification list
 				 */

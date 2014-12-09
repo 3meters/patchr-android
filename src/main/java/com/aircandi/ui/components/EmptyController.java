@@ -19,26 +19,26 @@ import com.aircandi.utilities.UI;
 
 public class EmptyController {
 
-	private View mView;
+	private View mMessage;
 	private Boolean mEnabled = true;
 
 	public EmptyController(View view) {
-		mView = view;
+		mMessage = view;
 	}
 
 	public void show(final Boolean visible) {
-		if (mView != null) {
-			mView.setVisibility(visible ? View.VISIBLE : View.GONE);
+		if (mMessage != null) {
+			mMessage.setVisibility(visible ? View.VISIBLE : View.GONE);
 		}
 	}
 
 	public ObjectAnimator fadeIn() {
-		if (mView == null || (mView.getVisibility() == View.VISIBLE && mView.getAlpha() == 1f))
+		if (mMessage == null || (mMessage.getVisibility() == View.VISIBLE && mMessage.getAlpha() == 1f))
 			return null;
 		Logger.d(this, "Bubble: fading in");
-		ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 1f);
-		mView.setAlpha(0f);
-		mView.setVisibility(View.VISIBLE);
+		ObjectAnimator anim = ObjectAnimator.ofFloat(mMessage, "alpha", 1f);
+		mMessage.setAlpha(0f);
+		mMessage.setVisibility(View.VISIBLE);
 		anim.setDuration(AnimationManager.DURATION_MEDIUM);
 		anim.addListener(new SimpleAnimationListener() {
 			@Override
@@ -51,15 +51,15 @@ public class EmptyController {
 	}
 
 	public ObjectAnimator fadeOut() {
-		if (mView == null || (mView.getVisibility() == View.GONE && mView.getAlpha() == 0f))
+		if (mMessage == null || (mMessage.getVisibility() == View.GONE && mMessage.getAlpha() == 0f))
 			return null;
 		Logger.d(this, "Bubble: fading out");
-		ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 0f);
+		ObjectAnimator anim = ObjectAnimator.ofFloat(mMessage, "alpha", 0f);
 		anim.setDuration(AnimationManager.DURATION_MEDIUM);
 		anim.addListener(new SimpleAnimationListener() {
 			@Override
 			public void onAnimationEnd(Animator animator) {
-				mView.setVisibility(View.GONE);
+				mMessage.setVisibility(View.GONE);
 				animator.removeAllListeners();
 			}
 		});
@@ -69,7 +69,7 @@ public class EmptyController {
 
 	public void position(final View header, final Integer headerHeightProjected) {
 
-		if (mView != null && header != null) {
+		if (mMessage != null && header != null) {
 
 			ViewTreeObserver vto = header.getViewTreeObserver();
 			vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -80,18 +80,18 @@ public class EmptyController {
 				public void onGlobalLayout() {
 
 					if (Patchr.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-						RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mView.getLayoutParams());
+						RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mMessage.getLayoutParams());
 						params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 						int headerHeight = (headerHeightProjected != null)
 						                   ? headerHeightProjected
 						                   : header.getHeight();
 						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(100f);
-						mView.setLayoutParams(params);
+						mMessage.setLayoutParams(params);
 					}
 					else {
-						RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mView.getLayoutParams());
+						RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mMessage.getLayoutParams());
 						params.addRule(RelativeLayout.CENTER_IN_PARENT);
-						mView.setLayoutParams(params);
+						mMessage.setLayoutParams(params);
 					}
 
 					if (Constants.SUPPORTS_JELLY_BEAN) {
@@ -128,15 +128,15 @@ public class EmptyController {
 		if (!mEnabled) {
 			throw new RuntimeException("Cannot call setText while not enabled");
 		}
-		if (mView != null) {
-			if (!(mView instanceof TextView)) {
+		if (mMessage != null) {
+			if (!(mMessage instanceof TextView)) {
 				throw new RuntimeException("Cannot call setText if not a TextView");
 			}
-			((TextView) mView).setText(label);
+			((TextView) mMessage).setText(label);
 		}
 	}
 
 	public void setOnClickListener(View.OnClickListener listener) {
-		mView.setOnClickListener(listener);
+		mMessage.setOnClickListener(listener);
 	}
 }

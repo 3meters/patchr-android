@@ -66,7 +66,7 @@ public class SplashForm extends ActionBarActivity {
 		NotificationManager.getInstance().setNewNotificationCount(0);
 
 		/* Restart crashlytics to force upload of non-fatal crashes */
-		Reporting.startCrashReporting(this);
+		//Reporting.startCrashReporting(this);
 
 		if (!Patchr.applicationUpdateRequired) {
 			if (AndroidManager.checkPlayServices(this)) {
@@ -193,19 +193,6 @@ public class SplashForm extends ActionBarActivity {
 
 		/* Always ok to make sure firstStartIntent isn't still around */
 		Patchr.firstStartIntent = null;
-
-		/*
-		 * This is a hack to delay the finish. When executed immediately, we
-		 * are getting a warning about lost windows because the activity hadn't completely
-		 * started before it was being killed.
-		 */
-//		Patchr.mainThreadHandler.postDelayed(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//				finish();
-//			}
-//		}, 1000);
 	}
 
 	private void showButtons(Buttons buttons) {

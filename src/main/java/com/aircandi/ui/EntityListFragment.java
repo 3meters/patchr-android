@@ -265,7 +265,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 						|| mFirstBind
 						//						|| (mEntities != null && mEntities.size() == 0)
 						|| (mMonitor.isChanged() && mMonitor.activity)) {
-					mBusy.showBusy(mLoaded ? BusyAction.Refreshing : BusyAction.Loading);
+					mBusy.show(mLoaded ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
 
 					Integer limit = null;
 

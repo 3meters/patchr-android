@@ -16,7 +16,7 @@
 		custom:config="rgb_565"
 		custom:dominantMeasurement="width"
 		custom:fitType="auto"
-		custom:layoutId="@layout/widget_webimageview_candi_view" />
+		custom:layoutId="@layout/widget_imageview_candi_view" />
 
 	<LinearLayout
 		android:id="@+id/info_holder"

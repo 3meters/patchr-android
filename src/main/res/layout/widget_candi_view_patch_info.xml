@@ -45,7 +45,7 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="0"
 				android:textAppearance="?android:attr/textAppearanceSmall"
-				android:textColor="?textColorSecondary"
+				android:textColor="?attr/textColorSecondary"
 				tools:text="here" />
 
 		</LinearLayout>
@@ -59,7 +59,7 @@
 			android:singleLine="true"
 			android:textAllCaps="true"
 			android:textAppearance="?attr/textAppearanceExtraSmall"
-			android:textColor="?textColorSecondary"
+			android:textColor="?attr/textColorSecondary"
 			android:textSize="14sp"
 			tools:text="Fan Patch" />
 

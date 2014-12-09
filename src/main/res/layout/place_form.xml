@@ -13,10 +13,20 @@
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<com.aircandi.ui.widgets.CandiView
-		android:id="@+id/candi_view"
+	<RelativeLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		custom:layoutId="@layout/widget_candi_view_place" />
+		android:layout_height="match_parent">
+
+		<com.aircandi.ui.widgets.CandiView
+			android:id="@+id/candi_view"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			custom:layoutRef="@layout/widget_candi_view_place" />
+
+		<include
+			android:id="@+id/empty_view"
+			layout="@layout/include_empty_view" />
+
+	</RelativeLayout>
 
 </LinearLayout>

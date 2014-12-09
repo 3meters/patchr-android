@@ -20,7 +20,6 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:background="?attr/backgroundCard"
-		custom:colorize="false"
-		custom:layoutId="@layout/widget_candi_view_owner" />
+		custom:layoutRef="@layout/widget_candi_view_owner" />
 
 </RelativeLayout>

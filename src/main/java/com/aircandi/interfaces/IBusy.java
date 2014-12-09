@@ -2,19 +2,20 @@ package com.aircandi.interfaces;
 
 public interface IBusy {
 
-	public void showBusy(BusyAction busyAction);
+	public void show(BusyAction busyAction);
 
-	public void showBusy(BusyAction busyAction, Object message);
+	public void show(BusyAction busyAction, Object message);
 
-	public void showProgress();
+	public void showProgressDialog();
 
-	public void hideBusy(Boolean now);
+	public void hide(Boolean now);
 
 	public enum BusyAction {
-		Loading,
+		Refreshing_Empty,
 		Refreshing,
-		ActionWithMessage,
+		Scanning_Empty,
 		Scanning,
-		Update
+		ActionWithMessage,
+		Update,
 	}
 }

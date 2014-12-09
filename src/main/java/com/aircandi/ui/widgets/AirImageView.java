@@ -7,7 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.v7.graphics.Palette;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.aircandi.Patchr;
@@ -32,9 +31,9 @@ import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 @SuppressWarnings("ucd")
 public class AirImageView extends FrameLayout implements Target {
 
-	private ImageView   mImageMain;
-	private ProgressBar mProgressBar;
-	private TextView    mMissingMessage;
+	private ImageView                 mImageMain;
+	private ContentLoadingProgressBar mProgressBar;
+	private TextView                  mMissingMessage;
 
 	private Photo  mPhoto;
 	private Target mTarget;
@@ -51,7 +50,6 @@ public class AirImageView extends FrameLayout implements Target {
 	private FitType mFitType;
 	private Bitmap.Config mConfig = Bitmap.Config.ARGB_8888;
 	private String                       mGroupTag;
-	private Palette.PaletteAsyncListener mPaletteListener;
 
 	public static final int MEASUREMENT_WIDTH  = 0;
 	public static final int MEASUREMENT_HEIGHT = 1;
@@ -89,7 +87,7 @@ public class AirImageView extends FrameLayout implements Target {
 		mConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.AirImageView_config, Bitmap.Config.ARGB_8888.ordinal())];
 		mSizeHint = ta.getDimensionPixelSize(R.styleable.AirImageView_sizeHint, Integer.MAX_VALUE);
 		mShowBusy = ta.getBoolean(R.styleable.AirImageView_showBusy, true);
-		mLayoutId = ta.getResourceId(R.styleable.AirImageView_layoutId, R.layout.widget_webimageview);
+		mLayoutId = ta.getResourceId(R.styleable.AirImageView_layoutId, R.layout.widget_imageview);
 		mAspectRatio = ta.getFloat(R.styleable.AirImageView_aspectRatio, DEFAULT_ASPECT_RATIO);
 		mAspectRatioEnabled = ta.getBoolean(R.styleable.AirImageView_aspectRatioEnabled,
 				DEFAULT_ASPECT_RATIO_ENABLED);
@@ -112,7 +110,7 @@ public class AirImageView extends FrameLayout implements Target {
 		mImageMain = (ImageView) view.findViewById(R.id.image_main);
 
 		if (!isInEditMode()) {
-			mProgressBar = (ProgressBar) view.findViewById(R.id.image_progress);
+			mProgressBar = (ContentLoadingProgressBar) view.findViewById(R.id.image_progress);
 			mMissingMessage = (TextView) view.findViewById(R.id.image_missing);
 		}
 
@@ -127,9 +125,7 @@ public class AirImageView extends FrameLayout implements Target {
 		}
 
 		if (mProgressBar != null) {
-			if (!mShowBusy) {
-				mProgressBar.setVisibility(View.GONE);
-			}
+			mProgressBar.hide();
 		}
 	}
 
@@ -217,10 +213,6 @@ public class AirImageView extends FrameLayout implements Target {
 			mTarget.onBitmapLoaded(inBitmap, loadedFrom);
 		}
 		else {
-			if (mPaletteListener != null) {
-				Palette palette = Palette.generate(inBitmap);
-				mPaletteListener.onGenerated(palette);
-			}
 			/* Just passes through if image debug dev setting is off */
 			Bitmap bitmap = DownloadManager.decorate(inBitmap, loadedFrom);
 			DownloadManager.logBitmap(this, bitmap, mImageMain);
@@ -262,7 +254,14 @@ public class AirImageView extends FrameLayout implements Target {
 
 			@Override
 			public void run() {
-				mProgressBar.setVisibility(visible ? View.VISIBLE : View.GONE);
+				if (mProgressBar != null) {
+					if (visible) {
+						mProgressBar.show();
+					}
+					else {
+						mProgressBar.hide();
+					}
+				}
 			}
 		});
 	}
@@ -365,15 +364,6 @@ public class AirImageView extends FrameLayout implements Target {
 
 	public AirImageView setGroupTag(String group) {
 		mGroupTag = group;
-		return this;
-	}
-
-	public Palette.PaletteAsyncListener getPaletteListener() {
-		return mPaletteListener;
-	}
-
-	public AirImageView setPaletteListener(Palette.PaletteAsyncListener paletteListener) {
-		mPaletteListener = paletteListener;
 		return this;
 	}
 

@@ -17,7 +17,7 @@
 		custom:config="rgb_565"
 		custom:dominantMeasurement="width"
 		custom:fitType="auto"
-		custom:layoutId="@layout/widget_webimageview_candi_view" />
+		custom:layoutId="@layout/widget_imageview_candi_view" />
 
 	<View
 		android:layout_width="match_parent"
@@ -50,7 +50,7 @@
 		android:singleLine="true"
 		android:textAllCaps="true"
 		android:textAppearance="?attr/textAppearanceExtraSmall"
-		android:textColor="?textColorSecondary"
+		android:textColor="?attr/textColorSecondary"
 		android:textSize="14sp"
 		tools:text="@string/dummy_category_name" />
 
@@ -70,7 +70,7 @@
 		android:layout_marginLeft="12dp"
 		android:layout_marginRight="12dp"
 		android:textAppearance="?android:attr/textAppearanceSmall"
-		android:textColor="?textColorSecondary"
+		android:textColor="?attr/textColorSecondary"
 		tools:text="1.2 mi" />
 
 </LinearLayout>

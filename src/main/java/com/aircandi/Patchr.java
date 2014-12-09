@@ -152,7 +152,7 @@ public class Patchr extends Application {
 		Patchr.applicationContext = getApplicationContext();
 
 		/* Start crashlytics reporting */
-		Reporting.startCrashReporting(this);
+		//Reporting.startCrashReporting(this);
 
 		stopwatch1 = new Stopwatch(); // $codepro.audit.disable stringLiterals
 		stopwatch2 = new Stopwatch(); // $codepro.audit.disable stringLiterals

@@ -21,7 +21,7 @@
 		android:scaleType="centerCrop"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
-		custom:layoutId="@layout/widget_webimageview_candi_view"
+		custom:layoutId="@layout/widget_imageview_candi_view"
 		custom:sizeHint="@dimen/image_medium" />
 
 	<com.aircandi.ui.widgets.AirTextLight
@@ -46,7 +46,7 @@
 		android:ellipsize="end"
 		android:singleLine="true"
 		android:textAppearance="?android:attr/textAppearanceSmall"
-		android:textColor="?textColorSecondary" />
+		android:textColor="?attr/textColorSecondary" />
 
 	<com.aircandi.ui.widgets.AirTextView
 		android:id="@+id/area"
@@ -60,7 +60,7 @@
 		android:ellipsize="end"
 		android:singleLine="true"
 		android:textAppearance="?android:attr/textAppearanceSmall"
-		android:textColor="?textColorSecondary" />
+		android:textColor="?attr/textColorSecondary" />
 
 	<View
 		android:id="@+id/shadow"

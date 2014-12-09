@@ -229,7 +229,7 @@ public class PhotoPicker extends BaseActivity {
 
 		/* Prep the UI */
 		mImages.clear();
-		mBusy.showBusy(BusyAction.Loading);
+		mBusy.show(BusyAction.Refreshing_Empty);
 
 		/* Hide soft keyboard */
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -435,7 +435,7 @@ public class PhotoPicker extends BaseActivity {
 			ModelResult result = loadSearchImages(queryDecorated, PAGE_SIZE, mOffset, Constants.BING_IMAGE_BYTES_MAX, Constants.BING_IMAGE_DIMENSION_MAX);
 			ServiceData serviceData = (ServiceData) result.serviceResponse.data;
 
-			mBusy.hideBusy(false);
+			mBusy.hide(false);
 			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 				mMoreImages = (ArrayList<ImageResult>) result.data;

@@ -54,7 +54,7 @@ public class PlaceForm extends BaseEntityForm {
 
 	@Subscribe
 	public void onProcessingFinished(ProcessingFinishedEvent event) {
-		mBusy.hideBusy(false);
+		mBusy.hide(false);
 	}
 
 	@SuppressWarnings("ucd")

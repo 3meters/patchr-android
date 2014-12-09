@@ -3,7 +3,6 @@
 
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical">
@@ -13,28 +12,45 @@
 		layout="@layout/include_toolbar_actionbar" />
 
 	<RelativeLayout
+		android:id="@+id/holder_body"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:background="@color/background_picture_detail"
-		android:orientation="vertical"
-		tools:context=".PictureDetail"
-		tools:ignore="Overdraw">
+		android:background="@color/background_picture_detail">
 
-		<ViewStub
-			android:id="@+id/stub_picture_detail"
+		<com.aircandi.ui.widgets.AirImageView
+			android:id="@+id/photo"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:inflatedId="@+id/picture_detail"
-			android:layout="@layout/temp_photo_form" />
+			custom:config="rgb_565"
+			custom:fitType="none"
+			custom:layoutId="@layout/widget_imageview_touch"
+			custom:showBusy="true" />
 
-		<ProgressBar
-			android:id="@+id/progress"
-			android:layout_width="@dimen/progress_width"
-			android:layout_height="@dimen/progress_height"
-			android:layout_centerInParent="true"
-			android:padding="8dp"
-			android:visibility="gone" />
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:background="@color/overlay_photo_detail"
+			android:orientation="vertical"
+			android:padding="10dp">
 
+			<com.aircandi.ui.widgets.AirTextLight
+				android:id="@+id/name"
+				style="@style/form_title"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:textColor="@color/text_dark" />
+
+			<com.aircandi.ui.widgets.UserView
+				android:id="@+id/author"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				custom:layoutId="@layout/widget_user_view_text_only_dark" />
+		</LinearLayout>
+
+		<include
+			android:id="@+id/empty_view"
+			layout="@layout/include_empty_view" />
 	</RelativeLayout>
 
 </LinearLayout>

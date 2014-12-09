@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
 	android:id="@+id/candi_view_group"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="@dimen/image_large">
+	android:layout_height="wrap_content"
+	android:gravity="fill_vertical"
+	android:orientation="horizontal">
 
 	<FrameLayout
 		android:id="@+id/holder_photo"
@@ -20,7 +22,7 @@
 			android:scaleType="centerCrop"
 			custom:config="rgb_565"
 			custom:fitType="fixed"
-			custom:layoutId="@layout/widget_webimageview_candi_view"
+			custom:layoutId="@layout/widget_imageview_candi_view"
 			custom:sizeHint="@dimen/image_large" />
 
 		<LinearLayout
@@ -42,90 +44,96 @@
 		</LinearLayout>
 	</FrameLayout>
 
-	<RelativeLayout
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
-		android:layout_toRightOf="@+id/holder_photo"
-		android:paddingBottom="8dp"
-		android:paddingLeft="10dp"
-		android:paddingRight="10dp"
-		android:paddingTop="8dp">
-
-		<com.aircandi.ui.widgets.AirTextView
-			android:id="@+id/place_name"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:ellipsize="end"
-			android:singleLine="true"
-			android:textAllCaps="true"
-			android:textAppearance="?attr/textAppearanceExtraSmall"
-			android:textColor="?textColorSecondary"
-			tools:text="Peaks Frozen Yogurt" />
-
-		<com.aircandi.ui.widgets.AirTextLight
-			android:id="@+id/name"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_below="@+id/place_name"
-			android:ellipsize="end"
-			android:maxLines="2"
-			android:textAppearance="?android:attr/textAppearanceLarge"
-			custom:textId="@string/dummy_title"
-			tools:text="@string/dummy_title" />
+		android:minHeight="@dimen/image_large"
+		android:orientation="vertical">
 
 		<LinearLayout
+			android:id="@+id/holder_titling"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_alignLeft="@+id/name"
-			android:layout_below="@+id/name"
-			android:gravity="center_vertical"
-			android:orientation="horizontal">
+			android:layout_weight="0"
+			android:orientation="vertical"
+			android:paddingBottom="8dp"
+			android:paddingLeft="10dp"
+			android:paddingRight="10dp"
+			android:paddingTop="8dp">
 
 			<com.aircandi.ui.widgets.AirTextView
-				android:id="@+id/category_name"
-				android:layout_width="wrap_content"
+				android:id="@+id/place_name"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginRight="2dp"
 				android:ellipsize="end"
 				android:singleLine="true"
 				android:textAllCaps="true"
 				android:textAppearance="?attr/textAppearanceExtraSmall"
-				android:textColor="?textColorSecondary"
-				tools:text="Event or place" />
+				android:textColor="?attr/textColorSecondary"
+				tools:text="Peaks Frozen Yogurt" />
+
+			<com.aircandi.ui.widgets.AirTextLight
+				android:id="@+id/name"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:ellipsize="end"
+				android:maxLines="2"
+				android:textAppearance="?android:attr/textAppearanceLarge"
+				custom:textId="@string/dummy_title"
+				tools:text="@string/dummy_title" />
 
 			<LinearLayout
-				android:id="@+id/privacy_group"
-				android:layout_width="wrap_content"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:gravity="center_vertical"
 				android:orientation="horizontal">
 
-				<ImageView
-					android:layout_width="20dp"
-					android:layout_height="20dp"
-					android:layout_marginRight="1dp"
-					android:maxHeight="20dp"
-					android:maxWidth="20dp"
-					android:scaleType="fitCenter"
-					android:src="@drawable/ic_action_lock_closed_dark"
-					android:tint="@color/brand_primary" />
+				<com.aircandi.ui.widgets.AirTextView
+					android:id="@+id/category_name"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical"
+					android:layout_marginRight="2dp"
+					android:ellipsize="end"
+					android:singleLine="true"
+					android:textAllCaps="true"
+					android:textAppearance="?attr/textAppearanceExtraSmall"
+					android:textColor="?attr/textColorSecondary"
+					tools:text="Chat Patch" />
+
+				<LinearLayout
+					android:id="@+id/privacy_group"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:gravity="center_vertical"
+					android:orientation="horizontal">
+
+					<ImageView
+						android:layout_width="20dp"
+						android:layout_height="20dp"
+						android:layout_marginRight="1dp"
+						android:maxHeight="20dp"
+						android:maxWidth="20dp"
+						android:scaleType="fitCenter"
+						android:src="@drawable/ic_action_lock_closed_dark"
+						android:tint="@color/brand_primary" />
+
+				</LinearLayout>
 
 			</LinearLayout>
-
 		</LinearLayout>
 
 		<LinearLayout
-			android:id="@+id/stats_holder"
+			android:id="@+id/holder_stats"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignParentBottom="true"
 			android:layout_marginBottom="8dp"
+			android:layout_weight="1"
 			android:orientation="horizontal">
 
 			<LinearLayout
 				android:layout_width="85dp"
 				android:layout_height="wrap_content"
+				android:layout_gravity="bottom"
 				android:orientation="vertical">
 
 				<com.aircandi.ui.widgets.AirTextLight
@@ -146,7 +154,7 @@
 					android:text="@string/label_message_count"
 					android:textAllCaps="true"
 					android:textAppearance="?attr/textAppearanceTiny"
-					android:textColor="?textColorSecondary"
+					android:textColor="?attr/textColorSecondary"
 					tools:text="messages" />
 			</LinearLayout>
 
@@ -154,12 +162,13 @@
 				android:id="@+id/shadow"
 				android:layout_width="@dimen/rule_shadow_height"
 				android:layout_height="40dp"
-				android:layout_gravity="center_vertical"
+				android:layout_gravity="bottom"
 				android:background="?attr/cardShadowColor" />
 
 			<LinearLayout
 				android:layout_width="85dp"
 				android:layout_height="wrap_content"
+				android:layout_gravity="bottom"
 				android:orientation="vertical">
 
 				<com.aircandi.ui.widgets.AirTextLight
@@ -180,11 +189,10 @@
 					android:text="@string/label_watch_count"
 					android:textAllCaps="true"
 					android:textAppearance="?attr/textAppearanceTiny"
-					android:textColor="?textColorSecondary"
+					android:textColor="?attr/textColorSecondary"
 					tools:text="watching" />
 			</LinearLayout>
 		</LinearLayout>
+	</LinearLayout>
 
-	</RelativeLayout>
-
-</RelativeLayout>
+</LinearLayout>
