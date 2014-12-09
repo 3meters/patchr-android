@@ -152,7 +152,7 @@ public class MessageForm extends BaseEntityForm {
 			@Override
 			public void run() {
 
-				mBusy.hideBusy(false);
+				mBusy.hide(false);
 				((BaseFragment) mCurrentFragment).onProcessingFinished();
 
 				mEmptyView.fadeOut();
@@ -676,7 +676,7 @@ public class MessageForm extends BaseEntityForm {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.showBusy(BusyAction.ActionWithMessage, mDeleteProgressResId);
+				mBusy.show(BusyAction.ActionWithMessage, mDeleteProgressResId);
 			}
 
 			@Override
@@ -691,7 +691,7 @@ public class MessageForm extends BaseEntityForm {
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mBusy.hideBusy(true);
+				mBusy.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Logger.i(this, "Deleted entity: " + mEntity.id);
 					/*

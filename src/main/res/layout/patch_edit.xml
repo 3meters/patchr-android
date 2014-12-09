@@ -80,7 +80,7 @@
 				app:config="rgb_565"
 				app:dominantMeasurement="width"
 				app:fitType="auto"
-				app:layoutId="@layout/widget_webimageview_candi_view" />
+				app:layoutId="@layout/widget_imageview_candi_view" />
 
 			<LinearLayout
 				android:layout_width="match_parent"
@@ -203,7 +203,7 @@
 						android:visibility="gone"
 						app:config="rgb_565"
 						app:fitType="fixed"
-						app:layoutId="@layout/widget_webimageview_candi_view"
+						app:layoutId="@layout/widget_imageview_candi_view"
 						app:sizeHint="88dp" />
 
 					<com.aircandi.ui.widgets.AirButton

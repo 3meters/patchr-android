@@ -205,7 +205,7 @@
 								android:scaleType="centerCrop"
 								custom:config="rgb_565"
 								custom:fitType="fixed"
-								custom:layoutId="@layout/widget_webimageview"
+								custom:layoutId="@layout/widget_imageview"
 								custom:showBusy="false"
 								custom:sizeHint="300dp" />
 

@@ -51,7 +51,6 @@ public class CandiView extends RelativeLayout {
 	protected Entity    mEntity;
 	protected Integer   mLayoutId;
 	protected ViewGroup mLayout;
-	protected Boolean   mColorize;
 
 	protected AirImageView mPhotoView;
 	protected AirImageView mCategoryPhoto;
@@ -95,13 +94,12 @@ public class CandiView extends RelativeLayout {
 		super(context, attrs, defStyle);
 
 		if (attrs != null) {
-			final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.CandiView, defStyle, 0);
-			mLayoutId = ta.getResourceId(R.styleable.CandiView_layoutId, R.layout.widget_candi_view);
-			mColorize = ta.getBoolean(R.styleable.CandiView_colorize, true);
-			mAspectRatio = ta.getFloat(R.styleable.AirImageView_aspectRatio, DEFAULT_ASPECT_RATIO);
-			mAspectRatioEnabled = ta.getBoolean(R.styleable.AirImageView_aspectRatioEnabled,
+			final TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.CandiView, defStyle, 0);
+			mLayoutId = ta.getResourceId(R.styleable.CandiView_layoutRef, R.layout.widget_candi_view);
+			mAspectRatio = ta.getFloat(R.styleable.CandiView_aspectRatio, DEFAULT_ASPECT_RATIO);
+			mAspectRatioEnabled = ta.getBoolean(R.styleable.CandiView_aspectRatioEnabled,
 					DEFAULT_ASPECT_RATIO_ENABLED);
-			mDominantMeasurement = ta.getInt(R.styleable.AirImageView_dominantMeasurement,
+			mDominantMeasurement = ta.getInt(R.styleable.CandiView_dominantMeasurement,
 					DEFAULT_DOMINANT_MEASUREMENT);
 			ta.recycle();
 			initialize();

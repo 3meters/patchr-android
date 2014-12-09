@@ -177,7 +177,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					DownloadManager.getInstance().getSnapshot();
 					Patchr.dispatch.route(getActivity(), Route.ABOUT, null, null);
 
 					return true;
@@ -216,7 +215,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 					Patchr.dispatch.route(getActivity(), Route.SIGNIN, null, null);
 				}
 				else {
-					mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_signing_out);
+					mBusy.show(BusyAction.ActionWithMessage, R.string.progress_signing_out);
 					Patchr.dispatch.route(getActivity(), Route.SIGNOUT, null, null);
 				}
 				return true;

@@ -60,9 +60,9 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	protected List<Entity>               mEntities;
 	protected Integer                    mTitleResId;
 	protected String                     mListFragment;
-	protected Integer       mZoomLevel  = null;
-	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
-	protected View          mProgress   = null;
+	protected Integer       mZoomLevel   = null;
+	protected List<Integer> mMenuResIds  = new ArrayList<Integer>();
+	protected View          mProgressBar = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -96,15 +96,15 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		}
 
 		if (root != null) {
-			mProgress = new ProgressBar(root.getContext(), null, android.R.attr.progressBarStyleLarge);
+			mProgressBar = new ProgressBar(root.getContext(), null, android.R.attr.progressBarStyleLarge);
 			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 					UI.getRawPixelsForDisplayPixels(50f),
 					UI.getRawPixelsForDisplayPixels(50f));
 			params.gravity = Gravity.CENTER;
-			mProgress.setLayoutParams(params);
-			mProgress.setVisibility(View.INVISIBLE);
+			mProgressBar.setLayoutParams(params);
+			mProgressBar.setVisibility(View.INVISIBLE);
 
-			((ViewGroup) root).addView(mProgress);
+			((ViewGroup) root).addView(mProgressBar);
 		}
 
 		return root;
@@ -114,8 +114,8 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				if (mProgress != null) {
-					mProgress.setVisibility(View.INVISIBLE);
+				if (mProgressBar != null) {
+					mProgressBar.setVisibility(View.INVISIBLE);
 				}
 			}
 		});
@@ -226,7 +226,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 		mClusterManager.clearItems();
 		if (mEntities != null) {
-			mProgress.setVisibility(View.VISIBLE);
+			mProgressBar.setVisibility(View.VISIBLE);
 			for (Entity entity : mEntities) {
 				if (entity.getLocation() != null) {
 					AirLocation location = entity.getLocation();
@@ -244,7 +244,10 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 				public void onGlobalLayout() {
 					//noinspection deprecation
 					mapView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-					if (mEntities == null || mEntities.size() == 0) return;
+					/*
+					 * We could get this call before mMap has been set.
+					 */
+					if (mEntities == null || mEntities.size() == 0 || mMap == null) return;
 					/*
 					 * One only one entity then center on it.
 					 */

@@ -15,7 +15,7 @@
 		android:scaleType="centerCrop"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
-		custom:layoutId="@layout/widget_webimageview_candi_view"
+		custom:layoutId="@layout/widget_imageview_candi_view"
 		custom:sizeHint="@dimen/image_medium_large" />
 
 	<RelativeLayout
@@ -38,7 +38,7 @@
 			android:singleLine="true"
 			android:textAllCaps="true"
 			android:textAppearance="?attr/textAppearanceExtraSmall"
-			android:textColor="?textColorSecondary"
+			android:textColor="?attr/textColorSecondary"
 			tools:text="Peaks Frozen Yogurt" />
 
 		<com.aircandi.ui.widgets.AirTextLight
@@ -73,7 +73,7 @@
 				android:singleLine="true"
 				android:textAllCaps="true"
 				android:textAppearance="?attr/textAppearanceExtraSmall"
-				android:textColor="?textColorSecondary"
+				android:textColor="?attr/textColorSecondary"
 				tools:text="Event Patch" />
 
 			<LinearLayout
@@ -103,7 +103,7 @@
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
 			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:textColor="?textColorSecondary"
+			android:textColor="?attr/textColorSecondary"
 			tools:text="1.3 mi" />
 
 		<com.aircandi.ui.widgets.AirTextView

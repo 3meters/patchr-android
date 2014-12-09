@@ -132,7 +132,7 @@ public class ReportEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_sending);
+				mBusy.show(BusyAction.ActionWithMessage, R.string.progress_sending);
 			}
 
 			@Override
@@ -147,7 +147,7 @@ public class ReportEdit extends BaseEntityEdit {
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mBusy.hideBusy(true);
+				mBusy.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_report_sent), Toast.LENGTH_SHORT);
 					finish();

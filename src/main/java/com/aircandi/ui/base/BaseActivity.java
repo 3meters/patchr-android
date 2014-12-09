@@ -194,8 +194,11 @@ public abstract class BaseActivity extends ActionBarActivity
 		/* Base Ui */
 		mBusy = new BusyManager(this);
 		mFab = new FloatingActionController(findViewById(R.id.floating_action_button));
-		mEmptyView = new EmptyController(findViewById(R.id.empty_view));
-		mEmptyView.show(false);
+		View view = findViewById(R.id.empty_view);
+		if (view != null) {
+			mEmptyView = new EmptyController(view.findViewById(R.id.empty_message));
+			mEmptyView.show(false);
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -263,7 +266,7 @@ public abstract class BaseActivity extends ActionBarActivity
 		}
 
 		if (mCurrentFragmentTag != null && mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
-			String listFragment = ((MapListFragment)getCurrentFragment()).getListFragment();
+			String listFragment = ((MapListFragment) getCurrentFragment()).getListFragment();
 			if (listFragment != null) {
 				Bundle extras = new Bundle();
 				extras.putString(Constants.EXTRA_FRAGMENT_TYPE, listFragment);
@@ -397,7 +400,7 @@ public abstract class BaseActivity extends ActionBarActivity
 					@Override
 					protected void onPreExecute() {
 						if (!silent && activity instanceof BaseActivity) {
-							((BaseActivity) activity).mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_signing_out);
+							((BaseActivity) activity).mBusy.show(BusyAction.ActionWithMessage, R.string.progress_signing_out);
 						}
 					}
 
@@ -415,7 +418,7 @@ public abstract class BaseActivity extends ActionBarActivity
 							/* Notify interested parties */
 							UI.showToastNotification(StringManager.getString(R.string.alert_signed_out), Toast.LENGTH_SHORT);
 							if (activity instanceof BaseActivity) {
-								((BaseActivity) activity).mBusy.hideBusy(false);
+								((BaseActivity) activity).mBusy.hide(false);
 							}
 							Patchr.dispatch.route(activity, Route.SPLASH, null, null);
 						}
@@ -507,7 +510,7 @@ public abstract class BaseActivity extends ActionBarActivity
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.showBusy(BusyAction.ActionWithMessage, mDeleteProgressResId);
+				mBusy.show(BusyAction.ActionWithMessage, mDeleteProgressResId);
 			}
 
 			@Override
@@ -521,7 +524,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mBusy.hideBusy(true);
+				mBusy.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Logger.i(this, "Deleted entity: " + mEntity.id);
 					/*
@@ -550,7 +553,7 @@ public abstract class BaseActivity extends ActionBarActivity
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.showBusy(BusyAction.ActionWithMessage, mRemoveProgressResId);
+				mBusy.show(BusyAction.ActionWithMessage, mRemoveProgressResId);
 			}
 
 			@Override
@@ -566,7 +569,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mBusy.hideBusy(true);
+				mBusy.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Logger.i(this, "Removed entity: " + mEntity.id);
 					/*
@@ -652,12 +655,12 @@ public abstract class BaseActivity extends ActionBarActivity
 		}
 	}
 
-//  TODO: Remove if not needed
-//	public View getActionBarView() {
-//		View view = getWindow().getDecorView();
-//		int resId = getResources().getIdentifier("action_bar_container", "id", "android");
-//		return view.findViewById(resId);
-//	}
+	//  TODO: Remove if not needed
+	//	public View getActionBarView() {
+	//		View view = getWindow().getDecorView();
+	//		int resId = getResources().getIdentifier("action_bar_container", "id", "android");
+	//		return view.findViewById(resId);
+	//	}
 
 	public Boolean getInvalidated() {
 		return mInvalidated;
@@ -813,25 +816,6 @@ public abstract class BaseActivity extends ActionBarActivity
 			}
 		}
 
-		final MenuItem refresh = menu.findItem(R.id.refresh);
-		if (refresh != null) {
-			if (mBusy != null) {
-				mBusy.setRefreshImage(MenuItemCompat.getActionView(refresh).findViewById(R.id.refresh_image));
-				mBusy.setRefreshProgress(MenuItemCompat.getActionView(refresh).findViewById(R.id.refresh_progress));
-			}
-
-			MenuItemCompat.getActionView(refresh).findViewById(R.id.refresh_frame).setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					/*
-					 * We always start the actionbar busy when the user clicks it.
-					 */
-					mBusy.startActionbarBusyIndicator();
-					onOptionsItemSelected(refresh);
-				}
-			});
-		}
-
 		final MenuItem notifications = menu.findItem(R.id.notifications);
 		if (notifications != null) {
 			mNotificationActionIcon = MenuItemCompat.getActionView(notifications).findViewById(R.id.notifications_image);
@@ -942,13 +926,13 @@ public abstract class BaseActivity extends ActionBarActivity
 		clearReferences();
 	}
 
-// TODO: Remove this if not needed
-//	@Override
-//	public void onAttachedToWindow() {
-//		super.onAttachedToWindow();
-//		final Window window = getWindow();
-//		window.setFormat(PixelFormat.RGBA_8888);
-//	}
+	// TODO: Remove this if not needed
+	//	@Override
+	//	public void onAttachedToWindow() {
+	//		super.onAttachedToWindow();
+	//		final Window window = getWindow();
+	//		window.setFormat(PixelFormat.RGBA_8888);
+	//	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes

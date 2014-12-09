@@ -101,7 +101,7 @@ public class WatcherList extends BaseActivity {
 	@Subscribe
 	public void onProcessingFinished(ProcessingFinishedEvent event) {
 
-		mBusy.hideBusy(false);
+		mBusy.hide(false);
 
 		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
 		final Integer count = fragment.getAdapter().getCount();

@@ -126,7 +126,7 @@ public class SignInEdit extends BaseEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.showBusy(BusyAction.ActionWithMessage, R.string.progress_signing_in);
+				mBusy.show(BusyAction.ActionWithMessage, R.string.progress_signing_in);
 			}
 
 			@Override
@@ -143,7 +143,7 @@ public class SignInEdit extends BaseEdit {
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mBusy.hideBusy(true);
+				mBusy.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in)
 							+ " " + Patchr.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);

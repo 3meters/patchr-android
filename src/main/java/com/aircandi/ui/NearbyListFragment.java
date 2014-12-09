@@ -303,7 +303,7 @@ public class NearbyListFragment extends EntityListFragment {
 		 */
 		Logger.d(getActivity(), "Starting refresh");
 		if (LocationManager.getInstance().isLocationAccessEnabled()) {
-			mBusy.showBusy(BusyAction.Scanning);
+			mBusy.show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
 			LocationManager.getInstance().requestLocationUpdates(getActivity());  // Location triggers sequence
 		}
 		else {
@@ -314,7 +314,7 @@ public class NearbyListFragment extends EntityListFragment {
 				UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
 			}
 			if (NetworkManager.getInstance().isWifiEnabled()) {
-				mBusy.showBusy(BusyAction.Scanning);
+				mBusy.show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
 				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);         // Still try proximity
 			}
 			else {
@@ -395,7 +395,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.showBusy(BusyAction.Scanning);
+				mBusy.show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
 				mEmptyController.fadeOut();
 				Reporting.updateCrashKeys();
 				if (Patchr.getInstance().getPrefEnableDev()) {
@@ -450,7 +450,7 @@ public class NearbyListFragment extends EntityListFragment {
 		ProximityManager.getInstance().register();
 
 		/* Kill busy */
-		mBusy.hideBusy(false);
+		mBusy.hide(false);
 	}
 
 	/*--------------------------------------------------------------------------------------------

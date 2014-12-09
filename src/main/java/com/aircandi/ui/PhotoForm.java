@@ -64,7 +64,6 @@ public class PhotoForm extends BaseActivity implements IBind {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-		setSupportProgressBarIndeterminateVisibility(true);
 		mTransitionType = TransitionType.DRILL_TO;
 		bind(BindingMode.AUTO);
 	}
@@ -120,7 +119,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	@Override
 	public void bind(BindingMode mode) {
 
-		final ViewGroup layout = (ViewGroup) ((ViewStub) findViewById(R.id.stub_picture_detail)).inflate();
+		final ViewGroup layout = (ViewGroup) findViewById(R.id.holder_body);
 		buildPictureDetail(mPhoto, layout);
 		bindImageViewTouch(layout);
 	}

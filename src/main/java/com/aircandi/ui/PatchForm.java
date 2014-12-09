@@ -146,7 +146,7 @@ public class PatchForm extends BaseEntityForm {
 			@Override
 			public void run() {
 
-				mBusy.hideBusy(false);
+				mBusy.hide(false);
 				((BaseFragment) mCurrentFragment).onProcessingFinished();
 				/*
 				 * Non-members can't add messages to private patches.

@@ -171,7 +171,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	}
 
 	public void onProcessingFinished() {
-		mBusy.hideBusy(false);
+		mBusy.hide(false);
 	}
 
 	@Override

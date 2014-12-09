@@ -48,7 +48,7 @@
 				android:layout_height="match_parent"
 				android:padding="26dp"
 				android:scaleType="fitCenter"
-				android:src="?attr/iconMessageNew"
+				android:src="?attr/iconMessage"
 				android:tint="@color/white" />
 
 		</RelativeLayout>

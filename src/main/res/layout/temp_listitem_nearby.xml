@@ -27,8 +27,7 @@
 			android:id="@+id/candi_view"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			custom:colorize="false"
-			custom:layoutId="@layout/widget_candi_view_nearby" />
+			custom:layoutRef="@layout/widget_candi_view_nearby" />
 
 		<View
 			android:id="@+id/shadow"

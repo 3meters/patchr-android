@@ -126,7 +126,7 @@ public class NotificationListFragment extends MessageListFragment {
 				else if (mode == BindingMode.MANUAL
 						|| (mEntities != null && mEntities.size() == 0)
 						|| (mMonitor.isChanged() && mMonitor.activity)) {
-					mBusy.showBusy(mLoaded ? IBusy.BusyAction.Refreshing : IBusy.BusyAction.Loading);
+					mBusy.show(mLoaded ? IBusy.BusyAction.Refreshing : IBusy.BusyAction.Refreshing_Empty);
 
 					Integer limit = null;
 
