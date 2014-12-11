@@ -59,7 +59,6 @@
 
 	<color name="stroke_placeholder_dark">@color/gray_90_pcnt</color>
 	<color name="stroke_button_dark">@color/gray_70_pcnt</color>
-	<color name="stroke_balloon_dark">@color/brand_primary_dark</color>
 	<color name="stroke_button_share_dark">@color/transparent</color>
 	<color name="stroke_button_round_dark">@color/gray_70_pcnt</color>
 
@@ -68,12 +67,7 @@
 	<color name="stroke_placeholder_light">@color/gray_10_pcnt</color>
 	<color name="stroke_button_light">@color/gray_30_pcnt</color>
 	<color name="stroke_button_round_light">@color/gray_30_pcnt</color>
-	<color name="stroke_balloon_light">@color/gray_25_pcnt</color>
 	<color name="stroke_button_share_light">@color/transparent</color>
-
-	<!-- Borders gray -->
-
-	<color name="stroke_balloon_gray">@color/white</color>
 
 	<!-- Backgrounds dark -->
 
@@ -84,7 +78,6 @@
 	<color name="background_placeholder_dark">#22ffffff</color>
 	<color name="background_button_dark">@color/gray_80_pcnt</color>
 	<color name="background_button_round_dark">@color/gray_80_pcnt</color>
-	<color name="background_balloon_dark">@color/brand_primary_dark</color>
 	<color name="background_help_dark">@color/overlay_help</color>
 	<color name="background_token_dark">@color/overlay_help</color>
 	<color name="background_button_share_dark">@color/gray_90_pcnt</color>
@@ -98,15 +91,10 @@
 	<color name="background_highlight_light">@color/background_button_pressed_light</color>
 	<color name="background_placeholder_light">#11000000</color>
 	<color name="background_button_light">#1f000000</color>
-	<color name="background_balloon_light">@color/gray_10_pcnt</color>
 	<color name="background_help_light">@color/overlay_help</color>
 	<color name="background_button_share_light">@color/gray_05_pcnt</color>
 	<color name="background_button_round_light">#eeffffff</color>
 	<color name="background_refresh_light">@color/white</color>
-
-	<!-- Backgrounds gray -->
-
-	<color name="background_balloon_gray">@color/white</color>
 
 	<!-- Backgrounds all -->
 

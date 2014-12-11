@@ -37,6 +37,7 @@ import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.widgets.ListPreferenceMultiSelect;
 import com.aircandi.utilities.DateTime;
+import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.UI;
 
 @SuppressWarnings("deprecation")
@@ -345,7 +346,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 			toolbar.setNavigationOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					dialog.dismiss();
+					Dialogs.dismiss(dialog);
 				}
 			});
 		}

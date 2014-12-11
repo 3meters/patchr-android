@@ -49,12 +49,15 @@ public class AirImageView extends FrameLayout implements Target {
 	private Integer mSizeHint;
 	private FitType mFitType;
 	private Bitmap.Config mConfig = Bitmap.Config.ARGB_8888;
-	private String                       mGroupTag;
+	private String mGroupTag;
+	private Float  mOffsetWidth;
+	private Float  mOffsetHeight;
 
 	public static final int MEASUREMENT_WIDTH  = 0;
 	public static final int MEASUREMENT_HEIGHT = 1;
 
 	private static final float   DEFAULT_ASPECT_RATIO         = 1f;
+	private static final float   DEFAULT_OFFSET               = 0.5f;
 	private static final boolean DEFAULT_ASPECT_RATIO_ENABLED = false;
 	private static final int     DEFAULT_DOMINANT_MEASUREMENT = MEASUREMENT_WIDTH;
 
@@ -88,6 +91,8 @@ public class AirImageView extends FrameLayout implements Target {
 		mSizeHint = ta.getDimensionPixelSize(R.styleable.AirImageView_sizeHint, Integer.MAX_VALUE);
 		mShowBusy = ta.getBoolean(R.styleable.AirImageView_showBusy, true);
 		mLayoutId = ta.getResourceId(R.styleable.AirImageView_layoutId, R.layout.widget_imageview);
+		mOffsetWidth = ta.getFloat(R.styleable.AirImageView_offsetWidth, DEFAULT_OFFSET);
+		mOffsetHeight = ta.getFloat(R.styleable.AirImageView_offsetHeight, DEFAULT_OFFSET);
 		mAspectRatio = ta.getFloat(R.styleable.AirImageView_aspectRatio, DEFAULT_ASPECT_RATIO);
 		mAspectRatioEnabled = ta.getBoolean(R.styleable.AirImageView_aspectRatioEnabled,
 				DEFAULT_ASPECT_RATIO_ENABLED);
@@ -115,9 +120,13 @@ public class AirImageView extends FrameLayout implements Target {
 		}
 
 		if (mImageMain != null) {
-			if (!(mImageMain instanceof ImageViewTouch)) {
+			if (mImageMain instanceof CropImageView) {
+				((CropImageView) mImageMain).setOffset(mOffsetWidth, mOffsetHeight);
+			}
+			else if (!(mImageMain instanceof ImageViewTouch)) {
 				mImageMain.setScaleType(mScaleType);
 			}
+
 			if (isInEditMode()) {
 				mImageMain.setImageResource(R.drawable.img_dummy);
 			}
@@ -420,7 +429,24 @@ public class AirImageView extends FrameLayout implements Target {
 		requestLayout();
 	}
 
-	/*--------------------------------------------------------------------------------------------
+	public Float getOffsetWidth() {
+		return mOffsetWidth;
+	}
+
+	public void setOffsetWidth(Float offsetWidth) {
+		mOffsetWidth = offsetWidth;
+	}
+
+	public Float getOffsetHeight() {
+		return mOffsetHeight;
+	}
+
+	public void setOffsetHeight(Float offsetHeight) {
+		mOffsetHeight = offsetHeight;
+	}
+
+
+/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 

@@ -299,9 +299,9 @@ public class NearbyListFragment extends EntityListFragment {
 	@Override
 	public void onRefresh() {
 		/*
-		 * Called by refresh action or swipe.
+		 * Called by BaseFragment.onStart()/onHiddenChanged(), refresh action or swipe.
 		 */
-		Logger.d(getActivity(), "Starting refresh");
+		Logger.d(this, "Starting refresh");
 		if (LocationManager.getInstance().isLocationAccessEnabled()) {
 			mBusy.show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
 			LocationManager.getInstance().requestLocationUpdates(getActivity());  // Location triggers sequence

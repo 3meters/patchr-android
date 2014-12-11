@@ -7,12 +7,10 @@
 		android:endColor="@color/brand_accent"
 		android:startColor="@color/brand_accent" />
 
-	<corners android:radius="@dimen/form_balloon_corner_radius" />
-
 	<padding
-		android:bottom="@dimen/form_balloon_padding"
-		android:left="@dimen/form_balloon_padding"
-		android:right="@dimen/form_balloon_padding"
-		android:top="@dimen/form_balloon_padding" />
+		android:bottom="@dimen/form_round_padding"
+		android:left="@dimen/form_round_padding"
+		android:right="@dimen/form_round_padding"
+		android:top="@dimen/form_round_padding" />
 
 </shape>

@@ -28,7 +28,7 @@
 
 	<!-- Image categories -->
 
-	<item name="aspect_ratio_place_image" format="float" type="dimen">0.5</item>
+	<item name="aspect_ratio_place_image" format="float" type="dimen">0.65</item>
 	<item name="aspect_ratio_message_image" format="float" type="dimen">0.75</item>
 	<item name="aspect_ratio_message_item_image" format="float" type="dimen">0.5</item>
 
@@ -67,11 +67,6 @@
 	<dimen name="progress_height">60dp</dimen>
 	<dimen name="progress_width">60dp</dimen>
 	<dimen name="progress_bar_height">4dp</dimen>
-
-	<dimen name="balloon_height">150dp</dimen>
-	<dimen name="balloon_width">150dp</dimen>
-	<dimen name="balloon_large_height">200dp</dimen>
-	<dimen name="balloon_large_width">200dp</dimen>
 
 	<dimen name="progress_small_height">20dp</dimen>
 	<dimen name="progress_small_width">20dp</dimen>
@@ -116,11 +111,9 @@
 	<dimen name="action_button_min_width">56dp</dimen>
 	<dimen name="action_bar_default_height">48dp</dimen>
 
-	<!-- Balloons -->
+	<!-- Rounds -->
 
-	<dimen name="form_balloon_stroke_width">0px</dimen>
-	<dimen name="form_balloon_corner_radius">0dp</dimen>
-	<dimen name="form_balloon_padding">3dp</dimen>
+	<dimen name="form_round_padding">3dp</dimen>
 
 	<!-- Dialogs -->
 

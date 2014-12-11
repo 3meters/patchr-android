@@ -2,12 +2,15 @@ package com.aircandi.utilities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Toast;
 
@@ -24,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Dialogs {
 
+	@NonNull
 	public static AlertDialog alertDialog(Integer iconResource // $codepro.audit.disable largeNumberOfParameters
 			, String titleText
 			, String message
@@ -188,6 +192,24 @@ public class Dialogs {
 		}, null);
 		updateDialog.setCanceledOnTouchOutside(false);
 		updateDialog.show();
+	}
+
+	public static void dismiss(Dialog dialog) {
+		if (dialog != null
+				&& dialog.isShowing()
+				&& dialog.getWindow().getWindowManager() != null) {
+			try {
+				dialog.dismiss();
+			}
+			catch (Exception e) {
+				/*
+				 * Sometime we get a harmless exception that the view is not attached to window manager.
+				 * It could be that the activity is getting destroyed before the dismiss can happen.
+				 * It's bad form to eat all exceptions but we hold our nose, catch it and move on.
+				 */
+				Logger.v(dialog.getContext(), e.getMessage());
+			}
+		}
 	}
 
 	public static void locked(final Activity activity, Entity entity) {

@@ -156,12 +156,21 @@ public class LocationManager implements
 
 	public void requestLocationUpdates(final Context context) {
 
+		Logger.d(this, "Starting location updates");
 		setLocationLocked(null);
 		Reporting.updateCrashKeys();
 
 		/* Make sure we are starting from a disconnected state */
 		Patchr.mainThreadHandler.removeCallbacks(mLocationTimeout);
-		if (mGoogleApiClient != null && (mGoogleApiClient.isConnected() || mGoogleApiClient.isConnecting())) {
+
+		if (mGoogleApiClient == null) {
+			mGoogleApiClient = new GoogleApiClient.Builder(Patchr.applicationContext)
+					.addApi(LocationServices.API)
+					.addConnectionCallbacks(this)
+					.addOnConnectionFailedListener(this)
+					.build();
+		}
+		else if (mGoogleApiClient.isConnected() || mGoogleApiClient.isConnecting()) {
 			mGoogleApiClient.disconnect();
 		}
 
@@ -203,60 +212,11 @@ public class LocationManager implements
 		mGoogleApiClient.connect();
 	}
 
-	public void requestCurrentLocation(final Context context) {
-
-		setLocationLocked(null);
-		Reporting.updateCrashKeys();
-
-		/* Make sure we are starting from a disconnected state */
-		Patchr.mainThreadHandler.removeCallbacks(mLocationTimeout);
-		if (mGoogleApiClient != null && (mGoogleApiClient.isConnected() || mGoogleApiClient.isConnecting())) {
-			mGoogleApiClient.disconnect();
-		}
-
-		mLocationRequest = LocationRequest.create()
-		                                  .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-		                                  .setInterval(Constants.TIME_FIVE_SECONDS)
-		                                  .setFastestInterval(Constants.TIME_FIVE_SECONDS)
-		                                  .setNumUpdates(5)
-		                                  .setExpirationDuration(Constants.TIME_THIRTY_SECONDS);
-
-		mLocationListener = new LocationListener() {
-
-			@Override
-			public void onLocationChanged(Location location) {
-
-				if (location == null) return;
-				Logger.d(context, "Location changed: " + location.toString());
-				if (Patchr.stopwatch2.isStarted()) {
-					Patchr.stopwatch2.segmentTime("Lock location: update: accuracy = " + (location.hasAccuracy() ? location.getAccuracy() : "none"));
-				}
-				if (location.hasAccuracy()) {
-					if (Patchr.getInstance().getPrefEnableDev()) {
-						UI.showToastNotification("Location accuracy: " + location.getAccuracy(), Toast.LENGTH_SHORT);
-					}
-					if (location.getAccuracy() <= ACCURACY_PREFERRED) {
-						Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
-								, "location_accepted"
-								, NetworkManager.getInstance().getNetworkType());
-
-						/* We self stop when getting a good enough location */
-						stop();
-					}
-				}
-
-				mLocationLast = location;
-				BusProvider.getInstance().post(new LocationChangedEvent(mLocationLast));
-			}
-		};
-
-		mUseTimeout = true;
-		mGoogleApiClient.connect();
-	}
-
 	public void stop() {
+		Logger.d(this, "Stopping location updates");
 		Patchr.mainThreadHandler.removeCallbacks(mLocationTimeout);
 		if (mGoogleApiClient != null && (mGoogleApiClient.isConnected() || mGoogleApiClient.isConnecting())) {
+			LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, mLocationListener);
 			mGoogleApiClient.disconnect();
 		}
 	}

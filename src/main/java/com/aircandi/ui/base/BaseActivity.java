@@ -885,8 +885,8 @@ public abstract class BaseActivity extends ActionBarActivity
 		mClickEnabled = true;
 		/*
 		 * We always check to make sure play services are working properly. This call will finish 
-		 * the activity if play services are missing and can't be installed. If play services can
-		 * be fixed, then resume will be called again.
+		 * the activity if play services are missing and can't be installed or if the user
+		 * refuses to install them. If play services can be fixed, then resume will be called again.
 		 */
 		AndroidManager.checkPlayServices(this);
 

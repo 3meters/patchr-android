@@ -220,7 +220,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			else if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				prefix = "img_default_patch";
 			}
-			else if (schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+			else if (schema.equals(Constants.SCHEMA_ENTITY_USER)
+					|| schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
 				prefix = (Patchr.themeTone == null || Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
 				         ? "img_default_user_light"
 				         : "img_default_user_dark";

@@ -19,6 +19,7 @@ import com.aircandi.events.CancelEvent;
 import com.aircandi.events.ProgressEvent;
 import com.aircandi.interfaces.IBusy;
 import com.aircandi.utilities.DateTime;
+import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Reporting;
 import com.squareup.otto.Subscribe;
 
@@ -168,7 +169,7 @@ public class BusyManager implements IBusy {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								BusProvider.getInstance().post(new CancelEvent(false));
-								progressDialog.dismiss();
+								Dialogs.dismiss(progressDialog);
 							}
 						});
 
@@ -264,21 +265,7 @@ public class BusyManager implements IBusy {
 	}
 
 	public void stopProgressDialog() {
-		if (mProgressDialog != null
-				&& mProgressDialog.isShowing()
-				&& mProgressDialog.getWindow().getWindowManager() != null) {
-			try {
-				mProgressDialog.dismiss();
-			}
-			catch (Exception e) {
-				/*
-				 * Sometime we get a harmless exception that the view is not attached to window manager.
-				 * It could be that the activity is getting destroyed before the dismiss can happen.
-				 * We catch it and move on.
-				 */
-				Logger.v(mActivity, e.getMessage());
-			}
-		}
+		Dialogs.dismiss(mProgressDialog);
 	}
 
 	private ProgressDialog getProgressDialog() {

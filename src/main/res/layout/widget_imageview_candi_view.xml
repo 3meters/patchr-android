@@ -20,7 +20,7 @@
 		android:visibility="gone"
 		custom:textId="@string/label_photo_missing" />
 
-	<ImageView
+	<com.aircandi.ui.widgets.CropImageView
 		android:id="@+id/image_main"
 		style="@style/picture"
 		android:layout_width="match_parent"

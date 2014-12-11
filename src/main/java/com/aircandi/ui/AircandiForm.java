@@ -489,10 +489,18 @@ public class AircandiForm extends BaseActivity {
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
 		if (mCurrentFragment != null) {
-			ft.hide(mCurrentFragment);
+			if (mCurrentFragment instanceof MapListFragment) {
+				ft.detach(mCurrentFragment);
+			}
+			else {
+				ft.hide(mCurrentFragment);
+			}
 		}
 		if (fragment.isHidden()) {
 			ft.show(fragment);
+		}
+		else if (fragment.isDetached()) {
+			ft.attach(fragment);
 		}
 		else {
 			ft.add(R.id.fragment_holder, fragment);

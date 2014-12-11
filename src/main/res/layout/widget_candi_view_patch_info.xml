@@ -54,7 +54,7 @@
 			android:id="@+id/category_name"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="5dp"
+			android:layout_marginBottom="4dp"
 			android:ellipsize="middle"
 			android:singleLine="true"
 			android:textAllCaps="true"
@@ -68,7 +68,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
-			android:maxLines="3"
+			android:maxLines="@integer/max_lines_patch_description"
 			tools:text="Tchaikovsky was a leading Russian composer of the late 19th century, whose works are notable for their melodic inspiration and their orchestration. He is regarded as the master composer for classical ballet, as demonstrated by his scores for Swan Lake, The Nutcracker, and Sleeping Beauty. " />
 
 	</LinearLayout>
@@ -98,7 +98,7 @@
 			android:layout_height="24dp"
 			android:layout_weight="0"
 			android:tag="collapsed"
-			android:onClick="onExpandDescriptionButtonClick"
+			android:onClick="onToggleDescriptionButtonClick"
 			tools:text="more" />
 	</LinearLayout>
 

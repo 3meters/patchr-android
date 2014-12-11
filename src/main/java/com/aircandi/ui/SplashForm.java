@@ -66,9 +66,15 @@ public class SplashForm extends ActionBarActivity {
 		NotificationManager.getInstance().setNewNotificationCount(0);
 
 		/* Restart crashlytics to force upload of non-fatal crashes */
-		//Reporting.startCrashReporting(this);
+		Reporting.startCrashReporting(this);
 
 		if (!Patchr.applicationUpdateRequired) {
+			/*
+			 * Check to make sure play services are working properly. This call will finish
+			 * the activity if play services are missing and can't be installed or if the user
+			 * refuses to install them. If play services can be fixed, then resume will be
+			 * called again.
+			 */
 			if (AndroidManager.checkPlayServices(this)) {
 				prepareToRun();
 			}

@@ -13,6 +13,6 @@
 	<integer name="limit_places_radar">50</integer>
 	<integer name="anim_extra_long">300</integer>
 	<integer name="anim_short_medium_duration">250</integer>
-	<integer name="max_lines_patch_description">3</integer>
+	<integer name="max_lines_patch_description">4</integer>
 
 </resources>

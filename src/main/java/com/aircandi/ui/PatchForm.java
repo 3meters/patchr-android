@@ -272,7 +272,7 @@ public class PatchForm extends BaseEntityForm {
 	}
 
 	@SuppressWarnings("ucd")
-	public void onExpandDescriptionButtonClick(View view) {
+	public void onToggleDescriptionButtonClick(View view) {
 		TextView description = (TextView) findViewById(R.id.description);
 		Button buttonMore = (Button) findViewById(R.id.button_more);
 		if (description != null) {
@@ -320,7 +320,7 @@ public class PatchForm extends BaseEntityForm {
 			int maxLines = Integers.getInteger(R.integer.max_lines_patch_description);
 			boolean collapsed = ((String)buttonMore.getTag()).equals("collapsed");
 			if (!collapsed) {
-				onExpandDescriptionButtonClick(null);
+				onToggleDescriptionButtonClick(null);
 			}
 		}
 

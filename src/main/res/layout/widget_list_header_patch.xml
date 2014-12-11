@@ -5,49 +5,15 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<RelativeLayout
-		android:id="@+id/holder_place"
-		style="@style/selectable_item"
-		android:layout_width="match_parent"
-		android:layout_height="50dp"
-		android:clickable="true"
-		android:onClick="onPlaceClick"
-		android:paddingLeft="@dimen/form_body_padding"
-		android:visibility="gone"
-		tools:visibility="visible">
-
-		<com.aircandi.ui.widgets.AirTextLight
-			android:id="@+id/place_name"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentLeft="true"
-			android:layout_centerVertical="true"
-			android:ellipsize="end"
-			android:paddingRight="@dimen/image_medium"
-			android:singleLine="true"
-			android:textAppearance="@style/text_appearance_medium"
-			android:textColor="@color/brand_primary_dark"
-			tools:text="Ranchero Deluxo" />
-
-	</RelativeLayout>
-
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="@dimen/rule_divider_height"
-		android:layout_alignBottom="@+id/holder_place"
-		android:background="?attr/ruleColor" />
-
 	<ViewAnimator
 		android:id="@+id/animator_header"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_below="@+id/holder_place"
-		tools:layout_height="180dp">
+		tools:layout_height="230dp">
 
 		<RelativeLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:background="?attr/backgroundCardField"
 			android:clickable="true"
 			android:descendantFocusability="blocksDescendants"
 			android:focusable="false"
@@ -61,12 +27,50 @@
 				android:layout_height="match_parent"
 				custom:layoutRef="@layout/widget_candi_view_patch" />
 
-			<View
+			<FrameLayout
+				android:id="@+id/holder_place"
+				style="@style/selectable_image"
 				android:layout_width="match_parent"
-				android:layout_height="@dimen/rule_divider_height"
-				android:layout_below="@+id/candi_view"
-				android:background="?attr/ruleColor"
-				android:visibility="gone" />
+				android:layout_height="50dp"
+				android:clickable="true"
+				android:onClick="onPlaceClick"
+				android:background="?attr/backgroundCard"
+				android:paddingLeft="@dimen/form_body_padding"
+				android:visibility="gone"
+				tools:visibility="visible">
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:id="@+id/place_name"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical"
+					android:ellipsize="end"
+					android:paddingRight="@dimen/image_medium"
+					android:singleLine="true"
+					android:textAppearance="@style/text_appearance_medium"
+					android:textColor="@color/brand_primary_dark"
+					tools:text="Ranchero Deluxo" />
+
+			</FrameLayout>
+
+			<com.aircandi.ui.widgets.AirImageView
+				android:id="@+id/place_photo"
+				android:layout_width="@dimen/image_medium"
+				android:layout_height="@dimen/image_medium"
+				android:layout_alignParentRight="true"
+				android:layout_margin="10dp"
+				android:background="?attr/backgroundRound"
+				android:clickable="true"
+				android:onClick="onPlaceClick"
+				android:padding="3dp"
+				android:scaleType="centerCrop"
+				android:visibility="gone"
+				custom:config="rgb_565"
+				custom:fitType="fixed"
+				custom:layoutId="@layout/widget_imageview"
+				custom:showBusy="true"
+				custom:sizeHint="@dimen/image_medium"
+				tools:visibility="visible" />
 
 			<RelativeLayout
 				android:id="@+id/button_holder"
@@ -155,25 +159,6 @@
 		</RelativeLayout>
 
 	</ViewAnimator>
-
-	<com.aircandi.ui.widgets.AirImageView
-		android:id="@+id/place_photo"
-		android:layout_width="@dimen/image_medium"
-		android:layout_height="@dimen/image_medium"
-		android:layout_alignParentRight="true"
-		android:layout_margin="10dp"
-		android:background="@drawable/bg_round_light"
-		android:clickable="true"
-		android:onClick="onPlaceClick"
-		android:padding="3dp"
-		android:scaleType="centerCrop"
-		android:visibility="gone"
-		custom:config="rgb_565"
-		custom:fitType="fixed"
-		custom:layoutId="@layout/widget_imageview"
-		custom:showBusy="true"
-		custom:sizeHint="@dimen/image_medium"
-		tools:visibility="visible" />
 
 	<RelativeLayout
 		android:id="@+id/alert_group"

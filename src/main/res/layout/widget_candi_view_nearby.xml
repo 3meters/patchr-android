@@ -56,7 +56,6 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
 			android:orientation="vertical"
-			android:paddingBottom="8dp"
 			android:paddingLeft="10dp"
 			android:paddingRight="10dp"
 			android:paddingTop="8dp">
@@ -160,10 +159,10 @@
 
 			<View
 				android:id="@+id/shadow"
-				android:layout_width="@dimen/rule_shadow_height"
+				android:layout_width="@dimen/rule_divider_height"
 				android:layout_height="40dp"
 				android:layout_gravity="bottom"
-				android:background="?attr/cardShadowColor" />
+				android:background="?attr/textColorSecondary" />
 
 			<LinearLayout
 				android:layout_width="85dp"

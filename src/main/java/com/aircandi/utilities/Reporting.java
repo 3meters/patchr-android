@@ -20,7 +20,9 @@ import java.util.Locale;
 public class Reporting {
 
 	public static void updateCrashKeys() {
-
+		/*
+		 * Nothing here calls anything that could block.
+		 */
 		Crashlytics.setBool("airplane_mode", NetworkManager.isAirplaneMode(Patchr.applicationContext));
 		Crashlytics.setBool("connected", NetworkManager.getInstance().isConnected());
 		Crashlytics.setString("network_type", NetworkManager.getInstance().getNetworkType().toLowerCase(Locale.US));

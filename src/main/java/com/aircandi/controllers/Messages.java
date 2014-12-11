@@ -74,7 +74,9 @@ public class Messages extends EntityControllerBase {
 			else {
 				Entity parentEntity = entity.patch;
 				if (parentEntity == null) {
-					parentEntity = EntityManager.getCacheEntity(entity.patchId);
+					if (entity.patchId != null) {
+						parentEntity = EntityManager.getCacheEntity(entity.patchId);
+					}
 				}
 				if (parentEntity != null) {
 					holder.patchName.setText(parentEntity.name);
@@ -88,7 +90,7 @@ public class Messages extends EntityControllerBase {
 		UI.setVisibility(holder.userPhoto, View.GONE);
 		if (holder.userPhoto != null && entity.creator != null) {
 		    /*
-             * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
+	         * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
 			 */
 			Photo photo = entity.creator.getPhoto();
 			if (holder.userPhoto.getPhoto() == null || !holder.userPhoto.getPhoto().getUri().equals(photo.getUri())) {
@@ -281,6 +283,6 @@ public class Messages extends EntityControllerBase {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static class ViewHolderExtended extends ViewHolder {
-		public TextView     childCount;
+		public TextView childCount;
 	}
 }
