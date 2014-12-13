@@ -1,5 +1,6 @@
 package com.aircandi.components;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -264,6 +265,7 @@ public class NetworkManager {
 	}
 
 	@SuppressWarnings("deprecation")
+	@SuppressLint("NewApi") // We check which build version we are using.
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public static boolean isAirplaneMode(Context context) {
 		ContentResolver cr = context.getContentResolver();

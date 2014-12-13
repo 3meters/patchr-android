@@ -45,7 +45,7 @@ public class AirAutoCompleteTextView extends AutoCompleteTextView {
 		}
 
 		final Drawable[] drawables = getCompoundDrawables();
-		if (drawables != null && drawables.length == 4) {
+		if (drawables.length == 4) {
 			mClearDrawable = drawables[2];
 			mSearchDrawable = drawables[0];
 			Integer drawableWidth = getResources().getDimensionPixelSize(R.dimen.drawable_width);

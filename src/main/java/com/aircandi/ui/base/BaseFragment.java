@@ -149,22 +149,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		Logger.d(this, "Fragment detached");
 	}
 
-	public void onHiddenChanged(boolean hidden) {
-		/*
-		 * Called when switching fragments but not when switching
-		 * away from the activity hosting the fragment(s).
-		 */
-		Logger.d(this, "Fragment hidden: " + hidden);
-		if (hidden) {
-			pause();
-			stop();
-		}
-		else {
-			start();
-			resume();
-		}
-	}
-
 	@Override
 	public void onRefresh() {
 		bind(BindingMode.MANUAL); // Called from Routing
@@ -236,22 +220,24 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	public void share() {}
 
 	protected void resume() {
-		BusProvider.getInstance().register(this);
 		if (getActivity() != null && getActivity() instanceof AircandiForm) {
 			((AircandiForm) getActivity()).updateNotificationIndicator(false);
 		}
 	}
 
 	protected void pause() {
-		BusProvider.getInstance().unregister(this);
 		if (mBusy != null) {
 			mBusy.onPause();
 		}
 	}
 
-	protected void start(){}
+	protected void start(){
+		BusProvider.getInstance().register(this);
+	}
 
-	protected void stop(){}
+	protected void stop(){
+		BusProvider.getInstance().unregister(this);
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties

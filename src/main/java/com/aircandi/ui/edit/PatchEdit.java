@@ -5,11 +5,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -55,7 +57,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -76,6 +78,7 @@ public class PatchEdit extends BaseEntityEdit {
 	protected MapView      mMapView;
 	protected GoogleMap    mMap;
 	protected Marker       mMarker;
+	protected LatLng       mLocation;
 	protected Entity       mPlaceToLinkTo;
 
 	private Spinner        mSpinnerCategory;
@@ -115,11 +118,39 @@ public class PatchEdit extends BaseEntityEdit {
 		mLocationLabel = (TextView) findViewById(R.id.location_label);
 
 		if (mMapView != null) {
-			mMapView.onCreate(savedInstanceState);
-			mMap = mMapView.getMap();
-			if (checkReady()) {
-				setUpMap();
-			}
+
+			mMapView.onCreate(null);
+			mMapView.onResume();
+			mMapView.getMapAsync(new OnMapReadyCallback() {
+				@Override
+				public void onMapReady(GoogleMap googleMap) {
+
+					mMap = googleMap;
+					mMap.getUiSettings().setMapToolbarEnabled(false);
+					MapsInitializer.initialize(Patchr.applicationContext); // Initializes BitmapDescriptorFactory
+
+					drawLocation();
+
+					if (mMapView.getViewTreeObserver().isAlive()) {
+						mMapView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+							@SuppressWarnings("deprecation") // We use the new method when supported
+							@SuppressLint("NewApi") // We check which build version we are using.
+							@Override
+							public void onGlobalLayout() {
+
+								if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+									mMapView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+								} else {
+									mMapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+								}
+
+								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLocation, 17f));
+								mMapView.invalidate();
+							}
+						});
+					}
+				}
+			});
 		}
 	}
 
@@ -218,8 +249,15 @@ public class PatchEdit extends BaseEntityEdit {
 	public void drawLocation() {
 
 		Patch patch = (Patch) mEntity;
-		if (mMapView != null && patch.location != null) {
+		mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_none));
 
+		if (mMap != null) {
+			mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+		}
+
+		if (mMap != null && mMapView != null && patch.location != null) {
+
+			mLocation = new LatLng(patch.location.lat.doubleValue(), patch.location.lng.doubleValue());
 			mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
 
 			if (patch.location.provider != null) {
@@ -244,14 +282,16 @@ public class PatchEdit extends BaseEntityEdit {
 				}
 			}
 
-			mMap.clear();
-			mMarker = mMap.addMarker(new MarkerOptions()
-					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
-					.position(new LatLng(patch.location.lat.doubleValue(), patch.location.lng.doubleValue())));
-			mMarker.setAnchor(0.5f, 0.5f);
-			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(patch.location.lat.doubleValue(), patch.location.lng.doubleValue()), 17));
-			mMapView.invalidate();
+			addMarker();
 		}
+	}
+
+	private void addMarker() {
+		mMap.clear();
+		mMap.addMarker(new MarkerOptions()
+				.position(mLocation)
+				.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
+				.anchor(0.5f, 0.5f));
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -808,34 +848,6 @@ public class PatchEdit extends BaseEntityEdit {
 		return Constants.TYPE_LINK_PROXIMITY;
 	}
 
-	private boolean checkReady() {
-		/*
-		 * Parent activity performs play services check. We can't get to
-		 * here if they are not available.
-		 */
-		if (mMap == null) {
-			UI.showToastNotification("Map not ready", Toast.LENGTH_SHORT);
-			return false;
-		}
-		return true;
-	}
-
-	private void setUpMap() {
-
-		mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-		mMap.setLocationSource(null);
-		mMap.setMyLocationEnabled(false);
-
-		UiSettings uiSettings = mMap.getUiSettings();
-
-		uiSettings.setZoomControlsEnabled(false);
-		uiSettings.setMyLocationButtonEnabled(false);
-		uiSettings.setAllGesturesEnabled(false);
-		uiSettings.setCompassEnabled(false);
-
-		MapsInitializer.initialize(this);
-	}
-
 	@Override
 	protected int getLayoutId() {
 		return (mLayoutResId != null && mLayoutResId != 0) ? mLayoutResId : R.layout.patch_edit;
@@ -847,7 +859,6 @@ public class PatchEdit extends BaseEntityEdit {
 
 	@Override
 	public void onResume() {
-		if (mMapView != null) mMapView.onResume();
 		if (!mEditing && LocationManager.getInstance().isLocationAccessEnabled()) {
 			LocationManager.getInstance().requestLocationUpdates(this);  // Location triggers sequence
 		}

@@ -354,6 +354,7 @@
 	<string name="label_search_completion_hint">Pick a patch to browse.</string>
 	<string name="label_location_edit_message">Tap or tap and hold to set the location for the [@string/container_singular_lowercase].</string>
 
+	<string name="label_location_provider_none">Location: None</string>
 	<string name="label_location_provider_google_new">Location: You are here</string>
 	<string name="label_location_provider_google">Location: Patch was created here</string>
 	<string name="label_location_provider_user">Location: You set this location</string>

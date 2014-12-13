@@ -129,24 +129,23 @@ public class LocationManager implements
 		 * resolution, try sending an Intent to start a Google Play services activity
 		 * that can resolve error.
 		 */
-		if (mResolvingError) {
-			return;
-		}
-		else if (result.hasResolution()) {
-			try {
-				mResolvingError = true;
-				result.startResolutionForResult((Activity) Patchr.applicationContext, REQUEST_RESOLVE_ERROR);
-			}
-			catch (IntentSender.SendIntentException e) {
+		if (!mResolvingError) {
+			if (result.hasResolution()) {
+				try {
+					mResolvingError = true;
+					result.startResolutionForResult((Activity) Patchr.applicationContext, REQUEST_RESOLVE_ERROR);
+				}
+				catch (IntentSender.SendIntentException e) {
 				/* There was an error with the resolution intent. Try again. */
-				Reporting.logException(e);
-				mGoogleApiClient.connect();
+					Reporting.logException(e);
+					mGoogleApiClient.connect();
+				}
 			}
-		}
-		else {
+			else {
 			/* Display a dialog to the user with the error. */
-			AndroidManager.showPlayServicesErrorDialog(result.getErrorCode(), Patchr.getInstance().getCurrentActivity());
-			mResolvingError = true;
+				AndroidManager.showPlayServicesErrorDialog(result.getErrorCode(), Patchr.getInstance().getCurrentActivity());
+				mResolvingError = true;
+			}
 		}
 	}
 
@@ -172,6 +171,7 @@ public class LocationManager implements
 		}
 		else if (mGoogleApiClient.isConnected() || mGoogleApiClient.isConnecting()) {
 			mGoogleApiClient.disconnect();
+			mLocationListener = null;
 		}
 
 		/* Location request */
@@ -216,8 +216,8 @@ public class LocationManager implements
 		Logger.d(this, "Stopping location updates");
 		Patchr.mainThreadHandler.removeCallbacks(mLocationTimeout);
 		if (mGoogleApiClient != null && (mGoogleApiClient.isConnected() || mGoogleApiClient.isConnecting())) {
-			LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, mLocationListener);
 			mGoogleApiClient.disconnect();
+			mLocationListener = null;
 		}
 	}
 

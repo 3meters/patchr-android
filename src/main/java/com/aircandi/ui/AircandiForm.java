@@ -43,7 +43,6 @@ import com.aircandi.ui.components.EmptyController;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
-import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
@@ -489,17 +488,17 @@ public class AircandiForm extends BaseActivity {
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
 		if (mCurrentFragment != null) {
-			if (mCurrentFragment instanceof MapListFragment) {
+//			if (mCurrentFragment instanceof MapListFragment) {
 				ft.detach(mCurrentFragment);
-			}
-			else {
-				ft.hide(mCurrentFragment);
-			}
+//			}
+//			else {
+//				ft.hide(mCurrentFragment);
+//			}
 		}
-		if (fragment.isHidden()) {
-			ft.show(fragment);
-		}
-		else if (fragment.isDetached()) {
+//		if (fragment.isHidden()) {
+//			ft.show(fragment);
+//		}
+		if (fragment.isDetached()) {
 			ft.attach(fragment);
 		}
 		else {
@@ -693,17 +692,11 @@ public class AircandiForm extends BaseActivity {
 		 * foreground. Not guaranteed but is usually called just before the activity receives focus.
 		 */
 		Patchr.getInstance().setCurrentPatch(null);
-		Logger.v(this, "Setting current patch to null");
 		if (mPauseDate != null) {
 			final Long interval = DateTime.nowDate().getTime() - mPauseDate.longValue();
 			if (interval > Constants.INTERVAL_TETHER_ALERT) {
 				tetherAlert();
 			}
-		}
-
-		/* Manage activity alert */
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			updateNotificationIndicator(false);
 		}
 
 		/* In case the user was edited from the drawer */
@@ -730,7 +723,6 @@ public class AircandiForm extends BaseActivity {
 		 * like singletons, statics, etc will continue as long as the application
 		 * is running.
 		 */
-		Logger.d(this, "Destroyed");
 		super.onDestroy();
 	}
 }

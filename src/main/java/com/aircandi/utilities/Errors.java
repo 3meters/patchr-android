@@ -75,7 +75,7 @@ public final class Errors {
 		 * Perform any follow-up actions.
 		 */
 		if (errorResponse.track) {
-			Reporting.sendException(serviceResponse.exception);
+			Reporting.logException(serviceResponse.exception);
 		}
 
 		if (errorResponse.signout) {

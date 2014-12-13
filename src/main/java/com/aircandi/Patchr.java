@@ -17,7 +17,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
-import android.view.ViewConfiguration;
 import android.widget.Toast;
 
 import com.aircandi.components.AnimationManager;
@@ -48,6 +47,7 @@ import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.api.PendingResult;
@@ -56,12 +56,13 @@ import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.TagManager;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import io.fabric.sdk.android.Fabric;
 
 public class Patchr extends Application {
 
@@ -75,8 +76,6 @@ public class Patchr extends Application {
 	public static Handler                  mainThreadHandler;
 	public static PackageManager           packageManager;
 	public static DispatchManager          dispatch;
-	public static Tracker                  tracker;
-	public static GoogleAnalytics          analytics;
 	public static DisplayMetrics           displayMetrics;
 	public static Integer                  memoryClass;
 	public static Stopwatch                stopwatch1;
@@ -98,6 +97,8 @@ public class Patchr extends Application {
 	public static String AWS_SECRET_KEY  = "aws-secret-key";
 	public static String BING_ACCESS_KEY = "bing-access-key";
 	public static String USER_SECRET     = "user-secret";
+
+	public Tracker mTracker;
 
 	/* Current objects */
 	private Entity   mCurrentPatch;
@@ -151,15 +152,8 @@ public class Patchr extends Application {
 		/* Must have this so activity rerouting works. */
 		Patchr.applicationContext = getApplicationContext();
 
-		/* Start crashlytics reporting */
-		//Reporting.startCrashReporting(this);
-
 		stopwatch1 = new Stopwatch(); // $codepro.audit.disable stringLiterals
 		stopwatch2 = new Stopwatch(); // $codepro.audit.disable stringLiterals
-
-		if (applicationContext == null) {
-			applicationContext = getApplicationContext();
-		}
 
 		mainThreadHandler = new Handler(Looper.getMainLooper());
 		packageManager = applicationContext.getPackageManager();
@@ -175,9 +169,23 @@ public class Patchr extends Application {
 		/* Make sure unique id is initialized */
 		getinstallId();
 
+		/* Turn on crash reporting */
+		Fabric.with(this, new Crashlytics());
+
 		/* Setup the analytics tracker */
-		analytics = GoogleAnalytics.getInstance(this);
-		tracker = analytics.newTracker(R.xml.analytics);
+		GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+		if (analytics != null) {
+			/*
+			 * Set how often auto dispatch gets fired in seconds.
+			 * Note: The default is 30 minutes which is crazy. iOS default is 2 minutes so we are
+			 * going to be a bit aggresive and make it one minute for ship.
+			 */
+			analytics.setLocalDispatchPeriod(Constants.TIME_ONE_MINUTE);
+
+			/* Info on what is being tracked is output to logcat */
+			analytics.getLogger().setLogLevel(com.google.android.gms.analytics.Logger.LogLevel.VERBOSE);
+			Patchr.getInstance().setTracker(analytics.newTracker(R.xml.analytics));
+		}
 
 		/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
 		snapshotPreferences();
@@ -185,18 +193,6 @@ public class Patchr extends Application {
 		if (Build.PRODUCT.contains("sdk")) {
 			usingEmulator = true;
 		}
-
-		/* Force actionbar overflow */
-		try {
-			ViewConfiguration config = ViewConfiguration.get(this);
-			Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-
-			if (menuKeyField != null) {
-				menuKeyField.setAccessible(true);
-				menuKeyField.setBoolean(config, false);
-			}
-		}
-		catch (Exception ignore) {}
 
 		/* Establish device memory class */
 		Patchr.memoryClass = Utilities.maxMemoryMB();
@@ -232,7 +228,6 @@ public class Patchr extends Application {
 		/* Connectivity monitoring */
 		NetworkManager.getInstance().setContext(getApplicationContext());
 		NetworkManager.getInstance().initialize();
-		Reporting.updateCrashKeys();
 	}
 
 	public void initializeUser() {
@@ -421,6 +416,14 @@ public class Patchr extends Application {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
+	public Tracker getTracker() {
+		return mTracker;
+	}
+
+	public void setTracker(Tracker tracker) {
+		mTracker = tracker;
+	}
+
 	public Boolean setCurrentUser(User user, Boolean refreshUser) {
 		mCurrentUser = user;
 		ModelResult result = mEntityManager.activateCurrentUser(refreshUser);
@@ -464,8 +467,9 @@ public class Patchr extends Application {
 		return mCurrentPatch;
 	}
 
-	public void setCurrentPatch(Entity currentPlace) {
-		mCurrentPatch = currentPlace;
+	public void setCurrentPatch(Entity currentPatch) {
+		mCurrentPatch = currentPatch;
+		Logger.v(this, "Setting current patch to: " + currentPatch);
 	}
 
 	public MenuManager getMenuManager() {

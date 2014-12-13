@@ -730,7 +730,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 		if (DownloadManager.getInstance() != null) {
 			DownloadManager.getInstance().cancelTag(mGroupTag);
 		}
-		super.onDestroy();
+		super.onDestroyView();
 	}
 
 	/*--------------------------------------------------------------------------------------------

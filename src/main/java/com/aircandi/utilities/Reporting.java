@@ -1,8 +1,8 @@
 package com.aircandi.utilities;
 
-import android.content.Context;
 import android.location.Location;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.aircandi.Patchr;
@@ -13,9 +13,10 @@ import com.aircandi.components.ProximityManager;
 import com.aircandi.objects.User;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.StandardExceptionParser;
 
 import java.util.Locale;
+
+import io.fabric.sdk.android.Fabric;
 
 public class Reporting {
 
@@ -23,84 +24,99 @@ public class Reporting {
 		/*
 		 * Nothing here calls anything that could block.
 		 */
-		Crashlytics.setBool("airplane_mode", NetworkManager.isAirplaneMode(Patchr.applicationContext));
-		Crashlytics.setBool("connected", NetworkManager.getInstance().isConnected());
-		Crashlytics.setString("network_type", NetworkManager.getInstance().getNetworkType().toLowerCase(Locale.US));
-		Crashlytics.setBool("wifi_tethered", NetworkManager.getInstance().isWifiTethered());
-		Crashlytics.setFloat("beacons_visible", ProximityManager.getInstance().getWifiList().size());
-		Crashlytics.setString("device_name", AndroidManager.getInstance().getDeviceName());
+		if (Fabric.isInitialized()) {
 
-		/* Memory info */
-		Crashlytics.setFloat("memory_max_mb", Utilities.maxMemoryMB());
-		Crashlytics.setFloat("memory_total_mb", Utilities.totalMemoryMB());
-		Crashlytics.setFloat("memory_free_mb", Utilities.freeMemoryMB());
+			new AsyncTask() {
 
-		/* Identifies device/install combo */
-		Crashlytics.setApplicationInstallationIdentifier(Patchr.getInstance().getinstallId());
+				@Override
+				protected void onPreExecute() {}
 
-		Location location = LocationManager.getInstance().getLocationLocked();
-		if (location != null) {
-			Crashlytics.setFloat("location_accurary", location.getAccuracy());
-			Crashlytics.setString("location_provider", location.getProvider());
-		}
-		else {
-			Crashlytics.setFloat("location_accurary", 0);
-			Crashlytics.setString("location_provider", "no locked location");
-		}
+				@Override
+				protected Object doInBackground(Object... params) {
 
-		/* Wifi state */
+					Thread.currentThread().setName("AsyncUpdateCrashKeys");
+					Crashlytics.setBool("airplane_mode", NetworkManager.isAirplaneMode(Patchr.applicationContext));
+					Crashlytics.setBool("connected", NetworkManager.getInstance().isConnected());
+					Crashlytics.setString("network_type", NetworkManager.getInstance().getNetworkType().toLowerCase(Locale.US));
+					Crashlytics.setBool("wifi_tethered", NetworkManager.getInstance().isWifiTethered());
+					Crashlytics.setFloat("beacons_visible", ProximityManager.getInstance().getWifiList().size());
+					Crashlytics.setString("device_name", AndroidManager.getInstance().getDeviceName());
 
-		Integer wifiState = NetworkManager.getInstance().getWifiState();
-		if (wifiState != null) {
-			if (wifiState == WifiManager.WIFI_STATE_DISABLED) {
-				Crashlytics.setString("wifi_state", "disabled");
-			}
-			else if (wifiState == WifiManager.WIFI_STATE_ENABLED) {
-				Crashlytics.setString("wifi_state", "enabled");
-			}
-			else if (wifiState == WifiManager.WIFI_STATE_ENABLING) {
-				Crashlytics.setString("wifi_state", "enabling");
-			}
-			else if (wifiState == WifiManager.WIFI_STATE_DISABLING) {
-				Crashlytics.setString("wifi_state", "disabling");
-			}
-		}
+					/* Memory info */
+					Crashlytics.setFloat("memory_max_mb", Utilities.maxMemoryMB());
+					Crashlytics.setFloat("memory_total_mb", Utilities.totalMemoryMB());
+					Crashlytics.setFloat("memory_free_mb", Utilities.freeMemoryMB());
 
-		/* Wifi access point state */
+					/* Identifies device/install combo */
+					Crashlytics.setString("install_id", Patchr.getInstance().getinstallId());
 
-		NetworkManager.WIFI_AP_STATE wifiApState = NetworkManager.getInstance().getWifiApState();
-		if (wifiApState != null) {
-			if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLED) {
-				Crashlytics.setString("wifi_ap_state", "disabled");
-			}
-			else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLED) {
-				Crashlytics.setString("wifi_ap_state", "enabled");
-			}
-			else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLING) {
-				Crashlytics.setString("wifi_ap_state", "enabling");
-			}
-			else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLING) {
-				Crashlytics.setString("wifi_ap_state", "disabling");
-			}
+					Location location = LocationManager.getInstance().getLocationLocked();
+					if (location != null) {
+						Crashlytics.setFloat("location_accurary", location.getAccuracy());
+						Crashlytics.setString("location_provider", location.getProvider());
+					}
+					else {
+						Crashlytics.setFloat("location_accurary", 0);
+						Crashlytics.setString("location_provider", "no locked location");
+					}
+
+					/* Wifi state */
+
+					Integer wifiState = NetworkManager.getInstance().getWifiState();
+					if (wifiState != null) {
+						if (wifiState == WifiManager.WIFI_STATE_DISABLED) {
+							Crashlytics.setString("wifi_state", "disabled");
+						}
+						else if (wifiState == WifiManager.WIFI_STATE_ENABLED) {
+							Crashlytics.setString("wifi_state", "enabled");
+						}
+						else if (wifiState == WifiManager.WIFI_STATE_ENABLING) {
+							Crashlytics.setString("wifi_state", "enabling");
+						}
+						else if (wifiState == WifiManager.WIFI_STATE_DISABLING) {
+							Crashlytics.setString("wifi_state", "disabling");
+						}
+					}
+
+					/* Wifi access point state */
+
+					NetworkManager.WIFI_AP_STATE wifiApState = NetworkManager.getInstance().getWifiApState();
+					if (wifiApState != null) {
+						if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLED) {
+							Crashlytics.setString("wifi_ap_state", "disabled");
+						}
+						else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLED) {
+							Crashlytics.setString("wifi_ap_state", "enabled");
+						}
+						else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLING) {
+							Crashlytics.setString("wifi_ap_state", "enabling");
+						}
+						else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLING) {
+							Crashlytics.setString("wifi_ap_state", "disabling");
+						}
+					}
+					return null;
+				}
+
+				@Override
+				protected void onPostExecute(Object response) {}
+			}.execute();
 		}
 	}
 
 	public static void updateCrashUser(User user) {
-		if (user != null) {
-			Crashlytics.setUserIdentifier(user.id);
-			Crashlytics.setUserName(user.name);
-			Crashlytics.setUserEmail(user.email);
+		if (Fabric.isInitialized()) {
+			if (user != null) {
+				Crashlytics.setUserIdentifier(user.id);
+				Crashlytics.setUserName(user.name);
+				Crashlytics.setUserEmail(user.email);
+			}
+			else {
+				Crashlytics.setUserIdentifier(null);
+				Crashlytics.setUserName(null);
+				Crashlytics.setUserEmail(null);
+			}
 		}
-		else {
-			Crashlytics.setUserIdentifier(null);
-			Crashlytics.setUserName(null);
-			Crashlytics.setUserEmail(null);
-		}
-	}
-
-	@SuppressWarnings("ucd")
-	public static void startCrashReporting(Context context) {
-		Crashlytics.start(context);
 	}
 
 	public static void logException(Exception exception) {
@@ -132,16 +148,18 @@ public class Reporting {
 		/*
 		 * Arguments should be free of whitespace.
 		 */
-		try {
-			Patchr.tracker.send(new HitBuilders.EventBuilder()
-					.setCategory(category)
-					.setAction(action)
-					.setLabel(target)
-					.setValue(value)
-					.build());
-		}
-		catch (Exception e) {
-			Reporting.logException(e);
+		if (Patchr.getInstance().getTracker() != null) {
+			try {
+				Patchr.getInstance().getTracker().send(new HitBuilders.EventBuilder()
+						.setCategory(category)
+						.setAction(action)
+						.setLabel(target)
+						.setValue(value)
+						.build());
+			}
+			catch (Exception e) {
+				Reporting.logException(e);
+			}
 		}
 	}
 
@@ -149,32 +167,18 @@ public class Reporting {
 		/*
 		 * Arguments should be free of whitespace.
 		 */
-		try {
-			Patchr.tracker.send(new HitBuilders.TimingBuilder()
-					.setCategory(category)
-					.setValue(timing)
-					.setVariable(name)
-					.setLabel(label)
-					.build());
-		}
-		catch (Exception e) {
-			Reporting.logException(e);
-		}
-	}
-
-	public static void sendException(Exception exception) {
-		/*
-		 * Arguments should be free of whitespace.
-		 */
-		try {
-			Patchr.tracker.send(new HitBuilders.ExceptionBuilder()
-					.setDescription(new StandardExceptionParser(Patchr.applicationContext, null)
-							.getDescription(Thread.currentThread().getName(), exception))
-					.setFatal(false)
-					.build());
-		}
-		catch (Exception e) {
-			Reporting.logException(e);
+		if (Patchr.getInstance().getTracker() != null) {
+			try {
+				Patchr.getInstance().getTracker().send(new HitBuilders.TimingBuilder()
+						.setCategory(category)
+						.setValue(timing)
+						.setVariable(name)
+						.setLabel(label)
+						.build());
+			}
+			catch (Exception e) {
+				Reporting.logException(e);
+			}
 		}
 	}
 

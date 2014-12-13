@@ -1,8 +1,6 @@
 package com.aircandi.components;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +16,6 @@ import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.DetectedActivity;
 
@@ -43,8 +40,8 @@ public class ActivityRecognitionManager implements
 	protected Integer       mDetectionInterval      = Constants.TIME_THIRTY_SECONDS;
 	protected DetectionMode mDetectionMode          = DetectionMode.MOVING;
 
-	private static final int REQUEST_RESOLVE_ERROR = 1001;
-	private boolean mResolvingError = false;
+	private static final int     REQUEST_RESOLVE_ERROR = 1001;
+	private              boolean mResolvingError       = false;
 
 	private ActivityRecognitionManager() {}
 
@@ -98,24 +95,23 @@ public class ActivityRecognitionManager implements
 		 * that can resolve error.
 		 */
 		mInProgress = false;
-		if (mResolvingError) {
-			return;
-		}
-		else if (result.hasResolution()) {
-			try {
-				mResolvingError = true;
-				result.startResolutionForResult((Activity) Patchr.applicationContext, REQUEST_RESOLVE_ERROR);
-			}
-			catch (IntentSender.SendIntentException e) {
+		if (!mResolvingError) {
+			if (result.hasResolution()) {
+				try {
+					mResolvingError = true;
+					result.startResolutionForResult((Activity) Patchr.applicationContext, REQUEST_RESOLVE_ERROR);
+				}
+				catch (IntentSender.SendIntentException e) {
 				/* There was an error with the resolution intent. Try again. */
-				Reporting.logException(e);
-				mGoogleApiClient.connect();
+					Reporting.logException(e);
+					mGoogleApiClient.connect();
+				}
 			}
-		}
-		else {
+			else {
 			/* Display a dialog to the user with the error. */
-			AndroidManager.showPlayServicesErrorDialog(result.getErrorCode(), Patchr.getInstance().getCurrentActivity());
-			mResolvingError = true;
+				AndroidManager.showPlayServicesErrorDialog(result.getErrorCode(), Patchr.getInstance().getCurrentActivity());
+				mResolvingError = true;
+			}
 		}
 	}
 

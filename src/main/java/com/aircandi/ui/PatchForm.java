@@ -277,7 +277,7 @@ public class PatchForm extends BaseEntityForm {
 		Button buttonMore = (Button) findViewById(R.id.button_more);
 		if (description != null) {
 			int maxLines = Integers.getInteger(R.integer.max_lines_patch_description);
-			boolean collapsed = ((String)buttonMore.getTag()).equals("collapsed");
+			boolean collapsed = ((String) buttonMore.getTag()).equals("collapsed");
 			description.setMaxLines(collapsed ? Integer.MAX_VALUE : maxLines);
 			buttonMore.setText(StringManager.getString(collapsed
 			                                           ? R.string.button_text_collapse
@@ -317,8 +317,7 @@ public class PatchForm extends BaseEntityForm {
 		TextView description = (TextView) findViewById(R.id.description);
 		Button buttonMore = (Button) findViewById(R.id.button_more);
 		if (description != null) {
-			int maxLines = Integers.getInteger(R.integer.max_lines_patch_description);
-			boolean collapsed = ((String)buttonMore.getTag()).equals("collapsed");
+			boolean collapsed = ((String) buttonMore.getTag()).equals("collapsed");
 			if (!collapsed) {
 				onToggleDescriptionButtonClick(null);
 			}

@@ -292,11 +292,13 @@ public class DispatchManager {
 		else if (route == Route.VIEW_AS_LIST) {
 
 			Fragment fragment = ((AircandiForm) activity).getCurrentFragment();
-			String listFragment = ((MapListFragment)fragment).getListFragment();
-			if (listFragment == null) {
-				listFragment = Constants.FRAGMENT_TYPE_NEARBY;
+			if (fragment instanceof MapListFragment) {
+				String listFragment = ((MapListFragment) fragment).getListFragment();
+				if (listFragment == null) {
+					listFragment = Constants.FRAGMENT_TYPE_NEARBY;
+				}
+				((AircandiForm) activity).setCurrentFragment(listFragment);
 			}
-			((AircandiForm) activity).setCurrentFragment(listFragment);
 		}
 
 		else if (route == Route.VIEW_AS_MAP) {

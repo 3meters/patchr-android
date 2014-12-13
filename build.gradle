@@ -1,11 +1,11 @@
 buildscript {
     repositories {
         jcenter()
-        maven { url 'http://download.crashlytics.com/maven' }
+        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.+'
-        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 
@@ -16,10 +16,10 @@ allprojects {
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'crashlytics'
+apply plugin: 'io.fabric'
 
 repositories {
-    maven { url 'http://download.crashlytics.com/maven' }
+    maven { url 'https://maven.fabric.io/public' }
 }
 
 
@@ -28,10 +28,10 @@ android {
     buildToolsVersion '21.1.1'
 
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 14
         targetSdkVersion 21
-        versionCode 186
-        versionName '1.5.4'
+        versionCode 187
+        versionName '1.5.5'
         /*
          * Official package name used by the Google Play store.
          * WARNING: Changing this will create a new app with no history.
@@ -76,10 +76,11 @@ android {
 
 dependencies {
 
+    //compile fileTree(dir: 'libs', include: '*.jar')
+
     compile 'com.android.support:support-v4:21.+'
     compile 'com.android.support:appcompat-v7:21.+'
-    compile 'com.google.android.gms:play-services:6.1.+'
- //   compile 'com.google.android.gms:play-services-maps:6.5.+'
+    compile 'com.google.android.gms:play-services:6.5.+'
     compile 'com.google.maps.android:android-maps-utils:0.3+'
     compile 'com.squareup.okhttp:okhttp:2.0.0'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
@@ -87,7 +88,6 @@ dependencies {
     compile 'com.squareup:otto:1.3.5'
     compile 'com.squareup.picasso:picasso:2.4.+'
     compile 'net.minidev:json-smart:1.2'
-    compile 'com.crashlytics.android:crashlytics:1.+'
 
     compile files('libs/aws-android-sdk-2.0.5-core.jar')
     compile files('libs/aws-android-sdk-2.0.5-s3.jar')
@@ -95,4 +95,8 @@ dependencies {
     compile files('libs/imageviewtouch.jar')
     compile files('libs/cwac-adapter-wrapper.jar')
     compile files('libs/endless-1.2.3.jar')
+
+    compile('com.crashlytics.sdk.android:crashlytics:2.1.0@aar') {
+        transitive = true;
+    }
 }

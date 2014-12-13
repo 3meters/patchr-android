@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -34,6 +33,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -78,22 +78,43 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		 * Any objects obtained from GoogleMap are associated with the view and will be
 		 * leaked if held beyond view lifetime.
 		 */
-		mMap = getMap();
-		if (mMap != null) {
-			mClusterManager = new ClusterManager<EntityItem>(getActivity(), mMap);
-			mClusterRenderer = new EntityRenderer(getActivity());
-			mClusterManager.setRenderer(mClusterRenderer);
+		getMapAsync(new OnMapReadyCallback() {
+			@Override
+			public void onMapReady(GoogleMap googleMap) {
+				/* googleMap is never null */
+				mMap = googleMap;
 
-			mMap.setOnCameraChangeListener(mClusterManager);
-			mMap.setOnMarkerClickListener(mClusterManager);
-			mMap.setOnInfoWindowClickListener(mClusterManager);
-			mMap.setOnMyLocationButtonClickListener(this);
+				mClusterManager = new ClusterManager<EntityItem>(getActivity(), mMap);
+				mClusterRenderer = new EntityRenderer(getActivity());
+				mClusterManager.setRenderer(mClusterRenderer);
 
-			mClusterManager.setOnClusterClickListener(this);
-			mClusterManager.setOnClusterInfoWindowClickListener(this);
-			mClusterManager.setOnClusterItemClickListener(this);
-			mClusterManager.setOnClusterItemInfoWindowClickListener(this);
-		}
+				mMap.setOnCameraChangeListener(mClusterManager);
+				mMap.setOnMarkerClickListener(mClusterManager);
+				mMap.setOnInfoWindowClickListener(mClusterManager);
+
+				mClusterManager.setOnClusterClickListener(MapListFragment.this);
+				mClusterManager.setOnClusterInfoWindowClickListener(MapListFragment.this);
+				mClusterManager.setOnClusterItemClickListener(MapListFragment.this);
+				mClusterManager.setOnClusterItemInfoWindowClickListener(MapListFragment.this);
+
+				mMap.setOnMyLocationButtonClickListener(MapListFragment.this);
+				mMap.setMyLocationEnabled(true);
+				mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+				mMap.setLocationSource(null);
+
+				UiSettings uiSettings = mMap.getUiSettings();
+
+				uiSettings.setZoomControlsEnabled(true);
+				uiSettings.setMyLocationButtonEnabled(true);
+				uiSettings.setAllGesturesEnabled(true);
+				uiSettings.setCompassEnabled(true);
+
+				// We can draw if we already have entities
+				if (mEntities != null) {
+					draw();
+				}
+			}
+		});
 
 		if (root != null) {
 			mProgressBar = new ProgressBar(root.getContext(), null, android.R.attr.progressBarStyleLarge);
@@ -135,16 +156,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 				}
 			});
 		}
-
-		// Check if we were successful in obtaining the map.
-		if (checkReady()) {
-			setUpMap();
-		}
-
-		// We can draw if we already have entities
-		if (mEntities != null) {
-			draw();
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -157,26 +168,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		 * views have been measured and sized.
 		 */
 		Logger.d(this, "Fragment view layout completed");
-	}
-
-	public void onHiddenChanged(boolean hidden) {
-		/*
-		 * Called when switching fragments but not when switching
-		 * away from the activity hosting the fragment(s).
-		 */
-		Logger.d(this, "Fragment hidden: " + hidden);
-		if (hidden) {
-			pause();
-			stop();
-		}
-		else {
-			start();
-			resume();
-			// We can draw if we already have entities
-			if (mEntities != null) {
-				draw();
-			}
-		}
 	}
 
 	@Override
@@ -224,14 +215,16 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 	public void draw() {
 
-		mClusterManager.clearItems();
-		if (mEntities != null) {
-			mProgressBar.setVisibility(View.VISIBLE);
-			for (Entity entity : mEntities) {
-				if (entity.getLocation() != null) {
-					AirLocation location = entity.getLocation();
-					EntityItem entityItem = new EntityItem(location.lat.doubleValue(), location.lng.doubleValue(), entity);
-					mClusterManager.addItem(entityItem);
+		if (mClusterManager != null) {
+			mClusterManager.clearItems();
+			if (mEntities != null) {
+				mProgressBar.setVisibility(View.VISIBLE);
+				for (Entity entity : mEntities) {
+					if (entity.getLocation() != null) {
+						AirLocation location = entity.getLocation();
+						EntityItem entityItem = new EntityItem(location.lat.doubleValue(), location.lng.doubleValue(), entity);
+						mClusterManager.addItem(entityItem);
+					}
 				}
 			}
 		}
@@ -292,32 +285,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		}
 	}
 
-	private boolean checkReady() {
-		/*
-		 * Parent activity performs play services check. We can't get to
-		 * here if they are not available.
-		 */
-		if (mMap == null) {
-			UI.showToastNotification("Map not ready", Toast.LENGTH_SHORT);
-			return false;
-		}
-		return true;
-	}
-
-	private void setUpMap() {
-
-		mMap.setMyLocationEnabled(true);
-		mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-		mMap.setLocationSource(null);
-
-		UiSettings uiSettings = mMap.getUiSettings();
-
-		uiSettings.setZoomControlsEnabled(true);
-		uiSettings.setMyLocationButtonEnabled(true);
-		uiSettings.setAllGesturesEnabled(true);
-		uiSettings.setCompassEnabled(true);
-	}
-
 	public LatLngBounds getBounds(List<Entity> entities) {
 		LatLngBounds bounds = null;
 		if (entities != null) {
@@ -332,21 +299,21 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		return bounds;
 	}
 
-	protected void resume() {
-		super.onResume();
-	}
-
-	protected void pause() {
-		super.onPause();
-	}
-
-	protected void start(){
-		super.onStart();
-	}
-
-	protected void stop(){
-		super.onStop();
-	}
+//	protected void resume() {
+//		super.onResume();
+//	}
+//
+//	protected void pause() {
+//		super.onPause();
+//	}
+//
+//	protected void start() {
+//		super.onStart();
+//	}
+//
+//	protected void stop() {
+//		super.onStop();
+//	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
@@ -401,17 +368,16 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onResume() {
-		resume();
-		super.onResume();
-	}
-
-	@Override
-	public void onPause() {
-		pause();
-		super.onPause();
-	}
+//	@Override
+//	public void onResume() {
+//		super.onResume();
+//	}
+//
+//	@Override
+//	public void onPause() {
+//		pause();
+//		super.onPause();
+//	}
 
 	@Override
 	public void onDestroyView() {
@@ -452,7 +418,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	private class EntityRenderer extends AirClusterRenderer<EntityItem> {
 
 		public EntityRenderer(Context context) {
-			super(context, getMap(), mClusterManager);
+			super(context, mMap, mClusterManager);
 		}
 
 		@Override

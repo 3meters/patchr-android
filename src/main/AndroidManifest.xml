@@ -64,11 +64,6 @@
 		android:theme="@style/aircandi_theme_snow"
 		android:label="@string/name_app">
 
-		<!-- Analytics -->
-		<meta-data
-			android:name="com.google.android.gms.analytics.globalConfigResource"
-			android:resource="@xml/analytics_global_config" />
-
 		<!-- Service keys -->
 		<meta-data
 			android:name="com.google.android.maps.v2.API_KEY"

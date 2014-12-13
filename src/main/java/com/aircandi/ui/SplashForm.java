@@ -30,7 +30,6 @@ import com.aircandi.objects.User;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
-import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 
 @SuppressLint("Registered")
@@ -64,9 +63,6 @@ public class SplashForm extends ActionBarActivity {
 
 		/* Restart notification tracking */
 		NotificationManager.getInstance().setNewNotificationCount(0);
-
-		/* Restart crashlytics to force upload of non-fatal crashes */
-		Reporting.startCrashReporting(this);
 
 		if (!Patchr.applicationUpdateRequired) {
 			/*

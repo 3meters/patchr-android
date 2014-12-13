@@ -19,6 +19,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -59,12 +60,17 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 
 		mMapView = (MapView) findViewById(R.id.mapview);
 		mMapView.onCreate(savedInstanceState);
-		mMap = mMapView.getMap();
+		mMapView.getMapAsync(new OnMapReadyCallback() {
+			@Override
+			public void onMapReady(GoogleMap googleMap) {
+				mMap = googleMap;
+				if (checkReady()) {
+					setUpMap();
+					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mOriginalLocation.lat.doubleValue(), mOriginalLocation.lng.doubleValue()), 17));
+				}
+			}
+		});
 
-		if (checkReady()) {
-			setUpMap();
-			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mOriginalLocation.lat.doubleValue(), mOriginalLocation.lng.doubleValue()), 17));
-		}
 	}
 
 	public void draw(View view) {}

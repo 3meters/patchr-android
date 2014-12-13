@@ -11,13 +11,12 @@
 	-->
 	<bool name="ga_autoActivityTracking">true</bool>
 	<!--
-		Enable automatic exception tracking. This does not conflict with
-		Crashlytics exception reporting.
+		We send crashes to Crashlytics.
 	-->
-	<bool name="ga_reportUncaughtExceptions">true</bool>
+	<bool name="ga_reportUncaughtExceptions">false</bool>
 	<!--
 		The amount of time (in seconds) your application can stay in the background before the 
-		session is ended. Default is 30 seconds. Negative value disables EasyTracker session management.
+		session is ended. Default is 30 seconds.
 	-->
 	<integer name="ga_sessionTimeout">120</integer>
 

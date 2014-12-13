@@ -41,7 +41,7 @@ public class AirEditText extends EditText {
 		if (!isInEditMode()) {
 			FontManager.getInstance().setTypefaceLight(this);
 			final Drawable[] drawables = getCompoundDrawables();
-			if (drawables != null && drawables.length == 4) {
+			if (drawables.length == 4) {
 				mClearDrawable = drawables[2];
 
 				if (mClearDrawable != null) {
@@ -56,7 +56,7 @@ public class AirEditText extends EditText {
 			if (mEnableClearButton) {
 
 				/* Set the bounds of the button */
-				this.setCompoundDrawablesWithIntrinsicBounds(drawables != null ? drawables[0] : null, null, mClearDrawable, null);
+				this.setCompoundDrawablesWithIntrinsicBounds(drawables[0], null, mClearDrawable, null);
 
 				// button should be hidden on first draw
 				clearButtonHandler();

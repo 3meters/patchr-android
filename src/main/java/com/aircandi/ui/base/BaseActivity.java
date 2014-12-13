@@ -655,13 +655,6 @@ public abstract class BaseActivity extends ActionBarActivity
 		}
 	}
 
-	//  TODO: Remove if not needed
-	//	public View getActionBarView() {
-	//		View view = getWindow().getDecorView();
-	//		int resId = getResources().getIdentifier("action_bar_container", "id", "android");
-	//		return view.findViewById(resId);
-	//	}
-
 	public Boolean getInvalidated() {
 		return mInvalidated;
 	}

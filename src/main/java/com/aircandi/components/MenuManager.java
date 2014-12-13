@@ -218,7 +218,7 @@ public class MenuManager {
 			String forSchema = com.aircandi.objects.Entity.getSchemaForId(forId);
 			/*
 			 * Message can be listed for places or current user.
-		 */
+		     */
 			if (forSchema.equals(Constants.SCHEMA_ENTITY_USER))
 				return false;
 			else

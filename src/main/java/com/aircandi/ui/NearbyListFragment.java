@@ -299,7 +299,7 @@ public class NearbyListFragment extends EntityListFragment {
 	@Override
 	public void onRefresh() {
 		/*
-		 * Called by BaseFragment.onStart()/onHiddenChanged(), refresh action or swipe.
+		 * Called by BaseFragment.onStart(), refresh action or swipe.
 		 */
 		Logger.d(this, "Starting refresh");
 		if (LocationManager.getInstance().isLocationAccessEnabled()) {
@@ -425,8 +425,9 @@ public class NearbyListFragment extends EntityListFragment {
 	 *--------------------------------------------------------------------------------------------*/
 
 	protected void start() {
+		super.start();
 		BusProvider.getInstance().register(mLocationHandler);
-		onRefresh();
+		onRefresh(); // Starts location updates if location services enabled.
 
 		/* Start foreground activity recognition - stop proximity manager from background recognition */
 		try {
@@ -435,15 +436,15 @@ public class NearbyListFragment extends EntityListFragment {
 		catch (Exception ignore) {}
 	}
 
-	protected void pause() {
-		LocationManager.getInstance().stop();
-	}
-
 	protected void stop() {
+		super.stop();
 		try {
 			BusProvider.getInstance().unregister(mLocationHandler);
 		}
 		catch (Exception ignore){}
+
+		/* Stop location updates */
+		LocationManager.getInstance().stop();
 
 		 /* Start background activity recognition with proximity manager as the listener. */
 		ProximityManager.getInstance().setLastBeaconInstallUpdate(null);
