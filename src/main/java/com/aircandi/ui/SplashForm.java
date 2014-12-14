@@ -18,7 +18,6 @@ import com.aircandi.components.AndroidManager;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
-import com.aircandi.components.MediaManager;
 import com.aircandi.components.MenuManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -35,8 +34,7 @@ import com.aircandi.utilities.UI;
 @SuppressLint("Registered")
 public class SplashForm extends ActionBarActivity {
 
-	protected SwipeRefreshLayout  mSwipeRefreshLayout;
-
+	protected SwipeRefreshLayout mSwipeRefreshLayout;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -174,9 +172,7 @@ public class SplashForm extends ActionBarActivity {
 		 */
 		Patchr.getInstance()
 		      .setMenuManager(new MenuManager())
-		      .setMediaManager(new MediaManager().initSoundPool())
 		      .setAnimationManager(new AnimationManager());
-
 
 		/* Starts activity recognition */
 		ActivityRecognitionManager.getInstance().initialize(getApplicationContext());

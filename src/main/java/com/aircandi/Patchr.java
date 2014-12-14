@@ -82,15 +82,14 @@ public class Patchr extends Application {
 	public static Stopwatch                stopwatch2;
 	public static String                   themeTone;
 
-	public static  Map<String, IEntityController> controllerMap             = new HashMap<String, IEntityController>();
-	public static  Boolean                        firstStartApp             = true;
-	public static  Boolean                        debug                     = false;
-	public static  Intent                         firstStartIntent          = null;
-	private static Boolean                        activityVisible           = false;
-	public static  Boolean                        usingEmulator             = false;
-	public static  Integer                        wifiCount                 = 0;
-	public static  Boolean                        applicationUpdateRequired = false;
-	public static  Integer                        resultCode                = Activity.RESULT_OK;
+	public static Map<String, IEntityController> controllerMap             = new HashMap<String, IEntityController>();
+	public static Boolean                        firstStartApp             = true;
+	public static Boolean                        debug                     = false;
+	public static Intent                         firstStartIntent          = null;
+	public static Boolean                        usingEmulator             = false;
+	public static Integer                        wifiCount                 = 0;
+	public static Boolean                        applicationUpdateRequired = false;
+	public static Integer                        resultCode                = Activity.RESULT_OK;
 
 	/* Container values */
 	public static String AWS_ACCESS_KEY  = "aws-access-key";
@@ -219,6 +218,9 @@ public class Patchr extends Application {
 		/*
 		 * Note: additional setup is done in SplashForm#configure
 		 */
+		/* Warmup media manager */
+		MediaManager.warmup();
+
 		/* Inject minimum managers required for notifications */
 		mEntityManager = new EntityManager().setLinks(new Links());
 
@@ -241,7 +243,6 @@ public class Patchr extends Application {
 		mPrefTestingBeacons = Patchr.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
 	}
 
-	@SuppressWarnings("ucd")
 	public void openContainer(String containerId) {
 		/*
 		 * TagManager always starts by loading the defaults bundled with app. Next,
@@ -332,34 +333,6 @@ public class Patchr extends Application {
 		return controllerMap.get(entity.schema);
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Statics
-	 *--------------------------------------------------------------------------------------------*/
-
-	public static String getVersionName(Context context, Class cls) {
-		try {
-			final ComponentName comp = new ComponentName(context, cls);
-			final PackageInfo pinfo = context.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
-			return pinfo.versionName;
-		}
-		catch (android.content.pm.PackageManager.NameNotFoundException e) {
-			Logger.e(applicationContext, e.getMessage());
-			return null;
-		}
-	}
-
-	public static Integer getVersionCode(Context context, Class cls) {
-		try {
-			final ComponentName comp = new ComponentName(context, cls);
-			final PackageInfo pinfo = context.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
-			return pinfo.versionCode;
-		}
-		catch (android.content.pm.PackageManager.NameNotFoundException e) {
-			Logger.e(applicationContext, e.getMessage());
-			return null;
-		}
-	}
-
 	public synchronized String getInstallType() {
 		if (mUniqueType == null) {
 			getinstallId();
@@ -406,8 +379,35 @@ public class Patchr extends Application {
 		return mUniqueId;
 	}
 
-	public static class ThemeTone {
+	/*--------------------------------------------------------------------------------------------
+	 * Statics
+	 *--------------------------------------------------------------------------------------------*/
 
+	public static String getVersionName(Context context, Class cls) {
+		try {
+			final ComponentName comp = new ComponentName(context, cls);
+			final PackageInfo pinfo = context.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
+			return pinfo.versionName;
+		}
+		catch (android.content.pm.PackageManager.NameNotFoundException e) {
+			Logger.e(applicationContext, e.getMessage());
+			return null;
+		}
+	}
+
+	public static Integer getVersionCode(Context context, Class cls) {
+		try {
+			final ComponentName comp = new ComponentName(context, cls);
+			final PackageInfo pinfo = context.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
+			return pinfo.versionCode;
+		}
+		catch (android.content.pm.PackageManager.NameNotFoundException e) {
+			Logger.e(applicationContext, e.getMessage());
+			return null;
+		}
+	}
+
+	public static class ThemeTone {
 		public static String DARK  = "dark";
 		public static String LIGHT = "light";
 	}
@@ -415,10 +415,6 @@ public class Patchr extends Application {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-
-	public Tracker getTracker() {
-		return mTracker;
-	}
 
 	public void setTracker(Tracker tracker) {
 		mTracker = tracker;
@@ -431,70 +427,8 @@ public class Patchr extends Application {
 		return (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS);
 	}
 
-	public User getCurrentUser() {
-		return mCurrentUser;
-	}
-
-	public String getPrefTheme() {
-		return mPrefTheme;
-	}
-
-	public String getPrefSearchRadius() {
-		return mPrefSearchRadius;
-	}
-
-	public Boolean getPrefEnableDev() {
-		return mPrefEnableDev;
-	}
-
-	public Boolean getPrefEntityFencing() {
-		return mPrefEntityFencing;
-	}
-
-	public String getPrefTestingBeacons() {
-		return mPrefTestingBeacons;
-	}
-
-	public Activity getCurrentActivity() {
-		return mCurrentActivity;
-	}
-
-	public void setCurrentActivity(Activity currentActivity) {
-		mCurrentActivity = currentActivity;
-	}
-
-	public Entity getCurrentPatch() {
-		return mCurrentPatch;
-	}
-
-	public void setCurrentPatch(Entity currentPatch) {
-		mCurrentPatch = currentPatch;
-		Logger.v(this, "Setting current patch to: " + currentPatch);
-	}
-
-	public MenuManager getMenuManager() {
-		return mMenuManager;
-	}
-
-	public MediaManager getMediaManager() {
-		return mMediaManager;
-	}
-
-	public EntityManager getEntityManager() {
-		return mEntityManager;
-	}
-
-	public AnimationManager getAnimationManager() {
-		return mAnimationManager;
-	}
-
 	public Patchr setMenuManager(MenuManager menuManager) {
 		mMenuManager = menuManager;
-		return this;
-	}
-
-	public Patchr setEntityManager(EntityManager entityManager) {
-		mEntityManager = entityManager;
 		return this;
 	}
 
@@ -508,15 +442,48 @@ public class Patchr extends Application {
 		return this;
 	}
 
-	public static Boolean isActivityVisible() {
-		return activityVisible;
+	public void setCurrentActivity(Activity currentActivity) {
+		mCurrentActivity = currentActivity;
 	}
 
-	public static void activityResumed() {
-		activityVisible = false;
+	public void setCurrentPatch(Entity currentPatch) {
+		mCurrentPatch = currentPatch;
+		Logger.v(this, "Setting current patch to: " + currentPatch);
 	}
 
-	public static void activityPaused() {
-		activityVisible = false;
+	public Tracker getTracker() {
+		return mTracker;
+	}
+
+	public User getCurrentUser() {
+		return mCurrentUser;
+	}
+
+	public Boolean getPrefEnableDev() {
+		return mPrefEnableDev;
+	}
+
+	public String getPrefTestingBeacons() {
+		return mPrefTestingBeacons;
+	}
+
+	public Activity getCurrentActivity() {
+		return mCurrentActivity;
+	}
+
+	public Entity getCurrentPatch() {
+		return mCurrentPatch;
+	}
+
+	public MenuManager getMenuManager() {
+		return mMenuManager;
+	}
+
+	public EntityManager getEntityManager() {
+		return mEntityManager;
+	}
+
+	public AnimationManager getAnimationManager() {
+		return mAnimationManager;
 	}
 }

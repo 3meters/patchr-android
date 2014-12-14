@@ -109,7 +109,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 
 		final View view = inflater.inflate(getLayoutId(), container, false);
 
-		mEmptyController = ((BaseActivity) getActivity()).getBubbleController();
+		mEmptyController = ((BaseActivity) getActivity()).getEmptyController();
 
 		return view;
 	}

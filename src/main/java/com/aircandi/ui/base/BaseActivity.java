@@ -118,6 +118,7 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected Boolean mClickEnabled = false;                        // NO_UCD (unused code)
 	protected Boolean mLoaded       = false;
 	protected Boolean mProcessing   = false;
+	protected Boolean mRestarting   = false;
 
 	/* Theme */
 	protected String mPrefTheme;
@@ -706,8 +707,12 @@ public abstract class BaseActivity extends ActionBarActivity
 		return null;
 	}
 
-	public EmptyController getBubbleController() {
+	public EmptyController getEmptyController() {
 		return mEmptyView;
+	}
+
+	public Boolean getRestarting() {
+		return mRestarting;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -857,12 +862,15 @@ public abstract class BaseActivity extends ActionBarActivity
 			Logger.d(this, "Activity starting");
 
 			if (mPrefChangeReloadNeeded) {
-
-				final Intent intent = getIntent();
-				intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+				/*
+				 * Restarts this activity using the same intent as used for the previous start.
+				 */
+				mRestarting = true;
+				final Intent originalIntent = getIntent();
+				originalIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 				finish();
 				overridePendingTransition(0, 0);
-				startActivity(intent);
+				startActivity(originalIntent);
 			}
 		}
 	}
@@ -871,7 +879,6 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected void onResume() {
 		super.onResume();
 		Logger.d(this, "Activity resuming");
-		Patchr.activityResumed();
 		BusProvider.getInstance().register(this);
 		BusProvider.getInstance().register(mBusy);
 		Patchr.getInstance().setCurrentActivity(this);
@@ -902,7 +909,6 @@ public abstract class BaseActivity extends ActionBarActivity
 			mBusy.onPause();
 		}
 		clearReferences();
-		Patchr.activityPaused();
 	}
 
 	@Override

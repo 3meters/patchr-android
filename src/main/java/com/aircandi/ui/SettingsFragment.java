@@ -56,7 +56,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		//setTheme();
 		super.onCreate(savedInstanceState);
 
 		/* Load preferences layout */
@@ -79,6 +78,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		}
 
 		initialize();
+		initializeDev();
 		return root;
 	}
 
@@ -90,6 +90,9 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (requestCode == Constants.ACTIVITY_SIGNIN) {
 			if (resultCode == Constants.RESULT_USER_SIGNED_IN) {
+				/*
+				 * Restarts this activity using the same intent as used for the previous start.
+				 */
 				Intent originalIntent = getActivity().getIntent();
 				originalIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
 				getActivity().finish();
@@ -102,8 +105,10 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		/*
+		 * Update the setting summaries when a shared pref is changed.
+		 */
 		Preference pref = findPreference(key);
-
 		if (pref instanceof ListPreferenceMultiSelect) {
 			ListPreference listPref = (ListPreference) pref;
 			pref.setSummary(listPref.getValue().replace(ListPreferenceMultiSelect.DEFAULT_SEPARATOR, "|"));
@@ -157,12 +162,14 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 				public boolean onPreferenceChange(Preference preference, Object newValue) {
 					Patchr.settingsEditor.putString(StringManager.getString(R.string.pref_theme), (String) newValue);
 					Patchr.settingsEditor.commit();
-
-					final Intent intent = getActivity().getIntent();
-					intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+					/*
+					 * Restarts this activity using the same intent as used for the previous start.
+					 */
+					Intent originalIntent = getActivity().getIntent();
+					originalIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 					getActivity().finish();
 					getActivity().overridePendingTransition(0, 0);
-					startActivity(intent);
+					startActivity(originalIntent);
 					return false;
 				}
 			});
@@ -179,7 +186,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					Patchr.dispatch.route(getActivity(), Route.ABOUT, null, null);
-
 					return true;
 				}
 			});
@@ -200,33 +206,31 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 		/* Listen for signin/out click */
 		pref = findPreference("Pref_Signin_Signout");
-		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			pref.setTitle(StringManager.getString(R.string.pref_signin_title));
-			pref.setSummary(StringManager.getString(R.string.pref_signin_summary));
-		}
-		else {
-			pref.setTitle(StringManager.getString(R.string.pref_signout_title));
-			pref.setSummary(StringManager.getString(R.string.pref_signout_summary));
-		}
-		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-					Patchr.dispatch.route(getActivity(), Route.SIGNIN, null, null);
-				}
-				else {
-					mBusy.show(BusyAction.ActionWithMessage, R.string.progress_signing_out);
-					Patchr.dispatch.route(getActivity(), Route.SIGNOUT, null, null);
-				}
-				return true;
+		if (pref != null) {
+			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				pref.setTitle(StringManager.getString(R.string.pref_signin_title));
+				pref.setSummary(StringManager.getString(R.string.pref_signin_summary));
 			}
-		});
+			else {
+				pref.setTitle(StringManager.getString(R.string.pref_signout_title));
+				pref.setSummary(StringManager.getString(R.string.pref_signout_summary));
+			}
 
-		/*
-		 * Init the dev preferences
-		 */
-		initializeDev();
+			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+						Patchr.dispatch.route(getActivity(), Route.SIGNIN, null, null);
+					}
+					else {
+						mBusy.show(BusyAction.ActionWithMessage, R.string.progress_signing_out);
+						Patchr.dispatch.route(getActivity(), Route.SIGNOUT, null, null);
+					}
+					return true;
+				}
+			});
+		}
 	}
 
 	private void initializeDev() {
@@ -352,18 +356,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		}
 	}
 
-	private void setTheme() {
-		final String prefTheme = Patchr.settings.getString(StringManager.getString(R.string.pref_theme)
-				, StringManager.getString(R.string.pref_theme_default));
-
-		if (prefTheme.equals("aircandi_theme_snow")) {
-			getActivity().setTheme(R.style.aircandi_theme_snow);
-		}
-		else {
-			getActivity().setTheme(R.style.aircandi_theme_midnight);
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
@@ -381,7 +373,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 	@Override
 	public void onResume() {
 		super.onResume();
-		Patchr.getInstance().setCurrentActivity(getActivity());
 		setSummaries(getPreferenceScreen());
 		getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 	}

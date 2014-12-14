@@ -47,6 +47,7 @@ import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.service.ServiceResponse;
+import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
@@ -441,14 +442,20 @@ public class NearbyListFragment extends EntityListFragment {
 		try {
 			BusProvider.getInstance().unregister(mLocationHandler);
 		}
-		catch (Exception ignore){}
+		catch (Exception ignore) {}
+		/*
+		 * Parent could be restarting because of something like a theme change so
+		 * don't need to stop location updates or start activity monitoring.
+		 */
+		if (!((BaseActivity) getActivity()).getRestarting()) {
 
-		/* Stop location updates */
-		LocationManager.getInstance().stop();
+			/* Stop location updates */
+			LocationManager.getInstance().stop();
 
-		 /* Start background activity recognition with proximity manager as the listener. */
-		ProximityManager.getInstance().setLastBeaconInstallUpdate(null);
-		ProximityManager.getInstance().register();
+		    /* Start background activity recognition with proximity manager as the listener. */
+			ProximityManager.getInstance().setLastBeaconInstallUpdate(null);
+			ProximityManager.getInstance().register();
+		}
 
 		/* Kill busy */
 		mBusy.hide(false);

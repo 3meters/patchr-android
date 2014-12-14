@@ -283,11 +283,8 @@ public class AircandiForm extends BaseActivity {
 	@Override
 	public synchronized void setCurrentFragment(String fragmentType) {
 		/*
-		 * Called from BaseActivity.onCreate (once), configureActionBar and DispatchManager.
-		 */
-		Logger.i(this, "setCurrentFragment entered");
-		/*
-		 * Fragment menu items are in addition to any menu items added by the parent activity.
+		 * - Called from BaseActivity.onCreate (once), configureActionBar and DispatchManager.
+		 * - Fragment menu items are in addition to any menu items added by the parent activity.
 		 */
 		Fragment fragment;
 
@@ -484,32 +481,25 @@ public class AircandiForm extends BaseActivity {
 			mFab.fadeIn();
 		}
 
-		/* We hide/show to save the trouble of rebuilding the fragments. */
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+
 		if (mCurrentFragment != null) {
-//			if (mCurrentFragment instanceof MapListFragment) {
-				ft.detach(mCurrentFragment);
-//			}
-//			else {
-//				ft.hide(mCurrentFragment);
-//			}
+			ft.detach(mCurrentFragment);
 		}
-//		if (fragment.isHidden()) {
-//			ft.show(fragment);
-//		}
+
 		if (fragment.isDetached()) {
 			ft.attach(fragment);
 		}
 		else {
 			ft.add(R.id.fragment_holder, fragment);
 		}
+
 		ft.commit();
 
 		mPrevFragmentTag = mCurrentFragmentTag;
 		mCurrentFragmentTag = fragmentType;
 		mCurrentFragment = fragment;
-		Logger.i(this, "setCurrentFragment exited");
 	}
 
 	public Fragment getCurrentFragment() {
@@ -523,7 +513,6 @@ public class AircandiForm extends BaseActivity {
 		 */
 		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
 		if (tethered || (!NetworkManager.getInstance().isWifiEnabled() && !Patchr.usingEmulator)) {
-
 			UI.showToastNotification(StringManager.getString(tethered
 			                                                 ? R.string.alert_wifi_tethered
 			                                                 : R.string.alert_wifi_disabled), Toast.LENGTH_SHORT);

@@ -15,7 +15,7 @@ public class SettingsForm extends BaseActivity {
 		mCurrentFragment = new SettingsFragment();
 		getFragmentManager()
 				.beginTransaction()
-				.replace(R.id.fragment_holder, mCurrentFragment)
+				.add(R.id.fragment_holder, mCurrentFragment)
 				.commit();
 	}
 
