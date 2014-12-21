@@ -254,7 +254,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 		if (_location == null) {
 			final Beacon beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
-			if (beacon != null) {
+			if (beacon != null && beacon.location != null && beacon.location.lat != null && beacon.location.lng != null) {
 				_location = beacon.location;
 			}
 		}
@@ -468,9 +468,10 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 		if (linkCounts != null) {
 			for (Count linkCount : linkCounts) {
-				if (type == null || (linkCount.type != null && linkCount.type.equals(type))
-						&& (schema == null || linkCount.schema.equals(schema))
-						&& (enabled == null || linkCount.enabled.equals(enabled))) return linkCount;
+				if ((type == null || (linkCount.type != null && linkCount.type.equals(type)))
+						&& (schema == null || (linkCount.schema != null && linkCount.schema.equals(schema)))
+						&& (enabled == null || (linkCount.enabled != null && linkCount.enabled.equals(enabled))))
+					return linkCount;
 			}
 		}
 		return null;

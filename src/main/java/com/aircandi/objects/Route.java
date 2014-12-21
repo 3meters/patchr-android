@@ -55,4 +55,5 @@ public class Route {
 	public static int SEARCH             = 57;
 	public static int VIEW_AS_MAP        = 58;
 	public static int VIEW_AS_LIST       = 59;
+	public static int PHOTO_EDIT         = 60;
 }

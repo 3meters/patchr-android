@@ -276,7 +276,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							.setPrefix(photoUri.toString())
 							.setStore(true)
 							.setSource(Photo.PhotoSource.file);
-					onPhotoSelected(photo);
+
+					final String jsonPhoto = Json.objectToJson(photo);
+					Bundle bundle = new Bundle();
+					bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
+					Patchr.dispatch.route(BaseEntityEdit.this, Route.PHOTO_EDIT, null, bundle);
 				}
 			}
 		});
@@ -305,7 +309,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 					if (!TextUtils.isEmpty(photoSource)) {
 						mPhotoSource = photoSource;
-						if (photoSource.equals(Constants.PHOTO_SOURCE_SEARCH)) {
+						if (photoSource.equals(Constants.PHOTO_ACTION_SEARCH)) {
 
 							String defaultSearch = null;
 							if (mEntity.name != null) {
@@ -313,16 +317,23 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							}
 							photoSearch(defaultSearch);
 						}
-						else if (photoSource.equals(Constants.PHOTO_SOURCE_GALLERY)) {
+						else if (photoSource.equals(Constants.PHOTO_ACTION_GALLERY)) {
 
 							photoFromGallery();
 						}
-						else if (photoSource.equals(Constants.PHOTO_SOURCE_CAMERA)) {
+						else if (photoSource.equals(Constants.PHOTO_ACTION_CAMERA)) {
 
 							photoFromCamera();
 						}
-						else if (photoSource.equals(Constants.PHOTO_SOURCE_DEFAULT)
-								|| photoSource.equals(Constants.PHOTO_SOURCE_WEBSITE_THUMBNAIL)) {
+						else if (photoSource.equals(Constants.PHOTO_ACTION_EDIT)) {
+
+							final String jsonPhoto = Json.objectToJson(mEntity.photo);
+							Bundle bundle = new Bundle();
+							bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
+							Patchr.dispatch.route(this, Route.PHOTO_EDIT, null, bundle);
+						}
+						else if (photoSource.equals(Constants.PHOTO_ACTION_DEFAULT)
+								|| photoSource.equals(Constants.PHOTO_ACTION_WEBSITE_THUMBNAIL)) {
 
 							usePhotoDefault();
 						}
@@ -335,9 +346,9 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				if (intent != null && intent.getExtras() != null) {
 
 					final Bundle extras = intent.getExtras();
-					final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
-					final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
-					onPhotoSelected(photo);
+					final String json = extras.getString(Constants.EXTRA_PHOTO);
+					extras.putString(Constants.EXTRA_PHOTO, json);
+					Patchr.dispatch.route(BaseEntityEdit.this, Route.PHOTO_EDIT, null, extras);
 				}
 			}
 			else if (requestCode == ChooserType.REQUEST_PICK_PICTURE) {
@@ -347,6 +358,20 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			else if (requestCode == ChooserType.REQUEST_CAPTURE_PICTURE) {
 
 				mImageChooserManager.submit(requestCode, intent);
+			}
+			else if (requestCode == Constants.ACTIVITY_PHOTO_EDIT) {
+
+				if (intent != null && intent.getExtras() != null) {
+					Boolean changed = intent.getExtras().getBoolean("bitmap-changed", false);
+					Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_edited", null, 0);
+					final Uri photoUri = Uri.parse("file:" + intent.getData().toString());
+					MediaManager.scanMedia(photoUri);
+					Photo photo = new Photo()
+							.setPrefix(photoUri.toString())
+							.setStore(true)
+							.setSource(Photo.PhotoSource.file);
+					onPhotoSelected(photo);
+				}
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);

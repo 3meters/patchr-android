@@ -21,8 +21,9 @@ public class Constants {
 	public static final String EXTRA_ENTITY           = "com.aircandi.EXTRA_ENTITY";
 	public static final String EXTRA_ENTITY_PARENT    = "com.aircandi.EXTRA_ENTITY_PARENT";
 
-	public static final String EXTRA_PATCH    = "com.aircandi.EXTRA_PATCH";
-	public static final String EXTRA_PATCH_ID = "com.aircandi.EXTRA_PATCH_ID";
+	public static final String EXTRA_NOTIFICATION_ID = "com.aircandi.EXTRA_NOTIFICATION_ID";
+	public static final String EXTRA_PATCH           = "com.aircandi.EXTRA_PATCH";
+	public static final String EXTRA_PATCH_ID        = "com.aircandi.EXTRA_PATCH_ID";
 
 	public static final String EXTRA_URI = "com.aircandi.EXTRA_URI";
 
@@ -185,13 +186,12 @@ public class Constants {
 	public static final String TYPE_PROVIDER_YELP       = "yelp";
 	public static final String TYPE_PROVIDER_USER       = "user";
 
-	public static final String PHOTO_SOURCE_DEFAULT           = "default";
-	public static final String PHOTO_SOURCE_SEARCH            = "search";
-	public static final String PHOTO_SOURCE_GALLERY           = "gallery";
-	public static final String PHOTO_SOURCE_CAMERA            = "camera";
-	public static final String PHOTO_SOURCE_FACEBOOK          = "facebook";
-	public static final String PHOTO_SOURCE_TWITTER           = "twitter";
-	public static final String PHOTO_SOURCE_WEBSITE_THUMBNAIL = "website_thumbnail";
+	public static final String PHOTO_ACTION_DEFAULT           = "default";
+	public static final String PHOTO_ACTION_SEARCH            = "search";
+	public static final String PHOTO_ACTION_GALLERY           = "gallery";
+	public static final String PHOTO_ACTION_CAMERA            = "camera";
+	public static final String PHOTO_ACTION_EDIT              = "edit";
+	public static final String PHOTO_ACTION_WEBSITE_THUMBNAIL = "website_thumbnail";
 
 	public static final String PRIVACY_PUBLIC  = "public";
 	public static final String PRIVACY_PRIVATE = "private";
@@ -226,6 +226,7 @@ public class Constants {
 	public static final int ACTIVITY_CATEGORY_EDIT       = 810;
 	public static final int ACTIVITY_LOCATION_EDIT       = 820;
 	public static final int ACTIVITY_PRIVACY_EDIT        = 830;
+	public static final int ACTIVITY_PHOTO_EDIT          = 840;
 	public static final int ACTIVITY_ENTITY_EDIT         = 900;
 	public static final int ACTIVITY_PICTURE_SOURCE_PICK = 950;
 	public static final int ACTIVITY_ENTITY_INSERT       = 960;

@@ -133,6 +133,68 @@
 		<item name="android:foreground">?android:attr/selectableItemBackground</item>
 	</style>
 
+	<!-- Aviary styles -->
+
+	<style name="AviaryWidget.NavBar.Main">
+		<item name="android:alwaysDrawnWithCache">true</item>
+		<item name="android:animationCache">true</item>
+		<item name="android:background">@color/aviary_nav_primary_color</item>
+		<item name="android:drawingCacheQuality">auto</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:inAnimation">@anim/aviary_push_up_in</item>
+		<item name="android:outAnimation">@anim/aviary_push_up_out</item>
+		<item name="android:paddingLeft">0dip</item>
+		<item name="android:paddingRight">0dip</item>
+		<item name="android:paddingBottom">0dp</item>
+	</style>
+
+	<style name="AviaryWidget.TextView">
+		<item name="android:textAppearance">?aviaryTextAppearance</item>
+		<item name="android:ellipsize">end</item>
+		<item name="aviary_typeface">?attr/aviaryFontLight</item>
+	</style>
+
+	<style name="AviaryWidget.TextView.Tool">
+		<item name="android:gravity">center</item>
+		<item name="android:ellipsize">end</item>
+		<item name="android:singleLine">true</item>
+		<item name="android:maxLines">1</item>
+		<item name="android:focusable">true</item>
+		<item name="android:focusableInTouchMode">true</item>
+		<item name="android:textSize">@dimen/aviary_textSizeTools</item>
+		<item name="aviary_typeface">?attr/aviaryFontRegular</item>
+	</style>
+
+	<style name="AviaryWidget.TextView.NavTitle">
+		<item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+		<item name="android:inAnimation">@android:anim/slide_in_left</item>
+		<item name="android:outAnimation">@android:anim/slide_out_right</item>
+		<item name="android:singleLine">true</item>
+	</style>
+
+	<style name="AviaryWidget.Button.NavButton">
+		<item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+		<item name="android:background">@drawable/aviary_nav_button_background</item>
+		<item name="android:textAllCaps">true</item>
+		<item name="android:padding">16dp</item>
+	</style>
+
+	<style name="AviaryWidget.Button.NavButton.Apply">
+		<item name="android:drawableLeft">@drawable/ic_action_accept_dark</item>
+		<item name="android:drawablePadding">0dp</item>
+	</style>
+
+	<style name="AviaryWidget.BottomBar">
+		<item name="android:background">@color/gray_90_pcnt</item>
+	</style>
+
+	<style name="AviaryWidget.BottomBar.GalleryItem.Crop.TextView" parent="AviaryWidget.TextView">
+		<item name="android:textAppearance">?aviaryTextAppearanceMedium</item>
+		<item name="android:textSize">16sp</item>
+		<item name="aviary_typeface">?attr/aviaryFontRegular</item>
+		<item name="android:gravity">center</item>
+	</style>
+
 	<!-- Edit forms -->
 
 	<style name="form_content_layout">

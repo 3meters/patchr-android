@@ -72,21 +72,21 @@ public class PhotoForm extends BaseActivity implements IBind {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void onZoomIn() {
-		mImageViewTouch.setDoubleTapDirection(1);
-		float scale = mImageViewTouch.getScale();
-		float targetScale;
-		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
-		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
-		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
+//		mImageViewTouch.setDoubleTapDirection(1);
+//		float scale = mImageViewTouch.getScale();
+//		float targetScale;
+//		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
+//		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
+//		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
 	}
 
 	public void onZoomOut() {
-		mImageViewTouch.setDoubleTapDirection(-1);
-		float scale = mImageViewTouch.getScale();
-		float targetScale;
-		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
-		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
-		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
+//		mImageViewTouch.setDoubleTapDirection(-1);
+//		float scale = mImageViewTouch.getScale();
+//		float targetScale;
+//		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
+//		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
+//		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
 	}
 
 	protected void bindImageViewTouch(ViewGroup layout) {

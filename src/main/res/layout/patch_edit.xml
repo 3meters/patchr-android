@@ -85,11 +85,10 @@
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_alignBottom="@+id/photo"
 				android:layout_alignTop="@+id/photo"
 				android:layout_marginLeft="4dp"
 				android:layout_marginRight="4dp"
-				android:background="@drawable/scrim_gradient_weak"
+				android:background="@drawable/scrim_medium"
 				android:gravity="bottom|center_horizontal"
 				android:orientation="vertical">
 
@@ -97,6 +96,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="@dimen/form_field_height"
 					android:layout_gravity="center_horizontal"
+					android:drawableLeft="@drawable/ic_action_edit_dark"
 					android:gravity="center"
 					android:text="@string/button_change_banner"
 					android:textAppearance="?android:attr/textAppearanceMedium"
@@ -168,7 +168,7 @@
 						android:layout_marginLeft="8dp"
 						android:layout_marginRight="8dp"
 						app:liteMode="true"
-						app:mapType="none"/>
+						app:mapType="none" />
 
 					<FrameLayout
 						style="@style/selectable_image"

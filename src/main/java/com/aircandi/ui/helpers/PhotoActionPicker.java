@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressLint("Registered")
-public class PhotoSourcePicker extends BasePicker implements OnItemClickListener {
+public class PhotoActionPicker extends BasePicker implements OnItemClickListener {
 
 	private TextView    mName;
 	private ListView    mListView;
@@ -71,19 +71,27 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 		/* Everyone gets these options */
 		listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
 		                            ? R.drawable.ic_action_search_light : R.drawable.ic_action_search_dark
-				, StringManager.getString(R.string.dialog_photo_source_search), Constants.PHOTO_SOURCE_SEARCH));
+				, StringManager.getString(R.string.dialog_photo_action_search), Constants.PHOTO_ACTION_SEARCH));
 
 		listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
 		                            ? R.drawable.ic_action_tiles_large_light
 		                            : R.drawable.ic_action_tiles_large_dark
-				, StringManager.getString(R.string.dialog_photo_source_gallery), Constants.PHOTO_SOURCE_GALLERY));
+				, StringManager.getString(R.string.dialog_photo_action_gallery), Constants.PHOTO_ACTION_GALLERY));
 
 		/* Only show the camera choice if there is one and there is a place to store the image */
 		if (MediaManager.canCaptureWithCamera()) {
 			listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
 			                            ? R.drawable.ic_action_camera_light
 			                            : R.drawable.ic_action_camera_dark
-					, StringManager.getString(R.string.dialog_photo_source_camera), Constants.PHOTO_SOURCE_CAMERA));
+					, StringManager.getString(R.string.dialog_photo_action_camera), Constants.PHOTO_ACTION_CAMERA));
+		}
+
+		/* Only show if a photo has been set */
+		if (mEntity.photo != null) {
+			listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
+			                            ? R.drawable.ic_action_edit_light
+			                            : R.drawable.ic_action_edit_dark
+					, StringManager.getString(R.string.dialog_photo_action_edit), Constants.PHOTO_ACTION_EDIT));
 		}
 
 		/* Everyone gets the default option */
@@ -91,10 +99,10 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 			listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
 			                            ? R.drawable.ic_action_picture_light
 			                            : R.drawable.ic_action_picture_dark
-					, StringManager.getString(R.string.dialog_photo_source_default), Constants.PHOTO_SOURCE_DEFAULT));
+					, StringManager.getString(R.string.dialog_photo_action_default), Constants.PHOTO_ACTION_DEFAULT));
 		}
 
-		mName.setText(StringManager.getString(R.string.dialog_photo_source_title));
+		mName.setText(StringManager.getString(R.string.dialog_photo_action_title));
 
 		mListAdapter = new ListAdapter(this, listData);
 		mListView.setAdapter(mListAdapter);
@@ -124,7 +132,7 @@ public class PhotoSourcePicker extends BasePicker implements OnItemClickListener
 			final PickerItem itemData = (PickerItem) items.get(position);
 
 			if (view == null) {
-				view = LayoutInflater.from(PhotoSourcePicker.this).inflate(R.layout.temp_listitem_photo_source, null);
+				view = LayoutInflater.from(PhotoActionPicker.this).inflate(R.layout.temp_listitem_photo_source, null);
 			}
 
 			if (itemData != null) {

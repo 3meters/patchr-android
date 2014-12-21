@@ -4,14 +4,6 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:installLocation="auto">
 
-	<supports-screens
-		android:anyDensity="true"
-		android:largeScreens="true"
-		android:normalScreens="true"
-		android:resizeable="true"
-		android:smallScreens="true"
-		android:xlargeScreens="true" />
-
 	<uses-feature
 		android:glEsVersion="0x00020000"
 		android:required="true" />
@@ -49,7 +41,7 @@
 	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 	<uses-permission android:name="com.aircandi.permission.C2D_MESSAGE" />
 
-	<!-- To support Notifications -->
+	<!-- To support Notifications and Aviary -->
 
 	<uses-permission android:name="android.permission.VIBRATE" />
 
@@ -61,8 +53,9 @@
 		android:name=".Patchr"
 		android:allowBackup="false"
 		android:icon="@drawable/ic_launcher"
-		android:theme="@style/aircandi_theme_snow"
-		android:label="@string/name_app">
+		android:hardwareAccelerated="true"
+		android:label="@string/name_app"
+		android:theme="@style/aircandi_theme_snow">
 
 		<!-- Service keys -->
 		<meta-data
@@ -74,21 +67,36 @@
 		<meta-data
 			android:name="com.google.android.gms.version"
 			android:value="@integer/google_play_services_version" />
+		<meta-data
+			android:name="com.aviary.android.feather.v1.API_KEY"
+			android:value="6f4074ec11634bd78eb00909102844ec" />
 
 		<!-- Services -->
 
 		<service
-			android:name="com.aircandi.components.GcmIntentService"
+			android:name=".components.GcmIntentService"
 			android:enabled="true" />
 		<service
-			android:name="com.aircandi.components.ActivityRecognitionService"
+			android:name=".components.ActivityRecognitionService"
 			android:exported="false"
 			android:label="@string/name_app" />
+
+		<!--
+			Cds Content Provider,
+			NOTE that the "authorities" value MUST be formatted in this way:
+			android:authorities="{your.packagename}.AviaryCdsProvider"
+		 -->
+
+		<provider
+			android:name="com.aviary.android.feather.sdk.internal.cds.AviaryCdsProvider"
+			android:authorities="${applicationId}.AviaryCdsProvider"
+			android:process=":aviary_cds"
+			android:exported="false" />
 
 		<!-- Receivers -->
 
 		<receiver
-			android:name="com.aircandi.components.GcmBroadcastReceiver"
+			android:name=".components.GcmBroadcastReceiver"
 			android:permission="com.google.android.c2dm.permission.SEND">
 			<intent-filter>
 				<action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -101,7 +109,7 @@
 		<!-- Forms -->
 
 		<activity
-			android:name="com.aircandi.ui.SplashForm"
+			android:name=".ui.SplashForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:theme="@style/aircandi_theme_midnight_notitlebar"
 			android:windowSoftInputMode="stateHidden">
@@ -112,17 +120,22 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="com.aircandi.ui.AircandiForm"
-			android:label="@string/form_title_nearby"
-			android:configChanges="orientation|keyboardHidden|screenSize">
+			android:name=".ui.AircandiForm"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_nearby">
 			<meta-data
 				android:name="android.app.searchable"
 				android:resource="@xml/searchable" />
 		</activity>
 		<activity
-			android:name="com.aircandi.ui.PatchForm"
+			android:name=".ui.PatchForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:parentActivityName=".ui.AircandiForm"
 			android:windowSoftInputMode="stateHidden">
+			<!-- The meta-data element is needed for versions lower than 4.1 -->
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.AircandiForm" />
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -137,9 +150,13 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="com.aircandi.ui.MessageForm"
+			android:name=".ui.MessageForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:parentActivityName=".ui.AircandiForm"
 			android:windowSoftInputMode="stateHidden">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.AircandiForm" />
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 
@@ -153,7 +170,7 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="com.aircandi.ui.PlaceForm"
+			android:name=".ui.PlaceForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
@@ -162,21 +179,21 @@
 			android:label="@string/form_title_user_form"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.PhotoForm"
+			android:name=".ui.PhotoForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_photo_form"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.MapForm"
+			android:name=".ui.MapForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_map_form"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.SearchForm"
+			android:name=".ui.SearchForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.AboutForm"
+			android:name=".ui.AboutForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_about_form"
 			android:windowSoftInputMode="stateHidden" />
@@ -184,12 +201,12 @@
 		<!-- Lists -->
 
 		<activity
-			android:name="com.aircandi.ui.WatcherList"
+			android:name=".ui.WatcherList"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_watching_list"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.PatchList"
+			android:name=".ui.PatchList"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_patch_list"
 			android:windowSoftInputMode="stateHidden" />
@@ -198,10 +215,10 @@
 
 		<!-- MessageEdit Note: label setting is used in android share picker -->
 		<activity
-			android:name="com.aircandi.ui.edit.MessageEdit"
+			android:name=".ui.edit.MessageEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/name_app"
 			android:icon="@drawable/ic_launcher"
+			android:label="@string/name_app"
 			android:windowSoftInputMode="stateHidden">
 			<intent-filter>
 				<action android:name="android.intent.action.SEND" />
@@ -213,17 +230,17 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="com.aircandi.ui.edit.PatchEdit"
+			android:name=".ui.edit.PatchEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_patch_edit"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.edit.FeedbackEdit"
+			android:name=".ui.edit.FeedbackEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_feedback_edit"
 			android:windowSoftInputMode="adjustResize" />
 		<activity
-			android:name="com.aircandi.ui.edit.ReportEdit"
+			android:name=".ui.edit.ReportEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_report_edit"
 			android:windowSoftInputMode="adjustResize" />
@@ -256,23 +273,23 @@
 		<!-- Builders/pickers -->
 
 		<activity
-			android:name="com.aircandi.ui.helpers.PhotoPicker"
+			android:name=".ui.helpers.PhotoPicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_photo_picker"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.helpers.LocationPicker"
+			android:name=".ui.helpers.LocationPicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_location_picker"
 			android:windowSoftInputMode="stateHidden" />
 		<!-- Theme setting required to get dialog treatment for all theming -->
 		<activity
-			android:name="com.aircandi.ui.helpers.PhotoSourcePicker"
+			android:name=".ui.helpers.PhotoActionPicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:theme="@style/aircandi_theme_dialog_light"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
-			android:name="com.aircandi.ui.helpers.PrivacyBuilder"
+			android:name=".ui.helpers.PrivacyBuilder"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_privacy_builder"
 			android:windowSoftInputMode="stateHidden" />
@@ -280,10 +297,10 @@
 		<!-- Misc -->
 
 		<activity
-			android:name="com.aircandi.ui.SettingsForm"
+			android:name=".ui.SettingsForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_settings_form"
-			android:exported="false">
+			android:exported="false"
+			android:label="@string/form_title_settings_form">
 			<intent-filter>
 				<action android:name="com.aircandi.Preferences" />
 				<category android:name="android.intent.category.PREFERENCE" />

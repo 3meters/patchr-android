@@ -87,11 +87,14 @@
 	<string name="dialog_category_builder_title">Category</string>
 	<string name="dialog_place_picker_search_title">Pick a [@string/container_singular_lowercase]</string>
 	<string name="dialog_photo_picker_search_title">Photo search</string>
-	<string name="dialog_photo_source_title">Select photo</string>
-	<string name="dialog_photo_source_search">Search for photos</string>
-	<string name="dialog_photo_source_gallery">Select a gallery photo</string>
-	<string name="dialog_photo_source_camera">Take a new photo</string>
-	<string name="dialog_photo_source_default">Default</string>
+
+	<string name="dialog_photo_action_title">Select photo</string>
+	<string name="dialog_photo_action_search">Search for photos</string>
+	<string name="dialog_photo_action_gallery">Select a gallery photo</string>
+	<string name="dialog_photo_action_edit">Edit photo</string>
+	<string name="dialog_photo_action_camera">Take a new photo</string>
+	<string name="dialog_photo_action_default">Default</string>
+
 	<string name="dialog_update_title">Update available</string>
 	<string name="dialog_update_message">Please update to the latest version of [@string/name_app].</string>
 	<string name="dialog_update_ok">Update</string>
@@ -295,8 +298,9 @@
 
 	<!-- Buttons -->
 
-	<string name="button_change_picture">Set photo</string>
-	<string name="button_change_banner">Tap to set banner</string>
+	<string name="button_change_picture">Change photo</string>
+	<string name="button_change_banner">Change banner</string>
+	<string name="button_delete_picture">Delete</string>
 	<string name="button_change_password">Change password</string>
 	<string name="button_sign_in">Sign in</string>
 	<string name="button_register">Join</string>

@@ -2,9 +2,9 @@
 <resources>
 
 	<!--
-		   Theme Colors
-		   - light suffix means a theme where backgrounds are generally light in tone.
-		   - dark suffix means a theme where backgrounds are generally dark in tone.
+	   Theme Colors
+	   - light suffix means a theme where backgrounds are generally light in tone.
+	   - dark suffix means a theme where backgrounds are generally dark in tone.
 	-->
 
 	<!-- Branding colors -->
@@ -14,16 +14,28 @@
 	<color name="brand_primary_dark">#ffef6c00</color>
 	<color name="brand_accent">#ff00c0ff</color>
 
-	<!--
-	<color name="brand_primary">#ffff5722</color>
-	<color name="brand_primary_light">#ffffccb3</color>
-	<color name="brand_primary_dark">#ffe64a19</color>
-	-->
+	<!-- Aviary colors -->
+
+	<color name="aviary_background_color">@color/background_picture_detail</color>
+
+	<color name="aviary_primary_color">#ffffffff</color>
+	<color name="aviary_primary_color_pressed">#FF00b1fd</color>
+
+	<color name="aviary_highlighted_text_light">#6633b5e5</color>
+	<color name="aviary_link_text_light">#0000ee</color>
+	<color name="aviary_hint_foreground_light">#808080</color>
+
+	<color name="aviary_nav_primary_color">@color/brand_primary</color>
+	<color name="aviary_nav_secondary_color">@color/brand_primary</color>
+	<color name="aviary_nav_divider_light">@color/transparent</color>
+	<color name="aviary_nav_divider_dark">@color/transparent</color>
+
+	<color name="aviary_logo_primary_color">#FF23282e</color>
+	<color name="aviary_logo_secondary_color">#ff21262b</color>
 
 	<!-- Base colors -->
 
 	<color name="background_button_pressed_light">#64999999</color>
-
 
 	<!-- Branding icon colors -->
 

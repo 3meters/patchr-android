@@ -71,7 +71,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	private ViewGroup                mShare;
 	private AirTokenCompleteTextView mTo;
 	private ImageView                mButtonToClear;
-	private ImageView                mButtonPhotoDelete;
+	private View                     mButtonPhotoDelete;
 	private EntitySuggestController  mEntitySuggest;
 
 	private List<Entity>               mTos          = new ArrayList<Entity>();
@@ -141,7 +141,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		mAnimatorTo.setInAnimation(this, R.anim.fade_in_short);
 		mAnimatorTo.setOutAnimation(this, R.anim.fade_out_short);
 		mButtonToClear = (ImageView) findViewById(R.id.to_clear);
-		mButtonPhotoDelete = (ImageView) findViewById(R.id.photo_delete);
+		mButtonPhotoDelete = findViewById(R.id.holder_delete_button);
 		mShareHolder = (ViewGroup) findViewById(R.id.share_holder);
 		mShare = (ViewGroup) findViewById(R.id.share_entity);
 		mTo = (AirTokenCompleteTextView) findViewById(R.id.to);
@@ -211,7 +211,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			}
 
 			/*
-	         * Check to see if some data for this new message was passed
+			 * Check to see if some data for this new message was passed
 			 * in the intent.
 			 */
 			Intent intent = getIntent();
@@ -316,7 +316,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 					}
 
 					/*
-                     * Intent with image data. We get a uri we use to open a stream to get the bitmap.
+	                 * Intent with image data. We get a uri we use to open a stream to get the bitmap.
 					 * We then copy the bitmap to a our pinned share file. We are not the source of the
 					 * image so we don't want to track it in the Candipatch collection but
 					 */
@@ -595,7 +595,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 					mAnimatorPhoto.requestLayout();
 					mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
 					mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
-					mAnimatorPhoto.setDisplayedChild(0);
+					mAnimatorPhoto.setDisplayedChild(mEntity.photo == null ? 0: 2);
 				}
 			});
 		}
@@ -666,7 +666,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		mPhotoView.setPhoto(null);
 	}
 
-	@SuppressWarnings("ucd")
 	public void onEntityClearButtonClick(View view) {
 
         /* Means we are in single mode.*/
@@ -683,7 +682,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	public void configureActionBar() {
 		super.configureActionBar();
 		if (getSupportActionBar() != null) {
-			getSupportActionBar().setTitle(mEditing ? R.string.form_title_message_edit: R.string.form_title_message_new);
+			getSupportActionBar().setTitle(mEditing ? R.string.form_title_message_edit : R.string.form_title_message_new);
 		}
 	}
 

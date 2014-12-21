@@ -13,6 +13,7 @@ import com.aircandi.R;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Notification;
+import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.utilities.DateTime;
@@ -84,10 +85,17 @@ public class GcmIntentService extends IntentService {
 
 					if (background || notification.trigger.equals(Notification.TriggerType.NEARBY)) {
 
-						/* Build intent that can be used in association with the notification */
+						/*
+						 * Build intent that can be used in association with the notification
+						 * - Intents route directly to the activity if the application is already running.
+						 * - If app needs to be started, we route to splash for init and then fire the
+						 *   intent again.
+						 */
 						IEntityController controller = Patchr.getInstance().getControllerForSchema(targetSchema);
 						if (controller != null) {
 							Extras bundle = new Extras().setForceRefresh(true);
+							bundle.getExtras().putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
+							bundle.getExtras().putString(Constants.EXTRA_NOTIFICATION_ID, notification.id);
 							String parentId = (notification.parentId != null) ? notification.parentId : null;
 							notification.intent = controller.view(Patchr.applicationContext
 									, null

@@ -3,6 +3,7 @@ package com.aircandi.components;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -36,13 +37,15 @@ import com.aircandi.ui.edit.ReportEdit;
 import com.aircandi.ui.edit.ResetEdit;
 import com.aircandi.ui.edit.SignInEdit;
 import com.aircandi.ui.helpers.LocationPicker;
+import com.aircandi.ui.helpers.PhotoActionPicker;
 import com.aircandi.ui.helpers.PhotoPicker;
-import com.aircandi.ui.helpers.PhotoSourcePicker;
 import com.aircandi.ui.helpers.PrivacyBuilder;
 import com.aircandi.utilities.Debug;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
+import com.aviary.android.feather.sdk.AviaryIntent;
+import com.aviary.android.feather.sdk.internal.headless.utils.MegaPixels;
 
 public class DispatchManager {
 
@@ -251,6 +254,40 @@ public class DispatchManager {
 			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.DRILL_TO);
 		}
 
+		else if (route == Route.PHOTO_EDIT) {
+
+			if (extras == null || !extras.containsKey(Constants.EXTRA_PHOTO)) {
+				throw new IllegalArgumentException("Valid photo in extras required for selected route");
+			}
+
+			final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
+			final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
+			Uri uri = Uri.parse(photo.getUri());
+			Intent intent = null;
+
+			if (AndroidManager.getInstance().isAviaryInstalled()) {
+				intent = new Intent("aviary.intent.action.EDIT");
+				intent.setDataAndType(uri, "image/*"); // required
+				intent.putExtra("app-id", Patchr.applicationContext.getPackageName()); // required ( it's your app unique package name )
+				intent.putExtra("output-format", Bitmap.CompressFormat.JPEG.name());
+				intent.putExtra("output-quality", 90);
+				intent.putExtra("save-on-no-changes", true);
+			}
+
+//			Intent intent = new AviaryIntent.Builder(activity)
+//					.setData(uri)
+//					.withOutputFormat(Bitmap.CompressFormat.JPEG)
+//					.withOutputQuality(90)
+//					.withOutputSize(MegaPixels.Mp5)
+//					.withNoExitConfirmation(false)
+//					.saveWithNoChanges(true)
+//					.withPreviewSize(1024)
+//					.build();
+
+			activity.startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.DRILL_TO);
+		}
+
 		else if (route == Route.ACCEPT) {
 
 			((BaseActivity) activity).onAccept();    // Give activity a chance for discard confirmation
@@ -430,7 +467,7 @@ public class DispatchManager {
 
 		else if (route == Route.PHOTO_SOURCE) {
 
-			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoSourcePicker.class);
+			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoActionPicker.class);
 			intentBuilder.setEntity(entity);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PICTURE_SOURCE_PICK);
 			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.DIALOG_TO);

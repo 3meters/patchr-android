@@ -14,6 +14,7 @@ import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.components.NotificationManager;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
@@ -38,6 +39,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	@SuppressWarnings("ucd")
 	public    String mParentId;
 	protected String mListLinkType;
+	protected String mNotificationId;
 
 	@Override
 	public void unpackIntent() {
@@ -49,6 +51,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
 			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
 			mTransitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
+			mNotificationId = extras.getString(Constants.EXTRA_NOTIFICATION_ID);
 		}
 	}
 
@@ -189,12 +192,14 @@ public abstract class BaseEntityForm extends BaseActivity {
 					if (refreshNeeded.get()) {
 						if (result.data != null) {
 							mEntity = (Entity) result.data;
+
 							if (mParentId != null) {
 								mEntity.toId = mParentId;
 							}
 							if (mEntity instanceof Patch) {
 								Patchr.getInstance().setCurrentPatch(mEntity);
 							}
+
 							configureStandardMenuItems(mOptionMenu);
 							draw(null);
 						}
@@ -208,6 +213,13 @@ public abstract class BaseEntityForm extends BaseActivity {
 						if (mEntity != null) {
 							configureStandardMenuItems(mOptionMenu);
 							draw(null);
+						}
+					}
+
+					/* Ensure this is flagged as read */
+					if (mNotificationId != null) {
+						if (NotificationManager.getInstance().getNotifications().containsKey(mNotificationId)) {
+							NotificationManager.getInstance().getNotifications().get(mNotificationId).read = true;
 						}
 					}
 				}

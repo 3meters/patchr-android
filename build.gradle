@@ -1,7 +1,9 @@
 buildscript {
     repositories {
+        mavenCentral()
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
+        maven { url '${project.rootDir}/repos/creativesdk-repo' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.+'
@@ -11,33 +13,31 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenCentral()
         jcenter()
+        maven { url 'https://maven.fabric.io/public' }
+        maven { url "${project.rootDir}/repos/creativesdk-repo" }
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
-repositories {
-    jcenter()
-    maven { url 'https://maven.fabric.io/public' }
-}
-
-
 android {
     compileSdkVersion 21
     buildToolsVersion '21.1.1'
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 21
-        versionCode 188
-        versionName '1.5.6'
         /*
          * Official package name used by the Google Play store.
          * WARNING: Changing this will create a new app with no history.
          */
         applicationId 'com.aircandi.catalina'
+        minSdkVersion 14
+        targetSdkVersion 21
+        versionCode 188
+        versionName '1.5.6'
+        multiDexEnabled true
     }
 
     signingConfigs {
@@ -56,9 +56,7 @@ android {
          * attr is not being used.
          */
         debug {
-            minifyEnabled true  // TODO: Remove once we shift to granular dependencies for play services.
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            zipAlignEnabled true
+            minifyEnabled false  // TODO: Remove once we shift to granular dependencies for play services.
             debuggable true
         }
 
@@ -77,12 +75,26 @@ android {
             }
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE.txt'
+    }
+
+    dexOptions {
+        jumboMode true
+        incremental true
+        preDexLibraries false
+        javaMaxHeapSize "4g"
+    }
 }
 
 dependencies {
 
     compile 'com.android.support:support-v4:21.+'
     compile 'com.android.support:appcompat-v7:21.+'
+    compile 'com.android.support:multidex:1.0.0'
     compile 'com.google.android.gms:play-services:6.5.+'
     compile 'com.google.maps.android:android-maps-utils:0.3+'
     compile 'com.squareup.okhttp:okhttp:2.0.0'
@@ -91,13 +103,14 @@ dependencies {
     compile 'com.squareup:otto:1.3.5'
     compile 'com.squareup.picasso:picasso:2.4.+'
     compile 'net.minidev:json-smart:1.2'
+    compile 'it.sephiroth.android.library.imagezoom:imagezoom:+'
+    compile 'com.adobe.creativesdk:image:4.0.0'
+    compile 'com.amazonaws:aws-android-sdk-core:2.1.+'
+    compile 'com.amazonaws:aws-android-sdk-s3:2.1.+'
     /*
      * File libs are done individually so we know exactly what is being used.
      */
-    compile files('libs/aws-android-sdk-2.0.5-core.jar')
-    compile files('libs/aws-android-sdk-2.0.5-s3.jar')
-    compile files('libs/image-chooser-library.jar')
-    compile files('libs/imageviewtouch.jar')
+    compile files('libs/image-chooser-library-1.3.1.jar')
     compile files('libs/cwac-adapter-wrapper.jar')
     compile files('libs/endless-1.2.3.jar')
 

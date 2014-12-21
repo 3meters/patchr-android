@@ -33,8 +33,7 @@ public class AndroidManager {
 
 	public static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
-	private AndroidManager() {
-	}
+	private AndroidManager() {}
 
 	private static class AndroidManagerHolder {
 		public static final AndroidManager instance = new AndroidManager();
@@ -162,7 +161,6 @@ public class AndroidManager {
 		return list.size() > 0;
 	}
 
-	@SuppressWarnings("ucd")
 	protected boolean getIsLowBattery() {
 	    /*
 		 * Returns battery status. TRUE if less than 15% remaining.
@@ -363,10 +361,11 @@ public class AndroidManager {
 		return null;
 	}
 
-	@SuppressWarnings("ucd")
-	public boolean checkCameraHardware(Context context) {
-		/* Check if this device has a camera */
-		return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
+	public boolean isAviaryInstalled(){
+		Intent intent = new Intent( "aviary.intent.action.EDIT" );
+		intent.setType( "image/*" );
+		List<ResolveInfo> list = Patchr.packageManager.queryIntentActivities( intent, PackageManager.MATCH_DEFAULT_ONLY );
+		return list.size() > 0;
 	}
 
 	public String getDeviceName() {

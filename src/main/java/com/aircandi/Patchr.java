@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.multidex.MultiDexApplication;
 import android.util.DisplayMetrics;
 import android.widget.Toast;
 
@@ -47,6 +48,8 @@ import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.aviary.android.feather.sdk.AviaryIntent;
+import com.aviary.android.feather.sdk.IAviaryClientCredentials;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
@@ -64,7 +67,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
 
-public class Patchr extends Application {
+public class Patchr extends MultiDexApplication implements IAviaryClientCredentials {
 
 	public static BasicAWSCredentials awsCredentials = null;
 
@@ -141,6 +144,21 @@ public class Patchr extends Application {
 		Logger.d(this, "Application created");
 	}
 
+	@Override
+	public String getBillingKey() {
+		return "";
+	}
+
+	@Override
+	public String getClientID() {
+		return "6f4074ec11634bd78eb00909102844ec";
+	}
+
+	@Override
+	public String getClientSecret() {
+		return "7af6a808-0568-477e-88c2-63fa6e8ef617";
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -212,6 +230,10 @@ public class Patchr extends Application {
 
 		/* Start out with anonymous user then upgrade to signed in user if possible */
 		Patchr.getInstance().initializeUser();
+
+		/* Preload cds service */
+		Intent cdsIntent = AviaryIntent.createCdsInitIntent(getBaseContext());
+		startService(cdsIntent);
 	}
 
 	protected void initializeManagers() {

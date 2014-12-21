@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.text.Html;
 
 import com.aircandi.Constants;
@@ -37,7 +38,7 @@ public class NotificationManager {
 	private Install              mInstall;
 	private Uri                  mSoundUri;
 	private Integer                   mNewNotificationCount = 0;
-	private Map<String, Notification> mNotifications  = new HashMap<String, Notification>();
+	private Map<String, Notification> mNotifications        = new HashMap<String, Notification>();
 
 	private NotificationManager() {
 		mNotificationManager = (android.app.NotificationManager) Patchr.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -169,14 +170,22 @@ public class NotificationManager {
 		notification.intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		notification.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-		final PendingIntent pendingIntent = PendingIntent.getActivity(Patchr.applicationContext, 0
-				, notification.intent
-				, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent pendingIntent = TaskStackBuilder
+				.create(Patchr.applicationContext)
+				.addNextIntent(new Intent(Patchr.applicationContext, AircandiForm.class))
+				.addNextIntent(notification.intent)
+				.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT);
+
+		//		final PendingIntent pendingIntent = PendingIntent.getActivity(Patchr.applicationContext, 0
+		//				, notification.intent
+		//				, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		/* Default base notification configuration */
 
-		Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
-		PendingIntent deleteIntent = PendingIntent.getBroadcast(Patchr.applicationContext, 0, intent, 0);
+		PendingIntent deleteIntent = PendingIntent.getBroadcast(Patchr.applicationContext
+				, 0
+				, new Intent(NOTIFICATION_DELETED_ACTION)
+				, 0);
 
 		final NotificationCompat.Builder builder = new NotificationCompat.Builder(Patchr.applicationContext)
 				.setContentTitle(StringManager.getString(R.string.name_app))

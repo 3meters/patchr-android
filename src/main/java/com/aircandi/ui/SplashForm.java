@@ -25,6 +25,7 @@ import com.aircandi.components.NotificationManager;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Route;
+import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
@@ -182,7 +183,17 @@ public class SplashForm extends ActionBarActivity {
 
 	protected void startHomeActivity() {
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous() && Patchr.firstStartIntent != null) {
+			/*
+			 * Launching to handle an intent. They only route here if the app is being
+			 * started to handle the intent. We init and then refire the intent.
+			 * Could be from a notification or a shared message/patch/photo.
+			 *
+			 * NOTE: Broadcast receivers like the gcm won't get called if the app
+			 * was force closed by the user in Settings->Apps. Will get called if the
+			 * app was closed by any other method.
+			 */
 			startActivity(Patchr.firstStartIntent);
+			finish();
 		}
 		else {
 			Patchr.dispatch.route(this, Route.HOME, null, null);

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:focusable="false"
@@ -153,9 +152,9 @@
 	<com.aircandi.ui.widgets.AirImageView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
-		android:layout_marginBottom="12dp"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_marginBottom="12dp"
 		android:layout_marginLeft="@dimen/form_body_padding"
 		android:layout_marginRight="@dimen/form_body_padding"
 		android:background="?attr/backgroundPlaceholder"
@@ -168,6 +167,7 @@
 		custom:config="rgb_565"
 		custom:dominantMeasurement="width"
 		custom:fitType="auto"
+		custom:showBusy="false"
 		custom:layoutId="@layout/widget_imageview" />
 
 	<!-- Share entity -->

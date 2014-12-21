@@ -244,10 +244,10 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 					/*
 					 * One only one entity then center on it.
 					 */
-					if (mEntities.size() == 1) {
-						Patch place = (Patch) mEntities.get(0);
-						AirLocation location = place.getLocation();
-						if (location != null) {
+					if (mEntities.size() == 1 && mZoomLevel != null) {
+						Patch patch = (Patch) mEntities.get(0);
+						AirLocation location = patch.getLocation();
+						if (location != null && location.lat != null && location.lng != null) {
 							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), mZoomLevel));
 						}
 					}

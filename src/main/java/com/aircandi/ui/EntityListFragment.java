@@ -321,7 +321,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 
 	@Override
 	public void draw(View view) {
-		Logger.i(this, "Draw called for EntityListFragement");
 		mAdapter.notifyDataSetChanged();
 		BusProvider.getInstance().post(new EntitiesLoadedEvent()); // Used by MessageForm to trigger item highlighting
 	}
