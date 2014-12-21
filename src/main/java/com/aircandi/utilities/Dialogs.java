@@ -164,6 +164,57 @@ public class Dialogs {
 		updateDialog.show();
 	}
 
+	public static void installAviary(final Activity activity) {
+
+		final AlertDialog updateDialog = alertDialog(R.drawable.ic_launcher
+				, StringManager.getString(R.string.dialog_aviary_title)
+				, StringManager.getString(R.string.dialog_aviary_message)
+				, null
+				, activity
+				, R.string.dialog_aviary_ok
+				, R.string.dialog_aviary_cancel
+				, null
+				, new DialogInterface.OnClickListener() {
+
+			@SuppressWarnings("deprecation")
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					try {
+						Reporting.sendEvent(Reporting.TrackerCategory.UX, "aviary_install_button_click", "com.aircandi", 0);
+						Logger.d(this, "Update: navigating to aviary install/update page");
+						final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_aviary_install)));
+						intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+						activity.startActivity(intent);
+					}
+					catch (Exception e) {
+						/*
+						 * In case the market app isn't installed on the phone
+						 */
+						Logger.d(this, "Install: navigating to play website install page");
+						final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update_web)));
+						intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
+					}
+					dialog.dismiss();
+					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.EXTERNAL_TO);
+				}
+				else if (which == DialogInterface.BUTTON_NEGATIVE) {
+					dialog.dismiss();
+				}
+			}
+		}
+				, new DialogInterface.OnCancelListener() {
+
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				/* Back button can trigger this */
+			}
+		});
+		updateDialog.setCanceledOnTouchOutside(false);
+		updateDialog.show();
+	}
+
 	public static void locationServicesDisabled(final Activity activity, final AtomicBoolean shot) {
 
 		final AlertDialog updateDialog = alertDialog(null

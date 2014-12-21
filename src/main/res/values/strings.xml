@@ -100,6 +100,11 @@
 	<string name="dialog_update_ok">Update</string>
 	<string name="dialog_update_cancel">No thanks</string>
 
+	<string name="dialog_aviary_title">Aviary Photo Editor</string>
+	<string name="dialog_aviary_message">Make your Patchr photos perfect using the Aviary photo editor.</string>
+	<string name="dialog_aviary_ok">Install</string>
+	<string name="dialog_aviary_cancel">No thanks</string>
+
 	<string name="dialog_unwatch_private_title" tools:ignore="UnusedResources">Leave private [@string/container_singular_lowercase]</string>
 	<string name="dialog_unwatch_private_message" tools:ignore="UnusedResources">If you leave a private [@string/container_singular_lowercase], content will no longer be visible to you.</string>
 	<string name="dialog_unwatch_private_ok" tools:ignore="UnusedResources">Leave</string>

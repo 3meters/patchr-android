@@ -44,8 +44,6 @@ import com.aircandi.utilities.Debug;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
-import com.aviary.android.feather.sdk.AviaryIntent;
-import com.aviary.android.feather.sdk.internal.headless.utils.MegaPixels;
 
 public class DispatchManager {
 
@@ -272,20 +270,24 @@ public class DispatchManager {
 				intent.putExtra("output-format", Bitmap.CompressFormat.JPEG.name());
 				intent.putExtra("output-quality", 90);
 				intent.putExtra("save-on-no-changes", true);
+
+				activity.startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);
+				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.DRILL_TO);
+			}
+			else {
+				Dialogs.installAviary(activity);
 			}
 
-//			Intent intent = new AviaryIntent.Builder(activity)
-//					.setData(uri)
-//					.withOutputFormat(Bitmap.CompressFormat.JPEG)
-//					.withOutputQuality(90)
-//					.withOutputSize(MegaPixels.Mp5)
-//					.withNoExitConfirmation(false)
-//					.saveWithNoChanges(true)
-//					.withPreviewSize(1024)
-//					.build();
+			//			Intent intent = new AviaryIntent.Builder(activity)
+			//					.setData(uri)
+			//					.withOutputFormat(Bitmap.CompressFormat.JPEG)
+			//					.withOutputQuality(90)
+			//					.withOutputSize(MegaPixels.Mp5)
+			//					.withNoExitConfirmation(false)
+			//					.saveWithNoChanges(true)
+			//					.withPreviewSize(1024)
+			//					.build();
 
-			activity.startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.DRILL_TO);
 		}
 
 		else if (route == Route.ACCEPT) {

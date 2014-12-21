@@ -17,6 +17,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
+import com.aircandi.components.AndroidManager;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
@@ -277,10 +278,15 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							.setStore(true)
 							.setSource(Photo.PhotoSource.file);
 
-					final String jsonPhoto = Json.objectToJson(photo);
-					Bundle bundle = new Bundle();
-					bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-					Patchr.dispatch.route(BaseEntityEdit.this, Route.PHOTO_EDIT, null, bundle);
+					if (AndroidManager.getInstance().isAviaryInstalled()) {
+						final String jsonPhoto = Json.objectToJson(photo);
+						Bundle bundle = new Bundle();
+						bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
+						Patchr.dispatch.route(BaseEntityEdit.this, Route.PHOTO_EDIT, null, bundle);
+					}
+					else {
+						onPhotoSelected(photo);
+					}
 				}
 			}
 		});
@@ -347,8 +353,15 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 					final Bundle extras = intent.getExtras();
 					final String json = extras.getString(Constants.EXTRA_PHOTO);
-					extras.putString(Constants.EXTRA_PHOTO, json);
-					Patchr.dispatch.route(BaseEntityEdit.this, Route.PHOTO_EDIT, null, extras);
+
+					if (AndroidManager.getInstance().isAviaryInstalled()) {
+						extras.putString(Constants.EXTRA_PHOTO, json);
+						Patchr.dispatch.route(BaseEntityEdit.this, Route.PHOTO_EDIT, null, extras);
+					}
+					else {
+						final Photo photo = (Photo) Json.jsonToObject(json, Json.ObjectType.PHOTO);
+						onPhotoSelected(photo);
+					}
 				}
 			}
 			else if (requestCode == ChooserType.REQUEST_PICK_PICTURE) {

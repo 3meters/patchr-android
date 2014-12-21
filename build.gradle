@@ -1,9 +1,7 @@
 buildscript {
     repositories {
-        mavenCentral()
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
-        maven { url '${project.rootDir}/repos/creativesdk-repo' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.+'
@@ -13,10 +11,8 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenCentral()
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
-        maven { url "${project.rootDir}/repos/creativesdk-repo" }
     }
 }
 
@@ -104,7 +100,6 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.4.+'
     compile 'net.minidev:json-smart:1.2'
     compile 'it.sephiroth.android.library.imagezoom:imagezoom:+'
-    compile 'com.adobe.creativesdk:image:4.0.0'
     compile 'com.amazonaws:aws-android-sdk-core:2.1.+'
     compile 'com.amazonaws:aws-android-sdk-s3:2.1.+'
     /*

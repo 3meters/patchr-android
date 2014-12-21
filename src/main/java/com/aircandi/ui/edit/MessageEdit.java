@@ -571,18 +571,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 	@Override
 	protected void onChangingPhoto() {
-		if (mAnimatorPhoto != null) {
-			runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					mAnimatorPhoto.requestLayout();
-					mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
-					mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
-					mAnimatorPhoto.setDisplayedChild(1);
-				}
-			});
-		}
 	}
 
 	@Override
@@ -639,6 +627,19 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 							}
 						}
 					});
+
+					if (mAnimatorPhoto != null) {
+						runOnUiThread(new Runnable() {
+
+							@Override
+							public void run() {
+								mAnimatorPhoto.requestLayout();
+								mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
+								mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
+								mAnimatorPhoto.setDisplayedChild(1);
+							}
+						});
+					}
 
 					UI.drawPhoto(mPhotoView, mEntity.getPhoto());
 				}
