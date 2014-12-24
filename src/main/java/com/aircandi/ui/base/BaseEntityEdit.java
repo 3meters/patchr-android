@@ -376,7 +376,9 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 				if (intent != null && intent.getExtras() != null) {
 					Boolean changed = intent.getExtras().getBoolean("bitmap-changed", false);
-					Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_edited", null, 0);
+					if (changed) {
+						Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_edited", null, 0);
+					}
 					final Uri photoUri = Uri.parse("file:" + intent.getData().toString());
 					MediaManager.scanMedia(photoUri);
 					Photo photo = new Photo()

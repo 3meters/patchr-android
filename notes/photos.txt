@@ -1,0 +1,10 @@
+
+
+Aviary
+------
+
+- Caches grid thumbnails in mnt/shell/emulated/0/android/data/com.aviary.android.feather/cache/aviary-grid-cache-1
+- Cache cleared using Aviary>Settings
+- Aviary processed photos are stored in mnt/sdcard/DCIM/100AVIARY. They go here whether using Aviary standalone or
+  integrated from Patchr via an intent.
+- Example photo was jpg, 1937x2582, 2.21MB, Size capped to 5MB in Aviary>Settings

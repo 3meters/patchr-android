@@ -261,10 +261,9 @@ public class DispatchManager {
 			final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
 			final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
 			Uri uri = Uri.parse(photo.getUri());
-			Intent intent = null;
 
 			if (AndroidManager.getInstance().isAviaryInstalled()) {
-				intent = new Intent("aviary.intent.action.EDIT");
+				Intent intent = new Intent("aviary.intent.action.EDIT");
 				intent.setDataAndType(uri, "image/*"); // required
 				intent.putExtra("app-id", Patchr.applicationContext.getPackageName()); // required ( it's your app unique package name )
 				intent.putExtra("output-format", Bitmap.CompressFormat.JPEG.name());
@@ -277,17 +276,6 @@ public class DispatchManager {
 			else {
 				Dialogs.installAviary(activity);
 			}
-
-			//			Intent intent = new AviaryIntent.Builder(activity)
-			//					.setData(uri)
-			//					.withOutputFormat(Bitmap.CompressFormat.JPEG)
-			//					.withOutputQuality(90)
-			//					.withOutputSize(MegaPixels.Mp5)
-			//					.withNoExitConfirmation(false)
-			//					.saveWithNoChanges(true)
-			//					.withPreviewSize(1024)
-			//					.build();
-
 		}
 
 		else if (route == Route.ACCEPT) {

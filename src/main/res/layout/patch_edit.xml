@@ -37,7 +37,7 @@
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="8dp"
 				android:layout_marginLeft="4dp"
-				android:layout_marginRight="4dp"
+				android:layout_marginRight="12dp"
 				android:prompt="@string/label_spinner_patch_type"
 				android:spinnerMode="dialog" />
 
@@ -138,7 +138,15 @@
 					android:drawableRight="?attr/iconClear"
 					android:ellipsize="end"
 					android:hint="@string/hint_patch_description"
-					android:maxLines="@integer/max_lines_patch_description" />
+					android:maxLines="@integer/max_lines_patch_description"
+					android:minLines="@integer/min_lines_patch_description" />
+
+				<com.aircandi.ui.widgets.AirTextLight
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:text="@string/hint_patch_tip"
+					android:textColor="?attr/textColorSecondary"
+					android:visibility="gone" />
 
 				<!-- Location -->
 

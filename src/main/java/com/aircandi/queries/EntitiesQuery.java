@@ -35,6 +35,7 @@ public class EntitiesQuery implements IQuery {
 		mCursor = new Cursor()
 				.setLimit((limit == null) ? mPageSize : limit)
 				.setSort(Maps.asMap("modifiedDate", -1))
+				.setWhere(Maps.asMap("enabled", true))
 				.setSkip(skip);
 
 		if (mSchema != null) {

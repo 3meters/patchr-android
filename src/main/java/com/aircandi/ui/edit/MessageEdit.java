@@ -62,7 +62,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	private String mReplyToName;
 	private String mMessage;
 	private String mShareId;
-	private String mShareSchema;
+	private String mShareSchema = Constants.SCHEMA_ENTITY_PICTURE;
 	private Entity mShareEntity;
 
 	private ViewAnimator             mAnimatorTo;
@@ -160,6 +160,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 			mMessageType = MessageType.SHARE;
 			mSuggestScope = EntityManager.SuggestScope.USERS;
+			mShareSchema = Constants.SCHEMA_ENTITY_PICTURE;
 			mToMode = ToMode.MULTIPLE;
 			mToEditable = true;
 
@@ -230,7 +231,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				if (selfSend) {
 
 					mShareId = extras.getString(Constants.EXTRA_SHARE_ID);
-					mShareSchema = extras.getString(Constants.EXTRA_SHARE_SCHEMA);
+					mShareSchema = extras.getString(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
 					mShareEntity = EntityManager.getCacheEntity(mShareId);
 
 					if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
@@ -316,7 +317,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 					}
 
 					/*
-	                 * Intent with image data. We get a uri we use to open a stream to get the bitmap.
+		             * Intent with image data. We get a uri we use to open a stream to get the bitmap.
 					 * We then copy the bitmap to a our pinned share file. We are not the source of the
 					 * image so we don't want to track it in the Candipatch collection but
 					 */
@@ -583,7 +584,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 					mAnimatorPhoto.requestLayout();
 					mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
 					mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
-					mAnimatorPhoto.setDisplayedChild(mEntity.photo == null ? 0: 2);
+					mAnimatorPhoto.setDisplayedChild(mEntity.photo == null ? 0 : 2);
 				}
 			});
 		}

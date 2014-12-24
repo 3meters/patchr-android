@@ -58,7 +58,7 @@
 	<string name="menu_item_delete">Delete</string>
 	<string name="menu_item_remove">Remove</string>
 	<string name="menu_item_accept">Accept</string>
-	<string name="menu_item_save">Save</string>
+	<string name="menu_item_save">"  Save  "</string>
 	<string name="menu_item_cancel">Cancel</string>
 	<string name="menu_item_new_patch">New patch</string>
 	<string name="menu_item_edit_patch">Edit</string>
@@ -303,8 +303,8 @@
 
 	<!-- Buttons -->
 
-	<string name="button_change_picture">Change photo</string>
-	<string name="button_change_banner">Change banner</string>
+	<string name="button_change_picture">Change or edit photo</string>
+	<string name="button_change_banner">Change or edit banner</string>
 	<string name="button_delete_picture">Delete</string>
 	<string name="button_change_password">Change password</string>
 	<string name="button_sign_in">Sign in</string>
@@ -561,7 +561,8 @@
 	<!-- Hints -->
 
 	<string name="hint_patch_title">Title</string>
-	<string name="hint_patch_description">About</string>
+	<string name="hint_patch_description">Tell people about your patch</string>
+	<string name="hint_patch_tip">Tip: Add hashtags for custom searches.</string>
 	<string name="hint_patch_category">Patch type</string>
 	<string name="hint_patch_privacy">Set privacy</string>
 	<string name="hint_patch_sub_category">Set subcategory</string>

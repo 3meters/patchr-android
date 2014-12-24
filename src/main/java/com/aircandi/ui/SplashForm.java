@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
@@ -25,7 +26,6 @@ import com.aircandi.components.NotificationManager;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Route;
-import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
@@ -96,7 +96,9 @@ public class SplashForm extends ActionBarActivity {
 				ModelResult result = new ModelResult();
 
 				if (Patchr.firstStartApp) {
+
 					configure();
+
 					int maxAttempts = 5;
 					int attempts = 1;
 					while (attempts <= maxAttempts) {
@@ -184,15 +186,21 @@ public class SplashForm extends ActionBarActivity {
 	protected void startHomeActivity() {
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous() && Patchr.firstStartIntent != null) {
 			/*
-			 * Launching to handle an intent. They only route here if the app is being
-			 * started to handle the intent. We init and then refire the intent.
+			 * Launching to handle an intent. This only happens if the app is being started from
+			 * scratch to handle the intent. App could have been killed by Android for lots of
+			 * reasons like memory pressure, etc. We init and then refire the intent.
+			 *
 			 * Could be from a notification or a shared message/patch/photo.
 			 *
 			 * NOTE: Broadcast receivers like the gcm won't get called if the app
 			 * was force closed by the user in Settings->Apps. Will get called if the
 			 * app was closed by any other method.
 			 */
-			startActivity(Patchr.firstStartIntent);
+			TaskStackBuilder
+					.create(Patchr.applicationContext)
+					.addNextIntent(new Intent(Patchr.applicationContext, AircandiForm.class))
+					.addNextIntent(Patchr.firstStartIntent)
+					.startActivities();
 			finish();
 		}
 		else {

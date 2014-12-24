@@ -176,10 +176,6 @@ public class NotificationManager {
 				.addNextIntent(notification.intent)
 				.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT);
 
-		//		final PendingIntent pendingIntent = PendingIntent.getActivity(Patchr.applicationContext, 0
-		//				, notification.intent
-		//				, PendingIntent.FLAG_CANCEL_CURRENT);
-
 		/* Default base notification configuration */
 
 		PendingIntent deleteIntent = PendingIntent.getBroadcast(Patchr.applicationContext
