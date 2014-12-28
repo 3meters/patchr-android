@@ -2,7 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	tools:showIn="@layout/dummy_relative_layout">
+	tools:showIn="@layout/temp_listitem_watcher">
 
 	<com.aircandi.ui.widgets.AirImageView
 		android:id="@+id/photo"

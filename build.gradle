@@ -32,8 +32,8 @@ android {
         applicationId 'com.aircandi.catalina'
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 189
-        versionName '1.5.7'
+        versionCode 190
+        versionName '1.5.8'
         multiDexEnabled true
     }
 
@@ -100,6 +100,7 @@ dependencies {
 
     compile 'com.android.support:support-v4:21.+'
     compile 'com.android.support:appcompat-v7:21.+'
+    compile 'com.android.support:cardview-v7:21.+'
     compile 'com.android.support:multidex:1.0.0'
 
     compile 'com.google.android.gms:play-services-base:6.5.87'

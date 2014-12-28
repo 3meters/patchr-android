@@ -90,7 +90,7 @@ public class Messages extends EntityControllerBase {
 		UI.setVisibility(holder.userPhoto, View.GONE);
 		if (holder.userPhoto != null && entity.creator != null) {
 		    /*
-	         * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
+		     * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
 			 */
 			Photo photo = entity.creator.getPhoto();
 			if (holder.userPhoto.getPhoto() == null || !holder.userPhoto.getPhoto().getUri().equals(photo.getUri())) {
@@ -184,6 +184,7 @@ public class Messages extends EntityControllerBase {
 		UI.setVisibility(holder.photo, View.GONE);
 		UI.setVisibility(((ViewHolderExtended) holder).childCount, View.GONE);
 		UI.setVisibility(view.findViewById(R.id.share_holder), View.GONE);
+		UI.setVisibility(view.findViewById(R.id.button_likes), View.GONE);
 
 		Entity shareEntity = null;
 
@@ -249,12 +250,33 @@ public class Messages extends EntityControllerBase {
 					UI.setVisibility(((ViewHolderExtended) holder).childCount, View.VISIBLE);
 				}
 			}
+
+		    /* Likes */
+
+			View likes = view.findViewById(R.id.button_likes);
+			if (likes != null) {
+				Count count = entity.getCount(Constants.TYPE_LINK_LIKE, null, null, Link.Direction.in);
+				if (count == null) {
+					count = new Count(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, null, 0);
+				}
+				if (count.count.intValue() > 0) {
+					TextView likesCount = (TextView) view.findViewById(R.id.likes_count);
+					TextView likesLabel = (TextView) view.findViewById(R.id.likes_label);
+					if (likesCount != null) {
+						String label = view.getResources().getQuantityString(R.plurals.label_likes, count.count.intValue(), count.count.intValue());
+						((ViewHolderExtended) holder).likesCount.setText(String.valueOf(count.count.intValue()));
+						likesLabel.setText(label);
+						UI.setVisibility(view.findViewById(R.id.button_likes), View.VISIBLE);
+					}
+				}
+			}
 		}
 	}
 
 	@Override
 	public void bindHolder(View view, ViewHolder holder) {
 		((ViewHolderExtended) holder).childCount = (TextView) view.findViewById(R.id.child_count);
+		((ViewHolderExtended) holder).likesCount = (TextView) view.findViewById(R.id.likes_count);
 		super.bindHolder(view, holder);
 	}
 
@@ -284,5 +306,6 @@ public class Messages extends EntityControllerBase {
 
 	public static class ViewHolderExtended extends ViewHolder {
 		public TextView childCount;
+		public TextView likesCount;
 	}
 }

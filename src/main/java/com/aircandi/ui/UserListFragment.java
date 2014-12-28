@@ -19,7 +19,7 @@ import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.utilities.UI;
 
-public class WatcherListFragment extends EntityListFragment {
+public class UserListFragment extends EntityListFragment {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
@@ -69,6 +69,7 @@ public class WatcherListFragment extends EntityListFragment {
 
 		controller.bind(entity, view, groupTag);
 
+		/* Special binding if list of patch watchers */
 		if (holder.candiView != null) {
 			ViewGroup layout = holder.candiView.getLayout();
 			Entity parent = ((BaseActivity) getActivity()).getEntity();
@@ -78,23 +79,26 @@ public class WatcherListFragment extends EntityListFragment {
 			View editGroup = layout.findViewById(R.id.owner_edit_group);
 			View deleteButton = layout.findViewById(R.id.button_delete_watcher);
 
-			UI.setVisibility(role, View.GONE);
-			UI.setVisibility(editGroup, View.GONE);
-			UI.setVisibility(deleteButton, View.GONE);
+			if (editGroup != null) {
 
-			if (isOwner) {
-				role.setText(User.Role.OWNER);
-				UI.setVisibility(layout.findViewById(R.id.role), View.VISIBLE);
-			}
-			else {
-				if (parent.privacy != null
-						&& parent.privacy.equals(Constants.PRIVACY_PRIVATE)
-						&& parent.isOwnedByCurrentUser()) {
-					((ViewHolderExtended) holder).delete.setTag(entity);
-					((ViewHolderExtended) holder).enable.setTag(entity);
-					((ViewHolderExtended) holder).enable.setChecked(entity.linkEnabled);
-					UI.setVisibility(editGroup, View.VISIBLE);
-					UI.setVisibility(deleteButton, View.VISIBLE);
+				UI.setVisibility(role, View.GONE);
+				UI.setVisibility(editGroup, View.GONE);
+				UI.setVisibility(deleteButton, View.GONE);
+
+				if (isOwner) {
+					role.setText(User.Role.OWNER);
+					UI.setVisibility(layout.findViewById(R.id.role), View.VISIBLE);
+				}
+				else {
+					if (parent.privacy != null
+							&& parent.privacy.equals(Constants.PRIVACY_PRIVATE)
+							&& parent.isOwnedByCurrentUser()) {
+						((ViewHolderExtended) holder).delete.setTag(entity);
+						((ViewHolderExtended) holder).enable.setTag(entity);
+						((ViewHolderExtended) holder).enable.setChecked(entity.linkEnabled);
+						UI.setVisibility(editGroup, View.VISIBLE);
+						UI.setVisibility(deleteButton, View.VISIBLE);
+					}
 				}
 			}
 		}

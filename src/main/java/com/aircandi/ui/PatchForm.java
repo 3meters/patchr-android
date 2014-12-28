@@ -45,6 +45,7 @@ import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
+import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseEntityForm;
@@ -260,9 +261,42 @@ public class PatchForm extends BaseEntityForm {
 	}
 
 	@SuppressWarnings("ucd")
-	public void onWatchersButtonClick(View view) {
+	public void onWatchingListButtonClick(View view) {
 		if (mEntity != null) {
-			Patchr.dispatch.route(this, Route.WATCHERS, mEntity, null);
+			Bundle extras = new Bundle();
+			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_WATCH);
+			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_watching_list);
+			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_watcher);
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+			Patchr.dispatch.route(this, Route.USER_LIST, mEntity, extras);
+		}
+	}
+
+	@SuppressWarnings("ucd")
+	public void onLikeButtonClick(View view) {
+
+		if (mProcessing) return;
+		mProcessing = true;
+
+		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			mProcessing = false;
+			String message = StringManager.getString(R.string.alert_signin_message_like, mEntity.schema);
+			Dialogs.signinRequired(this, message);
+			return;
+		}
+
+		like(mLikeStatus == LikeStatus.NONE);
+	}
+
+	@SuppressWarnings("ucd")
+	public void onLikesListButtonClick(View view) {
+		if (mEntity != null) {
+			Bundle extras = new Bundle();
+			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_LIKE);
+			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_likes_list);
+			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_liker);
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+			Patchr.dispatch.route(this, Route.USER_LIST, mEntity, extras);
 		}
 	}
 
@@ -371,9 +405,11 @@ public class PatchForm extends BaseEntityForm {
 		mFirstDraw = false;
 
 		/* Some state management */
-		Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
 		mRestrictedForUser = mEntity.isRestrictedForCurrentUser();
-		mWatchStatus = (link == null) ? WatchStatus.NONE : (link.enabled) ? WatchStatus.WATCHING : WatchStatus.REQUESTED;
+		Link linkWatching = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
+		Link linkLike = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
+		mWatchStatus = (linkWatching == null) ? WatchStatus.NONE : (linkWatching.enabled) ? WatchStatus.WATCHING : WatchStatus.REQUESTED;
+		mLikeStatus = (linkLike == null) ? LikeStatus.NONE : LikeStatus.LIKE;
 
 		final View holderPlace = view.findViewById(R.id.holder_place);
 		final AirImageView placePhotoView = (AirImageView) view.findViewById(R.id.place_photo);
@@ -521,11 +557,11 @@ public class PatchForm extends BaseEntityForm {
 			UI.setVisibility(view.findViewById(R.id.button_holder), View.VISIBLE);
 
 			/* Watch button coloring */
-			ViewAnimator watched = (ViewAnimator) view.findViewById(R.id.button_watch);
-			if (watched != null) {
-				UI.setVisibility(watched, View.VISIBLE);
+			ViewAnimator watch = (ViewAnimator) view.findViewById(R.id.button_watch);
+			if (watch != null) {
+				UI.setVisibility(watch, View.VISIBLE);
 				Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
-				ImageView image = (ImageView) watched.findViewById(R.id.button_image);
+				ImageView image = (ImageView) watch.findViewById(R.id.button_image);
 				if (link != null && link.enabled) {
 					final int color = Colors.getColor(R.color.brand_primary);
 					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
@@ -535,13 +571,62 @@ public class PatchForm extends BaseEntityForm {
 				}
 			}
 
-			TextView watchersCount = (TextView) view.findViewById(R.id.watchers_count);
-			if (watchersCount != null) {
+			/* Like button coloring */
+			ViewAnimator like = (ViewAnimator) view.findViewById(R.id.button_like);
+			if (like != null) {
+				UI.setVisibility(like, View.GONE);
+				if (mEntity.isVisibleToCurrentUser()) {
+					Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
+					ImageView image = (ImageView) like.findViewById(R.id.button_image);
+					if (link != null && link.enabled) {
+						final int color = Colors.getColor(R.color.brand_primary);
+						image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+					}
+					else {
+						image.setColorFilter(null);
+					}
+					UI.setVisibility(like, View.VISIBLE);
+				}
+			}
+
+			/* Watching count */
+			View watching = view.findViewById(R.id.button_watching);
+			if (watching != null) {
+				UI.setVisibility(watching, View.GONE);
 				Count count = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, true, Direction.in);
 				if (count == null) {
 					count = new Count(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, null, 0);
 				}
-				watchersCount.setText(String.valueOf(count.count.intValue()));
+				if (count.count.intValue() > 0) {
+					TextView watchingCount = (TextView) view.findViewById(R.id.watching_count);
+					TextView watchingLabel = (TextView) view.findViewById(R.id.watching_label);
+					if (watchingCount != null) {
+						String label = getResources().getQuantityString(R.plurals.label_watching, count.count.intValue(), count.count.intValue());
+						watchingCount.setText(String.valueOf(count.count.intValue()));
+						watchingLabel.setText(label);
+						UI.setVisibility(watching, View.VISIBLE);
+					}
+				}
+			}
+
+			/* Like count */
+			View likes = view.findViewById(R.id.button_likes);
+			if (likes != null) {
+				UI.setVisibility(likes, View.GONE);
+				Count count = mEntity.getCount(Constants.TYPE_LINK_LIKE, null, true, Direction.in);
+				if (count == null) {
+					count = new Count(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, null, 0);
+				}
+				if (count.count.intValue() > 0) {
+					TextView likesCount = (TextView) view.findViewById(R.id.likes_count);
+					TextView likesLabel = (TextView) view.findViewById(R.id.likes_label);
+					if (likesCount != null) {
+						String label = getResources().getQuantityString(R.plurals.label_likes, count.count.intValue(), count.count.intValue());
+						likesCount.setText(String.valueOf(count.count.intValue()));
+						likesLabel.setText(label);
+						UI.setVisibility(likes, View.VISIBLE);
+					}
+				}
 			}
 		}
 
@@ -569,7 +654,7 @@ public class PatchForm extends BaseEntityForm {
 					buttonAlert.setOnClickListener(new View.OnClickListener() {
 						@Override
 						public void onClick(View view) {
-							onWatchersButtonClick(view);
+							onWatchingListButtonClick(view);
 						}
 					});
 					UI.setVisibility(alertGroup, View.VISIBLE);

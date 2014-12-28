@@ -7,9 +7,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Toast;
+import android.widget.ViewAnimator;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
+import com.aircandi.R;
+import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
@@ -22,18 +25,22 @@ import com.aircandi.objects.Links;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
+import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
+import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BaseEntityForm extends BaseActivity {
 
 	protected Integer mLinkProfile;
 	protected Integer mTransitionType;
+	protected Integer mLikeStatus = LikeStatus.NONE;     // Set in draw
 
 	/* Inputs */
 	@SuppressWarnings("ucd")
@@ -200,7 +207,13 @@ public abstract class BaseEntityForm extends BaseActivity {
 								Patchr.getInstance().setCurrentPatch(mEntity);
 							}
 
-							configureStandardMenuItems(mOptionMenu);
+							/*
+							 * Possible to hit this before options menu has been set. If so then
+							 * configureStandardMenuItems will be called in onCreateOptionsMenu.
+							 */
+							if (mOptionMenu != null) {
+								configureStandardMenuItems(mOptionMenu);
+							}
 							draw(null);
 						}
 						else {
@@ -211,7 +224,13 @@ public abstract class BaseEntityForm extends BaseActivity {
 					}
 					else if (redrawNeeded.get()) {
 						if (mEntity != null) {
-							configureStandardMenuItems(mOptionMenu);
+							/*
+							 * Possible to hit this before options menu has been set. If so then
+							 * configureStandardMenuItems will be called in onCreateOptionsMenu.
+							 */
+							if (mOptionMenu != null) {
+								configureStandardMenuItems(mOptionMenu);
+							}
 							draw(null);
 						}
 					}
@@ -277,6 +296,68 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	protected void drawButtons(View view) {}
 
+	public void like(final boolean activate) {
+
+		new AsyncTask() {
+
+			@Override
+			protected void onPreExecute() {
+				((ViewAnimator) findViewById(R.id.button_like)).setDisplayedChild(1);
+			}
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncLikeEntity");
+				ModelResult result;
+				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+
+				if (activate) {
+
+					/* Used as part of link management */
+					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
+					Shortcut toShortcut = mEntity.getAsShortcut();
+
+					result = Patchr.getInstance().getEntityManager().insertLink(null
+							, Patchr.getInstance().getCurrentUser().id
+							, mEntity.id
+							, Constants.TYPE_LINK_LIKE
+							, null
+							, fromShortcut
+							, toShortcut
+							, "like_entity_" + mEntity.schema.toLowerCase(Locale.US)
+							, false);
+				}
+				else {
+					result = Patchr.getInstance().getEntityManager().deleteLink(Patchr.getInstance().getCurrentUser().id
+							, mEntity.id
+							, Constants.TYPE_LINK_LIKE
+							, null
+							, mEntity.schema
+							, "unlike_entity_" + mEntity.schema.toLowerCase(Locale.US));
+				}
+				return result;
+			}
+
+			@Override
+			protected void onPostExecute(Object response) {
+				if (isFinishing()) return;
+				ModelResult result = (ModelResult) response;
+
+				((ViewAnimator) findViewById(R.id.button_like)).setDisplayedChild(0);
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					bind(BindingMode.AUTO); // Triggers redraw including buttons and updates state
+				}
+				else {
+					if (result.serviceResponse.statusCodeService != null
+							&& result.serviceResponse.statusCodeService != ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
+						Errors.handleError(BaseEntityForm.this, result.serviceResponse);
+					}
+				}
+				mProcessing = false;
+			}
+		}.execute();
+	}
+
 	@Override
 	public Boolean related(String entityId) {
 		return (mEntityId != null && entityId != null && entityId.equals(mEntityId));
@@ -307,5 +388,10 @@ public abstract class BaseEntityForm extends BaseActivity {
 			}
 			bind(BindingMode.AUTO);    // check to see if the cache stamp is stale
 		}
+	}
+
+	public static class LikeStatus {
+		public static int NONE = 0;
+		public static int LIKE = 1;
 	}
 }

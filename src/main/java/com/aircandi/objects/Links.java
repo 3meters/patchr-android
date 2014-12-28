@@ -63,6 +63,9 @@ public class Links extends ServiceObject {
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
 						, Maps.asMap("_from", currentUser.id))
 						.setDirection(Direction.in));
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_USER, true, true, 1
+						, Maps.asMap("_from", currentUser.id))
+						.setDirection(Direction.in));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
 						, Maps.asMap("_creator", currentUser.id))
 						.setDirection(Direction.in));
@@ -79,6 +82,9 @@ public class Links extends ServiceObject {
 						.setDirection(Direction.out));
 				links.getActive().add(new LinkParams(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, true, true, 5)
 						.setDirection(Direction.out));
+				links.getActive().add(new LinkParams(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_USER, true, true, 1
+						, Maps.asMap("_from", currentUser.id))
+						.setDirection(Direction.in));
 			}
 			else if (linkProfile == LinkProfile.LINKS_FOR_USER_CURRENT) {
 

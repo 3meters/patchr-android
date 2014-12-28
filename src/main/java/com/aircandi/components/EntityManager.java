@@ -449,9 +449,7 @@ public class EntityManager {
 			Logger.i(this, "Activating anonymous user");
 
 			/* Cancel any current notifications in the status bar */
-			NotificationManager.getInstance().cancelNotification(Tag.INSERT);
-			NotificationManager.getInstance().cancelNotification(Tag.NOTIFICATION);
-			NotificationManager.getInstance().cancelNotification(Tag.SHARE);
+			NotificationManager.getInstance().cancelAllNotifications();
 
 			/* Clear user settings */
 			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);

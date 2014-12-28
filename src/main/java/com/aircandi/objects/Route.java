@@ -46,7 +46,6 @@ public class Route {
 	public static int SAVE_BEACON        = 48;
 	public static int SHARE              = 49;
 	public static int REMOVE             = 50;
-	public static int WATCHERS           = 51;
 	public static int NAVIGATE           = 52;
 	public static int PATCH_LIST         = 53;
 	public static int MAP                = 54;
@@ -56,4 +55,5 @@ public class Route {
 	public static int VIEW_AS_MAP        = 58;
 	public static int VIEW_AS_LIST       = 59;
 	public static int PHOTO_EDIT         = 60;
+	public static int USER_LIST          = 61;
 }

@@ -614,7 +614,7 @@ public class AircandiForm extends BaseActivity {
 
 				if (drawerView.getId() == R.id.right_drawer) {
 					NotificationManager.getInstance().setNewNotificationCount(0);
-					NotificationManager.getInstance().cancelNotifications();
+					NotificationManager.getInstance().cancelAllNotifications();
 					updateNotificationIndicator(true);
 					((BaseFragment) mFragmentNotifications).bind(BindingMode.AUTO);
 				}

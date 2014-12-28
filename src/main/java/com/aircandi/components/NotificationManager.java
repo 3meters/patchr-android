@@ -10,7 +10,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.Html;
 
-import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -162,7 +161,7 @@ public class NotificationManager {
 		 */
 		if (notification.trigger != null && notification.event != null) {
 			PreferenceManager preferenceManager = new PreferenceManager();
-			if (!preferenceManager.notificationEnabled(notification.getTriggerCategory())) {
+			if (!preferenceManager.notificationEnabled(notification.getTriggerCategory(), notification.getEventCategory())) {
 				return;
 			}
 		}
@@ -185,7 +184,7 @@ public class NotificationManager {
 
 		final NotificationCompat.Builder builder = new NotificationCompat.Builder(Patchr.applicationContext)
 				.setContentTitle(StringManager.getString(R.string.name_app))
-				.setContentText(Html.fromHtml(notification.subtitle))
+				.setContentText(Html.fromHtml(notification.summary))
 				.setDeleteIntent(deleteIntent)
 				.setNumber(mNewNotificationCount)
 				.setSmallIcon(R.drawable.ic_stat_notification)
@@ -231,7 +230,8 @@ public class NotificationManager {
 			useBigText(builder, notification);
 		}
 		else {
-			mNotificationManager.notify(Constants.SCHEMA_ENTITY_NOTIFICATION, 0, builder.build());
+			String tag = notification.getEventCategory().equals(Notification.EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
+			mNotificationManager.notify(tag, 0, builder.build());
 		}
 	}
 
@@ -252,7 +252,8 @@ public class NotificationManager {
 					.setSummaryText(Html.fromHtml(notification.subtitle));
 
 			builder.setStyle(style);
-			mNotificationManager.notify(Constants.SCHEMA_ENTITY_NOTIFICATION, 0, builder.build());
+			String tag = notification.getEventCategory().equals(Notification.EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
+			mNotificationManager.notify(tag, 0, builder.build());
 		}
 		catch (IOException e) {
 			Reporting.logException(e);
@@ -260,21 +261,24 @@ public class NotificationManager {
 	}
 
 	public void useBigText(NotificationCompat.Builder builder, Notification notification) {
+
 		NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle()
 				.setBigContentTitle(notification.name)
 				.bigText(Html.fromHtml(notification.description))
 				.setSummaryText(Html.fromHtml(notification.subtitle));
 
+
 		builder.setStyle(style);
 
-		mNotificationManager.notify(Constants.SCHEMA_ENTITY_NOTIFICATION, 0, builder.build());
+		String tag = notification.getEventCategory().equals(Notification.EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
+		mNotificationManager.notify(tag, 0, builder.build());
 	}
 
 	public void cancelNotification(String tag) {
 		mNotificationManager.cancel(tag, 0);
 	}
 
-	public void cancelNotifications() {
+	public void cancelAllNotifications() {
 		mNotificationManager.cancelAll();
 	}
 
@@ -314,5 +318,6 @@ public class NotificationManager {
 		public static String INSERT       = "insert";
 		public static String SHARE        = "share";
 		public static String NOTIFICATION = "alert";
+		public static String LIKE         = "like";
 	}
 }

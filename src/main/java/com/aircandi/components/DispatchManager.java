@@ -28,7 +28,7 @@ import com.aircandi.ui.PhotoForm;
 import com.aircandi.ui.SearchForm;
 import com.aircandi.ui.SettingsForm;
 import com.aircandi.ui.SplashForm;
-import com.aircandi.ui.WatcherList;
+import com.aircandi.ui.UserList;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.edit.FeedbackEdit;
 import com.aircandi.ui.edit.PasswordEdit;
@@ -501,16 +501,21 @@ public class DispatchManager {
 			Debug.insertBeacon();
 		}
 
-		else if (route == Route.WATCHERS) {
+		else if (route == Route.USER_LIST) {
 
 			if (entity == null) {
-				throw new IllegalArgumentException("Dispatching watchers requires entity");
+				throw new IllegalArgumentException("Dispatching user list requires entity");
 			}
 
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, WatcherList.class);
+			Integer transitionType = TransitionType.VIEW_TO;
+			if (extras != null) {
+				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
+			}
+
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, UserList.class);
 			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.create());
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO);
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, transitionType);
 		}
 
 		else if (route == Route.PATCH_LIST) {

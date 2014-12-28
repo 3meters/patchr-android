@@ -16,6 +16,7 @@ public class ViewHolder {
 	public AirImageView photo;
 	public TextView     name;
 	public TextView     subhead;
+	public TextView     summary;
 	public TextView     description;
 	public TextView     type;
 	public TextView     modifiedDate;

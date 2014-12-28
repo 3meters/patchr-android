@@ -11,6 +11,8 @@
 	<string name="pref_messages_own">com.aircandi.catalina.pref_messages_own</string>
 	<string name="pref_messages_watch">com.aircandi.catalina.pref_messages_watch</string>
 	<string name="pref_messages_share">com.aircandi.catalina.pref_messages_share</string>
+	<string name="pref_likes">com.aircandi.catalina.pref_likes</string>
+	<string name="pref_watching">com.aircandi.catalina.pref_watching</string>
 
 	<!-- Defaults -->
 
@@ -19,6 +21,8 @@
 	<bool name="pref_notifications_watch_default">true</bool>
 	<bool name="pref_notifications_own_default">true</bool>
 	<bool name="pref_notifications_share_default">true</bool>
+	<bool name="pref_notifications_like_default">true</bool>
+	<bool name="pref_notifications_watching_default">true</bool>
 	<bool name="pref_sound_effects_default">true</bool>
 
 	<!-- UI -->
@@ -41,10 +45,16 @@
 	<string name="pref_notifications_own_title">Created</string>
 	<string name="pref_notifications_watch_title">Watching</string>
 	<string name="pref_notifications_share_title">Sharing</string>
+	<string name="pref_notifications_like_title">Likes</string>
+
+	<string name="pref_notifications_watching_title">Watching</string>
 	<string name="pref_notifications_nearby_summary">Messages posted to patches nearby.</string>
 	<string name="pref_notifications_own_summary">Messages posted to patches I made</string>
 	<string name="pref_notifications_watch_summary">Messages posted to patches I\'m watching.</string>
 	<string name="pref_notifications_share_summary">Messages to share a patch or message with me.</string>
+
+	<string name="pref_notifications_like_summary">Likes for a patch or message of mine.</string>
+	<string name="pref_notifications_watching_summary">Watching a patch of mine.</string>
 
 	<!-- /// Preferences developer /// -->
 

@@ -7,13 +7,6 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
-	<View
-		android:id="@+id/highlight"
-		android:layout_width="match_parent"
-		android:layout_height="@dimen/rule_highlight_height"
-		android:layout_alignParentTop="true"
-		android:background="?attr/cardHighlightColor" />
-
 	<com.aircandi.ui.widgets.AirImageView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
@@ -124,12 +117,5 @@
 		android:textAppearance="?android:attr/textAppearanceLarge"
 		android:textColor="@color/brand_primary"
 		tools:text="10" />
-
-	<View
-		android:id="@+id/shadow"
-		android:layout_width="match_parent"
-		android:layout_height="@dimen/rule_shadow_height"
-		android:layout_alignParentBottom="true"
-		android:background="?attr/cardShadowColor" />
 
 </RelativeLayout>

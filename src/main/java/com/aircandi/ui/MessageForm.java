@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,8 +15,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewAnimator;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -31,6 +34,7 @@ import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.monitors.EntityMonitor;
+import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
@@ -48,6 +52,7 @@ import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.ui.widgets.FlowLayout;
+import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
@@ -230,6 +235,33 @@ public class MessageForm extends BaseEntityForm {
 	}
 
 	@SuppressWarnings("ucd")
+	public void onLikeButtonClick(View view) {
+
+		if (mProcessing) return;
+		mProcessing = true;
+
+		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			mProcessing = false;
+			String message = StringManager.getString(R.string.alert_signin_message_like, mEntity.schema);
+			Dialogs.signinRequired(this, message);
+			return;
+		}
+
+		like(mLikeStatus == LikeStatus.NONE);
+	}
+
+	@SuppressWarnings("ucd")
+	public void onLikesListButtonClick(View view) {
+		if (mEntity != null) {
+			Bundle extras = new Bundle();
+			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_LIKE);
+			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_likes_list);
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+			Patchr.dispatch.route(this, Route.USER_LIST, mEntity, extras);
+		}
+	}
+
+	@SuppressWarnings("ucd")
 	public void onShareClick(View view) {
 		share();
 	}
@@ -305,6 +337,7 @@ public class MessageForm extends BaseEntityForm {
 		final FlowLayout flowLayout = (FlowLayout) view.findViewById(R.id.flow_recipients);
 		final ViewGroup shareHolder = (ViewGroup) view.findViewById(R.id.share_holder);
 		final ViewGroup shareFrame = (ViewGroup) view.findViewById(R.id.share_entity);
+		final ViewGroup buttonHolder = (ViewGroup) view.findViewById(R.id.button_holder);
 		final ViewGroup toHolder = (ViewGroup) view.findViewById(R.id.to_holder);
 
         /* Share */
@@ -342,6 +375,10 @@ public class MessageForm extends BaseEntityForm {
 				flowLayout.addView(entityView);
 			}
 		}
+
+		/* Some state management */
+		Link linkLike = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
+		mLikeStatus = (linkLike == null) ? LikeStatus.NONE : LikeStatus.LIKE;
 
 		/* Message patch context */
 
@@ -584,6 +621,50 @@ public class MessageForm extends BaseEntityForm {
 				}
 				if (mEntity.photo != null) {
 					UI.setVisibility(photoView, View.VISIBLE);
+				}
+			}
+		}
+
+        /* Likes */
+		UI.setVisibility(buttonHolder, View.GONE);
+		if (shareEntity == null) {
+
+			UI.setVisibility(buttonHolder, View.VISIBLE);
+
+			/* Like button coloring */
+			ViewAnimator like = (ViewAnimator) view.findViewById(R.id.button_like);
+			if (like != null) {
+				UI.setVisibility(like, View.VISIBLE);
+				Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
+				ImageView image = (ImageView) like.findViewById(R.id.button_image);
+				if (link != null && link.enabled) {
+					final int color = Colors.getColor(R.color.brand_primary);
+					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+					image.setAlpha(1.0f);
+				}
+				else {
+					image.setColorFilter(null);
+					image.setAlpha(0.5f);
+				}
+			}
+
+			/* Like count */
+			View likes = view.findViewById(R.id.button_likes);
+			if (likes != null) {
+				UI.setVisibility(likes, View.GONE);
+				Count count = mEntity.getCount(Constants.TYPE_LINK_LIKE, null, true, Direction.in);
+				if (count == null) {
+					count = new Count(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, null, 0);
+				}
+				if (count.count.intValue() > 0) {
+					TextView likesCount = (TextView) view.findViewById(R.id.likes_count);
+					TextView likesLabel = (TextView) view.findViewById(R.id.likes_label);
+					if (likesCount != null) {
+						String label = getResources().getQuantityString(R.plurals.label_likes, count.count.intValue(), count.count.intValue());
+						likesCount.setText(String.valueOf(count.count.intValue()));
+						likesLabel.setText(label);
+						UI.setVisibility(likes, View.VISIBLE);
+					}
 				}
 			}
 		}

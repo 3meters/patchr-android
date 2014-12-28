@@ -69,7 +69,7 @@
 		<item name="backgroundButtonLink">@drawable/selector_button_link_dark</item>
 		<item name="backgroundButtonRound">@drawable/selector_button_circle_dark</item>
 		<item name="backgroundButtonRoundGlow">@drawable/selector_button_circle_glow_dark</item>
-		<item name="backgroundButtonShare">@drawable/selector_button_share_dark</item>
+		<item name="backgroundButtonShare">@color/background_button_share_dark</item>
 		<item name="backgroundCard">@color/gray_80_pcnt</item>
 		<item name="backgroundCardField">@color/black</item>
 		<item name="backgroundForm">@color/black</item>
@@ -88,6 +88,7 @@
 		<item name="iconClear">@drawable/ic_action_cancel_dark</item>
 		<item name="iconForward">@drawable/ic_action_forward_dark</item>
 		<item name="iconLocation">@drawable/ic_img_location_dark</item>
+		<item name="iconLike">@drawable/ic_img_like_dark</item>
 		<item name="iconLocked">@drawable/ic_action_lock_closed_dark</item>
 		<item name="iconMediaMessage">@drawable/ic_img_media_message_dark</item>
 		<item name="iconMessage">@drawable/ic_img_message_dark</item>
@@ -150,7 +151,7 @@
 		<item name="backgroundButtonLink">@drawable/selector_button_link_light</item>
 		<item name="backgroundButtonRound">@drawable/selector_button_circle_light</item>
 		<item name="backgroundButtonRoundGlow">@drawable/selector_button_circle_glow_light</item>
-		<item name="backgroundButtonShare">@drawable/selector_button_share_light</item>
+		<item name="backgroundButtonShare">@color/background_button_share_light</item>
 		<item name="backgroundCard">@color/white</item>
 		<item name="backgroundCardField">@color/gray_10_pcnt</item>
 		<item name="backgroundForm">@color/background_light</item>
@@ -168,6 +169,7 @@
 		<item name="iconCancel">@drawable/ic_action_cancel_light</item>
 		<item name="iconClear">@drawable/ic_action_cancel_light</item>
 		<item name="iconForward">@drawable/ic_action_forward_light</item>
+		<item name="iconLike">@drawable/ic_img_like_light</item>
 		<item name="iconLocation">@drawable/ic_img_location_light</item>
 		<item name="iconLocked">@drawable/ic_action_lock_closed_light</item>
 		<item name="iconMediaMessage">@drawable/ic_img_media_message_light</item>

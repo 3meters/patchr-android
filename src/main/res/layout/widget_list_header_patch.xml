@@ -32,9 +32,9 @@
 				style="@style/selectable_image"
 				android:layout_width="match_parent"
 				android:layout_height="50dp"
+				android:background="?attr/backgroundCard"
 				android:clickable="true"
 				android:onClick="onPlaceClick"
-				android:background="?attr/backgroundCard"
 				android:paddingLeft="@dimen/form_body_padding"
 				android:visibility="gone"
 				tools:visibility="visible">
@@ -77,24 +77,82 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignBottom="@+id/candi_view"
-				android:paddingLeft="64dp">
+				android:paddingLeft="70dp">
+
+				<LinearLayout
+					android:id="@+id/button_likes"
+					style="@style/selectable_item"
+					android:layout_width="wrap_content"
+					android:layout_height="@dimen/button_height"
+					android:layout_centerVertical="true"
+					android:layout_marginRight="12dp"
+					android:onClick="onLikesListButtonClick"
+					android:orientation="horizontal">
+
+					<com.aircandi.ui.widgets.AirTextMedium
+						android:id="@+id/likes_count"
+						android:layout_width="wrap_content"
+						android:layout_height="match_parent"
+						android:gravity="center_vertical"
+						android:layout_marginRight="4dp"
+						android:textColor="?attr/textColorCandiView"
+						tools:text="12" />
+
+					<com.aircandi.ui.widgets.AirTextLight
+						android:id="@+id/likes_label"
+						android:layout_width="wrap_content"
+						android:layout_height="match_parent"
+						android:gravity="center_vertical"
+						android:text="@string/label_button_likes"
+						android:textColor="?attr/textColorCandiView" />
+				</LinearLayout>
+
+				<LinearLayout
+					android:id="@+id/button_watching"
+					style="@style/selectable_item"
+					android:layout_width="wrap_content"
+					android:layout_height="@dimen/button_height"
+					android:layout_centerVertical="true"
+					android:layout_toRightOf="@+id/button_likes"
+					android:onClick="onWatchingListButtonClick"
+					android:orientation="horizontal">
+
+					<com.aircandi.ui.widgets.AirTextMedium
+						android:id="@+id/watching_count"
+						android:layout_width="wrap_content"
+						android:layout_height="match_parent"
+						android:gravity="center_vertical"
+						android:layout_marginRight="4dp"
+						android:textColor="?attr/textColorCandiView"
+						tools:text="12" />
+
+					<com.aircandi.ui.widgets.AirTextLight
+						android:id="@+id/watching_label"
+						android:layout_width="wrap_content"
+						android:layout_height="match_parent"
+						android:gravity="center_vertical"
+						android:text="@string/label_button_watching"
+						android:textColor="?attr/textColorCandiView" />
+				</LinearLayout>
 
 				<ViewAnimator
-					android:id="@+id/button_watch"
+					android:id="@+id/button_like"
 					android:layout_width="@dimen/button_height"
 					android:layout_height="@dimen/button_height"
+					android:layout_toLeftOf="@+id/button_watch"
 					android:clickable="true"
-					android:onClick="onWatchButtonClick">
+					android:onClick="onLikeButtonClick">
 
 					<ImageView
 						android:id="@+id/button_image"
 						android:layout_width="24dp"
 						android:layout_height="24dp"
 						android:layout_gravity="center"
+						android:padding="2dp"
 						android:adjustViewBounds="true"
-						android:alpha="0.8"
+						android:alpha="1.0"
 						android:scaleType="fitCenter"
-						android:src="@drawable/ic_img_watch_dark" />
+						android:src="@drawable/ic_img_like_dark" />
 
 					<ProgressBar
 						android:id="@+id/button_progress"
@@ -106,33 +164,33 @@
 						android:minHeight="30dp" />
 				</ViewAnimator>
 
-				<LinearLayout
-					android:id="@+id/button_watchers"
-					style="@style/selectable_item"
-					android:layout_width="wrap_content"
+				<ViewAnimator
+					android:id="@+id/button_watch"
+					android:layout_width="@dimen/button_height"
+					android:layout_alignParentRight="true"
 					android:layout_height="@dimen/button_height"
-					android:layout_centerVertical="true"
-					android:layout_toRightOf="@+id/button_watch"
-					android:onClick="onWatchersButtonClick"
-					android:orientation="horizontal">
+					android:clickable="true"
+					android:onClick="onWatchButtonClick">
 
 					<ImageView
-						android:layout_width="56dp"
-						android:layout_height="match_parent"
-						android:layout_marginRight="4dp"
-						android:padding="8dp"
+						android:id="@id/button_image"
+						android:layout_width="24dp"
+						android:layout_height="24dp"
+						android:layout_gravity="center"
+						android:adjustViewBounds="true"
+						android:alpha="1.0"
 						android:scaleType="fitCenter"
-						android:src="@drawable/ic_img_users_dark" />
+						android:src="@drawable/ic_img_watch_dark" />
 
-					<com.aircandi.ui.widgets.AirTextLight
-						android:id="@+id/watchers_count"
-						android:layout_width="wrap_content"
-						android:layout_height="match_parent"
-						android:gravity="center_vertical"
-						android:textAppearance="?android:attr/textAppearanceMedium"
-						android:textColor="?attr/textColorCandiView"
-						tools:text="12" />
-				</LinearLayout>
+					<ProgressBar
+						android:id="@id/button_progress"
+						android:layout_width="24dp"
+						android:layout_height="24dp"
+						android:layout_gravity="center"
+						android:focusable="true"
+						android:maxHeight="30dp"
+						android:minHeight="30dp" />
+				</ViewAnimator>
 
 			</RelativeLayout>
 		</RelativeLayout>

@@ -96,6 +96,7 @@
 		<attr name="iconCancel" format="reference" />
 		<attr name="iconClear" format="reference" />
 		<attr name="iconForward" format="reference" />
+		<attr name="iconLike" format="reference" />
 		<attr name="iconLocation" format="reference" />
 		<attr name="iconLocked" format="reference" />
 		<attr name="iconMediaMessage" format="reference" />

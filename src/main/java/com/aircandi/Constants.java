@@ -168,6 +168,7 @@ public class Constants {
 
 	public static final String TYPE_LINK_PROXIMITY = "proximity";
 	public static final String TYPE_LINK_WATCH     = "watch";
+	public static final String TYPE_LINK_LIKE      = "like";
 	public static final String TYPE_LINK_CONTENT   = "content";
 	public static final String TYPE_LINK_CREATE    = "create";
 	public static final String TYPE_LINK_SHARE     = "share";

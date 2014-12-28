@@ -324,6 +324,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.photo = (AirImageView) view.findViewById(R.id.photo);
 		holder.name = (TextView) view.findViewById(R.id.name);
 		holder.subhead = (TextView) view.findViewById(R.id.subhead);
+		holder.summary = (TextView) view.findViewById(R.id.summary);
 		holder.description = (TextView) view.findViewById(R.id.description);
 		holder.creator = (UserView) view.findViewById(R.id.creator);
 		holder.area = (TextView) view.findViewById(R.id.area);

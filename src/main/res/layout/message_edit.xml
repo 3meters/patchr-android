@@ -275,7 +275,8 @@
 				<FrameLayout
 					android:id="@+id/share_entity"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content" />
+					android:layout_height="wrap_content"
+					android:padding="8dp" />
 
 			</LinearLayout>
 		</RelativeLayout>

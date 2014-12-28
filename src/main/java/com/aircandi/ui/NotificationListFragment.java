@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.Html;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -152,7 +154,7 @@ public class NotificationListFragment extends MessageListFragment {
 
 						/* Nearby notifications are local only so inject them */
 						for (Map.Entry<String, Notification> entry : NotificationManager.getInstance().getNotifications().entrySet()) {
-							if (entry.getValue().getTriggerCategory().equals(Notification.TriggerType.NEARBY)) {
+							if (entry.getValue().getTriggerCategory().equals(Notification.TriggerCategory.NEARBY)) {
 								mAdapter.add(entry.getValue());
 							}
 						}
@@ -237,6 +239,13 @@ public class NotificationListFragment extends MessageListFragment {
 			}
 		}
 
+		/* Summary */
+		UI.setVisibility(holder.summary, View.GONE);
+		if (holder.summary != null && !TextUtils.isEmpty(((Notification) entity).summary)) {
+			holder.summary.setText(Html.fromHtml(((Notification) entity).summary));
+			UI.setVisibility(holder.summary, View.VISIBLE);
+		}
+
 		/* Big photo */
 		if (holder.photoBig != null) {
 			UI.setVisibility(holder.photoBig, View.GONE);
@@ -273,6 +282,9 @@ public class NotificationListFragment extends MessageListFragment {
 			}
 			else if (entity.type.equals(Notification.NotificationType.SHARE)) {
 				drawableResId = UI.getResIdForAttribute(getActivity(), R.attr.iconShare);
+			}
+			else if (entity.type.equals(Notification.NotificationType.LIKE)) {
+				drawableResId = UI.getResIdForAttribute(getActivity(), R.attr.iconLike);
 			}
 			if (drawableResId != null) {
 				holder.photoType.setImageResource(drawableResId);

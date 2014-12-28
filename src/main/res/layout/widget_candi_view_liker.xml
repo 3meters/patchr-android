@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-	android:id="@+id/candi_view_group"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="@dimen/image_medium">
+	tools:showIn="@layout/temp_listitem_liker">
 
 	<com.aircandi.ui.widgets.AirImageView
 		android:id="@+id/photo"
@@ -13,6 +10,9 @@
 		android:layout_width="@dimen/image_medium"
 		android:layout_height="@dimen/image_medium"
 		android:layout_marginRight="10dp"
+		android:paddingBottom="8dp"
+		android:paddingLeft="8dp"
+		android:paddingTop="8dp"
 		android:scaleType="centerCrop"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
@@ -24,27 +24,24 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentTop="true"
-		android:layout_marginTop="5dp"
 		android:layout_toRightOf="@+id/photo"
 		android:ellipsize="end"
-		android:maxLines="3"
-		android:singleLine="false"
+		android:paddingTop="8dp"
+		android:singleLine="true"
 		android:textAppearance="?android:attr/textAppearanceMedium"
-		tools:text="@string/dummy_title_short" />
+		android:textStyle="bold"
+		tools:text="Aliza Wenk" />
 
 	<com.aircandi.ui.widgets.AirTextView
-		android:id="@+id/category_name"
+		android:id="@+id/area"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignLeft="@+id/name"
 		android:layout_below="@+id/name"
-		android:layout_marginBottom="5dp"
-		android:layout_marginLeft="1dp"
-		android:ellipsize="middle"
+		android:ellipsize="end"
 		android:singleLine="true"
-		android:textAllCaps="true"
-		android:textAppearance="?attr/textAppearanceExtraSmall"
+		android:textAppearance="?android:attr/textAppearanceSmall"
 		android:textColor="?attr/textColorSecondary"
-		tools:text="@string/dummy_tags" />
+		tools:text="Seattle, WA" />
 
-</RelativeLayout>
+</merge>

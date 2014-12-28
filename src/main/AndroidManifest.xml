@@ -190,7 +190,7 @@
 		<!-- Lists -->
 
 		<activity
-			android:name=".ui.WatcherList"
+			android:name=".ui.UserList"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_watching_list"
 			android:windowSoftInputMode="stateHidden" />

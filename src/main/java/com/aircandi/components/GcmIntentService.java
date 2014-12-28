@@ -83,7 +83,7 @@ public class GcmIntentService extends IntentService {
 						|| !showingTarget
 						|| notification.priority.intValue() == Notification.Priority.ONE) {
 
-					if (background || notification.trigger.equals(Notification.TriggerType.NEARBY)) {
+					if (background || notification.getTriggerCategory().equals(Notification.TriggerCategory.NEARBY)) {
 
 						/*
 						 * Build intent that can be used in association with the notification

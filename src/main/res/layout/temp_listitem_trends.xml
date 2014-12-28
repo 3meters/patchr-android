@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:paddingBottom="4dp"
-	android:paddingLeft="8dp"
-	android:paddingRight="8dp"
-	android:paddingTop="4dp">
+	android:paddingBottom="1dp"
+	android:paddingLeft="5dp"
+	android:paddingRight="5dp"
+	android:paddingTop="1dp">
 
-	<FrameLayout
+	<android.support.v7.widget.CardView
 		style="@style/selectable_image"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		tools:ignore="UselessParent">
+		custom:cardBackgroundColor="?attr/backgroundCard"
+		custom:cardCornerRadius="3dp"
+		custom:cardElevation="2dp"
+		custom:cardUseCompatPadding="true">
 
 		<com.aircandi.ui.widgets.CandiView
 			android:id="@+id/candi_view"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="?attr/backgroundCard"
 			custom:layoutRef="@layout/widget_candi_view_trend" />
-	</FrameLayout>
+	</android.support.v7.widget.CardView>
 
 </RelativeLayout>

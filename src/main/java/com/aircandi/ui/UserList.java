@@ -33,7 +33,11 @@ import com.aircandi.utilities.Maps;
 import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
-public class WatcherList extends BaseActivity {
+public class UserList extends BaseActivity {
+
+	protected String  mListLinkType;
+	protected Integer mListTitleResId;
+	protected Integer mListItemResId;
 
 	@Override
 	public void unpackIntent() {
@@ -43,6 +47,9 @@ public class WatcherList extends BaseActivity {
 		if (extras != null) {
 			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
 			mEntity = EntityManager.getCacheEntity(mEntityId);
+			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
+			mListTitleResId = extras.getInt(Constants.EXTRA_LIST_TITLE_RESID);
+			mListItemResId = extras.getInt(Constants.EXTRA_LIST_ITEM_RESID);
 		}
 	}
 
@@ -57,17 +64,17 @@ public class WatcherList extends BaseActivity {
 			}
 		});
 
-		mCurrentFragment = new WatcherListFragment();
+		mCurrentFragment = new UserListFragment();
 		EntityMonitor monitor = new EntityMonitor(mEntityId);
 		WatchersQuery query = new WatchersQuery();
 
 		query.setEntityId(mEntityId)
 		     .setLinkDirection(Direction.in.name())
-		     .setLinkType(Constants.TYPE_LINK_WATCH)
+		     .setLinkType(mListLinkType)
 		     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
 		     .setSchema(Constants.SCHEMA_ENTITY_USER);
 
-		if (!mEntity.isOwnedByCurrentUser()
+		if (mListLinkType != null && mListLinkType.equals(Constants.TYPE_LINK_WATCH) && !mEntity.isOwnedByCurrentUser()
 				&& !mEntity.ownerId.equals(ServiceConstants.ADMIN_USER_ID)) {
 			query.setLinkWhere(Maps.asMap("enabled", true));
 		}
@@ -75,15 +82,13 @@ public class WatcherList extends BaseActivity {
 		((EntityListFragment) mCurrentFragment).setQuery(query)
 		                                       .setMonitor(monitor)
 		                                       .setListViewType(ViewType.LIST)
-		                                       .setListLayoutResId(R.layout.watcher_list_fragment)
+		                                       .setListLayoutResId(R.layout.user_list_fragment)
 		                                       .setListLoadingResId(R.layout.temp_listitem_loading)
-		                                       .setListItemResId(R.layout.temp_listitem_watcher)
-		                                       .setListEmptyMessageResId(R.string.button_list_watchers_share)
-		                                       .setBubbleButtonMessageResId(R.string.button_list_watchers_share)
+		                                       .setListItemResId(mListItemResId)
+		                                       .setTitleResId(mListTitleResId)
 		                                       .setSelfBindingEnabled(true);
 
 		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mCurrentFragment).commit();
-		draw(null);
 	}
 
 	@Override
@@ -237,7 +242,7 @@ public class WatcherList extends BaseActivity {
 					entity.linkEnabled = enabled;
 				}
 				else {
-					Errors.handleError(WatcherList.this, result.serviceResponse);
+					Errors.handleError(UserList.this, result.serviceResponse);
 				}
 			}
 		}.execute();
@@ -271,7 +276,7 @@ public class WatcherList extends BaseActivity {
 				else {
 					if (result.serviceResponse.statusCodeService != null
 							&& result.serviceResponse.statusCodeService != ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
-						Errors.handleError(WatcherList.this, result.serviceResponse);
+						Errors.handleError(UserList.this, result.serviceResponse);
 					}
 				}
 			}
@@ -281,5 +286,15 @@ public class WatcherList extends BaseActivity {
 	@Override
 	protected int getLayoutId() {
 		return R.layout.watcher_list;
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		draw(null);
 	}
 }
