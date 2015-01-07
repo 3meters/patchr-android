@@ -8,12 +8,17 @@ gradlew
 gradlew.bat
 gradle/
 build/
-releases/
 
 # Used by crashlytics
-.crashlytics_data
 /src/main/res/values/com_crashlytics_export_strings.xml
 /src/main/assets/crashlytics-build.properties
+
+# -------------------------------------------------
+# Project files to ignore
+#--------------------------------------------------
+
+dumps/
+releases/
 
 # -------------------------------------------------
 # Intellij files to ignore
@@ -62,6 +67,3 @@ $RECYCLE.BIN/
 *.msi
 *.msm
 *.msp
-/catalina/src/main/assets/crashlytics-build.properties
-/catalina/src/main/res/values/com_crashlytics_export_strings.xml
-/dumps
