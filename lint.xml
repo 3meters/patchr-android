@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="AlwaysShowAction" severity="ignore" />
+    <issue id="ClickableViewAccessibility" severity="ignore" />
+	<issue id="ContentDescription" severity="ignore">
+		<ignore path="src/main/res/layout/widget_drawer_main.xml" />
+	</issue>
+	<issue id="IconDipSize" severity="ignore" />
+    <issue id="IconDensities" severity="ignore" />
+    <issue id="IconDuplicates" severity="ignore" />
+    <issue id="InflateParams" severity="ignore" />
+    <issue id="InvalidPackage" severity="ignore" />
+    <issue id="MissingPrefix" severity="ignore" />
+    <issue id="MissingTranslation" severity="ignore" />
+    <issue id="UnusedAttribute" severity="ignore" />
+	<issue id="TypographyDashes">
+		<ignore path="src/main/res/values/com_crashlytics_export_strings.xml" />
+	</issue>
+    <issue id="UnusedResources">
+	    <ignore path="src/main/res/drawable-nodpi/img_user_generic_dark.png" />
+	    <ignore path="src/main/res/drawable-nodpi/img_user_generic_light.png" />
+	    <ignore path="src/main/res/drawable-nodpi/img_blue_dot.png" />
+	    <ignore path="src/main/res/drawable-nodpi/img_broken_250_dark.png" />
+	    <ignore path="src/main/res/drawable-nodpi/img_broken_250_light.png" />
+        <ignore path="src/main/res/values/colors.xml" />
+	    <ignore path="src/main/res/anim/*.*" />
+        <ignore path="src/main/res/values/dimens.xml" />
+	    <ignore path="src/main/res/values/com_crashlytics_export_strings.xml" />
+    </issue>
+</lint>

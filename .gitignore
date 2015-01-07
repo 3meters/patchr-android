@@ -1,41 +1,29 @@
 # -------------------------------------------------
-# Android/Java files to ignore
+# Android Studio files to ignore
 #--------------------------------------------------
 
-# Gradle files
 .gradle
-gradlew
-gradlew.bat
-gradle/
-build/
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/build
 
 # Used by crashlytics
-/src/main/res/values/com_crashlytics_export_strings.xml
-/src/main/assets/crashlytics-build.properties
+com_crashlytics_export_strings.xml
+crashlytics-build.properties
 
 # -------------------------------------------------
 # Project files to ignore
 #--------------------------------------------------
 
-dumps/
-releases/
-
-# -------------------------------------------------
-# Intellij files to ignore
-#--------------------------------------------------
-
-.idea
-*.iml
-
-# Local configuration file (sdk path, etc)
-local.properties
+/dumps
+/releases
 
 # -------------------------------------------------
 # Osx files to ignore
 #--------------------------------------------------
 
 .DS_Store
-.svn
 
 # Thumbnails
 ._*
@@ -43,7 +31,6 @@ local.properties
 # Files that might appear on external disk
 .Spotlight-V100
 .Trashes
-
 
 # -------------------------------------------------
 # Windows files to ignore
