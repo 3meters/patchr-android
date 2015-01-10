@@ -144,8 +144,10 @@ public class PatchEdit extends BaseEntityEdit {
 									mMapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 								}
 
-								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLocation, 17f));
-								mMapView.invalidate();
+								if (mLocation != null) {
+									mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLocation, 17f));
+									mMapView.invalidate();
+								}
 							}
 						});
 					}
@@ -247,7 +249,12 @@ public class PatchEdit extends BaseEntityEdit {
 	}
 
 	public void drawLocation() {
-
+		/*
+		 * When creating a new patch we use the devices current location by default if
+		 * available. If a location isn't available for whatever reason we show the
+		 * map without a marker and say so in a label. From that point on, the only way
+		 * a patch gets a location is if the user sets one or it is linked to a place.
+		 */
 		Patch patch = (Patch) mEntity;
 		mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_none));
 

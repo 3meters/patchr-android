@@ -264,10 +264,10 @@ public final class Errors {
 				 */
 				if (Constants.ERROR_LEVEL == Log.VERBOSE) {
 					if (exception instanceof ConnectTimeoutException)
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unavailable)).setTrack(true);
+						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unavailable)).setTrack(false);
 
 					if (exception instanceof SocketTimeoutException)
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_connection_poor)).setTrack(true);
+						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_connection_poor)).setTrack(false);
 
 					if (exception instanceof ConnectException
 							|| exception instanceof NoHttpResponseException)
