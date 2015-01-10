@@ -11,11 +11,13 @@ import android.widget.Toast;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
+import com.aircandi.R;
 import com.aircandi.events.BurstTimeoutEvent;
 import com.aircandi.events.LocationChangedEvent;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
+import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -180,6 +182,18 @@ public class LocationManager implements
 		                                  .setSmallestDisplacement(MIN_DISPLACEMENT)
 		                                  .setInterval(Constants.TIME_FIFTEEN_SECONDS)
 		                                  .setFastestInterval(Constants.TIME_FIFTEEN_SECONDS);
+
+		/* Developers can turn on high accuracy processing */
+		if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+				&& Patchr.getInstance().getCurrentUser() != null
+				&& Type.isTrue(Patchr.getInstance().getCurrentUser().developer)
+				&& Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_location_high_accuracy), false)) {
+			mLocationRequest = LocationRequest.create()
+			                                  .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+			                                  .setSmallestDisplacement(MIN_DISPLACEMENT)
+			                                  .setInterval(Constants.TIME_FIFTEEN_SECONDS)
+			                                  .setFastestInterval(Constants.TIME_FIVE_SECONDS);
+		}
 
 		/* Location listener */
 		mLocationListener = new LocationListener() {
