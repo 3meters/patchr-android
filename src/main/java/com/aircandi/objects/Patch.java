@@ -29,9 +29,10 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	@Expose
 	public Number   signalFence;
 
-	/*--------------------------------------------------------------------------------------------
-	 * client fields (NONE are transferred)
-	 *--------------------------------------------------------------------------------------------*/
+	/* Patch (synthesized for the client) */
+
+	@Expose(serialize = false, deserialize = true)
+	public Place place;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
@@ -57,8 +58,13 @@ public class Patch extends Entity implements Cloneable, Serializable {
 		 * Properties involved with editing are copied from one entity to another.
 		 */
 		entity = (Patch) Entity.setPropertiesFromMap(entity, map, nameMapping);
+
 		if (map.get("category") != null) {
 			entity.category = Category.setPropertiesFromMap(new Category(), (HashMap<String, Object>) map.get("category"), nameMapping);
+		}
+
+		if (map.get("place") != null) {
+			entity.place = Place.setPropertiesFromMap(new Place(), (HashMap<String, Object>) map.get("place"), nameMapping);
 		}
 
 		return entity;
@@ -67,13 +73,16 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	@Override
 	@Nullable
 	public Patch clone() {
-		final Patch place = (Patch) super.clone();
-		if (place != null) {
+		final Patch patch = (Patch) super.clone();
+		if (patch != null) {
 			if (category != null) {
-				place.category = category.clone();
+				patch.category = category.clone();
+			}
+			if (place != null) {
+				patch.place = place.clone();
 			}
 		}
-		return place;
+		return patch;
 	}
 
 	/*--------------------------------------------------------------------------------------------

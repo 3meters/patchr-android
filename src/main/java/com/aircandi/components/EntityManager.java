@@ -9,7 +9,6 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.NotificationManager.Tag;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.CacheStamp;
@@ -745,6 +744,15 @@ public class EntityManager {
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 
+				/*
+				 * Location and beaconIds are used to determine  if installs should receive
+				 * notifications because they are nearby.
+				 */
+				AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+				if (location != null) {
+					parameters.putString("location", "object:" + Json.objectToJson(location));
+				}
+
 				/* Primary beacon id */
 				if (primaryBeacon != null) {
 					parameters.putString("primaryBeaconId", primaryBeacon.id);
@@ -757,7 +765,8 @@ public class EntityManager {
 					final List<String> beaconStrings = new ArrayList<String>();
 
 					for (Beacon beacon : beacons) {
-						AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+
+						/* Final resort if patch doesn't have it's own location */
 						if (location != null) {
 
 							beacon.location = new AirLocation();
@@ -1317,6 +1326,39 @@ public class EntityManager {
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "registerInstall")
+				.setRequestType(RequestType.METHOD)
+				.setParameters(parameters)
+				.setResponseFormat(ResponseFormat.JSON);
+
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
+		}
+
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+		return result;
+	}
+
+	public ModelResult updateProximity(List<String> beaconIds, AirLocation location, String installId) {
+
+		if (installId == null) {
+			throw new IllegalArgumentException("updateProximity requires installId");
+		}
+
+		ModelResult result = new ModelResult();
+		final Bundle parameters = new Bundle();
+
+		parameters.putString("installId", installId);
+
+		if (beaconIds != null) {
+			parameters.putStringArrayList("beaconIds", (ArrayList<String>) beaconIds);
+		}
+
+		if (location != null) {
+			parameters.putString("location", "object:" + Json.objectToJson(location));
+		}
+
+		final ServiceRequest serviceRequest = new ServiceRequest()
+				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "updateProximity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setResponseFormat(ResponseFormat.JSON);

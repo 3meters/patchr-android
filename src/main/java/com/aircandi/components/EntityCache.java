@@ -241,7 +241,7 @@ public class EntityCache implements Map<String, Entity> {
 		return serviceResponse;
 	}
 
-	public ServiceResponse loadEntitiesNearLocation(AirLocation location, Links linkOptions, List<String> excludeIds) {
+	public ServiceResponse loadEntitiesNearLocation(AirLocation location, Links linkOptions, String installId, List<String> excludeIds) {
 
 		final Bundle parameters = new Bundle();
 
@@ -251,6 +251,10 @@ public class EntityCache implements Map<String, Entity> {
 
 		if (linkOptions != null) {
 			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
+		}
+
+		if (installId != null) {
+			parameters.putString("installId", installId);
 		}
 
 		if (excludeIds != null && excludeIds.size() > 0) {

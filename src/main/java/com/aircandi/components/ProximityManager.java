@@ -89,18 +89,14 @@ public class ProximityManager {
 	@SuppressWarnings("ucd")
 	public void onActivityStateEvent(final ActivityStateEvent event) {
 		/*
-		 * Radar is in the foreground so we can be more aggressive. If the user is moving, we should
-		 * perform updates more frequently and increase the check interval. When they are still,
-		 * we should not perform updates and our activity check interval should be longer.
-		 * 
 		 * Activity manager is checking for activity every thirty seconds and filters
 		 * out tilting and unknowns.
 		 */
 		if (event.activityState == ActivityState.ARRIVING) {
-			Logger.d(this, "Beacon push: activity state = arriving");
+			Logger.d(this, "Proximity update: activity state = arriving");
 			ProximityManager.getInstance().scanForWifi(ScanReason.MONITORING);
 			if (Patchr.getInstance().getPrefEnableDev()) {
-				UI.showToastNotification("Beacon push: activity state = arriving", Toast.LENGTH_SHORT);
+				UI.showToastNotification("Proximity update: activity state = arriving", Toast.LENGTH_SHORT);
 			}
 		}
 	}
@@ -115,8 +111,8 @@ public class ProximityManager {
 
 			@Override
 			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncUpdateInstallBeacons");
-				ServiceResponse serviceResponse = updateInstallBeacons(event.wifiList);
+				Thread.currentThread().setName("AsyncUpdateProximity");
+				ServiceResponse serviceResponse = updateProximity(event.wifiList);
 				return serviceResponse;
 			}
 
@@ -345,47 +341,46 @@ public class ProximityManager {
 			excludePlaceIds.add(place.id);
 		}
 
+		String installId = Patchr.getInstance().getinstallId();
+
 		ServiceResponse serviceResponse = mEntityCache.loadEntitiesNearLocation(location
 				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_PATCH)
+				, installId
 				, excludePlaceIds);
 
 		return serviceResponse;
 	}
 
-	public synchronized ServiceResponse updateInstallBeacons(final List<WifiScanResult> scanList) {
-		/*
-		 * This methods calls getEntitiesByProximity but only includes the info necessary
-		 * to update the beacons currently associated with this device and install.
-		 */
-		ServiceResponse serviceResponse = new ServiceResponse();
+	public synchronized ServiceResponse updateProximity(final List<WifiScanResult> scanList) {
+
+		ModelResult result = new ModelResult();
 		List<String> beaconIds = new ArrayList<String>();
 
 		/* Construct string array of the beacon ids */
 		synchronized (scanList) {
-			if (scanList.size() == 0) return serviceResponse;
+			if (scanList.size() == 0) return result.serviceResponse;
 			Logger.d(this, "Updating beacons for the current install");
 
 			Iterator it = scanList.iterator();
 			while (it.hasNext()) {
-				WifiScanResult result = (WifiScanResult) it.next();
-				beaconIds.add("be." + result.BSSID);
+				WifiScanResult wifiResult = (WifiScanResult) it.next();
+				beaconIds.add("be." + wifiResult.BSSID);
 			}
 		}
 
-		/* Add current registrationId */
+		AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 		String installId = Patchr.getInstance().getinstallId();
-		Cursor cursor = new Cursor().setLimit(0);
 
-		serviceResponse = mEntityCache.loadEntitiesByProximity(beaconIds, null, cursor, installId, null);
+		result = Patchr.getInstance().getEntityManager().updateProximity(beaconIds, location, installId);
 
-		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			mLastBeaconInstallUpdate = ((ServiceData) serviceResponse.data).date.longValue();
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			mLastBeaconInstallUpdate = DateTime.nowDate().getTime();
 			if (Patchr.getInstance().getPrefEnableDev()) {
-				UI.showToastNotification("Beacons pushed (" + beaconIds.size() + "): stopped after walking", Toast.LENGTH_SHORT);
+				UI.showToastNotification("Location pushed: stopped after walking", Toast.LENGTH_SHORT);
 			}
 		}
 
-		return serviceResponse;
+		return result.serviceResponse;
 	}
 
 	public void register() {

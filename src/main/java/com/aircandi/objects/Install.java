@@ -5,6 +5,7 @@ import com.aircandi.service.SerializedName;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +39,12 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 	public List<Beacon> beacons;
 	@Expose
 	public Number       beaconsDate;
+	@Expose
+	public AirLocation  location;
+	@Expose
+	public Number       locationDate;
 
-	public Install() {
-	}
+	public Install() {}
 
 	public Install(String userId, String registrationId, String installId) {
 		this.userId = userId;
@@ -59,6 +63,7 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 		install.clientPackageName = (String) map.get("clientPackageName");
 		install.deviceName = (String) map.get("deviceName");
 		install.beaconsDate = (Number) map.get("beaconsDate");
+		install.locationDate = (Number) map.get("locationDate");
 
 		if (map.get("beacons") != null) {
 			install.beacons = new ArrayList<Beacon>();
@@ -66,6 +71,10 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 			for (Map<String, Object> beaconMap : beaconMaps) {
 				install.beacons.add(Beacon.setPropertiesFromMap(new Beacon(), beaconMap, nameMapping));
 			}
+		}
+
+		if (map.get("location") != null) {
+			install.location = AirLocation.setPropertiesFromMap(new AirLocation(), (HashMap<String, Object>) map.get("location"), nameMapping);
 		}
 
 		return install;
