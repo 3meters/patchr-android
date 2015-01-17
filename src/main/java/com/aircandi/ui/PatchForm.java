@@ -536,9 +536,9 @@ public class PatchForm extends BaseEntityForm {
 					userView.databind(admin);
 				}
 				else {
-					userView.setTag(mEntity.creator);
+					userView.setTag(mEntity.owner);
 					userView.setLabel(R.string.label_owned_by);
-					userView.databind(mEntity.creator, mEntity.createdDate != null ? mEntity.createdDate.longValue() : null);
+					userView.databind(mEntity.owner, mEntity.createdDate != null ? mEntity.createdDate.longValue() : null);
 				}
 				UI.setVisibility(userView, View.VISIBLE);
 			}
