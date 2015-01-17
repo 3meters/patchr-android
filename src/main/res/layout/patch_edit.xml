@@ -72,6 +72,7 @@
 				android:layout_marginBottom="8dp"
 				android:layout_marginLeft="4dp"
 				android:layout_marginRight="4dp"
+				android:background="?attr/backgroundPlaceholder"
 				android:clickable="true"
 				android:onClick="onChangePhotoButtonClick"
 				android:scaleType="centerCrop"
@@ -80,14 +81,15 @@
 				app:config="rgb_565"
 				app:dominantMeasurement="width"
 				app:fitType="auto"
+				app:showBusy="true"
 				app:layoutId="@layout/widget_imageview_candi_view" />
 
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_alignLeft="@+id/photo"
+				android:layout_alignRight="@+id/photo"
 				android:layout_alignTop="@+id/photo"
-				android:layout_marginLeft="4dp"
-				android:layout_marginRight="4dp"
 				android:background="@drawable/scrim_medium"
 				android:gravity="bottom|center_horizontal"
 				android:orientation="vertical">
