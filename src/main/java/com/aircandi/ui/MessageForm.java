@@ -256,6 +256,7 @@ public class MessageForm extends BaseEntityForm {
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_LIKE);
 			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_likes_list);
+			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_liker);
 			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 			Patchr.dispatch.route(this, Route.USER_LIST, mEntity, extras);
 		}
