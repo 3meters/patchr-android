@@ -1,11 +1,14 @@
 package com.aircandi.utilities;
 
+import android.support.annotation.NonNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("ucd")
 public class Maps {
-	public static final <K, V> HashMap<K, V> asHashMap(K[] keys, V[] values) {
+	@NonNull
+	public static final <K, V> HashMap<K, V> asHashMap(@NonNull K[] keys, @NonNull V[] values) {
 		HashMap<K, V> result = new HashMap<K, V>();
 		if (keys.length != values.length) throw new IllegalArgumentException();
 
@@ -15,16 +18,19 @@ public class Maps {
 		return result;
 	}
 
+	@NonNull
 	public static final <K, V> HashMap<K, V> asHashMap(K key, V value) {
 		HashMap<K, V> result = new HashMap<K, V>();
 		result.put(key, value);
 		return result;
 	}
 
-	public static final <K, V> Map<K, V> asMap(K[] keys, V[] values) {
+	@NonNull
+	public static final <K, V> Map<K, V> asMap(@NonNull K[] keys, @NonNull V[] values) {
 		return asHashMap(keys, values);
 	}
 
+	@NonNull
 	public static final <K, V> Map<K, V> asMap(K key, V value) {
 		return asHashMap(key, value);
 	}
