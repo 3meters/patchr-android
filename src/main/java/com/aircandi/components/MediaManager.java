@@ -57,7 +57,7 @@ public class MediaManager {
 	 * from for instance the Instragram album, we don't want to create a copy in Pictures/Candigram.
 	 * 
 	 * We call ImageChooser and pass in the folder to use for storage. We want to use our standard
-	 * temp/share folder for photos choosen that already exist. We use Pictures/Candipatch for photos
+	 * temp/share folder for photos choosen that already exist. We use Pictures/Patchr for photos
 	 * created using the camera.
 	 */
 
