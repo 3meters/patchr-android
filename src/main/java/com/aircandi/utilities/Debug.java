@@ -1,6 +1,7 @@
 package com.aircandi.utilities;
 
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
@@ -59,7 +60,7 @@ public class Debug {
 		}
 	}
 
-	public static void insertLog(final String category, final String name, final String label, final Number value, final Object logSet) {
+	public static void insertLog(final String category, final String name, final String label, final Number value, @NonNull final Object logSet) {
 
 		if (((List) logSet).size() == 0) return;
 

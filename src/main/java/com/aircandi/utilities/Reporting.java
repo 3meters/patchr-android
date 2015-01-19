@@ -3,6 +3,7 @@ package com.aircandi.utilities;
 import android.location.Location;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.aircandi.Patchr;
@@ -13,6 +14,8 @@ import com.aircandi.components.ProximityManager;
 import com.aircandi.objects.User;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.HitBuilders;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
@@ -31,6 +34,7 @@ public class Reporting {
 				@Override
 				protected void onPreExecute() {}
 
+				@Nullable
 				@Override
 				protected Object doInBackground(Object... params) {
 
@@ -104,7 +108,7 @@ public class Reporting {
 		}
 	}
 
-	public static void updateCrashUser(User user) {
+	public static void updateCrashUser(@Nullable User user) {
 		if (Fabric.isInitialized()) {
 			if (user != null) {
 				Crashlytics.setUserIdentifier(user.id);
@@ -183,11 +187,17 @@ public class Reporting {
 	}
 
 	public static class TrackerCategory {
+		@NonNull
 		public static String UX          = "ux";
+		@NonNull
 		public static String SYSTEM      = "system";
+		@NonNull
 		public static String EDIT        = "editing";
+		@NonNull
 		public static String LINK        = "linking";
+		@NonNull
 		public static String USER        = "user";
+		@NonNull
 		public static String PERFORMANCE = "performance";
 	}
 }

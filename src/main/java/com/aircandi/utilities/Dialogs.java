@@ -22,21 +22,23 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Dialogs {
 
 	@NonNull
-	public static AlertDialog alertDialog(Integer iconResource // $codepro.audit.disable largeNumberOfParameters
-			, String titleText
+	public static AlertDialog alertDialog(@Nullable Integer iconResource // $codepro.audit.disable largeNumberOfParameters
+			, @Nullable String titleText
 			, String message
-			, View customView
-			, Context context
-			, Integer okButtonId
-			, Integer cancelButtonId
-			, Integer neutralButtonId
+			, @Nullable View customView
+			, @NonNull Context context
+			, @Nullable Integer okButtonId
+			, @Nullable Integer cancelButtonId
+			, @Nullable Integer neutralButtonId
 			, OnClickListener listenerClick
-			, OnCancelListener listenerCancel) {
+			, @Nullable OnCancelListener listenerCancel) {
 
 		final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -80,7 +82,7 @@ public class Dialogs {
 		return alert;
 	}
 
-	public static void alertDialogSimple(final Activity activity, final String titleText, final String message) {
+	public static void alertDialogSimple(@NonNull final Activity activity, final String titleText, final String message) {
 		if (!activity.isFinishing()) {
 			activity.runOnUiThread(new Runnable() {
 
@@ -101,7 +103,7 @@ public class Dialogs {
 		}
 	}
 
-	public static void signinRequired(final Activity activity, final Integer messageResId) {
+	public static void signinRequired(final Activity activity, @Nullable final Integer messageResId) {
 		String message = StringManager.getString((messageResId == null) ? R.string.alert_signin_message : messageResId);
 		signinRequired(activity, message);
 	}
@@ -110,7 +112,7 @@ public class Dialogs {
 		UI.showToastNotification(message, Toast.LENGTH_SHORT);
 	}
 
-	public static void updateApp(final Activity activity) {
+	public static void updateApp(@NonNull final Activity activity) {
 
 		final AlertDialog updateDialog = alertDialog(R.drawable.ic_launcher
 				, StringManager.getString(R.string.dialog_update_title)
@@ -124,7 +126,7 @@ public class Dialogs {
 
 			@SuppressWarnings("deprecation")
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(@NonNull DialogInterface dialog, int which) {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					try {
 						Reporting.sendEvent(Reporting.TrackerCategory.UX, "aircandi_update_button_click", "com.aircandi", 0);
@@ -164,7 +166,7 @@ public class Dialogs {
 		updateDialog.show();
 	}
 
-	public static void installAviary(final Activity activity) {
+	public static void installAviary(@NonNull final Activity activity) {
 
 		final AlertDialog updateDialog = alertDialog(R.drawable.ic_launcher
 				, StringManager.getString(R.string.dialog_aviary_title)
@@ -178,7 +180,7 @@ public class Dialogs {
 
 			@SuppressWarnings("deprecation")
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(@NonNull DialogInterface dialog, int which) {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					try {
 						Reporting.sendEvent(Reporting.TrackerCategory.UX, "aviary_install_button_click", "com.aircandi", 0);
@@ -215,7 +217,7 @@ public class Dialogs {
 		updateDialog.show();
 	}
 
-	public static void locationServicesDisabled(final Activity activity, final AtomicBoolean shot) {
+	public static void locationServicesDisabled(@NonNull final Activity activity, @NonNull final AtomicBoolean shot) {
 
 		final AlertDialog updateDialog = alertDialog(null
 				, StringManager.getString(R.string.dialog_location_services_disabled_title)
@@ -228,7 +230,7 @@ public class Dialogs {
 				, new DialogInterface.OnClickListener() {
 
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(@NonNull DialogInterface dialog, int which) {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					Reporting.sendEvent(Reporting.TrackerCategory.UX, "aircandi_location_settings_button_click", "com.aircandi", 0);
 					Patchr.dispatch.route(activity, Route.SETTINGS_LOCATION, null, null);
@@ -244,7 +246,7 @@ public class Dialogs {
 		updateDialog.show();
 	}
 
-	public static void dismiss(Dialog dialog) {
+	public static void dismiss(@Nullable Dialog dialog) {
 		if (dialog != null
 				&& dialog.isShowing()
 				&& dialog.getWindow().getWindowManager() != null) {
@@ -262,7 +264,7 @@ public class Dialogs {
 		}
 	}
 
-	public static void locked(final Activity activity, Entity entity) {
+	public static void locked(@NonNull final Activity activity, @NonNull Entity entity) {
 
 		String message = StringManager.getString(R.string.alert_entity_locked, entity.schema);
 		if (message != null) {

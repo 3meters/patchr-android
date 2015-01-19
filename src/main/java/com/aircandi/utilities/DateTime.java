@@ -1,5 +1,6 @@
 package com.aircandi.utilities;
 
+import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 
 import com.aircandi.R;
@@ -24,14 +25,14 @@ public class DateTime {
 	private static final String DATE_FORMAT_TIME_SINCE_TWITTER           = "dd MMM";
 	private static final String DATE_FORMAT_TIME_SINCE_WITH_YEAR_TWITTER = "dd MMM y";
 
-	public static String nowString(String pattern) {
+	public static String nowString(@NonNull String pattern) {
 		final Calendar cal = Calendar.getInstance();
 		final SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
 		return sdf.format(cal.getTime());
 	}
 
 	@SuppressWarnings("ucd")
-	public static String dateString(Long time, String pattern) {
+	public static String dateString(Long time, @NonNull String pattern) {
 		final SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
 		return sdf.format(time);
 	}
@@ -41,6 +42,7 @@ public class DateTime {
 		return cal.getTime();
 	}
 
+	@NonNull
 	@SuppressWarnings({"ucd", "deprecation"})
 	public static String dateStringAt(Long time) {
 		final Date date = new Date(time);

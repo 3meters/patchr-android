@@ -1,5 +1,7 @@
 package com.aircandi.utilities;
 
+import android.support.annotation.NonNull;
+
 import com.aircandi.Patchr;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.AirLocation;
@@ -25,6 +27,8 @@ import net.minidev.json.parser.ContainerFactory;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -35,6 +39,7 @@ import java.util.Map;
 
 public class Json {
 
+	@Nullable
 	public static Object jsonToObject(final String jsonString, Json.ObjectType objectType) {
 		/*
 		 * Caller will get back either an array of objectType or a single objectType.
@@ -42,6 +47,7 @@ public class Json {
 		return Json.jsonToObject(jsonString, objectType, Json.ServiceDataWrapper.FALSE);
 	}
 
+	@Nullable
 	public static Object jsonToObject(final String jsonString, Json.ObjectType objectType, Json.ServiceDataWrapper serviceDataWrapper) {
 		/*
 		 * serviceDataWrapper
@@ -73,6 +79,7 @@ public class Json {
 		return object;
 	}
 
+	@Nullable
 	public static Object jsonToObjects(final String json, final Json.ObjectType objectType, Json.ServiceDataWrapper serviceDataWrapper) {
 
 		/*
@@ -90,11 +97,13 @@ public class Json {
 
 			/* Lets us direct which implementations to use for lists and maps */
 			ContainerFactory containerFactory = new ContainerFactory() {
+				@NonNull
 				@Override
 				public Map createObjectContainer() {
 					return new LinkedHashMap();
 				}
 
+				@NonNull
 				@Override
 				public List<Object> createArrayContainer() {
 					return new ArrayList<Object>();
@@ -162,7 +171,8 @@ public class Json {
 		return null;
 	}
 
-	public static Object mapsToObjects(List<LinkedHashMap<String, Object>> maps, final Json.ObjectType objectType, Boolean nameMapping) {
+	@Nullable
+	public static Object mapsToObjects(@NonNull List<LinkedHashMap<String, Object>> maps, final Json.ObjectType objectType, Boolean nameMapping) {
 
 		try {
 
@@ -226,17 +236,18 @@ public class Json {
 		return null;
 	}
 
-	public static String objectToJson(Object object) {
+	public static String objectToJson(@NonNull Object object) {
 		return Json.objectToJson(object, Json.UseAnnotations.FALSE, Json.ExcludeNulls.TRUE);
 	}
 
-	public static String objectToJson(Object object, Json.UseAnnotations useAnnotations, Json.ExcludeNulls excludeNulls) {
+	public static String objectToJson(@NonNull Object object, Json.UseAnnotations useAnnotations, Json.ExcludeNulls excludeNulls) {
 		final Map map = Json.objectToMap(object, useAnnotations, excludeNulls);
 		String json = JSONValue.toJSONString(map);
 		return json;
 	}
 
-	public static Map<String, Object> objectToMap(Object object, Json.UseAnnotations useAnnotations, Json.ExcludeNulls excludeNullsProposed) {
+	@NonNull
+	public static Map<String, Object> objectToMap(@NonNull Object object, Json.UseAnnotations useAnnotations, Json.ExcludeNulls excludeNullsProposed) {
 		final Map<String, Object> map = new HashMap<String, Object>();
 
 		/*

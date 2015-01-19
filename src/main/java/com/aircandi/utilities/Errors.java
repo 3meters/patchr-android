@@ -2,6 +2,7 @@ package com.aircandi.utilities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.EOFException;
 import java.io.FileNotFoundException;
@@ -34,7 +36,7 @@ import java.util.Locale;
 
 public final class Errors {
 
-	public static void handleError(final Activity activity, ServiceResponse serviceResponse) {
+	public static void handleError(@Nullable final Activity activity, @NonNull ServiceResponse serviceResponse) {
 
 		ErrorResponse errorResponse = serviceResponse.errorResponse;
 		if (errorResponse == null || errorResponse.errorResponseType == null) {
@@ -91,8 +93,9 @@ public final class Errors {
 		}
 	}
 
+	@Nullable
 	@SuppressWarnings("ConstantConditions")
-	public static final ErrorResponse getErrorResponse(Context context, ServiceResponse serviceResponse) {
+	public static final ErrorResponse getErrorResponse(Context context, @NonNull ServiceResponse serviceResponse) {
 
 		if (serviceResponse.statusCode != null) {
 
@@ -324,7 +327,8 @@ public final class Errors {
 		return errorResponse;
 	}
 
-	public static Boolean isNetworkError(ServiceResponse serviceResponse) {
+	@Nullable
+	public static Boolean isNetworkError(@NonNull ServiceResponse serviceResponse) {
 		return (serviceResponse.statusCode == null && serviceResponse.exception != null && serviceResponse.exception instanceof IOException);
 	}
 
@@ -344,7 +348,9 @@ public final class Errors {
 		public String       errorMessage;
 		public String       errorTitle;
 		public ResponseType errorResponseType;
+		@NonNull
 		public Boolean signout = false;
+		@NonNull
 		public Boolean splash  = false;
 		public Boolean track   = false;
 
@@ -366,6 +372,7 @@ public final class Errors {
 			return track;
 		}
 
+		@NonNull
 		public ErrorResponse setTrack(Boolean track) {
 			this.track = track;
 			return this;

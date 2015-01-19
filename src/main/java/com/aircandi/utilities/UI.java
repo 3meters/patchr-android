@@ -9,6 +9,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -28,6 +29,8 @@ import com.aircandi.ui.widgets.AirImageView;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Transformation;
 
+import org.jetbrains.annotations.Nullable;
+
 @SuppressWarnings("ucd")
 public class UI {
 
@@ -35,11 +38,11 @@ public class UI {
 	 * Photos
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static void drawPhoto(final AirImageView photoView, final Photo photo) {
+	public static void drawPhoto(@NonNull final AirImageView photoView, @NonNull final Photo photo) {
 		drawPhoto(photoView, photo, null);
 	}
 
-	public static void drawPhoto(final AirImageView photoView, final Photo photo, final Transformation transform) {
+	public static void drawPhoto(@NonNull final AirImageView photoView, @NonNull final Photo photo, final Transformation transform) {
 	    /*
 	     * There are only a few places that don't use this code to display images:
 		 * - Notification icons - can't use AirImageView
@@ -76,7 +79,7 @@ public class UI {
 		}
 	}
 
-	public static void loadView(final AirImageView photoView, final Photo photo, final Transformation transform) {
+	public static void loadView(@NonNull final AirImageView photoView, @NonNull final Photo photo, @Nullable final Transformation transform) {
 		/*
 		 * This is the only patch in the code that turns on proxy handling.
 		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
@@ -165,17 +168,17 @@ public class UI {
 		return (int) displayPixels;
 	}
 
-	public static float getScreenWidthDisplayPixels(Context context) {
+	public static float getScreenWidthDisplayPixels(@NonNull Context context) {
 		final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
 		return metrics.widthPixels / metrics.density;
 	}
 
-	public static float getScreenWidthRawPixels(Context context) {
+	public static float getScreenWidthRawPixels(@NonNull Context context) {
 		final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
 		return metrics.widthPixels;
 	}
 
-	public static float getScreenHeightRawPixels(Context context) {
+	public static float getScreenHeightRawPixels(@NonNull Context context) {
 		final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
 		return metrics.heightPixels;
 	}
@@ -184,7 +187,7 @@ public class UI {
 		return height * width * (hasAlpha ? 4 : 3);
 	}
 
-	public static Bitmap ensureBitmapScaleForS3(Bitmap bitmap) {
+	public static Bitmap ensureBitmapScaleForS3(@NonNull Bitmap bitmap) {
 		Bitmap bitmapScaled = bitmap;
 		final Boolean scalingNeeded = (bitmap.getWidth() > Constants.IMAGE_DIMENSION_MAX && bitmap.getHeight() > Constants.IMAGE_DIMENSION_MAX);
 		if (scalingNeeded) {
@@ -203,13 +206,13 @@ public class UI {
 		return bitmapScaled;
 	}
 
-	public static Drawable getDrawableForAttribute(Context context, Integer attr) {
+	public static Drawable getDrawableForAttribute(@NonNull Context context, Integer attr) {
 		TypedValue a = new TypedValue();
 		context.getTheme().resolveAttribute(attr, a, true);
 		return Patchr.applicationContext.getResources().getDrawable(a.resourceId);
 	}
 
-	public static Integer getResIdForAttribute(Context context, Integer attr) {
+	public static Integer getResIdForAttribute(@NonNull Context context, Integer attr) {
 		TypedValue a = new TypedValue();
 		context.getTheme().resolveAttribute(attr, a, true);
 		return a.resourceId;
@@ -242,7 +245,7 @@ public class UI {
 		});
 	}
 
-	public static void showDrawableInImageView(final Drawable drawable, final ImageView imageView, final boolean animate) {
+	public static void showDrawableInImageView(final Drawable drawable, @Nullable final ImageView imageView, final boolean animate) {
 		/*
 		 * Make sure this on the main thread
 		 */
@@ -264,13 +267,13 @@ public class UI {
 		});
 	}
 
-	public static void setVisibility(View view, Integer visibility) {
+	public static void setVisibility(@Nullable View view, Integer visibility) {
 		if (view != null) {
 			view.setVisibility(visibility);
 		}
 	}
 
-	public static void setEnabled(View view, boolean enabled) {
+	public static void setEnabled(@NonNull View view, boolean enabled) {
 		view.setEnabled(enabled);
 		if (view instanceof ViewGroup) {
 			ViewGroup group = (ViewGroup) view;
@@ -284,12 +287,12 @@ public class UI {
 	 * Input
    	 *--------------------------------------------------------------------------------------------*/
 
-	public static void hideSoftInput(View view) {
+	public static void hideSoftInput(@NonNull View view) {
 		InputMethodManager inputManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 	}
 
-	public static void showSoftInput(View view) {
+	public static void showSoftInput(@NonNull View view) {
 		InputMethodManager inputManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		inputManager.showSoftInput(view, InputMethodManager.SHOW_FORCED);
 	}

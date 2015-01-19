@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.support.annotation.NonNull;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -12,11 +13,11 @@ import java.util.regex.Pattern;
 
 public class Utilities {
 
-	public static Boolean validEmail(String email) {
+	public static Boolean validEmail(@NonNull String email) {
 		return EMAIL_ADDRESS.matcher(email).matches();
 	}
 
-	public static Boolean validWebUri(String webUri) {
+	public static Boolean validWebUri(@NonNull String webUri) {
 		return WEB_URL.matcher(webUri).matches();
 	}
 
@@ -28,6 +29,7 @@ public class Utilities {
 		return availableMemory;
 	}
 
+	@NonNull
 	@SuppressWarnings("ucd")
 	public static ScreenSize getScreenSize() {
 		int screenLayout = Patchr.applicationContext.getResources().getConfiguration().screenLayout;
