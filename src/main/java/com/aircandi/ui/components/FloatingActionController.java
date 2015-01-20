@@ -34,7 +34,7 @@ public class FloatingActionController {
 			throw new RuntimeException("Cannot call click while not enabled");
 		}
 		if (mView != null) {
-			mView.callOnClick();
+			mView.performClick();
 		}
 	}
 
