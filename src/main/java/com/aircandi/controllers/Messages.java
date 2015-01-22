@@ -1,5 +1,6 @@
 package com.aircandi.controllers;
 
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -40,6 +41,7 @@ public class Messages extends EntityControllerBase {
 		mListLoadingResId = R.layout.temp_listitem_loading;
 	}
 
+	@NonNull
 	@Override
 	public Entity makeNew() {
 		Entity entity = new Message();

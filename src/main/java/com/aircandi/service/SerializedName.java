@@ -16,6 +16,8 @@
 
 package com.aircandi.service;
 
+import android.support.annotation.NonNull;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -81,6 +83,6 @@ public @interface SerializedName {
 	 *
 	 * @since 1.4
 	 */
-	public String name();
+	@NonNull public String name();
 
 }

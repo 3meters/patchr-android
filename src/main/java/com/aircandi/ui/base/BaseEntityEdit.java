@@ -333,10 +333,12 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						}
 						else if (photoSource.equals(Constants.PHOTO_ACTION_EDIT)) {
 
-							final String jsonPhoto = Json.objectToJson(mEntity.photo);
-							Bundle bundle = new Bundle();
-							bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-							Patchr.dispatch.route(this, Route.PHOTO_EDIT, null, bundle);
+							if (mEntity.photo != null) {
+								final String jsonPhoto = Json.objectToJson(mEntity.photo);
+								Bundle bundle = new Bundle();
+								bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
+								Patchr.dispatch.route(this, Route.PHOTO_EDIT, null, bundle);
+							}
 						}
 						else if (photoSource.equals(Constants.PHOTO_ACTION_DEFAULT)
 								|| photoSource.equals(Constants.PHOTO_ACTION_WEBSITE_THUMBNAIL)) {

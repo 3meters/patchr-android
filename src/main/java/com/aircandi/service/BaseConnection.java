@@ -1,5 +1,7 @@
 package com.aircandi.service;
 
+import android.support.annotation.NonNull;
+
 import com.aircandi.interfaces.IConnection;
 import com.aircandi.service.AirHttpRequest.Header;
 import com.aircandi.service.ServiceRequest.AuthType;
@@ -10,10 +12,12 @@ import java.util.List;
 
 public abstract class BaseConnection implements IConnection {
 
+	@NonNull
 	@Override
 	public abstract ServiceResponse request(ServiceRequest serviceRequest);
 
-	protected static AirHttpRequest buildHttpRequest(final ServiceRequest serviceRequest) {
+	@NonNull
+	protected static AirHttpRequest buildHttpRequest(@NonNull final ServiceRequest serviceRequest) {
 
 		AirHttpRequest airHttpRequest = new AirHttpRequest();
 		airHttpRequest.uri = serviceRequest.getUriWithQuery();
@@ -98,7 +102,7 @@ public abstract class BaseConnection implements IConnection {
 		return airHttpRequest;
 	}
 
-	private static void addHeaders(AirHttpRequest airHttpRequest, ServiceRequest serviceRequest) {
+	private static void addHeaders(@NonNull AirHttpRequest airHttpRequest, @NonNull ServiceRequest serviceRequest) {
 		if (serviceRequest.getRequestType() != RequestType.GET) {
 			airHttpRequest.headers.add(new Header("Content-Type", "application/json"));
 		}
@@ -110,11 +114,11 @@ public abstract class BaseConnection implements IConnection {
 		}
 	}
 
-	protected static Boolean isContentType(String contentType, String target) {
+	protected static Boolean isContentType(@NonNull String contentType, @NonNull String target) {
 		return contentType.contains(target);
 	}
 
-	protected static String getContentType(HttpURLConnection connection, AirHttpRequest request) {
+	protected static String getContentType(@NonNull HttpURLConnection connection, @NonNull AirHttpRequest request) {
 		String contentType = connection.getContentType();
 		/*
 		 * Some requests come back without contentType set. Example is images from
@@ -134,9 +138,11 @@ public abstract class BaseConnection implements IConnection {
 	}
 
 	public static class ContentType {
+		@NonNull
 		public static String TEXT  = "text";
+		@NonNull
 		public static String IMAGE = "image";
+		@NonNull
 		public static String JSON  = "json";
 	}
-
 }

@@ -23,8 +23,11 @@ package com.aircandi.ui.components;
 
 import android.graphics.Camera;
 import android.graphics.Matrix;
+import android.support.annotation.NonNull;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
+
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This class extends Animation to support a 3D flip view transition animation. Two instances of this class is
@@ -44,6 +47,7 @@ public class FlipAnimation extends Animation {
 	private       Camera mCamera;
 	private       int    mDirection;
 
+	@NonNull
 	private final ScaleUpDownEnum scaleType;
 
 	/**
@@ -69,7 +73,7 @@ public class FlipAnimation extends Animation {
 	 * @param scaleType   flip view transition is broken down into two: the zoom-out of the "from" view and the zoom-in of the
 	 *                    "to" view. This parameter is used to determine which is being done. See {@link ScaleUpDownEnum}.
 	 */
-	public FlipAnimation(float fromDegrees, float toDegrees, float centerX, float centerY, float scale, ScaleUpDownEnum scaleType) {
+	public FlipAnimation(float fromDegrees, float toDegrees, float centerX, float centerY, float scale, @Nullable ScaleUpDownEnum scaleType) {
 		mFromDegrees = fromDegrees;
 		mToDegrees = toDegrees;
 		mCenterX = centerX;
@@ -86,7 +90,7 @@ public class FlipAnimation extends Animation {
 	}
 
 	@Override
-	protected void applyTransformation(float interpolatedTime, Transformation t) {
+	protected void applyTransformation(float interpolatedTime, @NonNull Transformation t) {
 		final float fromDegrees = mFromDegrees;
 		float degrees = fromDegrees + ((mToDegrees - fromDegrees) * interpolatedTime);
 

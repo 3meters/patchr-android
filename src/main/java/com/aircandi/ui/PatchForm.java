@@ -225,6 +225,7 @@ public class PatchForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onWatchButtonClick(View view) {
 
+		if (mEntity == null) return;
 		if (mProcessing) return;
 		mProcessing = true;
 

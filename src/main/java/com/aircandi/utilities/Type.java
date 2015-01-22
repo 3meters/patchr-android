@@ -13,17 +13,20 @@ public class Type {
 		return stringValue;
 	}
 
-	@Nullable
+	@NonNull
 	public static Boolean isTrue(@Nullable Boolean value) {
 		return (value != null && value);
 	}
 
-	@Nullable
+	@NonNull
 	public static Boolean isFalse(@Nullable Boolean value) {
-		return (value == null || !value);
+		//noinspection PointlessBooleanExpression
+		return (value == null || value == false);
 	}
 
-	public static Boolean equal(@NonNull String value1, String value2) {
+	public static Boolean equal(String value1, String value2) {
+		if (value1 == null && value2 == null) return true;
+		if (value1 == null || value2 == null) return true;
 		if (TextUtils.isEmpty(value1) && TextUtils.isEmpty(value2)) return true;
 		return (value1.equals(value2));
 	}

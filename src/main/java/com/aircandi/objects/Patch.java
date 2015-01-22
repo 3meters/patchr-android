@@ -1,5 +1,6 @@
 package com.aircandi.objects;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.aircandi.Constants;
@@ -92,7 +93,7 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	public static class SortByProximityAndDistance implements Comparator<Entity> {
 
 		@Override
-		public int compare(Entity object1, Entity object2) {
+		public int compare(@NonNull Entity object1, @NonNull Entity object2) {
 
 			if (object1.hasActiveProximity() && !object2.hasActiveProximity())
 				return -1;
@@ -110,12 +111,15 @@ public class Patch extends Entity implements Cloneable, Serializable {
 					return 1;
 				else if (object2.distance == null && object1.distance != null)
 					return -1;
-				else if (object1.distance != null && object1.distance.intValue() < object2.distance.intValue())
-					return -1;
-				else if (object1.distance != null && object1.distance.intValue() > object2.distance.intValue())
-					return 1;
-				else
-					return 0;
+				else if (object1.distance != null && object2.distance != null) {
+					if (object1.distance.intValue() < object2.distance.intValue())
+						return -1;
+					else if (object1.distance.intValue() > object2.distance.intValue())
+						return 1;
+					else
+						return 0;
+				}
+				return 0;
 			}
 		}
 	}

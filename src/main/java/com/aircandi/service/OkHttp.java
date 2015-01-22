@@ -1,5 +1,7 @@
 package com.aircandi.service;
 
+import android.support.annotation.NonNull;
+
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -50,10 +52,11 @@ public class OkHttp extends BaseConnection {
 		client.setWriteTimeout(ServiceConstants.TIMEOUT_SOCKET_WRITE, TimeUnit.MILLISECONDS);
 	}
 
+	@NonNull
 	@Override
-	public ServiceResponse request(final ServiceRequest serviceRequest) {
+	public ServiceResponse request(@NonNull final ServiceRequest serviceRequest) {
 
-		final ServiceResponse serviceResponse = new ServiceResponse();
+		ServiceResponse serviceResponse = new ServiceResponse();
 		Response response = null;
 		AirHttpRequest airRequest = null;
 		Request.Builder builder = new Request.Builder().tag(serviceRequest.getTag());
@@ -132,15 +135,15 @@ public class OkHttp extends BaseConnection {
 				serviceResponse.tag = serviceRequest.getTag();
 				serviceResponse.exception = exception;
 				serviceResponse.responseCode = ResponseCode.FAILED;
-				return serviceResponse;
 			}
 			else {
-				return new ServiceResponse(ResponseCode.FAILED, null, exception);
+				serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, exception);
 			}
 		}
+		return serviceResponse;
 	}
 
-	public void requestAsync(final ServiceRequest serviceRequest) throws MalformedURLException {
+	public void requestAsync(@NonNull final ServiceRequest serviceRequest) throws MalformedURLException {
 
 		final ServiceResponse serviceResponse = new ServiceResponse();
 		serviceResponse.activityName = serviceRequest.getActivityName();
@@ -177,7 +180,7 @@ public class OkHttp extends BaseConnection {
 			}
 
 			@Override
-			public void onResponse(Response response) throws IOException {
+			public void onResponse(@NonNull Response response) throws IOException {
 					/*
 					 * Called when the HTTP response was successfully returned by the remote
 					 * server. The callback may proceed to read the response body. The response
@@ -209,7 +212,7 @@ public class OkHttp extends BaseConnection {
 		});
 	}
 
-	private void logErrorResponse(Response response) {
+	private void logErrorResponse(@NonNull Response response) {
 
 		final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.body().byteStream()));
 		final StringBuilder stringBuilder = new StringBuilder(); // $codepro.audit.disable defineInitialCapacity
@@ -229,7 +232,7 @@ public class OkHttp extends BaseConnection {
 		Logger.d(this, responseContent);
 	}
 
-	protected static String getContentType(Response response, AirHttpRequest request) {
+	protected static String getContentType(@NonNull Response response, @NonNull AirHttpRequest request) {
 		MediaType contentType = response.body().contentType();
 		/*
 		 * Some requests come back without contentType set. Example is images from

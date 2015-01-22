@@ -6,6 +6,7 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 
 import com.aircandi.components.FontManager;
 import com.aircandi.utilities.UI;
@@ -13,17 +14,16 @@ import com.aircandi.utilities.UI;
 public class TextDrawable extends Drawable {
 
 	private final String mText;
-	private final Paint  mPaint;
-	private       float  mTextSize;
-	private       int    mTextColor;
-	private       float  mTextWidth;
+	private final Paint mPaint = new Paint();
+	private float mTextSize;
+	private int   mTextColor;
+	private float mTextWidth;
 
 	public TextDrawable(String text) {
 
 		mText = text;
 		mTextSize = UI.getRawPixelsForScaledPixels(18f);
 		mTextColor = Color.DKGRAY;
-		this.mPaint = new Paint();
 		buildPaint();
 	}
 
@@ -38,7 +38,7 @@ public class TextDrawable extends Drawable {
 	}
 
 	@Override
-	public void draw(Canvas canvas) {
+	public void draw(@NonNull Canvas canvas) {
 		canvas.drawText(mText, 0, 15, mPaint);
 	}
 

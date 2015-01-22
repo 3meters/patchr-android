@@ -93,7 +93,7 @@ public final class Errors {
 		}
 	}
 
-	@Nullable
+	@NonNull
 	@SuppressWarnings("ConstantConditions")
 	public static final ErrorResponse getErrorResponse(Context context, @NonNull ServiceResponse serviceResponse) {
 
@@ -327,7 +327,7 @@ public final class Errors {
 		return errorResponse;
 	}
 
-	@Nullable
+	@NonNull
 	public static Boolean isNetworkError(@NonNull ServiceResponse serviceResponse) {
 		return (serviceResponse.statusCode == null && serviceResponse.exception != null && serviceResponse.exception instanceof IOException);
 	}

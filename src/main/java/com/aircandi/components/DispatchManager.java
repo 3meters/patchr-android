@@ -94,8 +94,10 @@ public class DispatchManager {
 				throw new IllegalArgumentException("Dispatching browse requires entity or extras.entityId");
 			}
 
-			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
-			controller.view(activity, entity, entityId, parentId, null, extras, true);
+			if (schema != null) {
+				IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
+				controller.view(activity, entity, entityId, parentId, null, extras, true);
+			}
 		}
 
 		else if (route == Route.EDIT) {
@@ -153,8 +155,10 @@ public class DispatchManager {
 				return;
 			}
 
-			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
-			controller.insert(activity, extras, true);
+			if (schema != null) {
+				IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
+				controller.insert(activity, extras, true);
+			}
 		}
 
 		else if (route == Route.REFRESH) {
@@ -216,6 +220,9 @@ public class DispatchManager {
 
 			if (entity == null) {
 				throw new IllegalArgumentException("Valid entity required for selected route");
+			}
+			if (entity.photo == null) {
+				throw new IllegalArgumentException("Routing to photo form requires photo object");
 			}
 			if (extras == null) {
 				throw new IllegalArgumentException("Dispatching photos requires extras");

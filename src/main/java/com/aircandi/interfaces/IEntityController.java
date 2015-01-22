@@ -23,9 +23,11 @@ public interface IEntityController {
 
 	public void bindHolder(View view, ViewHolder viewHolder);
 
-	public boolean supportsEdit();
+	public boolean supportsEditUi();
 
-	public boolean supportsInsert();
+	public boolean supportsInsertUi();
+
+	public boolean supportsNew();
 
 	public Entity makeNew();
 

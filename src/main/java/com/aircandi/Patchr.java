@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 import android.util.DisplayMetrics;
 import android.widget.Toast;
@@ -56,6 +57,8 @@ import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.TagManager;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -66,6 +69,7 @@ import io.fabric.sdk.android.Fabric;
 
 public class Patchr extends MultiDexApplication {
 
+	@Nullable
 	public static BasicAWSCredentials awsCredentials = null;
 
 	private static Patchr singletonObject;
@@ -82,19 +86,30 @@ public class Patchr extends MultiDexApplication {
 	public static Stopwatch                stopwatch2;
 	public static String                   themeTone;
 
+	@NonNull
 	public static Map<String, IEntityController> controllerMap             = new HashMap<String, IEntityController>();
+	@NonNull
 	public static Boolean                        firstStartApp             = true;
+	@NonNull
 	public static Boolean                        debug                     = false;
+	@Nullable
 	public static Intent                         firstStartIntent          = null;
+	@NonNull
 	public static Boolean                        usingEmulator             = false;
+	@NonNull
 	public static Integer                        wifiCount                 = 0;
+	@NonNull
 	public static Boolean                        applicationUpdateRequired = false;
 	public static Integer                        resultCode                = Activity.RESULT_OK;
 
 	/* Container values */
+	@NonNull
 	public static String AWS_ACCESS_KEY  = "aws-access-key";
+	@NonNull
 	public static String AWS_SECRET_KEY  = "aws-secret-key";
+	@NonNull
 	public static String BING_ACCESS_KEY = "bing-access-key";
+	@NonNull
 	public static String USER_SECRET     = "user-secret";
 
 	public Tracker mTracker;
@@ -257,7 +272,7 @@ public class Patchr extends MultiDexApplication {
 		pending.setResultCallback(new ResultCallback<ContainerHolder>() {
 
 			@Override
-			public void onResult(ContainerHolder containerHolder) {
+			public void onResult(@NonNull ContainerHolder containerHolder) {
 
 				if (!containerHolder.getStatus().isSuccess()) {
 					// Called when a refresh failed for the given refresh type.
@@ -277,7 +292,7 @@ public class Patchr extends MultiDexApplication {
 
 				containerHolder.setContainerAvailableListener(new ContainerHolder.ContainerAvailableListener() {
 					@Override
-					public void onContainerAvailable(ContainerHolder containerHolder, String s) {
+					public void onContainerAvailable(@NonNull ContainerHolder containerHolder, String s) {
 						activateContainer(containerHolder);
 					}
 				});
@@ -287,7 +302,7 @@ public class Patchr extends MultiDexApplication {
 		Logger.v(this, "Container set using default");
 	}
 
-	private void activateContainer(ContainerHolder containerHolder) {
+	private void activateContainer(@NonNull ContainerHolder containerHolder) {
 		ContainerManager.setContainerHolder(containerHolder);
 		Container container = containerHolder.getContainer();
 		if (!container.isDefault()) {
@@ -307,13 +322,9 @@ public class Patchr extends MultiDexApplication {
 		if (jsonUser != null && jsonSession != null) {
 			Logger.i(this, "Auto sign in...");
 			final User user = (User) Json.jsonToObject(jsonUser, Json.ObjectType.ENTITY);
-			if (user != null) {
-				user.session = (Session) Json.jsonToObject(jsonSession, Json.ObjectType.SESSION);
-				if (user.session != null) {
-					Patchr.getInstance().setCurrentUser(user, false);
-					return;
-				}
-			}
+			user.session = (Session) Json.jsonToObject(jsonSession, Json.ObjectType.SESSION);
+			Patchr.getInstance().setCurrentUser(user, false);
+			return;
 		}
 
 		/* Couldn't auto signin so fall back to anonymous */
@@ -321,16 +332,30 @@ public class Patchr extends MultiDexApplication {
 		setCurrentUser(anonymous, false);
 	}
 
-	public IEntityController getControllerForSchema(String schema) {
+	@NonNull
+	public IEntityController getControllerForSchema(@NonNull String schema) {
+		if (!controllerMap.containsKey(schema)) {
+			throw new IllegalArgumentException("No controller for schema: " + schema.toString());
+		}
 		return controllerMap.get(schema);
 	}
 
-	public IEntityController getControllerForClass(Class<?> clazz) {
-		return controllerMap.get(clazz.getSimpleName().toLowerCase(Locale.US));
+	@NonNull
+	public IEntityController getControllerForClass(@NonNull Class<?> clazz) {
+		String schema = clazz.getSimpleName().toLowerCase(Locale.US);
+		if (!controllerMap.containsKey(schema)) {
+			throw new IllegalArgumentException("No controller for schema: " + schema.toString());
+		}
+		return controllerMap.get(schema);
 	}
 
-	public IEntityController getControllerForEntity(Entity entity) {
-		return controllerMap.get(entity.schema);
+	@NonNull
+	public IEntityController getControllerForEntity(@NonNull Entity entity) {
+		String schema = entity.schema;
+		if (!controllerMap.containsKey(schema)) {
+			throw new IllegalArgumentException("No controller for schema: " + schema.toString());
+		}
+		return controllerMap.get(schema);
 	}
 
 	public synchronized String getInstallType() {
@@ -383,7 +408,8 @@ public class Patchr extends MultiDexApplication {
 	 * Statics
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static String getVersionName(Context context, Class cls) {
+	@NonNull
+	public static String getVersionName(@NonNull Context context, @NonNull Class cls) {
 		try {
 			final ComponentName comp = new ComponentName(context, cls);
 			final PackageInfo pinfo = context.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
@@ -391,11 +417,12 @@ public class Patchr extends MultiDexApplication {
 		}
 		catch (android.content.pm.PackageManager.NameNotFoundException e) {
 			Logger.e(applicationContext, e.getMessage());
-			return null;
 		}
+		throw new IllegalArgumentException("Failed to get version name");
 	}
 
-	public static Integer getVersionCode(Context context, Class cls) {
+	@NonNull
+	public static Integer getVersionCode(@NonNull Context context, @NonNull Class cls) {
 		try {
 			final ComponentName comp = new ComponentName(context, cls);
 			final PackageInfo pinfo = context.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
@@ -403,12 +430,14 @@ public class Patchr extends MultiDexApplication {
 		}
 		catch (android.content.pm.PackageManager.NameNotFoundException e) {
 			Logger.e(applicationContext, e.getMessage());
-			return null;
 		}
+		throw new IllegalArgumentException("Failed to get version code");
 	}
 
 	public static class ThemeTone {
+		@NonNull
 		public static String DARK  = "dark";
+		@NonNull
 		public static String LIGHT = "light";
 	}
 
@@ -420,6 +449,7 @@ public class Patchr extends MultiDexApplication {
 		mTracker = tracker;
 	}
 
+	@NonNull
 	public Boolean setCurrentUser(User user, Boolean refreshUser) {
 		mCurrentUser = user;
 		ModelResult result = mEntityManager.activateCurrentUser(refreshUser);
@@ -427,16 +457,19 @@ public class Patchr extends MultiDexApplication {
 		return (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS);
 	}
 
+	@NonNull
 	public Patchr setMenuManager(MenuManager menuManager) {
 		mMenuManager = menuManager;
 		return this;
 	}
 
+	@NonNull
 	public Patchr setMediaManager(MediaManager mediaManager) {
 		mMediaManager = mediaManager;
 		return this;
 	}
 
+	@NonNull
 	public Patchr setAnimationManager(AnimationManager animationManager) {
 		mAnimationManager = animationManager;
 		return this;

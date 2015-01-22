@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.MessageQueue;
+import android.support.annotation.NonNull;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -43,6 +44,8 @@ import com.google.maps.android.projection.SphericalMercatorProjection;
 import com.google.maps.android.ui.IconGenerator;
 import com.google.maps.android.ui.SquareTextView;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,6 +68,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 
 	private boolean mAnimate = true;
 	private final GoogleMap         mMap;
+	@NonNull
 	private final IconGenerator     mIconGenerator;
 	private final ClusterManager<T> mClusterManager;
 	private final float             mDensity;
@@ -79,11 +83,13 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	/**
 	 * Icons for each bucket.
 	 */
+	@NonNull
 	private SparseArray<BitmapDescriptor> mIcons   = new SparseArray<BitmapDescriptor>();
 
 	/**
 	 * Markers for single ClusterItems.
 	 */
+	@NonNull
 	private MarkerCache<T> mMarkerCache = new MarkerCache<T>();
 
 	/**
@@ -99,7 +105,9 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	/**
 	 * Lookup between markers and the associated cluster.
 	 */
+	@NonNull
 	private Map<Marker, Cluster<T>> mMarkerToCluster = new HashMap<Marker, Cluster<T>>();
+	@NonNull
 	private Map<Cluster<T>, Marker> mClusterToMarker = new HashMap<Cluster<T>, Marker>();
 
 	/**
@@ -114,7 +122,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	private ClusterManager.OnClusterItemClickListener<T>           mItemClickListener;
 	private ClusterManager.OnClusterItemInfoWindowClickListener<T> mItemInfoWindowClickListener;
 
-	public AirClusterRenderer(Context context, GoogleMap map, ClusterManager<T> clusterManager) {
+	public AirClusterRenderer(@NonNull Context context, GoogleMap map, ClusterManager<T> clusterManager) {
 		mMap = map;
 		mDensity = context.getResources().getDisplayMetrics().density;
 		mIconGenerator = new IconGenerator(context);
@@ -166,6 +174,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 		mClusterManager.getClusterMarkerCollection().setOnMarkerClickListener(null);
 	}
 
+	@NonNull
 	private LayerDrawable makeClusterBackground() {
 		mColoredCircleBackground = new ShapeDrawable(new OvalShape());
 		ShapeDrawable outline = new ShapeDrawable(new OvalShape());
@@ -176,6 +185,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 		return background;
 	}
 
+	@NonNull
 	private SquareTextView makeSquareTextView(Context context) {
 		SquareTextView squareTextView = new SquareTextView(context);
 		ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -190,6 +200,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 		return Colors.getColor(R.color.brand_primary);
 	}
 
+	@NonNull
 	protected String getClusterText(int bucket) {
 		if (bucket < BUCKETS[0]) {
 			return String.valueOf(bucket);
@@ -201,7 +212,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	 * Gets the "bucket" for a particular cluster. By default, uses the number of points within the
 	 * cluster, bucketed to some set points.
 	 */
-	protected int getBucket(Cluster<T> cluster) {
+	protected int getBucket(@NonNull Cluster<T> cluster) {
 		int size = cluster.getSize();
 		if (size <= BUCKETS[0]) {
 			return size;
@@ -223,10 +234,11 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 		private static final int        RUN_TASK                    = 0;
 		private static final int        TASK_FINISHED               = 1;
 		private              boolean    mViewModificationInProgress = false;
+		@Nullable
 		private              RenderTask mNextClusters               = null;
 
 		@Override
-		public void handleMessage(Message msg) {
+		public void handleMessage(@NonNull Message msg) {
 			if (msg.what == TASK_FINISHED) {
 				mViewModificationInProgress = false;
 				if (mNextClusters != null) {
@@ -277,7 +289,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	/**
 	 * Determine whether the cluster should be rendered as individual markers or a cluster.
 	 */
-	protected boolean shouldRenderAsCluster(Cluster<T> cluster) {
+	protected boolean shouldRenderAsCluster(@NonNull Cluster<T> cluster) {
 		return cluster.getSize() > MIN_CLUSTER_SIZE;
 	}
 
@@ -459,11 +471,12 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 		mAnimate = animate;
 	}
 
-	private static double distanceSquared(Point a, Point b) {
+	private static double distanceSquared(@NonNull Point a, @NonNull Point b) {
 		return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
 	}
 
-	private static Point findClosestCluster(List<Point> markers, Point point) {
+	@Nullable
+	private static Point findClosestCluster(@Nullable List<Point> markers, @NonNull Point point) {
 		if (markers == null || markers.isEmpty()) return null;
 
 		// TODO: make this configurable.
@@ -491,10 +504,15 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 		private final Lock      lock          = new ReentrantLock();
 		private final Condition busyCondition = lock.newCondition();
 
+		@NonNull
 		private Queue<CreateMarkerTask> mCreateMarkerTasks         = new LinkedList<CreateMarkerTask>();
+		@NonNull
 		private Queue<CreateMarkerTask> mOnScreenCreateMarkerTasks = new LinkedList<CreateMarkerTask>();
+		@NonNull
 		private Queue<Marker>           mRemoveMarkerTasks         = new LinkedList<Marker>();
+		@NonNull
 		private Queue<Marker>           mOnScreenRemoveMarkerTasks = new LinkedList<Marker>();
+		@NonNull
 		private Queue<AnimationTask>    mAnimationTasks            = new LinkedList<AnimationTask>();
 
 		/**
@@ -548,7 +566,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 		 * @param from   the position to animate from.
 		 * @param to     the position to animate to.
 		 */
-		public void animate(MarkerWithPosition marker, LatLng from, LatLng to) {
+		public void animate(@NonNull MarkerWithPosition marker, LatLng from, LatLng to) {
 			lock.lock();
 			mAnimationTasks.add(new AnimationTask(marker, from, to));
 			lock.unlock();
@@ -562,7 +580,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 		 * @param from   the position to animate from.
 		 * @param to     the position to animate to.
 		 */
-		public void animateThenRemove(MarkerWithPosition marker, LatLng from, LatLng to) {
+		public void animateThenRemove(@NonNull MarkerWithPosition marker, LatLng from, LatLng to) {
 			lock.lock();
 			AnimationTask animationTask = new AnimationTask(marker, from, to);
 			animationTask.removeOnAnimationComplete(mClusterManager.getMarkerManager());
@@ -681,7 +699,9 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	 * A cache of markers representing individual ClusterItems.
 	 */
 	private static class MarkerCache<T> {
+		@NonNull
 		private Map<T, Marker> mCache        = new HashMap<T, Marker>();
+		@NonNull
 		private Map<Marker, T> mCacheReverse = new HashMap<Marker, T>();
 
 		public Marker get(T item) {
@@ -714,7 +734,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	 * Called before the marker for a Cluster is added to the map.
 	 * The default implementation draws a circle with a rough count of the number of items.
 	 */
-	protected void onBeforeClusterRendered(Cluster<T> cluster, MarkerOptions markerOptions) {
+	protected void onBeforeClusterRendered(@NonNull Cluster<T> cluster, @NonNull MarkerOptions markerOptions) {
 		int bucket = getBucket(cluster);
 		BitmapDescriptor descriptor = mIcons.get(bucket);
 		if (descriptor == null) {
@@ -798,7 +818,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 			this.animateFrom = animateFrom;
 		}
 
-		protected void perform(MarkerModifier markerModifier) {
+		protected void perform(@NonNull MarkerModifier markerModifier) {
 			// Don't show small clusters. Render the markers inside, instead.
 			if (!shouldRenderAsCluster(cluster)) {
 				for (T item : cluster.getItems()) {
@@ -851,10 +871,11 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	 * object allows lookup from other threads.
 	 */
 	private static class MarkerWithPosition {
+		@NonNull
 		private final Marker marker;
 		private       LatLng position;
 
-		private MarkerWithPosition(Marker marker) {
+		private MarkerWithPosition(@NonNull Marker marker) {
 			this.marker = marker;
 			position = marker.getPosition();
 		}
@@ -881,14 +902,16 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	 */
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
 	private class AnimationTask extends AnimatorListenerAdapter implements ValueAnimator.AnimatorUpdateListener {
+		@NonNull
 		private final MarkerWithPosition markerWithPosition;
+		@NonNull
 		private final Marker             marker;
 		private final LatLng             from;
 		private final LatLng             to;
 		private       boolean            mRemoveOnComplete;
 		private       MarkerManager      mMarkerManager;
 
-		private AnimationTask(MarkerWithPosition markerWithPosition, LatLng from, LatLng to) {
+		private AnimationTask(@NonNull MarkerWithPosition markerWithPosition, LatLng from, LatLng to) {
 			this.markerWithPosition = markerWithPosition;
 			this.marker = markerWithPosition.marker;
 			this.from = from;
@@ -921,7 +944,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 		}
 
 		@Override
-		public void onAnimationUpdate(ValueAnimator valueAnimator) {
+		public void onAnimationUpdate(@NonNull ValueAnimator valueAnimator) {
 			float fraction = valueAnimator.getAnimatedFraction();
 			double lat = (to.latitude - from.latitude) * fraction + from.latitude;
 			double lngDelta = to.longitude - from.longitude;

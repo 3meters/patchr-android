@@ -1,14 +1,13 @@
 package com.aircandi.objects;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
-import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.LocationManager;
-import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.CacheStamp.StampSource;
 import com.aircandi.objects.Link.Direction;
@@ -45,8 +44,10 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	@Expose
 	public String      subtitle;
+	@Nullable
 	@Expose
 	public String      description;
+	@Nullable
 	@Expose
 	public Photo       photo;
 	@Expose
@@ -83,6 +84,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	/* Patch (synthesized for the client) */
 
+	@Nullable
 	@Expose(serialize = false, deserialize = true)
 	public Patch patch;
 
@@ -101,26 +103,37 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	 * Client fields (NONE are transferred)
 	 *--------------------------------------------------------------------------------------------*/
 
+	@NonNull
 	public Boolean hidden           = false;                   // Flag entities not currently visible because of fencing.
+	@NonNull
 	public Boolean fuzzy            = false;                   // Flag places with inaccurate locations.
 	public Boolean checked          = false;                   // Used to track selection in lists.
+	@NonNull
 	public Boolean shortcuts        = false;                   // Do links have shortcuts?
+	@NonNull
 	public Boolean foundByProximity = false;                   // Was this found based on proximity
+	@NonNull
 	public Boolean editing          = false;                   // Used to flag when we can't use id to match up.
+	@NonNull
 	public Boolean highlighted      = false;                   // Used to track one shot highlighting
+	@NonNull
 	public Boolean read             = true;                    // Used to track if the user has browsed.
+	@NonNull
 	public Boolean autowatchable    = false;                   // Used to track if the user has browsed.
+	@Nullable
 	public Float distance;                                     // Used to cache most recent distance calculation.
 
     /* Entity is not persisted with service, only seeing this for suggested places that
        come from provider. We also use this when injecting a fake beacon or applink. */
 
+	@NonNull
 	public Boolean synthetic = false;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	@NonNull
 	public Shortcut getAsShortcut() {
 		Shortcut shortcut = new Shortcut()
 				.setAppId(id)
@@ -137,16 +150,19 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return shortcut;
 	}
 
+	@NonNull
 	public CacheStamp getCacheStamp() {
 		CacheStamp cacheStamp = new CacheStamp(this.activityDate, this.modifiedDate);
 		cacheStamp.source = StampSource.ENTITY.name().toLowerCase(Locale.US);
 		return cacheStamp;
 	}
 
+	@NonNull
 	public Boolean isTempId() {
 		return (id != null && id.substring(0, 5).equals("temp:"));
 	}
 
+	@NonNull
 	public Boolean isVisibleToCurrentUser() {
 		if (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser()) {
 			Link link = linkFromAppUser(Constants.TYPE_LINK_WATCH);
@@ -157,14 +173,17 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return true;
 	}
 
+	@NonNull
 	public Boolean isRestricted() {
 		return (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC));
 	}
 
+	@NonNull
 	public Boolean isRestrictedForCurrentUser() {
 		return (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser());
 	}
 
+	@NonNull
 	public Boolean isOwnedByCurrentUser() {
 		Boolean owned = (ownerId != null
 				&& Patchr.getInstance().getCurrentUser() != null
@@ -172,12 +191,13 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return owned;
 	}
 
+	@NonNull
 	public Boolean isOwnedBySystem() {
 		Boolean owned = (ownerId != null && ownerId.equals(ServiceConstants.ADMIN_USER_ID));
 		return owned;
 	}
 
-	public boolean sameAs(Object obj) {
+	public boolean sameAs(@Nullable Object obj) {
 		if (obj == null) return false;
 		if (!((Object) this).getClass().equals(obj.getClass())) return false;
 
@@ -199,18 +219,18 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	@NonNull
 	public Photo getPhoto() {
 		Photo photo = this.photo;
 		if (photo == null) {
 			photo = getDefaultPhoto(this.schema);
-			if (photo != null) {
-				photo.usingDefault = true;
-			}
+			photo.usingDefault = true;
 		}
 		return photo;
 	}
 
-	public static Photo getDefaultPhoto(String schema) {
+	@NonNull
+	public static Photo getDefaultPhoto(@Nullable String schema) {
 
 		String prefix = null;
 		if (schema != null) {
@@ -238,6 +258,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return photo;
 	}
 
+	@Nullable
 	public AirLocation getLocation() {
 		/*
 		 * We do n
@@ -262,6 +283,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return _location;
 	}
 
+	@Nullable
 	public Float getDistance(Boolean refresh) {
 		/*
 		 * Priority order:
@@ -289,6 +311,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return distance;
 	}
 
+	@Nullable
 	public Beacon getActiveBeacon(String type, Boolean primaryOnly) {
 	    /*
 	     * If an entity has more than one viable link, we choose the one
@@ -335,6 +358,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
+	@Nullable
 	public Beacon getBeaconFromLink(String type, Boolean primaryOnly) {
 	    /*
 	     * If an entity has more than one viable link, we choose the one
@@ -379,7 +403,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	public List<? extends Entity> getLinkedEntitiesByLinkTypeAndSchema(List<String> types, List<String> schemas, Direction direction, Boolean traverse) {
+	@NonNull
+	public List<? extends Entity> getLinkedEntitiesByLinkTypeAndSchema(@Nullable List<String> types, @Nullable List<String> schemas, Direction direction, Boolean traverse) {
 	    /*
 	     * Currently only called by EntityCache.removeEntityTree
 		 */
@@ -421,7 +446,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return entities;
 	}
 
-	public Entity getParent(String type, String targetSchema) {
+	@Nullable
+	public Entity getParent(@Nullable String type, @Nullable String targetSchema) {
 		if (toId == null && linksOut != null) {
 			for (Link link : linksOut) {
 				if (type == null || (link.type != null && link.type.equals(type))) {
@@ -437,7 +463,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	public Link getParentLink(String type, String targetSchema) {
+	@Nullable
+	public Link getParentLink(@Nullable String type, @Nullable String targetSchema) {
 		if (linksOut != null) {
 			for (Link link : linksOut) {
 				if ((type == null || link.type.equals(type))
@@ -448,6 +475,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
+	@NonNull
 	public Boolean hasActiveProximity() {
 		if (linksOut != null) {
 			for (Link link : linksOut) {
@@ -460,7 +488,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return false;
 	}
 
-	public Count getCount(String type, String schema, Boolean enabled, Direction direction) {
+	@Nullable
+	public Count getCount(@Nullable String type, @Nullable String schema, @Nullable Boolean enabled, Direction direction) {
 		List<Count> linkCounts = linksInCounts;
 		if (direction == Direction.out) {
 			linkCounts = linksOutCounts;
@@ -477,7 +506,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	public Link getLink(String type, String targetSchema, String targetId, Direction direction) {
+	@Nullable
+	public Link getLink(@Nullable String type, @Nullable String targetSchema, @Nullable String targetId, Direction direction) {
 		List<Link> links = linksIn;
 		if (direction == Direction.out) {
 			links = linksOut;
@@ -495,7 +525,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	public List<Link> getLinks(String type, String targetSchema, String targetId, Direction direction) {
+	@NonNull
+	public List<Link> getLinks(@Nullable String type, @Nullable String targetSchema, @Nullable String targetId, Direction direction) {
 		List<Link> links = new ArrayList<Link>();
 		List<Link> tempLinks = linksIn;
 		if (direction == Direction.out) {
@@ -514,7 +545,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return links;
 	}
 
-	public Link removeLinksByTypeAndTargetSchema(String type, String targetSchema, String targetId, Direction direction) {
+	@Nullable
+	public Link removeLinksByTypeAndTargetSchema(String type, String targetSchema, @Nullable String targetId, Direction direction) {
 		List<Link> links = linksIn;
 		if (direction == Direction.out) {
 			links = linksOut;
@@ -533,7 +565,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	public List<Shortcut> getShortcuts(ShortcutSettings settings, Comparator<ServiceBase> linkSorter, Comparator<Shortcut> shortcutSorter) {
+	@NonNull
+	public List<Shortcut> getShortcuts(@NonNull ShortcutSettings settings, @Nullable Comparator<ServiceBase> linkSorter, @Nullable Comparator<Shortcut> shortcutSorter) {
 
 		List<Shortcut> shortcuts = new ArrayList<Shortcut>();
 		List<Link> links = (settings.direction == Direction.in) ? linksIn : linksOut;
@@ -548,7 +581,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 						if (settings.synthetic == null || link.shortcut.isSynthetic().equals(settings.synthetic)) {
 							if (settings.linkBroken
 									|| (!settings.linkBroken && (link.shortcut.validatedDate == null || link.shortcut.validatedDate.longValue() != -1))) {
-							    /*
+								/*
                                  * Must clone or the groups added below will cause circular references
 								 * that choke serializing to json.
 								 */
@@ -605,6 +638,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return shortcuts;
 	}
 
+	@Nullable
 	public Link linkFromAppUser(String linkType) {
 		if (linksIn != null) {
 			for (Link link : linksIn) {
@@ -615,6 +649,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
+	@Nullable
 	public Link linkByAppUser(String linkType, String schema) {
 		if (linksIn != null) {
 			for (Link link : linksIn) {
@@ -633,23 +668,14 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public void removeLink() {}
 
-	public String getLabelForSchema() {
-		String label = this.schema;
-		if (label.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-			label = StringManager.getString(R.string.container_singular_lowercase);
-		}
-		return label;
-	}
-
-	public static String getLabelForSchema(String schema) {
+	@NonNull
+	public static String getLabelForSchema(@NonNull String schema) {
 		String label = schema;
-		if (label.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-			label = StringManager.getString(R.string.container_singular_lowercase);
-		}
 		return label;
 	}
 
-	public static String getSchemaForId(String id) {
+	@Nullable
+	public static String getSchemaForId(@NonNull String id) {
 		String prefix = id.substring(0, 2);
 		if (prefix.equals("be")) {
 			return Constants.SCHEMA_ENTITY_BEACON;
@@ -676,7 +702,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static Entity setPropertiesFromMap(Entity entity, Map map, Boolean nameMapping) {
+	public static Entity setPropertiesFromMap(Entity entity, @NonNull Map map, Boolean nameMapping) {
 
 		synchronized (entity) {
             /*
@@ -808,7 +834,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	@Override
-	public boolean equals(Object object) {
+	public boolean equals(@Nullable Object object) {
         /*
          * Object class implementation of equals uses reference but we want to compare
          * using semantic equality.
@@ -827,7 +853,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public static class SortByRank implements Comparator<Entity> {
 
 		@Override
-		public int compare(Entity object1, Entity object2) {
+		public int compare(@NonNull Entity object1, @NonNull Entity object2) {
 
 			if (object1.rank == null || object2.rank == null)
 				return 0;

@@ -1,5 +1,7 @@
 package com.aircandi.service;
 
+import android.support.annotation.NonNull;
+
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.utilities.Errors.ErrorResponse;
 
@@ -12,12 +14,18 @@ public class ServiceResponse {
 	public Float   statusCodeService;
 	public String  statusMessage;
 	public String  contentType         = "none";
+	@NonNull
 	public String  contentEncoding     = "none";
 	public Long    contentLength       = 0L;
+	@NonNull
 	public Long    contentLengthScaled = 0L;
+	@NonNull
 	public Integer contentHeight       = 0;
+	@NonNull
 	public Integer contentWidth        = 0;
+	@NonNull
 	public Integer contentHeightScaled = 0;
+	@NonNull
 	public Integer contentWidthScaled  = 0;
 	public ErrorResponse errorResponse;
 	public String        activityName;

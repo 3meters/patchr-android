@@ -1,5 +1,9 @@
 package com.aircandi.objects;
 
+import android.support.annotation.NonNull;
+
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -11,7 +15,7 @@ public class SimpleEntity extends Entity implements Cloneable, Serializable {
 
 	private static final long serialVersionUID = 4362288672244729448L;
 
-	public static Entity setPropertiesFromMap(Entity entity, Map map, Boolean nameMapping) {
+	public static Entity setPropertiesFromMap(Entity entity, @NonNull Map map, Boolean nameMapping) {
 		/*
 		 * Properties involved with editing are copied from one entity to another.
 		 */
@@ -21,6 +25,7 @@ public class SimpleEntity extends Entity implements Cloneable, Serializable {
 		return entity;
 	}
 
+	@Nullable
 	@Override
 	public String getCollection() {
 		return null;

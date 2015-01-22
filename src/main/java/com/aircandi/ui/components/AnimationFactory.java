@@ -21,6 +21,7 @@
  */
 package com.aircandi.ui.components;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
@@ -31,6 +32,8 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.ViewAnimator;
+
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This class contains methods for creating {@link Animation} objects for some of the most common animation, including a
@@ -90,6 +93,7 @@ public class AnimationFactory {
 			return 0;
 		}
 
+		@NonNull
 		public FlipDirection theOtherDirection() {
 			switch (this) {
 				case LEFT_RIGHT:
@@ -101,7 +105,7 @@ public class AnimationFactory {
 				case BOTTOM_TOP:
 					return TOP_BOTTOM;
 				default:
-					return null;
+					return TOP_BOTTOM;
 			}
 		}
 	}
@@ -119,7 +123,8 @@ public class AnimationFactory {
 	 * @param interpolator the interpolator to use (pass {@code null} to use the {@link AccelerateInterpolator} interpolator)
 	 * @return
 	 */
-	public static Animation[] flipAnimation(final View fromView, final View toView, FlipDirection dir, long duration, Interpolator interpolator) {
+	@NonNull
+	public static Animation[] flipAnimation(@NonNull final View fromView, final View toView, @NonNull FlipDirection dir, long duration, @Nullable Interpolator interpolator) {
 		Animation[] result = new Animation[2];
 		float centerX;
 		float centerY;
@@ -174,7 +179,7 @@ public class AnimationFactory {
 	 * @param viewAnimator the {@code ViewAnimator}
 	 * @param dir          the direction of flip
 	 */
-	public static void flipTransition(final ViewAnimator viewAnimator, FlipDirection dir) {
+	public static void flipTransition(@NonNull final ViewAnimator viewAnimator, @NonNull FlipDirection dir) {
 		flipTransition(viewAnimator, dir, DEFAULT_FLIP_TRANSITION_DURATION);
 	}
 
@@ -187,7 +192,7 @@ public class AnimationFactory {
 	 * @param dir          the direction of flip
 	 * @param duration     the transition duration in milliseconds
 	 */
-	public static void flipTransition(final ViewAnimator viewAnimator, FlipDirection dir, long duration) {
+	public static void flipTransition(@NonNull final ViewAnimator viewAnimator, @NonNull FlipDirection dir, long duration) {
 
 		final View fromView = viewAnimator.getCurrentView();
 		final int currentIndex = viewAnimator.getDisplayedChild();
@@ -212,7 +217,8 @@ public class AnimationFactory {
 	 * @param interpolator the interpolator to use (pass {@code null} to use the {@link AccelerateInterpolator} interpolator)
 	 * @return a slide transition animation
 	 */
-	public static Animation inFromLeftAnimation(long duration, Interpolator interpolator) {
+	@NonNull
+	public static Animation inFromLeftAnimation(long duration, @Nullable Interpolator interpolator) {
 		Animation inFromLeft = new TranslateAnimation(
 				Animation.RELATIVE_TO_PARENT, -1.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
 				Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f
@@ -229,7 +235,8 @@ public class AnimationFactory {
 	 * @param interpolator the interpolator to use (pass {@code null} to use the {@link AccelerateInterpolator} interpolator)
 	 * @return a slide transition animation
 	 */
-	public static Animation outToRightAnimation(long duration, Interpolator interpolator) {
+	@NonNull
+	public static Animation outToRightAnimation(long duration, @Nullable Interpolator interpolator) {
 		Animation outtoRight = new TranslateAnimation(
 				Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, +1.0f,
 				Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f
@@ -246,7 +253,8 @@ public class AnimationFactory {
 	 * @param interpolator the interpolator to use (pass {@code null} to use the {@link AccelerateInterpolator} interpolator)
 	 * @return a slide transition animation
 	 */
-	public static Animation inFromRightAnimation(long duration, Interpolator interpolator) {
+	@NonNull
+	public static Animation inFromRightAnimation(long duration, @Nullable Interpolator interpolator) {
 
 		Animation inFromRight = new TranslateAnimation(
 				Animation.RELATIVE_TO_PARENT, +1.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
@@ -264,7 +272,8 @@ public class AnimationFactory {
 	 * @param interpolator the interpolator to use (pass {@code null} to use the {@link AccelerateInterpolator} interpolator)
 	 * @return a slide transition animation
 	 */
-	public static Animation outToLeftAnimation(long duration, Interpolator interpolator) {
+	@NonNull
+	public static Animation outToLeftAnimation(long duration, @Nullable Interpolator interpolator) {
 		Animation outtoLeft = new TranslateAnimation(
 				Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, -1.0f,
 				Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f
@@ -281,7 +290,8 @@ public class AnimationFactory {
 	 * @param interpolator the interpolator to use (pass {@code null} to use the {@link AccelerateInterpolator} interpolator)
 	 * @return a slide transition animation
 	 */
-	public static Animation inFromTopAnimation(long duration, Interpolator interpolator) {
+	@NonNull
+	public static Animation inFromTopAnimation(long duration, @Nullable Interpolator interpolator) {
 		Animation infromtop = new TranslateAnimation(
 				Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
 				Animation.RELATIVE_TO_PARENT, -1.0f, Animation.RELATIVE_TO_PARENT, 0.0f
@@ -298,7 +308,8 @@ public class AnimationFactory {
 	 * @param interpolator the interpolator to use (pass {@code null} to use the {@link AccelerateInterpolator} interpolator)
 	 * @return a slide transition animation
 	 */
-	public static Animation outToTopAnimation(long duration, Interpolator interpolator) {
+	@NonNull
+	public static Animation outToTopAnimation(long duration, @Nullable Interpolator interpolator) {
 		Animation outtotop = new TranslateAnimation(
 				Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
 				Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, -1.0f
@@ -316,6 +327,7 @@ public class AnimationFactory {
 	 * @return a fade animation
 	 * @see #fadeInAnimation(View, long)
 	 */
+	@NonNull
 	public static Animation fadeInAnimation(long duration, long delay) {
 
 		Animation fadeIn = new AlphaAnimation(0, 1);
@@ -334,6 +346,7 @@ public class AnimationFactory {
 	 * @return a fade animation
 	 * @see #fadeOutAnimation(View, long)
 	 */
+	@NonNull
 	public static Animation fadeOutAnimation(long duration, long delay) {
 
 		Animation fadeOut = new AlphaAnimation(1, 0);
@@ -351,7 +364,8 @@ public class AnimationFactory {
 	 * @param duration the animation duration in milliseconds
 	 * @return a fade animation that will set the visibility of the view at the start and end of animation
 	 */
-	public static Animation fadeInAnimation(long duration, final View view) {
+	@NonNull
+	public static Animation fadeInAnimation(long duration, @NonNull final View view) {
 		Animation animation = fadeInAnimation(500, 0);
 
 		animation.setAnimationListener(new AnimationListener() {
@@ -380,7 +394,8 @@ public class AnimationFactory {
 	 * @param duration the animation duration in milliseconds
 	 * @return a fade animation that will set the visibility of the view at the start and end of animation
 	 */
-	public static Animation fadeOutAnimation(long duration, final View view) {
+	@NonNull
+	public static Animation fadeOutAnimation(long duration, @NonNull final View view) {
 
 		Animation animation = fadeOutAnimation(500, 0);
 
@@ -411,6 +426,7 @@ public class AnimationFactory {
 	 * @param delay    how long to wait after fading in the subject and before starting the fade out
 	 * @return a fade in then out animations
 	 */
+	@NonNull
 	public static Animation[] fadeInThenOutAnimation(long duration, long delay) {
 		return new Animation[]{fadeInAnimation(duration, 0), fadeOutAnimation(duration, duration + delay)};
 	}
@@ -420,7 +436,7 @@ public class AnimationFactory {
 	 *
 	 * @param v the view to be faded in
 	 */
-	public static void fadeOut(View v) {
+	public static void fadeOut(@Nullable View v) {
 		if (v == null) return;
 		v.startAnimation(fadeOutAnimation(500, v));
 	}
@@ -430,7 +446,7 @@ public class AnimationFactory {
 	 *
 	 * @param v the view to be faded out
 	 */
-	public static void fadeIn(View v) {
+	public static void fadeIn(@Nullable View v) {
 		if (v == null) return;
 
 		v.startAnimation(fadeInAnimation(500, v));
@@ -442,7 +458,7 @@ public class AnimationFactory {
 	 * @param v     the view to be faded in then out
 	 * @param delay how long the view will be visible for
 	 */
-	public static void fadeInThenOut(final View v, long delay) {
+	public static void fadeInThenOut(@Nullable final View v, long delay) {
 		if (v == null) return;
 
 		v.setVisibility(View.VISIBLE);

@@ -44,13 +44,13 @@ public class FloatingActionController {
 		}
 	}
 
-	public ObjectAnimator fadeIn() {
-			/*
-			 * Skips if already visible and full opacity. Always ensures
-			 * default position.
-			 */
+	public void fadeIn() {
+		/*
+		 * Skips if already visible and full opacity. Always ensures
+		 * default position.
+		 */
 		if (mView == null || (mView.getVisibility() == View.VISIBLE && mView.getAlpha() == 1f))
-			return null;
+			return;
 
 		mView.setAlpha(0f);
 		mView.setTranslationY(0f);
@@ -65,16 +65,15 @@ public class FloatingActionController {
 			}
 		});
 		anim.start();
-		return anim;
 	}
 
-	public ObjectAnimator fadeOut() {
+	public void fadeOut() {
 			/*
 			 * Skips if already gone and fully transparent. Always ensures
 			 * default position.
 			 */
 		if (mView == null || (mView.getVisibility() == View.GONE && mView.getAlpha() == 0f))
-			return null;
+			return;
 
 		ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 0f);
 		mView.setTranslationY(0f);
@@ -88,14 +87,13 @@ public class FloatingActionController {
 			}
 		});
 		anim.start();
-		return anim;
 	}
 
-	public ObjectAnimator slideOut(Integer duration) {
+	public void slideOut(Integer duration) {
 			/*
 			 * Skips if locked, sliding or already hidden.
 			 */
-		if (mLocked || mSliding || mHidden || mView == null) return null;
+		if (mLocked || mSliding || mHidden || mView == null) return;
 
 		mSliding = true;
 		mSlideOutAnim.setTarget(mView);
@@ -111,14 +109,13 @@ public class FloatingActionController {
 			}
 		});
 		mSlideOutAnim.start();
-		return mSlideOutAnim;
 	}
 
-	public ObjectAnimator slideIn(Integer duration) {
-			/*
-			 * Skips if locked, sliding or not hidden.
-			 */
-		if (mLocked || mSliding || !mHidden) return null;
+	public void slideIn(Integer duration, Integer delay) {
+		/*
+		 * Skips if locked, sliding or not hidden.
+		 */
+		if (mLocked || mSliding || !mHidden) return;
 
 		mSliding = true;
 		mSlideInAnim.setTarget(mView);
@@ -132,8 +129,11 @@ public class FloatingActionController {
 				mSliding = false;
 			}
 		});
+		if (delay > 0) {
+			mSlideInAnim.setStartDelay(delay);
+		}
+
 		mSlideInAnim.start();
-		return mSlideInAnim;
 	}
 
 	public void setEnabled(Boolean enabled) {

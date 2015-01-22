@@ -107,12 +107,16 @@ public abstract class EntityControllerBase implements IEntityController {
 		return intent;
 	}
 
-	public boolean supportsEdit() {
+	public boolean supportsEditUi() {
 		return (mEditClass != null);
 	}
 
-	public boolean supportsInsert() {
+	public boolean supportsInsertUi() {
 		return (mNewClass != null);
+	}
+
+	public boolean supportsNew() {
+		return true;
 	}
 
 	@Override
@@ -309,12 +313,10 @@ public abstract class EntityControllerBase implements IEntityController {
 		UI.setVisibility(holder.photo, View.GONE);
 		if (holder.photo != null) {
 			final Photo photo = entity.getPhoto();
-			if (photo != null) {
-				if (holder.photo.getPhoto() == null || !photo.getUri().equals(holder.photo.getPhoto().getUri())) {
-					UI.drawPhoto(holder.photo, photo);
-				}
-				UI.setVisibility(holder.photo, View.VISIBLE);
+			if (holder.photo.getPhoto() == null || !photo.getUri().equals(holder.photo.getPhoto().getUri())) {
+				UI.drawPhoto(holder.photo, photo);
 			}
+			UI.setVisibility(holder.photo, View.VISIBLE);
 		}
 	}
 

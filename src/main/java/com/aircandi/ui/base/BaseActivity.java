@@ -1,6 +1,5 @@
 package com.aircandi.ui.base;
 
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -380,7 +379,7 @@ public abstract class BaseActivity extends ActionBarActivity
 		AirListView listView = (AirListView) ((EntityListFragment) mCurrentFragment).getListView();
 		AirListView.DragDirection direction = listView.getDragDirectionLast();
 		if (direction == AirListView.DragDirection.DOWN) {
-			mFab.slideIn(AnimationManager.DURATION_SHORT);
+			mFab.slideIn(AnimationManager.DURATION_SHORT, 0);
 		}
 		else {
 			mFab.slideOut(AnimationManager.DURATION_SHORT);
@@ -762,6 +761,9 @@ public abstract class BaseActivity extends ActionBarActivity
 
 		if (item.getItemId() == R.id.navigate) {
 			AirLocation location = mEntity.getLocation();
+			if (location == null) {
+				throw new IllegalArgumentException("Tried to navigate without a location");
+			}
 			String address = null;
 			if (mEntity instanceof Place && mEntity.fuzzy) {
 				address = ((Place) mEntity).getAddressString(true);
@@ -805,6 +807,11 @@ public abstract class BaseActivity extends ActionBarActivity
 		menuItem = menu.findItem(R.id.signin);
 		if (menuItem != null && Patchr.getInstance().getCurrentUser() != null) {
 			menuItem.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
+		}
+
+		menuItem = menu.findItem(R.id.navigate);
+		if (menuItem != null && Patchr.getInstance().getCurrentUser() != null) {
+			menuItem.setVisible(mEntity.getLocation() != null);
 		}
 
 		menuItem = menu.findItem(R.id.share);
@@ -892,10 +899,7 @@ public abstract class BaseActivity extends ActionBarActivity
 
 		/* Slides it in only if it is currently out. */
 		if (mFab != null) {
-			ObjectAnimator anim = mFab.slideIn(AnimationManager.DURATION_SHORT);
-			if (anim != null) {
-				anim.setStartDelay(500);
-			}
+			mFab.slideIn(AnimationManager.DURATION_SHORT, 500);
 		}
 	}
 

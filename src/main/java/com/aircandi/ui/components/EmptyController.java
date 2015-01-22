@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
@@ -16,6 +17,8 @@ import com.aircandi.components.AnimationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.utilities.UI;
+
+import org.jetbrains.annotations.Nullable;
 
 public class EmptyController {
 
@@ -32,9 +35,9 @@ public class EmptyController {
 		}
 	}
 
-	public ObjectAnimator fadeIn() {
+	public void fadeIn() {
 		if (mMessage == null || (mMessage.getVisibility() == View.VISIBLE && mMessage.getAlpha() == 1f))
-			return null;
+			return;
 		Logger.d(this, "Bubble: fading in");
 		ObjectAnimator anim = ObjectAnimator.ofFloat(mMessage, "alpha", 1f);
 		mMessage.setAlpha(0f);
@@ -42,32 +45,30 @@ public class EmptyController {
 		anim.setDuration(AnimationManager.DURATION_MEDIUM);
 		anim.addListener(new SimpleAnimationListener() {
 			@Override
-			public void onAnimationStart(Animator animator) {
+			public void onAnimationStart(@NonNull Animator animator) {
 				animator.removeAllListeners();
 			}
 		});
 		anim.start();
-		return anim;
 	}
 
-	public ObjectAnimator fadeOut() {
+	public void fadeOut() {
 		if (mMessage == null || (mMessage.getVisibility() == View.GONE && mMessage.getAlpha() == 0f))
-			return null;
+			return;
 		Logger.d(this, "Bubble: fading out");
 		ObjectAnimator anim = ObjectAnimator.ofFloat(mMessage, "alpha", 0f);
 		anim.setDuration(AnimationManager.DURATION_MEDIUM);
 		anim.addListener(new SimpleAnimationListener() {
 			@Override
-			public void onAnimationEnd(Animator animator) {
+			public void onAnimationEnd(@NonNull Animator animator) {
 				mMessage.setVisibility(View.GONE);
 				animator.removeAllListeners();
 			}
 		});
 		anim.start();
-		return anim;
 	}
 
-	public void position(final View header, final Integer headerHeightProjected) {
+	public void position(@Nullable final View header, @Nullable final Integer headerHeightProjected) {
 
 		if (mMessage != null && header != null) {
 

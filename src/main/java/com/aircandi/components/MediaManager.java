@@ -63,7 +63,8 @@ public class MediaManager {
 
 	static {
 		/* Called first time a static member is accessed */
-		soundPool = new SoundPool(4, streamType, 0);
+		//noinspection deprecation
+		soundPool = new SoundPool(4, streamType, 0); // New SoundPool.Builder requires API 21
 		audioManager = (AudioManager) Patchr.applicationContext.getSystemService(Context.AUDIO_SERVICE);
 
 		SOUND_ACTIVITY_NEW = soundPool.load(Patchr.applicationContext, R.raw.notification_activity, 1);

@@ -317,7 +317,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 					}
 
 					/*
-		             * Intent with image data. We get a uri we use to open a stream to get the bitmap.
+			         * Intent with image data. We get a uri we use to open a stream to get the bitmap.
 					 * We then copy the bitmap to a our pinned share file. We are not the source of the
 					 * image so we don't want to track it in the Pictures/Patchr folder.
 					 */

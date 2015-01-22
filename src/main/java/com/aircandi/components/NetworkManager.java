@@ -197,8 +197,7 @@ public class NetworkManager {
 				 */
 				ServiceData serviceData = (ServiceData) Json.jsonToObject((String) serviceResponse.data, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 
-				if (serviceData != null
-						&& serviceData.clientMinVersions != null
+				if (serviceData.clientMinVersions != null
 						&& serviceData.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
 
 					Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);

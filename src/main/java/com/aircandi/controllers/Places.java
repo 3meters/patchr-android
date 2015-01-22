@@ -19,6 +19,10 @@ public class Places extends EntityControllerBase {
 		mListLoadingResId = R.layout.temp_listitem_loading;
 	}
 
+	public boolean supportsNew() {
+		return false;
+	}
+
 	@Override
 	public Integer getLinkProfile() {
 		return LinkProfile.NO_LINKS;

@@ -1,5 +1,6 @@
 package com.aircandi.controllers;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.aircandi.Constants;
@@ -20,6 +21,7 @@ public class Notifications extends EntityControllerBase {
 		mListLoadingResId = R.layout.temp_listitem_loading;
 	}
 
+	@NonNull
 	@Override
 	public Entity makeNew() {
 		Entity entity = new Notification();

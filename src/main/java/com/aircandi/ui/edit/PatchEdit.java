@@ -140,7 +140,8 @@ public class PatchEdit extends BaseEntityEdit {
 
 								if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
 									mMapView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-								} else {
+								}
+								else {
 									mMapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 								}
 
@@ -493,13 +494,11 @@ public class PatchEdit extends BaseEntityEdit {
 					final String json = extras.getString(Constants.EXTRA_LOCATION);
 					if (json != null) {
 						final AirLocation location = (AirLocation) Json.jsonToObject(json, Json.ObjectType.AIR_LOCATION);
-						if (location != null) {
-							mDirty = true;
-							((Patch) mEntity).location = location;
-							((Patch) mEntity).location.provider = Constants.LOCATION_PROVIDER_USER;
-							draw(null);
-							mProximityDisabled = true;
-						}
+						mDirty = true;
+						((Patch) mEntity).location = location;
+						((Patch) mEntity).location.provider = Constants.LOCATION_PROVIDER_USER;
+						draw(null);
+						mProximityDisabled = true;
 					}
 				}
 			}

@@ -47,7 +47,6 @@ public class GcmIntentService extends IntentService {
 				 */
 				String jsonNotification = extras.getString(Constants.SCHEMA_ENTITY_NOTIFICATION);
 				Notification notification = (Notification) Json.jsonToObject(jsonNotification, Json.ObjectType.ENTITY);
-				if (notification == null) return;
 
 				User currentUser = Patchr.getInstance().getCurrentUser();
 				if (notification.userId != null && currentUser != null && currentUser.id.equals(notification.userId))
@@ -91,8 +90,8 @@ public class GcmIntentService extends IntentService {
 						 * - If app needs to be started, we route to splash for init and then fire the
 						 *   intent again.
 						 */
-						IEntityController controller = Patchr.getInstance().getControllerForSchema(targetSchema);
-						if (controller != null) {
+						if (targetSchema != null) {
+							IEntityController controller = Patchr.getInstance().getControllerForSchema(targetSchema);
 							Extras bundle = new Extras().setForceRefresh(true);
 							bundle.getExtras().putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
 							bundle.getExtras().putString(Constants.EXTRA_NOTIFICATION_ID, notification.id);

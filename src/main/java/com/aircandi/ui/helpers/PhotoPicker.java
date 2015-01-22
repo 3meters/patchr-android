@@ -324,15 +324,19 @@ public class PhotoPicker extends BaseActivity {
 					, Json.ObjectType.IMAGE_RESULT
 					, Json.ServiceDataWrapper.TRUE);
 
-			final List<ImageResult> images = (ArrayList<ImageResult>) serviceData.data;
+			List<ImageResult> images = new ArrayList<ImageResult>();
 
-			/* There are more so pop off the last */
+			if (serviceData.data != null) {
+				images = (ArrayList<ImageResult>) serviceData.data;
+			}
+
+				/* There are more so pop off the last */
 			if (images.size() > count) {
 				serviceData.more = true;
 				images.remove(images.size() - 1);
 			}
 
-			/* Stash the original count for paging */
+				/* Stash the original count for paging */
 			serviceData.count = images.size();
 
 			result.serviceResponse.data = serviceData;

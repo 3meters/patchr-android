@@ -1,6 +1,7 @@
 package com.aircandi.ui.components;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.Html;
@@ -40,6 +41,7 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 
 import java.util.ArrayList;
@@ -49,9 +51,12 @@ import java.util.List;
 
 public class EntitySuggestController implements TokenCompleteTextView.TokenListener {
 
+	@NonNull
 	private static Integer LIMIT = 10;
 
+	@NonNull
 	private List<Entity> mSeedEntities      = new ArrayList<Entity>();
+	@NonNull
 	private Boolean      mSuggestInProgress = false;
 
 	private ArrayAdapter mAdapter;
@@ -73,7 +78,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 	private EntityManager.SuggestScope mSuggestScope = EntityManager.SuggestScope.PLACES;
 
-	public EntitySuggestController(Context context) {
+	public EntitySuggestController(@NonNull Context context) {
 
 		mContext = context;
 		mAdapter = new SuggestArrayAdapter(mSeedEntities);
@@ -109,7 +114,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			mSearchInput.addTextChangedListener(new SimpleTextWatcher() {
 
 				@Override
-				public void afterTextChanged(Editable s) {
+				public void afterTextChanged(@NonNull Editable s) {
 					textChanged(s.toString());
 				}
 			});
@@ -118,13 +123,13 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			((ListView) mListView).setAdapter(mAdapter);
 			mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 				@Override
-				public boolean onQueryTextSubmit(String s) {
+				public boolean onQueryTextSubmit(@NonNull String s) {
 					textChanged(s);
 					return true;
 				}
 
 				@Override
-				public boolean onQueryTextChange(String s) {
+				public boolean onQueryTextChange(@NonNull String s) {
 					textChanged(s);
 					return true;
 				}
@@ -132,13 +137,13 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		}
 	}
 
-	public void textChanged(String input) {
+	public void textChanged(@NonNull String input) {
 		if (!TextUtils.isEmpty(input) && input.length() >= 3) {
 			mAdapter.getFilter().filter(input);
 		}
 		else {
 			mAdapter.clear();
-			if (mSeedEntities != null && mSeedEntities.size() > 0) {
+			if (mSeedEntities.size() > 0) {
 				mAdapter.add(mSeedEntities.get(0));
 			}
 			mAdapter.notifyDataSetChanged();
@@ -178,46 +183,55 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
+	@NonNull
 	public EntitySuggestController setSearchInput(EditText input) {
 		mSearchInput = input;
 		return this;
 	}
 
+	@NonNull
 	public EntitySuggestController setAdapter(ArrayAdapter adapter) {
 		mAdapter = adapter;
 		return this;
 	}
 
+	@NonNull
 	public EntitySuggestController setTokenListener(TokenCompleteTextView.TokenListener tokenListener) {
 		mTokenListener = tokenListener;
 		return this;
 	}
 
+	@NonNull
 	public EntitySuggestController setSearchProgress(View progress) {
 		mSearchProgress = progress;
 		return this;
 	}
 
+	@NonNull
 	public EntitySuggestController setSearchImage(View image) {
 		mSearchImage = image;
 		return this;
 	}
 
+	@NonNull
 	public EntitySuggestController setPrefix(String mPrefix) {
 		this.mPrefix = mPrefix;
 		return this;
 	}
 
+	@NonNull
 	public EntitySuggestController setSuggestScope(EntityManager.SuggestScope suggestScope) {
 		mSuggestScope = suggestScope;
 		return this;
 	}
 
+	@NonNull
 	public EntitySuggestController setListView(AbsListView listView) {
 		mListView = listView;
 		return this;
 	}
 
+	@NonNull
 	public EntitySuggestController setSearchView(SearchView searchView) {
 		mSearchView = searchView;
 		return this;
@@ -231,6 +245,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		return mListView;
 	}
 
+	@NonNull
 	public List<Entity> getSeedEntities() {
 		return mSeedEntities;
 	}
@@ -252,7 +267,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			this(mContext, 0, 0, seedEntities);
 		}
 
-		public SuggestArrayAdapter(Context context, int resource, int textViewResourceId, List<Entity> seedEntities) {
+		public SuggestArrayAdapter(@NonNull Context context, int resource, int textViewResourceId, List<Entity> seedEntities) {
 			super(context, resource, textViewResourceId, new ArrayList<Entity>(seedEntities));
 			mSeedEntities = seedEntities;
 		}
@@ -362,8 +377,9 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 		private class SuggestFilter extends Filter {
 
+			@NonNull
 			@Override
-			protected FilterResults performFiltering(CharSequence chars) {
+			protected FilterResults performFiltering(@Nullable CharSequence chars) {
 			    /*
 			     * Called on background thread.
                  */
@@ -415,7 +431,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 			@SuppressWarnings("unchecked")
 			@Override
-			protected void publishResults(CharSequence constraint, FilterResults results) {
+			protected void publishResults(CharSequence constraint, @NonNull FilterResults results) {
 			    /*
 			     * Called on UI thread.
                  */
@@ -445,7 +461,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	public static class SortByScoreAndDistance implements Comparator<Entity> {
 
 		@Override
-		public int compare(Entity object1, Entity object2) {
+		public int compare(@NonNull Entity object1, @NonNull Entity object2) {
 
 			if (object1.score.floatValue() > object2.score.floatValue())
 				return -1;

@@ -155,7 +155,8 @@ public class PhotoForm extends BaseActivity implements IBind {
 		/* Author block */
 		UI.setVisibility(user, View.GONE);
 		if (photo.getUser() != null) {
-			user.databind(photo.getUser(), photo.getCreatedAt().longValue());
+			Long createdAt = photo.getCreatedAt() != null ? photo.getCreatedAt().longValue() : null;
+			user.databind(photo.getUser(), createdAt);
 			UI.setVisibility(user, View.VISIBLE);
 		}
 

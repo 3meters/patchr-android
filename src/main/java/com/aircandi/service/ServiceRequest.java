@@ -1,6 +1,7 @@
 package com.aircandi.service;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.aircandi.components.Stopwatch;
@@ -63,6 +64,7 @@ public class ServiceRequest {
 		mResponseFormat = responseFormat;
 	}
 
+	@NonNull
 	public ServiceRequest setUri(String uri) {
 		mUri = uri;
 		return this;
@@ -86,6 +88,7 @@ public class ServiceRequest {
 		return uri;
 	}
 
+	@NonNull
 	private String sessionInfo() {
 		String sessionInfo = "";
 		if (mSession != null) {
@@ -127,6 +130,7 @@ public class ServiceRequest {
 		return mPassword;
 	}
 
+	@NonNull
 	public String getPasswordBase64() {
 		final byte[] accountKeyBytes = Base64.encode((mPassword + ":" + mPassword).getBytes());
 		final String accountKeyEnc = new String(accountKeyBytes);
@@ -161,76 +165,91 @@ public class ServiceRequest {
 		return mStopwatch;
 	}
 
+	@NonNull
 	public ServiceRequest setRequestType(RequestType requestType) {
 		mRequestType = requestType;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setResponseFormat(ResponseFormat responseFormat) {
 		mResponseFormat = responseFormat;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setRequestBody(String requestBody) {
 		mRequestBody = requestBody;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setParameters(Bundle parameters) {
 		mParameters = parameters;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setSuppressUI(boolean suppressUI) {
 		mSuppressUI = suppressUI;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setSession(Session session) {
 		mSession = session;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setUserName(String userName) {
 		mUserName = userName;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setPassword(String password) {
 		mPassword = password;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setAuthType(AuthType authType) {
 		mAuthType = authType;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setUseSecret(Boolean useSecret) {
 		mUseSecret = useSecret;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setIgnoreResponseData(Boolean ignoreResponseData) {
 		mIgnoreResponseData = ignoreResponseData;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setActivityName(String activityName) {
 		mActivityName = activityName;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setTag(String tag) {
 		mTag = tag;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setErrorCheck(Boolean errorCheck) {
 		mErrorCheck = errorCheck;
 		return this;
 	}
 
+	@NonNull
 	public ServiceRequest setStopwatch(Stopwatch stopwatch) {
 		mStopwatch = stopwatch;
 		return this;

@@ -27,8 +27,6 @@ import net.minidev.json.parser.ContainerFactory;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -39,16 +37,27 @@ import java.util.Map;
 
 public class Json {
 
-	@Nullable
-	public static Object jsonToObject(final String jsonString, Json.ObjectType objectType) {
+	/*
+	 * We expect serialization/deserializstion to work because all json is coming from trusted sources:
+	 *
+	 * - Internal transfer of objects using intents.
+	 * - Internal storage of objects in shared preferences, files, resources, etc.
+	 * - Objects returned by patchr service.
+	 * - Objects returned by Bing search.
+	 */
+
+	@NonNull
+	public static Object jsonToObject(@NonNull final String json, @NonNull Json.ObjectType objectType) {
 		/*
 		 * Caller will get back either an array of objectType or a single objectType.
 		 */
-		return Json.jsonToObject(jsonString, objectType, Json.ServiceDataWrapper.FALSE);
+		return Json.jsonToObject(json, objectType, Json.ServiceDataWrapper.FALSE);
 	}
 
-	@Nullable
-	public static Object jsonToObject(final String jsonString, Json.ObjectType objectType, Json.ServiceDataWrapper serviceDataWrapper) {
+	@NonNull
+	public static Object jsonToObject(@NonNull final String json
+			, @NonNull Json.ObjectType objectType
+			, @NonNull Json.ServiceDataWrapper serviceDataWrapper) {
 		/*
 		 * serviceDataWrapper
 		 * 
@@ -57,30 +66,30 @@ public class Json {
 		 * 
 		 * false: Caller will get back either an array of objectType or a single objectType.
 		 */
-		final Object object = Json.jsonToObjects(jsonString, objectType, serviceDataWrapper);
-		if (object != null) {
-			if (serviceDataWrapper == Json.ServiceDataWrapper.FALSE) {
-				if (object instanceof List) {
-					final List<Object> array = (List<Object>) object;
-					if (array.size() > 0) return array.get(0);
-				}
+		final Object object = Json.jsonToObjects(json, objectType, serviceDataWrapper);
+		if (serviceDataWrapper == Json.ServiceDataWrapper.FALSE) {
+			if (object instanceof List) {
+				final List<Object> array = (List<Object>) object;
+				if (array.size() > 0) return array.get(0);
 			}
-			else {
-				ServiceData serviceData = (ServiceData) object;
-				if (serviceData.data instanceof List) {
-					final List<Object> array = (List<Object>) serviceData.data;
-					if (array.size() > 0) {
-						serviceData.data = array.get(0);
-						return serviceData;
-					}
+		}
+		else {
+			ServiceData serviceData = (ServiceData) object;
+			if (serviceData.data instanceof List) {
+				final List<Object> array = (List<Object>) serviceData.data;
+				if (array.size() > 0) {
+					serviceData.data = array.get(0);
+					return serviceData;
 				}
 			}
 		}
 		return object;
 	}
 
-	@Nullable
-	public static Object jsonToObjects(final String json, final Json.ObjectType objectType, Json.ServiceDataWrapper serviceDataWrapper) {
+	@NonNull
+	public static Object jsonToObjects(@NonNull final String json
+			, @NonNull final Json.ObjectType objectType
+			, @NonNull Json.ServiceDataWrapper serviceDataWrapper) {
 
 		/*
 		 * serviceDataWrapper
@@ -116,7 +125,8 @@ public class Json {
 				maps = new ArrayList<LinkedHashMap<String, Object>>();
 				maps.add((LinkedHashMap<String, Object>) rootMap);
 
-				Object object = Json.mapsToObjects(maps, objectType, false);
+				List<Object> object = Json.mapsToObjects(maps, objectType, false);
+
 				return object;
 			}
 			else {
@@ -168,16 +178,17 @@ public class Json {
 			Reporting.logMessage(json);
 			Reporting.logException(e);
 		}
-		return null;
+		throw new IllegalArgumentException("Unable to deserialize json: " + objectType.toString());
 	}
 
-	@Nullable
-	public static Object mapsToObjects(@NonNull List<LinkedHashMap<String, Object>> maps, final Json.ObjectType objectType, Boolean nameMapping) {
+	@NonNull
+	public static List<Object> mapsToObjects(@NonNull List<LinkedHashMap<String, Object>> maps
+			, @NonNull final Json.ObjectType objectType
+			, @NonNull Boolean nameMapping) {
+
+		final List<Object> list = new ArrayList<Object>();
 
 		try {
-
-			final List<Object> list = new ArrayList<Object>();
-
 			/* Decode each map into an object and add to an array */
 			for (Map<String, Object> map : maps) {
 				if (objectType == Json.ObjectType.SERVICE_ENTRY) {
@@ -185,8 +196,8 @@ public class Json {
 				}
 				else if (objectType == Json.ObjectType.ENTITY) {
 					String schema = (String) map.get("schema");
-					IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
-					if (controller != null) {
+					if (schema != null) {
+						IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
 						list.add(controller.makeFromMap(map, nameMapping));
 					}
 				}
@@ -233,21 +244,31 @@ public class Json {
 			 */
 			Reporting.logException(exception);
 		}
-		return null;
+		return list;
 	}
 
+	@NonNull
 	public static String objectToJson(@NonNull Object object) {
 		return Json.objectToJson(object, Json.UseAnnotations.FALSE, Json.ExcludeNulls.TRUE);
 	}
 
-	public static String objectToJson(@NonNull Object object, Json.UseAnnotations useAnnotations, Json.ExcludeNulls excludeNulls) {
+	@NonNull
+	public static String objectToJson(@NonNull Object object
+			, @NonNull Json.UseAnnotations useAnnotations
+			, @NonNull Json.ExcludeNulls excludeNulls) {
 		final Map map = Json.objectToMap(object, useAnnotations, excludeNulls);
 		String json = JSONValue.toJSONString(map);
+		if (json == null) {
+			throw new IllegalArgumentException("Unable to serialize object to json");
+		}
 		return json;
 	}
 
 	@NonNull
-	public static Map<String, Object> objectToMap(@NonNull Object object, Json.UseAnnotations useAnnotations, Json.ExcludeNulls excludeNullsProposed) {
+	public static Map<String, Object> objectToMap(@NonNull Object object
+			, @NonNull Json.UseAnnotations useAnnotations
+			, @NonNull Json.ExcludeNulls excludeNullsProposed) {
+
 		final Map<String, Object> map = new HashMap<String, Object>();
 
 		/*
