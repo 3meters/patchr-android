@@ -16,10 +16,8 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.ActivityRecognitionManager;
 import com.aircandi.components.AndroidManager;
-import com.aircandi.components.AnimationManager;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
-import com.aircandi.components.MenuManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NotificationManager;
@@ -173,10 +171,6 @@ public class SplashForm extends ActionBarActivity {
 		/*
 		 * Only called when app is first started
 		 */
-		Patchr.getInstance()
-		      .setMenuManager(new MenuManager())
-		      .setAnimationManager(new AnimationManager());
-
 		/* Starts activity recognition */
 		ActivityRecognitionManager.getInstance().initialize(getApplicationContext());
 
