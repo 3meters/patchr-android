@@ -3,7 +3,6 @@ package com.aircandi.ui.widgets;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -84,7 +83,7 @@ public class UserView extends RelativeLayout {
 		databind(user, null);
 	}
 
-	public void databind(@NonNull Entity entity, @Nullable Long date) {
+	public void databind(@NonNull Entity entity, Long date) {
 		mUser = entity;
 		mDate = date;
 		this.setTag(entity);

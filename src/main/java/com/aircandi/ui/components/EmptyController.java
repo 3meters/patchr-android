@@ -18,7 +18,7 @@ import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.utilities.UI;
 
-import org.jetbrains.annotations.Nullable;
+;
 
 public class EmptyController {
 
@@ -68,7 +68,7 @@ public class EmptyController {
 		anim.start();
 	}
 
-	public void position(@Nullable final View header, @Nullable final Integer headerHeightProjected) {
+	public void position(final View header, final Integer headerHeightProjected) {
 
 		if (mMessage != null && header != null) {
 

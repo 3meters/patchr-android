@@ -1,5 +1,7 @@
 package com.aircandi.objects;
 
+import android.support.annotation.NonNull;
+
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
 
@@ -46,7 +48,7 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 
 	public Install() {}
 
-	public Install(String userId, String registrationId, String installId) {
+	public Install(@NonNull String userId, @NonNull String registrationId, @NonNull String installId) {
 		this.userId = userId;
 		this.registrationId = registrationId;
 		this.installId = installId;

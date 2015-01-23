@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
-import android.support.annotation.Nullable;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -52,7 +51,7 @@ public class DispatchManager {
 		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_TO);
 	}
 
-	public void route(final Activity activity, Integer route, @Nullable Entity entity, Bundle extras) {
+	public void route(final Activity activity, Integer route, Entity entity, Bundle extras) {
 
 		String schema = null;
 		if (extras != null) {
@@ -457,9 +456,7 @@ public class DispatchManager {
 			}
 			activity.startActivity(intent);
 			activity.finish();
-			if (Patchr.getInstance().getAnimationManager() != null) {
-				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_BACK);
-			}
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.FORM_BACK);
 		}
 
 		else if (route == Route.PHOTO_SOURCE) {

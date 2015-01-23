@@ -90,8 +90,7 @@ public class NetworkManager {
 	/* monitor platform changes */
 	private IntentFilter      mNetworkStateChangedFilter;
 	private BroadcastReceiver mNetworkStateIntentReceiver;
-
-	private Context mApplicationContext;
+	private Context           mApplicationContext;
 	private final WifiStateChangedReceiver mWifiStateChangedReceiver = new WifiStateChangedReceiver();
 
 	/* Opportunistically used for crash reporting but not current state */

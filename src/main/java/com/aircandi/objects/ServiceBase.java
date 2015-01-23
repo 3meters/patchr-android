@@ -1,6 +1,6 @@
 package com.aircandi.objects;
 
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 
 import com.aircandi.ServiceConstants;
 import com.aircandi.service.Expose;
@@ -99,6 +99,7 @@ public abstract class ServiceBase extends ServiceObject {
 	 * Set and get
 	 *--------------------------------------------------------------------------------------------*/
 
+	@NonNull
 	public String getEntryUri() {
 		final String root = ServiceConstants.URL_PROXIBASE_SERVICE_REST;
 		final String entity = getCollection();
@@ -106,12 +107,14 @@ public abstract class ServiceBase extends ServiceObject {
 		return uri;
 	}
 
-	public boolean isOwnerAccess() {
+	@NonNull
+	public Boolean isOwnerAccess() {
 		return false;
 	}
 
 	public abstract String getCollection();
 
+	@NonNull
 	public Integer getPosition() {
 		return (position != null) ? position.intValue() : 0;
 	}
@@ -153,7 +156,6 @@ public abstract class ServiceBase extends ServiceObject {
 	}
 
 	@Override
-	@Nullable
 	public ServiceBase clone() {
 		@SuppressWarnings("UnusedAssignment") ServiceBase entry = null;
 		try {
@@ -181,11 +183,10 @@ public abstract class ServiceBase extends ServiceObject {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-
 	public static class SortByPositionSortDate implements Comparator<ServiceBase> {
 
 		@Override
-		public int compare(ServiceBase object1, ServiceBase object2) {
+		public int compare(@NonNull ServiceBase object1, @NonNull ServiceBase object2) {
 			if (object1.getPosition().intValue() < object2.getPosition().intValue())
 				return -1;
 			else if (object1.getPosition().intValue() == object2.getPosition().intValue()) {
@@ -206,7 +207,7 @@ public abstract class ServiceBase extends ServiceObject {
 	public static class SortByPositionSortDateAscending implements Comparator<ServiceBase> {
 
 		@Override
-		public int compare(ServiceBase object1, ServiceBase object2) {
+		public int compare(@NonNull ServiceBase object1, @NonNull ServiceBase object2) {
 			if (object1.getPosition().intValue() < object2.getPosition().intValue())
 				return -1;
 			else if (object1.getPosition().intValue() == object2.getPosition().intValue()) {

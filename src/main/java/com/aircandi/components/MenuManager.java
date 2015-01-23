@@ -1,6 +1,7 @@
 package com.aircandi.components;
 
 import android.app.Activity;
+import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuInflater;
 
@@ -152,6 +153,7 @@ public class MenuManager {
 		return false;
 	}
 
+	@NonNull
 	public Boolean canUserEdit(Entity entity) {
 		if (entity == null) return false;
 
@@ -160,6 +162,7 @@ public class MenuManager {
 				&& Type.isTrue(Patchr.getInstance().getCurrentUser().developer);
 	}
 
+	@NonNull
 	public Boolean canUserDelete(Entity entity) {
 		if (entity == null) return false;
 
@@ -168,8 +171,8 @@ public class MenuManager {
 				&& Type.isTrue(Patchr.getInstance().getCurrentUser().developer);
 	}
 
-	@SuppressWarnings("ucd")
-	public Boolean canUserRemoveFromPlace(Entity entity) {
+	@NonNull
+	public Boolean canUserRemoveFromPatch(Entity entity) {
 		if (entity == null) return false;
 		if (entity.type.equals(Constants.TYPE_LINK_SHARE)) return false;
 
@@ -179,6 +182,7 @@ public class MenuManager {
 				&& !entity.ownerId.equals(Patchr.getInstance().getCurrentUser().id);
 	}
 
+	@NonNull
 	public Boolean canUserAdd(Entity entity) {
 		if (entity == null) return true;
 
@@ -189,6 +193,7 @@ public class MenuManager {
 		return Type.isFalse(entity.locked);
 	}
 
+	@NonNull
 	public Boolean canUserShare(Entity entity) {
 		/*
 		 * Must be owner or member to share a private patch. Anyone
@@ -205,6 +210,7 @@ public class MenuManager {
 		}
 	}
 
+	@NonNull
 	public Boolean showAction(Integer route, Entity entity, String forId) {
 
 		if (entity == null)
@@ -215,21 +221,21 @@ public class MenuManager {
 		}
 		else if (route == Route.REMOVE) {
 			if (forId == null) return false;
-			String forSchema = com.aircandi.objects.Entity.getSchemaForId(forId);
+			String forSchema = Entity.getSchemaForId(forId);
 			/*
 			 * Message can be listed for places or current user.
 		     */
 			if (forSchema == null || forSchema.equals(Constants.SCHEMA_ENTITY_USER))
 				return false;
 			else
-				return Patchr.getInstance().getMenuManager().canUserRemoveFromPlace(entity);
+				return canUserRemoveFromPatch(entity);
 		}
 		else if (route == Route.EDIT)
-			return Patchr.getInstance().getMenuManager().canUserEdit(entity);
+			return canUserEdit(entity);
 		else if (route == Route.DELETE)
-			return Patchr.getInstance().getMenuManager().canUserDelete(entity);
+			return canUserDelete(entity);
 		else if (route == Route.SHARE)
-			return Patchr.getInstance().getMenuManager().canUserShare(entity);
+			return canUserShare(entity);
 
 		return false;
 	}

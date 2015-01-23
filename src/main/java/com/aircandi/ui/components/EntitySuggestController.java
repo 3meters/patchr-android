@@ -41,7 +41,7 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 
-import org.jetbrains.annotations.Nullable;
+;
 import org.json.JSONException;
 
 import java.util.ArrayList;
@@ -272,6 +272,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			mSeedEntities = seedEntities;
 		}
 
+		@SuppressWarnings("ConstantConditions")
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -379,7 +380,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 			@NonNull
 			@Override
-			protected FilterResults performFiltering(@Nullable CharSequence chars) {
+			protected FilterResults performFiltering(CharSequence chars) {
 			    /*
 			     * Called on background thread.
                  */

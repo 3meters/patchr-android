@@ -1,6 +1,6 @@
 package com.aircandi.objects;
 
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 
 import com.aircandi.ServiceConstants;
 import com.aircandi.service.Expose;
@@ -86,10 +86,12 @@ public class User extends Entity {
 		return collectionId;
 	}
 
+	@NonNull
 	public Boolean isAnonymous() {
 		return (id == null || id.equals(ServiceConstants.ANONYMOUS_USER_ID));
 	}
 
+	@NonNull
 	public Boolean isAdmin() {
 		return (id != null && id.equals(ServiceConstants.ADMIN_USER_ID));
 	}
@@ -133,7 +135,6 @@ public class User extends Entity {
 	}
 
 	@Override
-	@Nullable
 	public User clone() {
 		final User user = (User) super.clone();
 		if (user != null && stats != null) {

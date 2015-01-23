@@ -1,5 +1,7 @@
 package com.aircandi.objects;
 
+import android.support.annotation.NonNull;
+
 import com.aircandi.service.Expose;
 import com.aircandi.utilities.Reporting;
 
@@ -25,10 +27,9 @@ public class CacheStamp extends ServiceObject {
 	@Expose
 	public String source;
 
-	public CacheStamp() {
-	}
+	public CacheStamp() {}
 
-	public CacheStamp(Number activityDate, Number modifiedDate) {
+	public CacheStamp(@NonNull Number activityDate, Number modifiedDate) {
 		this.activityDate = activityDate;
 		this.modifiedDate = modifiedDate;
 	}

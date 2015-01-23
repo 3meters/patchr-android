@@ -23,7 +23,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
-import org.jetbrains.annotations.Nullable;
+;
 
 import java.io.EOFException;
 import java.io.FileNotFoundException;
@@ -36,7 +36,7 @@ import java.util.Locale;
 
 public final class Errors {
 
-	public static void handleError(@Nullable final Activity activity, @NonNull ServiceResponse serviceResponse) {
+	public static void handleError(final Activity activity, @NonNull ServiceResponse serviceResponse) {
 
 		ErrorResponse errorResponse = serviceResponse.errorResponse;
 		if (errorResponse == null || errorResponse.errorResponseType == null) {

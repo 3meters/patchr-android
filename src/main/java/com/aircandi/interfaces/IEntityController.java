@@ -33,8 +33,6 @@ public interface IEntityController {
 
 	public Entity makeFromMap(Map<String, Object> map, Boolean nameMapping);
 
-	public Integer getNotificationType(Entity entity);
-
 	public String getName(Boolean plural);
 
 	public String getType(Entity entity, Boolean verbose);

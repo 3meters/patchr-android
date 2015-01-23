@@ -12,11 +12,10 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.event.ProgressEvent;
 import com.amazonaws.event.ProgressListener;
+import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
+import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.transfer.Transfer;
-import com.amazonaws.services.s3.transfer.TransferManager;
-import com.amazonaws.services.s3.transfer.Upload;
 import com.squareup.otto.Subscribe;
 
 import java.io.ByteArrayInputStream;
@@ -87,9 +86,7 @@ public class S3 {
 
 	@Subscribe
 	public void onCancelEvent(CancelEvent event) {
-		if (mUpload != null
-				&& (mUpload.getState() == Transfer.TransferState.InProgress
-				|| mUpload.getState() == Transfer.TransferState.Waiting)) {
+		if (mUpload != null) {
 			mUpload.abort();
 			Logger.v(this, "Image upload aborted");
 		}

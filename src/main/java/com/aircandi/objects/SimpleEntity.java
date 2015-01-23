@@ -2,7 +2,7 @@ package com.aircandi.objects;
 
 import android.support.annotation.NonNull;
 
-import org.jetbrains.annotations.Nullable;
+;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class SimpleEntity extends Entity implements Cloneable, Serializable {
 		return entity;
 	}
 
-	@Nullable
+
 	@Override
 	public String getCollection() {
 		return null;

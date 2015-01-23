@@ -17,7 +17,6 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
-import android.util.DisplayMetrics;
 import android.widget.Toast;
 
 import com.aircandi.components.AnimationManager;
@@ -57,8 +56,6 @@ import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.TagManager;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -67,39 +64,50 @@ import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
 
+;
+
 public class Patchr extends MultiDexApplication {
 
-	@Nullable
 	public static BasicAWSCredentials awsCredentials = null;
 
 	private static Patchr singletonObject;
 
-	public static SharedPreferences        settings;
-	public static SharedPreferences.Editor settingsEditor;
-	public static Context                  applicationContext;
-	public static Handler                  mainThreadHandler;
-	public static PackageManager           packageManager;
-	public static DispatchManager          dispatch;
-	public static DisplayMetrics           displayMetrics;
-	public static Integer                  memoryClass;
-	public static Stopwatch                stopwatch1;
-	public static Stopwatch                stopwatch2;
-	public static String                   themeTone;
+	public static Intent firstStartIntent = null;
 
+	@NonNull
+	public static SharedPreferences        settings;
+	@NonNull
+	public static SharedPreferences.Editor settingsEditor;
+	@NonNull
+	public static Context                  applicationContext;
+	@NonNull
+	public static Handler                  mainThreadHandler;
+	@NonNull
+	public static PackageManager           packageManager;
+	@NonNull
+	public static DispatchManager          dispatch;
+	@NonNull
+	public static Integer                  memoryClass;
+	@NonNull
+	public static Stopwatch                stopwatch1;
+	@NonNull
+	public static Stopwatch                stopwatch2;
+
+	@NonNull
+	public static String                         themeTone                 = ThemeTone.LIGHT;
 	@NonNull
 	public static Map<String, IEntityController> controllerMap             = new HashMap<String, IEntityController>();
 	@NonNull
 	public static Boolean                        firstStartApp             = true;
 	@NonNull
 	public static Boolean                        debug                     = false;
-	@Nullable
-	public static Intent                         firstStartIntent          = null;
 	@NonNull
 	public static Boolean                        usingEmulator             = false;
 	@NonNull
 	public static Integer                        wifiCount                 = 0;
 	@NonNull
 	public static Boolean                        applicationUpdateRequired = false;
+	@NonNull
 	public static Integer                        resultCode                = Activity.RESULT_OK;
 
 	/* Container values */
@@ -120,19 +128,22 @@ public class Patchr extends MultiDexApplication {
 	private User     mCurrentUser;
 
 	/* Common preferences */
+	@NonNull
 	private String mPrefTheme;
-	private String mPrefSearchRadius;
 
 	/* Dev preferences */
+	@NonNull
 	private Boolean mPrefEnableDev;
-	private Boolean mPrefEntityFencing;
+	@NonNull
 	private String  mPrefTestingBeacons;
 
 	/* Shared managers */
-	protected MenuManager      mMenuManager;
+	@NonNull
 	protected EntityManager    mEntityManager;
-	protected MediaManager     mMediaManager;
-	private   AnimationManager mAnimationManager;
+	@NonNull
+	protected MenuManager      mMenuManager;
+	@NonNull
+	protected AnimationManager mAnimationManager;
 
 	/* Install id components */
 	private String mUniqueId;
@@ -181,7 +192,7 @@ public class Patchr extends MultiDexApplication {
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
 
 		/* Make sure unique id is initialized */
-		getinstallId();
+		initializeInstallInfo();
 
 		/* Turn on crash reporting */
 		Fabric.with(this, new Crashlytics());
@@ -230,17 +241,17 @@ public class Patchr extends MultiDexApplication {
 	}
 
 	protected void initializeManagers() {
-		/*
-		 * Note: additional setup is done in SplashForm#configure
-		 */
+
 		/* Warmup media manager */
 		MediaManager.warmup();
 
 		/* Inject minimum managers required for notifications */
 		mEntityManager = new EntityManager().setLinks(new Links());
+		mMenuManager = new MenuManager();
+		mAnimationManager = new AnimationManager();
 
 		/* Inject dispatch manager */
-		Patchr.dispatch = new DispatchManager();
+		dispatch = new DispatchManager();
 
 		/* Connectivity monitoring */
 		NetworkManager.getInstance().setContext(getApplicationContext());
@@ -253,9 +264,9 @@ public class Patchr extends MultiDexApplication {
 	}
 
 	public void snapshotPreferences() {
-		mPrefTheme = Patchr.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
-		mPrefEnableDev = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
-		mPrefTestingBeacons = Patchr.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
+		mPrefTheme = settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
+		mPrefEnableDev = settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
+		mPrefTestingBeacons = settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
 	}
 
 	public void openContainer(String containerId) {
@@ -283,7 +294,7 @@ public class Patchr extends MultiDexApplication {
 				/* Called when a successful refresh occurred for the given refresh type. */
 				Logger.v(this, "Container refresh success");
 
-				if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+				if (settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
 						&& Patchr.getInstance().getCurrentUser() != null && Type.isTrue(Patchr.getInstance().getCurrentUser().developer)) {
 					UI.showToastNotification("Container refreshed", Toast.LENGTH_SHORT);
 				}
@@ -358,50 +369,51 @@ public class Patchr extends MultiDexApplication {
 		return controllerMap.get(schema);
 	}
 
+	@NonNull
 	public synchronized String getInstallType() {
-		if (mUniqueType == null) {
-			getinstallId();
-		}
 		return mUniqueType;
 	}
 
+	@NonNull
 	public synchronized Long getInstallDate() {
-		if (mUniqueDate == null) {
-			getinstallId();
-		}
 		return mUniqueDate;
 	}
 
+	@NonNull
 	public synchronized String getinstallId() {
 		if (mUniqueId == null) {
-			mUniqueId = Patchr.settings.getString(StringManager.getString(R.string.setting_unique_id), null);
-			mUniqueDate = Patchr.settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
-			mUniqueType = Patchr.settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
-			if (mUniqueId == null || mUniqueType == null) {
-				if (Build.SERIAL != null && !Build.SERIAL.equals("unknown")) {
-					mUniqueId = Build.SERIAL;
-					mUniqueType = Constants.INSTALL_TYPE_SERIAL;
-				}
-				else {
-					String androidId = Settings.Secure.getString(applicationContext.getContentResolver(), Settings.Secure.ANDROID_ID);
-					if (androidId != null) {
-						mUniqueId = androidId;
-						mUniqueType = Constants.INSTALL_TYPE_ANDROID_ID;
-					}
-					else {
-						mUniqueId = UUID.randomUUID().toString();
-						mUniqueType = Constants.INSTALL_TYPE_RANDOM;
-					}
-				}
-				mUniqueId += "." + applicationContext.getPackageName();
-				mUniqueDate = DateTime.nowDate().getTime();
-				Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id_type), mUniqueType);
-				Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id), mUniqueId);
-				Patchr.settingsEditor.putLong(StringManager.getString(R.string.setting_unique_id_date), mUniqueDate);
-				Patchr.settingsEditor.commit();
-			}
+			initializeInstallInfo();
 		}
 		return mUniqueId;
+	}
+
+	private void initializeInstallInfo() {
+		mUniqueId = Patchr.settings.getString(StringManager.getString(R.string.setting_unique_id), null);
+		mUniqueDate = Patchr.settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
+		mUniqueType = Patchr.settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
+		if (mUniqueId == null || mUniqueType == null) {
+			if (Build.SERIAL != null && !Build.SERIAL.equals("unknown")) {
+				mUniqueId = Build.SERIAL;
+				mUniqueType = Constants.INSTALL_TYPE_SERIAL;
+			}
+			else {
+				String androidId = Settings.Secure.getString(applicationContext.getContentResolver(), Settings.Secure.ANDROID_ID);
+				if (androidId != null) {
+					mUniqueId = androidId;
+					mUniqueType = Constants.INSTALL_TYPE_ANDROID_ID;
+				}
+				else {
+					mUniqueId = UUID.randomUUID().toString();
+					mUniqueType = Constants.INSTALL_TYPE_RANDOM;
+				}
+			}
+			mUniqueId += "." + applicationContext.getPackageName();
+			mUniqueDate = DateTime.nowDate().getTime();
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id_type), mUniqueType);
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id), mUniqueId);
+			Patchr.settingsEditor.putLong(StringManager.getString(R.string.setting_unique_id_date), mUniqueDate);
+			Patchr.settingsEditor.commit();
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -445,34 +457,16 @@ public class Patchr extends MultiDexApplication {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void setTracker(Tracker tracker) {
+	public void setTracker(@NonNull Tracker tracker) {
 		mTracker = tracker;
 	}
 
 	@NonNull
-	public Boolean setCurrentUser(User user, Boolean refreshUser) {
+	public Boolean setCurrentUser(@NonNull User user, @NonNull Boolean refreshUser) {
 		mCurrentUser = user;
 		ModelResult result = mEntityManager.activateCurrentUser(refreshUser);
 		Reporting.updateCrashUser(user);
 		return (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS);
-	}
-
-	@NonNull
-	public Patchr setMenuManager(MenuManager menuManager) {
-		mMenuManager = menuManager;
-		return this;
-	}
-
-	@NonNull
-	public Patchr setMediaManager(MediaManager mediaManager) {
-		mMediaManager = mediaManager;
-		return this;
-	}
-
-	@NonNull
-	public Patchr setAnimationManager(AnimationManager animationManager) {
-		mAnimationManager = animationManager;
-		return this;
 	}
 
 	public void setCurrentActivity(Activity currentActivity) {
@@ -492,10 +486,12 @@ public class Patchr extends MultiDexApplication {
 		return mCurrentUser;
 	}
 
+	@NonNull
 	public Boolean getPrefEnableDev() {
 		return mPrefEnableDev;
 	}
 
+	@NonNull
 	public String getPrefTestingBeacons() {
 		return mPrefTestingBeacons;
 	}
@@ -508,14 +504,17 @@ public class Patchr extends MultiDexApplication {
 		return mCurrentPatch;
 	}
 
+	@NonNull
 	public MenuManager getMenuManager() {
 		return mMenuManager;
 	}
 
+	@NonNull
 	public EntityManager getEntityManager() {
 		return mEntityManager;
 	}
 
+	@NonNull
 	public AnimationManager getAnimationManager() {
 		return mAnimationManager;
 	}

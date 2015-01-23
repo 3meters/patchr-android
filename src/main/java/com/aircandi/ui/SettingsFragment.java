@@ -17,7 +17,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -68,7 +67,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 	}
 
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = super.onCreateView(inflater, container, savedInstanceState);
 
 		/* Configure dividers to the thickness we want */

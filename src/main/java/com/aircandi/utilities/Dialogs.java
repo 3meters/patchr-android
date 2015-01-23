@@ -22,23 +22,23 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 
-import org.jetbrains.annotations.Nullable;
+;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Dialogs {
 
 	@NonNull
-	public static AlertDialog alertDialog(@Nullable Integer iconResource // $codepro.audit.disable largeNumberOfParameters
-			, @Nullable String titleText
+	public static AlertDialog alertDialog(Integer iconResource // $codepro.audit.disable largeNumberOfParameters
+			, String titleText
 			, String message
-			, @Nullable View customView
+			, View customView
 			, @NonNull Context context
-			, @Nullable Integer okButtonId
-			, @Nullable Integer cancelButtonId
-			, @Nullable Integer neutralButtonId
+			, Integer okButtonId
+			, Integer cancelButtonId
+			, Integer neutralButtonId
 			, OnClickListener listenerClick
-			, @Nullable OnCancelListener listenerCancel) {
+			, OnCancelListener listenerCancel) {
 
 		final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -103,7 +103,7 @@ public class Dialogs {
 		}
 	}
 
-	public static void signinRequired(final Activity activity, @Nullable final Integer messageResId) {
+	public static void signinRequired(final Activity activity, final Integer messageResId) {
 		String message = StringManager.getString((messageResId == null) ? R.string.alert_signin_message : messageResId);
 		signinRequired(activity, message);
 	}
@@ -246,7 +246,7 @@ public class Dialogs {
 		updateDialog.show();
 	}
 
-	public static void dismiss(@Nullable Dialog dialog) {
+	public static void dismiss(Dialog dialog) {
 		if (dialog != null
 				&& dialog.isShowing()
 				&& dialog.getWindow().getWindowManager() != null) {

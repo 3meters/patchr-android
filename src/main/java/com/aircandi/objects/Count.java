@@ -1,5 +1,7 @@
 package com.aircandi.objects;
 
+import android.support.annotation.NonNull;
+
 import com.aircandi.service.Expose;
 
 import java.io.Serializable;
@@ -24,7 +26,7 @@ public class Count extends ServiceObject implements Cloneable, Serializable {
 	public Count() {
 	}
 
-	public Count(String type, String schema, Boolean enabled, Number count) {
+	public Count(@NonNull String type, @NonNull String schema, Boolean enabled, @NonNull Number count) {
 		this.type = type;
 		this.schema = schema;
 		this.enabled = enabled;

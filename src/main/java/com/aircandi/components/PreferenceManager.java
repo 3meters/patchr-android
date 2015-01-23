@@ -1,5 +1,7 @@
 package com.aircandi.components;
 
+import android.support.annotation.NonNull;
+
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.objects.Notification;
@@ -7,7 +9,8 @@ import com.aircandi.utilities.Booleans;
 
 public class PreferenceManager {
 
-	public Boolean notificationEnabled(String triggerCategory, String eventCategory) {
+	@NonNull
+	public Boolean notificationEnabled(@NonNull String triggerCategory, @NonNull String eventCategory) {
 
 		if (triggerCategory.equals(Notification.TriggerCategory.NEARBY)) {
 			if (!Patchr.settings.getBoolean(StringManager.getString(R.string.pref_messages_nearby)

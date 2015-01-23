@@ -1,6 +1,6 @@
 package com.aircandi.objects;
 
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 
@@ -55,17 +55,6 @@ public class Place extends Patch implements Cloneable, Serializable {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static Place upsize(Place place) {
-	    /*
-		 * Sythetic entity created from foursquare data
-		 *
-		 * We make a copy so these changes don't effect the synthetic entity
-		 * in the entity model in case we keep it because of a failure.
-		 */
-		final Place entity = place.clone();
-		return entity;
-	}
-
 	public Provider getProvider() {
 		if (provider.aircandi != null)
 			return new Provider(provider.aircandi, Constants.TYPE_PROVIDER_AIRCANDI);
@@ -80,6 +69,7 @@ public class Place extends Patch implements Cloneable, Serializable {
 		return null;
 	}
 
+	@NonNull
 	public String getAddressBlock() {
 		String addressBlock = "";
 		if (!TextUtils.isEmpty(address)) {
@@ -102,6 +92,7 @@ public class Place extends Patch implements Cloneable, Serializable {
 		return addressBlock;
 	}
 
+	@NonNull
 	public String getAddressString(Boolean includePostalCode) {
 		String addressString = "";
 		if (!TextUtils.isEmpty(address)) {
@@ -190,7 +181,6 @@ public class Place extends Patch implements Cloneable, Serializable {
 	}
 
 	@Override
-	@Nullable
 	public Place clone() {
 		final Place place = (Place) super.clone();
 		if (place != null) {

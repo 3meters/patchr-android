@@ -8,6 +8,7 @@ import android.location.Location;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
@@ -127,6 +128,7 @@ public class ProximityManager {
 		/*
 		 * If context is null then we probably crashed and the scan service is still calling.
 		 */
+		//noinspection ConstantConditions
 		if (Patchr.applicationContext == null) return;
 
 		synchronized (mWifiList) {
@@ -421,6 +423,7 @@ public class ProximityManager {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
+	@NonNull
 	public List<Beacon> getStrongestBeacons(int max) {
 
 		final List<Beacon> beaconStrongest = new ArrayList<Beacon>();
@@ -451,6 +454,7 @@ public class ProximityManager {
 		return mLastBeaconLockedDate;
 	}
 
+	@NonNull
 	public List<WifiScanResult> getWifiList() {
 		return mWifiList;
 	}

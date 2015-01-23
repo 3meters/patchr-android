@@ -3,23 +3,22 @@ package com.aircandi.utilities;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import org.jetbrains.annotations.Nullable;
+;
 
 public class Type {
 
-	@Nullable
 	public static String emptyAsNull(String stringValue) {
 		if ("".equals(stringValue)) return null;
 		return stringValue;
 	}
 
 	@NonNull
-	public static Boolean isTrue(@Nullable Boolean value) {
+	public static Boolean isTrue(Boolean value) {
 		return (value != null && value);
 	}
 
 	@NonNull
-	public static Boolean isFalse(@Nullable Boolean value) {
+	public static Boolean isFalse(Boolean value) {
 		//noinspection PointlessBooleanExpression
 		return (value == null || value == false);
 	}

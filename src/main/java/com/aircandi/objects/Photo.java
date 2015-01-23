@@ -3,7 +3,6 @@ package com.aircandi.objects;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.TypedValue;
 
 import com.aircandi.Constants;
@@ -34,50 +33,45 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	@NonNull
 	@Expose
 	public String prefix;
-	@Nullable
 	@Expose
 	public String suffix;
-	@Nullable
 	@Expose
 	public Number width;
-	@Nullable
 	@Expose
 	public Number height;
 	@NonNull
 	@Expose
 	public String source;
-	@Nullable
 	@Expose
 	public Number createdDate;
 
 	/* Only comes from foursquare */
-	@Nullable
+
 	@Expose(serialize = false, deserialize = true)
 	public Entity user;
 
 	/* client only */
-	@Nullable
+
 	public String name;
-	@Nullable
+
 	public String description;
 
 	@NonNull
-	public Boolean usingDefault = false;
+	public Boolean usingDefault  = false;
 	@NonNull
-	public Boolean store        = false;
-
+	public Boolean store         = false;
 	@NonNull
 	public Boolean resizerActive = false;
 	@NonNull
 	public Boolean resizerUsed   = false;
-	@Nullable
+
 	public Number resizerWidth;
-	@Nullable
+
 	public Number resizerHeight;
 
 	public Photo() {}
 
-	public Photo(@NonNull String prefix, @Nullable String suffix, @Nullable Number width, @Nullable Number height, @NonNull String source) {
+	public Photo(@NonNull String prefix, String suffix, Number width, Number height, @NonNull String source) {
 		this.prefix = prefix;
 		this.suffix = suffix;
 		this.width = width;
@@ -119,7 +113,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return photo;
 	}
 
-	@Nullable
 	public Integer getResId() {
 		Integer resId = getResourceIdFromResourceName(Patchr.applicationContext, this.prefix);
 		return resId;
@@ -137,7 +130,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	}
 
 	@NonNull
-	private String getSizedUri(@Nullable Number maxWidth, @Nullable Number maxHeight, @NonNull Boolean wrapped) {
+	private String getSizedUri(Number maxWidth, Number maxHeight, @NonNull Boolean wrapped) {
 
 		if (this.source.equals(PhotoSource.resource)) {
 			return ("resource:" + this.prefix);
@@ -279,7 +272,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return imageResult;
 	}
 
-	@Nullable
 	public static Integer getResourceIdFromResourceName(@NonNull Context context, String resourceName) {
 
 		final String resolvedResourceName = resolveResourceName(context, resourceName);
@@ -292,7 +284,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return null;
 	}
 
-	@Nullable
 	public static Integer getResourceIdFromUri(@NonNull Context context, @NonNull String uri) {
 
 		final String rawResourceName = uri.substring(uri.indexOf("resource:") + 9);
@@ -306,7 +297,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return null;
 	}
 
-	@Nullable
 	public static String resolveResourceName(@NonNull Context context, String rawResourceName) {
 		int resourceId = Patchr.applicationContext.getResources().getIdentifier(rawResourceName, "drawable", Patchr.getInstance().getPackageName());
 		if (resourceId == 0) {
@@ -323,14 +313,14 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 			return rawResourceName;
 	}
 
-	public boolean sameAs(@Nullable Object obj) {
+	public boolean sameAs(Object obj) {
 		if (obj == null) return false;
 		if (!((Object) this).getClass().equals(obj.getClass())) return false;
 		final Photo other = (Photo) obj;
 		return (Type.equal(this.getUri(), other.getUri()));
 	}
 
-	public static boolean same(@Nullable Object obj1, @Nullable Object obj2) {
+	public static boolean same(Object obj1, Object obj2) {
 		if (obj1 == null && obj2 == null) return true;
 		if (obj1 != null) {
 			return ((Photo) obj1).sameAs(obj2);
@@ -359,7 +349,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Nullable
 	public Number getCreatedAt() {
 		return createdDate;
 	}
@@ -370,24 +359,22 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return this;
 	}
 
-	@Nullable
 	public Entity getUser() {
 		return user;
 	}
 
 	@NonNull
-	public Photo setUser(@Nullable Entity user) {
+	public Photo setUser(Entity user) {
 		this.user = user;
 		return this;
 	}
 
-	@Nullable
 	public String getName() {
 		return name;
 	}
 
 	@NonNull
-	public Photo setName(@Nullable String name) {
+	public Photo setName(String name) {
 		this.name = name;
 		return this;
 	}

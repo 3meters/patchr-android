@@ -1,5 +1,7 @@
 package com.aircandi.queries;
 
+import android.support.annotation.NonNull;
+
 import com.aircandi.Patchr;
 import com.aircandi.components.ModelResult;
 import com.aircandi.interfaces.IEntityController;
@@ -16,15 +18,15 @@ import java.util.List;
 public class EntitiesQuery implements IQuery {
 
 	protected Cursor mCursor;
-	protected Boolean mMore = false;
+	protected Boolean mMore        = false;
 	protected Boolean mHasExecuted = false;
 	protected Integer mPageSize;
 	protected Integer mPageCount = 0;
-	protected String  mSchema;
-	protected String  mLinkType;
-	protected String  mLinkDirection;
-	protected String  mLinkWhere; // NO_UCD (unused code)
-	protected String  mEntityId;
+	protected String mSchema;
+	protected String mLinkType;
+	protected String mLinkDirection;
+	protected String mLinkWhere; // NO_UCD (unused code)
+	protected String mEntityId;
 
 	@Override
 	public ModelResult execute(Integer skip, Integer limit) {
@@ -70,11 +72,13 @@ public class EntitiesQuery implements IQuery {
 		return result;
 	}
 
+	@NonNull
 	@Override
 	public Boolean isMore() {
 		return mMore;
 	}
 
+	@NonNull
 	@Override
 	public Boolean hasExecuted() {
 		return mHasExecuted;

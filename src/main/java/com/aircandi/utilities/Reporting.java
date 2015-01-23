@@ -15,7 +15,7 @@ import com.aircandi.objects.User;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.HitBuilders;
 
-import org.jetbrains.annotations.Nullable;
+;
 
 import java.util.Locale;
 
@@ -34,7 +34,7 @@ public class Reporting {
 				@Override
 				protected void onPreExecute() {}
 
-				@Nullable
+
 				@Override
 				protected Object doInBackground(Object... params) {
 
@@ -108,7 +108,7 @@ public class Reporting {
 		}
 	}
 
-	public static void updateCrashUser(@Nullable User user) {
+	public static void updateCrashUser(User user) {
 		if (Fabric.isInitialized()) {
 			if (user != null) {
 				Crashlytics.setUserIdentifier(user.id);

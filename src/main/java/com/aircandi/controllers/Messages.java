@@ -16,7 +16,6 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Message;
-import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.MessageForm;
@@ -285,16 +284,6 @@ public class Messages extends EntityControllerBase {
 	@Override
 	public Integer getLinkProfile() {
 		return LinkProfile.LINKS_FOR_MESSAGE;
-	}
-
-	@Override
-	public Integer getNotificationType(Entity entity) {
-		if (entity.photo != null) {
-			return NotificationType.BIG_PICTURE;
-		}
-		else {
-			return NotificationType.BIG_TEXT;
-		}
 	}
 
 	@Override

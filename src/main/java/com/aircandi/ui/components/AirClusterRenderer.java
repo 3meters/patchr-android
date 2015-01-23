@@ -44,7 +44,7 @@ import com.google.maps.android.projection.SphericalMercatorProjection;
 import com.google.maps.android.ui.IconGenerator;
 import com.google.maps.android.ui.SquareTextView;
 
-import org.jetbrains.annotations.Nullable;
+;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -234,7 +234,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 		private static final int        RUN_TASK                    = 0;
 		private static final int        TASK_FINISHED               = 1;
 		private              boolean    mViewModificationInProgress = false;
-		@Nullable
+
 		private              RenderTask mNextClusters               = null;
 
 		@Override
@@ -475,8 +475,8 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 		return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
 	}
 
-	@Nullable
-	private static Point findClosestCluster(@Nullable List<Point> markers, @NonNull Point point) {
+
+	private static Point findClosestCluster(List<Point> markers, @NonNull Point point) {
 		if (markers == null || markers.isEmpty()) return null;
 
 		// TODO: make this configurable.

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
@@ -43,7 +44,9 @@ public class ActivityRecognitionManager implements
 	private static final int     REQUEST_RESOLVE_ERROR = 1001;
 	private              boolean mResolvingError       = false;
 
-	private ActivityRecognitionManager() {}
+	private ActivityRecognitionManager() {
+		mActivityStateStart = DateTime.nowDate().getTime();
+	}
 
 	private static class ActivityRecognitionManagerHolder {
 		public static final ActivityRecognitionManager instance = new ActivityRecognitionManager();
@@ -193,10 +196,12 @@ public class ActivityRecognitionManager implements
 		}
 	}
 
+	@NonNull
 	public Boolean isMoving(Integer activityType) {
 		return (activityType != DetectedActivity.STILL);
 	}
 
+	@NonNull
 	public String getNameFromType(int activityType) {
 		switch (activityType) {
 			case DetectedActivity.IN_VEHICLE:
@@ -218,26 +223,6 @@ public class ActivityRecognitionManager implements
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-
-	public Integer getActivityType() {
-		return mActivityTypeCurrent;
-	}
-
-	public Long getActivityDuration() {
-		return DateTime.nowDate().getTime() - mActivityStateStart;
-	}
-
-	public Integer getConfidence() {
-		return mActivityTypeConfidence;
-	}
-
-	public Integer getActivityStateThreshold() {
-		return mActivityStateThreshold;
-	}
-
-	public void setActivityStateThreshold(Integer activityStateThreshold) {
-		mActivityStateThreshold = activityStateThreshold;
-	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes

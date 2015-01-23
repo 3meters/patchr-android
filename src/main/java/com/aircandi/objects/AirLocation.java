@@ -1,5 +1,7 @@
 package com.aircandi.objects;
 
+import android.support.annotation.NonNull;
+
 import com.aircandi.service.Expose;
 
 import java.io.Serializable;
@@ -32,7 +34,7 @@ public class AirLocation extends ServiceObject implements Cloneable, Serializabl
 
 	public AirLocation() {}
 
-	public AirLocation(Number lat, Number lng) {
+	public AirLocation(@NonNull Number lat, @NonNull Number lng) {
 		this.lat = lat;
 		this.lng = lng;
 	}
@@ -62,7 +64,15 @@ public class AirLocation extends ServiceObject implements Cloneable, Serializabl
 		return location;
 	}
 
-	public Float distanceTo(AirLocation location) {
+	public Float distanceTo(@NonNull AirLocation location) {
+
+		if (this.lat == null || this.lng == null) {
+			throw new IllegalArgumentException("Attempted to call distanceTo on location without lat/lng");
+		}
+
+		if (location.lat == null || location.lng == null) {
+			throw new IllegalArgumentException("Attempted to call distanceTo using location without lat/lng");
+		}
 
 		fromLocation.setLatitude(this.lat.doubleValue());
 		fromLocation.setLongitude(this.lng.doubleValue());

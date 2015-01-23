@@ -29,7 +29,7 @@ import com.aircandi.ui.widgets.AirImageView;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Transformation;
 
-import org.jetbrains.annotations.Nullable;
+;
 
 @SuppressWarnings("ucd")
 public class UI {
@@ -79,7 +79,7 @@ public class UI {
 		}
 	}
 
-	public static void loadView(@NonNull final AirImageView photoView, @NonNull final Photo photo, @Nullable final Transformation transform) {
+	public static void loadView(@NonNull final AirImageView photoView, @NonNull final Photo photo, final Transformation transform) {
 		/*
 		 * This is the only patch in the code that turns on proxy handling.
 		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
@@ -245,7 +245,7 @@ public class UI {
 		});
 	}
 
-	public static void showDrawableInImageView(final Drawable drawable, @Nullable final ImageView imageView, final boolean animate) {
+	public static void showDrawableInImageView(final Drawable drawable, final ImageView imageView, final boolean animate) {
 		/*
 		 * Make sure this on the main thread
 		 */
@@ -267,7 +267,7 @@ public class UI {
 		});
 	}
 
-	public static void setVisibility(@Nullable View view, Integer visibility) {
+	public static void setVisibility(View view, Integer visibility) {
 		if (view != null) {
 			view.setVisibility(visibility);
 		}

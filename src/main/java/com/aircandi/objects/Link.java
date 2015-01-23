@@ -1,6 +1,6 @@
 package com.aircandi.objects;
 
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 
 import com.aircandi.Constants;
 import com.aircandi.service.Expose;
@@ -47,13 +47,13 @@ public class Link extends ServiceBase {
 
 	public Link() {}
 
-	public Link(String toId, String type, String targetSchema) {
+	public Link(@NonNull String toId, @NonNull String type, @NonNull String targetSchema) {
 		this.toId = toId;
 		this.type = type;
 		this.targetSchema = targetSchema;
 	}
 
-	public Link(String fromId, String toId, String type, String targetSchema) {
+	public Link(@NonNull String fromId, @NonNull String toId, @NonNull String type, @NonNull String targetSchema) {
 		this.toId = toId;
 		this.type = type;
 		this.targetSchema = targetSchema;
@@ -64,6 +64,7 @@ public class Link extends ServiceBase {
 	 * Set and get
 	 *--------------------------------------------------------------------------------------------*/
 
+	@NonNull
 	public Integer getProximityScore() {
 		Integer score = 0;
 		if (this.stats != null) {
@@ -90,6 +91,7 @@ public class Link extends ServiceBase {
 		return null;
 	}
 
+	@NonNull
 	public Count incrementStat(String type, String schema) {
 		Count count;
 		if (this.stats == null) {
@@ -161,7 +163,6 @@ public class Link extends ServiceBase {
 	}
 
 	@Override
-	@Nullable
 	public Link clone() {
 		final Link link = (Link) super.clone();
 		if (link != null && stats != null) {

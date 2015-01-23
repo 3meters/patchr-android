@@ -22,7 +22,6 @@ import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Notification;
-import com.aircandi.objects.NotificationType;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.TransitionType;
@@ -176,7 +175,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		/* Checkbox */
 
 		UI.setVisibility(holder.checked, View.GONE);
-		if (holder.checked != null && entity.checked != null) {
+		if (holder.checked != null) {
 			holder.checked.setChecked(entity.checked);
 			holder.checked.setTag(entity);
 			UI.setVisibility(holder.checked, View.VISIBLE);
@@ -366,11 +365,6 @@ public abstract class EntityControllerBase implements IEntityController {
 	@Override
 	public String getType(Entity entity, Boolean verbose) {
 		return null;
-	}
-
-	@Override
-	public Integer getNotificationType(Entity entity) {
-		return NotificationType.NORMAL;
 	}
 
 	@Override

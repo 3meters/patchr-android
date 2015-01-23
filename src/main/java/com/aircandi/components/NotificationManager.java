@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.Html;
@@ -122,6 +123,7 @@ public class NotificationManager {
 		editor.apply();
 	}
 
+	@NonNull
 	private String getRegistrationId(Context context) {
 		final SharedPreferences prefs = getGcmPreferences(context);
 		String registrationId = prefs.getString(StringManager.getString(R.string.setting_gcm_registration_id), "");

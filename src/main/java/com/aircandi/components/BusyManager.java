@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.WindowManager.BadTokenException;
 import android.widget.ProgressBar;
@@ -118,9 +117,6 @@ public class BusyManager implements IBusy {
 								progressDialog.setCancelable(false);
 								progressDialog.setCanceledOnTouchOutside(false);
 								progressDialog.show();
-								if (Patchr.displayMetrics != null) {
-									progressDialog.getWindow().setLayout((int) (Patchr.displayMetrics.widthPixels * 0.7), LayoutParams.WRAP_CONTENT);
-								}
 							}
 						}
 					}
@@ -174,10 +170,6 @@ public class BusyManager implements IBusy {
 						});
 
 						progressDialog.show();
-
-						if (Patchr.displayMetrics != null) {
-							progressDialog.getWindow().setLayout((int) (Patchr.displayMetrics.widthPixels * 0.7), LayoutParams.WRAP_CONTENT);
-						}
 					}
 					mBusyStartedTime = DateTime.nowDate().getTime();
 				}
@@ -286,10 +278,6 @@ public class BusyManager implements IBusy {
 
 	public void setSwipeRefresh(SwipeRefreshLayout swipeRefreshLayout) {
 		mSwipeRefreshLayout = swipeRefreshLayout;
-	}
-
-	public SwipeRefreshLayout getSwipeRefresh() {
-		return mSwipeRefreshLayout;
 	}
 
 	/*--------------------------------------------------------------------------------------------

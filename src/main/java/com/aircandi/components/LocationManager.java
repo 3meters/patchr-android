@@ -7,6 +7,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
@@ -237,17 +238,20 @@ public class LocationManager implements
 
 	/* Public */
 
+	@NonNull
 	public Boolean hasMoved(Location locationCandidate) {
 		if (mLocationLocked == null) return true;
 		final float distance = mLocationLocked.distanceTo(locationCandidate);
 		return (distance >= mLocationRequest.getSmallestDisplacement());
 	}
 
-	public boolean isLocationAccessEnabled() {
+	@NonNull
+	public Boolean isLocationAccessEnabled() {
 		return (mLocationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
 				|| mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER));
 	}
 
+	@NonNull
 	public ModelResult getAddressForLocation(final AirLocation location) {
 		/*
 		 * Can trigger network access so should be called on a background thread.
@@ -268,6 +272,7 @@ public class LocationManager implements
 		return result;
 	}
 
+	@NonNull
 	public ModelResult getLocationFromAddress(String address) {
 		/*
 		 * Can trigger network access so should be called on a background thread.

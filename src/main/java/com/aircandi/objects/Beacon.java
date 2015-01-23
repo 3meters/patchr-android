@@ -1,6 +1,6 @@
 package com.aircandi.objects;
 
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 
 import com.aircandi.Constants;
 import com.aircandi.components.LocationManager;
@@ -34,10 +34,11 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 
 	/*--------------------------------------------------------------------------------------------
 	 * client fields (NONE are transferred)
-	 *--------------------------------------------------------------------------------------------*/    public Boolean test = false;
+	 *--------------------------------------------------------------------------------------------*/
 
-	public Beacon() {
-	}
+	public Boolean test = false;
+
+	public Beacon() {}
 
 	public Beacon(String bssid, String ssid, String label, int levelDb, Boolean test) { // $codepro.audit.disable largeNumberOfParameters
 		id = "be." + bssid;
@@ -51,48 +52,50 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 	/*--------------------------------------------------------------------------------------------
 	 * Set and get
 	 *--------------------------------------------------------------------------------------------*/
+
+	@NonNull
 	@Override
 	public Float getDistance(Boolean refresh) {
 
-		if (refresh || distance == null) {
+		if (refresh || this.distance == null) {
 
-			distance = -1f;
+			this.distance = -1f;
 
-			if (signal.intValue() >= -40) {
-				distance = 1f;
+			if (this.signal.intValue() >= -40) {
+				this.distance = 1f;
 			}
-			else if (signal.intValue() >= -50) {
-				distance = 2f;
+			else if (this.signal.intValue() >= -50) {
+				this.distance = 2f;
 			}
-			else if (signal.intValue() >= -55) {
-				distance = 3f;
+			else if (this.signal.intValue() >= -55) {
+				this.distance = 3f;
 			}
-			else if (signal.intValue() >= -60) {
-				distance = 5f;
+			else if (this.signal.intValue() >= -60) {
+				this.distance = 5f;
 			}
-			else if (signal.intValue() >= -65) {
-				distance = 7f;
+			else if (this.signal.intValue() >= -65) {
+				this.distance = 7f;
 			}
-			else if (signal.intValue() >= -70) {
-				distance = 10f;
+			else if (this.signal.intValue() >= -70) {
+				this.distance = 10f;
 			}
-			else if (signal.intValue() >= -75) {
-				distance = 15f;
+			else if (this.signal.intValue() >= -75) {
+				this.distance = 15f;
 			}
-			else if (signal.intValue() >= -80) {
-				distance = 20f;
+			else if (this.signal.intValue() >= -80) {
+				this.distance = 20f;
 			}
-			else if (signal.intValue() >= -85) {
-				distance = 30f;
+			else if (this.signal.intValue() >= -85) {
+				this.distance = 30f;
 			}
-			else if (signal.intValue() >= -90) {
-				distance = 40f;
+			else if (this.signal.intValue() >= -90) {
+				this.distance = 40f;
 			}
-			else if (signal.intValue() >= -95) {
-				distance = 60f;
+			else if (this.signal.intValue() >= -95) {
+				this.distance = 60f;
 			}
 			else {
-				distance = 80f;
+				this.distance = 80f;
 			}
 		}
 
@@ -107,6 +110,7 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
+
 	public static Beacon setPropertiesFromMap(Beacon entity, Map map, Boolean nameMapping) {
 
 		synchronized (entity) {
@@ -119,7 +123,6 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 	}
 
 	@Override
-	@Nullable
 	public Beacon clone() {
 		final Beacon entity = (Beacon) super.clone();
 		return entity;
@@ -127,7 +130,9 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
-	 *--------------------------------------------------------------------------------------------*/    public static class SortBySignalLevel implements Comparator<Beacon> {
+	 *--------------------------------------------------------------------------------------------*/
+
+	public static class SortBySignalLevel implements Comparator<Beacon> {
 
 		@Override
 		public int compare(Beacon object1, Beacon object2) {
@@ -141,5 +146,4 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 				return 0;
 		}
 	}
-
 }

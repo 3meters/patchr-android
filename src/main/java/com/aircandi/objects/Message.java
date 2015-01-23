@@ -1,5 +1,7 @@
 package com.aircandi.objects;
 
+import android.support.annotation.NonNull;
+
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
 
@@ -55,7 +57,8 @@ public class Message extends Entity implements Cloneable, Serializable {
 		return entity;
 	}
 
-	public boolean isOwnerAccess() {
+	@NonNull
+	public Boolean isOwnerAccess() {
 		return true;
 	}
 

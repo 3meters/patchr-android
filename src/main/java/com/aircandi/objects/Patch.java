@@ -1,7 +1,6 @@
 package com.aircandi.objects;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.aircandi.Constants;
 import com.aircandi.service.Expose;
@@ -72,7 +71,6 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	}
 
 	@Override
-	@Nullable
 	public Patch clone() {
 		final Patch patch = (Patch) super.clone();
 		if (patch != null) {
