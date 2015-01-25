@@ -24,7 +24,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 @SuppressWarnings("ucd")
-public class EntityView extends LinearLayout {
+public class EntityView extends LinearLayout implements Target {
 
 	private ViewGroup    mBoundView;
 	private AirImageView mPhotoView;
@@ -114,42 +114,7 @@ public class EntityView extends LinearLayout {
 			if (mPhotoView != null) {
 				Photo photo = mEntity.getPhoto();
 				if (mPhotoView.getPhoto() == null || !photo.getUri().equals(mPhotoView.getPhoto().getUri())) {
-
-					mPhotoView.setTarget(new Target() {
-
-						@Override
-						public void onBitmapFailed(Drawable arg0) {
-							UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
-						}
-
-						@Override
-						public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
-		                    /*
-                             * Called on main thread and whether bitmap was loaded from network or memory.
-                             */
-							DownloadManager.decorate(bitmap, loadedFrom);
-							DownloadManager.logBitmap(EntityView.this, bitmap, mPhotoView.getImageView());
-							final BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
-							if (mAnimateDisabled) {
-								mPhotoView.getImageView().setImageDrawable(bitmapDrawable);
-								if (mParentView != null) {
-									mParentView.invalidate();
-								}
-							}
-							else {
-								UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
-							}
-						}
-
-						@Override
-						public void onPrepareLoad(Drawable drawable) {
-							if (drawable != null) {
-								//noinspection deprecation
-								mPhotoView.getImageView().setBackgroundDrawable(drawable);
-							}
-						}
-					});
-
+					mPhotoView.setTarget(this);
 					UI.drawPhoto(mPhotoView, photo);
 					mPhotoView.setTag(photo);
 				}
@@ -172,6 +137,38 @@ public class EntityView extends LinearLayout {
 				mButtonDelete.setVisibility(View.GONE);
 				mPhotoView.setVisibility(View.VISIBLE);
 			}
+		}
+	}
+
+	@Override
+	public void onBitmapFailed(Drawable arg0) {
+		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
+	}
+
+	@Override
+	public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
+	    /*
+	     * Called on main thread and whether bitmap was loaded from network or memory.
+	     */
+		DownloadManager.decorate(bitmap, loadedFrom);
+		DownloadManager.logBitmap(EntityView.this, bitmap, mPhotoView.getImageView());
+		final BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
+		if (mAnimateDisabled) {
+			mPhotoView.getImageView().setImageDrawable(bitmapDrawable);
+			if (mParentView != null) {
+				mParentView.invalidate();
+			}
+		}
+		else {
+			UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
+		}
+	}
+
+	@Override
+	public void onPrepareLoad(Drawable drawable) {
+		if (drawable != null) {
+			//noinspection deprecation
+			mPhotoView.getImageView().setBackgroundDrawable(drawable);
 		}
 	}
 

@@ -54,7 +54,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView.TokenListener {
+public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView.TokenListener, Target {
 
 	private String mReplyPlaceId;                        // Passed in for replies
 	private String mReplyRootId;
@@ -317,7 +317,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 					}
 
 					/*
-			         * Intent with image data. We get a uri we use to open a stream to get the bitmap.
+				     * Intent with image data. We get a uri we use to open a stream to get the bitmap.
 					 * We then copy the bitmap to a our pinned share file. We are not the source of the
 					 * image so we don't want to track it in the Pictures/Patchr folder.
 					 */
@@ -603,31 +603,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 				@Override
 				public void run() {
-					mPhotoView.setTarget(new Target() {
-
-						@Override
-						public void onBitmapFailed(Drawable arg0) {
-							UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
-							onCanceledPhoto();
-						}
-
-						@Override
-						public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
-							DownloadManager.decorate(bitmap, loadedFrom);
-							DownloadManager.logBitmap(MessageEdit.this, bitmap, mPhotoView.getImageView());
-							final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
-							UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
-							onChangedPhoto();
-						}
-
-						@Override
-						public void onPrepareLoad(Drawable drawable) {
-							if (drawable != null) {
-								//noinspection deprecation
-								mPhotoView.getImageView().setBackgroundDrawable(drawable);
-							}
-						}
-					});
+					mPhotoView.setTarget(MessageEdit.this);
 
 					if (mAnimatorPhoto != null) {
 						runOnUiThread(new Runnable() {
@@ -645,6 +621,29 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 					UI.drawPhoto(mPhotoView, mEntity.getPhoto());
 				}
 			});
+		}
+	}
+
+	@Override
+	public void onBitmapFailed(Drawable arg0) {
+		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
+		onCanceledPhoto();
+	}
+
+	@Override
+	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
+		DownloadManager.decorate(bitmap, loadedFrom);
+		DownloadManager.logBitmap(MessageEdit.this, bitmap, mPhotoView.getImageView());
+		final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
+		UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
+		onChangedPhoto();
+	}
+
+	@Override
+	public void onPrepareLoad(Drawable drawable) {
+		if (drawable != null) {
+			//noinspection deprecation
+			mPhotoView.getImageView().setBackgroundDrawable(drawable);
 		}
 	}
 
