@@ -10,14 +10,12 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.CancelEvent;
-import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.ui.components.SimpleTextWatcher;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Type;
-import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
 import com.squareup.otto.Subscribe;
 
