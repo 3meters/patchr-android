@@ -17,7 +17,6 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
-import com.aircandi.components.AndroidManager;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
@@ -55,6 +54,9 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	protected AirImageView        mPhotoView;
 	protected TextView            mName;
 	protected TextView            mDescription;
+	protected View                mButtonPhotoDelete;
+	protected View                mButtonPhotoEdit;
+	protected View                mButtonPhotoSet;
 	protected String              mPhotoSource;
 	protected ImageChooserManager mImageChooserManager;
 	protected AsyncTask           mTaskService;
@@ -99,6 +101,9 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		mName = (TextView) findViewById(R.id.name);
 		mDescription = (TextView) findViewById(R.id.description);
 		mPhotoView = (AirImageView) findViewById(R.id.photo);
+		mButtonPhotoSet = findViewById(R.id.button_photo_set);
+		mButtonPhotoEdit = findViewById(R.id.button_photo_edit);
+		mButtonPhotoDelete = findViewById(R.id.button_photo_delete);
 
 		if (mName != null) {
 			mName.addTextChangedListener(new SimpleTextWatcher() {
@@ -162,47 +167,43 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				}
 			}
 
-			/* Configure UI */
-			UI.setVisibility(findViewById(R.id.button_delete_watcher), View.GONE);
-			if (entity.ownerId != null
-					&& (entity.ownerId.equals(Patchr.getInstance().getCurrentUser().id)
-					|| (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-					&& Patchr.getInstance().getCurrentUser().developer != null
-					&& Patchr.getInstance().getCurrentUser().developer))) {
-				UI.setVisibility(findViewById(R.id.button_delete_watcher), View.VISIBLE);
-			}
 			mFirstDraw = false;
 		}
 	}
 
 	protected void drawPhoto() {
-		if (mPhotoView != null) {
-			if (mPhotoView.getPhoto() == null
-					|| mEntity.photo == null
-					|| !mPhotoView.getPhoto().sameAs(mEntity.getPhoto())) {
-				UI.drawPhoto(mPhotoView, mEntity.getPhoto());
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (mPhotoView != null) {
+					if (mPhotoView.getPhoto() == null
+							|| mEntity.photo == null
+							|| !mPhotoView.getPhoto().sameAs(mEntity.getPhoto())) {
+						UI.drawPhoto(mPhotoView, mEntity.getPhoto());
+					}
+
+					/* Photo adornments */
+					UI.setVisibility(mButtonPhotoSet, View.GONE);
+					UI.setVisibility(mButtonPhotoEdit, View.GONE);
+					UI.setVisibility(mButtonPhotoDelete, View.GONE);
+
+					if (mEntity.photo == null) {
+						UI.setVisibility(mButtonPhotoSet, View.VISIBLE);
+					}
+					else {
+						UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
+						UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
+					}
+				}
 			}
-		}
+		});
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void onError(final String reason) {
-	    /*
-	     * Error trying to pick or take a photo
-		 */
-		runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				UI.showToastNotification(reason, Toast.LENGTH_SHORT);
-				onCanceledPhoto();
-			}
-		});
-	}
-
+	@Override
 	public void onAccept() {
 		if (mProcessing) return;
 		mProcessing = true;
@@ -229,6 +230,20 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		}
 	}
 
+	public void onEditPhotoButtonClick(View view) {
+
+		/* Ensure photo logic has the latest property values */
+		gather();
+
+		/* Route it */
+		if (mEntity.photo != null) {
+			final String jsonPhoto = Json.objectToJson(mEntity.photo);
+			Bundle bundle = new Bundle();
+			bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
+			Patchr.dispatch.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
+		}
+	}
+
 	public void onChangePhotoButtonClick(View view) {
 
 		/* Ensure photo logic has the latest property values */
@@ -236,7 +251,13 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 		/* Route it */
 		Patchr.dispatch.route(this, Route.PHOTO_SOURCE, mEntity, null);
-		onChangingPhoto();
+	}
+
+	public void onDeletePhotoButtonClick(View view) {
+		mDirty = (mEditing);
+		mEntity.photo = null;
+		mPhotoView.setPhoto(null);
+		drawPhoto();
 	}
 
 	public void onPhotoSelected(Photo photo) {
@@ -247,22 +268,13 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		if (mDirty) {
 
 			mEntity.photo = photo;
-			runOnUiThread(new Runnable() {
+			if (mEntity.photo != null) {
+				mEntity.photo.setStore(true);
+			}
 
-				@Override
-				public void run() {
-					UI.drawPhoto(mPhotoView, mEntity.getPhoto());
-					onChangedPhoto();
-				}
-			});
+			drawPhoto();
 		}
 	}
-
-	protected void onChangedPhoto() {}
-
-	protected void onChangingPhoto() {}
-
-	protected void onCanceledPhoto() {}
 
 	public void onImageChosen(final ChosenImage image) {
 		runOnUiThread(new Runnable() {
@@ -272,22 +284,25 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				if (image != null) {
 					Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_used_from_device", null, 0);
 					final Uri photoUri = Uri.parse("file:" + image.getFilePathOriginal());
-					MediaManager.scanMedia(Uri.parse("file:" + image.getFilePathOriginal()));
+					MediaManager.scanMedia(photoUri);
 					Photo photo = new Photo()
 							.setPrefix(photoUri.toString())
-							.setStore(true)
 							.setSource(Photo.PhotoSource.file);
-
-					if (AndroidManager.getInstance().isAviaryInstalled()) {
-						final String jsonPhoto = Json.objectToJson(photo);
-						Bundle bundle = new Bundle();
-						bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-						Patchr.dispatch.route(BaseEntityEdit.this, Route.PHOTO_EDIT, null, bundle);
-					}
-					else {
-						onPhotoSelected(photo);
-					}
+					onPhotoSelected(photo);
 				}
+			}
+		});
+	}
+
+	public void onError(final String reason) {
+	    /*
+	     * Error trying to pick or take a photo
+		 */
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				UI.showToastNotification(reason, Toast.LENGTH_SHORT);
 			}
 		});
 	}
@@ -302,10 +317,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		 * Called before onResume. If we are returning from the market app, we get a zero result code whether the user
 		 * decided to start an install or not.
 		 */
-		if (resultCode == Activity.RESULT_CANCELED) {
-			onCanceledPhoto();
-		}
-		else {
+		if (resultCode == Activity.RESULT_OK) {
 
 			if (requestCode == Constants.ACTIVITY_PICTURE_SOURCE_PICK) {
 
@@ -337,7 +349,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 								final String jsonPhoto = Json.objectToJson(mEntity.photo);
 								Bundle bundle = new Bundle();
 								bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-								Patchr.dispatch.route(this, Route.PHOTO_EDIT, null, bundle);
+								Patchr.dispatch.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
 							}
 						}
 						else if (photoSource.equals(Constants.PHOTO_ACTION_DEFAULT)
@@ -355,15 +367,8 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 					final Bundle extras = intent.getExtras();
 					final String json = extras.getString(Constants.EXTRA_PHOTO);
-
-					if (AndroidManager.getInstance().isAviaryInstalled()) {
-						extras.putString(Constants.EXTRA_PHOTO, json);
-						Patchr.dispatch.route(BaseEntityEdit.this, Route.PHOTO_EDIT, null, extras);
-					}
-					else {
-						final Photo photo = (Photo) Json.jsonToObject(json, Json.ObjectType.PHOTO);
-						onPhotoSelected(photo);
-					}
+					final Photo photo = (Photo) Json.jsonToObject(json, Json.ObjectType.PHOTO);
+					onPhotoSelected(photo);
 				}
 			}
 			else if (requestCode == ChooserType.REQUEST_PICK_PICTURE) {

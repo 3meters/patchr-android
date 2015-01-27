@@ -165,12 +165,7 @@ public class EntityView extends LinearLayout implements Target {
 	}
 
 	@Override
-	public void onPrepareLoad(Drawable drawable) {
-		if (drawable != null) {
-			//noinspection deprecation
-			mPhotoView.getImageView().setBackgroundDrawable(drawable);
-		}
-	}
+	public void onPrepareLoad(Drawable drawable) {}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties

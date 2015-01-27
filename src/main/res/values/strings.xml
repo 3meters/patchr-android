@@ -304,8 +304,9 @@
 
 	<!-- Buttons -->
 
-	<string name="button_change_picture">Change or edit photo</string>
-	<string name="button_change_banner">Change or edit banner</string>
+	<string name="button_edit_picture">Edit</string>
+	<string name="button_set_picture">Set photo</string>
+	<string name="button_set_banner">Set banner</string>
 	<string name="button_delete_picture">Delete</string>
 	<string name="button_change_password">Change password</string>
 	<string name="button_sign_in">Sign in</string>

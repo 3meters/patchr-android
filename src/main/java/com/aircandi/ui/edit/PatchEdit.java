@@ -205,7 +205,6 @@ public class PatchEdit extends BaseEntityEdit {
 		draw(null);
 	}
 
-	@SuppressLint("ResourceAsColor")
 	@Override
 	public void draw(View view) {
 		/*
@@ -290,16 +289,12 @@ public class PatchEdit extends BaseEntityEdit {
 				}
 			}
 
-			addMarker();
+			mMap.clear();
+			mMap.addMarker(new MarkerOptions()
+					.position(mLocation)
+					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
+					.anchor(0.5f, 0.5f));
 		}
-	}
-
-	private void addMarker() {
-		mMap.clear();
-		mMap.addMarker(new MarkerOptions()
-				.position(mLocation)
-				.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
-				.anchor(0.5f, 0.5f));
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -307,7 +302,6 @@ public class PatchEdit extends BaseEntityEdit {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	@SuppressWarnings({"ucd"})
 	public void onLocationChanged(final LocationChangedEvent event) {
 		/*
 		 * Getting location updates because we are inserting a patch and
@@ -338,38 +332,7 @@ public class PatchEdit extends BaseEntityEdit {
 		}
 	}
 
-	@SuppressWarnings("ucd")
-	public void onTuneButtonClick(View view) {
-		if (!mTuned) {
-			mUntuning = false;
-			mBusy.show(BusyAction.ActionWithMessage, R.string.progress_tuning);
-			if (NetworkManager.getInstance().isWifiEnabled()) {
-				mTuningInProcess = true;
-				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
-			}
-			else {
-				tuneProximity();
-			}
-		}
-	}
-
-	@SuppressWarnings("ucd")
-	public void onUntuneButtonClick(View view) {
-		if (!mUntuned) {
-			mUntuning = true;
-			mBusy.show(BusyAction.ActionWithMessage, R.string.progress_tuning);
-			if (NetworkManager.getInstance().isWifiEnabled()) {
-				mTuningInProcess = true;
-				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
-			}
-			else {
-				tuneProximity();
-			}
-		}
-	}
-
 	@Subscribe
-	@SuppressWarnings("ucd")
 	public void onQueryWifiScanReceived(final QueryWifiScanReceivedEvent event) {
 
 		if (mTuningInProcess) {
@@ -404,7 +367,6 @@ public class PatchEdit extends BaseEntityEdit {
 	}
 
 	@Subscribe
-	@SuppressWarnings("ucd")
 	public void onBeaconsLocked(BeaconsLockedEvent event) {
 
 		if (mTuningInProcess) {
@@ -426,7 +388,34 @@ public class PatchEdit extends BaseEntityEdit {
 		}
 	}
 
-	@SuppressWarnings("ucd")
+	public void onTuneButtonClick(View view) {
+		if (!mTuned) {
+			mUntuning = false;
+			mBusy.show(BusyAction.ActionWithMessage, R.string.progress_tuning);
+			if (NetworkManager.getInstance().isWifiEnabled()) {
+				mTuningInProcess = true;
+				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
+			}
+			else {
+				tuneProximity();
+			}
+		}
+	}
+
+	public void onUntuneButtonClick(View view) {
+		if (!mUntuned) {
+			mUntuning = true;
+			mBusy.show(BusyAction.ActionWithMessage, R.string.progress_tuning);
+			if (NetworkManager.getInstance().isWifiEnabled()) {
+				mTuningInProcess = true;
+				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
+			}
+			else {
+				tuneProximity();
+			}
+		}
+	}
+
 	public void onPlacePickerClick(View view) {
 		Bundle extras = new Bundle();
 		extras.putInt(Constants.EXTRA_SEARCH_SCOPE, EntityManager.SuggestScope.PLACES.ordinal());
@@ -446,7 +435,6 @@ public class PatchEdit extends BaseEntityEdit {
 		Patchr.dispatch.route(this, Route.PRIVACY_EDIT, mEntity, null);
 	}
 
-	@SuppressWarnings("ucd")
 	public void onLocationBuilderClick(View view) {
 		Patchr.dispatch.route(this, Route.LOCATION_EDIT, mEntity, null);
 	}

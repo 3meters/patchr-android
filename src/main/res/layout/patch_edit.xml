@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout
 
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
@@ -15,7 +14,6 @@
 		layout="@layout/include_toolbar_actionbar" />
 
 	<com.aircandi.ui.widgets.AirScrollView
-
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_gravity="center_horizontal"
@@ -26,8 +24,7 @@
 		<RelativeLayout
 			style="@style/form_content_layout"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="center_vertical|top">
+			android:layout_height="wrap_content">
 
 			<!-- Category -->
 
@@ -39,7 +36,8 @@
 				android:layout_marginLeft="4dp"
 				android:layout_marginRight="12dp"
 				android:prompt="@string/label_spinner_patch_type"
-				android:spinnerMode="dialog" />
+				android:spinnerMode="dialog"
+				tools:listitem="@layout/spinner_item" />
 
 			<!-- Privacy -->
 
@@ -65,7 +63,6 @@
 
 			<com.aircandi.ui.widgets.AirImageView
 				android:id="@+id/photo"
-				style="@style/selectable_image"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_below="@+id/button_privacy"
@@ -73,38 +70,63 @@
 				android:layout_marginLeft="4dp"
 				android:layout_marginRight="4dp"
 				android:background="?attr/backgroundPlaceholder"
-				android:clickable="true"
-				android:onClick="onChangePhotoButtonClick"
 				android:scaleType="centerCrop"
-				app:aspectRatio="@dimen/aspect_ratio_place_image"
-				app:aspectRatioEnabled="true"
-				app:config="rgb_565"
-				app:dominantMeasurement="width"
-				app:fitType="auto"
-				app:showBusy="true"
-				app:layoutId="@layout/widget_imageview_candi_view" />
+				custom:aspectRatio="@dimen/aspect_ratio_place_image"
+				custom:aspectRatioEnabled="true"
+				custom:config="rgb_565"
+				custom:dominantMeasurement="width"
+				custom:fitType="auto"
+				custom:layoutId="@layout/widget_imageview_candi_view"
+				custom:showBusy="true" />
 
-			<LinearLayout
+			<RelativeLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignLeft="@+id/photo"
 				android:layout_alignRight="@+id/photo"
 				android:layout_alignTop="@+id/photo"
-				android:background="@drawable/scrim_medium"
-				android:gravity="bottom|center_horizontal"
-				android:orientation="vertical">
+				android:background="@drawable/scrim_medium">
 
 				<com.aircandi.ui.widgets.AirTextView
-					android:layout_width="wrap_content"
+					android:id="@+id/button_photo_set"
+					style="@style/button_flat"
+					android:layout_width="match_parent"
 					android:layout_height="@dimen/form_field_height"
-					android:layout_gravity="center_horizontal"
-					android:drawableLeft="@drawable/ic_action_edit_dark"
+					android:clickable="true"
 					android:gravity="center"
-					android:text="@string/button_change_banner"
-					android:textAppearance="?android:attr/textAppearanceMedium"
+					android:onClick="onChangePhotoButtonClick"
+					android:text="@string/button_set_picture"
+					android:textAppearance="?android:attr/textAppearance"
+					android:textColor="?attr/textColorCandiView"
+					tools:visibility="gone" />
+
+				<ImageButton
+					android:id="@+id/button_photo_edit"
+					style="@style/button_flat"
+					android:layout_width="@dimen/form_field_height"
+					android:layout_height="@dimen/form_field_height"
+					android:clickable="true"
+					android:gravity="center"
+					android:onClick="onEditPhotoButtonClick"
+					android:layout_alignParentLeft="true"
+					android:src="@drawable/ic_action_edit_dark"
+					android:textAppearance="?android:attr/textAppearance"
 					android:textColor="?attr/textColorCandiView" />
 
-			</LinearLayout>
+				<ImageButton
+					android:id="@+id/button_photo_delete"
+					style="@style/button_flat"
+					android:layout_width="@dimen/form_field_height"
+					android:layout_height="@dimen/form_field_height"
+					android:clickable="true"
+					android:gravity="center"
+					android:layout_alignParentRight="true"
+					android:onClick="onDeletePhotoButtonClick"
+					android:src="@drawable/ic_action_cancel_dark"
+					android:textAppearance="?android:attr/textAppearance"
+					android:textColor="?attr/textColorCandiView" />
+
+			</RelativeLayout>
 
 			<!-- Title and Content -->
 
@@ -177,8 +199,8 @@
 						android:layout_marginBottom="8dp"
 						android:layout_marginLeft="8dp"
 						android:layout_marginRight="8dp"
-						app:liteMode="true"
-						app:mapType="none" />
+						custom:liteMode="true"
+						custom:mapType="none" />
 
 					<FrameLayout
 						style="@style/selectable_image"
@@ -213,10 +235,10 @@
 						android:layout_marginLeft="8dp"
 						android:layout_marginTop="8dp"
 						android:visibility="gone"
-						app:config="rgb_565"
-						app:fitType="fixed"
-						app:layoutId="@layout/widget_imageview_candi_view"
-						app:sizeHint="88dp" />
+						custom:config="rgb_565"
+						custom:fitType="fixed"
+						custom:layoutId="@layout/widget_imageview_candi_view"
+						custom:sizeHint="88dp" />
 
 					<com.aircandi.ui.widgets.AirButton
 						android:id="@+id/button_place"
@@ -284,7 +306,7 @@
 						android:layout_marginBottom="8dp"
 						android:layout_marginLeft="2dp"
 						android:layout_marginRight="2dp"
-						app:textId="@string/label_tuning_tune_no_name"
+						custom:textId="@string/label_tuning_tune_no_name"
 						tools:text="@string/label_tuning_tune_no_name" />
 
 				</LinearLayout>

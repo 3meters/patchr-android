@@ -1,4 +1,10 @@
 
+Design
+------
+
+- New photos taken with the camera via Patchr are stored in Pictures/Patchr
+- When a photo is edited using Aviary, the edited version is stored in the primary Aviary folder.
+- Aviary supports redirecting to a file we provide if we want to store edited photos in Pictures/Patchr as well.
 
 Aviary
 ------

@@ -84,28 +84,6 @@ public class UserEdit extends BaseEntityEdit {
 		Patchr.dispatch.route(this, Route.PASSWORD_CHANGE, null, null);
 	}
 
-	@Override
-	public void onPhotoSelected(Photo photo) {
-
-		mDirty = !Photo.same(mEntity.photo, photo);
-		if (mDirty) {
-
-			mEntity.photo = photo;
-			if (mEntity.photo != null) {
-				mEntity.photo.setStore(true);
-			}
-			runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					onChangingPhoto();
-					UI.drawPhoto(mPhotoView, mEntity.getPhoto());
-					onChangedPhoto();
-				}
-			});
-		}
-	}
-
 	@Subscribe
 	public void onCancelEvent(CancelEvent event) {
 		if (mTaskService != null) {
@@ -161,9 +139,12 @@ public class UserEdit extends BaseEntityEdit {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Services
-	 *--------------------------------------------------------------------------------------------*/ 	/*--------------------------------------------------------------------------------------------
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected int getLayoutId() {
 		return R.layout.user_edit;

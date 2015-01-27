@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,12 +67,12 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	private Entity mShareEntity;
 
 	private ViewAnimator             mAnimatorTo;
+	@NonNull
 	private ViewAnimator             mAnimatorPhoto;
 	private ViewGroup                mShareHolder;
 	private ViewGroup                mShare;
 	private AirTokenCompleteTextView mTo;
 	private ImageView                mButtonToClear;
-	private View                     mButtonPhotoDelete;
 	private EntitySuggestController  mEntitySuggest;
 
 	private List<Entity>               mTos          = new ArrayList<Entity>();
@@ -141,7 +142,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		mAnimatorTo.setInAnimation(this, R.anim.fade_in_short);
 		mAnimatorTo.setOutAnimation(this, R.anim.fade_out_short);
 		mButtonToClear = (ImageView) findViewById(R.id.to_clear);
-		mButtonPhotoDelete = findViewById(R.id.holder_delete_button);
 		mShareHolder = (ViewGroup) findViewById(R.id.share_holder);
 		mShare = (ViewGroup) findViewById(R.id.share_entity);
 		mTo = (AirTokenCompleteTextView) findViewById(R.id.to);
@@ -190,6 +190,10 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			TextView message = (TextView) findViewById(R.id.content_message);
 			message.setText(mMessage);
 			message.setVisibility(View.VISIBLE);
+		}
+
+		if (mPhotoView != null) {
+			mPhotoView.setTarget(this);
 		}
 	}
 
@@ -317,7 +321,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 					}
 
 					/*
-				     * Intent with image data. We get a uri we use to open a stream to get the bitmap.
+					 * Intent with image data. We get a uri we use to open a stream to get the bitmap.
 					 * We then copy the bitmap to a our pinned share file. We are not the source of the
 					 * image so we don't want to track it in the Pictures/Patchr folder.
 					 */
@@ -389,12 +393,15 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 	@Override
 	public void draw(View view) {
-        /*
-         * This method is only called when the activity is created.
+	    /*
+	     * This method is only called when the activity is created.
          */
 		if (view == null) {
 			view = findViewById(android.R.id.content);
 		}
+
+		super.draw(view);
+
 		UI.setVisibility(mAnimatorTo, View.VISIBLE);
 
 		/* We don't allow the patch to be changed when editing */
@@ -450,8 +457,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			}
 		}
 
-		super.draw(view);
-
 		/* Action bar title */
 		if (mEditing) {
 			setActivityTitle("Edit " + mEntity.schema);
@@ -474,10 +479,29 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 	@Override
 	protected void drawPhoto() {
-		if (mPhotoView != null && mEntity.photo != null) {
-			UI.drawPhoto(mPhotoView, mEntity.getPhoto());
-			onChangedPhoto();
-		}
+		/*
+		 * Can be called from main or background thread.
+		 */
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (mPhotoView != null) {
+					if (mEntity.photo != null) {
+						if (mPhotoView.getPhoto() == null
+								|| !mPhotoView.getPhoto().sameAs(mEntity.getPhoto())){
+							/* This activity implements target */
+							UI.setVisibility(mButtonPhotoEdit, View.GONE);
+							UI.setVisibility(mButtonPhotoDelete, View.GONE);
+							mPhotoView.showLoading(true);
+							UI.drawPhoto(mPhotoView, mEntity.getPhoto());
+						}
+					}
+
+					mAnimatorPhoto.requestLayout();
+					mAnimatorPhoto.setDisplayedChild(mEntity.photo == null ? 0 : 1);
+				}
+			}
+		});
 	}
 
     /*--------------------------------------------------------------------------------------------
@@ -548,86 +572,22 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 	}
 
-	@Override
-	protected void onChangedPhoto() {
-		if (mAnimatorPhoto != null) {
-
-			runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					if (mPhotoView.getPhoto() != null) {
-						mAnimatorPhoto.requestLayout();
-						mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.slide_in_bottom_long);
-						mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
-						mAnimatorPhoto.setDisplayedChild(2);
-					}
-					else {
-						onDeletePhotoButtonClick(null);
-					}
-				}
-			});
-		}
-	}
-
-	@Override
-	protected void onChangingPhoto() {
-	}
-
-	@Override
-	protected void onCanceledPhoto() {
-		if (mAnimatorPhoto != null) {
-			runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					mAnimatorPhoto.requestLayout();
-					mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
-					mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
-					mAnimatorPhoto.setDisplayedChild(mEntity.photo == null ? 0 : 2);
-				}
-			});
-		}
-	}
-
-	@Override
-	public void onPhotoSelected(Photo photo) {
-        /*
-         * All photo selection sources and types end up here
+	public void onError(final String reason) {
+		super.onError(reason);
+		/*
+		 * ImageChooser error trying to pick or take a photo
 		 */
-		mDirty = !Photo.same(mEntity.photo, photo);
-		if (mDirty) {
+		drawPhoto();
+	}
 
-			mEntity.photo = photo;
-			runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					mPhotoView.setTarget(MessageEdit.this);
-
-					if (mAnimatorPhoto != null) {
-						runOnUiThread(new Runnable() {
-
-							@Override
-							public void run() {
-								mAnimatorPhoto.requestLayout();
-								mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
-								mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
-								mAnimatorPhoto.setDisplayedChild(1);
-							}
-						});
-					}
-
-					UI.drawPhoto(mPhotoView, mEntity.getPhoto());
-				}
-			});
-		}
+	protected void onPhotoCanceled() {
+		drawPhoto();
 	}
 
 	@Override
 	public void onBitmapFailed(Drawable arg0) {
 		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
-		onCanceledPhoto();
+		drawPhoto();
 	}
 
 	@Override
@@ -636,35 +596,32 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		DownloadManager.logBitmap(MessageEdit.this, bitmap, mPhotoView.getImageView());
 		final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
 		UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
-		onChangedPhoto();
+
+		UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
+		UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
+		mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.slide_in_bottom_long);
+		mAnimatorPhoto.requestLayout();
+		mAnimatorPhoto.setDisplayedChild(1);
+		mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
 	}
 
 	@Override
 	public void onPrepareLoad(Drawable drawable) {
-		if (drawable != null) {
-			//noinspection deprecation
-			mPhotoView.getImageView().setBackgroundDrawable(drawable);
-		}
+//		runOnUiThread(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				mAnimatorPhoto.requestLayout();
+//				mAnimatorPhoto.setDisplayedChild(1);
+//			}
+//		});
 	}
 
-	@SuppressWarnings("ucd")
 	public void onCancelPhotoButtonClick(View view) {
-		onCanceledPhoto();
+		onPhotoCanceled();
 		mEntity.photo = null;
 		mPhotoView.setPhoto(null);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onDeletePhotoButtonClick(View view) {
-		if (mAnimatorPhoto != null) {
-			mAnimatorPhoto.requestLayout();
-			mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
-			mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
-			mAnimatorPhoto.setDisplayedChild(0);
-		}
-		mDirty = (mEditing);
-		mEntity.photo = null;
-		mPhotoView.setPhoto(null);
+		drawPhoto();
 	}
 
 	public void onEntityClearButtonClick(View view) {
@@ -696,8 +653,8 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	@Override
 	protected boolean validate() {
 		if (!super.validate()) return false;
-        /*
-         * Transfering values from the controls to the entity is easier
+		/*
+		 * Transfering values from the controls to the entity is easier
 		 * with candigrams.
 		 */
 		gather();

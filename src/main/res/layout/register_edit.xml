@@ -78,7 +78,7 @@
 						android:layout_height="@dimen/button_height"
 						android:layout_gravity="center_vertical"
 						android:onClick="onChangePhotoButtonClick"
-						android:text="@string/button_change_picture" />
+						android:text="@string/button_set_picture" />
 				</LinearLayout>
 
 				<!-- Full name -->

@@ -3,9 +3,11 @@
 
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="vertical">
+	android:orientation="vertical"
+	tools:context=".ui.edit.MessageEdit">
 
 	<include
 		android:id="@+id/toolbar"
@@ -31,7 +33,9 @@
 				android:gravity="center_horizontal"
 				android:padding="16dp"
 				android:visibility="gone"
-				custom:textId="@string/label_message_edit_message" />
+				custom:textId="@string/label_message_edit_message"
+				tools:text="@string/label_message_edit_message"
+				tools:visibility="visible" />
 
 			<LinearLayout
 				android:id="@+id/content_group"
@@ -168,30 +172,6 @@
 
 						<RelativeLayout
 							android:layout_width="match_parent"
-							android:layout_height="@dimen/button_height">
-
-							<ProgressBar
-								android:id="@+id/photo_progress"
-								android:layout_width="30dp"
-								android:layout_height="30dp"
-								android:layout_centerInParent="true" />
-
-							<ImageView
-								android:id="@+id/photo_cancel"
-								style="@style/button"
-								android:layout_width="@dimen/image_small"
-								android:layout_height="@dimen/image_small"
-								android:layout_alignParentRight="true"
-								android:layout_centerVertical="true"
-								android:clickable="true"
-								android:onClick="onCancelPhotoButtonClick"
-								android:padding="15dp"
-								android:scaleType="centerCrop"
-								android:src="?attr/iconCancel" />
-						</RelativeLayout>
-
-						<RelativeLayout
-							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:layout_gravity="top"
 							android:orientation="vertical">
@@ -201,59 +181,48 @@
 								style="@style/selectable_image"
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
-								android:background="?attr/backgroundPlaceholder"
-								android:clickable="true"
 								android:minWidth="@dimen/image_extra_extra_large"
-								android:onClick="onChangePhotoButtonClick"
+								android:minHeight="@dimen/button_height"
 								android:scaleType="centerCrop"
 								custom:config="rgb_565"
 								custom:fitType="fixed"
-								custom:layoutId="@layout/widget_imageview"
-								custom:showBusy="false"
+								custom:layoutId="@layout/widget_imageview_cancelable"
+								custom:showBusy="true"
 								custom:sizeHint="300dp" />
 
-							<LinearLayout
+							<RelativeLayout
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
 								android:layout_alignTop="@+id/photo"
-								android:background="@drawable/scrim_medium"
-								android:gravity="bottom|center_horizontal"
-								android:orientation="vertical">
+								android:background="@drawable/scrim_medium">
 
-								<com.aircandi.ui.widgets.AirTextView
-									android:layout_width="wrap_content"
+								<ImageButton
+									android:id="@+id/button_photo_edit"
+									style="@style/button_flat"
+									android:layout_width="@dimen/form_field_height"
 									android:layout_height="@dimen/form_field_height"
-									android:layout_gravity="center_horizontal"
-									android:drawableLeft="@drawable/ic_action_edit_dark"
+									android:clickable="true"
+									android:src="@drawable/ic_action_edit_dark"
+									android:layout_alignParentLeft="true"
 									android:gravity="center"
-									android:text="@string/button_change_picture"
-									android:textAppearance="?android:attr/textAppearanceMedium"
+									android:onClick="onEditPhotoButtonClick"
+									android:textAppearance="?android:attr/textAppearance"
 									android:textColor="?attr/textColorCandiView" />
 
-							</LinearLayout>
-
-							<LinearLayout
-								android:id="@+id/holder_delete_button"
-								android:layout_width="match_parent"
-								android:layout_height="wrap_content"
-								android:layout_alignBottom="@+id/photo"
-								android:background="@drawable/scrim_medium"
-								android:clickable="true"
-								android:gravity="bottom|center_horizontal"
-								android:onClick="onDeletePhotoButtonClick"
-								android:orientation="vertical">
-
-								<com.aircandi.ui.widgets.AirTextView
-									android:layout_width="wrap_content"
+								<ImageButton
+									android:id="@+id/button_photo_delete"
+									style="@style/button_flat"
+									android:layout_width="@dimen/form_field_height"
 									android:layout_height="@dimen/form_field_height"
-									android:layout_gravity="center_horizontal"
-									android:drawableLeft="@drawable/ic_action_delete_dark"
+									android:layout_alignParentRight="true"
+									android:clickable="true"
+									android:src="@drawable/ic_action_cancel_dark"
 									android:gravity="center"
-									android:text="@string/button_delete_picture"
-									android:textAppearance="?android:attr/textAppearanceMedium"
+									android:onClick="onDeletePhotoButtonClick"
+									android:textAppearance="?android:attr/textAppearance"
 									android:textColor="?attr/textColorCandiView" />
 
-							</LinearLayout>
+							</RelativeLayout>
 
 						</RelativeLayout>
 					</ViewAnimator>
