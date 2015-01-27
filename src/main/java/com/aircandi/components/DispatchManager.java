@@ -274,7 +274,7 @@ public class DispatchManager {
 				intent.putExtra("app-id", Patchr.applicationContext.getPackageName()); // required ( it's your app unique package name )
 				intent.putExtra("output-format", Bitmap.CompressFormat.JPEG.name());
 				intent.putExtra("output-quality", 90);
-				intent.putExtra("save-on-no-changes", true);
+				intent.putExtra("save-on-no-changes", false);
 
 				activity.startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);
 				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.DRILL_TO);
