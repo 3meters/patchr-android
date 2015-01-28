@@ -481,6 +481,8 @@
 	<string name="label_watching_empty">Watch [@string/container_plural_lowercase] and browse them here</string>
 	<string name="label_created_empty">Make [@string/container_plural_lowercase] and browse them here</string>
 	<string name="label_sent_empty">No messages posted yet</string>
+	<string name="label_watchers_empty">No watchers yet</string>
+	<string name="label_likes_empty">No likes yet</string>
 	<string name="label_feed_messages_title">Messages</string>
 	<string name="label_feed_alerts_title">Alerts</string>
 	<string name="label_tuning_tune_no_name">If you are currently at the location for this patch, help make Patchr better by tuning the patch for faster discovery.</string>

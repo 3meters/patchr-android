@@ -38,6 +38,7 @@ public class UserList extends BaseActivity {
 	protected String  mListLinkType;
 	protected Integer mListTitleResId;
 	protected Integer mListItemResId;
+	protected Integer mListEmptyMessageResId;
 
 	@Override
 	public void unpackIntent() {
@@ -50,6 +51,7 @@ public class UserList extends BaseActivity {
 			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
 			mListTitleResId = extras.getInt(Constants.EXTRA_LIST_TITLE_RESID);
 			mListItemResId = extras.getInt(Constants.EXTRA_LIST_ITEM_RESID);
+			mListEmptyMessageResId = extras.getInt(Constants.EXTRA_LIST_EMPTY_RESID);
 		}
 	}
 
