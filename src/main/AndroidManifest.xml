@@ -282,6 +282,11 @@
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_privacy_builder"
 			android:windowSoftInputMode="stateHidden" />
+		<activity
+			android:name=".ui.helpers.QrcodeDialog"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:theme="@style/aircandi_theme_dialog_light"
+			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Misc -->
 

@@ -778,6 +778,7 @@ public class PatchForm extends BaseEntityForm {
 			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_refresh);
 			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_edit_patch);
 			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_delete);
+			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_qrcode);
 			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_report);
 		}
 

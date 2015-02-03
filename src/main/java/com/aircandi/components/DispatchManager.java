@@ -39,6 +39,7 @@ import com.aircandi.ui.helpers.LocationPicker;
 import com.aircandi.ui.helpers.PhotoActionPicker;
 import com.aircandi.ui.helpers.PhotoPicker;
 import com.aircandi.ui.helpers.PrivacyBuilder;
+import com.aircandi.ui.helpers.QrcodeDialog;
 import com.aircandi.utilities.Debug;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
@@ -467,6 +468,13 @@ public class DispatchManager {
 			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.DIALOG_TO);
 		}
 
+		else if (route == Route.QRCODE) {
+
+			IntentBuilder intentBuilder = new IntentBuilder(activity, QrcodeDialog.class);
+			activity.startActivity(intentBuilder.create());
+			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.DIALOG_TO);
+		}
+
 		else if (route == Route.PHOTO_FROM_CAMERA) {
 
 			IntentBuilder intentBuilder = new IntentBuilder(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -552,6 +560,8 @@ public class DispatchManager {
 			return Route.SIGNIN;
 		else if (itemId == R.id.report)
 			return Route.REPORT;
+		else if (itemId == R.id.qrcode)
+			return Route.QRCODE;
 		else if (itemId == R.id.accept)
 			return Route.ACCEPT;
 		else if (itemId == R.id.refresh)

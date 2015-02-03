@@ -51,8 +51,7 @@ public abstract class BasePicker extends Activity {
 		}
 	}
 
-	public void initialize(Bundle savedInstanceState) {
-	}
+	public void initialize(Bundle savedInstanceState) {}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
@@ -77,12 +76,12 @@ public abstract class BasePicker extends Activity {
 	/*--------------------------------------------------------------------------------------------
 	 * UI
 	 *--------------------------------------------------------------------------------------------*/
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void bind(BindingMode mode) {
-	}
+	public void bind(BindingMode mode) {}
 
 	public void setTheme(Boolean isDialog, Boolean isTransparent) {
 		mPrefTheme = Patchr.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));

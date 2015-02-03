@@ -71,6 +71,7 @@
 	<!-- Popups -->
 
 	<string name="menu_item_report">Report abuse</string>
+	<string name="menu_item_qrcode">Show QR code</string>
 
 	<!-- Help -->
 
@@ -129,6 +130,8 @@
 	<string name="dialog_location_services_disabled_message">[@string/name_app] works better with access to your location. Please turn on location access.</string>
 	<string name="dialog_location_services_disabled_ok">Settings</string>
 	<string name="dialog_location_services_disabled_cancel">Ignore</string>
+
+	<string name="dialog_qrcode_message">Scan this code to join a patch</string>
 
 	<!-- Alerts -->
 

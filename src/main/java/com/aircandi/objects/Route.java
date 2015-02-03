@@ -56,4 +56,5 @@ public class Route {
 	public static int VIEW_AS_LIST       = 59;
 	public static int PHOTO_EDIT         = 60;
 	public static int USER_LIST          = 61;
+	public static int QRCODE             = 62;
 }
