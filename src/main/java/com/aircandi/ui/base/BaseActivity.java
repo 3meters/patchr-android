@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
@@ -38,6 +39,7 @@ import com.aircandi.components.Extras;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.components.NfcManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IBusy.BusyAction;
@@ -166,6 +168,10 @@ public abstract class BaseActivity extends ActionBarActivity
 					}
 				});
 			}
+
+			/* Nfc */
+			Uri uri = Uri.parse("http://3meters.com/qrcode");
+			NfcManager.pushUri(uri, this);
 
 			/* Event sequence */
 			unpackIntent();

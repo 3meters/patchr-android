@@ -50,6 +50,10 @@
 
 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
+	<!-- Used to beam patches and download links -->
+
+	<uses-permission android:name="android.permission.NFC" />
+
 	<application
 		android:name=".Patchr"
 		android:hardwareAccelerated="true"
