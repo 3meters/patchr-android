@@ -49,12 +49,12 @@ public abstract class ServiceBase extends ServiceObject {
 	@Expose
 	public String name;
 	@Expose
-	public Boolean locked = false;
-	@Expose
 	public Number position;
 
 	@Expose(serialize = false, deserialize = true)
 	public String namelc;
+	@Expose(serialize = false, deserialize = true)
+	public String collection;
 
 	/* PropertyValue bags */
 
@@ -129,7 +129,7 @@ public abstract class ServiceBase extends ServiceObject {
 		base.name = (String) map.get("name");
 		base.schema = (String) map.get("schema");
 		base.type = (String) map.get("type");
-		base.locked = (Boolean) map.get("locked");
+		base.collection = (String) map.get("collection");
 		base.position = (Number) map.get("position");
 		base.data = (HashMap<String, Object>) map.get("data");
 

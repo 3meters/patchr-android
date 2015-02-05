@@ -152,9 +152,10 @@ public class PatchForm extends BaseEntityForm {
 				/*
 				 * Non-members can't add messages to private patches.
 				 */
-				if (mEntity != null && mEntity.privacy != null
-						&& mEntity.privacy.equals(Constants.PRIVACY_PRIVATE)
-						&& !mEntity.isVisibleToCurrentUser()) {
+				Patch patch = (Patch) mEntity;
+				if (patch != null && patch.privacy != null
+						&& patch.privacy.equals(Constants.PRIVACY_PRIVATE)
+						&& !patch.isVisibleToCurrentUser()) {
 					mFab.fadeOut();
 				}
 				else {
@@ -189,7 +190,7 @@ public class PatchForm extends BaseEntityForm {
 			Patchr.dispatch.route(this, Route.NEW, null, extras);
 			return;
 		}
-		if (Type.isTrue(mEntity.locked)) {
+		if (Type.isTrue(((Patch) mEntity).locked)) {
 			Dialogs.locked(this, mEntity);
 		}
 	}
@@ -238,7 +239,7 @@ public class PatchForm extends BaseEntityForm {
 
 		/* Cancel request */
 		if (mWatchStatus == WatchStatus.WATCHING) {
-			if (mEntity.isRestrictedForCurrentUser()) {
+			if (((Patch) mEntity).isRestrictedForCurrentUser()) {
 				confirmLeave();
 			}
 			else {
@@ -408,7 +409,7 @@ public class PatchForm extends BaseEntityForm {
 		mFirstDraw = false;
 
 		/* Some state management */
-		mRestrictedForUser = mEntity.isRestrictedForCurrentUser();
+		mRestrictedForUser = ((Patch) mEntity).isRestrictedForCurrentUser();
 		Link linkWatching = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
 		Link linkLike = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
 		mWatchStatus = (linkWatching == null) ? WatchStatus.NONE : (linkWatching.enabled) ? WatchStatus.WATCHING : WatchStatus.REQUESTED;
@@ -578,7 +579,7 @@ public class PatchForm extends BaseEntityForm {
 			ViewAnimator like = (ViewAnimator) view.findViewById(R.id.button_like);
 			if (like != null) {
 				UI.setVisibility(like, View.GONE);
-				if (mEntity.isVisibleToCurrentUser()) {
+				if (((Patch) mEntity).isVisibleToCurrentUser()) {
 					Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
 					ImageView image = (ImageView) like.findViewById(R.id.button_image);
 					if (link != null && link.enabled) {
@@ -832,7 +833,7 @@ public class PatchForm extends BaseEntityForm {
 							, enabled
 							, fromShortcut
 							, toShortcut
-							, mEntity.isVisibleToCurrentUser() ? "watch_entity_place" : "request_watch_entity"
+							, ((Patch) mEntity).isVisibleToCurrentUser() ? "watch_entity_place" : "request_watch_entity"
 							, false);
 				}
 				else {
@@ -856,7 +857,7 @@ public class PatchForm extends BaseEntityForm {
 					bind(BindingMode.AUTO); // Triggers redraw including buttons and updates state
 					//					View view = findViewById(android.R.id.content);
 					//					drawButtons(view);
-					if (activate && enabled && mEntity.privacy.equals(Constants.PRIVACY_PRIVATE)) {
+					if (activate && enabled && ((Patch) mEntity).privacy.equals(Constants.PRIVACY_PRIVATE)) {
 						UI.showToastNotification(StringManager.getString(R.string.alert_auto_watch), Toast.LENGTH_SHORT, Gravity.CENTER);
 					}
 				}

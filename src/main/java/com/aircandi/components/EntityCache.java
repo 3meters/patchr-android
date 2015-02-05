@@ -283,10 +283,6 @@ public class EntityCache implements Map<String, Entity> {
 			serviceResponse.data = serviceData;
 			for (Entity entity : entities) {
 				entity.foundByProximity = false;
-
-				if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-					entity.locked = false;
-				}
 			}
 
 			/* Push patch entities to cache */

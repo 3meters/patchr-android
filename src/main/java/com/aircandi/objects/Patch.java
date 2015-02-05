@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.aircandi.Constants;
 import com.aircandi.service.Expose;
+import com.aircandi.service.SerializedName;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -27,7 +28,10 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	@Expose
 	public Category category;
 	@Expose
-	public Number   signalFence;
+	public Boolean locked = false;
+	@Expose
+	@SerializedName(name = "visibility")
+	public String privacy;                                    // private|public|hidden
 
 	/* Patch (synthesized for the client) */
 
@@ -37,6 +41,27 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	@NonNull
+	public Boolean isVisibleToCurrentUser() {
+		if (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser()) {
+			Link link = linkFromAppUser(Constants.TYPE_LINK_WATCH);
+			if (link == null || !link.enabled) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@NonNull
+	public Boolean isRestricted() {
+		return (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC));
+	}
+
+	@NonNull
+	public Boolean isRestrictedForCurrentUser() {
+		return (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser());
+	}
 
 	public String getBeaconId() {
 		final Beacon beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
@@ -53,21 +78,23 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static Patch setPropertiesFromMap(Patch entity, Map map, Boolean nameMapping) {
+	public static Patch setPropertiesFromMap(Patch patch, Map map, Boolean nameMapping) {
 		/*
 		 * Properties involved with editing are copied from one entity to another.
 		 */
-		entity = (Patch) Entity.setPropertiesFromMap(entity, map, nameMapping);
+		patch = (Patch) Entity.setPropertiesFromMap(patch, map, nameMapping);
+		patch.locked = (Boolean) ((map.get("locked") != null) ? map.get("locked") : false);
+		patch.privacy = (String) (nameMapping ? map.get("visibility") : map.get("privacy"));
 
 		if (map.get("category") != null) {
-			entity.category = Category.setPropertiesFromMap(new Category(), (HashMap<String, Object>) map.get("category"), nameMapping);
+			patch.category = Category.setPropertiesFromMap(new Category(), (HashMap<String, Object>) map.get("category"), nameMapping);
 		}
 
 		if (map.get("place") != null) {
-			entity.place = Place.setPropertiesFromMap(new Place(), (HashMap<String, Object>) map.get("place"), nameMapping);
+			patch.place = Place.setPropertiesFromMap(new Place(), (HashMap<String, Object>) map.get("place"), nameMapping);
 		}
 
-		return entity;
+		return patch;
 	}
 
 	@Override

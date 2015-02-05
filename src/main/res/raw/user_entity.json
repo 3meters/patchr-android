@@ -9,7 +9,5 @@
   "createdDate": 0,
   "modifiedDate": 0,
   "doNotTrack": true,
-  "enabled": true,
-  "locked": false,
-  "schema": "user"  
+  "schema": "user"
 }

@@ -792,7 +792,6 @@ public class EntityManager {
 						}
 
 						beacon.type = Constants.TYPE_BEACON_FIXED;
-						beacon.locked = false;
 						beaconStrings.add("object:" + Json.objectToJson(beacon, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 					}
 					parameters.putStringArrayList("beacons", (ArrayList<String>) beaconStrings);
@@ -1044,7 +1043,6 @@ public class EntityManager {
 				}
 
 				beacon.type = Constants.TYPE_BEACON_FIXED;
-				beacon.locked = false;
 				beaconStrings.add("object:" + Json.objectToJson(beacon, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 			}
 

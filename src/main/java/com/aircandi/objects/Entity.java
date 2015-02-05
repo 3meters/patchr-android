@@ -52,9 +52,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@Expose
 	public AirLocation location;
 	@Expose
-	@SerializedName(name = "visibility")
-	public String      privacy;                                    // private|public|hidden
-	@Expose
 	@SerializedName(name = "_acl")
 	public String      patchId;
 
@@ -159,27 +156,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@NonNull
 	public Boolean isTempId() {
 		return (id != null && id.substring(0, 5).equals("temp:"));
-	}
-
-	@NonNull
-	public Boolean isVisibleToCurrentUser() {
-		if (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser()) {
-			Link link = linkFromAppUser(Constants.TYPE_LINK_WATCH);
-			if (link == null || !link.enabled) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	@NonNull
-	public Boolean isRestricted() {
-		return (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC));
-	}
-
-	@NonNull
-	public Boolean isRestrictedForCurrentUser() {
-		return (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser());
 	}
 
 	@NonNull
@@ -699,7 +675,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 			entity.subtitle = (String) map.get("subtitle");
 			entity.description = (String) map.get("description");
-			entity.privacy = (String) (nameMapping ? map.get("visibility") : map.get("privacy"));
 
 			entity.hidden = (Boolean) ((map.get("hidden") != null) ? map.get("hidden") : false);
 			entity.synthetic = (Boolean) ((map.get("synthetic") != null) ? map.get("synthetic") : false);

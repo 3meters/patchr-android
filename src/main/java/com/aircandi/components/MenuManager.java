@@ -190,7 +190,11 @@ public class MenuManager {
 		if (entity.isOwnedByCurrentUser() || entity.isOwnedBySystem()) return true;
 
 		/* Locked */
-		return Type.isFalse(entity.locked);
+		if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+			return Type.isFalse(((Patch) entity).locked);
+		}
+
+		return true;
 	}
 
 	@NonNull

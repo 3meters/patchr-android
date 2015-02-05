@@ -13,6 +13,7 @@ import com.aircandi.R;
 import com.aircandi.components.Extras;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
 import com.aircandi.objects.ViewHolder;
@@ -90,14 +91,17 @@ public class UserListFragment extends EntityListFragment {
 					UI.setVisibility(layout.findViewById(R.id.role), View.VISIBLE);
 				}
 				else {
-					if (parent.privacy != null
-							&& parent.privacy.equals(Constants.PRIVACY_PRIVATE)
-							&& parent.isOwnedByCurrentUser()) {
-						((ViewHolderExtended) holder).delete.setTag(entity);
-						((ViewHolderExtended) holder).enable.setTag(entity);
-						((ViewHolderExtended) holder).enable.setChecked(entity.linkEnabled);
-						UI.setVisibility(editGroup, View.VISIBLE);
-						UI.setVisibility(deleteButton, View.VISIBLE);
+					if (parent.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+						Patch patch = (Patch) parent;
+						if (patch.privacy != null
+								&& patch.privacy.equals(Constants.PRIVACY_PRIVATE)
+								&& patch.isOwnedByCurrentUser()) {
+							((ViewHolderExtended) holder).delete.setTag(entity);
+							((ViewHolderExtended) holder).enable.setTag(entity);
+							((ViewHolderExtended) holder).enable.setChecked(entity.linkEnabled);
+							UI.setVisibility(editGroup, View.VISIBLE);
+							UI.setVisibility(deleteButton, View.VISIBLE);
+						}
 					}
 				}
 			}
