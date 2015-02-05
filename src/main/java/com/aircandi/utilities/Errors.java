@@ -127,6 +127,23 @@ public final class Errors {
 					 */
 					String description = "Bad service request: "
 							+ ((serviceResponse.statusCodeService != null) ? serviceResponse.statusCodeService : "missing service status code");
+					if (serviceResponse.statusCodeService != null) {
+						if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_MISSING_PARAM) {
+							description += ": Missing parameter";
+						}
+						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_BAD_PARAM) {
+							description += ": Bad parameter";
+						}
+						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_BAD_TYPE) {
+							description += ": Bad type";
+						}
+						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_BAD_VALUE) {
+							description += ": Bad value";
+						}
+						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_BAD_JSON) {
+							description += ": Bad json";
+						}
+					}
 					ServiceException exception = new ServiceException(description);
 					Reporting.logException(exception);
 					return new ErrorResponse(Constants.ERROR_LEVEL == Log.VERBOSE ? ResponseType.TOAST : ResponseType.NONE, description);
