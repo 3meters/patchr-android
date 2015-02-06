@@ -58,7 +58,6 @@ public class NotificationManager {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public ServiceResponse registerInstallWithGCM() {
-
 		/*
 		 * Only called when aircandi application first runs.
 		 * 
@@ -82,6 +81,10 @@ public class NotificationManager {
 				Logger.i(this, "Registered aircandi install with GCM");
 			}
 			catch (IOException ex) {
+				/*
+				 * No user yet when this gets called so error reporting service won't have user or
+				 * custom log info if this gets reported as a non-fatal exception.
+				 */
 				serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new GcmRegistrationIOException());
 				serviceResponse.errorResponse = Errors.getErrorResponse(Patchr.applicationContext, serviceResponse);
 			}
