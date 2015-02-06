@@ -8,9 +8,6 @@ import android.nfc.NfcAdapter;
 
 import com.aircandi.Patchr;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SuppressWarnings("ucd")
 public class NfcManager {
 
