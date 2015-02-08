@@ -33,7 +33,7 @@
 			android:layout_height="@dimen/badge_height"
 			android:layout_gravity="center_vertical"
 			android:layout_marginLeft="-4dp"
-			android:background="@drawable/bg_round_solid_alert"
+			android:background="@drawable/bg_round_accent"
 			android:visibility="gone"
 			tools:visibility="gone">
 

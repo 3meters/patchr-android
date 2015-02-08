@@ -117,7 +117,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@NonNull
 	public Boolean autowatchable    = false;                   // Used to track if the user has browsed.
 
-	public Float distance;                                     // Used to cache most recent distance calculation.
+	public Float distance;                                      // Used to cache most recent distance calculation.
+	public Number index = 0;                                   // Used to cross reference list position for mapping.
 
     /* Entity is not persisted with service, only seeing this for suggested places that
        come from provider. We also use this when injecting a fake beacon or applink. */
@@ -548,7 +549,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 							if (settings.linkBroken
 									|| (!settings.linkBroken && (link.shortcut.validatedDate == null || link.shortcut.validatedDate.longValue() != -1))) {
 								/*
-		                         * Must clone or the groups added below will cause circular references
+						         * Must clone or the groups added below will cause circular references
 								 * that choke serializing to json.
 								 */
 								Shortcut shortcut = link.shortcut.clone();

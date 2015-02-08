@@ -42,6 +42,18 @@
 				tools:text="0.8 mi" />
 
 		</LinearLayout>
+
+		<com.aircandi.ui.widgets.AirTextView
+			android:id="@+id/index"
+			android:layout_width="32dp"
+			android:layout_height="32dp"
+			android:layout_margin="4dp"
+			android:background="@drawable/bg_round_scrim"
+			android:gravity="center"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:textColor="@color/white"
+			tools:text="999" />
+
 	</FrameLayout>
 
 	<LinearLayout

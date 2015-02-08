@@ -181,6 +181,13 @@ public abstract class EntityControllerBase implements IEntityController {
 			UI.setVisibility(holder.checked, View.VISIBLE);
 		}
 
+		/* Index */
+		UI.setVisibility(holder.index, View.GONE);
+		if (holder.index != null && entity.index != null) {
+			holder.index.setText(String.valueOf(entity.index.intValue()));
+			UI.setVisibility(holder.index, View.VISIBLE);
+		}
+
 		/* Name */
 
 		UI.setVisibility(holder.name, View.GONE);
@@ -348,7 +355,7 @@ public abstract class EntityControllerBase implements IEntityController {
 				}
 			});
 		}
-
+		holder.index = (TextView) view.findViewById(R.id.index);
 		holder.userPhoto = (AirImageView) view.findViewById(R.id.user_photo);
 		holder.userName = (TextView) view.findViewById(R.id.user_name);
 		holder.patchPhoto = (AirImageView) view.findViewById(R.id.patch_photo);

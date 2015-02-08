@@ -1,8 +1,10 @@
 package com.aircandi.ui;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -43,6 +45,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.ui.IconGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +63,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	protected List<Entity>               mEntities;
 	protected Integer                    mTitleResId;
 	protected String                     mListFragment;
+	protected Bitmap                     mMarkerBitmap;
 	protected Integer       mZoomLevel   = null;
 	protected List<Integer> mMenuResIds  = new ArrayList<Integer>();
 	protected View          mProgressBar = null;
@@ -79,9 +83,10 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		 * leaked if held beyond view lifetime.
 		 */
 		getMapAsync(new OnMapReadyCallback() {
+
 			@Override
-			public void onMapReady(GoogleMap googleMap) {
-				/* googleMap is never null */
+			public void onMapReady(@NonNull GoogleMap googleMap) {
+
 				mMap = googleMap;
 
 				mClusterManager = new ClusterManager<EntityItem>(getActivity(), mMap);
@@ -221,6 +226,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 				mProgressBar.setVisibility(View.VISIBLE);
 				for (Entity entity : mEntities) {
 					if (entity.getLocation() != null) {
+						entity.index = mEntities.indexOf(entity) + 1;
 						AirLocation location = entity.getLocation();
 						EntityItem entityItem = new EntityItem(location.lat.doubleValue(), location.lng.doubleValue(), entity);
 						mClusterManager.addItem(entityItem);
@@ -299,22 +305,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		return bounds;
 	}
 
-//	protected void resume() {
-//		super.onResume();
-//	}
-//
-//	protected void pause() {
-//		super.onPause();
-//	}
-//
-//	protected void start() {
-//		super.onStart();
-//	}
-//
-//	protected void stop() {
-//		super.onStop();
-//	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
@@ -368,17 +358,6 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
 
-//	@Override
-//	public void onResume() {
-//		super.onResume();
-//	}
-//
-//	@Override
-//	public void onPause() {
-//		pause();
-//		super.onPause();
-//	}
-
 	@Override
 	public void onDestroyView() {
 		Logger.d(this, "Fragment destroy view");
@@ -417,15 +396,28 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	 */
 	private class EntityRenderer extends AirClusterRenderer<EntityItem> {
 
+		private IconGenerator mIconGenerator;
+		private View          mMarkerView;
+
 		public EntityRenderer(Context context) {
 			super(context, mMap, mClusterManager);
+			mIconGenerator = new IconGenerator(context);
+			mMarkerView = LayoutInflater.from(context).inflate(R.layout.widget_marker_view, null, false);
+			mIconGenerator.setBackground(null);
+			mIconGenerator.setContentView(mMarkerView);
 		}
 
 		@Override
 		protected void onBeforeClusterItemRendered(final EntityItem entityItem, final MarkerOptions markerOptions) {
 			if (entityItem.mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				final Patch patch = (Patch) entityItem.mEntity;
-				markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker));
+				if (entityItem.mEntity.index != null) {
+					String label = (entityItem.mEntity.index.intValue() <= 99) ? String.valueOf(entityItem.mEntity.index) : "+";
+					markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mIconGenerator.makeIcon(label)));
+				}
+				else {
+					markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker));
+				}
 				markerOptions.title(!(TextUtils.isEmpty(patch.name)) ? patch.name : StringManager.getString(R.string.container_singular));
 				markerOptions.snippet((patch.category != null && !TextUtils.isEmpty(patch.category.name)) ? patch.category.name : null);
 			}

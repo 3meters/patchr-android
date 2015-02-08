@@ -57,6 +57,7 @@ public class CandiView extends RelativeLayout {
 	protected TextView     mCategoryName;
 	protected TextView     mPlaceName;
 	protected TextView     mName;
+	protected TextView     mIndex;
 	protected TextView     mSubhead;
 	protected TextView     mEmail;
 	protected TextView     mArea;
@@ -127,6 +128,7 @@ public class CandiView extends RelativeLayout {
 		mWatchCount = (TextView) mLayout.findViewById(R.id.watch_count);
 		mPrivacyGroup = (View) mLayout.findViewById(R.id.privacy_group);
 		mAddress = (TextView) mLayout.findViewById(R.id.candi_form_address);
+		mIndex = (TextView) mLayout.findViewById(R.id.index);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -211,6 +213,13 @@ public class CandiView extends RelativeLayout {
 			}
 
 			setVisibility(mSubhead, View.GONE);
+
+			/* Index */
+			setVisibility(mIndex, View.GONE);
+			if (mIndex != null && entity.index != null) {
+				mIndex.setText(String.valueOf(entity.index.intValue()));
+				setVisibility(mIndex, View.VISIBLE);
+			}
 
 			if (entity instanceof User) {
 				User user = (User) entity;

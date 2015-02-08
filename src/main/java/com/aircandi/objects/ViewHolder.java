@@ -36,8 +36,9 @@ public class ViewHolder {
 	public ImageView    photoType;
 	public ImageView    alert;
 
-	public CheckBox    checked;
-	public Integer     position;        // Used to optimize item view rendering // NO_UCD (unused code)
+	public CheckBox checked;
+	public Integer  position;        // Used to optimize item view rendering // NO_UCD (unused code)
+	public TextView index;
 
 	public String   photoUri;        // Used for verification after fetching image // NO_UCD (unused code)
 	public Object   data;            // object binding to

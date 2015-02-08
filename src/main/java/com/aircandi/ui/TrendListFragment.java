@@ -9,6 +9,7 @@ import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.ViewHolder;
+import com.aircandi.utilities.UI;
 
 import java.util.Locale;
 
@@ -35,7 +36,6 @@ public class TrendListFragment extends EntityListFragment {
 
 			((ViewHolderExtended) holder).countValue = (TextView) view.findViewById(R.id.count_value);
 			((ViewHolderExtended) holder).countLabel = (TextView) view.findViewById(R.id.count_label);
-			((ViewHolderExtended) holder).rank = (TextView) view.findViewById(R.id.rank);
 
 			controller.bindHolder(view, holder);
 			view.setTag(holder);
@@ -52,8 +52,11 @@ public class TrendListFragment extends EntityListFragment {
 		if (((ViewHolderExtended) holder).countValue != null && entity.count != null) {
 			((ViewHolderExtended) holder).countValue.setText(String.valueOf(entity.count.intValue()));
 		}
-		if (((ViewHolderExtended) holder).rank != null && entity.rank != null) {
-			((ViewHolderExtended) holder).rank.setText(String.valueOf(entity.rank.intValue()));
+
+		/* Replace index with rank */
+		if (holder.index != null && entity.rank != null) {
+			holder.index.setText(String.valueOf(entity.rank.intValue()));
+			UI.setVisibility(holder.index, View.VISIBLE);
 		}
 	}
 
@@ -81,6 +84,5 @@ public class TrendListFragment extends EntityListFragment {
 	public class ViewHolderExtended extends ViewHolder {
 		public TextView countValue;
 		public TextView countLabel;
-		public TextView rank;
 	}
 }

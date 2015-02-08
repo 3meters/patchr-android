@@ -263,7 +263,6 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 				}
 				else if (mode == BindingMode.MANUAL
 						|| mFirstBind
-						//						|| (mEntities != null && mEntities.size() == 0)
 						|| (mMonitor.isChanged() && mMonitor.activity)) {
 					mBusy.show(mLoaded ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
 
@@ -299,9 +298,11 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 						}
 
 						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
+
 						if (getActivity() != null && !getActivity().isFinishing()) {
 							configureStandardMenuItems(((BaseActivity) getActivity()).getOptionMenu());
 						}
+
 						if (isAdded()) {
 							draw(null);
 						}
@@ -775,6 +776,7 @@ public class EntityListFragment extends BaseFragment implements OnClickListener,
 			else {
 
 				Entity entity = mEntities.get(position);
+				entity.index = position + 1;
 
 				/* Perform cache lookup to make sure we are using the latest */
 				if (mEntityCacheEnabled && EntityManager.getEntityCache().get(entity.id) != null) {
