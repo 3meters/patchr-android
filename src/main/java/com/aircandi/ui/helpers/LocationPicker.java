@@ -66,7 +66,9 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 				mMap = googleMap;
 				if (checkReady()) {
 					setUpMap();
-					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mOriginalLocation.lat.doubleValue(), mOriginalLocation.lng.doubleValue()), 17));
+					if (mOriginalLocation != null) {
+						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mOriginalLocation.lat.doubleValue(), mOriginalLocation.lng.doubleValue()), 17));
+					}
 				}
 			}
 		});
