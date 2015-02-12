@@ -27,99 +27,94 @@ public class Reporting {
 		/*
 		 * Nothing here calls anything that could block.
 		 */
-		if (Fabric.isInitialized()) {
 
-			new AsyncTask() {
+		new AsyncTask() {
 
-				@Override
-				protected void onPreExecute() {}
+			@Override
+			protected void onPreExecute() {}
 
+			@Override
+			protected Object doInBackground(Object... params) {
 
-				@Override
-				protected Object doInBackground(Object... params) {
-
-					Thread.currentThread().setName("AsyncUpdateCrashKeys");
-					Crashlytics.setBool("airplane_mode", NetworkManager.isAirplaneMode(Patchr.applicationContext));
-					Crashlytics.setBool("connected", NetworkManager.getInstance().isConnected());
-					Crashlytics.setString("network_type", NetworkManager.getInstance().getNetworkType().toLowerCase(Locale.US));
-					Crashlytics.setBool("wifi_tethered", NetworkManager.getInstance().isWifiTethered());
-					Crashlytics.setFloat("beacons_visible", ProximityManager.getInstance().getWifiList().size());
-					Crashlytics.setString("device_name", AndroidManager.getInstance().getDeviceName());
+				Thread.currentThread().setName("AsyncUpdateCrashKeys");
+				Crashlytics.setBool("airplane_mode", NetworkManager.isAirplaneMode(Patchr.applicationContext));
+				Crashlytics.setBool("connected", NetworkManager.getInstance().isConnected());
+				Crashlytics.setString("network_type", NetworkManager.getInstance().getNetworkType().toLowerCase(Locale.US));
+				Crashlytics.setBool("wifi_tethered", NetworkManager.getInstance().isWifiTethered());
+				Crashlytics.setFloat("beacons_visible", ProximityManager.getInstance().getWifiList().size());
+				Crashlytics.setString("device_name", AndroidManager.getInstance().getDeviceName());
 
 					/* Memory info */
-					Crashlytics.setFloat("memory_max_mb", Utilities.maxMemoryMB());
-					Crashlytics.setFloat("memory_total_mb", Utilities.totalMemoryMB());
-					Crashlytics.setFloat("memory_free_mb", Utilities.freeMemoryMB());
+				Crashlytics.setFloat("memory_max_mb", Utilities.maxMemoryMB());
+				Crashlytics.setFloat("memory_total_mb", Utilities.totalMemoryMB());
+				Crashlytics.setFloat("memory_free_mb", Utilities.freeMemoryMB());
 
 					/* Identifies device/install combo */
-					Crashlytics.setString("install_id", Patchr.getInstance().getinstallId());
+				Crashlytics.setString("install_id", Patchr.getInstance().getinstallId());
 
-					Location location = LocationManager.getInstance().getLocationLocked();
-					if (location != null) {
-						Crashlytics.setFloat("location_accurary", location.getAccuracy());
-						Crashlytics.setString("location_provider", location.getProvider());
-					}
-					else {
-						Crashlytics.setFloat("location_accurary", 0);
-						Crashlytics.setString("location_provider", "no locked location");
-					}
+				Location location = LocationManager.getInstance().getLocationLocked();
+				if (location != null) {
+					Crashlytics.setFloat("location_accurary", location.getAccuracy());
+					Crashlytics.setString("location_provider", location.getProvider());
+				}
+				else {
+					Crashlytics.setFloat("location_accurary", 0);
+					Crashlytics.setString("location_provider", "no locked location");
+				}
 
 					/* Wifi state */
 
-					Integer wifiState = NetworkManager.getInstance().getWifiState();
-					if (wifiState != null) {
-						if (wifiState == WifiManager.WIFI_STATE_DISABLED) {
-							Crashlytics.setString("wifi_state", "disabled");
-						}
-						else if (wifiState == WifiManager.WIFI_STATE_ENABLED) {
-							Crashlytics.setString("wifi_state", "enabled");
-						}
-						else if (wifiState == WifiManager.WIFI_STATE_ENABLING) {
-							Crashlytics.setString("wifi_state", "enabling");
-						}
-						else if (wifiState == WifiManager.WIFI_STATE_DISABLING) {
-							Crashlytics.setString("wifi_state", "disabling");
-						}
+				Integer wifiState = NetworkManager.getInstance().getWifiState();
+				if (wifiState != null) {
+					if (wifiState == WifiManager.WIFI_STATE_DISABLED) {
+						Crashlytics.setString("wifi_state", "disabled");
 					}
+					else if (wifiState == WifiManager.WIFI_STATE_ENABLED) {
+						Crashlytics.setString("wifi_state", "enabled");
+					}
+					else if (wifiState == WifiManager.WIFI_STATE_ENABLING) {
+						Crashlytics.setString("wifi_state", "enabling");
+					}
+					else if (wifiState == WifiManager.WIFI_STATE_DISABLING) {
+						Crashlytics.setString("wifi_state", "disabling");
+					}
+				}
 
 					/* Wifi access point state */
 
-					NetworkManager.WIFI_AP_STATE wifiApState = NetworkManager.getInstance().getWifiApState();
-					if (wifiApState != null) {
-						if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLED) {
-							Crashlytics.setString("wifi_ap_state", "disabled");
-						}
-						else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLED) {
-							Crashlytics.setString("wifi_ap_state", "enabled");
-						}
-						else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLING) {
-							Crashlytics.setString("wifi_ap_state", "enabling");
-						}
-						else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLING) {
-							Crashlytics.setString("wifi_ap_state", "disabling");
-						}
+				NetworkManager.WIFI_AP_STATE wifiApState = NetworkManager.getInstance().getWifiApState();
+				if (wifiApState != null) {
+					if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLED) {
+						Crashlytics.setString("wifi_ap_state", "disabled");
 					}
-					return null;
+					else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLED) {
+						Crashlytics.setString("wifi_ap_state", "enabled");
+					}
+					else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLING) {
+						Crashlytics.setString("wifi_ap_state", "enabling");
+					}
+					else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLING) {
+						Crashlytics.setString("wifi_ap_state", "disabling");
+					}
 				}
+				return null;
+			}
 
-				@Override
-				protected void onPostExecute(Object response) {}
-			}.execute();
-		}
+			@Override
+			protected void onPostExecute(Object response) {}
+		}.execute();
 	}
 
 	public static void updateCrashUser(User user) {
-		if (Fabric.isInitialized()) {
-			if (user != null) {
-				Crashlytics.setUserIdentifier(user.id);
-				Crashlytics.setUserName(user.name);
-				Crashlytics.setUserEmail(user.email);
-			}
-			else {
-				Crashlytics.setUserIdentifier(null);
-				Crashlytics.setUserName(null);
-				Crashlytics.setUserEmail(null);
-			}
+		if (user != null) {
+			Crashlytics.setUserIdentifier(user.id);
+			Crashlytics.setUserName(user.name);
+			Crashlytics.setUserEmail(user.email);
+		}
+		else {
+			Crashlytics.setUserIdentifier(null);
+			Crashlytics.setUserName(null);
+			Crashlytics.setUserEmail(null);
 		}
 	}
 
