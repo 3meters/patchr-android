@@ -44,8 +44,6 @@ import com.google.maps.android.projection.SphericalMercatorProjection;
 import com.google.maps.android.ui.IconGenerator;
 import com.google.maps.android.ui.SquareTextView;
 
-;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -73,7 +71,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	private final ClusterManager<T> mClusterManager;
 	private final float             mDensity;
 
-	private static final int[] BUCKETS = {10, 20, 30, 40, 50, 100, 200, 500, 1000};
+	private static final int[] BUCKETS = {5, 10, 20, 30, 40, 50, 100, 200, 500, 1000};
 	private ShapeDrawable mColoredCircleBackground;
 
 	/**
@@ -95,7 +93,8 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	/**
 	 * If cluster size is less than this size, display individual markers.
 	 */
-	private static final int MIN_CLUSTER_SIZE = 20;
+	private static final int MIN_CLUSTER_SIZE = 5;
+	private              int mMinClusterSize  = MIN_CLUSTER_SIZE;
 
 	/**
 	 * The currently displayed set of clusters.
@@ -197,7 +196,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	}
 
 	private int getColor(int clusterSize) {
-		return Colors.getColor(R.color.brand_primary);
+		return Colors.getColor(R.color.brand_primary_dark);
 	}
 
 	@NonNull
@@ -231,11 +230,11 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	 */
 	@SuppressLint("HandlerLeak")
 	private class ViewModifier extends Handler {
-		private static final int        RUN_TASK                    = 0;
-		private static final int        TASK_FINISHED               = 1;
-		private              boolean    mViewModificationInProgress = false;
+		private static final int     RUN_TASK                    = 0;
+		private static final int     TASK_FINISHED               = 1;
+		private              boolean mViewModificationInProgress = false;
 
-		private              RenderTask mNextClusters               = null;
+		private RenderTask mNextClusters = null;
 
 		@Override
 		public void handleMessage(@NonNull Message msg) {
@@ -290,7 +289,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	 * Determine whether the cluster should be rendered as individual markers or a cluster.
 	 */
 	protected boolean shouldRenderAsCluster(@NonNull Cluster<T> cluster) {
-		return cluster.getSize() > MIN_CLUSTER_SIZE;
+		return cluster.getSize() > mMinClusterSize;
 	}
 
 	/**
@@ -474,7 +473,6 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	private static double distanceSquared(@NonNull Point a, @NonNull Point b) {
 		return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
 	}
-
 
 	private static Point findClosestCluster(List<Point> markers, @NonNull Point point) {
 		if (markers == null || markers.isEmpty()) return null;
@@ -796,6 +794,14 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	 */
 	public Cluster<T> getCluster(Marker marker) {
 		return mMarkerToCluster.get(marker);
+	}
+
+	public void setMinClusterSize(int minClusterSize) {
+		mMinClusterSize = minClusterSize;
+	}
+
+	public int getMinClusterSize() {
+		return mMinClusterSize;
 	}
 
 	/**

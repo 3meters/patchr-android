@@ -91,6 +91,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 				mClusterManager = new ClusterManager<EntityItem>(getActivity(), mMap);
 				mClusterRenderer = new EntityRenderer(getActivity());
+				mClusterRenderer.setMinClusterSize(10);
 				mClusterManager.setRenderer(mClusterRenderer);
 
 				mMap.setOnCameraChangeListener(mClusterManager);
@@ -221,6 +222,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	public void draw() {
 
 		if (mClusterManager != null) {
+			mMap.clear();
 			mClusterManager.clearItems();
 			if (mEntities != null) {
 				mProgressBar.setVisibility(View.VISIBLE);
