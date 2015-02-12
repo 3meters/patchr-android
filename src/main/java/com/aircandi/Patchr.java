@@ -175,7 +175,7 @@ public class Patchr extends MultiDexApplication {
 	protected void initializeInstance() {
 
 		/* Must have this so activity rerouting works. */
-		Patchr.applicationContext = getApplicationContext();
+		applicationContext = getApplicationContext();
 
 		stopwatch1 = new Stopwatch(); // $codepro.audit.disable stringLiterals
 		stopwatch2 = new Stopwatch(); // $codepro.audit.disable stringLiterals
@@ -209,7 +209,7 @@ public class Patchr extends MultiDexApplication {
 
 			/* Info on what is being tracked is output to logcat */
 			analytics.getLogger().setLogLevel(com.google.android.gms.analytics.Logger.LogLevel.VERBOSE);
-			Patchr.getInstance().setTracker(analytics.newTracker(R.xml.analytics));
+			setTracker(analytics.newTracker(R.xml.analytics));
 		}
 
 		/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
@@ -220,7 +220,7 @@ public class Patchr extends MultiDexApplication {
 		}
 
 		/* Establish device memory class */
-		Patchr.memoryClass = Utilities.maxMemoryMB();
+		memoryClass = Utilities.maxMemoryMB();
 		Logger.i(this, "Device memory class: " + String.valueOf(memoryClass));
 
 		/* Inject configuration */
@@ -236,8 +236,8 @@ public class Patchr extends MultiDexApplication {
 		controllerMap.put(Constants.SCHEMA_ENTITY_MESSAGE, new Messages());
 		controllerMap.put(Constants.SCHEMA_ENTITY_NOTIFICATION, new Notifications());
 
-		/* Start out with anonymous user then upgrade to signed in user if possible */
-		Patchr.getInstance().initializeUser();
+		/* Must come after managers are initialized */
+		initializeUser();
 	}
 
 	protected void initializeManagers() {
@@ -327,14 +327,14 @@ public class Patchr extends MultiDexApplication {
 		/*
 		 * Gets called on app create and after restart and ending with the back key.
 		 */
-		final String jsonUser = Patchr.settings.getString(StringManager.getString(R.string.setting_user), null);
-		final String jsonSession = Patchr.settings.getString(StringManager.getString(R.string.setting_user_session), null);
+		final String jsonUser = settings.getString(StringManager.getString(R.string.setting_user), null);
+		final String jsonSession = settings.getString(StringManager.getString(R.string.setting_user_session), null);
 
 		if (jsonUser != null && jsonSession != null) {
 			Logger.i(this, "Auto sign in...");
 			final User user = (User) Json.jsonToObject(jsonUser, Json.ObjectType.ENTITY);
 			user.session = (Session) Json.jsonToObject(jsonSession, Json.ObjectType.SESSION);
-			Patchr.getInstance().setCurrentUser(user, false);
+			setCurrentUser(user, false);
 			return;
 		}
 
@@ -388,9 +388,9 @@ public class Patchr extends MultiDexApplication {
 	}
 
 	private void initializeInstallInfo() {
-		mUniqueId = Patchr.settings.getString(StringManager.getString(R.string.setting_unique_id), null);
-		mUniqueDate = Patchr.settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
-		mUniqueType = Patchr.settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
+		mUniqueId = settings.getString(StringManager.getString(R.string.setting_unique_id), null);
+		mUniqueDate = settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
+		mUniqueType = settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
 		if (mUniqueId == null || mUniqueType == null) {
 			if (Build.SERIAL != null && !Build.SERIAL.equals("unknown")) {
 				mUniqueId = Build.SERIAL;
@@ -409,10 +409,10 @@ public class Patchr extends MultiDexApplication {
 			}
 			mUniqueId += "." + applicationContext.getPackageName();
 			mUniqueDate = DateTime.nowDate().getTime();
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id_type), mUniqueType);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_unique_id), mUniqueId);
-			Patchr.settingsEditor.putLong(StringManager.getString(R.string.setting_unique_id_date), mUniqueDate);
-			Patchr.settingsEditor.commit();
+			settingsEditor.putString(StringManager.getString(R.string.setting_unique_id_type), mUniqueType);
+			settingsEditor.putString(StringManager.getString(R.string.setting_unique_id), mUniqueId);
+			settingsEditor.putLong(StringManager.getString(R.string.setting_unique_id_date), mUniqueDate);
+			settingsEditor.commit();
 		}
 	}
 
