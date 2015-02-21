@@ -480,15 +480,15 @@ public class EntityCache implements Map<String, Entity> {
 		return entity;
 	}
 
-	public synchronized Integer removeEntities(String schema, String type, Boolean foundByProximity) {
+	public synchronized Integer removeEntities(@NonNull String schema, @NonNull String type, Boolean foundByProximity) {
 
 		Integer removeCount = 0;
 		final Iterator iterEntities = keySet().iterator();
 		Entity entity;
 		while (iterEntities.hasNext()) {
 			entity = get(iterEntities.next());
-			if (schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
-				if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
+			if (schema.equals(Constants.SCHEMA_ANY) || (entity.schema != null && entity.schema.equals(schema))) {
+				if (type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
 					if (foundByProximity == null || entity.foundByProximity.equals(foundByProximity)) {
 						iterEntities.remove();
 						removeCount++;
