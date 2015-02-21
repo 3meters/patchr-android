@@ -339,7 +339,9 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 			/* Configure dividers to the thickness we want */
 			ListView list = (ListView) root.findViewById(android.R.id.list);
-			list.setDividerHeight(UI.getRawPixelsForDisplayPixels(0.5f));
+			if (list != null) {
+				list.setDividerHeight(UI.getRawPixelsForDisplayPixels(0.5f));
+			}
 
 			/* Insert toolbar at the top */
 			ViewGroup target = (ViewGroup) root.getChildAt(0);
