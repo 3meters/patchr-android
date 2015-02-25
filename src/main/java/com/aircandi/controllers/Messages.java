@@ -88,18 +88,18 @@ public class Messages extends EntityControllerBase {
 
 		/* User photo */
 
-		UI.setVisibility(holder.userPhoto, View.GONE);
-		if (holder.userPhoto != null && entity.creator != null) {
+		UI.setVisibility(holder.userPhotoView, View.GONE);
+		if (holder.userPhotoView != null && entity.creator != null) {
 		    /*
 		     * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
 			 */
 			Photo photo = entity.creator.getPhoto();
-			if (holder.userPhoto.getPhoto() == null || !holder.userPhoto.getPhoto().getUri().equals(photo.getUri())) {
-				holder.userPhoto.setGroupTag(groupTag);
-				UI.drawPhoto(holder.userPhoto, photo);
+			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
+				holder.userPhotoView.setGroupTag(groupTag);
+				UI.drawPhoto(holder.userPhotoView, photo);
 			}
-			holder.userPhoto.setTag(entity.creator);
-			UI.setVisibility(holder.userPhoto, View.VISIBLE);
+			holder.userPhotoView.setTag(entity.creator);
+			UI.setVisibility(holder.userPhotoView, View.VISIBLE);
 		}
 
 		/* User name */
@@ -182,7 +182,7 @@ public class Messages extends EntityControllerBase {
 
         /* Shared entity */
 
-		UI.setVisibility(holder.photo, View.GONE);
+		UI.setVisibility(holder.photoView, View.GONE);
 		UI.setVisibility(((ViewHolderExtended) holder).childCount, View.GONE);
 		UI.setVisibility(view.findViewById(R.id.share_holder), View.GONE);
 		UI.setVisibility(view.findViewById(R.id.button_likes), View.GONE);
@@ -228,16 +228,17 @@ public class Messages extends EntityControllerBase {
 
 		    /* Photo */
 
-			if (holder.photo != null) {
+			if (holder.photoView != null) {
 				final Photo photo = entity.getPhoto();
 
 				if (entity.photo != null) {
-					if (holder.photo.getPhoto() == null || !photo.getUri().equals(holder.photo.getPhoto().getUri())) {
-						holder.photo.setCenterCrop(false);
-						holder.photo.setGroupTag(groupTag);
-						UI.drawPhoto(holder.photo, photo);
+					if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {
+						holder.photoView.setTag(photo);
+						holder.photoView.setCenterCrop(false);
+						holder.photoView.setGroupTag(groupTag);
+						UI.drawPhoto(holder.photoView, photo);
 					}
-					UI.setVisibility(holder.photo, View.VISIBLE);
+					UI.setVisibility(holder.photoView, View.VISIBLE);
 				}
 			}
 

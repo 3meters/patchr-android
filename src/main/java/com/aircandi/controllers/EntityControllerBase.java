@@ -241,17 +241,17 @@ public abstract class EntityControllerBase implements IEntityController {
 			}
 		}
 
-		UI.setVisibility(holder.patchPhoto, View.GONE);
-		if (holder.patchPhoto != null && parentEntity != null) {
+		UI.setVisibility(holder.patchPhotoView, View.GONE);
+		if (holder.patchPhotoView != null && parentEntity != null) {
 			Photo photo = parentEntity.photo;
 			if (photo == null) {
 				photo = Entity.getDefaultPhoto(Constants.SCHEMA_ENTITY_PATCH);
 			}
-			if (holder.patchPhoto.getPhoto() == null || !holder.patchPhoto.getPhoto().getUri().equals(photo.getUri())) {
-				holder.patchPhoto.setTag(parentEntity);
-				UI.drawPhoto(holder.patchPhoto, photo);
+			if (holder.patchPhotoView.getPhoto() == null || !holder.patchPhotoView.getPhoto().getUri().equals(photo.getUri())) {
+				holder.patchPhotoView.setTag(parentEntity);
+				UI.drawPhoto(holder.patchPhotoView, photo);
 			}
-			UI.setVisibility(holder.patchPhoto, View.VISIBLE);
+			UI.setVisibility(holder.patchPhotoView, View.VISIBLE);
 		}
 
 		/* Patch name */
@@ -275,17 +275,17 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		/* User photo */
 
-		UI.setVisibility(holder.userPhoto, View.GONE);
-		if (holder.userPhoto != null && entity.creator != null) {
+		UI.setVisibility(holder.userPhotoView, View.GONE);
+		if (holder.userPhotoView != null && entity.creator != null) {
 		    /*
 			 * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
 			 */
 			Photo photo = entity.creator.getPhoto();
-			if (holder.userPhoto.getPhoto() == null || !holder.userPhoto.getPhoto().getUri().equals(photo.getUri())) {
-				holder.userPhoto.setTag(entity.creator);
-				UI.drawPhoto(holder.userPhoto, photo);
+			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
+				holder.userPhotoView.setTag(entity.creator);
+				UI.drawPhoto(holder.userPhotoView, photo);
 			}
-			UI.setVisibility(holder.userPhoto, View.VISIBLE);
+			UI.setVisibility(holder.userPhotoView, View.VISIBLE);
 		}
 
 		/* User name */
@@ -316,20 +316,20 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		/* Photo */
 
-		UI.setVisibility(holder.photo, View.GONE);
-		if (holder.photo != null) {
+		UI.setVisibility(holder.photoView, View.GONE);
+		if (holder.photoView != null) {
 			final Photo photo = entity.getPhoto();
-			if (holder.photo.getPhoto() == null || !photo.getUri().equals(holder.photo.getPhoto().getUri())) {
-				UI.drawPhoto(holder.photo, photo);
+			if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {
+				UI.drawPhoto(holder.photoView, photo);
 			}
-			UI.setVisibility(holder.photo, View.VISIBLE);
+			UI.setVisibility(holder.photoView, View.VISIBLE);
 		}
 	}
 
 	public void bindHolder(View view, ViewHolder holder) {
 
 		holder.candiView = (CandiView) view.findViewById(R.id.candi_view);
-		holder.photo = (AirImageView) view.findViewById(R.id.photo);
+		holder.photoView = (AirImageView) view.findViewById(R.id.photo);
 		holder.name = (TextView) view.findViewById(R.id.name);
 		holder.subhead = (TextView) view.findViewById(R.id.subhead);
 		holder.summary = (TextView) view.findViewById(R.id.summary);
@@ -341,7 +341,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.comments = (TextView) view.findViewById(R.id.comments);
 		holder.share = (ViewGroup) view.findViewById(R.id.share_entity);
 		holder.alert = (ImageView) view.findViewById(R.id.alert_indicator);
-		holder.photoBig = (AirImageView) view.findViewById(R.id.photo_big);
+		holder.photoViewBig = (AirImageView) view.findViewById(R.id.photo_big);
 		holder.photoType = (ImageView) view.findViewById(R.id.photo_type);
 
 		if (holder.checked != null) {
@@ -356,9 +356,9 @@ public abstract class EntityControllerBase implements IEntityController {
 			});
 		}
 		holder.index = (TextView) view.findViewById(R.id.index);
-		holder.userPhoto = (AirImageView) view.findViewById(R.id.user_photo);
+		holder.userPhotoView = (AirImageView) view.findViewById(R.id.user_photo);
 		holder.userName = (TextView) view.findViewById(R.id.user_name);
-		holder.patchPhoto = (AirImageView) view.findViewById(R.id.patch_photo);
+		holder.patchPhotoView = (AirImageView) view.findViewById(R.id.patch_photo);
 		holder.patchName = (TextView) view.findViewById(R.id.patch_name);
 		holder.categoryName = (TextView) view.findViewById(R.id.category_name);
 		holder.toName = (TextView) view.findViewById(R.id.to_name);

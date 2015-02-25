@@ -152,6 +152,8 @@
 			android:layout_marginLeft="2dp"
 			android:layout_marginTop="12dp"
 			android:background="?attr/backgroundPlaceholder"
+			android:clickable="true"
+			android:onClick="onPhotoClick"
 			android:scaleType="centerCrop"
 			custom:aspectRatio="@dimen/aspect_ratio_message_item_image"
 			custom:aspectRatioEnabled="true"
@@ -180,8 +182,8 @@
 				custom:cardBackgroundColor="?attr/backgroundButtonShare"
 				custom:cardCornerRadius="3dp"
 				custom:cardElevation="2dp"
-				custom:contentPadding="4dp"
-				custom:cardUseCompatPadding="true" />
+				custom:cardUseCompatPadding="true"
+				custom:contentPadding="4dp" />
 
 		</RelativeLayout>
 

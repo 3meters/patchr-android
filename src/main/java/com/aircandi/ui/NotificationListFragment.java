@@ -247,14 +247,14 @@ public class NotificationListFragment extends MessageListFragment {
 		}
 
 		/* Big photo */
-		if (holder.photoBig != null) {
-			UI.setVisibility(holder.photoBig, View.GONE);
+		if (holder.photoViewBig != null) {
+			UI.setVisibility(holder.photoViewBig, View.GONE);
 			if (notification.photoBig != null) {
-				if (holder.photoBig.getPhoto() == null || !notification.photoBig.getUri().equals(holder.photoBig.getPhoto().getUri())) {
-					holder.photoBig.setCenterCrop(false);
-					UI.drawPhoto(holder.photoBig, notification.photoBig);
+				if (holder.photoViewBig.getPhoto() == null || !notification.photoBig.getUri().equals(holder.photoViewBig.getPhoto().getUri())) {
+					holder.photoViewBig.setCenterCrop(false);
+					UI.drawPhoto(holder.photoViewBig, notification.photoBig);
 				}
-				UI.setVisibility(holder.photoBig, View.VISIBLE);
+				UI.setVisibility(holder.photoViewBig, View.VISIBLE);
 			}
 		}
 

@@ -13,7 +13,7 @@ import com.aircandi.ui.widgets.UserView;
 public class ViewHolder {
 
 	public CandiView    candiView;
-	public AirImageView photo;
+	public AirImageView photoView;
 	public TextView     name;
 	public TextView     subhead;
 	public TextView     summary;
@@ -23,16 +23,16 @@ public class ViewHolder {
 	public TextView     createdDate;
 	public UserView     creator;
 	public TextView     userName;
-	public AirImageView userPhoto;
+	public AirImageView userPhotoView;
 	public TextView     patchName;
-	public AirImageView patchPhoto;
+	public AirImageView patchPhotoView;
 	public TextView     categoryName;
-	public AirImageView categoryPhoto;
+	public AirImageView categoryPhotoView;
 	public TextView     toName;        // NO_UCD (unused code)
 	public TextView     area;
 	public EntityView   parent;
 	public ViewGroup    share;
-	public AirImageView photoBig;
+	public AirImageView photoViewBig;
 	public ImageView    photoType;
 	public ImageView    alert;
 
