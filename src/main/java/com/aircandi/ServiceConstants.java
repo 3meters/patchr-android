@@ -22,9 +22,9 @@ public final class ServiceConstants {
 	public static final String ADMIN_USER_ID     = "us.000000.00000.000.000000";
 	public static final String ANONYMOUS_USER_ID = "us.000000.00000.000.111111";
 
-	public static final String __URL_PROXIBASE_SERVICE   = "http://ariseditions.com:8080/v1";           // local
-	public static final String URL_PROXIBASE_SERVICE = "https://api.aircandi.com/v1";               // production
-	public static final String _URL_PROXIBASE_SERVICE  = "https://api.aircandi.com:444/v1";           // staging
+	public static final String _URL_PROXIBASE_SERVICE  = "http://ariseditions.com:8080/v1";         // local
+	public static final String URL_PROXIBASE_SERVICE   = "https://api.aircandi.com/v1";             // production
+	public static final String __URL_PROXIBASE_SERVICE = "https://api.aircandi.com:8443/v1";        // staging
 
 	public static final String PATH_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS = "/assets/img/applinks/";
 	public static final String PATH_PROXIBASE_SERVICE_ASSETS_CATEGORIES    = "/assets/img/categories/";
