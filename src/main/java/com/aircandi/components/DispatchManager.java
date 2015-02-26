@@ -313,16 +313,6 @@ public class DispatchManager {
 			((BaseActivity) activity).confirmRemove(extras.getString(Constants.EXTRA_ENTITY_PARENT_ID));    // Give activity a chance for remove confirmation
 		}
 
-		else if (route == Route.ZOOM_IN) {
-
-			((PhotoForm) activity).onZoomIn();
-		}
-
-		else if (route == Route.ZOOM_OUT) {
-
-			((PhotoForm) activity).onZoomOut();
-		}
-
 		else if (route == Route.VIEW_AS_LIST) {
 
 			Fragment fragment = ((AircandiForm) activity).getCurrentFragment();
@@ -338,11 +328,6 @@ public class DispatchManager {
 		else if (route == Route.VIEW_AS_MAP) {
 
 			((AircandiForm) activity).setCurrentFragment(Constants.FRAGMENT_TYPE_MAP);
-		}
-
-		else if (route == Route.ZOOM_OUT) {
-
-			((PhotoForm) activity).onZoomOut();
 		}
 
 		else if (route == Route.SIGNOUT) {

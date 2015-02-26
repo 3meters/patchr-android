@@ -71,24 +71,6 @@ public class PhotoForm extends BaseActivity implements IBind {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void onZoomIn() {
-//		mImageViewTouch.setDoubleTapDirection(1);
-//		float scale = mImageViewTouch.getScale();
-//		float targetScale;
-//		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
-//		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
-//		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
-	}
-
-	public void onZoomOut() {
-//		mImageViewTouch.setDoubleTapDirection(-1);
-//		float scale = mImageViewTouch.getScale();
-//		float targetScale;
-//		targetScale = mImageViewTouch.onDoubleTapPost(scale, mImageViewTouch.getMaxScale());
-//		targetScale = Math.min(mImageViewTouch.getMaxScale(), Math.max(targetScale, mImageViewTouch.getMinScale()));
-//		mImageViewTouch.zoomTo(targetScale, DEFAULT_ANIMATION_DURATION);
-	}
-
 	protected void bindImageViewTouch(ViewGroup layout) {
 		if (layout != null) {
 			AirImageView image = (AirImageView) layout.findViewById(R.id.photo);
@@ -117,7 +99,6 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 	@Override
 	public void bind(BindingMode mode) {
-
 		final ViewGroup layout = (ViewGroup) findViewById(R.id.holder_body);
 		buildPictureDetail(mPhoto, layout);
 		bindImageViewTouch(layout);
