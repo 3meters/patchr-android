@@ -3,6 +3,7 @@
 
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical">
@@ -173,6 +174,22 @@
 							android:textAppearance="?android:attr/textAppearanceSmall"
 							android:textColor="?attr/textColorSecondary"
 							custom:textId="@string/dummy_install_date" />
+					</TableRow>
+					<View
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/rule_divider_height"
+						android:background="?attr/ruleColor" />
+
+					<TableRow>
+
+						<com.aircandi.ui.widgets.AirTextView
+							android:id="@+id/service_url"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:text="https://api.aircandi.com/v1"
+							android:textAppearance="?android:attr/textAppearanceSmall"
+							android:textColor="?attr/textColorSecondary"
+							tools:ignore="HardcodedText" />
 					</TableRow>
 				</TableLayout>
 			</LinearLayout>

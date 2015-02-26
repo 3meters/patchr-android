@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.ServiceConstants;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
@@ -55,9 +56,11 @@ public class AboutForm extends BaseActivity {
 				&& Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
 				&& Patchr.getInstance().getCurrentUser().developer != null
 				&& Patchr.getInstance().getCurrentUser().developer) {
+			String serviceUrl = ServiceConstants.serviceUrl();
+			((TextView) findViewById(R.id.service_url)).setText(serviceUrl);
 			((TextView) findViewById(R.id.install_id)).setText(Patchr.getInstance().getinstallId());
 			((TextView) findViewById(R.id.install_type)).setText("Id type: " + Patchr.getInstance().getInstallType());
-			((TextView) findViewById(R.id.install_date)).setText(DateTime.dateString(Patchr.getInstance().getInstallDate(), DateTime.DATE_FORMAT_DEFAULT));
+			((TextView) findViewById(R.id.install_date)).setText("Install date: " + DateTime.dateString(Patchr.getInstance().getInstallDate(), DateTime.DATE_FORMAT_DEFAULT));
 			findViewById(R.id.holder_footer).setVisibility(View.VISIBLE);
 		}
 	}

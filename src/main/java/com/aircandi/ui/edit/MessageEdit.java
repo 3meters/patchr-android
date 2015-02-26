@@ -592,7 +592,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 	@Override
 	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
-		DownloadManager.decorate(bitmap, loadedFrom);
 		DownloadManager.logBitmap(MessageEdit.this, bitmap, mPhotoView.getImageView());
 		final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
 		UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);

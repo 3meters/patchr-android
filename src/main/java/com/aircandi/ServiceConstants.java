@@ -1,8 +1,13 @@
 // $codepro.audit.disable fileComment
 package com.aircandi;
 
+import com.aircandi.components.StringManager;
+
 @SuppressWarnings("ucd")
 public final class ServiceConstants {
+
+	private static boolean DEV_ENABLED = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
+	private static boolean STAGING_ENABLED = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_use_staging_service), false);
 
 	public static final int TIMEOUT_CONNECTION            = 5000;
 	public static final int TIMEOUT_SOCKET_READ           = 20000;
@@ -22,25 +27,22 @@ public final class ServiceConstants {
 	public static final String ADMIN_USER_ID     = "us.000000.00000.000.000000";
 	public static final String ANONYMOUS_USER_ID = "us.000000.00000.000.111111";
 
-	public static final String _URL_PROXIBASE_SERVICE  = "http://ariseditions.com:8080/v1";         // local
-	public static final String URL_PROXIBASE_SERVICE   = "https://api.aircandi.com/v1";             // production
-	public static final String __URL_PROXIBASE_SERVICE = "https://api.aircandi.com:8443/v1";        // staging
+	private static final String URL_PROXIBASE_SERVICE         = "https://api.aircandi.com/v1";             // production
+	private static final String URL_PROXIBASE_SERVICE_STAGING = "https://api.aircandi.com:8443/v1";        // staging
+	private static final String _URL_PROXIBASE_SERVICE        = "http://ariseditions.com:8080/v1";         // local
 
-	public static final String PATH_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS = "/assets/img/applinks/";
-	public static final String PATH_PROXIBASE_SERVICE_ASSETS_CATEGORIES    = "/assets/img/categories/";
-
-	public static final String URL_PROXIBASE_SERVICE_REST                 = URL_PROXIBASE_SERVICE + "/data/";
-	public static final String URL_PROXIBASE_SERVICE_USER                 = URL_PROXIBASE_SERVICE + "/user/";
-	public static final String URL_PROXIBASE_SERVICE_ADMIN                = URL_PROXIBASE_SERVICE + "/admin/";
-	public static final String URL_PROXIBASE_SERVICE_METHOD               = URL_PROXIBASE_SERVICE + "/do/";
-	public static final String URL_PROXIBASE_SERVICE_STATS                = URL_PROXIBASE_SERVICE + "/stats/";
-	public static final String URL_PROXIBASE_SERVICE_PATCHES              = URL_PROXIBASE_SERVICE + "/patches/";
-	public static final String URL_PROXIBASE_SERVICE_SUGGEST              = URL_PROXIBASE_SERVICE + "/suggest";
-	public static final String URL_PROXIBASE_SERVICE_ACTIONS              = URL_PROXIBASE_SERVICE + "/actions/";
-	public static final String URL_PROXIBASE_SERVICE_APPLINKS             = URL_PROXIBASE_SERVICE + "/applinks/";
-	public static final String URL_PROXIBASE_SERVICE_AUTH                 = URL_PROXIBASE_SERVICE + "/auth/";
-	public static final String URL_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS = URL_PROXIBASE_SERVICE + PATH_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS;
-	public static final String URL_PROXIBASE_SERVICE_ASSETS_CATEGORIES    = URL_PROXIBASE_SERVICE + PATH_PROXIBASE_SERVICE_ASSETS_CATEGORIES;
+	public static final String URL_PROXIBASE_SERVICE_REST                 = serviceUrl() + "/data/";
+	public static final String URL_PROXIBASE_SERVICE_USER                 = serviceUrl() + "/user/";
+	public static final String URL_PROXIBASE_SERVICE_ADMIN                = serviceUrl() + "/admin/";
+	public static final String URL_PROXIBASE_SERVICE_METHOD               = serviceUrl() + "/do/";
+	public static final String URL_PROXIBASE_SERVICE_STATS                = serviceUrl() + "/stats/";
+	public static final String URL_PROXIBASE_SERVICE_PATCHES              = serviceUrl() + "/patches/";
+	public static final String URL_PROXIBASE_SERVICE_SUGGEST              = serviceUrl() + "/suggest";
+	public static final String URL_PROXIBASE_SERVICE_ACTIONS              = serviceUrl() + "/actions/";
+	public static final String URL_PROXIBASE_SERVICE_APPLINKS             = serviceUrl() + "/applinks/";
+	public static final String URL_PROXIBASE_SERVICE_AUTH                 = serviceUrl() + "/auth/";
+	public static final String URL_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS = serviceUrl() + "/assets/img/applinks/";
+	public static final String URL_PROXIBASE_SERVICE_ASSETS_CATEGORIES    = serviceUrl() + "/assets/img/categories/";
 
 	public static final String  PLACE_SUGGEST_PROVIDER      = "google";
 	public static final Integer PLACE_SUGGEST_RADIUS        = 80000; // ~50 miles
@@ -74,5 +76,7 @@ public final class ServiceConstants {
 	public static final float SERVICE_STATUS_CODE_FORBIDDEN_VIA_API_ONLY       = 403.22f;
 	public static final float SERVICE_STATUS_CODE_FORBIDDEN_LIMIT_EXCEEDED     = 403.3f;
 
-	private ServiceConstants() {}
+	public static String serviceUrl() {
+		return (DEV_ENABLED && STAGING_ENABLED) ? URL_PROXIBASE_SERVICE_STAGING : URL_PROXIBASE_SERVICE;
+	}
 }

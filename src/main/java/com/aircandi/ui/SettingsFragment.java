@@ -272,9 +272,9 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 	private void enableDeveloper(Boolean enable) {
 		findPreference(StringManager.getString(R.string.pref_testing_screen)).setEnabled(enable);
-		findPreference(StringManager.getString(R.string.pref_enable_image_debug)).setEnabled(enable);
 		findPreference(StringManager.getString(R.string.pref_enable_location_high_accuracy)).setEnabled(enable);
 		findPreference(StringManager.getString(R.string.pref_tag_refresh)).setEnabled(enable);
+		findPreference(StringManager.getString(R.string.pref_use_staging_service)).setEnabled(enable);
 		DownloadManager.getInstance().setDebugging(enable);
 	}
 
