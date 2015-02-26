@@ -251,6 +251,7 @@ public class NotificationListFragment extends MessageListFragment {
 			UI.setVisibility(holder.photoViewBig, View.GONE);
 			if (notification.photoBig != null) {
 				if (holder.photoViewBig.getPhoto() == null || !notification.photoBig.getUri().equals(holder.photoViewBig.getPhoto().getUri())) {
+					holder.photoViewBig.setTag(notification.photoBig);
 					holder.photoViewBig.setCenterCrop(false);
 					UI.drawPhoto(holder.photoViewBig, notification.photoBig);
 				}
