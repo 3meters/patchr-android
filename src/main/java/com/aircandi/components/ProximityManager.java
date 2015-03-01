@@ -67,9 +67,7 @@ public class ProximityManager {
 	private static final String         MockBssid               = "00:00:00:00:00:00";
 
 	private ProximityManager() {
-		if (!Patchr.usingEmulator) {
-			mWifiManager = (WifiManager) Patchr.applicationContext.getSystemService(Context.WIFI_SERVICE);
-		}
+		mWifiManager = (WifiManager) Patchr.applicationContext.getSystemService(Context.WIFI_SERVICE);
 		mEntityCache = EntityManager.getEntityCache();
 		register();
 	}
@@ -116,7 +114,6 @@ public class ProximityManager {
 				ServiceResponse serviceResponse = updateProximity(event.wifiList);
 				return serviceResponse;
 			}
-
 		}.execute();
 	}
 
@@ -133,82 +130,68 @@ public class ProximityManager {
 
 		synchronized (mWifiList) {
 
-			if (!Patchr.usingEmulator) {
+			Patchr.applicationContext.registerReceiver(new BroadcastReceiver() {
 
-				Patchr.applicationContext.registerReceiver(new BroadcastReceiver() {
+				@Override
+				public void onReceive(Context context, Intent intent) {
 
-					@Override
-					public void onReceive(Context context, Intent intent) {
-
-						Patchr.applicationContext.unregisterReceiver(this);
-						Patchr.stopwatch1.segmentTime("Wifi scan received from system: reason = " + reason.toString());
-						Logger.v(ProximityManager.this, "Received wifi scan results for " + reason.name());
+					Patchr.applicationContext.unregisterReceiver(this);
+					Patchr.stopwatch1.segmentTime("Wifi scan received from system: reason = " + reason.toString());
+					Logger.v(ProximityManager.this, "Received wifi scan results for " + reason.name());
 
 						/* get the latest scan results */
-						mWifiList.clear();
+					mWifiList.clear();
 
-						for (ScanResult scanResult : mWifiManager.getScanResults()) {
+					for (ScanResult scanResult : mWifiManager.getScanResults()) {
 							/*
 							 * Dev/test could trigger a mock access point and we filter for it
 							 * just to prevent confusion. We add our own below if emulator is active.
 							 */
-							if (!scanResult.BSSID.equals(MockBssid)) {
-								mWifiList.add(new WifiScanResult(scanResult));
-							}
-						}
-
-						final String testingBeacons = Patchr.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
-
-						if (!ListPreferenceMultiSelect.contains("natural", testingBeacons, null)) {
-							mWifiList.clear();
-						}
-
-						if (ListPreferenceMultiSelect.contains("massena_upper", testingBeacons, null)) {
-							mWifiList.add(mWifiMassenaUpper);
-						}
-
-						if (ListPreferenceMultiSelect.contains("massena_lower", testingBeacons, null)) {
-							mWifiList.add(mWifiMassenaLower);
-						}
-
-						if (ListPreferenceMultiSelect.contains("massena_lower_strong", testingBeacons, null)) {
-							mWifiList.add(mWifiMassenaLowerStrong);
-						}
-
-						if (ListPreferenceMultiSelect.contains("massena_lower_weak", testingBeacons, null)) {
-							mWifiList.add(mWifiMassenaLowerWeak);
-						}
-
-						if (ListPreferenceMultiSelect.contains("empty", testingBeacons, null)) {
-							mWifiList.add(mWifiEmpty);
-						}
-
-						Collections.sort(mWifiList, new WifiScanResult.SortWifiBySignalLevel());
-
-						mLastWifiUpdate = DateTime.nowDate();
-						if (reason == ScanReason.MONITORING) {
-							BusProvider.getInstance().post(new MonitoringWifiScanReceivedEvent(mWifiList));
-						}
-						else if (reason == ScanReason.QUERY) {
-							BusProvider.getInstance().post(new QueryWifiScanReceivedEvent(mWifiList));
+						if (!scanResult.BSSID.equals(MockBssid)) {
+							mWifiList.add(new WifiScanResult(scanResult));
 						}
 					}
-				}, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
-				Reporting.updateCrashKeys();
-				mWifiManager.startScan();
-			}
-			else {
-				mWifiList.clear();
-				Logger.d(ProximityManager.this, "Emulator enabled so using dummy scan results");
-				mWifiList.add(mWifiMassenaUpper);
-				if (reason == ScanReason.MONITORING) {
-					BusProvider.getInstance().post(new MonitoringWifiScanReceivedEvent(mWifiList));
+					final String testingBeacons = Patchr.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
+
+					if (!ListPreferenceMultiSelect.contains("natural", testingBeacons, null)) {
+						mWifiList.clear();
+					}
+
+					if (ListPreferenceMultiSelect.contains("massena_upper", testingBeacons, null)) {
+						mWifiList.add(mWifiMassenaUpper);
+					}
+
+					if (ListPreferenceMultiSelect.contains("massena_lower", testingBeacons, null)) {
+						mWifiList.add(mWifiMassenaLower);
+					}
+
+					if (ListPreferenceMultiSelect.contains("massena_lower_strong", testingBeacons, null)) {
+						mWifiList.add(mWifiMassenaLowerStrong);
+					}
+
+					if (ListPreferenceMultiSelect.contains("massena_lower_weak", testingBeacons, null)) {
+						mWifiList.add(mWifiMassenaLowerWeak);
+					}
+
+					if (ListPreferenceMultiSelect.contains("empty", testingBeacons, null)) {
+						mWifiList.add(mWifiEmpty);
+					}
+
+					Collections.sort(mWifiList, new WifiScanResult.SortWifiBySignalLevel());
+
+					mLastWifiUpdate = DateTime.nowDate();
+					if (reason == ScanReason.MONITORING) {
+						BusProvider.getInstance().post(new MonitoringWifiScanReceivedEvent(mWifiList));
+					}
+					else if (reason == ScanReason.QUERY) {
+						BusProvider.getInstance().post(new QueryWifiScanReceivedEvent(mWifiList));
+					}
 				}
-				else if (reason == ScanReason.QUERY) {
-					BusProvider.getInstance().post(new QueryWifiScanReceivedEvent(mWifiList));
-				}
-			}
+			}, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+			Reporting.updateCrashKeys();
+			mWifiManager.startScan();
 		}
 	}
 
@@ -290,7 +273,6 @@ public class ProximityManager {
 			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
 			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 			return serviceResponse;
-
 		}
 
 		/* Add current registrationId */
@@ -520,5 +502,4 @@ public class ProximityManager {
 		MOVE_MEASURED,
 		BEACONS_STALE
 	}
-
 }

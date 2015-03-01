@@ -208,8 +208,8 @@ public class NearbyListFragment extends EntityListFragment {
 
 							@Override
 							protected Object doInBackground(Object... params) {
-								Logger.d(getActivity(), "Location changed event: getting places near location");
 								Thread.currentThread().setName("AsyncGetPlacesNearLocation");
+								Logger.d(getActivity(), "Location changed event: getting places near location");
 								Patchr.stopwatch2.start("location_processing", "Location processing: get places near location");
 								ServiceResponse serviceResponse = ProximityManager.getInstance().getEntitiesNearLocation(location);
 								return serviceResponse;

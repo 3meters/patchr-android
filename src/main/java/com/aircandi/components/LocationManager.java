@@ -325,31 +325,25 @@ public class LocationManager implements
 		/* We set our version of location at the same time */
 
 		AirLocation location = new AirLocation();
-		if (Patchr.usingEmulator) {
-			location = new AirLocation(47.616245, -122.201645); // earls
-			location.provider = "emulator_lucky";
-		}
-		else {
-			location.lat = mLocationLocked.getLatitude();
-			location.lng = mLocationLocked.getLongitude();
+		location.lat = mLocationLocked.getLatitude();
+		location.lng = mLocationLocked.getLongitude();
 
-			if (mLocationLocked.hasAltitude()) {
-				location.altitude = mLocationLocked.getAltitude();
-			}
-			if (mLocationLocked.hasAccuracy()) {
-						/* In meters. */
-				location.accuracy = mLocationLocked.getAccuracy();
-			}
-			if (mLocationLocked.hasBearing()) {
-						/* Direction of travel in degrees East of true North. */
-				location.bearing = mLocationLocked.getBearing();
-			}
-			if (mLocationLocked.hasSpeed()) {
-						/* Speed of the device over ground in meters/second. */
-				location.speed = mLocationLocked.getSpeed();
-			}
-			location.provider = mLocationLocked.getProvider();
+		if (mLocationLocked.hasAltitude()) {
+			location.altitude = mLocationLocked.getAltitude();
 		}
+		if (mLocationLocked.hasAccuracy()) {
+						/* In meters. */
+			location.accuracy = mLocationLocked.getAccuracy();
+		}
+		if (mLocationLocked.hasBearing()) {
+						/* Direction of travel in degrees East of true North. */
+			location.bearing = mLocationLocked.getBearing();
+		}
+		if (mLocationLocked.hasSpeed()) {
+						/* Speed of the device over ground in meters/second. */
+			location.speed = mLocationLocked.getSpeed();
+		}
+		location.provider = mLocationLocked.getProvider();
 		mAirLocationLocked = location;  // Only place this is being set
 	}
 

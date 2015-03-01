@@ -102,8 +102,6 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	public static Boolean                        debug                     = false;
 	@NonNull
-	public static Boolean                        usingEmulator             = false;
-	@NonNull
 	public static Integer                        wifiCount                 = 0;
 	@NonNull
 	public static Boolean                        applicationUpdateRequired = false;
@@ -214,10 +212,6 @@ public class Patchr extends MultiDexApplication {
 
 		/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
 		snapshotPreferences();
-
-		if (Build.PRODUCT.contains("sdk")) {
-			usingEmulator = true;
-		}
 
 		/* Establish device memory class */
 		memoryClass = Utilities.maxMemoryMB();

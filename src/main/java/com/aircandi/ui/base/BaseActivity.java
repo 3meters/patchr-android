@@ -93,7 +93,6 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected String   mPrevFragmentTag;
 
 	/* Inputs */
-	//protected Extras  mExtras         = new Extras();
 	protected Integer mTransitionType = TransitionType.FORM_TO;
 
 	/* Resources */
