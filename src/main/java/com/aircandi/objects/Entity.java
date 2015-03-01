@@ -299,12 +299,15 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			Link strongestLink = null;
 			Integer strongestLevel = -200;
 			for (Link link : linksOut) {
-				if (link.type.equals(type) && link.toSchema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
+				if (link.type.equals(type)) {
 					if (link.proximity != null && link.proximity.primary != null && link.proximity.primary) {
-						Beacon beacon = (Beacon) EntityManager.getEntityCache().get(link.toId);
-						if (beacon != null && beacon.signal.intValue() > strongestLevel) {
-							strongestLink = link;
-							strongestLevel = beacon.signal.intValue();
+						Entity entity = EntityManager.getEntityCache().get(link.toId);
+						if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
+							Beacon beacon = (Beacon) entity;
+							if (beacon.signal.intValue() > strongestLevel) {
+								strongestLink = link;
+								strongestLevel = beacon.signal.intValue();
+							}
 						}
 					}
 				}
@@ -312,11 +315,14 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 			if (strongestLink == null && !primaryOnly) {
 				for (Link link : linksOut) {
-					if (link.type.equals(type) && link.toSchema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
-						Beacon beacon = (Beacon) EntityManager.getEntityCache().get(link.toId);
-						if (beacon != null && beacon.signal.intValue() > strongestLevel) {
-							strongestLink = link;
-							strongestLevel = beacon.signal.intValue();
+					if (link.type.equals(type)) {
+						Entity entity = EntityManager.getEntityCache().get(link.toId);
+						if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
+							Beacon beacon = (Beacon) entity;
+							if (beacon.signal.intValue() > strongestLevel) {
+								strongestLink = link;
+								strongestLevel = beacon.signal.intValue();
+							}
 						}
 					}
 				}
@@ -549,7 +555,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 							if (settings.linkBroken
 									|| (!settings.linkBroken && (link.shortcut.validatedDate == null || link.shortcut.validatedDate.longValue() != -1))) {
 								/*
-						         * Must clone or the groups added below will cause circular references
+							     * Must clone or the groups added below will cause circular references
 								 * that choke serializing to json.
 								 */
 								Shortcut shortcut = link.shortcut.clone();
