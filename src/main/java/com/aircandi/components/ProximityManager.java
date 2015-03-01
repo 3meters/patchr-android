@@ -284,7 +284,7 @@ public class ProximityManager {
 			mLastBeaconLoadDate = DateTime.nowDate().getTime();
 
 			/* All cached patch entities that qualify based on current distance pref setting */
-			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null /* proximity not required */);
+			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPatches(null /* proximity not required */);
 			Patchr.stopwatch1.segmentTime("Entities for beacons: no beacons to process - exiting");
 
 			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
@@ -312,7 +312,7 @@ public class ProximityManager {
 			mLastBeaconLoadDate = ((ServiceData) serviceResponse.data).date.longValue();
 
 			/* All cached patch entities that qualify based on current distance pref setting */
-			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null /* proximity not required */);
+			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPatches(null /* proximity not required */);
 			Patchr.stopwatch1.segmentTime("Entities for beacons: objects processed");
 			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
 			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
@@ -338,7 +338,7 @@ public class ProximityManager {
 		 * that get returned.
 		 */
 		final List<String> excludePlaceIds = new ArrayList<String>();
-		for (Entity entity : Patchr.getInstance().getEntityManager().getPlaces(true /* proximity required */)) {
+		for (Entity entity : Patchr.getInstance().getEntityManager().getPatches(true /* proximity required */)) {
 			Patch place = (Patch) entity;
 			excludePlaceIds.add(place.id);
 		}
