@@ -391,7 +391,7 @@ public class PatchEdit extends BaseEntityEdit {
 	public void onTuneButtonClick(View view) {
 		if (!mTuned) {
 			mUntuning = false;
-			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning);
+			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, PatchEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()) {
 				mTuningInProcess = true;
 				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
@@ -405,7 +405,7 @@ public class PatchEdit extends BaseEntityEdit {
 	public void onUntuneButtonClick(View view) {
 		if (!mUntuned) {
 			mUntuning = true;
-			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning);
+			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, PatchEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()) {
 				mTuningInProcess = true;
 				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);

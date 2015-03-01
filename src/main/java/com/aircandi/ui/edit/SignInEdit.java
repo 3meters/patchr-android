@@ -126,7 +126,7 @@ public class SignInEdit extends BaseEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in, SignInEdit.this);
 			}
 
 			@Override

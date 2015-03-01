@@ -109,7 +109,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_sending);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_sending, FeedbackEdit.this);
 			}
 
 			@Override

@@ -5,7 +5,6 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -49,7 +48,6 @@ import com.aircandi.objects.User;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
@@ -223,7 +221,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 								if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 									Patchr.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
-									final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null /* proximity not required */);
+									final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPatches(null /* proximity not required */);
 									BusProvider.getInstance().post(new PatchesNearLocationFinishedEvent()); // Just tracking
 									BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
 									BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));

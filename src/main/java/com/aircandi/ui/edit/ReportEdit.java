@@ -132,7 +132,7 @@ public class ReportEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_sending);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_sending, ReportEdit.this);
 			}
 
 			@Override

@@ -364,7 +364,7 @@ public abstract class BaseActivity extends ActionBarActivity
 
 					@Override
 					protected void onPreExecute() {
-						mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_out);
+						mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_out, BaseActivity.this);
 					}
 
 					@Override
@@ -467,7 +467,7 @@ public abstract class BaseActivity extends ActionBarActivity
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mDeleteProgressResId);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mDeleteProgressResId, BaseActivity.this);
 			}
 
 			@Override
@@ -510,7 +510,7 @@ public abstract class BaseActivity extends ActionBarActivity
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mRemoveProgressResId);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mRemoveProgressResId, BaseActivity.this);
 			}
 
 			@Override

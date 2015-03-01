@@ -50,11 +50,11 @@ public class BusyController implements IBusy {
 
 	@Override
 	public void show(final BusyAction busyAction) {
-		show(busyAction, null);
+		show(busyAction, null, null);
 	}
 
 	@Override
-	public void show(final BusyAction busyAction, final Object message) {
+	public void show(final BusyAction busyAction, final Object message, final Context context) {
 
 		/*
 		 * Make sure there are no pending busys waiting.
@@ -104,7 +104,7 @@ public class BusyController implements IBusy {
 						 * Making a service call and showing a message
 						 */
 						if (message != null) {
-							final ProgressDialog progressDialog = getProgressDialog(Patchr.applicationContext);
+							final ProgressDialog progressDialog = getProgressDialog(context);
 							if (message instanceof Integer) {
 								progressDialog.setMessage(StringManager.getString((Integer) message));
 							}

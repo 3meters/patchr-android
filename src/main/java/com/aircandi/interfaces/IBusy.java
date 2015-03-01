@@ -6,7 +6,7 @@ public interface IBusy {
 
 	public void show(BusyAction busyAction);
 
-	public void show(BusyAction busyAction, Object message);
+	public void show(BusyAction busyAction, Object message, Context context);
 
 	public void showProgressDialog(Context context);
 

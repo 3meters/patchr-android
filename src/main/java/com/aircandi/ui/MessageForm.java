@@ -48,7 +48,6 @@ import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.EntityListFragment.Highlight;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseEntityForm;
-import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.components.ListController;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.EntityView;
@@ -759,7 +758,7 @@ public class MessageForm extends BaseEntityForm {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mDeleteProgressResId);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mDeleteProgressResId, MessageForm.this);
 			}
 
 			@Override

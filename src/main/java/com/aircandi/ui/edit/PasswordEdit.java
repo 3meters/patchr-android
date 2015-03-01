@@ -73,7 +73,7 @@ public class PasswordEdit extends BaseEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_changing_password);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
 			}
 
 			@Override

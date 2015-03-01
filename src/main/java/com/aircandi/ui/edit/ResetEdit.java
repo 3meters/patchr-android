@@ -148,7 +148,7 @@ public class ResetEdit extends BaseEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_reset_verify);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
 				UI.hideSoftInput(mEmail);
 			}
 
@@ -215,7 +215,7 @@ public class ResetEdit extends BaseEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in, ResetEdit.this);
 			}
 
 			@Override
