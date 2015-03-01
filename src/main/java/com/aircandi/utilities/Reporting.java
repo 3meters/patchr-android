@@ -19,8 +19,6 @@ import com.google.android.gms.analytics.HitBuilders;
 
 import java.util.Locale;
 
-import io.fabric.sdk.android.Fabric;
-
 public class Reporting {
 
 	public static void updateCrashKeys() {

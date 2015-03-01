@@ -23,36 +23,6 @@
 			android:layout_centerHorizontal="true"
 			android:background="?attr/backgroundCardField" />
 
-		<include
-			android:id="@+id/empty_view"
-			layout="@layout/include_empty_view" />
-
-		<RelativeLayout
-			android:id="@+id/floating_action_button"
-			style="@style/button_round_glow"
-			android:layout_width="@dimen/button_round_medium"
-			android:layout_height="@dimen/button_round_medium"
-			android:clickable="true"
-			android:onClick="onAddMessageButtonClick"
-			android:visibility="invisible"
-			tools:visibility="visible">
-
-			<ImageView
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:layout_margin="8dp"
-				android:background="@drawable/bg_round_accent" />
-
-			<ImageView
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:padding="26dp"
-				android:scaleType="fitCenter"
-				android:src="?attr/iconMessage"
-				android:tint="@color/white" />
-
-		</RelativeLayout>
-
 	</RelativeLayout>
 
 </LinearLayout>

@@ -77,8 +77,9 @@ public class NearbyListFragment extends EntityListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
-		if (view == null) return null;
-		draw(view);
+		if (view != null) {
+			draw(view);
+		}
 		return view;
 	}
 
@@ -191,7 +192,7 @@ public class NearbyListFragment extends EntityListFragment {
 				mCacheStamp = Patchr.getInstance().getEntityManager().getCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent());
+					BusProvider.getInstance().post(new ProcessingFinishedEvent(NetworkManager.ResponseCode.SUCCESS));
 				}
 				else {
 
@@ -220,10 +221,10 @@ public class NearbyListFragment extends EntityListFragment {
 
 								if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 									Patchr.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
-									final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPlaces(null /* proximity not required */);
+									final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPatches(null /* proximity not required */);
 									BusProvider.getInstance().post(new PatchesNearLocationFinishedEvent()); // Just tracking
 									BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
-									BusProvider.getInstance().post(new ProcessingFinishedEvent());
+									BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 								}
 								else {
 									onError();
@@ -233,7 +234,7 @@ public class NearbyListFragment extends EntityListFragment {
 						}.execute();
 					}
 					else {
-						BusProvider.getInstance().post(new ProcessingFinishedEvent());
+						BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 					}
 				}
 			}
@@ -274,7 +275,7 @@ public class NearbyListFragment extends EntityListFragment {
 				mAdapter.notifyDataSetChanged();
 
 				if (entities.size() >= 2) {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent());
+					BusProvider.getInstance().post(new ProcessingFinishedEvent(NetworkManager.ResponseCode.SUCCESS));
 				}
 
 				if (event.source.equals("onLocationChanged")) {
@@ -304,7 +305,7 @@ public class NearbyListFragment extends EntityListFragment {
 		 */
 		Logger.d(this, "Starting refresh");
 		if (LocationManager.getInstance().isLocationAccessEnabled()) {
-			mBusy.show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
+			mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
 			LocationManager.getInstance().requestLocationUpdates(getActivity());  // Location triggers sequence
 		}
 		else {
@@ -315,11 +316,11 @@ public class NearbyListFragment extends EntityListFragment {
 				UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
 			}
 			if (NetworkManager.getInstance().isWifiEnabled()) {
-				mBusy.show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
+				mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
 				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);         // Still try proximity
 			}
 			else {
-				BusProvider.getInstance().post(new ProcessingFinishedEvent());
+				BusProvider.getInstance().post(new ProcessingFinishedEvent(NetworkManager.ResponseCode.SUCCESS));
 			}
 		}
 	}
@@ -333,7 +334,7 @@ public class NearbyListFragment extends EntityListFragment {
 	@Override
 	public void onError() {
 		/* Kill busy */
-		BusProvider.getInstance().post(new ProcessingFinishedEvent());
+		BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.FAILED));
 	}
 
 	@Override
@@ -396,8 +397,8 @@ public class NearbyListFragment extends EntityListFragment {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
-				mEmptyController.fadeOut();
+				mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
+				mListController.getMessageController().fadeOut();
 				Reporting.updateCrashKeys();
 				if (Patchr.getInstance().getPrefEnableDev()) {
 					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
@@ -458,7 +459,7 @@ public class NearbyListFragment extends EntityListFragment {
 		}
 
 		/* Kill busy */
-		mBusy.hide(false);
+		mListController.getBusyController().hide(false);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -486,7 +487,7 @@ public class NearbyListFragment extends EntityListFragment {
 					searchForPatches();
 				}
 				else {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent());
+					BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 				}
 			}
 		}
@@ -495,7 +496,7 @@ public class NearbyListFragment extends EntityListFragment {
 		@SuppressWarnings({"ucd"})
 		public void onBurstTimeout(final BurstTimeoutEvent event) {
 
-			BusProvider.getInstance().post(new ProcessingFinishedEvent());
+			BusProvider.getInstance().post(new ProcessingFinishedEvent(NetworkManager.ResponseCode.SUCCESS));
 
 			/* We only show toast if we timeout without getting any location fix */
 			if (LocationManager.getInstance().getLocationLocked() == null) {

@@ -2,17 +2,16 @@ package com.aircandi.ui.components;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
-import com.aircandi.components.StringManager;
+import com.aircandi.utilities.UI;
 
 public class FloatingActionController {
+
 	private View mView;
 	private Boolean mEnabled = true;
 	private Boolean mLocked  = false;
@@ -22,25 +21,12 @@ public class FloatingActionController {
 	private ObjectAnimator mSlideInAnim  = ObjectAnimator.ofFloat(null, "translationY", 0);
 	private ObjectAnimator mSlideOutAnim = ObjectAnimator.ofFloat(null, "translationY", 0);
 
+	public FloatingActionController() {}
+
 	public FloatingActionController(View view) {
 		mView = view;
 		if (view != null) {
 			mFabIcon = (ImageView) view.findViewById(R.id.fab_image);
-		}
-	}
-
-	public void click() {
-		if (!mEnabled) {
-			throw new RuntimeException("Cannot call click while not enabled");
-		}
-		if (mView != null) {
-			mView.performClick();
-		}
-	}
-
-	public void show(final Boolean visible) {
-		if (mView != null) {
-			mView.setVisibility(visible ? View.VISIBLE : View.GONE);
 		}
 	}
 
@@ -89,15 +75,15 @@ public class FloatingActionController {
 		anim.start();
 	}
 
-	public void slideOut(Integer duration) {
-			/*
-			 * Skips if locked, sliding or already hidden.
-			 */
+	public void slideOut(@NonNull Integer duration) {
+		/*
+		 * Skips if locked, sliding or already hidden.
+		 */
 		if (mLocked || mSliding || mHidden || mView == null) return;
 
 		mSliding = true;
 		mSlideOutAnim.setTarget(mView);
-		mSlideOutAnim.setFloatValues(mView.getHeight());
+		mSlideOutAnim.setFloatValues(mView.getHeight() + UI.getRawPixelsForDisplayPixels(30f));
 		mSlideOutAnim.setDuration(duration);
 		mSlideOutAnim.addListener(new SimpleAnimationListener() {
 			@Override
@@ -111,7 +97,7 @@ public class FloatingActionController {
 		mSlideOutAnim.start();
 	}
 
-	public void slideIn(Integer duration, Integer delay) {
+	public void slideIn(@NonNull Integer duration, @NonNull Integer delay) {
 		/*
 		 * Skips if locked, sliding or not hidden.
 		 */
@@ -129,14 +115,24 @@ public class FloatingActionController {
 				mSliding = false;
 			}
 		});
-		if (delay > 0) {
-			mSlideInAnim.setStartDelay(delay);
-		}
 
+		mSlideInAnim.setStartDelay(delay);
 		mSlideInAnim.start();
 	}
 
-	public void setEnabled(Boolean enabled) {
+	public View getView() {
+		return mView;
+	}
+
+	public Boolean isEnabled() {
+		return mEnabled;
+	}
+
+	public Boolean isLocked() {
+		return mLocked;
+	}
+
+	public FloatingActionController setEnabled(Boolean enabled) {
 		if (!enabled) {
 			fadeOut();
 		}
@@ -144,55 +140,19 @@ public class FloatingActionController {
 			fadeIn();
 		}
 		mEnabled = enabled;
+		return this;
 	}
 
-	public Boolean isEnabled() {
-		return mEnabled;
-	}
-
-	public void setLocked(Boolean locked) {
+	public FloatingActionController setLocked(Boolean locked) {
 		mLocked = locked;
+		return this;
 	}
 
-	public Boolean isLocked() {
-		return mLocked;
-	}
-
-	public void setTag(Object tag) {
-		if (!mEnabled) {
-			throw new RuntimeException("Cannot call setTag while not enabled");
+	public FloatingActionController setView(View view) {
+		mView = view;
+		if (view != null) {
+			mFabIcon = (ImageView) view.findViewById(R.id.fab_image);
 		}
-		if (mView != null) {
-			mView.setTag(tag);
-		}
-	}
-
-	public void setText(int labelResId) {
-		String label = StringManager.getString(labelResId);
-		setText(label);
-	}
-
-	public void setText(String label) {
-		if (!mEnabled) {
-			throw new RuntimeException("Cannot call setText while not enabled");
-		}
-		if (mView != null) {
-			if (!(mView instanceof TextView)) {
-				throw new RuntimeException("Cannot call setText if not a TextView");
-			}
-			((TextView) mView).setText(label);
-		}
-	}
-
-	public void setIcon(Integer drawableResId) {
-		if (mFabIcon != null) {
-			mFabIcon.setImageDrawable(Patchr.applicationContext.getResources().getDrawable(drawableResId));
-		}
-	}
-
-	public void setIcon(Drawable drawable) {
-		if (mFabIcon != null) {
-			mFabIcon.setImageDrawable(drawable);
-		}
+		return this;
 	}
 }

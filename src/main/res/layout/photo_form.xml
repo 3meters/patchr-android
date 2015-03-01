@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical">
@@ -48,9 +48,25 @@
 				custom:layoutId="@layout/widget_user_view_text_only_dark" />
 		</LinearLayout>
 
-		<include
-			android:id="@+id/empty_view"
-			layout="@layout/include_empty_view" />
+		<com.aircandi.ui.widgets.SquareButton
+			android:id="@+id/form_message"
+			style="@style/list_message"
+			android:layout_width="@dimen/button_round_width"
+			android:layout_height="@dimen/button_round_height"
+			android:layout_centerInParent="true"
+			android:visibility="gone"
+			tools:text="@string/label_radar_empty"
+			tools:visibility="visible" />
+
+		<android.support.v4.widget.ContentLoadingProgressBar
+			android:id="@+id/form_progress"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="@dimen/progress_width"
+			android:layout_height="@dimen/progress_height"
+			android:layout_centerInParent="true"
+			android:padding="8dp"
+			android:visibility="gone"
+			tools:visibility="visible" />
 	</RelativeLayout>
 
 </LinearLayout>

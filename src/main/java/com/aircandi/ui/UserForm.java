@@ -24,7 +24,6 @@ import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseEntityForm;
-import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
@@ -45,7 +44,6 @@ public class UserForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mEmptyView.setEnabled(false);
 		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
 		mLinkProfile = currentUser ? LinkProfile.LINKS_FOR_USER_CURRENT : LinkProfile.LINKS_FOR_USER;
 		mCurrentFragment = new MessageListFragment();
@@ -77,9 +75,9 @@ public class UserForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingFinished(ProcessingFinishedEvent event) {
-		mBusy.hide(false);
-		((BaseFragment) mCurrentFragment).onProcessingFinished();
+	public void onProcessingFinished(final ProcessingFinishedEvent event) {
+		mUiController.getBusyController().hide(false);
+		((EntityListFragment) mCurrentFragment).onProcessingFinished(event);
 	}
 
 	public void onMoreButtonClick(View view) {

@@ -12,20 +12,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 import android.widget.ScrollView;
 
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
-import com.aircandi.components.BusyManager;
 import com.aircandi.components.Logger;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IForm;
 import com.aircandi.objects.Entity;
 import com.aircandi.ui.AircandiForm;
-import com.aircandi.ui.components.EmptyController;
 import com.aircandi.ui.components.EntitySuggestController;
 import com.aircandi.ui.widgets.AirAutoCompleteTextView;
 import com.aircandi.utilities.DateTime;
@@ -53,23 +50,18 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	 * - onDetach
 	 */
 
-	public    Entity      mEntity;
-	protected Resources   mResources;
-	protected BusyManager mBusy;
-	protected String      mGroupTag;
+	public    Entity    mEntity;
+	protected Resources mResources;
+	protected String    mGroupTag;
 	protected Boolean mIsVisible          = false;
 	protected Boolean mFeed               = false;
 	protected Boolean mSelfBindingEnabled = true;
-
-	protected Boolean mLoaded      = false; // Used to control busy feedback
-	protected Integer mScrollState = OnScrollListener.SCROLL_STATE_IDLE;
+	protected Boolean mNotEmpty           = false; // Used to control busy feedback
 
 	private AirAutoCompleteTextView mTo;
 	private View                    mToImage;
 	private View                    mToProgress;
 	private EntitySuggestController mEntitySuggest;
-
-	protected EmptyController mEmptyController;
 
 	/* Resources */
 	protected Integer mTitleResId;
@@ -84,9 +76,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		/* Called when the fragment has been associated with the activity. */
 		super.onAttach(activity);
 		Logger.d(this, "Fragment attached");
-		if (mBusy == null) {
-			mBusy = ((BaseActivity) getActivity()).getBusy();
-		}
 	}
 
 	@Override
@@ -108,9 +97,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		if (getActivity() == null || getActivity().isFinishing()) return null;
 
 		final View view = inflater.inflate(getLayoutId(), container, false);
-
-		mEmptyController = ((BaseActivity) getActivity()).getEmptyController();
-
 		return view;
 	}
 
@@ -154,10 +140,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		bind(BindingMode.MANUAL); // Called from Routing
 	}
 
-	public void onProcessingFinished() {
-		mBusy.hide(false);
-	}
-
 	@Override
 	public void onAdd(Bundle extras) {}
 
@@ -184,8 +166,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {}
-
-	protected void preBind() {}
 
 	@Override
 	public void bind(BindingMode mode) {}
@@ -219,23 +199,11 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	@Override
 	public void share() {}
 
-	protected void resume() {
-		if (getActivity() != null && getActivity() instanceof AircandiForm) {
-			((AircandiForm) getActivity()).updateNotificationIndicator(false);
-		}
-	}
-
-	protected void pause() {
-		if (mBusy != null) {
-			mBusy.onPause();
-		}
-	}
-
-	protected void start(){
+	protected void start() {
 		BusProvider.getInstance().register(this);
 	}
 
-	protected void stop(){
+	protected void stop() {
 		BusProvider.getInstance().unregister(this);
 	}
 
@@ -276,10 +244,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 
 	protected int getLayoutId() {
 		return 0;
-	}
-
-	public Integer getScrollState() {
-		return mScrollState;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -354,7 +318,9 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	@Override
 	public void onResume() {
 		Logger.d(this, "Fragment resume");
-		resume();
+		if (getActivity() != null && getActivity() instanceof AircandiForm) {
+			((AircandiForm) getActivity()).updateNotificationIndicator(false);
+		}
 		super.onResume();
 	}
 
@@ -365,7 +331,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		 * because they might not come back.
 		 */
 		Logger.d(this, "Fragment pause");
-		pause();
 		super.onPause();
 	}
 

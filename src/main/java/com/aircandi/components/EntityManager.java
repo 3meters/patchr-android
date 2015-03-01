@@ -1543,20 +1543,20 @@ public class EntityManager {
 	 * Cache queries
 	 *--------------------------------------------------------------------------------------------*/
 
-	public List<? extends Entity> getPlaces(Boolean proximity) {
+	public List<? extends Entity> getPatches(Boolean proximity) {
 
 		Integer searchRangeMeters = ServiceConstants.PATCH_NEAR_RADIUS;
 
-		List<Patch> places = (List<Patch>) EntityManager.getEntityCache().getCacheEntities(
+		List<Patch> patches = (List<Patch>) EntityManager.getEntityCache().getCacheEntities(
 				Constants.SCHEMA_ENTITY_PATCH,
 				Constants.TYPE_ANY,
 				searchRangeMeters,
 				proximity);
 
-		Collections.sort(places, new Patch.SortByProximityAndDistance());
+		Collections.sort(patches, new Patch.SortByProximityAndDistance());
 		Number limit = Patchr.applicationContext.getResources().getInteger(R.integer.limit_places_radar);
 
-		return (places.size() > limit.intValue()) ? places.subList(0, limit.intValue()) : places;
+		return (patches.size() > limit.intValue()) ? patches.subList(0, limit.intValue()) : patches;
 	}
 
 	/*--------------------------------------------------------------------------------------------

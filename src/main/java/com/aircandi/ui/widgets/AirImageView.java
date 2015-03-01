@@ -223,9 +223,8 @@ public class AirImageView extends FrameLayout implements Target {
 		}
 		else {
 			/* Just passes through if image debug dev setting is off */
-			Bitmap bitmap = DownloadManager.decorate(inBitmap, loadedFrom);
-			DownloadManager.logBitmap(this, bitmap, mImageMain);
-			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
+			DownloadManager.logBitmap(this, inBitmap, mImageMain);
+			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), inBitmap);
 			UI.showDrawableInImageView(bitmapDrawable, mImageMain, true);
 			showMissing(false);
 			if (mShowBusy) {

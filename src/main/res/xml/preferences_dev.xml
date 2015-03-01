@@ -33,15 +33,15 @@
 			android:id="@+id/Pref_Location_High_Accuracy"
 			android:defaultValue="false"
 			android:key="pref_enable_location_high_accuracy"
-			android:summary="Turns on high accuracy location processing"
+			android:summary="Turn on high accuracy location processing"
 			android:title="Location accuracy" />
 
 		<CheckBoxPreference
-			android:id="@+id/Pref_Enable_Image_Debug"
+			android:id="@+id/Pref_Use_Staging_Service"
 			android:defaultValue="false"
-			android:key="pref_enable_image_debug"
-			android:summary="Turns on image debugging features"
-			android:title="Enable image debugging features" />
+			android:key="pref_use_staging_service"
+			android:summary="Redirect to staging service instead of production (restart required)."
+			android:title="Use staging service" />
 
 		<Preference
 			android:id="@+id/Pref_Tag_Refresh"

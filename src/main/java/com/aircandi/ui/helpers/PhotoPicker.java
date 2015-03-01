@@ -191,7 +191,7 @@ public class PhotoPicker extends BaseActivity {
 			}
 		});
 
-			/* Autocomplete */
+		/* Autocomplete */
 		initAutoComplete();
 		bindAutoCompleteAdapter();
 		draw(null);
@@ -229,7 +229,7 @@ public class PhotoPicker extends BaseActivity {
 
 		/* Prep the UI */
 		mImages.clear();
-		mBusy.show(BusyAction.Refreshing_Empty);
+		mUiController.getBusyController().show(BusyAction.Refreshing_Empty);
 
 		/* Hide soft keyboard */
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -433,13 +433,13 @@ public class PhotoPicker extends BaseActivity {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mEmptyView.fadeOut();
+					mUiController.getMessageController().fadeOut();
 				}
 			});
 			ModelResult result = loadSearchImages(queryDecorated, PAGE_SIZE, mOffset, Constants.BING_IMAGE_BYTES_MAX, Constants.BING_IMAGE_DIMENSION_MAX);
 			ServiceData serviceData = (ServiceData) result.serviceResponse.data;
 
-			mBusy.hide(false);
+			mUiController.getBusyController().hide(false);
 			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 				mMoreImages = (ArrayList<ImageResult>) result.data;
@@ -450,8 +450,8 @@ public class PhotoPicker extends BaseActivity {
 
 							@Override
 							public void run() {
-								mEmptyView.setText(StringManager.getString(R.string.label_photo_picker_empty) + " " + mQuery);
-								mEmptyView.fadeIn();
+								mUiController.getMessageController().setMessage(StringManager.getString(R.string.label_photo_picker_empty) + " " + mQuery);
+								mUiController.getMessageController().fadeIn(Constants.TIME_ONE_SECOND);
 							}
 						});
 					}

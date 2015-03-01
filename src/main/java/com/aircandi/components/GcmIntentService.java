@@ -92,16 +92,17 @@ public class GcmIntentService extends IntentService {
 						 */
 						if (targetSchema != null) {
 							IEntityController controller = Patchr.getInstance().getControllerForSchema(targetSchema);
-							Extras bundle = new Extras().setForceRefresh(true);
-							bundle.getExtras().putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
-							bundle.getExtras().putString(Constants.EXTRA_NOTIFICATION_ID, notification.id);
+							Bundle extrasOut = new Bundle();
+							extrasOut.putBoolean(Constants.EXTRA_REFRESH_FROM_SERVICE, true);
+							extrasOut.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
+							extrasOut.putString(Constants.EXTRA_NOTIFICATION_ID, notification.id);
 							String parentId = (notification.parentId != null) ? notification.parentId : null;
 							notification.intent = controller.view(Patchr.applicationContext
 									, null
 									, notification.targetId
 									, parentId
 									, null
-									, bundle.getExtras()
+									, extrasOut
 									, false);
 						}
 

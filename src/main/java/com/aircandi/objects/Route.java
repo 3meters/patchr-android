@@ -39,8 +39,6 @@ public class Route {
 	public static int TUNE               = 39;
 	public static int TEST               = 41;
 	public static int ABOUT              = 43;
-	public static int ZOOM_IN            = 44;
-	public static int ZOOM_OUT           = 45;
 	public static int REFRESH            = 46;
 	public static int NEW_PLACE          = 47;
 	public static int SAVE_BEACON        = 48;

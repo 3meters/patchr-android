@@ -43,8 +43,6 @@ public class PlaceForm extends BaseEntityForm {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-
-		mEmptyView.setEnabled(false);
 		mLinkProfile = LinkProfile.NO_LINKS;
 	}
 
@@ -54,7 +52,7 @@ public class PlaceForm extends BaseEntityForm {
 
 	@Subscribe
 	public void onProcessingFinished(ProcessingFinishedEvent event) {
-		mBusy.hide(false);
+		mUiController.getBusyController().hide(false);
 	}
 
 	@SuppressWarnings("ucd")

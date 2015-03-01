@@ -47,7 +47,7 @@ public class MapForm extends BaseEntityForm {
 
 						@Override
 						protected void onPreExecute() {
-							mBusy.show(BusyAction.Refreshing_Empty);
+							mUiController.getBusyController().show(BusyAction.Refreshing_Empty);
 						}
 
 						@Override
@@ -62,7 +62,7 @@ public class MapForm extends BaseEntityForm {
 							if (isFinishing()) return;
 
 							final ModelResult result = (ModelResult) modelResult;
-							mBusy.hide(false);
+							mUiController.getBusyController().hide(false);
 
 							if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 

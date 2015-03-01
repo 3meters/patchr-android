@@ -348,7 +348,7 @@ public class PatchEdit extends BaseEntityEdit {
 					    /*
 					     * We fake that the tuning happened because it is simpler than enabling/disabling ui
 						 */
-						mBusy.hide(false);
+						mUiController.getBusyController().hide(false);
 						if (mUntuning) {
 							mButtonUntune.setText(R.string.button_tuning_tuned);
 							mUntuned = true;
@@ -391,7 +391,7 @@ public class PatchEdit extends BaseEntityEdit {
 	public void onTuneButtonClick(View view) {
 		if (!mTuned) {
 			mUntuning = false;
-			mBusy.show(BusyAction.ActionWithMessage, R.string.progress_tuning);
+			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, PatchEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()) {
 				mTuningInProcess = true;
 				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
@@ -405,7 +405,7 @@ public class PatchEdit extends BaseEntityEdit {
 	public void onUntuneButtonClick(View view) {
 		if (!mUntuned) {
 			mUntuning = true;
-			mBusy.show(BusyAction.ActionWithMessage, R.string.progress_tuning);
+			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, PatchEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()) {
 				mTuningInProcess = true;
 				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
@@ -520,7 +520,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 				@Override
 				protected void onPreExecute() {
-					mBusy.show(BusyAction.Update);
+					mUiController.getBusyController().show(BusyAction.Update);
 				}
 
 				@Override
@@ -712,7 +712,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.show(mLoaded ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
+				mUiController.getBusyController().show(mNotEmpty ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
 			}
 
 			@Override
@@ -729,7 +729,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPostExecute(Object response) {
-				mBusy.hide(false);
+				mUiController.getBusyController().hide(false);
 
 				if (mTuned || mUntuned) {
 				    /* Undoing a tuning */
@@ -773,7 +773,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.show(mLoaded ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
+				mUiController.getBusyController().show(mNotEmpty ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
 			}
 
 			@Override
@@ -785,7 +785,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPostExecute(Object response) {
-				mBusy.hide(false);
+				mUiController.getBusyController().hide(false);
 				UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
 				setResultCode(Activity.RESULT_OK);
 				finish();

@@ -73,7 +73,7 @@ public class PasswordEdit extends BaseEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.show(BusyAction.ActionWithMessage, R.string.progress_changing_password);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
 			}
 
 			@Override
@@ -90,7 +90,7 @@ public class PasswordEdit extends BaseEdit {
 			@Override
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
-				mBusy.hide(true);
+				mUiController.getBusyController().hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					Logger.i(this, "User changed password: "

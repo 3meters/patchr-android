@@ -313,16 +313,6 @@ public class DispatchManager {
 			((BaseActivity) activity).confirmRemove(extras.getString(Constants.EXTRA_ENTITY_PARENT_ID));    // Give activity a chance for remove confirmation
 		}
 
-		else if (route == Route.ZOOM_IN) {
-
-			((PhotoForm) activity).onZoomIn();
-		}
-
-		else if (route == Route.ZOOM_OUT) {
-
-			((PhotoForm) activity).onZoomOut();
-		}
-
 		else if (route == Route.VIEW_AS_LIST) {
 
 			Fragment fragment = ((AircandiForm) activity).getCurrentFragment();
@@ -340,14 +330,9 @@ public class DispatchManager {
 			((AircandiForm) activity).setCurrentFragment(Constants.FRAGMENT_TYPE_MAP);
 		}
 
-		else if (route == Route.ZOOM_OUT) {
-
-			((PhotoForm) activity).onZoomOut();
-		}
-
 		else if (route == Route.SIGNOUT) {
 
-			BaseActivity.signout(activity, false);
+			((BaseActivity) activity).signout();
 		}
 
 		else if (route == Route.SIGNIN) {
@@ -408,7 +393,7 @@ public class DispatchManager {
 			}
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, PrivacyBuilder.class);
 			final Intent intent = intentBuilder.create();
-			intent.putExtra(Constants.EXTRA_PRIVACY, ((Patch)entity).privacy);
+			intent.putExtra(Constants.EXTRA_PRIVACY, ((Patch) entity).privacy);
 
 			activity.startActivityForResult(intent, Constants.ACTIVITY_PRIVACY_EDIT);
 			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.BUILDER_TO);

@@ -1,6 +1,7 @@
 package com.aircandi.ui;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -10,7 +11,6 @@ import android.widget.TextView;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.Extras;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Patch;
@@ -28,13 +28,14 @@ public class UserListFragment extends EntityListFragment {
 
 	@Override
 	public void onClick(View v) {
+
 		final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
+		final Bundle extras = new Bundle();
 
-		Extras extras = new Extras()
-				.setEntitySchema(Constants.SCHEMA_ENTITY_USER)
-				.setEntityId(entity.id);
+		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_USER);
+		extras.putString(Constants.EXTRA_ENTITY_ID, entity.id);
 
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras.getExtras());
+		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
 	@Override

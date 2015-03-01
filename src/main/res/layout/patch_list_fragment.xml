@@ -1,25 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.aircandi.ui.widgets.AirSwipeRefreshLayout
-	android:id="@+id/swipe"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:layout_gravity="center_horizontal">
+<RelativeLayout
 
-	<com.aircandi.ui.widgets.AirListView
-		android:id="@+id/list"
-		xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<com.aircandi.ui.widgets.AirSwipeRefreshLayout
+		android:id="@+id/swipe"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_centerHorizontal="true"
-		android:animationCache="false"
-		android:background="?attr/backgroundCardField"
-		android:cacheColorHint="#00000000"
-		android:clipToPadding="false"
-		android:divider="@null"
-		android:paddingBottom="4dp"
-		android:paddingTop="4dp"
-		android:scrollbars="none"
-		android:scrollingCache="false" />
+		android:background="?attr/backgroundCardField">
 
-</com.aircandi.ui.widgets.AirSwipeRefreshLayout>
+		<com.aircandi.ui.widgets.AirListView
+			android:id="@+id/list"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_centerHorizontal="true"
+			android:animationCache="false"
+			android:background="?attr/backgroundCardField"
+			android:cacheColorHint="#00000000"
+			android:clipToPadding="false"
+			android:divider="@null"
+			android:paddingBottom="4dp"
+			android:paddingTop="4dp"
+			android:scrollbars="none"
+			android:scrollingCache="false" />
+
+	</com.aircandi.ui.widgets.AirSwipeRefreshLayout>
+
+	<com.aircandi.ui.widgets.SquareButton
+		android:id="@+id/list_message"
+		style="@style/list_message"
+		android:layout_width="@dimen/button_round_width"
+		android:layout_height="@dimen/button_round_height"
+		android:layout_centerInParent="true"
+		android:visibility="gone"
+		tools:text="@string/label_radar_empty"
+		tools:visibility="visible" />
+
+	<android.support.v4.widget.ContentLoadingProgressBar
+		android:id="@+id/list_progress"
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_width="@dimen/progress_width"
+		android:layout_height="@dimen/progress_height"
+		android:layout_centerInParent="true"
+		android:padding="8dp"
+		android:visibility="gone"
+		tools:visibility="visible" />
+
+</RelativeLayout>

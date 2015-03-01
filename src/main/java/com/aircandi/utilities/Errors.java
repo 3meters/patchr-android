@@ -80,8 +80,8 @@ public final class Errors {
 			Reporting.logException(serviceResponse.exception);
 		}
 
-		if (errorResponse.signout) {
-			BaseActivity.signout(activity, false);
+		if (errorResponse.signout && activity != null) {
+			((BaseActivity) activity).signout();
 		}
 		else if (errorResponse.splash) {
 			/*

@@ -299,7 +299,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			Link strongestLink = null;
 			Integer strongestLevel = -200;
 			for (Link link : linksOut) {
-				if (link.type.equals(type)) {
+				if (link.type.equals(type) && link.toSchema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
 					if (link.proximity != null && link.proximity.primary != null && link.proximity.primary) {
 						Beacon beacon = (Beacon) EntityManager.getEntityCache().get(link.toId);
 						if (beacon != null && beacon.signal.intValue() > strongestLevel) {
@@ -312,7 +312,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 			if (strongestLink == null && !primaryOnly) {
 				for (Link link : linksOut) {
-					if (link.type.equals(type)) {
+					if (link.type.equals(type) && link.toSchema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
 						Beacon beacon = (Beacon) EntityManager.getEntityCache().get(link.toId);
 						if (beacon != null && beacon.signal.intValue() > strongestLevel) {
 							strongestLink = link;

@@ -48,7 +48,7 @@ import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.EntityListFragment.Highlight;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseEntityForm;
-import com.aircandi.ui.base.BaseFragment;
+import com.aircandi.ui.components.ListController;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.ui.widgets.FlowLayout;
@@ -100,7 +100,6 @@ public class MessageForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mEmptyView.setEnabled(false);
 		mLinkProfile = LinkProfile.LINKS_FOR_MESSAGE;
 
 		mCurrentFragment = new MessageListFragment();
@@ -151,22 +150,22 @@ public class MessageForm extends BaseEntityForm {
 	}
 
 	@Subscribe
-	public void onProcessingFinished(ProcessingFinishedEvent event) {
+	public void onProcessingFinished(final ProcessingFinishedEvent event) {
 
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 
-				mBusy.hide(false);
-				((BaseFragment) mCurrentFragment).onProcessingFinished();
+				EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
+				fragment.onProcessingFinished(event);
+				ListController ls = fragment.getListController();
 
-				mEmptyView.fadeOut();
 				Boolean share = (mEntity != null && mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
 				if (share) {
-					mFab.fadeOut();
+					ls.getFloatingActionController().fadeOut();
 				}
 				else {
-					mFab.fadeIn();
+					ls.getFloatingActionController().fadeIn();
 				}
 			}
 		});
@@ -190,7 +189,7 @@ public class MessageForm extends BaseEntityForm {
 	}
 
 	@SuppressWarnings("ucd")
-	public void onReplyClick(View view) {
+	public void onFabButtonClick(View view) {
 		Bundle extras = new Bundle();
 
 		String rootId = mEntity.type.equals(MessageType.ROOT) ? mEntity.id : ((Message) mEntity).rootId;
@@ -759,7 +758,7 @@ public class MessageForm extends BaseEntityForm {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.show(BusyAction.ActionWithMessage, mDeleteProgressResId);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mDeleteProgressResId, MessageForm.this);
 			}
 
 			@Override
@@ -774,7 +773,7 @@ public class MessageForm extends BaseEntityForm {
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mBusy.hide(true);
+				mUiController.getBusyController().hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Logger.i(this, "Deleted entity: " + mEntity.id);
 					/*
