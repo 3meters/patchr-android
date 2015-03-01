@@ -2,18 +2,12 @@ package com.aircandi.components;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Point;
 import android.net.Uri;
 import android.view.View;
 
 import com.aircandi.Patchr;
-import com.aircandi.R;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Reporting;
-import com.aircandi.utilities.Type;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.Listener;
 

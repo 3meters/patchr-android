@@ -24,7 +24,6 @@ import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseEntityForm;
-import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;

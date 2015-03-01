@@ -2,16 +2,12 @@ package com.aircandi.ui.components;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
-import com.aircandi.components.StringManager;
 import com.aircandi.utilities.UI;
 
 public class FloatingActionController {
