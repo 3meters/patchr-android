@@ -1,8 +1,8 @@
-package com.aircandi.components;
+package com.aircandi.ui.components;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -13,7 +13,9 @@ import android.widget.ProgressBar;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
-import com.aircandi.R;
+import com.aircandi.components.BusProvider;
+import com.aircandi.components.Logger;
+import com.aircandi.components.StringManager;
 import com.aircandi.events.CancelEvent;
 import com.aircandi.events.ProgressEvent;
 import com.aircandi.interfaces.IBusy;
@@ -22,22 +24,19 @@ import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Reporting;
 import com.squareup.otto.Subscribe;
 
-public class BusyManager implements IBusy {
+public class BusyController implements IBusy {
 
-	private Activity           mActivity;
 	private Runnable           mRunnableHide;
 	private Runnable           mRunnableShow;
 	private Long               mBusyStartedTime;
 	private SwipeRefreshLayout mSwipeRefreshLayout;
 	private ProgressDialog     mProgressDialog;
 	private ProgressBar        mProgressBar;
+	private ProgressBar        mProgressBarToolbar;
 
 	@SuppressLint("ResourceAsColor")
-	public BusyManager(Activity activity) {
-		mActivity = activity;
-		mProgressBar = (ProgressBar) mActivity.findViewById(R.id.progress);
+	public BusyController() {
 		mRunnableHide = new Runnable() {
-
 			@Override
 			public void run() {
 				hide(false);
@@ -72,7 +71,7 @@ public class BusyManager implements IBusy {
 						/*
 						 * Initial data load for an activity/fragment.
 						 */
-						startBodyBusyIndicator();
+						startProgressBar();
 					}
 					else if (busyAction == BusyAction.Refreshing) {
 						/*
@@ -84,7 +83,7 @@ public class BusyManager implements IBusy {
 						/*
 						 * Scanning for places.
 						 */
-						startBodyBusyIndicator();
+						startProgressBar();
 					}
 					else if (busyAction == BusyAction.Scanning) {
 						/*
@@ -97,7 +96,7 @@ public class BusyManager implements IBusy {
 						 * Pushing an edit or insert to the server. We show progress dialog if a photo
 						 * update can be canceled.
 						 */
-						startBodyBusyIndicator();
+						startProgressBar();
 						startSwipeRefreshIndicator();
 					}
 					else if (busyAction == BusyAction.ActionWithMessage) {
@@ -105,7 +104,7 @@ public class BusyManager implements IBusy {
 						 * Making a service call and showing a message
 						 */
 						if (message != null) {
-							final ProgressDialog progressDialog = getProgressDialog();
+							final ProgressDialog progressDialog = getProgressDialog(Patchr.applicationContext);
 							if (message instanceof Integer) {
 								progressDialog.setMessage(StringManager.getString((Integer) message));
 							}
@@ -136,7 +135,8 @@ public class BusyManager implements IBusy {
 		Patchr.mainThreadHandler.postDelayed(mRunnableShow, (busyAction == BusyAction.Refreshing_Empty) ? Constants.INTERVAL_BUSY_DELAY : 0);
 	}
 
-	public void showProgressDialog() {
+	@Override
+	public void showProgressDialog(final Context context) {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
@@ -151,7 +151,7 @@ public class BusyManager implements IBusy {
 					/*
 					 * Making a service call and showing a message
 					 */
-					final ProgressDialog progressDialog = getProgressDialog();
+					final ProgressDialog progressDialog = getProgressDialog(context);
 
 					if (!progressDialog.isShowing()) {
 						progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -202,11 +202,12 @@ public class BusyManager implements IBusy {
 		/* Safe to call from any thread */
 		stopProgressDialog();
 
-		mActivity.runOnUiThread(new Runnable() {
+		Patchr.mainThreadHandler.post(new Runnable() {
 
 			@Override
 			public void run() {
-				stopBodyBusyIndicator();
+				stopProgressBar();
+				stopProgressBarToolbar();
 				stopSwipeRefreshIndicator();
 			}
 		});
@@ -220,13 +221,24 @@ public class BusyManager implements IBusy {
 		}
 	}
 
-	public void startBodyBusyIndicator() {
+	public void startProgressBar() {
 		if (mProgressBar != null) {
 			if (mProgressBar instanceof ContentLoadingProgressBar) {
 				((ContentLoadingProgressBar) mProgressBar).show();
 			}
 			else {
 				mProgressBar.setVisibility(View.VISIBLE);
+			}
+		}
+	}
+
+	public void startProgressBarToolbar() {
+		if (mProgressBarToolbar != null) {
+			if (mProgressBarToolbar instanceof ContentLoadingProgressBar) {
+				((ContentLoadingProgressBar) mProgressBarToolbar).show();
+			}
+			else {
+				mProgressBarToolbar.setVisibility(View.VISIBLE);
 			}
 		}
 	}
@@ -238,13 +250,24 @@ public class BusyManager implements IBusy {
 		}
 	}
 
-	public void stopBodyBusyIndicator() {
+	public void stopProgressBar() {
 		if (mProgressBar != null) {
 			if (mProgressBar instanceof ContentLoadingProgressBar) {
 				((ContentLoadingProgressBar) mProgressBar).hide();
 			}
 			else {
 				mProgressBar.setVisibility(View.GONE);
+			}
+		}
+	}
+
+	public void stopProgressBarToolbar() {
+		if (mProgressBarToolbar != null) {
+			if (mProgressBarToolbar instanceof ContentLoadingProgressBar) {
+				((ContentLoadingProgressBar) mProgressBarToolbar).hide();
+			}
+			else {
+				mProgressBarToolbar.setVisibility(View.GONE);
 			}
 		}
 	}
@@ -260,11 +283,10 @@ public class BusyManager implements IBusy {
 		Dialogs.dismiss(mProgressDialog);
 	}
 
-	private ProgressDialog getProgressDialog() {
+	private ProgressDialog getProgressDialog(Context context) {
 
 		if (mProgressDialog == null) {
-
-			mProgressDialog = new ProgressDialog(mActivity);
+			mProgressDialog = new ProgressDialog(context);
 			mProgressDialog.setIndeterminate(true);
 			mProgressDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 		}
@@ -276,15 +298,37 @@ public class BusyManager implements IBusy {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void setSwipeRefresh(SwipeRefreshLayout swipeRefreshLayout) {
-		mSwipeRefreshLayout = swipeRefreshLayout;
+	public BusyController setSwipeRefresh(View swipeRefreshLayout) {
+		if (swipeRefreshLayout != null && swipeRefreshLayout instanceof SwipeRefreshLayout) {
+			mSwipeRefreshLayout = (SwipeRefreshLayout) swipeRefreshLayout;
+		}
+		return this;
+	}
+
+	public BusyController setProgressBar(View progressBar) {
+		if (progressBar != null && progressBar instanceof ProgressBar) {
+			mProgressBar = (ProgressBar) progressBar;
+		}
+		return this;
+	}
+
+	public BusyController setProgressBarToolbar(View progressBar) {
+		if (progressBar != null && progressBar instanceof ProgressBar) {
+			mProgressBarToolbar = (ProgressBar) progressBar;
+		}
+		return this;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void onPause() {
+	public void resume() {
+		BusProvider.getInstance().register(this);
+	}
+
+	public void pause() {
+		BusProvider.getInstance().unregister(this);
 		hide(true);
 	}
 }

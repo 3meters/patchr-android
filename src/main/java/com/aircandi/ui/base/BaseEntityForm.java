@@ -163,7 +163,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.show(BusyAction.Refreshing_Empty);
+				mUiController.getBusyController().show(mNotEmpty ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
 			}
 
 			@Override
@@ -175,10 +175,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 				if (mEntityMonitor.isChanged()) {
 					refreshNeeded.set(true);
-				}
-
-				if (refreshNeeded.get() || mode == BindingMode.MANUAL) {
-					mBusy.show(mLoaded ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
 				}
 
 				if (refreshNeeded.get()) {
@@ -194,7 +190,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 				if (isFinishing()) return;
 
 				final ModelResult result = (ModelResult) modelResult;
-				mBusy.hide(false);
+				mUiController.getBusyController().hide(false);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (refreshNeeded.get()) {
 						if (result.data != null) {
@@ -217,7 +213,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 							draw(null);
 						}
 						else {
-							mBusy.hide(true);
+							mUiController.getBusyController().hide(true);
 							UI.showToastNotification("This item has been deleted", Toast.LENGTH_SHORT);
 							finish();
 						}
@@ -286,7 +282,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	public void afterDatabind(final BindingMode mode, ModelResult result) {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			mLoaded = true;
+			mNotEmpty = true;
 		}
 	}
 

@@ -17,49 +17,12 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<RelativeLayout
+		<FrameLayout
+			android:id="@+id/fragment_holder"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:background="?attr/backgroundCardField">
-
-			<FrameLayout
-				android:id="@+id/fragment_holder"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:layout_centerHorizontal="true" />
-
-			<include
-				android:id="@+id/empty_view"
-				layout="@layout/include_empty_view" />
-
-			<RelativeLayout
-				android:id="@+id/floating_action_button"
-				style="@style/button_round_glow"
-				android:layout_width="@dimen/button_round_medium"
-				android:layout_height="@dimen/button_round_medium"
-				android:clickable="true"
-				android:onClick="onFabButtonClick"
-				android:visibility="invisible"
-				tools:visibility="visible">
-
-				<ImageView
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:layout_margin="8dp"
-					android:background="@drawable/bg_round_accent" />
-
-				<ImageView
-					android:id="@+id/fab_image"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:padding="18dp"
-					android:scaleType="fitCenter"
-					android:src="?attr/iconAdd"
-					android:tint="@color/white" />
-
-			</RelativeLayout>
-
-		</RelativeLayout>
+			android:layout_centerHorizontal="true"
+			android:background="?attr/backgroundCardField" />
 
 		<!-- Navigation drawer -->
 
@@ -86,10 +49,6 @@
 				android:id="@+id/fragment_holder_notifications"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent" />
-
-			<include
-				android:id="@+id/empty_view_notifications"
-				layout="@layout/include_empty_view" />
 
 		</RelativeLayout>
 

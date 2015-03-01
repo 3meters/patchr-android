@@ -15,13 +15,11 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.BusProvider;
-import com.aircandi.components.BusyManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.events.NotificationEvent;
 import com.aircandi.events.ProcessingFinishedEvent;
-import com.aircandi.interfaces.IBusy;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Notification;
@@ -33,6 +31,7 @@ import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
+import com.aircandi.interfaces.IBusy.BusyAction;
 
 import java.util.List;
 import java.util.Map;
@@ -47,6 +46,16 @@ public class NotificationListFragment extends MessageListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
+
+		/* Change swipe colors */
+		if (view != null) {
+			SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe);
+			if (swipeRefresh != null) {
+				swipeRefresh.setColorSchemeColors(Colors.getColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorNotifications)));
+				swipeRefresh.setProgressBackgroundColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorBackgroundNotifications));
+			}
+		}
+
 		return view;
 	}
 
@@ -60,6 +69,7 @@ public class NotificationListFragment extends MessageListFragment {
 				if (mEntities.contains(event.notification)) {
 					mEntities.remove(event.notification);
 				}
+				mListController.getMessageController().fadeOut();
 				mAdapter.insert(event.notification, 0);
 				mAdapter.notifyDataSetChanged();
 			}
@@ -92,20 +102,6 @@ public class NotificationListFragment extends MessageListFragment {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
-	@SuppressLint("ResourceAsColor")
-	protected void bindBusy(View view) {
-
-		mBusy = new BusyManager(getActivity());
-		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_notifications);
-		if (swipeRefresh != null) {
-			swipeRefresh.setColorSchemeColors(Colors.getColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorNotifications)));
-			swipeRefresh.setProgressBackgroundColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorBackgroundNotifications));
-			swipeRefresh.setOnRefreshListener(this);
-			mBusy.setSwipeRefresh(swipeRefresh);
-		}
-	}
-
-	@Override
 	public void bind(final BindingMode mode) {
 		/*
 		 * Overriding bind because notifications have too many special cases.
@@ -113,7 +109,12 @@ public class NotificationListFragment extends MessageListFragment {
 		new AsyncTask() {
 
 			@Override
-			protected void onPreExecute() {}
+			protected void onPreExecute() {
+				if (mode != BindingMode.MANUAL) {
+					mListController.getMessageController().showMessage(false);
+				}
+				mListController.getBusyController().show((mode == BindingMode.MANUAL || mNotEmpty) ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
+			}
 
 			@Override
 			protected Object doInBackground(Object... params) {
@@ -128,7 +129,6 @@ public class NotificationListFragment extends MessageListFragment {
 				else if (mode == BindingMode.MANUAL
 						|| (mEntities != null && mEntities.size() == 0)
 						|| (mMonitor.isChanged() && mMonitor.activity)) {
-					mBusy.show(mLoaded ? IBusy.BusyAction.Refreshing : IBusy.BusyAction.Refreshing_Empty);
 
 					Integer limit = null;
 
@@ -169,12 +169,12 @@ public class NotificationListFragment extends MessageListFragment {
 						draw(null);
 					}
 
-					mLoaded = true;
+					mNotEmpty = (mAdapter != null && mAdapter.getCount() != 0);
 					mFirstBind = false;
-					BusProvider.getInstance().post(new ProcessingFinishedEvent());
+					BusProvider.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
 				}
 				else {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent());
+					BusProvider.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
 					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 			}

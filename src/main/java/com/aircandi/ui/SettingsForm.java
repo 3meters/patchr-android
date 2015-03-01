@@ -12,7 +12,6 @@ public class SettingsForm extends BaseActivity {
 
 	@Override
 	public void setCurrentFragment(String fragmentType) {
-		mCurrentFragment = new SettingsFragment();
 		getFragmentManager()
 				.beginTransaction()
 				.add(R.id.fragment_holder, mCurrentFragment)

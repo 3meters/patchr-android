@@ -32,10 +32,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AndroidManager;
-import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
-import com.aircandi.components.BusyManager;
-import com.aircandi.components.Extras;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -53,12 +50,11 @@ import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AircandiForm;
-import com.aircandi.ui.EntityListFragment;
 import com.aircandi.ui.MapListFragment;
 import com.aircandi.ui.PhotoForm;
-import com.aircandi.ui.components.EmptyController;
-import com.aircandi.ui.components.FloatingActionController;
-import com.aircandi.ui.widgets.AirListView;
+import com.aircandi.ui.components.BusyController;
+import com.aircandi.ui.components.MessageController;
+import com.aircandi.ui.components.UiController;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
@@ -68,12 +64,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class BaseActivity extends ActionBarActivity
-		implements OnRefreshListener, AirListView.OnDragListener, IForm, IBind {
+		implements OnRefreshListener, IForm, IBind {
 
-	protected EmptyController          mEmptyView;
-	protected FloatingActionController mFab;
-	private   Toolbar                  mActionBarToolbar;
-	protected Menu                     mOptionMenu;
+	private   Toolbar mActionBarToolbar;
+	protected Menu    mOptionMenu;
+	protected final UiController mUiController = new UiController();
 
 	protected View     mNotificationsBadgeGroup;
 	protected TextView mNotificationsBadgeCount;
@@ -98,7 +93,7 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected String   mPrevFragmentTag;
 
 	/* Inputs */
-	protected Extras  mParams         = new Extras();
+	//protected Extras  mExtras         = new Extras();
 	protected Integer mTransitionType = TransitionType.FORM_TO;
 
 	/* Resources */
@@ -112,12 +107,11 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected Boolean mPrefChangeRefreshUiNeeded = false;
 	protected Boolean mPrefChangeReloadNeeded    = false;
 
-	public Resources   mResources;
-	public BusyManager mBusy;
+	public Resources mResources;
 	public    Boolean mFirstDraw    = true;
 	protected Boolean mInvalidated  = false;
 	protected Boolean mClickEnabled = false;                        // NO_UCD (unused code)
-	protected Boolean mLoaded       = false;
+	protected Boolean mNotEmpty     = false;
 	protected Boolean mProcessing   = false;
 	protected Boolean mRestarting   = false;
 
@@ -197,14 +191,9 @@ public abstract class BaseActivity extends ActionBarActivity
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
-		/* Base Ui */
-		mBusy = new BusyManager(this);
-		mFab = new FloatingActionController(findViewById(R.id.floating_action_button));
-		View view = findViewById(R.id.empty_view);
-		if (view != null) {
-			mEmptyView = new EmptyController(view.findViewById(R.id.empty_message));
-			mEmptyView.show(false);
-		}
+		mUiController.setBusyController(new BusyController());
+		mUiController.getBusyController().setProgressBar(findViewById(R.id.form_progress));
+		mUiController.setMessageController(new MessageController(findViewById(R.id.form_message)));
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -217,21 +206,6 @@ public abstract class BaseActivity extends ActionBarActivity
 		 * views have been measured and sized.
 		 */
 		Logger.d(this, "Activity view layout completed");
-	}
-
-	public void onDragBottom() {
-		/* Getting twitchy behavior so disabling for now */
-		//handleFooter(true, AnimationManager.DURATION_MEDIUM);
-	}
-
-	public boolean onDragEvent(AirListView.DragEvent event, Float dragX, Float dragY) {
-		/*
-		 * Fired by list fragments.
-		 */
-		if (event == AirListView.DragEvent.DRAG) {
-			handleListDrag();
-		}
-		return false;
 	}
 
 	@SuppressWarnings("ucd")
@@ -381,22 +355,7 @@ public abstract class BaseActivity extends ActionBarActivity
 		return mActionBarToolbar;
 	}
 
-	public void handleListDrag() {
-		AirListView listView = (AirListView) ((EntityListFragment) mCurrentFragment).getListView();
-		AirListView.DragDirection direction = listView.getDragDirectionLast();
-		if (direction == AirListView.DragDirection.DOWN) {
-			mFab.slideIn(AnimationManager.DURATION_SHORT, 0);
-		}
-		else {
-			mFab.slideOut(AnimationManager.DURATION_SHORT);
-		}
-	}
-
-	public BusyManager getBusy() {
-		return mBusy;
-	}
-
-	public static void signout(final Activity activity, final Boolean silent) {
+	public void signout() {
 		Runnable task = new Runnable() {
 
 			@Override
@@ -405,9 +364,7 @@ public abstract class BaseActivity extends ActionBarActivity
 
 					@Override
 					protected void onPreExecute() {
-						if (!silent && activity instanceof BaseActivity) {
-							((BaseActivity) activity).mBusy.show(BusyAction.ActionWithMessage, R.string.progress_signing_out);
-						}
+						mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_out);
 					}
 
 					@Override
@@ -420,22 +377,16 @@ public abstract class BaseActivity extends ActionBarActivity
 					@SuppressLint("NewApi")
 					@Override
 					protected void onPostExecute(Object response) {
-						if (!silent) {
-							/* Notify interested parties */
-							UI.showToastNotification(StringManager.getString(R.string.alert_signed_out), Toast.LENGTH_SHORT);
-							if (activity instanceof BaseActivity) {
-								((BaseActivity) activity).mBusy.hide(false);
-							}
-							Patchr.dispatch.route(activity, Route.SPLASH, null, null);
-						}
+						/* Set to anonymous user even if service call fails */
+						UI.showToastNotification(StringManager.getString(R.string.alert_signed_out), Toast.LENGTH_SHORT);
+						mUiController.getBusyController().hide(false);
+						Patchr.dispatch.route(BaseActivity.this, Route.SPLASH, null, null);
 					}
 				}.execute();
 			}
 		};
 
-		if (!silent && activity != null) {
-			activity.runOnUiThread(task);
-		}
+		runOnUiThread(task);
 	}
 
 	public void confirmDelete() {
@@ -516,7 +467,7 @@ public abstract class BaseActivity extends ActionBarActivity
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.show(BusyAction.ActionWithMessage, mDeleteProgressResId);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mDeleteProgressResId);
 			}
 
 			@Override
@@ -530,7 +481,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mBusy.hide(true);
+				mUiController.getBusyController().hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Logger.i(this, "Deleted entity: " + mEntity.id);
 					/*
@@ -559,7 +510,7 @@ public abstract class BaseActivity extends ActionBarActivity
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.show(BusyAction.ActionWithMessage, mRemoveProgressResId);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mRemoveProgressResId);
 			}
 
 			@Override
@@ -575,7 +526,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mBusy.hide(true);
+				mUiController.getBusyController().hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Logger.i(this, "Removed entity: " + mEntity.id);
 					/*
@@ -710,10 +661,6 @@ public abstract class BaseActivity extends ActionBarActivity
 
 	public Fragment getCurrentFragment() {
 		return null;
-	}
-
-	public EmptyController getEmptyController() {
-		return mEmptyView;
 	}
 
 	public Boolean getRestarting() {
@@ -893,7 +840,6 @@ public abstract class BaseActivity extends ActionBarActivity
 		super.onResume();
 		Logger.d(this, "Activity resuming");
 		BusProvider.getInstance().register(this);
-		BusProvider.getInstance().register(mBusy);
 		Patchr.getInstance().setCurrentActivity(this);
 		mClickEnabled = true;
 		/*
@@ -902,11 +848,6 @@ public abstract class BaseActivity extends ActionBarActivity
 		 * refuses to install them. If play services can be fixed, then resume will be called again.
 		 */
 		AndroidManager.checkPlayServices(this);
-
-		/* Slides it in only if it is currently out. */
-		if (mFab != null) {
-			mFab.slideIn(AnimationManager.DURATION_SHORT, 500);
-		}
 	}
 
 	@Override
@@ -914,10 +855,6 @@ public abstract class BaseActivity extends ActionBarActivity
 		super.onPause();
 		Logger.d(this, "Activity pausing");
 		BusProvider.getInstance().unregister(this);
-		if (mBusy != null) {
-			BusProvider.getInstance().unregister(mBusy);
-			mBusy.onPause();
-		}
 		clearReferences();
 	}
 

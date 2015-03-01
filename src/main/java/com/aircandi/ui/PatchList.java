@@ -19,7 +19,9 @@ import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
 public class PatchList extends BaseActivity {
-
+	/*
+	 * Thin wrapper around a list fragment.
+	 */
 	protected String  mListLinkType;
 	protected Integer mListTitleResId;
 	protected Integer mListEmptyMessageResId;
@@ -84,23 +86,10 @@ public class PatchList extends BaseActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingFinished(ProcessingFinishedEvent event) {
-		mBusy.hide(false);
-
+	public void onProcessingFinished(final ProcessingFinishedEvent event) {
+		mUiController.getBusyController().hide(false);
 		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-		final Integer count = fragment.getAdapter().getCount();
-
-		((BaseFragment) mCurrentFragment).onProcessingFinished();
-
-		if (mEmptyView.isEnabled()) {
-			if (count == 0) {
-				mEmptyView.setText(fragment.getListEmptyMessageResId());
-				mEmptyView.fadeIn();
-			}
-			else {
-				mEmptyView.fadeOut();
-			}
-		}
+		fragment.onProcessingFinished(event);
 	}
 
 	@SuppressWarnings("ucd")

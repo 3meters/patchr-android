@@ -1,14 +1,13 @@
 package com.aircandi.ui;
 
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Bundle;
 import android.view.View;
-import android.widget.ViewAnimator;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
-import com.aircandi.components.Extras;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -22,36 +21,36 @@ import com.aircandi.utilities.UI;
 
 public class MessageListFragment extends EntityListFragment {
 
-	private ViewAnimator mHeaderViewAnimator;
-
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	public void onClick(View v) {
-		final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
 
-		Extras extras = new Extras().setEntitySchema(Constants.SCHEMA_ENTITY_MESSAGE);
-		Link link = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE);
+		final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
+		final Link link = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE);
+		final Bundle extras = new Bundle();
+
+		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+		extras.putString(Constants.EXTRA_ENTITY_FOR_ID, mQuery.getEntityId());
 		/*
 		 * We show replies as part of the parent message when the user is clicking from a list
 		 * that isn't showing the parent message.
 		 */
-		extras.setEntityForId(mQuery.getEntityId());
 		if (entity.type.equals(MessageType.REPLY)
 				&& link != null
 				&& (((BaseActivity) getActivity()).getEntity() == null
 				|| !((BaseActivity) getActivity()).getEntity().id.equals(link.toId))) {
-			extras.setEntityChildId(entity.id);
-			extras.setEntityId(link.toId);
+			extras.putString(Constants.EXTRA_ENTITY_CHILD_ID, entity.id);
+			extras.putString(Constants.EXTRA_ENTITY_ID, link.toId);
 		}
 		else {
-			extras.setEntityId(entity.id);
+			extras.putString(Constants.EXTRA_ENTITY_ID, entity.id);
 		}
 
-		extras.getExtras().putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras.getExtras());
+		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
 	/*--------------------------------------------------------------------------------------------

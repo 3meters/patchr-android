@@ -148,7 +148,7 @@ public class ResetEdit extends BaseEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.show(BusyAction.ActionWithMessage, R.string.progress_reset_verify);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_reset_verify);
 				UI.hideSoftInput(mEmail);
 			}
 
@@ -165,7 +165,7 @@ public class ResetEdit extends BaseEdit {
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mBusy.hide(false);
+				mUiController.getBusyController().hide(false);
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 					mEmailConfirmed = false;
 					if (result.serviceResponse.statusCode == HttpStatus.SC_NOT_FOUND) {
@@ -215,7 +215,7 @@ public class ResetEdit extends BaseEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mBusy.show(BusyAction.ActionWithMessage, R.string.progress_signing_in);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in);
 			}
 
 			@Override
@@ -231,7 +231,7 @@ public class ResetEdit extends BaseEdit {
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mBusy.hide(true);
+				mUiController.getBusyController().hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in)
 							+ " " + Patchr.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);

@@ -51,6 +51,7 @@ import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.components.CircleTransform;
+import com.aircandi.ui.components.ListController;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
@@ -113,11 +114,8 @@ public class PatchForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mEmptyView.setEnabled(false);
-
 		/* Default fragment */
 		mNextFragmentTag = Constants.FRAGMENT_TYPE_MESSAGES;
-
 		mLinkProfile = LinkProfile.LINKS_FOR_PATCH;
 	}
 
@@ -125,51 +123,28 @@ public class PatchForm extends BaseEntityForm {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onViewLayout() {
-		/*
-		 * Position bubble button initially allowing for the
-		 * list header height.
-		 */
-		View header = ((EntityListFragment) mCurrentFragment).getHeaderView();
-		if (header != null) {
-			mEmptyView.position(header, null);
-		}
-	}
-
 	@Subscribe
-	public void onProcessingFinished(ProcessingFinishedEvent event) {
+	public void onProcessingFinished(final ProcessingFinishedEvent event) {
 
 		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-		final Integer count = fragment.getAdapter().getCount();
 
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 
-				mBusy.hide(false);
-				((BaseFragment) mCurrentFragment).onProcessingFinished();
+				fragment.onProcessingFinished(event);
 				/*
 				 * Non-members can't add messages to private patches.
 				 */
 				Patch patch = (Patch) mEntity;
+				ListController ls = ((EntityListFragment) mCurrentFragment).getListController();
 				if (patch != null && patch.privacy != null
 						&& patch.privacy.equals(Constants.PRIVACY_PRIVATE)
 						&& !patch.isVisibleToCurrentUser()) {
-					mFab.fadeOut();
+					ls.getFloatingActionController().fadeOut();
 				}
 				else {
-					mFab.fadeIn();
-				}
-
-				if (mEmptyView.isEnabled()) {
-					if (count == 0) {
-						mEmptyView.setText(fragment.getListEmptyMessageResId());
-						mEmptyView.fadeIn();
-					}
-					else {
-						mEmptyView.fadeOut();
-					}
+					ls.getFloatingActionController().fadeIn();
 				}
 			}
 		});
@@ -328,7 +303,7 @@ public class PatchForm extends BaseEntityForm {
 	public void onBubbleButton(BubbleButtonEvent event) {}
 
 	@SuppressWarnings("ucd")
-	public void onAddMessageButtonClick(View view) {
+	public void onFabButtonClick(View view) {
 		if (!mClickEnabled) return;
 		if (mEntity != null) {
 			mClickEnabled = false;
@@ -382,7 +357,8 @@ public class PatchForm extends BaseEntityForm {
 				/* Pass the projected header height */
 				final DisplayMetrics metrics = getResources().getDisplayMetrics();
 				int screenWidth = (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) ? metrics.widthPixels : metrics.heightPixels;
-				mEmptyView.position(header, (int) (screenWidth * typedValue.getFloat()));
+				ListController ls = ((EntityListFragment) mCurrentFragment).getListController();
+				ls.getMessageController().position(header, (int) (screenWidth * typedValue.getFloat()));
 			}
 		}
 	}
@@ -634,10 +610,16 @@ public class PatchForm extends BaseEntityForm {
 			}
 		}
 
-		Patch place = (Patch) mEntity;
+		Patch patch = (Patch) mEntity;
 
 		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
 		UI.setVisibility(alertGroup, View.GONE);
+
+		Boolean isPublic = (patch != null
+				&& patch.privacy != null
+				&& patch.privacy.equals(Constants.PRIVACY_PUBLIC)
+				&& patch.isVisibleToCurrentUser());
+
 		if (alertGroup != null) {
 
 			TextView buttonAlert = (TextView) view.findViewById(R.id.button_alert);
@@ -647,7 +629,7 @@ public class PatchForm extends BaseEntityForm {
 
 			/* Owner */
 
-			if (place.ownerId != null && place.ownerId.equals(Patchr.getInstance().getCurrentUser().id)) {
+			if (patch.ownerId != null && patch.ownerId.equals(Patchr.getInstance().getCurrentUser().id)) {
 				/*
 				 * - Member requests then alert to handle
 				 * - No messages then alert to invite
@@ -678,68 +660,92 @@ public class PatchForm extends BaseEntityForm {
 			/* Members and non-members */
 
 			else {
-				if (mWatchStatus == WatchStatus.REQUESTED) {
-					buttonAlert.setText(R.string.button_list_watch_request_cancel);
-					buttonAlert.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View view) {
-							onWatchButtonClick(view);
-						}
-					});
-					UI.setVisibility(alertGroup, View.VISIBLE);
-				}
-				else if (mWatchStatus == WatchStatus.NONE) {
-					buttonAlert.setText(R.string.button_list_watch_request);
-					buttonAlert.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View view) {
-							onWatchButtonClick(view);
-						}
-					});
-					UI.setVisibility(alertGroup, View.VISIBLE);
-				}
-				else if (mJustApproved) {
-					if (messaged) {
-						buttonAlert.setText(StringManager.getString(R.string.button_just_approved));
+				if (isPublic) {
+					if (!messaged) {
+						buttonAlert.setText(StringManager.getString(R.string.button_no_message));
 						buttonAlert.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View view) {
-								mJustApproved = false;
+								onFabButtonClick(view);
+							}
+						});
+						UI.setVisibility(alertGroup, View.VISIBLE);
+					}
+					else {
+						buttonAlert.setText(StringManager.getString(R.string.button_list_share));
+						buttonAlert.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View view) {
 								onShareButtonClick(view);
 							}
 						});
+						UI.setVisibility(alertGroup, View.VISIBLE);
 					}
-					else {
-						buttonAlert.setText(StringManager.getString(R.string.button_just_approved_no_message));
+				}
+				else {
+					if (mWatchStatus == WatchStatus.REQUESTED) {
+						buttonAlert.setText(R.string.button_list_watch_request_cancel);
 						buttonAlert.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View view) {
-								mJustApproved = false;
-								onAddMessageButtonClick(view);
+								onWatchButtonClick(view);
 							}
 						});
+						UI.setVisibility(alertGroup, View.VISIBLE);
 					}
-					UI.setVisibility(alertGroup, View.VISIBLE);
-				}
-				else if (!messaged) {
-					buttonAlert.setText(StringManager.getString(R.string.button_no_message));
-					buttonAlert.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View view) {
-							onAddMessageButtonClick(view);
+					else if (mWatchStatus == WatchStatus.NONE) {
+						buttonAlert.setText(R.string.button_list_watch_request);
+						buttonAlert.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View view) {
+								onWatchButtonClick(view);
+							}
+						});
+						UI.setVisibility(alertGroup, View.VISIBLE);
+					}
+					else if (mJustApproved) {
+						if (messaged) {
+							buttonAlert.setText(StringManager.getString(R.string.button_just_approved));
+							buttonAlert.setOnClickListener(new View.OnClickListener() {
+								@Override
+								public void onClick(View view) {
+									mJustApproved = false;
+									onShareButtonClick(view);
+								}
+							});
 						}
-					});
-					UI.setVisibility(alertGroup, View.VISIBLE);
-				}
-				else {
-					buttonAlert.setText(StringManager.getString(R.string.button_list_share));
-					buttonAlert.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View view) {
-							onShareButtonClick(view);
+						else {
+							buttonAlert.setText(StringManager.getString(R.string.button_just_approved_no_message));
+							buttonAlert.setOnClickListener(new View.OnClickListener() {
+								@Override
+								public void onClick(View view) {
+									mJustApproved = false;
+									onFabButtonClick(view);
+								}
+							});
 						}
-					});
-					UI.setVisibility(alertGroup, View.VISIBLE);
+						UI.setVisibility(alertGroup, View.VISIBLE);
+					}
+					else if (!messaged) {
+						buttonAlert.setText(StringManager.getString(R.string.button_no_message));
+						buttonAlert.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View view) {
+								onFabButtonClick(view);
+							}
+						});
+						UI.setVisibility(alertGroup, View.VISIBLE);
+					}
+					else {
+						buttonAlert.setText(StringManager.getString(R.string.button_list_share));
+						buttonAlert.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View view) {
+								onShareButtonClick(view);
+							}
+						});
+						UI.setVisibility(alertGroup, View.VISIBLE);
+					}
 				}
 			}
 		}
@@ -768,7 +774,6 @@ public class PatchForm extends BaseEntityForm {
 					.setQuery(query)
 					.setHeaderViewResId(R.layout.widget_list_header_patch)
 					.setFooterViewResId(R.layout.widget_list_footer_message)
-					.setListEmptyMessageResId(R.string.button_list_share)
 					.setListItemResId(R.layout.temp_listitem_message)
 					.setListLayoutResId(R.layout.message_list_patch_fragment)
 					.setListLoadingResId(R.layout.temp_listitem_loading)
@@ -796,6 +801,7 @@ public class PatchForm extends BaseEntityForm {
 		mCurrentFragmentTag = fragmentType;
 	}
 
+	@Override
 	public void configureActionBar() {
 		super.configureActionBar();
 		if (getSupportActionBar() != null) {

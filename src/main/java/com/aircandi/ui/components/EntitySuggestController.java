@@ -62,6 +62,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	private ArrayAdapter mAdapter;
 	private Context      mContext;
 	private AbsListView  mListView;
+	private UiController mUiController;
 
 	private EditText   mSearchInput;
 	private SearchView mSearchView;
@@ -237,6 +238,12 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		return this;
 	}
 
+	@NonNull
+	public EntitySuggestController setUiController(UiController uiController) {
+		mUiController = uiController;
+		return this;
+	}
+
 	public SearchView getSearchView() {
 		return mSearchView;
 	}
@@ -390,6 +397,15 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 					mSuggestInProgress = true;
 					if (chars != null && chars.length() > 0) {
 
+						if (mUiController != null) {
+							Patchr.mainThreadHandler.post(new Runnable() {
+								@Override
+								public void run() {
+									mUiController.getBusyController().startProgressBar();
+								}
+							});
+						}
+
 						if (mSearchProgress != null) {
 							mSearchInput.post(new Runnable() {
 								@Override
@@ -436,6 +452,15 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			    /*
 			     * Called on UI thread.
                  */
+				if (mUiController != null) {
+					Patchr.mainThreadHandler.post(new Runnable() {
+						@Override
+						public void run() {
+							mUiController.getBusyController().stopProgressBar();
+						}
+					});
+				}
+
 				if (mSearchProgress != null) {
 					mSearchInput.post(new Runnable() {
 						@Override

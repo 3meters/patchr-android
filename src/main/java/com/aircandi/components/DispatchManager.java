@@ -332,7 +332,7 @@ public class DispatchManager {
 
 		else if (route == Route.SIGNOUT) {
 
-			BaseActivity.signout(activity, false);
+			((BaseActivity) activity).signout();
 		}
 
 		else if (route == Route.SIGNIN) {
@@ -393,7 +393,7 @@ public class DispatchManager {
 			}
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, PrivacyBuilder.class);
 			final Intent intent = intentBuilder.create();
-			intent.putExtra(Constants.EXTRA_PRIVACY, ((Patch)entity).privacy);
+			intent.putExtra(Constants.EXTRA_PRIVACY, ((Patch) entity).privacy);
 
 			activity.startActivityForResult(intent, Constants.ACTIVITY_PRIVACY_EDIT);
 			Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.BUILDER_TO);

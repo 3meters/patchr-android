@@ -1,7 +1,6 @@
 package com.aircandi.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,13 +26,10 @@ import android.widget.ListView;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.BusyManager;
 import com.aircandi.components.ContainerManager;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.StringManager;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.Route;
-import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.widgets.ListPreferenceMultiSelect;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
@@ -42,16 +38,7 @@ import com.aircandi.utilities.UI;
 @SuppressWarnings("deprecation")
 public class SettingsFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
 
-	protected BusyManager   mBusy;
 	protected ColorDrawable mDivider; // NO_UCD (unused code)
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		if (mBusy == null) {
-			mBusy = ((BaseActivity) getActivity()).getBusy();
-		}
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -223,7 +210,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 						Patchr.dispatch.route(getActivity(), Route.SIGNIN, null, null);
 					}
 					else {
-						mBusy.show(BusyAction.ActionWithMessage, R.string.progress_signing_out);
 						Patchr.dispatch.route(getActivity(), Route.SIGNOUT, null, null);
 					}
 					return true;
@@ -325,12 +311,11 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		}
 	}
 
-	/**
-	 * Sets up the action bar for an {@link PreferenceScreen}
-	 */
 	@SuppressLint("NewApi")
 	public void configureScreen(PreferenceScreen preferenceScreen) {
-
+		/*
+		 * Sets up the action bar for an {@link PreferenceScreen}
+		 */
 		final Dialog dialog = preferenceScreen.getDialog();
 
 		if (dialog != null) {

@@ -39,7 +39,7 @@ import com.aircandi.queries.TrendQuery;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseFragment;
-import com.aircandi.ui.components.EmptyController;
+import com.aircandi.ui.components.ListController;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
@@ -53,8 +53,7 @@ public class AircandiForm extends BaseActivity {
 	protected Number  mPauseDate;
 	protected Boolean mConfiguredForAnonymous;
 
-	protected Fragment        mFragmentNotifications;
-	protected EmptyController mDrawerEmptyController;
+	protected Fragment mFragmentNotifications;
 
 	protected Boolean mFinishOnClose   = false;
 	protected Boolean mLeftDrawerOpen  = false;
@@ -88,7 +87,6 @@ public class AircandiForm extends BaseActivity {
 
 		mDrawerLeft = findViewById(R.id.left_drawer);
 		mDrawerRight = findViewById(R.id.right_drawer);
-		mDrawerEmptyController = new EmptyController(findViewById(R.id.empty_view_notifications).findViewById(R.id.empty_message));
 
 		/* Check if the device is tethered */
 		tetherAlert();
@@ -138,7 +136,7 @@ public class AircandiForm extends BaseActivity {
 	}
 
 	@Subscribe
-	public void onProcessingFinished(ProcessingFinishedEvent event) {
+	public void onProcessingFinished(final ProcessingFinishedEvent event) {
 		/*
 		 * Can be called from ui or background thread.
 		 */
@@ -147,47 +145,26 @@ public class AircandiForm extends BaseActivity {
 			@Override
 			public void run() {
 
-				mBusy.hide(false);
 				/*
 				 * Notification list
 				 */
-				final EntityListFragment fragmentNotifications = (EntityListFragment) mFragmentNotifications;
 				if (mDrawerLayout.isDrawerOpen(mDrawerRight)) {
-					final Integer countNotifications = fragmentNotifications.getAdapter().getCount();
-					fragmentNotifications.onProcessingFinished();
-					if (mDrawerEmptyController.isEnabled()) {
-						if (countNotifications == 0) {
-							mDrawerEmptyController.setText(fragmentNotifications.getListEmptyMessageResId());
-							mDrawerEmptyController.fadeIn();
-						}
-						else {
-							mDrawerEmptyController.fadeOut();
-						}
-					}
+					((EntityListFragment) mFragmentNotifications).onProcessingFinished(event);
 				}
 				/*
 				 * Current list fragment
 				 */
 				if (mCurrentFragment instanceof EntityListFragment) {
-					final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-					final Integer count = fragment.getAdapter().getCount();
-
-					((BaseFragment) mCurrentFragment).onProcessingFinished();
-
-					if (mEmptyView.isEnabled()) {
-						if (count == 0) {
-							mEmptyView.setText(fragment.getListEmptyMessageResId());
-							mEmptyView.fadeIn();
-						}
-						else {
-							mEmptyView.fadeOut();
-						}
-					}
+					((EntityListFragment) mCurrentFragment).onProcessingFinished(event);
 
 					if (mCurrentFragment instanceof NearbyListFragment) {
-						if (!NetworkManager.getInstance().isWifiEnabled()
-								&& !LocationManager.getInstance().isLocationAccessEnabled()) {
-							mFab.fadeOut();
+						Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled() || LocationManager.getInstance().isLocationAccessEnabled());
+						ListController ls = ((EntityListFragment) mCurrentFragment).getListController();
+						if (proximityCapable) {
+							ls.getFloatingActionController().fadeIn();
+						}
+						else {
+							ls.getFloatingActionController().fadeOut();
 						}
 					}
 				}
@@ -265,7 +242,6 @@ public class AircandiForm extends BaseActivity {
 				if (mCurrentFragment != null && mCurrentFragment instanceof BaseFragment) {
 					((BaseFragment) mCurrentFragment).bind(BindingMode.AUTO);
 				}
-				mDrawerEmptyController.fadeOut();
 				updateNotificationIndicator(false);
 			}
 		});
@@ -297,7 +273,9 @@ public class AircandiForm extends BaseActivity {
 
 			if (fragmentType.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
 
-				fragment = new NearbyListFragment()
+				fragment = new NearbyListFragment();
+
+				((EntityListFragment) fragment)
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.nearby_fragment)
 						.setListItemResId(R.layout.temp_listitem_nearby)
@@ -474,11 +452,17 @@ public class AircandiForm extends BaseActivity {
 				((MapListFragment) fragment).setZoomLevel(MapManager.ZOOM_SCALE_COUNTY);
 			}
 
-			mFab.fadeOut();
+			ListController ls = ((EntityListFragment) mCurrentFragment).getListController();
+			if (ls != null) {
+				ls.getFloatingActionController().fadeOut();
+			}
 		}
 
 		if (fragment instanceof EntityListFragment) {
-			mFab.fadeIn();
+			ListController ls = ((EntityListFragment) fragment).getListController();
+			if (ls != null) {
+				ls.getFloatingActionController().fadeIn();
+			}
 		}
 
 		FragmentTransaction ft = getFragmentManager().beginTransaction();

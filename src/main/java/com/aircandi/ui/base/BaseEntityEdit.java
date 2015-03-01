@@ -522,10 +522,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			@Override
 			protected void onPreExecute() {
 				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
-					mBusy.showProgressDialog();
+					mUiController.getBusyController().showProgressDialog(BaseEntityEdit.this);
 				}
 				else {
-					mBusy.show(BusyAction.Update);
+					mUiController.getBusyController().show(BusyAction.Update);
 				}
 			}
 
@@ -606,7 +606,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
-				mBusy.hide(true);
+				mUiController.getBusyController().hide(true);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Entity insertedEntity = (Entity) result.data;
@@ -625,7 +625,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				 * - During service calls assuming okhttp catches the interrupt.
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
-				mBusy.hide(true);
+				mUiController.getBusyController().hide(true);
 				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
 			}
 
@@ -661,10 +661,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			@Override
 			protected void onPreExecute() {
 				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
-					mBusy.showProgressDialog();
+					mUiController.getBusyController().showProgressDialog(BaseEntityEdit.this);
 				}
 				else {
-					mBusy.show(BusyAction.Update);
+					mUiController.getBusyController().show(BusyAction.Update);
 				}
 			}
 
@@ -715,7 +715,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					if (isCancelled()) return null;
 
 					/* Don't allow cancel if we made it this far */
-					mBusy.hide(true);
+					mUiController.getBusyController().hide(true);
 
 					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
@@ -750,7 +750,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				 * - During service calls assuming okhttp catches the interrupt.
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
-				mBusy.hide(true);
+				mUiController.getBusyController().hide(true);
 				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
 			}
 

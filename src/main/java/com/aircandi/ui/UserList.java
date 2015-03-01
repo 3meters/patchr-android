@@ -34,7 +34,9 @@ import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
 public class UserList extends BaseActivity {
-
+	/*
+	 * Thin wrapper around a list fragment.
+	 */
 	protected String  mListLinkType;
 	protected Integer mListTitleResId;
 	protected Integer mListItemResId;
@@ -58,13 +60,6 @@ public class UserList extends BaseActivity {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-
-		mEmptyView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				onShareButtonClick(view);
-			}
-		});
 
 		mCurrentFragment = new UserListFragment();
 		EntityMonitor monitor = new EntityMonitor(mEntityId);
@@ -106,24 +101,9 @@ public class UserList extends BaseActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingFinished(ProcessingFinishedEvent event) {
-
-		mBusy.hide(false);
-
+	public void onProcessingFinished(final ProcessingFinishedEvent event) {
 		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-		final Integer count = fragment.getAdapter().getCount();
-
-		((BaseFragment) mCurrentFragment).onProcessingFinished();
-
-		if (mEmptyView.isEnabled()) {
-			if (count == 0) {
-				mEmptyView.setText(fragment.getListEmptyMessageResId());
-				mEmptyView.fadeIn();
-			}
-			else {
-				mEmptyView.fadeOut();
-			}
-		}
+		fragment.onProcessingFinished(event);
 	}
 
 	@SuppressWarnings("ucd")

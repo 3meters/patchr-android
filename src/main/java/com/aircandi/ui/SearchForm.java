@@ -83,6 +83,7 @@ public class SearchForm extends BaseActivity {
 		if (mSearchView != null) {
 			mEntitySuggest
 					.setSearchView(mSearchView)
+					.setUiController(mUiController)
 					.setListView((ListView) findViewById(R.id.list))
 					.setSuggestScope(mSuggestScope)
 					.init();

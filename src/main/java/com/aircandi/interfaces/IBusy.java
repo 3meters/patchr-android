@@ -1,14 +1,20 @@
 package com.aircandi.interfaces;
 
+import android.content.Context;
+
 public interface IBusy {
 
 	public void show(BusyAction busyAction);
 
 	public void show(BusyAction busyAction, Object message);
 
-	public void showProgressDialog();
+	public void showProgressDialog(Context context);
 
 	public void hide(Boolean now);
+
+	public void pause();
+
+	public void resume();
 
 	public enum BusyAction {
 		Refreshing_Empty,
