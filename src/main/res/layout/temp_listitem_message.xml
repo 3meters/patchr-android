@@ -59,6 +59,7 @@
 		android:layout_alignTop="@+id/holder_content"
 		android:layout_marginRight="10dp"
 		android:layout_marginTop="2dp"
+		android:background="?attr/backgroundPlaceholder"
 		android:clickable="true"
 		android:onClick="onEntityClick"
 		custom:config="rgb_565"
