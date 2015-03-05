@@ -40,7 +40,7 @@ public class ServiceRequest {
 	private Session         mSession;
 	private String          mUserName;
 	private String          mPassword;
-	private String          mTag;
+	private Object          mTag;
 	private Stopwatch       mStopwatch;
 	private Boolean  mErrorCheck         = true;
 	private AuthType mAuthType           = AuthType.NONE;
@@ -153,7 +153,7 @@ public class ServiceRequest {
 		return mActivityName;
 	}
 
-	public String getTag() {
+	public Object getTag() {
 		return mTag;
 	}
 
@@ -238,7 +238,7 @@ public class ServiceRequest {
 	}
 
 	@NonNull
-	public ServiceRequest setTag(String tag) {
+	public ServiceRequest setTag(Object tag) {
 		mTag = tag;
 		return this;
 	}

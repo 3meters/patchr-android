@@ -21,6 +21,7 @@ import com.aircandi.components.DownloadManager;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
@@ -239,7 +240,7 @@ public class RegisterEdit extends BaseEntityEdit {
 				}
 
 				ModelResult result = Patchr.getInstance().getEntityManager().registerUser((User) mEntity
-						, (mEntity.photo != null) ? bitmap : null);
+						, (mEntity.photo != null) ? bitmap : null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				if (isCancelled()) return null;
 
@@ -289,7 +290,7 @@ public class RegisterEdit extends BaseEntityEdit {
 				}
 				mProcessing = false;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	/*--------------------------------------------------------------------------------------------

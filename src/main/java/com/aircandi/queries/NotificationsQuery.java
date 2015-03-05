@@ -3,6 +3,7 @@ package com.aircandi.queries;
 import com.aircandi.Patchr;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.interfaces.IQuery;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.ServiceData;
@@ -31,7 +32,7 @@ public class NotificationsQuery implements IQuery {
 				.setSort(Maps.asMap("modifiedDate", -1))
 				.setSkip(skipCount);
 
-		ModelResult result = ((EntityManager) Patchr.getInstance().getEntityManager()).loadNotifications(mEntityId, mCursor);
+		ModelResult result = ((EntityManager) Patchr.getInstance().getEntityManager()).loadNotifications(mEntityId, mCursor, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 		if (result.data != null) {
 			mHasExecuted = true;

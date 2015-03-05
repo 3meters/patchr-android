@@ -20,6 +20,7 @@ import com.aircandi.ServiceConstants;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.ProximityManager;
 import com.aircandi.components.StringManager;
@@ -602,7 +603,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				beforeInsert(mEntity, links);
 				if (isCancelled()) return null;
 
-				ModelResult result = Patchr.getInstance().getEntityManager().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true);
+				ModelResult result = Patchr.getInstance().getEntityManager().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
@@ -619,6 +620,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			@Override
 			protected void onCancelled(Object response) {
 				/*
+				 * Triggered by call to task.cancel() and guarantess that onPostExecute will not
+				 * be called. If using task.cancel(true) and the task is running then AsyncTask
+				 * will call interrupt on the thread which in turn will be picked up
+				 * by okhttp before it begins the next blocking operation.
+				 *
 				 * Stopping Points (interrupt was triggered on background thread)
 				 * - When task is pulled from queue (if waiting)
 				 * - Between service and s3 calls.
@@ -650,7 +656,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				}
 				mProcessing = false;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	@Override
@@ -711,7 +717,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					}
 
 					beforeUpdate(mEntity);
-					result = Patchr.getInstance().getEntityManager().updateEntity(mEntity, bitmap);
+					result = Patchr.getInstance().getEntityManager().updateEntity(mEntity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 					if (isCancelled()) return null;
 
 					/* Don't allow cancel if we made it this far */
@@ -771,6 +777,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				}
 				mProcessing = false;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 }

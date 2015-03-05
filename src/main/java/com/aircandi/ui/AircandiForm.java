@@ -496,7 +496,7 @@ public class AircandiForm extends BaseActivity {
 		 * we will get that event and refresh radar with beacon support.
 		 */
 		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
-		if (tethered || (!NetworkManager.getInstance().isWifiEnabled() && !Patchr.usingEmulator)) {
+		if (tethered || (!NetworkManager.getInstance().isWifiEnabled())) {
 			UI.showToastNotification(StringManager.getString(tethered
 			                                                 ? R.string.alert_wifi_tethered
 			                                                 : R.string.alert_wifi_disabled), Toast.LENGTH_SHORT);

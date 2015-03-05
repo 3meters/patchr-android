@@ -71,6 +71,8 @@ public class NearbyListFragment extends EntityListFragment {
 	private   LocationHandler mLocationHandler             = new LocationHandler();
 	private   Boolean         mAtLeastOneLocationProcessed = false;
 	protected AtomicBoolean   mLocationDialogShot          = new AtomicBoolean(false);
+	protected AsyncTask mTaskPatchesNearLocation;
+	protected AsyncTask mTaskPatchesByProximity;
 
 	private CacheStamp mCacheStamp;
 
@@ -149,13 +151,33 @@ public class NearbyListFragment extends EntityListFragment {
 			@Override
 			public void run() {
 				mEntityModelBeaconDate = ProximityManager.getInstance().getLastBeaconLockedDate();
-				new AsyncTask() {
+				mTaskPatchesByProximity = new AsyncTask() {
+
+					@Override
+					protected void onPreExecute() {
+						mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
+						mListController.getMessageController().fadeOut();
+					}
 
 					@Override
 					protected Object doInBackground(Object... params) {
-						Thread.currentThread().setName("AsyncGetEntitiesForBeacons");
+						Thread.currentThread().setName("AsyncGetPatchesForBeacons");
 						ServiceResponse serviceResponse = ProximityManager.getInstance().getEntitiesByProximity();
 						return serviceResponse;
+					}
+
+					@Override
+					protected void onCancelled(Object result) {
+						/*
+						 * Called after exiting doInBackground() and task.cancel was called.
+						 * If using task.cancel(true) and the task is running then AsyncTask
+						 * will call interrupt on the thread which in turn will be picked up
+						 * by okhttp before it begins the next blocking operation.
+						 */
+						if (result != null) {
+							final ServiceResponse serviceResponse = (ServiceResponse) result;
+							Logger.w(Thread.currentThread().getName(), "Proximity task cancelled: " + serviceResponse.responseCode.toString());
+						}
 					}
 
 					@Override
@@ -166,7 +188,7 @@ public class NearbyListFragment extends EntityListFragment {
 							Errors.handleError(getActivity(), serviceResponse);
 						}
 					}
-				}.execute();
+				}.executeOnExecutor(Constants.EXECUTOR);
 			}
 		});
 	}
@@ -192,27 +214,42 @@ public class NearbyListFragment extends EntityListFragment {
 				mCacheStamp = Patchr.getInstance().getEntityManager().getCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent(NetworkManager.ResponseCode.SUCCESS));
+					BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 				}
 				else {
 
 					final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 					if (location != null) {
-
-						new AsyncTask() {
+						mTaskPatchesNearLocation = new AsyncTask() {
 
 							@Override
 							protected void onPreExecute() {
 								Reporting.updateCrashKeys();
+//								mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
+//								mListController.getMessageController().fadeOut();
 							}
 
 							@Override
 							protected Object doInBackground(Object... params) {
-								Logger.d(getActivity(), "Location changed event: getting places near location");
-								Thread.currentThread().setName("AsyncGetPlacesNearLocation");
-								Patchr.stopwatch2.start("location_processing", "Location processing: get places near location");
+								Thread.currentThread().setName("AsyncGetPatchesNearLocation");
+								Logger.d(getActivity(), "Proximity finished event: Location locked so getting patches near location");
+								Patchr.stopwatch2.start("location_processing", "Location processing: get patches near location");
 								ServiceResponse serviceResponse = ProximityManager.getInstance().getEntitiesNearLocation(location);
 								return serviceResponse;
+							}
+
+							@Override
+							protected void onCancelled(Object result) {
+								/*
+								 * Called after exiting doInBackground() and task.cancel was called.
+								 * If using task.cancel(true) and the task is running then AsyncTask
+								 * will call interrupt on the thread which in turn will be picked up
+								 * by okhttp before it begins the next blocking operation.
+								 */
+								if (result != null) {
+									final ServiceResponse serviceResponse = (ServiceResponse) result;
+									Logger.w(Thread.currentThread().getName(), "Near task cancelled: " + serviceResponse.responseCode.toString());
+								}
 							}
 
 							@Override
@@ -231,7 +268,7 @@ public class NearbyListFragment extends EntityListFragment {
 									Errors.handleError(getActivity(), serviceResponse);
 								}
 							}
-						}.execute();
+						}.executeOnExecutor(Constants.EXECUTOR);
 					}
 					else {
 						BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
@@ -243,7 +280,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 	@Subscribe
 	@SuppressWarnings({"ucd"})
-	public void onPlacesNearLocationFinished(final PatchesNearLocationFinishedEvent event) {
+	public void onPatchesNearLocationFinished(final PatchesNearLocationFinishedEvent event) {
 		/*
 		 * No application logic here, just tracking.
 		 */
@@ -275,7 +312,7 @@ public class NearbyListFragment extends EntityListFragment {
 				mAdapter.notifyDataSetChanged();
 
 				if (entities.size() >= 2) {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent(NetworkManager.ResponseCode.SUCCESS));
+					BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 				}
 
 				if (event.source.equals("onLocationChanged")) {
@@ -292,7 +329,7 @@ public class NearbyListFragment extends EntityListFragment {
 							MediaManager.playSound(MediaManager.SOUND_PLACES_FOUND, 1.0f, 1);
 							return null;
 						}
-					}.execute();
+					}.executeOnExecutor(Constants.EXECUTOR);
 				}
 			}
 		});
@@ -302,11 +339,13 @@ public class NearbyListFragment extends EntityListFragment {
 	public void onRefresh() {
 		/*
 		 * Called by BaseFragment.onStart(), refresh action or swipe.
+		 * If wifi enabled then location processing uses the network which can be stuck because
+		 * of poor network conditions.
 		 */
 		Logger.d(this, "Starting refresh");
 		if (LocationManager.getInstance().isLocationAccessEnabled()) {
 			mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
-			LocationManager.getInstance().requestLocationUpdates(getActivity());  // Location triggers sequence
+			LocationManager.getInstance().requestLocationUpdates(getActivity());  // Location update triggers searchForPatches
 		}
 		else {
 			if (!mLocationDialogShot.get()) {
@@ -320,7 +359,7 @@ public class NearbyListFragment extends EntityListFragment {
 				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);         // Still try proximity
 			}
 			else {
-				BusProvider.getInstance().post(new ProcessingFinishedEvent(NetworkManager.ResponseCode.SUCCESS));
+				BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 			}
 		}
 	}
@@ -392,7 +431,9 @@ public class NearbyListFragment extends EntityListFragment {
 	}
 
 	private void searchForPatches() {
-
+		/*
+		 * Called because of a location update or push notification.
+		 */
 		new AsyncTask() {
 
 			@Override
@@ -408,6 +449,7 @@ public class NearbyListFragment extends EntityListFragment {
 			@Override
 			protected Object doInBackground(Object... params) {
 
+				Thread.currentThread().setName("AsyncSearchForPatches");
 				Patchr.stopwatch1.start("beacon_search", "Search for places by beacon");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
 				EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
@@ -419,7 +461,7 @@ public class NearbyListFragment extends EntityListFragment {
 				}
 				return null;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -453,13 +495,13 @@ public class NearbyListFragment extends EntityListFragment {
 			/* Stop location updates */
 			LocationManager.getInstance().stop();
 
+			/* Stop listening for wifi scan */
+			ProximityManager.getInstance().stop();
+
 		    /* Start background activity recognition with proximity manager as the listener. */
 			ProximityManager.getInstance().setLastBeaconInstallUpdate(null);
 			ProximityManager.getInstance().register();
 		}
-
-		/* Kill busy */
-		mListController.getBusyController().hide(false);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -478,16 +520,18 @@ public class NearbyListFragment extends EntityListFragment {
 			/*
 			 * Location changes are a primary trigger for a patch query sequence.
 			 */
-			if (event.location != null) {
+			if (isResumed()) {
+				if (event.location != null) {
 
-				LocationManager.getInstance().setLocationLocked(event.location);
-				final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+					LocationManager.getInstance().setLocationLocked(event.location);
+					final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 
-				if (location != null) {
-					searchForPatches();
-				}
-				else {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+					if (location != null) {
+						searchForPatches();
+					}
+					else {
+						BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+					}
 				}
 			}
 		}
@@ -496,7 +540,7 @@ public class NearbyListFragment extends EntityListFragment {
 		@SuppressWarnings({"ucd"})
 		public void onBurstTimeout(final BurstTimeoutEvent event) {
 
-			BusProvider.getInstance().post(new ProcessingFinishedEvent(NetworkManager.ResponseCode.SUCCESS));
+			BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 
 			/* We only show toast if we timeout without getting any location fix */
 			if (LocationManager.getInstance().getLocationLocked() == null) {

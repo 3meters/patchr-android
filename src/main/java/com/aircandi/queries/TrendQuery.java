@@ -2,6 +2,7 @@ package com.aircandi.queries;
 
 import com.aircandi.Patchr;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.interfaces.IQuery;
 
 @SuppressWarnings("ucd")
@@ -20,7 +21,7 @@ public class TrendQuery implements IQuery {
 		 * Should be called on a background thread. By default returns sorted by rank
 		 * in ascending order.
 		 */
-		ModelResult result = Patchr.getInstance().getEntityManager().getTrending(toSchema, fromSchema, trendType);
+		ModelResult result = Patchr.getInstance().getEntityManager().getTrending(toSchema, fromSchema, trendType, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 		mHasExecuted = true;
 		return result;
 	}

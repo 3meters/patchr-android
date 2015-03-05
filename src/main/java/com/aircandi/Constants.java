@@ -1,14 +1,18 @@
 // $codepro.audit.disable fileComment
 package com.aircandi;
 
+import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
+
+import java.util.concurrent.Executor;
 
 @SuppressWarnings("ucd")
 public class Constants {
 
-	public static final int LOG_LEVEL   = Patchr.debug ? Log.VERBOSE : Log.DEBUG;
-	public static final int ERROR_LEVEL = Log.VERBOSE;
+	public static final int      LOG_LEVEL   = Patchr.debug ? Log.VERBOSE : Log.DEBUG;
+	public static final int      ERROR_LEVEL = Log.VERBOSE;
+	public static final Executor EXECUTOR    = AsyncTask.SERIAL_EXECUTOR;
 
 	/* Activity parameters */
 	public static final String EXTRA_ENTITY_PARENT_ID = "com.aircandi.EXTRA_PARENT_ENTITY_ID";
@@ -24,8 +28,7 @@ public class Constants {
 	public static final String EXTRA_NOTIFICATION_ID = "com.aircandi.EXTRA_NOTIFICATION_ID";
 	public static final String EXTRA_PATCH           = "com.aircandi.EXTRA_PATCH";
 	public static final String EXTRA_PATCH_ID        = "com.aircandi.EXTRA_PATCH_ID";
-
-	public static final String EXTRA_URI = "com.aircandi.EXTRA_URI";
+	public static final String EXTRA_URI             = "com.aircandi.EXTRA_URI";
 
 	public static final String EXTRA_MESSAGE_TYPE          = "com.aircandi.EXTRA_MESSAGE_TYPE";
 	public static final String EXTRA_MESSAGE_ROOT_ID       = "com.aircandi.EXTRA_MESSAGE_ROOT_ID";

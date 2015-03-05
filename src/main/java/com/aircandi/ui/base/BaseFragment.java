@@ -331,6 +331,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 		 * because they might not come back.
 		 */
 		Logger.d(this, "Fragment pause");
+
 		super.onPause();
 	}
 

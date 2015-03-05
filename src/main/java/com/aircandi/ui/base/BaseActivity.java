@@ -35,6 +35,7 @@ import com.aircandi.components.AndroidManager;
 import com.aircandi.components.BusProvider;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NfcManager;
 import com.aircandi.components.StringManager;
@@ -93,7 +94,6 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected String   mPrevFragmentTag;
 
 	/* Inputs */
-	//protected Extras  mExtras         = new Extras();
 	protected Integer mTransitionType = TransitionType.FORM_TO;
 
 	/* Resources */
@@ -370,7 +370,7 @@ public abstract class BaseActivity extends ActionBarActivity
 					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncSignOut");
-						final ModelResult result = Patchr.getInstance().getEntityManager().signoutComplete();
+						final ModelResult result = Patchr.getInstance().getEntityManager().signoutComplete(NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						return result;
 					}
 
@@ -382,7 +382,7 @@ public abstract class BaseActivity extends ActionBarActivity
 						mUiController.getBusyController().hide(false);
 						Patchr.dispatch.route(BaseActivity.this, Route.SPLASH, null, null);
 					}
-				}.execute();
+				}.executeOnExecutor(Constants.EXECUTOR);
 			}
 		};
 
@@ -473,7 +473,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
-				final ModelResult result = Patchr.getInstance().getEntityManager().deleteEntity(mEntity.id, false);
+				final ModelResult result = Patchr.getInstance().getEntityManager().deleteEntity(mEntity.id, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -497,7 +497,7 @@ public abstract class BaseActivity extends ActionBarActivity
 				}
 				mProcessing = false;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	protected void remove(final String toId) {
@@ -517,7 +517,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRemoveEntity");
 				final ModelResult result = Patchr.getInstance().getEntityManager()
-				                                 .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove_entity_message");
+				                                 .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove_entity_message", NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				isCancelled();
 				return result;
 			}
@@ -542,7 +542,7 @@ public abstract class BaseActivity extends ActionBarActivity
 				}
 				mProcessing = false;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	public Boolean related(String entityId) {
@@ -869,16 +869,7 @@ public abstract class BaseActivity extends ActionBarActivity
 		/* This activity gets destroyed everytime we leave using back or finish(). */
 		Logger.d(this, "Activity destroying");
 		super.onDestroy();
-		clearReferences();
 	}
-
-	// TODO: Remove this if not needed
-	//	@Override
-	//	public void onAttachedToWindow() {
-	//		super.onAttachedToWindow();
-	//		final Window window = getWindow();
-	//		window.setFormat(PixelFormat.RGBA_8888);
-	//	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes

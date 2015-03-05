@@ -13,6 +13,7 @@
 		android:scaleType="centerCrop"
 		custom:aspectRatio="@dimen/aspect_ratio_place_image"
 		custom:aspectRatioEnabled="true"
+		android:background="?attr/backgroundPlaceholder"
 		custom:config="rgb_565"
 		custom:dominantMeasurement="width"
 		custom:fitType="auto"

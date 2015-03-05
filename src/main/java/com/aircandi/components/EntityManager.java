@@ -14,7 +14,6 @@ import com.aircandi.objects.Beacon;
 import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.CacheStamp.StampSource;
 import com.aircandi.objects.Category;
-import com.aircandi.objects.Count;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Document;
 import com.aircandi.objects.Entity;
@@ -78,12 +77,12 @@ public class EntityManager {
 	 * Combo service/cache queries
 	 *--------------------------------------------------------------------------------------------*/
 
-	public synchronized ModelResult getEntity(String entityId, Boolean refresh, Links linkOptions) {
+	public synchronized ModelResult getEntity(String entityId, Boolean refresh, Links linkOptions, Object tag) {
 		/*
 		 * Retrieves entity from cache if available otherwise downloads the entity from the service. If refresh is true
 		 * then bypasses the cache and downloads from the service.
 		 */
-		final ModelResult result = getEntities(Arrays.asList(entityId), refresh, linkOptions);
+		final ModelResult result = getEntities(Arrays.asList(entityId), refresh, linkOptions, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final List<Entity> entities = (List<Entity>) result.data;
 			if (entities.size() > 0) {
@@ -96,7 +95,7 @@ public class EntityManager {
 		return result;
 	}
 
-	private synchronized ModelResult getEntities(List<String> entityIds, Boolean refresh, Links linkOptions) {
+	private synchronized ModelResult getEntities(List<String> entityIds, Boolean refresh, Links linkOptions, Object tag) {
 		/*
 		 * Results in a service request if missing entities or refresh is true.
 		 */
@@ -118,7 +117,7 @@ public class EntityManager {
 		result.data = entities;
 
 		if (loadEntityIds.size() > 0) {
-			result.serviceResponse = mEntityCache.loadEntities(loadEntityIds, linkOptions);
+			result.serviceResponse = mEntityCache.loadEntities(loadEntityIds, linkOptions, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 				ServiceData serviceData = (ServiceData) result.serviceResponse.data;
 				result.data = serviceData.data;
@@ -127,10 +126,10 @@ public class EntityManager {
 		return result;
 	}
 
-	public synchronized ModelResult loadEntitiesForEntity(String entityId, Links linkOptions, Cursor cursor, Stopwatch stopwatch) {
+	public synchronized ModelResult loadEntitiesForEntity(String entityId, Links linkOptions, Cursor cursor, Object tag, Stopwatch stopwatch) {
 		final ModelResult result = new ModelResult();
 
-		result.serviceResponse = mEntityCache.loadEntitiesForEntity(entityId, linkOptions, cursor, stopwatch);
+		result.serviceResponse = mEntityCache.loadEntitiesForEntity(entityId, linkOptions, cursor, stopwatch, tag);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			ServiceData serviceData = (ServiceData) result.serviceResponse.data;
@@ -143,45 +142,7 @@ public class EntityManager {
 	 * service queries
 	 *--------------------------------------------------------------------------------------------*/
 
-	public synchronized ModelResult loadMessages(String entityId, Links linkOptions, Cursor cursor) {
-
-		final ModelResult result = new ModelResult();
-
-		final Bundle parameters = new Bundle();
-		parameters.putString("entityId", entityId);
-
-		if (linkOptions != null) {
-			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
-		}
-
-		if (cursor != null) {
-			parameters.putString("cursor", "object:" + Json.objectToJson(cursor));
-		}
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getMessages")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
-			final List<Entity> loadedEntities = (List<Entity>) serviceData.data;
-			result.serviceResponse.data = serviceData;
-			result.data = loadedEntities;
-		}
-
-		return result;
-	}
-
-	public synchronized ModelResult loadNotifications(String entityId, Cursor cursor) {
+	public synchronized ModelResult loadNotifications(String entityId, Cursor cursor, Object tag) {
 
 		final ModelResult result = new ModelResult();
 
@@ -196,6 +157,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getNotifications")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -215,7 +177,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public synchronized CacheStamp loadCacheStamp(String entityId, CacheStamp cacheStamp) {
+	public synchronized CacheStamp loadCacheStamp(String entityId, CacheStamp cacheStamp, Object tag) {
 
 		final ModelResult result = new ModelResult();
 
@@ -236,6 +198,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "checkActivity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -262,7 +225,7 @@ public class EntityManager {
 		return cacheStampService;
 	}
 
-	public synchronized ModelResult loadCategories(boolean refresh) {
+	public synchronized ModelResult loadCategories(boolean refresh, final Object tag) {
 
 		ModelResult result = new ModelResult();
 
@@ -284,6 +247,7 @@ public class EntityManager {
 					final ServiceRequest serviceRequest = new ServiceRequest()
 							.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PATCHES + "categories")
 							.setRequestType(RequestType.GET)
+							.setTag(tag)
 							.setResponseFormat(ResponseFormat.JSON);
 
 					ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -296,7 +260,7 @@ public class EntityManager {
 					}
 					return null;
 				}
-			}.execute();
+			}.executeOnExecutor(Constants.EXECUTOR);
 		}
 
 		result.data = mCategories;
@@ -304,32 +268,9 @@ public class EntityManager {
 		return result;
 	}
 
-	public synchronized ModelResult loadDocuments(String params) {
+	public ModelResult suggest(String input, SuggestScope suggestScope, String userId, AirLocation location, long limit, Object tag) {
 
 		final ModelResult result = new ModelResult();
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_REST + "documents" + "?" + params)
-				.setRequestType(RequestType.GET)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.DOCUMENT, Json.ServiceDataWrapper.TRUE);
-			result.data = serviceData.data;
-		}
-		return result;
-	}
-
-	public ModelResult suggest(String input, SuggestScope suggestScope, String userId, AirLocation location, long limit) {
-		final ModelResult result = new ModelResult();
-
 		final Bundle parameters = new Bundle();
 
 		parameters.putString("provider", ServiceConstants.PLACE_SUGGEST_PROVIDER);
@@ -366,6 +307,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_SUGGEST)
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -383,13 +325,14 @@ public class EntityManager {
 		return result;
 	}
 
-	private ModelResult getDocumentId(String collection) {
+	private ModelResult getDocumentId(String collection, Object tag) {
 
 		final ModelResult result = new ModelResult();
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_REST + collection + "/genId")
 				.setRequestType(RequestType.GET)
+				.setTag(tag)
 				.setSuppressUI(true)
 				.setResponseFormat(ResponseFormat.JSON);
 
@@ -407,7 +350,7 @@ public class EntityManager {
 	 * user updates
 	 *--------------------------------------------------------------------------------------------*/
 
-	public ModelResult signin(String email, String password, String activityName) {
+	public ModelResult signin(String email, String password, String activityName, Object tag) {
 		ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -419,6 +362,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_AUTH + "signin")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setActivityName(activityName)
 				.setResponseFormat(ResponseFormat.JSON);
 
@@ -438,7 +382,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult activateCurrentUser(Boolean refreshUser) {
+	public ModelResult activateCurrentUser(Boolean refreshUser, Object tag) {
 
 		ModelResult result = new ModelResult();
 		User user = Patchr.getInstance().getCurrentUser();
@@ -462,7 +406,7 @@ public class EntityManager {
 			/* Load user data */
 			if (refreshUser) {
 				Links options = mLinks.build(LinkProfile.LINKS_FOR_USER_CURRENT);
-				result = getEntity(user.id, true, options);
+				result = getEntity(user.id, true, options, tag);
 			}
 
 			/* Update settings */
@@ -478,7 +422,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult signoutComplete() {
+	public ModelResult signoutComplete(Object tag) {
 		final ModelResult result = new ModelResult();
 		/*
 		 * We use a short timeout with no retry because failure doesn't
@@ -487,6 +431,7 @@ public class EntityManager {
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_AUTH + "signout")
 				.setRequestType(RequestType.GET)
+				.setTag(tag)
 				.setIgnoreResponseData(true)
 				.setResponseFormat(ResponseFormat.JSON);
 
@@ -513,7 +458,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult updatePassword(String userId, String passwordOld, String passwordNew, String activityName) {
+	public ModelResult updatePassword(String userId, String passwordOld, String passwordNew, String activityName, Object tag) {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -526,6 +471,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "changepw")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setActivityName(activityName)
 				.setResponseFormat(ResponseFormat.JSON);
 
@@ -549,7 +495,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult requestPasswordReset(String email) {
+	public ModelResult requestPasswordReset(String email, Object tag) {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -560,6 +506,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "reqresetpw")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -576,7 +523,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult resetPassword(String password, User tempUser) {
+	public ModelResult resetPassword(String password, User tempUser, Object tag) {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -587,6 +534,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "resetpw")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		serviceRequest.setSession(tempUser.session);
@@ -609,7 +557,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult registerUser(User user, Bitmap bitmap) {
+	public ModelResult registerUser(User user, Bitmap bitmap, Object tag) {
 		ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -622,6 +570,7 @@ public class EntityManager {
 				.setRequestType(RequestType.INSERT)
 				.setRequestBody(Json.objectToJson(user, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
 				.setParameters(parameters)
+				.setTag(tag)
 				.setUseSecret(true)
 				.setResponseFormat(ResponseFormat.JSON);
 
@@ -673,40 +622,22 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult getUserStats(String entityId) {
-		ModelResult result = new ModelResult();
-
-		// http://ariseditions.com:8080/actions/user_events/us.000000.00000.000.000001
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_ACTIONS + "user_events/" + entityId)
-				.setRequestType(RequestType.GET)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.COUNT, Json.ServiceDataWrapper.TRUE);
-			final List<Count> stats = (List<Count>) serviceData.data;
-			result.data = stats;
-		}
-		return result;
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Entity updates
 	 *--------------------------------------------------------------------------------------------*/
 
-	private ModelResult insertEntity(Entity entity, Boolean waitForContent) {
-		return insertEntity(entity, null, null, null, null, waitForContent);
+	private ModelResult insertEntity(Entity entity, Boolean waitForContent, Object tag) {
+		return insertEntity(entity, null, null, null, null, waitForContent, tag);
 	}
 
 	@SuppressWarnings("ConstantConditions")
-	public ModelResult insertEntity(Entity entity, List<Link> links, List<Beacon> beacons, Beacon primaryBeacon, Bitmap bitmap, Boolean waitForContent) {
+	public ModelResult insertEntity(Entity entity
+			, List<Link> links
+			, List<Beacon> beacons
+			, Beacon primaryBeacon
+			, Bitmap bitmap
+			, Boolean waitForContent
+			, Object tag) {
 		/*
 		 * Inserts the entity in the entity service collection and Links are created to all the included beacons. The
 		 * inserted entity is retrieved from the service and pushed into the local cache. The cached entity is returned
@@ -733,7 +664,7 @@ public class EntityManager {
 
 		/* Pre-fetch an id so a failed request can be retried */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			result = getDocumentId(entity.getCollection());
+			result = getDocumentId(entity.getCollection(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -819,6 +750,7 @@ public class EntityManager {
 					.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "insertEntity")
 					.setRequestType(RequestType.METHOD)
 					.setParameters(parameters)
+					.setTag(tag)
 					.setResponseFormat(ResponseFormat.JSON);
 
 			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -859,7 +791,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult updateEntity(Entity entity, Bitmap bitmap) {
+	public ModelResult updateEntity(Entity entity, Bitmap bitmap, Object tag) {
 		/*
 		 * Updates activityDate in the database:
 		 * - on the updated entity
@@ -898,6 +830,7 @@ public class EntityManager {
 					.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "updateEntity")
 					.setRequestType(RequestType.METHOD)
 					.setParameters(parameters)
+					.setTag(tag)
 					.setResponseFormat(ResponseFormat.JSON);
 
 			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -926,7 +859,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult deleteEntity(String entityId, Boolean cacheOnly) {
+	public ModelResult deleteEntity(String entityId, Boolean cacheOnly, Object tag) {
 		/*
 		 * Updates activityDate in the database:
 		 * - on any upstream entities the deleted entity was linked to
@@ -955,6 +888,7 @@ public class EntityManager {
 					.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "deleteEntity")
 					.setRequestType(RequestType.METHOD)
 					.setParameters(parameters)
+					.setTag(tag)
 					.setResponseFormat(ResponseFormat.JSON);
 
 			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -986,19 +920,19 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult deleteMessage(String entityId, Boolean cacheOnly, String seedParentId) {
+	public ModelResult deleteMessage(String entityId, Boolean cacheOnly, String seedParentId, Object tag) {
 		/*
 		 * We sequence calls to delete the message and if the message is a seed then
 		 * we add a second call to remove any links from replies to the patch.
 		 */
-		ModelResult result = deleteEntity(entityId, cacheOnly);
+		ModelResult result = deleteEntity(entityId, cacheOnly, tag);
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS && seedParentId != null) {
-			result = removeLinks(entityId, seedParentId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, "remove_entity_message");
+			result = removeLinks(entityId, seedParentId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, "remove_entity_message", tag);
 		}
 		return result;
 	}
 
-	public ModelResult trackEntity(Entity entity, List<Beacon> beacons, Beacon primaryBeacon, Boolean untuning) {
+	public ModelResult trackEntity(Entity entity, List<Beacon> beacons, Beacon primaryBeacon, Boolean untuning, Object tag) {
 
 		final ModelResult result = new ModelResult();
 		Logger.i(this, untuning ? "Untracking entity" : "Tracking entity");
@@ -1059,6 +993,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + methodName)
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -1144,7 +1079,8 @@ public class EntityManager {
 			, Shortcut fromShortcut
 			, Shortcut toShortcut
 			, String actionEvent
-			, Boolean skipCache) {
+			, Boolean skipCache
+			, Object tag) {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -1165,6 +1101,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "insertLink")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -1188,7 +1125,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult deleteLink(String fromId, String toId, String type, Boolean enabled, String schema, String actionEvent) {
+	public ModelResult deleteLink(String fromId, String toId, String type, Boolean enabled, String schema, String actionEvent, Object tag) {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -1201,6 +1138,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "deleteLink")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -1235,7 +1173,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult removeLinks(String fromId, String toId, String type, String schema, String actionEvent) {
+	public ModelResult removeLinks(String fromId, String toId, String type, String schema, String actionEvent, Object tag) {
 		/*
 		 * Service method is specialized for messages.
 		 */
@@ -1251,6 +1189,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "removeLinks")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -1274,7 +1213,7 @@ public class EntityManager {
 	 * Reports
 	 *--------------------------------------------------------------------------------------------*/
 
-	public ModelResult getTrending(String toSchema, String fromSchema, String trendType) {
+	public ModelResult getTrending(String toSchema, String fromSchema, String trendType, Object tag) {
 		ModelResult result = new ModelResult();
 
 		/*
@@ -1292,6 +1231,7 @@ public class EntityManager {
 						+ "/from/" + fromSchema + (fromSchema.equals(Constants.SCHEMA_ENTITY_PATCH) ? "es" : "s")
 						+ "?type=" + trendType)
 				.setRequestType(RequestType.GET)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -1316,7 +1256,7 @@ public class EntityManager {
 		return cacheStamp;
 	}
 
-	public ModelResult registerInstall(Install install) {
+	public ModelResult registerInstall(Install install, Object tag) {
 
 		ModelResult result = new ModelResult();
 		final Bundle parameters = new Bundle();
@@ -1326,6 +1266,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "registerInstall")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -1336,7 +1277,7 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult updateProximity(List<String> beaconIds, AirLocation location, String installId) {
+	public ModelResult updateProximity(List<String> beaconIds, AirLocation location, String installId, Object tag) {
 
 		if (installId == null) {
 			throw new IllegalArgumentException("updateProximity requires installId");
@@ -1359,6 +1300,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "updateProximity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -1369,10 +1311,10 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult insertDocument(Document document) {
+	public ModelResult insertDocument(Document document, Object tag) {
 
 		/* Pre-fetch an id so a failed request can be retried */
-		ModelResult result = getDocumentId(Document.collectionId);
+		ModelResult result = getDocumentId(Document.collectionId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 		document.id = (String) result.serviceResponse.data;
 
 		final Bundle parameters = new Bundle();
@@ -1382,6 +1324,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "insertDocument")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -1392,82 +1335,6 @@ public class EntityManager {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, document.type + "_insert", document.type, 0);
-		}
-
-		return result;
-	}
-
-	public ModelResult deleteDocument(Document document) {
-
-		ModelResult result = new ModelResult();
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_REST + "documents/" + document.id)
-				.setRequestType(RequestType.DELETE)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, document.type + "_insert", document.type, 0);
-		}
-
-		return result;
-	}
-
-	public ModelResult insertLog(Log log) {
-
-		ModelResult result = new ModelResult();
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_REST + "logs")
-				.setRequestBody(Json.objectToJson(log, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
-				.setRequestType(RequestType.INSERT)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		return result;
-	}
-
-	public ModelResult sendInvite(List<String> emails, String invitor, String message) {
-
-		ModelResult result = new ModelResult();
-
-		final Bundle parameters = new Bundle();
-		parameters.putStringArrayList("emails", (ArrayList<String>) emails);
-		parameters.putString("appName", StringManager.getString(R.string.name_app_lowercase));
-
-		if (invitor != null) {
-			parameters.putString("name", invitor);
-		}
-
-		if (message != null) {
-			parameters.putString("message", message);
-		}
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "invite")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, "invite_send", null, 0);
 		}
 
 		return result;
@@ -1503,7 +1370,7 @@ public class EntityManager {
 		return serviceResponse;
 	}
 
-	public ModelResult checkShare(String entityId, String userId) {
+	public ModelResult checkShare(String entityId, String userId, Object tag) {
 
 		final ModelResult result = new ModelResult();
 
@@ -1515,6 +1382,7 @@ public class EntityManager {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "checkShare")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {

@@ -533,7 +533,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 					/* Adding a new place. */
 					if (place != null && Type.isTrue(place.synthetic)) {
-						result = Patchr.getInstance().getEntityManager().insertEntity(place, null, null, null, null, true);
+						result = Patchr.getInstance().getEntityManager().insertEntity(place, null, null, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 							Entity insertedPlace = (Entity) result.data;
 							place.id = insertedPlace.id;
@@ -551,7 +551,7 @@ public class PatchEdit extends BaseEntityEdit {
 									, Constants.TYPE_LINK_PROXIMITY
 									, true
 									, Constants.SCHEMA_ENTITY_PLACE
-									, "delete_link_proximity");
+									, "delete_link_proximity", NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						}
 						/*
 						 * If editing then add link here otherwise it will be added when
@@ -567,7 +567,7 @@ public class PatchEdit extends BaseEntityEdit {
 									, null
 									, null
 									, "insert_link_proximity"
-									, true);
+									, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						}
 					}
 					return result;
@@ -588,7 +588,7 @@ public class PatchEdit extends BaseEntityEdit {
 						Errors.handleError(PatchEdit.this, result.serviceResponse);
 					}
 				}
-			}.execute();
+			}.executeOnExecutor(Constants.EXECUTOR);
 			return;
 		}
 
@@ -638,7 +638,7 @@ public class PatchEdit extends BaseEntityEdit {
 	}
 
 	private void loadCategories() {
-		ModelResult result = Patchr.getInstance().getEntityManager().loadCategories(true /* refresh */);
+		ModelResult result = Patchr.getInstance().getEntityManager().loadCategories(true /* refresh */, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 		mCategories = (List<Category>) result.data;
 		if (mCategories != null) {
 			initCategorySpinner();
@@ -722,7 +722,7 @@ public class PatchEdit extends BaseEntityEdit {
 				final ModelResult result = Patchr.getInstance().getEntityManager().trackEntity(mEntity
 						, beacons
 						, primaryBeacon
-						, mUntuning);
+						, mUntuning, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				return result;
 			}
@@ -764,7 +764,7 @@ public class PatchEdit extends BaseEntityEdit {
 				mButtonUntune.forceLayout();
 				mTuningInProcess = false;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	private void clearProximity() {
@@ -779,7 +779,7 @@ public class PatchEdit extends BaseEntityEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncClearEntityProximity");
-				final ModelResult result = Patchr.getInstance().getEntityManager().trackEntity(mEntity, null, null, true);
+				final ModelResult result = Patchr.getInstance().getEntityManager().trackEntity(mEntity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -791,7 +791,7 @@ public class PatchEdit extends BaseEntityEdit {
 				finish();
 				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(PatchEdit.this, TransitionType.FORM_BACK);
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	private boolean placeDirty() {

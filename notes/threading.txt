@@ -10,3 +10,7 @@ is a way to get more control over thread pooling but it requires Android version
 (we currently target 9/2.3 and higher). AsyncTasks are hard-coded with a low priority and
 continue their work even if the activity is paused.
 
+Cancelling: Calling task.cancel() triggers call to onCancelled and guarantess that onPostExecute
+will not be called. If using task.cancel(true) and the task is running then AsyncTask will call
+interrupt on the thread which in turn can be picked up by implementations running on the thread
+if they are paying attention. Okhttp checks before it begins the each blocking operation.

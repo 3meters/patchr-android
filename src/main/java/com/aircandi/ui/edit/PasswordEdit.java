@@ -10,6 +10,7 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBusy.BusyAction;
@@ -83,7 +84,8 @@ public class PasswordEdit extends BaseEdit {
 						Patchr.getInstance().getCurrentUser().id,
 						mPasswordOld.getText().toString(),
 						mPassword.getText().toString(),
-						PasswordEdit.class.getSimpleName());
+						PasswordEdit.class.getSimpleName(),
+						NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -107,7 +109,7 @@ public class PasswordEdit extends BaseEdit {
 				}
 				mProcessing = false;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	@Override

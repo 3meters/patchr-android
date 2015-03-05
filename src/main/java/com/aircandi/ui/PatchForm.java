@@ -29,6 +29,7 @@ import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.BubbleButtonEvent;
@@ -839,8 +840,8 @@ public class PatchForm extends BaseEntityForm {
 							, enabled
 							, fromShortcut
 							, toShortcut
-							, ((Patch) mEntity).isVisibleToCurrentUser() ? "watch_entity_place" : "request_watch_entity"
-							, false);
+							, ((Patch) mEntity).isVisibleToCurrentUser() ? "watch_entity_patch" : "request_watch_entity"
+							, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				}
 				else {
 					result = Patchr.getInstance().getEntityManager().deleteLink(Patchr.getInstance().getCurrentUser().id
@@ -848,7 +849,7 @@ public class PatchForm extends BaseEntityForm {
 							, Constants.TYPE_LINK_WATCH
 							, enabled
 							, mEntity.schema
-							, "unwatch_entity_" + mEntity.schema);
+							, "unwatch_entity_" + mEntity.schema, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				}
 				return result;
 			}
@@ -875,7 +876,7 @@ public class PatchForm extends BaseEntityForm {
 				}
 				mProcessing = false;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	@Override
@@ -908,7 +909,7 @@ public class PatchForm extends BaseEntityForm {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncShareCheck");
-				ModelResult result = Patchr.getInstance().getEntityManager().checkShare(mEntity.id, Patchr.getInstance().getCurrentUser().id);
+				ModelResult result = Patchr.getInstance().getEntityManager().checkShare(mEntity.id, Patchr.getInstance().getCurrentUser().id, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -927,7 +928,7 @@ public class PatchForm extends BaseEntityForm {
 					}
 				}
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	protected void confirmJoin() {
@@ -990,14 +991,15 @@ public class PatchForm extends BaseEntityForm {
 			return;
 		}
 
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+		if (result == null || result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 		    /*
 			 * In case upsizing has changed the id we original bound to.
 			 */
-			if (mCurrentFragment instanceof EntityListFragment) {
+			if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
 				EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
 				((EntityMonitor) fragment.getMonitor()).setEntityId(mEntityId);
 				((EntitiesQuery) fragment.getQuery()).setEntityId(mEntityId);
+				Logger.d(this, "Calling bind from afterDatabind");
 				if (mEntityMonitor.changed) {
 					fragment.bind(BindingMode.MANUAL);
 				}

@@ -28,6 +28,7 @@ import org.apache.http.conn.ConnectTimeoutException;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -286,7 +287,8 @@ public final class Errors {
 					if (exception instanceof ConnectTimeoutException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unavailable)).setTrack(false);
 
-					if (exception instanceof SocketTimeoutException)
+					if (exception instanceof SocketTimeoutException ||
+							exception instanceof InterruptedIOException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_connection_poor)).setTrack(false);
 
 					if (exception instanceof ConnectException
@@ -316,6 +318,7 @@ public final class Errors {
 				else {
 					if (exception instanceof UnknownHostException
 							|| exception instanceof ConnectTimeoutException
+							|| exception instanceof InterruptedIOException
 							|| exception instanceof SocketTimeoutException
 							|| exception instanceof ConnectException
 							|| exception instanceof SocketException) {

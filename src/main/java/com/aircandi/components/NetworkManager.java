@@ -90,8 +90,6 @@ public class NetworkManager {
 	/* monitor platform changes */
 	private IntentFilter      mNetworkStateChangedFilter;
 	private BroadcastReceiver mNetworkStateIntentReceiver;
-	private Context           mApplicationContext;
-	private final WifiStateChangedReceiver mWifiStateChangedReceiver = new WifiStateChangedReceiver();
 
 	/* Opportunistically used for crash reporting but not current state */
 	private Integer             mWifiState;
@@ -104,6 +102,7 @@ public class NetworkManager {
 	public static final String EXTRA_WIFI_AP_STATE          = "wifi_state";
 	public static final String WIFI_AP_STATE_CHANGED_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
 	public static final int    WIFI_AP_STATE_ENABLED        = 3;
+	public static final String SERVICE_GROUP_TAG_DEFAULT    = "service";
 
 	private NetworkManager() {
 		mOkClient = new OkHttp();
@@ -118,17 +117,14 @@ public class NetworkManager {
 		return NetworkManagerHolder.instance;
 	}
 
-	public void setContext(Context applicationContext) {
-		mApplicationContext = applicationContext;
-	}
-
 	public void initialize() {
 
-		mWifiManager = (WifiManager) mApplicationContext.getSystemService(Context.WIFI_SERVICE);
-		mConnectivityManager = (ConnectivityManager) mApplicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+		mWifiManager = (WifiManager) Patchr.applicationContext.getSystemService(Context.WIFI_SERVICE);
+		mConnectivityManager = (ConnectivityManager) Patchr.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
 		/*
-		 * Setting system properties. Okhttp picks these up for its connection pooling.
+		 * Setting system properties. Okhttp picks these up for its connection pooling unless
+		 * we have passed in a custom connection pool object.
 		 */
 		System.setProperty("http.maxConnections", String.valueOf(ServiceConstants.DEFAULT_MAX_CONNECTIONS));
 		System.setProperty("http.keepAlive", "true");
@@ -136,7 +132,6 @@ public class NetworkManager {
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
 		intentFilter.addAction(WIFI_AP_STATE_CHANGED_ACTION);
-		mApplicationContext.registerReceiver(mWifiStateChangedReceiver, intentFilter);
 		/*
 		 * Enables registration for changes in network status from http stack
 		 */
@@ -170,48 +165,18 @@ public class NetworkManager {
 		/*
 		 * This is always being called from a background (non main) thread.
 		 */
-		ServiceResponse serviceResponse;
-		ConnectedState state = checkConnectedState();
-
-		if (state != ConnectedState.NORMAL) {
-			serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new NoNetworkException());
-		}
-		else {
-
-			/* Tag request with the activity class name */
-			Activity currentActivity = Patchr.getInstance().getCurrentActivity();
-			if (currentActivity != null) {
-				serviceRequest.setTag(currentActivity.getClass().getSimpleName().toLowerCase(Locale.US));
-			}
-
-			serviceResponse = mOkClient.request(serviceRequest);
-
-			/* Check for valid client version even if the call was successful */
-			if (serviceRequest.getResponseFormat() == ResponseFormat.JSON
-					&& !serviceRequest.getIgnoreResponseData()
-					&& serviceResponse.exception == null
-					&& serviceResponse.data != null) {
-				/*
-				 * We think anything json is coming from the Aircandi service (except Bing)
-				 */
-				ServiceData serviceData = (ServiceData) Json.jsonToObject((String) serviceResponse.data, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
-
-				if (serviceData.clientMinVersions != null
-						&& serviceData.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
-
-					Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
-					if ((Integer) serviceData.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode) {
-						serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
-					}
-					else if (serviceData.error != null && serviceData.error.code != null) {
-						serviceResponse.statusCodeService = serviceData.error.code.floatValue();
-					}
-				}
-			}
+		if (checkConnectedState() != ConnectedState.NORMAL) {
+			return new ServiceResponse(ResponseCode.FAILED, null, new NoNetworkException());
 		}
 
+		ServiceResponse serviceResponse = mOkClient.request(serviceRequest);
+
+		/* Check for valid client version */
+		serviceResponse = clientVersionCheck(serviceRequest, serviceResponse);
+
+		/* Single point to handle request failures. */
 		if (serviceResponse.responseCode == ResponseCode.FAILED && serviceRequest.getErrorCheck()) {
-			serviceResponse.errorResponse = Errors.getErrorResponse(mApplicationContext, serviceResponse);
+			serviceResponse.errorResponse = Errors.getErrorResponse(Patchr.applicationContext, serviceResponse);
 			if (serviceRequest.getStopwatch() != null) {
 				serviceRequest.getStopwatch().segmentTime("Service call failed");
 			}
@@ -224,6 +189,31 @@ public class NetworkManager {
 			}
 		}
 
+		return serviceResponse;
+	}
+
+	public ServiceResponse clientVersionCheck(ServiceRequest serviceRequest, ServiceResponse serviceResponse) {
+		if (serviceRequest.getResponseFormat() == ResponseFormat.JSON
+				&& !serviceRequest.getIgnoreResponseData()
+				&& serviceResponse.exception == null
+				&& serviceResponse.data != null) {
+			/*
+			 * We think anything json is coming from the Aircandi service (except Bing)
+			 */
+			ServiceData serviceData = (ServiceData) Json.jsonToObject((String) serviceResponse.data, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
+
+			if (serviceData.clientMinVersions != null
+					&& serviceData.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
+
+				Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
+				if ((Integer) serviceData.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode) {
+					serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
+				}
+				else if (serviceData.error != null && serviceData.error.code != null) {
+					serviceResponse.statusCodeService = serviceData.error.code.floatValue();
+				}
+			}
+		}
 		return serviceResponse;
 	}
 
@@ -279,7 +269,7 @@ public class NetworkManager {
 	}
 
 	private boolean isConnectedOrConnecting() {
-		final ConnectivityManager cm = (ConnectivityManager) mApplicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+		final ConnectivityManager cm = (ConnectivityManager) Patchr.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 		if (cm != null) {
 			final NetworkInfo[] info = cm.getAllNetworkInfo();
 			if (info != null) {
@@ -439,10 +429,6 @@ public class NetworkManager {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public OkHttpClient getHttpClient() {
-		return ((OkHttp) mOkClient).getClient();
-	}
-
 	public Integer getWifiState() {
 		return mWifiManager.getWifiState();
 	}
@@ -465,25 +451,16 @@ public class NetworkManager {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Classes
+	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	private class WifiStateChangedReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(final Context context, Intent intent) {
-
-			/* This is on the main UI thread */
-			String action = intent.getAction();
-			if (action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
-				mWifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
-			}
-			else if (action.equals(WIFI_AP_STATE_CHANGED_ACTION)) {
-				mWifiApState = intent.getIntExtra(EXTRA_WIFI_AP_STATE, WifiManager.WIFI_STATE_UNKNOWN);
-			}
-			Reporting.updateCrashKeys();
-		}
+	public WifiManager getWifiManager() {
+		return mWifiManager;
 	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/
 
 	public static enum ResponseCode {
 		SUCCESS,
