@@ -299,7 +299,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 										protected void onPostExecute(Object response) {
 											draw(null);
 										}
-									}.execute();
+									}.executeOnExecutor(Constants.EXECUTOR);
 								}
 							}
 						}
@@ -371,7 +371,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 								protected void onPostExecute(Object response) {
 									draw(null);
 								}
-							}.execute();
+							}.executeOnExecutor(Constants.EXECUTOR);
 						}
 					}
 				}

@@ -174,6 +174,8 @@ public class EntityListFragment extends BaseFragment
 			swipeRefresh.setColorSchemeColors(Colors.getColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColor)));
 			swipeRefresh.setProgressBackgroundColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorBackground));
 			swipeRefresh.setOnRefreshListener(this);
+			swipeRefresh.setRefreshing(false);
+			swipeRefresh.setEnabled(true);
 			mListController.getBusyController().setSwipeRefresh(swipeRefresh);
 		}
 
@@ -328,7 +330,7 @@ public class EntityListFragment extends BaseFragment
 					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	@Override
@@ -491,7 +493,7 @@ public class EntityListFragment extends BaseFragment
 				}
 				switcher.setDisplayedChild(0);
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	protected Integer getVisibleListItemsHeight() {

@@ -2,11 +2,14 @@ package com.aircandi.service;
 
 import android.support.annotation.NonNull;
 
+import com.aircandi.Constants;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.utilities.Reporting;
+import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.ConnectionPool;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -17,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class OkHttp extends BaseConnection {
@@ -47,6 +51,9 @@ public class OkHttp extends BaseConnection {
 		 * global conflicts. This will overwrite global ssl context customizations.
 		 */
 		client = new OkHttpClient();
+
+		/* Max connections is per host */
+		client.setConnectionPool(new ConnectionPool(5, Constants.TIME_FIVE_MINUTES));
 		client.setConnectTimeout(ServiceConstants.TIMEOUT_CONNECTION, TimeUnit.MILLISECONDS);
 		client.setReadTimeout(ServiceConstants.TIMEOUT_SOCKET_READ, TimeUnit.MILLISECONDS);
 		client.setWriteTimeout(ServiceConstants.TIMEOUT_SOCKET_WRITE, TimeUnit.MILLISECONDS);
@@ -57,7 +64,9 @@ public class OkHttp extends BaseConnection {
 	public ServiceResponse request(@NonNull final ServiceRequest serviceRequest) {
 
 		ServiceResponse serviceResponse = new ServiceResponse();
+		Request request = null;
 		Response response = null;
+		Call call = null;
 		AirHttpRequest airRequest = null;
 		Request.Builder builder = new Request.Builder().tag(serviceRequest.getTag());
 
@@ -83,9 +92,12 @@ public class OkHttp extends BaseConnection {
 				builder.delete();
 			}
 
+			request = builder.build();
+
 			/* Execute request */
 
-			response = client.newCall(builder.build()).execute();
+			call = client.newCall(request);
+			response = call.execute();
 			if (serviceRequest.getStopwatch() != null) {
 				serviceRequest.getStopwatch().segmentTime("Http service: request execute completed");
 			}
@@ -107,6 +119,8 @@ public class OkHttp extends BaseConnection {
 				logErrorResponse(response);
 				serviceResponse.responseCode = ResponseCode.FAILED;
 			}
+
+			response.body().close();
 			return serviceResponse;
 		}
 		catch (OutOfMemoryError error) {
@@ -138,6 +152,13 @@ public class OkHttp extends BaseConnection {
 			}
 			else {
 				serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, exception);
+			}
+
+			if (exception.getMessage().toLowerCase(Locale.US).contains("cancel")) {
+				if (call.isCanceled()) {
+					Logger.w(this, "Network request cancelled: " + request.tag());
+				}
+				serviceResponse.responseCode = ResponseCode.INTERRUPTED;
 			}
 		}
 		return serviceResponse;
@@ -171,12 +192,12 @@ public class OkHttp extends BaseConnection {
 
 			@Override
 			public void onFailure(Request request, IOException e) {
-					/*
-					 * Called when the request could not be executed due to cancellation, a
-					 * connectivity problem or timeout. Because networks can fail during an
-					 * exchange, it is possible that the remote server accepted the request
-					 * before the failure.
-					 */
+				/*
+				 * Called when the request could not be executed due to cancellation, a
+				 * connectivity problem or timeout. Because networks can fail during an
+				 * exchange, it is possible that the remote server accepted the request
+				 * before the failure.
+				 */
 			}
 
 			@Override

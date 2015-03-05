@@ -81,7 +81,7 @@ public class MapForm extends BaseEntityForm {
 								Errors.handleError(MapForm.this, result.serviceResponse);
 							}
 						}
-					}.execute();
+					}.executeOnExecutor(Constants.EXECUTOR);
 					return;
 				}
 			}

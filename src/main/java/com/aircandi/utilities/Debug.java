@@ -7,6 +7,7 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Document;
@@ -40,7 +41,7 @@ public class Debug {
 					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncInsertReport");
-						ModelResult result = Patchr.getInstance().getEntityManager().insertDocument(document);
+						ModelResult result = Patchr.getInstance().getEntityManager().insertDocument(document, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						return result;
 					}
 
@@ -52,36 +53,11 @@ public class Debug {
 							UI.showToastNotification("Beacon saved", Toast.LENGTH_SHORT);
 						}
 					}
-				}.execute();
+				}.executeOnExecutor(Constants.EXECUTOR);
 			}
 			else {
 				UI.showToastNotification("The patch doesn't have any beacons", Toast.LENGTH_SHORT);
 			}
 		}
-	}
-
-	public static void insertLog(final String category, final String name, final String label, final Number value, @NonNull final Object logSet) {
-
-		if (((List) logSet).size() == 0) return;
-
-		final Log log = new Log();
-
-		log.category = category;
-		log.name = name;
-		log.label = label;
-		log.value = value;
-		log.data = new HashMap<String, Object>();
-		log.data.put("detail", ((ArrayList) logSet).clone());
-
-		new AsyncTask() {
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncInsertReport");
-				ModelResult result = Patchr.getInstance().getEntityManager().insertLog(log);
-				return result;
-			}
-
-		}.execute();
 	}
 }

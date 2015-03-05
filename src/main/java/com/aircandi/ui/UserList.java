@@ -14,6 +14,7 @@ import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.ProcessingFinishedEvent;
@@ -211,7 +212,7 @@ public class UserList extends BaseActivity {
 						, null
 						, toShortcut
 						, actionEvent
-						, true);
+						, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -227,7 +228,7 @@ public class UserList extends BaseActivity {
 					Errors.handleError(UserList.this, result.serviceResponse);
 				}
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	public void deleteMember(final String fromId) {
@@ -244,7 +245,7 @@ public class UserList extends BaseActivity {
 						, Constants.TYPE_LINK_WATCH
 						, false
 						, mEntity.schema
-						, actionEvent);
+						, actionEvent, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -262,7 +263,7 @@ public class UserList extends BaseActivity {
 					}
 				}
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	@Override

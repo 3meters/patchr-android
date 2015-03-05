@@ -8,10 +8,12 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBusy.BusyAction;
@@ -116,7 +118,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertFeedback");
 				mFeedback.createdDate = DateTime.nowDate().getTime();
-				final ModelResult result = Patchr.getInstance().getEntityManager().insertDocument(mFeedback);
+				final ModelResult result = Patchr.getInstance().getEntityManager().insertDocument(mFeedback, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -134,7 +136,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 				}
 				mProcessing = false;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	@Override

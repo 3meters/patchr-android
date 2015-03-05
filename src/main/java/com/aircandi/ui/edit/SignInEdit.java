@@ -20,6 +20,7 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
@@ -132,7 +133,7 @@ public class SignInEdit extends BaseEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncSignIn");
-				ModelResult result = Patchr.getInstance().getEntityManager().signin(email, password, SignInEdit.class.getSimpleName());
+				ModelResult result = Patchr.getInstance().getEntityManager().signin(email, password, SignInEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					result = NotificationManager.getInstance().registerInstallWithAircandi();
 				}
@@ -156,7 +157,7 @@ public class SignInEdit extends BaseEdit {
 					Errors.handleError(SignInEdit.this, result.serviceResponse);
 				}
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	@Override

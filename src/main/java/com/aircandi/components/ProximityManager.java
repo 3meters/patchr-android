@@ -51,8 +51,9 @@ public class ProximityManager {
 	private Long mLastBeaconLoadDate;
 	private Long mLastBeaconInstallUpdate;
 
-	private WifiManager mWifiManager;
-	private EntityCache mEntityCache;
+	private EntityCache       mEntityCache;
+	private BroadcastReceiver mWifiReceiver;
+	private ScanReason        mScanReason;
 
 	/*
 	 * Continuously updated as we perform wifi scans. Beacons are only build from the wifi info on demand.
@@ -66,18 +67,80 @@ public class ProximityManager {
 	private static final WifiScanResult mWifiEmpty              = new WifiScanResult("aa:aa:bb:bb:cc:cc", "test_empty", -50, true);
 	private static final String         MockBssid               = "00:00:00:00:00:00";
 
-	private ProximityManager() {
-		mWifiManager = (WifiManager) Patchr.applicationContext.getSystemService(Context.WIFI_SERVICE);
-		mEntityCache = EntityManager.getEntityCache();
-		register();
-	}
-
 	private static class ProxiManagerHolder {
 		public static final ProximityManager instance = new ProximityManager();
 	}
 
 	public static ProximityManager getInstance() {
 		return ProxiManagerHolder.instance;
+	}
+
+	private ProximityManager() {
+
+		mEntityCache = EntityManager.getEntityCache();
+		mWifiReceiver = new BroadcastReceiver() {
+			/*
+			 * Called from main thread.
+			 */
+			@Override
+			public void onReceive(Context context, Intent intent) {
+
+				Patchr.applicationContext.unregisterReceiver(this);
+				Patchr.stopwatch1.segmentTime("Wifi scan received from system: reason = " + mScanReason.toString());
+				Logger.v(ProximityManager.this, "Received wifi scan results for " + mScanReason.name());
+
+				synchronized (mWifiList) {
+
+					/* Rebuild wifi list with latest scan results */
+
+					mWifiList.clear();
+					for (ScanResult scanResult : NetworkManager.getInstance().getWifiManager().getScanResults()) {
+						/* Dev/test could trigger a mock access point and we filter for it just to prevent confusion.*/
+						if (!scanResult.BSSID.equals(MockBssid)) {
+							mWifiList.add(new WifiScanResult(scanResult));
+						}
+					}
+
+					final String testingBeacons = Patchr.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
+
+					if (!ListPreferenceMultiSelect.contains("natural", testingBeacons, null)) {
+						mWifiList.clear();
+					}
+
+					if (ListPreferenceMultiSelect.contains("massena_upper", testingBeacons, null)) {
+						mWifiList.add(mWifiMassenaUpper);
+					}
+
+					if (ListPreferenceMultiSelect.contains("massena_lower", testingBeacons, null)) {
+						mWifiList.add(mWifiMassenaLower);
+					}
+
+					if (ListPreferenceMultiSelect.contains("massena_lower_strong", testingBeacons, null)) {
+						mWifiList.add(mWifiMassenaLowerStrong);
+					}
+
+					if (ListPreferenceMultiSelect.contains("massena_lower_weak", testingBeacons, null)) {
+						mWifiList.add(mWifiMassenaLowerWeak);
+					}
+
+					if (ListPreferenceMultiSelect.contains("empty", testingBeacons, null)) {
+						mWifiList.add(mWifiEmpty);
+					}
+
+					Collections.sort(mWifiList, new WifiScanResult.SortWifiBySignalLevel());
+
+					mLastWifiUpdate = DateTime.nowDate();
+					if (mScanReason == ScanReason.MONITORING) {
+						BusProvider.getInstance().post(new MonitoringWifiScanReceivedEvent(mWifiList));
+					}
+					else if (mScanReason == ScanReason.QUERY) {
+						BusProvider.getInstance().post(new QueryWifiScanReceivedEvent(mWifiList));
+					}
+				}
+			}
+		};
+
+		register();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -114,7 +177,7 @@ public class ProximityManager {
 				ServiceResponse serviceResponse = updateProximity(event.wifiList);
 				return serviceResponse;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -128,71 +191,19 @@ public class ProximityManager {
 		//noinspection ConstantConditions
 		if (Patchr.applicationContext == null) return;
 
-		synchronized (mWifiList) {
+		mScanReason = reason;
+		Patchr.applicationContext.registerReceiver(mWifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+		Reporting.updateCrashKeys();
+		Logger.d(this, "Starting wifi scan");
+		NetworkManager.getInstance().getWifiManager().startScan();
+	}
 
-			Patchr.applicationContext.registerReceiver(new BroadcastReceiver() {
-
-				@Override
-				public void onReceive(Context context, Intent intent) {
-
-					Patchr.applicationContext.unregisterReceiver(this);
-					Patchr.stopwatch1.segmentTime("Wifi scan received from system: reason = " + reason.toString());
-					Logger.v(ProximityManager.this, "Received wifi scan results for " + reason.name());
-
-						/* get the latest scan results */
-					mWifiList.clear();
-
-					for (ScanResult scanResult : mWifiManager.getScanResults()) {
-							/*
-							 * Dev/test could trigger a mock access point and we filter for it
-							 * just to prevent confusion. We add our own below if emulator is active.
-							 */
-						if (!scanResult.BSSID.equals(MockBssid)) {
-							mWifiList.add(new WifiScanResult(scanResult));
-						}
-					}
-
-					final String testingBeacons = Patchr.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
-
-					if (!ListPreferenceMultiSelect.contains("natural", testingBeacons, null)) {
-						mWifiList.clear();
-					}
-
-					if (ListPreferenceMultiSelect.contains("massena_upper", testingBeacons, null)) {
-						mWifiList.add(mWifiMassenaUpper);
-					}
-
-					if (ListPreferenceMultiSelect.contains("massena_lower", testingBeacons, null)) {
-						mWifiList.add(mWifiMassenaLower);
-					}
-
-					if (ListPreferenceMultiSelect.contains("massena_lower_strong", testingBeacons, null)) {
-						mWifiList.add(mWifiMassenaLowerStrong);
-					}
-
-					if (ListPreferenceMultiSelect.contains("massena_lower_weak", testingBeacons, null)) {
-						mWifiList.add(mWifiMassenaLowerWeak);
-					}
-
-					if (ListPreferenceMultiSelect.contains("empty", testingBeacons, null)) {
-						mWifiList.add(mWifiEmpty);
-					}
-
-					Collections.sort(mWifiList, new WifiScanResult.SortWifiBySignalLevel());
-
-					mLastWifiUpdate = DateTime.nowDate();
-					if (reason == ScanReason.MONITORING) {
-						BusProvider.getInstance().post(new MonitoringWifiScanReceivedEvent(mWifiList));
-					}
-					else if (reason == ScanReason.QUERY) {
-						BusProvider.getInstance().post(new QueryWifiScanReceivedEvent(mWifiList));
-					}
-				}
-			}, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-
-			Reporting.updateCrashKeys();
-			mWifiManager.startScan();
+	public void stop() {
+		Logger.d(this, "Unregistering wifi scan receiver");
+		try {
+			Patchr.applicationContext.unregisterReceiver(mWifiReceiver);
 		}
+		catch (IllegalArgumentException e) { /* Ignored */}
 	}
 
 	public void lockBeacons() {
@@ -288,7 +299,7 @@ public class ProximityManager {
 				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_BEACONS)
 				, cursor
 				, installId
-				, Patchr.stopwatch1);
+				, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, Patchr.stopwatch1);
 
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			mLastBeaconLoadDate = ((ServiceData) serviceResponse.data).date.longValue();
@@ -297,22 +308,17 @@ public class ProximityManager {
 			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPatches(null /* proximity not required */);
 			Patchr.stopwatch1.segmentTime("Entities for beacons: objects processed");
 			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
-			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 		}
 		else {
 			Patchr.stopwatch1.segmentTime("Entities for beacons: service call failed");
-			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 		}
+
+		BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
 
 		return serviceResponse;
 	}
 
 	public synchronized ServiceResponse getEntitiesNearLocation(AirLocation location) {
-
-		/* Clean out all patches not found via proximity */
-		Integer removeCount = mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, false /* not found by proximity */);
-		Logger.v(this, "Removed synthetic places from cache: count = " + String.valueOf(removeCount));
-
 		/*
 		 * We find all aircandi patch entities in the cache via proximity that are active based
 		 * on the current search parameters (beacons and search radius) and could be supplied by the patch provider. We
@@ -330,7 +336,7 @@ public class ProximityManager {
 		ServiceResponse serviceResponse = mEntityCache.loadEntitiesNearLocation(location
 				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_PATCH)
 				, installId
-				, excludePlaceIds);
+				, excludePlaceIds, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 		return serviceResponse;
 	}
@@ -355,7 +361,7 @@ public class ProximityManager {
 		AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 		String installId = Patchr.getInstance().getinstallId();
 
-		result = Patchr.getInstance().getEntityManager().updateProximity(beaconIds, location, installId);
+		result = Patchr.getInstance().getEntityManager().updateProximity(beaconIds, location, installId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			mLastBeaconInstallUpdate = DateTime.nowDate().getTime();

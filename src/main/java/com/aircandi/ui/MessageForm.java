@@ -26,6 +26,7 @@ import com.aircandi.R;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.EntitiesLoadedEvent;
@@ -765,7 +766,7 @@ public class MessageForm extends BaseEntityForm {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
 				String seedParentId = mEntity.type.equals(MessageType.ROOT) ? mEntity.patchId : null;
-				final ModelResult result = ((EntityManager) Patchr.getInstance().getEntityManager()).deleteMessage(mEntity.id, false, seedParentId);
+				final ModelResult result = ((EntityManager) Patchr.getInstance().getEntityManager()).deleteMessage(mEntity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -788,7 +789,7 @@ public class MessageForm extends BaseEntityForm {
 					Errors.handleError(MessageForm.this, result.serviceResponse);
 				}
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	@Override

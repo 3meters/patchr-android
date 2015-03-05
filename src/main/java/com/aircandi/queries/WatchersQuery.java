@@ -2,6 +2,7 @@ package com.aircandi.queries;
 
 import com.aircandi.Patchr;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.interfaces.IQuery;
 import com.aircandi.objects.Cursor;
@@ -64,7 +65,7 @@ public class WatchersQuery implements IQuery {
 			links = Patchr.getInstance().getEntityManager().getLinks().build(controller.getLinkProfile());
 		}
 
-		ModelResult result = Patchr.getInstance().getEntityManager().loadEntitiesForEntity(mEntityId, links, mCursor, null);
+		ModelResult result = Patchr.getInstance().getEntityManager().loadEntitiesForEntity(mEntityId, links, mCursor, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null);
 
 		if (result.data != null) {
 			mHasExecuted = true;

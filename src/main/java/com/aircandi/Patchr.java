@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -158,9 +159,23 @@ public class Patchr extends MultiDexApplication {
 		 * Application starts for all basic cases but also when not running and
 		 * a broadcast receiver is activated.
 		 */
+		debug = (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE));
+
+		if (debug) {
+			StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+					.detectAll()   // or .detectAll() for all detectable problems
+					.permitDiskReads()
+					.penaltyLog()
+					.build());
+
+			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+					.detectAll()
+					.penaltyLog()
+					.build());
+		}
+
 		super.onCreate();
 		singletonObject = this;
-		debug = (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE));
 		singletonObject.initializeInstance();
 		Logger.d(this, "Application created");
 	}
@@ -248,7 +263,6 @@ public class Patchr extends MultiDexApplication {
 		dispatch = new DispatchManager();
 
 		/* Connectivity monitoring */
-		NetworkManager.getInstance().setContext(getApplicationContext());
 		NetworkManager.getInstance().initialize();
 	}
 
@@ -458,7 +472,7 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	public Boolean setCurrentUser(@NonNull User user, @NonNull Boolean refreshUser) {
 		mCurrentUser = user;
-		ModelResult result = mEntityManager.activateCurrentUser(refreshUser);
+		ModelResult result = mEntityManager.activateCurrentUser(refreshUser, null);
 		Reporting.updateCrashUser(user);
 		return (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS);
 	}

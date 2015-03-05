@@ -15,6 +15,7 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBusy.BusyAction;
@@ -157,7 +158,7 @@ public class ResetEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncRequestPasswordReset");
 
 				String email = mEmail.getText().toString().trim().toLowerCase(Locale.US);
-				ModelResult result = Patchr.getInstance().getEntityManager().requestPasswordReset(email);
+				ModelResult result = Patchr.getInstance().getEntityManager().requestPasswordReset(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -204,7 +205,7 @@ public class ResetEdit extends BaseEdit {
 				}
 				mProcessing = false;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	protected void resetAndSignin() {
@@ -223,7 +224,7 @@ public class ResetEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncResetPassword");
 
 				String password = mPassword.getText().toString();
-				ModelResult result = Patchr.getInstance().getEntityManager().resetPassword(password, mUser);
+				ModelResult result = Patchr.getInstance().getEntityManager().resetPassword(password, mUser, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -245,7 +246,7 @@ public class ResetEdit extends BaseEdit {
 				}
 				mProcessing = false;
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	/*--------------------------------------------------------------------------------------------

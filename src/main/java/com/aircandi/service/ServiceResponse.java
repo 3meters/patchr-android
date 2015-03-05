@@ -29,7 +29,7 @@ public class ServiceResponse {
 	public Integer contentWidthScaled  = 0;
 	public ErrorResponse errorResponse;
 	public String        activityName;
-	public String        tag;
+	public Object        tag;
 
 	public Exception exception;
 

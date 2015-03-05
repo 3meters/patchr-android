@@ -178,7 +178,7 @@ public class NotificationListFragment extends MessageListFragment {
 					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	public void lazyLoad() {
@@ -217,7 +217,7 @@ public class NotificationListFragment extends MessageListFragment {
 				}
 				switcher.setDisplayedChild(0);
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	protected void bindListItem(Entity entity, View view, String groupTag) {

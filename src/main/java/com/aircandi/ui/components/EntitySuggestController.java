@@ -24,6 +24,7 @@ import com.aircandi.R;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.AirLocation;
@@ -421,7 +422,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 						ModelResult modelResult = Patchr.getInstance().getEntityManager().suggest(chars.toString().trim()
 								, mSuggestScope, Patchr.getInstance().getCurrentUser().id
 								, location
-								, LIMIT);
+								, LIMIT, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 						if (modelResult.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 

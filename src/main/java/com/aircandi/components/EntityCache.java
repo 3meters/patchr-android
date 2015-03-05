@@ -43,7 +43,7 @@ public class EntityCache implements Map<String, Entity> {
 	 * Cache loading from service
 	 *--------------------------------------------------------------------------------------------*/
 
-	public ServiceResponse loadEntities(List<String> entityIds, Links linkOptions) {
+	public ServiceResponse loadEntities(List<String> entityIds, Links linkOptions, Object tag) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putStringArrayList("entityIds", (ArrayList<String>) entityIds);
@@ -55,6 +55,7 @@ public class EntityCache implements Map<String, Entity> {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getEntities")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -113,7 +114,7 @@ public class EntityCache implements Map<String, Entity> {
 		return serviceResponse;
 	}
 
-	public ServiceResponse loadEntitiesForEntity(String forEntityId, Links linkOptions, Cursor cursor, Stopwatch stopwatch) {
+	public ServiceResponse loadEntitiesForEntity(String forEntityId, Links linkOptions, Cursor cursor, Stopwatch stopwatch, Object tag) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("entityId", forEntityId);
@@ -130,6 +131,7 @@ public class EntityCache implements Map<String, Entity> {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesForEntity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON)
 				.setStopwatch(stopwatch);
 
@@ -170,7 +172,7 @@ public class EntityCache implements Map<String, Entity> {
 		return serviceResponse;
 	}
 
-	public ServiceResponse loadEntitiesByProximity(List<String> beaconIds, Links linkOptions, Cursor cursor, String installId, Stopwatch stopwatch) {
+	public ServiceResponse loadEntitiesByProximity(List<String> beaconIds, Links linkOptions, Cursor cursor, String installId, Object tag, Stopwatch stopwatch) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putStringArrayList("beaconIds", (ArrayList<String>) beaconIds);
@@ -191,6 +193,7 @@ public class EntityCache implements Map<String, Entity> {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesByProximity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON)
 				.setStopwatch(stopwatch);
 
@@ -207,10 +210,6 @@ public class EntityCache implements Map<String, Entity> {
 		if (stopwatch != null) {
 			stopwatch.segmentTime("Load entities: service call complete");
 		}
-
-		/* Clean out all patches found via proximity before shoving in the latest */
-		Integer removeCount = EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
-		Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
 
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String jsonResponse = (String) serviceResponse.data;
@@ -234,14 +233,30 @@ public class EntityCache implements Map<String, Entity> {
 						Patchr.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
 					}
 				}
-				upsertEntities(loadedEntities);
+
+				synchronized (this) {
+
+					/* Clean out all patches found via proximity before shoving in the latest */
+					Integer removeCount = EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
+					Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
+
+					/* Push patch entities to cache */
+					upsertEntities(loadedEntities);
+				}
 			}
 		}
+//		else if (serviceResponse.responseCode != ResponseCode.INTERRUPTED) {
+//			synchronized (this) {
+//				/* We clean out all patches found via proximity even if the proximity call failed */
+//				Integer removeCount = EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
+//				Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
+//			}
+//		}
 
 		return serviceResponse;
 	}
 
-	public ServiceResponse loadEntitiesNearLocation(AirLocation location, Links linkOptions, String installId, List<String> excludeIds) {
+	public ServiceResponse loadEntitiesNearLocation(AirLocation location, Links linkOptions, String installId, List<String> excludeIds, Object tag) {
 
 		final Bundle parameters = new Bundle();
 
@@ -265,6 +280,7 @@ public class EntityCache implements Map<String, Entity> {
 				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PATCHES + "near")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
+				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -285,8 +301,15 @@ public class EntityCache implements Map<String, Entity> {
 				entity.foundByProximity = false;
 			}
 
-			/* Push patch entities to cache */
-			upsertEntities(entities);
+			synchronized (this) {
+
+				/* Clean out all patches not found via proximity */
+				Integer removeCount = removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, false /* not found by proximity */);
+				Logger.v(this, "Removed synthetic places from cache: count = " + String.valueOf(removeCount));
+
+				/* Push patch entities to cache */
+				upsertEntities(entities);
+			}
 		}
 
 		return serviceResponse;

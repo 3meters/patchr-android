@@ -19,6 +19,7 @@ import com.aircandi.components.AndroidManager;
 import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.objects.LinkProfile;
@@ -123,7 +124,7 @@ public class SplashForm extends ActionBarActivity {
 					User user = Patchr.getInstance().getCurrentUser();
 					if (!user.isAnonymous()) {
 						Links options = Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
-						result = Patchr.getInstance().getEntityManager().getEntity(Patchr.getInstance().getCurrentUser().id, true, options);
+						result = Patchr.getInstance().getEntityManager().getEntity(Patchr.getInstance().getCurrentUser().id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 					}
 				}
 
@@ -164,7 +165,7 @@ public class SplashForm extends ActionBarActivity {
 					}
 				}
 			}
-		}.execute();
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	protected void configure() {
