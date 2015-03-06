@@ -116,8 +116,7 @@ public class EntityMonitor extends SimpleMonitor {
 		 * Called when a fresh version of the entity has been pulled from the service.
 		 */
 		if (entity != null) {
-			CacheStamp cacheStamp = entity.getCacheStamp();
-			mCacheStamp = cacheStamp;
+			mCacheStamp = entity.getCacheStamp();
 			Logger.d(this, "updateCacheStamp(): Cache stamp updated to: " + "activity=" + mCacheStamp.activityDate + " modified=" + mCacheStamp.modifiedDate);
 		}
 	}
