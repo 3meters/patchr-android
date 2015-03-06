@@ -299,12 +299,12 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			Link strongestLink = null;
 			Integer strongestLevel = -200;
 			for (Link link : linksOut) {
-				if (link.type.equals(type)) {
+				if (link.type != null && link.type.equals(type)) {
 					if (link.proximity != null && link.proximity.primary != null && link.proximity.primary) {
 						Entity entity = EntityManager.getEntityCache().get(link.toId);
 						if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
 							Beacon beacon = (Beacon) entity;
-							if (beacon.signal.intValue() > strongestLevel) {
+							if (beacon.signal != null && beacon.signal.intValue() > strongestLevel) {
 								strongestLink = link;
 								strongestLevel = beacon.signal.intValue();
 							}
@@ -315,11 +315,11 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 			if (strongestLink == null && !primaryOnly) {
 				for (Link link : linksOut) {
-					if (link.type.equals(type)) {
+					if (link.type != null && link.type.equals(type)) {
 						Entity entity = EntityManager.getEntityCache().get(link.toId);
 						if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
 							Beacon beacon = (Beacon) entity;
-							if (beacon.signal.intValue() > strongestLevel) {
+							if (beacon.signal != null && beacon.signal.intValue() > strongestLevel) {
 								strongestLink = link;
 								strongestLevel = beacon.signal.intValue();
 							}
@@ -349,7 +349,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		if (linksOut != null) {
 			Link strongestLink = null;
 			for (Link link : linksOut) {
-				if (link.type.equals(type)) {
+				if (link.type != null && link.type.equals(type)) {
 					if (link.proximity != null && link.proximity.primary != null && link.proximity.primary) {
 						strongestLink = link;
 						break;
@@ -359,7 +359,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 			if (strongestLink == null && !primaryOnly) {
 				for (Link link : linksOut) {
-					if (link.type.equals(type)) {
+					if (link.type != null && link.type.equals(type)) {
 						strongestLink = link;
 						break;
 					}
@@ -390,7 +390,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		if (linksIn != null) {
 			if (direction == Direction.in || direction == Direction.both) {
 				for (Link link : linksIn) {
-					if (types == null || types.contains(link.type)) {
+					if (types == null || (link.type != null && types.contains(link.type))) {
 						Entity entity = EntityManager.getCacheEntity(link.fromId);
 						if (entity != null) {
 							if (Type.isTrue(traverse)) {
@@ -407,7 +407,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		if (linksOut != null) {
 			if (direction == Direction.out || direction == Direction.both) {
 				for (Link link : linksOut) {
-					if (types == null || types.contains(link.type)) {
+					if (types == null || ( link.type != null && types.contains(link.type))) {
 						Entity entity = EntityManager.getCacheEntity(link.toId);
 						if (entity != null) {
 							if (Type.isTrue(traverse)) {
@@ -443,7 +443,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Link getParentLink(String type, String targetSchema) {
 		if (linksOut != null) {
 			for (Link link : linksOut) {
-				if ((type == null || link.type.equals(type))
+				if ((type == null || (link.type != null && link.type.equals(type)))
 						&& (targetSchema == null || link.targetSchema.equals(targetSchema)))
 					return link;
 			}
@@ -455,7 +455,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Boolean hasActiveProximity() {
 		if (linksOut != null) {
 			for (Link link : linksOut) {
-				if (link.type.equals(Constants.TYPE_LINK_PROXIMITY) && link.proximity != null) {
+				if (link.type != null && link.type.equals(Constants.TYPE_LINK_PROXIMITY) && link.proximity != null) {
 					Beacon beacon = (Beacon) EntityManager.getCacheEntity(link.toId);
 					if (beacon != null) return true;
 				}
@@ -488,7 +488,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		}
 		if (links != null) {
 			for (Link link : links) {
-				if (type == null || link.type.equals(type)) {
+				if (type == null || (link.type != null && link.type.equals(type))) {
 					if (targetSchema == null || link.targetSchema.equals(targetSchema)) {
 						if (targetId == null || targetId.equals((direction == Direction.in) ? link.fromId : link.toId))
 							return link;
@@ -508,7 +508,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		}
 		if (tempLinks != null) {
 			for (Link link : tempLinks) {
-				if (type == null || link.type.equals(type)) {
+				if (type == null || (link.type != null && link.type.equals(type))) {
 					if (targetSchema == null || link.targetSchema.equals(targetSchema)) {
 						if (targetId == null || targetId.equals((direction == Direction.in) ? link.fromId : link.toId))
 							links.add(link);
@@ -528,7 +528,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			Iterator<Link> iterLinks = links.iterator();
 			while (iterLinks.hasNext()) {
 				Link link = iterLinks.next();
-				if (link.type.equals(type) && link.targetSchema.equals(targetSchema)) {
+				if (link.type != null && link.type.equals(type) && link.targetSchema.equals(targetSchema)) {
 					if (targetId == null || targetId.equals((direction == Direction.in) ? link.fromId : link.toId)) {
 						iterLinks.remove();
 					}
@@ -549,7 +549,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 				Collections.sort(links, linkSorter);
 			}
 			for (Link link : links) {
-				if ((settings.linkType == null || link.type.equals(settings.linkType)) && link.shortcut != null) {
+				if ((settings.linkType == null || (link.type != null && link.type.equals(settings.linkType))) && link.shortcut != null) {
 					if (settings.linkTargetSchema == null || (link.targetSchema.equals(settings.linkTargetSchema))) {
 						if (settings.synthetic == null || link.shortcut.isSynthetic().equals(settings.synthetic)) {
 							if (settings.linkBroken
@@ -614,7 +614,9 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Link linkFromAppUser(String linkType) {
 		if (linksIn != null) {
 			for (Link link : linksIn) {
-				if (link.type.equals(linkType) && link.fromId.equals(Patchr.getInstance().getCurrentUser().id))
+				if (link.type != null
+						&& link.type.equals(linkType)
+						&& link.fromId.equals(Patchr.getInstance().getCurrentUser().id))
 					return link;
 			}
 		}
@@ -624,13 +626,19 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Link linkByAppUser(String linkType, String schema) {
 		if (linksIn != null) {
 			for (Link link : linksIn) {
-				if (link.type.equals(linkType) && link.targetSchema.equals(schema) && link.creatorId.equals(Patchr.getInstance().getCurrentUser().id))
+				if (link.type != null
+						&& link.type.equals(linkType)
+						&& link.targetSchema.equals(schema)
+						&& link.creatorId.equals(Patchr.getInstance().getCurrentUser().id))
 					return link;
 			}
 		}
 		if (linksOut != null) {
 			for (Link link : linksOut) {
-				if (link.type.equals(linkType) && link.targetSchema.equals(schema) && link.creatorId.equals(Patchr.getInstance().getCurrentUser().id))
+				if (link.type != null
+						&& link.type.equals(linkType)
+						&& link.targetSchema.equals(schema)
+						&& link.creatorId.equals(Patchr.getInstance().getCurrentUser().id))
 					return link;
 			}
 		}
