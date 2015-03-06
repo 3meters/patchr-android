@@ -682,7 +682,7 @@ public class MessageForm extends BaseEntityForm {
 	@Override
 	public void afterDatabind(final BindingMode mode, ModelResult result) {
 		super.afterDatabind(mode, result);
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+		if (result != null && result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			if (mEntityMonitor.changed) {
 				((EntityListFragment) mCurrentFragment).bind(BindingMode.MANUAL);
 			}

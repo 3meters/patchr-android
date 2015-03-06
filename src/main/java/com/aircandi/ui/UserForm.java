@@ -126,7 +126,7 @@ public class UserForm extends BaseEntityForm {
 
 		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
 		if (!currentUser) return;
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+		if (result != null && result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			if (mEntityMonitor.changed) {
 				((EntityListFragment)mCurrentFragment).bind(BindingMode.MANUAL);
 			}
