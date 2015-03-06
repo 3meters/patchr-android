@@ -84,6 +84,8 @@ public abstract class BaseEntityForm extends BaseActivity {
 	@SuppressWarnings("ucd")
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
+		if (entity == null) return;
+
 		Bundle extras = new Bundle();
 		if (Type.isTrue(entity.autowatchable)) {
 			extras.putBoolean(Constants.EXTRA_PRE_APPROVED, true);
