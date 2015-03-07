@@ -159,9 +159,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void bind(final BindingMode mode) {
-
-		final AtomicBoolean refreshNeeded = new AtomicBoolean(false);
-		final AtomicBoolean redrawNeeded = new AtomicBoolean(mInvalidated);
 		/*
 		 * Called from background thread.
 	     *
@@ -183,10 +180,10 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 		mTaskGetEntity = new AsyncTask() {
 
+			final AtomicBoolean refreshNeeded = new AtomicBoolean(false);
+
 			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(mNotEmpty ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
-			}
+			protected void onPreExecute() {}
 
 			@Override
 			protected Object doInBackground(Object... params) {
@@ -199,7 +196,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 				}
 
 				if (refreshNeeded.get()) {
-					mUiController.getBusyController().show(mNotEmpty ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
+					mUiController.getBusyController().show(BusyAction.Refreshing);
 					Links options = Patchr.getInstance().getEntityManager().getLinks().build(mLinkProfile);
 					result = Patchr.getInstance().getEntityManager().getEntity(mEntityId, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				}
@@ -209,12 +206,12 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 			@Override
 			protected void onCancelled(Object modelResult) {
-						/*
-						 * Called after exiting doInBackground() and task.cancel was called.
-						 * If using task.cancel(true) and the task is running then AsyncTask
-						 * will call interrupt on the thread which in turn will be picked up
-						 * by okhttp before it begins the next blocking operation.
-						 */
+				/*
+				 * Called after exiting doInBackground() and task.cancel was called.
+				 * If using task.cancel(true) and the task is running then AsyncTask
+				 * will call interrupt on the thread which in turn will be picked up
+				 * by okhttp before it begins the next blocking operation.
+				 */
 				if (modelResult != null) {
 					final ModelResult result = (ModelResult) modelResult;
 					Logger.w(Thread.currentThread().getName(), "Get entity task cancelled: " + result.serviceResponse.responseCode.toString());
@@ -252,18 +249,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 							mUiController.getBusyController().hide(true);
 							UI.showToastNotification("This item has been deleted", Toast.LENGTH_SHORT);
 							finish();
-						}
-					}
-					else if (redrawNeeded.get()) {
-						if (mEntity != null) {
-							/*
-							 * Possible to hit this before options menu has been set. If so then
-							 * configureStandardMenuItems will be called in onCreateOptionsMenu.
-							 */
-							if (mOptionMenu != null) {
-								configureStandardMenuItems(mOptionMenu);
-							}
-							draw(null);
 						}
 					}
 
