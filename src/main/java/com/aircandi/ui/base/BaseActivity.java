@@ -109,7 +109,6 @@ public abstract class BaseActivity extends ActionBarActivity
 
 	public Resources mResources;
 	public    Boolean mFirstDraw    = true;
-	protected Boolean mInvalidated  = false;
 	protected Boolean mClickEnabled = false;                        // NO_UCD (unused code)
 	protected Boolean mNotEmpty     = false;
 	protected Boolean mProcessing   = false;
@@ -610,14 +609,6 @@ public abstract class BaseActivity extends ActionBarActivity
 		if (mPrefChangeNewSearchNeeded || mPrefChangeRefreshUiNeeded || mPrefChangeReloadNeeded) {
 			Patchr.getInstance().snapshotPreferences();
 		}
-	}
-
-	public Boolean getInvalidated() {
-		return mInvalidated;
-	}
-
-	public void setInvalidated(Boolean invalidated) {
-		mInvalidated = invalidated;
 	}
 
 	/*--------------------------------------------------------------------------------------------
