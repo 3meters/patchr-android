@@ -68,7 +68,7 @@ public class EntityManager {
 	 * Cache queries
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static Entity getCacheEntity(String entityId) {
+	public static Entity getStoreEntity(String entityId) {
 		return ENTITY_STORE.get(entityId);
 	}
 
@@ -81,53 +81,32 @@ public class EntityManager {
 		 * Retrieves entity from cache if available otherwise downloads the entity from the service. If refresh is true
 		 * then bypasses the cache and downloads from the service.
 		 */
-		final ModelResult result = getEntities(Arrays.asList(entityId), refresh, linkOptions, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final List<Entity> entities = (List<Entity>) result.data;
-			if (entities.size() > 0) {
-				result.data = entities.get(0);
-			}
-			else {
-				result.data = null;
-			}
-		}
-		return result;
-	}
-
-	private synchronized ModelResult getEntities(List<String> entityIds, Boolean refresh, Links linkOptions, Object tag) {
-		/*
-		 * Results in a service request if missing entities or refresh is true.
-		 */
 		final ModelResult result = new ModelResult();
 
-		final List<String> loadEntityIds = new ArrayList<String>();
-		List<Entity> entities = new ArrayList<Entity>();
+		Entity entity = ENTITY_STORE.get(entityId);
+		if (refresh || entity == null) {
+			final List<String> loadEntityIds = new ArrayList<String>();
+			loadEntityIds.add(entityId);
 
-		for (String entityId : entityIds) {
-			Entity entity = ENTITY_STORE.get(entityId);
-			if (refresh || entity == null) {
-				loadEntityIds.add(entityId);
-			}
-			else {
-				entities.add(entity);
-			}
-		}
-
-		result.data = entities;
-
-		if (loadEntityIds.size() > 0) {
+			/* This is the only place in the code that calls loadEntities */
 			result.serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, linkOptions, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 				ServiceData serviceData = (ServiceData) result.serviceResponse.data;
-				result.data = serviceData.data;
+				final List<Entity> entities = (List<Entity>) serviceData.data;
+				result.data = entities.get(0);
 			}
 		}
+		else {
+			result.data = entity;
+		}
+
 		return result;
 	}
 
-	public synchronized ModelResult loadEntitiesForEntity(String entityId, Links linkOptions, Cursor cursor, Object tag, Stopwatch stopwatch) {
+	public synchronized ModelResult getEntitiesForEntity(String entityId, Links linkOptions, Cursor cursor, Object tag, Stopwatch stopwatch) {
 		final ModelResult result = new ModelResult();
 
+		/* This is the only place in the code that calls loadEntitiesForEntity */
 		result.serviceResponse = ENTITY_STORE.loadEntitiesForEntity(entityId, linkOptions, cursor, stopwatch, tag);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
