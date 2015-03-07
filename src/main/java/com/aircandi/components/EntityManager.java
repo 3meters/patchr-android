@@ -22,7 +22,6 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
-import com.aircandi.objects.Log;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoType;
@@ -56,7 +55,7 @@ import java.util.Map;
 
 public class EntityManager {
 
-	private static final EntityCache         mEntityCache         = new EntityCache();
+	private static final EntityStore         ENTITY_STORE         = new EntityStore();
 	private              Map<String, String> mCacheStampOverrides = new HashMap<String, String>();
 	private Number mActivityDate;
 	private Links  mLinks;
@@ -70,7 +69,7 @@ public class EntityManager {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static Entity getCacheEntity(String entityId) {
-		return mEntityCache.get(entityId);
+		return ENTITY_STORE.get(entityId);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -105,7 +104,7 @@ public class EntityManager {
 		List<Entity> entities = new ArrayList<Entity>();
 
 		for (String entityId : entityIds) {
-			Entity entity = mEntityCache.get(entityId);
+			Entity entity = ENTITY_STORE.get(entityId);
 			if (refresh || entity == null) {
 				loadEntityIds.add(entityId);
 			}
@@ -117,7 +116,7 @@ public class EntityManager {
 		result.data = entities;
 
 		if (loadEntityIds.size() > 0) {
-			result.serviceResponse = mEntityCache.loadEntities(loadEntityIds, linkOptions, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+			result.serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, linkOptions, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 				ServiceData serviceData = (ServiceData) result.serviceResponse.data;
 				result.data = serviceData.data;
@@ -129,7 +128,7 @@ public class EntityManager {
 	public synchronized ModelResult loadEntitiesForEntity(String entityId, Links linkOptions, Cursor cursor, Object tag, Stopwatch stopwatch) {
 		final ModelResult result = new ModelResult();
 
-		result.serviceResponse = mEntityCache.loadEntitiesForEntity(entityId, linkOptions, cursor, stopwatch, tag);
+		result.serviceResponse = ENTITY_STORE.loadEntitiesForEntity(entityId, linkOptions, cursor, stopwatch, tag);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			ServiceData serviceData = (ServiceData) result.serviceResponse.data;
@@ -774,7 +773,7 @@ public class EntityManager {
 			 */
 			if (!entity.synthetic) {
 				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-				mEntityCache.addLink(Patchr.getInstance().getCurrentUser().id
+				ENTITY_STORE.addLink(Patchr.getInstance().getCurrentUser().id
 						, insertedEntity.id
 						, Constants.TYPE_LINK_CREATE
 						, null
@@ -848,7 +847,7 @@ public class EntityManager {
 			 * from the service.
 			 */
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-				mEntityCache.updateEntityUser(entity);
+				ENTITY_STORE.updateEntityUser(entity);
 			}
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
@@ -870,7 +869,7 @@ public class EntityManager {
 		Entity entity = null;
 
 		if (!cacheOnly) {
-			entity = mEntityCache.get(entityId);
+			entity = ENTITY_STORE.get(entityId);
 
 			if (entity == null) {
 				throw new IllegalArgumentException("Deleting entity requires entity from cache");
@@ -903,7 +902,7 @@ public class EntityManager {
 			if (entity != null) {
 				Reporting.sendEvent(Reporting.TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
 			}
-			entity = mEntityCache.removeEntityTree(entityId);
+			entity = ENTITY_STORE.removeEntityTree(entityId);
 			/*
 			 * Remove 'create' link
 			 * 
@@ -911,7 +910,7 @@ public class EntityManager {
 			 * this entity at either end and clean them up including any counts.
 			 */
 			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-			mEntityCache.removeLink(Patchr.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
+			ENTITY_STORE.removeLink(Patchr.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
 
 			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				mActivityDate = DateTime.nowDate().getTime();
@@ -1034,7 +1033,7 @@ public class EntityManager {
 										/*
 										 * Entity could be a clone so grab the one in the cache.
 										 */
-										Entity cacheEntity = mEntityCache.get(entity.id);
+										Entity cacheEntity = ENTITY_STORE.get(entity.id);
 										if (cacheEntity != null) {
 											cacheEntity.activityDate = DateTime.nowDate().getTime();
 										}
@@ -1059,7 +1058,7 @@ public class EntityManager {
 						/*
 						 * Entity could be a clone so grab the one in the cache.
 						 */
-						Entity cacheEntity = mEntityCache.get(entity.id);
+						Entity cacheEntity = ENTITY_STORE.get(entity.id);
 						if (cacheEntity != null) {
 							cacheEntity.activityDate = DateTime.nowDate().getTime();
 						}
@@ -1117,7 +1116,7 @@ public class EntityManager {
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			if (!skipCache) {
-				mEntityCache.addLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
+				ENTITY_STORE.addLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
 			}
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, actionEvent, Entity.getSchemaForId(toId), 0);
 		}
@@ -1167,7 +1166,7 @@ public class EntityManager {
 			 * Fail could be because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
 			 */
-			mEntityCache.removeLink(fromId, toId, type, enabled);
+			ENTITY_STORE.removeLink(fromId, toId, type, enabled);
 		}
 
 		return result;
@@ -1203,7 +1202,7 @@ public class EntityManager {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, "entity_remove", schema, 0);
 			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-			mEntityCache.removeLink(fromId, toId, type, null);
+			ENTITY_STORE.removeLink(fromId, toId, type, null);
 		}
 
 		return result;
@@ -1504,8 +1503,8 @@ public class EntityManager {
 		return mCategories;
 	}
 
-	public static EntityCache getEntityCache() {
-		return mEntityCache;
+	public static EntityStore getEntityCache() {
+		return ENTITY_STORE;
 	}
 
 	public Map<String, String> getCacheStampOverrides() {

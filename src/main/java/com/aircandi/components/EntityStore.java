@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("ucd")
-public class EntityCache implements Map<String, Entity> {
+public class EntityStore implements Map<String, Entity> {
 
 	private final Map<String, Entity> mCacheMap = new ConcurrentHashMap<String, Entity>();
 

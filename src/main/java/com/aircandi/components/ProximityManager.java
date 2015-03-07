@@ -51,7 +51,7 @@ public class ProximityManager {
 	private Long mLastBeaconLoadDate;
 	private Long mLastBeaconInstallUpdate;
 
-	private EntityCache       mEntityCache;
+	private EntityStore       mEntityStore;
 	private BroadcastReceiver mWifiReceiver;
 	private ScanReason        mScanReason;
 
@@ -77,7 +77,7 @@ public class ProximityManager {
 
 	private ProximityManager() {
 
-		mEntityCache = EntityManager.getEntityCache();
+		mEntityStore = EntityManager.getEntityCache();
 		mWifiReceiver = new BroadcastReceiver() {
 			/*
 			 * Called from main thread.
@@ -211,7 +211,7 @@ public class ProximityManager {
 		 * Makes sure that the beacon collection is an accurate representation
 		 * of the latest wifi scan.
 		 */
-		mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
+		mEntityStore.removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 		/*
 		 * insert beacons for the latest scan results.
 		 */
@@ -227,7 +227,7 @@ public class ProximityManager {
 
 				beacon.synthetic = true;
 				beacon.schema = Constants.SCHEMA_ENTITY_BEACON;
-				mEntityCache.upsertEntity(beacon);
+				mEntityStore.upsertEntity(beacon);
 			}
 		}
 
@@ -262,7 +262,7 @@ public class ProximityManager {
 
 		/* Construct string array of the beacon ids */
 		List<String> beaconIds = new ArrayList<String>();
-		List<Beacon> beacons = (List<Beacon>) mEntityCache.getCacheEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
+		List<Beacon> beacons = (List<Beacon>) mEntityStore.getCacheEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
 
 		for (Beacon beacon : beacons) {
 			beaconIds.add(beacon.id);
@@ -272,7 +272,7 @@ public class ProximityManager {
 		if (beaconIds.size() == 0) {
 
 			/* Clean out all patches found via proximity */
-			Integer removeCount = mEntityCache.removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
+			Integer removeCount = mEntityStore.removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
 			Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
 
 			mLastBeaconLoadDate = DateTime.nowDate().getTime();
@@ -295,7 +295,7 @@ public class ProximityManager {
 				.setSort(Maps.asMap("modifiedDate", -1))
 				.setSkip(0);
 
-		serviceResponse = mEntityCache.loadEntitiesByProximity(beaconIds
+		serviceResponse = mEntityStore.loadEntitiesByProximity(beaconIds
 				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_BEACONS)
 				, cursor
 				, installId
@@ -333,7 +333,7 @@ public class ProximityManager {
 
 		String installId = Patchr.getInstance().getinstallId();
 
-		ServiceResponse serviceResponse = mEntityCache.loadEntitiesNearLocation(location
+		ServiceResponse serviceResponse = mEntityStore.loadEntitiesNearLocation(location
 				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_PATCH)
 				, installId
 				, excludePlaceIds, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
@@ -416,7 +416,7 @@ public class ProximityManager {
 
 		final List<Beacon> beaconStrongest = new ArrayList<Beacon>();
 		int beaconCount = 0;
-		List<Beacon> beacons = (List<Beacon>) mEntityCache.getCacheEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
+		List<Beacon> beacons = (List<Beacon>) mEntityStore.getCacheEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
 		Collections.sort(beacons, new Beacon.SortBySignalLevel());
 
 		for (Beacon beacon : beacons) {
