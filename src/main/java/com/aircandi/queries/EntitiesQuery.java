@@ -67,6 +67,8 @@ public class EntitiesQuery implements IQuery {
 			links = Patchr.getInstance().getEntityManager().getLinks().build(controller.getLinkProfile());
 		}
 
+		/* The only place in the code that calls getEntitiesForEntity */
+
 		ModelResult result = Patchr.getInstance().getEntityManager().getEntitiesForEntity(mEntityId, links, mCursor, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null);
 
 		if (result.data != null) {

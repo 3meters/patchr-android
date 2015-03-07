@@ -262,7 +262,7 @@ public class ProximityManager {
 
 		/* Construct string array of the beacon ids */
 		List<String> beaconIds = new ArrayList<String>();
-		List<Beacon> beacons = (List<Beacon>) mEntityStore.getCacheEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
+		List<Beacon> beacons = (List<Beacon>) mEntityStore.getStoreEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
 
 		for (Beacon beacon : beacons) {
 			beaconIds.add(beacon.id);
@@ -295,6 +295,7 @@ public class ProximityManager {
 				.setSort(Maps.asMap("modifiedDate", -1))
 				.setSkip(0);
 
+		/* Only place in the code that calls loadEntitiesByProximity */
 		serviceResponse = mEntityStore.loadEntitiesByProximity(beaconIds
 				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_BEACONS)
 				, cursor
@@ -333,6 +334,7 @@ public class ProximityManager {
 
 		String installId = Patchr.getInstance().getinstallId();
 
+		/* Only place in the code that calls loadEntitiesNearLocation */
 		ServiceResponse serviceResponse = mEntityStore.loadEntitiesNearLocation(location
 				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_PATCH)
 				, installId
@@ -416,7 +418,7 @@ public class ProximityManager {
 
 		final List<Beacon> beaconStrongest = new ArrayList<Beacon>();
 		int beaconCount = 0;
-		List<Beacon> beacons = (List<Beacon>) mEntityStore.getCacheEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
+		List<Beacon> beacons = (List<Beacon>) mEntityStore.getStoreEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
 		Collections.sort(beacons, new Beacon.SortBySignalLevel());
 
 		for (Beacon beacon : beacons) {

@@ -1,7 +1,6 @@
 package com.aircandi.components;
 
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.aircandi.Constants;
@@ -45,7 +44,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -104,6 +102,9 @@ public class EntityManager {
 	}
 
 	public synchronized ModelResult getEntitiesForEntity(String entityId, Links linkOptions, Cursor cursor, Object tag, Stopwatch stopwatch) {
+		/*
+		 * Only called from EntitiesQuery.execute.
+		 */
 		final ModelResult result = new ModelResult();
 
 		/* This is the only place in the code that calls loadEntitiesForEntity */
@@ -709,7 +710,7 @@ public class EntityManager {
 			 */
 			if (!entity.synthetic) {
 				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-				ENTITY_STORE.addLink(Patchr.getInstance().getCurrentUser().id
+				ENTITY_STORE.fixupAddLink(Patchr.getInstance().getCurrentUser().id
 						, insertedEntity.id
 						, Constants.TYPE_LINK_CREATE
 						, null
@@ -783,7 +784,7 @@ public class EntityManager {
 			 * from the service.
 			 */
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-				ENTITY_STORE.updateEntityUser(entity);
+				ENTITY_STORE.fixupEntityUser(entity);
 			}
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
@@ -846,7 +847,7 @@ public class EntityManager {
 			 * this entity at either end and clean them up including any counts.
 			 */
 			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-			ENTITY_STORE.removeLink(Patchr.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
+			ENTITY_STORE.fixupRemoveLink(Patchr.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
 
 			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				mActivityDate = DateTime.nowDate().getTime();
@@ -1052,7 +1053,7 @@ public class EntityManager {
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			if (!skipCache) {
-				ENTITY_STORE.addLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
+				ENTITY_STORE.fixupAddLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
 			}
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, actionEvent, Entity.getSchemaForId(toId), 0);
 		}
@@ -1102,7 +1103,7 @@ public class EntityManager {
 			 * Fail could be because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
 			 */
-			ENTITY_STORE.removeLink(fromId, toId, type, enabled);
+			ENTITY_STORE.fixupRemoveLink(fromId, toId, type, enabled);
 		}
 
 		return result;
@@ -1138,7 +1139,7 @@ public class EntityManager {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, "entity_remove", schema, 0);
 			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-			ENTITY_STORE.removeLink(fromId, toId, type, null);
+			ENTITY_STORE.fixupRemoveLink(fromId, toId, type, null);
 		}
 
 		return result;
@@ -1350,7 +1351,7 @@ public class EntityManager {
 
 		Integer searchRangeMeters = ServiceConstants.PATCH_NEAR_RADIUS;
 
-		List<Patch> patches = (List<Patch>) EntityManager.getEntityCache().getCacheEntities(
+		List<Patch> patches = (List<Patch>) EntityManager.getEntityCache().getStoreEntities(
 				Constants.SCHEMA_ENTITY_PATCH,
 				Constants.TYPE_ANY,
 				searchRangeMeters,

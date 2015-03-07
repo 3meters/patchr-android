@@ -40,7 +40,7 @@ public class EntityStore implements Map<String, Entity> {
 	private final Map<String, Entity> mCacheMap = new ConcurrentHashMap<String, Entity>();
 
 	/*--------------------------------------------------------------------------------------------
-	 * Cache loading from service
+	 * Store loading from service
 	 *--------------------------------------------------------------------------------------------*/
 
 	public ServiceResponse loadEntities(List<String> entityIds, Links linkOptions, Object tag) {
@@ -316,7 +316,7 @@ public class EntityStore implements Map<String, Entity> {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Cache updates (local only)
+	 * Store updates (local only)
 	 *--------------------------------------------------------------------------------------------*/
 
 	private void upsertEntities(List<Entity> entities) {
@@ -336,9 +336,11 @@ public class EntityStore implements Map<String, Entity> {
 		return get(entity.id);
 	}
 
-	public synchronized void updateEntityUser(Entity entity) {
+	public synchronized void fixupEntityUser(Entity entity) {
 		/*
-		 * Updates user objects that are embedded in entities.
+		 * Updates user objects that are embedded in entities. We allow optimistic updating
+		 * of the store because users will expect to see their changes and we don't want to
+		 * refetch every entity they have a relationship with.
 		 */
 		User user = (User) entity;
 		for (Entry<String, Entity> entry : entrySet()) {
@@ -384,8 +386,10 @@ public class EntityStore implements Map<String, Entity> {
 		}
 	}
 
-	public void addLink(String fromId, String toId, String type, Boolean enabled, Shortcut fromShortcut, Shortcut toShortcut) {
-
+	public void fixupAddLink(String fromId, String toId, String type, Boolean enabled, Shortcut fromShortcut, Shortcut toShortcut) {
+		/*
+		 * Optimistically add a link to the store.
+		 */
 		Long time = DateTime.nowDate().getTime();
 
 		Entity toEntity = get(toId);
@@ -460,7 +464,7 @@ public class EntityStore implements Map<String, Entity> {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Cache deletes (local only)
+	 * Store deletes (local only)
 	 *--------------------------------------------------------------------------------------------*/
 
 	public synchronized Entity removeEntityTree(String entityId) {
@@ -522,8 +526,13 @@ public class EntityStore implements Map<String, Entity> {
 		return removeCount;
 	}
 
-	public void removeLink(String fromId, String toId, String type, Boolean enabled) {
-
+	public void fixupRemoveLink(String fromId, String toId, String type, Boolean enabled) {
+		/*
+		 * Optimistically remove a link from the store. Links are sprinkled across entities
+		 * so it is reasonable to proactively fixup rather than have to refetch entities to
+		 * get fresh links. Our primary purpose is that users expect to see their changes
+		 * reflected in a consistent way.
+		 */
 		Long time = DateTime.nowDate().getTime();
 
 		Entity toEntity = get(toId);
@@ -588,11 +597,11 @@ public class EntityStore implements Map<String, Entity> {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Cache reads (local only)
+	 * Store reads (local only)
 	 *--------------------------------------------------------------------------------------------*/
 
 	@SuppressWarnings("ConstantConditions")
-	public synchronized List<? extends Entity> getCacheEntities(String schema, String type, Integer radius, Boolean proximity) {
+	public synchronized List<? extends Entity> getStoreEntities(String schema, String type, Integer radius, Boolean proximity) {
 		List<Entity> entities = new ArrayList<Entity>();
 		final Iterator iter = keySet().iterator();
 		Entity entity;
@@ -625,7 +634,7 @@ public class EntityStore implements Map<String, Entity> {
 	}
 
 	@SuppressWarnings({"ucd", "ConstantConditions"})
-	public synchronized List<? extends Entity> getCacheEntitiesForEntity(String entityId, String schema, String type, Integer radius, Boolean proximity) {
+	public synchronized List<? extends Entity> getStoreEntitiesForEntity(String entityId, String schema, String type, Integer radius, Boolean proximity) {
 		/*
 		 * We rely on the toId property instead of traversing links.
 		 */
@@ -662,11 +671,7 @@ public class EntityStore implements Map<String, Entity> {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Cache methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Cache Map methods
+	 * Store Map methods
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
