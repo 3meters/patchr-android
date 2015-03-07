@@ -23,7 +23,7 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
-import com.aircandi.queries.WatchersQuery;
+import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseFragment;
@@ -64,11 +64,12 @@ public class UserList extends BaseActivity {
 
 		mCurrentFragment = new UserListFragment();
 		EntityMonitor monitor = new EntityMonitor(mEntityId);
-		WatchersQuery query = new WatchersQuery();
+		EntitiesQuery query = new EntitiesQuery();
 
 		query.setEntityId(mEntityId)
 		     .setLinkDirection(Direction.in.name())
 		     .setLinkType(mListLinkType)
+		     .setLinkWhere(null)
 		     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
 		     .setSchema(Constants.SCHEMA_ENTITY_USER);
 

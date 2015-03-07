@@ -15,6 +15,7 @@ import com.aircandi.utilities.Maps;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class EntitiesQuery implements IQuery {
 
@@ -26,7 +27,7 @@ public class EntitiesQuery implements IQuery {
 	protected String mSchema;
 	protected String mLinkType;
 	protected String mLinkDirection;
-	protected String mLinkWhere; // NO_UCD (unused code)
+	protected Map    mLinkWhere = Maps.asMap("enabled", true);
 	protected String mEntityId;
 
 	@Override
@@ -38,8 +39,11 @@ public class EntitiesQuery implements IQuery {
 		mCursor = new Cursor()
 				.setLimit((limit == null) ? mPageSize : limit)
 				.setSort(Maps.asMap("modifiedDate", -1))
-				.setWhere(Maps.asMap("enabled", true))
 				.setSkip(skip);
+
+		if (mLinkWhere != null) {
+			mCursor.setWhere(mLinkWhere);
+		}
 
 		if (mSchema != null) {
 			List<String> toSchemas = new ArrayList<String>();
@@ -123,8 +127,7 @@ public class EntitiesQuery implements IQuery {
 		return this;
 	}
 
-	@SuppressWarnings("ucd")
-	public EntitiesQuery setLinkWhere(String linkWhere) {
+	public EntitiesQuery setLinkWhere(Map linkWhere) {
 		mLinkWhere = linkWhere;
 		return this;
 	}
