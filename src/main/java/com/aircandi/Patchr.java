@@ -29,6 +29,7 @@ import com.aircandi.components.MediaManager;
 import com.aircandi.components.MenuManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
+import com.aircandi.components.NotificationManager;
 import com.aircandi.components.Stopwatch;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.Messages;
@@ -38,6 +39,7 @@ import com.aircandi.controllers.Places;
 import com.aircandi.controllers.Users;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
+import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Session;
 import com.aircandi.objects.User;
@@ -471,8 +473,42 @@ public class Patchr extends MultiDexApplication {
 
 	@NonNull
 	public Boolean setCurrentUser(@NonNull User user, @NonNull Boolean refreshUser) {
+
 		mCurrentUser = user;
-		ModelResult result = mEntityManager.activateCurrentUser(refreshUser, null);
+		ModelResult result = new ModelResult();
+
+		if (user.isAnonymous()) {
+
+			Logger.i(this, "Activating anonymous user");
+
+			/* Cancel any current notifications in the status bar */
+			NotificationManager.getInstance().cancelAllNotifications();
+
+			/* Clear user settings */
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), null);
+			Patchr.settingsEditor.commit();
+		}
+		else {
+
+			Logger.i(this, "Activating authenticated user: " + Patchr.getInstance().getCurrentUser().id);
+
+			/* Load user data */
+			if (refreshUser) {
+				Links options =  mEntityManager.getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
+				result = mEntityManager.getEntity(user.id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+			}
+
+			/* Update settings */
+			final String jsonUser = Json.objectToJson(user);
+			final String jsonSession = Json.objectToJson(user.session);
+
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), user.email);
+			Patchr.settingsEditor.commit();
+		}
+
 		Reporting.updateCrashUser(user);
 		return (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS);
 	}

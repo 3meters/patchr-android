@@ -318,46 +318,6 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult activateCurrentUser(Boolean refreshUser, Object tag) {
-
-		ModelResult result = new ModelResult();
-		User user = Patchr.getInstance().getCurrentUser();
-
-		if (user.isAnonymous()) {
-
-			Logger.i(this, "Activating anonymous user");
-
-			/* Cancel any current notifications in the status bar */
-			NotificationManager.getInstance().cancelAllNotifications();
-
-			/* Clear user settings */
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), null);
-			Patchr.settingsEditor.commit();
-		}
-		else {
-
-			Logger.i(this, "Activating authenticated user: " + Patchr.getInstance().getCurrentUser().id);
-
-			/* Load user data */
-			if (refreshUser) {
-				Links options = mLinks.build(LinkProfile.LINKS_FOR_USER_CURRENT);
-				result = getEntity(user.id, true, options, tag);
-			}
-
-			/* Update settings */
-			final String jsonUser = Json.objectToJson(user);
-			final String jsonSession = Json.objectToJson(user.session);
-
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), user.email);
-			Patchr.settingsEditor.commit();
-		}
-
-		return result;
-	}
-
 	public ModelResult signoutComplete(Object tag) {
 		final ModelResult result = new ModelResult();
 		/*
@@ -386,7 +346,7 @@ public class EntityManager {
 
 		/* Set to anonymous user */
 		User anonymous = (User) loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
-		Patchr.getInstance().setCurrentUser(anonymous, true);
+		Patchr.getInstance().setCurrentUser(anonymous, false);
 
 		if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 			Logger.w(this, "User sign out but service call failed: " + Patchr.getInstance().getCurrentUser().id);
