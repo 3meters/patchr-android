@@ -81,8 +81,8 @@ public class PatchEdit extends BaseEntityEdit {
 	protected LatLng       mLocation;
 	protected Entity       mPlaceToLinkTo;
 
-	private Spinner        mSpinnerCategory;
 	private List<Category> mCategories;
+	private Spinner        mSpinnerCategory;
 	private Integer        mSpinnerItemResId;
 	private Category       mOriginalCategory;
 
@@ -155,22 +155,16 @@ public class PatchEdit extends BaseEntityEdit {
 				}
 			});
 		}
+
+		mCategories = Patchr.getInstance().getEntityManager().getCategories();
 	}
 
 	@Override
 	public void bind(BindingMode mode) {
 		super.bind(mode);
 
-		if (Patchr.getInstance().getEntityManager().getCategories().size() == 0) {
-			loadCategories();
-		}
-		else {
-			mCategories = Patchr.getInstance().getEntityManager().getCategories();
-			if (mCategories != null) {
-				mOriginalCategory = ((Patch) mEntity).category;
-				initCategorySpinner();
-			}
-		}
+		mOriginalCategory = ((Patch) mEntity).category;
+		initCategorySpinner();
 
 		Patch patch = (Patch) mEntity;
 
@@ -637,21 +631,13 @@ public class PatchEdit extends BaseEntityEdit {
 		return true;
 	}
 
-	private void loadCategories() {
-		ModelResult result = Patchr.getInstance().getEntityManager().loadCategories(true /* refresh */, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-		mCategories = (List<Category>) result.data;
-		if (mCategories != null) {
-			initCategorySpinner();
-		}
-	}
-
 	private void initCategorySpinner() {
 
 		final Patch entity = (Patch) mEntity;
-		final List<String> categories = Patchr.getInstance().getEntityManager().getCategoriesAsStringArray(mCategories);
+		final List<String> categoryStrings = Patchr.getInstance().getEntityManager().getCategoriesAsStringArray();
 		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(PatchEdit.this
 				, R.layout.spinner_item
-				, categories);
+				, categoryStrings);
 
 		adapter.setDropDownViewResource(R.layout.temp_listitem_dropdown_spinner);
 

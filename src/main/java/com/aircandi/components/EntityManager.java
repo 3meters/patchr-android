@@ -224,49 +224,6 @@ public class EntityManager {
 		return cacheStampService;
 	}
 
-	public synchronized ModelResult loadCategories(boolean refresh, final Object tag) {
-
-		ModelResult result = new ModelResult();
-
-		/* Loads from local to initialize */
-		if (mCategories.size() == 0) {
-			final String json = "{\"data\":" + loadJsonFromResources (R.raw.categories_patch) + "}";
-			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(json, Json.ObjectType.CATEGORY, Json.ServiceDataWrapper.TRUE);
-			mCategories = (List<Category>) serviceData.data;
-		}
-
-		/* Fetch categories from service so we have the freshest for the next call. */
-		if (refresh) {
-			new AsyncTask() {
-
-				@Override
-				protected Object doInBackground(Object... params) {
-					Thread.currentThread().setName("AsyncLoadCategories");
-
-					final ServiceRequest serviceRequest = new ServiceRequest()
-							.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PATCHES + "categories")
-							.setRequestType(RequestType.GET)
-							.setTag(tag)
-							.setResponseFormat(ResponseFormat.JSON);
-
-					ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-					if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-						Logger.v(EntityManager.this, "Patch categories refreshed");
-						final String json = (String) serviceResponse.data;
-						final ServiceData serviceData = (ServiceData) Json.jsonToObjects(json, Json.ObjectType.CATEGORY, Json.ServiceDataWrapper.TRUE);
-						mCategories = (List<Category>) serviceData.data;
-					}
-					return null;
-				}
-			}.executeOnExecutor(Constants.EXECUTOR);
-		}
-
-		result.data = mCategories;
-
-		return result;
-	}
-
 	public ModelResult suggest(String input, SuggestScope suggestScope, String userId, AirLocation location, long limit, Object tag) {
 
 		final ModelResult result = new ModelResult();
@@ -1430,9 +1387,34 @@ public class EntityManager {
 	 * Other fetch routines
 	 *--------------------------------------------------------------------------------------------*/
 
-	public List<String> getCategoriesAsStringArray(List<Category> categories) {
+	public synchronized List<Category> getCategories() {
+
+		/* Loads from local to initialize */
+		if (mCategories.size() == 0) {
+			mCategories.add(new Category()
+					.setId(Patch.PatchCategory.EVENT.toLowerCase(Locale.US))
+					.setName(Patch.PatchCategory.EVENT)
+					.setPhoto(new Photo("img_event.png", null, null, null, Photo.PhotoSource.assets_categories)));
+			mCategories.add(new Category()
+					.setId(Patch.PatchCategory.GROUP.toLowerCase(Locale.US))
+					.setName(Patch.PatchCategory.GROUP)
+					.setPhoto(new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories)));
+			mCategories.add(new Category()
+					.setId(Patch.PatchCategory.PLACE.toLowerCase(Locale.US))
+					.setName(Patch.PatchCategory.PLACE)
+					.setPhoto(new Photo("img_place.png", null, null, null, Photo.PhotoSource.assets_categories)));
+			mCategories.add(new Category()
+					.setId(Patch.PatchCategory.PROJECT.toLowerCase(Locale.US))
+					.setName(Patch.PatchCategory.PROJECT)
+					.setPhoto(new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories)));
+		}
+
+		return mCategories;
+	}
+
+	public List<String> getCategoriesAsStringArray() {
 		final List<String> categoryStrings = new ArrayList<String>();
-		for (Category category : categories) {
+		for (Category category : mCategories) {
 			categoryStrings.add(category.name);
 		}
 		return categoryStrings;
@@ -1498,10 +1480,6 @@ public class EntityManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-
-	public List<Category> getCategories() {
-		return mCategories;
-	}
 
 	public static EntityStore getEntityCache() {
 		return ENTITY_STORE;

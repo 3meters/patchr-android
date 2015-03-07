@@ -13,6 +13,7 @@ import com.aircandi.ui.PatchForm;
 import com.aircandi.ui.edit.PatchEdit;
 import com.aircandi.utilities.DateTime;
 
+import java.util.Locale;
 import java.util.Map;
 
 public class Patches extends EntityControllerBase {
@@ -36,9 +37,9 @@ public class Patches extends EntityControllerBase {
 		entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME); // Temporary
 		entity.privacy = Constants.PRIVACY_PRIVATE;
 		entity.category = new Category();
-		entity.category.id = "chat";
-		entity.category.name = "Chat";
-		entity.category.photo = new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories);
+		entity.category.id = Patch.PatchCategory.EVENT.toLowerCase(Locale.US);
+		entity.category.name = Patch.PatchCategory.EVENT;
+		entity.category.photo = new Photo("img_event.png", null, null, null, Photo.PhotoSource.assets_categories);
 
 		return entity;
 	}
