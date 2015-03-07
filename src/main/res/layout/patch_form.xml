@@ -23,16 +23,6 @@
 			android:layout_centerHorizontal="true"
 			android:background="?attr/backgroundCardField" />
 
-		<android.support.v4.widget.ContentLoadingProgressBar
-			android:id="@+id/form_progress"
-			style="?android:attr/progressBarStyleLarge"
-			android:layout_width="@dimen/progress_width"
-			android:layout_height="@dimen/progress_height"
-			android:layout_centerInParent="true"
-			android:padding="8dp"
-			android:visibility="gone"
-			tools:visibility="visible" />
-
 	</RelativeLayout>
 
 </LinearLayout>
