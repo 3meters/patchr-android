@@ -76,7 +76,7 @@ public class Messages extends EntityControllerBase {
 				Entity parentEntity = entity.patch;
 				if (parentEntity == null) {
 					if (entity.patchId != null) {
-						parentEntity = EntityManager.getCacheEntity(entity.patchId);
+						parentEntity = EntityManager.getStoreEntity(entity.patchId);
 					}
 				}
 				if (parentEntity != null) {

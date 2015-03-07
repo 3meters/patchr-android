@@ -63,7 +63,7 @@ public class EntitiesQuery implements IQuery {
 			links = Patchr.getInstance().getEntityManager().getLinks().build(controller.getLinkProfile());
 		}
 
-		ModelResult result = Patchr.getInstance().getEntityManager().loadEntitiesForEntity(mEntityId, links, mCursor, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null);
+		ModelResult result = Patchr.getInstance().getEntityManager().getEntitiesForEntity(mEntityId, links, mCursor, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null);
 
 		if (result.data != null) {
 			mHasExecuted = true;

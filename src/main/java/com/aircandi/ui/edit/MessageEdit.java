@@ -236,7 +236,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 					mShareId = extras.getString(Constants.EXTRA_SHARE_ID);
 					mShareSchema = extras.getString(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
-					mShareEntity = EntityManager.getCacheEntity(mShareId);
+					mShareEntity = EntityManager.getStoreEntity(mShareId);
 
 					if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 						mEntity.description = String.format(StringManager.getString(R.string.label_patch_share_body_self), mShareEntity.name);

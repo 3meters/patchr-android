@@ -50,7 +50,7 @@ public class UserList extends BaseActivity {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-			mEntity = EntityManager.getCacheEntity(mEntityId);
+			mEntity = EntityManager.getStoreEntity(mEntityId);
 			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
 			mListTitleResId = extras.getInt(Constants.EXTRA_LIST_TITLE_RESID);
 			mListItemResId = extras.getInt(Constants.EXTRA_LIST_ITEM_RESID);

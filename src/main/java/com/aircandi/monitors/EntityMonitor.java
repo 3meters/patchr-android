@@ -34,7 +34,7 @@ public class EntityMonitor extends SimpleMonitor {
 		 * - Entity in the cache and no monitor cache stamp, call activity check.
 		 */
 		this.changed = false;
-		Entity entity = EntityManager.getCacheEntity(mEntityId);
+		Entity entity = EntityManager.getStoreEntity(mEntityId);
 
 		if (mEntityId.equals(Patchr.getInstance().getCurrentUser().id)) {
 			entity = Patchr.getInstance().getCurrentUser();

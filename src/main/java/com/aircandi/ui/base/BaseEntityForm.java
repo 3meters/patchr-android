@@ -165,7 +165,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	     * If cache entity is fresher than the one currently bound to or there is
 		 * a cache entity available, go ahead and draw before we check against the service.
 		 */
-		mEntity = EntityManager.getCacheEntity(mEntityId); // Concurrent hash map
+		mEntity = EntityManager.getStoreEntity(mEntityId); // Concurrent hash map
 		if (mEntity != null) {
 			if (mEntity instanceof Patch) {
 				Patchr.getInstance().setCurrentPatch(mEntity);

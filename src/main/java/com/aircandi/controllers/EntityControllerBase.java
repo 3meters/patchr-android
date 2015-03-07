@@ -231,13 +231,13 @@ public abstract class EntityControllerBase implements IEntityController {
 		Entity parentEntity = null;
 		if (entity instanceof Notification) {
 			if (((Notification) entity).parentId != null) {
-				parentEntity = EntityManager.getCacheEntity(((Notification) entity).parentId);
+				parentEntity = EntityManager.getStoreEntity(((Notification) entity).parentId);
 			}
 		}
 		else {
 			parentEntity = entity.patch;
 			if (parentEntity == null && entity.patchId != null) {
-				parentEntity = EntityManager.getCacheEntity(entity.patchId);
+				parentEntity = EntityManager.getStoreEntity(entity.patchId);
 			}
 		}
 
