@@ -831,8 +831,8 @@ public class EntityListFragment extends BaseFragment
 				entity.index = position + 1;
 
 				/* Perform cache lookup to make sure we are using the latest */
-				if (mEntityCacheEnabled && EntityManager.getEntityCache().get(entity.id) != null) {
-					entity = EntityManager.getEntityCache().get(entity.id);
+				if (mEntityCacheEnabled && EntityManager.getStoreEntity(entity.id) != null) {
+					entity = EntityManager.getStoreEntity(entity.id);
 				}
 
                 /*

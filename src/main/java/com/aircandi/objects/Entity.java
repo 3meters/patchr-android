@@ -301,7 +301,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			for (Link link : linksOut) {
 				if (link.type != null && link.type.equals(type)) {
 					if (link.proximity != null && link.proximity.primary != null && link.proximity.primary) {
-						Entity entity = EntityManager.getEntityCache().get(link.toId);
+						Entity entity = EntityManager.getStoreEntity(link.toId);
 						if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
 							Beacon beacon = (Beacon) entity;
 							if (beacon.signal != null && beacon.signal.intValue() > strongestLevel) {
@@ -316,7 +316,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			if (strongestLink == null && !primaryOnly) {
 				for (Link link : linksOut) {
 					if (link.type != null && link.type.equals(type)) {
-						Entity entity = EntityManager.getEntityCache().get(link.toId);
+						Entity entity = EntityManager.getStoreEntity(link.toId);
 						if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
 							Beacon beacon = (Beacon) entity;
 							if (beacon.signal != null && beacon.signal.intValue() > strongestLevel) {
@@ -331,7 +331,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		}
 
 		if (activeLink != null) {
-			Beacon beacon = (Beacon) EntityManager.getEntityCache().get(activeLink.toId);
+			Beacon beacon = (Beacon) EntityManager.getStoreEntity(activeLink.toId);
 			return beacon;
 		}
 		return null;

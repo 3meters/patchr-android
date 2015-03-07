@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("ucd")
-public class EntityStore implements Map<String, Entity> {
+public class EntityStore {
 
 	private final Map<String, Entity> mCacheMap = new ConcurrentHashMap<String, Entity>();
 
@@ -43,7 +43,7 @@ public class EntityStore implements Map<String, Entity> {
 	 * Store loading from service
 	 *--------------------------------------------------------------------------------------------*/
 
-	public ServiceResponse loadEntities(List<String> entityIds, Links linkOptions, Object tag) {
+	ServiceResponse loadEntities(List<String> entityIds, Links linkOptions, Object tag) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putStringArrayList("entityIds", (ArrayList<String>) entityIds);
@@ -114,7 +114,7 @@ public class EntityStore implements Map<String, Entity> {
 		return serviceResponse;
 	}
 
-	public ServiceResponse loadEntitiesForEntity(String forEntityId, Links linkOptions, Cursor cursor, Stopwatch stopwatch, Object tag) {
+	ServiceResponse loadEntitiesForEntity(String forEntityId, Links linkOptions, Cursor cursor, Stopwatch stopwatch, Object tag) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("entityId", forEntityId);
@@ -172,7 +172,7 @@ public class EntityStore implements Map<String, Entity> {
 		return serviceResponse;
 	}
 
-	public ServiceResponse loadEntitiesByProximity(List<String> beaconIds, Links linkOptions, Cursor cursor, String installId, Object tag, Stopwatch stopwatch) {
+	ServiceResponse loadEntitiesByProximity(List<String> beaconIds, Links linkOptions, Cursor cursor, String installId, Object tag, Stopwatch stopwatch) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putStringArrayList("beaconIds", (ArrayList<String>) beaconIds);
@@ -245,18 +245,18 @@ public class EntityStore implements Map<String, Entity> {
 				}
 			}
 		}
-//		else if (serviceResponse.responseCode != ResponseCode.INTERRUPTED) {
-//			synchronized (this) {
-//				/* We clean out all patches found via proximity even if the proximity call failed */
-//				Integer removeCount = EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
-//				Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
-//			}
-//		}
+		//		else if (serviceResponse.responseCode != ResponseCode.INTERRUPTED) {
+		//			synchronized (this) {
+		//				/* We clean out all patches found via proximity even if the proximity call failed */
+		//				Integer removeCount = EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
+		//				Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
+		//			}
+		//		}
 
 		return serviceResponse;
 	}
 
-	public ServiceResponse loadEntitiesNearLocation(AirLocation location, Links linkOptions, String installId, List<String> excludeIds, Object tag) {
+	ServiceResponse loadEntitiesNearLocation(AirLocation location, Links linkOptions, String installId, List<String> excludeIds, Object tag) {
 
 		final Bundle parameters = new Bundle();
 
@@ -325,25 +325,25 @@ public class EntityStore implements Map<String, Entity> {
 		}
 	}
 
-	public synchronized Entity upsertEntity(Entity entity) {
+	synchronized Entity upsertEntity(Entity entity) {
 
 		/* Replace in cache */
-		put(entity.id, entity);
+		mCacheMap.put(entity.id, entity);
 
 		/* Clean out linked entities so they are refetched as needed. */
 		removeLinkedEntities(entity.id);
 
-		return get(entity.id);
+		return mCacheMap.get(entity.id);
 	}
 
-	public synchronized void fixupEntityUser(Entity entity) {
+	synchronized void fixupEntityUser(Entity entity) {
 		/*
 		 * Updates user objects that are embedded in entities. We allow optimistic updating
 		 * of the store because users will expect to see their changes and we don't want to
 		 * refetch every entity they have a relationship with.
 		 */
 		User user = (User) entity;
-		for (Entry<String, Entity> entry : entrySet()) {
+		for (Map.Entry<String, Entity> entry : mCacheMap.entrySet()) {
 			if (entry.getValue().creatorId != null && entry.getValue().creatorId.equals(user.id)) {
 				if (entry.getValue().creator != null) {
 					if (user.photo != null) {
@@ -386,13 +386,13 @@ public class EntityStore implements Map<String, Entity> {
 		}
 	}
 
-	public void fixupAddLink(String fromId, String toId, String type, Boolean enabled, Shortcut fromShortcut, Shortcut toShortcut) {
+	void fixupAddLink(String fromId, String toId, String type, Boolean enabled, Shortcut fromShortcut, Shortcut toShortcut) {
 		/*
 		 * Optimistically add a link to the store.
 		 */
 		Long time = DateTime.nowDate().getTime();
 
-		Entity toEntity = get(toId);
+		Entity toEntity = mCacheMap.get(toId);
 		if (toEntity != null && toEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
 			toEntity = Patchr.getInstance().getCurrentUser();
 		}
@@ -428,7 +428,7 @@ public class EntityStore implements Map<String, Entity> {
 		/*
 		 * Fixup out links too.
 		 */
-		Entity fromEntity = get(fromId);
+		Entity fromEntity = mCacheMap.get(fromId);
 		if (fromEntity != null && fromEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
 			fromEntity = Patchr.getInstance().getCurrentUser();
 		}
@@ -467,11 +467,15 @@ public class EntityStore implements Map<String, Entity> {
 	 * Store deletes (local only)
 	 *--------------------------------------------------------------------------------------------*/
 
-	public synchronized Entity removeEntityTree(String entityId) {
+	public void clearStore() {
+		mCacheMap.clear();
+	}
+
+	synchronized Entity removeEntityTree(String entityId) {
 		/*
 		 * Clean out entity and every entity related to entity. Is not recursive
 		 */
-		Entity removedEntity = remove(entityId);
+		Entity removedEntity = mCacheMap.remove(entityId);
 		if (removedEntity != null) {
 			/*
 			 * getLinked..() with traverse = true will return entities that are multiple links away.
@@ -481,17 +485,17 @@ public class EntityStore implements Map<String, Entity> {
 			types.add(Constants.TYPE_LINK_CONTENT);
 			List<Entity> entities = (List<Entity>) removedEntity.getLinkedEntitiesByLinkTypeAndSchema(types, null, Direction.in, true);
 			for (Entity childEntity : entities) {
-				remove(childEntity.id);
+				mCacheMap.remove(childEntity.id);
 			}
 		}
 		return removedEntity;
 	}
 
-	public synchronized Entity removeLinkedEntities(String entityId) {
+	private synchronized Entity removeLinkedEntities(String entityId) {
 		/*
 		 * Clean out entity and every entity related to entity. Is not recursive
 		 */
-		Entity entity = get(entityId);
+		Entity entity = mCacheMap.get(entityId);
 		if (entity != null) {
 			/*
 			 * getLinked..() with traverse = true will return entities that are multiple links away.
@@ -501,7 +505,7 @@ public class EntityStore implements Map<String, Entity> {
 			types.add(Constants.TYPE_LINK_CONTENT);
 			List<Entity> entities = (List<Entity>) entity.getLinkedEntitiesByLinkTypeAndSchema(types, null, Direction.in, true);
 			for (Entity childEntity : entities) {
-				remove(childEntity.id);
+				mCacheMap.remove(childEntity.id);
 			}
 		}
 		return entity;
@@ -510,10 +514,10 @@ public class EntityStore implements Map<String, Entity> {
 	public synchronized Integer removeEntities(@NonNull String schema, @NonNull String type, Boolean foundByProximity) {
 
 		Integer removeCount = 0;
-		final Iterator iterEntities = keySet().iterator();
+		final Iterator iterEntities = mCacheMap.keySet().iterator();
 		Entity entity;
 		while (iterEntities.hasNext()) {
-			entity = get(iterEntities.next());
+			entity = mCacheMap.get(iterEntities.next());
 			if (schema.equals(Constants.SCHEMA_ANY) || (entity.schema != null && entity.schema.equals(schema))) {
 				if (type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
 					if (foundByProximity == null || entity.foundByProximity.equals(foundByProximity)) {
@@ -526,7 +530,7 @@ public class EntityStore implements Map<String, Entity> {
 		return removeCount;
 	}
 
-	public void fixupRemoveLink(String fromId, String toId, String type, Boolean enabled) {
+	void fixupRemoveLink(String fromId, String toId, String type, Boolean enabled) {
 		/*
 		 * Optimistically remove a link from the store. Links are sprinkled across entities
 		 * so it is reasonable to proactively fixup rather than have to refetch entities to
@@ -535,7 +539,7 @@ public class EntityStore implements Map<String, Entity> {
 		 */
 		Long time = DateTime.nowDate().getTime();
 
-		Entity toEntity = get(toId);
+		Entity toEntity = mCacheMap.get(toId);
 		if (toEntity != null && toEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
 			toEntity = Patchr.getInstance().getCurrentUser();
 		}
@@ -567,7 +571,7 @@ public class EntityStore implements Map<String, Entity> {
 		/*
 		 * Fixup out links too
 		 */
-		Entity fromEntity = get(fromId);
+		Entity fromEntity = mCacheMap.get(fromId);
 		if (fromEntity != null && fromEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
 			fromEntity = Patchr.getInstance().getCurrentUser();
 		}
@@ -600,14 +604,18 @@ public class EntityStore implements Map<String, Entity> {
 	 * Store reads (local only)
 	 *--------------------------------------------------------------------------------------------*/
 
+	Entity getStoreEntity(Object key) {
+		return mCacheMap.get(key);
+	}
+
 	@SuppressWarnings("ConstantConditions")
-	public synchronized List<? extends Entity> getStoreEntities(String schema, String type, Integer radius, Boolean proximity) {
+	synchronized List<? extends Entity> getStoreEntities(String schema, String type, Integer radius, Boolean proximity) {
 		List<Entity> entities = new ArrayList<Entity>();
-		final Iterator iter = keySet().iterator();
+		final Iterator iter = mCacheMap.keySet().iterator();
 		Entity entity;
 
 		while (iter.hasNext()) {
-			entity = get(iter.next());
+			entity = mCacheMap.get(iter.next());
 			if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
 				if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
 					if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
@@ -634,15 +642,15 @@ public class EntityStore implements Map<String, Entity> {
 	}
 
 	@SuppressWarnings({"ucd", "ConstantConditions"})
-	public synchronized List<? extends Entity> getStoreEntitiesForEntity(String entityId, String schema, String type, Integer radius, Boolean proximity) {
+	synchronized List<? extends Entity> getStoreEntitiesForEntity(String entityId, String schema, String type, Integer radius, Boolean proximity) {
 		/*
 		 * We rely on the toId property instead of traversing links.
 		 */
 		List<Entity> entities = new ArrayList<Entity>();
-		final Iterator iter = keySet().iterator();
+		final Iterator iter = mCacheMap.keySet().iterator();
 		Entity entity;
 		while (iter.hasNext()) {
-			entity = get(iter.next());
+			entity = mCacheMap.get(iter.next());
 			if ((entity.toId != null && entity.toId.equals(entityId)) || (entity.fromId != null && entity.fromId.equals(entityId))) {
 				if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
 					if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
@@ -668,72 +676,5 @@ public class EntityStore implements Map<String, Entity> {
 			}
 		}
 		return entities;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Store Map methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void clear() {
-		mCacheMap.clear();
-	}
-
-	@Override
-	public boolean containsKey(Object key) {
-		return mCacheMap.containsKey(key);
-	}
-
-	@Override
-	public boolean containsValue(Object value) {
-		return mCacheMap.containsValue(value);
-	}
-
-	@NonNull
-	@Override
-	public Set<java.util.Map.Entry<String, Entity>> entrySet() {
-		return mCacheMap.entrySet();
-	}
-
-	@Override
-	public Entity get(Object key) {
-		return mCacheMap.get(key);
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return mCacheMap.isEmpty();
-	}
-
-	@NonNull
-	@Override
-	public Set<String> keySet() {
-		return mCacheMap.keySet();
-	}
-
-	@Override
-	public Entity put(String key, Entity value) {
-		return mCacheMap.put(key, value);
-	}
-
-	@Override
-	public void putAll(Map<? extends String, ? extends Entity> map) {
-		mCacheMap.putAll(map);
-	}
-
-	@Override
-	public Entity remove(Object key) {
-		return mCacheMap.remove(key);
-	}
-
-	@Override
-	public int size() {
-		return mCacheMap.size();
-	}
-
-	@NonNull
-	@Override
-	public Collection<Entity> values() {
-		return mCacheMap.values();
 	}
 }

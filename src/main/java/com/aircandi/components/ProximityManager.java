@@ -262,7 +262,7 @@ public class ProximityManager {
 
 		/* Construct string array of the beacon ids */
 		List<String> beaconIds = new ArrayList<String>();
-		List<Beacon> beacons = (List<Beacon>) mEntityStore.getStoreEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
+		List<Beacon> beacons = (List<Beacon>) Patchr.getInstance().getEntityManager().getBeacons();
 
 		for (Beacon beacon : beacons) {
 			beaconIds.add(beacon.id);
@@ -418,7 +418,7 @@ public class ProximityManager {
 
 		final List<Beacon> beaconStrongest = new ArrayList<Beacon>();
 		int beaconCount = 0;
-		List<Beacon> beacons = (List<Beacon>) mEntityStore.getStoreEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
+		List<Beacon> beacons = (List<Beacon>) Patchr.getInstance().getEntityManager().getBeacons();
 		Collections.sort(beacons, new Beacon.SortBySignalLevel());
 
 		for (Beacon beacon : beacons) {

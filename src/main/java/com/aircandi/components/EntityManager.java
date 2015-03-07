@@ -67,7 +67,7 @@ public class EntityManager {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static Entity getStoreEntity(String entityId) {
-		return ENTITY_STORE.get(entityId);
+		return ENTITY_STORE.getStoreEntity(entityId);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ public class EntityManager {
 		 */
 		final ModelResult result = new ModelResult();
 
-		Entity entity = ENTITY_STORE.get(entityId);
+		Entity entity = ENTITY_STORE.getStoreEntity(entityId);
 		if (refresh || entity == null) {
 			final List<String> loadEntityIds = new ArrayList<String>();
 			loadEntityIds.add(entityId);
@@ -806,7 +806,7 @@ public class EntityManager {
 		Entity entity = null;
 
 		if (!cacheOnly) {
-			entity = ENTITY_STORE.get(entityId);
+			entity = ENTITY_STORE.getStoreEntity(entityId);
 
 			if (entity == null) {
 				throw new IllegalArgumentException("Deleting entity requires entity from cache");
@@ -970,7 +970,7 @@ public class EntityManager {
 										/*
 										 * Entity could be a clone so grab the one in the cache.
 										 */
-										Entity cacheEntity = ENTITY_STORE.get(entity.id);
+										Entity cacheEntity = ENTITY_STORE.getStoreEntity(entity.id);
 										if (cacheEntity != null) {
 											cacheEntity.activityDate = DateTime.nowDate().getTime();
 										}
@@ -995,7 +995,7 @@ public class EntityManager {
 						/*
 						 * Entity could be a clone so grab the one in the cache.
 						 */
-						Entity cacheEntity = ENTITY_STORE.get(entity.id);
+						Entity cacheEntity = ENTITY_STORE.getStoreEntity(entity.id);
 						if (cacheEntity != null) {
 							cacheEntity.activityDate = DateTime.nowDate().getTime();
 						}
@@ -1361,6 +1361,10 @@ public class EntityManager {
 		Number limit = Patchr.applicationContext.getResources().getInteger(R.integer.limit_places_radar);
 
 		return (patches.size() > limit.intValue()) ? patches.subList(0, limit.intValue()) : patches;
+	}
+
+	public List<? extends Entity> getBeacons() {
+		return (List<Beacon>) EntityManager.getEntityCache().getStoreEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
 	}
 
 	/*--------------------------------------------------------------------------------------------

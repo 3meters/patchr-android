@@ -57,7 +57,7 @@ public class SplashForm extends ActionBarActivity {
 		}
 
 		/* Always reset the entity cache */
-		EntityManager.getEntityCache().clear();
+		EntityManager.getEntityCache().clearStore();
 
 		/* Restart notification tracking */
 		NotificationManager.getInstance().setNewNotificationCount(0);
