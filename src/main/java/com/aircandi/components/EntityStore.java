@@ -316,6 +316,84 @@ public class EntityStore {
 	}
 
 	/*--------------------------------------------------------------------------------------------
+	 * Store reads (local only)
+	 *--------------------------------------------------------------------------------------------*/
+
+	Entity getStoreEntity(Object key) {
+		return mCacheMap.get(key);
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	synchronized List<? extends Entity> getStoreEntities(String schema, String type, Integer radius, Boolean proximity) {
+		List<Entity> entities = new ArrayList<Entity>();
+		final Iterator iter = mCacheMap.keySet().iterator();
+		Entity entity;
+
+		while (iter.hasNext()) {
+			entity = mCacheMap.get(iter.next());
+			if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
+				if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
+					if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
+						if (radius == null) {
+							entities.add(entity);
+						}
+						else {
+							Float distance = entity.getDistance(true);
+							if (distance != null && distance <= radius) {
+								entities.add(entity);
+							}
+							else if (distance == null) {
+								Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
+								if (beacon != null) {
+									entities.add(entity);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return entities;
+	}
+
+	@SuppressWarnings({"ucd", "ConstantConditions"})
+	synchronized List<? extends Entity> getStoreEntitiesForEntity(String entityId, String schema, String type, Integer radius, Boolean proximity) {
+		/*
+		 * We rely on the toId property instead of traversing links.
+		 */
+		List<Entity> entities = new ArrayList<Entity>();
+		final Iterator iter = mCacheMap.keySet().iterator();
+		Entity entity;
+		while (iter.hasNext()) {
+			entity = mCacheMap.get(iter.next());
+			if ((entity.toId != null && entity.toId.equals(entityId)) || (entity.fromId != null && entity.fromId.equals(entityId))) {
+				if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
+					if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
+						if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
+							if (radius == null) {
+								entities.add(entity);
+							}
+							else {
+								Float distance = entity.getDistance(true);
+								if (distance != null && distance <= radius) {
+									entities.add(entity);
+								}
+								else if (distance == null) {
+									Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
+									if (beacon != null) {
+										entities.add(entity);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return entities;
+	}
+
+	/*--------------------------------------------------------------------------------------------
 	 * Store updates (local only)
 	 *--------------------------------------------------------------------------------------------*/
 
@@ -598,83 +676,5 @@ public class EntityStore {
 				}
 			}
 		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Store reads (local only)
-	 *--------------------------------------------------------------------------------------------*/
-
-	Entity getStoreEntity(Object key) {
-		return mCacheMap.get(key);
-	}
-
-	@SuppressWarnings("ConstantConditions")
-	synchronized List<? extends Entity> getStoreEntities(String schema, String type, Integer radius, Boolean proximity) {
-		List<Entity> entities = new ArrayList<Entity>();
-		final Iterator iter = mCacheMap.keySet().iterator();
-		Entity entity;
-
-		while (iter.hasNext()) {
-			entity = mCacheMap.get(iter.next());
-			if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
-				if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
-					if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
-						if (radius == null) {
-							entities.add(entity);
-						}
-						else {
-							Float distance = entity.getDistance(true);
-							if (distance != null && distance <= radius) {
-								entities.add(entity);
-							}
-							else if (distance == null) {
-								Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
-								if (beacon != null) {
-									entities.add(entity);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return entities;
-	}
-
-	@SuppressWarnings({"ucd", "ConstantConditions"})
-	synchronized List<? extends Entity> getStoreEntitiesForEntity(String entityId, String schema, String type, Integer radius, Boolean proximity) {
-		/*
-		 * We rely on the toId property instead of traversing links.
-		 */
-		List<Entity> entities = new ArrayList<Entity>();
-		final Iterator iter = mCacheMap.keySet().iterator();
-		Entity entity;
-		while (iter.hasNext()) {
-			entity = mCacheMap.get(iter.next());
-			if ((entity.toId != null && entity.toId.equals(entityId)) || (entity.fromId != null && entity.fromId.equals(entityId))) {
-				if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
-					if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
-						if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
-							if (radius == null) {
-								entities.add(entity);
-							}
-							else {
-								Float distance = entity.getDistance(true);
-								if (distance != null && distance <= radius) {
-									entities.add(entity);
-								}
-								else if (distance == null) {
-									Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
-									if (beacon != null) {
-										entities.add(entity);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return entities;
 	}
 }
