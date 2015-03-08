@@ -729,18 +729,18 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER) &&
 								Patchr.getInstance().getCurrentUser().id.equals(mEntity.id)) {
 
-								/* We also need to update the user that has been persisted for AUTO sign in. */
+							/* We also need to update the user that has been persisted for AUTO sign in. */
 							final String jsonUser = Json.objectToJson(mEntity);
 							Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
 							Patchr.settingsEditor.commit();
 
-								/*
-								 * Update the global user but retain the session info. We don't need
-								 * to call activateCurrentUser because we don't need to refetch link data
-								 * or change notification registration.
-								 */
+							/*
+							 * Update the global user but retain the session info. We don't need
+							 * to call activateCurrentUser because we don't need to refetch link data
+							 * or change notification registration.
+							 */
 							((User) mEntity).session = Patchr.getInstance().getCurrentUser().session;
-							Patchr.getInstance().setCurrentUser((User) mEntity, true);
+							Patchr.getInstance().setCurrentUser((User) mEntity, false);
 						}
 					}
 				}

@@ -123,6 +123,10 @@ public class SplashForm extends ActionBarActivity {
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					User user = Patchr.getInstance().getCurrentUser();
 					if (!user.isAnonymous()) {
+						/*
+						 * Auto signin that happens when app is initialized uses a stale version of the
+						 * user stored in shared prefs. We refresh the user data from the service here.
+						 */
 						Links options = Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
 						result = Patchr.getInstance().getEntityManager().getEntity(Patchr.getInstance().getCurrentUser().id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 					}
