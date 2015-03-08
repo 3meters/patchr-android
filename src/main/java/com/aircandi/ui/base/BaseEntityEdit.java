@@ -603,7 +603,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				beforeInsert(mEntity, links);
 				if (isCancelled()) return null;
 
-				ModelResult result = Patchr.getInstance().getEntityController().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = Patchr.getInstance().getDataController().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
@@ -717,7 +717,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					}
 
 					beforeUpdate(mEntity);
-					result = Patchr.getInstance().getEntityController().updateEntity(mEntity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					result = Patchr.getInstance().getDataController().updateEntity(mEntity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 					if (isCancelled()) return null;
 
 					/* Don't allow cancel if we made it this far */

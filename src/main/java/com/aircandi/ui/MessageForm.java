@@ -23,7 +23,7 @@ import android.widget.ViewAnimator;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.EntityController;
+import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
@@ -766,7 +766,7 @@ public class MessageForm extends BaseEntityForm {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
 				String seedParentId = mEntity.type.equals(MessageType.ROOT) ? mEntity.patchId : null;
-				final ModelResult result = ((EntityController) Patchr.getInstance().getEntityController()).deleteMessage(mEntity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				final ModelResult result = ((DataController) Patchr.getInstance().getDataController()).deleteMessage(mEntity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 

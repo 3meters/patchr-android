@@ -80,7 +80,7 @@ public class PasswordEdit extends BaseEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncUpdatePassword");
-				final ModelResult result = Patchr.getInstance().getEntityController().updatePassword(
+				final ModelResult result = Patchr.getInstance().getDataController().updatePassword(
 						Patchr.getInstance().getCurrentUser().id,
 						mPasswordOld.getText().toString(),
 						mPassword.getText().toString(),

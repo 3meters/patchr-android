@@ -56,7 +56,7 @@ public class SplashForm extends ActionBarActivity {
 		}
 
 		/* Always reset the entity cache */
-		Patchr.getInstance().getEntityController().clearStore();
+		Patchr.getInstance().getDataController().clearStore();
 
 		/* Restart notification tracking */
 		NotificationManager.getInstance().setNewNotificationCount(0);
@@ -126,8 +126,8 @@ public class SplashForm extends ActionBarActivity {
 						 * Auto signin that happens when app is initialized uses a stale version of the
 						 * user stored in shared prefs. We refresh the user data from the service here.
 						 */
-						Links options = Patchr.getInstance().getEntityController().getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
-						result = Patchr.getInstance().getEntityController().getEntity(Patchr.getInstance().getCurrentUser().id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						Links options = Patchr.getInstance().getDataController().getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
+						result = Patchr.getInstance().getDataController().getEntity(Patchr.getInstance().getCurrentUser().id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 					}
 				}
 

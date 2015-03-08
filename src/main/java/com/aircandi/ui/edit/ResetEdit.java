@@ -158,7 +158,7 @@ public class ResetEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncRequestPasswordReset");
 
 				String email = mEmail.getText().toString().trim().toLowerCase(Locale.US);
-				ModelResult result = Patchr.getInstance().getEntityController().requestPasswordReset(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = Patchr.getInstance().getDataController().requestPasswordReset(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -224,7 +224,7 @@ public class ResetEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncResetPassword");
 
 				String password = mPassword.getText().toString();
-				ModelResult result = Patchr.getInstance().getEntityController().resetPassword(password, mUser, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = Patchr.getInstance().getDataController().resetPassword(password, mUser, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 

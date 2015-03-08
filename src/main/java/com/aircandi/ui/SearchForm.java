@@ -17,7 +17,7 @@ import android.widget.ListView;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.EntityController.SuggestScope;
+import com.aircandi.components.DataController.SuggestScope;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseActivity;

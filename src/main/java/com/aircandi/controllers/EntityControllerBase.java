@@ -16,7 +16,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
-import com.aircandi.components.EntityController;
+import com.aircandi.components.DataController;
 import com.aircandi.components.IntentBuilder;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
@@ -231,13 +231,13 @@ public abstract class EntityControllerBase implements IEntityController {
 		Entity parentEntity = null;
 		if (entity instanceof Notification) {
 			if (((Notification) entity).parentId != null) {
-				parentEntity = EntityController.getStoreEntity(((Notification) entity).parentId);
+				parentEntity = DataController.getStoreEntity(((Notification) entity).parentId);
 			}
 		}
 		else {
 			parentEntity = entity.patch;
 			if (parentEntity == null && entity.patchId != null) {
-				parentEntity = EntityController.getStoreEntity(entity.patchId);
+				parentEntity = DataController.getStoreEntity(entity.patchId);
 			}
 		}
 

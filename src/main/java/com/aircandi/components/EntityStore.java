@@ -74,9 +74,9 @@ public class EntityStore {
 			     * Clear out any cache stamp overrides.
 				 */
 				for (Entity entity : loadedEntities) {
-					if (Patchr.getInstance().getEntityController().getCacheStampOverrides().containsKey(entity.id)) {
+					if (Patchr.getInstance().getDataController().getCacheStampOverrides().containsKey(entity.id)) {
 						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Patchr.getInstance().getEntityController().getCacheStampOverrides().remove(entity.id);
+						Patchr.getInstance().getDataController().getCacheStampOverrides().remove(entity.id);
 					}
 				}
 
@@ -151,9 +151,9 @@ public class EntityStore {
 					/*
 					 * Clear out any cache stamp overrides.
 					 */
-					if (Patchr.getInstance().getEntityController().getCacheStampOverrides().containsKey(entity.id)) {
+					if (Patchr.getInstance().getDataController().getCacheStampOverrides().containsKey(entity.id)) {
 						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Patchr.getInstance().getEntityController().getCacheStampOverrides().remove(entity.id);
+						Patchr.getInstance().getDataController().getCacheStampOverrides().remove(entity.id);
 					}
 					if (cursor != null && cursor.direction != null && cursor.direction.equals("out")) {
 						entity.fromId = forEntityId;
@@ -226,9 +226,9 @@ public class EntityStore {
 					/*
 					 * Clear out any cache stamp overrides.
 					 */
-					if (Patchr.getInstance().getEntityController().getCacheStampOverrides().containsKey(entity.id)) {
+					if (Patchr.getInstance().getDataController().getCacheStampOverrides().containsKey(entity.id)) {
 						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Patchr.getInstance().getEntityController().getCacheStampOverrides().remove(entity.id);
+						Patchr.getInstance().getDataController().getCacheStampOverrides().remove(entity.id);
 					}
 				}
 

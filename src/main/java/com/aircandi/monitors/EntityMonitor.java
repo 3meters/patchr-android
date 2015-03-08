@@ -1,7 +1,7 @@
 package com.aircandi.monitors;
 
 import com.aircandi.Patchr;
-import com.aircandi.components.EntityController;
+import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.objects.CacheStamp;
@@ -34,7 +34,7 @@ public class EntityMonitor extends SimpleMonitor {
 		 * - Entity in the cache and no monitor cache stamp, call activity check.
 		 */
 		this.changed = false;
-		Entity entity = EntityController.getStoreEntity(mEntityId);
+		Entity entity = DataController.getStoreEntity(mEntityId);
 
 		if (mEntityId.equals(Patchr.getInstance().getCurrentUser().id)) {
 			entity = Patchr.getInstance().getCurrentUser();
@@ -79,7 +79,7 @@ public class EntityMonitor extends SimpleMonitor {
 		 * Haven't found obvious reason to refresh yet so make network call for staleness check.
 		 */
 		Logger.d(this, "Network service activity check from entity monitor");
-		CacheStamp cacheStamp = Patchr.getInstance().getEntityController().loadCacheStamp(mEntityId, mCacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+		CacheStamp cacheStamp = Patchr.getInstance().getDataController().loadCacheStamp(mEntityId, mCacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 		//		this.activity = (cacheStamp == null || cacheStamp.activity == null) ? true : cacheStamp.activity;
 		//		this.modified = (cacheStamp == null || cacheStamp.modified == null) ? true : cacheStamp.modified;

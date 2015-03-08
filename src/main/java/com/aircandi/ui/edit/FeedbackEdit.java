@@ -118,7 +118,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertFeedback");
 				mFeedback.createdDate = DateTime.nowDate().getTime();
-				final ModelResult result = Patchr.getInstance().getEntityController().insertDocument(mFeedback, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				final ModelResult result = Patchr.getInstance().getDataController().insertDocument(mFeedback, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 

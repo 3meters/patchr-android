@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.ServiceConstants;
-import com.aircandi.components.EntityController;
+import com.aircandi.components.DataController;
 import com.aircandi.components.LocationManager;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.CacheStamp.StampSource;
@@ -301,7 +301,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			for (Link link : linksOut) {
 				if (link.type != null && link.type.equals(type)) {
 					if (link.proximity != null && link.proximity.primary != null && link.proximity.primary) {
-						Entity entity = EntityController.getStoreEntity(link.toId);
+						Entity entity = DataController.getStoreEntity(link.toId);
 						if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
 							Beacon beacon = (Beacon) entity;
 							if (beacon.signal != null && beacon.signal.intValue() > strongestLevel) {
@@ -316,7 +316,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			if (strongestLink == null && !primaryOnly) {
 				for (Link link : linksOut) {
 					if (link.type != null && link.type.equals(type)) {
-						Entity entity = EntityController.getStoreEntity(link.toId);
+						Entity entity = DataController.getStoreEntity(link.toId);
 						if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
 							Beacon beacon = (Beacon) entity;
 							if (beacon.signal != null && beacon.signal.intValue() > strongestLevel) {
@@ -331,7 +331,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		}
 
 		if (activeLink != null) {
-			Beacon beacon = (Beacon) EntityController.getStoreEntity(activeLink.toId);
+			Beacon beacon = (Beacon) DataController.getStoreEntity(activeLink.toId);
 			return beacon;
 		}
 		return null;
@@ -391,7 +391,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			if (direction == Direction.in || direction == Direction.both) {
 				for (Link link : linksIn) {
 					if (types == null || (link.type != null && types.contains(link.type))) {
-						Entity entity = EntityController.getStoreEntity(link.fromId);
+						Entity entity = DataController.getStoreEntity(link.fromId);
 						if (entity != null) {
 							if (Type.isTrue(traverse)) {
 								entities.addAll(entity.getLinkedEntitiesByLinkTypeAndSchema(types, schemas, Direction.in, traverse));
@@ -408,7 +408,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			if (direction == Direction.out || direction == Direction.both) {
 				for (Link link : linksOut) {
 					if (types == null || ( link.type != null && types.contains(link.type))) {
-						Entity entity = EntityController.getStoreEntity(link.toId);
+						Entity entity = DataController.getStoreEntity(link.toId);
 						if (entity != null) {
 							if (Type.isTrue(traverse)) {
 								entities.addAll(entity.getLinkedEntitiesByLinkTypeAndSchema(types, schemas, Direction.out, traverse));
@@ -429,13 +429,13 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			for (Link link : linksOut) {
 				if (type == null || (link.type != null && link.type.equals(type))) {
 					if (targetSchema == null || (link.targetSchema != null && link.targetSchema.equals(targetSchema))) {
-						return EntityController.getStoreEntity(link.toId);
+						return DataController.getStoreEntity(link.toId);
 					}
 				}
 			}
 		}
 		else if (toId != null) {
-			return EntityController.getStoreEntity(toId);
+			return DataController.getStoreEntity(toId);
 		}
 		return null;
 	}
@@ -456,7 +456,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		if (linksOut != null) {
 			for (Link link : linksOut) {
 				if (link.type != null && link.type.equals(Constants.TYPE_LINK_PROXIMITY) && link.proximity != null) {
-					Beacon beacon = (Beacon) EntityController.getStoreEntity(link.toId);
+					Beacon beacon = (Beacon) DataController.getStoreEntity(link.toId);
 					if (beacon != null) return true;
 				}
 			}

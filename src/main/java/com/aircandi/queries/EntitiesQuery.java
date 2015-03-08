@@ -61,15 +61,15 @@ public class EntitiesQuery implements IQuery {
 			mCursor.setDirection(mLinkDirection);
 		}
 
-		Links links = Patchr.getInstance().getEntityController().getLinks().build(LinkProfile.NO_LINKS);
+		Links links = Patchr.getInstance().getDataController().getLinks().build(LinkProfile.NO_LINKS);
 		if (mSchema != null) {
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(mSchema);
-			links = Patchr.getInstance().getEntityController().getLinks().build(controller.getLinkProfile());
+			links = Patchr.getInstance().getDataController().getLinks().build(controller.getLinkProfile());
 		}
 
 		/* The only place in the code that calls getEntitiesForEntity */
 
-		ModelResult result = Patchr.getInstance().getEntityController().getEntitiesForEntity(mEntityId, links, mCursor, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null);
+		ModelResult result = Patchr.getInstance().getDataController().getEntitiesForEntity(mEntityId, links, mCursor, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null);
 
 		if (result.data != null) {
 			mHasExecuted = true;

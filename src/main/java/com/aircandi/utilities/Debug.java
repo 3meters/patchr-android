@@ -37,7 +37,7 @@ public class Debug {
 					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncInsertReport");
-						ModelResult result = Patchr.getInstance().getEntityController().insertDocument(document, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						ModelResult result = Patchr.getInstance().getDataController().insertDocument(document, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						return result;
 					}
 

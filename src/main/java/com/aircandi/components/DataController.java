@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class EntityController {
+public class DataController {
 
 	private static final EntityStore         ENTITY_STORE         = new EntityStore();
 	private              Map<String, String> mCacheStampOverrides = new HashMap<String, String>();
@@ -1440,7 +1440,7 @@ public class EntityController {
 		return mLinks;
 	}
 
-	public EntityController setLinks(Links links) {
+	public DataController setLinks(Links links) {
 		mLinks = links;
 		return this;
 	}
@@ -1449,7 +1449,7 @@ public class EntityController {
 		return mActivityDate;
 	}
 
-	public EntityController setActivityDate(Number activityDate) {
+	public DataController setActivityDate(Number activityDate) {
 		mActivityDate = activityDate;
 		return this;
 	}

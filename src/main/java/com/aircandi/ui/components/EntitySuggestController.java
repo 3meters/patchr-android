@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.EntityController;
+import com.aircandi.components.DataController;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
@@ -78,7 +78,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	private String                              mPrefix;
 	private TokenCompleteTextView.TokenListener mTokenListener;
 
-	private EntityController.SuggestScope mSuggestScope = EntityController.SuggestScope.PLACES;
+	private DataController.SuggestScope mSuggestScope = DataController.SuggestScope.PLACES;
 
 	public EntitySuggestController(@NonNull Context context) {
 
@@ -222,7 +222,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	}
 
 	@NonNull
-	public EntitySuggestController setSuggestScope(EntityController.SuggestScope suggestScope) {
+	public EntitySuggestController setSuggestScope(DataController.SuggestScope suggestScope) {
 		mSuggestScope = suggestScope;
 		return this;
 	}
@@ -419,7 +419,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 						Thread.currentThread().setName("AsyncSuggestEntities");
 						final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
-						ModelResult modelResult = Patchr.getInstance().getEntityController().suggest(chars.toString().trim()
+						ModelResult modelResult = Patchr.getInstance().getDataController().suggest(chars.toString().trim()
 								, mSuggestScope, Patchr.getInstance().getCurrentUser().id
 								, location
 								, LIMIT, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);

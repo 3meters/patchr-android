@@ -133,7 +133,7 @@ public class SignInEdit extends BaseEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncSignIn");
-				ModelResult result = Patchr.getInstance().getEntityController().signin(email, password, SignInEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = Patchr.getInstance().getDataController().signin(email, password, SignInEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					result = NotificationManager.getInstance().registerInstallWithAircandi();
 				}

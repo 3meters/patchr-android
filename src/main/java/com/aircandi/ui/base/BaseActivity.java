@@ -369,7 +369,7 @@ public abstract class BaseActivity extends ActionBarActivity
 					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncSignOut");
-						final ModelResult result = Patchr.getInstance().getEntityController().signoutComplete(NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						final ModelResult result = Patchr.getInstance().getDataController().signoutComplete(NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						return result;
 					}
 
@@ -472,7 +472,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
-				final ModelResult result = Patchr.getInstance().getEntityController().deleteEntity(mEntity.id, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				final ModelResult result = Patchr.getInstance().getDataController().deleteEntity(mEntity.id, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -515,7 +515,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRemoveEntity");
-				final ModelResult result = Patchr.getInstance().getEntityController()
+				final ModelResult result = Patchr.getInstance().getDataController()
 				                                 .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove_entity_message", NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				isCancelled();
 				return result;

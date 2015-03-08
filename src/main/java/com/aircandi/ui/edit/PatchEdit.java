@@ -23,7 +23,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
-import com.aircandi.components.EntityController;
+import com.aircandi.components.DataController;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
@@ -156,7 +156,7 @@ public class PatchEdit extends BaseEntityEdit {
 			});
 		}
 
-		mCategories = Patchr.getInstance().getEntityController().getCategories();
+		mCategories = Patchr.getInstance().getDataController().getCategories();
 	}
 
 	@Override
@@ -412,7 +412,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 	public void onPlacePickerClick(View view) {
 		Bundle extras = new Bundle();
-		extras.putInt(Constants.EXTRA_SEARCH_SCOPE, EntityController.SuggestScope.PLACES.ordinal());
+		extras.putInt(Constants.EXTRA_SEARCH_SCOPE, DataController.SuggestScope.PLACES.ordinal());
 		extras.putBoolean(Constants.EXTRA_SEARCH_RETURN_ENTITY, true);
 		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
 
@@ -527,7 +527,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 					/* Adding a new place. */
 					if (place != null && Type.isTrue(place.synthetic)) {
-						result = Patchr.getInstance().getEntityController().insertEntity(place, null, null, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						result = Patchr.getInstance().getDataController().insertEntity(place, null, null, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 							Entity insertedPlace = (Entity) result.data;
 							place.id = insertedPlace.id;
@@ -540,7 +540,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 						/* Existing link so delete it */
 						if (placeLink != null) {
-							result = Patchr.getInstance().getEntityController().deleteLink(mEntity.id
+							result = Patchr.getInstance().getDataController().deleteLink(mEntity.id
 									, placeLink.shortcut.id
 									, Constants.TYPE_LINK_PROXIMITY
 									, true
@@ -553,7 +553,7 @@ public class PatchEdit extends BaseEntityEdit {
 						 */
 						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS
 								&& mEditing && place != null) {
-							result = Patchr.getInstance().getEntityController().insertLink(null
+							result = Patchr.getInstance().getDataController().insertLink(null
 									, mEntity.id
 									, place.id
 									, Constants.TYPE_LINK_PROXIMITY
@@ -634,7 +634,7 @@ public class PatchEdit extends BaseEntityEdit {
 	private void initCategorySpinner() {
 
 		final Patch entity = (Patch) mEntity;
-		final List<String> categoryStrings = Patchr.getInstance().getEntityController().getCategoriesAsStringArray();
+		final List<String> categoryStrings = Patchr.getInstance().getDataController().getCategoriesAsStringArray();
 		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(PatchEdit.this
 				, R.layout.spinner_item
 				, categoryStrings);
@@ -705,7 +705,7 @@ public class PatchEdit extends BaseEntityEdit {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncTrackEntityProximity");
 
-				final ModelResult result = Patchr.getInstance().getEntityController().trackEntity(mEntity
+				final ModelResult result = Patchr.getInstance().getDataController().trackEntity(mEntity
 						, beacons
 						, primaryBeacon
 						, mUntuning, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
@@ -765,7 +765,7 @@ public class PatchEdit extends BaseEntityEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncClearEntityProximity");
-				final ModelResult result = Patchr.getInstance().getEntityController().trackEntity(mEntity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				final ModelResult result = Patchr.getInstance().getDataController().trackEntity(mEntity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 

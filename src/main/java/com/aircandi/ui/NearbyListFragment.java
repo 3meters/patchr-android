@@ -89,7 +89,7 @@ public class NearbyListFragment extends EntityListFragment {
 		 * Only called in response to parent form receiving a push notification. Example
 		 * is a new patch was created nearby and we want to show it.
 		 */
-		CacheStamp cacheStamp = Patchr.getInstance().getEntityController().getCacheStamp();
+		CacheStamp cacheStamp = Patchr.getInstance().getDataController().getCacheStamp();
 		if (mCacheStamp != null && !mCacheStamp.equals(cacheStamp)) {
 			searchForPatches();
 		}
@@ -209,7 +209,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 				Patchr.stopwatch1.stop("Search for places by beacon complete");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
-				mCacheStamp = Patchr.getInstance().getEntityController().getCacheStamp();
+				mCacheStamp = Patchr.getInstance().getDataController().getCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
 					Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.SUCCESS));
@@ -256,7 +256,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 								if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 									Patchr.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
-									final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityController().getPatches(null /* proximity not required */);
+									final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getDataController().getPatches(null /* proximity not required */);
 
 									Logger.d(getActivity(), "Patches near location finished event: ** done **");
 									Patchr.stopwatch2.stop("Location processing: Patches near location complete");
