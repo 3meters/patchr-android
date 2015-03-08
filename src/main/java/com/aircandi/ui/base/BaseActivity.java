@@ -32,7 +32,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AndroidManager;
-import com.aircandi.components.BusProvider;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
@@ -830,7 +830,7 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected void onResume() {
 		super.onResume();
 		Logger.d(this, "Activity resuming");
-		BusProvider.getInstance().register(this);
+		Dispatcher.getInstance().register(this);
 		Patchr.getInstance().setCurrentActivity(this);
 		mClickEnabled = true;
 		/*
@@ -845,7 +845,7 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected void onPause() {
 		super.onPause();
 		Logger.d(this, "Activity pausing");
-		BusProvider.getInstance().unregister(this);
+		Dispatcher.getInstance().unregister(this);
 		clearReferences();
 	}
 

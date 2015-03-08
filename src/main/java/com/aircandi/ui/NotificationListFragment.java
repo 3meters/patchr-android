@@ -14,7 +14,7 @@ import android.widget.ViewSwitcher;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.BusProvider;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
@@ -171,10 +171,10 @@ public class NotificationListFragment extends MessageListFragment {
 
 					mNotEmpty = (mAdapter != null && mAdapter.getCount() != 0);
 					mFirstBind = false;
-					BusProvider.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
+					Dispatcher.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
 				}
 				else {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
+					Dispatcher.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
 					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 			}

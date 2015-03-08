@@ -156,7 +156,7 @@ public class NotificationManager {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void broadcastNotification(final Notification notification) {
-		BusProvider.getInstance().post(new NotificationEvent(notification));
+		Dispatcher.getInstance().post(new NotificationEvent(notification));
 	}
 
 	public void statusNotification(final Notification notification, Context context) {

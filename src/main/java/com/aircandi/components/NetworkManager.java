@@ -2,7 +2,6 @@ package com.aircandi.components;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -34,11 +33,9 @@ import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
-import com.squareup.okhttp.OkHttpClient;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Locale;
 
 /**
  * Designed as a singleton. The private Constructor prevents any other class from instantiating.
@@ -106,7 +103,7 @@ public class NetworkManager {
 
 	private NetworkManager() {
 		mOkClient = new OkHttp();
-		BusProvider.getInstance().register(this);
+		Dispatcher.getInstance().register(this);
 	}
 
 	private static class NetworkManagerHolder {

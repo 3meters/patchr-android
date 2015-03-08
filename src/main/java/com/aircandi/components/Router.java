@@ -45,7 +45,7 @@ import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
 
-public class DispatchManager {
+public class Router {
 
 	public void intent(Activity activity, Intent intent) {
 		activity.startActivity(intent);

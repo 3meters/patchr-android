@@ -13,7 +13,7 @@ import android.widget.ProgressBar;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
-import com.aircandi.components.BusProvider;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.CancelEvent;
@@ -164,7 +164,7 @@ public class BusyController implements IBusy {
 						progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								BusProvider.getInstance().post(new CancelEvent(false));
+								Dispatcher.getInstance().post(new CancelEvent(false));
 								Dialogs.dismiss(progressDialog);
 							}
 						});
@@ -324,11 +324,11 @@ public class BusyController implements IBusy {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void resume() {
-		BusProvider.getInstance().register(this);
+		Dispatcher.getInstance().register(this);
 	}
 
 	public void pause() {
-		BusProvider.getInstance().unregister(this);
+		Dispatcher.getInstance().unregister(this);
 		hide(true);
 	}
 }

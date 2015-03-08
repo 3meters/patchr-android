@@ -30,7 +30,7 @@ public class S3 {
 
 	private S3() {
 		mManager = new TransferManager(Patchr.awsCredentials);
-		BusProvider.getInstance().register(this);
+		Dispatcher.getInstance().register(this);
 	}
 
 	private static class S3Holder {
@@ -58,7 +58,7 @@ public class S3 {
 			mUpload.addProgressListener(new ProgressListener() {
 				public void progressChanged(ProgressEvent progressEvent) {
 					if (mUpload == null) return;
-					BusProvider.getInstance().post(new com.aircandi.events.ProgressEvent(mUpload.getProgress().getPercentTransferred()));
+					Dispatcher.getInstance().post(new com.aircandi.events.ProgressEvent(mUpload.getProgress().getPercentTransferred()));
 				}
 			});
 

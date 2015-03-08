@@ -22,7 +22,7 @@ import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
-import com.aircandi.components.BusProvider;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.EntityController;
 import com.aircandi.ui.components.BusyController;
 import com.aircandi.components.DownloadManager;
@@ -323,10 +323,10 @@ public class EntityListFragment extends BaseFragment
 					postBind();
 					mNotEmpty = (mAdapter != null && mAdapter.getCount() != 0);
 					mFirstBind = false;
-					BusProvider.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
+					Dispatcher.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
 				}
 				else {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
+					Dispatcher.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
 					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 			}
@@ -336,7 +336,7 @@ public class EntityListFragment extends BaseFragment
 	@Override
 	public void draw(View view) {
 		mAdapter.notifyDataSetChanged();
-		BusProvider.getInstance().post(new EntitiesLoadedEvent()); // Used by MessageForm to trigger item highlighting
+		Dispatcher.getInstance().post(new EntitiesLoadedEvent()); // Used by MessageForm to trigger item highlighting
 	}
 
 	/*--------------------------------------------------------------------------------------------

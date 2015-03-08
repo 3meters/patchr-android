@@ -90,7 +90,7 @@ public class LocationManager implements
 						, "location_timeout"
 						, NetworkManager.getInstance().getNetworkType());
 
-				BusProvider.getInstance().post(new BurstTimeoutEvent());
+				Dispatcher.getInstance().post(new BurstTimeoutEvent());
 			}
 		};
 	}
@@ -219,7 +219,7 @@ public class LocationManager implements
 				}
 
 				mLocationLast = location;
-				BusProvider.getInstance().post(new LocationChangedEvent(mLocationLast));
+				Dispatcher.getInstance().post(new LocationChangedEvent(mLocationLast));
 			}
 		};
 

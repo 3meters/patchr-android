@@ -184,7 +184,7 @@ public class ActivityRecognitionManager implements
 
 		/* Broadcast current activity state */
 
-		BusProvider.getInstance().post(new ActivityStateEvent(mActivityStateCurrent));
+		Dispatcher.getInstance().post(new ActivityStateEvent(mActivityStateCurrent));
 	}
 
 	public void startUpdates(Integer detectionInterval, Integer stateThreshold) {

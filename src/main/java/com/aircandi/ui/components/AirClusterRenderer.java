@@ -23,7 +23,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 
 import com.aircandi.R;
-import com.aircandi.components.BusProvider;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.utilities.Colors;
@@ -432,7 +432,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 			}
 
 			markerModifier.waitUntilFree();
-			BusProvider.getInstance().post(new ProcessingFinishedEvent(NetworkManager.ResponseCode.SUCCESS));
+			Dispatcher.getInstance().post(new ProcessingFinishedEvent(NetworkManager.ResponseCode.SUCCESS));
 
 			mMarkers = newMarkers;
 			AirClusterRenderer.this.mClusters = clusters;

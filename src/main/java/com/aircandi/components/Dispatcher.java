@@ -3,7 +3,7 @@ package com.aircandi.components;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
-public class BusProvider {
+public class Dispatcher {
 
 	private static class BusHolder {
 		public static final Bus instance = new Bus(ThreadEnforcer.ANY);
@@ -13,6 +13,5 @@ public class BusProvider {
 		return BusHolder.instance;
 	}
 
-	private BusProvider() {
-	}
+	private Dispatcher() {}
 }

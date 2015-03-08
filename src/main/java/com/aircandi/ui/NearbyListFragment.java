@@ -15,7 +15,7 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.BusProvider;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
@@ -134,7 +134,7 @@ public class NearbyListFragment extends EntityListFragment {
 					ProximityController.getInstance().lockBeacons();
 				}
 				else {
-					BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
+					Dispatcher.getInstance().post(new EntitiesByProximityFinishedEvent());
 				}
 			}
 		});
@@ -213,7 +213,7 @@ public class NearbyListFragment extends EntityListFragment {
 				mCacheStamp = Patchr.getInstance().getEntityController().getCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+					Dispatcher.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 				}
 				else {
 
@@ -258,9 +258,9 @@ public class NearbyListFragment extends EntityListFragment {
 								if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 									Patchr.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
 									final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityController().getPatches(null /* proximity not required */);
-									BusProvider.getInstance().post(new PatchesNearLocationFinishedEvent()); // Just tracking
-									BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
-									BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+									Dispatcher.getInstance().post(new PatchesNearLocationFinishedEvent()); // Just tracking
+									Dispatcher.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
+									Dispatcher.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 								}
 								else {
 									onError();
@@ -270,7 +270,7 @@ public class NearbyListFragment extends EntityListFragment {
 						}.executeOnExecutor(Constants.EXECUTOR);
 					}
 					else {
-						BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+						Dispatcher.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 					}
 				}
 			}
@@ -311,7 +311,7 @@ public class NearbyListFragment extends EntityListFragment {
 				mAdapter.notifyDataSetChanged();
 
 				if (entities.size() >= 2) {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+					Dispatcher.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 				}
 
 				if (event.source.equals("onLocationChanged")) {
@@ -358,7 +358,7 @@ public class NearbyListFragment extends EntityListFragment {
 				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);         // Still try proximity
 			}
 			else {
-				BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+				Dispatcher.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 			}
 		}
 	}
@@ -372,7 +372,7 @@ public class NearbyListFragment extends EntityListFragment {
 	@Override
 	public void onError() {
 		/* Kill busy */
-		BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.FAILED));
+		Dispatcher.getInstance().post(new ProcessingFinishedEvent(ResponseCode.FAILED));
 	}
 
 	@Override
@@ -456,7 +456,7 @@ public class NearbyListFragment extends EntityListFragment {
 					ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 				}
 				else {
-					BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
+					Dispatcher.getInstance().post(new EntitiesByProximityFinishedEvent());
 				}
 				return null;
 			}
@@ -469,7 +469,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 	protected void start() {
 		super.start();
-		BusProvider.getInstance().register(mLocationHandler);
+		Dispatcher.getInstance().register(mLocationHandler);
 		onRefresh(); // Starts location updates if location services enabled.
 
 		/* Start foreground activity recognition - stop proximity manager from background recognition */
@@ -482,7 +482,7 @@ public class NearbyListFragment extends EntityListFragment {
 	protected void stop() {
 		super.stop();
 		try {
-			BusProvider.getInstance().unregister(mLocationHandler);
+			Dispatcher.getInstance().unregister(mLocationHandler);
 		}
 		catch (Exception ignore) {}
 		/*
@@ -529,7 +529,7 @@ public class NearbyListFragment extends EntityListFragment {
 						searchForPatches();
 					}
 					else {
-						BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+						Dispatcher.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 					}
 				}
 			}
@@ -539,7 +539,7 @@ public class NearbyListFragment extends EntityListFragment {
 		@SuppressWarnings({"ucd"})
 		public void onBurstTimeout(final BurstTimeoutEvent event) {
 
-			BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+			Dispatcher.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
 
 			/* We only show toast if we timeout without getting any location fix */
 			if (LocationManager.getInstance().getLocationLocked() == null) {

@@ -131,10 +131,10 @@ public class ProximityController {
 
 					mLastWifiUpdate = DateTime.nowDate();
 					if (mScanReason == ScanReason.MONITORING) {
-						BusProvider.getInstance().post(new MonitoringWifiScanReceivedEvent(mWifiList));
+						Dispatcher.getInstance().post(new MonitoringWifiScanReceivedEvent(mWifiList));
 					}
 					else if (mScanReason == ScanReason.QUERY) {
-						BusProvider.getInstance().post(new QueryWifiScanReceivedEvent(mWifiList));
+						Dispatcher.getInstance().post(new QueryWifiScanReceivedEvent(mWifiList));
 					}
 				}
 			}
@@ -232,7 +232,7 @@ public class ProximityController {
 		}
 
 		mLastBeaconLockedDate = DateTime.nowDate().getTime();
-		BusProvider.getInstance().post(new BeaconsLockedEvent());
+		Dispatcher.getInstance().post(new BeaconsLockedEvent());
 	}
 
 	public void clearBeacons() {
@@ -285,8 +285,8 @@ public class ProximityController {
 			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityController().getPatches(null /* proximity not required */);
 			Patchr.stopwatch1.segmentTime("Entities for beacons: no beacons to process - exiting");
 
-			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
-			BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
+			Dispatcher.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
+			Dispatcher.getInstance().post(new EntitiesByProximityFinishedEvent());
 			return serviceResponse;
 		}
 
@@ -312,13 +312,13 @@ public class ProximityController {
 			/* All cached patch entities that qualify based on current distance pref setting */
 			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityController().getPatches(null /* proximity not required */);
 			Patchr.stopwatch1.segmentTime("Entities for beacons: objects processed");
-			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
+			Dispatcher.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
 		}
 		else {
 			Patchr.stopwatch1.segmentTime("Entities for beacons: service call failed");
 		}
 
-		BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
+		Dispatcher.getInstance().post(new EntitiesByProximityFinishedEvent());
 
 		return serviceResponse;
 	}
@@ -380,11 +380,11 @@ public class ProximityController {
 	}
 
 	public void register() {
-		BusProvider.getInstance().register(this);
+		Dispatcher.getInstance().register(this);
 	}
 
 	public void unregister() {
-		BusProvider.getInstance().unregister(this);
+		Dispatcher.getInstance().unregister(this);
 	}
 
 	public RefreshReason beaconRefreshNeeded(Location activeLocation) {

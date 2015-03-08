@@ -17,7 +17,7 @@ import android.widget.ScrollView;
 
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.BusProvider;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IForm;
@@ -200,11 +200,11 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	public void share() {}
 
 	protected void start() {
-		BusProvider.getInstance().register(this);
+		Dispatcher.getInstance().register(this);
 	}
 
 	protected void stop() {
-		BusProvider.getInstance().unregister(this);
+		Dispatcher.getInstance().unregister(this);
 	}
 
 	/*--------------------------------------------------------------------------------------------

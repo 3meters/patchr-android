@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.ContainerManager;
-import com.aircandi.components.DispatchManager;
+import com.aircandi.components.Router;
 import com.aircandi.components.EntityController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
@@ -88,7 +88,7 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	public static PackageManager           packageManager;
 	@NonNull
-	public static DispatchManager          dispatch;
+	public static Router                   dispatch;
 	@NonNull
 	public static Integer                  memoryClass;
 	@NonNull
@@ -262,7 +262,7 @@ public class Patchr extends MultiDexApplication {
 		mAnimationManager = new AnimationManager();
 
 		/* Inject dispatch manager */
-		dispatch = new DispatchManager();
+		dispatch = new Router();
 
 		/* Connectivity monitoring */
 		NetworkManager.getInstance().initialize();
