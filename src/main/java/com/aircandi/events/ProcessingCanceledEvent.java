@@ -1,10 +1,10 @@
 package com.aircandi.events;
 
 @SuppressWarnings("ucd")
-public class CancelEvent {
+public class ProcessingCanceledEvent {
 	public Boolean force;
 
-	public CancelEvent(Boolean force) {
+	public ProcessingCanceledEvent(Boolean force) {
 		this.force = force;
 	}
 }

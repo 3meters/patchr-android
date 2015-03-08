@@ -30,8 +30,8 @@ import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.EntitiesLoadedEvent;
-import com.aircandi.events.NotificationEvent;
-import com.aircandi.events.ProcessingFinishedEvent;
+import com.aircandi.events.NotificationReceivedEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.monitors.EntityMonitor;
@@ -151,7 +151,7 @@ public class MessageForm extends BaseEntityForm {
 	}
 
 	@Subscribe
-	public void onProcessingFinished(final ProcessingFinishedEvent event) {
+	public void onProcessingFinished(final ProcessingCompleteEvent event) {
 
 		runOnUiThread(new Runnable() {
 			@Override
@@ -174,7 +174,7 @@ public class MessageForm extends BaseEntityForm {
 
 	@Subscribe
 	@SuppressWarnings("ucd")
-	public void onMessage(final NotificationEvent event) {
+	public void onNotificationReceived(final NotificationReceivedEvent event) {
 	    /*
 	     * Refresh the form because something new has been added to it
 		 * like a comment or post.

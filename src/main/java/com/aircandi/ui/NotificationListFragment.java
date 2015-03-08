@@ -18,8 +18,8 @@ import com.aircandi.components.Dispatcher;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
-import com.aircandi.events.NotificationEvent;
-import com.aircandi.events.ProcessingFinishedEvent;
+import com.aircandi.events.NotificationReceivedEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Notification;
@@ -61,7 +61,7 @@ public class NotificationListFragment extends MessageListFragment {
 
 	@Subscribe
 	@SuppressWarnings("ucd")
-	public void onMessage(final NotificationEvent event) {
+	public void onNotificationReceived(final NotificationReceivedEvent event) {
 
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
@@ -171,10 +171,10 @@ public class NotificationListFragment extends MessageListFragment {
 
 					mNotEmpty = (mAdapter != null && mAdapter.getCount() != 0);
 					mFirstBind = false;
-					Dispatcher.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
+					Dispatcher.getInstance().post(new ProcessingCompleteEvent(result.serviceResponse.responseCode));
 				}
 				else {
-					Dispatcher.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
+					Dispatcher.getInstance().post(new ProcessingCompleteEvent(result.serviceResponse.responseCode));
 					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 			}

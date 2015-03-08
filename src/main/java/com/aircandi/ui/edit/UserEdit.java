@@ -9,7 +9,7 @@ import android.widget.EditText;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.CancelEvent;
+import com.aircandi.events.ProcessingCanceledEvent;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
 import com.aircandi.ui.base.BaseEntityEdit;
@@ -83,7 +83,7 @@ public class UserEdit extends BaseEntityEdit {
 	}
 
 	@Subscribe
-	public void onCancelEvent(CancelEvent event) {
+	public void onCancelEvent(ProcessingCanceledEvent event) {
 		if (mTaskService != null) {
 			mTaskService.cancel(true);
 		}

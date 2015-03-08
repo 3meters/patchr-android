@@ -5,7 +5,8 @@ import android.graphics.Bitmap;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.events.CancelEvent;
+import com.aircandi.events.ProcessingCanceledEvent;
+import com.aircandi.events.ProcessingProgressEvent;
 import com.aircandi.objects.Photo.PhotoType;
 import com.aircandi.service.ServiceResponse;
 import com.amazonaws.AmazonClientException;
@@ -58,7 +59,7 @@ public class S3 {
 			mUpload.addProgressListener(new ProgressListener() {
 				public void progressChanged(ProgressEvent progressEvent) {
 					if (mUpload == null) return;
-					Dispatcher.getInstance().post(new com.aircandi.events.ProgressEvent(mUpload.getProgress().getPercentTransferred()));
+					Dispatcher.getInstance().post(new ProcessingProgressEvent(mUpload.getProgress().getPercentTransferred()));
 				}
 			});
 
@@ -85,7 +86,7 @@ public class S3 {
 	}
 
 	@Subscribe
-	public void onCancelEvent(CancelEvent event) {
+	public void onCancelEvent(ProcessingCanceledEvent event) {
 		if (mUpload != null) {
 			mUpload.abort();
 			Logger.v(this, "Image upload aborted");

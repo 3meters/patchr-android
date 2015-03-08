@@ -29,7 +29,7 @@ import com.aircandi.components.EntityController.SuggestScope;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.CancelEvent;
+import com.aircandi.events.ProcessingCanceledEvent;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -540,7 +540,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	}
 
 	@Subscribe
-	public void onCancelEvent(CancelEvent event) {
+	public void onCancelEvent(ProcessingCanceledEvent event) {
 		if (mTaskService != null) {
 			mTaskService.cancel(true);
 		}

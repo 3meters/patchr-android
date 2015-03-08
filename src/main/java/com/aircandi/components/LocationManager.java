@@ -13,8 +13,8 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.events.BurstTimeoutEvent;
-import com.aircandi.events.LocationChangedEvent;
+import com.aircandi.events.LocationTimeoutEvent;
+import com.aircandi.events.LocationUpdatedEvent;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
@@ -90,7 +90,7 @@ public class LocationManager implements
 						, "location_timeout"
 						, NetworkManager.getInstance().getNetworkType());
 
-				Dispatcher.getInstance().post(new BurstTimeoutEvent());
+				Dispatcher.getInstance().post(new LocationTimeoutEvent());
 			}
 		};
 	}
@@ -219,7 +219,7 @@ public class LocationManager implements
 				}
 
 				mLocationLast = location;
-				Dispatcher.getInstance().post(new LocationChangedEvent(mLocationLast));
+				Dispatcher.getInstance().post(new LocationUpdatedEvent(mLocationLast));
 			}
 		};
 

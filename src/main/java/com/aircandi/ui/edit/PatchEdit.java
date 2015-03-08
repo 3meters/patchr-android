@@ -33,8 +33,8 @@ import com.aircandi.components.ProximityController;
 import com.aircandi.components.ProximityController.ScanReason;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.BeaconsLockedEvent;
-import com.aircandi.events.CancelEvent;
-import com.aircandi.events.LocationChangedEvent;
+import com.aircandi.events.ProcessingCanceledEvent;
+import com.aircandi.events.LocationUpdatedEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
@@ -296,7 +296,7 @@ public class PatchEdit extends BaseEntityEdit {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onLocationChanged(final LocationChangedEvent event) {
+	public void onLocationChanged(final LocationUpdatedEvent event) {
 		/*
 		 * Getting location updates because we are inserting a patch and
 		 * location services are enabled.
@@ -376,7 +376,7 @@ public class PatchEdit extends BaseEntityEdit {
 	}
 
 	@Subscribe
-	public void onCancelEvent(CancelEvent event) {
+	public void onCancelEvent(ProcessingCanceledEvent event) {
 		if (mTaskService != null) {
 			mTaskService.cancel(true);
 		}

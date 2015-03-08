@@ -2,10 +2,10 @@ package com.aircandi.events;
 
 import com.aircandi.objects.Notification;
 
-public class NotificationEvent {
+public class NotificationReceivedEvent {
 	public final Notification notification;
 
-	public NotificationEvent(Notification notification) {
+	public NotificationReceivedEvent(Notification notification) {
 		this.notification = notification;
 	}
 }

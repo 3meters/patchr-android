@@ -11,7 +11,7 @@ import com.aircandi.components.LocationManager;
 import com.aircandi.components.MapManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.events.ProcessingFinishedEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
@@ -100,7 +100,7 @@ public class MapForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingFinished(ProcessingFinishedEvent event) {
+	public void onProcessingFinished(ProcessingCompleteEvent event) {
 		((MapListFragment) mCurrentFragment).onProcessingFinished();
 	}
 

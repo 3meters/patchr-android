@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.location.Location;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
 
@@ -18,9 +17,8 @@ import com.aircandi.components.ActivityRecognitionManager.ActivityState;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.events.ActivityStateEvent;
 import com.aircandi.events.BeaconsLockedEvent;
-import com.aircandi.events.EntitiesByProximityFinishedEvent;
-import com.aircandi.events.EntitiesChangedEvent;
-import com.aircandi.events.MonitoringWifiScanReceivedEvent;
+import com.aircandi.events.EntitiesByProximityCompleteEvent;
+import com.aircandi.events.EntitiesUpdatedEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
@@ -131,7 +129,15 @@ public class ProximityController {
 
 					mLastWifiUpdate = DateTime.nowDate();
 					if (mScanReason == ScanReason.MONITORING) {
-						Dispatcher.getInstance().post(new MonitoringWifiScanReceivedEvent(mWifiList));
+						/*
+						 * Monitoring wifi scans are triggered when we detect that the device is still after walking.
+						 */
+						new Thread(new Runnable() {
+							@Override
+							public void run() {
+								updateProximity(mWifiList);
+							}
+						}).start();
 					}
 					else if (mScanReason == ScanReason.QUERY) {
 						Dispatcher.getInstance().post(new QueryWifiScanReceivedEvent(mWifiList));
@@ -161,23 +167,6 @@ public class ProximityController {
 				UI.showToastNotification("Proximity update: activity state = arriving", Toast.LENGTH_SHORT);
 			}
 		}
-	}
-
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onMonitoringWifiScanReceived(final MonitoringWifiScanReceivedEvent event) {
-		/*
-		 * Monitoring wifi scans are triggered when we detect that the device is still after walking.
-		 */
-		new AsyncTask() {
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncUpdateProximity");
-				ServiceResponse serviceResponse = updateProximity(event.wifiList);
-				return serviceResponse;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -285,8 +274,8 @@ public class ProximityController {
 			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityController().getPatches(null /* proximity not required */);
 			Patchr.stopwatch1.segmentTime("Entities for beacons: no beacons to process - exiting");
 
-			Dispatcher.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
-			Dispatcher.getInstance().post(new EntitiesByProximityFinishedEvent());
+			Dispatcher.getInstance().post(new EntitiesUpdatedEvent(entitiesForEvent, "getEntitiesByProximity"));
+			Dispatcher.getInstance().post(new EntitiesByProximityCompleteEvent());
 			return serviceResponse;
 		}
 
@@ -312,13 +301,13 @@ public class ProximityController {
 			/* All cached patch entities that qualify based on current distance pref setting */
 			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityController().getPatches(null /* proximity not required */);
 			Patchr.stopwatch1.segmentTime("Entities for beacons: objects processed");
-			Dispatcher.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
+			Dispatcher.getInstance().post(new EntitiesUpdatedEvent(entitiesForEvent, "getEntitiesByProximity"));
 		}
 		else {
 			Patchr.stopwatch1.segmentTime("Entities for beacons: service call failed");
 		}
 
-		Dispatcher.getInstance().post(new EntitiesByProximityFinishedEvent());
+		Dispatcher.getInstance().post(new EntitiesByProximityCompleteEvent());
 
 		return serviceResponse;
 	}

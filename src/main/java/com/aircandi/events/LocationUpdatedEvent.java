@@ -3,10 +3,10 @@ package com.aircandi.events;
 import android.location.Location;
 
 @SuppressWarnings("ucd")
-public class LocationChangedEvent {
+public class LocationUpdatedEvent {
 	public final Location location;
 
-	public LocationChangedEvent(Location location) {
+	public LocationUpdatedEvent(Location location) {
 		this.location = location;
 	}
 }

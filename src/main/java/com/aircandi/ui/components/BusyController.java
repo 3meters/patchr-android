@@ -16,8 +16,8 @@ import com.aircandi.Patchr;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.CancelEvent;
-import com.aircandi.events.ProgressEvent;
+import com.aircandi.events.ProcessingCanceledEvent;
+import com.aircandi.events.ProcessingProgressEvent;
 import com.aircandi.interfaces.IBusy;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
@@ -164,7 +164,7 @@ public class BusyController implements IBusy {
 						progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								Dispatcher.getInstance().post(new CancelEvent(false));
+								Dispatcher.getInstance().post(new ProcessingCanceledEvent(false));
 								Dialogs.dismiss(progressDialog);
 							}
 						});
@@ -214,7 +214,7 @@ public class BusyController implements IBusy {
 	}
 
 	@Subscribe
-	public void onProgressEvent(ProgressEvent event) {
+	public void onProgressEvent(ProcessingProgressEvent event) {
 		if (mProgressDialog != null && mProgressDialog.isShowing() && !mProgressDialog.isIndeterminate()) {
 			Logger.v(this, "Progress event: " + event.percent + "%");
 			mProgressDialog.setProgress((int) event.percent);

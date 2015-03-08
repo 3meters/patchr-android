@@ -24,8 +24,8 @@ import com.aircandi.components.MapManager;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.NotificationEvent;
-import com.aircandi.events.ProcessingFinishedEvent;
+import com.aircandi.events.NotificationReceivedEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.monitors.TrendMonitor;
 import com.aircandi.objects.CacheStamp;
@@ -136,7 +136,7 @@ public class AircandiForm extends BaseActivity {
 	}
 
 	@Subscribe
-	public void onProcessingFinished(final ProcessingFinishedEvent event) {
+	public void onProcessingFinished(final ProcessingCompleteEvent event) {
 		/*
 		 * Can be called from ui or background thread.
 		 */
@@ -234,7 +234,7 @@ public class AircandiForm extends BaseActivity {
 
 	@Subscribe
 	@SuppressWarnings("ucd")
-	public void onMessage(final NotificationEvent event) {
+	public void onNotificationReceived(final NotificationReceivedEvent event) {
 
 		runOnUiThread(new Runnable() {
 			@Override

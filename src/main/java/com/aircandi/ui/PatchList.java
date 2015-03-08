@@ -7,7 +7,7 @@ import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.EntityController;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.ProcessingFinishedEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.queries.EntitiesQuery;
@@ -86,7 +86,7 @@ public class PatchList extends BaseActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingFinished(final ProcessingFinishedEvent event) {
+	public void onProcessingFinished(final ProcessingCompleteEvent event) {
 		mUiController.getBusyController().hide(false);
 		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
 		fragment.onProcessingFinished(event);

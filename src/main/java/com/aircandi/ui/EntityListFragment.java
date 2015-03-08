@@ -24,6 +24,7 @@ import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.EntityController;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.ui.components.BusyController;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.Logger;
@@ -31,7 +32,6 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.EntitiesLoadedEvent;
-import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.interfaces.IMonitor;
@@ -323,10 +323,10 @@ public class EntityListFragment extends BaseFragment
 					postBind();
 					mNotEmpty = (mAdapter != null && mAdapter.getCount() != 0);
 					mFirstBind = false;
-					Dispatcher.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
+					Dispatcher.getInstance().post(new ProcessingCompleteEvent(result.serviceResponse.responseCode));
 				}
 				else {
-					Dispatcher.getInstance().post(new ProcessingFinishedEvent(result.serviceResponse.responseCode));
+					Dispatcher.getInstance().post(new ProcessingCompleteEvent(result.serviceResponse.responseCode));
 					Errors.handleError(getActivity(), result.serviceResponse);
 				}
 			}
@@ -390,7 +390,7 @@ public class EntityListFragment extends BaseFragment
 		}
 	}
 
-	public void onProcessingFinished(ProcessingFinishedEvent event) {
+	public void onProcessingFinished(ProcessingCompleteEvent event) {
 		mListController.getBusyController().hide(false);
 		if (getAdapter().getCount() == 0
 				&& mListEmptyMessageResId != null

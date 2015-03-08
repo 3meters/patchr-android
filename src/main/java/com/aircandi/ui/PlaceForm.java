@@ -9,7 +9,7 @@ import android.view.View;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.events.ProcessingFinishedEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Route;
@@ -51,7 +51,7 @@ public class PlaceForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingFinished(ProcessingFinishedEvent event) {
+	public void onProcessingFinished(ProcessingCompleteEvent event) {
 		mUiController.getBusyController().hide(false);
 	}
 

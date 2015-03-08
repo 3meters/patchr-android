@@ -17,7 +17,7 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.ProcessingFinishedEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
@@ -103,7 +103,7 @@ public class UserList extends BaseActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingFinished(final ProcessingFinishedEvent event) {
+	public void onProcessingFinished(final ProcessingCompleteEvent event) {
 		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
 		fragment.onProcessingFinished(event);
 	}

@@ -14,7 +14,7 @@ import android.text.Html;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.events.NotificationEvent;
+import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.exceptions.GcmRegistrationIOException;
 import com.aircandi.objects.Install;
 import com.aircandi.objects.Notification;
@@ -156,7 +156,7 @@ public class NotificationManager {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void broadcastNotification(final Notification notification) {
-		Dispatcher.getInstance().post(new NotificationEvent(notification));
+		Dispatcher.getInstance().post(new NotificationReceivedEvent(notification));
 	}
 
 	public void statusNotification(final Notification notification, Context context) {

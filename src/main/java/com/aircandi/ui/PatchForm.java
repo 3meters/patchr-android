@@ -32,9 +32,8 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.BubbleButtonEvent;
-import com.aircandi.events.NotificationEvent;
-import com.aircandi.events.ProcessingFinishedEvent;
+import com.aircandi.events.NotificationReceivedEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
@@ -125,7 +124,7 @@ public class PatchForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingFinished(final ProcessingFinishedEvent event) {
+	public void onProcessingFinished(final ProcessingCompleteEvent event) {
 
 		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
 
@@ -173,7 +172,7 @@ public class PatchForm extends BaseEntityForm {
 
 	@Subscribe
 	@SuppressWarnings("ucd")
-	public void onMessage(final NotificationEvent event) {
+	public void onNotificationReceived(final NotificationReceivedEvent event) {
 		/*
 		 * Refresh the form because something new has been added to it like a message.
 		 */
@@ -299,9 +298,6 @@ public class PatchForm extends BaseEntityForm {
 			buttonMore.setTag(collapsed ? "expanded" : "collapsed");
 		}
 	}
-
-	@Subscribe
-	public void onBubbleButton(BubbleButtonEvent event) {}
 
 	@SuppressWarnings("ucd")
 	public void onFabButtonClick(View view) {

@@ -13,7 +13,7 @@ import com.aircandi.R;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.ProcessingFinishedEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Link;
@@ -75,7 +75,7 @@ public class UserForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingFinished(final ProcessingFinishedEvent event) {
+	public void onProcessingFinished(final ProcessingCompleteEvent event) {
 		mUiController.getBusyController().hide(false);
 		((EntityListFragment) mCurrentFragment).onProcessingFinished(event);
 	}

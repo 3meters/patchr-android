@@ -3,11 +3,11 @@ package com.aircandi.events;
 import com.aircandi.components.NetworkManager.ResponseCode;
 
 @SuppressWarnings("ucd")
-public class ProcessingFinishedEvent {
+public class ProcessingCompleteEvent {
 
 	public ResponseCode responseCode = ResponseCode.SUCCESS;
 
-	public ProcessingFinishedEvent(ResponseCode responseCode) {
+	public ProcessingCompleteEvent(ResponseCode responseCode) {
 		this.responseCode = responseCode;
 	}
 }
