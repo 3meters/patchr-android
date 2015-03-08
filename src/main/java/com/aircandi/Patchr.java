@@ -23,7 +23,7 @@ import android.widget.Toast;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.ContainerManager;
 import com.aircandi.components.DispatchManager;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.EntityController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.MenuManager;
@@ -140,7 +140,7 @@ public class Patchr extends MultiDexApplication {
 
 	/* Shared managers */
 	@NonNull
-	protected EntityManager    mEntityManager;
+	protected EntityController mEntityController;
 	@NonNull
 	protected MenuManager      mMenuManager;
 	@NonNull
@@ -257,7 +257,7 @@ public class Patchr extends MultiDexApplication {
 		MediaManager.warmup();
 
 		/* Inject minimum managers required for notifications */
-		mEntityManager = new EntityManager().setLinks(new Links());
+		mEntityController = new EntityController().setLinks(new Links());
 		mMenuManager = new MenuManager();
 		mAnimationManager = new AnimationManager();
 
@@ -349,7 +349,7 @@ public class Patchr extends MultiDexApplication {
 		}
 
 		/* Couldn't auto signin so fall back to anonymous */
-		final User anonymous = (User) mEntityManager.loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
+		final User anonymous = (User) mEntityController.loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
 		setCurrentUser(anonymous, false);
 	}
 
@@ -495,8 +495,8 @@ public class Patchr extends MultiDexApplication {
 
 			/* Load user data */
 			if (refreshUser) {
-				Links options =  mEntityManager.getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
-				result = mEntityManager.getEntity(user.id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				Links options =  mEntityController.getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
+				result = mEntityController.getEntity(user.id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
 			/* Update settings */
@@ -554,8 +554,8 @@ public class Patchr extends MultiDexApplication {
 	}
 
 	@NonNull
-	public EntityManager getEntityManager() {
-		return mEntityManager;
+	public EntityController getEntityController() {
+		return mEntityController;
 	}
 
 	@NonNull

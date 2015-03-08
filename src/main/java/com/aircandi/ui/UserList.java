@@ -12,7 +12,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.EntityController;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -50,7 +50,7 @@ public class UserList extends BaseActivity {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-			mEntity = EntityManager.getStoreEntity(mEntityId);
+			mEntity = EntityController.getStoreEntity(mEntityId);
 			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
 			mListTitleResId = extras.getInt(Constants.EXTRA_LIST_TITLE_RESID);
 			mListItemResId = extras.getInt(Constants.EXTRA_LIST_ITEM_RESID);
@@ -205,7 +205,7 @@ public class UserList extends BaseActivity {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncStatusUpdate");
-				ModelResult result = Patchr.getInstance().getEntityManager().insertLink(linkId
+				ModelResult result = Patchr.getInstance().getEntityController().insertLink(linkId
 						, fromId
 						, toId
 						, Constants.TYPE_LINK_WATCH
@@ -241,7 +241,7 @@ public class UserList extends BaseActivity {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncWatchEntity");
-				ModelResult result = Patchr.getInstance().getEntityManager().deleteLink(fromId
+				ModelResult result = Patchr.getInstance().getEntityController().deleteLink(fromId
 						, mEntity.id
 						, Constants.TYPE_LINK_WATCH
 						, false

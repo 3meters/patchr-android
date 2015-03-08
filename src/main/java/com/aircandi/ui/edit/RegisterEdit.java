@@ -239,7 +239,7 @@ public class RegisterEdit extends BaseEntityEdit {
 					}
 				}
 
-				ModelResult result = Patchr.getInstance().getEntityManager().registerUser((User) mEntity
+				ModelResult result = Patchr.getInstance().getEntityController().registerUser((User) mEntity
 						, (mEntity.photo != null) ? bitmap : null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				if (isCancelled()) return null;

@@ -1,7 +1,6 @@
 package com.aircandi.utilities;
 
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
@@ -11,12 +10,9 @@ import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Document;
-import com.aircandi.objects.Log;
 import com.aircandi.objects.Patch;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class Debug {
 
@@ -41,7 +37,7 @@ public class Debug {
 					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncInsertReport");
-						ModelResult result = Patchr.getInstance().getEntityManager().insertDocument(document, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						ModelResult result = Patchr.getInstance().getEntityController().insertDocument(document, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						return result;
 					}
 

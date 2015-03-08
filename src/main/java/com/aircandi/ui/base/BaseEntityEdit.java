@@ -22,7 +22,7 @@ import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager;
+import com.aircandi.components.ProximityController;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
@@ -550,7 +550,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 				/* We only send beacons if a patch is being inserted */
 				if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH) && !mProximityDisabled) {
-					beacons = ProximityManager.getInstance().getStrongestBeacons(ServiceConstants.PROXIMITY_BEACON_COVERAGE);
+					beacons = ProximityController.getInstance().getStrongestBeacons(ServiceConstants.PROXIMITY_BEACON_COVERAGE);
 					primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 				}
 
@@ -603,7 +603,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				beforeInsert(mEntity, links);
 				if (isCancelled()) return null;
 
-				ModelResult result = Patchr.getInstance().getEntityManager().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = Patchr.getInstance().getEntityController().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
@@ -717,7 +717,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					}
 
 					beforeUpdate(mEntity);
-					result = Patchr.getInstance().getEntityManager().updateEntity(mEntity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					result = Patchr.getInstance().getEntityController().updateEntity(mEntity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 					if (isCancelled()) return null;
 
 					/* Don't allow cancel if we made it this far */

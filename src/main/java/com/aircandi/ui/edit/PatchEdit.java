@@ -23,14 +23,14 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.EntityController;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
-import com.aircandi.components.ProximityManager;
-import com.aircandi.components.ProximityManager.ScanReason;
+import com.aircandi.components.ProximityController;
+import com.aircandi.components.ProximityController.ScanReason;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.BeaconsLockedEvent;
 import com.aircandi.events.CancelEvent;
@@ -156,7 +156,7 @@ public class PatchEdit extends BaseEntityEdit {
 			});
 		}
 
-		mCategories = Patchr.getInstance().getEntityManager().getCategories();
+		mCategories = Patchr.getInstance().getEntityController().getCategories();
 	}
 
 	@Override
@@ -336,7 +336,7 @@ public class PatchEdit extends BaseEntityEdit {
 				public void run() {
 					Logger.d(PatchEdit.this, "Query wifi scan received event: locking beacons");
 					if (event.wifiList != null) {
-						ProximityManager.getInstance().lockBeacons();
+						ProximityController.getInstance().lockBeacons();
 					}
 					else {
 					    /*
@@ -388,7 +388,7 @@ public class PatchEdit extends BaseEntityEdit {
 			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, PatchEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()) {
 				mTuningInProcess = true;
-				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
+				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 			}
 			else {
 				tuneProximity();
@@ -402,7 +402,7 @@ public class PatchEdit extends BaseEntityEdit {
 			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, PatchEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()) {
 				mTuningInProcess = true;
-				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
+				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 			}
 			else {
 				tuneProximity();
@@ -412,7 +412,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 	public void onPlacePickerClick(View view) {
 		Bundle extras = new Bundle();
-		extras.putInt(Constants.EXTRA_SEARCH_SCOPE, EntityManager.SuggestScope.PLACES.ordinal());
+		extras.putInt(Constants.EXTRA_SEARCH_SCOPE, EntityController.SuggestScope.PLACES.ordinal());
 		extras.putBoolean(Constants.EXTRA_SEARCH_RETURN_ENTITY, true);
 		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
 
@@ -527,7 +527,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 					/* Adding a new place. */
 					if (place != null && Type.isTrue(place.synthetic)) {
-						result = Patchr.getInstance().getEntityManager().insertEntity(place, null, null, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						result = Patchr.getInstance().getEntityController().insertEntity(place, null, null, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 							Entity insertedPlace = (Entity) result.data;
 							place.id = insertedPlace.id;
@@ -540,7 +540,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 						/* Existing link so delete it */
 						if (placeLink != null) {
-							result = Patchr.getInstance().getEntityManager().deleteLink(mEntity.id
+							result = Patchr.getInstance().getEntityController().deleteLink(mEntity.id
 									, placeLink.shortcut.id
 									, Constants.TYPE_LINK_PROXIMITY
 									, true
@@ -553,7 +553,7 @@ public class PatchEdit extends BaseEntityEdit {
 						 */
 						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS
 								&& mEditing && place != null) {
-							result = Patchr.getInstance().getEntityManager().insertLink(null
+							result = Patchr.getInstance().getEntityController().insertLink(null
 									, mEntity.id
 									, place.id
 									, Constants.TYPE_LINK_PROXIMITY
@@ -634,7 +634,7 @@ public class PatchEdit extends BaseEntityEdit {
 	private void initCategorySpinner() {
 
 		final Patch entity = (Patch) mEntity;
-		final List<String> categoryStrings = Patchr.getInstance().getEntityManager().getCategoriesAsStringArray();
+		final List<String> categoryStrings = Patchr.getInstance().getEntityController().getCategoriesAsStringArray();
 		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(PatchEdit.this
 				, R.layout.spinner_item
 				, categoryStrings);
@@ -691,7 +691,7 @@ public class PatchEdit extends BaseEntityEdit {
 		 * - entity_proximity action logged.
 		 */
 		Integer beaconMax = !mUntuning ? ServiceConstants.PROXIMITY_BEACON_COVERAGE : ServiceConstants.PROXIMITY_BEACON_UNCOVERAGE;
-		final List<Beacon> beacons = ProximityManager.getInstance().getStrongestBeacons(beaconMax);
+		final List<Beacon> beacons = ProximityController.getInstance().getStrongestBeacons(beaconMax);
 		final Beacon primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 
 		new AsyncTask() {
@@ -705,7 +705,7 @@ public class PatchEdit extends BaseEntityEdit {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncTrackEntityProximity");
 
-				final ModelResult result = Patchr.getInstance().getEntityManager().trackEntity(mEntity
+				final ModelResult result = Patchr.getInstance().getEntityController().trackEntity(mEntity
 						, beacons
 						, primaryBeacon
 						, mUntuning, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
@@ -765,7 +765,7 @@ public class PatchEdit extends BaseEntityEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncClearEntityProximity");
-				final ModelResult result = Patchr.getInstance().getEntityManager().trackEntity(mEntity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				final ModelResult result = Patchr.getInstance().getEntityController().trackEntity(mEntity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 

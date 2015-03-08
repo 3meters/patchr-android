@@ -27,11 +27,9 @@ import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("ucd")
@@ -76,9 +74,9 @@ public class EntityStore {
 			     * Clear out any cache stamp overrides.
 				 */
 				for (Entity entity : loadedEntities) {
-					if (Patchr.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
+					if (Patchr.getInstance().getEntityController().getCacheStampOverrides().containsKey(entity.id)) {
 						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Patchr.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
+						Patchr.getInstance().getEntityController().getCacheStampOverrides().remove(entity.id);
 					}
 				}
 
@@ -153,9 +151,9 @@ public class EntityStore {
 					/*
 					 * Clear out any cache stamp overrides.
 					 */
-					if (Patchr.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
+					if (Patchr.getInstance().getEntityController().getCacheStampOverrides().containsKey(entity.id)) {
 						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Patchr.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
+						Patchr.getInstance().getEntityController().getCacheStampOverrides().remove(entity.id);
 					}
 					if (cursor != null && cursor.direction != null && cursor.direction.equals("out")) {
 						entity.fromId = forEntityId;
@@ -228,16 +226,16 @@ public class EntityStore {
 					/*
 					 * Clear out any cache stamp overrides.
 					 */
-					if (Patchr.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
+					if (Patchr.getInstance().getEntityController().getCacheStampOverrides().containsKey(entity.id)) {
 						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Patchr.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
+						Patchr.getInstance().getEntityController().getCacheStampOverrides().remove(entity.id);
 					}
 				}
 
 				synchronized (this) {
 
 					/* Clean out all patches found via proximity before shoving in the latest */
-					Integer removeCount = EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
+					Integer removeCount = removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
 					Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
 
 					/* Push patch entities to cache */
@@ -545,7 +543,7 @@ public class EntityStore {
 	 * Store deletes (local only)
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void clearStore() {
+	void clearStore() {
 		mCacheMap.clear();
 	}
 
@@ -569,7 +567,7 @@ public class EntityStore {
 		return removedEntity;
 	}
 
-	private synchronized Entity removeLinkedEntities(String entityId) {
+	synchronized Entity removeLinkedEntities(String entityId) {
 		/*
 		 * Clean out entity and every entity related to entity. Is not recursive
 		 */
@@ -589,7 +587,7 @@ public class EntityStore {
 		return entity;
 	}
 
-	public synchronized Integer removeEntities(@NonNull String schema, @NonNull String type, Boolean foundByProximity) {
+	synchronized Integer removeEntities(@NonNull String schema, @NonNull String type, Boolean foundByProximity) {
 
 		Integer removeCount = 0;
 		final Iterator iterEntities = mCacheMap.keySet().iterator();

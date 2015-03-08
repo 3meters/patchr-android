@@ -141,7 +141,7 @@ public class ReportEdit extends BaseEntityEdit {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertReport");
 				mReport.createdDate = DateTime.nowDate().getTime();
-				final ModelResult result = Patchr.getInstance().getEntityManager().insertDocument(mReport, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				final ModelResult result = Patchr.getInstance().getEntityController().insertDocument(mReport, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 

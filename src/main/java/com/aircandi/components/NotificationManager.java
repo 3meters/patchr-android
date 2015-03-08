@@ -107,7 +107,7 @@ public class NotificationManager {
 		install.clientPackageName = Patchr.applicationContext.getPackageName();
 		install.deviceName = AndroidManager.getInstance().getDeviceName();
 
-		ModelResult result = Patchr.getInstance().getEntityManager().registerInstall(install, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+		ModelResult result = Patchr.getInstance().getEntityController().registerInstall(install, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Logger.i(this, "Install successfully registered with Aircandi service");

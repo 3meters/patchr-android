@@ -23,9 +23,9 @@ import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.BusProvider;
+import com.aircandi.components.EntityController;
 import com.aircandi.ui.components.BusyController;
 import com.aircandi.components.DownloadManager;
-import com.aircandi.components.EntityManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -831,8 +831,8 @@ public class EntityListFragment extends BaseFragment
 				entity.index = position + 1;
 
 				/* Perform cache lookup to make sure we are using the latest */
-				if (mEntityCacheEnabled && EntityManager.getStoreEntity(entity.id) != null) {
-					entity = EntityManager.getStoreEntity(entity.id);
+				if (mEntityCacheEnabled && EntityController.getStoreEntity(entity.id) != null) {
+					entity = EntityController.getStoreEntity(entity.id);
 				}
 
                 /*

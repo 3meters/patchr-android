@@ -21,7 +21,7 @@ public class TrendQuery implements IQuery {
 		 * Should be called on a background thread. By default returns sorted by rank
 		 * in ascending order.
 		 */
-		ModelResult result = Patchr.getInstance().getEntityManager().getTrending(toSchema, fromSchema, trendType, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+		ModelResult result = Patchr.getInstance().getEntityController().getTrending(toSchema, fromSchema, trendType, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 		mHasExecuted = true;
 		return result;
 	}

@@ -8,7 +8,7 @@ import android.widget.TextView;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.EntityController;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Count;
@@ -76,7 +76,7 @@ public class Messages extends EntityControllerBase {
 				Entity parentEntity = entity.patch;
 				if (parentEntity == null) {
 					if (entity.patchId != null) {
-						parentEntity = EntityManager.getStoreEntity(entity.patchId);
+						parentEntity = EntityController.getStoreEntity(entity.patchId);
 					}
 				}
 				if (parentEntity != null) {

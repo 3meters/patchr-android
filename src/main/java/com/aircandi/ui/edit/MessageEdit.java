@@ -24,8 +24,8 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.DownloadManager;
-import com.aircandi.components.EntityManager;
-import com.aircandi.components.EntityManager.SuggestScope;
+import com.aircandi.components.EntityController;
+import com.aircandi.components.EntityController.SuggestScope;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
@@ -75,11 +75,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	private ImageView                mButtonToClear;
 	private EntitySuggestController  mEntitySuggest;
 
-	private List<Entity>               mTos          = new ArrayList<Entity>();
-	private String                     mMessageType  = MessageType.ROOT;
-	private EntityManager.SuggestScope mSuggestScope = EntityManager.SuggestScope.PLACES;
-	private ToMode                     mToMode       = ToMode.SINGLE;
-	private Boolean                    mToEditable   = true;
+	private List<Entity>                  mTos          = new ArrayList<Entity>();
+	private String                        mMessageType  = MessageType.ROOT;
+	private EntityController.SuggestScope mSuggestScope = EntityController.SuggestScope.PLACES;
+	private ToMode                        mToMode       = ToMode.SINGLE;
+	private Boolean                       mToEditable   = true;
 
 	@Override
 	public void unpackIntent() {
@@ -159,7 +159,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEND)) {
 
 			mMessageType = MessageType.SHARE;
-			mSuggestScope = EntityManager.SuggestScope.USERS;
+			mSuggestScope = EntityController.SuggestScope.USERS;
 			mShareSchema = Constants.SCHEMA_ENTITY_PICTURE;
 			mToMode = ToMode.MULTIPLE;
 			mToEditable = true;
@@ -236,7 +236,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 					mShareId = extras.getString(Constants.EXTRA_SHARE_ID);
 					mShareSchema = extras.getString(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
-					mShareEntity = EntityManager.getStoreEntity(mShareId);
+					mShareEntity = EntityController.getStoreEntity(mShareId);
 
 					if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 						mEntity.description = String.format(StringManager.getString(R.string.label_patch_share_body_self), mShareEntity.name);

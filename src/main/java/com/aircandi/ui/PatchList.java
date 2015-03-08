@@ -5,7 +5,7 @@ import android.view.View;
 
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.EntityController;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.ProcessingFinishedEvent;
 import com.aircandi.monitors.EntityMonitor;
@@ -33,7 +33,7 @@ public class PatchList extends BaseActivity {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-			mEntity = EntityManager.getStoreEntity(mEntityId);
+			mEntity = EntityController.getStoreEntity(mEntityId);
 			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
 			mListTitleResId = extras.getInt(Constants.EXTRA_LIST_TITLE_RESID);
 			mListEmptyMessageResId = extras.getInt(Constants.EXTRA_LIST_EMPTY_RESID);

@@ -44,7 +44,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-public class ProximityManager {
+public class ProximityController {
 
 	public  Date mLastWifiUpdate;
 	private Long mLastBeaconLockedDate;
@@ -68,16 +68,16 @@ public class ProximityManager {
 	private static final String         MockBssid               = "00:00:00:00:00:00";
 
 	private static class ProxiManagerHolder {
-		public static final ProximityManager instance = new ProximityManager();
+		public static final ProximityController instance = new ProximityController();
 	}
 
-	public static ProximityManager getInstance() {
+	public static ProximityController getInstance() {
 		return ProxiManagerHolder.instance;
 	}
 
-	private ProximityManager() {
+	private ProximityController() {
 
-		mEntityStore = EntityManager.getEntityCache();
+		mEntityStore = EntityController.getEntityCache();
 		mWifiReceiver = new BroadcastReceiver() {
 			/*
 			 * Called from main thread.
@@ -87,7 +87,7 @@ public class ProximityManager {
 
 				Patchr.applicationContext.unregisterReceiver(this);
 				Patchr.stopwatch1.segmentTime("Wifi scan received from system: reason = " + mScanReason.toString());
-				Logger.v(ProximityManager.this, "Received wifi scan results for " + mScanReason.name());
+				Logger.v(ProximityController.this, "Received wifi scan results for " + mScanReason.name());
 
 				synchronized (mWifiList) {
 
@@ -156,7 +156,7 @@ public class ProximityManager {
 		 */
 		if (event.activityState == ActivityState.ARRIVING) {
 			Logger.d(this, "Proximity update: activity state = arriving");
-			ProximityManager.getInstance().scanForWifi(ScanReason.MONITORING);
+			ProximityController.getInstance().scanForWifi(ScanReason.MONITORING);
 			if (Patchr.getInstance().getPrefEnableDev()) {
 				UI.showToastNotification("Proximity update: activity state = arriving", Toast.LENGTH_SHORT);
 			}
@@ -235,6 +235,10 @@ public class ProximityManager {
 		BusProvider.getInstance().post(new BeaconsLockedEvent());
 	}
 
+	public void clearBeacons() {
+		EntityController.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Load beacon related entities
 	 *--------------------------------------------------------------------------------------------*/
@@ -262,7 +266,7 @@ public class ProximityManager {
 
 		/* Construct string array of the beacon ids */
 		List<String> beaconIds = new ArrayList<String>();
-		List<Beacon> beacons = (List<Beacon>) Patchr.getInstance().getEntityManager().getBeacons();
+		List<Beacon> beacons = (List<Beacon>) Patchr.getInstance().getEntityController().getBeacons();
 
 		for (Beacon beacon : beacons) {
 			beaconIds.add(beacon.id);
@@ -278,7 +282,7 @@ public class ProximityManager {
 			mLastBeaconLoadDate = DateTime.nowDate().getTime();
 
 			/* All cached patch entities that qualify based on current distance pref setting */
-			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPatches(null /* proximity not required */);
+			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityController().getPatches(null /* proximity not required */);
 			Patchr.stopwatch1.segmentTime("Entities for beacons: no beacons to process - exiting");
 
 			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
@@ -297,7 +301,7 @@ public class ProximityManager {
 
 		/* Only place in the code that calls loadEntitiesByProximity */
 		serviceResponse = mEntityStore.loadEntitiesByProximity(beaconIds
-				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_BEACONS)
+				, Patchr.getInstance().getEntityController().getLinks().build(LinkProfile.LINKS_FOR_BEACONS)
 				, cursor
 				, installId
 				, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, Patchr.stopwatch1);
@@ -306,7 +310,7 @@ public class ProximityManager {
 			mLastBeaconLoadDate = ((ServiceData) serviceResponse.data).date.longValue();
 
 			/* All cached patch entities that qualify based on current distance pref setting */
-			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPatches(null /* proximity not required */);
+			final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityController().getPatches(null /* proximity not required */);
 			Patchr.stopwatch1.segmentTime("Entities for beacons: objects processed");
 			BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "getEntitiesByProximity"));
 		}
@@ -327,7 +331,7 @@ public class ProximityManager {
 		 * that get returned.
 		 */
 		final List<String> excludePlaceIds = new ArrayList<String>();
-		for (Entity entity : Patchr.getInstance().getEntityManager().getPatches(true /* proximity required */)) {
+		for (Entity entity : Patchr.getInstance().getEntityController().getPatches(true /* proximity required */)) {
 			Patch place = (Patch) entity;
 			excludePlaceIds.add(place.id);
 		}
@@ -336,7 +340,7 @@ public class ProximityManager {
 
 		/* Only place in the code that calls loadEntitiesNearLocation */
 		ServiceResponse serviceResponse = mEntityStore.loadEntitiesNearLocation(location
-				, Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_PATCH)
+				, Patchr.getInstance().getEntityController().getLinks().build(LinkProfile.LINKS_FOR_PATCH)
 				, installId
 				, excludePlaceIds, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
@@ -363,7 +367,7 @@ public class ProximityManager {
 		AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 		String installId = Patchr.getInstance().getinstallId();
 
-		result = Patchr.getInstance().getEntityManager().updateProximity(beaconIds, location, installId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+		result = Patchr.getInstance().getEntityController().updateProximity(beaconIds, location, installId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			mLastBeaconInstallUpdate = DateTime.nowDate().getTime();
@@ -418,7 +422,7 @@ public class ProximityManager {
 
 		final List<Beacon> beaconStrongest = new ArrayList<Beacon>();
 		int beaconCount = 0;
-		List<Beacon> beacons = (List<Beacon>) Patchr.getInstance().getEntityManager().getBeacons();
+		List<Beacon> beacons = (List<Beacon>) Patchr.getInstance().getEntityController().getBeacons();
 		Collections.sort(beacons, new Beacon.SortBySignalLevel());
 
 		for (Beacon beacon : beacons) {

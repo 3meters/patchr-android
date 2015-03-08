@@ -19,7 +19,6 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Install;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
-import com.aircandi.objects.LinkProfile;
 import com.aircandi.objects.Links;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
@@ -51,7 +50,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class EntityManager {
+public class EntityController {
 
 	private static final EntityStore         ENTITY_STORE         = new EntityStore();
 	private              Map<String, String> mCacheStampOverrides = new HashMap<String, String>();
@@ -1303,6 +1302,10 @@ public class EntityManager {
 	 * Utilities
 	 *--------------------------------------------------------------------------------------------*/
 
+	public void clearStore() {
+		ENTITY_STORE.clearStore();
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Cache queries
 	 *--------------------------------------------------------------------------------------------*/
@@ -1311,7 +1314,7 @@ public class EntityManager {
 
 		Integer searchRangeMeters = ServiceConstants.PATCH_NEAR_RADIUS;
 
-		List<Patch> patches = (List<Patch>) EntityManager.getEntityCache().getStoreEntities(
+		List<Patch> patches = (List<Patch>) ENTITY_STORE.getStoreEntities(
 				Constants.SCHEMA_ENTITY_PATCH,
 				Constants.TYPE_ANY,
 				searchRangeMeters,
@@ -1324,7 +1327,7 @@ public class EntityManager {
 	}
 
 	public List<? extends Entity> getBeacons() {
-		return (List<Beacon>) EntityManager.getEntityCache().getStoreEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
+		return (List<Beacon>) ENTITY_STORE.getStoreEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -1437,7 +1440,7 @@ public class EntityManager {
 		return mLinks;
 	}
 
-	public EntityManager setLinks(Links links) {
+	public EntityController setLinks(Links links) {
 		mLinks = links;
 		return this;
 	}
@@ -1446,7 +1449,7 @@ public class EntityManager {
 		return mActivityDate;
 	}
 
-	public EntityManager setActivityDate(Number activityDate) {
+	public EntityController setActivityDate(Number activityDate) {
 		mActivityDate = activityDate;
 		return this;
 	}

@@ -833,7 +833,7 @@ public class PatchForm extends BaseEntityForm {
 					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
 					Shortcut toShortcut = mEntity.getAsShortcut();
 
-					result = Patchr.getInstance().getEntityManager().insertLink(null
+					result = Patchr.getInstance().getEntityController().insertLink(null
 							, Patchr.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_WATCH
@@ -844,7 +844,7 @@ public class PatchForm extends BaseEntityForm {
 							, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				}
 				else {
-					result = Patchr.getInstance().getEntityManager().deleteLink(Patchr.getInstance().getCurrentUser().id
+					result = Patchr.getInstance().getEntityController().deleteLink(Patchr.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_WATCH
 							, enabled
@@ -909,7 +909,7 @@ public class PatchForm extends BaseEntityForm {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncShareCheck");
-				ModelResult result = Patchr.getInstance().getEntityManager().checkShare(mEntity.id, Patchr.getInstance().getCurrentUser().id, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = Patchr.getInstance().getEntityController().checkShare(mEntity.id, Patchr.getInstance().getCurrentUser().id, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 

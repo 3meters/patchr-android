@@ -1,6 +1,6 @@
 package com.aircandi.events;
 
-import com.aircandi.components.ProximityManager.WifiScanResult;
+import com.aircandi.components.ProximityController.WifiScanResult;
 
 import java.util.List;
 

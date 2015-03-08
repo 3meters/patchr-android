@@ -13,7 +13,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.EntityController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
@@ -127,7 +127,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 				 * Guarantees that any cache stamp retrieved for parent entity from the service will not equal
 				 * any cache stamp including itself. Cleared if parent entity is refreshed from the service.
 				 */
-				Patchr.getInstance().getEntityManager().getCacheStampOverrides().put(mParentId, mParentId);
+				Patchr.getInstance().getEntityController().getCacheStampOverrides().put(mParentId, mParentId);
 				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
 					finish();
 					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
@@ -165,7 +165,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	     * If cache entity is fresher than the one currently bound to or there is
 		 * a cache entity available, go ahead and draw before we check against the service.
 		 */
-		mEntity = EntityManager.getStoreEntity(mEntityId); // Concurrent hash map
+		mEntity = EntityController.getStoreEntity(mEntityId); // Concurrent hash map
 		if (mEntity != null) {
 			if (mEntity instanceof Patch) {
 				Patchr.getInstance().setCurrentPatch(mEntity);
@@ -197,8 +197,8 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 				if (refreshNeeded.get()) {
 					mUiController.getBusyController().show(BusyAction.Refreshing);
-					Links options = Patchr.getInstance().getEntityManager().getLinks().build(mLinkProfile);
-					result = Patchr.getInstance().getEntityManager().getEntity(mEntityId, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					Links options = Patchr.getInstance().getEntityController().getLinks().build(mLinkProfile);
+					result = Patchr.getInstance().getEntityController().getEntity(mEntityId, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				}
 
 				return result;
@@ -310,7 +310,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
 					Shortcut toShortcut = mEntity.getAsShortcut();
 
-					result = Patchr.getInstance().getEntityManager().insertLink(null
+					result = Patchr.getInstance().getEntityController().insertLink(null
 							, Patchr.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_LIKE
@@ -321,7 +321,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 							, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				}
 				else {
-					result = Patchr.getInstance().getEntityManager().deleteLink(Patchr.getInstance().getCurrentUser().id
+					result = Patchr.getInstance().getEntityController().deleteLink(Patchr.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_LIKE
 							, null
