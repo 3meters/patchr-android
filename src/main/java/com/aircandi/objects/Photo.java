@@ -321,13 +321,9 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	}
 
 	public static boolean same(Object obj1, Object obj2) {
-		if (obj1 == null && obj2 == null) return true;
-		if (obj1 != null) {
-			return ((Photo) obj1).sameAs(obj2);
-		}
-		else {
-			return false;
-		}
+		return obj1 == null
+				&& obj2 == null
+				|| (obj1 != null && ((Photo) obj1).sameAs(obj2));
 	}
 
 	@NonNull

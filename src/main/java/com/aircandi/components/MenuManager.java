@@ -155,20 +155,19 @@ public class MenuManager {
 
 	@NonNull
 	public Boolean canUserEdit(Entity entity) {
-		if (entity == null) return false;
-
-		if (entity.isOwnedByCurrentUser() || entity.isOwnedBySystem()) return true;
-		return Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-				&& Type.isTrue(Patchr.getInstance().getCurrentUser().developer);
+		return entity != null
+				&& (entity.isOwnedByCurrentUser()
+				|| entity.isOwnedBySystem()
+				|| (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+				&& Type.isTrue(Patchr.getInstance().getCurrentUser().developer)));
 	}
 
 	@NonNull
 	public Boolean canUserDelete(Entity entity) {
-		if (entity == null) return false;
-
-		if (entity.isOwnedByCurrentUser()) return true;
-		return Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-				&& Type.isTrue(Patchr.getInstance().getCurrentUser().developer);
+		return entity != null
+				&& (entity.isOwnedByCurrentUser()
+				|| (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
+				&& Type.isTrue(Patchr.getInstance().getCurrentUser().developer)));
 	}
 
 	@NonNull

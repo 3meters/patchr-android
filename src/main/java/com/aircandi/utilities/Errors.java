@@ -38,11 +38,20 @@ import java.util.Locale;
 public final class Errors {
 
 	public static void handleError(final Activity activity, @NonNull ServiceResponse serviceResponse) {
-
 		ErrorResponse errorResponse = serviceResponse.errorResponse;
 		if (errorResponse == null || errorResponse.errorResponseType == null) {
 			errorResponse = new ErrorResponse(ResponseType.TOAST, "Unhandled status error: " + serviceResponse.statusCode);
 		}
+		handleError(activity, errorResponse);
+		/*
+		 * Perform any follow-up actions.
+		 */
+		if (errorResponse.track) {
+			Reporting.logException(serviceResponse.exception);
+		}
+	}
+
+	public static void handleError(final Activity activity, @NonNull ErrorResponse errorResponse) {
 		/*
 		 * First show any required UI
 		 */
@@ -77,10 +86,6 @@ public final class Errors {
 		/*
 		 * Perform any follow-up actions.
 		 */
-		if (errorResponse.track) {
-			Reporting.logException(serviceResponse.exception);
-		}
-
 		if (errorResponse.signout && activity != null) {
 			((BaseActivity) activity).signout();
 		}

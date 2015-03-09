@@ -179,12 +179,12 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 		final Entity other = (Entity) obj;
 
-		if (!Type.equal(this.id, other.id)) return false;
-		if (!Type.equal(this.name, other.name)) return false;
-		if (!Type.equal(this.description, other.description)) return false;
-		if (!this.getPhoto().getUri().equals(other.getPhoto().getUri())) return false;
-		if (this.linksIn.size() != other.linksIn.size()) return false;
-		return !(this.linksOut != null && other.linksOut != null && this.linksOut.size() != other.linksOut.size());
+		return Type.equal(this.id, other.id)
+				&& Type.equal(this.name, other.name)
+				&& Type.equal(this.description, other.description)
+				&& this.getPhoto().getUri().equals(other.getPhoto().getUri())
+				&& !(this.linksIn != null && other.linksIn != null && this.linksIn.size() != other.linksIn.size())
+				&& !(this.linksOut != null && other.linksOut != null && this.linksOut.size() != other.linksOut.size());
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -407,7 +407,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		if (linksOut != null) {
 			if (direction == Direction.out || direction == Direction.both) {
 				for (Link link : linksOut) {
-					if (types == null || ( link.type != null && types.contains(link.type))) {
+					if (types == null || (link.type != null && types.contains(link.type))) {
 						Entity entity = DataController.getStoreEntity(link.toId);
 						if (entity != null) {
 							if (Type.isTrue(traverse)) {
@@ -555,7 +555,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 							if (settings.linkBroken
 									|| (!settings.linkBroken && (link.shortcut.validatedDate == null || link.shortcut.validatedDate.longValue() != -1))) {
 								/*
-							     * Must clone or the groups added below will cause circular references
+								 * Must clone or the groups added below will cause circular references
 								 * that choke serializing to json.
 								 */
 								Shortcut shortcut = link.shortcut.clone();
@@ -683,7 +683,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public static Entity setPropertiesFromMap(Entity entity, @NonNull Map map, Boolean nameMapping) {
 
 		synchronized (entity) {
-            /*
+		    /*
 			 * Need to include any properties that need to survive encode/decoded between activities.
 			 */
 			entity = (Entity) ServiceBase.setPropertiesFromMap(entity, map, nameMapping);
@@ -815,11 +815,10 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
          * Object class implementation of equals uses reference but we want to compare
          * using semantic equality.
          */
-		if (object == null) return false;
-		if (!(object instanceof Entity)) return false;
-		if ((this.id == null) || (((Entity) object).id == null)) return false;
-		if (this == object) return true;
-		return this.id.equals(((Entity) object).id);
+		return object != null
+				&& object instanceof Entity
+				&& !((this.id == null) || (((Entity) object).id == null))
+				&& (this == object || this.id.equals(((Entity) object).id));
 	}
 
 	/*--------------------------------------------------------------------------------------------

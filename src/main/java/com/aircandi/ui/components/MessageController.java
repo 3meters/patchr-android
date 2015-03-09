@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.components.AnimationManager;
-import com.aircandi.components.StringManager;
 import com.aircandi.utilities.UI;
 
 public class MessageController {

@@ -889,10 +889,7 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 
 		@Override
 		public boolean equals(Object other) {
-			if (other instanceof MarkerWithPosition) {
-				return marker.equals(((MarkerWithPosition) other).marker);
-			}
-			return false;
+			return (other instanceof MarkerWithPosition && marker.equals(((MarkerWithPosition) other).marker));
 		}
 
 		@Override
