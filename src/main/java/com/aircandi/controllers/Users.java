@@ -5,10 +5,10 @@ import android.support.annotation.NonNull;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.User;
-import com.aircandi.ui.edit.UserEdit;
 import com.aircandi.ui.UserForm;
+import com.aircandi.ui.edit.UserEdit;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
 
@@ -37,7 +37,7 @@ public class Users extends EntityControllerBase {
 
 	@Override
 	public Integer getLinkProfile() {
-		return LinkProfile.LINKS_FOR_USER_CURRENT;
+		return LinkSpecType.LINKS_FOR_USER_CURRENT;
 	}
 
 	@Override

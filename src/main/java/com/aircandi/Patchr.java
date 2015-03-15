@@ -20,16 +20,14 @@ import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 import android.widget.Toast;
 
-import com.aircandi.components.AnimationManager;
 import com.aircandi.components.ContainerManager;
-import com.aircandi.components.Router;
 import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
-import com.aircandi.components.MenuManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
+import com.aircandi.components.Router;
 import com.aircandi.components.Stopwatch;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.Messages;
@@ -39,8 +37,9 @@ import com.aircandi.controllers.Places;
 import com.aircandi.controllers.Users;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.LinkProfile;
-import com.aircandi.objects.Links;
+import com.aircandi.objects.LinkSpec;
+import com.aircandi.objects.LinkSpecFactory;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Session;
 import com.aircandi.objects.User;
 import com.aircandi.utilities.DateTime;
@@ -67,15 +66,15 @@ import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
 
-;
-
 public class Patchr extends MultiDexApplication {
 
 	public static BasicAWSCredentials awsCredentials = null;
 
-	private static Patchr singletonObject;
+	private static Patchr instance;
 
-	public static Intent firstStartIntent = null;
+	@NonNull
+	public static Boolean firstStartApp    = true;  // Used to detect when app is first started
+	public static Intent  firstStartIntent = null;  // Used when we are started to handle an intent
 
 	@NonNull
 	public static SharedPreferences        settings;
@@ -88,7 +87,7 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	public static PackageManager           packageManager;
 	@NonNull
-	public static Router                   dispatch;
+	public static Router                   router;
 	@NonNull
 	public static Integer                  memoryClass;
 	@NonNull
@@ -101,15 +100,11 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	public static Map<String, IEntityController> controllerMap             = new HashMap<String, IEntityController>();
 	@NonNull
-	public static Boolean                        firstStartApp             = true;
-	@NonNull
 	public static Boolean                        debug                     = false;
-	@NonNull
-	public static Integer                        wifiCount                 = 0;
 	@NonNull
 	public static Boolean                        applicationUpdateRequired = false;
 	@NonNull
-	public static Integer                        resultCode                = Activity.RESULT_OK;
+	public static Integer                        resultCode                = Activity.RESULT_OK; // Used to cascade up the activity chain
 
 	/* Container values */
 	@NonNull
@@ -121,7 +116,7 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	public static String USER_SECRET     = "user-secret";
 
-	public Tracker mTracker;
+	private Tracker mTracker;
 
 	/* Current objects */
 	private Entity   mCurrentPatch;
@@ -138,21 +133,13 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	private String  mPrefTestingBeacons;
 
-	/* Shared managers */
-	@NonNull
-	protected DataController   mDataController;
-	@NonNull
-	protected MenuManager      mMenuManager;
-	@NonNull
-	protected AnimationManager mAnimationManager;
-
 	/* Install id components */
 	private String mUniqueId;
 	private Long   mUniqueDate;
 	private String mUniqueType;
 
 	public static Patchr getInstance() {
-		return singletonObject;
+		return instance;
 	}
 
 	@Override
@@ -177,8 +164,8 @@ public class Patchr extends MultiDexApplication {
 		}
 
 		super.onCreate();
-		singletonObject = this;
-		singletonObject.initializeInstance();
+		instance = this;
+		instance.initializeInstance();
 		Logger.d(this, "Application created");
 	}
 
@@ -256,13 +243,8 @@ public class Patchr extends MultiDexApplication {
 		/* Warmup media manager */
 		MediaManager.warmup();
 
-		/* Inject minimum managers required for notifications */
-		mDataController = new DataController().setLinks(new Links());
-		mMenuManager = new MenuManager();
-		mAnimationManager = new AnimationManager();
-
 		/* Inject dispatch manager */
-		dispatch = new Router();
+		router = new Router();
 
 		/* Connectivity monitoring */
 		NetworkManager.getInstance().initialize();
@@ -349,7 +331,7 @@ public class Patchr extends MultiDexApplication {
 		}
 
 		/* Couldn't auto signin so fall back to anonymous */
-		final User anonymous = (User) mDataController.loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
+		final User anonymous = (User) DataController.getInstance().loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
 		setCurrentUser(anonymous, false);
 	}
 
@@ -434,7 +416,7 @@ public class Patchr extends MultiDexApplication {
 	public static String getVersionName(@NonNull Context context, @NonNull Class cls) {
 		try {
 			final ComponentName comp = new ComponentName(context, cls);
-			final PackageInfo pinfo = context.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
+			final PackageInfo pinfo = packageManager.getPackageInfo(comp.getPackageName(), 0);
 			return pinfo.versionName;
 		}
 		catch (android.content.pm.PackageManager.NameNotFoundException e) {
@@ -447,7 +429,7 @@ public class Patchr extends MultiDexApplication {
 	public static Integer getVersionCode(@NonNull Context context, @NonNull Class cls) {
 		try {
 			final ComponentName comp = new ComponentName(context, cls);
-			final PackageInfo pinfo = context.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
+			final PackageInfo pinfo = packageManager.getPackageInfo(comp.getPackageName(), 0);
 			return pinfo.versionCode;
 		}
 		catch (android.content.pm.PackageManager.NameNotFoundException e) {
@@ -495,8 +477,8 @@ public class Patchr extends MultiDexApplication {
 
 			/* Load user data */
 			if (refreshUser) {
-				Links options =  mDataController.getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
-				result = mDataController.getEntity(user.id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				LinkSpec options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
+				result = DataController.getInstance().getEntity(user.id, true, options, null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
 			/* Update settings */
@@ -546,20 +528,5 @@ public class Patchr extends MultiDexApplication {
 
 	public Entity getCurrentPatch() {
 		return mCurrentPatch;
-	}
-
-	@NonNull
-	public MenuManager getMenuManager() {
-		return mMenuManager;
-	}
-
-	@NonNull
-	public DataController getDataController() {
-		return mDataController;
-	}
-
-	@NonNull
-	public AnimationManager getAnimationManager() {
-		return mAnimationManager;
 	}
 }

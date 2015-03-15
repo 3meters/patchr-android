@@ -19,6 +19,7 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
+import com.aircandi.components.AnimationManager;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBind.BindingMode;
@@ -55,7 +56,7 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 		intent.putExtra(Constants.EXTRA_PHOTO_SOURCE, choice.schema);
 		setResultCode(Activity.RESULT_OK, intent);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
 	}
 
 	/*--------------------------------------------------------------------------------------------

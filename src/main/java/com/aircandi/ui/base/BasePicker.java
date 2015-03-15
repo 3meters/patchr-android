@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.AnimationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBind.BindingMode;
@@ -65,7 +66,7 @@ public abstract class BasePicker extends Activity {
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
 	}
 
 	@Override

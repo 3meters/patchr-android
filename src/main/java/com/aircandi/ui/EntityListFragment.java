@@ -2,8 +2,8 @@ package com.aircandi.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -22,42 +22,43 @@ import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
-import com.aircandi.components.Dispatcher;
 import com.aircandi.components.DataController;
-import com.aircandi.events.ProcessingCompleteEvent;
-import com.aircandi.ui.components.BusyController;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.DownloadManager;
-import com.aircandi.components.Logger;
-import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.EntitiesLoadedEvent;
+import com.aircandi.events.EntitiesRequestEvent;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
-import com.aircandi.interfaces.IMonitor;
-import com.aircandi.interfaces.IQuery;
-import com.aircandi.monitors.SimpleMonitor;
+import com.aircandi.objects.ActionType;
+import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Entity;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
-import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.components.AnimationFactory;
+import com.aircandi.ui.components.BusyController;
 import com.aircandi.ui.components.FloatingActionController;
 import com.aircandi.ui.components.ListController;
 import com.aircandi.ui.components.MessageController;
 import com.aircandi.ui.widgets.AirListView;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Errors;
+import com.aircandi.utilities.Maps;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -85,6 +86,7 @@ public class EntityListFragment extends BaseFragment
 	protected Integer mListLoadingResId;
 	protected Integer mBubbleButtonMessageResId;
 	protected Integer mListEmptyMessageResId;
+	protected Integer mTitleResId;
 
 	/* Configuration */
 	protected String mListViewType;
@@ -100,14 +102,24 @@ public class EntityListFragment extends BaseFragment
 	protected Integer mVisibleRows    = 3;
 	protected Integer mTopOffset;
 	protected Integer mLastViewedPosition;
-	protected Boolean mFirstBind = true;
+	protected Boolean mNotEmpty = false; // Used to control busy feedback
+	protected Boolean mMore     = false;
 
 	/* Data binding */
+	protected Integer mActionType = ActionType.GET_ENTITIES;
+	protected String  mMonitorEntityId;
+	protected Entity  mMonitorEntity;
+	protected Integer mPageSize;
+	protected String  mLinkSchema;
+	protected String  mLinkType;
+	protected String  mLinkDirection;
+
+	@NonNull
+	protected Boolean                mSelfBind          = true;
 	protected List<Entity>           mEntities          = new ArrayList<Entity>();
+	protected Map                    mLinkWhere         = Maps.asMap("enabled", true);
 	protected Map<String, Highlight> mHighlightEntities = new HashMap<String, Highlight>();
-	protected IQuery        mQuery;
-	protected SimpleMonitor mMonitor;
-	protected ListAdapter   mAdapter;
+	protected ListAdapter mAdapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -251,97 +263,139 @@ public class EntityListFragment extends BaseFragment
 	}
 
 	@Override
-	public void bind(final BindingMode mode) {
-
-		Logger.d(this, "Binding called: mode = " + mode.name().toLowerCase(Locale.US));
-		/*
-		 * Gets called by onResume and setMenuVisibility = true
-		 */
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				if (mode != BindingMode.MANUAL) {
-					mListController.getMessageController().showMessage(false);
-				}
-				mListController.getBusyController().show((mode == BindingMode.MANUAL || mNotEmpty) ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncBindEntityList");
-				ModelResult result = new ModelResult();
-				if (mode == BindingMode.FIRST && mQuery.hasExecuted()) {
-					return result;
-				}
-				else if (mode == BindingMode.MANUAL
-						|| mFirstBind
-						|| (mMonitor.isChanged() && mMonitor.activity)) {
-
-					Integer limit = null;
-
-					if (mode == BindingMode.MANUAL && mEntities != null && mEntities.size() > 0) {
-						Integer pageSize = mQuery.getPageSize();
-						limit = (int) Math.ceil((float) mEntities.size() / pageSize) * pageSize;
-					}
-					result = mQuery.execute(0, limit);
-				}
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				/*
-				 * This could return after the host activity is gone.
-				 */
-				if (getActivity() == null || getActivity().isFinishing()) return;
-
-				ModelResult result = (ModelResult) response;
-
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					if (result.data != null) {
-
-						mEntities.clear();
-						mAdapter.setNotifyOnChange(false);
-						mAdapter.clear();
-
-						for (Entity entity : (List<Entity>) result.data) {
-							mAdapter.add(entity);
-						}
-
-						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
-
-						if (getActivity() != null && !getActivity().isFinishing()) {
-							configureStandardMenuItems(((BaseActivity) getActivity()).getOptionMenu());
-						}
-
-						if (isAdded()) {
-							draw(null);
-						}
-					}
-					postBind();
-					mNotEmpty = (mAdapter != null && mAdapter.getCount() != 0);
-					mFirstBind = false;
-					Dispatcher.getInstance().post(new ProcessingCompleteEvent(result.serviceResponse.responseCode));
-				}
-				else {
-					Dispatcher.getInstance().post(new ProcessingCompleteEvent(result.serviceResponse.responseCode));
-					Errors.handleError(getActivity(), result.serviceResponse);
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	@Override
 	public void draw(View view) {
 		mAdapter.notifyDataSetChanged();
 		Dispatcher.getInstance().post(new EntitiesLoadedEvent()); // Used by MessageForm to trigger item highlighting
 	}
 
+	@Override
+	public void bind(final BindingMode mode) {
+		/*
+		 * If additional entities have been paged in, we include them as part of the request size.
+		 */
+		Integer limit = mPageSize;
+		if (mEntities.size() > 0) {
+			limit = (int) Math.ceil((float) mEntities.size() / mPageSize) * mPageSize;
+		}
+
+		fetch(0, limit, mode == BindingMode.MANUAL);
+
+		if (mode != BindingMode.MANUAL) {
+			mListController.getMessageController().showMessage(false);
+		}
+
+		mListController.getBusyController().show((mode == BindingMode.MANUAL || mNotEmpty)
+		                                         ? BusyAction.Refreshing
+		                                         : BusyAction.Refreshing_Empty);
+	}
+
+	public void fetch(Integer skip, Integer limit, Boolean force) {
+		/*
+		 * Sorting is applied to links not the entities on the service side.
+		 */
+		Integer skipCount = ((int) Math.ceil((double) skip / mPageSize) * mPageSize);
+		Cursor cursor = new Cursor()
+				.setLimit(limit)
+				.setSort(Maps.asMap("modifiedDate", -1))
+				.setSkip(skipCount)
+				.setWhere(mLinkWhere)
+				.setDirection(mLinkDirection);
+
+		if (mLinkType != null) {
+			List<String> linkTypes = new ArrayList<String>();
+			linkTypes.add(mLinkType);
+			cursor.setLinkTypes(linkTypes);
+		}
+
+		Integer linkProfile = LinkSpecType.NO_LINKS;
+		if (mLinkSchema != null) {
+			List<String> toSchemas = new ArrayList<String>();
+			toSchemas.add(mLinkSchema);
+			cursor.setToSchemas(toSchemas);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(mLinkSchema);
+			linkProfile = controller.getLinkProfile();
+		}
+
+		EntitiesRequestEvent request = new EntitiesRequestEvent()
+				.setCursor(cursor)
+				.setLinkProfile(linkProfile);
+
+		request.setActionType(mActionType)
+		       .setEntityId(mMonitorEntityId)
+		       .setTag(System.identityHashCode(this));
+		/*
+		 * Providing a CacheStamp means we won't get called back unless something fresher is available.
+		 */
+		if (!force && mMonitorEntity != null && skip == 0) {
+			request.setCacheStamp(mMonitorEntity.getCacheStamp());
+		}
+
+		Dispatcher.getInstance().post(request);
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onDataReady(final DataReadyEvent event) {
+
+		if (event.tag != null && event.tag.equals(System.identityHashCode(this))) {
+
+			getActivity().runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+
+					if (event.entities != null && event.entities.size() > 0) {
+						mMore = event.more;
+						if (event.cursor != null && event.cursor.getSkip() == 0) {
+							mEntities.clear();
+							mAdapter.setNotifyOnChange(false);
+							mAdapter.clear();
+
+							if (getActivity() != null && !getActivity().isFinishing()) {
+								configureStandardMenuItems(((BaseActivity) getActivity()).getOptionMenu());
+							}
+						}
+
+						/* Chance for sub class to inject additional entities */
+						injectEntities(mAdapter);
+
+						for (Entity entity : event.entities) {
+							mAdapter.add(entity);
+						}
+
+						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
+
+						if (isAdded()) {
+							draw(null);
+						}
+					}
+
+					if (event.entity != null) {
+						mMonitorEntity = event.entity;
+					}
+
+					if (mLoadingView != null) {
+						ViewSwitcher switcher = (ViewSwitcher) mLoadingView.findViewById(R.id.animator_more);
+						if (switcher != null) {
+							switcher.setDisplayedChild(0);
+						}
+					}
+					postBind();
+					mNotEmpty = (mAdapter != null && mAdapter.getCount() != 0);
+					Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.SUCCESS));
+				}
+			});
+		}
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.FAILED));
+		Errors.handleError(getActivity(), event.errorResponse);
+	}
 
 	@Override
 	public void onClick(View v) {
@@ -351,17 +405,14 @@ public class EntityListFragment extends BaseFragment
 
 		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 
-		if (mQuery instanceof EntitiesQuery) {
-			String linkType = ((EntitiesQuery) mQuery).getLinkType();
-			if (linkType != null) {
-				extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
-				extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, ((EntitiesQuery) mQuery).getEntityId());
-				Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
-				return;
-			}
+		if (mLinkType != null) {
+			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, mLinkType);
+			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mMonitorEntityId);
+			Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
+			return;
 		}
 
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
+		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
 	public void onHeaderClick(View view) {
@@ -414,7 +465,8 @@ public class EntityListFragment extends BaseFragment
 	}
 
 	public void onMoreButtonClick(View view) {
-		lazyLoad();
+		((ViewSwitcher) mLoadingView.findViewById(R.id.animator_more)).setDisplayedChild(1);
+		fetch(mEntities.size(), mPageSize, true);
 	}
 
 	public void handleListDrag() {
@@ -457,44 +509,7 @@ public class EntityListFragment extends BaseFragment
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void lazyLoad() {
-
-		final ViewSwitcher switcher = (ViewSwitcher) mLoadingView.findViewById(R.id.animator_more);
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				switcher.setDisplayedChild(1);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncLazyLoadList");
-				ModelResult result = mQuery.execute(mEntities.size(), null);
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				ModelResult result = (ModelResult) response;
-
-				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-					Errors.handleError(getActivity(), result.serviceResponse);
-				}
-				else {
-					if (result.data != null) {
-						for (Entity entity : (List<Entity>) result.data) {
-							mAdapter.add(entity);
-						}
-						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
-						draw(null);
-					}
-				}
-				switcher.setDisplayedChild(0);
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
+	protected void injectEntities(ListAdapter adapter) {}
 
 	protected Integer getVisibleListItemsHeight() {
 
@@ -551,7 +566,7 @@ public class EntityListFragment extends BaseFragment
 
 	public void doMenuVisibility(boolean visible) {
 		mIsVisible = visible;
-		if (mSelfBindingEnabled && mIsVisible) {
+		if (mIsVisible) {
 			bind(BindingMode.AUTO);
 		}
 	}
@@ -611,6 +626,11 @@ public class EntityListFragment extends BaseFragment
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
+	public EntityListFragment setTitleResId(Integer titleResId) {
+		mTitleResId = titleResId;
+		return this;
+	}
+
 	public EntityListFragment setBubbleButtonMessageResId(Integer bubbleButtonMessageResId) {
 		mBubbleButtonMessageResId = bubbleButtonMessageResId;
 		return this;
@@ -669,16 +689,6 @@ public class EntityListFragment extends BaseFragment
 		return this;
 	}
 
-	public EntityListFragment setMonitor(SimpleMonitor monitor) {
-		mMonitor = monitor;
-		return this;
-	}
-
-	public EntityListFragment setQuery(IQuery query) {
-		mQuery = query;
-		return this;
-	}
-
 	public EntityListFragment setParallaxHeader(Boolean parallaxHeader) {
 		mParallaxHeader = parallaxHeader;
 		return this;
@@ -702,6 +712,55 @@ public class EntityListFragment extends BaseFragment
 	public EntityListFragment setFabEnabled(Boolean fabEnabled) {
 		mFabEnabled = fabEnabled;
 		return this;
+	}
+
+	public EntityListFragment setPageSize(Integer pageSize) {
+		mPageSize = pageSize;
+		return this;
+	}
+
+	public EntityListFragment setLinkSchema(String linkSchema) {
+		mLinkSchema = linkSchema;
+		return this;
+	}
+
+	public EntityListFragment setLinkType(String linkType) {
+		mLinkType = linkType;
+		return this;
+	}
+
+	public EntityListFragment setLinkDirection(String linkDirection) {
+		mLinkDirection = linkDirection;
+		return this;
+	}
+
+	public EntityListFragment setMonitorEntityId(String monitorEntityId) {
+		mMonitorEntityId = monitorEntityId;
+		return this;
+	}
+
+	public EntityListFragment setMonitorEntity(Entity monitorEntity) {
+		mMonitorEntity = monitorEntity;
+		return this;
+	}
+
+	public EntityListFragment setLinkWhere(Map linkWhere) {
+		mLinkWhere = linkWhere;
+		return this;
+	}
+
+	public EntityListFragment setActionType(Integer actionType) {
+		mActionType = actionType;
+		return this;
+	}
+
+	public EntityListFragment setSelfBind(@NonNull Boolean selfBind) {
+		mSelfBind = selfBind;
+		return this;
+	}
+
+	public Integer getTitleResId() {
+		return mTitleResId;
 	}
 
 	public Boolean getFabEnabled() {
@@ -729,20 +788,32 @@ public class EntityListFragment extends BaseFragment
 		return mListView;
 	}
 
-	public IMonitor getMonitor() {
-		return mMonitor;
-	}
-
-	public IQuery getQuery() {
-		return mQuery;
-	}
-
 	public List<Entity> getEntities() {
 		return mEntities;
 	}
 
 	public ListAdapter getAdapter() {
 		return mAdapter;
+	}
+
+	public Boolean isMore() {
+		return mMore;
+	}
+
+	public String getMonitorEntityId() {
+		return mMonitorEntityId;
+	}
+
+	public Integer getPageSize() {
+		return mPageSize;
+	}
+
+	public Entity getMonitorEntity() {
+		return mMonitorEntity;
+	}
+
+	public String getLinkType() {
+		return mLinkType;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -758,12 +829,11 @@ public class EntityListFragment extends BaseFragment
 		 */
 		super.onResume();
 		if (mListController != null) {
-			mListController.resume();
-
 			/* Slides it in only if it is currently out. */
 			mListController.getFloatingActionController().slideIn(AnimationManager.DURATION_SHORT, 500);
 		}
-		if (mSelfBindingEnabled && (getActivity() != null && !getActivity().isFinishing())) {
+
+		if (mSelfBind && getActivity() != null && !getActivity().isFinishing()) {
 			bind(BindingMode.AUTO);
 		}
 	}
@@ -799,8 +869,7 @@ public class EntityListFragment extends BaseFragment
 		public View getView(int position, View convertView, ViewGroup parent) {
 
 			if (mListPagingEnabled
-					&& mQuery != null
-					&& mQuery.isMore()
+					&& mMore
 					&& position == mEntities.size()
 					&& mEntities.size() > 0)
 				return mLoadingView;
@@ -855,7 +924,7 @@ public class EntityListFragment extends BaseFragment
 
 		@Override
 		public int getCount() {
-			if (mListPagingEnabled && mQuery != null && mQuery.isMore())
+			if (mListPagingEnabled && mMore)
 				return mEntities.size() + 1;
 			else if (mListViewType.equals(ViewType.GRID)) {
 				if (mEntities.size() == 0) return 0;

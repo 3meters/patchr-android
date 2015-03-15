@@ -8,6 +8,8 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataReadyEvent;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -18,12 +20,23 @@ import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 public class MessageListFragment extends EntityListFragment {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onDataReady(final DataReadyEvent event) {
+		super.onDataReady(event);
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
 
 	@Override
 	public void onClick(View v) {
@@ -34,7 +47,7 @@ public class MessageListFragment extends EntityListFragment {
 
 		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-		extras.putString(Constants.EXTRA_ENTITY_FOR_ID, mQuery.getEntityId());
+		extras.putString(Constants.EXTRA_ENTITY_FOR_ID, mMonitorEntityId);
 		/*
 		 * We show replies as part of the parent message when the user is clicking from a list
 		 * that isn't showing the parent message.
@@ -50,7 +63,7 @@ public class MessageListFragment extends EntityListFragment {
 			extras.putString(Constants.EXTRA_ENTITY_ID, entity.id);
 		}
 
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
+		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
 	/*--------------------------------------------------------------------------------------------

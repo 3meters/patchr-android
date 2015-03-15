@@ -1,6 +1,7 @@
 package com.aircandi.components;
 
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.aircandi.Constants;
@@ -8,6 +9,12 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataReadyEvent;
+import com.aircandi.events.EntitiesRequestEvent;
+import com.aircandi.events.EntityRequestEvent;
+import com.aircandi.events.NotificationsRequestEvent;
+import com.aircandi.events.TrendRequestEvent;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.CacheStamp;
@@ -19,7 +26,8 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Install;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
-import com.aircandi.objects.Links;
+import com.aircandi.objects.LinkSpec;
+import com.aircandi.objects.LinkSpecFactory;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoType;
@@ -37,6 +45,7 @@ import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,22 +53,193 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+
+/**
+ * Designed as a singleton. The private Constructor prevents any other class from instantiating.
+ */
 
 public class DataController {
 
-	private static final EntityStore         ENTITY_STORE         = new EntityStore();
-	private              Map<String, String> mCacheStampOverrides = new HashMap<String, String>();
-	private Number mActivityDate;
-	private Links  mLinks;
-	/*
-	 * Categories are cached by a background thread.
-	 */
-	private List<Category> mCategories = Collections.synchronizedList(new ArrayList<Category>());
+	private Number mActivityDate;                                           // Monitored by nearby
+	private static final EntityStore  ENTITY_STORE  = new EntityStore();
+
+	private DataController() {
+		Dispatcher.getInstance().register(this);
+	}
+
+	private static class DataControllerHolder {
+		public static final DataController instance = new DataController();
+	}
+
+	public static DataController getInstance() {
+		return DataControllerHolder.instance;
+	}
+
+ 	/*--------------------------------------------------------------------------------------------
+	 * Data request events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onEntityRequest(final EntityRequestEvent event) {
+
+		/* Called on main thread */
+
+		/* Provide cache entity if needed or fresher */
+		final Entity entity = ENTITY_STORE.getStoreEntity(event.entityId);
+		if (entity != null) {
+			CacheStamp cacheStamp = entity.getCacheStamp();
+			if (event.cacheStamp == null || !event.cacheStamp.equals(cacheStamp)) {
+				DataReadyEvent data = new DataReadyEvent()
+						.setActionType(event.actionType)
+						.setEntity(entity)
+						.setTag(event.tag);
+				Dispatcher.getInstance().post(data);
+			}
+		}
+
+		/* Start service freshness check */
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncGetEntity");
+
+				LinkSpec options = LinkSpecFactory.build(event.linkProfile);
+				CacheStamp cacheStamp = entity != null ? entity.getCacheStamp() : null;
+				ModelResult result = getEntity(event.entityId, true, options, cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					if (result.data != null) {
+						Entity entity = (Entity) result.data;
+						DataReadyEvent data = new DataReadyEvent()
+								.setActionType(event.actionType)
+								.setEntity(entity)
+								.setTag(event.tag);
+						Dispatcher.getInstance().post(data);
+					}
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onEntitiesRequest(final EntitiesRequestEvent event) {
+
+		/* Called on main thread */
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncGetEntities");
+				/*
+				 * Users as monitor entities: Activity date for user entities is not updated
+				 * when an entity they are watching or created is updated. Our goal is to be self
+				 * consistent so we add in logic based on the local user.
+				 */
+				CacheStamp cacheStamp = event.cacheStamp;
+
+				LinkSpec options = LinkSpecFactory.build(event.linkProfile);
+				ServiceResponse serviceResponse = ENTITY_STORE.loadEntitiesForEntity(event.entityId, options, event.cursor, event.cacheStamp, null, event.tag);
+
+				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					ServiceData serviceData = (ServiceData) serviceResponse.data;
+					if (serviceData.data != null) {
+						DataReadyEvent data = new DataReadyEvent()
+								.setEntities((List<Entity>) serviceData.data)
+								.setMore(serviceData.more)
+								.setActionType(event.actionType)
+								.setCursor(event.cursor)
+								.setEntity(serviceData.entity)
+								.setTag(event.tag);
+						Dispatcher.getInstance().post(data);
+					}
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(serviceResponse.errorResponse);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onTrendRequest(final TrendRequestEvent event) {
+
+		/* Called on main thread */
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncGetTrend");
+				/*
+				 * By default returns sorted by rank in ascending order.
+				 */
+				ModelResult result = getTrending(event.toSchema
+						, event.fromSchema
+						, event.linkType
+						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					if (result.data != null) {
+						DataReadyEvent data = new DataReadyEvent()
+								.setEntities((List<Entity>) result.data)
+								.setActionType(event.actionType)
+								.setTag(event.tag);
+						Dispatcher.getInstance().post(data);
+					}
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onNotificationsRequest(final NotificationsRequestEvent event) {
+
+		/* Called on main thread */
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncGetNotifications");
+				ModelResult result = loadNotifications(event.entityId
+						, event.cursor
+						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					if (result.data != null) {
+						DataReadyEvent data = new DataReadyEvent()
+								.setEntities((List<Entity>) result.data)
+								.setCursor(event.cursor)
+								.setActionType(event.actionType)
+								.setMore(((ServiceData) result.serviceResponse.data).more)
+								.setTag(event.tag);
+						Dispatcher.getInstance().post(data);
+					}
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Cache queries
@@ -73,7 +253,7 @@ public class DataController {
 	 * Combo service/cache queries
 	 *--------------------------------------------------------------------------------------------*/
 
-	public synchronized ModelResult getEntity(String entityId, Boolean refresh, Links linkOptions, Object tag) {
+	public synchronized ModelResult getEntity(String entityId, Boolean refresh, LinkSpec linkOptions, CacheStamp cacheStamp, Object tag) {
 		/*
 		 * Retrieves entity from cache if available otherwise downloads the entity from the service. If refresh is true
 		 * then bypasses the cache and downloads from the service.
@@ -86,33 +266,19 @@ public class DataController {
 			loadEntityIds.add(entityId);
 
 			/* This is the only place in the code that calls loadEntities */
-			result.serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, linkOptions, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+			result.serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, linkOptions, cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 				ServiceData serviceData = (ServiceData) result.serviceResponse.data;
 				final List<Entity> entities = (List<Entity>) serviceData.data;
-				result.data = entities.get(0);
+				if (entities.size() > 0) {
+					result.data = entities.get(0);
+				}
 			}
 		}
 		else {
 			result.data = entity;
 		}
 
-		return result;
-	}
-
-	public synchronized ModelResult getEntitiesForEntity(String entityId, Links linkOptions, Cursor cursor, Object tag, Stopwatch stopwatch) {
-		/*
-		 * Only called from EntitiesQuery.execute.
-		 */
-		final ModelResult result = new ModelResult();
-
-		/* This is the only place in the code that calls loadEntitiesForEntity */
-		result.serviceResponse = ENTITY_STORE.loadEntitiesForEntity(entityId, linkOptions, cursor, stopwatch, tag);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			ServiceData serviceData = (ServiceData) result.serviceResponse.data;
-			result.data = serviceData.data;
-		}
 		return result;
 	}
 
@@ -153,54 +319,6 @@ public class DataController {
 		}
 
 		return result;
-	}
-
-	public synchronized CacheStamp loadCacheStamp(String entityId, CacheStamp cacheStamp, Object tag) {
-
-		final ModelResult result = new ModelResult();
-
-		final Bundle parameters = new Bundle();
-		parameters.putString("entityId", entityId);
-
-		if (cacheStamp != null) {
-			if (cacheStamp.activityDate != null) {
-				parameters.putLong("activityDate", cacheStamp.activityDate.longValue());
-			}
-
-			if (cacheStamp.modifiedDate != null) {
-				parameters.putLong("modifiedDate", cacheStamp.modifiedDate.longValue());
-			}
-		}
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "checkActivity")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		/* In case of a failure, we echo back the provided cache stamp to the caller */
-		CacheStamp cacheStampService = null;
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.RESULT, Json.ServiceDataWrapper.TRUE);
-			if (serviceData.data != null) {
-				cacheStampService = (CacheStamp) serviceData.data;
-				cacheStampService.source = StampSource.SERVICE.name().toLowerCase(Locale.US);
-				if (mCacheStampOverrides.containsKey(entityId)) {
-					Logger.v(this, "Using cache stamp override: " + entityId);
-					/*
-					 * Guarantees that the service cache stamp will not equal
-					 * any other cache stamp.
-					 */
-					cacheStampService.override = true;
-				}
-			}
-		}
-		return cacheStampService;
 	}
 
 	public ModelResult suggest(String input, SuggestScope suggestScope, String userId, AirLocation location, long limit, Object tag) {
@@ -1334,34 +1452,35 @@ public class DataController {
 	 * Other fetch routines
 	 *--------------------------------------------------------------------------------------------*/
 
-	public synchronized List<Category> getCategories() {
+	public List<Category> getCategories() {
 
 		/* Loads from local to initialize */
-		if (mCategories.size() == 0) {
-			mCategories.add(new Category()
-					.setId(Patch.PatchCategory.EVENT.toLowerCase(Locale.US))
-					.setName(Patch.PatchCategory.EVENT)
-					.setPhoto(new Photo("img_event.png", null, null, null, Photo.PhotoSource.assets_categories)));
-			mCategories.add(new Category()
-					.setId(Patch.PatchCategory.GROUP.toLowerCase(Locale.US))
-					.setName(Patch.PatchCategory.GROUP)
-					.setPhoto(new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories)));
-			mCategories.add(new Category()
-					.setId(Patch.PatchCategory.PLACE.toLowerCase(Locale.US))
-					.setName(Patch.PatchCategory.PLACE)
-					.setPhoto(new Photo("img_place.png", null, null, null, Photo.PhotoSource.assets_categories)));
-			mCategories.add(new Category()
-					.setId(Patch.PatchCategory.PROJECT.toLowerCase(Locale.US))
-					.setName(Patch.PatchCategory.PROJECT)
-					.setPhoto(new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories)));
-		}
+		List<Category> categories = new ArrayList<Category>();
 
-		return mCategories;
+		categories.add(new Category()
+				.setId(Patch.PatchCategory.EVENT.toLowerCase(Locale.US))
+				.setName(Patch.PatchCategory.EVENT)
+				.setPhoto(new Photo("img_event.png", null, null, null, Photo.PhotoSource.assets_categories)));
+		categories.add(new Category()
+				.setId(Patch.PatchCategory.GROUP.toLowerCase(Locale.US))
+				.setName(Patch.PatchCategory.GROUP)
+				.setPhoto(new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories)));
+		categories.add(new Category()
+				.setId(Patch.PatchCategory.PLACE.toLowerCase(Locale.US))
+				.setName(Patch.PatchCategory.PLACE)
+				.setPhoto(new Photo("img_place.png", null, null, null, Photo.PhotoSource.assets_categories)));
+		categories.add(new Category()
+				.setId(Patch.PatchCategory.PROJECT.toLowerCase(Locale.US))
+				.setName(Patch.PatchCategory.PROJECT)
+				.setPhoto(new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories)));
+
+		return categories;
 	}
 
 	public List<String> getCategoriesAsStringArray() {
+		List<Category> categories = getCategories();
 		final List<String> categoryStrings = new ArrayList<String>();
-		for (Category category : mCategories) {
+		for (Category category : categories) {
 			categoryStrings.add(category.name);
 		}
 		return categoryStrings;
@@ -1430,23 +1549,6 @@ public class DataController {
 
 	public static EntityStore getEntityCache() {
 		return ENTITY_STORE;
-	}
-
-	public Map<String, String> getCacheStampOverrides() {
-		return mCacheStampOverrides;
-	}
-
-	public Links getLinks() {
-		return mLinks;
-	}
-
-	public DataController setLinks(Links links) {
-		mLinks = links;
-		return this;
-	}
-
-	public Number getActivityDate() {
-		return mActivityDate;
 	}
 
 	public DataController setActivityDate(Number activityDate) {

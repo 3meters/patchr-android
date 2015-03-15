@@ -11,11 +11,13 @@ import com.aircandi.components.LocationManager;
 import com.aircandi.components.MapManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Place;
 import com.aircandi.ui.base.BaseEntityForm;
@@ -30,7 +32,7 @@ public class MapForm extends BaseEntityForm {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-		mLinkProfile = LinkProfile.LINKS_FOR_PATCH;
+		mLinkProfile = LinkSpecType.LINKS_FOR_PATCH;
 		mNextFragmentTag = Constants.FRAGMENT_TYPE_MAP;
 	}
 
@@ -98,6 +100,16 @@ public class MapForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onDataReady(DataReadyEvent event) {
+		super.onDataReady(event);
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
 
 	@Subscribe
 	public void onProcessingFinished(ProcessingCompleteEvent event) {

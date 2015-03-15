@@ -5,6 +5,7 @@ import android.widget.Toast;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
+import com.aircandi.components.DataController;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -37,7 +38,7 @@ public class Debug {
 					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncInsertReport");
-						ModelResult result = Patchr.getInstance().getDataController().insertDocument(document, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						ModelResult result = DataController.getInstance().insertDocument(document, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						return result;
 					}
 

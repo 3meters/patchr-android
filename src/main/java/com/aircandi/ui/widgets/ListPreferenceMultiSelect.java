@@ -93,8 +93,7 @@ public class ListPreferenceMultiSelect extends ListPreference {
 
 	private boolean isCheckAllValue(int which) {
 		final CharSequence[] entryValues = getEntryValues();
-		if (mCheckAllKey != null) return entryValues[which].equals(mCheckAllKey);
-		return false;
+		return mCheckAllKey != null && entryValues[which].equals(mCheckAllKey);
 	}
 
 	private void checkAll(DialogInterface dialog, boolean val) {

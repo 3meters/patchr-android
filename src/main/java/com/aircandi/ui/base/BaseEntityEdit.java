@@ -17,6 +17,8 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
+import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
@@ -241,7 +243,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			final String jsonPhoto = Json.objectToJson(mEntity.photo);
 			Bundle bundle = new Bundle();
 			bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.dispatch.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
+			Patchr.router.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
 		}
 	}
 
@@ -251,7 +253,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		gather();
 
 		/* Route it */
-		Patchr.dispatch.route(this, Route.PHOTO_SOURCE, mEntity, null);
+		Patchr.router.route(this, Route.PHOTO_SOURCE, mEntity, null);
 	}
 
 	public void onDeletePhotoButtonClick(View view) {
@@ -310,7 +312,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Patchr.dispatch.route(this, Route.BROWSE, entity, null);
+		Patchr.router.route(this, Route.BROWSE, entity, null);
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -350,7 +352,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 								final String jsonPhoto = Json.objectToJson(mEntity.photo);
 								Bundle bundle = new Bundle();
 								bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-								Patchr.dispatch.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
+								Patchr.router.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
 							}
 						}
 						else if (photoSource.equals(Constants.PHOTO_ACTION_DEFAULT)
@@ -494,11 +496,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	protected void photoSearch(String defaultSearch) {
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_SEARCH_PHRASE, defaultSearch);
-		Patchr.dispatch.route(this, Route.PHOTO_SEARCH, null, extras);
+		Patchr.router.route(this, Route.PHOTO_SEARCH, null, extras);
 	}
 
 	protected void photoFromPlace(Entity entity) {
-		Patchr.dispatch.route(this, Route.PHOTO_PLACE_SEARCH, entity, null);
+		Patchr.router.route(this, Route.PHOTO_PLACE_SEARCH, entity, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -603,7 +605,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				beforeInsert(mEntity, links);
 				if (isCancelled()) return null;
 
-				ModelResult result = Patchr.getInstance().getDataController().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
@@ -648,7 +650,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						}
 						setResultCode(Activity.RESULT_OK);
 						finish();
-						Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_BACK);
+						AnimationManager.doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_BACK);
 					}
 				}
 				else {
@@ -717,7 +719,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					}
 
 					beforeUpdate(mEntity);
-					result = Patchr.getInstance().getDataController().updateEntity(mEntity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					result = DataController.getInstance().updateEntity(mEntity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 					if (isCancelled()) return null;
 
 					/* Don't allow cancel if we made it this far */
@@ -769,7 +771,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
 						setResultCode(Activity.RESULT_OK);
 						finish();
-						Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_BACK);
+						AnimationManager.doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_BACK);
 					}
 				}
 				else {

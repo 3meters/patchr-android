@@ -16,13 +16,15 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.ActivityRecognitionManager;
 import com.aircandi.components.AndroidManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NotificationManager;
-import com.aircandi.objects.LinkProfile;
-import com.aircandi.objects.Links;
+import com.aircandi.objects.LinkSpec;
+import com.aircandi.objects.LinkSpecFactory;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
 import com.aircandi.utilities.Colors;
@@ -56,7 +58,7 @@ public class SplashForm extends ActionBarActivity {
 		}
 
 		/* Always reset the entity cache */
-		Patchr.getInstance().getDataController().clearStore();
+		DataController.getInstance().clearStore();
 
 		/* Restart notification tracking */
 		NotificationManager.getInstance().setNewNotificationCount(0);
@@ -126,8 +128,8 @@ public class SplashForm extends ActionBarActivity {
 						 * Auto signin that happens when app is initialized uses a stale version of the
 						 * user stored in shared prefs. We refresh the user data from the service here.
 						 */
-						Links options = Patchr.getInstance().getDataController().getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
-						result = Patchr.getInstance().getDataController().getEntity(Patchr.getInstance().getCurrentUser().id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						LinkSpec options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
+						result = DataController.getInstance().getEntity(Patchr.getInstance().getCurrentUser().id, true, options, null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 					}
 				}
 
@@ -202,7 +204,7 @@ public class SplashForm extends ActionBarActivity {
 			finish();
 		}
 		else {
-			Patchr.dispatch.route(this, Route.HOME, null, null);
+			Patchr.router.route(this, Route.HOME, null, null);
 			finish();
 		}
 
@@ -245,7 +247,7 @@ public class SplashForm extends ActionBarActivity {
 			updateRequired();
 			return;
 		}
-		Patchr.dispatch.route(this, Route.SIGNIN, null, null);
+		Patchr.router.route(this, Route.SIGNIN, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -254,7 +256,7 @@ public class SplashForm extends ActionBarActivity {
 			updateRequired();
 			return;
 		}
-		Patchr.dispatch.route(this, Route.REGISTER, null, null);
+		Patchr.router.route(this, Route.REGISTER, null, null);
 	}
 
 	@SuppressWarnings("ucd")

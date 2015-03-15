@@ -26,16 +26,12 @@ import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.events.ProcessingCompleteEvent;
-import com.aircandi.monitors.EntityMonitor;
-import com.aircandi.monitors.TrendMonitor;
+import com.aircandi.objects.ActionType;
 import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
-import com.aircandi.queries.EntitiesQuery;
-import com.aircandi.queries.NotificationsQuery;
-import com.aircandi.queries.TrendQuery;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseFragment;
@@ -97,23 +93,17 @@ public class AircandiForm extends BaseActivity {
 		/* Notifications fragment */
 		mFragmentNotifications = new NotificationListFragment();
 
-		EntityMonitor monitor = new EntityMonitor(Patchr.getInstance().getCurrentUser().id);
-		NotificationsQuery query = new NotificationsQuery();
-
-		query.setEntityId(Patchr.getInstance().getCurrentUser().id)
-		     .setPageSize(Integers.getInteger(R.integer.page_size_notifications))
-		     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
-
 		((EntityListFragment) mFragmentNotifications)
-				.setMonitor(monitor)
-				.setQuery(query)
+				.setMonitorEntityId(Patchr.getInstance().getCurrentUser().id)
+				.setActionType(ActionType.GET_NOTIFICATIONS)
+				.setPageSize(Integers.getInteger(R.integer.page_size_notifications))
 				.setListViewType(ViewType.LIST)
 				.setListLayoutResId(R.layout.notification_list_fragment)
 				.setListItemResId(R.layout.temp_listitem_notification)
 				.setListLoadingResId(R.layout.temp_listitem_loading_notifications)
 				.setListEmptyMessageResId(R.string.label_notifications_empty)
 				.setFabEnabled(false)
-				.setSelfBindingEnabled(false);
+				.setSelfBind(false);
 
 		getFragmentManager()
 				.beginTransaction()
@@ -183,7 +173,7 @@ public class AircandiForm extends BaseActivity {
 			if (Type.isTrue(entity.autowatchable)) {
 				extras.putBoolean(Constants.EXTRA_PRE_APPROVED, true);
 			}
-			Patchr.dispatch.route(this, Route.BROWSE, entity, extras);
+			Patchr.router.route(this, Route.BROWSE, entity, extras);
 		}
 		if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
 			mDrawerLayout.closeDrawer(mDrawerLeft);
@@ -221,7 +211,7 @@ public class AircandiForm extends BaseActivity {
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 		}
 		extras.putString(Constants.EXTRA_MESSAGE, StringManager.getString(R.string.label_message_new_message));
-		Patchr.dispatch.route(this, Route.NEW, null, extras);
+		Patchr.router.route(this, Route.NEW, null, extras);
 	}
 
 	@Override
@@ -249,7 +239,7 @@ public class AircandiForm extends BaseActivity {
 
 	@SuppressWarnings("ucd")
 	public void onFabButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.NEW_PLACE, null, null);
+		Patchr.router.route(this, Route.NEW_PLACE, null, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -293,26 +283,20 @@ public class AircandiForm extends BaseActivity {
 
 				fragment = new EntityListFragment();
 
-				EntityMonitor monitor = new EntityMonitor(Patchr.getInstance().getCurrentUser().id);
-				EntitiesQuery query = new EntitiesQuery();
-
-				query.setEntityId(Patchr.getInstance().getCurrentUser().id)
-				     .setLinkDirection(Link.Direction.out.name())
-				     .setLinkType(Constants.TYPE_LINK_WATCH)
-				     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
-				     .setSchema(Constants.SCHEMA_ENTITY_PATCH);
-
 				((EntityListFragment) fragment)
-						.setMonitor(monitor)
-						.setQuery(query)
+						.setMonitorEntityId(Patchr.getInstance().getCurrentUser().id)
+						.setActionType(ActionType.GET_ENTITIES)
+						.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
+						.setLinkType(Constants.TYPE_LINK_WATCH)
+						.setLinkDirection(Link.Direction.out.name())
 						.setListPagingEnabled(true)
+						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
 						.setListItemResId(R.layout.temp_listitem_patch)
 						.setListLoadingResId(R.layout.temp_listitem_loading)
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.patch_list_fragment)
 						.setListEmptyMessageResId(R.string.label_watching_empty)
-						.setTitleResId(R.string.form_title_watch)
-						.setSelfBindingEnabled(true);
+						.setTitleResId(R.string.form_title_watch);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
@@ -324,25 +308,20 @@ public class AircandiForm extends BaseActivity {
 
 				fragment = new EntityListFragment();
 
-				EntityMonitor monitor = new EntityMonitor(Patchr.getInstance().getCurrentUser().id);
-				EntitiesQuery query = new EntitiesQuery();
-
-				query.setEntityId(Patchr.getInstance().getCurrentUser().id)
-				     .setLinkDirection(Link.Direction.out.name())
-				     .setLinkType(Constants.TYPE_LINK_CREATE)
-				     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
-				     .setSchema(Constants.SCHEMA_ENTITY_PATCH);
-
-				((EntityListFragment) fragment).setQuery(query)
-				                               .setMonitor(monitor)
-				                               .setListPagingEnabled(true)
-				                               .setListItemResId(R.layout.temp_listitem_patch)
-				                               .setListLoadingResId(R.layout.temp_listitem_loading)
-				                               .setListViewType(ViewType.LIST)
-				                               .setListLayoutResId(R.layout.patch_list_fragment)
-				                               .setListEmptyMessageResId(R.string.label_created_empty)
-				                               .setTitleResId(R.string.form_title_create)
-				                               .setSelfBindingEnabled(true);
+				((EntityListFragment) fragment)
+						.setMonitorEntityId(Patchr.getInstance().getCurrentUser().id)
+						.setActionType(ActionType.GET_ENTITIES)
+						.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
+						.setLinkType(Constants.TYPE_LINK_CREATE)
+						.setLinkDirection(Link.Direction.out.name())
+						.setListPagingEnabled(true)
+						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
+						.setListItemResId(R.layout.temp_listitem_patch)
+						.setListLoadingResId(R.layout.temp_listitem_loading)
+						.setListViewType(ViewType.LIST)
+						.setListLayoutResId(R.layout.patch_list_fragment)
+						.setListEmptyMessageResId(R.string.label_created_empty)
+						.setTitleResId(R.string.form_title_create);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
@@ -354,26 +333,22 @@ public class AircandiForm extends BaseActivity {
 
 				fragment = new TrendListFragment();
 
-				TrendMonitor monitor = new TrendMonitor();
-				TrendQuery query = new TrendQuery();
+				((EntityListFragment) fragment)
+						.setActionType(ActionType.GET_TREND)
+						.setLinkType(Constants.TYPE_LINK_WATCH)
+						.setListPagingEnabled(false)
+						.setEntityCacheEnabled(false)
+						.setHeaderViewResId(R.layout.widget_list_header_trends_popular)
+						.setListItemResId(R.layout.temp_listitem_trends)
+						.setListViewType(ViewType.LIST)
+						.setListLayoutResId(R.layout.trends_list_fragment)
+						.setListEmptyMessageResId(R.string.label_created_empty)
+						.setTitleResId(R.string.form_title_trends_popular);
 
-				query.setToSchema(Constants.SCHEMA_ENTITY_PATCH)
-				     .setFromSchema(Constants.SCHEMA_ENTITY_USER)
-				     .setTrendType(Constants.TYPE_LINK_WATCH);
-
-				((EntityListFragment) fragment).setQuery(query)
-				                               .setMonitor(monitor)
-				                               .setListPagingEnabled(false)
-				                               .setEntityCacheEnabled(false)
-				                               .setHeaderViewResId(R.layout.widget_list_header_trends_popular)
-				                               .setListItemResId(R.layout.temp_listitem_trends)
-				                               .setListViewType(ViewType.LIST)
-				                               .setListLayoutResId(R.layout.trends_list_fragment)
-				                               .setListEmptyMessageResId(R.string.label_created_empty)
-				                               .setTitleResId(R.string.form_title_trends_popular)
-				                               .setSelfBindingEnabled(true);
-
-				((TrendListFragment) fragment).setCountLabelResId(R.string.label_trends_count_popular);
+				((TrendListFragment) fragment)
+						.setToSchema(Constants.SCHEMA_ENTITY_PATCH)
+						.setFromSchema(Constants.SCHEMA_ENTITY_USER)
+						.setCountLabelResId(R.string.label_trends_count_popular);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
@@ -385,26 +360,22 @@ public class AircandiForm extends BaseActivity {
 
 				fragment = new TrendListFragment();
 
-				TrendMonitor monitor = new TrendMonitor();
-				TrendQuery query = new TrendQuery();
+				((EntityListFragment) fragment)
+						.setActionType(ActionType.GET_TREND)
+						.setLinkType(Constants.TYPE_LINK_CONTENT)
+						.setListPagingEnabled(false)
+						.setEntityCacheEnabled(false)
+						.setHeaderViewResId(R.layout.widget_list_header_trends_active)
+						.setListItemResId(R.layout.temp_listitem_trends)
+						.setListViewType(ViewType.LIST)
+						.setListLayoutResId(R.layout.trends_list_fragment)
+						.setListEmptyMessageResId(R.string.label_created_empty)
+						.setTitleResId(R.string.form_title_trends_active);
 
-				query.setToSchema(Constants.SCHEMA_ENTITY_PATCH)
-				     .setFromSchema(Constants.SCHEMA_ENTITY_MESSAGE)
-				     .setTrendType(Constants.TYPE_LINK_CONTENT);
-
-				((EntityListFragment) fragment).setQuery(query)
-				                               .setMonitor(monitor)
-				                               .setListPagingEnabled(false)
-				                               .setEntityCacheEnabled(false)
-				                               .setHeaderViewResId(R.layout.widget_list_header_trends_active)
-				                               .setListItemResId(R.layout.temp_listitem_trends)
-				                               .setListViewType(ViewType.LIST)
-				                               .setListLayoutResId(R.layout.trends_list_fragment)
-				                               .setListEmptyMessageResId(R.string.label_created_empty)
-				                               .setTitleResId(R.string.form_title_trends_active)
-				                               .setSelfBindingEnabled(true);
-
-				((TrendListFragment) fragment).setCountLabelResId(R.string.label_trends_count_active);
+				((TrendListFragment) fragment)
+						.setToSchema(Constants.SCHEMA_ENTITY_PATCH)
+						.setFromSchema(Constants.SCHEMA_ENTITY_MESSAGE)
+						.setCountLabelResId(R.string.label_trends_count_active);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
@@ -413,14 +384,14 @@ public class AircandiForm extends BaseActivity {
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_SETTINGS)) {
 
 				mNextFragmentTag = mCurrentFragmentTag;
-				Patchr.dispatch.route(this, Route.SETTINGS, null, null);
+				Patchr.router.route(this, Route.SETTINGS, null, null);
 				return;
 			}
 
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_FEEDBACK)) {
 
 				mNextFragmentTag = mCurrentFragmentTag;
-				Patchr.dispatch.route(this, Route.FEEDBACK, null, null);
+				Patchr.router.route(this, Route.FEEDBACK, null, null);
 				return;
 			}
 
@@ -438,10 +409,7 @@ public class AircandiForm extends BaseActivity {
 			mFragments.put(fragmentType, fragment);
 		}
 
-		if (fragment instanceof BaseFragment) {
-			setActivityTitle(StringManager.getString(((BaseFragment) fragment).getTitleResId()));
-		}
-		else if (fragment instanceof MapListFragment) {
+		if (fragment instanceof MapListFragment) {
 			((MapListFragment) fragment)
 					.setEntities(((EntityListFragment) getCurrentFragment()).getEntities())
 					.setTitleResId(((EntityListFragment) getCurrentFragment()).getTitleResId())
@@ -459,6 +427,7 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		if (fragment instanceof EntityListFragment) {
+			setActivityTitle(StringManager.getString(((EntityListFragment) fragment).getTitleResId()));
 			ListController ls = ((EntityListFragment) fragment).getListController();
 			if (ls != null) {
 				ls.getFloatingActionController().fadeIn();

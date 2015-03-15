@@ -42,13 +42,14 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 
-;
 import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+
+;
 
 public class EntitySuggestController implements TokenCompleteTextView.TokenListener {
 
@@ -419,7 +420,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 						Thread.currentThread().setName("AsyncSuggestEntities");
 						final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
-						ModelResult modelResult = Patchr.getInstance().getDataController().suggest(chars.toString().trim()
+						ModelResult modelResult = DataController.getInstance().suggest(chars.toString().trim()
 								, mSuggestScope, Patchr.getInstance().getCurrentUser().id
 								, location
 								, LIMIT, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);

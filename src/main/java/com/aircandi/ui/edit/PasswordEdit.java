@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
@@ -80,7 +81,7 @@ public class PasswordEdit extends BaseEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncUpdatePassword");
-				final ModelResult result = Patchr.getInstance().getDataController().updatePassword(
+				final ModelResult result = DataController.getInstance().updatePassword(
 						Patchr.getInstance().getCurrentUser().id,
 						mPasswordOld.getText().toString(),
 						mPassword.getText().toString(),

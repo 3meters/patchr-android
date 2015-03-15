@@ -79,7 +79,7 @@ public class UserEdit extends BaseEntityEdit {
 
 	@SuppressWarnings("ucd")
 	public void onChangePasswordButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.PASSWORD_CHANGE, null, null);
+		Patchr.router.route(this, Route.PASSWORD_CHANGE, null, null);
 	}
 
 	@Subscribe

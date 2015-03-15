@@ -16,15 +16,16 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.AnimationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 
-;
-
 import java.util.concurrent.atomic.AtomicBoolean;
+
+;
 
 public class Dialogs {
 
@@ -146,7 +147,7 @@ public class Dialogs {
 						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
 					}
 					dialog.dismiss();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.EXTERNAL_TO);
+					AnimationManager.doOverridePendingTransition(activity, TransitionType.EXTERNAL_TO);
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {
 					dialog.dismiss();
@@ -199,7 +200,7 @@ public class Dialogs {
 						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
 					}
 					dialog.dismiss();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(activity, TransitionType.EXTERNAL_TO);
+					AnimationManager.doOverridePendingTransition(activity, TransitionType.EXTERNAL_TO);
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {
 					dialog.dismiss();
@@ -233,7 +234,7 @@ public class Dialogs {
 			public void onClick(@NonNull DialogInterface dialog, int which) {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					Reporting.sendEvent(Reporting.TrackerCategory.UX, "aircandi_location_settings_button_click", "com.aircandi", 0);
-					Patchr.dispatch.route(activity, Route.SETTINGS_LOCATION, null, null);
+					Patchr.router.route(activity, Route.SETTINGS_LOCATION, null, null);
 					dialog.dismiss();
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {

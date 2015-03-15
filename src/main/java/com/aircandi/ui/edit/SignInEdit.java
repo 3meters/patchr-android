@@ -18,6 +18,8 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
@@ -96,7 +98,7 @@ public class SignInEdit extends BaseEdit {
 	 *--------------------------------------------------------------------------------------------*/
 	@SuppressWarnings("ucd")
 	public void onForgotPasswordButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.PASSWORD_RESET, null, null);
+		Patchr.router.route(this, Route.PASSWORD_RESET, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -108,7 +110,7 @@ public class SignInEdit extends BaseEdit {
 
 	@SuppressWarnings("ucd")
 	public void onSignupButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.REGISTER, null, null);
+		Patchr.router.route(this, Route.REGISTER, null, null);
 	}
 
 	@Override
@@ -133,7 +135,7 @@ public class SignInEdit extends BaseEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncSignIn");
-				ModelResult result = Patchr.getInstance().getDataController().signin(email, password, SignInEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().signin(email, password, SignInEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					result = NotificationManager.getInstance().registerInstallWithAircandi();
 				}
@@ -151,7 +153,7 @@ public class SignInEdit extends BaseEdit {
 
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_BACK);
+					AnimationManager.doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Errors.handleError(SignInEdit.this, result.serviceResponse);
@@ -203,7 +205,7 @@ public class SignInEdit extends BaseEdit {
 			if (resultCode == Constants.RESULT_USER_SIGNED_IN) {
 				setResultCode(Constants.RESULT_USER_SIGNED_IN);
 				finish();
-				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_BACK);
+				AnimationManager.doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_BACK);
 			}
 		}
 

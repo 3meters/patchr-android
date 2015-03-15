@@ -14,7 +14,7 @@ import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Message;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.ViewHolder;
@@ -284,7 +284,7 @@ public class Messages extends EntityControllerBase {
 
 	@Override
 	public Integer getLinkProfile() {
-		return LinkProfile.LINKS_FOR_MESSAGE;
+		return LinkSpecType.LINKS_FOR_MESSAGE;
 	}
 
 	@Override

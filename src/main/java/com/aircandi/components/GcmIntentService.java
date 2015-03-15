@@ -64,7 +64,7 @@ public class GcmIntentService extends IntentService {
 				/* Tickle activity date on entity manager because that is monitored by radar. */
 				String targetSchema = Entity.getSchemaForId(notification.targetId);
 				if (targetSchema != null && targetSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-					Patchr.getInstance().getDataController().setActivityDate(DateTime.nowDate().getTime());
+					DataController.getInstance().setActivityDate(DateTime.nowDate().getTime());
 				}
 
 				/* Track */

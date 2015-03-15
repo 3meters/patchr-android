@@ -171,7 +171,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					Patchr.dispatch.route(getActivity(), Route.ABOUT, null, null);
+					Patchr.router.route(getActivity(), Route.ABOUT, null, null);
 					return true;
 				}
 			});
@@ -184,7 +184,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					Patchr.dispatch.route(getActivity(), Route.FEEDBACK, null, null);
+					Patchr.router.route(getActivity(), Route.FEEDBACK, null, null);
 					return true;
 				}
 			});
@@ -207,10 +207,10 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-						Patchr.dispatch.route(getActivity(), Route.SIGNIN, null, null);
+						Patchr.router.route(getActivity(), Route.SIGNIN, null, null);
 					}
 					else {
-						Patchr.dispatch.route(getActivity(), Route.SIGNOUT, null, null);
+						Patchr.router.route(getActivity(), Route.SIGNOUT, null, null);
 					}
 					return true;
 				}

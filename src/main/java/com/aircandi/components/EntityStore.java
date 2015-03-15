@@ -10,12 +10,13 @@ import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
+import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
-import com.aircandi.objects.Links;
+import com.aircandi.objects.LinkSpec;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.User;
@@ -41,10 +42,31 @@ public class EntityStore {
 	 * Store loading from service
 	 *--------------------------------------------------------------------------------------------*/
 
-	ServiceResponse loadEntities(List<String> entityIds, Links linkOptions, Object tag) {
+	ServiceResponse loadEntities(List<String> entityIds, LinkSpec linkOptions, CacheStamp cacheStamp, Object tag) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putStringArrayList("entityIds", (ArrayList<String>) entityIds);
+
+		if (cacheStamp != null) {
+
+			StringBuilder builder = new StringBuilder("object:");
+			if (cacheStamp.activityDate != null && cacheStamp.modifiedDate != null) {
+				builder.append("{\"$or\":["
+						+ "{\"activityDate\":{\"$gt\":" + cacheStamp.activityDate.longValue() + "}},"
+						+ "{\"modifiedDate\":{\"$gt\":" + cacheStamp.modifiedDate.longValue() + "}}"
+						+ "]}");
+				parameters.putString("where", builder.toString());
+			}
+			else if (cacheStamp.activityDate != null) {
+				builder.append("{\"activityDate\":{\"$gt\":" + cacheStamp.activityDate.longValue() + "}}");
+				parameters.putString("where", builder.toString());
+			}
+			else if (cacheStamp.modifiedDate != null) {
+				builder.append("{\"modifiedDate\":{\"$gt\":" + cacheStamp.modifiedDate.longValue() + "}}");
+				parameters.putString("where", builder.toString());
+			}
+		}
+
 		if (linkOptions != null) {
 			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
 		}
@@ -70,16 +92,6 @@ public class EntityStore {
 			serviceResponse.data = serviceData;
 
 			if (loadedEntities != null && loadedEntities.size() > 0) {
-			    /*
-			     * Clear out any cache stamp overrides.
-				 */
-				for (Entity entity : loadedEntities) {
-					if (Patchr.getInstance().getDataController().getCacheStampOverrides().containsKey(entity.id)) {
-						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Patchr.getInstance().getDataController().getCacheStampOverrides().remove(entity.id);
-					}
-				}
-
 				/*
 				 * Keep current user synchronized if we refreshed the current user entity. This
 				 * logic also exists in update logic when editing a user entity.
@@ -112,10 +124,15 @@ public class EntityStore {
 		return serviceResponse;
 	}
 
-	ServiceResponse loadEntitiesForEntity(String forEntityId, Links linkOptions, Cursor cursor, Stopwatch stopwatch, Object tag) {
+	ServiceResponse loadEntitiesForEntity(String forEntityId, LinkSpec linkOptions, Cursor cursor, CacheStamp cacheStamp, Stopwatch stopwatch, Object tag) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("entityId", forEntityId);
+
+		if (cacheStamp != null && cacheStamp.activityDate != null) {
+			parameters.putString("where", "object:"
+					+ "{\"activityDate\":{\"$gt\":" + cacheStamp.activityDate.longValue() + "}}");
+		}
 
 		if (linkOptions != null) {
 			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
@@ -148,13 +165,6 @@ public class EntityStore {
 
 			if (loadedEntities != null && loadedEntities.size() > 0) {
 				for (Entity entity : loadedEntities) {
-					/*
-					 * Clear out any cache stamp overrides.
-					 */
-					if (Patchr.getInstance().getDataController().getCacheStampOverrides().containsKey(entity.id)) {
-						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Patchr.getInstance().getDataController().getCacheStampOverrides().remove(entity.id);
-					}
 					if (cursor != null && cursor.direction != null && cursor.direction.equals("out")) {
 						entity.fromId = forEntityId;
 					}
@@ -170,7 +180,7 @@ public class EntityStore {
 		return serviceResponse;
 	}
 
-	ServiceResponse loadEntitiesByProximity(List<String> beaconIds, Links linkOptions, Cursor cursor, String installId, Object tag, Stopwatch stopwatch) {
+	ServiceResponse loadEntitiesByProximity(List<String> beaconIds, LinkSpec linkOptions, Cursor cursor, String installId, Object tag, Stopwatch stopwatch) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putStringArrayList("beaconIds", (ArrayList<String>) beaconIds);
@@ -223,13 +233,6 @@ public class EntityStore {
 			if (loadedEntities != null && loadedEntities.size() > 0) {
 				for (Entity entity : loadedEntities) {
 					entity.foundByProximity = true;
-					/*
-					 * Clear out any cache stamp overrides.
-					 */
-					if (Patchr.getInstance().getDataController().getCacheStampOverrides().containsKey(entity.id)) {
-						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Patchr.getInstance().getDataController().getCacheStampOverrides().remove(entity.id);
-					}
 				}
 
 				synchronized (this) {
@@ -243,18 +246,11 @@ public class EntityStore {
 				}
 			}
 		}
-		//		else if (serviceResponse.responseCode != ResponseCode.INTERRUPTED) {
-		//			synchronized (this) {
-		//				/* We clean out all patches found via proximity even if the proximity call failed */
-		//				Integer removeCount = EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
-		//				Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
-		//			}
-		//		}
 
 		return serviceResponse;
 	}
 
-	ServiceResponse loadEntitiesNearLocation(AirLocation location, Links linkOptions, String installId, List<String> excludeIds, Object tag) {
+	ServiceResponse loadEntitiesNearLocation(AirLocation location, LinkSpec linkOptions, String installId, List<String> excludeIds, Object tag) {
 
 		final Bundle parameters = new Bundle();
 

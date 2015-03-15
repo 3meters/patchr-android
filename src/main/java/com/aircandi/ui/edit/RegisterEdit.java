@@ -17,6 +17,8 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
@@ -93,7 +95,7 @@ public class RegisterEdit extends BaseEntityEdit {
 
 	@SuppressWarnings("ucd")
 	public void onViewTermsButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.TERMS, null, null);
+		Patchr.router.route(this, Route.TERMS, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -239,7 +241,7 @@ public class RegisterEdit extends BaseEntityEdit {
 					}
 				}
 
-				ModelResult result = Patchr.getInstance().getDataController().registerUser((User) mEntity
+				ModelResult result = DataController.getInstance().registerUser((User) mEntity
 						, (mEntity.photo != null) ? bitmap : null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				if (isCancelled()) return null;
@@ -283,7 +285,7 @@ public class RegisterEdit extends BaseEntityEdit {
 							Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(RegisterEdit.this, TransitionType.FORM_BACK);
+					AnimationManager.doOverridePendingTransition(RegisterEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Errors.handleError(RegisterEdit.this, result.serviceResponse);

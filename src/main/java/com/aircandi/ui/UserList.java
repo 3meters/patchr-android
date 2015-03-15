@@ -18,15 +18,12 @@ import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.ProcessingCompleteEvent;
-import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
-import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Integers;
@@ -63,36 +60,31 @@ public class UserList extends BaseActivity {
 		super.initialize(savedInstanceState);
 
 		mCurrentFragment = new UserListFragment();
-		EntityMonitor monitor = new EntityMonitor(mEntityId);
-		EntitiesQuery query = new EntitiesQuery();
 
-		query.setEntityId(mEntityId)
-		     .setLinkDirection(Direction.in.name())
-		     .setLinkType(mListLinkType)
-		     .setLinkWhere(null)
-		     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
-		     .setSchema(Constants.SCHEMA_ENTITY_USER);
+		((EntityListFragment) mCurrentFragment)
+				.setMonitorEntityId(mEntityId)
+				.setLinkSchema(Constants.SCHEMA_ENTITY_USER)
+				.setLinkType(mListLinkType)
+				.setLinkDirection(Direction.in.name())
+				.setLinkWhere(null)
+				.setPageSize(Integers.getInteger(R.integer.page_size_messages))
+				.setListViewType(ViewType.LIST)
+				.setListLayoutResId(R.layout.user_list_fragment)
+				.setListLoadingResId(R.layout.temp_listitem_loading)
+				.setListItemResId(mListItemResId)
+				.setTitleResId(mListTitleResId);
 
 		if (mListLinkType != null && mListLinkType.equals(Constants.TYPE_LINK_WATCH) && !mEntity.isOwnedByCurrentUser()
 				&& !mEntity.ownerId.equals(ServiceConstants.ADMIN_USER_ID)) {
-			query.setLinkWhere(Maps.asMap("enabled", true));
+			((EntityListFragment) mCurrentFragment).setLinkWhere(Maps.asMap("enabled", true));
 		}
-
-		((EntityListFragment) mCurrentFragment).setQuery(query)
-		                                       .setMonitor(monitor)
-		                                       .setListViewType(ViewType.LIST)
-		                                       .setListLayoutResId(R.layout.user_list_fragment)
-		                                       .setListLoadingResId(R.layout.temp_listitem_loading)
-		                                       .setListItemResId(mListItemResId)
-		                                       .setTitleResId(mListTitleResId)
-		                                       .setSelfBindingEnabled(true);
 
 		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mCurrentFragment).commit();
 	}
 
 	@Override
 	public void draw(View view) {
-		Integer titleResId = ((BaseFragment) mCurrentFragment).getTitleResId();
+		Integer titleResId = ((EntityListFragment) mCurrentFragment).getTitleResId();
 		if (titleResId != null) {
 			setActivityTitle(StringManager.getString(titleResId));
 		}
@@ -114,7 +106,7 @@ public class UserList extends BaseActivity {
 	}
 
 	public void onShareButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.SHARE, mEntity, null);
+		Patchr.router.route(this, Route.SHARE, mEntity, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -205,7 +197,7 @@ public class UserList extends BaseActivity {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncStatusUpdate");
-				ModelResult result = Patchr.getInstance().getDataController().insertLink(linkId
+				ModelResult result = DataController.getInstance().insertLink(linkId
 						, fromId
 						, toId
 						, Constants.TYPE_LINK_WATCH
@@ -241,7 +233,7 @@ public class UserList extends BaseActivity {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncWatchEntity");
-				ModelResult result = Patchr.getInstance().getDataController().deleteLink(fromId
+				ModelResult result = DataController.getInstance().deleteLink(fromId
 						, mEntity.id
 						, Constants.TYPE_LINK_WATCH
 						, false

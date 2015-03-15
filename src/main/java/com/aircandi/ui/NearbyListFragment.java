@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.DataController;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
@@ -26,13 +27,12 @@ import com.aircandi.components.ProximityController.ScanReason;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.BeaconsLockedEvent;
 import com.aircandi.events.EntitiesByProximityCompleteEvent;
-import com.aircandi.events.LocationTimeoutEvent;
 import com.aircandi.events.EntitiesUpdatedEvent;
+import com.aircandi.events.LocationTimeoutEvent;
 import com.aircandi.events.LocationUpdatedEvent;
 import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
-import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Count;
@@ -89,7 +89,7 @@ public class NearbyListFragment extends EntityListFragment {
 		 * Only called in response to parent form receiving a push notification. Example
 		 * is a new patch was created nearby and we want to show it.
 		 */
-		CacheStamp cacheStamp = Patchr.getInstance().getDataController().getCacheStamp();
+		CacheStamp cacheStamp = DataController.getInstance().getCacheStamp();
 		if (mCacheStamp != null && !mCacheStamp.equals(cacheStamp)) {
 			searchForPatches();
 		}
@@ -107,7 +107,7 @@ public class NearbyListFragment extends EntityListFragment {
 		final Patch entity = (Patch) ((ViewHolder) view.getTag()).data;
 		Bundle extras = new Bundle();
 		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
+		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
 	@Subscribe
@@ -209,7 +209,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 				Patchr.stopwatch1.stop("Search for places by beacon complete");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
-				mCacheStamp = Patchr.getInstance().getDataController().getCacheStamp();
+				mCacheStamp = DataController.getInstance().getCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
 					Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.SUCCESS));
@@ -256,7 +256,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 								if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 									Patchr.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
-									final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getDataController().getPatches(null /* proximity not required */);
+									final List<Entity> entitiesForEvent = (List<Entity>) DataController.getInstance().getPatches(null /* proximity not required */);
 
 									Logger.d(getActivity(), "Patches near location finished event: ** done **");
 									Patchr.stopwatch2.stop("Location processing: Patches near location complete");
@@ -358,7 +358,7 @@ public class NearbyListFragment extends EntityListFragment {
 	@Override
 	public void onAdd(Bundle extras) {
 		/* Schema target is in the extras */
-		Patchr.dispatch.route(getActivity(), Route.NEW, null, extras);
+		Patchr.router.route(getActivity(), Route.NEW, null, extras);
 	}
 
 	@Override
@@ -414,7 +414,7 @@ public class NearbyListFragment extends EntityListFragment {
 			buttonAlert.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					Patchr.dispatch.route(getActivity(), Route.NEW_PLACE, null, null);
+					Patchr.router.route(getActivity(), Route.NEW_PLACE, null, null);
 				}
 			});
 			UI.setVisibility(alertGroup, View.VISIBLE);
@@ -498,10 +498,6 @@ public class NearbyListFragment extends EntityListFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
-
-	/* Stub for future use because I hate bind() */
-	@SuppressWarnings("ucd")
-	public class RadarMonitor extends SimpleMonitor {}
 
 	public class LocationHandler {
 

@@ -23,9 +23,9 @@ import android.widget.ViewAnimator;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.DownloadManager;
 import com.aircandi.components.DataController;
 import com.aircandi.components.DataController.SuggestScope;
+import com.aircandi.components.DownloadManager;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
@@ -113,7 +113,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		if (!isFinishing()) {
 			if (!Patchr.firstStartApp && Patchr.getInstance().getCurrentUser().isAnonymous()) {
 				Patchr.firstStartIntent = getIntent();
-				Patchr.dispatch.route(this, Route.SPLASH, null, null);
+				Patchr.router.route(this, Route.SPLASH, null, null);
 			}
 		}
 	}
@@ -758,7 +758,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		if (!mMessageType.equals(MessageType.SHARE)) {
 			Entity currentPlace = Patchr.getInstance().getCurrentPatch();
 			if (mTos.size() > 0 && (currentPlace == null || !currentPlace.id.equals(mTos.get(0).id))) {
-				Patchr.dispatch.route(this, Route.BROWSE, mTos.get(0), null);
+				Patchr.router.route(this, Route.BROWSE, mTos.get(0), null);
 			}
 		}
 		return true;

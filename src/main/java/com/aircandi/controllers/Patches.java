@@ -6,7 +6,7 @@ import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Category;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.ui.PatchForm;
@@ -46,7 +46,7 @@ public class Patches extends EntityControllerBase {
 
 	@Override
 	public Integer getLinkProfile() {
-		return LinkProfile.LINKS_FOR_PATCH;
+		return LinkSpecType.LINKS_FOR_PATCH;
 	}
 
 	@Override

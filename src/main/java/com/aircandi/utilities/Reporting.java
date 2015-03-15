@@ -14,9 +14,9 @@ import com.aircandi.objects.User;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.HitBuilders;
 
-;
-
 import java.util.Locale;
+
+;
 
 public class Reporting {
 

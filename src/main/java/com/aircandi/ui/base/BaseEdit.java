@@ -14,8 +14,8 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.edit.FeedbackEdit;
-import com.aircandi.ui.edit.ReportEdit;
 import com.aircandi.ui.edit.RegisterEdit;
+import com.aircandi.ui.edit.ReportEdit;
 import com.aircandi.ui.edit.ResetEdit;
 import com.aircandi.ui.edit.SignInEdit;
 import com.aircandi.utilities.Dialogs;
@@ -108,7 +108,7 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 					onAccept();
 				}
 				else if (which == DialogInterface.BUTTON_NEUTRAL) {
-					Patchr.dispatch.route(BaseEdit.this, Route.CANCEL_FORCE, null, null);
+					Patchr.router.route(BaseEdit.this, Route.CANCEL_FORCE, null, null);
 				}
 			}
 		}

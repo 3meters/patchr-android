@@ -9,9 +9,11 @@ import android.view.View;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.widgets.AirImageView;
@@ -43,12 +45,22 @@ public class PlaceForm extends BaseEntityForm {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-		mLinkProfile = LinkProfile.NO_LINKS;
+		mLinkProfile = LinkSpecType.NO_LINKS;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onDataReady(DataReadyEvent event) {
+		super.onDataReady(event);
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
 
 	@Subscribe
 	public void onProcessingFinished(ProcessingCompleteEvent event) {
@@ -58,7 +70,7 @@ public class PlaceForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onMapButtonClick(View view) {
 		if (mEntity != null) {
-			Patchr.dispatch.route(this, Route.MAP, mEntity, null);
+			Patchr.router.route(this, Route.MAP, mEntity, null);
 		}
 	}
 

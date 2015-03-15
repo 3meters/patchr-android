@@ -37,14 +37,11 @@ public class AirDrawerLayout extends DrawerLayout {
 
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent event) {
-		if (mDetector.onTouchEvent(event)) {
-			/*
-			 * We detected a touch event (gesture) we want to override and do not
-			 * give the super chance a shot at it because we do not call
-			 * super.onTouchEvent.
-			 */
-			return true;
-		}
-		return super.onTouchEvent(event);
+		/*
+		 * We detected a touch event (gesture) we want to override and do not
+		 * give the super chance a shot at it because we do not call
+		 * super.onTouchEvent.
+		 */
+		return mDetector.onTouchEvent(event) || super.onTouchEvent(event);
 	}
 }

@@ -19,12 +19,11 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
+import com.aircandi.components.MenuManager;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IForm;
 import com.aircandi.objects.Entity;
 import com.aircandi.ui.AircandiForm;
-import com.aircandi.ui.components.EntitySuggestController;
-import com.aircandi.ui.widgets.AirAutoCompleteTextView;
 import com.aircandi.utilities.DateTime;
 
 import java.util.ArrayList;
@@ -50,21 +49,11 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	 * - onDetach
 	 */
 
-	public    Entity    mEntity;
 	protected Resources mResources;
 	protected String    mGroupTag;
-	protected Boolean mIsVisible          = false;
-	protected Boolean mFeed               = false;
-	protected Boolean mSelfBindingEnabled = true;
-	protected Boolean mNotEmpty           = false; // Used to control busy feedback
-
-	private AirAutoCompleteTextView mTo;
-	private View                    mToImage;
-	private View                    mToProgress;
-	private EntitySuggestController mEntitySuggest;
+	protected Boolean mIsVisible = false;
 
 	/* Resources */
-	protected Integer mTitleResId;
 	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
 
 	/*--------------------------------------------------------------------------------------------
@@ -211,35 +200,8 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public BaseFragment setActivityStream(Boolean activityStream) {
-		mFeed = activityStream;
-		return this;
-	}
-
-	public BaseFragment setSelfBindingEnabled(Boolean pagingEnabled) {
-		mSelfBindingEnabled = pagingEnabled;
-		return this;
-	}
-
-	public BaseFragment setTitleResId(Integer titleResId) {
-		mTitleResId = titleResId;
-		return this;
-	}
-
-	public Boolean isFeed() {
-		return mFeed;
-	}
-
-	public Boolean isPagingEnabled() {
-		return mSelfBindingEnabled;
-	}
-
 	public List<Integer> getMenuResIds() {
 		return mMenuResIds;
-	}
-
-	public Integer getTitleResId() {
-		return mTitleResId;
 	}
 
 	protected int getLayoutId() {
@@ -266,7 +228,7 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Patchr.dispatch.route(getActivity(), Patchr.dispatch.routeForMenuId(item.getItemId()), null, null);
+		Patchr.router.route(getActivity(), Patchr.router.routeForMenuId(item.getItemId()), null, null);
 		return true;
 	}
 
@@ -277,27 +239,27 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 
 		MenuItem item = menu.findItem(R.id.edit);
 		if (item != null) {
-			item.setVisible(Patchr.getInstance().getMenuManager().canUserEdit(entity));
+			item.setVisible(MenuManager.canUserEdit(entity));
 		}
 
 		item = menu.findItem(R.id.delete);
 		if (item != null) {
-			item.setVisible(Patchr.getInstance().getMenuManager().canUserDelete(entity));
+			item.setVisible(MenuManager.canUserDelete(entity));
 		}
 
 		item = menu.findItem(R.id.share);
 		if (item != null) {
-			item.setVisible(Patchr.getInstance().getMenuManager().canUserShare(entity));
+			item.setVisible(MenuManager.canUserShare(entity));
 		}
 
 		item = menu.findItem(R.id.share_photo);
 		if (item != null) {
-			item.setVisible(Patchr.getInstance().getMenuManager().canUserShare(entity));
+			item.setVisible(MenuManager.canUserShare(entity));
 		}
 
 		item = menu.findItem(R.id.invite);
 		if (item != null) {
-			item.setVisible(Patchr.getInstance().getMenuManager().canUserShare(entity));
+			item.setVisible(MenuManager.canUserShare(entity));
 		}
 	}
 

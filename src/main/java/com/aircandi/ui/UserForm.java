@@ -10,19 +10,20 @@ import android.widget.TextView;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.MenuManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.ProcessingCompleteEvent;
-import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Link;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
-import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
@@ -36,35 +37,29 @@ import com.squareup.otto.Subscribe;
 @SuppressWarnings("ucd")
 public class UserForm extends BaseEntityForm {
 
-	private TextView           mButtonWatching;
-	private TextView           mButtonCreated;
-	private View               mButtonEdit;
+	private TextView mButtonWatching;
+	private TextView mButtonCreated;
+	private View     mButtonEdit;
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
 		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
-		mLinkProfile = currentUser ? LinkProfile.LINKS_FOR_USER_CURRENT : LinkProfile.LINKS_FOR_USER;
+		mLinkProfile = currentUser ? LinkSpecType.LINKS_FOR_USER_CURRENT : LinkSpecType.LINKS_FOR_USER;
 		mCurrentFragment = new MessageListFragment();
 
-		EntityMonitor monitor = new EntityMonitor(mEntityId);
-		EntitiesQuery query = new EntitiesQuery();
-
-		query.setEntityId(mEntityId)
-		     .setLinkDirection(Link.Direction.out.name())
-		     .setLinkType(Constants.TYPE_LINK_CREATE)
-		     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
-		     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
-
-		((EntityListFragment)mCurrentFragment).setQuery(query)
-		             .setMonitor(monitor)
-		             .setListViewType(EntityListFragment.ViewType.LIST)
-		             .setListLayoutResId(R.layout.entity_list_fragment)
-		             .setListLoadingResId(R.layout.temp_listitem_loading)
-		             .setListItemResId(R.layout.temp_listitem_message)
-		             .setHeaderViewResId(R.layout.widget_list_header_user)
-		             .setSelfBindingEnabled(false);
+		((EntityListFragment) mCurrentFragment)
+				.setMonitorEntityId(mEntityId)
+				.setLinkSchema(Constants.SCHEMA_ENTITY_MESSAGE)
+				.setLinkType(Constants.TYPE_LINK_CREATE)
+				.setLinkDirection(Link.Direction.out.name())
+				.setPageSize(Integers.getInteger(R.integer.page_size_messages))
+				.setListViewType(EntityListFragment.ViewType.LIST)
+				.setListLayoutResId(R.layout.entity_list_fragment)
+				.setListLoadingResId(R.layout.temp_listitem_loading)
+				.setListItemResId(R.layout.temp_listitem_message)
+				.setHeaderViewResId(R.layout.widget_list_header_user);
 
 		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mCurrentFragment).commit();
 	}
@@ -75,17 +70,27 @@ public class UserForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
+	public void onDataReady(DataReadyEvent event) {
+		super.onDataReady(event);
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
+
+	@Subscribe
 	public void onProcessingFinished(final ProcessingCompleteEvent event) {
 		mUiController.getBusyController().hide(false);
 		((EntityListFragment) mCurrentFragment).onProcessingFinished(event);
 	}
 
 	public void onMoreButtonClick(View view) {
-		((EntityListFragment)mCurrentFragment).onMoreButtonClick(view);
+		((EntityListFragment) mCurrentFragment).onMoreButtonClick(view);
 	}
 
 	public void onEditButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.EDIT, mEntity, null);
+		Patchr.router.route(this, Route.EDIT, mEntity, null);
 	}
 
 	public void onPlaceListButtonClick(View view) {
@@ -113,7 +118,7 @@ public class UserForm extends BaseEntityForm {
 		extras.putInt(Constants.EXTRA_LIST_EMPTY_RESID, emptyResId);
 		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 
-		Patchr.dispatch.route(this, Route.PATCH_LIST, mEntity, extras);
+		Patchr.router.route(this, Route.PATCH_LIST, mEntity, extras);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -127,12 +132,7 @@ public class UserForm extends BaseEntityForm {
 		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
 		if (!currentUser) return;
 		if (result != null && result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			if (mEntityMonitor.changed) {
-				((EntityListFragment)mCurrentFragment).bind(BindingMode.MANUAL);
-			}
-			else {
-				((EntityListFragment)mCurrentFragment).bind(mode);
-			}
+			((EntityListFragment) mCurrentFragment).bind(mode);
 		}
 	}
 
@@ -145,7 +145,7 @@ public class UserForm extends BaseEntityForm {
 		mButtonEdit = findViewById(R.id.button_edit);
 
 		UI.setVisibility(mButtonEdit, View.GONE);
-		if (Patchr.getInstance().getMenuManager().canUserEdit(mEntity)) {
+		if (MenuManager.canUserEdit(mEntity)) {
 			UI.setVisibility(mButtonEdit, View.VISIBLE);
 		}
 
@@ -230,5 +230,4 @@ public class UserForm extends BaseEntityForm {
 	protected int getLayoutId() {
 		return R.layout.user_form;
 	}
-
 }

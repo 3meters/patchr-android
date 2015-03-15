@@ -324,11 +324,17 @@ public class BusyController implements IBusy {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void resume() {
-		Dispatcher.getInstance().register(this);
+		try {
+			Dispatcher.getInstance().register(this);
+		}
+		catch (IllegalArgumentException e) {/* ignore */}
 	}
 
 	public void pause() {
-		Dispatcher.getInstance().unregister(this);
+		try {
+			Dispatcher.getInstance().unregister(this);
+		}
+		catch (IllegalArgumentException e) {/* ignore */}
 		hide(true);
 	}
 }

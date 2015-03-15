@@ -23,7 +23,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
-;
 
 import java.io.EOFException;
 import java.io.FileNotFoundException;
@@ -34,6 +33,8 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Locale;
+
+;
 
 public final class Errors {
 
@@ -94,7 +95,7 @@ public final class Errors {
 			 * Mostly because a more current client version is required.
 			 */
 			if (activity != null && !activity.getClass().getSimpleName().equals("SplashForm")) {
-				Patchr.dispatch.route(activity, Route.SPLASH, null, null);
+				Patchr.router.route(activity, Route.SPLASH, null, null);
 			}
 		}
 	}

@@ -6,23 +6,26 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
-import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
+import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DataController;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NotificationManager;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataReadyEvent;
+import com.aircandi.events.EntityRequestEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
-import com.aircandi.monitors.EntityMonitor;
+import com.aircandi.objects.ActionType;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Links;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
@@ -32,13 +35,13 @@ import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
-import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BaseEntityForm extends BaseActivity {
 
+	@NonNull
 	protected Integer mLinkProfile;
 	protected Integer mTransitionType;
 	protected Integer mLikeStatus = LikeStatus.NONE;     // Set in draw
@@ -64,14 +67,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 	}
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-		if (mEntityId != null) {
-			mEntityMonitor = new EntityMonitor(mEntityId);
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
@@ -90,7 +85,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		if (Type.isTrue(entity.autowatchable)) {
 			extras.putBoolean(Constants.EXTRA_PRE_APPROVED, true);
 		}
-		Patchr.dispatch.route(this, Route.BROWSE, entity, extras);
+		Patchr.router.route(this, Route.BROWSE, entity, extras);
 	}
 
 	@Override
@@ -102,14 +97,14 @@ public abstract class BaseEntityForm extends BaseActivity {
 			final String jsonPhoto = Json.objectToJson(photo);
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.dispatch.route(this, Route.PHOTO, null, extras);
+			Patchr.router.route(this, Route.PHOTO, null, extras);
 		}
 		else if (mEntity.photo != null) {
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mParentId);
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, (mListLinkType == null) ? Constants.TYPE_LINK_CONTENT : mListLinkType);
 			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, mEntity.schema);
-			Patchr.dispatch.route(this, Route.PHOTOS, mEntity, extras);
+			Patchr.router.route(this, Route.PHOTOS, mEntity, extras);
 		}
 	}
 
@@ -123,14 +118,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 */
 		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
 			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
-				/*
-				 * Guarantees that any cache stamp retrieved for parent entity from the service will not equal
-				 * any cache stamp including itself. Cleared if parent entity is refreshed from the service.
-				 */
-				Patchr.getInstance().getDataController().getCacheStampOverrides().put(mParentId, mParentId);
 				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+					AnimationManager.doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
 				}
 			}
 		}
@@ -154,103 +144,33 @@ public abstract class BaseEntityForm extends BaseActivity {
 		Logger.d(this, "Activity restoring state");
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
+	@Subscribe
+	public void onDataReady(final DataReadyEvent event) {
 
-	public void bind(final BindingMode mode) {
-		/*
-		 * Called from background thread.
-	     *
-	     * If cache entity is fresher than the one currently bound to or there is
-		 * a cache entity available, go ahead and draw before we check against the service.
-		 */
-		mEntity = DataController.getStoreEntity(mEntityId); // Concurrent hash map
-		if (mEntity != null) {
-			if (mEntity instanceof Patch) {
-				Patchr.getInstance().setCurrentPatch(mEntity);
-				Logger.v(this, "Setting current patch to: " + mEntity.id);
-			}
-			if (mFirstDraw) {
-				draw(null);
-			}
-		}
+		if (event.entity != null && event.tag.equals(System.identityHashCode(this)) && event.entity.id.equals(mEntityId)) {
 
-		/* If we have an entity we can starting binding the list while we check entity freshness */
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mUiController.getBusyController().hide(false);
+					mEntity = event.entity;
 
-		mTaskGetEntity = new AsyncTask() {
-
-			final AtomicBoolean refreshNeeded = new AtomicBoolean(false);
-
-			@Override
-			protected void onPreExecute() {}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncGetEntity");
-
-				ModelResult result = new ModelResult();
-
-				if (mEntityMonitor.isChanged()) {
-					refreshNeeded.set(true);
-				}
-
-				if (refreshNeeded.get()) {
-					mUiController.getBusyController().show(BusyAction.Refreshing);
-					Links options = Patchr.getInstance().getDataController().getLinks().build(mLinkProfile);
-					result = Patchr.getInstance().getDataController().getEntity(mEntityId, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				}
-
-				return result;
-			}
-
-			@Override
-			protected void onCancelled(Object modelResult) {
-				/*
-				 * Called after exiting doInBackground() and task.cancel was called.
-				 * If using task.cancel(true) and the task is running then AsyncTask
-				 * will call interrupt on the thread which in turn will be picked up
-				 * by okhttp before it begins the next blocking operation.
-				 */
-				if (modelResult != null) {
-					final ModelResult result = (ModelResult) modelResult;
-					Logger.w(Thread.currentThread().getName(), "Get entity task cancelled: " + result.serviceResponse.responseCode.toString());
-				}
-			}
-
-			@Override
-			protected void onPostExecute(Object modelResult) {
-				if (isFinishing()) return;
-
-				final ModelResult result = (ModelResult) modelResult;
-				mUiController.getBusyController().hide(false);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					if (refreshNeeded.get()) {
-						if (result.data != null) {
-							mEntity = (Entity) result.data;
-
-							if (mParentId != null) {
-								mEntity.toId = mParentId;
-							}
-							if (mEntity instanceof Patch) {
-								Patchr.getInstance().setCurrentPatch(mEntity);
-							}
-
-							/*
-							 * Possible to hit this before options menu has been set. If so then
-							 * configureStandardMenuItems will be called in onCreateOptionsMenu.
-							 */
-							if (mOptionMenu != null) {
-								configureStandardMenuItems(mOptionMenu);
-							}
-							draw(null);
-						}
-						else {
-							mUiController.getBusyController().hide(true);
-							UI.showToastNotification("This item has been deleted", Toast.LENGTH_SHORT);
-							finish();
-						}
+					if (mParentId != null) {
+						mEntity.toId = mParentId;
 					}
+
+					if (mEntity instanceof Patch) {
+						Patchr.getInstance().setCurrentPatch(mEntity);
+					}
+					/*
+					 * Possible to hit this before options menu has been set. If so then
+					 * configureStandardMenuItems will be called in onCreateOptionsMenu.
+					 */
+					if (mOptionMenu != null) {
+						configureStandardMenuItems(mOptionMenu);
+					}
+
+					draw(null);
 
 					/* Ensure this is flagged as read */
 					if (mNotificationId != null) {
@@ -259,22 +179,37 @@ public abstract class BaseEntityForm extends BaseActivity {
 						}
 					}
 				}
-				else {
-					Errors.handleError(BaseEntityForm.this, result.serviceResponse);
-					return;
-				}
+			});
+		}
+	}
 
-				afterDatabind(mode, result);
-				if (mEntityMonitor instanceof EntityMonitor) {
-					/*
-					 * Causes cache stamp checks to look clean so when we
-					 * rebind the entity list, it thinks there is nothing to do because the
-					 * cache stamp looks clean.
-					 */
-					((EntityMonitor) mEntityMonitor).updateCacheStamp(mEntity);
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		Errors.handleError(BaseEntityForm.this, event.errorResponse);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	public void bind(final BindingMode mode) {
+		/*
+		 * Called on main thread.
+		 */
+		EntityRequestEvent request = new EntityRequestEvent()
+				.setLinkProfile(mLinkProfile);
+
+		request.setActionType(ActionType.GET_ENTITY)
+		       .setEntityId(mEntityId)
+		       .setTag(System.identityHashCode(this));
+		/*
+		 * Providing a CacheStamp means we won't get called back unless something fresher is available.
+		 */
+		if (mEntity != null) {
+			request.setCacheStamp(mEntity.getCacheStamp());
+		}
+		Dispatcher.getInstance().post(request);
+		mUiController.getBusyController().show(BusyAction.Refreshing);
 	}
 
 	public void afterDatabind(final BindingMode mode, ModelResult result) {
@@ -310,7 +245,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
 					Shortcut toShortcut = mEntity.getAsShortcut();
 
-					result = Patchr.getInstance().getDataController().insertLink(null
+					result = DataController.getInstance().insertLink(null
 							, Patchr.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_LIKE
@@ -321,7 +256,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 							, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				}
 				else {
-					result = Patchr.getInstance().getDataController().deleteLink(Patchr.getInstance().getCurrentUser().id
+					result = DataController.getInstance().deleteLink(Patchr.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_LIKE
 							, null

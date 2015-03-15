@@ -1,7 +1,6 @@
 package com.aircandi.ui;
 
 import android.annotation.SuppressLint;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
@@ -9,18 +8,18 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ViewSwitcher;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Dispatcher;
-import com.aircandi.components.ModelResult;
-import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.NotificationReceivedEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.events.NotificationsRequestEvent;
 import com.aircandi.interfaces.IEntityController;
+import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Notification;
 import com.aircandi.objects.Route;
@@ -28,15 +27,45 @@ import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.DateTime;
-import com.aircandi.utilities.Errors;
+import com.aircandi.utilities.Maps;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
-import com.aircandi.interfaces.IBusy.BusyAction;
 
-import java.util.List;
 import java.util.Map;
 
 public class NotificationListFragment extends MessageListFragment {
+
+	@Override
+	public void bind(final BindingMode mode) {
+
+		/* Need to be signed in to see notifications */
+		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			mEntities.clear();
+			mAdapter.setNotifyOnChange(false);
+			mAdapter.clear();
+		}
+		else if (mEntities.size() == 0 || mode == BindingMode.MANUAL) {
+			super.bind(mode);
+		}
+	}
+
+	public void fetch(Integer skip, Integer limit, Boolean force) {
+
+		Integer skipCount = ((int) Math.ceil((double) skip / mPageSize) * mPageSize);
+		Cursor cursor = new Cursor()
+				.setLimit(limit)
+				.setSort(Maps.asMap("modifiedDate", -1))
+				.setSkip(skipCount);
+
+		NotificationsRequestEvent request = new NotificationsRequestEvent()
+				.setCursor(cursor);
+
+		request.setActionType(mActionType)
+		       .setEntityId(mMonitorEntityId)
+		       .setTag(System.identityHashCode(this));
+
+		Dispatcher.getInstance().post(request);
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
@@ -76,6 +105,16 @@ public class NotificationListFragment extends MessageListFragment {
 		});
 	}
 
+	@Subscribe
+	public void onDataReady(final DataReadyEvent event) {
+		super.onDataReady(event);
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
+
 	@Override
 	public void onClick(View v) {
 		final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
@@ -88,7 +127,7 @@ public class NotificationListFragment extends MessageListFragment {
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, notification.parentId);
 
 			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-			Patchr.dispatch.route(getActivity(), Route.BROWSE, null, extras);
+			Patchr.router.route(getActivity(), Route.BROWSE, null, extras);
 
 			if (NotificationManager.getInstance().getNotifications().containsKey(entity.id)) {
 				NotificationManager.getInstance().getNotifications().get(entity.id).read = true;
@@ -100,125 +139,6 @@ public class NotificationListFragment extends MessageListFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void bind(final BindingMode mode) {
-		/*
-		 * Overriding bind because notifications have too many special cases.
-		 */
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				if (mode != BindingMode.MANUAL) {
-					mListController.getMessageController().showMessage(false);
-				}
-				mListController.getBusyController().show((mode == BindingMode.MANUAL || mNotEmpty) ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncBindEntityList");
-				ModelResult result = new ModelResult();
-				if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-					return result;
-				}
-				if (mode == BindingMode.FIRST && mQuery.hasExecuted()) {
-					return result;
-				}
-				else if (mode == BindingMode.MANUAL
-						|| (mEntities != null && mEntities.size() == 0)
-						|| (mMonitor.isChanged() && mMonitor.activity)) {
-
-					Integer limit = null;
-
-					if (mode == BindingMode.MANUAL && mEntities != null && mEntities.size() > 0) {
-						Integer pageSize = mQuery.getPageSize();
-						limit = (int) Math.ceil((float) mEntities.size() / pageSize) * pageSize;
-					}
-					result = mQuery.execute(0, limit);
-				}
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				ModelResult result = (ModelResult) response;
-
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
-					if (result.data != null || Patchr.getInstance().getCurrentUser().isAnonymous()) {
-
-						mEntities.clear();
-						mAdapter.setNotifyOnChange(false);
-						mAdapter.clear();
-
-						/* Nearby notifications are local only so inject them */
-						for (Map.Entry<String, Notification> entry : NotificationManager.getInstance().getNotifications().entrySet()) {
-							if (entry.getValue().getTriggerCategory().equals(Notification.TriggerCategory.NEARBY)) {
-								mAdapter.add(entry.getValue());
-							}
-						}
-
-						if (result.data != null) {
-							for (Entity entity : (List<Entity>) result.data) {
-								mAdapter.add(entity);
-							}
-						}
-
-						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
-						draw(null);
-					}
-
-					mNotEmpty = (mAdapter != null && mAdapter.getCount() != 0);
-					mFirstBind = false;
-					Dispatcher.getInstance().post(new ProcessingCompleteEvent(result.serviceResponse.responseCode));
-				}
-				else {
-					Dispatcher.getInstance().post(new ProcessingCompleteEvent(result.serviceResponse.responseCode));
-					Errors.handleError(getActivity(), result.serviceResponse);
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	public void lazyLoad() {
-
-		final ViewSwitcher switcher = (ViewSwitcher) mLoadingView.findViewById(R.id.animator_more);
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				switcher.setDisplayedChild(1);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncLazyLoadList");
-				ModelResult result = mQuery.execute(mEntities.size(), null);
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				ModelResult result = (ModelResult) response;
-
-				if (result.serviceResponse.responseCode != NetworkManager.ResponseCode.SUCCESS) {
-					Errors.handleError(getActivity(), result.serviceResponse);
-				}
-				else {
-					if (result.data != null) {
-						for (Entity entity : (List<Entity>) result.data) {
-							mAdapter.add(entity);
-						}
-						mAdapter.sort(mReverseSort ? new Entity.SortByPositionSortDateAscending() : new Entity.SortByPositionSortDate());
-						draw(null);
-					}
-				}
-				switcher.setDisplayedChild(0);
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
 
 	protected void bindListItem(Entity entity, View view, String groupTag) {
 
@@ -290,6 +210,15 @@ public class NotificationListFragment extends MessageListFragment {
 			if (drawableResId != null) {
 				holder.photoType.setImageResource(drawableResId);
 				UI.setVisibility(holder.photoType, View.VISIBLE);
+			}
+		}
+	}
+
+	protected void injectEntities(ListAdapter adapter) {
+		/* Nearby notifications are local only so inject them */
+		for (Map.Entry<String, Notification> entry : NotificationManager.getInstance().getNotifications().entrySet()) {
+			if (entry.getValue().getTriggerCategory().equals(Notification.TriggerCategory.NEARBY)) {
+				mAdapter.add(entry.getValue());
 			}
 		}
 	}

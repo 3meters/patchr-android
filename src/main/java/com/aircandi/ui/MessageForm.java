@@ -23,29 +23,30 @@ import android.widget.ViewAnimator;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
-import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Message;
 import com.aircandi.objects.Message.MessageType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.EntityListFragment.Highlight;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseEntityForm;
@@ -101,31 +102,23 @@ public class MessageForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mLinkProfile = LinkProfile.LINKS_FOR_MESSAGE;
+		mLinkProfile = LinkSpecType.LINKS_FOR_MESSAGE;
 
 		mCurrentFragment = new MessageListFragment();
 
-		EntityMonitor monitor = new EntityMonitor(mEntityId);
-		EntitiesQuery query = new EntitiesQuery();
-
-		query.setEntityId(mEntityId)
-		     .setLinkDirection(Direction.in.name())
-		     .setLinkType(Constants.TYPE_LINK_CONTENT)
-		     .setPageSize(Integers.getInteger(R.integer.page_size_replies))
-		     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
-
 		((EntityListFragment) mCurrentFragment)
-				.setMonitor(monitor)
-				.setQuery(query)
-				.setHeaderViewResId(R.layout.widget_list_header_message)
+				.setMonitorEntityId(mEntityId)
+				.setLinkSchema(Constants.SCHEMA_ENTITY_MESSAGE).setHeaderViewResId(R.layout.widget_list_header_message)
+				.setLinkType(Constants.TYPE_LINK_CONTENT)
+				.setLinkDirection(Direction.in.name())
+				.setPageSize(Integers.getInteger(R.integer.page_size_replies))
 				.setFooterViewResId(R.layout.widget_list_footer_message)
 				.setListItemResId(R.layout.temp_listitem_message)
 				.setListLayoutResId(R.layout.entity_list_fragment)
 				.setListLoadingResId(R.layout.temp_listitem_loading)
 				.setListViewType(ViewType.LIST)
 				.setBackgroundResId(R.drawable.selector_item)
-				.setReverseSort(true)
-				.setSelfBindingEnabled(false);
+				.setReverseSort(true);
 
 		if (mChildId != null) {
 			mHighlight = new Highlight(true);
@@ -141,6 +134,16 @@ public class MessageForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onDataReady(DataReadyEvent event) {
+		super.onDataReady(event);
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
 
 	@Subscribe
 	@SuppressWarnings("ucd")
@@ -213,25 +216,25 @@ public class MessageForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onPatchClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Patchr.dispatch.route(MessageForm.this, Route.BROWSE, entity.patch, null);
+		Patchr.router.route(MessageForm.this, Route.BROWSE, entity.patch, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onEditClick(View view) {
 		Bundle extras = new Bundle();
-		Patchr.dispatch.route(this, Route.EDIT, mEntity, extras);
+		Patchr.router.route(this, Route.EDIT, mEntity, extras);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onDeleteClick(View view) {
-		Patchr.dispatch.route(this, Route.DELETE, mEntity, null);
+		Patchr.router.route(this, Route.DELETE, mEntity, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onRemoveClick(View view) {
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, (String) view.getTag());
-		Patchr.dispatch.route(this, Route.REMOVE, mEntity, extras);
+		Patchr.router.route(this, Route.REMOVE, mEntity, extras);
 	}
 
 	@SuppressWarnings("ucd")
@@ -259,7 +262,7 @@ public class MessageForm extends BaseEntityForm {
 			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_liker);
 			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 			extras.putInt(Constants.EXTRA_LIST_EMPTY_RESID, R.string.label_likes_empty);
-			Patchr.dispatch.route(this, Route.USER_LIST, mEntity, extras);
+			Patchr.router.route(this, Route.USER_LIST, mEntity, extras);
 		}
 	}
 
@@ -290,7 +293,7 @@ public class MessageForm extends BaseEntityForm {
 					/* If reply to reply then finish */
 						if (mEntity.type != null && mEntity.type.equals(MessageType.REPLY)) {
 							finish();
-							Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+							AnimationManager.doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
 						}
 						else {
 							mHighlight = new Highlight(true);
@@ -466,7 +469,7 @@ public class MessageForm extends BaseEntityForm {
 						@Override
 						public void onClick(View view) {
 							Entity entity = (Entity) view.getTag();
-							Patchr.dispatch.route(MessageForm.this, Route.BROWSE, entity, null);
+							Patchr.router.route(MessageForm.this, Route.BROWSE, entity, null);
 						}
 					});
 				}
@@ -683,12 +686,7 @@ public class MessageForm extends BaseEntityForm {
 	public void afterDatabind(final BindingMode mode, ModelResult result) {
 		super.afterDatabind(mode, result);
 		if (result != null && result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			if (mEntityMonitor.changed) {
-				((EntityListFragment) mCurrentFragment).bind(BindingMode.MANUAL);
-			}
-			else {
-				((EntityListFragment) mCurrentFragment).bind(mode);
-			}
+			((EntityListFragment) mCurrentFragment).bind(mode);
 		}
 	}
 
@@ -766,7 +764,7 @@ public class MessageForm extends BaseEntityForm {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
 				String seedParentId = mEntity.type.equals(MessageType.ROOT) ? mEntity.patchId : null;
-				final ModelResult result = ((DataController) Patchr.getInstance().getDataController()).deleteMessage(mEntity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				final ModelResult result = ((DataController) DataController.getInstance()).deleteMessage(mEntity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -783,7 +781,7 @@ public class MessageForm extends BaseEntityForm {
 					UI.showToastNotification(StringManager.getString(mDeletedResId), Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_ENTITY_DELETED);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(MessageForm.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
+					AnimationManager.doOverridePendingTransition(MessageForm.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
 				}
 				else {
 					Errors.handleError(MessageForm.this, result.serviceResponse);

@@ -27,19 +27,23 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
+import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
+import com.aircandi.components.MenuManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.events.ProcessingCompleteEvent;
-import com.aircandi.monitors.EntityMonitor;
+import com.aircandi.objects.ActionType;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Message;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
@@ -47,7 +51,6 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
-import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.components.CircleTransform;
@@ -116,12 +119,30 @@ public class PatchForm extends BaseEntityForm {
 
 		/* Default fragment */
 		mNextFragmentTag = Constants.FRAGMENT_TYPE_MESSAGES;
-		mLinkProfile = LinkProfile.LINKS_FOR_PATCH;
+		mLinkProfile = LinkSpecType.LINKS_FOR_PATCH;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onDataReady(DataReadyEvent event) {
+		super.onDataReady(event);
+
+		/* Not watching a restricted patch and pre-approved */
+		if (mWatchStatus == WatchStatus.NONE
+				&& mRestrictedForUser
+				&& Type.isTrue(mPreApprovedPush)
+				&& mEntity != null) {
+			confirmJoin();
+		}
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
 
 	@Subscribe
 	public void onProcessingFinished(final ProcessingCompleteEvent event) {
@@ -150,26 +171,6 @@ public class PatchForm extends BaseEntityForm {
 		});
 	}
 
-	@Override
-	public void onAdd(Bundle extras) {
-
-		if (Patchr.getInstance().getMenuManager().canUserAdd(mEntity)) {
-			String message = StringManager.getString(R.string.label_message_new_message);
-			if (!TextUtils.isEmpty(mEntity.name)) {
-				message = String.format(StringManager.getString(R.string.label_message_new_to_message), mEntity.name);
-			}
-			extras.putString(Constants.EXTRA_MESSAGE, message);
-			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntityId);
-			extras.putString(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
-			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-			Patchr.dispatch.route(this, Route.NEW, null, extras);
-			return;
-		}
-		if (Type.isTrue(((Patch) mEntity).locked)) {
-			Dialogs.locked(this, mEntity);
-		}
-	}
-
 	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onNotificationReceived(final NotificationReceivedEvent event) {
@@ -192,10 +193,30 @@ public class PatchForm extends BaseEntityForm {
 		}
 	}
 
+	@Override
+	public void onAdd(Bundle extras) {
+
+		if (MenuManager.canUserAdd(mEntity)) {
+			String message = StringManager.getString(R.string.label_message_new_message);
+			if (!TextUtils.isEmpty(mEntity.name)) {
+				message = String.format(StringManager.getString(R.string.label_message_new_to_message), mEntity.name);
+			}
+			extras.putString(Constants.EXTRA_MESSAGE, message);
+			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntityId);
+			extras.putString(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
+			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+			Patchr.router.route(this, Route.NEW, null, extras);
+			return;
+		}
+		if (Type.isTrue(((Patch) mEntity).locked)) {
+			Dialogs.locked(this, mEntity);
+		}
+	}
+
 	@SuppressWarnings("ucd")
 	public void onPlaceClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Patchr.dispatch.route(PatchForm.this, Route.BROWSE, entity, null);
+		Patchr.router.route(PatchForm.this, Route.BROWSE, entity, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -246,7 +267,7 @@ public class PatchForm extends BaseEntityForm {
 			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_watcher);
 			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 			extras.putInt(Constants.EXTRA_LIST_EMPTY_RESID, R.string.label_watchers_empty);
-			Patchr.dispatch.route(this, Route.USER_LIST, mEntity, extras);
+			Patchr.router.route(this, Route.USER_LIST, mEntity, extras);
 		}
 	}
 
@@ -275,7 +296,7 @@ public class PatchForm extends BaseEntityForm {
 			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_liker);
 			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 			extras.putInt(Constants.EXTRA_LIST_EMPTY_RESID, R.string.label_likes_empty);
-			Patchr.dispatch.route(this, Route.USER_LIST, mEntity, extras);
+			Patchr.router.route(this, Route.USER_LIST, mEntity, extras);
 		}
 	}
 
@@ -311,14 +332,14 @@ public class PatchForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onShareButtonClick(View view) {
 		if (mEntity != null) {
-			Patchr.dispatch.route(this, Route.SHARE, mEntity, null);
+			Patchr.router.route(this, Route.SHARE, mEntity, null);
 		}
 	}
 
 	@SuppressWarnings("ucd")
 	public void onEditButtonClick(View view) {
 		if (mEntity != null) {
-			Patchr.dispatch.route(this, Route.EDIT, mEntity, new Bundle());
+			Patchr.router.route(this, Route.EDIT, mEntity, new Bundle());
 		}
 	}
 
@@ -757,26 +778,20 @@ public class PatchForm extends BaseEntityForm {
 
 			mCurrentFragment = new MessageListFragment();
 
-			EntityMonitor monitor = new EntityMonitor(mEntityId);
-			EntitiesQuery query = new EntitiesQuery();
-
-			query.setEntityId(mEntityId)
-			     .setLinkDirection(Direction.in.name())
-			     .setLinkType(Constants.TYPE_LINK_CONTENT)
-			     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
-			     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
-
 			((EntityListFragment) mCurrentFragment)
-					.setMonitor(monitor)
-					.setQuery(query)
+					.setMonitorEntityId(mEntityId)
+					.setActionType(ActionType.GET_ENTITIES)
+					.setLinkSchema(Constants.SCHEMA_ENTITY_MESSAGE)
+					.setLinkType(Constants.TYPE_LINK_CONTENT)
+					.setLinkDirection(Direction.in.name())
+					.setPageSize(Integers.getInteger(R.integer.page_size_messages))
 					.setHeaderViewResId(R.layout.widget_list_header_patch)
 					.setFooterViewResId(R.layout.widget_list_footer_message)
 					.setListItemResId(R.layout.temp_listitem_message)
 					.setListLayoutResId(R.layout.message_list_patch_fragment)
 					.setListLoadingResId(R.layout.temp_listitem_loading)
 					.setListViewType(EntityListFragment.ViewType.LIST)
-					.setBubbleButtonMessageResId(R.string.button_list_share)
-					.setSelfBindingEnabled(false);
+					.setBubbleButtonMessageResId(R.string.button_list_share);
 
 			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_refresh);
 			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_edit_patch);
@@ -829,7 +844,7 @@ public class PatchForm extends BaseEntityForm {
 					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
 					Shortcut toShortcut = mEntity.getAsShortcut();
 
-					result = Patchr.getInstance().getDataController().insertLink(null
+					result = DataController.getInstance().insertLink(null
 							, Patchr.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_WATCH
@@ -840,7 +855,7 @@ public class PatchForm extends BaseEntityForm {
 							, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				}
 				else {
-					result = Patchr.getInstance().getDataController().deleteLink(Patchr.getInstance().getCurrentUser().id
+					result = DataController.getInstance().deleteLink(Patchr.getInstance().getCurrentUser().id
 							, mEntity.id
 							, Constants.TYPE_LINK_WATCH
 							, enabled
@@ -905,7 +920,7 @@ public class PatchForm extends BaseEntityForm {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncShareCheck");
-				ModelResult result = Patchr.getInstance().getDataController().checkShare(mEntity.id, Patchr.getInstance().getCurrentUser().id, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().checkShare(mEntity.id, Patchr.getInstance().getCurrentUser().id, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -993,15 +1008,9 @@ public class PatchForm extends BaseEntityForm {
 			 */
 			if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
 				EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-				((EntityMonitor) fragment.getMonitor()).setEntityId(mEntityId);
-				((EntitiesQuery) fragment.getQuery()).setEntityId(mEntityId);
+				fragment.setMonitorEntityId(mEntityId);
 				Logger.d(this, "Calling bind from afterDatabind");
-				if (mEntityMonitor.changed) {
-					fragment.bind(BindingMode.MANUAL);
-				}
-				else {
-					fragment.bind(mode);
-				}
+				fragment.bind(mode);
 			}
 		}
 	}

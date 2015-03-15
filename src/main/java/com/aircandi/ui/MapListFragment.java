@@ -212,7 +212,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 
 	@Override
 	public void onClusterItemInfoWindowClick(EntityItem entityItem) {
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entityItem.mEntity, null);
+		Patchr.router.route(getActivity(), Route.BROWSE, entityItem.mEntity, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------

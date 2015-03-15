@@ -13,6 +13,8 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
@@ -158,7 +160,7 @@ public class ResetEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncRequestPasswordReset");
 
 				String email = mEmail.getText().toString().trim().toLowerCase(Locale.US);
-				ModelResult result = Patchr.getInstance().getDataController().requestPasswordReset(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().requestPasswordReset(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -224,7 +226,7 @@ public class ResetEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncResetPassword");
 
 				String password = mPassword.getText().toString();
-				ModelResult result = Patchr.getInstance().getDataController().resetPassword(password, mUser, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().resetPassword(password, mUser, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -239,7 +241,7 @@ public class ResetEdit extends BaseEdit {
 
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_BACK);
+					AnimationManager.doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Errors.handleError(ResetEdit.this, result.serviceResponse);

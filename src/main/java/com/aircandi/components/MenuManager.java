@@ -19,7 +19,8 @@ import com.aircandi.utilities.Type;
 
 public class MenuManager {
 
-	public boolean onCreateOptionsMenu(Activity activity, Menu menu) {
+	@NonNull
+	public static Boolean onCreateOptionsMenu(Activity activity, Menu menu) {
 
 		/* Browsing */
 
@@ -154,7 +155,7 @@ public class MenuManager {
 	}
 
 	@NonNull
-	public Boolean canUserEdit(Entity entity) {
+	public static Boolean canUserEdit(Entity entity) {
 		return entity != null
 				&& (entity.isOwnedByCurrentUser()
 				|| entity.isOwnedBySystem()
@@ -163,7 +164,7 @@ public class MenuManager {
 	}
 
 	@NonNull
-	public Boolean canUserDelete(Entity entity) {
+	public static Boolean canUserDelete(Entity entity) {
 		return entity != null
 				&& (entity.isOwnedByCurrentUser()
 				|| (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
@@ -171,7 +172,7 @@ public class MenuManager {
 	}
 
 	@NonNull
-	public Boolean canUserRemoveFromPatch(Entity entity) {
+	public static Boolean canUserRemoveFromPatch(Entity entity) {
 		if (entity == null) return false;
 		if (entity.type.equals(Constants.TYPE_LINK_SHARE)) return false;
 
@@ -182,7 +183,7 @@ public class MenuManager {
 	}
 
 	@NonNull
-	public Boolean canUserAdd(Entity entity) {
+	public static Boolean canUserAdd(Entity entity) {
 		if (entity == null) return true;
 
 		/* Current user is owner */
@@ -197,7 +198,7 @@ public class MenuManager {
 	}
 
 	@NonNull
-	public Boolean canUserShare(Entity entity) {
+	public static Boolean canUserShare(Entity entity) {
 		/*
 		 * Must be owner or member to share a private patch. Anyone
 		 * can share a public patch. For messages, we assume that if
@@ -214,7 +215,7 @@ public class MenuManager {
 	}
 
 	@NonNull
-	public Boolean showAction(Integer route, Entity entity, String forId) {
+	public static Boolean showAction(Integer route, Entity entity, String forId) {
 
 		if (entity == null)
 			return false;

@@ -13,14 +13,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.aircandi.Constants;
-import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.ServiceConstants;
+import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DataController;
 import com.aircandi.components.IntentBuilder;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Notification;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
@@ -100,7 +100,7 @@ public abstract class EntityControllerBase implements IEntityController {
 				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
 			}
 			context.startActivity(intent);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, transitionType);
+			AnimationManager.doOverridePendingTransition((Activity) context, transitionType);
 		}
 
 		return intent;
@@ -129,7 +129,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			((Activity) context).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ENTITY_EDIT);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
+			AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
 		}
 
 		return intent;
@@ -146,7 +146,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			((Activity) context).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ENTITY_INSERT);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
+			AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
 		}
 
 		return intent;
@@ -381,7 +381,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 	@Override
 	public Integer getLinkProfile() {
-		return LinkProfile.NO_LINKS;
+		return LinkSpecType.NO_LINKS;
 	}
 
 	@Override
