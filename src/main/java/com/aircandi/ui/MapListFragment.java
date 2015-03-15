@@ -1,8 +1,10 @@
 package com.aircandi.ui;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -104,8 +106,8 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 				mClusterManager.setOnClusterItemInfoWindowClickListener(MapListFragment.this);
 
 				mMap.setOnMyLocationButtonClickListener(MapListFragment.this);
-				mMap.setMyLocationEnabled(true);
 				mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+				mMap.setMyLocationEnabled(true);  // Causes connect() log error by gms client
 				mMap.setLocationSource(null);
 
 				UiSettings uiSettings = mMap.getUiSettings();
@@ -152,12 +154,18 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	public void onViewCreated(final View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
+		Logger.v(this, "View created, added layout listener");
 		if (view != null && view.getViewTreeObserver().isAlive()) {
 			view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
+				@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 				public void onGlobalLayout() {
-					//noinspection deprecation
-					view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+					if (Constants.SUPPORTS_JELLY_BEAN) {
+						view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+					}
+					else {
+						view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+					}
 					onViewLayout();
 				}
 			});
@@ -174,6 +182,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		 * views have been measured and sized.
 		 */
 		Logger.d(this, "Fragment view layout completed");
+		draw();
 	}
 
 	@Override
@@ -238,59 +247,49 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		}
 
 		final View mapView = getView();
-
-		if (mapView != null && mapView.getViewTreeObserver().isAlive()) {
-			mapView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-
-				public void onGlobalLayout() {
-					//noinspection deprecation
-					mapView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-					/*
-					 * We could get this call before mMap has been set.
-					 */
-					if (mEntities == null || mEntities.size() == 0 || mMap == null) return;
-					/*
-					 * One only one entity then center on it.
-					 */
-					if (mEntities.size() == 1 && mZoomLevel != null) {
-						Patch patch = (Patch) mEntities.get(0);
-						AirLocation location = patch.getLocation();
-						if (location != null && location.lat != null && location.lng != null) {
-							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), mZoomLevel));
-						}
-					}
-					/*
-					 * Multiple entities, center on grouping.
-					 */
-					else {
-						if (mZoomLevel != null) {
-							Location location = LocationManager.getInstance().getLocationLocked();
-							if (location != null) {
-								LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mZoomLevel));
-							}
-							else {
-								/*
-								 * We have no idea where the user is. We don't use bounds because
-								 * that could center the user out in the ocean or something else
-								 * stupid.
-								 */
-								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MapManager.LATLNG_USA, MapManager.ZOOM_SCALE_USA));
-							}
-						}
-						else {
-							LatLngBounds bounds = getBounds(mEntities);
-							if (bounds != null) {
-								int padding = (int) (Math.min(mapView.getWidth(), mapView.getHeight()) * 0.2);
-								CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-								mMap.moveCamera(cameraUpdate);
-							}
-						}
-					}
-					onProcessingFinished();
-				}
-			});
+		/*
+		 * We could get this call before mMap has been set.
+		 */
+		if (mEntities == null || mEntities.size() == 0 || mMap == null) return;
+		/*
+		 * One only one entity then center on it.
+		 */
+		if (mEntities.size() == 1 && mZoomLevel != null) {
+			Patch patch = (Patch) mEntities.get(0);
+			AirLocation location = patch.getLocation();
+			if (location != null && location.lat != null && location.lng != null) {
+				mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), mZoomLevel));
+			}
 		}
+		/*
+		 * Multiple entities, center on grouping.
+		 */
+		else {
+			if (mZoomLevel != null) {
+				Location location = LocationManager.getInstance().getLocationLocked();
+				if (location != null) {
+					LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mZoomLevel));
+				}
+				else {
+					/*
+					 * We have no idea where the user is. We don't use bounds because
+					 * that could center the user out in the ocean or something else
+					 * stupid.
+					 */
+					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MapManager.LATLNG_USA, MapManager.ZOOM_SCALE_USA));
+				}
+			}
+			else {
+				LatLngBounds bounds = getBounds(mEntities);
+				if (bounds != null) {
+					int padding = (int) (Math.min(mapView.getWidth(), mapView.getHeight()) * 0.2);
+					CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+					mMap.moveCamera(cameraUpdate);
+				}
+			}
+		}
+		onProcessingFinished();
 	}
 
 	public LatLngBounds getBounds(List<Entity> entities) {
