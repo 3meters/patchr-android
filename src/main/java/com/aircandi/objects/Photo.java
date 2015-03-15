@@ -8,7 +8,6 @@ import android.util.TypedValue;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.ImageResult.Thumbnail;
 import com.aircandi.service.Expose;
@@ -136,10 +135,10 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 			return ("resource:" + this.prefix);
 		}
 		else if (this.source.equals(PhotoSource.assets_categories)) {
-			return (ServiceConstants.URL_PROXIBASE_SERVICE_ASSETS_CATEGORIES + this.prefix);
+			return (Constants.URL_PROXIBASE_SERVICE_ASSETS_CATEGORIES + this.prefix);
 		}
 		else if (this.source.equals(PhotoSource.assets_applinks)) {
-			return (ServiceConstants.URL_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS + this.prefix);
+			return (Constants.URL_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS + this.prefix);
 		}
 		else if (this.source.equals(PhotoSource.bing)) {
 			return this.prefix;

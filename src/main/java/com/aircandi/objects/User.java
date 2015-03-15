@@ -2,7 +2,7 @@ package com.aircandi.objects;
 
 import android.support.annotation.NonNull;
 
-import com.aircandi.ServiceConstants;
+import com.aircandi.Constants;
 import com.aircandi.service.Expose;
 
 import java.util.ArrayList;
@@ -88,12 +88,12 @@ public class User extends Entity {
 
 	@NonNull
 	public Boolean isAnonymous() {
-		return (id == null || id.equals(ServiceConstants.ANONYMOUS_USER_ID));
+		return (id == null || id.equals(Constants.ANONYMOUS_USER_ID));
 	}
 
 	@NonNull
 	public Boolean isAdmin() {
-		return (id != null && id.equals(ServiceConstants.ADMIN_USER_ID));
+		return (id != null && id.equals(Constants.ADMIN_USER_ID));
 	}
 
 	/*--------------------------------------------------------------------------------------------

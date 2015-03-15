@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
-import com.aircandi.ServiceConstants;
 import com.aircandi.exceptions.ClientVersionException;
 import com.aircandi.exceptions.NoNetworkException;
 import com.aircandi.objects.ServiceData;
@@ -123,7 +122,7 @@ public class NetworkManager {
 		 * Setting system properties. Okhttp picks these up for its connection pooling unless
 		 * we have passed in a custom connection pool object.
 		 */
-		System.setProperty("http.maxConnections", String.valueOf(ServiceConstants.DEFAULT_MAX_CONNECTIONS));
+		System.setProperty("http.maxConnections", String.valueOf(Constants.DEFAULT_MAX_CONNECTIONS));
 		System.setProperty("http.keepAlive", "true");
 
 		IntentFilter intentFilter = new IntentFilter();
@@ -230,12 +229,12 @@ public class NetworkManager {
 			attempts++;
 			Logger.v(this, "No network connection: attempt: " + String.valueOf(attempts));
 
-			if (attempts >= ServiceConstants.CONNECT_TRIES) {
+			if (attempts >= Constants.CONNECT_TRIES) {
 				connectedState = ConnectedState.NONE;
 				break;
 			}
 			try {
-				Thread.sleep(ServiceConstants.CONNECT_WAIT);
+				Thread.sleep(Constants.CONNECT_WAIT);
 			}
 			catch (InterruptedException exception) {
 				connectedState = ConnectedState.NONE;
@@ -305,7 +304,7 @@ public class NetworkManager {
 	public boolean isWalledGardenConnection() {
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URI_WALLED_GARDEN)
+				.setUri(Constants.URI_WALLED_GARDEN)
 				.setRequestType(RequestType.GET)
 				.setResponseFormat(ResponseFormat.NONE)
 				.setErrorCheck(false);

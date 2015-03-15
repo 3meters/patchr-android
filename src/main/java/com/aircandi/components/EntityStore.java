@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
@@ -72,7 +71,7 @@ public class EntityStore {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getEntities")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getEntities")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -143,7 +142,7 @@ public class EntityStore {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesForEntity")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesForEntity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -198,7 +197,7 @@ public class EntityStore {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesByProximity")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesByProximity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -256,7 +255,7 @@ public class EntityStore {
 
 		parameters.putString("location", "object:" + Json.objectToJson(location));
 		parameters.putInt("limit", Patchr.applicationContext.getResources().getInteger(R.integer.limit_places_radar));
-		parameters.putInt("radius", ServiceConstants.PATCH_NEAR_RADIUS);
+		parameters.putInt("radius", Constants.PATCH_NEAR_RADIUS);
 
 		if (linkOptions != null) {
 			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
@@ -271,7 +270,7 @@ public class EntityStore {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PATCHES + "near")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_PATCHES + "near")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)

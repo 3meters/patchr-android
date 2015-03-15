@@ -11,7 +11,6 @@ import android.widget.ViewAnimator;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DataController;
 import com.aircandi.components.Dispatcher;
@@ -277,7 +276,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 				}
 				else {
 					if (result.serviceResponse.statusCodeService != null
-							&& result.serviceResponse.statusCodeService != ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
+							&& result.serviceResponse.statusCodeService != Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
 						Errors.handleError(BaseEntityForm.this, result.serviceResponse);
 					}
 				}

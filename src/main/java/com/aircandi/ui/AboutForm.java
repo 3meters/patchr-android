@@ -5,9 +5,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Route;
@@ -57,7 +57,7 @@ public class AboutForm extends BaseActivity {
 				&& Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
 				&& Patchr.getInstance().getCurrentUser().developer != null
 				&& Patchr.getInstance().getCurrentUser().developer) {
-			String serviceUrl = ServiceConstants.serviceUrl();
+			String serviceUrl = Constants.serviceUrl();
 			((TextView) findViewById(R.id.service_url)).setText(serviceUrl);
 			((TextView) findViewById(R.id.install_id)).setText(Patchr.getInstance().getinstallId());
 			((TextView) findViewById(R.id.install_type)).setText("Id type: " + Patchr.getInstance().getInstallType());

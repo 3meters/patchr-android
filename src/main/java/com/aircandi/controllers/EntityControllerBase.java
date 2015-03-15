@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DataController;
 import com.aircandi.components.IntentBuilder;
@@ -266,8 +265,8 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		UI.setVisibility(holder.creator, View.GONE);
 		if (holder.creator != null && entity.creator != null) {
-			if (!entity.ownerId.equals(ServiceConstants.ADMIN_USER_ID)
-					&& !entity.ownerId.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
+			if (!entity.ownerId.equals(Constants.ADMIN_USER_ID)
+					&& !entity.ownerId.equals(Constants.ANONYMOUS_USER_ID)) {
 				holder.creator.databind(entity.creator, entity.modifiedDate.longValue());
 				UI.setVisibility(holder.creator, View.VISIBLE);
 			}

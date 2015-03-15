@@ -26,7 +26,6 @@ import android.widget.ViewAnimator;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MenuManager;
@@ -529,7 +528,7 @@ public class PatchForm extends BaseEntityForm {
 				if (mEntity.isOwnedBySystem()) {
 					User admin = new User();
 					admin.name = StringManager.getString(R.string.name_app);
-					admin.id = ServiceConstants.ANONYMOUS_USER_ID;
+					admin.id = Constants.ANONYMOUS_USER_ID;
 					userView.setLabel(R.string.label_owned_by);
 					userView.databind(admin);
 				}
@@ -881,7 +880,7 @@ public class PatchForm extends BaseEntityForm {
 				}
 				else {
 					if (result.serviceResponse.statusCodeService != null
-							&& result.serviceResponse.statusCodeService != ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
+							&& result.serviceResponse.statusCodeService != Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
 						Errors.handleError(PatchForm.this, result.serviceResponse);
 					}
 				}

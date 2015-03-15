@@ -9,7 +9,6 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.exceptions.ClientVersionException;
@@ -135,19 +134,19 @@ public final class Errors {
 					String description = "Bad service request: "
 							+ ((serviceResponse.statusCodeService != null) ? serviceResponse.statusCodeService : "missing service status code");
 					if (serviceResponse.statusCodeService != null) {
-						if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_MISSING_PARAM) {
+						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_MISSING_PARAM) {
 							description += ": Missing parameter";
 						}
-						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_BAD_PARAM) {
+						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_BAD_PARAM) {
 							description += ": Bad parameter";
 						}
-						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_BAD_TYPE) {
+						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_BAD_TYPE) {
 							description += ": Bad type";
 						}
-						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_BAD_VALUE) {
+						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_BAD_VALUE) {
 							description += ": Bad value";
 						}
-						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_BAD_JSON) {
+						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_BAD_JSON) {
 							description += ": Bad json";
 						}
 					}
@@ -170,7 +169,7 @@ public final class Errors {
 					 */
 					if (serviceResponse.statusCodeService != null) {
 
-						if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_UNAUTHORIZED_SESSION_EXPIRED) {
+						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_SESSION_EXPIRED) {
 							ErrorResponse errorResponse = new ErrorResponse(ResponseType.DIALOG
 									, StringManager.getString(R.string.error_session_expired)
 									, StringManager.getString(R.string.error_session_expired_title));
@@ -178,7 +177,7 @@ public final class Errors {
 							return errorResponse;
 						}
 
-						if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
+						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
 							if (serviceResponse.activityName != null) {
 								if (serviceResponse.activityName.equals("PasswordEdit"))
 									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_change_password_unauthorized));
@@ -190,7 +189,7 @@ public final class Errors {
 							return errorResponse;
 						}
 
-						if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND) {
+						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND) {
 							if (serviceResponse.activityName != null) {
 								if (serviceResponse.activityName.equals("SignInEdit"))
 									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signin_failed));
@@ -214,9 +213,9 @@ public final class Errors {
 					 * - 403.21: Password not strong enough
 					 */
 					if (serviceResponse.statusCodeService != null) {
-						if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_USER_PASSWORD_WEAK)
+						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_FORBIDDEN_USER_PASSWORD_WEAK)
 							return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_password_weak));
-						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE)
+						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE)
 							return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_email_taken));
 					}
 				}

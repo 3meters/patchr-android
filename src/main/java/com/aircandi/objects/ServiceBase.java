@@ -2,7 +2,7 @@ package com.aircandi.objects;
 
 import android.support.annotation.NonNull;
 
-import com.aircandi.ServiceConstants;
+import com.aircandi.Constants;
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
 import com.aircandi.utilities.Reporting;
@@ -101,7 +101,7 @@ public abstract class ServiceBase extends ServiceObject {
 
 	@NonNull
 	public String getEntryUri() {
-		final String root = ServiceConstants.URL_PROXIBASE_SERVICE_REST;
+		final String root = Constants.URL_PROXIBASE_SERVICE_REST;
 		final String entity = getCollection();
 		final String uri = root + entity + "/" + id;
 		return uri;

@@ -16,7 +16,6 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DataController;
 import com.aircandi.components.DownloadManager;
@@ -552,7 +551,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 				/* We only send beacons if a patch is being inserted */
 				if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH) && !mProximityDisabled) {
-					beacons = ProximityController.getInstance().getStrongestBeacons(ServiceConstants.PROXIMITY_BEACON_COVERAGE);
+					beacons = ProximityController.getInstance().getStrongestBeacons(Constants.PROXIMITY_BEACON_COVERAGE);
 					primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 				}
 

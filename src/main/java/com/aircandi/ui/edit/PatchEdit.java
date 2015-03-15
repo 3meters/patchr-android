@@ -22,7 +22,6 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DataController;
 import com.aircandi.components.FontManager;
@@ -691,7 +690,7 @@ public class PatchEdit extends BaseEntityEdit {
 		 * - no links are created.
 		 * - entity_proximity action logged.
 		 */
-		Integer beaconMax = !mUntuning ? ServiceConstants.PROXIMITY_BEACON_COVERAGE : ServiceConstants.PROXIMITY_BEACON_UNCOVERAGE;
+		Integer beaconMax = !mUntuning ? Constants.PROXIMITY_BEACON_COVERAGE : Constants.PROXIMITY_BEACON_UNCOVERAGE;
 		final List<Beacon> beacons = ProximityController.getInstance().getStrongestBeacons(beaconMax);
 		final Beacon primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 

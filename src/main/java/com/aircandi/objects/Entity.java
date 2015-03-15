@@ -4,7 +4,6 @@ import android.support.annotation.NonNull;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.DataController;
 import com.aircandi.components.LocationManager;
 import com.aircandi.interfaces.IEntityController;
@@ -169,7 +168,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	@NonNull
 	public Boolean isOwnedBySystem() {
-		Boolean owned = (ownerId != null && ownerId.equals(ServiceConstants.ADMIN_USER_ID));
+		Boolean owned = (ownerId != null && ownerId.equals(Constants.ADMIN_USER_ID));
 		return owned;
 	}
 

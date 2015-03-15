@@ -7,7 +7,6 @@ import android.os.Bundle;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataReadyEvent;
@@ -298,7 +297,7 @@ public class DataController {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getNotifications")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getNotifications")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -326,7 +325,7 @@ public class DataController {
 		final ModelResult result = new ModelResult();
 		final Bundle parameters = new Bundle();
 
-		parameters.putString("provider", ServiceConstants.PLACE_SUGGEST_PROVIDER);
+		parameters.putString("provider", Constants.PLACE_SUGGEST_PROVIDER);
 		parameters.putString("input", input.toLowerCase(Locale.US)); // matches any word that as input as prefix
 		parameters.putLong("limit", limit);
 		parameters.putString("_user", userId); // So service can handle places the current user is watching
@@ -351,13 +350,13 @@ public class DataController {
 			 */
 			if (location != null) {
 				parameters.putString("location", "object:" + Json.objectToJson(location));
-				parameters.putInt("radius", ServiceConstants.PLACE_SUGGEST_RADIUS);
-				parameters.putInt("timeout", ServiceConstants.TIMEOUT_SERVICE_PLACE_SUGGEST);
+				parameters.putInt("radius", Constants.PLACE_SUGGEST_RADIUS);
+				parameters.putInt("timeout", Constants.TIMEOUT_SERVICE_PLACE_SUGGEST);
 			}
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_SUGGEST)
+				.setUri(Constants.URL_PROXIBASE_SERVICE_SUGGEST)
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -383,7 +382,7 @@ public class DataController {
 		final ModelResult result = new ModelResult();
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_REST + collection + "/genId")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_REST + collection + "/genId")
 				.setRequestType(RequestType.GET)
 				.setTag(tag)
 				.setSuppressUI(true)
@@ -412,7 +411,7 @@ public class DataController {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_AUTH + "signin")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "signin")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -442,7 +441,7 @@ public class DataController {
 		 * really hurt anything.
 		 */
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_AUTH + "signout")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "signout")
 				.setRequestType(RequestType.GET)
 				.setTag(tag)
 				.setIgnoreResponseData(true)
@@ -481,7 +480,7 @@ public class DataController {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "changepw")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "changepw")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -516,7 +515,7 @@ public class DataController {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "reqresetpw")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "reqresetpw")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -544,7 +543,7 @@ public class DataController {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "resetpw")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "resetpw")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -579,7 +578,7 @@ public class DataController {
 		user.id = null; // remove temp id we assigned
 
 		ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "create")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "create")
 				.setRequestType(RequestType.INSERT)
 				.setRequestBody(Json.objectToJson(user, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
 				.setParameters(parameters)
@@ -760,7 +759,7 @@ public class DataController {
 			}
 
 			final ServiceRequest serviceRequest = new ServiceRequest()
-					.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "insertEntity")
+					.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "insertEntity")
 					.setRequestType(RequestType.METHOD)
 					.setParameters(parameters)
 					.setTag(tag)
@@ -840,7 +839,7 @@ public class DataController {
 			parameters.putString("entity", "object:" + Json.objectToJson(entity, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 
 			final ServiceRequest serviceRequest = new ServiceRequest()
-					.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "updateEntity")
+					.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "updateEntity")
 					.setRequestType(RequestType.METHOD)
 					.setParameters(parameters)
 					.setTag(tag)
@@ -898,7 +897,7 @@ public class DataController {
 			parameters.putString("entityId", entity.id);
 
 			final ServiceRequest serviceRequest = new ServiceRequest()
-					.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "deleteEntity")
+					.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "deleteEntity")
 					.setRequestType(RequestType.METHOD)
 					.setParameters(parameters)
 					.setTag(tag)
@@ -1003,7 +1002,7 @@ public class DataController {
 		String methodName = untuning ? "untrackEntity" : "trackEntity";
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + methodName)
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + methodName)
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1111,7 +1110,7 @@ public class DataController {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "insertLink")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "insertLink")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1148,7 +1147,7 @@ public class DataController {
 		parameters.putString("actionEvent", actionEvent);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "deleteLink")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "deleteLink")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1199,7 +1198,7 @@ public class DataController {
 		parameters.putString("actionEvent", actionEvent);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "removeLinks")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "removeLinks")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1239,7 +1238,7 @@ public class DataController {
 		 */
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_STATS
+				.setUri(Constants.URL_PROXIBASE_SERVICE_STATS
 						+ "to/" + toSchema + (toSchema.equals(Constants.SCHEMA_ENTITY_PATCH) ? "es" : "s")
 						+ "/from/" + fromSchema + (fromSchema.equals(Constants.SCHEMA_ENTITY_PATCH) ? "es" : "s")
 						+ "?type=" + trendType)
@@ -1276,7 +1275,7 @@ public class DataController {
 		parameters.putString("install", "object:" + Json.objectToJson(install, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "registerInstall")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "registerInstall")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1310,7 +1309,7 @@ public class DataController {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "updateProximity")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "updateProximity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1334,7 +1333,7 @@ public class DataController {
 		parameters.putString("document", "object:" + Json.objectToJson(document, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "insertDocument")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "insertDocument")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1392,7 +1391,7 @@ public class DataController {
 		parameters.putString("userId", userId);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "checkShare")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "checkShare")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1430,7 +1429,7 @@ public class DataController {
 
 	public List<? extends Entity> getPatches(Boolean proximity) {
 
-		Integer searchRangeMeters = ServiceConstants.PATCH_NEAR_RADIUS;
+		Integer searchRangeMeters = Constants.PATCH_NEAR_RADIUS;
 
 		List<Patch> patches = (List<Patch>) ENTITY_STORE.getStoreEntities(
 				Constants.SCHEMA_ENTITY_PATCH,

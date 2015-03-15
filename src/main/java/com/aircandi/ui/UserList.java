@@ -11,7 +11,6 @@ import android.widget.CompoundButton;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.DataController;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
@@ -75,7 +74,7 @@ public class UserList extends BaseActivity {
 				.setTitleResId(mListTitleResId);
 
 		if (mListLinkType != null && mListLinkType.equals(Constants.TYPE_LINK_WATCH) && !mEntity.isOwnedByCurrentUser()
-				&& !mEntity.ownerId.equals(ServiceConstants.ADMIN_USER_ID)) {
+				&& !mEntity.ownerId.equals(Constants.ADMIN_USER_ID)) {
 			((EntityListFragment) mCurrentFragment).setLinkWhere(Maps.asMap("enabled", true));
 		}
 
@@ -251,7 +250,7 @@ public class UserList extends BaseActivity {
 				}
 				else {
 					if (result.serviceResponse.statusCodeService != null
-							&& result.serviceResponse.statusCodeService != ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
+							&& result.serviceResponse.statusCodeService != Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
 						Errors.handleError(UserList.this, result.serviceResponse);
 					}
 				}
