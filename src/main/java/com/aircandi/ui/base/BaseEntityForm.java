@@ -22,7 +22,6 @@ import com.aircandi.components.NotificationManager;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.EntityRequestEvent;
-import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.ActionType;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Patch;
@@ -177,6 +176,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 							NotificationManager.getInstance().getNotifications().get(mNotificationId).read = true;
 						}
 					}
+					onProcessingComplete(ResponseCode.SUCCESS);
 				}
 			});
 		}
@@ -184,7 +184,12 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	@Subscribe
 	public void onDataError(DataErrorEvent event) {
+		onProcessingComplete(ResponseCode.FAILED);
 		Errors.handleError(BaseEntityForm.this, event.errorResponse);
+	}
+
+	protected void onProcessingComplete(final ResponseCode responseCode) {
+		mUiController.getBusyController().hide(false);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -208,7 +213,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 			request.setCacheStamp(mEntity.getCacheStamp());
 		}
 		Dispatcher.getInstance().post(request);
-		mUiController.getBusyController().show(BusyAction.Refreshing);
 	}
 
 	public void afterDatabind(final BindingMode mode, ModelResult result) {

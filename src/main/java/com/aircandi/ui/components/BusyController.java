@@ -213,6 +213,10 @@ public class BusyController implements IBusy {
 		});
 	}
 
+	public void position(final View header, final Integer headerHeightProjected) {
+		ListController.position(mProgressBar, header, headerHeightProjected);
+	}
+
 	@Subscribe
 	public void onProgressEvent(ProcessingProgressEvent event) {
 		if (mProgressDialog != null && mProgressDialog.isShowing() && !mProgressDialog.isIndeterminate()) {

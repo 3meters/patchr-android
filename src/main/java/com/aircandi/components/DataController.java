@@ -1124,7 +1124,7 @@ public class DataController {
 		/*
 		 * We update the cache directly instead of refreshing from the service
 		 *
-		 * Could fail because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
+		 * Could fail because of Constants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 		 * prevents any user from liking the same entity more than once. Should be safe to ignore.
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -1176,7 +1176,7 @@ public class DataController {
 
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, action, schema, 0);
 			/*
-			 * Fail could be because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
+			 * Fail could be because of Constants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
 			 */
 			ENTITY_STORE.fixupRemoveLink(fromId, toId, type, enabled);

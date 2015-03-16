@@ -34,7 +34,6 @@ import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.events.NotificationReceivedEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Count;
@@ -153,17 +152,15 @@ public class MessageForm extends BaseEntityForm {
 		}
 	}
 
-	@Subscribe
-	public void onProcessingFinished(final ProcessingCompleteEvent event) {
+	protected void onProcessingComplete(final ResponseCode responseCode) {
+
+		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
 
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 
-				EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-				fragment.onProcessingFinished(event);
 				ListController ls = fragment.getListController();
-
 				Boolean share = (mEntity != null && mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
 				if (share) {
 					ls.getFloatingActionController().fadeOut();

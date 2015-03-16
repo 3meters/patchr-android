@@ -18,14 +18,12 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.FontManager;
-import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MapManager;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.NotificationReceivedEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.ActionType;
 import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Entity;
@@ -123,46 +121,6 @@ public class AircandiForm extends BaseActivity {
 		if (mCurrentFragment != null) {
 			((BaseFragment) mCurrentFragment).onRefresh();
 		}
-	}
-
-	@Subscribe
-	public void onProcessingFinished(final ProcessingCompleteEvent event) {
-		/*
-		 * Can be called from ui or background thread.
-		 */
-		runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-
-				/*
-				 * Notification list
-				 */
-				if (mDrawerLayout.isDrawerOpen(mDrawerRight)) {
-					((EntityListFragment) mFragmentNotifications).onProcessingFinished(event);
-				}
-				/*
-				 * Current list fragment
-				 */
-				if (mCurrentFragment instanceof EntityListFragment) {
-					((EntityListFragment) mCurrentFragment).onProcessingFinished(event);
-
-					if (mCurrentFragment instanceof NearbyListFragment) {
-						Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled() || LocationManager.getInstance().isLocationAccessEnabled());
-						ListController ls = ((EntityListFragment) mCurrentFragment).getListController();
-						if (proximityCapable) {
-							ls.getFloatingActionController().fadeIn();
-						}
-						else {
-							ls.getFloatingActionController().fadeOut();
-						}
-					}
-				}
-				else if (mCurrentFragment instanceof MapListFragment) {
-					((MapListFragment) mCurrentFragment).onProcessingFinished();
-				}
-			}
-		});
 	}
 
 	@SuppressWarnings("ucd")

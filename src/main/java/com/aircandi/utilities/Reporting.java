@@ -16,8 +16,6 @@ import com.google.android.gms.analytics.HitBuilders;
 
 import java.util.Locale;
 
-;
-
 public class Reporting {
 
 	public static void updateCrashKeys() {

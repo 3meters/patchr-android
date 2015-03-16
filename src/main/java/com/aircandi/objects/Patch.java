@@ -158,10 +158,10 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	}
 
 	public static class PatchCategory {
-		public static String EVENT   = "event";
-		public static String GROUP   = "group";
-		public static String PLACE   = "place";
-		public static String PROJECT = "project";
+		public static String EVENT   = "Event";
+		public static String GROUP   = "Group";
+		public static String PLACE   = "Place";
+		public static String PROJECT = "Project";
 		public static String OTHER   = "other";
 	}
 }

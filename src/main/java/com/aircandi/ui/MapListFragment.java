@@ -139,7 +139,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		return root;
 	}
 
-	public void onProcessingFinished() {
+	public void onProcessingComplete() {
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -289,7 +289,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 				}
 			}
 		}
-		onProcessingFinished();
+		onProcessingComplete();
 	}
 
 	public LatLngBounds getBounds(List<Entity> entities) {

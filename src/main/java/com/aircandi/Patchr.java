@@ -68,8 +68,6 @@ import io.fabric.sdk.android.Fabric;
 
 public class Patchr extends MultiDexApplication {
 
-	public static BasicAWSCredentials awsCredentials = null;
-
 	private static Patchr instance;
 
 	@NonNull
@@ -89,8 +87,6 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	public static Router                   router;
 	@NonNull
-	public static Integer                  memoryClass;
-	@NonNull
 	public static Stopwatch                stopwatch1;
 	@NonNull
 	public static Stopwatch                stopwatch2;
@@ -105,6 +101,8 @@ public class Patchr extends MultiDexApplication {
 	public static Boolean                        applicationUpdateRequired = false;
 	@NonNull
 	public static Integer                        resultCode                = Activity.RESULT_OK; // Used to cascade up the activity chain
+
+	public static BasicAWSCredentials awsCredentials = null;
 
 	/* Container values */
 	@NonNull
@@ -211,15 +209,14 @@ public class Patchr extends MultiDexApplication {
 
 			/* Info on what is being tracked is output to logcat */
 			analytics.getLogger().setLogLevel(com.google.android.gms.analytics.Logger.LogLevel.VERBOSE);
-			setTracker(analytics.newTracker(R.xml.analytics));
+			mTracker = analytics.newTracker(R.xml.analytics);
 		}
 
 		/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
 		snapshotPreferences();
 
 		/* Establish device memory class */
-		memoryClass = Utilities.maxMemoryMB();
-		Logger.i(this, "Device memory class: " + String.valueOf(memoryClass));
+		Logger.i(this, "Device memory class: " + String.valueOf(Utilities.maxMemoryMB()));
 
 		/* Inject configuration */
 		openContainer(StringManager.getString(R.string.id_container));
@@ -448,10 +445,6 @@ public class Patchr extends MultiDexApplication {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-
-	public void setTracker(@NonNull Tracker tracker) {
-		mTracker = tracker;
-	}
 
 	@NonNull
 	public Boolean setCurrentUser(@NonNull User user, @NonNull Boolean refreshUser) {

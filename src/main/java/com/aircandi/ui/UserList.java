@@ -16,7 +16,6 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Route;
@@ -27,7 +26,6 @@ import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Maps;
-import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
 public class UserList extends BaseActivity {
@@ -92,12 +90,6 @@ public class UserList extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Subscribe
-	public void onProcessingFinished(final ProcessingCompleteEvent event) {
-		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-		fragment.onProcessingFinished(event);
-	}
 
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {

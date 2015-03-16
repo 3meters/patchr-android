@@ -36,7 +36,6 @@ import com.aircandi.components.StringManager;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.NotificationReceivedEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.ActionType;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
@@ -143,16 +142,13 @@ public class PatchForm extends BaseEntityForm {
 		super.onDataError(event);
 	}
 
-	@Subscribe
-	public void onProcessingFinished(final ProcessingCompleteEvent event) {
+	public void onProcessingComplete(final ResponseCode responseCode) {
 
 		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
 
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-
-				fragment.onProcessingFinished(event);
 				/*
 				 * Non-members can't add messages to private patches.
 				 */
@@ -375,7 +371,8 @@ public class PatchForm extends BaseEntityForm {
 				final DisplayMetrics metrics = getResources().getDisplayMetrics();
 				int screenWidth = (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) ? metrics.widthPixels : metrics.heightPixels;
 				ListController ls = ((EntityListFragment) mCurrentFragment).getListController();
-				ls.getMessageController().position(header, (int) (screenWidth * typedValue.getFloat()));
+				ls.getMessageController().position(null, header, (int) (screenWidth * typedValue.getFloat()));
+				ls.getBusyController().position(header, (int) (screenWidth * typedValue.getFloat()));
 			}
 		}
 	}

@@ -2,19 +2,11 @@ package com.aircandi.ui.components;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.annotation.TargetApi;
-import android.content.res.Configuration;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.aircandi.Constants;
-import com.aircandi.Patchr;
 import com.aircandi.components.AnimationManager;
-import com.aircandi.utilities.UI;
 
 public class MessageController {
 
@@ -68,42 +60,8 @@ public class MessageController {
 		mFadeOutAnim.start();
 	}
 
-	public void position(final View header, final Integer headerHeightProjected) {
-
-		if (mMessage != null && header != null) {
-
-			ViewTreeObserver vto = header.getViewTreeObserver();
-			vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-
-				@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-				@SuppressWarnings("deprecation")
-				@Override
-				public void onGlobalLayout() {
-
-					if (Patchr.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-						RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mMessage.getLayoutParams());
-						params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-						int headerHeight = (headerHeightProjected != null)
-						                   ? headerHeightProjected
-						                   : header.getHeight();
-						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(100f);
-						mMessage.setLayoutParams(params);
-					}
-					else {
-						RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mMessage.getLayoutParams());
-						params.addRule(RelativeLayout.CENTER_IN_PARENT);
-						mMessage.setLayoutParams(params);
-					}
-
-					if (Constants.SUPPORTS_JELLY_BEAN) {
-						header.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-					}
-					else {
-						header.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-					}
-				}
-			});
-		}
+	public void position(final View view, final View header, final Integer headerHeightProjected) {
+		ListController.position(mMessage, header, headerHeightProjected);
 	}
 
 	public void setMessage(String label) {

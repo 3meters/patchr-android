@@ -107,7 +107,7 @@ public class MenuManager {
 		else if (activityName.contains("MessageEdit")) {
 			Boolean editing = ((BaseEdit) activity).isEditing();
 			if (editing) {
-				menuInflater.inflate(R.menu.menu_accept, menu);
+				menuInflater.inflate(R.menu.menu_save, menu);
 				menuInflater.inflate(R.menu.menu_delete, menu);
 			}
 			else {

@@ -13,7 +13,6 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataReadyEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
@@ -109,11 +108,6 @@ public class MapForm extends BaseEntityForm {
 	@Subscribe
 	public void onDataError(DataErrorEvent event) {
 		super.onDataError(event);
-	}
-
-	@Subscribe
-	public void onProcessingFinished(ProcessingCompleteEvent event) {
-		((MapListFragment) mCurrentFragment).onProcessingFinished();
 	}
 
 	/*--------------------------------------------------------------------------------------------

@@ -30,7 +30,6 @@ import com.aircandi.events.EntitiesByProximityCompleteEvent;
 import com.aircandi.events.EntitiesUpdatedEvent;
 import com.aircandi.events.LocationTimeoutEvent;
 import com.aircandi.events.LocationUpdatedEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
@@ -101,6 +100,29 @@ public class NearbyListFragment extends EntityListFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public void onViewLayout() {
+		/* Stub to block default behavior */
+	}
+
+	public void onProcessingComplete(final ResponseCode responseCode) {
+		super.onProcessingComplete(responseCode);
+
+		getActivity().runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled() || LocationManager.getInstance().isLocationAccessEnabled());
+				if (proximityCapable) {
+					mListController.getFloatingActionController().fadeIn();
+				}
+				else {
+					mListController.getFloatingActionController().fadeOut();
+				}
+			}
+		});
+	}
 
 	@Override
 	public void onClick(View view) {
@@ -212,7 +234,7 @@ public class NearbyListFragment extends EntityListFragment {
 				mCacheStamp = DataController.getInstance().getCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-					Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.SUCCESS));
+					onProcessingComplete(ResponseCode.SUCCESS);
 				}
 				else {
 
@@ -265,7 +287,7 @@ public class NearbyListFragment extends EntityListFragment {
 											, NetworkManager.getInstance().getNetworkType());
 
 									Dispatcher.getInstance().post(new EntitiesUpdatedEvent(entitiesForEvent, "onLocationChanged"));
-									Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.SUCCESS));
+									onProcessingComplete(ResponseCode.SUCCESS);
 								}
 								else {
 									onError();
@@ -275,7 +297,7 @@ public class NearbyListFragment extends EntityListFragment {
 						}.executeOnExecutor(Constants.EXECUTOR);
 					}
 					else {
-						Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.SUCCESS));
+						onProcessingComplete(ResponseCode.SUCCESS);
 					}
 				}
 			}
@@ -303,7 +325,7 @@ public class NearbyListFragment extends EntityListFragment {
 				mAdapter.notifyDataSetChanged();
 
 				if (entities.size() >= 2) {
-					Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.SUCCESS));
+					onProcessingComplete(ResponseCode.SUCCESS);
 				}
 
 				if (event.source.equals("onLocationChanged")) {
@@ -350,7 +372,7 @@ public class NearbyListFragment extends EntityListFragment {
 				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);         // Still try proximity
 			}
 			else {
-				Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.SUCCESS));
+				onProcessingComplete(ResponseCode.SUCCESS);
 			}
 		}
 	}
@@ -364,7 +386,7 @@ public class NearbyListFragment extends EntityListFragment {
 	@Override
 	public void onError() {
 		/* Kill busy */
-		Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.FAILED));
+		onProcessingComplete(ResponseCode.FAILED);
 	}
 
 	@Override
@@ -517,7 +539,7 @@ public class NearbyListFragment extends EntityListFragment {
 						searchForPatches();
 					}
 					else {
-						Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.SUCCESS));
+						onProcessingComplete(ResponseCode.SUCCESS);
 					}
 				}
 			}
@@ -527,7 +549,7 @@ public class NearbyListFragment extends EntityListFragment {
 		@SuppressWarnings({"ucd"})
 		public void onBurstTimeout(final LocationTimeoutEvent event) {
 
-			Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.SUCCESS));
+			onProcessingComplete(ResponseCode.SUCCESS);
 
 			/* We only show toast if we timeout without getting any location fix */
 			if (LocationManager.getInstance().getLocationLocked() == null) {

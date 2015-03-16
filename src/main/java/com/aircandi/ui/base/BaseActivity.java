@@ -833,6 +833,7 @@ public abstract class BaseActivity extends ActionBarActivity
 		Logger.d(this, "Activity resuming");
 		Dispatcher.getInstance().register(this);
 		Patchr.getInstance().setCurrentActivity(this);
+		mUiController.resume();
 		mClickEnabled = true;
 		/*
 		 * We always check to make sure play services are working properly. This call will finish 
@@ -847,6 +848,7 @@ public abstract class BaseActivity extends ActionBarActivity
 		super.onPause();
 		Logger.d(this, "Activity pausing");
 		Dispatcher.getInstance().unregister(this);
+		mUiController.pause();
 		clearReferences();
 	}
 

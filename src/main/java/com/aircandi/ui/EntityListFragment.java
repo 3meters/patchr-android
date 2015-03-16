@@ -31,7 +31,6 @@ import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.events.EntitiesRequestEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.ActionType;
@@ -284,9 +283,9 @@ public class EntityListFragment extends BaseFragment
 			mListController.getMessageController().showMessage(false);
 		}
 
-		mListController.getBusyController().show((mode == BindingMode.MANUAL || mNotEmpty)
-		                                         ? BusyAction.Refreshing
-		                                         : BusyAction.Refreshing_Empty);
+		if (!mNotEmpty) {
+			mListController.getBusyController().show(BusyAction.Refreshing_Empty);
+		}
 	}
 
 	public void fetch(Integer skip, Integer limit, Boolean force) {
@@ -385,7 +384,7 @@ public class EntityListFragment extends BaseFragment
 					}
 					postBind();
 					mNotEmpty = (mAdapter != null && mAdapter.getCount() != 0);
-					Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.SUCCESS));
+					onProcessingComplete(ResponseCode.SUCCESS);
 				}
 			});
 		}
@@ -393,8 +392,27 @@ public class EntityListFragment extends BaseFragment
 
 	@Subscribe
 	public void onDataError(DataErrorEvent event) {
-		Dispatcher.getInstance().post(new ProcessingCompleteEvent(ResponseCode.FAILED));
+		onProcessingComplete(ResponseCode.FAILED);
 		Errors.handleError(getActivity(), event.errorResponse);
+	}
+
+	public void onProcessingComplete(final ResponseCode responseCode) {
+
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mListController.getBusyController().hide(false);
+				if (getAdapter().getCount() == 0
+						&& mListEmptyMessageResId != null
+						&& (responseCode == null || responseCode == ResponseCode.SUCCESS)) {
+					mListController.getMessageController().setMessage(StringManager.getString(mListEmptyMessageResId));
+					mListController.getMessageController().fadeIn(Constants.TIME_ONE_SECOND);
+				}
+				else {
+					mListController.getMessageController().fadeOut(); // Only fades if currently visible
+				}
+			}
+		});
 	}
 
 	@Override
@@ -437,20 +455,8 @@ public class EntityListFragment extends BaseFragment
 		 * list header height.
 		 */
 		if (mHeaderView != null) {
-			mListController.getMessageController().position(mHeaderView, null);
-		}
-	}
-
-	public void onProcessingFinished(ProcessingCompleteEvent event) {
-		mListController.getBusyController().hide(false);
-		if (getAdapter().getCount() == 0
-				&& mListEmptyMessageResId != null
-				&& (event == null || (event.responseCode == ResponseCode.SUCCESS))) {
-			mListController.getMessageController().setMessage(StringManager.getString(mListEmptyMessageResId));
-			mListController.getMessageController().fadeIn(Constants.TIME_ONE_SECOND);
-		}
-		else {
-			mListController.getMessageController().fadeOut(); // Only fades if currently visible
+			mListController.getMessageController().position(null, mHeaderView, null);
+			mListController.getBusyController().position(mHeaderView, null);
 		}
 	}
 

@@ -16,7 +16,6 @@ import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataReadyEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.LinkSpecType;
@@ -77,12 +76,6 @@ public class UserForm extends BaseEntityForm {
 	@Subscribe
 	public void onDataError(DataErrorEvent event) {
 		super.onDataError(event);
-	}
-
-	@Subscribe
-	public void onProcessingFinished(final ProcessingCompleteEvent event) {
-		mUiController.getBusyController().hide(false);
-		((EntityListFragment) mCurrentFragment).onProcessingFinished(event);
 	}
 
 	public void onMoreButtonClick(View view) {

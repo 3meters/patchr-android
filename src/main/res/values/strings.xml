@@ -143,6 +143,7 @@
 	<string name="alert_removed">Removed</string>
 	<string name="alert_updated">Updated</string>
 	<string name="alert_inserted">Saved</string>
+	<string name="alert_inserted_patch">Patch activated</string>
 	<string name="alert_shared">Shared</string>
 	<string name="alert_cancelled">Cancelled</string>
 	<string name="alert_signed_in">Signed in as</string>
@@ -288,6 +289,7 @@
 
 	<string name="progress_signing_out">Signing out&#8230;</string>
 	<string name="progress_saving">Saving&#8230;</string>
+	<string name="progress_saving_patch">Patching&#8230;</string>
 	<string name="progress_sharing">Sharing&#8230;</string>
 	<string name="progress_updating">Updating&#8230;</string>
 	<string name="progress_sending">Sending&#8230;</string>

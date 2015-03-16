@@ -59,7 +59,9 @@ public class S3 {
 			mUpload.addProgressListener(new ProgressListener() {
 				public void progressChanged(ProgressEvent progressEvent) {
 					if (mUpload == null) return;
-					Dispatcher.getInstance().post(new ProcessingProgressEvent(mUpload.getProgress().getPercentTransferred()));
+					if (mUpload.getProgress().getPercentTransferred() <= 95) {
+						Dispatcher.getInstance().post(new ProcessingProgressEvent(mUpload.getProgress().getPercentTransferred()));
+					}
 				}
 			});
 

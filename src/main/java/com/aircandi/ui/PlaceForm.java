@@ -11,7 +11,6 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataReadyEvent;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Route;
@@ -60,11 +59,6 @@ public class PlaceForm extends BaseEntityForm {
 	@Subscribe
 	public void onDataError(DataErrorEvent event) {
 		super.onDataError(event);
-	}
-
-	@Subscribe
-	public void onProcessingFinished(ProcessingCompleteEvent event) {
-		mUiController.getBusyController().hide(false);
 	}
 
 	@SuppressWarnings("ucd")

@@ -7,12 +7,10 @@ import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.DataController;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.utilities.Integers;
-import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
 public class PatchList extends BaseActivity {
@@ -76,13 +74,6 @@ public class PatchList extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Subscribe
-	public void onProcessingFinished(final ProcessingCompleteEvent event) {
-		mUiController.getBusyController().hide(false);
-		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-		fragment.onProcessingFinished(event);
-	}
 
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {

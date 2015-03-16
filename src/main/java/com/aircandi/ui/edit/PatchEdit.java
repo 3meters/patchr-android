@@ -108,6 +108,9 @@ public class PatchEdit extends BaseEntityEdit {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
+		mInsertProgressResId = R.string.progress_saving_patch;
+		mInsertedResId       = R.string.alert_inserted_patch;
+
 		mButtonTune = (Button) findViewById(R.id.button_tune);
 		mButtonUntune = (Button) findViewById(R.id.button_untune);
 		mButtonPlace = (TextView) findViewById(R.id.button_place);

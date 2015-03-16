@@ -527,7 +527,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					mUiController.getBusyController().showProgressDialog(BaseEntityEdit.this);
 				}
 				else {
-					mUiController.getBusyController().show(BusyAction.Update);
+					mUiController.getBusyController().show(BusyAction.ActionWithMessage, mInsertProgressResId, BaseEntityEdit.this);
 				}
 			}
 
@@ -671,7 +671,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					mUiController.getBusyController().showProgressDialog(BaseEntityEdit.this);
 				}
 				else {
-					mUiController.getBusyController().show(BusyAction.Update);
+					mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_updating, BaseEntityEdit.this);
 				}
 			}
 
