@@ -12,16 +12,16 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
-import com.aircandi.components.DataController;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
-import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.EntityRequestEvent;
+import com.aircandi.events.LinkDeleteEvent;
+import com.aircandi.events.LinkInsertEvent;
 import com.aircandi.objects.ActionType;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Patch;
@@ -145,20 +145,24 @@ public abstract class BaseEntityForm extends BaseActivity {
 	@Subscribe
 	public void onDataReady(final DataReadyEvent event) {
 
-		if (event.entity != null && event.tag.equals(System.identityHashCode(this)) && event.entity.id.equals(mEntityId)) {
+		if (event.tag.equals(System.identityHashCode(this))
+				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
 
 			runOnUiThread(new Runnable() {
+
 				@Override
 				public void run() {
 					mUiController.getBusyController().hide(false);
-					mEntity = event.entity;
+					if (event.entity != null) {
+						mEntity = event.entity;
 
-					if (mParentId != null) {
-						mEntity.toId = mParentId;
-					}
+						if (mParentId != null) {
+							mEntity.toId = mParentId;
+						}
 
-					if (mEntity instanceof Patch) {
-						Patchr.getInstance().setCurrentPatch(mEntity);
+						if (mEntity instanceof Patch) {
+							Patchr.getInstance().setCurrentPatch(mEntity);
+						}
 					}
 					/*
 					 * Possible to hit this before options menu has been set. If so then
@@ -189,6 +193,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	}
 
 	protected void onProcessingComplete(final ResponseCode responseCode) {
+		mProcessing = false;
 		mUiController.getBusyController().hide(false);
 	}
 
@@ -203,7 +208,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		EntityRequestEvent request = new EntityRequestEvent()
 				.setLinkProfile(mLinkProfile);
 
-		request.setActionType(ActionType.GET_ENTITY)
+		request.setActionType(ActionType.ACTION_GET_ENTITY)
 		       .setEntityId(mEntityId)
 		       .setTag(System.identityHashCode(this));
 		/*
@@ -229,64 +234,48 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	public void like(final boolean activate) {
 
-		new AsyncTask() {
+		ViewAnimator animator = (ViewAnimator) findViewById(R.id.button_like);
+		if (animator != null) {
+			animator.setDisplayedChild(1);  // Turned off in drawButtons
+		}
 
-			@Override
-			protected void onPreExecute() {
-				((ViewAnimator) findViewById(R.id.button_like)).setDisplayedChild(1);
-			}
+		Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncLikeEntity");
-				ModelResult result;
-				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+		if (activate) {
 
-				if (activate) {
+			/* Used as part of link management */
+			Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
+			Shortcut toShortcut = mEntity.getAsShortcut();
 
-					/* Used as part of link management */
-					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
-					Shortcut toShortcut = mEntity.getAsShortcut();
+			LinkInsertEvent update = new LinkInsertEvent()
+					.setFromId(Patchr.getInstance().getCurrentUser().id)
+					.setToId(mEntity.id)
+					.setType(Constants.TYPE_LINK_LIKE)
+					.setEnabled(true)
+					.setFromShortcut(fromShortcut)
+					.setToShortcut(toShortcut)
+					.setActionEvent("like_entity_" + mEntity.schema.toLowerCase(Locale.US))
+					.setSkipCache(false);
 
-					result = DataController.getInstance().insertLink(null
-							, Patchr.getInstance().getCurrentUser().id
-							, mEntity.id
-							, Constants.TYPE_LINK_LIKE
-							, null
-							, fromShortcut
-							, toShortcut
-							, "like_entity_" + mEntity.schema.toLowerCase(Locale.US)
-							, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				}
-				else {
-					result = DataController.getInstance().deleteLink(Patchr.getInstance().getCurrentUser().id
-							, mEntity.id
-							, Constants.TYPE_LINK_LIKE
-							, null
-							, mEntity.schema
-							, "unlike_entity_" + mEntity.schema.toLowerCase(Locale.US), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				}
-				return result;
-			}
+			update.setActionType(ActionType.ACTION_LINK_INSERT_LIKE)
+			      .setTag(System.identityHashCode(this));
 
-			@Override
-			protected void onPostExecute(Object response) {
-				if (isFinishing()) return;
-				ModelResult result = (ModelResult) response;
+			Dispatcher.getInstance().post(update);
+		}
+		else {
 
-				((ViewAnimator) findViewById(R.id.button_like)).setDisplayedChild(0);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					bind(BindingMode.AUTO); // Triggers redraw including buttons and updates state
-				}
-				else {
-					if (result.serviceResponse.statusCodeService != null
-							&& result.serviceResponse.statusCodeService != Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
-						Errors.handleError(BaseEntityForm.this, result.serviceResponse);
-					}
-				}
-				mProcessing = false;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+			LinkDeleteEvent update = new LinkDeleteEvent()
+					.setFromId(Patchr.getInstance().getCurrentUser().id)
+					.setToId(mEntity.id)
+					.setType(Constants.TYPE_LINK_LIKE)
+					.setSchema(mEntity.schema)
+					.setActionEvent("unlike_entity_" + mEntity.schema.toLowerCase(Locale.US));
+
+			update.setActionType(ActionType.ACTION_LINK_DELETE_LIKE)
+			      .setTag(System.identityHashCode(this));
+
+			Dispatcher.getInstance().post(update);
+		}
 	}
 
 	@Override

@@ -40,7 +40,6 @@ import com.aircandi.ui.helpers.PhotoActionPicker;
 import com.aircandi.ui.helpers.PhotoPicker;
 import com.aircandi.ui.helpers.PrivacyBuilder;
 import com.aircandi.ui.helpers.QrcodeDialog;
-import com.aircandi.utilities.Debug;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
@@ -491,11 +490,6 @@ public class Router {
 			intentBuilder.setExtras(extras);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_SEARCH);
 			AnimationManager.doOverridePendingTransition(activity, transitionType);
-		}
-
-		else if (route == Route.SAVE_BEACON) {
-
-			Debug.insertBeacon();
 		}
 
 		else if (route == Route.USER_LIST) {

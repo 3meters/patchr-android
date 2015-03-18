@@ -93,7 +93,7 @@ public class AircandiForm extends BaseActivity {
 
 		((EntityListFragment) mFragmentNotifications)
 				.setMonitorEntityId(Patchr.getInstance().getCurrentUser().id)
-				.setActionType(ActionType.GET_NOTIFICATIONS)
+				.setActionType(ActionType.ACTION_GET_NOTIFICATIONS)
 				.setPageSize(Integers.getInteger(R.integer.page_size_notifications))
 				.setListViewType(ViewType.LIST)
 				.setListLayoutResId(R.layout.notification_list_fragment)
@@ -243,7 +243,7 @@ public class AircandiForm extends BaseActivity {
 
 				((EntityListFragment) fragment)
 						.setMonitorEntityId(Patchr.getInstance().getCurrentUser().id)
-						.setActionType(ActionType.GET_ENTITIES)
+						.setActionType(ActionType.ACTION_GET_ENTITIES)
 						.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
 						.setLinkType(Constants.TYPE_LINK_WATCH)
 						.setLinkDirection(Link.Direction.out.name())
@@ -268,7 +268,7 @@ public class AircandiForm extends BaseActivity {
 
 				((EntityListFragment) fragment)
 						.setMonitorEntityId(Patchr.getInstance().getCurrentUser().id)
-						.setActionType(ActionType.GET_ENTITIES)
+						.setActionType(ActionType.ACTION_GET_ENTITIES)
 						.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
 						.setLinkType(Constants.TYPE_LINK_CREATE)
 						.setLinkDirection(Link.Direction.out.name())
@@ -292,7 +292,7 @@ public class AircandiForm extends BaseActivity {
 				fragment = new TrendListFragment();
 
 				((EntityListFragment) fragment)
-						.setActionType(ActionType.GET_TREND)
+						.setActionType(ActionType.ACTION_GET_TREND)
 						.setLinkType(Constants.TYPE_LINK_WATCH)
 						.setListPagingEnabled(false)
 						.setEntityCacheEnabled(false)
@@ -319,7 +319,7 @@ public class AircandiForm extends BaseActivity {
 				fragment = new TrendListFragment();
 
 				((EntityListFragment) fragment)
-						.setActionType(ActionType.GET_TREND)
+						.setActionType(ActionType.ACTION_GET_TREND)
 						.setLinkType(Constants.TYPE_LINK_CONTENT)
 						.setListPagingEnabled(false)
 						.setEntityCacheEnabled(false)

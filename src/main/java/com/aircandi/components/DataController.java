@@ -12,7 +12,10 @@ import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataReadyEvent;
 import com.aircandi.events.EntitiesRequestEvent;
 import com.aircandi.events.EntityRequestEvent;
+import com.aircandi.events.LinkDeleteEvent;
+import com.aircandi.events.LinkInsertEvent;
 import com.aircandi.events.NotificationsRequestEvent;
+import com.aircandi.events.ShareCheckEvent;
 import com.aircandi.events.TrendRequestEvent;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
@@ -63,7 +66,7 @@ import java.util.Locale;
 public class DataController {
 
 	private Number mActivityDate;                                           // Monitored by nearby
-	private static final EntityStore  ENTITY_STORE  = new EntityStore();
+	private static final EntityStore ENTITY_STORE = new EntityStore();
 
 	private DataController() {
 		Dispatcher.getInstance().register(this);
@@ -230,6 +233,102 @@ public class DataController {
 								.setTag(event.tag);
 						Dispatcher.getInstance().post(data);
 					}
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onLinkInsert(final LinkInsertEvent event) {
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncInsertLink");
+
+				ModelResult result = insertLink(event.linkId
+						, event.fromId
+						, event.toId
+						, event.type
+						, event.enabled
+						, event.fromShortcut
+						, event.toShortcut
+						, event.actionEvent
+						, event.skipCache
+						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					DataReadyEvent data = new DataReadyEvent()
+							.setActionType(event.actionType)
+							.setTag(event.tag);
+					Dispatcher.getInstance().post(data);
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onLinkDelete(final LinkDeleteEvent event) {
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncDeleteLink");
+
+				ModelResult result = deleteLink(event.fromId
+						, event.toId
+						, event.type
+						, event.enabled
+						, event.schema
+						, event.actionEvent
+						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					DataReadyEvent data = new DataReadyEvent()
+							.setActionType(event.actionType)
+							.setTag(event.tag);
+					Dispatcher.getInstance().post(data);
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onShareCheck(final ShareCheckEvent event) {
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncShareCheck");
+
+				ModelResult result = checkShare(event.entityId
+						, event.userId
+						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					DataReadyEvent data = new DataReadyEvent()
+							.setActionType(event.actionType)
+							.setData(result.data)
+							.setTag(event.tag);
+					Dispatcher.getInstance().post(data);
 				}
 				else {
 					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
@@ -1083,6 +1182,10 @@ public class DataController {
 		return result;
 	}
 
+	/**
+	 * Inserts link at the service and inserts link locally if the 'from' or 'to'
+	 * entities are in the cache.
+	 */
 	public ModelResult insertLink(String linkId
 			, String fromId
 			, String toId
@@ -1137,7 +1240,17 @@ public class DataController {
 		return result;
 	}
 
-	public ModelResult deleteLink(String fromId, String toId, String type, Boolean enabled, String schema, String actionEvent, Object tag) {
+	/**
+	 * Deletes link at the service and deletes link locally if the 'from' or 'to'
+	 * entities are in the cache.
+	 */
+	public ModelResult deleteLink(String fromId
+			, String toId
+			, String type
+			, Boolean enabled
+			, String schema
+			, String actionEvent
+			, Object tag) {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();

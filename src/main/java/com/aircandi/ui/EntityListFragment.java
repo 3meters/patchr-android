@@ -105,7 +105,7 @@ public class EntityListFragment extends BaseFragment
 	protected Boolean mMore     = false;
 
 	/* Data binding */
-	protected Integer mActionType = ActionType.GET_ENTITIES;
+	protected Integer mActionType = ActionType.ACTION_GET_ENTITIES;
 	protected String  mMonitorEntityId;
 	protected Entity  mMonitorEntity;
 	protected Integer mPageSize;

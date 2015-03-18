@@ -9,16 +9,22 @@ import java.util.List;
 public class DataReadyEvent {
 
 	public Integer      actionType;
-	public List<Entity> entities;
-	public Entity       entity;
-	public Cursor       cursor;           // The cursor used for the request
-	public Boolean      more;
-	public Object       tag;
+	public Object       data;
+	public List<Entity> entities;       // convenience if data = entities
+	public Entity       entity;         // convenience if data = entity
+	public Cursor       cursor;         // The cursor used for the request
+	public Boolean      more;           // used if data = pageable array
+	public Object       tag;            // passed with request
 
 	public DataReadyEvent() {}
 
 	public DataReadyEvent setActionType(Integer actionType) {
 		this.actionType = actionType;
+		return this;
+	}
+
+	public DataReadyEvent setData(Object data) {
+		this.data = data;
 		return this;
 	}
 

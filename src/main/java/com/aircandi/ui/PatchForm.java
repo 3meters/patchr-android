@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.text.Html;
@@ -26,16 +25,18 @@ import android.widget.ViewAnimator;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.DataController;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MenuManager;
 import com.aircandi.components.ModelResult;
-import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataReadyEvent;
+import com.aircandi.events.LinkDeleteEvent;
+import com.aircandi.events.LinkInsertEvent;
 import com.aircandi.events.NotificationReceivedEvent;
+import com.aircandi.events.ShareCheckEvent;
 import com.aircandi.objects.ActionType;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
@@ -58,9 +59,7 @@ import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.CandiView.IndicatorOptions;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Colors;
-import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
-import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
@@ -68,6 +67,7 @@ import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
+import java.util.Locale;
 
 @SuppressLint("Registered")
 public class PatchForm extends BaseEntityForm {
@@ -128,12 +128,31 @@ public class PatchForm extends BaseEntityForm {
 	public void onDataReady(DataReadyEvent event) {
 		super.onDataReady(event);
 
-		/* Not watching a restricted patch and pre-approved */
-		if (mWatchStatus == WatchStatus.NONE
-				&& mRestrictedForUser
-				&& Type.isTrue(mPreApprovedPush)
-				&& mEntity != null) {
-			confirmJoin();
+		if (event.actionType == ActionType.ACTION_SHARE_CHECK) {
+			List<Link> links = (List<Link>) event.data;
+			if (links != null && links.size() == 0) {
+				watch(true /* activate */);
+			}
+			else {
+				mPreApproved = true;
+				confirmJoin();
+			}
+			return;
+		}
+		else if (event.actionType == ActionType.ACTION_GET_ENTITY) {
+			/* Not watching a restricted patch and pre-approved */
+			if (mWatchStatus == WatchStatus.NONE
+					&& mRestrictedForUser
+					&& Type.isTrue(mPreApprovedPush)
+					&& mEntity != null) {
+				confirmJoin();
+			}
+		}
+		else if (event.actionType == ActionType.ACTION_LINK_INSERT_WATCH) {
+			final boolean enabled = (!mRestrictedForUser || Type.isTrue(mPreApproved));
+			if (enabled && ((Patch) mEntity).privacy.equals(Constants.PRIVACY_PRIVATE)) {
+				UI.showToastNotification(StringManager.getString(R.string.alert_auto_watch), Toast.LENGTH_SHORT, Gravity.CENTER);
+			}
 		}
 	}
 
@@ -143,6 +162,7 @@ public class PatchForm extends BaseEntityForm {
 	}
 
 	public void onProcessingComplete(final ResponseCode responseCode) {
+		super.onProcessingComplete(responseCode);
 
 		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
 
@@ -218,37 +238,39 @@ public class PatchForm extends BaseEntityForm {
 	public void onWatchButtonClick(View view) {
 
 		if (mEntity == null) return;
-		if (mProcessing) return;
-		mProcessing = true;
 
-		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			mProcessing = false;
-			String message = StringManager.getString(R.string.alert_signin_message_watch, mEntity.schema);
-			Dialogs.signinRequired(this, message);
-			return;
-		}
+		if (!mProcessing) {
+			mProcessing = true;
 
-		/* Cancel request */
-		if (mWatchStatus == WatchStatus.WATCHING) {
-			if (((Patch) mEntity).isRestrictedForCurrentUser()) {
-				confirmLeave();
+			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				mProcessing = false;
+				String message = StringManager.getString(R.string.alert_signin_message_watch, mEntity.schema);
+				Dialogs.signinRequired(this, message);
+				return;
 			}
-			else {
+
+			/* Cancel request */
+			if (mWatchStatus == WatchStatus.WATCHING) {
+				if (((Patch) mEntity).isRestrictedForCurrentUser()) {
+					confirmLeave();
+				}
+				else {
+					watch(false /* delete */);
+				}
+			}
+			else if (mWatchStatus == WatchStatus.REQUESTED) {
 				watch(false /* delete */);
 			}
-		}
-		else if (mWatchStatus == WatchStatus.REQUESTED) {
-			watch(false /* delete */);
-		}
-		else if (mWatchStatus == WatchStatus.NONE) {
-			if (mPreApproved == null) {
-				shareCheck();   // Checks for pre-approved and if true then chains to confirmJoin else watch
-			}
-			else if (mPreApproved) {
-				confirmJoin(); // Chains to watch() if user confirms else ends
-			}
-			else {
-				watch(true /* insert */);
+			else if (mWatchStatus == WatchStatus.NONE) {
+				if (mPreApproved == null) {
+					shareCheck();   // Checks for pre-approved and if true then chains to confirmJoin else watch
+				}
+				else if (mPreApproved) {
+					confirmJoin(); // Chains to watch() if user confirms else ends
+				}
+				else {
+					watch(true /* insert */);
+				}
 			}
 		}
 	}
@@ -269,17 +291,18 @@ public class PatchForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onLikeButtonClick(View view) {
 
-		if (mProcessing) return;
-		mProcessing = true;
+		if (!mProcessing) {
+			mProcessing = true;
 
-		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			mProcessing = false;
-			String message = StringManager.getString(R.string.alert_signin_message_like, mEntity.schema);
-			Dialogs.signinRequired(this, message);
-			return;
+			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				mProcessing = false;
+				String message = StringManager.getString(R.string.alert_signin_message_like, mEntity.schema);
+				Dialogs.signinRequired(this, message);
+				return;
+			}
+
+			like(mLikeStatus == LikeStatus.NONE);
 		}
-
-		like(mLikeStatus == LikeStatus.NONE);
 	}
 
 	@SuppressWarnings("ucd")
@@ -553,6 +576,7 @@ public class PatchForm extends BaseEntityForm {
 			/* Watch button coloring */
 			ViewAnimator watch = (ViewAnimator) view.findViewById(R.id.button_watch);
 			if (watch != null) {
+				watch.setDisplayedChild(0);
 				UI.setVisibility(watch, View.VISIBLE);
 				Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
 				ImageView image = (ImageView) watch.findViewById(R.id.button_image);
@@ -572,13 +596,14 @@ public class PatchForm extends BaseEntityForm {
 				if (((Patch) mEntity).isVisibleToCurrentUser()) {
 					Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
 					ImageView image = (ImageView) like.findViewById(R.id.button_image);
-					if (link != null && link.enabled) {
+					if (link != null) {
 						final int color = Colors.getColor(R.color.brand_primary);
 						image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
 					}
 					else {
 						image.setColorFilter(null);
 					}
+					like.setDisplayedChild(0);
 					UI.setVisibility(like, View.VISIBLE);
 				}
 			}
@@ -776,7 +801,7 @@ public class PatchForm extends BaseEntityForm {
 
 			((EntityListFragment) mCurrentFragment)
 					.setMonitorEntityId(mEntityId)
-					.setActionType(ActionType.GET_ENTITIES)
+					.setActionType(ActionType.ACTION_GET_ENTITIES)
 					.setLinkSchema(Constants.SCHEMA_ENTITY_MESSAGE)
 					.setLinkType(Constants.TYPE_LINK_CONTENT)
 					.setLinkDirection(Direction.in.name())
@@ -819,71 +844,49 @@ public class PatchForm extends BaseEntityForm {
 
 	public void watch(final boolean activate) {
 
+		ViewAnimator animator = (ViewAnimator) findViewById(R.id.button_watch);
+		if (animator != null) {
+			animator.setDisplayedChild(1);  // Turned off in drawButtons
+		}
+
 		final boolean enabled = (!mRestrictedForUser || Type.isTrue(mPreApproved));
 
-		new AsyncTask() {
+		if (activate) {
 
-			@Override
-			protected void onPreExecute() {
-				((ViewAnimator) findViewById(R.id.button_watch)).setDisplayedChild(1);
-			}
+			/* Used as part of link management */
+			Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
+			Shortcut toShortcut = mEntity.getAsShortcut();
 
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncWatchEntity");
-				ModelResult result;
-				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+			LinkInsertEvent update = new LinkInsertEvent()
+					.setFromId(Patchr.getInstance().getCurrentUser().id)
+					.setToId(mEntity.id)
+					.setType(Constants.TYPE_LINK_WATCH)
+					.setEnabled(enabled)
+					.setFromShortcut(fromShortcut)
+					.setToShortcut(toShortcut)
+					.setActionEvent(((Patch) mEntity).isVisibleToCurrentUser() ? "watch_entity_patch" : "request_watch_entity")
+					.setSkipCache(false);
 
-				if (activate) {
+			update.setActionType(ActionType.ACTION_LINK_INSERT_WATCH)
+			      .setTag(System.identityHashCode(this));
 
-					/* Used as part of link management */
-					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
-					Shortcut toShortcut = mEntity.getAsShortcut();
+			Dispatcher.getInstance().post(update);
+		}
+		else {
 
-					result = DataController.getInstance().insertLink(null
-							, Patchr.getInstance().getCurrentUser().id
-							, mEntity.id
-							, Constants.TYPE_LINK_WATCH
-							, enabled
-							, fromShortcut
-							, toShortcut
-							, ((Patch) mEntity).isVisibleToCurrentUser() ? "watch_entity_patch" : "request_watch_entity"
-							, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				}
-				else {
-					result = DataController.getInstance().deleteLink(Patchr.getInstance().getCurrentUser().id
-							, mEntity.id
-							, Constants.TYPE_LINK_WATCH
-							, enabled
-							, mEntity.schema
-							, "unwatch_entity_" + mEntity.schema, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				}
-				return result;
-			}
+			LinkDeleteEvent update = new LinkDeleteEvent()
+					.setFromId(Patchr.getInstance().getCurrentUser().id)
+					.setToId(mEntity.id)
+					.setType(Constants.TYPE_LINK_WATCH)
+					.setEnabled(enabled)
+					.setSchema(mEntity.schema)
+					.setActionEvent("unwatch_entity_" + mEntity.schema.toLowerCase(Locale.US));
 
-			@Override
-			protected void onPostExecute(Object response) {
-				if (isFinishing()) return;
-				ModelResult result = (ModelResult) response;
+			update.setActionType(ActionType.ACTION_LINK_DELETE_WATCH)
+			      .setTag(System.identityHashCode(this));
 
-				((ViewAnimator) findViewById(R.id.button_watch)).setDisplayedChild(0);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					bind(BindingMode.AUTO); // Triggers redraw including buttons and updates state
-					//					View view = findViewById(android.R.id.content);
-					//					drawButtons(view);
-					if (activate && enabled && ((Patch) mEntity).privacy.equals(Constants.PRIVACY_PRIVATE)) {
-						UI.showToastNotification(StringManager.getString(R.string.alert_auto_watch), Toast.LENGTH_SHORT, Gravity.CENTER);
-					}
-				}
-				else {
-					if (result.serviceResponse.statusCodeService != null
-							&& result.serviceResponse.statusCodeService != Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
-						Errors.handleError(PatchForm.this, result.serviceResponse);
-					}
-				}
-				mProcessing = false;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+			Dispatcher.getInstance().post(update);
+		}
 	}
 
 	@Override
@@ -908,34 +911,14 @@ public class PatchForm extends BaseEntityForm {
 
 	protected void shareCheck() {
 
-		new AsyncTask() {
+		ShareCheckEvent event = new ShareCheckEvent()
+				.setEntityId(mEntity.id)
+				.setUserId(Patchr.getInstance().getCurrentUser().id);
 
-			@Override
-			protected void onPreExecute() {}
+		event.setActionType(ActionType.ACTION_SHARE_CHECK)
+		     .setTag(System.identityHashCode(this));
 
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncShareCheck");
-				ModelResult result = DataController.getInstance().checkShare(mEntity.id, Patchr.getInstance().getCurrentUser().id, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				if (isFinishing()) return;
-				ModelResult result = (ModelResult) response;
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					List<Link> links = (List<Link>) result.data;
-					if (links != null && links.size() == 0) {
-						watch(true /* activate */);
-					}
-					else {
-						mPreApproved = true;
-						confirmJoin();
-					}
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+		Dispatcher.getInstance().post(event);
 	}
 
 	protected void confirmJoin() {

@@ -153,6 +153,7 @@ public class MessageForm extends BaseEntityForm {
 	}
 
 	protected void onProcessingComplete(final ResponseCode responseCode) {
+		super.onProcessingComplete(responseCode);
 
 		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
 
