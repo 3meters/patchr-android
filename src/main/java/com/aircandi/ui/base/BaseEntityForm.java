@@ -234,10 +234,15 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	public void like(final boolean activate) {
 
-		ViewAnimator animator = (ViewAnimator) findViewById(R.id.button_like);
-		if (animator != null) {
-			animator.setDisplayedChild(1);  // Turned off in drawButtons
-		}
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				ViewAnimator animator = (ViewAnimator) findViewById(R.id.button_like);
+				if (animator != null) {
+					animator.setDisplayedChild(1);  // Turned off in drawButtons
+				}
+			}
+		});
 
 		Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 
