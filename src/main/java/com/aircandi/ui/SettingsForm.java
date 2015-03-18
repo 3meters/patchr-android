@@ -1,23 +1,27 @@
 package com.aircandi.ui;
 
+import android.os.Bundle;
+
 import com.aircandi.R;
 import com.aircandi.ui.base.BaseActivity;
 
 @SuppressWarnings("deprecation")
 public class SettingsForm extends BaseActivity {
 
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
 	@Override
-	public void setCurrentFragment(String fragmentType) {
+	public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+
 		mCurrentFragment = new SettingsFragment();
 		getFragmentManager()
 				.beginTransaction()
 				.add(R.id.fragment_holder, mCurrentFragment)
 				.commit();
 	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	protected int getLayoutId() {

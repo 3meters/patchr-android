@@ -31,8 +31,13 @@ public class MapForm extends BaseEntityForm {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
+
 		mLinkProfile = LinkSpecType.LINKS_FOR_PATCH;
-		mNextFragmentTag = Constants.FRAGMENT_TYPE_MAP;
+		mCurrentFragment = new MapListFragment();
+		getFragmentManager()
+				.beginTransaction()
+				.replace(R.id.fragment_holder, mCurrentFragment)
+				.commit();
 	}
 
 	@Override
@@ -113,15 +118,6 @@ public class MapForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void setCurrentFragment(String fragmentType) {
-		mCurrentFragment = new MapListFragment();
-		getFragmentManager()
-				.beginTransaction()
-				.replace(R.id.fragment_holder, mCurrentFragment)
-				.commit();
-	}
 
 	@Override
 	protected int getLayoutId() {

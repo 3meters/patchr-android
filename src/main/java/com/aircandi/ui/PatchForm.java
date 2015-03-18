@@ -115,9 +115,35 @@ public class PatchForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		/* Default fragment */
-		mNextFragmentTag = Constants.FRAGMENT_TYPE_MESSAGES;
 		mLinkProfile = LinkSpecType.LINKS_FOR_PATCH;
+
+		mCurrentFragment = new MessageListFragment();
+
+		((EntityListFragment) mCurrentFragment)
+				.setMonitorEntityId(mEntityId)
+				.setActionType(ActionType.ACTION_GET_ENTITIES)
+				.setLinkSchema(Constants.SCHEMA_ENTITY_MESSAGE)
+				.setLinkType(Constants.TYPE_LINK_CONTENT)
+				.setLinkDirection(Direction.in.name())
+				.setPageSize(Integers.getInteger(R.integer.page_size_messages))
+				.setHeaderViewResId(R.layout.widget_list_header_patch)
+				.setFooterViewResId(R.layout.widget_list_footer_message)
+				.setListItemResId(R.layout.temp_listitem_message)
+				.setListLayoutResId(R.layout.message_list_patch_fragment)
+				.setListLoadingResId(R.layout.temp_listitem_loading)
+				.setListViewType(EntityListFragment.ViewType.LIST)
+				.setBubbleButtonMessageResId(R.string.button_list_share);
+
+		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_refresh);
+		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_edit_patch);
+		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_delete);
+		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_qrcode);
+		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_report);
+
+		getFragmentManager()
+				.beginTransaction()
+				.replace(R.id.fragment_holder, mCurrentFragment)
+				.commit();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -137,7 +163,6 @@ public class PatchForm extends BaseEntityForm {
 				mPreApproved = true;
 				confirmJoin();
 			}
-			return;
 		}
 		else if (event.actionType == ActionType.ACTION_GET_ENTITY) {
 			/* Not watching a restricted patch and pre-approved */
@@ -791,50 +816,6 @@ public class PatchForm extends BaseEntityForm {
 	}
 
 	@Override
-	public void setCurrentFragment(String fragmentType) {
-		/*
-		 * Fragment menu items are in addition to any menu items added by the parent activity.
-		 */
-		if (fragmentType.equals(Constants.FRAGMENT_TYPE_MESSAGES)) {
-
-			mCurrentFragment = new MessageListFragment();
-
-			((EntityListFragment) mCurrentFragment)
-					.setMonitorEntityId(mEntityId)
-					.setActionType(ActionType.ACTION_GET_ENTITIES)
-					.setLinkSchema(Constants.SCHEMA_ENTITY_MESSAGE)
-					.setLinkType(Constants.TYPE_LINK_CONTENT)
-					.setLinkDirection(Direction.in.name())
-					.setPageSize(Integers.getInteger(R.integer.page_size_messages))
-					.setHeaderViewResId(R.layout.widget_list_header_patch)
-					.setFooterViewResId(R.layout.widget_list_footer_message)
-					.setListItemResId(R.layout.temp_listitem_message)
-					.setListLayoutResId(R.layout.message_list_patch_fragment)
-					.setListLoadingResId(R.layout.temp_listitem_loading)
-					.setListViewType(EntityListFragment.ViewType.LIST)
-					.setBubbleButtonMessageResId(R.string.button_list_share);
-
-			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_refresh);
-			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_edit_patch);
-			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_delete);
-			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_qrcode);
-			((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_report);
-		}
-
-		else {
-			return;
-		}
-
-		getFragmentManager()
-				.beginTransaction()
-				.replace(R.id.fragment_holder, mCurrentFragment)
-				.commit();
-
-		mPrevFragmentTag = mCurrentFragmentTag;
-		mCurrentFragmentTag = fragmentType;
-	}
-
-	@Override
 	public void configureActionBar() {
 		super.configureActionBar();
 		if (getSupportActionBar() != null) {
@@ -844,10 +825,15 @@ public class PatchForm extends BaseEntityForm {
 
 	public void watch(final boolean activate) {
 
-		ViewAnimator animator = (ViewAnimator) findViewById(R.id.button_watch);
-		if (animator != null) {
-			animator.setDisplayedChild(1);  // Turned off in drawButtons
-		}
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				ViewAnimator animator = (ViewAnimator) findViewById(R.id.button_watch);
+				if (animator != null) {
+					animator.setDisplayedChild(1);  // Turned off in drawButtons
+				}
+			}
+		});
 
 		final boolean enabled = (!mRestrictedForUser || Type.isTrue(mPreApproved));
 
