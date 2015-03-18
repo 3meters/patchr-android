@@ -48,6 +48,8 @@ public class AircandiForm extends BaseActivity {
 	protected Boolean mConfiguredForAnonymous;
 
 	protected Fragment mFragmentNotifications;
+	protected String   mNextFragmentTag;
+	protected String   mPrevFragmentTag;
 
 	protected Boolean mFinishOnClose   = false;
 	protected Boolean mLeftDrawerOpen  = false;
@@ -107,6 +109,8 @@ public class AircandiForm extends BaseActivity {
 				.beginTransaction()
 				.replace(R.id.fragment_holder_notifications, mFragmentNotifications)
 				.commit();
+
+		setCurrentFragment(mNextFragmentTag);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -121,6 +125,34 @@ public class AircandiForm extends BaseActivity {
 		if (mCurrentFragment != null) {
 			((BaseFragment) mCurrentFragment).onRefresh();
 		}
+	}
+
+	@Override
+	public void onBackPressed() {
+
+		if (mDrawerLayout != null) {
+			if (mDrawerLayout.isDrawerOpen(mDrawerRight)) {
+				mNotificationActionIcon.animate().rotation(0f).setDuration(200);
+				mDrawerLayout.closeDrawer(mDrawerRight);
+				return;
+			}
+			else if (mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
+				mDrawerLayout.closeDrawer(mDrawerLeft);
+				return;
+			}
+		}
+
+		if (mCurrentFragmentTag != null && mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
+			String listFragment = ((MapListFragment) getCurrentFragment()).getListFragment();
+			if (listFragment != null) {
+				Bundle extras = new Bundle();
+				extras.putString(Constants.EXTRA_FRAGMENT_TYPE, listFragment);
+				Patchr.router.route(this, Route.VIEW_AS_LIST, null, extras);
+			}
+			return;
+		}
+
+		super.onBackPressed();
 	}
 
 	@SuppressWarnings("ucd")
@@ -204,7 +236,6 @@ public class AircandiForm extends BaseActivity {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
 	public synchronized void setCurrentFragment(String fragmentType) {
 		/*
 		 * - Called from BaseActivity.onCreate (once), configureActionBar and DispatchManager.

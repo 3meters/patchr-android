@@ -53,7 +53,6 @@ import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AircandiForm;
-import com.aircandi.ui.MapListFragment;
 import com.aircandi.ui.PhotoForm;
 import com.aircandi.ui.components.BusyController;
 import com.aircandi.ui.components.MessageController;
@@ -91,8 +90,6 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected Map<String, Fragment> mFragments = new HashMap<String, Fragment>();
 	protected Fragment mCurrentFragment;
 	protected String   mCurrentFragmentTag;
-	protected String   mNextFragmentTag;
-	protected String   mPrevFragmentTag;
 
 	/* Inputs */
 	protected Integer mTransitionType = TransitionType.FORM_TO;
@@ -170,7 +167,6 @@ public abstract class BaseActivity extends ActionBarActivity
 			/* Event sequence */
 			unpackIntent();
 			initialize(savedInstanceState);
-			setCurrentFragment(mNextFragmentTag);
 			getActionBarToolbar(); // Init the toolbar as action bar
 		}
 	}
@@ -233,27 +229,6 @@ public abstract class BaseActivity extends ActionBarActivity
 
 	@Override
 	public void onBackPressed() {
-		if (mDrawerLayout != null) {
-			if (mDrawerLayout.isDrawerOpen(mDrawerRight)) {
-				mNotificationActionIcon.animate().rotation(0f).setDuration(200);
-				mDrawerLayout.closeDrawer(mDrawerRight);
-				return;
-			}
-			else if (mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
-				mDrawerLayout.closeDrawer(mDrawerLeft);
-				return;
-			}
-		}
-
-		if (mCurrentFragmentTag != null && mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
-			String listFragment = ((MapListFragment) getCurrentFragment()).getListFragment();
-			if (listFragment != null) {
-				Bundle extras = new Bundle();
-				extras.putString(Constants.EXTRA_FRAGMENT_TYPE, listFragment);
-				Patchr.router.route(this, Route.VIEW_AS_LIST, null, extras);
-			}
-			return;
-		}
 
 		if (BaseActivity.this instanceof AircandiForm) {
 			super.onBackPressed();
@@ -319,8 +294,6 @@ public abstract class BaseActivity extends ActionBarActivity
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	public void setCurrentFragment(String fragmentType) {}
 
 	protected void configureActionBar() {
 		/*
