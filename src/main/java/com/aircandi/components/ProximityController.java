@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.location.Location;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.support.annotation.NonNull;
@@ -201,7 +200,7 @@ public class ProximityController {
 		 * Makes sure that the beacon collection is an accurate representation
 		 * of the latest wifi scan.
 		 */
-		mEntityStore.removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
+		DataController.getInstance().clearEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 		/*
 		 * insert beacons for the latest scan results.
 		 */
@@ -223,10 +222,6 @@ public class ProximityController {
 
 		mLastBeaconLockedDate = DateTime.nowDate().getTime();
 		Dispatcher.getInstance().post(new BeaconsLockedEvent());
-	}
-
-	public void clearBeacons() {
-		DataController.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -266,7 +261,7 @@ public class ProximityController {
 		if (beaconIds.size() == 0) {
 
 			/* Clean out all patches found via proximity */
-			Integer removeCount = mEntityStore.removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
+			Integer removeCount = DataController.getInstance().clearEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
 			Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
 
 			mLastBeaconLoadDate = DateTime.nowDate().getTime();
@@ -375,32 +370,6 @@ public class ProximityController {
 
 	public void unregister() {
 		Dispatcher.getInstance().unregister(this);
-	}
-
-	public RefreshReason beaconRefreshNeeded(Location activeLocation) {
-
-		if (mLastBeaconInstallUpdate != null) {
-			return RefreshReason.MOVE_RECOGNIZED;
-		}
-
-		if (mLastBeaconLoadDate != null) {
-			final Long interval = DateTime.nowDate().getTime() - mLastBeaconLoadDate;
-			if (interval > Constants.INTERVAL_REFRESH) {
-				Logger.v(this, "Refresh needed: past interval");
-				return RefreshReason.BEACONS_STALE;
-			}
-		}
-
-		/* Do a coarse location check */
-		Location locationLocked = LocationManager.getInstance().getLocationLocked();
-		Location locationLast = LocationManager.getInstance().getLocationLast();
-		if (locationLast != null && locationLocked != null) {
-			Float distance = locationLocked.distanceTo(locationLast);
-			if (distance >= Constants.DISTANCE_REFRESH) {
-				return RefreshReason.MOVE_MEASURED;
-			}
-		}
-		return RefreshReason.NONE;
 	}
 
 	/*--------------------------------------------------------------------------------------------
