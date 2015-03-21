@@ -42,7 +42,7 @@
 		tools:text="@string/label_radar_empty"
 		tools:visibility="visible" />
 
-	<android.support.v4.widget.ContentLoadingProgressBar
+	<com.aircandi.ui.widgets.AirProgressBar
 		android:id="@+id/list_progress"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="@dimen/progress_width"

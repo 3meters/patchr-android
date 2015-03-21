@@ -23,7 +23,7 @@
 			android:layout_height="match_parent"
 			custom:layoutRef="@layout/widget_candi_view_place" />
 
-		<android.support.v4.widget.ContentLoadingProgressBar
+		<com.aircandi.ui.widgets.AirProgressBar
 			android:id="@+id/form_progress"
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="@dimen/progress_width"

@@ -21,7 +21,7 @@
 			android:layout_height="match_parent"
 			android:background="?attr/backgroundCardField" />
 
-		<android.support.v4.widget.ContentLoadingProgressBar
+		<com.aircandi.ui.widgets.AirProgressBar
 			android:id="@+id/form_progress"
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="@dimen/progress_width"

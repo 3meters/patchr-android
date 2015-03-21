@@ -3,13 +3,6 @@
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools">
 
-	<android.support.v4.widget.ContentLoadingProgressBar
-		android:id="@+id/image_progress"
-		style="?android:attr/progressBarStyle"
-		android:layout_width="@dimen/progress_small_width"
-		android:layout_height="@dimen/progress_small_height"
-		android:layout_gravity="center" />
-
 	<com.aircandi.ui.widgets.AirTextView
 		android:id="@+id/image_missing"
 		style="@style/missing"
@@ -26,5 +19,13 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:scaleType="centerCrop" />
+
+	<com.aircandi.ui.widgets.AirProgressBar
+		android:id="@+id/image_progress"
+		style="?android:attr/progressBarStyle"
+		android:layout_width="@dimen/progress_small_width"
+		android:layout_height="@dimen/progress_small_height"
+		android:visibility="gone"
+		android:layout_gravity="center" />
 
 </merge>
