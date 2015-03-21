@@ -189,10 +189,12 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		/* Name */
 
-		UI.setVisibility(holder.name, View.GONE);
 		if (holder.name != null && entity.name != null && entity.name.length() > 0) {
 			holder.name.setText(entity.name);
 			UI.setVisibility(holder.name, View.VISIBLE);
+		}
+		else {
+			UI.setVisibility(holder.name, View.GONE);
 		}
 
 		/* Subhead */
@@ -315,7 +317,6 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		/* Photo */
 
-		UI.setVisibility(holder.photoView, View.GONE);
 		if (holder.photoView != null) {
 			final Photo photo = entity.getPhoto();
 			if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {

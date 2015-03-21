@@ -184,8 +184,8 @@ public class Messages extends EntityControllerBase {
 
 		UI.setVisibility(holder.photoView, View.GONE);
 		UI.setVisibility(((ViewHolderExtended) holder).childCount, View.GONE);
-		UI.setVisibility(view.findViewById(R.id.share_holder), View.GONE);
-		UI.setVisibility(view.findViewById(R.id.button_likes), View.GONE);
+		UI.setVisibility(((ViewHolderExtended) holder).shareHolder, View.GONE);
+		UI.setVisibility(((ViewHolderExtended) holder).buttonLikes, View.GONE);
 
 		Entity shareEntity = null;
 
@@ -222,7 +222,7 @@ public class Messages extends EntityControllerBase {
 			holder.share.setTag(shareEntity);
 			holder.share.addView(shareView);
 
-			UI.setVisibility(view.findViewById(R.id.share_holder), View.VISIBLE);
+			UI.setVisibility(((ViewHolderExtended) holder).shareHolder, View.VISIBLE);
 		}
 		else {
 
@@ -255,20 +255,17 @@ public class Messages extends EntityControllerBase {
 
 		    /* Likes */
 
-			View likes = view.findViewById(R.id.button_likes);
-			if (likes != null) {
+			if (((ViewHolderExtended) holder).buttonLikes != null) {
 				Count count = entity.getCount(Constants.TYPE_LINK_LIKE, null, null, Link.Direction.in);
 				if (count == null) {
 					count = new Count(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, null, 0);
 				}
 				if (count.count.intValue() > 0) {
-					TextView likesCount = (TextView) view.findViewById(R.id.likes_count);
-					TextView likesLabel = (TextView) view.findViewById(R.id.likes_label);
-					if (likesCount != null) {
+					if (((ViewHolderExtended) holder).likesCount != null) {
 						String label = view.getResources().getQuantityString(R.plurals.label_likes, count.count.intValue(), count.count.intValue());
 						((ViewHolderExtended) holder).likesCount.setText(String.valueOf(count.count.intValue()));
-						likesLabel.setText(label);
-						UI.setVisibility(view.findViewById(R.id.button_likes), View.VISIBLE);
+						((ViewHolderExtended) holder).likesLabel.setText(label);
+						UI.setVisibility(((ViewHolderExtended) holder).buttonLikes, View.VISIBLE);
 					}
 				}
 			}
@@ -279,6 +276,9 @@ public class Messages extends EntityControllerBase {
 	public void bindHolder(View view, ViewHolder holder) {
 		((ViewHolderExtended) holder).childCount = (TextView) view.findViewById(R.id.child_count);
 		((ViewHolderExtended) holder).likesCount = (TextView) view.findViewById(R.id.likes_count);
+		((ViewHolderExtended) holder).likesLabel = (TextView) view.findViewById(R.id.likes_label);
+		((ViewHolderExtended) holder).buttonLikes = view.findViewById(R.id.button_message_likes);
+		((ViewHolderExtended) holder).shareHolder = view.findViewById(R.id.share_holder);
 		super.bindHolder(view, holder);
 	}
 
@@ -299,5 +299,8 @@ public class Messages extends EntityControllerBase {
 	public static class ViewHolderExtended extends ViewHolder {
 		public TextView childCount;
 		public TextView likesCount;
+		public TextView likesLabel;
+		public View     buttonLikes;
+		public View     shareHolder;
 	}
 }
