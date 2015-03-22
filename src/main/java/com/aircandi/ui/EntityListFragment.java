@@ -822,6 +822,7 @@ public class EntityListFragment extends BaseFragment
 		return mListView;
 	}
 
+	@NonNull
 	public List<Entity> getEntities() {
 		return mEntities;
 	}

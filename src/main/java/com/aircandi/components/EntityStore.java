@@ -313,6 +313,7 @@ public class EntityStore {
 	 *--------------------------------------------------------------------------------------------*/
 
 	Entity getStoreEntity(Object key) {
+		//noinspection SuspiciousMethodCalls
 		return mCacheMap.get(key);
 	}
 
@@ -323,6 +324,7 @@ public class EntityStore {
 		Entity entity;
 
 		while (iter.hasNext()) {
+			//noinspection SuspiciousMethodCalls
 			entity = mCacheMap.get(iter.next());
 			if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
 				if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
@@ -358,6 +360,7 @@ public class EntityStore {
 		final Iterator iter = mCacheMap.keySet().iterator();
 		Entity entity;
 		while (iter.hasNext()) {
+			//noinspection SuspiciousMethodCalls
 			entity = mCacheMap.get(iter.next());
 			if ((entity.toId != null && entity.toId.equals(entityId)) || (entity.fromId != null && entity.fromId.equals(entityId))) {
 				if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
@@ -588,6 +591,7 @@ public class EntityStore {
 		final Iterator iterEntities = mCacheMap.keySet().iterator();
 		Entity entity;
 		while (iterEntities.hasNext()) {
+			//noinspection SuspiciousMethodCalls
 			entity = mCacheMap.get(iterEntities.next());
 			if (schema.equals(Constants.SCHEMA_ANY) || (entity.schema != null && entity.schema.equals(schema))) {
 				if (type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {

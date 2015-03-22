@@ -160,15 +160,12 @@ public class DataController {
 				 * when an entity they are watching or created is updated. Our goal is to be self
 				 * consistent so we add in logic based on the local user.
 				 */
-				Entity entity = ENTITY_STORE.getStoreEntity(event.entityId);
 				LinkSpec options = LinkSpecFactory.build(event.linkProfile);
 
 				ServiceResponse serviceResponse = ENTITY_STORE.loadEntitiesForEntity(event.entityId, options, event.cursor, event.cacheStamp, null, event.tag);
 
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					ServiceData serviceData = (ServiceData) serviceResponse.data;
-					List<Entity> entities = (List<Entity>) serviceData.data;
-
 					/*
 					 * The parent entity is always returned unless we pass a cache stamp and it does
 					 * not have a fresher cache stamp.

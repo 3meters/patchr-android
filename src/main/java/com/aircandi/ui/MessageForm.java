@@ -345,7 +345,6 @@ public class MessageForm extends BaseEntityForm {
 		final FlowLayout flowLayout = (FlowLayout) view.findViewById(R.id.flow_recipients);
 		final ViewGroup shareHolder = (ViewGroup) view.findViewById(R.id.share_holder);
 		final ViewGroup shareFrame = (ViewGroup) view.findViewById(R.id.share_entity);
-		final ViewGroup buttonHolder = (ViewGroup) view.findViewById(R.id.button_holder);
 		final ViewGroup toHolder = (ViewGroup) view.findViewById(R.id.to_holder);
 		final ViewAnimator like = (ViewAnimator) view.findViewById(R.id.button_like);
 		final View likes = view.findViewById(R.id.button_likes);

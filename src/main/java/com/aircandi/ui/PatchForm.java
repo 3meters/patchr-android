@@ -225,8 +225,6 @@ public class PatchForm extends BaseEntityForm {
 	public void onProcessingComplete(final ResponseCode responseCode) {
 		super.onProcessingComplete(responseCode);
 
-		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -467,6 +465,7 @@ public class PatchForm extends BaseEntityForm {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void draw(View view) {
 		/*
