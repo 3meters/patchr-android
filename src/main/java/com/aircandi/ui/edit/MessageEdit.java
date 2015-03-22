@@ -216,8 +216,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			}
 
 			/*
-			 * Check to see if some data for this new message was passed
-			 * in the intent.
+			 * Check to see if some data for this new message was passed in the intent.
 			 */
 			Intent intent = getIntent();
 			if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEND)) {
@@ -236,12 +235,13 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 					mShareId = extras.getString(Constants.EXTRA_SHARE_ID);
 					mShareSchema = extras.getString(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
-					mShareEntity = DataController.getStoreEntity(mShareId);
 
 					if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+						mShareEntity = DataController.getStoreEntity(mShareId);
 						mEntity.description = String.format(StringManager.getString(R.string.label_patch_share_body_self), mShareEntity.name);
 					}
 					else if (mShareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+						mShareEntity = DataController.getStoreEntity(mShareId);
 						if (mShareEntity.patch != null) {
 							mEntity.description = String.format(StringManager.getString(R.string.label_message_share_body_self), mShareEntity.creator.name, mShareEntity.patch.name);
 						}
