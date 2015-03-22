@@ -29,8 +29,7 @@ import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
 
-import org.apache.http.HttpStatus;
-
+import java.net.HttpURLConnection;
 import java.util.Locale;
 
 public class ResetEdit extends BaseEdit {
@@ -171,7 +170,7 @@ public class ResetEdit extends BaseEdit {
 				mUiController.getBusyController().hide(false);
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 					mEmailConfirmed = false;
-					if (result.serviceResponse.statusCode == HttpStatus.SC_NOT_FOUND) {
+					if (result.serviceResponse.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
 
 						/* No such email */
 						Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
@@ -183,7 +182,7 @@ public class ResetEdit extends BaseEdit {
 								, null, null, null, null);
 
 					}
-					else if (result.serviceResponse.statusCode == HttpStatus.SC_UNAUTHORIZED) {
+					else if (result.serviceResponse.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
 
 						/* No successful signin on this install */
 						Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
