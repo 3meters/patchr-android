@@ -37,8 +37,8 @@ android {
         applicationId 'com.aircandi.catalina'
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 200
-        versionName '1.6.0'
+        versionCode 201
+        versionName '1.6.1'
         multiDexEnabled true
     }
 
