@@ -18,7 +18,6 @@ import com.aircandi.objects.Route;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.base.BaseActivity;
 
-import org.apache.http.HttpStatus;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
@@ -28,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.ConnectException;
+import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -105,7 +105,7 @@ public final class Errors {
 
 		if (serviceResponse.statusCode != null) {
 
-			if (serviceResponse.statusCode / 100 == HttpStatus.SC_INTERNAL_SERVER_ERROR / 100) {  // 5XX Service problem
+			if (serviceResponse.statusCode / 100 == HttpURLConnection.HTTP_INTERNAL_ERROR / 100) {  // 5XX Service problem
 				/*
 				 * Reached the service with a good call but the service failed for an unknown reason. Examples
 				 * are service bugs like missing indexes causing mongo queries to throw errors.
@@ -115,18 +115,18 @@ public final class Errors {
 				 * - 504: Gateway timout.
 				 */
 				if (Constants.ERROR_LEVEL == Log.VERBOSE) {
-					if (serviceResponse.statusCode == HttpStatus.SC_GATEWAY_TIMEOUT) {
+					if (serviceResponse.statusCode == HttpURLConnection.HTTP_GATEWAY_TIMEOUT) {
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_gateway_timeout));
 					}
 					return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unknown_status));
 				}
 			}
 
-			if (serviceResponse.statusCode / 100 == HttpStatus.SC_BAD_REQUEST / 100) {  // 4XX Request problem
+			if (serviceResponse.statusCode / 100 == HttpURLConnection.HTTP_BAD_REQUEST / 100) {  // 4XX Request problem
 
 				/* 400 */
 
-				if (serviceResponse.statusCode == HttpStatus.SC_BAD_REQUEST) {
+				if (serviceResponse.statusCode == HttpURLConnection.HTTP_BAD_REQUEST) {
 					/*
 					 * Reached the service with a good call but request was not correct. This is often bad, missing
 					 * or incorrect parameters.
@@ -157,7 +157,7 @@ public final class Errors {
 
 				/* 401 */
 
-				if (serviceResponse.statusCode == HttpStatus.SC_UNAUTHORIZED) {
+				if (serviceResponse.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
 					/*
 					 * Reached the service with a good call but failed for a well known reason.
 					 *
@@ -200,7 +200,7 @@ public final class Errors {
 
 				/* 403 */
 
-				if (serviceResponse.statusCode == HttpStatus.SC_FORBIDDEN) {
+				if (serviceResponse.statusCode == HttpURLConnection.HTTP_FORBIDDEN) {
 					/*
 					 * Reached the service with a good call but failed for a well known reason.
 					 *
@@ -223,7 +223,7 @@ public final class Errors {
 				/* 404 */
 
 				if (Constants.ERROR_LEVEL == Log.VERBOSE) {
-					if (serviceResponse.statusCode == HttpStatus.SC_NOT_FOUND) {
+					if (serviceResponse.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_client_request_not_found));
 					}
 				}
@@ -289,6 +289,7 @@ public final class Errors {
 				 * - NoHttpResponseException: target server failed to respond with a valid HTTP response
 				 */
 				if (Constants.ERROR_LEVEL == Log.VERBOSE) {
+					//noinspection deprecation
 					if (exception instanceof ConnectTimeoutException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unavailable)).setTrack(false);
 
@@ -296,6 +297,7 @@ public final class Errors {
 							exception instanceof InterruptedIOException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_connection_poor)).setTrack(false);
 
+					//noinspection deprecation
 					if (exception instanceof ConnectException
 							|| exception instanceof NoHttpResponseException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unavailable));
@@ -314,6 +316,7 @@ public final class Errors {
 					if (exception instanceof FileNotFoundException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_file_not_found));
 
+					//noinspection deprecation
 					if (exception instanceof ClientProtocolException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_client_request_error));
 
@@ -321,6 +324,7 @@ public final class Errors {
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_client_request_stream_error));
 				}
 				else {
+					//noinspection deprecation
 					if (exception instanceof UnknownHostException
 							|| exception instanceof ConnectTimeoutException
 							|| exception instanceof InterruptedIOException
