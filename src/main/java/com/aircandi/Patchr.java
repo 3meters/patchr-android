@@ -13,7 +13,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -147,19 +146,6 @@ public class Patchr extends MultiDexApplication {
 		 * a broadcast receiver is activated.
 		 */
 		debug = (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE));
-
-		if (debug) {
-			StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-					.detectAll()   // or .detectAll() for all detectable problems
-					.permitDiskReads()
-					.penaltyLog()
-					.build());
-
-			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-					.detectAll()
-					.penaltyLog()
-					.build());
-		}
 
 		super.onCreate();
 		instance = this;
@@ -471,7 +457,7 @@ public class Patchr extends MultiDexApplication {
 			/* Load user data */
 			if (refreshUser) {
 				LinkSpec options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
-				result = DataController.getInstance().getEntity(user.id, true, options, null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				result = DataController.getInstance().getEntity(user.id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
 			/* Update settings */
