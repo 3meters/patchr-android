@@ -1,22 +1,16 @@
 package com.aircandi.ui;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -32,7 +26,6 @@ import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.components.AirClusterRenderer;
 import com.aircandi.utilities.Dialogs;
-import com.aircandi.utilities.UI;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -64,11 +57,11 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	protected AirClusterRenderer         mClusterRenderer;
 	protected List<Entity>               mEntities;
 	protected Integer                    mTitleResId;
-	protected String                     mListFragment;
+	protected String                     mRelatedListFragment;
 	protected Bitmap                     mMarkerBitmap;
-	protected Integer       mZoomLevel   = null;
-	protected List<Integer> mMenuResIds  = new ArrayList<Integer>();
-	protected View          mProgressBar = null;
+	protected Integer       mZoomLevel  = null;
+	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
+	protected Boolean       mShowIndex  = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -117,73 +110,17 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 				uiSettings.setAllGesturesEnabled(true);
 				uiSettings.setCompassEnabled(true);
 
-				// We can draw if we already have entities
-				if (mEntities != null) {
-					draw();
-				}
+				/* Entities to map are always set at start */
+				draw();
 			}
 		});
-
-		if (root != null) {
-			mProgressBar = new ProgressBar(root.getContext(), null, android.R.attr.progressBarStyleLarge);
-			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-					UI.getRawPixelsForDisplayPixels(50f),
-					UI.getRawPixelsForDisplayPixels(50f));
-			params.gravity = Gravity.CENTER;
-			mProgressBar.setLayoutParams(params);
-			mProgressBar.setVisibility(View.INVISIBLE);
-
-			((ViewGroup) root).addView(mProgressBar);
-		}
 
 		return root;
-	}
-
-	public void onProcessingComplete() {
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (mProgressBar != null) {
-					mProgressBar.setVisibility(View.INVISIBLE);
-				}
-			}
-		});
-	}
-
-	@Override
-	public void onViewCreated(final View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-
-		Logger.v(this, "View created, added layout listener");
-		if (view != null && view.getViewTreeObserver().isAlive()) {
-			view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-
-				@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-				public void onGlobalLayout() {
-					if (Constants.SUPPORTS_JELLY_BEAN) {
-						view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-					}
-					else {
-						view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-					}
-					onViewLayout();
-				}
-			});
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-
-	public void onViewLayout() {
-		/*
-		 * Called when initial view layout has completed and
-		 * views have been measured and sized.
-		 */
-		Logger.d(this, "Fragment view layout completed");
-		draw();
-	}
 
 	@Override
 	public boolean onMyLocationButtonClick() {
@@ -229,12 +166,13 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void draw() {
-
+		/*
+		 * Entities are injected into mEntities by the host activity.
+		 */
 		if (mClusterManager != null) {
 			mMap.clear();
 			mClusterManager.clearItems();
 			if (mEntities != null) {
-				mProgressBar.setVisibility(View.VISIBLE);
 				for (Entity entity : mEntities) {
 					if (entity.getLocation() != null) {
 						entity.index = mEntities.indexOf(entity) + 1;
@@ -247,49 +185,50 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		}
 
 		final View mapView = getView();
-		/*
-		 * We could get this call before mMap has been set.
-		 */
-		if (mEntities == null || mEntities.size() == 0 || mMap == null) return;
-		/*
-		 * One only one entity then center on it.
-		 */
-		if (mEntities.size() == 1 && mZoomLevel != null) {
-			Patch patch = (Patch) mEntities.get(0);
-			AirLocation location = patch.getLocation();
-			if (location != null && location.lat != null && location.lng != null) {
-				mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), mZoomLevel));
+		if (mapView != null) {
+			/*
+			 * We could get this call before mMap has been set.
+			 */
+			if (mEntities == null || mEntities.size() == 0 || mMap == null) return;
+			/*
+			 * One only one entity then center on it.
+			 */
+			if (mEntities.size() == 1 && mZoomLevel != null) {
+				Patch patch = (Patch) mEntities.get(0);
+				AirLocation location = patch.getLocation();
+				if (location != null && location.lat != null && location.lng != null) {
+					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), mZoomLevel));
+				}
 			}
-		}
-		/*
-		 * Multiple entities, center on grouping.
-		 */
-		else {
-			if (mZoomLevel != null) {
-				Location location = LocationManager.getInstance().getLocationLocked();
-				if (location != null) {
-					LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mZoomLevel));
+			/*
+			 * Multiple entities, center on grouping.
+			 */
+			else {
+				if (mZoomLevel != null) {
+					Location location = LocationManager.getInstance().getLocationLocked();
+					if (location != null) {
+						LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mZoomLevel));
+					}
+					else {
+						/*
+						 * We have no idea where the user is. We don't use bounds because
+						 * that could center the user out in the ocean or something else
+						 * stupid.
+						 */
+						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MapManager.LATLNG_USA, MapManager.ZOOM_SCALE_USA));
+					}
 				}
 				else {
-					/*
-					 * We have no idea where the user is. We don't use bounds because
-					 * that could center the user out in the ocean or something else
-					 * stupid.
-					 */
-					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MapManager.LATLNG_USA, MapManager.ZOOM_SCALE_USA));
-				}
-			}
-			else {
-				LatLngBounds bounds = getBounds(mEntities);
-				if (bounds != null) {
-					int padding = (int) (Math.min(mapView.getWidth(), mapView.getHeight()) * 0.2);
-					CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-					mMap.moveCamera(cameraUpdate);
+					LatLngBounds bounds = getBounds(mEntities);
+					if (bounds != null) {
+						int padding = (int) (Math.min(mapView.getWidth(), mapView.getHeight()) * 0.2);
+						CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+						mMap.moveCamera(cameraUpdate);
+					}
 				}
 			}
 		}
-		onProcessingComplete();
 	}
 
 	public LatLngBounds getBounds(List<Entity> entities) {
@@ -325,13 +264,18 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		return this;
 	}
 
-	public MapListFragment setListFragment(String listFragment) {
-		mListFragment = listFragment;
+	public MapListFragment setRelatedListFragment(String relatedListFragment) {
+		mRelatedListFragment = relatedListFragment;
 		return this;
 	}
 
-	public String getListFragment() {
-		return mListFragment;
+	public MapListFragment setShowIndex(Boolean showIndex) {
+		mShowIndex = showIndex;
+		return this;
+	}
+
+	public String getRelatedListFragment() {
+		return mRelatedListFragment;
 	}
 
 	public List<Integer> getMenuResIds() {
@@ -412,7 +356,7 @@ public class MapListFragment extends MapFragment implements ClusterManager.OnClu
 		protected void onBeforeClusterItemRendered(final EntityItem entityItem, final MarkerOptions markerOptions) {
 			if (entityItem.mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				final Patch patch = (Patch) entityItem.mEntity;
-				if (entityItem.mEntity.index != null) {
+				if (mShowIndex && entityItem.mEntity.index != null) {
 					String label = (entityItem.mEntity.index.intValue() <= 99) ? String.valueOf(entityItem.mEntity.index) : "+";
 					markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mIconGenerator.makeIcon(label)));
 				}
