@@ -126,10 +126,13 @@ public class OkHttp extends BaseConnection {
 			if (response != null) {
 				if (response.isSuccessful()) {
 					String contentType = getContentType(response, airRequest);
-					Long contentLength = response.body().contentLength();
-					Reporting.logMessage("OutOfMemoryError: success response:"
-							+ " contentType: " + contentType
-							+ " contentLength: " + String.valueOf(contentLength));
+					try {
+						Long contentLength = response.body().contentLength();
+						Reporting.logMessage("OutOfMemoryError: success response:"
+								+ " contentType: " + contentType
+								+ " contentLength: " + String.valueOf(contentLength));
+					}
+					catch (IOException ignore) {/* Ignore */}
 				}
 			}
 			throw error;
@@ -234,19 +237,18 @@ public class OkHttp extends BaseConnection {
 
 	private void logErrorResponse(@NonNull Response response) {
 
-		final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.body().byteStream()));
 		final StringBuilder stringBuilder = new StringBuilder(); // $codepro.audit.disable defineInitialCapacity
 
 		//noinspection EmptyCatchBlock
 		try {
-
+			final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.body().byteStream()));
 			String line;
 			while ((line = bufferedReader.readLine()) != null) {
 				stringBuilder.append(line + System.getProperty("line.separator"));
 			}
 			bufferedReader.close();
 		}
-		catch (IOException ignore) {}
+		catch (IOException ignore) { /* Ignore */}
 
 		String responseContent = stringBuilder.toString();
 		Logger.d(this, responseContent);
