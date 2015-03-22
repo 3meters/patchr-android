@@ -9,6 +9,7 @@ import android.widget.RelativeLayout;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
+import com.aircandi.utilities.UI;
 
 public class ListController extends UiController {
 
@@ -43,7 +44,7 @@ public class ListController extends UiController {
 						int headerHeight = (headerHeightProjected != null)
 						                   ? headerHeightProjected
 						                   : header.getHeight();
-						params.topMargin = headerHeight;
+						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(24f);
 						view.setLayoutParams(params);
 					}
 					else {

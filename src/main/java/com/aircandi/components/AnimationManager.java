@@ -7,8 +7,9 @@ import com.aircandi.objects.TransitionType;
 
 public class AnimationManager {
 
-	public static       Integer DURATION_MEDIUM      = 500;
-	public static       Integer DURATION_SHORT       = 200;
+	public static Integer DURATION_LONG   = 1000;
+	public static Integer DURATION_MEDIUM = 500;
+	public static Integer DURATION_SHORT  = 200;
 
 	public static void doOverridePendingTransition(Activity activity, Integer transitionType) {
 		/*

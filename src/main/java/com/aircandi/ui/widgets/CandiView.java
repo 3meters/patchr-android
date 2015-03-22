@@ -487,7 +487,6 @@ public class CandiView extends RelativeLayout {
 	}
 
 	public void showDistance(Entity entity) {
-		setVisibility(mDistance, View.GONE);
 		if (mDistance != null) {
 
 			String info = "here";
@@ -534,6 +533,9 @@ public class CandiView extends RelativeLayout {
 			if (!TextUtils.isEmpty(info)) {
 				mDistance.setText(Html.fromHtml(info));
 				setVisibility(mDistance, View.VISIBLE);
+			}
+			else {
+				setVisibility(mDistance, View.GONE);
 			}
 		}
 	}

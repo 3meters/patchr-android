@@ -31,7 +31,8 @@ import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.DataErrorEvent;
-import com.aircandi.events.DataReadyEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
 import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
@@ -135,8 +136,8 @@ public class MessageForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onDataReady(DataReadyEvent event) {
-		super.onDataReady(event);
+	public void onDataResult(DataResultEvent event) {
+		super.onDataResult(event); // Handles GET_ENTITY, INSERT_LIKE, DELETE_LIKE
 	}
 
 	@Subscribe
@@ -145,13 +146,11 @@ public class MessageForm extends BaseEntityForm {
 	}
 
 	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onEntitiesLoaded(final EntitiesLoadedEvent event) {
-		if (mHighlight != null && !mHighlight.hasFired()) {
-			((EntityListFragment) mCurrentFragment).setListPositionToEntity(mChildId);
-		}
+	public void onDataNoop(DataNoopEvent event) {
+		super.onDataNoop(event);
 	}
 
+	@Override
 	protected void onProcessingComplete(final ResponseCode responseCode) {
 		super.onProcessingComplete(responseCode);
 
@@ -174,7 +173,6 @@ public class MessageForm extends BaseEntityForm {
 	}
 
 	@Subscribe
-	@SuppressWarnings("ucd")
 	public void onNotificationReceived(final NotificationReceivedEvent event) {
 	    /*
 	     * Refresh the form because something new has been added to it
@@ -187,6 +185,13 @@ public class MessageForm extends BaseEntityForm {
 					((EntityListFragment) mCurrentFragment).bind(BindingMode.AUTO);
 				}
 			});
+		}
+	}
+
+	@Subscribe
+	public void onEntitiesLoaded(final EntitiesLoadedEvent event) {
+		if (mHighlight != null && !mHighlight.hasFired()) {
+			((EntityListFragment) mCurrentFragment).setListPositionToEntity(mChildId);
 		}
 	}
 
@@ -342,6 +347,8 @@ public class MessageForm extends BaseEntityForm {
 		final ViewGroup shareFrame = (ViewGroup) view.findViewById(R.id.share_entity);
 		final ViewGroup buttonHolder = (ViewGroup) view.findViewById(R.id.button_holder);
 		final ViewGroup toHolder = (ViewGroup) view.findViewById(R.id.to_holder);
+		final ViewAnimator like = (ViewAnimator) view.findViewById(R.id.button_like);
+		final View likes = view.findViewById(R.id.button_likes);
 
         /* Share */
 
@@ -356,6 +363,10 @@ public class MessageForm extends BaseEntityForm {
 			flowLayout.setSpacingHorizontal(UI.getRawPixelsForDisplayPixels(4f));
 			flowLayout.setSpacingVertical(UI.getRawPixelsForDisplayPixels(4f));
 			flowLayout.setClickable(false);
+
+			/* Reset */
+			mTos.clear();
+			flowLayout.removeAllViews();
 
             /* Check for recipients */
 			List<Link> links = mEntity.getLinks(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, null, Direction.out);
@@ -385,12 +396,11 @@ public class MessageForm extends BaseEntityForm {
 
 		/* Message patch context */
 
-		UI.setVisibility(holderPatch, View.GONE);
 		if (holderPatch != null) {
 			if (share) {
 				patchName.setText(StringManager.getString(R.string.label_message_shared));
-				UI.setVisibility(holderPatch, View.VISIBLE);
 				UI.setEnabled(holderPatch, false);
+				UI.setVisibility(holderPatch, View.VISIBLE);
 			}
 			else {
 				Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
@@ -409,7 +419,11 @@ public class MessageForm extends BaseEntityForm {
 					if (patchPhotoView.getPhoto() == null || !patchPhotoView.getPhoto().getUri().equals(photo.getUri())) {
 						UI.drawPhoto(patchPhotoView, photo);
 					}
+
 					UI.setVisibility(patchPhotoView, View.VISIBLE);
+				}
+				else {
+					UI.setVisibility(holderPatch, View.GONE);
 				}
 			}
 		}
@@ -488,34 +502,46 @@ public class MessageForm extends BaseEntityForm {
 
 		/* User photo */
 
-		UI.setVisibility(userPhotoView, View.GONE);
-		if (userPhotoView != null && mEntity.creator != null) {
-			Photo photo = mEntity.creator.getPhoto();
-			if (userPhotoView.getPhoto() == null || !userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
-				UI.drawPhoto(userPhotoView, photo);
+		if (userPhotoView != null) {
+			if (mEntity.creator != null) {
+				Photo photo = mEntity.creator.getPhoto();
+				if (userPhotoView.getPhoto() == null || !userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
+					UI.drawPhoto(userPhotoView, photo);
+				}
+				UI.setVisibility(userPhotoView, View.VISIBLE);
 			}
-			UI.setVisibility(userPhotoView, View.VISIBLE);
+			else {
+				UI.setVisibility(userPhotoView, View.GONE);
+			}
 		}
+
 
 		/* User name */
 
-		UI.setVisibility(userName, View.GONE);
-		if (userName != null && mEntity.creator != null && mEntity.creator.name != null && mEntity.creator.name.length() > 0) {
-			userName.setText(mEntity.creator.name);
-			UI.setVisibility(userName, View.VISIBLE);
+		if (userName != null) {
+			if (mEntity.creator != null && mEntity.creator.name != null && mEntity.creator.name.length() > 0) {
+				userName.setText(mEntity.creator.name);
+				UI.setVisibility(userName, View.VISIBLE);
+			}
+			else {
+				UI.setVisibility(userName, View.GONE);
+			}
 		}
 
 		/* Created date */
 
-		UI.setVisibility(createdDate, View.GONE);
-		if (createdDate != null && mEntity.createdDate != null) {
-			createdDate.setText(DateTime.dateStringAt(mEntity.createdDate.longValue()));
-			UI.setVisibility(createdDate, View.VISIBLE);
+		if (createdDate != null) {
+			if (mEntity.createdDate != null) {
+				createdDate.setText(DateTime.dateStringAt(mEntity.createdDate.longValue()));
+				UI.setVisibility(createdDate, View.VISIBLE);
+			}
+			else {
+				UI.setVisibility(createdDate, View.GONE);
+			}
 		}
 
 		/* Message text */
 
-		UI.setVisibility(description, View.GONE);
 		if (description != null) {
 			description.setText(null);
 
@@ -541,14 +567,16 @@ public class MessageForm extends BaseEntityForm {
 				description.setText(mEntity.description);
 				UI.setVisibility(description, View.VISIBLE);
 			}
+			else {
+				UI.setVisibility(description, View.GONE);
+			}
 		}
 
         /* Shared entity */
 
-		UI.setVisibility(shareHolder, View.GONE);
-		UI.setVisibility(photoView, View.GONE);
 		Entity shareEntity = null;
 		Link linkEntity = null;
+
 		if (share) {
 			linkEntity = mEntity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH);
 			if (linkEntity != null) {
@@ -588,6 +616,8 @@ public class MessageForm extends BaseEntityForm {
 			shareFrame.setTag(shareEntity);
 			shareFrame.addView(shareView);
 
+			UI.setVisibility(like, View.GONE);
+			UI.setVisibility(likes, View.GONE);
 			UI.setVisibility(shareHolder, View.VISIBLE);
 		}
 		else if (shareEntity == null && linkEntity != null) {
@@ -611,6 +641,8 @@ public class MessageForm extends BaseEntityForm {
 		}
 		else {
 
+			UI.setVisibility(shareHolder, View.GONE);
+
 		    /* Message that includes a photo */
 
 			if (photoView != null) {
@@ -625,19 +657,18 @@ public class MessageForm extends BaseEntityForm {
 				if (mEntity.photo != null) {
 					UI.setVisibility(photoView, View.VISIBLE);
 				}
+				else {
+					UI.setVisibility(photoView, View.GONE);
+				}
 			}
 		}
 
         /* Likes */
-		UI.setVisibility(buttonHolder, View.GONE);
 		if (shareEntity == null) {
 
-			UI.setVisibility(buttonHolder, View.VISIBLE);
-
 			/* Like button coloring */
-			ViewAnimator like = (ViewAnimator) view.findViewById(R.id.button_like);
 			if (like != null) {
-				UI.setVisibility(like, View.VISIBLE);
+				like.setDisplayedChild(0);
 				Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
 				ImageView image = (ImageView) like.findViewById(R.id.button_image);
 				if (link != null && link.enabled) {
@@ -652,9 +683,7 @@ public class MessageForm extends BaseEntityForm {
 			}
 
 			/* Like count */
-			View likes = view.findViewById(R.id.button_likes);
 			if (likes != null) {
-				UI.setVisibility(likes, View.GONE);
 				Count count = mEntity.getCount(Constants.TYPE_LINK_LIKE, null, true, Direction.in);
 				if (count == null) {
 					count = new Count(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, null, 0);
@@ -669,22 +698,18 @@ public class MessageForm extends BaseEntityForm {
 						UI.setVisibility(likes, View.VISIBLE);
 					}
 				}
+				else {
+					UI.setVisibility(likes, View.GONE);
+				}
 			}
 		}
 	}
 
+	@Override
 	public void configureActionBar() {
 		super.configureActionBar();
 		if (getSupportActionBar() != null) {
 			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
-		}
-	}
-
-	@Override
-	public void afterDatabind(final BindingMode mode, ModelResult result) {
-		super.afterDatabind(mode, result);
-		if (result != null && result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			((EntityListFragment) mCurrentFragment).bind(mode);
 		}
 	}
 

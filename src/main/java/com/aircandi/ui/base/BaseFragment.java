@@ -20,7 +20,6 @@ import com.aircandi.R;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MenuManager;
-import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IForm;
 import com.aircandi.objects.Entity;
 import com.aircandi.ui.AircandiForm;
@@ -29,7 +28,7 @@ import com.aircandi.utilities.DateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseFragment extends Fragment implements IForm, IBind {
+public abstract class BaseFragment extends Fragment implements IForm {
 	/*
 	 * Fragment lifecycle
 	 *
@@ -125,11 +124,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 	}
 
 	@Override
-	public void onRefresh() {
-		bind(BindingMode.MANUAL); // Called from Routing
-	}
-
-	@Override
 	public void onAdd(Bundle extras) {}
 
 	@Override
@@ -155,11 +149,6 @@ public abstract class BaseFragment extends Fragment implements IForm, IBind {
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {}
-
-	@Override
-	public void bind(BindingMode mode) {}
-
-	protected void postBind() {}
 
 	@Override
 	public void draw(View view) {}

@@ -11,11 +11,10 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.MenuManager;
-import com.aircandi.components.ModelResult;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.DataErrorEvent;
-import com.aircandi.events.DataReadyEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.LinkSpecType;
@@ -69,13 +68,18 @@ public class UserForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onDataReady(DataReadyEvent event) {
-		super.onDataReady(event);
+	public void onDataResult(DataResultEvent event) {
+		super.onDataResult(event);
 	}
 
 	@Subscribe
 	public void onDataError(DataErrorEvent event) {
 		super.onDataError(event);
+	}
+
+	@Subscribe
+	public void onDataNoop(DataNoopEvent event) {
+		super.onDataNoop(event);
 	}
 
 	public void onMoreButtonClick(View view) {
@@ -117,43 +121,6 @@ public class UserForm extends BaseEntityForm {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void afterDatabind(BindingMode mode, ModelResult result) {
-		super.afterDatabind(mode, result);
-
-		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
-		if (!currentUser) return;
-		if (result != null && result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			((EntityListFragment) mCurrentFragment).bind(mode);
-		}
-	}
-
-	@Override
-	public void drawButtons(View view) {
-		super.drawButtons(view);
-
-		mButtonWatching = (TextView) findViewById(R.id.button_watching);
-		mButtonCreated = (TextView) findViewById(R.id.button_created);
-		mButtonEdit = findViewById(R.id.button_edit);
-
-		UI.setVisibility(mButtonEdit, View.GONE);
-		if (MenuManager.canUserEdit(mEntity)) {
-			UI.setVisibility(mButtonEdit, View.VISIBLE);
-		}
-
-		Count watching = mEntity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
-		Count created = mEntity.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
-
-		mButtonWatching.setText(StringManager.getString(R.string.label_user_watching)
-				+ ": " + ((watching != null)
-				          ? String.valueOf(watching.count.intValue())
-				          : StringManager.getString(R.string.label_user_watching_none)));
-		mButtonCreated.setText(StringManager.getString(R.string.label_user_created)
-				+ ": " + ((created != null)
-				          ? String.valueOf(created.count.intValue())
-				          : StringManager.getString(R.string.label_user_created_none)));
-	}
 
 	@Override
 	public void draw(View view) {
@@ -210,13 +177,33 @@ public class UserForm extends BaseEntityForm {
 					UI.setVisibility(area, View.VISIBLE);
 				}
 			}
-
-			if (user.stats != null) {
-				drawStats(view);
-			}
 		}
 
 		drawButtons(view);
+	}
+
+	public void drawButtons(View view) {
+
+		mButtonWatching = (TextView) findViewById(R.id.button_watching);
+		mButtonCreated = (TextView) findViewById(R.id.button_created);
+		mButtonEdit = findViewById(R.id.button_edit);
+
+		UI.setVisibility(mButtonEdit, View.GONE);
+		if (MenuManager.canUserEdit(mEntity)) {
+			UI.setVisibility(mButtonEdit, View.VISIBLE);
+		}
+
+		Count watching = mEntity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
+		Count created = mEntity.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
+
+		mButtonWatching.setText(StringManager.getString(R.string.label_user_watching)
+				+ ": " + ((watching != null)
+				          ? String.valueOf(watching.count.intValue())
+				          : StringManager.getString(R.string.label_user_watching_none)));
+		mButtonCreated.setText(StringManager.getString(R.string.label_user_created)
+				+ ": " + ((created != null)
+				          ? String.valueOf(created.count.intValue())
+				          : StringManager.getString(R.string.label_user_created_none)));
 	}
 
 	@Override

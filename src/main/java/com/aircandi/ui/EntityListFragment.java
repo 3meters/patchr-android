@@ -1,6 +1,7 @@
 package com.aircandi.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,17 +24,20 @@ import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DataController;
+import com.aircandi.components.DataController.ActionType;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.DownloadManager;
+import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.DataErrorEvent;
-import com.aircandi.events.DataReadyEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
 import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.events.EntitiesRequestEvent;
-import com.aircandi.interfaces.IBusy.BusyAction;
+import com.aircandi.interfaces.IBind;
+import com.aircandi.interfaces.IBusy;
 import com.aircandi.interfaces.IEntityController;
-import com.aircandi.objects.ActionType;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkSpecType;
@@ -41,7 +45,6 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.ui.components.AnimationFactory;
 import com.aircandi.ui.components.BusyController;
@@ -62,9 +65,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class EntityListFragment extends BaseFragment
-		implements AirListView.OnDragListener,
+		implements IBind,
+		           AirListView.OnDragListener,
 		           OnClickListener,
-		           SwipeRefreshLayout.OnRefreshListener,
 		           AbsListView.OnScrollListener {
 
 	/* Widgets */
@@ -101,20 +104,21 @@ public class EntityListFragment extends BaseFragment
 	protected Integer mVisibleRows    = 3;
 	protected Integer mTopOffset;
 	protected Integer mLastViewedPosition;
-	protected Boolean mNotEmpty = false; // Used to control busy feedback
-	protected Boolean mMore     = false;
+	protected Boolean mEmpty = false; // Used to control busy feedback
+	protected Boolean mMore  = false;
 
 	/* Data binding */
-	protected Integer mActionType = ActionType.ACTION_GET_ENTITIES;
+	protected ActionType mActionType = ActionType.ACTION_GET_ENTITIES;
 	protected String  mMonitorEntityId;
 	protected Entity  mMonitorEntity;
 	protected Integer mPageSize;
 	protected String  mLinkSchema;
 	protected String  mLinkType;
 	protected String  mLinkDirection;
+	protected Boolean mSelfBind = true;
+	protected Boolean mBound    = false;
 
 	@NonNull
-	protected Boolean                mSelfBind          = true;
 	protected List<Entity>           mEntities          = new ArrayList<Entity>();
 	protected Map                    mLinkWhere         = Maps.asMap("enabled", true);
 	protected Map<String, Highlight> mHighlightEntities = new HashMap<String, Highlight>();
@@ -155,7 +159,7 @@ public class EntityListFragment extends BaseFragment
 			throw new IllegalArgumentException("List item resource is required by EntityListFragment");
 		}
 
-		mNotEmpty = (mAdapter != null && mAdapter.getCount() != 0);
+		mEmpty = (mAdapter == null || mAdapter.getCount() == 0);
 		mListView = (AbsListView) view.findViewById(R.id.list);
 		if (mListView != null) {
 			((AirListView) mListView).setScrollListener(this);
@@ -183,8 +187,8 @@ public class EntityListFragment extends BaseFragment
 		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe);
 		if (swipeRefresh != null) {
 			swipeRefresh.setColorSchemeColors(Colors.getColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColor)));
-			swipeRefresh.setProgressBackgroundColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorBackground));
-			swipeRefresh.setOnRefreshListener(this);
+			swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorBackground));
+			swipeRefresh.setOnRefreshListener((BaseActivity) getActivity());
 			swipeRefresh.setRefreshing(false);
 			swipeRefresh.setEnabled(true);
 			mListController.getBusyController().setSwipeRefresh(swipeRefresh);
@@ -239,11 +243,6 @@ public class EntityListFragment extends BaseFragment
 		}
 
 		if (mHeaderView != null) {
-
-			/* Draw the header */
-			if (((BaseActivity) getActivity()).getEntity() != null) {
-				((BaseEntityForm) getActivity()).draw(view);
-			}
 			/*
 			 * Parallax the photo
 			 */
@@ -270,25 +269,27 @@ public class EntityListFragment extends BaseFragment
 	@Override
 	public void bind(final BindingMode mode) {
 		/*
+		 * Called on resume and externally when a parent entity wants to rebind a related entity list.
 		 * If additional entities have been paged in, we include them as part of the request size.
 		 */
+		Logger.v(this, "Binding: " + mode.name().toString());
 		Integer limit = mPageSize;
 		if (mEntities.size() > 0) {
 			limit = (int) Math.ceil((float) mEntities.size() / mPageSize) * mPageSize;
 		}
 
-		fetch(0, limit, mode == BindingMode.MANUAL);
+		fetch(0, limit, mode);
 
 		if (mode != BindingMode.MANUAL) {
 			mListController.getMessageController().showMessage(false);
 		}
 
-		if (!mNotEmpty) {
-			mListController.getBusyController().show(BusyAction.Refreshing_Empty);
+		if (!mBound && !(getActivity() instanceof MessageForm)) {
+			mListController.getBusyController().show(IBusy.BusyAction.Refreshing_Empty);
 		}
 	}
 
-	public void fetch(Integer skip, Integer limit, Boolean force) {
+	public void fetch(Integer skip, Integer limit, BindingMode mode) {
 		/*
 		 * Sorting is applied to links not the entities on the service side.
 		 */
@@ -320,14 +321,15 @@ public class EntityListFragment extends BaseFragment
 				.setLinkProfile(linkProfile);
 
 		request.setActionType(mActionType)
+		       .setMode(mode)
 		       .setEntityId(mMonitorEntityId)
 		       .setTag(System.identityHashCode(this));
-		/*
-		 * Providing a CacheStamp means we won't get called back unless something fresher is available.
-		 */
-		if (!force && mMonitorEntity != null && skip == 0) {
+
+		if (mBound && mMonitorEntity != null && mode != BindingMode.MANUAL) {
 			request.setCacheStamp(mMonitorEntity.getCacheStamp());
 		}
+
+		Logger.v(this, "CacheStamp: " + (request.cacheStamp != null ? request.cacheStamp.toString() : "null"));
 
 		Dispatcher.getInstance().post(request);
 	}
@@ -337,16 +339,21 @@ public class EntityListFragment extends BaseFragment
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onDataReady(final DataReadyEvent event) {
+	public void onDataResult(final DataResultEvent event) {
 
-		if (event.tag != null && event.tag.equals(System.identityHashCode(this))) {
+		if (event.tag.equals(System.identityHashCode(this))
+				&& (event.actionType == ActionType.ACTION_GET_ENTITIES
+				|| event.actionType == ActionType.ACTION_GET_NOTIFICATIONS
+				|| event.actionType == ActionType.ACTION_GET_TREND)) {
+
+			Logger.v(this, "Data result accepted: " + event.actionType.name().toString());
 
 			getActivity().runOnUiThread(new Runnable() {
 
 				@Override
 				public void run() {
 
-					if (event.entities != null && event.entities.size() > 0) {
+					if (event.entities != null) {
 						mMore = event.more;
 						if (event.cursor != null && event.cursor.getSkip() == 0) {
 							mEntities.clear();
@@ -382,8 +389,10 @@ public class EntityListFragment extends BaseFragment
 							switcher.setDisplayedChild(0);
 						}
 					}
-					postBind();
-					mNotEmpty = (mAdapter != null && mAdapter.getCount() != 0);
+					mEmpty = (mAdapter == null || mAdapter.getCount() == 0);
+					if (event.actionType == ActionType.ACTION_GET_ENTITIES) {
+						mBound = true;
+					}
 					onProcessingComplete(ResponseCode.SUCCESS);
 				}
 			});
@@ -392,27 +401,46 @@ public class EntityListFragment extends BaseFragment
 
 	@Subscribe
 	public void onDataError(DataErrorEvent event) {
-		onProcessingComplete(ResponseCode.FAILED);
-		Errors.handleError(getActivity(), event.errorResponse);
+		if (event.tag.equals(System.identityHashCode(this))) {
+			Logger.v(this, "Data error accepted: " + event.actionType.name().toString());
+
+			onProcessingComplete(ResponseCode.FAILED);
+
+			/* We eat errors for network operations the user didn't specifically initiate. */
+			if (!mBound || event.mode == BindingMode.MANUAL) {
+				Errors.handleError(getActivity(), event.errorResponse);
+			}
+		}
+	}
+
+	@Subscribe
+	public void onDataNoop(DataNoopEvent event) {
+		if (event.tag.equals(System.identityHashCode(this))) {
+			Logger.v(this, "Data no-op accepted: " + event.actionType.name().toString());
+			onProcessingComplete(ResponseCode.SUCCESS);
+		}
 	}
 
 	public void onProcessingComplete(final ResponseCode responseCode) {
 
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				mListController.getBusyController().hide(false);
-				if (getAdapter().getCount() == 0
-						&& mListEmptyMessageResId != null
-						&& (responseCode == null || responseCode == ResponseCode.SUCCESS)) {
-					mListController.getMessageController().setMessage(StringManager.getString(mListEmptyMessageResId));
-					mListController.getMessageController().fadeIn(Constants.TIME_ONE_SECOND);
+		Activity activity = getActivity();
+		if (activity != null && !activity.isFinishing()) {
+			activity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mListController.getBusyController().hide(false);
+					if (getAdapter().getCount() == 0
+							&& mListEmptyMessageResId != null
+							&& (responseCode == null || responseCode == ResponseCode.SUCCESS)) {
+						mListController.getMessageController().setMessage(StringManager.getString(mListEmptyMessageResId));
+						mListController.getMessageController().fadeIn(Constants.TIME_ONE_SECOND);
+					}
+					else {
+						mListController.getMessageController().fadeOut(); // Only fades if currently visible
+					}
 				}
-				else {
-					mListController.getMessageController().fadeOut(); // Only fades if currently visible
-				}
-			}
-		});
+			});
+		}
 	}
 
 	@Override
@@ -440,12 +468,12 @@ public class EntityListFragment extends BaseFragment
 	@Override
 	public void onRefresh() {
 		/*
-		 * Called by swipe refresh or from AircandiForm triggered by menu item.
+		 * Called by swipe refresh.
 		 * Super class calls bind(BindingMode.Manual). The swipe refresh is shut
 		 * down and other busy ui takes over.
 		 */
 		saveListPosition();
-		super.onRefresh();
+		bind(BindingMode.MANUAL);
 	}
 
 	@Override
@@ -472,7 +500,7 @@ public class EntityListFragment extends BaseFragment
 
 	public void onMoreButtonClick(View view) {
 		((ViewSwitcher) mLoadingView.findViewById(R.id.animator_more)).setDisplayedChild(1);
-		fetch(mEntities.size(), mPageSize, true);
+		fetch(mEntities.size(), mPageSize, BindingMode.MANUAL);
 	}
 
 	public void handleListDrag() {
@@ -755,7 +783,7 @@ public class EntityListFragment extends BaseFragment
 		return this;
 	}
 
-	public EntityListFragment setActionType(Integer actionType) {
+	public EntityListFragment setActionType(ActionType actionType) {
 		mActionType = actionType;
 		return this;
 	}

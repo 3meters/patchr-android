@@ -15,7 +15,8 @@ import com.aircandi.R;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.events.DataErrorEvent;
-import com.aircandi.events.DataReadyEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
 import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.events.NotificationsRequestEvent;
 import com.aircandi.interfaces.IEntityController;
@@ -33,7 +34,8 @@ import com.squareup.otto.Subscribe;
 
 import java.util.Map;
 
-public class NotificationListFragment extends MessageListFragment {
+public class NotificationListFragment extends MessageListFragment
+		implements SwipeRefreshLayout.OnRefreshListener {
 
 	@Override
 	public void bind(final BindingMode mode) {
@@ -44,12 +46,12 @@ public class NotificationListFragment extends MessageListFragment {
 			mAdapter.setNotifyOnChange(false);
 			mAdapter.clear();
 		}
-		else if (mEntities.size() == 0 || mode == BindingMode.MANUAL) {
+		else {
 			super.bind(mode);
 		}
 	}
 
-	public void fetch(Integer skip, Integer limit, Boolean force) {
+	public void fetch(Integer skip, Integer limit, BindingMode mode) {
 
 		Integer skipCount = ((int) Math.ceil((double) skip / mPageSize) * mPageSize);
 		Cursor cursor = new Cursor()
@@ -64,6 +66,10 @@ public class NotificationListFragment extends MessageListFragment {
 		       .setEntityId(mMonitorEntityId)
 		       .setTag(System.identityHashCode(this));
 
+		if (mBound && mMonitorEntity != null && mode != BindingMode.MANUAL) {
+			request.setCacheStamp(mMonitorEntity.getCacheStamp());
+		}
+
 		Dispatcher.getInstance().post(request);
 	}
 
@@ -76,16 +82,22 @@ public class NotificationListFragment extends MessageListFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
 
-		/* Change swipe colors */
+		/* Change swipe colors and redirect swipe listener to self */
 		if (view != null) {
 			SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe);
 			if (swipeRefresh != null) {
 				swipeRefresh.setColorSchemeColors(Colors.getColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorNotifications)));
-				swipeRefresh.setProgressBackgroundColor(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorBackgroundNotifications));
+				swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(getActivity(), R.attr.refreshColorBackgroundNotifications));
+				swipeRefresh.setOnRefreshListener(this);
 			}
 		}
 
 		return view;
+	}
+
+	@Override
+	public void onRefresh() {
+		super.onRefresh();
 	}
 
 	@Subscribe
@@ -106,13 +118,18 @@ public class NotificationListFragment extends MessageListFragment {
 	}
 
 	@Subscribe
-	public void onDataReady(final DataReadyEvent event) {
-		super.onDataReady(event);
+	public void onDataResult(final DataResultEvent event) {
+		super.onDataResult(event);
 	}
 
 	@Subscribe
 	public void onDataError(DataErrorEvent event) {
 		super.onDataError(event);
+	}
+
+	@Subscribe
+	public void onDataNoop(DataNoopEvent event) {
+		super.onDataNoop(event);
 	}
 
 	@Override

@@ -14,7 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -66,7 +66,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class BaseActivity extends ActionBarActivity
-		implements OnRefreshListener, IForm, IBind {
+		implements SwipeRefreshLayout.OnRefreshListener, IForm, IBind {
 
 	private   Toolbar mActionBarToolbar;
 	protected Menu    mOptionMenu;
@@ -108,7 +108,6 @@ public abstract class BaseActivity extends ActionBarActivity
 	public Resources mResources;
 	public    Boolean mFirstDraw    = true;
 	protected Boolean mClickEnabled = false;                        // NO_UCD (unused code)
-	protected Boolean mNotEmpty     = false;
 	protected Boolean mProcessing   = false;
 	protected Boolean mRestarting   = false;
 

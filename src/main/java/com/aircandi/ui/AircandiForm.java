@@ -24,7 +24,7 @@ import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.NotificationReceivedEvent;
-import com.aircandi.objects.ActionType;
+import com.aircandi.components.DataController.ActionType;
 import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -123,7 +123,12 @@ public class AircandiForm extends BaseActivity {
 		 * Triggers either searchForPlaces or bind(BindingMode.MANUAL).
 		 */
 		if (mCurrentFragment != null) {
-			((BaseFragment) mCurrentFragment).onRefresh();
+			if (mCurrentFragment instanceof NotificationListFragment) {
+				((NotificationListFragment) mCurrentFragment).onRefresh();
+			}
+			if (mCurrentFragment instanceof EntityListFragment) {
+				((EntityListFragment) mCurrentFragment).onRefresh();
+			}
 		}
 	}
 
@@ -143,7 +148,7 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		if (mCurrentFragmentTag != null && mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
-			String listFragment = ((MapListFragment) getCurrentFragment()).getListFragment();
+			String listFragment = ((MapListFragment) getCurrentFragment()).getRelatedListFragment();
 			if (listFragment != null) {
 				Bundle extras = new Bundle();
 				extras.putString(Constants.EXTRA_FRAGMENT_TYPE, listFragment);
@@ -219,8 +224,8 @@ public class AircandiForm extends BaseActivity {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				if (mCurrentFragment != null && mCurrentFragment instanceof BaseFragment) {
-					((BaseFragment) mCurrentFragment).bind(BindingMode.AUTO);
+				if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
+					((EntityListFragment) mCurrentFragment).bind(BindingMode.AUTO);
 				}
 				updateNotificationIndicator(false);
 			}
@@ -325,6 +330,7 @@ public class AircandiForm extends BaseActivity {
 				((EntityListFragment) fragment)
 						.setActionType(ActionType.ACTION_GET_TREND)
 						.setLinkType(Constants.TYPE_LINK_WATCH)
+						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
 						.setListPagingEnabled(false)
 						.setEntityCacheEnabled(false)
 						.setHeaderViewResId(R.layout.widget_list_header_trends_popular)
@@ -355,6 +361,7 @@ public class AircandiForm extends BaseActivity {
 						.setListPagingEnabled(false)
 						.setEntityCacheEnabled(false)
 						.setHeaderViewResId(R.layout.widget_list_header_trends_active)
+						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
 						.setListItemResId(R.layout.temp_listitem_trends)
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.trends_list_fragment)
@@ -402,7 +409,8 @@ public class AircandiForm extends BaseActivity {
 			((MapListFragment) fragment)
 					.setEntities(((EntityListFragment) getCurrentFragment()).getEntities())
 					.setTitleResId(((EntityListFragment) getCurrentFragment()).getTitleResId())
-					.setListFragment(mCurrentFragmentTag)
+					.setRelatedListFragment(mCurrentFragmentTag)
+					.setShowIndex(true)
 					.setZoomLevel(null);
 
 			if (!mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
@@ -558,7 +566,7 @@ public class AircandiForm extends BaseActivity {
 					NotificationManager.getInstance().setNewNotificationCount(0);
 					NotificationManager.getInstance().cancelAllNotifications();
 					updateNotificationIndicator(true);
-					((BaseFragment) mFragmentNotifications).bind(BindingMode.AUTO);
+					((EntityListFragment) mFragmentNotifications).bind(BindingMode.AUTO);
 				}
 			}
 

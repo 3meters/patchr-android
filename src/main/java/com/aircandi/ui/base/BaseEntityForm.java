@@ -2,7 +2,6 @@ package com.aircandi.ui.base;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -12,23 +11,24 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController.ActionType;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
-import com.aircandi.components.ModelResult;
-import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.events.DataErrorEvent;
-import com.aircandi.events.DataReadyEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
 import com.aircandi.events.EntityRequestEvent;
 import com.aircandi.events.LinkDeleteEvent;
 import com.aircandi.events.LinkInsertEvent;
-import com.aircandi.objects.ActionType;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
+import com.aircandi.ui.EntityListFragment;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
@@ -43,7 +43,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	protected Integer mLinkProfile;
 	protected Integer mTransitionType;
 	protected Integer mLikeStatus = LikeStatus.NONE;     // Set in draw
-	protected AsyncTask mTaskGetEntity;
+	protected Boolean mBound      = false;
 
 	/* Inputs */
 	@SuppressWarnings("ucd")
@@ -69,9 +69,104 @@ public abstract class BaseEntityForm extends BaseActivity {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Subscribe
+	public void onDataResult(final DataResultEvent event) {
+
+		if (event.tag.equals(System.identityHashCode(this))
+				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
+
+			Logger.v(this, "Data result accepted: " + event.actionType.name().toString());
+
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+
+					if (event.actionType == ActionType.ACTION_GET_ENTITY) {
+
+						if (event.entity != null) {
+							mEntity = event.entity;
+
+							if (mParentId != null) {
+								mEntity.toId = mParentId;
+							}
+
+							if (mEntity instanceof Patch) {
+								Patchr.getInstance().setCurrentPatch(mEntity);
+							}
+						}
+						/*
+						 * Possible to hit this before options menu has been set. If so then
+						 * configureStandardMenuItems will be called in onCreateOptionsMenu.
+						 */
+						if (mOptionMenu != null) {
+							configureStandardMenuItems(mOptionMenu);
+						}
+
+						draw(null);
+
+						/* Ensure this is flagged as read */
+						if (mNotificationId != null) {
+							if (NotificationManager.getInstance().getNotifications().containsKey(mNotificationId)) {
+								NotificationManager.getInstance().getNotifications().get(mNotificationId).read = true;
+							}
+						}
+						mBound = true;
+						onProcessingComplete(NetworkManager.ResponseCode.SUCCESS);
+					}
+					else if (event.actionType == ActionType.ACTION_LINK_INSERT_LIKE
+							|| event.actionType == ActionType.ACTION_LINK_DELETE_LIKE) {
+						draw(null);
+						onProcessingComplete(NetworkManager.ResponseCode.SUCCESS);
+					}
+				}
+			});
+		}
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		if (event.tag.equals(System.identityHashCode(this))) {
+			Logger.v(this, "Data error accepted: " + event.actionType.name().toString());
+
+			Boolean linkAction = (event.actionType.name().toLowerCase(Locale.US).contains("link"));
+
+			if (linkAction) {
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						draw(null);     // Chance to clear any embedded busy ui
+					}
+				});
+			}
+
+			onProcessingComplete(NetworkManager.ResponseCode.FAILED);
+
+			/* We eat errors for network operations the user didn't specifically initiate. */
+			if (!mBound || event.mode == BindingMode.MANUAL || linkAction) {
+				Errors.handleError(BaseEntityForm.this, event.errorResponse);
+			}
+		}
+	}
+
+	@Subscribe
+	public void onDataNoop(DataNoopEvent event) {
+		if (event.tag.equals(System.identityHashCode(this))) {
+			Logger.v(this, "Data no-op accepted: " + event.actionType.name().toString());
+			onProcessingComplete(NetworkManager.ResponseCode.SUCCESS);
+		}
+	}
+
 	@Override
 	public void onRefresh() {
+		/*
+		 * Called from swipe refresh or routing. Always treated
+		 * as an aggresive refresh.
+		 */
 		bind(BindingMode.MANUAL); // Called from Routing
+		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
+			((EntityListFragment) mCurrentFragment).onRefresh();
+		}
 	}
 
 	@SuppressWarnings("ucd")
@@ -142,57 +237,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		Logger.d(this, "Activity restoring state");
 	}
 
-	@Subscribe
-	public void onDataReady(final DataReadyEvent event) {
-
-		if (event.tag.equals(System.identityHashCode(this))
-				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
-
-			runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					mUiController.getBusyController().hide(false);
-					if (event.entity != null) {
-						mEntity = event.entity;
-
-						if (mParentId != null) {
-							mEntity.toId = mParentId;
-						}
-
-						if (mEntity instanceof Patch) {
-							Patchr.getInstance().setCurrentPatch(mEntity);
-						}
-					}
-					/*
-					 * Possible to hit this before options menu has been set. If so then
-					 * configureStandardMenuItems will be called in onCreateOptionsMenu.
-					 */
-					if (mOptionMenu != null) {
-						configureStandardMenuItems(mOptionMenu);
-					}
-
-					draw(null);
-
-					/* Ensure this is flagged as read */
-					if (mNotificationId != null) {
-						if (NotificationManager.getInstance().getNotifications().containsKey(mNotificationId)) {
-							NotificationManager.getInstance().getNotifications().get(mNotificationId).read = true;
-						}
-					}
-					onProcessingComplete(ResponseCode.SUCCESS);
-				}
-			});
-		}
-	}
-
-	@Subscribe
-	public void onDataError(DataErrorEvent event) {
-		onProcessingComplete(ResponseCode.FAILED);
-		Errors.handleError(BaseEntityForm.this, event.errorResponse);
-	}
-
-	protected void onProcessingComplete(final ResponseCode responseCode) {
+	protected void onProcessingComplete(final NetworkManager.ResponseCode responseCode) {
 		mProcessing = false;
 		mUiController.getBusyController().hide(false);
 	}
@@ -205,32 +250,23 @@ public abstract class BaseEntityForm extends BaseActivity {
 		/*
 		 * Called on main thread.
 		 */
+		Logger.v(this, "Binding: " + mode.name().toString());
 		EntityRequestEvent request = new EntityRequestEvent()
 				.setLinkProfile(mLinkProfile);
 
 		request.setActionType(ActionType.ACTION_GET_ENTITY)
+		       .setMode(mode)
 		       .setEntityId(mEntityId)
 		       .setTag(System.identityHashCode(this));
-		/*
-		 * Providing a CacheStamp means we won't get called back unless something fresher is available.
-		 */
-		if (mEntity != null) {
+
+		if (mBound && mEntity != null && mode != BindingMode.MANUAL) {
 			request.setCacheStamp(mEntity.getCacheStamp());
 		}
+
 		Dispatcher.getInstance().post(request);
 	}
 
-	public void afterDatabind(final BindingMode mode, ModelResult result) {
-		if (result == null || result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			mNotEmpty = true;
-		}
-	}
-
 	public void draw(View view) {}
-
-	protected void drawStats(View view) {}
-
-	protected void drawButtons(View view) {}
 
 	public void like(final boolean activate) {
 

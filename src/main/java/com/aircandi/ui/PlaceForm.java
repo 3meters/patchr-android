@@ -10,7 +10,8 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.events.DataErrorEvent;
-import com.aircandi.events.DataReadyEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Route;
@@ -52,13 +53,18 @@ public class PlaceForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onDataReady(DataReadyEvent event) {
-		super.onDataReady(event);
+	public void onDataResult(DataResultEvent event) {
+		super.onDataResult(event);
 	}
 
 	@Subscribe
 	public void onDataError(DataErrorEvent event) {
 		super.onDataError(event);
+	}
+
+	@Subscribe
+	public void onDataNoop(DataNoopEvent event) {
+		super.onDataNoop(event);
 	}
 
 	@SuppressWarnings("ucd")

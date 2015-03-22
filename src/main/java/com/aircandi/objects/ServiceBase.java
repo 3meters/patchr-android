@@ -142,6 +142,10 @@ public abstract class ServiceBase extends ServiceObject {
 		base.activityDate = (Number) map.get("activityDate");
 		base.sortDate = (Number) map.get("sortDate");
 
+		if (base.activityDate == null && base.createdDate != null) {
+			base.activityDate = base.createdDate.longValue(); // Service doesn't set activityDate until there is activity
+		}
+
 		if (map.get("creator") != null) {
 			base.creator = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("creator"), nameMapping);
 		}

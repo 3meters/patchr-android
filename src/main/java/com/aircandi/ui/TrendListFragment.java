@@ -8,7 +8,8 @@ import com.aircandi.R;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.DataErrorEvent;
-import com.aircandi.events.DataReadyEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
 import com.aircandi.events.TrendRequestEvent;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
@@ -31,7 +32,7 @@ public class TrendListFragment extends EntityListFragment {
 		}
 	}
 
-	public void fetch(Integer skip, Integer limit, Boolean force) {
+	public void fetch(Integer skip, Integer limit, BindingMode mode) {
 
 		TrendRequestEvent request = new TrendRequestEvent()
 				.setLinkType(mLinkType)
@@ -41,6 +42,10 @@ public class TrendListFragment extends EntityListFragment {
 		request.setActionType(mActionType)
 		       .setTag(System.identityHashCode(this));
 
+		if (mBound && mMonitorEntity != null && mode != BindingMode.MANUAL) {
+			request.setCacheStamp(mMonitorEntity.getCacheStamp());
+		}
+
 		Dispatcher.getInstance().post(request);
 	}
 
@@ -49,13 +54,18 @@ public class TrendListFragment extends EntityListFragment {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onDataReady(final DataReadyEvent event) {
-		super.onDataReady(event);
+	public void onDataResult(final DataResultEvent event) {
+		super.onDataResult(event);
 	}
 
 	@Subscribe
 	public void onDataError(DataErrorEvent event) {
 		super.onDataError(event);
+	}
+
+	@Subscribe
+	public void onDataNoop(DataNoopEvent event) {
+		super.onDataNoop(event);
 	}
 
 	/*--------------------------------------------------------------------------------------------

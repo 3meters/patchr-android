@@ -51,7 +51,7 @@ public class SplashForm extends ActionBarActivity {
 
 		mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
 		if (mSwipeRefreshLayout != null) {
-			mSwipeRefreshLayout.setProgressBackgroundColor(R.color.brand_primary);
+			mSwipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.brand_primary);
 			mSwipeRefreshLayout.setColorSchemeColors(Colors.getColor(R.color.white));
 			mSwipeRefreshLayout.setEnabled(false);
 			mSwipeRefreshLayout.setProgressViewOffset(true, UI.getRawPixelsForDisplayPixels(48f), UI.getRawPixelsForDisplayPixels(48f));
@@ -129,7 +129,7 @@ public class SplashForm extends ActionBarActivity {
 						 * user stored in shared prefs. We refresh the user data from the service here.
 						 */
 						LinkSpec options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
-						result = DataController.getInstance().getEntity(Patchr.getInstance().getCurrentUser().id, true, options, null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						result = DataController.getInstance().getEntity(Patchr.getInstance().getCurrentUser().id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 					}
 				}
 

@@ -1,5 +1,6 @@
 package com.aircandi.ui;
 
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -88,7 +89,7 @@ public class NearbyListFragment extends EntityListFragment {
 		 * Only called in response to parent form receiving a push notification. Example
 		 * is a new patch was created nearby and we want to show it.
 		 */
-		CacheStamp cacheStamp = DataController.getInstance().getCacheStamp();
+		CacheStamp cacheStamp = DataController.getInstance().getGlobalCacheStamp();
 		if (mCacheStamp != null && !mCacheStamp.equals(cacheStamp)) {
 			searchForPatches();
 		}
@@ -109,19 +110,22 @@ public class NearbyListFragment extends EntityListFragment {
 	public void onProcessingComplete(final ResponseCode responseCode) {
 		super.onProcessingComplete(responseCode);
 
-		getActivity().runOnUiThread(new Runnable() {
+		Activity activity = getActivity();
+		if (activity != null && !activity.isFinishing()) {
+			activity.runOnUiThread(new Runnable() {
 
-			@Override
-			public void run() {
-				Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled() || LocationManager.getInstance().isLocationAccessEnabled());
-				if (proximityCapable) {
-					mListController.getFloatingActionController().fadeIn();
+				@Override
+				public void run() {
+					Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled() || LocationManager.getInstance().isLocationAccessEnabled());
+					if (proximityCapable) {
+						mListController.getFloatingActionController().fadeIn();
+					}
+					else {
+						mListController.getFloatingActionController().fadeOut();
+					}
 				}
-				else {
-					mListController.getFloatingActionController().fadeOut();
-				}
-			}
-		});
+			});
+		}
 	}
 
 	@Override
@@ -231,7 +235,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 				Patchr.stopwatch1.stop("Search for places by beacon complete");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
-				mCacheStamp = DataController.getInstance().getCacheStamp();
+				mCacheStamp = DataController.getInstance().getGlobalCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
 					onProcessingComplete(ResponseCode.SUCCESS);
@@ -240,14 +244,8 @@ public class NearbyListFragment extends EntityListFragment {
 
 					final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 					if (location != null) {
+						Reporting.updateCrashKeys();
 						mTaskPatchesNearLocation = new AsyncTask() {
-
-							@Override
-							protected void onPreExecute() {
-								Reporting.updateCrashKeys();
-								//								mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
-								//								mListController.getMessageController().fadeOut();
-							}
 
 							@Override
 							protected Object doInBackground(Object... params) {
@@ -465,7 +463,7 @@ public class NearbyListFragment extends EntityListFragment {
 				Thread.currentThread().setName("AsyncSearchForPatches");
 				Patchr.stopwatch1.start("beacon_search", "Search for places by beacon");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
-				ProximityController.getInstance().clearBeacons();
+				DataController.getInstance().clearEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 				if (NetworkManager.getInstance().isWifiEnabled()) {
 					ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 				}

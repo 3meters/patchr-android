@@ -701,7 +701,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(mNotEmpty ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
+				mUiController.getBusyController().show(BusyAction.Refreshing);
 			}
 
 			@Override
@@ -762,7 +762,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(mNotEmpty ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
+				mUiController.getBusyController().show(BusyAction.Refreshing);
 			}
 
 			@Override

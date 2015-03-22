@@ -9,7 +9,8 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.events.DataErrorEvent;
-import com.aircandi.events.DataReadyEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
 import com.aircandi.events.EntitiesRequestEvent;
 import com.aircandi.events.EntityRequestEvent;
 import com.aircandi.events.LinkDeleteEvent;
@@ -20,7 +21,6 @@ import com.aircandi.events.TrendRequestEvent;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.CacheStamp;
-import com.aircandi.objects.CacheStamp.StampSource;
 import com.aircandi.objects.Category;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Document;
@@ -89,20 +89,17 @@ public class DataController {
 
 		/* Called on main thread */
 
-		/* Provide cache entity if needed or fresher */
+		/* Provide cache entity if available */
 		final Entity entity = ENTITY_STORE.getStoreEntity(event.entityId);
 		if (entity != null) {
-			CacheStamp cacheStamp = entity.getCacheStamp();
-			if (event.cacheStamp == null || !event.cacheStamp.equals(cacheStamp)) {
-				DataReadyEvent data = new DataReadyEvent()
-						.setActionType(event.actionType)
-						.setEntity(entity)
-						.setTag(event.tag);
-				Dispatcher.getInstance().post(data);
-			}
+			DataResultEvent data = new DataResultEvent()
+					.setActionType(event.actionType)
+					.setEntity(entity)
+					.setTag(event.tag);
+			Dispatcher.getInstance().post(data);
 		}
 
-		/* Start service freshness check */
+		/* Check service for fresher version of the entity */
 		new AsyncTask() {
 
 			@Override
@@ -110,20 +107,37 @@ public class DataController {
 				Thread.currentThread().setName("AsyncGetEntity");
 
 				LinkSpec options = LinkSpecFactory.build(event.linkProfile);
-				CacheStamp cacheStamp = entity != null ? entity.getCacheStamp() : null;
-				ModelResult result = getEntity(event.entityId, true, options, cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					if (result.data != null) {
-						Entity entity = (Entity) result.data;
-						DataReadyEvent data = new DataReadyEvent()
+				final List<String> loadEntityIds = new ArrayList<String>();
+				loadEntityIds.add(event.entityId);
+
+				ServiceResponse serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, options, event.cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					ServiceData serviceData = (ServiceData) serviceResponse.data;
+					final List<Entity> entities = (List<Entity>) serviceData.data;
+					if (entities.size() > 0) {
+						Entity entity = entities.get(0);
+						DataResultEvent data = new DataResultEvent()
 								.setActionType(event.actionType)
+								.setMode(event.mode)
 								.setEntity(entity)
 								.setTag(event.tag);
 						Dispatcher.getInstance().post(data);
 					}
+					else {
+						/*
+						 * We can't tell the difference between an entity missing because of the where criteria
+						 * or because of no match on the entity id. We treat both cases as a no-op.
+						 */
+						DataNoopEvent noop = new DataNoopEvent().setActionType(event.actionType).setTag(event.tag);
+						Dispatcher.getInstance().post(noop);
+					}
 				}
 				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					DataErrorEvent error = new DataErrorEvent(serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setMode(event.mode)
+					     .setTag(event.tag);
 					Dispatcher.getInstance().post(error);
 				}
 				return null;
@@ -146,18 +160,29 @@ public class DataController {
 				 * when an entity they are watching or created is updated. Our goal is to be self
 				 * consistent so we add in logic based on the local user.
 				 */
-				CacheStamp cacheStamp = event.cacheStamp;
-
+				Entity entity = ENTITY_STORE.getStoreEntity(event.entityId);
 				LinkSpec options = LinkSpecFactory.build(event.linkProfile);
+
 				ServiceResponse serviceResponse = ENTITY_STORE.loadEntitiesForEntity(event.entityId, options, event.cursor, event.cacheStamp, null, event.tag);
 
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					ServiceData serviceData = (ServiceData) serviceResponse.data;
-					if (serviceData.data != null) {
-						DataReadyEvent data = new DataReadyEvent()
+					List<Entity> entities = (List<Entity>) serviceData.data;
+
+					/*
+					 * The parent entity is always returned unless we pass a cache stamp and it does
+					 * not have a fresher cache stamp.
+                     */
+					if (event.cacheStamp != null && serviceData.entity == null) {
+						DataNoopEvent noop = new DataNoopEvent().setActionType(event.actionType).setTag(event.tag);
+						Dispatcher.getInstance().post(noop);
+					}
+					else {
+						DataResultEvent data = new DataResultEvent()
 								.setEntities((List<Entity>) serviceData.data)
 								.setMore(serviceData.more)
 								.setActionType(event.actionType)
+								.setMode(event.mode)
 								.setCursor(event.cursor)
 								.setEntity(serviceData.entity)
 								.setTag(event.tag);
@@ -166,6 +191,9 @@ public class DataController {
 				}
 				else {
 					DataErrorEvent error = new DataErrorEvent(serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setMode(event.mode)
+					     .setTag(event.tag);
 					Dispatcher.getInstance().post(error);
 				}
 				return null;
@@ -193,15 +221,19 @@ public class DataController {
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (result.data != null) {
-						DataReadyEvent data = new DataReadyEvent()
+						DataResultEvent data = new DataResultEvent()
 								.setEntities((List<Entity>) result.data)
 								.setActionType(event.actionType)
+								.setMode(event.mode)
 								.setTag(event.tag);
 						Dispatcher.getInstance().post(data);
 					}
 				}
 				else {
 					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setMode(event.mode)
+					     .setTag(event.tag);
 					Dispatcher.getInstance().post(error);
 				}
 				return null;
@@ -225,10 +257,11 @@ public class DataController {
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (result.data != null) {
-						DataReadyEvent data = new DataReadyEvent()
+						DataResultEvent data = new DataResultEvent()
 								.setEntities((List<Entity>) result.data)
 								.setCursor(event.cursor)
 								.setActionType(event.actionType)
+								.setMode(event.mode)
 								.setMore(((ServiceData) result.serviceResponse.data).more)
 								.setTag(event.tag);
 						Dispatcher.getInstance().post(data);
@@ -236,6 +269,9 @@ public class DataController {
 				}
 				else {
 					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setMode(event.mode)
+					     .setTag(event.tag);
 					Dispatcher.getInstance().post(error);
 				}
 				return null;
@@ -264,13 +300,15 @@ public class DataController {
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataReadyEvent data = new DataReadyEvent()
+					DataResultEvent data = new DataResultEvent()
 							.setActionType(event.actionType)
 							.setTag(event.tag);
 					Dispatcher.getInstance().post(data);
 				}
 				else {
 					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setTag(event.tag);
 					Dispatcher.getInstance().post(error);
 				}
 				return null;
@@ -296,13 +334,15 @@ public class DataController {
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataReadyEvent data = new DataReadyEvent()
+					DataResultEvent data = new DataResultEvent()
 							.setActionType(event.actionType)
 							.setTag(event.tag);
 					Dispatcher.getInstance().post(data);
 				}
 				else {
 					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setTag(event.tag);
 					Dispatcher.getInstance().post(error);
 				}
 				return null;
@@ -324,7 +364,7 @@ public class DataController {
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataReadyEvent data = new DataReadyEvent()
+					DataResultEvent data = new DataResultEvent()
 							.setActionType(event.actionType)
 							.setData(result.data)
 							.setTag(event.tag);
@@ -332,6 +372,8 @@ public class DataController {
 				}
 				else {
 					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setTag(event.tag);
 					Dispatcher.getInstance().post(error);
 				}
 				return null;
@@ -351,7 +393,7 @@ public class DataController {
 	 * Combo service/cache queries
 	 *--------------------------------------------------------------------------------------------*/
 
-	public synchronized ModelResult getEntity(String entityId, Boolean refresh, LinkSpec linkOptions, CacheStamp cacheStamp, Object tag) {
+	public synchronized ModelResult getEntity(String entityId, Boolean refresh, LinkSpec linkOptions, Object tag) {
 		/*
 		 * Retrieves entity from cache if available otherwise downloads the entity from the service. If refresh is true
 		 * then bypasses the cache and downloads from the service.
@@ -364,7 +406,7 @@ public class DataController {
 			loadEntityIds.add(entityId);
 
 			/* This is the only place in the code that calls loadEntities */
-			result.serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, linkOptions, cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+			result.serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, linkOptions, null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 				ServiceData serviceData = (ServiceData) result.serviceResponse.data;
 				final List<Entity> entities = (List<Entity>) serviceData.data;
@@ -1375,12 +1417,6 @@ public class DataController {
 	 * Other service tasks
 	 *--------------------------------------------------------------------------------------------*/
 
-	public CacheStamp getCacheStamp() {
-		CacheStamp cacheStamp = new CacheStamp(mActivityDate, null);
-		cacheStamp.source = StampSource.ENTITY_MANAGER.name().toLowerCase(Locale.US);
-		return cacheStamp;
-	}
-
 	public ModelResult registerInstall(Install install, Object tag) {
 
 		ModelResult result = new ModelResult();
@@ -1532,6 +1568,10 @@ public class DataController {
 	 * Utilities
 	 *--------------------------------------------------------------------------------------------*/
 
+	public Integer clearEntities(String schema, String type, Boolean foundByProximity) {
+		return ENTITY_STORE.removeEntities(schema, type, foundByProximity);
+	}
+
 	public void clearStore() {
 		ENTITY_STORE.clearStore();
 	}
@@ -1563,6 +1603,12 @@ public class DataController {
 	/*--------------------------------------------------------------------------------------------
 	 * Other fetch routines
 	 *--------------------------------------------------------------------------------------------*/
+
+	public CacheStamp getGlobalCacheStamp() {
+		CacheStamp cacheStamp = new CacheStamp(mActivityDate, null);
+		cacheStamp.source = CacheStamp.StampSource.ENTITY_MANAGER.name().toLowerCase(Locale.US);
+		return cacheStamp;
+	}
 
 	public List<Category> getCategories() {
 
@@ -1678,5 +1724,17 @@ public class DataController {
 		USERS,
 		PATCHES_USERS,
 		ALL
+	}
+
+	public static enum ActionType {
+		ACTION_GET_ENTITY,
+		ACTION_GET_ENTITIES,
+		ACTION_GET_TREND,
+		ACTION_GET_NOTIFICATIONS,
+		ACTION_LINK_INSERT_LIKE,
+		ACTION_LINK_DELETE_LIKE,
+		ACTION_LINK_INSERT_WATCH,
+		ACTION_LINK_DELETE_WATCH,
+		ACTION_SHARE_CHECK
 	}
 }

@@ -174,7 +174,8 @@ public class Router {
 			if (extras == null) {
 				extras = new Bundle();
 			}
-			intentBuilder.setEntityId(entity.id).addExtras(extras);
+
+			intentBuilder.setEntity(entity).addExtras(extras);
 			activity.startActivity(intentBuilder.create());
 			AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
 		}
@@ -316,7 +317,7 @@ public class Router {
 
 			Fragment fragment = ((AircandiForm) activity).getCurrentFragment();
 			if (fragment instanceof MapListFragment) {
-				String listFragment = ((MapListFragment) fragment).getListFragment();
+				String listFragment = ((MapListFragment) fragment).getRelatedListFragment();
 				if (listFragment == null) {
 					listFragment = Constants.FRAGMENT_TYPE_NEARBY;
 				}

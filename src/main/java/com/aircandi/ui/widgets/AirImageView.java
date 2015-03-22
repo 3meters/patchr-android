@@ -282,6 +282,7 @@ public class AirImageView extends FrameLayout implements Target {
 					mMissingMessage.setVisibility(View.GONE);
 					if (visible) {
 						Integer resId = Patchr.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.img_broken_100_light : R.drawable.img_broken_100_dark;
+						//noinspection deprecation
 						Drawable drawable = getResources().getDrawable(resId);
 						UI.showDrawableInImageView(drawable, mImageMain, true);
 					}
