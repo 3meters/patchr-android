@@ -279,8 +279,8 @@ public class Constants {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static final int     TIMEOUT_CONNECTION                               = 5000;
-	public static final int     TIMEOUT_SOCKET_READ                              = 20000;
-	public static final int     TIMEOUT_SOCKET_WRITE                             = 20000;
+	public static final int     TIMEOUT_SOCKET_READ                              = 10000;
+	public static final int     TIMEOUT_SOCKET_WRITE                             = 10000;
 	public static final int     TIMEOUT_SERVICE_PLACE_SUGGEST                    = 2000;
 	public static final String  URI_WALLED_GARDEN                                = "http://clients3.google.com/generate_204";
 	public static final String  URI_PROXIBASE_SEARCH_IMAGES                      = "https://api.datamarket.azure.com/Bing/Search/v1/Image";
