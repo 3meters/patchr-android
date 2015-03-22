@@ -13,8 +13,8 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.events.BurstTimeoutEvent;
-import com.aircandi.events.LocationChangedEvent;
+import com.aircandi.events.LocationTimeoutEvent;
+import com.aircandi.events.LocationUpdatedEvent;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
@@ -55,7 +55,7 @@ public class LocationManager implements
 
 	private Runnable    mLocationTimeout;
 	private AirLocation mAirLocationLocked;
-	private Location    mLocationLast;
+	private Location    mLocationLastKnown;
 	private Location    mLocationLocked;
 	private Boolean mUseTimeout = false;
 
@@ -90,7 +90,7 @@ public class LocationManager implements
 						, "location_timeout"
 						, NetworkManager.getInstance().getNetworkType());
 
-				BusProvider.getInstance().post(new BurstTimeoutEvent());
+				Dispatcher.getInstance().post(new LocationTimeoutEvent());
 			}
 		};
 	}
@@ -101,6 +101,12 @@ public class LocationManager implements
 
 	@Override
 	public void onConnected(Bundle bundle) {
+
+		/* Get last known location */
+		mLocationLastKnown = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+		if (mLocationLastKnown != null) {
+			mLocationListener.onLocationChanged(mLocationLastKnown);
+		}
 
 		/* Start updates */
 		LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient
@@ -184,6 +190,19 @@ public class LocationManager implements
 		                                  .setInterval(Constants.TIME_FIFTEEN_SECONDS)
 		                                  .setFastestInterval(Constants.TIME_FIFTEEN_SECONDS);
 
+		/*
+		 * Balanced doesn't allow gps so if wifi isn't available then grind
+		 * our teeth and opt for high accuracy (which supports gps).
+		 */
+		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
+		if (tethered || (!NetworkManager.getInstance().isWifiEnabled())) {
+			mLocationRequest = LocationRequest.create()
+			                                  .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+			                                  .setSmallestDisplacement(MIN_DISPLACEMENT)
+			                                  .setInterval(Constants.TIME_FIFTEEN_SECONDS)
+			                                  .setFastestInterval(Constants.TIME_FIVE_SECONDS);
+		}
+
 		/* Developers can turn on high accuracy processing */
 		if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
 				&& Patchr.getInstance().getCurrentUser() != null
@@ -203,6 +222,15 @@ public class LocationManager implements
 			public void onLocationChanged(Location location) {
 
 				if (location == null) return;
+
+				/* Discard first location update if close to last known location */
+				if (mLocationLastKnown != location && mLocationLastKnown != null) {
+					if (mLocationLastKnown.distanceTo(location) <= Constants.DIST_TWENTY_FIVE_METERS) {
+						mLocationLastKnown = null;
+						return;
+					}
+				}
+
 				Logger.d(context, "Location changed: " + location.toString());
 				if (Patchr.stopwatch2.isStarted()) {
 					Patchr.stopwatch2.segmentTime("Lock location: update: accuracy = " + (location.hasAccuracy() ? location.getAccuracy() : "none"));
@@ -218,8 +246,7 @@ public class LocationManager implements
 					}
 				}
 
-				mLocationLast = location;
-				BusProvider.getInstance().post(new LocationChangedEvent(mLocationLast));
+				Dispatcher.getInstance().post(new LocationUpdatedEvent(location));
 			}
 		};
 
@@ -304,10 +331,6 @@ public class LocationManager implements
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-
-	public Location getLocationLast() {
-		return mLocationLast;
-	}
 
 	public Location getLocationLocked() {
 		return mLocationLocked;

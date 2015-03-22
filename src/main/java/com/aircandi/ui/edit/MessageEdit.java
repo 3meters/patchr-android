@@ -23,13 +23,13 @@ import android.widget.ViewAnimator;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.DataController;
+import com.aircandi.components.DataController.SuggestScope;
 import com.aircandi.components.DownloadManager;
-import com.aircandi.components.EntityManager;
-import com.aircandi.components.EntityManager.SuggestScope;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.CancelEvent;
+import com.aircandi.events.ProcessingCanceledEvent;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -75,11 +75,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	private ImageView                mButtonToClear;
 	private EntitySuggestController  mEntitySuggest;
 
-	private List<Entity>               mTos          = new ArrayList<Entity>();
-	private String                     mMessageType  = MessageType.ROOT;
-	private EntityManager.SuggestScope mSuggestScope = EntityManager.SuggestScope.PLACES;
-	private ToMode                     mToMode       = ToMode.SINGLE;
-	private Boolean                    mToEditable   = true;
+	private List<Entity>                mTos          = new ArrayList<Entity>();
+	private String                      mMessageType  = MessageType.ROOT;
+	private DataController.SuggestScope mSuggestScope = DataController.SuggestScope.PLACES;
+	private ToMode                      mToMode       = ToMode.SINGLE;
+	private Boolean                     mToEditable   = true;
 
 	@Override
 	public void unpackIntent() {
@@ -113,7 +113,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		if (!isFinishing()) {
 			if (!Patchr.firstStartApp && Patchr.getInstance().getCurrentUser().isAnonymous()) {
 				Patchr.firstStartIntent = getIntent();
-				Patchr.dispatch.route(this, Route.SPLASH, null, null);
+				Patchr.router.route(this, Route.SPLASH, null, null);
 			}
 		}
 	}
@@ -159,7 +159,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEND)) {
 
 			mMessageType = MessageType.SHARE;
-			mSuggestScope = EntityManager.SuggestScope.USERS;
+			mSuggestScope = DataController.SuggestScope.USERS;
 			mShareSchema = Constants.SCHEMA_ENTITY_PICTURE;
 			mToMode = ToMode.MULTIPLE;
 			mToEditable = true;
@@ -236,7 +236,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 					mShareId = extras.getString(Constants.EXTRA_SHARE_ID);
 					mShareSchema = extras.getString(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
-					mShareEntity = EntityManager.getCacheEntity(mShareId);
+					mShareEntity = DataController.getStoreEntity(mShareId);
 
 					if (mShareSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 						mEntity.description = String.format(StringManager.getString(R.string.label_patch_share_body_self), mShareEntity.name);
@@ -540,7 +540,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	}
 
 	@Subscribe
-	public void onCancelEvent(CancelEvent event) {
+	public void onCancelEvent(ProcessingCanceledEvent event) {
 		if (mTaskService != null) {
 			mTaskService.cancel(true);
 		}
@@ -758,7 +758,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		if (!mMessageType.equals(MessageType.SHARE)) {
 			Entity currentPlace = Patchr.getInstance().getCurrentPatch();
 			if (mTos.size() > 0 && (currentPlace == null || !currentPlace.id.equals(mTos.get(0).id))) {
-				Patchr.dispatch.route(this, Route.BROWSE, mTos.get(0), null);
+				Patchr.router.route(this, Route.BROWSE, mTos.get(0), null);
 			}
 		}
 		return true;

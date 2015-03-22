@@ -17,7 +17,8 @@ import android.widget.ListView;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.EntityManager.SuggestScope;
+import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController.SuggestScope;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseActivity;
@@ -41,7 +42,7 @@ public class SearchForm extends BaseActivity {
 	public void onClearButtonClick(View view) {
 		setResultCode(Activity.RESULT_OK);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, getExitTransitionType());
+		AnimationManager.doOverridePendingTransition(this, getExitTransitionType());
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -99,10 +100,10 @@ public class SearchForm extends BaseActivity {
 					intent.putExtra(Constants.EXTRA_ENTITY, json);
 					setResultCode(Activity.RESULT_OK, intent);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SearchForm.this, getExitTransitionType());
+					AnimationManager.doOverridePendingTransition(SearchForm.this, getExitTransitionType());
 				}
 				else {
-					Patchr.dispatch.route(SearchForm.this, Route.BROWSE, entity, null);
+					Patchr.router.route(SearchForm.this, Route.BROWSE, entity, null);
 				}
 			}
 		});
@@ -149,7 +150,7 @@ public class SearchForm extends BaseActivity {
 				public boolean onClose() {
 					setResultCode(Activity.RESULT_CANCELED);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(SearchForm.this, getExitTransitionType());
+					AnimationManager.doOverridePendingTransition(SearchForm.this, getExitTransitionType());
 					return false;
 				}
 			});

@@ -8,8 +8,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.aircandi.Constants;
-import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.AnimationManager;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseActivity;
@@ -89,7 +89,7 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 		intent.putExtra(Constants.EXTRA_LOCATION, json);
 		setResultCode(Activity.RESULT_OK, intent);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
 
 	private boolean checkReady() {

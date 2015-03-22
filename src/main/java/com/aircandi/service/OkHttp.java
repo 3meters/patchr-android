@@ -3,7 +3,6 @@ package com.aircandi.service;
 import android.support.annotation.NonNull;
 
 import com.aircandi.Constants;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.utilities.Reporting;
@@ -54,9 +53,9 @@ public class OkHttp extends BaseConnection {
 
 		/* Max connections is per host */
 		client.setConnectionPool(new ConnectionPool(5, Constants.TIME_FIVE_MINUTES));
-		client.setConnectTimeout(ServiceConstants.TIMEOUT_CONNECTION, TimeUnit.MILLISECONDS);
-		client.setReadTimeout(ServiceConstants.TIMEOUT_SOCKET_READ, TimeUnit.MILLISECONDS);
-		client.setWriteTimeout(ServiceConstants.TIMEOUT_SOCKET_WRITE, TimeUnit.MILLISECONDS);
+		client.setConnectTimeout(Constants.TIMEOUT_CONNECTION, TimeUnit.MILLISECONDS);
+		client.setReadTimeout(Constants.TIMEOUT_SOCKET_READ, TimeUnit.MILLISECONDS);
+		client.setWriteTimeout(Constants.TIMEOUT_SOCKET_WRITE, TimeUnit.MILLISECONDS);
 	}
 
 	@NonNull

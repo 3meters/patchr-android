@@ -9,7 +9,7 @@ import java.util.Map;
  * @author Jayma
  */
 @SuppressWarnings("ucd")
-public class LinkParams extends ServiceObject {
+public class LinkSpecItem extends ServiceObject {
 
 	private static final long serialVersionUID = 4371355790668325686L;
 
@@ -28,14 +28,14 @@ public class LinkParams extends ServiceObject {
 	@Expose
 	public String direction = "both";
 
-	public LinkParams() {
+	public LinkSpecItem() {
 	}
 
-	public LinkParams(String type, String schema, Boolean links, Boolean count, Number limit) {
+	public LinkSpecItem(String type, String schema, Boolean links, Boolean count, Number limit) {
 		this(type, schema, links, count, limit, null);
 	}
 
-	public LinkParams(String type, String schema, Boolean links, Boolean count, Number limit, Map where) {
+	public LinkSpecItem(String type, String schema, Boolean links, Boolean count, Number limit, Map where) {
 		this.type = type;
 		this.schema = schema;
 		this.links = links;
@@ -56,7 +56,7 @@ public class LinkParams extends ServiceObject {
 		return links;
 	}
 
-	public LinkParams setLinks(Boolean links) {
+	public LinkSpecItem setLinks(Boolean links) {
 		this.links = links;
 		return this;
 	}
@@ -65,7 +65,7 @@ public class LinkParams extends ServiceObject {
 		return count;
 	}
 
-	public LinkParams setCount(Boolean count) {
+	public LinkSpecItem setCount(Boolean count) {
 		this.count = count;
 		return this;
 	}
@@ -74,7 +74,7 @@ public class LinkParams extends ServiceObject {
 		return where;
 	}
 
-	public LinkParams setWhere(Map where) {
+	public LinkSpecItem setWhere(Map where) {
 		this.where = where;
 		return this;
 	}
@@ -83,7 +83,7 @@ public class LinkParams extends ServiceObject {
 		return limit;
 	}
 
-	public LinkParams setLimit(Number limit) {
+	public LinkSpecItem setLimit(Number limit) {
 		this.limit = limit;
 		return this;
 	}
@@ -92,7 +92,7 @@ public class LinkParams extends ServiceObject {
 		return Direction.valueOf(direction);
 	}
 
-	public LinkParams setDirection(Direction direction) {
+	public LinkSpecItem setDirection(Direction direction) {
 		this.direction = direction.name();
 		return this;
 	}

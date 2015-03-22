@@ -24,7 +24,6 @@ import android.widget.GridView;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.ContainerManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
@@ -304,7 +303,7 @@ public class PhotoPicker extends BaseActivity {
 			Reporting.logException(e);
 		}
 
-		final String bingUrl = ServiceConstants.URI_PROXIBASE_SEARCH_IMAGES
+		final String bingUrl = Constants.URI_PROXIBASE_SEARCH_IMAGES
 				+ "?Query=" + query
 				+ "&Market=%27en-US%27&Adult=%27Strict%27&ImageFilters=%27size%3alarge%27"
 				+ "&$top=" + String.valueOf(count + 1)

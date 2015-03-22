@@ -1148,12 +1148,7 @@ public abstract class TokenCompleteTextView extends MultiAutoCompleteTextView
 		// The onKeyPressed method does not always do this.
 		@Override
 		public boolean deleteSurroundingText(int beforeLength, int afterLength) {
-			if (deleteSelectedObject()) {
-				return true;
-			}
-			else {
-				return super.deleteSurroundingText(beforeLength, afterLength);
-			}
+			return deleteSelectedObject() || super.deleteSurroundingText(beforeLength, afterLength);
 		}
 	}
 }

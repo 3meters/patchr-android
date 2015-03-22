@@ -1,5 +1,6 @@
 package com.aircandi.ui;
 
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -15,26 +16,23 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.BusProvider;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.DataController;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager;
-import com.aircandi.components.ProximityManager.ScanReason;
+import com.aircandi.components.ProximityController;
+import com.aircandi.components.ProximityController.ScanReason;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.BeaconsLockedEvent;
-import com.aircandi.events.BurstTimeoutEvent;
-import com.aircandi.events.EntitiesByProximityFinishedEvent;
-import com.aircandi.events.EntitiesChangedEvent;
-import com.aircandi.events.LocationChangedEvent;
-import com.aircandi.events.PatchesNearLocationFinishedEvent;
-import com.aircandi.events.ProcessingFinishedEvent;
+import com.aircandi.events.EntitiesByProximityCompleteEvent;
+import com.aircandi.events.EntitiesUpdatedEvent;
+import com.aircandi.events.LocationTimeoutEvent;
+import com.aircandi.events.LocationUpdatedEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
-import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Count;
@@ -91,7 +89,7 @@ public class NearbyListFragment extends EntityListFragment {
 		 * Only called in response to parent form receiving a push notification. Example
 		 * is a new patch was created nearby and we want to show it.
 		 */
-		CacheStamp cacheStamp = Patchr.getInstance().getEntityManager().getCacheStamp();
+		CacheStamp cacheStamp = DataController.getInstance().getGlobalCacheStamp();
 		if (mCacheStamp != null && !mCacheStamp.equals(cacheStamp)) {
 			searchForPatches();
 		}
@@ -105,11 +103,37 @@ public class NearbyListFragment extends EntityListFragment {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
+	public void onViewLayout() {
+		/* Stub to block default behavior */
+	}
+
+	public void onProcessingComplete(final ResponseCode responseCode) {
+		super.onProcessingComplete(responseCode);
+
+		Activity activity = getActivity();
+		if (activity != null && !activity.isFinishing()) {
+			activity.runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled() || LocationManager.getInstance().isLocationAccessEnabled());
+					if (proximityCapable) {
+						mListController.getFloatingActionController().fadeIn();
+					}
+					else {
+						mListController.getFloatingActionController().fadeOut();
+					}
+				}
+			});
+		}
+	}
+
+	@Override
 	public void onClick(View view) {
 		final Patch entity = (Patch) ((ViewHolder) view.getTag()).data;
 		Bundle extras = new Bundle();
 		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
+		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
 	@Subscribe
@@ -132,10 +156,10 @@ public class NearbyListFragment extends EntityListFragment {
 				Logger.d(getActivity(), "Query wifi scan received event: locking beacons");
 
 				if (event.wifiList != null) {
-					ProximityManager.getInstance().lockBeacons();
+					ProximityController.getInstance().lockBeacons();
 				}
 				else {
-					BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
+					Dispatcher.getInstance().post(new EntitiesByProximityCompleteEvent());
 				}
 			}
 		});
@@ -150,7 +174,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 			@Override
 			public void run() {
-				mEntityModelBeaconDate = ProximityManager.getInstance().getLastBeaconLockedDate();
+				mEntityModelBeaconDate = ProximityController.getInstance().getLastBeaconLockedDate();
 				mTaskPatchesByProximity = new AsyncTask() {
 
 					@Override
@@ -162,7 +186,7 @@ public class NearbyListFragment extends EntityListFragment {
 					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncGetPatchesForBeacons");
-						ServiceResponse serviceResponse = ProximityManager.getInstance().getEntitiesByProximity();
+						ServiceResponse serviceResponse = ProximityController.getInstance().getEntitiesByProximity();
 						return serviceResponse;
 					}
 
@@ -195,7 +219,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 	@Subscribe
 	@SuppressWarnings("ucd")
-	public void onEntitiesByProximityFinished(EntitiesByProximityFinishedEvent event) {
+	public void onEntitiesByProximityFinished(EntitiesByProximityCompleteEvent event) {
 
 		if (getActivity() == null || getActivity().isFinishing()) return;
 		getActivity().runOnUiThread(new Runnable() {
@@ -211,30 +235,24 @@ public class NearbyListFragment extends EntityListFragment {
 
 				Patchr.stopwatch1.stop("Search for places by beacon complete");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
-				mCacheStamp = Patchr.getInstance().getEntityManager().getCacheStamp();
+				mCacheStamp = DataController.getInstance().getGlobalCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+					onProcessingComplete(ResponseCode.SUCCESS);
 				}
 				else {
 
 					final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 					if (location != null) {
+						Reporting.updateCrashKeys();
 						mTaskPatchesNearLocation = new AsyncTask() {
-
-							@Override
-							protected void onPreExecute() {
-								Reporting.updateCrashKeys();
-//								mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
-//								mListController.getMessageController().fadeOut();
-							}
 
 							@Override
 							protected Object doInBackground(Object... params) {
 								Thread.currentThread().setName("AsyncGetPatchesNearLocation");
 								Logger.d(getActivity(), "Proximity finished event: Location locked so getting patches near location");
 								Patchr.stopwatch2.start("location_processing", "Location processing: get patches near location");
-								ServiceResponse serviceResponse = ProximityManager.getInstance().getEntitiesNearLocation(location);
+								ServiceResponse serviceResponse = ProximityController.getInstance().getEntitiesNearLocation(location);
 								return serviceResponse;
 							}
 
@@ -258,10 +276,16 @@ public class NearbyListFragment extends EntityListFragment {
 
 								if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 									Patchr.stopwatch2.segmentTime("Location processing: service processing time: " + ((ServiceData) serviceResponse.data).time);
-									final List<Entity> entitiesForEvent = (List<Entity>) Patchr.getInstance().getEntityManager().getPatches(null /* proximity not required */);
-									BusProvider.getInstance().post(new PatchesNearLocationFinishedEvent()); // Just tracking
-									BusProvider.getInstance().post(new EntitiesChangedEvent(entitiesForEvent, "onLocationChanged"));
-									BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+									final List<Entity> entitiesForEvent = (List<Entity>) DataController.getInstance().getPatches(null /* proximity not required */);
+
+									Logger.d(getActivity(), "Patches near location finished event: ** done **");
+									Patchr.stopwatch2.stop("Location processing: Patches near location complete");
+									Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
+											, "places_near_location_downloaded"
+											, NetworkManager.getInstance().getNetworkType());
+
+									Dispatcher.getInstance().post(new EntitiesUpdatedEvent(entitiesForEvent, "onLocationChanged"));
+									onProcessingComplete(ResponseCode.SUCCESS);
 								}
 								else {
 									onError();
@@ -271,7 +295,7 @@ public class NearbyListFragment extends EntityListFragment {
 						}.executeOnExecutor(Constants.EXECUTOR);
 					}
 					else {
-						BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+						onProcessingComplete(ResponseCode.SUCCESS);
 					}
 				}
 			}
@@ -279,21 +303,8 @@ public class NearbyListFragment extends EntityListFragment {
 	}
 
 	@Subscribe
-	@SuppressWarnings({"ucd"})
-	public void onPatchesNearLocationFinished(final PatchesNearLocationFinishedEvent event) {
-		/*
-		 * No application logic here, just tracking.
-		 */
-		Logger.d(getActivity(), "Patches near location finished event: ** done **");
-		Patchr.stopwatch2.stop("Location processing: Patches near location complete");
-		Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
-				, "places_near_location_downloaded"
-				, NetworkManager.getInstance().getNetworkType());
-	}
-
-	@Subscribe
 	@SuppressWarnings("ucd")
-	public void onEntitiesChanged(final EntitiesChangedEvent event) {
+	public void onEntitiesChanged(final EntitiesUpdatedEvent event) {
 
 		if (getActivity() == null || getActivity().isFinishing()) return;
 		getActivity().runOnUiThread(new Runnable() {
@@ -312,7 +323,7 @@ public class NearbyListFragment extends EntityListFragment {
 				mAdapter.notifyDataSetChanged();
 
 				if (entities.size() >= 2) {
-					BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+					onProcessingComplete(ResponseCode.SUCCESS);
 				}
 
 				if (event.source.equals("onLocationChanged")) {
@@ -356,10 +367,10 @@ public class NearbyListFragment extends EntityListFragment {
 			}
 			if (NetworkManager.getInstance().isWifiEnabled()) {
 				mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
-				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);         // Still try proximity
+				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);         // Still try proximity
 			}
 			else {
-				BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+				onProcessingComplete(ResponseCode.SUCCESS);
 			}
 		}
 	}
@@ -367,13 +378,13 @@ public class NearbyListFragment extends EntityListFragment {
 	@Override
 	public void onAdd(Bundle extras) {
 		/* Schema target is in the extras */
-		Patchr.dispatch.route(getActivity(), Route.NEW, null, extras);
+		Patchr.router.route(getActivity(), Route.NEW, null, extras);
 	}
 
 	@Override
 	public void onError() {
 		/* Kill busy */
-		BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.FAILED));
+		onProcessingComplete(ResponseCode.FAILED);
 	}
 
 	@Override
@@ -423,7 +434,7 @@ public class NearbyListFragment extends EntityListFragment {
 			buttonAlert.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					Patchr.dispatch.route(getActivity(), Route.NEW_PLACE, null, null);
+					Patchr.router.route(getActivity(), Route.NEW_PLACE, null, null);
 				}
 			});
 			UI.setVisibility(alertGroup, View.VISIBLE);
@@ -452,12 +463,12 @@ public class NearbyListFragment extends EntityListFragment {
 				Thread.currentThread().setName("AsyncSearchForPatches");
 				Patchr.stopwatch1.start("beacon_search", "Search for places by beacon");
 				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
-				EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
+				DataController.getInstance().clearEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 				if (NetworkManager.getInstance().isWifiEnabled()) {
-					ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
+					ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 				}
 				else {
-					BusProvider.getInstance().post(new EntitiesByProximityFinishedEvent());
+					Dispatcher.getInstance().post(new EntitiesByProximityCompleteEvent());
 				}
 				return null;
 			}
@@ -470,12 +481,12 @@ public class NearbyListFragment extends EntityListFragment {
 
 	protected void start() {
 		super.start();
-		BusProvider.getInstance().register(mLocationHandler);
+		Dispatcher.getInstance().register(mLocationHandler);
 		onRefresh(); // Starts location updates if location services enabled.
 
 		/* Start foreground activity recognition - stop proximity manager from background recognition */
 		try {
-			ProximityManager.getInstance().unregister();
+			ProximityController.getInstance().unregister();
 		}
 		catch (Exception ignore) {}
 	}
@@ -483,7 +494,7 @@ public class NearbyListFragment extends EntityListFragment {
 	protected void stop() {
 		super.stop();
 		try {
-			BusProvider.getInstance().unregister(mLocationHandler);
+			Dispatcher.getInstance().unregister(mLocationHandler);
 		}
 		catch (Exception ignore) {}
 		/*
@@ -496,11 +507,11 @@ public class NearbyListFragment extends EntityListFragment {
 			LocationManager.getInstance().stop();
 
 			/* Stop listening for wifi scan */
-			ProximityManager.getInstance().stop();
+			ProximityController.getInstance().stop();
 
 		    /* Start background activity recognition with proximity manager as the listener. */
-			ProximityManager.getInstance().setLastBeaconInstallUpdate(null);
-			ProximityManager.getInstance().register();
+			ProximityController.getInstance().setLastBeaconInstallUpdate(null);
+			ProximityController.getInstance().register();
 		}
 	}
 
@@ -508,15 +519,11 @@ public class NearbyListFragment extends EntityListFragment {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	/* Stub for future use because I hate bind() */
-	@SuppressWarnings("ucd")
-	public class RadarMonitor extends SimpleMonitor {}
-
 	public class LocationHandler {
 
 		@Subscribe
 		@SuppressWarnings({"ucd"})
-		public void onLocationChanged(final LocationChangedEvent event) {
+		public void onLocationChanged(final LocationUpdatedEvent event) {
 			/*
 			 * Location changes are a primary trigger for a patch query sequence.
 			 */
@@ -530,7 +537,7 @@ public class NearbyListFragment extends EntityListFragment {
 						searchForPatches();
 					}
 					else {
-						BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+						onProcessingComplete(ResponseCode.SUCCESS);
 					}
 				}
 			}
@@ -538,9 +545,9 @@ public class NearbyListFragment extends EntityListFragment {
 
 		@Subscribe
 		@SuppressWarnings({"ucd"})
-		public void onBurstTimeout(final BurstTimeoutEvent event) {
+		public void onBurstTimeout(final LocationTimeoutEvent event) {
 
-			BusProvider.getInstance().post(new ProcessingFinishedEvent(ResponseCode.SUCCESS));
+			onProcessingComplete(ResponseCode.SUCCESS);
 
 			/* We only show toast if we timeout without getting any location fix */
 			if (LocationManager.getInstance().getLocationLocked() == null) {

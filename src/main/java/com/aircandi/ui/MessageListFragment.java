@@ -8,6 +8,9 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -18,12 +21,28 @@ import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 public class MessageListFragment extends EntityListFragment {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onDataResult(final DataResultEvent event) {
+		super.onDataResult(event);
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
+
+	@Subscribe
+	public void onDataNoop(DataNoopEvent event) {
+		super.onDataNoop(event);
+	}
 
 	@Override
 	public void onClick(View v) {
@@ -34,12 +53,12 @@ public class MessageListFragment extends EntityListFragment {
 
 		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-		extras.putString(Constants.EXTRA_ENTITY_FOR_ID, mQuery.getEntityId());
+		extras.putString(Constants.EXTRA_ENTITY_FOR_ID, mMonitorEntityId);
 		/*
 		 * We show replies as part of the parent message when the user is clicking from a list
 		 * that isn't showing the parent message.
 		 */
-		if (entity.type.equals(MessageType.REPLY)
+		if (entity.type != null && entity.type.equals(MessageType.REPLY)
 				&& link != null
 				&& (((BaseActivity) getActivity()).getEntity() == null
 				|| !((BaseActivity) getActivity()).getEntity().id.equals(link.toId))) {
@@ -50,7 +69,7 @@ public class MessageListFragment extends EntityListFragment {
 			extras.putString(Constants.EXTRA_ENTITY_ID, entity.id);
 		}
 
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
+		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
 	/*--------------------------------------------------------------------------------------------

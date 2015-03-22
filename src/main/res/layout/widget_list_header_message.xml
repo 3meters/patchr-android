@@ -171,7 +171,6 @@
 		custom:dominantMeasurement="width"
 		custom:fitType="auto"
 		custom:layoutId="@layout/widget_imageview"
-		custom:showBusy="false"
 		tools:visibility="visible" />
 
 	<!-- Buttons -->

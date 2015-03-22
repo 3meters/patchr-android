@@ -2,21 +2,17 @@ package com.aircandi.utilities;
 
 import android.location.Location;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.components.AndroidManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.NetworkManager;
-import com.aircandi.components.ProximityManager;
+import com.aircandi.components.ProximityController;
 import com.aircandi.objects.User;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.HitBuilders;
-
-;
 
 import java.util.Locale;
 
@@ -27,7 +23,7 @@ public class Reporting {
 		Crashlytics.setBool("connected", NetworkManager.getInstance().isConnected());
 		Crashlytics.setString("network_type", NetworkManager.getInstance().getNetworkType().toLowerCase(Locale.US));
 		Crashlytics.setBool("wifi_tethered", NetworkManager.getInstance().isWifiTethered());
-		Crashlytics.setFloat("beacons_visible", ProximityManager.getInstance().getWifiList().size());
+		Crashlytics.setFloat("beacons_visible", ProximityController.getInstance().getWifiList().size());
 		Crashlytics.setString("device_name", AndroidManager.getInstance().getDeviceName());
 
 		/* Memory info */

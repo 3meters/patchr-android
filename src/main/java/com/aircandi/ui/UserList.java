@@ -11,27 +11,21 @@ import android.widget.CompoundButton;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.ProcessingFinishedEvent;
-import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
-import com.aircandi.queries.WatchersQuery;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Maps;
-import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
 public class UserList extends BaseActivity {
@@ -50,7 +44,7 @@ public class UserList extends BaseActivity {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-			mEntity = EntityManager.getCacheEntity(mEntityId);
+			mEntity = DataController.getStoreEntity(mEntityId);
 			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
 			mListTitleResId = extras.getInt(Constants.EXTRA_LIST_TITLE_RESID);
 			mListItemResId = extras.getInt(Constants.EXTRA_LIST_ITEM_RESID);
@@ -63,35 +57,31 @@ public class UserList extends BaseActivity {
 		super.initialize(savedInstanceState);
 
 		mCurrentFragment = new UserListFragment();
-		EntityMonitor monitor = new EntityMonitor(mEntityId);
-		WatchersQuery query = new WatchersQuery();
 
-		query.setEntityId(mEntityId)
-		     .setLinkDirection(Direction.in.name())
-		     .setLinkType(mListLinkType)
-		     .setPageSize(Integers.getInteger(R.integer.page_size_messages))
-		     .setSchema(Constants.SCHEMA_ENTITY_USER);
+		((EntityListFragment) mCurrentFragment)
+				.setMonitorEntityId(mEntityId)
+				.setLinkSchema(Constants.SCHEMA_ENTITY_USER)
+				.setLinkType(mListLinkType)
+				.setLinkDirection(Direction.in.name())
+				.setLinkWhere(null)
+				.setPageSize(Integers.getInteger(R.integer.page_size_messages))
+				.setListViewType(ViewType.LIST)
+				.setListLayoutResId(R.layout.user_list_fragment)
+				.setListLoadingResId(R.layout.temp_listitem_loading)
+				.setListItemResId(mListItemResId)
+				.setTitleResId(mListTitleResId);
 
 		if (mListLinkType != null && mListLinkType.equals(Constants.TYPE_LINK_WATCH) && !mEntity.isOwnedByCurrentUser()
-				&& !mEntity.ownerId.equals(ServiceConstants.ADMIN_USER_ID)) {
-			query.setLinkWhere(Maps.asMap("enabled", true));
+				&& !mEntity.ownerId.equals(Constants.ADMIN_USER_ID)) {
+			((EntityListFragment) mCurrentFragment).setLinkWhere(Maps.asMap("enabled", true));
 		}
-
-		((EntityListFragment) mCurrentFragment).setQuery(query)
-		                                       .setMonitor(monitor)
-		                                       .setListViewType(ViewType.LIST)
-		                                       .setListLayoutResId(R.layout.user_list_fragment)
-		                                       .setListLoadingResId(R.layout.temp_listitem_loading)
-		                                       .setListItemResId(mListItemResId)
-		                                       .setTitleResId(mListTitleResId)
-		                                       .setSelfBindingEnabled(true);
 
 		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mCurrentFragment).commit();
 	}
 
 	@Override
 	public void draw(View view) {
-		Integer titleResId = ((BaseFragment) mCurrentFragment).getTitleResId();
+		Integer titleResId = ((EntityListFragment) mCurrentFragment).getTitleResId();
 		if (titleResId != null) {
 			setActivityTitle(StringManager.getString(titleResId));
 		}
@@ -101,19 +91,13 @@ public class UserList extends BaseActivity {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe
-	public void onProcessingFinished(final ProcessingFinishedEvent event) {
-		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-		fragment.onProcessingFinished(event);
-	}
-
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {
 		((EntityListFragment) mCurrentFragment).onMoreButtonClick(view);
 	}
 
 	public void onShareButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.SHARE, mEntity, null);
+		Patchr.router.route(this, Route.SHARE, mEntity, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -204,7 +188,7 @@ public class UserList extends BaseActivity {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncStatusUpdate");
-				ModelResult result = Patchr.getInstance().getEntityManager().insertLink(linkId
+				ModelResult result = DataController.getInstance().insertLink(linkId
 						, fromId
 						, toId
 						, Constants.TYPE_LINK_WATCH
@@ -240,7 +224,7 @@ public class UserList extends BaseActivity {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncWatchEntity");
-				ModelResult result = Patchr.getInstance().getEntityManager().deleteLink(fromId
+				ModelResult result = DataController.getInstance().deleteLink(fromId
 						, mEntity.id
 						, Constants.TYPE_LINK_WATCH
 						, false
@@ -258,7 +242,7 @@ public class UserList extends BaseActivity {
 				}
 				else {
 					if (result.serviceResponse.statusCodeService != null
-							&& result.serviceResponse.statusCodeService != ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
+							&& result.serviceResponse.statusCodeService != Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
 						Errors.handleError(UserList.this, result.serviceResponse);
 					}
 				}

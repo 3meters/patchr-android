@@ -7,7 +7,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.v4.widget.ContentLoadingProgressBar;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -31,15 +30,15 @@ import it.sephiroth.android.library.imagezoom.ImageViewTouch;
 @SuppressWarnings("ucd")
 public class AirImageView extends FrameLayout implements Target {
 
-	private ImageView                 mImageMain;
-	private ContentLoadingProgressBar mProgressBar;
-	private TextView                  mMissingMessage;
+	private ImageView      mImageMain;
+	private AirProgressBar mProgressBar;
+	private TextView       mMissingMessage;
 
 	private Photo  mPhoto;
 	private Target mTarget;
 	private final Handler mThreadHandler = new Handler();
 
-	private boolean   mShowBusy   = false;
+	private boolean   mShowBusy   = true;
 	private ScaleType mScaleType  = ScaleType.CENTER_CROP;
 	private Boolean   mCenterCrop = true;
 	private Integer mLayoutId;
@@ -115,7 +114,7 @@ public class AirImageView extends FrameLayout implements Target {
 		mImageMain = (ImageView) view.findViewById(R.id.image_main);
 
 		if (!isInEditMode()) {
-			mProgressBar = (ContentLoadingProgressBar) view.findViewById(R.id.image_progress);
+			mProgressBar = (AirProgressBar) view.findViewById(R.id.image_progress);
 			mMissingMessage = (TextView) view.findViewById(R.id.image_missing);
 		}
 
@@ -131,10 +130,6 @@ public class AirImageView extends FrameLayout implements Target {
 				mImageMain.setImageResource(R.drawable.img_dummy);
 			}
 			mImageMain.invalidate();
-		}
-
-		if (mProgressBar != null) {
-			mProgressBar.hide();
 		}
 	}
 
@@ -287,6 +282,7 @@ public class AirImageView extends FrameLayout implements Target {
 					mMissingMessage.setVisibility(View.GONE);
 					if (visible) {
 						Integer resId = Patchr.themeTone.equals(ThemeTone.LIGHT) ? R.drawable.img_broken_100_light : R.drawable.img_broken_100_dark;
+						//noinspection deprecation
 						Drawable drawable = getResources().getDrawable(resId);
 						UI.showDrawableInImageView(drawable, mImageMain, true);
 					}

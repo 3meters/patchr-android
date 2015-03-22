@@ -9,7 +9,6 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.exceptions.ClientVersionException;
@@ -19,30 +18,40 @@ import com.aircandi.objects.Route;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.base.BaseActivity;
 
-import org.apache.http.HttpStatus;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
-;
 
 import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.ConnectException;
+import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Locale;
 
+;
+
 public final class Errors {
 
 	public static void handleError(final Activity activity, @NonNull ServiceResponse serviceResponse) {
-
 		ErrorResponse errorResponse = serviceResponse.errorResponse;
 		if (errorResponse == null || errorResponse.errorResponseType == null) {
 			errorResponse = new ErrorResponse(ResponseType.TOAST, "Unhandled status error: " + serviceResponse.statusCode);
 		}
+		handleError(activity, errorResponse);
+		/*
+		 * Perform any follow-up actions.
+		 */
+		if (errorResponse.track) {
+			Reporting.logException(serviceResponse.exception);
+		}
+	}
+
+	public static void handleError(final Activity activity, @NonNull ErrorResponse errorResponse) {
 		/*
 		 * First show any required UI
 		 */
@@ -77,10 +86,6 @@ public final class Errors {
 		/*
 		 * Perform any follow-up actions.
 		 */
-		if (errorResponse.track) {
-			Reporting.logException(serviceResponse.exception);
-		}
-
 		if (errorResponse.signout && activity != null) {
 			((BaseActivity) activity).signout();
 		}
@@ -89,7 +94,7 @@ public final class Errors {
 			 * Mostly because a more current client version is required.
 			 */
 			if (activity != null && !activity.getClass().getSimpleName().equals("SplashForm")) {
-				Patchr.dispatch.route(activity, Route.SPLASH, null, null);
+				Patchr.router.route(activity, Route.SPLASH, null, null);
 			}
 		}
 	}
@@ -100,7 +105,7 @@ public final class Errors {
 
 		if (serviceResponse.statusCode != null) {
 
-			if (serviceResponse.statusCode / 100 == HttpStatus.SC_INTERNAL_SERVER_ERROR / 100) {  // 5XX Service problem
+			if (serviceResponse.statusCode / 100 == HttpURLConnection.HTTP_INTERNAL_ERROR / 100) {  // 5XX Service problem
 				/*
 				 * Reached the service with a good call but the service failed for an unknown reason. Examples
 				 * are service bugs like missing indexes causing mongo queries to throw errors.
@@ -110,18 +115,18 @@ public final class Errors {
 				 * - 504: Gateway timout.
 				 */
 				if (Constants.ERROR_LEVEL == Log.VERBOSE) {
-					if (serviceResponse.statusCode == HttpStatus.SC_GATEWAY_TIMEOUT) {
+					if (serviceResponse.statusCode == HttpURLConnection.HTTP_GATEWAY_TIMEOUT) {
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_gateway_timeout));
 					}
 					return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unknown_status));
 				}
 			}
 
-			if (serviceResponse.statusCode / 100 == HttpStatus.SC_BAD_REQUEST / 100) {  // 4XX Request problem
+			if (serviceResponse.statusCode / 100 == HttpURLConnection.HTTP_BAD_REQUEST / 100) {  // 4XX Request problem
 
 				/* 400 */
 
-				if (serviceResponse.statusCode == HttpStatus.SC_BAD_REQUEST) {
+				if (serviceResponse.statusCode == HttpURLConnection.HTTP_BAD_REQUEST) {
 					/*
 					 * Reached the service with a good call but request was not correct. This is often bad, missing
 					 * or incorrect parameters.
@@ -129,19 +134,19 @@ public final class Errors {
 					String description = "Bad service request: "
 							+ ((serviceResponse.statusCodeService != null) ? serviceResponse.statusCodeService : "missing service status code");
 					if (serviceResponse.statusCodeService != null) {
-						if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_MISSING_PARAM) {
+						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_MISSING_PARAM) {
 							description += ": Missing parameter";
 						}
-						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_BAD_PARAM) {
+						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_BAD_PARAM) {
 							description += ": Bad parameter";
 						}
-						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_BAD_TYPE) {
+						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_BAD_TYPE) {
 							description += ": Bad type";
 						}
-						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_BAD_VALUE) {
+						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_BAD_VALUE) {
 							description += ": Bad value";
 						}
-						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_BAD_JSON) {
+						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_BAD_JSON) {
 							description += ": Bad json";
 						}
 					}
@@ -152,7 +157,7 @@ public final class Errors {
 
 				/* 401 */
 
-				if (serviceResponse.statusCode == HttpStatus.SC_UNAUTHORIZED) {
+				if (serviceResponse.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
 					/*
 					 * Reached the service with a good call but failed for a well known reason.
 					 *
@@ -164,7 +169,7 @@ public final class Errors {
 					 */
 					if (serviceResponse.statusCodeService != null) {
 
-						if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_UNAUTHORIZED_SESSION_EXPIRED) {
+						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_SESSION_EXPIRED) {
 							ErrorResponse errorResponse = new ErrorResponse(ResponseType.DIALOG
 									, StringManager.getString(R.string.error_session_expired)
 									, StringManager.getString(R.string.error_session_expired_title));
@@ -172,7 +177,7 @@ public final class Errors {
 							return errorResponse;
 						}
 
-						if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
+						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
 							if (serviceResponse.activityName != null) {
 								if (serviceResponse.activityName.equals("PasswordEdit"))
 									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_change_password_unauthorized));
@@ -184,7 +189,7 @@ public final class Errors {
 							return errorResponse;
 						}
 
-						if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND) {
+						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND) {
 							if (serviceResponse.activityName != null) {
 								if (serviceResponse.activityName.equals("SignInEdit"))
 									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signin_failed));
@@ -195,7 +200,7 @@ public final class Errors {
 
 				/* 403 */
 
-				if (serviceResponse.statusCode == HttpStatus.SC_FORBIDDEN) {
+				if (serviceResponse.statusCode == HttpURLConnection.HTTP_FORBIDDEN) {
 					/*
 					 * Reached the service with a good call but failed for a well known reason.
 					 *
@@ -208,9 +213,9 @@ public final class Errors {
 					 * - 403.21: Password not strong enough
 					 */
 					if (serviceResponse.statusCodeService != null) {
-						if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_USER_PASSWORD_WEAK)
+						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_FORBIDDEN_USER_PASSWORD_WEAK)
 							return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_password_weak));
-						else if (serviceResponse.statusCodeService == ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE)
+						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE)
 							return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_email_taken));
 					}
 				}
@@ -218,7 +223,7 @@ public final class Errors {
 				/* 404 */
 
 				if (Constants.ERROR_LEVEL == Log.VERBOSE) {
-					if (serviceResponse.statusCode == HttpStatus.SC_NOT_FOUND) {
+					if (serviceResponse.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_client_request_not_found));
 					}
 				}
@@ -284,6 +289,7 @@ public final class Errors {
 				 * - NoHttpResponseException: target server failed to respond with a valid HTTP response
 				 */
 				if (Constants.ERROR_LEVEL == Log.VERBOSE) {
+					//noinspection deprecation
 					if (exception instanceof ConnectTimeoutException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unavailable)).setTrack(false);
 
@@ -291,6 +297,7 @@ public final class Errors {
 							exception instanceof InterruptedIOException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_connection_poor)).setTrack(false);
 
+					//noinspection deprecation
 					if (exception instanceof ConnectException
 							|| exception instanceof NoHttpResponseException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unavailable));
@@ -309,6 +316,7 @@ public final class Errors {
 					if (exception instanceof FileNotFoundException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_file_not_found));
 
+					//noinspection deprecation
 					if (exception instanceof ClientProtocolException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_client_request_error));
 
@@ -316,6 +324,7 @@ public final class Errors {
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_client_request_stream_error));
 				}
 				else {
+					//noinspection deprecation
 					if (exception instanceof UnknownHostException
 							|| exception instanceof ConnectTimeoutException
 							|| exception instanceof InterruptedIOException

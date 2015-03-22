@@ -24,9 +24,12 @@ public class Type {
 	}
 
 	public static Boolean equal(String value1, String value2) {
-		if (value1 == null && value2 == null) return true;
-		if (value1 == null || value2 == null) return true;
-		if (TextUtils.isEmpty(value1) && TextUtils.isEmpty(value2)) return true;
-		return (value1.equals(value2));
+		return value1 == null
+				&& value2 == null
+				|| value1 == null
+				|| value2 == null
+				|| TextUtils.isEmpty(value1)
+				&& TextUtils.isEmpty(value2)
+				|| (value1.equals(value2));
 	}
 }

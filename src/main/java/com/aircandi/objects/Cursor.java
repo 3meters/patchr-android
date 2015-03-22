@@ -28,18 +28,7 @@ public class Cursor extends ServiceObject {
 	@Expose
 	public Map          where;
 
-	public Cursor() {
-	}
-
-	public Cursor(List<String> linkTypes, List<String> schemas, String direction, Map where, Map sort, Number skip, Number limit) {
-		this.sort = sort;
-		this.skip = skip;
-		this.limit = limit;
-		this.linkTypes = linkTypes;
-		this.schemas = schemas;
-		this.direction = direction;
-		this.where = where;
-	}
+	public Cursor() {}
 
 	public Map getSort() {
 		return sort;
@@ -77,7 +66,7 @@ public class Cursor extends ServiceObject {
 		return this;
 	}
 
-	public List<String> getSchemas() {
+	public List<String> getToSchemas() {
 		return schemas;
 	}
 
@@ -103,5 +92,4 @@ public class Cursor extends ServiceObject {
 		this.where = where;
 		return this;
 	}
-
 }

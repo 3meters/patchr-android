@@ -13,14 +13,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.aircandi.Constants;
-import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.IntentBuilder;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Notification;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
@@ -100,7 +99,7 @@ public abstract class EntityControllerBase implements IEntityController {
 				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
 			}
 			context.startActivity(intent);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, transitionType);
+			AnimationManager.doOverridePendingTransition((Activity) context, transitionType);
 		}
 
 		return intent;
@@ -129,7 +128,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			((Activity) context).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ENTITY_EDIT);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
+			AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
 		}
 
 		return intent;
@@ -146,7 +145,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (start) {
 			((Activity) context).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_ENTITY_INSERT);
-			Patchr.getInstance().getAnimationManager().doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
+			AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
 		}
 
 		return intent;
@@ -190,10 +189,12 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		/* Name */
 
-		UI.setVisibility(holder.name, View.GONE);
 		if (holder.name != null && entity.name != null && entity.name.length() > 0) {
 			holder.name.setText(entity.name);
 			UI.setVisibility(holder.name, View.VISIBLE);
+		}
+		else {
+			UI.setVisibility(holder.name, View.GONE);
 		}
 
 		/* Subhead */
@@ -231,13 +232,13 @@ public abstract class EntityControllerBase implements IEntityController {
 		Entity parentEntity = null;
 		if (entity instanceof Notification) {
 			if (((Notification) entity).parentId != null) {
-				parentEntity = EntityManager.getCacheEntity(((Notification) entity).parentId);
+				parentEntity = DataController.getStoreEntity(((Notification) entity).parentId);
 			}
 		}
 		else {
 			parentEntity = entity.patch;
 			if (parentEntity == null && entity.patchId != null) {
-				parentEntity = EntityManager.getCacheEntity(entity.patchId);
+				parentEntity = DataController.getStoreEntity(entity.patchId);
 			}
 		}
 
@@ -266,8 +267,8 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		UI.setVisibility(holder.creator, View.GONE);
 		if (holder.creator != null && entity.creator != null) {
-			if (!entity.ownerId.equals(ServiceConstants.ADMIN_USER_ID)
-					&& !entity.ownerId.equals(ServiceConstants.ANONYMOUS_USER_ID)) {
+			if (!entity.ownerId.equals(Constants.ADMIN_USER_ID)
+					&& !entity.ownerId.equals(Constants.ANONYMOUS_USER_ID)) {
 				holder.creator.databind(entity.creator, entity.modifiedDate.longValue());
 				UI.setVisibility(holder.creator, View.VISIBLE);
 			}
@@ -316,7 +317,6 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		/* Photo */
 
-		UI.setVisibility(holder.photoView, View.GONE);
 		if (holder.photoView != null) {
 			final Photo photo = entity.getPhoto();
 			if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {
@@ -381,7 +381,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 	@Override
 	public Integer getLinkProfile() {
-		return LinkProfile.NO_LINKS;
+		return LinkSpecType.NO_LINKS;
 	}
 
 	@Override

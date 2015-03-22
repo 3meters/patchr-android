@@ -3,7 +3,7 @@ package com.aircandi.controllers;
 import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Place;
 import com.aircandi.ui.PlaceForm;
 
@@ -25,7 +25,7 @@ public class Places extends EntityControllerBase {
 
 	@Override
 	public Integer getLinkProfile() {
-		return LinkProfile.NO_LINKS;
+		return LinkSpecType.NO_LINKS;
 	}
 
 	@Override

@@ -5,12 +5,12 @@ import com.aircandi.objects.Entity;
 import java.util.List;
 
 @SuppressWarnings("ucd")
-public class EntitiesChangedEvent {
+public class EntitiesUpdatedEvent {
 
 	public final List<Entity> entities;
 	public final String       source;
 
-	public EntitiesChangedEvent(List<Entity> entities, String source) {
+	public EntitiesUpdatedEvent(List<Entity> entities, String source) {
 		this.entities = entities;
 		this.source = source;
 	}

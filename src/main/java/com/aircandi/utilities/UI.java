@@ -209,6 +209,7 @@ public class UI {
 	public static Drawable getDrawableForAttribute(@NonNull Context context, Integer attr) {
 		TypedValue a = new TypedValue();
 		context.getTheme().resolveAttribute(attr, a, true);
+		//noinspection deprecation
 		return Patchr.applicationContext.getResources().getDrawable(a.resourceId);
 	}
 

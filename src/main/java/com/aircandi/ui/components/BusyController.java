@@ -1,24 +1,24 @@
 package com.aircandi.ui.components;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManager.BadTokenException;
-import android.widget.ProgressBar;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
-import com.aircandi.components.BusProvider;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.CancelEvent;
-import com.aircandi.events.ProgressEvent;
+import com.aircandi.events.ProcessingCanceledEvent;
+import com.aircandi.events.ProcessingProgressEvent;
 import com.aircandi.interfaces.IBusy;
+import com.aircandi.ui.widgets.AirProgressBar;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Reporting;
@@ -31,8 +31,10 @@ public class BusyController implements IBusy {
 	private Long               mBusyStartedTime;
 	private SwipeRefreshLayout mSwipeRefreshLayout;
 	private ProgressDialog     mProgressDialog;
-	private ProgressBar        mProgressBar;
-	private ProgressBar        mProgressBarToolbar;
+	private AirProgressBar     mProgressBar;
+
+	private ObjectAnimator mFadeInAnim  = ObjectAnimator.ofFloat(null, "alpha", 1f);
+	private ObjectAnimator mFadeOutAnim = ObjectAnimator.ofFloat(null, "alpha", 0f);
 
 	@SuppressLint("ResourceAsColor")
 	public BusyController() {
@@ -164,7 +166,7 @@ public class BusyController implements IBusy {
 						progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								BusProvider.getInstance().post(new CancelEvent(false));
+								Dispatcher.getInstance().post(new ProcessingCanceledEvent(false));
 								Dialogs.dismiss(progressDialog);
 							}
 						});
@@ -207,14 +209,17 @@ public class BusyController implements IBusy {
 			@Override
 			public void run() {
 				stopProgressBar();
-				stopProgressBarToolbar();
 				stopSwipeRefreshIndicator();
 			}
 		});
 	}
 
+	public void position(final View header, final Integer headerHeightProjected) {
+		ListController.position(mProgressBar, header, headerHeightProjected);
+	}
+
 	@Subscribe
-	public void onProgressEvent(ProgressEvent event) {
+	public void onProgressEvent(ProcessingProgressEvent event) {
 		if (mProgressDialog != null && mProgressDialog.isShowing() && !mProgressDialog.isIndeterminate()) {
 			Logger.v(this, "Progress event: " + event.percent + "%");
 			mProgressDialog.setProgress((int) event.percent);
@@ -223,23 +228,7 @@ public class BusyController implements IBusy {
 
 	public void startProgressBar() {
 		if (mProgressBar != null) {
-			if (mProgressBar instanceof ContentLoadingProgressBar) {
-				((ContentLoadingProgressBar) mProgressBar).show();
-			}
-			else {
-				mProgressBar.setVisibility(View.VISIBLE);
-			}
-		}
-	}
-
-	public void startProgressBarToolbar() {
-		if (mProgressBarToolbar != null) {
-			if (mProgressBarToolbar instanceof ContentLoadingProgressBar) {
-				((ContentLoadingProgressBar) mProgressBarToolbar).show();
-			}
-			else {
-				mProgressBarToolbar.setVisibility(View.VISIBLE);
-			}
+			mProgressBar.show();
 		}
 	}
 
@@ -252,23 +241,7 @@ public class BusyController implements IBusy {
 
 	public void stopProgressBar() {
 		if (mProgressBar != null) {
-			if (mProgressBar instanceof ContentLoadingProgressBar) {
-				((ContentLoadingProgressBar) mProgressBar).hide();
-			}
-			else {
-				mProgressBar.setVisibility(View.GONE);
-			}
-		}
-	}
-
-	public void stopProgressBarToolbar() {
-		if (mProgressBarToolbar != null) {
-			if (mProgressBarToolbar instanceof ContentLoadingProgressBar) {
-				((ContentLoadingProgressBar) mProgressBarToolbar).hide();
-			}
-			else {
-				mProgressBarToolbar.setVisibility(View.GONE);
-			}
+			mProgressBar.hide();
 		}
 	}
 
@@ -306,15 +279,8 @@ public class BusyController implements IBusy {
 	}
 
 	public BusyController setProgressBar(View progressBar) {
-		if (progressBar != null && progressBar instanceof ProgressBar) {
-			mProgressBar = (ProgressBar) progressBar;
-		}
-		return this;
-	}
-
-	public BusyController setProgressBarToolbar(View progressBar) {
-		if (progressBar != null && progressBar instanceof ProgressBar) {
-			mProgressBarToolbar = (ProgressBar) progressBar;
+		if (progressBar != null && progressBar instanceof AirProgressBar) {
+			mProgressBar = (AirProgressBar) progressBar;
 		}
 		return this;
 	}
@@ -324,11 +290,17 @@ public class BusyController implements IBusy {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void resume() {
-		BusProvider.getInstance().register(this);
+		try {
+			Dispatcher.getInstance().register(this);
+		}
+		catch (IllegalArgumentException e) {/* ignore */}
 	}
 
 	public void pause() {
-		BusProvider.getInstance().unregister(this);
+		try {
+			Dispatcher.getInstance().unregister(this);
+		}
+		catch (IllegalArgumentException e) {/* ignore */}
 		hide(true);
 	}
 }

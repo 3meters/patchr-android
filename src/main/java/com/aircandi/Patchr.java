@@ -13,22 +13,20 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 import android.widget.Toast;
 
-import com.aircandi.components.AnimationManager;
 import com.aircandi.components.ContainerManager;
-import com.aircandi.components.DispatchManager;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
-import com.aircandi.components.MenuManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
+import com.aircandi.components.NotificationManager;
+import com.aircandi.components.Router;
 import com.aircandi.components.Stopwatch;
 import com.aircandi.components.StringManager;
 import com.aircandi.controllers.Messages;
@@ -38,7 +36,9 @@ import com.aircandi.controllers.Places;
 import com.aircandi.controllers.Users;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Links;
+import com.aircandi.objects.LinkSpec;
+import com.aircandi.objects.LinkSpecFactory;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Session;
 import com.aircandi.objects.User;
 import com.aircandi.utilities.DateTime;
@@ -65,15 +65,13 @@ import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
 
-;
-
 public class Patchr extends MultiDexApplication {
 
-	public static BasicAWSCredentials awsCredentials = null;
+	private static Patchr instance;
 
-	private static Patchr singletonObject;
-
-	public static Intent firstStartIntent = null;
+	@NonNull
+	public static Boolean firstStartApp    = true;  // Used to detect when app is first started
+	public static Intent  firstStartIntent = null;  // Used when we are started to handle an intent
 
 	@NonNull
 	public static SharedPreferences        settings;
@@ -86,9 +84,7 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	public static PackageManager           packageManager;
 	@NonNull
-	public static DispatchManager          dispatch;
-	@NonNull
-	public static Integer                  memoryClass;
+	public static Router                   router;
 	@NonNull
 	public static Stopwatch                stopwatch1;
 	@NonNull
@@ -99,15 +95,13 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	public static Map<String, IEntityController> controllerMap             = new HashMap<String, IEntityController>();
 	@NonNull
-	public static Boolean                        firstStartApp             = true;
-	@NonNull
 	public static Boolean                        debug                     = false;
-	@NonNull
-	public static Integer                        wifiCount                 = 0;
 	@NonNull
 	public static Boolean                        applicationUpdateRequired = false;
 	@NonNull
-	public static Integer                        resultCode                = Activity.RESULT_OK;
+	public static Integer                        resultCode                = Activity.RESULT_OK; // Used to cascade up the activity chain
+
+	public static BasicAWSCredentials awsCredentials = null;
 
 	/* Container values */
 	@NonNull
@@ -119,7 +113,7 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	public static String USER_SECRET     = "user-secret";
 
-	public Tracker mTracker;
+	private Tracker mTracker;
 
 	/* Current objects */
 	private Entity   mCurrentPatch;
@@ -136,21 +130,13 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	private String  mPrefTestingBeacons;
 
-	/* Shared managers */
-	@NonNull
-	protected EntityManager    mEntityManager;
-	@NonNull
-	protected MenuManager      mMenuManager;
-	@NonNull
-	protected AnimationManager mAnimationManager;
-
 	/* Install id components */
 	private String mUniqueId;
 	private Long   mUniqueDate;
 	private String mUniqueType;
 
 	public static Patchr getInstance() {
-		return singletonObject;
+		return instance;
 	}
 
 	@Override
@@ -161,22 +147,9 @@ public class Patchr extends MultiDexApplication {
 		 */
 		debug = (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE));
 
-		if (debug) {
-			StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-					.detectAll()   // or .detectAll() for all detectable problems
-					.permitDiskReads()
-					.penaltyLog()
-					.build());
-
-			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-					.detectAll()
-					.penaltyLog()
-					.build());
-		}
-
 		super.onCreate();
-		singletonObject = this;
-		singletonObject.initializeInstance();
+		instance = this;
+		instance.initializeInstance();
 		Logger.d(this, "Application created");
 	}
 
@@ -222,15 +195,14 @@ public class Patchr extends MultiDexApplication {
 
 			/* Info on what is being tracked is output to logcat */
 			analytics.getLogger().setLogLevel(com.google.android.gms.analytics.Logger.LogLevel.VERBOSE);
-			setTracker(analytics.newTracker(R.xml.analytics));
+			mTracker = analytics.newTracker(R.xml.analytics);
 		}
 
 		/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
 		snapshotPreferences();
 
 		/* Establish device memory class */
-		memoryClass = Utilities.maxMemoryMB();
-		Logger.i(this, "Device memory class: " + String.valueOf(memoryClass));
+		Logger.i(this, "Device memory class: " + String.valueOf(Utilities.maxMemoryMB()));
 
 		/* Inject configuration */
 		openContainer(StringManager.getString(R.string.id_container));
@@ -254,13 +226,8 @@ public class Patchr extends MultiDexApplication {
 		/* Warmup media manager */
 		MediaManager.warmup();
 
-		/* Inject minimum managers required for notifications */
-		mEntityManager = new EntityManager().setLinks(new Links());
-		mMenuManager = new MenuManager();
-		mAnimationManager = new AnimationManager();
-
 		/* Inject dispatch manager */
-		dispatch = new DispatchManager();
+		router = new Router();
 
 		/* Connectivity monitoring */
 		NetworkManager.getInstance().initialize();
@@ -347,7 +314,7 @@ public class Patchr extends MultiDexApplication {
 		}
 
 		/* Couldn't auto signin so fall back to anonymous */
-		final User anonymous = (User) mEntityManager.loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
+		final User anonymous = (User) DataController.getInstance().loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
 		setCurrentUser(anonymous, false);
 	}
 
@@ -432,7 +399,7 @@ public class Patchr extends MultiDexApplication {
 	public static String getVersionName(@NonNull Context context, @NonNull Class cls) {
 		try {
 			final ComponentName comp = new ComponentName(context, cls);
-			final PackageInfo pinfo = context.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
+			final PackageInfo pinfo = packageManager.getPackageInfo(comp.getPackageName(), 0);
 			return pinfo.versionName;
 		}
 		catch (android.content.pm.PackageManager.NameNotFoundException e) {
@@ -445,7 +412,7 @@ public class Patchr extends MultiDexApplication {
 	public static Integer getVersionCode(@NonNull Context context, @NonNull Class cls) {
 		try {
 			final ComponentName comp = new ComponentName(context, cls);
-			final PackageInfo pinfo = context.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
+			final PackageInfo pinfo = packageManager.getPackageInfo(comp.getPackageName(), 0);
 			return pinfo.versionCode;
 		}
 		catch (android.content.pm.PackageManager.NameNotFoundException e) {
@@ -465,14 +432,44 @@ public class Patchr extends MultiDexApplication {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void setTracker(@NonNull Tracker tracker) {
-		mTracker = tracker;
-	}
-
 	@NonNull
 	public Boolean setCurrentUser(@NonNull User user, @NonNull Boolean refreshUser) {
+
 		mCurrentUser = user;
-		ModelResult result = mEntityManager.activateCurrentUser(refreshUser, null);
+		ModelResult result = new ModelResult();
+
+		if (user.isAnonymous()) {
+
+			Logger.i(this, "Activating anonymous user");
+
+			/* Cancel any current notifications in the status bar */
+			NotificationManager.getInstance().cancelAllNotifications();
+
+			/* Clear user settings */
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), null);
+			Patchr.settingsEditor.commit();
+		}
+		else {
+
+			Logger.i(this, "Activating authenticated user: " + Patchr.getInstance().getCurrentUser().id);
+
+			/* Load user data */
+			if (refreshUser) {
+				LinkSpec options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
+				result = DataController.getInstance().getEntity(user.id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+			}
+
+			/* Update settings */
+			final String jsonUser = Json.objectToJson(user);
+			final String jsonSession = Json.objectToJson(user.session);
+
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), user.email);
+			Patchr.settingsEditor.commit();
+		}
+
 		Reporting.updateCrashUser(user);
 		return (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS);
 	}
@@ -510,20 +507,5 @@ public class Patchr extends MultiDexApplication {
 
 	public Entity getCurrentPatch() {
 		return mCurrentPatch;
-	}
-
-	@NonNull
-	public MenuManager getMenuManager() {
-		return mMenuManager;
-	}
-
-	@NonNull
-	public EntityManager getEntityManager() {
-		return mEntityManager;
-	}
-
-	@NonNull
-	public AnimationManager getAnimationManager() {
-		return mAnimationManager;
 	}
 }

@@ -16,13 +16,14 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
+import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.ProximityManager;
+import com.aircandi.components.ProximityController;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
@@ -241,7 +242,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			final String jsonPhoto = Json.objectToJson(mEntity.photo);
 			Bundle bundle = new Bundle();
 			bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.dispatch.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
+			Patchr.router.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
 		}
 	}
 
@@ -251,7 +252,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		gather();
 
 		/* Route it */
-		Patchr.dispatch.route(this, Route.PHOTO_SOURCE, mEntity, null);
+		Patchr.router.route(this, Route.PHOTO_SOURCE, mEntity, null);
 	}
 
 	public void onDeletePhotoButtonClick(View view) {
@@ -310,7 +311,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Patchr.dispatch.route(this, Route.BROWSE, entity, null);
+		Patchr.router.route(this, Route.BROWSE, entity, null);
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -350,7 +351,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 								final String jsonPhoto = Json.objectToJson(mEntity.photo);
 								Bundle bundle = new Bundle();
 								bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-								Patchr.dispatch.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
+								Patchr.router.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
 							}
 						}
 						else if (photoSource.equals(Constants.PHOTO_ACTION_DEFAULT)
@@ -494,11 +495,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	protected void photoSearch(String defaultSearch) {
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_SEARCH_PHRASE, defaultSearch);
-		Patchr.dispatch.route(this, Route.PHOTO_SEARCH, null, extras);
+		Patchr.router.route(this, Route.PHOTO_SEARCH, null, extras);
 	}
 
 	protected void photoFromPlace(Entity entity) {
-		Patchr.dispatch.route(this, Route.PHOTO_PLACE_SEARCH, entity, null);
+		Patchr.router.route(this, Route.PHOTO_PLACE_SEARCH, entity, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -526,7 +527,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					mUiController.getBusyController().showProgressDialog(BaseEntityEdit.this);
 				}
 				else {
-					mUiController.getBusyController().show(BusyAction.Update);
+					mUiController.getBusyController().show(BusyAction.ActionWithMessage, mInsertProgressResId, BaseEntityEdit.this);
 				}
 			}
 
@@ -550,7 +551,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 				/* We only send beacons if a patch is being inserted */
 				if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH) && !mProximityDisabled) {
-					beacons = ProximityManager.getInstance().getStrongestBeacons(ServiceConstants.PROXIMITY_BEACON_COVERAGE);
+					beacons = ProximityController.getInstance().getStrongestBeacons(Constants.PROXIMITY_BEACON_COVERAGE);
 					primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 				}
 
@@ -603,7 +604,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				beforeInsert(mEntity, links);
 				if (isCancelled()) return null;
 
-				ModelResult result = Patchr.getInstance().getEntityManager().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
@@ -648,7 +649,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						}
 						setResultCode(Activity.RESULT_OK);
 						finish();
-						Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_BACK);
+						AnimationManager.doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_BACK);
 					}
 				}
 				else {
@@ -670,7 +671,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					mUiController.getBusyController().showProgressDialog(BaseEntityEdit.this);
 				}
 				else {
-					mUiController.getBusyController().show(BusyAction.Update);
+					mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_updating, BaseEntityEdit.this);
 				}
 			}
 
@@ -717,7 +718,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					}
 
 					beforeUpdate(mEntity);
-					result = Patchr.getInstance().getEntityManager().updateEntity(mEntity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					result = DataController.getInstance().updateEntity(mEntity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 					if (isCancelled()) return null;
 
 					/* Don't allow cancel if we made it this far */
@@ -729,18 +730,18 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER) &&
 								Patchr.getInstance().getCurrentUser().id.equals(mEntity.id)) {
 
-								/* We also need to update the user that has been persisted for AUTO sign in. */
+							/* We also need to update the user that has been persisted for AUTO sign in. */
 							final String jsonUser = Json.objectToJson(mEntity);
 							Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
 							Patchr.settingsEditor.commit();
 
-								/*
-								 * Update the global user but retain the session info. We don't need
-								 * to call activateCurrentUser because we don't need to refetch link data
-								 * or change notification registration.
-								 */
+							/*
+							 * Update the global user but retain the session info. We don't need
+							 * to call activateCurrentUser because we don't need to refetch link data
+							 * or change notification registration.
+							 */
 							((User) mEntity).session = Patchr.getInstance().getCurrentUser().session;
-							Patchr.getInstance().setCurrentUser((User) mEntity, true);
+							Patchr.getInstance().setCurrentUser((User) mEntity, false);
 						}
 					}
 				}
@@ -769,7 +770,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
 						setResultCode(Activity.RESULT_OK);
 						finish();
-						Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_BACK);
+						AnimationManager.doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_BACK);
 					}
 				}
 				else {

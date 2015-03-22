@@ -7,12 +7,20 @@ import android.os.Bundle;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager.ResponseCode;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
+import com.aircandi.events.EntitiesRequestEvent;
+import com.aircandi.events.EntityRequestEvent;
+import com.aircandi.events.LinkDeleteEvent;
+import com.aircandi.events.LinkInsertEvent;
+import com.aircandi.events.NotificationsRequestEvent;
+import com.aircandi.events.ShareCheckEvent;
+import com.aircandi.events.TrendRequestEvent;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.CacheStamp;
-import com.aircandi.objects.CacheStamp.StampSource;
 import com.aircandi.objects.Category;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Document;
@@ -20,9 +28,8 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Install;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
-import com.aircandi.objects.LinkProfile;
-import com.aircandi.objects.Links;
-import com.aircandi.objects.Log;
+import com.aircandi.objects.LinkSpec;
+import com.aircandi.objects.LinkSpecFactory;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoType;
@@ -40,101 +47,375 @@ import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
-public class EntityManager {
+/**
+ * Designed as a singleton. The private Constructor prevents any other class from instantiating.
+ */
 
-	private static final EntityCache         mEntityCache         = new EntityCache();
-	private              Map<String, String> mCacheStampOverrides = new HashMap<String, String>();
-	private Number mActivityDate;
-	private Links  mLinks;
-	/*
-	 * Categories are cached by a background thread.
-	 */
-	private List<Category> mCategories = Collections.synchronizedList(new ArrayList<Category>());
+public class DataController {
+
+	private Number mActivityDate;                                           // Monitored by nearby
+	private static final EntityStore ENTITY_STORE = new EntityStore();
+
+	private DataController() {
+		Dispatcher.getInstance().register(this);
+	}
+
+	private static class DataControllerHolder {
+		public static final DataController instance = new DataController();
+	}
+
+	public static DataController getInstance() {
+		return DataControllerHolder.instance;
+	}
+
+ 	/*--------------------------------------------------------------------------------------------
+	 * Data request events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onEntityRequest(final EntityRequestEvent event) {
+
+		/* Called on main thread */
+
+		/* Provide cache entity if available */
+		final Entity entity = ENTITY_STORE.getStoreEntity(event.entityId);
+		if (entity != null) {
+			DataResultEvent data = new DataResultEvent()
+					.setActionType(event.actionType)
+					.setEntity(entity)
+					.setTag(event.tag);
+			Dispatcher.getInstance().post(data);
+		}
+
+		/* Check service for fresher version of the entity */
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncGetEntity");
+
+				LinkSpec options = LinkSpecFactory.build(event.linkProfile);
+				final List<String> loadEntityIds = new ArrayList<String>();
+				loadEntityIds.add(event.entityId);
+
+				ServiceResponse serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, options, event.cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					ServiceData serviceData = (ServiceData) serviceResponse.data;
+					final List<Entity> entities = (List<Entity>) serviceData.data;
+					if (entities.size() > 0) {
+						Entity entity = entities.get(0);
+						DataResultEvent data = new DataResultEvent()
+								.setActionType(event.actionType)
+								.setMode(event.mode)
+								.setEntity(entity)
+								.setTag(event.tag);
+						Dispatcher.getInstance().post(data);
+					}
+					else {
+						/*
+						 * We can't tell the difference between an entity missing because of the where criteria
+						 * or because of no match on the entity id. We treat both cases as a no-op.
+						 */
+						DataNoopEvent noop = new DataNoopEvent().setActionType(event.actionType).setTag(event.tag);
+						Dispatcher.getInstance().post(noop);
+					}
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setMode(event.mode)
+					     .setTag(event.tag);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onEntitiesRequest(final EntitiesRequestEvent event) {
+
+		/* Called on main thread */
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncGetEntities");
+				/*
+				 * Users as monitor entities: Activity date for user entities is not updated
+				 * when an entity they are watching or created is updated. Our goal is to be self
+				 * consistent so we add in logic based on the local user.
+				 */
+				LinkSpec options = LinkSpecFactory.build(event.linkProfile);
+
+				ServiceResponse serviceResponse = ENTITY_STORE.loadEntitiesForEntity(event.entityId, options, event.cursor, event.cacheStamp, null, event.tag);
+
+				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					ServiceData serviceData = (ServiceData) serviceResponse.data;
+					/*
+					 * The parent entity is always returned unless we pass a cache stamp and it does
+					 * not have a fresher cache stamp.
+                     */
+					if (event.cacheStamp != null && serviceData.entity == null) {
+						DataNoopEvent noop = new DataNoopEvent().setActionType(event.actionType).setTag(event.tag);
+						Dispatcher.getInstance().post(noop);
+					}
+					else {
+						DataResultEvent data = new DataResultEvent()
+								.setEntities((List<Entity>) serviceData.data)
+								.setMore(serviceData.more)
+								.setActionType(event.actionType)
+								.setMode(event.mode)
+								.setCursor(event.cursor)
+								.setEntity(serviceData.entity)
+								.setTag(event.tag);
+						Dispatcher.getInstance().post(data);
+					}
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setMode(event.mode)
+					     .setTag(event.tag);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onTrendRequest(final TrendRequestEvent event) {
+
+		/* Called on main thread */
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncGetTrend");
+				/*
+				 * By default returns sorted by rank in ascending order.
+				 */
+				ModelResult result = getTrending(event.toSchema
+						, event.fromSchema
+						, event.linkType
+						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					if (result.data != null) {
+						DataResultEvent data = new DataResultEvent()
+								.setEntities((List<Entity>) result.data)
+								.setActionType(event.actionType)
+								.setMode(event.mode)
+								.setTag(event.tag);
+						Dispatcher.getInstance().post(data);
+					}
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setMode(event.mode)
+					     .setTag(event.tag);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onNotificationsRequest(final NotificationsRequestEvent event) {
+
+		/* Called on main thread */
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncGetNotifications");
+				ModelResult result = loadNotifications(event.entityId
+						, event.cursor
+						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					if (result.data != null) {
+						DataResultEvent data = new DataResultEvent()
+								.setEntities((List<Entity>) result.data)
+								.setCursor(event.cursor)
+								.setActionType(event.actionType)
+								.setMode(event.mode)
+								.setMore(((ServiceData) result.serviceResponse.data).more)
+								.setTag(event.tag);
+						Dispatcher.getInstance().post(data);
+					}
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setMode(event.mode)
+					     .setTag(event.tag);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onLinkInsert(final LinkInsertEvent event) {
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncInsertLink");
+
+				ModelResult result = insertLink(event.linkId
+						, event.fromId
+						, event.toId
+						, event.type
+						, event.enabled
+						, event.fromShortcut
+						, event.toShortcut
+						, event.actionEvent
+						, event.skipCache
+						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					DataResultEvent data = new DataResultEvent()
+							.setActionType(event.actionType)
+							.setTag(event.tag);
+					Dispatcher.getInstance().post(data);
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setTag(event.tag);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onLinkDelete(final LinkDeleteEvent event) {
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncDeleteLink");
+
+				ModelResult result = deleteLink(event.fromId
+						, event.toId
+						, event.type
+						, event.enabled
+						, event.schema
+						, event.actionEvent
+						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					DataResultEvent data = new DataResultEvent()
+							.setActionType(event.actionType)
+							.setTag(event.tag);
+					Dispatcher.getInstance().post(data);
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setTag(event.tag);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onShareCheck(final ShareCheckEvent event) {
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncShareCheck");
+
+				ModelResult result = checkShare(event.entityId
+						, event.userId
+						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					DataResultEvent data = new DataResultEvent()
+							.setActionType(event.actionType)
+							.setData(result.data)
+							.setTag(event.tag);
+					Dispatcher.getInstance().post(data);
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setTag(event.tag);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Cache queries
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static Entity getCacheEntity(String entityId) {
-		return mEntityCache.get(entityId);
+	public static Entity getStoreEntity(String entityId) {
+		return ENTITY_STORE.getStoreEntity(entityId);
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Combo service/cache queries
 	 *--------------------------------------------------------------------------------------------*/
 
-	public synchronized ModelResult getEntity(String entityId, Boolean refresh, Links linkOptions, Object tag) {
+	public synchronized ModelResult getEntity(String entityId, Boolean refresh, LinkSpec linkOptions, Object tag) {
 		/*
 		 * Retrieves entity from cache if available otherwise downloads the entity from the service. If refresh is true
 		 * then bypasses the cache and downloads from the service.
 		 */
-		final ModelResult result = getEntities(Arrays.asList(entityId), refresh, linkOptions, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final List<Entity> entities = (List<Entity>) result.data;
-			if (entities.size() > 0) {
-				result.data = entities.get(0);
-			}
-			else {
-				result.data = null;
-			}
-		}
-		return result;
-	}
-
-	private synchronized ModelResult getEntities(List<String> entityIds, Boolean refresh, Links linkOptions, Object tag) {
-		/*
-		 * Results in a service request if missing entities or refresh is true.
-		 */
 		final ModelResult result = new ModelResult();
 
-		final List<String> loadEntityIds = new ArrayList<String>();
-		List<Entity> entities = new ArrayList<Entity>();
+		Entity entity = ENTITY_STORE.getStoreEntity(entityId);
+		if (refresh || entity == null) {
+			final List<String> loadEntityIds = new ArrayList<String>();
+			loadEntityIds.add(entityId);
 
-		for (String entityId : entityIds) {
-			Entity entity = mEntityCache.get(entityId);
-			if (refresh || entity == null) {
-				loadEntityIds.add(entityId);
-			}
-			else {
-				entities.add(entity);
-			}
-		}
-
-		result.data = entities;
-
-		if (loadEntityIds.size() > 0) {
-			result.serviceResponse = mEntityCache.loadEntities(loadEntityIds, linkOptions, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+			/* This is the only place in the code that calls loadEntities */
+			result.serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, linkOptions, null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 				ServiceData serviceData = (ServiceData) result.serviceResponse.data;
-				result.data = serviceData.data;
+				final List<Entity> entities = (List<Entity>) serviceData.data;
+				if (entities.size() > 0) {
+					result.data = entities.get(0);
+				}
 			}
 		}
-		return result;
-	}
-
-	public synchronized ModelResult loadEntitiesForEntity(String entityId, Links linkOptions, Cursor cursor, Object tag, Stopwatch stopwatch) {
-		final ModelResult result = new ModelResult();
-
-		result.serviceResponse = mEntityCache.loadEntitiesForEntity(entityId, linkOptions, cursor, stopwatch, tag);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			ServiceData serviceData = (ServiceData) result.serviceResponse.data;
-			result.data = serviceData.data;
+		else {
+			result.data = entity;
 		}
+
 		return result;
 	}
 
@@ -154,7 +435,7 @@ public class EntityManager {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getNotifications")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getNotifications")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -177,103 +458,12 @@ public class EntityManager {
 		return result;
 	}
 
-	public synchronized CacheStamp loadCacheStamp(String entityId, CacheStamp cacheStamp, Object tag) {
-
-		final ModelResult result = new ModelResult();
-
-		final Bundle parameters = new Bundle();
-		parameters.putString("entityId", entityId);
-
-		if (cacheStamp != null) {
-			if (cacheStamp.activityDate != null) {
-				parameters.putLong("activityDate", cacheStamp.activityDate.longValue());
-			}
-
-			if (cacheStamp.modifiedDate != null) {
-				parameters.putLong("modifiedDate", cacheStamp.modifiedDate.longValue());
-			}
-		}
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "checkActivity")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		/* In case of a failure, we echo back the provided cache stamp to the caller */
-		CacheStamp cacheStampService = null;
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.RESULT, Json.ServiceDataWrapper.TRUE);
-			if (serviceData.data != null) {
-				cacheStampService = (CacheStamp) serviceData.data;
-				cacheStampService.source = StampSource.SERVICE.name().toLowerCase(Locale.US);
-				if (mCacheStampOverrides.containsKey(entityId)) {
-					Logger.v(this, "Using cache stamp override: " + entityId);
-					/*
-					 * Guarantees that the service cache stamp will not equal
-					 * any other cache stamp.
-					 */
-					cacheStampService.override = true;
-				}
-			}
-		}
-		return cacheStampService;
-	}
-
-	public synchronized ModelResult loadCategories(boolean refresh, final Object tag) {
-
-		ModelResult result = new ModelResult();
-
-		/* Loads from local to initialize */
-		if (mCategories.size() == 0) {
-			final String json = "{\"data\":" + loadJsonFromResources (R.raw.categories_patch) + "}";
-			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(json, Json.ObjectType.CATEGORY, Json.ServiceDataWrapper.TRUE);
-			mCategories = (List<Category>) serviceData.data;
-		}
-
-		/* Fetch categories from service so we have the freshest for the next call. */
-		if (refresh) {
-			new AsyncTask() {
-
-				@Override
-				protected Object doInBackground(Object... params) {
-					Thread.currentThread().setName("AsyncLoadCategories");
-
-					final ServiceRequest serviceRequest = new ServiceRequest()
-							.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PATCHES + "categories")
-							.setRequestType(RequestType.GET)
-							.setTag(tag)
-							.setResponseFormat(ResponseFormat.JSON);
-
-					ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-					if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-						Logger.v(EntityManager.this, "Patch categories refreshed");
-						final String json = (String) serviceResponse.data;
-						final ServiceData serviceData = (ServiceData) Json.jsonToObjects(json, Json.ObjectType.CATEGORY, Json.ServiceDataWrapper.TRUE);
-						mCategories = (List<Category>) serviceData.data;
-					}
-					return null;
-				}
-			}.executeOnExecutor(Constants.EXECUTOR);
-		}
-
-		result.data = mCategories;
-
-		return result;
-	}
-
 	public ModelResult suggest(String input, SuggestScope suggestScope, String userId, AirLocation location, long limit, Object tag) {
 
 		final ModelResult result = new ModelResult();
 		final Bundle parameters = new Bundle();
 
-		parameters.putString("provider", ServiceConstants.PLACE_SUGGEST_PROVIDER);
+		parameters.putString("provider", Constants.PLACE_SUGGEST_PROVIDER);
 		parameters.putString("input", input.toLowerCase(Locale.US)); // matches any word that as input as prefix
 		parameters.putLong("limit", limit);
 		parameters.putString("_user", userId); // So service can handle places the current user is watching
@@ -298,13 +488,13 @@ public class EntityManager {
 			 */
 			if (location != null) {
 				parameters.putString("location", "object:" + Json.objectToJson(location));
-				parameters.putInt("radius", ServiceConstants.PLACE_SUGGEST_RADIUS);
-				parameters.putInt("timeout", ServiceConstants.TIMEOUT_SERVICE_PLACE_SUGGEST);
+				parameters.putInt("radius", Constants.PLACE_SUGGEST_RADIUS);
+				parameters.putInt("timeout", Constants.TIMEOUT_SERVICE_PLACE_SUGGEST);
 			}
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_SUGGEST)
+				.setUri(Constants.URL_PROXIBASE_SERVICE_SUGGEST)
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -330,7 +520,7 @@ public class EntityManager {
 		final ModelResult result = new ModelResult();
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_REST + collection + "/genId")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_REST + collection + "/genId")
 				.setRequestType(RequestType.GET)
 				.setTag(tag)
 				.setSuppressUI(true)
@@ -359,7 +549,7 @@ public class EntityManager {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_AUTH + "signin")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "signin")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -382,46 +572,6 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult activateCurrentUser(Boolean refreshUser, Object tag) {
-
-		ModelResult result = new ModelResult();
-		User user = Patchr.getInstance().getCurrentUser();
-
-		if (user.isAnonymous()) {
-
-			Logger.i(this, "Activating anonymous user");
-
-			/* Cancel any current notifications in the status bar */
-			NotificationManager.getInstance().cancelAllNotifications();
-
-			/* Clear user settings */
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), null);
-			Patchr.settingsEditor.commit();
-		}
-		else {
-
-			Logger.i(this, "Activating authenticated user: " + Patchr.getInstance().getCurrentUser().id);
-
-			/* Load user data */
-			if (refreshUser) {
-				Links options = mLinks.build(LinkProfile.LINKS_FOR_USER_CURRENT);
-				result = getEntity(user.id, true, options, tag);
-			}
-
-			/* Update settings */
-			final String jsonUser = Json.objectToJson(user);
-			final String jsonSession = Json.objectToJson(user.session);
-
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), user.email);
-			Patchr.settingsEditor.commit();
-		}
-
-		return result;
-	}
-
 	public ModelResult signoutComplete(Object tag) {
 		final ModelResult result = new ModelResult();
 		/*
@@ -429,7 +579,7 @@ public class EntityManager {
 		 * really hurt anything.
 		 */
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_AUTH + "signout")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "signout")
 				.setRequestType(RequestType.GET)
 				.setTag(tag)
 				.setIgnoreResponseData(true)
@@ -450,7 +600,7 @@ public class EntityManager {
 
 		/* Set to anonymous user */
 		User anonymous = (User) loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
-		Patchr.getInstance().setCurrentUser(anonymous, true);
+		Patchr.getInstance().setCurrentUser(anonymous, false);
 
 		if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 			Logger.w(this, "User sign out but service call failed: " + Patchr.getInstance().getCurrentUser().id);
@@ -468,7 +618,7 @@ public class EntityManager {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "changepw")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "changepw")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -503,7 +653,7 @@ public class EntityManager {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "reqresetpw")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "reqresetpw")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -531,7 +681,7 @@ public class EntityManager {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "resetpw")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "resetpw")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -566,7 +716,7 @@ public class EntityManager {
 		user.id = null; // remove temp id we assigned
 
 		ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_USER + "create")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "create")
 				.setRequestType(RequestType.INSERT)
 				.setRequestBody(Json.objectToJson(user, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
 				.setParameters(parameters)
@@ -747,7 +897,7 @@ public class EntityManager {
 			}
 
 			final ServiceRequest serviceRequest = new ServiceRequest()
-					.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "insertEntity")
+					.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "insertEntity")
 					.setRequestType(RequestType.METHOD)
 					.setParameters(parameters)
 					.setTag(tag)
@@ -774,7 +924,7 @@ public class EntityManager {
 			 */
 			if (!entity.synthetic) {
 				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-				mEntityCache.addLink(Patchr.getInstance().getCurrentUser().id
+				ENTITY_STORE.fixupAddLink(Patchr.getInstance().getCurrentUser().id
 						, insertedEntity.id
 						, Constants.TYPE_LINK_CREATE
 						, null
@@ -827,7 +977,7 @@ public class EntityManager {
 			parameters.putString("entity", "object:" + Json.objectToJson(entity, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 
 			final ServiceRequest serviceRequest = new ServiceRequest()
-					.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "updateEntity")
+					.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "updateEntity")
 					.setRequestType(RequestType.METHOD)
 					.setParameters(parameters)
 					.setTag(tag)
@@ -848,7 +998,7 @@ public class EntityManager {
 			 * from the service.
 			 */
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-				mEntityCache.updateEntityUser(entity);
+				ENTITY_STORE.fixupEntityUser(entity);
 			}
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
@@ -870,7 +1020,7 @@ public class EntityManager {
 		Entity entity = null;
 
 		if (!cacheOnly) {
-			entity = mEntityCache.get(entityId);
+			entity = ENTITY_STORE.getStoreEntity(entityId);
 
 			if (entity == null) {
 				throw new IllegalArgumentException("Deleting entity requires entity from cache");
@@ -885,7 +1035,7 @@ public class EntityManager {
 			parameters.putString("entityId", entity.id);
 
 			final ServiceRequest serviceRequest = new ServiceRequest()
-					.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "deleteEntity")
+					.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "deleteEntity")
 					.setRequestType(RequestType.METHOD)
 					.setParameters(parameters)
 					.setTag(tag)
@@ -903,7 +1053,7 @@ public class EntityManager {
 			if (entity != null) {
 				Reporting.sendEvent(Reporting.TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
 			}
-			entity = mEntityCache.removeEntityTree(entityId);
+			entity = ENTITY_STORE.removeEntityTree(entityId);
 			/*
 			 * Remove 'create' link
 			 * 
@@ -911,7 +1061,7 @@ public class EntityManager {
 			 * this entity at either end and clean them up including any counts.
 			 */
 			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-			mEntityCache.removeLink(Patchr.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
+			ENTITY_STORE.fixupRemoveLink(Patchr.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
 
 			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				mActivityDate = DateTime.nowDate().getTime();
@@ -990,7 +1140,7 @@ public class EntityManager {
 		String methodName = untuning ? "untrackEntity" : "trackEntity";
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + methodName)
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + methodName)
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1034,7 +1184,7 @@ public class EntityManager {
 										/*
 										 * Entity could be a clone so grab the one in the cache.
 										 */
-										Entity cacheEntity = mEntityCache.get(entity.id);
+										Entity cacheEntity = ENTITY_STORE.getStoreEntity(entity.id);
 										if (cacheEntity != null) {
 											cacheEntity.activityDate = DateTime.nowDate().getTime();
 										}
@@ -1059,7 +1209,7 @@ public class EntityManager {
 						/*
 						 * Entity could be a clone so grab the one in the cache.
 						 */
-						Entity cacheEntity = mEntityCache.get(entity.id);
+						Entity cacheEntity = ENTITY_STORE.getStoreEntity(entity.id);
 						if (cacheEntity != null) {
 							cacheEntity.activityDate = DateTime.nowDate().getTime();
 						}
@@ -1071,6 +1221,10 @@ public class EntityManager {
 		return result;
 	}
 
+	/**
+	 * Inserts link at the service and inserts link locally if the 'from' or 'to'
+	 * entities are in the cache.
+	 */
 	public ModelResult insertLink(String linkId
 			, String fromId
 			, String toId
@@ -1098,7 +1252,7 @@ public class EntityManager {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "insertLink")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "insertLink")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1112,12 +1266,12 @@ public class EntityManager {
 		/*
 		 * We update the cache directly instead of refreshing from the service
 		 *
-		 * Could fail because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
+		 * Could fail because of Constants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 		 * prevents any user from liking the same entity more than once. Should be safe to ignore.
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			if (!skipCache) {
-				mEntityCache.addLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
+				ENTITY_STORE.fixupAddLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
 			}
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, actionEvent, Entity.getSchemaForId(toId), 0);
 		}
@@ -1125,7 +1279,17 @@ public class EntityManager {
 		return result;
 	}
 
-	public ModelResult deleteLink(String fromId, String toId, String type, Boolean enabled, String schema, String actionEvent, Object tag) {
+	/**
+	 * Deletes link at the service and deletes link locally if the 'from' or 'to'
+	 * entities are in the cache.
+	 */
+	public ModelResult deleteLink(String fromId
+			, String toId
+			, String type
+			, Boolean enabled
+			, String schema
+			, String actionEvent
+			, Object tag) {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -1135,7 +1299,7 @@ public class EntityManager {
 		parameters.putString("actionEvent", actionEvent);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "deleteLink")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "deleteLink")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1164,10 +1328,10 @@ public class EntityManager {
 
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, action, schema, 0);
 			/*
-			 * Fail could be because of ServiceConstants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
+			 * Fail could be because of Constants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
 			 */
-			mEntityCache.removeLink(fromId, toId, type, enabled);
+			ENTITY_STORE.fixupRemoveLink(fromId, toId, type, enabled);
 		}
 
 		return result;
@@ -1186,7 +1350,7 @@ public class EntityManager {
 		parameters.putString("actionEvent", actionEvent);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "removeLinks")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "removeLinks")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1203,7 +1367,7 @@ public class EntityManager {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, "entity_remove", schema, 0);
 			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-			mEntityCache.removeLink(fromId, toId, type, null);
+			ENTITY_STORE.fixupRemoveLink(fromId, toId, type, null);
 		}
 
 		return result;
@@ -1226,7 +1390,7 @@ public class EntityManager {
 		 */
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_STATS
+				.setUri(Constants.URL_PROXIBASE_SERVICE_STATS
 						+ "to/" + toSchema + (toSchema.equals(Constants.SCHEMA_ENTITY_PATCH) ? "es" : "s")
 						+ "/from/" + fromSchema + (fromSchema.equals(Constants.SCHEMA_ENTITY_PATCH) ? "es" : "s")
 						+ "?type=" + trendType)
@@ -1250,12 +1414,6 @@ public class EntityManager {
 	 * Other service tasks
 	 *--------------------------------------------------------------------------------------------*/
 
-	public CacheStamp getCacheStamp() {
-		CacheStamp cacheStamp = new CacheStamp(mActivityDate, null);
-		cacheStamp.source = StampSource.ENTITY_MANAGER.name().toLowerCase(Locale.US);
-		return cacheStamp;
-	}
-
 	public ModelResult registerInstall(Install install, Object tag) {
 
 		ModelResult result = new ModelResult();
@@ -1263,7 +1421,7 @@ public class EntityManager {
 		parameters.putString("install", "object:" + Json.objectToJson(install, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "registerInstall")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "registerInstall")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1297,7 +1455,7 @@ public class EntityManager {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "updateProximity")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "updateProximity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1321,7 +1479,7 @@ public class EntityManager {
 		parameters.putString("document", "object:" + Json.objectToJson(document, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "insertDocument")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "insertDocument")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1379,7 +1537,7 @@ public class EntityManager {
 		parameters.putString("userId", userId);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "checkShare")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "checkShare")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -1407,15 +1565,23 @@ public class EntityManager {
 	 * Utilities
 	 *--------------------------------------------------------------------------------------------*/
 
+	public Integer clearEntities(String schema, String type, Boolean foundByProximity) {
+		return ENTITY_STORE.removeEntities(schema, type, foundByProximity);
+	}
+
+	public void clearStore() {
+		ENTITY_STORE.clearStore();
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Cache queries
 	 *--------------------------------------------------------------------------------------------*/
 
 	public List<? extends Entity> getPatches(Boolean proximity) {
 
-		Integer searchRangeMeters = ServiceConstants.PATCH_NEAR_RADIUS;
+		Integer searchRangeMeters = Constants.PATCH_NEAR_RADIUS;
 
-		List<Patch> patches = (List<Patch>) EntityManager.getEntityCache().getCacheEntities(
+		List<Patch> patches = (List<Patch>) ENTITY_STORE.getStoreEntities(
 				Constants.SCHEMA_ENTITY_PATCH,
 				Constants.TYPE_ANY,
 				searchRangeMeters,
@@ -1427,11 +1593,47 @@ public class EntityManager {
 		return (patches.size() > limit.intValue()) ? patches.subList(0, limit.intValue()) : patches;
 	}
 
+	public List<? extends Entity> getBeacons() {
+		return (List<Beacon>) ENTITY_STORE.getStoreEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Other fetch routines
 	 *--------------------------------------------------------------------------------------------*/
 
-	public List<String> getCategoriesAsStringArray(List<Category> categories) {
+	public CacheStamp getGlobalCacheStamp() {
+		CacheStamp cacheStamp = new CacheStamp(mActivityDate, null);
+		cacheStamp.source = CacheStamp.StampSource.ENTITY_MANAGER.name().toLowerCase(Locale.US);
+		return cacheStamp;
+	}
+
+	public List<Category> getCategories() {
+
+		/* Loads from local to initialize */
+		List<Category> categories = new ArrayList<Category>();
+
+		categories.add(new Category()
+				.setId(Patch.PatchCategory.EVENT.toLowerCase(Locale.US))
+				.setName(Patch.PatchCategory.EVENT)
+				.setPhoto(new Photo("img_event.png", null, null, null, Photo.PhotoSource.assets_categories)));
+		categories.add(new Category()
+				.setId(Patch.PatchCategory.GROUP.toLowerCase(Locale.US))
+				.setName(Patch.PatchCategory.GROUP)
+				.setPhoto(new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories)));
+		categories.add(new Category()
+				.setId(Patch.PatchCategory.PLACE.toLowerCase(Locale.US))
+				.setName(Patch.PatchCategory.PLACE)
+				.setPhoto(new Photo("img_place.png", null, null, null, Photo.PhotoSource.assets_categories)));
+		categories.add(new Category()
+				.setId(Patch.PatchCategory.PROJECT.toLowerCase(Locale.US))
+				.setName(Patch.PatchCategory.PROJECT)
+				.setPhoto(new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories)));
+
+		return categories;
+	}
+
+	public List<String> getCategoriesAsStringArray() {
+		List<Category> categories = getCategories();
 		final List<String> categoryStrings = new ArrayList<String>();
 		for (Category category : categories) {
 			categoryStrings.add(category.name);
@@ -1500,32 +1702,11 @@ public class EntityManager {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public List<Category> getCategories() {
-		return mCategories;
+	public static EntityStore getEntityCache() {
+		return ENTITY_STORE;
 	}
 
-	public static EntityCache getEntityCache() {
-		return mEntityCache;
-	}
-
-	public Map<String, String> getCacheStampOverrides() {
-		return mCacheStampOverrides;
-	}
-
-	public Links getLinks() {
-		return mLinks;
-	}
-
-	public EntityManager setLinks(Links links) {
-		mLinks = links;
-		return this;
-	}
-
-	public Number getActivityDate() {
-		return mActivityDate;
-	}
-
-	public EntityManager setActivityDate(Number activityDate) {
+	public DataController setActivityDate(Number activityDate) {
 		mActivityDate = activityDate;
 		return this;
 	}
@@ -1540,5 +1721,17 @@ public class EntityManager {
 		USERS,
 		PATCHES_USERS,
 		ALL
+	}
+
+	public static enum ActionType {
+		ACTION_GET_ENTITY,
+		ACTION_GET_ENTITIES,
+		ACTION_GET_TREND,
+		ACTION_GET_NOTIFICATIONS,
+		ACTION_LINK_INSERT_LIKE,
+		ACTION_LINK_DELETE_LIKE,
+		ACTION_LINK_INSERT_WATCH,
+		ACTION_LINK_DELETE_WATCH,
+		ACTION_SHARE_CHECK
 	}
 }

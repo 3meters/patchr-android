@@ -1,10 +1,10 @@
 package com.aircandi.events;
 
 @SuppressWarnings("ucd")
-public class ProgressEvent {
+public class ProcessingProgressEvent {
 	public double percent;
 
-	public ProgressEvent(double percent) {
+	public ProcessingProgressEvent(double percent) {
 		this.percent = percent;
 	}
 }

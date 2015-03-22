@@ -22,19 +22,19 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
-import com.aircandi.components.ProximityManager;
-import com.aircandi.components.ProximityManager.ScanReason;
+import com.aircandi.components.ProximityController;
+import com.aircandi.components.ProximityController.ScanReason;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.BeaconsLockedEvent;
-import com.aircandi.events.CancelEvent;
-import com.aircandi.events.LocationChangedEvent;
+import com.aircandi.events.LocationUpdatedEvent;
+import com.aircandi.events.ProcessingCanceledEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
@@ -81,8 +81,8 @@ public class PatchEdit extends BaseEntityEdit {
 	protected LatLng       mLocation;
 	protected Entity       mPlaceToLinkTo;
 
-	private Spinner        mSpinnerCategory;
 	private List<Category> mCategories;
+	private Spinner        mSpinnerCategory;
 	private Integer        mSpinnerItemResId;
 	private Category       mOriginalCategory;
 
@@ -107,6 +107,9 @@ public class PatchEdit extends BaseEntityEdit {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
+
+		mInsertProgressResId = R.string.progress_saving_patch;
+		mInsertedResId       = R.string.alert_inserted_patch;
 
 		mButtonTune = (Button) findViewById(R.id.button_tune);
 		mButtonUntune = (Button) findViewById(R.id.button_untune);
@@ -155,22 +158,16 @@ public class PatchEdit extends BaseEntityEdit {
 				}
 			});
 		}
+
+		mCategories = DataController.getInstance().getCategories();
 	}
 
 	@Override
 	public void bind(BindingMode mode) {
 		super.bind(mode);
 
-		if (Patchr.getInstance().getEntityManager().getCategories().size() == 0) {
-			loadCategories();
-		}
-		else {
-			mCategories = Patchr.getInstance().getEntityManager().getCategories();
-			if (mCategories != null) {
-				mOriginalCategory = ((Patch) mEntity).category;
-				initCategorySpinner();
-			}
-		}
+		mOriginalCategory = ((Patch) mEntity).category;
+		initCategorySpinner();
 
 		Patch patch = (Patch) mEntity;
 
@@ -302,7 +299,7 @@ public class PatchEdit extends BaseEntityEdit {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onLocationChanged(final LocationChangedEvent event) {
+	public void onLocationChanged(final LocationUpdatedEvent event) {
 		/*
 		 * Getting location updates because we are inserting a patch and
 		 * location services are enabled.
@@ -342,7 +339,7 @@ public class PatchEdit extends BaseEntityEdit {
 				public void run() {
 					Logger.d(PatchEdit.this, "Query wifi scan received event: locking beacons");
 					if (event.wifiList != null) {
-						ProximityManager.getInstance().lockBeacons();
+						ProximityController.getInstance().lockBeacons();
 					}
 					else {
 					    /*
@@ -382,7 +379,7 @@ public class PatchEdit extends BaseEntityEdit {
 	}
 
 	@Subscribe
-	public void onCancelEvent(CancelEvent event) {
+	public void onCancelEvent(ProcessingCanceledEvent event) {
 		if (mTaskService != null) {
 			mTaskService.cancel(true);
 		}
@@ -394,7 +391,7 @@ public class PatchEdit extends BaseEntityEdit {
 			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, PatchEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()) {
 				mTuningInProcess = true;
-				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
+				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 			}
 			else {
 				tuneProximity();
@@ -408,7 +405,7 @@ public class PatchEdit extends BaseEntityEdit {
 			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, PatchEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()) {
 				mTuningInProcess = true;
-				ProximityManager.getInstance().scanForWifi(ScanReason.QUERY);
+				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 			}
 			else {
 				tuneProximity();
@@ -418,7 +415,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 	public void onPlacePickerClick(View view) {
 		Bundle extras = new Bundle();
-		extras.putInt(Constants.EXTRA_SEARCH_SCOPE, EntityManager.SuggestScope.PLACES.ordinal());
+		extras.putInt(Constants.EXTRA_SEARCH_SCOPE, DataController.SuggestScope.PLACES.ordinal());
 		extras.putBoolean(Constants.EXTRA_SEARCH_RETURN_ENTITY, true);
 		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
 
@@ -428,15 +425,15 @@ public class PatchEdit extends BaseEntityEdit {
 			extras.putString(Constants.EXTRA_SEARCH_CLEAR_BUTTON_MESSAGE, StringManager.getString(R.string.button_clear_place));
 			extras.putString(Constants.EXTRA_SEARCH_PHRASE, entity.name);
 		}
-		Patchr.dispatch.route(this, Route.SEARCH, mEntity, extras);
+		Patchr.router.route(this, Route.SEARCH, mEntity, extras);
 	}
 
 	public void onPrivacyBuilderClick(View view) {
-		Patchr.dispatch.route(this, Route.PRIVACY_EDIT, mEntity, null);
+		Patchr.router.route(this, Route.PRIVACY_EDIT, mEntity, null);
 	}
 
 	public void onLocationBuilderClick(View view) {
-		Patchr.dispatch.route(this, Route.LOCATION_EDIT, mEntity, null);
+		Patchr.router.route(this, Route.LOCATION_EDIT, mEntity, null);
 	}
 
 	@Override
@@ -533,7 +530,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 					/* Adding a new place. */
 					if (place != null && Type.isTrue(place.synthetic)) {
-						result = Patchr.getInstance().getEntityManager().insertEntity(place, null, null, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						result = DataController.getInstance().insertEntity(place, null, null, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 							Entity insertedPlace = (Entity) result.data;
 							place.id = insertedPlace.id;
@@ -546,7 +543,7 @@ public class PatchEdit extends BaseEntityEdit {
 
 						/* Existing link so delete it */
 						if (placeLink != null) {
-							result = Patchr.getInstance().getEntityManager().deleteLink(mEntity.id
+							result = DataController.getInstance().deleteLink(mEntity.id
 									, placeLink.shortcut.id
 									, Constants.TYPE_LINK_PROXIMITY
 									, true
@@ -559,7 +556,7 @@ public class PatchEdit extends BaseEntityEdit {
 						 */
 						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS
 								&& mEditing && place != null) {
-							result = Patchr.getInstance().getEntityManager().insertLink(null
+							result = DataController.getInstance().insertLink(null
 									, mEntity.id
 									, place.id
 									, Constants.TYPE_LINK_PROXIMITY
@@ -619,7 +616,7 @@ public class PatchEdit extends BaseEntityEdit {
 		if (mInsertedResId != null && mInsertedResId != 0) {
 			UI.showToastNotification(StringManager.getString(mInsertedResId), Toast.LENGTH_SHORT);
 		}
-		Patchr.dispatch.route(this, Route.BROWSE, mEntity, null);
+		Patchr.router.route(this, Route.BROWSE, mEntity, null);
 		return true;
 	}
 
@@ -637,21 +634,13 @@ public class PatchEdit extends BaseEntityEdit {
 		return true;
 	}
 
-	private void loadCategories() {
-		ModelResult result = Patchr.getInstance().getEntityManager().loadCategories(true /* refresh */, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-		mCategories = (List<Category>) result.data;
-		if (mCategories != null) {
-			initCategorySpinner();
-		}
-	}
-
 	private void initCategorySpinner() {
 
 		final Patch entity = (Patch) mEntity;
-		final List<String> categories = Patchr.getInstance().getEntityManager().getCategoriesAsStringArray(mCategories);
+		final List<String> categoryStrings = DataController.getInstance().getCategoriesAsStringArray();
 		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(PatchEdit.this
 				, R.layout.spinner_item
-				, categories);
+				, categoryStrings);
 
 		adapter.setDropDownViewResource(R.layout.temp_listitem_dropdown_spinner);
 
@@ -704,22 +693,22 @@ public class PatchEdit extends BaseEntityEdit {
 		 * - no links are created.
 		 * - entity_proximity action logged.
 		 */
-		Integer beaconMax = !mUntuning ? ServiceConstants.PROXIMITY_BEACON_COVERAGE : ServiceConstants.PROXIMITY_BEACON_UNCOVERAGE;
-		final List<Beacon> beacons = ProximityManager.getInstance().getStrongestBeacons(beaconMax);
+		Integer beaconMax = !mUntuning ? Constants.PROXIMITY_BEACON_COVERAGE : Constants.PROXIMITY_BEACON_UNCOVERAGE;
+		final List<Beacon> beacons = ProximityController.getInstance().getStrongestBeacons(beaconMax);
 		final Beacon primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 
 		new AsyncTask() {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(mNotEmpty ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
+				mUiController.getBusyController().show(BusyAction.Refreshing);
 			}
 
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncTrackEntityProximity");
 
-				final ModelResult result = Patchr.getInstance().getEntityManager().trackEntity(mEntity
+				final ModelResult result = DataController.getInstance().trackEntity(mEntity
 						, beacons
 						, primaryBeacon
 						, mUntuning, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
@@ -773,13 +762,13 @@ public class PatchEdit extends BaseEntityEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(mNotEmpty ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
+				mUiController.getBusyController().show(BusyAction.Refreshing);
 			}
 
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncClearEntityProximity");
-				final ModelResult result = Patchr.getInstance().getEntityManager().trackEntity(mEntity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				final ModelResult result = DataController.getInstance().trackEntity(mEntity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -789,7 +778,7 @@ public class PatchEdit extends BaseEntityEdit {
 				UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
 				setResultCode(Activity.RESULT_OK);
 				finish();
-				Patchr.getInstance().getAnimationManager().doOverridePendingTransition(PatchEdit.this, TransitionType.FORM_BACK);
+				AnimationManager.doOverridePendingTransition(PatchEdit.this, TransitionType.FORM_BACK);
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}

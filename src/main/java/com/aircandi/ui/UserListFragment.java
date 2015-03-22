@@ -1,6 +1,5 @@
 package com.aircandi.ui;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +10,9 @@ import android.widget.TextView;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Patch;
@@ -19,12 +21,28 @@ import com.aircandi.objects.User;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 public class UserListFragment extends EntityListFragment {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onDataResult(final DataResultEvent event) {
+		super.onDataResult(event);
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
+
+	@Subscribe
+	public void onDataNoop(DataNoopEvent event) {
+		super.onDataNoop(event);
+	}
 
 	@Override
 	public void onClick(View v) {
@@ -35,22 +53,12 @@ public class UserListFragment extends EntityListFragment {
 		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_USER);
 		extras.putString(Constants.EXTRA_ENTITY_ID, entity.id);
 
-		Patchr.dispatch.route(getActivity(), Route.BROWSE, entity, extras);
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
+		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected void postBind() {
-		super.postBind();
-	}
 
 	@Override
 	protected void bindListItem(Entity entity, View view, String groupTag) {

@@ -61,4 +61,21 @@ public class Category extends ServiceObject implements Cloneable, Serializable {
 
 		return category;
 	}
+
+	public Category setName(String name) {
+		this.name = name;
+		return this;
+	}
+
+	public Category setId(String id) {
+		this.id = id;
+		return this;
+	}
+
+	public Category setPhoto(Photo photo) {
+		this.photo = photo;
+		return this;
+	}
+
+
 }

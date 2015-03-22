@@ -2,7 +2,6 @@ package com.aircandi.components;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -19,7 +18,6 @@ import android.widget.Toast;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
-import com.aircandi.ServiceConstants;
 import com.aircandi.exceptions.ClientVersionException;
 import com.aircandi.exceptions.NoNetworkException;
 import com.aircandi.objects.ServiceData;
@@ -34,11 +32,9 @@ import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
-import com.squareup.okhttp.OkHttpClient;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Locale;
 
 /**
  * Designed as a singleton. The private Constructor prevents any other class from instantiating.
@@ -106,7 +102,7 @@ public class NetworkManager {
 
 	private NetworkManager() {
 		mOkClient = new OkHttp();
-		BusProvider.getInstance().register(this);
+		Dispatcher.getInstance().register(this);
 	}
 
 	private static class NetworkManagerHolder {
@@ -126,7 +122,7 @@ public class NetworkManager {
 		 * Setting system properties. Okhttp picks these up for its connection pooling unless
 		 * we have passed in a custom connection pool object.
 		 */
-		System.setProperty("http.maxConnections", String.valueOf(ServiceConstants.DEFAULT_MAX_CONNECTIONS));
+		System.setProperty("http.maxConnections", String.valueOf(Constants.DEFAULT_MAX_CONNECTIONS));
 		System.setProperty("http.keepAlive", "true");
 
 		IntentFilter intentFilter = new IntentFilter();
@@ -233,12 +229,12 @@ public class NetworkManager {
 			attempts++;
 			Logger.v(this, "No network connection: attempt: " + String.valueOf(attempts));
 
-			if (attempts >= ServiceConstants.CONNECT_TRIES) {
+			if (attempts >= Constants.CONNECT_TRIES) {
 				connectedState = ConnectedState.NONE;
 				break;
 			}
 			try {
-				Thread.sleep(ServiceConstants.CONNECT_WAIT);
+				Thread.sleep(Constants.CONNECT_WAIT);
 			}
 			catch (InterruptedException exception) {
 				connectedState = ConnectedState.NONE;
@@ -308,7 +304,7 @@ public class NetworkManager {
 	public boolean isWalledGardenConnection() {
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URI_WALLED_GARDEN)
+				.setUri(Constants.URI_WALLED_GARDEN)
 				.setRequestType(RequestType.GET)
 				.setResponseFormat(ResponseFormat.NONE)
 				.setErrorCheck(false);

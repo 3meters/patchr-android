@@ -23,29 +23,30 @@ import android.widget.ViewAnimator;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
 import com.aircandi.events.EntitiesLoadedEvent;
-import com.aircandi.events.NotificationEvent;
-import com.aircandi.events.ProcessingFinishedEvent;
+import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
-import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Message;
 import com.aircandi.objects.Message.MessageType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.EntityListFragment.Highlight;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseEntityForm;
@@ -101,31 +102,23 @@ public class MessageForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mLinkProfile = LinkProfile.LINKS_FOR_MESSAGE;
+		mLinkProfile = LinkSpecType.LINKS_FOR_MESSAGE;
 
 		mCurrentFragment = new MessageListFragment();
 
-		EntityMonitor monitor = new EntityMonitor(mEntityId);
-		EntitiesQuery query = new EntitiesQuery();
-
-		query.setEntityId(mEntityId)
-		     .setLinkDirection(Direction.in.name())
-		     .setLinkType(Constants.TYPE_LINK_CONTENT)
-		     .setPageSize(Integers.getInteger(R.integer.page_size_replies))
-		     .setSchema(Constants.SCHEMA_ENTITY_MESSAGE);
-
 		((EntityListFragment) mCurrentFragment)
-				.setMonitor(monitor)
-				.setQuery(query)
-				.setHeaderViewResId(R.layout.widget_list_header_message)
+				.setMonitorEntityId(mEntityId)
+				.setLinkSchema(Constants.SCHEMA_ENTITY_MESSAGE).setHeaderViewResId(R.layout.widget_list_header_message)
+				.setLinkType(Constants.TYPE_LINK_CONTENT)
+				.setLinkDirection(Direction.in.name())
+				.setPageSize(Integers.getInteger(R.integer.page_size_replies))
 				.setFooterViewResId(R.layout.widget_list_footer_message)
 				.setListItemResId(R.layout.temp_listitem_message)
 				.setListLayoutResId(R.layout.entity_list_fragment)
 				.setListLoadingResId(R.layout.temp_listitem_loading)
 				.setListViewType(ViewType.LIST)
 				.setBackgroundResId(R.drawable.selector_item)
-				.setReverseSort(true)
-				.setSelfBindingEnabled(false);
+				.setReverseSort(true);
 
 		if (mChildId != null) {
 			mHighlight = new Highlight(true);
@@ -143,24 +136,31 @@ public class MessageForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onEntitiesLoaded(final EntitiesLoadedEvent event) {
-		if (mHighlight != null && !mHighlight.hasFired()) {
-			((EntityListFragment) mCurrentFragment).setListPositionToEntity(mChildId);
-		}
+	public void onDataResult(DataResultEvent event) {
+		super.onDataResult(event); // Handles GET_ENTITY, INSERT_LIKE, DELETE_LIKE
 	}
 
 	@Subscribe
-	public void onProcessingFinished(final ProcessingFinishedEvent event) {
+	public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
+
+	@Subscribe
+	public void onDataNoop(DataNoopEvent event) {
+		super.onDataNoop(event);
+	}
+
+	@Override
+	protected void onProcessingComplete(final ResponseCode responseCode) {
+		super.onProcessingComplete(responseCode);
+
+		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
 
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 
-				EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-				fragment.onProcessingFinished(event);
 				ListController ls = fragment.getListController();
-
 				Boolean share = (mEntity != null && mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
 				if (share) {
 					ls.getFloatingActionController().fadeOut();
@@ -173,8 +173,7 @@ public class MessageForm extends BaseEntityForm {
 	}
 
 	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onMessage(final NotificationEvent event) {
+	public void onNotificationReceived(final NotificationReceivedEvent event) {
 	    /*
 	     * Refresh the form because something new has been added to it
 		 * like a comment or post.
@@ -186,6 +185,13 @@ public class MessageForm extends BaseEntityForm {
 					((EntityListFragment) mCurrentFragment).bind(BindingMode.AUTO);
 				}
 			});
+		}
+	}
+
+	@Subscribe
+	public void onEntitiesLoaded(final EntitiesLoadedEvent event) {
+		if (mHighlight != null && !mHighlight.hasFired()) {
+			((EntityListFragment) mCurrentFragment).setListPositionToEntity(mChildId);
 		}
 	}
 
@@ -213,25 +219,25 @@ public class MessageForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onPatchClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		Patchr.dispatch.route(MessageForm.this, Route.BROWSE, entity.patch, null);
+		Patchr.router.route(MessageForm.this, Route.BROWSE, entity.patch, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onEditClick(View view) {
 		Bundle extras = new Bundle();
-		Patchr.dispatch.route(this, Route.EDIT, mEntity, extras);
+		Patchr.router.route(this, Route.EDIT, mEntity, extras);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onDeleteClick(View view) {
-		Patchr.dispatch.route(this, Route.DELETE, mEntity, null);
+		Patchr.router.route(this, Route.DELETE, mEntity, null);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onRemoveClick(View view) {
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, (String) view.getTag());
-		Patchr.dispatch.route(this, Route.REMOVE, mEntity, extras);
+		Patchr.router.route(this, Route.REMOVE, mEntity, extras);
 	}
 
 	@SuppressWarnings("ucd")
@@ -259,7 +265,7 @@ public class MessageForm extends BaseEntityForm {
 			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_liker);
 			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 			extras.putInt(Constants.EXTRA_LIST_EMPTY_RESID, R.string.label_likes_empty);
-			Patchr.dispatch.route(this, Route.USER_LIST, mEntity, extras);
+			Patchr.router.route(this, Route.USER_LIST, mEntity, extras);
 		}
 	}
 
@@ -290,7 +296,7 @@ public class MessageForm extends BaseEntityForm {
 					/* If reply to reply then finish */
 						if (mEntity.type != null && mEntity.type.equals(MessageType.REPLY)) {
 							finish();
-							Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+							AnimationManager.doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
 						}
 						else {
 							mHighlight = new Highlight(true);
@@ -339,8 +345,9 @@ public class MessageForm extends BaseEntityForm {
 		final FlowLayout flowLayout = (FlowLayout) view.findViewById(R.id.flow_recipients);
 		final ViewGroup shareHolder = (ViewGroup) view.findViewById(R.id.share_holder);
 		final ViewGroup shareFrame = (ViewGroup) view.findViewById(R.id.share_entity);
-		final ViewGroup buttonHolder = (ViewGroup) view.findViewById(R.id.button_holder);
 		final ViewGroup toHolder = (ViewGroup) view.findViewById(R.id.to_holder);
+		final ViewAnimator like = (ViewAnimator) view.findViewById(R.id.button_like);
+		final View likes = view.findViewById(R.id.button_likes);
 
         /* Share */
 
@@ -355,6 +362,10 @@ public class MessageForm extends BaseEntityForm {
 			flowLayout.setSpacingHorizontal(UI.getRawPixelsForDisplayPixels(4f));
 			flowLayout.setSpacingVertical(UI.getRawPixelsForDisplayPixels(4f));
 			flowLayout.setClickable(false);
+
+			/* Reset */
+			mTos.clear();
+			flowLayout.removeAllViews();
 
             /* Check for recipients */
 			List<Link> links = mEntity.getLinks(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, null, Direction.out);
@@ -384,12 +395,11 @@ public class MessageForm extends BaseEntityForm {
 
 		/* Message patch context */
 
-		UI.setVisibility(holderPatch, View.GONE);
 		if (holderPatch != null) {
 			if (share) {
 				patchName.setText(StringManager.getString(R.string.label_message_shared));
-				UI.setVisibility(holderPatch, View.VISIBLE);
 				UI.setEnabled(holderPatch, false);
+				UI.setVisibility(holderPatch, View.VISIBLE);
 			}
 			else {
 				Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
@@ -408,7 +418,11 @@ public class MessageForm extends BaseEntityForm {
 					if (patchPhotoView.getPhoto() == null || !patchPhotoView.getPhoto().getUri().equals(photo.getUri())) {
 						UI.drawPhoto(patchPhotoView, photo);
 					}
+
 					UI.setVisibility(patchPhotoView, View.VISIBLE);
+				}
+				else {
+					UI.setVisibility(holderPatch, View.GONE);
 				}
 			}
 		}
@@ -466,7 +480,7 @@ public class MessageForm extends BaseEntityForm {
 						@Override
 						public void onClick(View view) {
 							Entity entity = (Entity) view.getTag();
-							Patchr.dispatch.route(MessageForm.this, Route.BROWSE, entity, null);
+							Patchr.router.route(MessageForm.this, Route.BROWSE, entity, null);
 						}
 					});
 				}
@@ -487,34 +501,46 @@ public class MessageForm extends BaseEntityForm {
 
 		/* User photo */
 
-		UI.setVisibility(userPhotoView, View.GONE);
-		if (userPhotoView != null && mEntity.creator != null) {
-			Photo photo = mEntity.creator.getPhoto();
-			if (userPhotoView.getPhoto() == null || !userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
-				UI.drawPhoto(userPhotoView, photo);
+		if (userPhotoView != null) {
+			if (mEntity.creator != null) {
+				Photo photo = mEntity.creator.getPhoto();
+				if (userPhotoView.getPhoto() == null || !userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
+					UI.drawPhoto(userPhotoView, photo);
+				}
+				UI.setVisibility(userPhotoView, View.VISIBLE);
 			}
-			UI.setVisibility(userPhotoView, View.VISIBLE);
+			else {
+				UI.setVisibility(userPhotoView, View.GONE);
+			}
 		}
+
 
 		/* User name */
 
-		UI.setVisibility(userName, View.GONE);
-		if (userName != null && mEntity.creator != null && mEntity.creator.name != null && mEntity.creator.name.length() > 0) {
-			userName.setText(mEntity.creator.name);
-			UI.setVisibility(userName, View.VISIBLE);
+		if (userName != null) {
+			if (mEntity.creator != null && mEntity.creator.name != null && mEntity.creator.name.length() > 0) {
+				userName.setText(mEntity.creator.name);
+				UI.setVisibility(userName, View.VISIBLE);
+			}
+			else {
+				UI.setVisibility(userName, View.GONE);
+			}
 		}
 
 		/* Created date */
 
-		UI.setVisibility(createdDate, View.GONE);
-		if (createdDate != null && mEntity.createdDate != null) {
-			createdDate.setText(DateTime.dateStringAt(mEntity.createdDate.longValue()));
-			UI.setVisibility(createdDate, View.VISIBLE);
+		if (createdDate != null) {
+			if (mEntity.createdDate != null) {
+				createdDate.setText(DateTime.dateStringAt(mEntity.createdDate.longValue()));
+				UI.setVisibility(createdDate, View.VISIBLE);
+			}
+			else {
+				UI.setVisibility(createdDate, View.GONE);
+			}
 		}
 
 		/* Message text */
 
-		UI.setVisibility(description, View.GONE);
 		if (description != null) {
 			description.setText(null);
 
@@ -540,14 +566,16 @@ public class MessageForm extends BaseEntityForm {
 				description.setText(mEntity.description);
 				UI.setVisibility(description, View.VISIBLE);
 			}
+			else {
+				UI.setVisibility(description, View.GONE);
+			}
 		}
 
         /* Shared entity */
 
-		UI.setVisibility(shareHolder, View.GONE);
-		UI.setVisibility(photoView, View.GONE);
 		Entity shareEntity = null;
 		Link linkEntity = null;
+
 		if (share) {
 			linkEntity = mEntity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH);
 			if (linkEntity != null) {
@@ -587,6 +615,8 @@ public class MessageForm extends BaseEntityForm {
 			shareFrame.setTag(shareEntity);
 			shareFrame.addView(shareView);
 
+			UI.setVisibility(like, View.GONE);
+			UI.setVisibility(likes, View.GONE);
 			UI.setVisibility(shareHolder, View.VISIBLE);
 		}
 		else if (shareEntity == null && linkEntity != null) {
@@ -610,6 +640,8 @@ public class MessageForm extends BaseEntityForm {
 		}
 		else {
 
+			UI.setVisibility(shareHolder, View.GONE);
+
 		    /* Message that includes a photo */
 
 			if (photoView != null) {
@@ -624,19 +656,18 @@ public class MessageForm extends BaseEntityForm {
 				if (mEntity.photo != null) {
 					UI.setVisibility(photoView, View.VISIBLE);
 				}
+				else {
+					UI.setVisibility(photoView, View.GONE);
+				}
 			}
 		}
 
         /* Likes */
-		UI.setVisibility(buttonHolder, View.GONE);
 		if (shareEntity == null) {
 
-			UI.setVisibility(buttonHolder, View.VISIBLE);
-
 			/* Like button coloring */
-			ViewAnimator like = (ViewAnimator) view.findViewById(R.id.button_like);
 			if (like != null) {
-				UI.setVisibility(like, View.VISIBLE);
+				like.setDisplayedChild(0);
 				Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
 				ImageView image = (ImageView) like.findViewById(R.id.button_image);
 				if (link != null && link.enabled) {
@@ -651,9 +682,7 @@ public class MessageForm extends BaseEntityForm {
 			}
 
 			/* Like count */
-			View likes = view.findViewById(R.id.button_likes);
 			if (likes != null) {
-				UI.setVisibility(likes, View.GONE);
 				Count count = mEntity.getCount(Constants.TYPE_LINK_LIKE, null, true, Direction.in);
 				if (count == null) {
 					count = new Count(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, null, 0);
@@ -668,27 +697,18 @@ public class MessageForm extends BaseEntityForm {
 						UI.setVisibility(likes, View.VISIBLE);
 					}
 				}
+				else {
+					UI.setVisibility(likes, View.GONE);
+				}
 			}
-		}
-	}
-
-	public void configureActionBar() {
-		super.configureActionBar();
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
 		}
 	}
 
 	@Override
-	public void afterDatabind(final BindingMode mode, ModelResult result) {
-		super.afterDatabind(mode, result);
-		if (result != null && result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			if (mEntityMonitor.changed) {
-				((EntityListFragment) mCurrentFragment).bind(BindingMode.MANUAL);
-			}
-			else {
-				((EntityListFragment) mCurrentFragment).bind(mode);
-			}
+	public void configureActionBar() {
+		super.configureActionBar();
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
 		}
 	}
 
@@ -766,7 +786,7 @@ public class MessageForm extends BaseEntityForm {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
 				String seedParentId = mEntity.type.equals(MessageType.ROOT) ? mEntity.patchId : null;
-				final ModelResult result = ((EntityManager) Patchr.getInstance().getEntityManager()).deleteMessage(mEntity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				final ModelResult result = ((DataController) DataController.getInstance()).deleteMessage(mEntity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -783,7 +803,7 @@ public class MessageForm extends BaseEntityForm {
 					UI.showToastNotification(StringManager.getString(mDeletedResId), Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_ENTITY_DELETED);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(MessageForm.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
+					AnimationManager.doOverridePendingTransition(MessageForm.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
 				}
 				else {
 					Errors.handleError(MessageForm.this, result.serviceResponse);

@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import com.aircandi.service.Expose;
 import com.aircandi.utilities.Reporting;
 
+import net.minidev.json.JSONValue;
+
 import java.util.Map;
 
 /**
@@ -65,6 +67,12 @@ public class CacheStamp extends ServiceObject {
 	}
 
 	@Override
+	public String toString() {
+		String json = JSONValue.toJSONString(this);
+		return json;
+	}
+
+	@Override
 	public CacheStamp clone() {
 		CacheStamp cacheStamp;
 		try {
@@ -82,5 +90,4 @@ public class CacheStamp extends ServiceObject {
 		SERVICE,
 		ENTITY_MANAGER
 	}
-
 }

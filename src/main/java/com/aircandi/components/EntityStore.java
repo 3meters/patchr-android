@@ -6,16 +6,16 @@ import android.support.annotation.NonNull;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
+import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
-import com.aircandi.objects.Links;
+import com.aircandi.objects.LinkSpec;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.User;
@@ -27,32 +27,51 @@ import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("ucd")
-public class EntityCache implements Map<String, Entity> {
+public class EntityStore {
 
 	private final Map<String, Entity> mCacheMap = new ConcurrentHashMap<String, Entity>();
 
 	/*--------------------------------------------------------------------------------------------
-	 * Cache loading from service
+	 * Store loading from service
 	 *--------------------------------------------------------------------------------------------*/
 
-	public ServiceResponse loadEntities(List<String> entityIds, Links linkOptions, Object tag) {
+	ServiceResponse loadEntities(List<String> entityIds, LinkSpec linkOptions, CacheStamp cacheStamp, Object tag) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putStringArrayList("entityIds", (ArrayList<String>) entityIds);
+
+		if (cacheStamp != null) {
+
+			StringBuilder builder = new StringBuilder("object:");
+			if (cacheStamp.activityDate != null && cacheStamp.modifiedDate != null) {
+				builder.append("{\"$or\":["
+						+ "{\"activityDate\":{\"$gt\":" + cacheStamp.activityDate.longValue() + "}},"
+						+ "{\"modifiedDate\":{\"$gt\":" + cacheStamp.modifiedDate.longValue() + "}}"
+						+ "]}");
+				parameters.putString("where", builder.toString());
+			}
+			else if (cacheStamp.activityDate != null) {
+				builder.append("{\"activityDate\":{\"$gt\":" + cacheStamp.activityDate.longValue() + "}}");
+				parameters.putString("where", builder.toString());
+			}
+			else if (cacheStamp.modifiedDate != null) {
+				builder.append("{\"modifiedDate\":{\"$gt\":" + cacheStamp.modifiedDate.longValue() + "}}");
+				parameters.putString("where", builder.toString());
+			}
+		}
+
 		if (linkOptions != null) {
 			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getEntities")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getEntities")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -72,16 +91,6 @@ public class EntityCache implements Map<String, Entity> {
 			serviceResponse.data = serviceData;
 
 			if (loadedEntities != null && loadedEntities.size() > 0) {
-			    /*
-			     * Clear out any cache stamp overrides.
-				 */
-				for (Entity entity : loadedEntities) {
-					if (Patchr.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
-						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Patchr.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
-					}
-				}
-
 				/*
 				 * Keep current user synchronized if we refreshed the current user entity. This
 				 * logic also exists in update logic when editing a user entity.
@@ -114,10 +123,15 @@ public class EntityCache implements Map<String, Entity> {
 		return serviceResponse;
 	}
 
-	public ServiceResponse loadEntitiesForEntity(String forEntityId, Links linkOptions, Cursor cursor, Stopwatch stopwatch, Object tag) {
+	ServiceResponse loadEntitiesForEntity(String forEntityId, LinkSpec linkOptions, Cursor cursor, CacheStamp cacheStamp, Stopwatch stopwatch, Object tag) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("entityId", forEntityId);
+
+		if (cacheStamp != null && cacheStamp.activityDate != null) {
+			parameters.putString("where", "object:"
+					+ "{\"activityDate\":{\"$gt\":" + cacheStamp.activityDate.longValue() + "}}");
+		}
 
 		if (linkOptions != null) {
 			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
@@ -128,7 +142,7 @@ public class EntityCache implements Map<String, Entity> {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesForEntity")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesForEntity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -150,13 +164,6 @@ public class EntityCache implements Map<String, Entity> {
 
 			if (loadedEntities != null && loadedEntities.size() > 0) {
 				for (Entity entity : loadedEntities) {
-					/*
-					 * Clear out any cache stamp overrides.
-					 */
-					if (Patchr.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
-						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Patchr.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
-					}
 					if (cursor != null && cursor.direction != null && cursor.direction.equals("out")) {
 						entity.fromId = forEntityId;
 					}
@@ -172,7 +179,7 @@ public class EntityCache implements Map<String, Entity> {
 		return serviceResponse;
 	}
 
-	public ServiceResponse loadEntitiesByProximity(List<String> beaconIds, Links linkOptions, Cursor cursor, String installId, Object tag, Stopwatch stopwatch) {
+	ServiceResponse loadEntitiesByProximity(List<String> beaconIds, LinkSpec linkOptions, Cursor cursor, String installId, Object tag, Stopwatch stopwatch) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putStringArrayList("beaconIds", (ArrayList<String>) beaconIds);
@@ -190,7 +197,7 @@ public class EntityCache implements Map<String, Entity> {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesByProximity")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesByProximity")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -225,19 +232,12 @@ public class EntityCache implements Map<String, Entity> {
 			if (loadedEntities != null && loadedEntities.size() > 0) {
 				for (Entity entity : loadedEntities) {
 					entity.foundByProximity = true;
-					/*
-					 * Clear out any cache stamp overrides.
-					 */
-					if (Patchr.getInstance().getEntityManager().getCacheStampOverrides().containsKey(entity.id)) {
-						Logger.v(this, "Clearing cache stamp override: " + entity.id);
-						Patchr.getInstance().getEntityManager().getCacheStampOverrides().remove(entity.id);
-					}
 				}
 
 				synchronized (this) {
 
 					/* Clean out all patches found via proximity before shoving in the latest */
-					Integer removeCount = EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
+					Integer removeCount = removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
 					Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
 
 					/* Push patch entities to cache */
@@ -245,24 +245,17 @@ public class EntityCache implements Map<String, Entity> {
 				}
 			}
 		}
-//		else if (serviceResponse.responseCode != ResponseCode.INTERRUPTED) {
-//			synchronized (this) {
-//				/* We clean out all patches found via proximity even if the proximity call failed */
-//				Integer removeCount = EntityManager.getEntityCache().removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
-//				Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
-//			}
-//		}
 
 		return serviceResponse;
 	}
 
-	public ServiceResponse loadEntitiesNearLocation(AirLocation location, Links linkOptions, String installId, List<String> excludeIds, Object tag) {
+	ServiceResponse loadEntitiesNearLocation(AirLocation location, LinkSpec linkOptions, String installId, List<String> excludeIds, Object tag) {
 
 		final Bundle parameters = new Bundle();
 
 		parameters.putString("location", "object:" + Json.objectToJson(location));
 		parameters.putInt("limit", Patchr.applicationContext.getResources().getInteger(R.integer.limit_places_radar));
-		parameters.putInt("radius", ServiceConstants.PATCH_NEAR_RADIUS);
+		parameters.putInt("radius", Constants.PATCH_NEAR_RADIUS);
 
 		if (linkOptions != null) {
 			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
@@ -277,7 +270,7 @@ public class EntityCache implements Map<String, Entity> {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(ServiceConstants.URL_PROXIBASE_SERVICE_PATCHES + "near")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_PATCHES + "near")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -316,7 +309,88 @@ public class EntityCache implements Map<String, Entity> {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Cache updates (local only)
+	 * Store reads (local only)
+	 *--------------------------------------------------------------------------------------------*/
+
+	Entity getStoreEntity(Object key) {
+		//noinspection SuspiciousMethodCalls
+		return mCacheMap.get(key);
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	synchronized List<? extends Entity> getStoreEntities(String schema, String type, Integer radius, Boolean proximity) {
+		List<Entity> entities = new ArrayList<Entity>();
+		final Iterator iter = mCacheMap.keySet().iterator();
+		Entity entity;
+
+		while (iter.hasNext()) {
+			//noinspection SuspiciousMethodCalls
+			entity = mCacheMap.get(iter.next());
+			if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
+				if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
+					if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
+						if (radius == null) {
+							entities.add(entity);
+						}
+						else {
+							Float distance = entity.getDistance(true);
+							if (distance != null && distance <= radius) {
+								entities.add(entity);
+							}
+							else if (distance == null) {
+								Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
+								if (beacon != null) {
+									entities.add(entity);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return entities;
+	}
+
+	@SuppressWarnings({"ucd", "ConstantConditions"})
+	synchronized List<? extends Entity> getStoreEntitiesForEntity(String entityId, String schema, String type, Integer radius, Boolean proximity) {
+		/*
+		 * We rely on the toId property instead of traversing links.
+		 */
+		List<Entity> entities = new ArrayList<Entity>();
+		final Iterator iter = mCacheMap.keySet().iterator();
+		Entity entity;
+		while (iter.hasNext()) {
+			//noinspection SuspiciousMethodCalls
+			entity = mCacheMap.get(iter.next());
+			if ((entity.toId != null && entity.toId.equals(entityId)) || (entity.fromId != null && entity.fromId.equals(entityId))) {
+				if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
+					if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
+						if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
+							if (radius == null) {
+								entities.add(entity);
+							}
+							else {
+								Float distance = entity.getDistance(true);
+								if (distance != null && distance <= radius) {
+									entities.add(entity);
+								}
+								else if (distance == null) {
+									Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
+									if (beacon != null) {
+										entities.add(entity);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return entities;
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Store updates (local only)
 	 *--------------------------------------------------------------------------------------------*/
 
 	private void upsertEntities(List<Entity> entities) {
@@ -325,23 +399,25 @@ public class EntityCache implements Map<String, Entity> {
 		}
 	}
 
-	public synchronized Entity upsertEntity(Entity entity) {
+	synchronized Entity upsertEntity(Entity entity) {
 
 		/* Replace in cache */
-		put(entity.id, entity);
+		mCacheMap.put(entity.id, entity);
 
 		/* Clean out linked entities so they are refetched as needed. */
 		removeLinkedEntities(entity.id);
 
-		return get(entity.id);
+		return mCacheMap.get(entity.id);
 	}
 
-	public synchronized void updateEntityUser(Entity entity) {
+	synchronized void fixupEntityUser(Entity entity) {
 		/*
-		 * Updates user objects that are embedded in entities.
+		 * Updates user objects that are embedded in entities. We allow optimistic updating
+		 * of the store because users will expect to see their changes and we don't want to
+		 * refetch every entity they have a relationship with.
 		 */
 		User user = (User) entity;
-		for (Entry<String, Entity> entry : entrySet()) {
+		for (Map.Entry<String, Entity> entry : mCacheMap.entrySet()) {
 			if (entry.getValue().creatorId != null && entry.getValue().creatorId.equals(user.id)) {
 				if (entry.getValue().creator != null) {
 					if (user.photo != null) {
@@ -384,11 +460,13 @@ public class EntityCache implements Map<String, Entity> {
 		}
 	}
 
-	public void addLink(String fromId, String toId, String type, Boolean enabled, Shortcut fromShortcut, Shortcut toShortcut) {
-
+	void fixupAddLink(String fromId, String toId, String type, Boolean enabled, Shortcut fromShortcut, Shortcut toShortcut) {
+		/*
+		 * Optimistically add a link to the store.
+		 */
 		Long time = DateTime.nowDate().getTime();
 
-		Entity toEntity = get(toId);
+		Entity toEntity = mCacheMap.get(toId);
 		if (toEntity != null && toEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
 			toEntity = Patchr.getInstance().getCurrentUser();
 		}
@@ -424,7 +502,7 @@ public class EntityCache implements Map<String, Entity> {
 		/*
 		 * Fixup out links too.
 		 */
-		Entity fromEntity = get(fromId);
+		Entity fromEntity = mCacheMap.get(fromId);
 		if (fromEntity != null && fromEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
 			fromEntity = Patchr.getInstance().getCurrentUser();
 		}
@@ -460,14 +538,18 @@ public class EntityCache implements Map<String, Entity> {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Cache deletes (local only)
+	 * Store deletes (local only)
 	 *--------------------------------------------------------------------------------------------*/
 
-	public synchronized Entity removeEntityTree(String entityId) {
+	void clearStore() {
+		mCacheMap.clear();
+	}
+
+	synchronized Entity removeEntityTree(String entityId) {
 		/*
 		 * Clean out entity and every entity related to entity. Is not recursive
 		 */
-		Entity removedEntity = remove(entityId);
+		Entity removedEntity = mCacheMap.remove(entityId);
 		if (removedEntity != null) {
 			/*
 			 * getLinked..() with traverse = true will return entities that are multiple links away.
@@ -477,17 +559,17 @@ public class EntityCache implements Map<String, Entity> {
 			types.add(Constants.TYPE_LINK_CONTENT);
 			List<Entity> entities = (List<Entity>) removedEntity.getLinkedEntitiesByLinkTypeAndSchema(types, null, Direction.in, true);
 			for (Entity childEntity : entities) {
-				remove(childEntity.id);
+				mCacheMap.remove(childEntity.id);
 			}
 		}
 		return removedEntity;
 	}
 
-	public synchronized Entity removeLinkedEntities(String entityId) {
+	synchronized Entity removeLinkedEntities(String entityId) {
 		/*
 		 * Clean out entity and every entity related to entity. Is not recursive
 		 */
-		Entity entity = get(entityId);
+		Entity entity = mCacheMap.get(entityId);
 		if (entity != null) {
 			/*
 			 * getLinked..() with traverse = true will return entities that are multiple links away.
@@ -497,19 +579,20 @@ public class EntityCache implements Map<String, Entity> {
 			types.add(Constants.TYPE_LINK_CONTENT);
 			List<Entity> entities = (List<Entity>) entity.getLinkedEntitiesByLinkTypeAndSchema(types, null, Direction.in, true);
 			for (Entity childEntity : entities) {
-				remove(childEntity.id);
+				mCacheMap.remove(childEntity.id);
 			}
 		}
 		return entity;
 	}
 
-	public synchronized Integer removeEntities(@NonNull String schema, @NonNull String type, Boolean foundByProximity) {
+	synchronized Integer removeEntities(@NonNull String schema, @NonNull String type, Boolean foundByProximity) {
 
 		Integer removeCount = 0;
-		final Iterator iterEntities = keySet().iterator();
+		final Iterator iterEntities = mCacheMap.keySet().iterator();
 		Entity entity;
 		while (iterEntities.hasNext()) {
-			entity = get(iterEntities.next());
+			//noinspection SuspiciousMethodCalls
+			entity = mCacheMap.get(iterEntities.next());
 			if (schema.equals(Constants.SCHEMA_ANY) || (entity.schema != null && entity.schema.equals(schema))) {
 				if (type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
 					if (foundByProximity == null || entity.foundByProximity.equals(foundByProximity)) {
@@ -522,11 +605,16 @@ public class EntityCache implements Map<String, Entity> {
 		return removeCount;
 	}
 
-	public void removeLink(String fromId, String toId, String type, Boolean enabled) {
-
+	void fixupRemoveLink(String fromId, String toId, String type, Boolean enabled) {
+		/*
+		 * Optimistically remove a link from the store. Links are sprinkled across entities
+		 * so it is reasonable to proactively fixup rather than have to refetch entities to
+		 * get fresh links. Our primary purpose is that users expect to see their changes
+		 * reflected in a consistent way.
+		 */
 		Long time = DateTime.nowDate().getTime();
 
-		Entity toEntity = get(toId);
+		Entity toEntity = mCacheMap.get(toId);
 		if (toEntity != null && toEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
 			toEntity = Patchr.getInstance().getCurrentUser();
 		}
@@ -558,7 +646,7 @@ public class EntityCache implements Map<String, Entity> {
 		/*
 		 * Fixup out links too
 		 */
-		Entity fromEntity = get(fromId);
+		Entity fromEntity = mCacheMap.get(fromId);
 		if (fromEntity != null && fromEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
 			fromEntity = Patchr.getInstance().getCurrentUser();
 		}
@@ -585,150 +673,5 @@ public class EntityCache implements Map<String, Entity> {
 				}
 			}
 		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Cache reads (local only)
-	 *--------------------------------------------------------------------------------------------*/
-
-	@SuppressWarnings("ConstantConditions")
-	public synchronized List<? extends Entity> getCacheEntities(String schema, String type, Integer radius, Boolean proximity) {
-		List<Entity> entities = new ArrayList<Entity>();
-		final Iterator iter = keySet().iterator();
-		Entity entity;
-
-		while (iter.hasNext()) {
-			entity = get(iter.next());
-			if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
-				if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
-					if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
-						if (radius == null) {
-							entities.add(entity);
-						}
-						else {
-							Float distance = entity.getDistance(true);
-							if (distance != null && distance <= radius) {
-								entities.add(entity);
-							}
-							else if (distance == null) {
-								Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
-								if (beacon != null) {
-									entities.add(entity);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return entities;
-	}
-
-	@SuppressWarnings({"ucd", "ConstantConditions"})
-	public synchronized List<? extends Entity> getCacheEntitiesForEntity(String entityId, String schema, String type, Integer radius, Boolean proximity) {
-		/*
-		 * We rely on the toId property instead of traversing links.
-		 */
-		List<Entity> entities = new ArrayList<Entity>();
-		final Iterator iter = keySet().iterator();
-		Entity entity;
-		while (iter.hasNext()) {
-			entity = get(iter.next());
-			if ((entity.toId != null && entity.toId.equals(entityId)) || (entity.fromId != null && entity.fromId.equals(entityId))) {
-				if (schema == null || schema.equals(Constants.SCHEMA_ANY) || entity.schema.equals(schema)) {
-					if (type == null || type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
-						if (proximity == null || entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true) != null) {
-							if (radius == null) {
-								entities.add(entity);
-							}
-							else {
-								Float distance = entity.getDistance(true);
-								if (distance != null && distance <= radius) {
-									entities.add(entity);
-								}
-								else if (distance == null) {
-									Beacon beacon = entity.getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, false);
-									if (beacon != null) {
-										entities.add(entity);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return entities;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Cache methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Cache Map methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void clear() {
-		mCacheMap.clear();
-	}
-
-	@Override
-	public boolean containsKey(Object key) {
-		return mCacheMap.containsKey(key);
-	}
-
-	@Override
-	public boolean containsValue(Object value) {
-		return mCacheMap.containsValue(value);
-	}
-
-	@NonNull
-	@Override
-	public Set<java.util.Map.Entry<String, Entity>> entrySet() {
-		return mCacheMap.entrySet();
-	}
-
-	@Override
-	public Entity get(Object key) {
-		return mCacheMap.get(key);
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return mCacheMap.isEmpty();
-	}
-
-	@NonNull
-	@Override
-	public Set<String> keySet() {
-		return mCacheMap.keySet();
-	}
-
-	@Override
-	public Entity put(String key, Entity value) {
-		return mCacheMap.put(key, value);
-	}
-
-	@Override
-	public void putAll(Map<? extends String, ? extends Entity> map) {
-		mCacheMap.putAll(map);
-	}
-
-	@Override
-	public Entity remove(Object key) {
-		return mCacheMap.remove(key);
-	}
-
-	@Override
-	public int size() {
-		return mCacheMap.size();
-	}
-
-	@NonNull
-	@Override
-	public Collection<Entity> values() {
-		return mCacheMap.values();
 	}
 }

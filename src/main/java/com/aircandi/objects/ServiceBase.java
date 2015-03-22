@@ -2,7 +2,7 @@ package com.aircandi.objects;
 
 import android.support.annotation.NonNull;
 
-import com.aircandi.ServiceConstants;
+import com.aircandi.Constants;
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
 import com.aircandi.utilities.Reporting;
@@ -101,7 +101,7 @@ public abstract class ServiceBase extends ServiceObject {
 
 	@NonNull
 	public String getEntryUri() {
-		final String root = ServiceConstants.URL_PROXIBASE_SERVICE_REST;
+		final String root = Constants.URL_PROXIBASE_SERVICE_REST;
 		final String entity = getCollection();
 		final String uri = root + entity + "/" + id;
 		return uri;
@@ -141,6 +141,10 @@ public abstract class ServiceBase extends ServiceObject {
 		base.modifiedDate = (Number) map.get("modifiedDate");
 		base.activityDate = (Number) map.get("activityDate");
 		base.sortDate = (Number) map.get("sortDate");
+
+		if (base.activityDate == null && base.createdDate != null) {
+			base.activityDate = base.createdDate.longValue(); // Service doesn't set activityDate until there is activity
+		}
 
 		if (map.get("creator") != null) {
 			base.creator = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("creator"), nameMapping);

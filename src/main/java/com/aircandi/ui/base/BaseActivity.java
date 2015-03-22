@@ -14,7 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -32,8 +32,11 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AndroidManager;
-import com.aircandi.components.BusProvider;
+import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
+import com.aircandi.components.MenuManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
@@ -42,7 +45,6 @@ import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IForm;
-import com.aircandi.monitors.SimpleMonitor;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -51,7 +53,6 @@ import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AircandiForm;
-import com.aircandi.ui.MapListFragment;
 import com.aircandi.ui.PhotoForm;
 import com.aircandi.ui.components.BusyController;
 import com.aircandi.ui.components.MessageController;
@@ -65,7 +66,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class BaseActivity extends ActionBarActivity
-		implements OnRefreshListener, IForm, IBind {
+		implements SwipeRefreshLayout.OnRefreshListener, IForm, IBind {
 
 	private   Toolbar mActionBarToolbar;
 	protected Menu    mOptionMenu;
@@ -80,18 +81,15 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected View                  mDrawerRight;
 	protected ActionBarDrawerToggle mDrawerToggle;
 
-	protected String        mActivityTitle;
-	protected Entity        mEntity;
-	protected String        mEntityId;
-	public    String        mForId;
-	protected SimpleMonitor mEntityMonitor;
+	protected String mActivityTitle;
+	protected Entity mEntity;
+	protected String mEntityId;
+	public    String mForId;
 
 	/* Fragments */
 	protected Map<String, Fragment> mFragments = new HashMap<String, Fragment>();
 	protected Fragment mCurrentFragment;
 	protected String   mCurrentFragmentTag;
-	protected String   mNextFragmentTag;
-	protected String   mPrevFragmentTag;
 
 	/* Inputs */
 	protected Integer mTransitionType = TransitionType.FORM_TO;
@@ -109,9 +107,7 @@ public abstract class BaseActivity extends ActionBarActivity
 
 	public Resources mResources;
 	public    Boolean mFirstDraw    = true;
-	protected Boolean mInvalidated  = false;
 	protected Boolean mClickEnabled = false;                        // NO_UCD (unused code)
-	protected Boolean mNotEmpty     = false;
 	protected Boolean mProcessing   = false;
 	protected Boolean mRestarting   = false;
 
@@ -128,7 +124,7 @@ public abstract class BaseActivity extends ActionBarActivity
 		if (Patchr.firstStartApp) {
 			Logger.d(this, "App unstarted: redirecting to splash");
 			Patchr.firstStartIntent = getIntent();
-			Patchr.dispatch.route(this, Route.SPLASH, null, null);
+			Patchr.router.route(this, Route.SPLASH, null, null);
 			super.onCreate(savedInstanceState);
 			finish();
 		}
@@ -170,7 +166,6 @@ public abstract class BaseActivity extends ActionBarActivity
 			/* Event sequence */
 			unpackIntent();
 			initialize(savedInstanceState);
-			setCurrentFragment(mNextFragmentTag);
 			getActionBarToolbar(); // Init the toolbar as action bar
 		}
 	}
@@ -216,7 +211,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			final String jsonPhoto = Json.objectToJson(photo);
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.dispatch.route(this, Route.PHOTO, null, extras);
+			Patchr.router.route(this, Route.PHOTO, null, extras);
 		}
 	}
 
@@ -228,45 +223,24 @@ public abstract class BaseActivity extends ActionBarActivity
 	@Override
 	public void onAdd(Bundle extras) {
 		/* Schema target is in the extras */
-		Patchr.dispatch.route(this, Route.NEW, mEntity, extras);
+		Patchr.router.route(this, Route.NEW, mEntity, extras);
 	}
 
 	@Override
 	public void onBackPressed() {
-		if (mDrawerLayout != null) {
-			if (mDrawerLayout.isDrawerOpen(mDrawerRight)) {
-				mNotificationActionIcon.animate().rotation(0f).setDuration(200);
-				mDrawerLayout.closeDrawer(mDrawerRight);
-				return;
-			}
-			else if (mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
-				mDrawerLayout.closeDrawer(mDrawerLeft);
-				return;
-			}
-		}
-
-		if (mCurrentFragmentTag != null && mCurrentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
-			String listFragment = ((MapListFragment) getCurrentFragment()).getListFragment();
-			if (listFragment != null) {
-				Bundle extras = new Bundle();
-				extras.putString(Constants.EXTRA_FRAGMENT_TYPE, listFragment);
-				Patchr.dispatch.route(this, Route.VIEW_AS_LIST, null, extras);
-			}
-			return;
-		}
 
 		if (BaseActivity.this instanceof AircandiForm) {
 			super.onBackPressed();
 		}
 		else {
-			Patchr.dispatch.route(this, Route.CANCEL, null, null);
+			Patchr.router.route(this, Route.CANCEL, null, null);
 		}
 	}
 
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, getExitTransitionType());
+		AnimationManager.doOverridePendingTransition(this, getExitTransitionType());
 	}
 
 	protected Integer getExitTransitionType() {
@@ -296,7 +270,7 @@ public abstract class BaseActivity extends ActionBarActivity
 
 	@SuppressWarnings("ucd")
 	public void onCancelButtonClick(View view) {
-		Patchr.dispatch.route(this, Route.CANCEL, null, null);
+		Patchr.router.route(this, Route.CANCEL, null, null);
 	}
 
 	@Override
@@ -319,8 +293,6 @@ public abstract class BaseActivity extends ActionBarActivity
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	public void setCurrentFragment(String fragmentType) {}
 
 	protected void configureActionBar() {
 		/*
@@ -370,7 +342,7 @@ public abstract class BaseActivity extends ActionBarActivity
 					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncSignOut");
-						final ModelResult result = Patchr.getInstance().getEntityManager().signoutComplete(NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						final ModelResult result = DataController.getInstance().signoutComplete(NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						return result;
 					}
 
@@ -380,7 +352,7 @@ public abstract class BaseActivity extends ActionBarActivity
 						/* Set to anonymous user even if service call fails */
 						UI.showToastNotification(StringManager.getString(R.string.alert_signed_out), Toast.LENGTH_SHORT);
 						mUiController.getBusyController().hide(false);
-						Patchr.dispatch.route(BaseActivity.this, Route.SPLASH, null, null);
+						Patchr.router.route(BaseActivity.this, Route.SPLASH, null, null);
 					}
 				}.executeOnExecutor(Constants.EXECUTOR);
 			}
@@ -473,7 +445,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
-				final ModelResult result = Patchr.getInstance().getEntityManager().deleteEntity(mEntity.id, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				final ModelResult result = DataController.getInstance().deleteEntity(mEntity.id, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -490,7 +462,7 @@ public abstract class BaseActivity extends ActionBarActivity
 					UI.showToastNotification(StringManager.getString(mDeletedResId), Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_ENTITY_DELETED);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
+					AnimationManager.doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
 				}
 				else {
 					Errors.handleError(BaseActivity.this, result.serviceResponse);
@@ -516,7 +488,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRemoveEntity");
-				final ModelResult result = Patchr.getInstance().getEntityManager()
+				final ModelResult result = DataController.getInstance()
 				                                 .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove_entity_message", NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				isCancelled();
 				return result;
@@ -535,7 +507,7 @@ public abstract class BaseActivity extends ActionBarActivity
 					UI.showToastNotification(StringManager.getString(mRemovedResId), Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_ENTITY_REMOVED);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
+					AnimationManager.doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
 				}
 				else {
 					Errors.handleError(BaseActivity.this, result.serviceResponse);
@@ -612,14 +584,6 @@ public abstract class BaseActivity extends ActionBarActivity
 		}
 	}
 
-	public Boolean getInvalidated() {
-		return mInvalidated;
-	}
-
-	public void setInvalidated(Boolean invalidated) {
-		mInvalidated = invalidated;
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
@@ -680,7 +644,7 @@ public abstract class BaseActivity extends ActionBarActivity
 		 * - after invalidateOptionsMenu.
 		 * - after onResume in lifecycle.
 		 */
-		Patchr.getInstance().getMenuManager().onCreateOptionsMenu(this, menu);
+		MenuManager.onCreateOptionsMenu(this, menu);
 		mOptionMenu = menu;
 		configureStandardMenuItems(menu);
 		return true;
@@ -730,7 +694,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			return true;
 		}
 
-		Patchr.dispatch.route(this, Patchr.dispatch.routeForMenuId(item.getItemId()), mEntity, extras);
+		Patchr.router.route(this, Patchr.router.routeForMenuId(item.getItemId()), mEntity, extras);
 		return true;
 	}
 
@@ -738,23 +702,23 @@ public abstract class BaseActivity extends ActionBarActivity
 
 		MenuItem menuItem = menu.findItem(R.id.edit);
 		if (menuItem != null) {
-			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.EDIT, mEntity, mForId));
+			menuItem.setVisible(MenuManager.showAction(Route.EDIT, mEntity, mForId));
 		}
 
 		menuItem = menu.findItem(R.id.add);
 		if (menuItem != null && mEntity != null) {
-			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.ADD, mEntity, mForId));
+			menuItem.setVisible(MenuManager.showAction(Route.ADD, mEntity, mForId));
 			menuItem.setTitle(StringManager.getString(R.string.menu_item_add_entity, mEntity.schema));
 		}
 
 		menuItem = menu.findItem(R.id.delete);
 		if (menuItem != null) {
-			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.DELETE, mEntity, mForId));
+			menuItem.setVisible(MenuManager.showAction(Route.DELETE, mEntity, mForId));
 		}
 
 		menuItem = menu.findItem(R.id.remove);
 		if (menuItem != null) {
-			menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.REMOVE, mEntity, mForId));
+			menuItem.setVisible(MenuManager.showAction(Route.REMOVE, mEntity, mForId));
 		}
 
 		menuItem = menu.findItem(R.id.signin);
@@ -770,7 +734,7 @@ public abstract class BaseActivity extends ActionBarActivity
 		menuItem = menu.findItem(R.id.share);
 		if (menuItem != null) {
 			if (this instanceof PhotoForm) {
-				menuItem.setVisible(Patchr.getInstance().getMenuManager().showAction(Route.SHARE, mEntity, mForId));
+				menuItem.setVisible(MenuManager.showAction(Route.SHARE, mEntity, mForId));
 			}
 		}
 
@@ -839,8 +803,9 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected void onResume() {
 		super.onResume();
 		Logger.d(this, "Activity resuming");
-		BusProvider.getInstance().register(this);
+		Dispatcher.getInstance().register(this);
 		Patchr.getInstance().setCurrentActivity(this);
+		mUiController.resume();
 		mClickEnabled = true;
 		/*
 		 * We always check to make sure play services are working properly. This call will finish 
@@ -854,7 +819,8 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected void onPause() {
 		super.onPause();
 		Logger.d(this, "Activity pausing");
-		BusProvider.getInstance().unregister(this);
+		Dispatcher.getInstance().unregister(this);
+		mUiController.pause();
 		clearReferences();
 	}
 

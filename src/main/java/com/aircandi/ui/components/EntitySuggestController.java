@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.LocationManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
@@ -42,13 +42,14 @@ import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
 
-;
 import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+
+;
 
 public class EntitySuggestController implements TokenCompleteTextView.TokenListener {
 
@@ -78,7 +79,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	private String                              mPrefix;
 	private TokenCompleteTextView.TokenListener mTokenListener;
 
-	private EntityManager.SuggestScope mSuggestScope = EntityManager.SuggestScope.PLACES;
+	private DataController.SuggestScope mSuggestScope = DataController.SuggestScope.PLACES;
 
 	public EntitySuggestController(@NonNull Context context) {
 
@@ -222,7 +223,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	}
 
 	@NonNull
-	public EntitySuggestController setSuggestScope(EntityManager.SuggestScope suggestScope) {
+	public EntitySuggestController setSuggestScope(DataController.SuggestScope suggestScope) {
 		mSuggestScope = suggestScope;
 		return this;
 	}
@@ -419,7 +420,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 						Thread.currentThread().setName("AsyncSuggestEntities");
 						final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
-						ModelResult modelResult = Patchr.getInstance().getEntityManager().suggest(chars.toString().trim()
+						ModelResult modelResult = DataController.getInstance().suggest(chars.toString().trim()
 								, mSuggestScope, Patchr.getInstance().getCurrentUser().id
 								, location
 								, LIMIT, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);

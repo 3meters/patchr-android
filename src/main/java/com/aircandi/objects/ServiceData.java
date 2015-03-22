@@ -27,6 +27,8 @@ public class ServiceData {
 	@Expose
 	public User                user;
 	@Expose
+	public Entity              entity;
+	@Expose
 	public ServiceError        error;
 	@Expose
 	public Session             session;
@@ -45,6 +47,9 @@ public class ServiceData {
 		serviceData.count = (Number) map.get("count");
 		serviceData.more = (Boolean) map.get("more");
 		serviceData.info = (String) map.get("info");
+		if (map.get("entity") != null) {
+			serviceData.entity = User.setPropertiesFromMap(new SimpleEntity(), (HashMap<String, Object>) map.get("entity"), nameMapping);
+		}
 		if (map.get("user") != null) {
 			serviceData.user = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("user"), nameMapping);
 		}
@@ -59,5 +64,4 @@ public class ServiceData {
 
 		return serviceData;
 	}
-
 }

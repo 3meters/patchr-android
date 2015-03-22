@@ -16,14 +16,15 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.ActivityRecognitionManager;
 import com.aircandi.components.AndroidManager;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NotificationManager;
-import com.aircandi.objects.LinkProfile;
-import com.aircandi.objects.Links;
+import com.aircandi.objects.LinkSpec;
+import com.aircandi.objects.LinkSpecFactory;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.User;
 import com.aircandi.utilities.Colors;
@@ -50,14 +51,14 @@ public class SplashForm extends ActionBarActivity {
 
 		mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
 		if (mSwipeRefreshLayout != null) {
-			mSwipeRefreshLayout.setProgressBackgroundColor(R.color.brand_primary);
+			mSwipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.brand_primary);
 			mSwipeRefreshLayout.setColorSchemeColors(Colors.getColor(R.color.white));
 			mSwipeRefreshLayout.setEnabled(false);
 			mSwipeRefreshLayout.setProgressViewOffset(true, UI.getRawPixelsForDisplayPixels(48f), UI.getRawPixelsForDisplayPixels(48f));
 		}
 
 		/* Always reset the entity cache */
-		EntityManager.getEntityCache().clear();
+		DataController.getInstance().clearStore();
 
 		/* Restart notification tracking */
 		NotificationManager.getInstance().setNewNotificationCount(0);
@@ -123,8 +124,12 @@ public class SplashForm extends ActionBarActivity {
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					User user = Patchr.getInstance().getCurrentUser();
 					if (!user.isAnonymous()) {
-						Links options = Patchr.getInstance().getEntityManager().getLinks().build(LinkProfile.LINKS_FOR_USER_CURRENT);
-						result = Patchr.getInstance().getEntityManager().getEntity(Patchr.getInstance().getCurrentUser().id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						/*
+						 * Auto signin that happens when app is initialized uses a stale version of the
+						 * user stored in shared prefs. We refresh the user data from the service here.
+						 */
+						LinkSpec options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
+						result = DataController.getInstance().getEntity(Patchr.getInstance().getCurrentUser().id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 					}
 				}
 
@@ -199,7 +204,7 @@ public class SplashForm extends ActionBarActivity {
 			finish();
 		}
 		else {
-			Patchr.dispatch.route(this, Route.HOME, null, null);
+			Patchr.router.route(this, Route.HOME, null, null);
 			finish();
 		}
 
@@ -242,7 +247,7 @@ public class SplashForm extends ActionBarActivity {
 			updateRequired();
 			return;
 		}
-		Patchr.dispatch.route(this, Route.SIGNIN, null, null);
+		Patchr.router.route(this, Route.SIGNIN, null, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -251,7 +256,7 @@ public class SplashForm extends ActionBarActivity {
 			updateRequired();
 			return;
 		}
-		Patchr.dispatch.route(this, Route.REGISTER, null, null);
+		Patchr.router.route(this, Route.REGISTER, null, null);
 	}
 
 	@SuppressWarnings("ucd")

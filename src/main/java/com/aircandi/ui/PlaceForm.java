@@ -9,9 +9,11 @@ import android.view.View;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.events.ProcessingFinishedEvent;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.LinkProfile;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseEntityForm;
 import com.aircandi.ui.widgets.AirImageView;
@@ -43,7 +45,7 @@ public class PlaceForm extends BaseEntityForm {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-		mLinkProfile = LinkProfile.NO_LINKS;
+		mLinkProfile = LinkSpecType.NO_LINKS;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -51,14 +53,24 @@ public class PlaceForm extends BaseEntityForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe
-	public void onProcessingFinished(ProcessingFinishedEvent event) {
-		mUiController.getBusyController().hide(false);
+	public void onDataResult(DataResultEvent event) {
+		super.onDataResult(event);
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
+
+	@Subscribe
+	public void onDataNoop(DataNoopEvent event) {
+		super.onDataNoop(event);
 	}
 
 	@SuppressWarnings("ucd")
 	public void onMapButtonClick(View view) {
 		if (mEntity != null) {
-			Patchr.dispatch.route(this, Route.MAP, mEntity, null);
+			Patchr.router.route(this, Route.MAP, mEntity, null);
 		}
 	}
 

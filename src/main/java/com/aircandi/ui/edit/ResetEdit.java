@@ -13,6 +13,8 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
@@ -27,8 +29,7 @@ import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
 
-import org.apache.http.HttpStatus;
-
+import java.net.HttpURLConnection;
 import java.util.Locale;
 
 public class ResetEdit extends BaseEdit {
@@ -158,7 +159,7 @@ public class ResetEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncRequestPasswordReset");
 
 				String email = mEmail.getText().toString().trim().toLowerCase(Locale.US);
-				ModelResult result = Patchr.getInstance().getEntityManager().requestPasswordReset(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().requestPasswordReset(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -169,7 +170,7 @@ public class ResetEdit extends BaseEdit {
 				mUiController.getBusyController().hide(false);
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 					mEmailConfirmed = false;
-					if (result.serviceResponse.statusCode == HttpStatus.SC_NOT_FOUND) {
+					if (result.serviceResponse.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
 
 						/* No such email */
 						Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
@@ -181,7 +182,7 @@ public class ResetEdit extends BaseEdit {
 								, null, null, null, null);
 
 					}
-					else if (result.serviceResponse.statusCode == HttpStatus.SC_UNAUTHORIZED) {
+					else if (result.serviceResponse.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
 
 						/* No successful signin on this install */
 						Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
@@ -224,7 +225,7 @@ public class ResetEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncResetPassword");
 
 				String password = mPassword.getText().toString();
-				ModelResult result = Patchr.getInstance().getEntityManager().resetPassword(password, mUser, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().resetPassword(password, mUser, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -239,7 +240,7 @@ public class ResetEdit extends BaseEdit {
 
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_BACK);
+					AnimationManager.doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Errors.handleError(ResetEdit.this, result.serviceResponse);

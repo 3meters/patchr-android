@@ -5,17 +5,12 @@ import android.view.View;
 
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.DataController;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.ProcessingFinishedEvent;
-import com.aircandi.monitors.EntityMonitor;
 import com.aircandi.objects.Link.Direction;
-import com.aircandi.queries.EntitiesQuery;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.utilities.Integers;
-import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
 public class PatchList extends BaseActivity {
@@ -33,7 +28,7 @@ public class PatchList extends BaseActivity {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-			mEntity = EntityManager.getCacheEntity(mEntityId);
+			mEntity = DataController.getStoreEntity(mEntityId);
 			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
 			mListTitleResId = extras.getInt(Constants.EXTRA_LIST_TITLE_RESID);
 			mListEmptyMessageResId = extras.getInt(Constants.EXTRA_LIST_EMPTY_RESID);
@@ -45,25 +40,20 @@ public class PatchList extends BaseActivity {
 		super.initialize(savedInstanceState);
 
 		mCurrentFragment = new EntityListFragment();
-		EntityMonitor monitor = new EntityMonitor(mEntityId);
-		EntitiesQuery query = new EntitiesQuery();
 
-		query.setEntityId(mEntityId)
-		     .setLinkDirection(Direction.out.name())
-		     .setLinkType(mListLinkType)
-		     .setPageSize(Integers.getInteger(R.integer.page_size_entities))
-		     .setSchema(Constants.SCHEMA_ENTITY_PATCH);
-
-		((EntityListFragment) mCurrentFragment).setQuery(query)
-		                                       .setMonitor(monitor)
-		                                       .setListPagingEnabled(true)
-		                                       .setListViewType(ViewType.LIST)
-		                                       .setListLayoutResId(R.layout.patch_list_fragment)
-		                                       .setListLoadingResId(R.layout.temp_listitem_loading)
-		                                       .setListItemResId(R.layout.temp_listitem_patch)
-		                                       .setListEmptyMessageResId(mListEmptyMessageResId)
-		                                       .setTitleResId(mListTitleResId)
-		                                       .setSelfBindingEnabled(true);
+		((EntityListFragment) mCurrentFragment)
+				.setMonitorEntityId(mEntityId)
+				.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
+				.setLinkType(mListLinkType)
+				.setLinkDirection(Direction.out.name())
+				.setPageSize(Integers.getInteger(R.integer.page_size_entities))
+				.setListPagingEnabled(true)
+				.setListViewType(ViewType.LIST)
+				.setListLayoutResId(R.layout.patch_list_fragment)
+				.setListLoadingResId(R.layout.temp_listitem_loading)
+				.setListItemResId(R.layout.temp_listitem_patch)
+				.setListEmptyMessageResId(mListEmptyMessageResId)
+				.setTitleResId(mListTitleResId);
 
 		getFragmentManager()
 				.beginTransaction()
@@ -75,7 +65,7 @@ public class PatchList extends BaseActivity {
 
 	@Override
 	public void draw(View view) {
-		Integer titleResId = ((BaseFragment) mCurrentFragment).getTitleResId();
+		Integer titleResId = ((EntityListFragment) mCurrentFragment).getTitleResId();
 		if (titleResId != null) {
 			setActivityTitle(StringManager.getString(titleResId));
 		}
@@ -84,13 +74,6 @@ public class PatchList extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Subscribe
-	public void onProcessingFinished(final ProcessingFinishedEvent event) {
-		mUiController.getBusyController().hide(false);
-		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-		fragment.onProcessingFinished(event);
-	}
 
 	@SuppressWarnings("ucd")
 	public void onMoreButtonClick(View view) {

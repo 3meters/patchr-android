@@ -9,8 +9,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.aircandi.Constants;
-import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.AnimationManager;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEntityEdit;
 
@@ -81,7 +81,7 @@ public class PrivacyBuilder extends BaseEntityEdit {
 	public void onCancel(Boolean force) {
 		setResultCode(Activity.RESULT_CANCELED);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ public class PrivacyBuilder extends BaseEntityEdit {
 		intent.putExtra(Constants.EXTRA_PRIVACY, mPrivacy);
 		setResultCode(Activity.RESULT_OK, intent);
 		finish();
-		Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
 
 	@Override

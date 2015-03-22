@@ -2,47 +2,48 @@ package com.aircandi.ui.base;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
-import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.ServiceConstants;
-import com.aircandi.components.EntityManager;
+import com.aircandi.components.AnimationManager;
+import com.aircandi.components.DataController.ActionType;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
-import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NotificationManager;
-import com.aircandi.interfaces.IBusy.BusyAction;
-import com.aircandi.monitors.EntityMonitor;
+import com.aircandi.events.DataErrorEvent;
+import com.aircandi.events.DataNoopEvent;
+import com.aircandi.events.DataResultEvent;
+import com.aircandi.events.EntityRequestEvent;
+import com.aircandi.events.LinkDeleteEvent;
+import com.aircandi.events.LinkInsertEvent;
 import com.aircandi.objects.Entity;
-import com.aircandi.objects.Links;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
+import com.aircandi.ui.EntityListFragment;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Type;
-import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BaseEntityForm extends BaseActivity {
 
+	@NonNull
 	protected Integer mLinkProfile;
 	protected Integer mTransitionType;
 	protected Integer mLikeStatus = LikeStatus.NONE;     // Set in draw
-	protected AsyncTask mTaskGetEntity;
+	protected Boolean mBound      = false;
 
 	/* Inputs */
 	@SuppressWarnings("ucd")
@@ -64,31 +65,120 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 	}
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-		if (mEntityId != null) {
-			mEntityMonitor = new EntityMonitor(mEntityId);
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Subscribe
+	public void onDataResult(final DataResultEvent event) {
+
+		if (event.tag.equals(System.identityHashCode(this))
+				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
+
+			Logger.v(this, "Data result accepted: " + event.actionType.name().toString());
+
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+
+					if (event.actionType == ActionType.ACTION_GET_ENTITY) {
+
+						if (event.entity != null) {
+							mEntity = event.entity;
+
+							if (mParentId != null) {
+								mEntity.toId = mParentId;
+							}
+
+							if (mEntity instanceof Patch) {
+								Patchr.getInstance().setCurrentPatch(mEntity);
+							}
+						}
+						/*
+						 * Possible to hit this before options menu has been set. If so then
+						 * configureStandardMenuItems will be called in onCreateOptionsMenu.
+						 */
+						if (mOptionMenu != null) {
+							configureStandardMenuItems(mOptionMenu);
+						}
+
+						draw(null);
+
+						/* Ensure this is flagged as read */
+						if (mNotificationId != null) {
+							if (NotificationManager.getInstance().getNotifications().containsKey(mNotificationId)) {
+								NotificationManager.getInstance().getNotifications().get(mNotificationId).read = true;
+							}
+						}
+						mBound = true;
+						onProcessingComplete(NetworkManager.ResponseCode.SUCCESS);
+					}
+					else if (event.actionType == ActionType.ACTION_LINK_INSERT_LIKE
+							|| event.actionType == ActionType.ACTION_LINK_DELETE_LIKE) {
+						draw(null);
+						onProcessingComplete(NetworkManager.ResponseCode.SUCCESS);
+					}
+				}
+			});
+		}
+	}
+
+	@Subscribe
+	public void onDataError(DataErrorEvent event) {
+		if (event.tag.equals(System.identityHashCode(this))) {
+			Logger.v(this, "Data error accepted: " + event.actionType.name().toString());
+
+			Boolean linkAction = (event.actionType.name().toLowerCase(Locale.US).contains("link"));
+
+			if (linkAction) {
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						draw(null);     // Chance to clear any embedded busy ui
+					}
+				});
+			}
+
+			onProcessingComplete(NetworkManager.ResponseCode.FAILED);
+
+			/* We eat errors for network operations the user didn't specifically initiate. */
+			if (!mBound || event.mode == BindingMode.MANUAL || linkAction) {
+				Errors.handleError(BaseEntityForm.this, event.errorResponse);
+			}
+		}
+	}
+
+	@Subscribe
+	public void onDataNoop(DataNoopEvent event) {
+		if (event.tag.equals(System.identityHashCode(this))) {
+			Logger.v(this, "Data no-op accepted: " + event.actionType.name().toString());
+			onProcessingComplete(NetworkManager.ResponseCode.SUCCESS);
+		}
+	}
+
 	@Override
 	public void onRefresh() {
+		/*
+		 * Called from swipe refresh or routing. Always treated
+		 * as an aggresive refresh.
+		 */
 		bind(BindingMode.MANUAL); // Called from Routing
+		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
+			((EntityListFragment) mCurrentFragment).onRefresh();
+		}
 	}
 
 	@SuppressWarnings("ucd")
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
+		if (entity == null) return;
+
 		Bundle extras = new Bundle();
 		if (Type.isTrue(entity.autowatchable)) {
 			extras.putBoolean(Constants.EXTRA_PRE_APPROVED, true);
 		}
-		Patchr.dispatch.route(this, Route.BROWSE, entity, extras);
+		Patchr.router.route(this, Route.BROWSE, entity, extras);
 	}
 
 	@Override
@@ -100,14 +190,14 @@ public abstract class BaseEntityForm extends BaseActivity {
 			final String jsonPhoto = Json.objectToJson(photo);
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.dispatch.route(this, Route.PHOTO, null, extras);
+			Patchr.router.route(this, Route.PHOTO, null, extras);
 		}
 		else if (mEntity.photo != null) {
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mParentId);
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, (mListLinkType == null) ? Constants.TYPE_LINK_CONTENT : mListLinkType);
 			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, mEntity.schema);
-			Patchr.dispatch.route(this, Route.PHOTOS, mEntity, extras);
+			Patchr.router.route(this, Route.PHOTOS, mEntity, extras);
 		}
 	}
 
@@ -121,14 +211,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 */
 		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
 			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
-				/*
-				 * Guarantees that any cache stamp retrieved for parent entity from the service will not equal
-				 * any cache stamp including itself. Cleared if parent entity is refreshed from the service.
-				 */
-				Patchr.getInstance().getEntityManager().getCacheStampOverrides().put(mParentId, mParentId);
 				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
 					finish();
-					Patchr.getInstance().getAnimationManager().doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+					AnimationManager.doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
 				}
 			}
 		}
@@ -152,216 +237,86 @@ public abstract class BaseEntityForm extends BaseActivity {
 		Logger.d(this, "Activity restoring state");
 	}
 
+	protected void onProcessingComplete(final NetworkManager.ResponseCode responseCode) {
+		mProcessing = false;
+		mUiController.getBusyController().hide(false);
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void bind(final BindingMode mode) {
-
-		final AtomicBoolean refreshNeeded = new AtomicBoolean(false);
-		final AtomicBoolean redrawNeeded = new AtomicBoolean(mInvalidated);
 		/*
-		 * Called from background thread.
-	     *
-	     * If cache entity is fresher than the one currently bound to or there is
-		 * a cache entity available, go ahead and draw before we check against the service.
+		 * Called on main thread.
 		 */
-		mEntity = EntityManager.getCacheEntity(mEntityId); // Concurrent hash map
-		if (mEntity != null) {
-			if (mEntity instanceof Patch) {
-				Patchr.getInstance().setCurrentPatch(mEntity);
-				Logger.v(this, "Setting current patch to: " + mEntity.id);
-			}
-			if (mFirstDraw) {
-				draw(null);
-			}
+		Logger.v(this, "Binding: " + mode.name().toString());
+		EntityRequestEvent request = new EntityRequestEvent()
+				.setLinkProfile(mLinkProfile);
+
+		request.setActionType(ActionType.ACTION_GET_ENTITY)
+		       .setMode(mode)
+		       .setEntityId(mEntityId)
+		       .setTag(System.identityHashCode(this));
+
+		if (mBound && mEntity != null && mode != BindingMode.MANUAL) {
+			request.setCacheStamp(mEntity.getCacheStamp());
 		}
 
-		/* If we have an entity we can starting binding the list while we check entity freshness */
-
-		mTaskGetEntity = new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(mNotEmpty ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncGetEntity");
-
-				ModelResult result = new ModelResult();
-
-				if (mEntityMonitor.isChanged()) {
-					refreshNeeded.set(true);
-				}
-
-				if (refreshNeeded.get()) {
-					mUiController.getBusyController().show(mNotEmpty ? BusyAction.Refreshing : BusyAction.Refreshing_Empty);
-					Links options = Patchr.getInstance().getEntityManager().getLinks().build(mLinkProfile);
-					result = Patchr.getInstance().getEntityManager().getEntity(mEntityId, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				}
-
-				return result;
-			}
-
-			@Override
-			protected void onCancelled(Object modelResult) {
-						/*
-						 * Called after exiting doInBackground() and task.cancel was called.
-						 * If using task.cancel(true) and the task is running then AsyncTask
-						 * will call interrupt on the thread which in turn will be picked up
-						 * by okhttp before it begins the next blocking operation.
-						 */
-				if (modelResult != null) {
-					final ModelResult result = (ModelResult) modelResult;
-					Logger.w(Thread.currentThread().getName(), "Get entity task cancelled: " + result.serviceResponse.responseCode.toString());
-				}
-			}
-
-			@Override
-			protected void onPostExecute(Object modelResult) {
-				if (isFinishing()) return;
-
-				final ModelResult result = (ModelResult) modelResult;
-				mUiController.getBusyController().hide(false);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					if (refreshNeeded.get()) {
-						if (result.data != null) {
-							mEntity = (Entity) result.data;
-
-							if (mParentId != null) {
-								mEntity.toId = mParentId;
-							}
-							if (mEntity instanceof Patch) {
-								Patchr.getInstance().setCurrentPatch(mEntity);
-							}
-
-							/*
-							 * Possible to hit this before options menu has been set. If so then
-							 * configureStandardMenuItems will be called in onCreateOptionsMenu.
-							 */
-							if (mOptionMenu != null) {
-								configureStandardMenuItems(mOptionMenu);
-							}
-							draw(null);
-						}
-						else {
-							mUiController.getBusyController().hide(true);
-							UI.showToastNotification("This item has been deleted", Toast.LENGTH_SHORT);
-							finish();
-						}
-					}
-					else if (redrawNeeded.get()) {
-						if (mEntity != null) {
-							/*
-							 * Possible to hit this before options menu has been set. If so then
-							 * configureStandardMenuItems will be called in onCreateOptionsMenu.
-							 */
-							if (mOptionMenu != null) {
-								configureStandardMenuItems(mOptionMenu);
-							}
-							draw(null);
-						}
-					}
-
-					/* Ensure this is flagged as read */
-					if (mNotificationId != null) {
-						if (NotificationManager.getInstance().getNotifications().containsKey(mNotificationId)) {
-							NotificationManager.getInstance().getNotifications().get(mNotificationId).read = true;
-						}
-					}
-				}
-				else {
-					Errors.handleError(BaseEntityForm.this, result.serviceResponse);
-					return;
-				}
-
-				afterDatabind(mode, result);
-				if (mEntityMonitor instanceof EntityMonitor) {
-					/*
-					 * Causes cache stamp checks to look clean so when we
-					 * rebind the entity list, it thinks there is nothing to do because the
-					 * cache stamp looks clean.
-					 */
-					((EntityMonitor) mEntityMonitor).updateCacheStamp(mEntity);
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	public void afterDatabind(final BindingMode mode, ModelResult result) {
-		if (result == null || result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			mNotEmpty = true;
-		}
+		Dispatcher.getInstance().post(request);
 	}
 
 	public void draw(View view) {}
 
-	protected void drawStats(View view) {}
-
-	protected void drawButtons(View view) {}
-
 	public void like(final boolean activate) {
 
-		new AsyncTask() {
-
+		runOnUiThread(new Runnable() {
 			@Override
-			protected void onPreExecute() {
-				((ViewAnimator) findViewById(R.id.button_like)).setDisplayedChild(1);
+			public void run() {
+				ViewAnimator animator = (ViewAnimator) findViewById(R.id.button_like);
+				if (animator != null) {
+					animator.setDisplayedChild(1);  // Turned off in drawButtons
+				}
 			}
+		});
 
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncLikeEntity");
-				ModelResult result;
-				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+		Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
 
-				if (activate) {
+		if (activate) {
 
-					/* Used as part of link management */
-					Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
-					Shortcut toShortcut = mEntity.getAsShortcut();
+			/* Used as part of link management */
+			Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
+			Shortcut toShortcut = mEntity.getAsShortcut();
 
-					result = Patchr.getInstance().getEntityManager().insertLink(null
-							, Patchr.getInstance().getCurrentUser().id
-							, mEntity.id
-							, Constants.TYPE_LINK_LIKE
-							, null
-							, fromShortcut
-							, toShortcut
-							, "like_entity_" + mEntity.schema.toLowerCase(Locale.US)
-							, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				}
-				else {
-					result = Patchr.getInstance().getEntityManager().deleteLink(Patchr.getInstance().getCurrentUser().id
-							, mEntity.id
-							, Constants.TYPE_LINK_LIKE
-							, null
-							, mEntity.schema
-							, "unlike_entity_" + mEntity.schema.toLowerCase(Locale.US), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				}
-				return result;
-			}
+			LinkInsertEvent update = new LinkInsertEvent()
+					.setFromId(Patchr.getInstance().getCurrentUser().id)
+					.setToId(mEntity.id)
+					.setType(Constants.TYPE_LINK_LIKE)
+					.setEnabled(true)
+					.setFromShortcut(fromShortcut)
+					.setToShortcut(toShortcut)
+					.setActionEvent("like_entity_" + mEntity.schema.toLowerCase(Locale.US))
+					.setSkipCache(false);
 
-			@Override
-			protected void onPostExecute(Object response) {
-				if (isFinishing()) return;
-				ModelResult result = (ModelResult) response;
+			update.setActionType(ActionType.ACTION_LINK_INSERT_LIKE)
+			      .setTag(System.identityHashCode(this));
 
-				((ViewAnimator) findViewById(R.id.button_like)).setDisplayedChild(0);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					bind(BindingMode.AUTO); // Triggers redraw including buttons and updates state
-				}
-				else {
-					if (result.serviceResponse.statusCodeService != null
-							&& result.serviceResponse.statusCodeService != ServiceConstants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
-						Errors.handleError(BaseEntityForm.this, result.serviceResponse);
-					}
-				}
-				mProcessing = false;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+			Dispatcher.getInstance().post(update);
+		}
+		else {
+
+			LinkDeleteEvent update = new LinkDeleteEvent()
+					.setFromId(Patchr.getInstance().getCurrentUser().id)
+					.setToId(mEntity.id)
+					.setType(Constants.TYPE_LINK_LIKE)
+					.setSchema(mEntity.schema)
+					.setActionEvent("unlike_entity_" + mEntity.schema.toLowerCase(Locale.US));
+
+			update.setActionType(ActionType.ACTION_LINK_DELETE_LIKE)
+			      .setTag(System.identityHashCode(this));
+
+			Dispatcher.getInstance().post(update);
+		}
 	}
 
 	@Override

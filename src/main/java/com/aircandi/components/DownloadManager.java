@@ -39,6 +39,7 @@ public class DownloadManager {
 
 			/* So we can sniff failures */
 			Listener listener = new Listener() {
+
 				@Override
 				public void onImageLoadFailed(Picasso picasso, Uri uri, Exception e) {
 					/*
@@ -78,24 +79,24 @@ public class DownloadManager {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static void logBitmap(Object context, Bitmap bitmap, View target) {
-		logBitmap(context, bitmap);
-		if (target != null) {
-			Integer width = target.getWidth();
-			Integer height = target.getHeight();
-			Bitmap.Config config = bitmap.getConfig();
-			Integer size = (width * height * getBytesPerPixel(config));
-			Logger.v(context.getClass().getSimpleName(), String.format(logBitmapTarget, context.getClass().getSimpleName(), height, width, size));
-		}
+//		logBitmap(context, bitmap);
+//		if (target != null) {
+//			Integer width = target.getWidth();
+//			Integer height = target.getHeight();
+//			Bitmap.Config config = bitmap.getConfig();
+//			Integer size = (width * height * getBytesPerPixel(config));
+//			Logger.v(context.getClass().getSimpleName(), String.format(logBitmapTarget, context.getClass().getSimpleName(), height, width, size));
+//		}
 	}
 
 	public static void logBitmap(Object context, Bitmap bitmap) {
-		int width = bitmap.getWidth();
-		int height = bitmap.getHeight();
-		Bitmap.Config config = bitmap.getConfig();
-		if (config != null) {
-			int size = (width * height * getBytesPerPixel(config));
-			Logger.v(context.getClass().getSimpleName(), String.format(logBitmapCreated, context.getClass().getSimpleName(), height, width, size, config.name()));
-		}
+//		int width = bitmap.getWidth();
+//		int height = bitmap.getHeight();
+//		Bitmap.Config config = bitmap.getConfig();
+//		if (config != null) {
+//			int size = (width * height * getBytesPerPixel(config));
+//			Logger.v(context.getClass().getSimpleName(), String.format(logBitmapCreated, context.getClass().getSimpleName(), height, width, size, config.name()));
+//		}
 	}
 
 	private static int getBytesPerPixel(Bitmap.Config config) {

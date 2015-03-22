@@ -2,10 +2,10 @@ package com.aircandi.objects;
 
 import android.support.annotation.NonNull;
 
-;
-
 import java.io.Serializable;
 import java.util.Map;
+
+;
 
 /**
  * @author Jayma

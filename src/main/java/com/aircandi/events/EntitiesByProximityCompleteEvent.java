@@ -1,6 +1,6 @@
 package com.aircandi.events;
 
 @SuppressWarnings("ucd")
-public class EntitiesByProximityFinishedEvent {
+public class EntitiesByProximityCompleteEvent {
 
 }
