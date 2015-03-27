@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,10 +14,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewAnimator;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -37,7 +34,6 @@ import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
-import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
@@ -54,7 +50,6 @@ import com.aircandi.ui.components.ListController;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.ui.widgets.FlowLayout;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
@@ -160,13 +155,13 @@ public class MessageForm extends BaseEntityForm {
 			@Override
 			public void run() {
 
-				ListController ls = fragment.getListController();
+				ListController controller = fragment.getListController();
 				Boolean share = (mEntity != null && mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
 				if (share) {
-					ls.getFloatingActionController().fadeOut();
+					controller.getFloatingActionController().fadeOut();
 				}
 				else {
-					ls.getFloatingActionController().fadeIn();
+					controller.getFloatingActionController().fadeIn();
 				}
 			}
 		});
@@ -346,8 +341,6 @@ public class MessageForm extends BaseEntityForm {
 		final ViewGroup shareHolder = (ViewGroup) view.findViewById(R.id.share_holder);
 		final ViewGroup shareFrame = (ViewGroup) view.findViewById(R.id.share_entity);
 		final ViewGroup toHolder = (ViewGroup) view.findViewById(R.id.to_holder);
-		final ViewAnimator like = (ViewAnimator) view.findViewById(R.id.button_like);
-		final View likes = view.findViewById(R.id.button_likes);
 
         /* Share */
 
@@ -615,8 +608,6 @@ public class MessageForm extends BaseEntityForm {
 			shareFrame.setTag(shareEntity);
 			shareFrame.addView(shareView);
 
-			UI.setVisibility(like, View.GONE);
-			UI.setVisibility(likes, View.GONE);
 			UI.setVisibility(shareHolder, View.VISIBLE);
 		}
 		else if (shareEntity == null && linkEntity != null) {
@@ -664,43 +655,11 @@ public class MessageForm extends BaseEntityForm {
 
         /* Likes */
 		if (shareEntity == null) {
-
-			/* Like button coloring */
-			if (like != null) {
-				like.setDisplayedChild(0);
-				Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
-				ImageView image = (ImageView) like.findViewById(R.id.button_image);
-				if (link != null && link.enabled) {
-					final int color = Colors.getColor(R.color.brand_primary);
-					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-					image.setAlpha(1.0f);
-				}
-				else {
-					image.setColorFilter(null);
-					image.setAlpha(0.5f);
-				}
-			}
-
-			/* Like count */
-			if (likes != null) {
-				Count count = mEntity.getCount(Constants.TYPE_LINK_LIKE, null, true, Direction.in);
-				if (count == null) {
-					count = new Count(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, null, 0);
-				}
-				if (count.count.intValue() > 0) {
-					TextView likesCount = (TextView) view.findViewById(R.id.likes_count);
-					TextView likesLabel = (TextView) view.findViewById(R.id.likes_label);
-					if (likesCount != null) {
-						String label = getResources().getQuantityString(R.plurals.label_likes, count.count.intValue(), count.count.intValue());
-						likesCount.setText(String.valueOf(count.count.intValue()));
-						likesLabel.setText(label);
-						UI.setVisibility(likes, View.VISIBLE);
-					}
-				}
-				else {
-					UI.setVisibility(likes, View.GONE);
-				}
-			}
+			drawLikeWatch(view);
+		}
+		else {
+			UI.setVisibility(view.findViewById(R.id.button_like), View.GONE);
+			UI.setVisibility(view.findViewById(R.id.button_likes), View.GONE);
 		}
 	}
 
