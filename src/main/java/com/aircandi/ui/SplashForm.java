@@ -3,10 +3,8 @@ package com.aircandi.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.WindowManager;
@@ -14,28 +12,15 @@ import android.view.WindowManager;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.ActivityRecognitionManager;
 import com.aircandi.components.AndroidManager;
 import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
-import com.aircandi.components.ModelResult;
-import com.aircandi.components.NetworkManager;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NotificationManager;
-import com.aircandi.objects.LinkSpec;
-import com.aircandi.objects.LinkSpecFactory;
-import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Route;
-import com.aircandi.objects.User;
-import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Dialogs;
-import com.aircandi.utilities.Errors;
-import com.aircandi.utilities.UI;
 
 @SuppressLint("Registered")
 public class SplashForm extends ActionBarActivity {
-
-	protected SwipeRefreshLayout mSwipeRefreshLayout;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,14 +33,6 @@ public class SplashForm extends ActionBarActivity {
 
 	@SuppressLint("ResourceAsColor")
 	protected void initialize() {
-
-		mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
-		if (mSwipeRefreshLayout != null) {
-			mSwipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.brand_primary);
-			mSwipeRefreshLayout.setColorSchemeColors(Colors.getColor(R.color.white));
-			mSwipeRefreshLayout.setEnabled(false);
-			mSwipeRefreshLayout.setProgressViewOffset(true, UI.getRawPixelsForDisplayPixels(48f), UI.getRawPixelsForDisplayPixels(48f));
-		}
 
 		/* Always reset the entity cache */
 		DataController.getInstance().clearStore();
@@ -71,7 +48,12 @@ public class SplashForm extends ActionBarActivity {
 			 * called again.
 			 */
 			if (AndroidManager.checkPlayServices(this)) {
-				prepareToRun();
+				if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+					showButtons(Buttons.ACCOUNT);
+				}
+				else {
+					startHomeActivity();
+				}
 			}
 		}
 		else {
@@ -82,106 +64,6 @@ public class SplashForm extends ActionBarActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
-
-	private void prepareToRun() {
-
-		mSwipeRefreshLayout.setProgressViewOffset(true, UI.getRawPixelsForDisplayPixels(48f), UI.getRawPixelsForDisplayPixels(48f));
-		mSwipeRefreshLayout.setRefreshing(true);
-
-		new AsyncTask() {
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncPrepareToRun");
-				ModelResult result = new ModelResult();
-
-				if (Patchr.firstStartApp) {
-
-					configure();
-
-					int maxAttempts = 5;
-					int attempts = 1;
-					while (attempts <= maxAttempts) {
-						result.serviceResponse = NotificationManager.getInstance().registerInstallWithGCM();
-						if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-							Logger.i(SplashForm.this, "Install registered with Gcm");
-							break;
-						}
-						else {
-							Logger.w(SplashForm.this, "Install failed to register with Gcm, attempt = " + attempts);
-							try {
-								Thread.sleep(2000);
-							}
-							catch (InterruptedException exception) {
-								return result;
-							}
-						}
-						attempts++;
-					}
-					Patchr.firstStartApp = false;
-				}
-
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					User user = Patchr.getInstance().getCurrentUser();
-					if (!user.isAnonymous()) {
-						/*
-						 * Auto signin that happens when app is initialized uses a stale version of the
-						 * user stored in shared prefs. We refresh the user data from the service here.
-						 */
-						LinkSpec options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
-						result = DataController.getInstance().getEntity(Patchr.getInstance().getCurrentUser().id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-					}
-				}
-
-				/*
-				 * We register installs even if the user is anonymous.
-				 */
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					result = NotificationManager.getInstance().registerInstallWithAircandi();
-				}
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				ModelResult result = (ModelResult) response;
-
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Logger.i(SplashForm.this, "Splash initialized");
-					if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-						showButtons(Buttons.ACCOUNT);
-					}
-					else {
-						startHomeActivity();
-					}
-				}
-				else {
-					if (Errors.isNetworkError(result.serviceResponse)) {
-						Errors.handleError(SplashForm.this, result.serviceResponse);
-						showButtons(Buttons.RETRY);
-					}
-					else {
-						Errors.handleError(SplashForm.this, result.serviceResponse);
-						if (Patchr.applicationUpdateRequired) {
-							updateRequired();
-							return;
-						}
-						showButtons(Buttons.ACCOUNT);
-					}
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	protected void configure() {
-		/*
-		 * Only called when app is first started
-		 */
-		/* Starts activity recognition */
-		ActivityRecognitionManager.getInstance().initialize(getApplicationContext());
-
-		Logger.i(this, "First run configuration completed");
-	}
 
 	protected void startHomeActivity() {
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous() && Patchr.firstStartIntent != null) {
@@ -213,7 +95,6 @@ public class SplashForm extends ActionBarActivity {
 	}
 
 	private void showButtons(Buttons buttons) {
-		mSwipeRefreshLayout.setRefreshing(false);
 		if (buttons == Buttons.NONE) {
 			findViewById(R.id.button_retry_holder).setVisibility(View.GONE);
 			findViewById(R.id.button_holder).setVisibility(View.GONE);
@@ -229,7 +110,6 @@ public class SplashForm extends ActionBarActivity {
 	}
 
 	private void updateRequired() {
-		mSwipeRefreshLayout.setRefreshing(false);
 		Dialogs.updateApp(this);
 	}
 
@@ -266,17 +146,6 @@ public class SplashForm extends ActionBarActivity {
 			return;
 		}
 		startHomeActivity();
-	}
-
-	@SuppressWarnings("ucd")
-	public void onRetryButtonClick(View view) {
-		showButtons(Buttons.NONE);
-		if (Patchr.applicationUpdateRequired) {
-			updateRequired();
-		}
-		else {
-			prepareToRun();
-		}
 	}
 
 	@Override
@@ -319,7 +188,6 @@ public class SplashForm extends ActionBarActivity {
 		super.onPause();
 		Logger.d(this, "Splash pause");
 		clearReferences();
-		mSwipeRefreshLayout.setRefreshing(false);
 	}
 
 	@Override

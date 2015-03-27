@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 import android.widget.Toast;
 
+import com.aircandi.components.ActivityRecognitionManager;
 import com.aircandi.components.ContainerManager;
 import com.aircandi.components.DataController;
 import com.aircandi.components.Logger;
@@ -173,6 +174,8 @@ public class Patchr extends MultiDexApplication {
 		settings = PreferenceManager.getDefaultSharedPreferences(applicationContext);
 		settingsEditor = settings.edit();
 
+		Logger.i(this, "First run configuration");
+
 		/* Make sure setting defaults are initialized */
 		PreferenceManager.setDefaultValues(this, R.xml.preferences_dev, true);
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
@@ -218,7 +221,12 @@ public class Patchr extends MultiDexApplication {
 		controllerMap.put(Constants.SCHEMA_ENTITY_NOTIFICATION, new Notifications());
 
 		/* Must come after managers are initialized */
-		initializeUser();
+		signinAuto();
+
+		/* Start activity recognition */
+		ActivityRecognitionManager.getInstance().initialize(applicationContext);
+
+		firstStartApp = false;
 	}
 
 	protected void initializeManagers() {
@@ -231,11 +239,6 @@ public class Patchr extends MultiDexApplication {
 
 		/* Connectivity monitoring */
 		NetworkManager.getInstance().initialize();
-	}
-
-	public void initializeUser() {
-		signinAuto();
-		Logger.i(this, "User initialized");
 	}
 
 	public void snapshotPreferences() {
@@ -300,22 +303,23 @@ public class Patchr extends MultiDexApplication {
 
 	public void signinAuto() {
 		/*
-		 * Gets called on app create and after restart and ending with the back key.
+		 * Gets called on app create.
 		 */
 		final String jsonUser = settings.getString(StringManager.getString(R.string.setting_user), null);
 		final String jsonSession = settings.getString(StringManager.getString(R.string.setting_user_session), null);
 
 		if (jsonUser != null && jsonSession != null) {
-			Logger.i(this, "Auto sign in...");
+			Logger.i(this, "Auto sign in using cached user...");
 			final User user = (User) Json.jsonToObject(jsonUser, Json.ObjectType.ENTITY);
 			user.session = (Session) Json.jsonToObject(jsonSession, Json.ObjectType.SESSION);
-			setCurrentUser(user, false);
+			setCurrentUser(user, false);  // Does not block
 			return;
 		}
 
 		/* Couldn't auto signin so fall back to anonymous */
 		final User anonymous = (User) DataController.getInstance().loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
-		setCurrentUser(anonymous, false);
+		setCurrentUser(anonymous, false);  // Does not block
+		Logger.i(this, "Auto sign in using anonymous user");
 	}
 
 	@NonNull

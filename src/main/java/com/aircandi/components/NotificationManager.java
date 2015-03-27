@@ -6,15 +6,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.Html;
 
+import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.events.NotificationReceivedEvent;
+import com.aircandi.events.RegisterGcmEvent;
 import com.aircandi.exceptions.GcmRegistrationIOException;
 import com.aircandi.objects.Install;
 import com.aircandi.objects.Notification;
@@ -23,6 +26,7 @@ import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Reporting;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.squareup.otto.Subscribe;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -31,18 +35,23 @@ import java.util.Map;
 @SuppressWarnings("ucd")
 public class NotificationManager {
 
-	public static android.app.NotificationManager mNotificationManager;
+	public static android.app.NotificationManager mNotificationService;
 
 	private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
 	private GoogleCloudMessaging mGcm;
 	private Install              mInstall;
 	private Uri                  mSoundUri;
-	private Integer                   mNewNotificationCount = 0;
-	private Map<String, Notification> mNotifications        = new HashMap<String, Notification>();
+	private Integer                   mNewNotificationCount   = 0;
+	private Map<String, Notification> mNotifications          = new HashMap<String, Notification>();
+	private Boolean                   mRegisteredWithGcm      = false;
+	private Boolean                   mRegisteredWithAircandi = false;
+	private Boolean                   mRegistered             = false;
+	private Boolean                   mRegistering            = false;
 
 	private NotificationManager() {
-		mNotificationManager = (android.app.NotificationManager) Patchr.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationService = (android.app.NotificationManager) Patchr.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
 		mSoundUri = Uri.parse("android.resource://" + Patchr.applicationContext.getPackageName() + "/" + R.raw.notification_activity);
+		Dispatcher.getInstance().register(this);
 	}
 
 	private static class NotificationManagerHolder {
@@ -56,6 +65,62 @@ public class NotificationManager {
 	/*--------------------------------------------------------------------------------------------
 	 * GCM
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void register(RegisterGcmEvent event) {
+
+		if (mRegistered || mRegistering) return;
+		mRegistering = true;
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncRegisterGcm");
+
+				ModelResult result = new ModelResult();
+
+				if (!mRegisteredWithGcm) {
+
+					int maxAttempts = 5;
+					int attempts = 1;
+
+					while (attempts <= maxAttempts) {
+						result.serviceResponse = NotificationManager.getInstance().registerInstallWithGCM();
+						if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+							Logger.i(this, "Install registered with Gcm");
+							break;
+						}
+						else {
+							Logger.w(this, "Install failed to register with Gcm, attempt = " + attempts);
+							try {
+								Thread.sleep(2000);
+							}
+							catch (InterruptedException exception) {
+								return result;
+							}
+						}
+						attempts++;
+					}
+
+					mRegisteredWithGcm = (result.serviceResponse.responseCode == ResponseCode.SUCCESS);
+				}
+
+				/* We register installs even if the user is anonymous. */
+				if (!mRegisteredWithAircandi) {
+					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+						result = NotificationManager.getInstance().registerInstallWithAircandi();
+					}
+					mRegisteredWithAircandi = (result.serviceResponse.responseCode == ResponseCode.SUCCESS);
+				}
+
+				mRegistered = (mRegisteredWithGcm && mRegisteredWithAircandi);
+				mRegistering = false;
+
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
 
 	public ServiceResponse registerInstallWithGCM() {
 		/*
@@ -236,7 +301,7 @@ public class NotificationManager {
 		}
 		else {
 			String tag = notification.getEventCategory().equals(Notification.EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
-			mNotificationManager.notify(tag, 0, builder.build());
+			mNotificationService.notify(tag, 0, builder.build());
 		}
 	}
 
@@ -258,7 +323,7 @@ public class NotificationManager {
 
 			builder.setStyle(style);
 			String tag = notification.getEventCategory().equals(Notification.EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
-			mNotificationManager.notify(tag, 0, builder.build());
+			mNotificationService.notify(tag, 0, builder.build());
 		}
 		catch (IOException e) {
 			Reporting.logException(e);
@@ -272,19 +337,18 @@ public class NotificationManager {
 				.bigText(Html.fromHtml(notification.description))
 				.setSummaryText(Html.fromHtml(notification.subtitle));
 
-
 		builder.setStyle(style);
 
 		String tag = notification.getEventCategory().equals(Notification.EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
-		mNotificationManager.notify(tag, 0, builder.build());
+		mNotificationService.notify(tag, 0, builder.build());
 	}
 
 	public void cancelNotification(String tag) {
-		mNotificationManager.cancel(tag, 0);
+		mNotificationService.cancel(tag, 0);
 	}
 
 	public void cancelAllNotifications() {
-		mNotificationManager.cancelAll();
+		mNotificationService.cancelAll();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -294,6 +358,10 @@ public class NotificationManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
+	public Boolean isGcmRegistered() {
+		return mRegistered;
+	}
 
 	public Install getInstall() {
 		return mInstall;
