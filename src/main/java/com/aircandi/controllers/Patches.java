@@ -36,10 +36,6 @@ public class Patches extends EntityControllerBase {
 		entity.schema = mSchema;
 		entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME); // Temporary
 		entity.privacy = Constants.PRIVACY_PRIVATE;
-		entity.category = new Category();
-		entity.category.id = Patch.PatchCategory.EVENT.toLowerCase(Locale.US);
-		entity.category.name = Patch.PatchCategory.EVENT;
-		entity.category.photo = new Photo("img_event.png", null, null, null, Photo.PhotoSource.assets_categories);
 
 		return entity;
 	}
