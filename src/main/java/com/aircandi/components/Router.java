@@ -573,8 +573,6 @@ public class Router {
 			return Route.DELETE;
 		else if (itemId == R.id.remove)
 			return Route.REMOVE;
-		else if (itemId == R.id.tune)
-			return Route.TUNE;
 		else if (itemId == R.id.navigate)
 			return Route.NAVIGATE;
 		else if (itemId == R.id.search)
