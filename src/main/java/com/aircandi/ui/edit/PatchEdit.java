@@ -2,20 +2,15 @@ package com.aircandi.ui.edit;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,21 +19,14 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DataController;
-import com.aircandi.components.FontManager;
 import com.aircandi.components.LocationManager;
-import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
-import com.aircandi.components.ProximityController;
-import com.aircandi.components.ProximityController.ScanReason;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.BeaconsLockedEvent;
 import com.aircandi.events.LocationUpdatedEvent;
 import com.aircandi.events.ProcessingCanceledEvent;
-import com.aircandi.events.QueryWifiScanReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
-import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Category;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -48,6 +36,7 @@ import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.ui.widgets.AirImageView;
+import com.aircandi.ui.widgets.AirProgressBar;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
@@ -65,33 +54,30 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
+import java.util.Locale;
 
 @SuppressLint("Registered")
 public class PatchEdit extends BaseEntityEdit {
 
-	private   Button       mButtonTune;
-	private   Button       mButtonUntune;
 	private   TextView     mButtonPrivacy;
 	private   TextView     mButtonPlace;
 	private   TextView     mLocationLabel;
 	protected AirImageView mPhotoViewPlace;
-	protected MapView      mMapView;
-	protected GoogleMap    mMap;
-	protected Marker       mMarker;
-	protected LatLng       mLocation;
-	protected Entity       mPlaceToLinkTo;
 
-	private List<Category> mCategories;
-	private Spinner        mSpinnerCategory;
-	private Integer        mSpinnerItemResId;
-	private Category       mOriginalCategory;
+	private RadioGroup  mButtonGroupCategory;
+	private RadioButton mButtonCategoryEvent;
+	private RadioButton mButtonCategoryGroup;
+	private RadioButton mButtonCategoryPlace;
+	private RadioButton mButtonCategoryProject;
 
-	private Boolean mTuned           = false;
-	private Boolean mUntuned         = false;
-	private Boolean mTuningInProcess = false;
-	private Boolean mUntuning        = false;
-	private Boolean mFirstTune       = true;
-	private Boolean mPlaceDirty      = false;
+	protected MapView        mMapView;
+	protected AirProgressBar mMapProgressBar;
+	protected GoogleMap      mMap;
+	protected Marker         mMarker;
+	protected LatLng         mLocation;
+	protected Entity         mPlaceToLinkTo;
+
+	private Boolean mPlaceDirty = false;
 
 	public void unpackIntent() {
 		super.unpackIntent();
@@ -109,15 +95,19 @@ public class PatchEdit extends BaseEntityEdit {
 		super.initialize(savedInstanceState);
 
 		mInsertProgressResId = R.string.progress_saving_patch;
-		mInsertedResId       = R.string.alert_inserted_patch;
+		mInsertedResId = R.string.alert_inserted_patch;
 
-		mButtonTune = (Button) findViewById(R.id.button_tune);
-		mButtonUntune = (Button) findViewById(R.id.button_untune);
+		mButtonCategoryEvent = (RadioButton) findViewById(R.id.radio_event);
+		mButtonCategoryGroup = (RadioButton) findViewById(R.id.radio_group);
+		mButtonCategoryPlace = (RadioButton) findViewById(R.id.radio_place);
+		mButtonCategoryProject = (RadioButton) findViewById(R.id.radio_project);
+		mButtonGroupCategory = (RadioGroup) findViewById(R.id.buttons_category);
+
 		mButtonPlace = (TextView) findViewById(R.id.button_place);
 		mButtonPrivacy = (TextView) findViewById(R.id.button_privacy);
 		mMapView = (MapView) findViewById(R.id.mapview);
+		mMapProgressBar = (AirProgressBar) findViewById(R.id.map_progress);
 		mPhotoViewPlace = (AirImageView) findViewById(R.id.place_photo);
-		mSpinnerCategory = (Spinner) findViewById(R.id.spinner_category);
 		mLocationLabel = (TextView) findViewById(R.id.location_label);
 
 		if (mMapView != null) {
@@ -150,6 +140,8 @@ public class PatchEdit extends BaseEntityEdit {
 
 								if (mLocation != null) {
 									mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLocation, 17f));
+									mMapView.setVisibility(View.VISIBLE);
+									mMapProgressBar.hide();
 									mMapView.invalidate();
 								}
 							}
@@ -158,16 +150,11 @@ public class PatchEdit extends BaseEntityEdit {
 				}
 			});
 		}
-
-		mCategories = DataController.getInstance().getCategories();
 	}
 
 	@Override
 	public void bind(BindingMode mode) {
 		super.bind(mode);
-
-		mOriginalCategory = ((Patch) mEntity).category;
-		initCategorySpinner();
 
 		Patch patch = (Patch) mEntity;
 
@@ -219,6 +206,26 @@ public class PatchEdit extends BaseEntityEdit {
 			mButtonPrivacy.setText(StringManager.getString(R.string.label_patch_edit_privacy) + ": " + value);
 		}
 
+		UI.setVisibility(findViewById(R.id.button_create), (mEditing ? View.GONE : View.VISIBLE));
+
+		/* Category */
+
+		if (mButtonGroupCategory != null && patch.category != null) {
+			Integer id = R.id.radio_event;
+			if (patch.category.id.equals(Patch.PatchCategory.GROUP.toLowerCase(Locale.US))) {
+				id = R.id.radio_group;
+			}
+			else if (patch.category.id.equals(Patch.PatchCategory.PLACE.toLowerCase(Locale.US))) {
+				id = R.id.radio_place;
+			}
+			else if (patch.category.id.equals(Patch.PatchCategory.PROJECT.toLowerCase(Locale.US))) {
+				id = R.id.radio_project;
+			}
+			mButtonGroupCategory.check(id);
+		}
+
+		/* Linked place */
+
 		if (mButtonPlace != null) {
 			UI.setVisibility(mPhotoViewPlace, View.GONE);
 
@@ -228,17 +235,6 @@ public class PatchEdit extends BaseEntityEdit {
 				mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": " + mPlaceToLinkTo.name);
 				UI.drawPhoto(mPhotoViewPlace, mPlaceToLinkTo.getPhoto());
 				UI.setVisibility(mPhotoViewPlace, View.VISIBLE);
-			}
-		}
-
-		/* Tuning buttons */
-		UI.setVisibility(findViewById(R.id.group_tune), View.GONE);
-		if (mEditing) {
-			UI.setVisibility(findViewById(R.id.group_tune), View.VISIBLE);
-			final Boolean hasActiveProximityLink = patch.hasActiveProximity();
-			if (hasActiveProximityLink) {
-				mFirstTune = false;
-				UI.setVisibility(mButtonUntune, View.VISIBLE);
 			}
 		}
 
@@ -330,87 +326,41 @@ public class PatchEdit extends BaseEntityEdit {
 	}
 
 	@Subscribe
-	public void onQueryWifiScanReceived(final QueryWifiScanReceivedEvent event) {
-
-		if (mTuningInProcess) {
-			runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					Logger.d(PatchEdit.this, "Query wifi scan received event: locking beacons");
-					if (event.wifiList != null) {
-						ProximityController.getInstance().lockBeacons();
-					}
-					else {
-					    /*
-					     * We fake that the tuning happened because it is simpler than enabling/disabling ui
-						 */
-						mUiController.getBusyController().hide(false);
-						if (mUntuning) {
-							mButtonUntune.setText(R.string.button_tuning_tuned);
-							mUntuned = true;
-						}
-						else {
-							mButtonTune.setText(R.string.button_tuning_tuned);
-							mTuned = true;
-						}
-						mButtonTune.forceLayout();
-						mButtonUntune.forceLayout();
-						mTuningInProcess = false;
-					}
-				}
-			});
-		}
-	}
-
-	@Subscribe
-	public void onBeaconsLocked(BeaconsLockedEvent event) {
-
-		if (mTuningInProcess) {
-			runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					Logger.d(PatchEdit.this, "Beacons locked event: tune entity");
-					tuneProximity();
-				}
-			});
-		}
-	}
-
-	@Subscribe
 	public void onCancelEvent(ProcessingCanceledEvent event) {
 		if (mTaskService != null) {
 			mTaskService.cancel(true);
 		}
 	}
 
-	public void onTuneButtonClick(View view) {
-		if (!mTuned) {
-			mUntuning = false;
-			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, PatchEdit.this);
-			if (NetworkManager.getInstance().isWifiEnabled()) {
-				mTuningInProcess = true;
-				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
-			}
-			else {
-				tuneProximity();
-			}
+	public void onCreateButtonClick(View view) {
+		onAccept();
+	}
+
+	public void onCategoryLabelClick(View view) {
+		String categoryId = (String) view.getTag();
+		if (categoryId.equals(Patch.PatchCategory.EVENT)) {
+			mButtonCategoryEvent.performClick();
+		}
+		else if (categoryId.equals(Patch.PatchCategory.GROUP)) {
+			mButtonCategoryGroup.performClick();
+		}
+		else if (categoryId.equals(Patch.PatchCategory.PLACE)) {
+			mButtonCategoryPlace.performClick();
+		}
+		else if (categoryId.equals(Patch.PatchCategory.PROJECT)) {
+			mButtonCategoryProject.performClick();
 		}
 	}
 
-	public void onUntuneButtonClick(View view) {
-		if (!mUntuned) {
-			mUntuning = true;
-			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, PatchEdit.this);
-			if (NetworkManager.getInstance().isWifiEnabled()) {
-				mTuningInProcess = true;
-				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
-			}
-			else {
-				tuneProximity();
-			}
-		}
+	public void onCategoryButtonClick(View view) {
+
+		String categoryId = (String) view.getTag();
+		Category category = new Category()
+				.setId(categoryId.toLowerCase(Locale.US))
+				.setName(categoryId);
+
+		mButtonGroupCategory.check(view.getId());
+		((Patch) mEntity).category = category;
 	}
 
 	public void onPlacePickerClick(View view) {
@@ -634,128 +584,6 @@ public class PatchEdit extends BaseEntityEdit {
 		return true;
 	}
 
-	private void initCategorySpinner() {
-
-		final Patch entity = (Patch) mEntity;
-		final List<String> categoryStrings = DataController.getInstance().getCategoriesAsStringArray();
-		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(PatchEdit.this
-				, R.layout.spinner_item
-				, categoryStrings);
-
-		adapter.setDropDownViewResource(R.layout.temp_listitem_dropdown_spinner);
-
-		mSpinnerCategory.setVisibility(View.VISIBLE);
-		mSpinnerCategory.setClickable(true);
-		mSpinnerCategory.setAdapter(adapter);
-
-		if (entity.category != null) {
-			int index = 0;
-			for (Category category : mCategories) {
-				if (category.id.equals(entity.category.id)) {
-					mSpinnerCategory.setSelection(index);
-					break;
-				}
-				index++;
-			}
-		}
-
-		mSpinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				if (position < mCategories.size()) {
-					if (entity.category == null || !entity.category.id.equals(mCategories.get(position).id)) {
-						mDirty = true;
-						entity.category = mCategories.get(position);
-					}
-				}
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {}
-		});
-
-		/* Encourages the user to select a patch type when they are creating a new patch. */
-		if (!mEditing && mEntity != null) {
-			mSpinnerCategory.performClick();
-		}
-	}
-
-	private void tuneProximity() {
-	    /*
-	     * If there are beacons:
-		 * 
-		 * - links to beacons created.
-		 * - link_proximity action logged.
-		 * 
-		 * If no beacons:
-		 * 
-		 * - no links are created.
-		 * - entity_proximity action logged.
-		 */
-		Integer beaconMax = !mUntuning ? Constants.PROXIMITY_BEACON_COVERAGE : Constants.PROXIMITY_BEACON_UNCOVERAGE;
-		final List<Beacon> beacons = ProximityController.getInstance().getStrongestBeacons(beaconMax);
-		final Beacon primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.Refreshing);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncTrackEntityProximity");
-
-				final ModelResult result = DataController.getInstance().trackEntity(mEntity
-						, beacons
-						, primaryBeacon
-						, mUntuning, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				mUiController.getBusyController().hide(false);
-
-				if (mTuned || mUntuned) {
-				    /* Undoing a tuning */
-					mButtonTune.setText(R.string.button_tuning_tune);
-					mButtonUntune.setText(R.string.button_tuning_untune);
-					mUntuned = false;
-					mTuned = false;
-					if (!mFirstTune) {
-						mButtonUntune.setVisibility(View.VISIBLE);
-					}
-					else {
-						mButtonUntune.setVisibility(View.GONE);
-					}
-				}
-				else {
-					/* Tuning or untuning */
-					if (mUntuning) {
-						mButtonUntune.setText(R.string.button_tuning_tuned);
-						mButtonTune.setText(R.string.button_tuning_undo);
-						mUntuned = true;
-					}
-					else {
-						mButtonTune.setText(R.string.button_tuning_tuned);
-						mButtonUntune.setText(R.string.button_tuning_undo);
-						mTuned = true;
-						if (mButtonUntune.getVisibility() != View.VISIBLE) {
-							mButtonUntune.setVisibility(View.VISIBLE);
-						}
-					}
-				}
-				mButtonTune.forceLayout();
-				mButtonUntune.forceLayout();
-				mTuningInProcess = false;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
 	private void clearProximity() {
 
 		new AsyncTask() {
@@ -823,6 +651,17 @@ public class PatchEdit extends BaseEntityEdit {
 			return false;
 		}
 
+		if (patch.category == null) {
+			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
+					, null
+					, StringManager.getString(R.string.error_missing_patch_category)
+					, null
+					, this
+					, android.R.string.ok
+					, null, null, null, null);
+			return false;
+		}
+
 		return true;
 	}
 
@@ -843,7 +682,7 @@ public class PatchEdit extends BaseEntityEdit {
 	@Override
 	public void onResume() {
 		if (!mEditing && LocationManager.getInstance().isLocationAccessEnabled()) {
-			LocationManager.getInstance().requestLocationUpdates(this);  // Location triggers sequence
+			LocationManager.getInstance().start(true);  // Location triggers sequence
 		}
 		super.onResume();
 	}
@@ -872,35 +711,4 @@ public class PatchEdit extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Misc
 	 *--------------------------------------------------------------------------------------------*/
-
-	private class CategoryAdapter extends ArrayAdapter {
-
-		private final List<String> mCategories;
-
-		private CategoryAdapter(Context context, int textViewResourceId, List categories) {
-			super(context, textViewResourceId, categories);
-			mCategories = categories;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-
-			final View view = super.getView(position, convertView, parent);
-			final TextView text = (TextView) view.findViewById(R.id.text1);
-			FontManager.getInstance().setTypefaceLight(text);
-			text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-
-			if (position == getCount()) {
-				text.setText("");
-				text.setHint(mCategories.get(getCount())); //"Hint to be displayed"
-			}
-
-			return view;
-		}
-
-		@Override
-		public int getCount() {
-			return super.getCount() - 1; // you dont display last item. It is used as hint.
-		}
-	}
 }
