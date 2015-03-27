@@ -193,6 +193,21 @@
 				</ViewAnimator>
 
 			</RelativeLayout>
+
+			<ImageView
+				android:id="@+id/button_tune"
+				style="@style/selectable_image"
+				android:layout_width="@dimen/button_height"
+				android:layout_height="@dimen/button_height"
+				android:layout_alignParentLeft="true"
+				android:layout_alignBottom="@+id/candi_view"
+				android:clickable="true"
+				android:onClick="onTuneButtonClick"
+				android:padding="10dp"
+				android:scaleType="fitCenter"
+				android:src="@drawable/ic_action_signal_dark"
+				android:visibility="gone"
+				tools:visibility="visible" />
 		</RelativeLayout>
 
 		<RelativeLayout

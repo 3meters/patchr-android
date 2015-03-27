@@ -228,6 +228,11 @@
 			android:label="@string/form_title_patch_edit"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
+			android:name=".ui.edit.ProximityEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_proximity_edit"
+			android:windowSoftInputMode="stateHidden" />
+		<activity
 			android:name=".ui.edit.FeedbackEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_feedback_edit"

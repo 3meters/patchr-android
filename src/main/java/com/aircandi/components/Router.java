@@ -31,6 +31,7 @@ import com.aircandi.ui.UserList;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.edit.FeedbackEdit;
 import com.aircandi.ui.edit.PasswordEdit;
+import com.aircandi.ui.edit.ProximityEdit;
 import com.aircandi.ui.edit.RegisterEdit;
 import com.aircandi.ui.edit.ReportEdit;
 import com.aircandi.ui.edit.ResetEdit;
@@ -113,6 +114,20 @@ public class Router {
 
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
 			controller.edit(activity, entity, extras, true);
+		}
+
+		else if (route == Route.TUNE) {
+
+			if (entity == null) {
+				throw new IllegalArgumentException("Dispatching tune requires entity");
+			}
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, ProximityEdit.class);
+			if (extras == null) {
+				extras = new Bundle();
+			}
+			intentBuilder.setEntityId(entity.id).addExtras(extras);
+			activity.startActivity(intentBuilder.create());
+			AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
 		}
 
 		else if (route == Route.ADD) {
@@ -558,6 +573,8 @@ public class Router {
 			return Route.DELETE;
 		else if (itemId == R.id.remove)
 			return Route.REMOVE;
+		else if (itemId == R.id.tune)
+			return Route.TUNE;
 		else if (itemId == R.id.navigate)
 			return Route.NAVIGATE;
 		else if (itemId == R.id.search)

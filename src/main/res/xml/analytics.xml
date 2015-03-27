@@ -50,6 +50,7 @@
 	<screenName name="com.aircandi.ui.edit.MessageEdit">MessageEdit</screenName>
 	<screenName name="com.aircandi.ui.edit.PasswordEdit">PasswordEdit</screenName>
 	<screenName name="com.aircandi.ui.edit.PatchEdit">PatchEdit</screenName>
+	<screenName name="com.aircandi.ui.edit.ProximityEdit">ProximityEdit</screenName>
 	<screenName name="com.aircandi.ui.edit.RegisterEdit">RegisterEdit</screenName>
 	<screenName name="com.aircandi.ui.edit.ReportEdit">ReportEdit</screenName>
 	<screenName name="com.aircandi.ui.edit.ResetEdit">ResetEdit</screenName>
