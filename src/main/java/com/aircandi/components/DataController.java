@@ -3,6 +3,7 @@ package com.aircandi.components;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -21,7 +22,6 @@ import com.aircandi.events.TrendRequestEvent;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Beacon;
 import com.aircandi.objects.CacheStamp;
-import com.aircandi.objects.Category;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Document;
 import com.aircandi.objects.Entity;
@@ -1155,6 +1155,7 @@ public class DataController {
 		/* Reproduce the service call effect locally */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, untuning ? "place_untune" : "place_tune", null, 0);
+			mActivityDate = DateTime.nowDate().getTime();   // So nearby fragment picks up the change
 
 			if (beacons != null) {
 				for (Beacon beacon : beacons) {
@@ -1601,44 +1602,11 @@ public class DataController {
 	 * Other fetch routines
 	 *--------------------------------------------------------------------------------------------*/
 
+	@NonNull
 	public CacheStamp getGlobalCacheStamp() {
 		CacheStamp cacheStamp = new CacheStamp(mActivityDate, null);
 		cacheStamp.source = CacheStamp.StampSource.ENTITY_MANAGER.name().toLowerCase(Locale.US);
 		return cacheStamp;
-	}
-
-	public List<Category> getCategories() {
-
-		/* Loads from local to initialize */
-		List<Category> categories = new ArrayList<Category>();
-
-		categories.add(new Category()
-				.setId(Patch.PatchCategory.EVENT.toLowerCase(Locale.US))
-				.setName(Patch.PatchCategory.EVENT)
-				.setPhoto(new Photo("img_event.png", null, null, null, Photo.PhotoSource.assets_categories)));
-		categories.add(new Category()
-				.setId(Patch.PatchCategory.GROUP.toLowerCase(Locale.US))
-				.setName(Patch.PatchCategory.GROUP)
-				.setPhoto(new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories)));
-		categories.add(new Category()
-				.setId(Patch.PatchCategory.PLACE.toLowerCase(Locale.US))
-				.setName(Patch.PatchCategory.PLACE)
-				.setPhoto(new Photo("img_place.png", null, null, null, Photo.PhotoSource.assets_categories)));
-		categories.add(new Category()
-				.setId(Patch.PatchCategory.PROJECT.toLowerCase(Locale.US))
-				.setName(Patch.PatchCategory.PROJECT)
-				.setPhoto(new Photo("img_group.png", null, null, null, Photo.PhotoSource.assets_categories)));
-
-		return categories;
-	}
-
-	public List<String> getCategoriesAsStringArray() {
-		List<Category> categories = getCategories();
-		final List<String> categoryStrings = new ArrayList<String>();
-		for (Category category : categories) {
-			categoryStrings.add(category.name);
-		}
-		return categoryStrings;
 	}
 
 	public Entity loadEntityFromResources(Integer entityResId, Json.ObjectType objectType) {
