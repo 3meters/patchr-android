@@ -49,7 +49,7 @@ public class SplashForm extends ActionBarActivity {
 			 */
 			if (AndroidManager.checkPlayServices(this)) {
 				if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-					showButtons(Buttons.ACCOUNT);
+					showButtons();
 				}
 				else {
 					startHomeActivity();
@@ -94,19 +94,8 @@ public class SplashForm extends ActionBarActivity {
 		Patchr.firstStartIntent = null;
 	}
 
-	private void showButtons(Buttons buttons) {
-		if (buttons == Buttons.NONE) {
-			findViewById(R.id.button_retry_holder).setVisibility(View.GONE);
-			findViewById(R.id.button_holder).setVisibility(View.GONE);
-		}
-		else if (buttons == Buttons.RETRY) {
-			findViewById(R.id.button_retry_holder).setVisibility(View.VISIBLE);
-			findViewById(R.id.button_holder).setVisibility(View.GONE);
-		}
-		else if (buttons == Buttons.ACCOUNT) {
-			findViewById(R.id.button_retry_holder).setVisibility(View.GONE);
-			findViewById(R.id.button_holder).setVisibility(View.VISIBLE);
-		}
+	private void showButtons() {
+		findViewById(R.id.button_holder).setVisibility(View.VISIBLE);
 	}
 
 	private void updateRequired() {
@@ -212,10 +201,4 @@ public class SplashForm extends ActionBarActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
-
-	private enum Buttons {
-		ACCOUNT,
-		RETRY,
-		NONE
-	}
 }

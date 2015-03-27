@@ -4,16 +4,13 @@ import android.support.annotation.NonNull;
 
 import com.aircandi.Constants;
 import com.aircandi.R;
-import com.aircandi.objects.Category;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Patch;
-import com.aircandi.objects.Photo;
 import com.aircandi.ui.PatchForm;
 import com.aircandi.ui.edit.PatchEdit;
 import com.aircandi.utilities.DateTime;
 
-import java.util.Locale;
 import java.util.Map;
 
 public class Patches extends EntityControllerBase {

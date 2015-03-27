@@ -503,11 +503,6 @@ public class PatchForm extends BaseEntityForm {
 		mLikeStatus = (linkLike == null) ? LikeStatus.NONE : LikeStatus.LIKE;
 
 		Boolean owner = (patch.ownerId != null && patch.ownerId.equals(Patchr.getInstance().getCurrentUser().id));
-		Boolean hasMessaged = (mEntity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
-		Boolean isPublic = (patch != null
-				&& patch.privacy != null
-				&& patch.privacy.equals(Constants.PRIVACY_PUBLIC)
-				&& patch.isVisibleToCurrentUser());
 
 		final View holderPlace = view.findViewById(R.id.holder_place);
 		final AirImageView placePhotoView = (AirImageView) view.findViewById(R.id.place_photo);
@@ -651,13 +646,12 @@ public class PatchForm extends BaseEntityForm {
 	public void drawAlertGroup(View view){
 		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
 
-		if (alertGroup != null) {
+		if (alertGroup != null && mEntity != null) {
 
 			Patch patch = (Patch) mEntity;
 			Boolean owner = (patch.ownerId != null && patch.ownerId.equals(Patchr.getInstance().getCurrentUser().id));
 			Boolean hasMessaged = (mEntity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
-			Boolean isPublic = (patch != null
-					&& patch.privacy != null
+			Boolean isPublic = (patch.privacy != null
 					&& patch.privacy.equals(Constants.PRIVACY_PUBLIC)
 					&& patch.isVisibleToCurrentUser());
 
