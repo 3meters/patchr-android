@@ -2,7 +2,6 @@ package com.aircandi.ui;
 
 import android.app.Activity;
 import android.content.res.Configuration;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,10 +28,9 @@ import com.aircandi.components.StringManager;
 import com.aircandi.events.BeaconsLockedEvent;
 import com.aircandi.events.EntitiesByProximityCompleteEvent;
 import com.aircandi.events.EntitiesUpdatedEvent;
-import com.aircandi.events.LocationTimeoutEvent;
 import com.aircandi.events.LocationUpdatedEvent;
 import com.aircandi.events.QueryWifiScanReceivedEvent;
-import com.aircandi.interfaces.IBusy.BusyAction;
+import com.aircandi.interfaces.IBusy;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Count;
@@ -65,7 +63,6 @@ public class NearbyListFragment extends EntityListFragment {
 	private String mDebugLocation = "--";
 
 	private Number mEntityModelBeaconDate;
-	private   Integer         mWifiStateLastSearch         = WifiManager.WIFI_STATE_UNKNOWN;
 	private   LocationHandler mLocationHandler             = new LocationHandler();
 	private   Boolean         mAtLeastOneLocationProcessed = false;
 	protected AtomicBoolean   mLocationDialogShot          = new AtomicBoolean(false);
@@ -81,21 +78,6 @@ public class NearbyListFragment extends EntityListFragment {
 			draw(view);
 		}
 		return view;
-	}
-
-	@Override
-	public void bind(BindingMode mode) {
-		/*
-		 * Only called in response to parent form receiving a push notification. Example
-		 * is a new patch was created nearby and we want to show it.
-		 */
-		CacheStamp cacheStamp = DataController.getInstance().getGlobalCacheStamp();
-		if (mCacheStamp != null && !mCacheStamp.equals(cacheStamp)) {
-			searchForPatches();
-		}
-		else {
-			mAdapter.notifyDataSetChanged();
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -116,7 +98,8 @@ public class NearbyListFragment extends EntityListFragment {
 
 				@Override
 				public void run() {
-					Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled() || LocationManager.getInstance().isLocationAccessEnabled());
+					Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled()
+							|| LocationManager.getInstance().isLocationAccessEnabled());
 					if (proximityCapable) {
 						mListController.getFloatingActionController().fadeIn();
 					}
@@ -178,12 +161,6 @@ public class NearbyListFragment extends EntityListFragment {
 				mTaskPatchesByProximity = new AsyncTask() {
 
 					@Override
-					protected void onPreExecute() {
-						mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
-						mListController.getMessageController().fadeOut();
-					}
-
-					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncGetPatchesForBeacons");
 						ServiceResponse serviceResponse = ProximityController.getInstance().getEntitiesByProximity();
@@ -234,7 +211,6 @@ public class NearbyListFragment extends EntityListFragment {
 						, NetworkManager.getInstance().getNetworkType());
 
 				Patchr.stopwatch1.stop("Search for places by beacon complete");
-				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
 				mCacheStamp = DataController.getInstance().getGlobalCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
@@ -347,35 +323,6 @@ public class NearbyListFragment extends EntityListFragment {
 	}
 
 	@Override
-	public void onRefresh() {
-		/*
-		 * Called by BaseFragment.onStart(), refresh action or swipe.
-		 * If wifi enabled then location processing uses the network which can be stuck because
-		 * of poor network conditions.
-		 */
-		Logger.d(this, "Starting refresh");
-		if (LocationManager.getInstance().isLocationAccessEnabled()) {
-			mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
-			LocationManager.getInstance().requestLocationUpdates(getActivity());  // Location update triggers searchForPatches
-		}
-		else {
-			if (!mLocationDialogShot.get()) {
-				Dialogs.locationServicesDisabled(getActivity(), mLocationDialogShot);
-			}
-			else {
-				UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
-			}
-			if (NetworkManager.getInstance().isWifiEnabled()) {
-				mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
-				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);         // Still try proximity
-			}
-			else {
-				onProcessingComplete(ResponseCode.SUCCESS);
-			}
-		}
-	}
-
-	@Override
 	public void onAdd(Bundle extras) {
 		/* Schema target is in the extras */
 		Patchr.router.route(getActivity(), Route.NEW, null, extras);
@@ -397,9 +344,65 @@ public class NearbyListFragment extends EntityListFragment {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void draw(View view) {
-		mAdapter.notifyDataSetChanged();
-		drawButtons(view);
+	@Override
+	public void bind(BindingMode mode) {
+		Logger.d(this, "Bind called: " + mode.name().toString());
+		/*
+		 * Global cache stamp gets dirtied by delete, insert, update patch entity.
+		 * Also when gcm notification is received and targetSchema == patch.
+		 */
+		Boolean stampDirty = !DataController.getInstance().getGlobalCacheStamp().equals(mCacheStamp);
+
+		/* Start location processing */
+		if (LocationManager.getInstance().isLocationAccessEnabled()) {
+			/*
+			 * If manual mode then first location available is used and not possibly
+			 * optimized out. This ensures that the location based patches will be rebuilt
+			 * even if you haven't moved an inch.
+			 */
+
+			if (mode == BindingMode.MANUAL || stampDirty) {
+				LocationManager.getInstance().stop();
+				LocationManager.getInstance().start(true);  // Location update triggers searchForPatches
+			}
+			else {
+				LocationManager.getInstance().start(false); // Location update triggers searchForPatches
+			}
+			return;
+		}
+		else {
+			/* Let them know that location services are disabled */
+			if (!mLocationDialogShot.get()) {
+				Dialogs.locationServicesDisabled(getActivity(), mLocationDialogShot);
+			}
+			else {
+				UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
+			}
+		}
+
+		/* Start a wifi scan */
+		if (NetworkManager.getInstance().isWifiEnabled()) {
+			searchForPatches(); // Chains from wifi to near (if location locked)
+			return;
+		}
+
+		/* Got nothing to work with so drop our pants */
+		draw(getView());
+		onProcessingComplete(ResponseCode.SUCCESS);
+	}
+
+	public void draw(final View view) {
+		Activity activity = getActivity();
+		if (activity != null && !activity.isFinishing()) {
+			activity.runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					mAdapter.notifyDataSetChanged();
+					drawButtons(view);
+				}
+			});
+		}
 	}
 
 	public void drawButtons(View view) {
@@ -449,9 +452,11 @@ public class NearbyListFragment extends EntityListFragment {
 
 			@Override
 			protected void onPreExecute() {
-				mListController.getBusyController().show(mEntities.size() == 0 ? BusyAction.Scanning_Empty : BusyAction.Scanning);
-				mListController.getMessageController().fadeOut();
 				Reporting.updateCrashKeys();
+				if (mEntities.size() == 0) {
+					mListController.getBusyController().show(IBusy.BusyAction.Scanning_Empty);
+					mListController.getMessageController().fadeOut();
+				}
 				if (Patchr.getInstance().getPrefEnableDev()) {
 					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
 				}
@@ -462,7 +467,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 				Thread.currentThread().setName("AsyncSearchForPatches");
 				Patchr.stopwatch1.start("beacon_search", "Search for places by beacon");
-				mWifiStateLastSearch = NetworkManager.getInstance().getWifiState();
+
 				DataController.getInstance().clearEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 				if (NetworkManager.getInstance().isWifiEnabled()) {
 					ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
@@ -479,24 +484,27 @@ public class NearbyListFragment extends EntityListFragment {
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
 
-	protected void start() {
-		super.start();
+	@Override
+	public void onStart() {
+		super.onStart();
+
 		Dispatcher.getInstance().register(mLocationHandler);
-		onRefresh(); // Starts location updates if location services enabled.
 
 		/* Start foreground activity recognition - stop proximity manager from background recognition */
 		try {
 			ProximityController.getInstance().unregister();
 		}
-		catch (Exception ignore) {}
+		catch (Exception ignore) { /* ignnore */}
 	}
 
-	protected void stop() {
-		super.stop();
+	@Override
+	public void onStop() {
+		super.onStop();
+
 		try {
 			Dispatcher.getInstance().unregister(mLocationHandler);
 		}
-		catch (Exception ignore) {}
+		catch (Exception ignore) {/* ignore */}
 		/*
 		 * Parent could be restarting because of something like a theme change so
 		 * don't need to stop location updates or start activity monitoring.
@@ -506,7 +514,7 @@ public class NearbyListFragment extends EntityListFragment {
 			/* Stop location updates */
 			LocationManager.getInstance().stop();
 
-			/* Stop listening for wifi scan */
+			/* Stop listening for wifi scan in case we have on in process */
 			ProximityController.getInstance().stop();
 
 		    /* Start background activity recognition with proximity manager as the listener. */
@@ -529,10 +537,8 @@ public class NearbyListFragment extends EntityListFragment {
 			 */
 			if (isResumed()) {
 				if (event.location != null) {
-
 					LocationManager.getInstance().setLocationLocked(event.location);
 					final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
-
 					if (location != null) {
 						searchForPatches();
 					}
@@ -540,18 +546,6 @@ public class NearbyListFragment extends EntityListFragment {
 						onProcessingComplete(ResponseCode.SUCCESS);
 					}
 				}
-			}
-		}
-
-		@Subscribe
-		@SuppressWarnings({"ucd"})
-		public void onBurstTimeout(final LocationTimeoutEvent event) {
-
-			onProcessingComplete(ResponseCode.SUCCESS);
-
-			/* We only show toast if we timeout without getting any location fix */
-			if (LocationManager.getInstance().getLocationLocked() == null) {
-				UI.showToastNotification(StringManager.getString(R.string.error_location_poor), Toast.LENGTH_SHORT);
 			}
 		}
 	}
