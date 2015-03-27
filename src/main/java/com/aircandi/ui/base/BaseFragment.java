@@ -177,14 +177,6 @@ public abstract class BaseFragment extends Fragment implements IForm {
 	@Override
 	public void share() {}
 
-	protected void start() {
-		Dispatcher.getInstance().register(this);
-	}
-
-	protected void stop() {
-		Dispatcher.getInstance().unregister(this);
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
@@ -262,7 +254,7 @@ public abstract class BaseFragment extends Fragment implements IForm {
 		 * Called everytime the fragment is started or restarted.
 		 */
 		Logger.d(this, "Fragment start");
-		start();
+		Dispatcher.getInstance().register(this);
 		super.onStart();
 	}
 
@@ -296,7 +288,7 @@ public abstract class BaseFragment extends Fragment implements IForm {
 		 * - Navigating to another activity.
 		 */
 		Logger.d(this, "Fragment stop");
-		stop();
+		Dispatcher.getInstance().unregister(this);
 		super.onStop();
 	}
 

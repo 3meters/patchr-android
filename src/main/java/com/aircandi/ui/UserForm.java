@@ -59,6 +59,11 @@ public class UserForm extends BaseEntityForm {
 				.setListItemResId(R.layout.temp_listitem_message)
 				.setHeaderViewResId(R.layout.widget_list_header_user);
 
+
+		if (!currentUser) {
+			((EntityListFragment) mCurrentFragment).setSelfBind(false);
+		}
+
 		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mCurrentFragment).commit();
 	}
 

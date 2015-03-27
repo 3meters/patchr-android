@@ -20,7 +20,7 @@ import com.aircandi.ui.components.SimpleAnimationListener;
 public class AirProgressBar extends ProgressBar {
 
 	private static final int MIN_SHOW_TIME = 500; // ms
-	private static final int MIN_DELAY     = 200; // ms
+	private static final int MIN_DELAY     = 1000; // ms
 
 	private long    mStartTime  = -1;
 	private boolean mPostedHide = false;
@@ -108,12 +108,20 @@ public class AirProgressBar extends ProgressBar {
 	 * during that time, hide() is called, the view is never made visible.
 	 */
 	public void show() {
+		show(MIN_DELAY);
+	}
+
+	/**
+	 * Show the progress view after waiting for a minimum delay. If
+	 * during that time, hide() is called, the view is never made visible.
+	 */
+	public void show(int minDelay) {
 		// Reset the start time.
 		mStartTime = -1;
 		mDismissed = false;
 		removeCallbacks(mDelayedHide);
 		if (!mPostedShow) {
-			postDelayed(mDelayedShow, MIN_DELAY);
+			postDelayed(mDelayedShow, minDelay);
 			mPostedShow = true;
 		}
 	}

@@ -129,6 +129,7 @@
 		android:autoLink="web|email"
 		android:clickable="true"
 		android:linksClickable="true"
+		android:visibility="gone"
 		android:paddingLeft="@dimen/form_body_padding"
 		android:paddingRight="@dimen/form_body_padding"
 		android:textAppearance="@style/text_appearance_medium"
@@ -196,7 +197,7 @@
 				android:alpha="0.5"
 				android:padding="2dp"
 				android:scaleType="fitCenter"
-				android:src="@drawable/ic_img_like_light" />
+				android:src="?attr/iconLike" />
 
 			<ProgressBar
 				android:id="@+id/button_progress"

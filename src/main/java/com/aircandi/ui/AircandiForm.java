@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MapManager;
@@ -25,6 +26,7 @@ import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.components.DataController.ActionType;
+import com.aircandi.events.RegisterGcmEvent;
 import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -220,16 +222,10 @@ public class AircandiForm extends BaseActivity {
 	@Subscribe
 	@SuppressWarnings("ucd")
 	public void onNotificationReceived(final NotificationReceivedEvent event) {
-
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
-					((EntityListFragment) mCurrentFragment).bind(BindingMode.AUTO);
-				}
-				updateNotificationIndicator(false);
-			}
-		});
+		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
+			((EntityListFragment) mCurrentFragment).bind(BindingMode.AUTO);
+		}
+		updateNotificationIndicator(false);
 	}
 
 	@SuppressWarnings("ucd")
@@ -417,17 +413,17 @@ public class AircandiForm extends BaseActivity {
 				((MapListFragment) fragment).setZoomLevel(MapManager.ZOOM_SCALE_COUNTY);
 			}
 
-			ListController ls = ((EntityListFragment) mCurrentFragment).getListController();
-			if (ls != null) {
-				ls.getFloatingActionController().fadeOut();
+			ListController controller = ((EntityListFragment) mCurrentFragment).getListController();
+			if (controller != null) {
+				controller.getFloatingActionController().fadeOut();
 			}
 		}
 
 		if (fragment instanceof EntityListFragment) {
 			setActivityTitle(StringManager.getString(((EntityListFragment) fragment).getTitleResId()));
-			ListController ls = ((EntityListFragment) fragment).getListController();
-			if (ls != null) {
-				ls.getFloatingActionController().fadeIn();
+			ListController controller = ((EntityListFragment) fragment).getListController();
+			if (controller != null) {
+				controller.getFloatingActionController().fadeIn();
 			}
 		}
 
@@ -469,22 +465,26 @@ public class AircandiForm extends BaseActivity {
 		}
 	}
 
-	public void updateNotificationIndicator(Boolean ifDrawerVisible) {
+	public void updateNotificationIndicator(final Boolean ifDrawerVisible) {
 
 		Logger.v(this, "updateNotificationIndicator for menus");
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Boolean showingNotifications = (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(Gravity.END));
+				Integer newNotificationCount = NotificationManager.getInstance().getNewNotificationCount();
 
-		Boolean showingNotifications = (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(Gravity.END));
-		Integer newNotificationCount = NotificationManager.getInstance().getNewNotificationCount();
-
-		if ((ifDrawerVisible || !showingNotifications) && mNotificationsBadgeGroup != null) {
-			if (newNotificationCount > 0) {
-				mNotificationsBadgeCount.setText(String.valueOf(newNotificationCount));
-				mNotificationsBadgeGroup.setVisibility(View.VISIBLE);
+				if ((ifDrawerVisible || !showingNotifications) && mNotificationsBadgeGroup != null) {
+					if (newNotificationCount > 0) {
+						mNotificationsBadgeCount.setText(String.valueOf(newNotificationCount));
+						mNotificationsBadgeGroup.setVisibility(View.VISIBLE);
+					}
+					else {
+						mNotificationsBadgeGroup.setVisibility(View.GONE);
+					}
+				}
 			}
-			else {
-				mNotificationsBadgeGroup.setVisibility(View.GONE);
-			}
-		}
+		});
 	}
 
 	protected void updateDrawer() {
@@ -642,6 +642,9 @@ public class AircandiForm extends BaseActivity {
 		if (mUserView != null) {
 			mUserView.databind(Patchr.getInstance().getCurrentUser());
 		}
+
+		/* Ensure Gcm is registered. Does nothing if already registered. */
+		Dispatcher.getInstance().post(new RegisterGcmEvent());
 	}
 
 	@Override

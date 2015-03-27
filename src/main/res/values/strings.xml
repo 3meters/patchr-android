@@ -21,6 +21,7 @@
 	<string name="form_title_signin_edit" tools:ignore="UnusedResources">Sign in</string>
 	<string name="form_title_register_edit" tools:ignore="UnusedResources">Join Patchr</string>
 	<string name="form_title_reset_edit" tools:ignore="UnusedResources">Password reset</string>
+	<string name="form_title_proximity_edit" tools:ignore="UnusedResources">Tune patch proximity</string>
 
 	<string name="form_title_privacy_builder" tools:ignore="UnusedResources">Privacy setting</string>
 	<string name="form_title_category_builder" tools:ignore="UnusedResources">Category</string>
@@ -54,6 +55,7 @@
 	<string name="menu_item_send">Send</string>
 	<string name="menu_item_invite">Invite</string>
 	<string name="menu_item_map">Map location</string>
+	<string name="menu_item_tune">Tune</string>
 	<string name="menu_item_feedback">Feedback</string>
 	<string name="menu_item_delete">Delete</string>
 	<string name="menu_item_remove">Remove</string>
@@ -261,6 +263,7 @@
 	<string name="error_missing_message">Enter a message.</string>
 	<string name="error_missing_report_option">Choose a reason.</string>
 	<string name="error_missing_patch_name">Enter a name for the patch.</string>
+	<string name="error_missing_patch_category">Select a patch type.</string>
 
 	<!-- Errors: connectivity -->
 
@@ -323,6 +326,7 @@
 	<string name="button_legal">Open source licenses</string>
 	<string name="button_forgot_password">Forgot password?</string>
 	<string name="button_clear_place">Clear linked place</string>
+	<string name="button_create_patch">Create patch</string>
 
 	<string name="button_tuning_tune">I\'m here</string>
 	<string name="button_tuning_untune">I\'m not here</string>
@@ -376,6 +380,7 @@
 	<string name="label_location_provider_user">Location: You set this location</string>
 	<string name="label_location_provider_place">Location: Linked place is here</string>
 	<string name="label_location_provider_unknown">Location: Last location set</string>
+	<string name="label_patch_type">Patch type</string>
 
 	<string name="label_about_install">Install</string>
 	<string name="label_about_title">About [@string/name_app]</string>
@@ -493,6 +498,12 @@
 	<string name="label_tuning_tune_no_name">If you are currently at the location for this patch, help make Patchr better by tuning the patch for faster discovery.</string>
 	<string name="label_message_share_title">Share message to&#8230;</string>
 	<string name="label_private_description" tools:ignore="UnusedResources">Users can only see posted messages if you approve their watch request.</string>
+	<string name="label_privacy">Public</string>
+
+	<string name="label_patch_type_event">Event</string>
+	<string name="label_patch_type_group">Group</string>
+	<string name="label_patch_type_place">Place</string>
+	<string name="label_patch_type_project">Project</string>
 
 	<string name="label_trends_count_popular">Watchers</string>
 	<string name="label_trends_count_active">Messages</string>

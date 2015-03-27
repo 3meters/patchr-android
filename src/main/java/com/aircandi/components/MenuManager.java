@@ -15,6 +15,7 @@ import com.aircandi.objects.Patch;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseEdit;
+import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.utilities.Type;
 
 public class MenuManager {
@@ -100,7 +101,9 @@ public class MenuManager {
 		/* Editing */
 
 		if (activityName.contains("PatchEdit")) {
-			menuInflater.inflate(R.menu.menu_save, menu);
+			if (((BaseEntityEdit)activity).isEditing()) {
+				menuInflater.inflate(R.menu.menu_save, menu);
+			}
 			menuInflater.inflate(R.menu.menu_delete_patch, menu);
 			return true;
 		}

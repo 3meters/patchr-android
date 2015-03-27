@@ -284,7 +284,7 @@ public class EntityListFragment extends BaseFragment
 			mListController.getMessageController().showMessage(false);
 		}
 
-		if (!mBound && !(getActivity() instanceof MessageForm)) {
+		if (!mBound) {
 			mListController.getBusyController().show(IBusy.BusyAction.Refreshing_Empty);
 		}
 	}
@@ -468,9 +468,7 @@ public class EntityListFragment extends BaseFragment
 	@Override
 	public void onRefresh() {
 		/*
-		 * Called by swipe refresh.
-		 * Super class calls bind(BindingMode.Manual). The swipe refresh is shut
-		 * down and other busy ui takes over.
+		 * Called by refresh action or swipe refresh.
 		 */
 		saveListPosition();
 		bind(BindingMode.MANUAL);
