@@ -48,7 +48,7 @@ public class AndroidManager {
 		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(Patchr.applicationContext);
 		if (status != ConnectionResult.SUCCESS) {
 			if (GooglePlayServicesUtil.isUserRecoverableError(status)) {
-				showPlayServicesErrorDialog(status, activity);
+				showPlayServicesErrorDialog(status, activity, null);
 			}
 			else {
 				Logger.w(activity, "This device is not supported by google play services");
@@ -60,18 +60,19 @@ public class AndroidManager {
 		return true;
 	}
 
-	public static void showPlayServicesErrorDialog(final int status, final Activity activity) {
+	public static void showPlayServicesErrorDialog(final int status, final Activity activity, final DialogInterface.OnDismissListener dismissListener) {
 
 		final Activity activityTemp = (activity != null) ? activity : Patchr.getInstance().getCurrentActivity();
 		if (activityTemp != null) {
 
 			activityTemp.runOnUiThread(new Runnable() {
 
+				Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status
+						, activityTemp
+						, PLAY_SERVICES_RESOLUTION_REQUEST);
+
 				@Override
 				public void run() {
-					Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status
-							, activityTemp
-							, PLAY_SERVICES_RESOLUTION_REQUEST);
 					dialog.setCancelable(true);
 					dialog.setCanceledOnTouchOutside(false);
 					dialog.setOnCancelListener(new OnCancelListener() {
@@ -87,6 +88,9 @@ public class AndroidManager {
 							}
 						}
 					});
+					if (dismissListener != null) {
+						dialog.setOnDismissListener(dismissListener);
+					}
 					dialog.show();
 				}
 			});
@@ -359,10 +363,10 @@ public class AndroidManager {
 		return null;
 	}
 
-	public boolean isAviaryInstalled(){
-		Intent intent = new Intent( "aviary.intent.action.EDIT" );
-		intent.setType( "image/*" );
-		List<ResolveInfo> list = Patchr.packageManager.queryIntentActivities( intent, PackageManager.MATCH_DEFAULT_ONLY );
+	public boolean isAviaryInstalled() {
+		Intent intent = new Intent("aviary.intent.action.EDIT");
+		intent.setType("image/*");
+		List<ResolveInfo> list = Patchr.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 		return list.size() > 0;
 	}
 

@@ -3,6 +3,7 @@ package com.aircandi.components;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
@@ -112,7 +113,15 @@ public class ActivityRecognitionManager implements
 			}
 			else {
 			/* Display a dialog to the user with the error. */
-				AndroidManager.showPlayServicesErrorDialog(result.getErrorCode(), Patchr.getInstance().getCurrentActivity());
+				AndroidManager.showPlayServicesErrorDialog(result.getErrorCode()
+						, Patchr.getInstance().getCurrentActivity()
+						, new DialogInterface.OnDismissListener() {
+
+					@Override
+					public void onDismiss(DialogInterface dialog) {
+						mResolvingError = false;
+					}
+				});
 				mResolvingError = true;
 			}
 		}
