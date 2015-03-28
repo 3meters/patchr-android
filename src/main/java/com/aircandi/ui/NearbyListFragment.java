@@ -408,7 +408,6 @@ public class NearbyListFragment extends EntityListFragment {
 	public void drawButtons(View view) {
 
 		User currentUser = Patchr.getInstance().getCurrentUser();
-
 		Boolean anonymous = currentUser.isAnonymous();
 		Count patched = Patchr.getInstance().getCurrentUser().getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
 
@@ -441,6 +440,15 @@ public class NearbyListFragment extends EntityListFragment {
 				}
 			});
 			UI.setVisibility(alertGroup, View.VISIBLE);
+		}
+
+		Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled()
+				|| LocationManager.getInstance().isLocationAccessEnabled());
+		if (proximityCapable) {
+			mListController.getFloatingActionController().fadeIn();
+		}
+		else {
+			mListController.getFloatingActionController().fadeOut();
 		}
 	}
 
