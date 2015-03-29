@@ -140,12 +140,14 @@ public class LocationManager implements
 
 		if (location == null) return;
 
-		if (!mFirstAccept || !mFirstAccepted) {
+		if (!mFirstAccept || mFirstAccepted) {
 
 			/* Discard first location update if close to last known location */
 			if (mLocationLastKnown != null && mLocationLastKnown != location) {
-				if (mLocationLastKnown.distanceTo(location) <= Constants.DIST_TWENTY_FIVE_METERS) {
-					Logger.d(this, "Location skipped because close to last known: " + location.toString());
+				Float distance = mLocationLastKnown.distanceTo(location);
+				Logger.v(this, "Location distance from last known: " + distance);
+				if (distance <= Constants.DIST_TWENTY_FIVE_METERS) {
+					Logger.v(this, "Location skipped because close to last known: " + location.toString());
 					mLocationLastKnown = null;
 					return;
 				}
@@ -153,8 +155,10 @@ public class LocationManager implements
 
 			/* Discard if location if close to last locked location - could be last known */
 			if (mLocationLocked != null) {
-				if (mLocationLocked.distanceTo(location) <= Constants.DIST_TWENTY_FIVE_METERS) {
-					Logger.d(this, "Location skipped because close to last locked: " + location.toString());
+				Float distance = mLocationLocked.distanceTo(location);
+				Logger.v(this, "Location distance from last locked: " + distance);
+				if (distance <= Constants.DIST_TWENTY_FIVE_METERS) {
+					Logger.v(this, "Location skipped because close to last locked: " + location.toString());
 					mLocationLastKnown = null;
 					return;
 				}
@@ -166,6 +170,7 @@ public class LocationManager implements
 		if (mLocationLastKnown != null && mLocationLastKnown == location) {
 			Logger.d(this, "Using last known: " + location.toString());
 		}
+
 		if (Patchr.stopwatch2.isStarted()) {
 			Patchr.stopwatch2.segmentTime("Lock location: update: accuracy = " + (location.hasAccuracy() ? location.getAccuracy() : "none"));
 		}
