@@ -173,7 +173,7 @@ public final class Errors {
 							ErrorResponse errorResponse = new ErrorResponse(ResponseType.DIALOG
 									, StringManager.getString(R.string.error_session_expired)
 									, StringManager.getString(R.string.error_session_expired_title));
-							errorResponse.splash = true;
+							errorResponse.signout = true;
 							return errorResponse;
 						}
 
@@ -185,7 +185,7 @@ public final class Errors {
 									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signin_password_incorrect));
 							}
 							ErrorResponse errorResponse = new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_session_invalid));
-							errorResponse.splash = true;
+							errorResponse.signout = true;
 							return errorResponse;
 						}
 
