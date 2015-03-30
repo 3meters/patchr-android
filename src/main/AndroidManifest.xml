@@ -10,10 +10,10 @@
 		android:required="true" />
 
 	<permission
-		android:name="com.aircandi.permission.MAPS_RECEIVE"
+		android:name="com.aircandi.catalina.permission.MAPS_RECEIVE"
 		android:protectionLevel="signature" />
 	<permission
-		android:name="com.aircandi.permission.C2D_MESSAGE"
+		android:name="com.aircandi.catalina.permission.C2D_MESSAGE"
 		android:protectionLevel="signature" />
 
 	<uses-permission android:name="android.permission.INTERNET" />
@@ -31,7 +31,7 @@
 
 	<!-- Support play services -->
 
-	<uses-permission android:name="com.aircandi.permission.MAPS_RECEIVE" />
+	<uses-permission android:name="com.aircandi.catalina.permission.MAPS_RECEIVE" />
 	<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 	<uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
@@ -40,7 +40,7 @@
 	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
 	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-	<uses-permission android:name="com.aircandi.permission.C2D_MESSAGE" />
+	<uses-permission android:name="com.aircandi.catalina.permission.C2D_MESSAGE" />
 
 	<!-- To support Notifications and Aviary -->
 
@@ -58,9 +58,10 @@
 		android:name=".Patchr"
 		android:hardwareAccelerated="true"
 		android:icon="@drawable/ic_launcher"
+		android:allowBackup="false"
 		android:label="@string/name_app"
 		android:theme="@style/aircandi_theme_snow"
-		tools:replace="android:label">
+		tools:replace="label, allowBackup">
 
 		<!-- Service keys -->
 		<meta-data

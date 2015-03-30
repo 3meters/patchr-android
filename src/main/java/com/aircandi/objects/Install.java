@@ -26,7 +26,7 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 	@SerializedName(name = "_user")
 	public String       userId;
 	@Expose
-	public String       registrationId;
+	public String       parseInstallId;
 	@Expose
 	public String       installId;
 	@Expose
@@ -38,6 +38,10 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 	@Expose
 	public String       deviceName;
 	@Expose
+	public String       deviceType;
+	@Expose
+	public String       deviceVersionName;
+	@Expose
 	public List<Beacon> beacons;
 	@Expose
 	public Number       beaconsDate;
@@ -48,9 +52,9 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 
 	public Install() {}
 
-	public Install(@NonNull String userId, @NonNull String registrationId, @NonNull String installId) {
+	public Install(@NonNull String userId, @NonNull String parseInstallId, @NonNull String installId) {
 		this.userId = userId;
-		this.registrationId = registrationId;
+		this.parseInstallId = parseInstallId;
 		this.installId = installId;
 	}
 
@@ -58,12 +62,14 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 
 		install = (Install) ServiceBase.setPropertiesFromMap(install, map, nameMapping);
 		install.userId = (String) (nameMapping ? map.get("_user") : map.get("userId"));
-		install.registrationId = (String) map.get("registrationId");
+		install.parseInstallId = (String) map.get("parseInstallId");
 		install.installId = (String) map.get("installId");
 		install.clientVersionCode = (Number) map.get("clientVersionCode");
 		install.clientVersionName = (String) map.get("clientVersionName");
 		install.clientPackageName = (String) map.get("clientPackageName");
 		install.deviceName = (String) map.get("deviceName");
+		install.deviceType = (String) map.get("deviceType");
+		install.deviceVersionName = (String) map.get("deviceVersionName");
 		install.beaconsDate = (Number) map.get("beaconsDate");
 		install.locationDate = (Number) map.get("locationDate");
 

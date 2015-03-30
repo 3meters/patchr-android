@@ -28,6 +28,8 @@
 
 	<!-- Identifiers -->
 
+	<string name="parse_app_id" tools:ignore="UnusedResources">EonZJ4FXEADijslgqXCkg37sOGpB7AB9lDYxoHtz</string>
+	<string name="parse_client_key" tools:ignore="UnusedResources">5QRFlRQ3j7gkxyJ2cBYbHTK98WRQhoHCnHdpEKSD</string>
 	<string name="id_gcm_sender" tools:ignore="UnusedResources">657673071389</string>
 	<string name="id_package" tools:ignore="UnusedResources">com.aircandi.catalina</string>
 	<string name="id_referrer" tools:ignore="UnusedResources">com.aircandi.catalina</string>

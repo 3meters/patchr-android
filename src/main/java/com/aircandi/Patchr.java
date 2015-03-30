@@ -57,6 +57,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.TagManager;
+import com.parse.Parse;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -200,6 +201,12 @@ public class Patchr extends MultiDexApplication {
 			analytics.getLogger().setLogLevel(com.google.android.gms.analytics.Logger.LogLevel.VERBOSE);
 			mTracker = analytics.newTracker(R.xml.analytics);
 		}
+
+		/* Turn on parse */
+		Parse.initialize(this
+				, StringManager.getString(R.string.parse_app_id)        // application id
+				, StringManager.getString(R.string.parse_client_key));  // client key
+		Parse.setLogLevel(Constants.LOG_LEVEL);
 
 		/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
 		snapshotPreferences();
