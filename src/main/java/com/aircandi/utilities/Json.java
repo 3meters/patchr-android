@@ -119,7 +119,12 @@ public class Json {
 				}
 			};
 
-			if (serviceDataWrapper == Json.ServiceDataWrapper.FALSE) {
+			if (objectType == ObjectType.OBJECT) {
+
+				Map<String, Object> rootMap = (LinkedHashMap<String, Object>) parser.parse(json, containerFactory);
+				return rootMap;
+			}
+			else if (serviceDataWrapper == ServiceDataWrapper.FALSE) {
 
 				Map<String, Object> rootMap = (LinkedHashMap<String, Object>) parser.parse(json, containerFactory);
 				maps = new ArrayList<LinkedHashMap<String, Object>>();
@@ -401,6 +406,7 @@ public class Json {
 		AIR_MARKER,
 		SERVICE_ACTIVITY,
 		SERVICE_MESSAGE,
-		COUNT
+		COUNT,
+		OBJECT
 	}
 }
