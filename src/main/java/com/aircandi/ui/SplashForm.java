@@ -14,6 +14,7 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AndroidManager;
 import com.aircandi.components.DataController;
+import com.aircandi.components.LocationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.objects.Route;
@@ -36,6 +37,8 @@ public class SplashForm extends ActionBarActivity {
 
 		/* Always reset the entity cache */
 		DataController.getInstance().clearStore();
+		LocationManager.getInstance().stop();
+		LocationManager.getInstance().setLocationLocked(null);
 
 		/* Restart notification tracking */
 		NotificationManager.getInstance().setNewNotificationCount(0);
