@@ -197,6 +197,7 @@ public class LocationManager implements
 		if (mRequestingLocationUpdates) return;
 		mRequestingLocationUpdates = true;
 		mFirstAccept = firstAccept;
+		mFirstAccepted = false;
 		Reporting.updateCrashKeys();
 
 		/* Location request */
@@ -244,7 +245,7 @@ public class LocationManager implements
 
 	public void stop() {
 		Logger.d(this, "Stopping location updates");
-		if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+		if (mGoogleApiClient != null && mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
 			LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
 			mRequestingLocationUpdates = false;
 		}
