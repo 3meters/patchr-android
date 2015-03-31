@@ -470,8 +470,13 @@ public class EntityListFragment extends BaseFragment
 		/*
 		 * Called by refresh action or swipe refresh.
 		 */
-		saveListPosition();
-		bind(BindingMode.MANUAL);
+		if (mSelfBind && getActivity() != null && !getActivity().isFinishing()) {
+			saveListPosition();
+			bind(BindingMode.MANUAL);
+		}
+		else {
+			mListController.getBusyController().hide(false);
+		}
 	}
 
 	@Override
