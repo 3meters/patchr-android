@@ -55,6 +55,8 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		if (getActivity() == null || getActivity().isFinishing()) return null;
+
 		View root = super.onCreateView(inflater, container, savedInstanceState);
 
 		/* Configure dividers to the thickness we want */
