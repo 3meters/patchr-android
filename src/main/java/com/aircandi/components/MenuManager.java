@@ -13,7 +13,6 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Route;
-import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseEdit;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.utilities.Type;
@@ -27,7 +26,6 @@ public class MenuManager {
 
 		String activityName = activity.getClass().getSimpleName();
 		MenuInflater menuInflater = activity.getMenuInflater();
-		Entity entity = ((BaseActivity) activity).getEntity();
 
 		if (activityName.equals("AircandiForm")) {
 			/*
