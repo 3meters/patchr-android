@@ -35,7 +35,7 @@
 			android:onClick="onEditButtonClick"
 			android:padding="10dp"
 			android:scaleType="fitCenter"
-			android:src="?attr/iconActionEdit"
+			android:src="?attr/iconDrawerCreate"
 			android:visibility="gone"
 			tools:visibility="visible" />
 

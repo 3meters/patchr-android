@@ -726,6 +726,11 @@ public abstract class BaseActivity extends ActionBarActivity
 			menuItem.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
 		}
 
+		menuItem = menu.findItem(R.id.signout);
+		if (menuItem != null) {
+			menuItem.setVisible(MenuManager.showAction(Route.EDIT, mEntity, mForId));
+		}
+
 		menuItem = menu.findItem(R.id.navigate);
 		if (menuItem != null && Patchr.getInstance().getCurrentUser() != null) {
 			menuItem.setVisible(mEntity.getLocation() != null);

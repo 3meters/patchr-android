@@ -51,10 +51,8 @@ public class MenuManager {
 		}
 		else if (activityName.equals("UserForm")) {
 			menuInflater.inflate(R.menu.menu_refresh, menu);
-			if (canUserEdit(entity)) {
-				menuInflater.inflate(R.menu.menu_edit_user, menu);
-				menuInflater.inflate(R.menu.menu_sign_out, menu);
-			}
+			menuInflater.inflate(R.menu.menu_edit_user, menu);
+			menuInflater.inflate(R.menu.menu_sign_out, menu);
 			menuInflater.inflate(R.menu.menu_report, menu);
 			return true;
 		}
@@ -101,7 +99,7 @@ public class MenuManager {
 		/* Editing */
 
 		if (activityName.contains("PatchEdit")) {
-			if (((BaseEntityEdit)activity).isEditing()) {
+			if (((BaseEntityEdit) activity).isEditing()) {
 				menuInflater.inflate(R.menu.menu_save, menu);
 			}
 			menuInflater.inflate(R.menu.menu_delete_patch, menu);
