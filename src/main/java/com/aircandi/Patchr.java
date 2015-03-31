@@ -58,6 +58,7 @@ import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.TagManager;
 import com.parse.Parse;
+import com.parse.ParseInstallation;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -207,6 +208,7 @@ public class Patchr extends MultiDexApplication {
 				, StringManager.getString(R.string.parse_app_id)        // application id
 				, StringManager.getString(R.string.parse_client_key));  // client key
 		Parse.setLogLevel(Constants.LOG_LEVEL);
+		ParseInstallation.getCurrentInstallation().saveInBackground();
 
 		/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
 		snapshotPreferences();
@@ -319,13 +321,13 @@ public class Patchr extends MultiDexApplication {
 			Logger.i(this, "Auto sign in using cached user...");
 			final User user = (User) Json.jsonToObject(jsonUser, Json.ObjectType.ENTITY);
 			user.session = (Session) Json.jsonToObject(jsonSession, Json.ObjectType.SESSION);
-			setCurrentUser(user, false);  // Does not block
+			setCurrentUser(user, false);  // Does not block because of 'false', also updates persisted user
 			return;
 		}
 
 		/* Couldn't auto signin so fall back to anonymous */
 		final User anonymous = (User) DataController.getInstance().loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
-		setCurrentUser(anonymous, false);  // Does not block
+		setCurrentUser(anonymous, false);  // Does not block because of 'false'
 		Logger.i(this, "Auto sign in using anonymous user");
 	}
 

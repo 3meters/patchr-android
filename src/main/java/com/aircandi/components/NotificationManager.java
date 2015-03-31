@@ -47,7 +47,10 @@ public class NotificationManager {
 	private NotificationManager() {
 		mNotificationService = (android.app.NotificationManager) Patchr.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
 		mSoundUri = Uri.parse("android.resource://" + Patchr.applicationContext.getPackageName() + "/" + R.raw.notification_activity);
-		Dispatcher.getInstance().register(this);
+		try {
+			Dispatcher.getInstance().register(this);
+		}
+		catch (IllegalArgumentException ignore) { /* ignore */ }
 	}
 
 	private static class NotificationManagerHolder {
@@ -89,11 +92,14 @@ public class NotificationManager {
 	}
 
 	public ModelResult registerInstallWithAircandi() {
-
+		/*
+		 * Always called on background thread.
+		 */
 		Logger.i(this, "Registering install with Aircandi service");
-
-		ParseInstallation parseInstallation = ParseInstallation.getCurrentInstallation();
-		String parseInstallId = parseInstallation.getInstallationId();
+		String parseInstallId = ParseInstallation.getCurrentInstallation().getInstallationId();
+		if (parseInstallId == null) {
+			throw new IllegalStateException("parseInstallId cannot be null");
+		}
 
 		Install install = new Install(Patchr.getInstance().getCurrentUser().id
 				, parseInstallId
