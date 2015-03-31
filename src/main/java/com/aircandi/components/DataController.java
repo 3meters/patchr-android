@@ -69,7 +69,10 @@ public class DataController {
 	private static final EntityStore ENTITY_STORE = new EntityStore();
 
 	private DataController() {
-		Dispatcher.getInstance().register(this);
+		try {
+			Dispatcher.getInstance().register(this);
+		}
+		catch (IllegalArgumentException ignore) { /* ignore */ }
 	}
 
 	private static class DataControllerHolder {

@@ -31,7 +31,10 @@ public class S3 {
 
 	private S3() {
 		mManager = new TransferManager(Patchr.awsCredentials);
-		Dispatcher.getInstance().register(this);
+		try {
+			Dispatcher.getInstance().register(this);
+		}
+		catch (IllegalArgumentException ignore) { /* ignore */ }
 	}
 
 	private static class S3Holder {

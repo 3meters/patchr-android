@@ -365,7 +365,10 @@ public class ProximityController {
 	}
 
 	public void register() {
-		Dispatcher.getInstance().register(this);
+		try {
+			Dispatcher.getInstance().register(this);
+		}
+		catch (IllegalArgumentException ignore) { /* ignore */ }
 	}
 
 	public void unregister() {

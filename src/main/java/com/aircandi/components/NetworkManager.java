@@ -102,7 +102,10 @@ public class NetworkManager {
 
 	private NetworkManager() {
 		mOkClient = new OkHttp();
-		Dispatcher.getInstance().register(this);
+		try {
+			Dispatcher.getInstance().register(this);
+		}
+		catch (IllegalArgumentException ignore) { /* ignore */ }
 	}
 
 	private static class NetworkManagerHolder {
