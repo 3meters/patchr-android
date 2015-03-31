@@ -33,7 +33,6 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.objects.User;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.components.SimpleTextWatcher;
 import com.aircandi.ui.widgets.AirImageView;
@@ -723,27 +722,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 					/* Don't allow cancel if we made it this far */
 					mUiController.getBusyController().hide(true);
-
-					if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-						/* We are editing the current user */
-						if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER) &&
-								Patchr.getInstance().getCurrentUser().id.equals(mEntity.id)) {
-
-							/* We also need to update the user that has been persisted for AUTO sign in. */
-							final String jsonUser = Json.objectToJson(mEntity);
-							Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-							Patchr.settingsEditor.commit();
-
-							/*
-							 * Update the global user but retain the session info. We don't need
-							 * to call activateCurrentUser because we don't need to refetch link data
-							 * or change notification registration.
-							 */
-							((User) mEntity).session = Patchr.getInstance().getCurrentUser().session;
-							Patchr.getInstance().setCurrentUser((User) mEntity, false);
-						}
-					}
 				}
 				return result.serviceResponse;
 			}
@@ -766,7 +744,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				final ServiceResponse serviceResponse = (ServiceResponse) response;
 
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					if (afterUpdate()) {
+					if (afterUpdate()) {  // Primary current use is for patch to cleanup proximity links if needed
 						UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
 						setResultCode(Activity.RESULT_OK);
 						finish();
