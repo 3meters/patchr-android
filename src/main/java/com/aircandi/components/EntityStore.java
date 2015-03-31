@@ -100,18 +100,12 @@ public class EntityStore {
 					for (Entity entity : loadedEntities) {
 						if (entity.id.equals(currentUserId)) {
 							/*
-							 * We need to update the user that has been persisted for AUTO sign in.
-							 */
-							final String jsonUser = Json.objectToJson(entity);
-							Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-							Patchr.settingsEditor.commit();
-							/*
 							 * Update the global user but retain the session info. We don't need
 							 * to call activateCurrentUser because we don't need to refetch link data
 							 * or change notification registration.
 							 */
 							((User) entity).session = Patchr.getInstance().getCurrentUser().session;
-							Patchr.getInstance().setCurrentUser((User) entity, false);
+							Patchr.getInstance().setCurrentUser((User) entity, false);  // Updates persisted user too
 						}
 					}
 				}
