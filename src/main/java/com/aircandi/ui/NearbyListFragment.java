@@ -124,6 +124,7 @@ public class NearbyListFragment extends EntityListFragment {
 	public void onQueryWifiScanReceived(final QueryWifiScanReceivedEvent event) {
 
 		if (getActivity() == null || getActivity().isFinishing()) return;
+		if (!isResumed()) return;  // So we don't process a query scan while not visible
 
 		Reporting.updateCrashKeys();
 		getActivity().runOnUiThread(new Runnable() {
@@ -521,9 +522,6 @@ public class NearbyListFragment extends EntityListFragment {
 
 			/* Stop location updates */
 			LocationManager.getInstance().stop();
-
-			/* Stop listening for wifi scan in case we have on in process */
-			ProximityController.getInstance().stop();
 
 		    /* Start background activity recognition with proximity manager as the listener. */
 			ProximityController.getInstance().setLastBeaconInstallUpdate(null);
