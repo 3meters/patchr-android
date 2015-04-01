@@ -10,7 +10,6 @@ import android.widget.TextView;
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.MenuManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataNoopEvent;
@@ -191,12 +190,6 @@ public class UserForm extends BaseEntityForm {
 
 		mButtonWatching = (TextView) findViewById(R.id.button_watching);
 		mButtonCreated = (TextView) findViewById(R.id.button_created);
-		mButtonEdit = findViewById(R.id.button_edit);
-
-		UI.setVisibility(mButtonEdit, View.GONE);
-		if (MenuManager.canUserEdit(mEntity)) {
-			UI.setVisibility(mButtonEdit, View.VISIBLE);
-		}
 
 		Count watching = mEntity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
 		Count created = mEntity.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);

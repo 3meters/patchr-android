@@ -135,7 +135,6 @@ public class MenuManager {
 			return true;
 		}
 		else if (activityName.equals("RegisterEdit")) {
-			menuInflater.inflate(R.menu.menu_accept, menu);
 			return true;
 		}
 		else if (activityName.contains("Builder")) {

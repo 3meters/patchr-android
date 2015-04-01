@@ -23,22 +23,6 @@
 			android:background="?attr/backgroundCard"
 			custom:layoutRef="@layout/widget_candi_view_user" />
 
-		<ImageView
-			android:id="@+id/button_edit"
-			style="@style/selectable_image"
-			android:layout_width="48dp"
-			android:layout_height="48dp"
-			android:layout_alignBottom="@+id/candi_view"
-			android:layout_alignParentRight="true"
-			android:layout_marginRight="4dp"
-			android:clickable="true"
-			android:onClick="onEditButtonClick"
-			android:padding="10dp"
-			android:scaleType="fitCenter"
-			android:src="?attr/iconDrawerCreate"
-			android:visibility="gone"
-			tools:visibility="visible" />
-
 	</RelativeLayout>
 
 	<LinearLayout

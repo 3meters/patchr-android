@@ -522,7 +522,7 @@
 	<string name="label_message_new_patch">Make a patch.</string>
 	<string name="label_message_new_to_place">Make a patch for: %1$s.</string>
 
-	<string name="label_register_message">You\'ll love [@string/name_app]! Join to post messages, create patches and share with your friends.</string>
+	<string name="label_register_message">You\'ll love Patchr! Join to post messages, create patches and share with your friends.</string>
 	<string name="label_search">Patchr</string>
 	<string name="label_share_to_hint">type to search users</string>
 	<string name="label_share_completion_hint">Pick users to share with.</string>

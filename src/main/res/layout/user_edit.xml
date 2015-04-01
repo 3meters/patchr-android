@@ -14,7 +14,6 @@
 		layout="@layout/include_toolbar_actionbar" />
 
 	<com.aircandi.ui.widgets.AirScrollView
-		style="@style/form_content_layout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_horizontal"
@@ -23,9 +22,9 @@
 		<!-- Content -->
 
 		<RelativeLayout
-			style="@style/form_content_layout"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+			android:layout_height="wrap_content"
+			android:padding="16dp">
 
 			<!-- User picture -->
 
@@ -34,7 +33,7 @@
 				style="@style/selectable_image"
 				android:layout_width="@dimen/image_extra_large"
 				android:layout_height="@dimen/image_extra_large"
-				android:layout_marginRight="8dp"
+				android:layout_marginBottom="8dp"
 				android:background="?attr/backgroundPlaceholder"
 				android:clickable="true"
 				android:minWidth="@dimen/image_extra_large"
