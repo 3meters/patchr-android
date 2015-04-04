@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.aircandi.components.ActivityRecognitionManager;
 import com.aircandi.components.ContainerManager;
 import com.aircandi.components.DataController;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
@@ -35,6 +36,7 @@ import com.aircandi.controllers.Notifications;
 import com.aircandi.controllers.Patches;
 import com.aircandi.controllers.Places;
 import com.aircandi.controllers.Users;
+import com.aircandi.events.RegisterInstallEvent;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkSpec;
@@ -234,6 +236,10 @@ public class Patchr extends MultiDexApplication {
 
 		/* Start activity recognition */
 		ActivityRecognitionManager.getInstance().initialize(applicationContext);
+
+		/* Ensure install is registered. Does nothing if already registered. */
+		Dispatcher.getInstance().post(new RegisterInstallEvent());
+
 
 		firstStartApp = false;
 	}

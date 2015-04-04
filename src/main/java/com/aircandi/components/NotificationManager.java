@@ -5,25 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.Html;
 
-import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
-import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.events.NotificationReceivedEvent;
-import com.aircandi.events.RegisterGcmEvent;
-import com.aircandi.objects.Install;
 import com.aircandi.objects.Notification;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.Reporting;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.parse.ParseInstallation;
-import com.squareup.otto.Subscribe;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -35,14 +26,9 @@ public class NotificationManager {
 	public static android.app.NotificationManager mNotificationService;
 
 	private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
-	private GoogleCloudMessaging mGcm;
-	private Install              mInstall;
-	private Uri                  mSoundUri;
-	private Integer                   mNewNotificationCount   = 0;
-	private Map<String, Notification> mNotifications          = new HashMap<String, Notification>();
-	private Boolean                   mRegisteredWithAircandi = false;
-	private Boolean                   mRegistered             = false;
-	private Boolean                   mRegistering            = false;
+	private Uri mSoundUri;
+	private Integer                   mNewNotificationCount = 0;
+	private Map<String, Notification> mNotifications        = new HashMap<String, Notification>();
 
 	private NotificationManager() {
 		mNotificationService = (android.app.NotificationManager) Patchr.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -59,66 +45,6 @@ public class NotificationManager {
 
 	public static NotificationManager getInstance() {
 		return NotificationManagerHolder.instance;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * GCM
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Subscribe
-	public void register(RegisterGcmEvent event) {
-
-		if (mRegistered || mRegistering) return;
-		mRegistering = true;
-
-		new AsyncTask() {
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncRegisterInstall");
-
-				/* We register installs even if the user is anonymous. */
-				if (!mRegisteredWithAircandi) {
-					ModelResult result = NotificationManager.getInstance().registerInstallWithAircandi();
-					mRegisteredWithAircandi = (result.serviceResponse.responseCode == ResponseCode.SUCCESS);
-				}
-
-				mRegistered = mRegisteredWithAircandi;
-				mRegistering = false;
-
-				return null;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	public ModelResult registerInstallWithAircandi() {
-		/*
-		 * Always called on background thread.
-		 */
-		Logger.i(this, "Registering install with Aircandi service");
-		String parseInstallId = ParseInstallation.getCurrentInstallation().getInstallationId();
-		if (parseInstallId == null) {
-			throw new IllegalStateException("parseInstallId cannot be null");
-		}
-
-		Install install = new Install(Patchr.getInstance().getCurrentUser().id
-				, parseInstallId
-				, Patchr.getInstance().getinstallId());
-
-		install.parseInstallId = parseInstallId;
-		install.clientVersionName = Patchr.getVersionName(Patchr.applicationContext, AircandiForm.class);
-		install.clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
-		install.clientPackageName = Patchr.applicationContext.getPackageName();
-		install.deviceName = AndroidManager.getInstance().getDeviceName();
-		install.deviceType = "android";
-		install.deviceVersionName = Build.VERSION.RELEASE;
-
-		ModelResult result = DataController.getInstance().registerInstall(install, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Logger.i(this, "Install successfully registered with Aircandi service");
-		}
-		return result;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -263,18 +189,6 @@ public class NotificationManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-
-	public Boolean isGcmRegistered() {
-		return mRegistered;
-	}
-
-	public Install getInstall() {
-		return mInstall;
-	}
-
-	public void setInstall(Install device) {
-		mInstall = device;
-	}
 
 	public Integer getNewNotificationCount() {
 		return mNewNotificationCount;

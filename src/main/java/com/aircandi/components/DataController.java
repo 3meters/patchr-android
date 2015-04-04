@@ -2,6 +2,7 @@ package com.aircandi.components;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
@@ -17,6 +18,7 @@ import com.aircandi.events.EntityRequestEvent;
 import com.aircandi.events.LinkDeleteEvent;
 import com.aircandi.events.LinkInsertEvent;
 import com.aircandi.events.NotificationsRequestEvent;
+import com.aircandi.events.RegisterInstallEvent;
 import com.aircandi.events.ShareCheckEvent;
 import com.aircandi.events.TrendRequestEvent;
 import com.aircandi.objects.AirLocation;
@@ -43,10 +45,12 @@ import com.aircandi.service.RequestType;
 import com.aircandi.service.ResponseFormat;
 import com.aircandi.service.ServiceRequest;
 import com.aircandi.service.ServiceResponse;
+import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.UI;
+import com.parse.ParseInstallation;
 import com.squareup.otto.Subscribe;
 
 import java.io.BufferedReader;
@@ -66,7 +70,10 @@ import java.util.Locale;
 public class DataController {
 
 	private Number mActivityDate;                                           // Monitored by nearby
-	private static final EntityStore ENTITY_STORE = new EntityStore();
+	private              Boolean     mRegisteredWithAircandi = false;
+	private              Boolean     mRegistered             = false;
+	private              Boolean     mRegistering            = false;
+	private static final EntityStore ENTITY_STORE            = new EntityStore();
 
 	private DataController() {
 		try {
@@ -376,6 +383,32 @@ public class DataController {
 					     .setTag(event.tag);
 					Dispatcher.getInstance().post(error);
 				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onRegisterInstall(RegisterInstallEvent event) {
+
+		if (mRegistered || mRegistering) return;
+		mRegistering = true;
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncRegisterInstall");
+
+				/* We register installs even if the user is anonymous. */
+				if (!mRegisteredWithAircandi) {
+					ModelResult result = registerInstall();
+					mRegisteredWithAircandi = (result.serviceResponse.responseCode == ResponseCode.SUCCESS);
+				}
+
+				mRegistered = mRegisteredWithAircandi;
+				mRegistering = false;
+
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
@@ -1418,7 +1451,25 @@ public class DataController {
 	 * Other service tasks
 	 *--------------------------------------------------------------------------------------------*/
 
-	public ModelResult registerInstall(Install install, Object tag) {
+	public ModelResult registerInstall() {
+
+		Logger.i(this, "Registering install with Aircandi service");
+		String parseInstallId = ParseInstallation.getCurrentInstallation().getInstallationId();
+		if (parseInstallId == null) {
+			throw new IllegalStateException("parseInstallId cannot be null");
+		}
+
+		Install install = new Install(Patchr.getInstance().getCurrentUser().id
+				, parseInstallId
+				, Patchr.getInstance().getinstallId());
+
+		install.parseInstallId = parseInstallId;
+		install.clientVersionName = Patchr.getVersionName(Patchr.applicationContext, AircandiForm.class);
+		install.clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
+		install.clientPackageName = Patchr.applicationContext.getPackageName();
+		install.deviceName = AndroidManager.getInstance().getDeviceName();
+		install.deviceType = "android";
+		install.deviceVersionName = Build.VERSION.RELEASE;
 
 		ModelResult result = new ModelResult();
 		final Bundle parameters = new Bundle();
@@ -1428,7 +1479,7 @@ public class DataController {
 				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "registerInstall")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
-				.setTag(tag)
+				.setTag(NetworkManager.SERVICE_GROUP_TAG_DEFAULT)
 				.setResponseFormat(ResponseFormat.JSON);
 
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
@@ -1436,6 +1487,11 @@ public class DataController {
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			Logger.i(this, "Install successfully registered with Aircandi service");
+		}
+
 		return result;
 	}
 

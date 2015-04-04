@@ -26,7 +26,7 @@ import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.components.DataController.ActionType;
-import com.aircandi.events.RegisterGcmEvent;
+import com.aircandi.events.RegisterInstallEvent;
 import com.aircandi.objects.CacheStamp;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
@@ -643,8 +643,8 @@ public class AircandiForm extends BaseActivity {
 			mUserView.databind(Patchr.getInstance().getCurrentUser());
 		}
 
-		/* Ensure Gcm is registered. Does nothing if already registered. */
-		Dispatcher.getInstance().post(new RegisterGcmEvent());
+		/* Ensure install is registered. Does nothing if already registered. */
+		Dispatcher.getInstance().post(new RegisterInstallEvent());
 	}
 
 	@Override
