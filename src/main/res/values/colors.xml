@@ -51,7 +51,7 @@
 	<!-- Borders dark -->
 
 	<color name="stroke_placeholder_dark">@color/gray_90_pcnt</color>
-	<color name="stroke_button_dark">@color/gray_70_pcnt</color>
+	<color name="stroke_button_dark">@color/gray_50_pcnt</color>
 	<color name="stroke_button_share_dark">@color/transparent</color>
 	<color name="stroke_button_round_dark">@color/gray_70_pcnt</color>
 
