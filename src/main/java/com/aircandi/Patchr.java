@@ -237,9 +237,8 @@ public class Patchr extends MultiDexApplication {
 		/* Start activity recognition */
 		ActivityRecognitionManager.getInstance().initialize(applicationContext);
 
-		/* Ensure install is registered. Does nothing if already registered. */
-		Dispatcher.getInstance().post(new RegisterInstallEvent());
-
+		/* Ensure install is registered. */
+		Dispatcher.getInstance().post(new RegisterInstallEvent(false));
 
 		firstStartApp = false;
 	}

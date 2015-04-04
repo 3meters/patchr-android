@@ -70,7 +70,6 @@ import java.util.Locale;
 public class DataController {
 
 	private Number mActivityDate;                                           // Monitored by nearby
-	private              Boolean     mRegisteredWithAircandi = false;
 	private              Boolean     mRegistered             = false;
 	private              Boolean     mRegistering            = false;
 	private static final EntityStore ENTITY_STORE            = new EntityStore();
@@ -391,7 +390,7 @@ public class DataController {
 	@Subscribe
 	public void onRegisterInstall(RegisterInstallEvent event) {
 
-		if (mRegistered || mRegistering) return;
+		if (mRegistering || (!event.force && mRegistered)) return;
 		mRegistering = true;
 
 		new AsyncTask() {
@@ -401,12 +400,8 @@ public class DataController {
 				Thread.currentThread().setName("AsyncRegisterInstall");
 
 				/* We register installs even if the user is anonymous. */
-				if (!mRegisteredWithAircandi) {
-					ModelResult result = registerInstall();
-					mRegisteredWithAircandi = (result.serviceResponse.responseCode == ResponseCode.SUCCESS);
-				}
-
-				mRegistered = mRegisteredWithAircandi;
+				ModelResult result = registerInstall();
+				mRegistered = (result.serviceResponse.responseCode == ResponseCode.SUCCESS);
 				mRegistering = false;
 
 				return null;

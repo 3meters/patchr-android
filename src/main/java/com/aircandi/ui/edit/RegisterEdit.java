@@ -19,14 +19,15 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DataController;
+import com.aircandi.components.Dispatcher;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.components.FontManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
-import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.RegisterInstallEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
@@ -255,7 +256,7 @@ public class RegisterEdit extends BaseEntityEdit {
 					 */
 					final User user = (User) result.data;
 					if (Patchr.getInstance().setCurrentUser(user, true)) {
-						result = NotificationManager.getInstance().registerInstallWithAircandi();
+						Dispatcher.getInstance().post(new RegisterInstallEvent(true)); // Updates the user id currently associated with the install.
 					}
 				}
 				return result;

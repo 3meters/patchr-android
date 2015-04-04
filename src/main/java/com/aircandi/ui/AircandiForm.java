@@ -644,7 +644,7 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		/* Ensure install is registered. Does nothing if already registered. */
-		Dispatcher.getInstance().post(new RegisterInstallEvent());
+		Dispatcher.getInstance().post(new RegisterInstallEvent(false));
 	}
 
 	@Override
