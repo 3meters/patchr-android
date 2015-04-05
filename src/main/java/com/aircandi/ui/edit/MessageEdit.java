@@ -57,10 +57,6 @@ import java.util.List;
 
 public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView.TokenListener, Target {
 
-	private String mReplyPlaceId;                        // Passed in for replies
-	private String mReplyRootId;
-	private String mReplyToId;
-	private String mReplyToName;
 	private String mMessage;
 	private String mShareId;
 	private String mShareSchema = Constants.SCHEMA_ENTITY_PICTURE;
@@ -92,10 +88,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				mMessageType = MessageType.ROOT;
 			}
 			mMessage = extras.getString(Constants.EXTRA_MESSAGE);
-			mReplyPlaceId = extras.getString(Constants.EXTRA_PATCH_ID);
-			mReplyRootId = extras.getString(Constants.EXTRA_MESSAGE_ROOT_ID);
-			mReplyToId = extras.getString(Constants.EXTRA_MESSAGE_REPLY_TO_ID);
-			mReplyToName = extras.getString(Constants.EXTRA_MESSAGE_REPLY_TO_NAME);
 			mSuggestScope = SuggestScope.values()[extras.getInt(Constants.EXTRA_SEARCH_SCOPE, SuggestScope.PLACES.ordinal())];
 			mToMode = ToMode.values()[extras.getInt(Constants.EXTRA_TO_MODE, ToMode.SINGLE.ordinal())];
 			mToEditable = extras.getBoolean(Constants.EXTRA_TO_EDITABLE, true);
@@ -215,10 +207,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			if (Patchr.getInstance().getCurrentUser() != null) {
 				mEntity.creator = Patchr.getInstance().getCurrentUser();
 				mEntity.creatorId = Patchr.getInstance().getCurrentUser().id;
-			}
-
-			if (mReplyToId != null) {
-				((Message) mEntity).replyToId = mReplyToId;
 			}
 
 			/*
@@ -411,8 +399,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		UI.setVisibility(mAnimatorTo, View.VISIBLE);
 
 		/* We don't allow the patch to be changed when editing */
-		if ((mMessageType != null && mMessageType.equals(MessageType.REPLY))
-				|| mEditing) {
+		if (mEditing) {
 			UI.setVisibility(mAnimatorTo, View.GONE);
 		}
 		else {
@@ -474,12 +461,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			else if (mMessageType.equals(MessageType.SHARE)) {
 				setActivityTitle("Share");
 			}
-			else if (mReplyToName != null) {
-				setActivityTitle("Reply to " + mReplyToName);
-			}
-			else {
-				setActivityTitle("Reply");
-			}
 		}
 	}
 
@@ -522,27 +503,18 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 		if (isDirty() || mMessageType.equals(MessageType.SHARE)) {
 			if (validate()) { // validate() also gathers
-
-				if (mMessageType != null && mMessageType.equals(MessageType.REPLY)) {
-					insert();
+				if (mEditing) {
+					update();
 				}
 				else {
-					if (mEditing) {
-						update();
-					}
-					else {
-						insert();
-					}
+					insert();
 				}
-			}
-			else {
-				mProcessing = false;
 			}
 		}
 		else {
-			mProcessing = false;
 			onCancel(false);
 		}
+		mProcessing = false;
 	}
 
 	@Subscribe
@@ -665,7 +637,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		gather();
 		Message message = (Message) mEntity;
 
-		if (!mEditing && mTos.size() == 0 && !mMessageType.equals(MessageType.REPLY)) {
+		if (!mEditing && mTos.size() == 0) {
 
 			int messageResId = 0;
 			if (mMessageType.equals(MessageType.ROOT)) {
@@ -708,15 +680,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			Message message = (Message) mEntity;
 			message.type = mMessageType;
 
-			if (mMessageType.equals(MessageType.REPLY)) {
-				if (mReplyPlaceId != null) {
-					message.patchId = mReplyPlaceId;
-				}
-				if (mReplyRootId != null) {
-					message.rootId = mReplyRootId;
-				}
-			}
-			else if (mMessageType.equals(MessageType.ROOT)) {
+			if (mMessageType.equals(MessageType.ROOT)) {
 				if (mTos.size() > 0) {
 					message.patchId = mTos.get(0).id;
 				}
@@ -732,16 +696,9 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	@Override
 	protected void beforeInsert(Entity entity, List<Link> links) {
 	    /*
-	     * We link replies to the places they are associated with. This give us the option
-		 * to thread, flatten or do some combo. Called on background thread.
+	     * Called on background thread.
 		 */
-		if (mMessageType.equals(MessageType.REPLY)) {
-			if (mParentId != null) {
-				links.add(new Link(mParentId, getLinkType(), mEntity.schema));
-			}
-			links.add(new Link(mEntity.patchId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH));
-		}
-		else if (mMessageType.equals(MessageType.ROOT)) {
+		if (mMessageType.equals(MessageType.ROOT)) {
 			for (Entity to : mTos) {
 				links.add(new Link(to.id, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH));
 			}
@@ -770,18 +727,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		return true;
 	}
 
-	@Override
-	public void setResultCode(int resultCode) {
-		if (mMessageType.equals(MessageType.REPLY)) {
-			Intent intent = new Intent();
-			intent.putExtra(Constants.EXTRA_ENTITY_CHILD_ID, mEntity.id);
-			super.setResultCode(resultCode, intent);
-		}
-		else {
-			super.setResultCode(resultCode);
-		}
-	}
-
     /*--------------------------------------------------------------------------------------------
      * Properties
      *--------------------------------------------------------------------------------------------*/
@@ -790,7 +735,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	protected int getLayoutId() {
 		return R.layout.message_edit;
 	}
-
 
     /*--------------------------------------------------------------------------------------------
      * Classes

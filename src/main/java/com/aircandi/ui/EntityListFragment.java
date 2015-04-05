@@ -20,7 +20,6 @@ import android.widget.ViewSwitcher;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
-import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DataController;
@@ -59,7 +58,6 @@ import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -119,9 +117,8 @@ public class EntityListFragment extends BaseFragment
 	protected Boolean mBound    = false;
 
 	@NonNull
-	protected List<Entity>           mEntities          = new ArrayList<Entity>();
-	protected Map                    mLinkWhere         = Maps.asMap("enabled", true);
-	protected Map<String, Highlight> mHighlightEntities = new HashMap<String, Highlight>();
+	protected List<Entity> mEntities  = new ArrayList<Entity>();
+	protected Map          mLinkWhere = Maps.asMap("enabled", true);
 	protected ListAdapter mAdapter;
 
 	@Override
@@ -813,10 +810,6 @@ public class EntityListFragment extends BaseFragment
 		return mListController;
 	}
 
-	public Map<String, Highlight> getHighlightEntities() {
-		return mHighlightEntities;
-	}
-
 	public View getHeaderView() {
 		return mHeaderView;
 	}
@@ -996,24 +989,6 @@ public class EntityListFragment extends BaseFragment
 	protected void bindListItem(Entity entity, View view, String groupTag) {
 		IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
 		controller.bind(entity, view, groupTag);
-
-		/* Special highlighting */
-
-		if (mHighlightEntities.size() > 0) {
-			view.setBackgroundResource(mBackgroundResId);
-			if (mHighlightEntities.containsKey(entity.id)) {
-				Highlight highlight = mHighlightEntities.get(entity.id);
-				if (!highlight.isOneShot() || !highlight.hasFired()) {
-					if (Patchr.themeTone.equals(ThemeTone.DARK)) {
-						view.setBackgroundResource(R.drawable.selector_image_highlight_dark);
-					}
-					else {
-						view.setBackgroundResource(R.drawable.selector_image_highlight_light);
-					}
-					highlight.setFired(true);
-				}
-			}
-		}
 	}
 
 	public void drawHighlights(Entity entity, View view) {}

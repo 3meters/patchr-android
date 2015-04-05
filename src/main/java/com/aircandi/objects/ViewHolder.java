@@ -28,7 +28,6 @@ public class ViewHolder {
 	public AirImageView patchPhotoView;
 	public TextView     categoryName;
 	public AirImageView categoryPhotoView;
-	public TextView     toName;        // NO_UCD (unused code)
 	public TextView     area;
 	public EntityView   parent;
 	public ViewGroup    share;

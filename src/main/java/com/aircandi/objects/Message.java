@@ -2,11 +2,7 @@ package com.aircandi.objects;
 
 import android.support.annotation.NonNull;
 
-import com.aircandi.service.Expose;
-import com.aircandi.service.SerializedName;
-
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,18 +20,6 @@ public class Message extends Entity implements Cloneable, Serializable {
 	 * Service fields
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Expose
-	@SerializedName(name = "_root")
-	public String rootId;
-	@Expose
-	@SerializedName(name = "_replyTo")
-	public String replyToId;
-
-	/* Reply to user (synthesized for the client) */
-
-	@Expose(serialize = false, deserialize = true)
-	public User replyTo;
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -46,13 +30,6 @@ public class Message extends Entity implements Cloneable, Serializable {
 		 */
 		synchronized (entity) {
 			entity = (Message) Entity.setPropertiesFromMap(entity, map, nameMapping);
-
-			entity.rootId = (String) (nameMapping ? map.get("_root") : map.get("rootId"));
-			entity.replyToId = (String) (nameMapping ? map.get("_replyTo") : map.get("replyToId"));
-
-			if (map.get("replyTo") != null) {
-				entity.replyTo = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("replyTo"), nameMapping);
-			}
 		}
 		return entity;
 	}
@@ -79,8 +56,6 @@ public class Message extends Entity implements Cloneable, Serializable {
 
 	public static class MessageType {
 		public static String ROOT  = "root";
-		public static String REPLY = "reply";
 		public static String SHARE = "share";
-		public static String ALERT = "alert";
 	}
 }

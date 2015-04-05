@@ -34,7 +34,7 @@ import com.squareup.otto.Subscribe;
 
 import java.util.Map;
 
-public class NotificationListFragment extends MessageListFragment
+public class NotificationListFragment extends EntityListFragment
 		implements SwipeRefreshLayout.OnRefreshListener {
 
 	@Override

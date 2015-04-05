@@ -67,30 +67,9 @@
 				android:id="@+id/user_name"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/created_date"
 				android:layout_centerVertical="true"
 				android:textStyle="bold" />
-
-			<ImageView
-				android:id="@+id/symbol_at"
-				android:layout_width="20dp"
-				android:layout_height="20dp"
-				android:layout_centerVertical="true"
-				android:layout_marginLeft="1dp"
-				android:layout_toRightOf="@+id/user_name"
-				android:paddingTop="2dp"
-				android:src="@drawable/ic_action_playback_play"
-				android:tint="@color/brand_primary" />
-
-			<com.aircandi.ui.widgets.AirTextLight
-				android:id="@+id/to_name"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_centerVertical="true"
-				android:layout_toLeftOf="@+id/created_date"
-				android:layout_toRightOf="@+id/symbol_at"
-				android:ellipsize="end"
-				android:singleLine="true"
-				android:textColor="?attr/textSelector" />
 
 			<com.aircandi.ui.widgets.AirTextLight
 				android:id="@+id/created_date"

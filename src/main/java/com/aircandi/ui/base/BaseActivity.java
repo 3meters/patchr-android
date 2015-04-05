@@ -12,6 +12,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -509,7 +510,7 @@ public abstract class BaseActivity extends ActionBarActivity
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	public Boolean related(String entityId) {
+	public Boolean related(@NonNull String entityId) {
 		return false;
 	}
 

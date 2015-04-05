@@ -361,7 +361,6 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.patchPhotoView = (AirImageView) view.findViewById(R.id.patch_photo);
 		holder.patchName = (TextView) view.findViewById(R.id.patch_name);
 		holder.categoryName = (TextView) view.findViewById(R.id.category_name);
-		holder.toName = (TextView) view.findViewById(R.id.to_name);
 	}
 
 	@Override

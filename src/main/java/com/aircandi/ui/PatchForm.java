@@ -114,7 +114,7 @@ public class PatchForm extends BaseEntityForm {
 
 		mLinkProfile = LinkSpecType.LINKS_FOR_PATCH;
 
-		mCurrentFragment = new MessageListFragment();
+		mCurrentFragment = new EntityListFragment();
 
 		((EntityListFragment) mCurrentFragment)
 				.setMonitorEntityId(mEntityId)
@@ -281,6 +281,7 @@ public class PatchForm extends BaseEntityForm {
 				message = String.format(StringManager.getString(R.string.label_message_new_to_message), mEntity.name);
 			}
 			extras.putString(Constants.EXTRA_MESSAGE, message);
+
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntityId);
 			extras.putString(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
@@ -441,7 +442,7 @@ public class PatchForm extends BaseEntityForm {
 			}
 		}
 
-		((MessageListFragment) mCurrentFragment).onHeaderClick(view);
+		((EntityListFragment) mCurrentFragment).onHeaderClick(view);
 	}
 
 	@Override

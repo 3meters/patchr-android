@@ -44,7 +44,7 @@ public class UserForm extends BaseEntityForm {
 
 		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
 		mLinkProfile = currentUser ? LinkSpecType.LINKS_FOR_USER_CURRENT : LinkSpecType.LINKS_FOR_USER;
-		mCurrentFragment = new MessageListFragment();
+		mCurrentFragment = new EntityListFragment();
 
 		((EntityListFragment) mCurrentFragment)
 				.setMonitorEntityId(mEntityId)

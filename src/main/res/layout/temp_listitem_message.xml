@@ -81,48 +81,19 @@
 			android:layout_marginBottom="2dp"
 			android:orientation="horizontal">
 
-			<LinearLayout
+			<com.aircandi.ui.widgets.AirTextMedium
+				android:id="@+id/user_name"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentLeft="true"
+				android:layout_gravity="center_vertical"
 				android:layout_toLeftOf="@+id/created_date"
-				android:orientation="horizontal">
-
-				<com.aircandi.ui.widgets.AirTextMedium
-					android:id="@+id/user_name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_vertical"
-					android:ellipsize="end"
-					android:maxWidth="150dp"
-					android:minWidth="100dp"
-					android:singleLine="true"
-					android:textStyle="bold"
-					tools:text="@string/dummy_username" />
-
-				<ImageView
-					android:id="@+id/symbol_at"
-					android:layout_width="20dp"
-					android:layout_height="20dp"
-					android:layout_gravity="center_vertical"
-					android:layout_marginLeft="1dp"
-					android:paddingTop="2dp"
-					android:src="@drawable/ic_action_playback_play"
-					android:tint="@color/brand_primary" />
-
-				<com.aircandi.ui.widgets.AirTextLight
-					android:id="@+id/to_name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_vertical"
-					android:ellipsize="end"
-					android:maxWidth="150dp"
-					android:minWidth="100dp"
-					android:singleLine="true"
-					android:textColor="?attr/textSelector"
-					tools:text="@string/dummy_username" />
-
-			</LinearLayout>
+				android:ellipsize="end"
+				android:maxWidth="150dp"
+				android:minWidth="100dp"
+				android:singleLine="true"
+				android:textStyle="bold"
+				tools:text="@string/dummy_username" />
 
 			<com.aircandi.ui.widgets.AirTextLight
 				android:id="@+id/created_date"
@@ -203,7 +174,8 @@
 				android:layout_centerVertical="true"
 				android:layout_marginRight="12dp"
 				android:visibility="gone"
-				android:orientation="horizontal">
+				android:orientation="horizontal"
+				tools:ignore="UselessParent">
 
 				<com.aircandi.ui.widgets.AirTextMedium
 					android:id="@+id/likes_count"
@@ -223,14 +195,6 @@
 					android:textColor="@color/brand_primary_dark" />
 			</LinearLayout>
 
-			<com.aircandi.ui.widgets.AirTextLight
-				android:id="@+id/child_count"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_centerVertical="true"
-				android:layout_toRightOf="@id/button_message_likes"
-				android:textColor="@color/brand_primary_dark"
-				tools:text="3 replies" />
 		</RelativeLayout>
 	</LinearLayout>
 

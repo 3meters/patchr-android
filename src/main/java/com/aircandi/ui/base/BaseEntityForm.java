@@ -423,8 +423,8 @@ public abstract class BaseEntityForm extends BaseActivity {
 	}
 
 	@Override
-	public Boolean related(String entityId) {
-		return (mEntityId != null && entityId != null && entityId.equals(mEntityId));
+	public Boolean related(@NonNull String entityId) {
+		return entityId.equals(mEntityId);
 	}
 
 	/*--------------------------------------------------------------------------------------------

@@ -110,59 +110,6 @@ public class Messages extends EntityControllerBase {
 			UI.setVisibility(holder.userName, View.VISIBLE);
 		}
 
-		/* Message 'to' context */
-
-		UI.setVisibility(holder.toName, View.GONE);
-		UI.setVisibility(view.findViewById(R.id.symbol_at), View.GONE);
-
-		if (entity.type != null && entity.type.equals(Message.MessageType.REPLY)) {
-
-			if (holder.toName != null) {
-
-				Message message = (Message) entity;
-				Link linkMessage = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE);
-
-				String toLabel;
-				if (message.replyTo != null) {
-					if (!entity.creator.name.equals(message.replyTo.name)) {
-						toLabel = message.replyTo.name;
-					}
-					else {
-						toLabel = "Added";
-					}
-				}
-				else {
-					if (entity.creator != null && entity.creator.name != null) {
-
-						if (linkMessage != null
-								&& linkMessage.shortcut != null
-								&& linkMessage.shortcut.creator != null
-								&& linkMessage.shortcut.creator.name != null) {
-
-							if (!entity.creator.name.equals(linkMessage.shortcut.creator.name)) {
-								toLabel = linkMessage.shortcut.creator.name;
-							}
-							else {
-								toLabel = "Added";
-							}
-						}
-						else {
-							toLabel = "[Removed]";
-						}
-					}
-					else {
-						toLabel = "[Unknown]";
-					}
-				}
-
-				if (toLabel != null) {
-					holder.toName.setText(toLabel);
-					UI.setVisibility(holder.toName, View.VISIBLE);
-					UI.setVisibility(view.findViewById(R.id.symbol_at), View.VISIBLE);
-				}
-			}
-		}
-
 		/* Created date */
 
 		UI.setVisibility(holder.createdDate, View.GONE);
@@ -183,7 +130,6 @@ public class Messages extends EntityControllerBase {
         /* Shared entity */
 
 		UI.setVisibility(holder.photoView, View.GONE);
-		UI.setVisibility(((ViewHolderExtended) holder).childCount, View.GONE);
 		UI.setVisibility(((ViewHolderExtended) holder).shareHolder, View.GONE);
 		UI.setVisibility(((ViewHolderExtended) holder).buttonLikes, View.GONE);
 
@@ -242,17 +188,6 @@ public class Messages extends EntityControllerBase {
 				}
 			}
 
-		    /* Info about child links */
-
-			if (((ViewHolderExtended) holder).childCount != null) {
-				Count count = entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, null, Link.Direction.in);
-				Integer linkCount = (count != null) ? count.count.intValue() : 0;
-				if (linkCount > 0) {
-					((ViewHolderExtended) holder).childCount.setText(String.valueOf(linkCount) + ((linkCount == 1) ? " reply" : " replies"));
-					UI.setVisibility(((ViewHolderExtended) holder).childCount, View.VISIBLE);
-				}
-			}
-
 		    /* Likes */
 
 			if (((ViewHolderExtended) holder).buttonLikes != null) {
@@ -274,7 +209,6 @@ public class Messages extends EntityControllerBase {
 
 	@Override
 	public void bindHolder(View view, ViewHolder holder) {
-		((ViewHolderExtended) holder).childCount = (TextView) view.findViewById(R.id.child_count);
 		((ViewHolderExtended) holder).likesCount = (TextView) view.findViewById(R.id.likes_count);
 		((ViewHolderExtended) holder).likesLabel = (TextView) view.findViewById(R.id.likes_label);
 		((ViewHolderExtended) holder).buttonLikes = view.findViewById(R.id.button_message_likes);
@@ -297,7 +231,6 @@ public class Messages extends EntityControllerBase {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static class ViewHolderExtended extends ViewHolder {
-		public TextView childCount;
 		public TextView likesCount;
 		public TextView likesLabel;
 		public View     buttonLikes;

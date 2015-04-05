@@ -1,17 +1,16 @@
 package com.aircandi.ui;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -30,7 +29,6 @@ import com.aircandi.components.StringManager;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataNoopEvent;
 import com.aircandi.events.DataResultEvent;
-import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IEntityController;
@@ -43,17 +41,13 @@ import com.aircandi.objects.Message.MessageType;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.ui.EntityListFragment.Highlight;
-import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseEntityForm;
-import com.aircandi.ui.components.ListController;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.ui.widgets.FlowLayout;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
-import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
@@ -62,8 +56,6 @@ import java.util.List;
 
 public class MessageForm extends BaseEntityForm {
 
-	private String    mChildId;
-	private Highlight mHighlight;
 	private List<Entity> mTos = new ArrayList<Entity>();
 
 	@Override
@@ -73,13 +65,9 @@ public class MessageForm extends BaseEntityForm {
 		Intent intent = getIntent();
 		if (intent != null) {
 			final Bundle extras = intent.getExtras();
+
 			if (extras != null) {
-
-                /* Used when browse target is a reply */
-				mChildId = extras.getString(Constants.EXTRA_ENTITY_CHILD_ID);
-
-                /* Provides message context. Could be a patch or a user */
-				mForId = extras.getString(Constants.EXTRA_ENTITY_FOR_ID);
+				mForId = extras.getString(Constants.EXTRA_ENTITY_FOR_ID); // Provides message context. Could be a patch or a user
 			}
 
 			if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_VIEW)) {
@@ -96,34 +84,7 @@ public class MessageForm extends BaseEntityForm {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-
 		mLinkProfile = LinkSpecType.LINKS_FOR_MESSAGE;
-
-		mCurrentFragment = new MessageListFragment();
-
-		((EntityListFragment) mCurrentFragment)
-				.setMonitorEntityId(mEntityId)
-				.setLinkSchema(Constants.SCHEMA_ENTITY_MESSAGE).setHeaderViewResId(R.layout.widget_list_header_message)
-				.setLinkType(Constants.TYPE_LINK_CONTENT)
-				.setLinkDirection(Direction.in.name())
-				.setPageSize(Integers.getInteger(R.integer.page_size_replies))
-				.setFooterViewResId(R.layout.widget_list_footer_message)
-				.setListItemResId(R.layout.temp_listitem_message)
-				.setListLayoutResId(R.layout.entity_list_fragment)
-				.setListLoadingResId(R.layout.temp_listitem_loading)
-				.setListViewType(ViewType.LIST)
-				.setBackgroundResId(R.drawable.selector_item)
-				.setReverseSort(true);
-
-		if (mChildId != null) {
-			mHighlight = new Highlight(true);
-			((MessageListFragment) mCurrentFragment).getHighlightEntities().put(mChildId, mHighlight);
-		}
-
-		getFragmentManager()
-				.beginTransaction()
-				.replace(R.id.fragment_holder, mCurrentFragment)
-				.commit();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -145,70 +106,20 @@ public class MessageForm extends BaseEntityForm {
 		super.onDataNoop(event);
 	}
 
-	@Override
-	protected void onProcessingComplete(final ResponseCode responseCode) {
-		super.onProcessingComplete(responseCode);
-
-		final EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-
-				ListController controller = fragment.getListController();
-				Boolean share = (mEntity != null && mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
-				if (share) {
-					controller.getFloatingActionController().fadeOut();
-				}
-				else {
-					controller.getFloatingActionController().fadeIn();
-				}
-			}
-		});
-	}
-
 	@Subscribe
 	public void onNotificationReceived(final NotificationReceivedEvent event) {
 	    /*
-	     * Refresh the form because something new has been added to it
-		 * like a comment or post.
+	     * Refresh the form because something might have changed e.g. new likes.
 		 */
-		if (related(event.notification.parentId)) {
+		if ((event.notification.parentId != null && event.notification.parentId.equals(mEntityId))
+				|| (event.notification.targetId != null && event.notification.targetId.equals(mEntityId))) {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					((EntityListFragment) mCurrentFragment).bind(BindingMode.AUTO);
+					bind(BindingMode.AUTO);
 				}
 			});
 		}
-	}
-
-	@Subscribe
-	public void onEntitiesLoaded(final EntitiesLoadedEvent event) {
-		if (mHighlight != null && !mHighlight.hasFired()) {
-			((EntityListFragment) mCurrentFragment).setListPositionToEntity(mChildId);
-		}
-	}
-
-	@SuppressWarnings("ucd")
-	public void onFabButtonClick(View view) {
-		Bundle extras = new Bundle();
-
-		String rootId = mEntity.type.equals(MessageType.ROOT) ? mEntity.id : ((Message) mEntity).rootId;
-
-		extras.putString(Constants.EXTRA_MESSAGE_ROOT_ID, rootId);
-		extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, rootId);
-		extras.putString(Constants.EXTRA_MESSAGE_TYPE, MessageType.REPLY);
-		extras.putString(Constants.EXTRA_PATCH_ID, mEntity.patchId);
-
-		if (mEntity.creator != null) {
-			extras.putString(Constants.EXTRA_MESSAGE_REPLY_TO_ID, mEntity.creator.id);
-			if (!TextUtils.isEmpty(mEntity.creator.name)) {
-				extras.putString(Constants.EXTRA_MESSAGE_REPLY_TO_NAME, mEntity.creator.name);
-			}
-		}
-
-		onAdd(extras);
 	}
 
 	@SuppressWarnings("ucd")
@@ -275,37 +186,6 @@ public class MessageForm extends BaseEntityForm {
 		super.onAdd(extras);
 	}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		/*
-		 * Cases that use activity result
-		 * 
-		 * - Candi picker returns entity id for a move
-		 * - Template picker returns type of candi to add as a child
-		 */
-		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
-			if (requestCode == Constants.ACTIVITY_ENTITY_INSERT) {
-				if (intent != null) {
-					mChildId = intent.getStringExtra(Constants.EXTRA_ENTITY_CHILD_ID);
-					if (mChildId != null) {
-					/* If reply to reply then finish */
-						if (mEntity.type != null && mEntity.type.equals(MessageType.REPLY)) {
-							finish();
-							AnimationManager.doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
-						}
-						else {
-							mHighlight = new Highlight(true);
-							((MessageListFragment) mCurrentFragment).getHighlightEntities().put(mChildId, mHighlight);
-						}
-					}
-				}
-			}
-			else {
-				super.onActivityResult(requestCode, resultCode, intent);
-			}
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -335,7 +215,6 @@ public class MessageForm extends BaseEntityForm {
 		final TextView patchName = (TextView) view.findViewById(R.id.patch_name);
 		final AirImageView userPhotoView = (AirImageView) view.findViewById(R.id.user_photo);
 		final TextView userName = (TextView) view.findViewById(R.id.user_name);
-		final TextView toName = (TextView) view.findViewById(R.id.to_name);
 		final TextView createdDate = (TextView) view.findViewById(R.id.created_date);
 		final FlowLayout flowLayout = (FlowLayout) view.findViewById(R.id.flow_recipients);
 		final ViewGroup shareHolder = (ViewGroup) view.findViewById(R.id.share_holder);
@@ -347,8 +226,6 @@ public class MessageForm extends BaseEntityForm {
 		Boolean share = (mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
 
 		if (share) {
-
-			UI.setVisibility(findViewById(R.id.divider_replies), View.GONE);
 
 			UI.setVisibility(toHolder, View.VISIBLE);
 
@@ -416,72 +293,6 @@ public class MessageForm extends BaseEntityForm {
 				}
 				else {
 					UI.setVisibility(holderPatch, View.GONE);
-				}
-			}
-		}
-
-		/* Message 'to' context */
-
-		UI.setVisibility(toName, View.GONE);
-		UI.setVisibility(findViewById(R.id.symbol_at), View.GONE);
-
-		if (mEntity.type.equals(MessageType.REPLY)) {
-
-			if (toName != null) {
-
-				Message message = (Message) mEntity;
-				Link linkMessage = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE);
-
-				String toLabel;
-				if (message.replyTo != null) {
-					if (!mEntity.creator.name.equals(message.replyTo.name)) {
-						toLabel = ((Message) mEntity).replyTo.name;
-					}
-					else {
-						toLabel = "Added";
-					}
-				}
-				else {
-					if (mEntity.creator != null && mEntity.creator.name != null) {
-
-						if (linkMessage != null
-								&& linkMessage.shortcut != null
-								&& linkMessage.shortcut.creator != null
-								&& linkMessage.shortcut.creator.name != null) {
-
-							if (!mEntity.creator.name.equals(linkMessage.shortcut.creator.name)) {
-								toLabel = linkMessage.shortcut.creator.name;
-							}
-							else {
-								toLabel = "Added";
-							}
-						}
-						else {
-							toLabel = "[Removed]";
-						}
-					}
-					else {
-						toLabel = "[Unknown]";
-					}
-				}
-
-				if (linkMessage != null && linkMessage.shortcut != null) {
-					Entity linkEntity = linkMessage.shortcut.getAsEntity();
-					toName.setTag(linkEntity);
-					toName.setOnClickListener(new OnClickListener() {
-
-						@Override
-						public void onClick(View view) {
-							Entity entity = (Entity) view.getTag();
-							Patchr.router.route(MessageForm.this, Route.BROWSE, entity, null);
-						}
-					});
-				}
-
-				if (toLabel != null) {
-					toName.setText(toLabel);
-					UI.setVisibility(toName, View.VISIBLE);
-					UI.setVisibility(findViewById(R.id.symbol_at), View.VISIBLE);
 				}
 			}
 		}
@@ -690,10 +501,10 @@ public class MessageForm extends BaseEntityForm {
 	}
 
 	@Override
-	public Boolean related(String entityId) {
+	public Boolean related(@NonNull String entityId) {
 		Boolean related = super.related(entityId);
 		if (!related) {
-			if (mEntity != null && mEntity.patchId != null && mEntity.patchId.equals(entityId)) {
+			if (mEntity != null && entityId.equals(mEntity.patchId)) {
 				return true;
 			}
 		}

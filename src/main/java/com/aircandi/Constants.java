@@ -33,9 +33,6 @@ public class Constants {
 	public static final String EXTRA_URI             = "com.aircandi.EXTRA_URI";
 
 	public static final String EXTRA_MESSAGE_TYPE          = "com.aircandi.EXTRA_MESSAGE_TYPE";
-	public static final String EXTRA_MESSAGE_ROOT_ID       = "com.aircandi.EXTRA_MESSAGE_ROOT_ID";
-	public static final String EXTRA_MESSAGE_REPLY_TO_ID   = "com.aircandi.EXTRA_MESSAGE_REPLY_TO_ID";
-	public static final String EXTRA_MESSAGE_REPLY_TO_NAME = "com.aircandi.EXTRA_MESSAGE_REPLY_TO_NAME";
 
 	public static final String EXTRA_LAYOUT_RESID                = "com.aircandi.EXTRA_LAYOUT_RESID";
 	public static final String EXTRA_MESSAGE                     = "com.aircandi.EXTRA_MESSAGE";

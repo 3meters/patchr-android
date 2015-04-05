@@ -55,8 +55,6 @@ public class LinkSpecFactory {
 			}
 			else if (linkProfile == LinkSpecType.LINKS_FOR_MESSAGE) {
 
-				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1)
-						.setDirection(Direction.both));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH, true, true, 1)
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH, true, true, 1)
