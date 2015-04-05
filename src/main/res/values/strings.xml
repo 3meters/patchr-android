@@ -43,30 +43,21 @@
 	<string name="menu_item_add_entity">Add content</string>
 	<string name="menu_item_refresh">Refresh</string>
 	<string name="menu_item_notifications">Notifications</string>
-	<string name="menu_item_edit">Edit</string>
 	<string name="menu_item_edit_user">Edit profile</string>
 	<string name="menu_item_share">Share</string>
 	<string name="menu_item_search">Search</string>
 	<string name="menu_item_navigate">Directions</string>
-	<string name="menu_item_settings">Settings</string>
-	<string name="menu_item_help">Help</string>
 	<string name="menu_item_signout">Sign out</string>
 	<string name="menu_item_signin">Sign in</string>
 	<string name="menu_item_send">Send</string>
 	<string name="menu_item_invite">Invite</string>
 	<string name="menu_item_map">Map location</string>
-	<string name="menu_item_tune">Tune</string>
-	<string name="menu_item_feedback">Feedback</string>
 	<string name="menu_item_delete">Delete</string>
 	<string name="menu_item_remove">Remove</string>
 	<string name="menu_item_accept">Accept</string>
 	<string name="menu_item_save">"  Save  "</string>
-	<string name="menu_item_cancel">Cancel</string>
-	<string name="menu_item_new_patch">New patch</string>
 	<string name="menu_item_edit_patch">Edit</string>
 	<string name="menu_item_edit_message">Edit</string>
-	<string name="menu_item_share_message">Share</string>
-	<string name="menu_item_share_patch">Invite</string>
 	<string name="menu_item_view_as_map">View as map</string>
 	<string name="menu_item_view_as_list">View as list</string>
 
@@ -75,19 +66,12 @@
 	<string name="menu_item_report">Report abuse</string>
 	<string name="menu_item_qrcode">Show QR code</string>
 
-	<!-- Help -->
-
-	<string name="help_nearby_browse_patches">Radar finds [@string/container_plural_lowercase] nearby you can browse and interact with.</string>
-	<string name="help_nearby_new_patches">Use the action bar to make and share custom [@string/container_plural_lowercase].</string>
-	<string name="help_patch_tune">Tune [@string/container_plural_lowercase] to make them better.</string>
-
 	<!-- Dialogs -->
 
 	<string name="dialog_ok">OK</string>
 	<string name="dialog_cancel">Cancel</string>
 
 	<string name="dialog_address_builder_title" tools:ignore="UnusedResources">Address</string>
-	<string name="dialog_category_builder_title">Category</string>
 	<string name="dialog_place_picker_search_title">Pick a [@string/container_singular_lowercase]</string>
 	<string name="dialog_photo_picker_search_title">Photo search</string>
 
@@ -150,7 +134,6 @@
 	<string name="alert_cancelled">Cancelled</string>
 	<string name="alert_signed_in">Signed in as</string>
 	<string name="alert_password_changed">You have been automatically signed in with your new password</string>
-	<string name="alert_beacons_title">[@string/name_app] beacons</string>
 	<string name="alert_feedback_sent">Thank you for the feedback!</string>
 	<string name="alert_report_sent">Your report has been sent. Thank you!</string>
 
@@ -167,7 +150,6 @@
 	<string name="alert_signin_message">Sign in to use this feature.</string>
 	<string name="alert_signin_message_add">Sign in to post [@schema]s.</string>
 	<string name="alert_signin_message_edit">Sign in to edit [@schema]s.</string>
-	<string name="alert_signin_message_patch_tune">Sign in to tune [@string/container_plural_lowercase].</string>
 	<string name="alert_signin_message_share">Sign in to share.</string>
 
 	<!-- Alerts: confirm dirty -->
@@ -304,7 +286,6 @@
 	<string name="progress_searching">Searching&#8230;</string>
 	<string name="progress_signing_in">Signing in&#8230;</string>
 	<string name="progress_reset_verify">Verifying&#8230;</string>
-	<string name="progress_upsizing">Activating for messages&#8230;</string>
 
 	<!-- Symbols -->
 
@@ -313,10 +294,8 @@
 
 	<!-- Buttons -->
 
-	<string name="button_edit_picture">Edit</string>
 	<string name="button_set_picture">Set photo</string>
 	<string name="button_set_banner">Set banner</string>
-	<string name="button_delete_picture">Delete</string>
 	<string name="button_change_password">Change password</string>
 	<string name="button_sign_in">Sign in</string>
 	<string name="button_register">Join</string>
@@ -338,12 +317,9 @@
 	<string name="button_list_watch_request_cancel">Cancel join request</string>
 
 	<string name="button_list_share">Invite friends to this patch</string>
-	<string name="button_patch_share">Invite</string>
-	<string name="button_list_watchers_share">Invite friends to this patch</string>
 	<string name="button_just_approved">Approved! Invite your friends</string>
 	<string name="button_just_approved_no_message">Approved! Post your first message</string>
 	<string name="button_no_message">Post your first message</string>
-	<string name="button_list_add_patch">Add a patch to this place</string>
 
 	<plurals name="button_pending_requests">
 		<item quantity="one">One member request</item>
@@ -368,8 +344,6 @@
 	<string name="label_email">Email</string>
 	<string name="label_locked" tools:ignore="UnusedResources">Locked</string>
 	<string name="label_locked_description" tools:ignore="UnusedResources">Users can browse but not add content</string>
-	<string name="label_private">Private</string>
-	<string name="label_register_title">Join [@string/name_app]</string>
 	<string name="label_search_patches_hint">Search patches</string>
 	<string name="label_search_places_hint">Search places</string>
 	<string name="label_search_completion_hint">Pick a patch to browse.</string>
@@ -384,13 +358,7 @@
 	<string name="label_patch_type">Patch type</string>
 
 	<string name="label_about_install">Install</string>
-	<string name="label_about_title">About [@string/name_app]</string>
 	<string name="label_about_version">Version</string>
-
-	<string name="label_tuning_banner_no_name">Is there a photo that would make a great banner for this [@string/container_singular_lowercase]? Search, browse or use the camera.</string>
-	<string name="label_tuning_banner_name">Is there a photo that would make a great banner for %1$s? Search, browse or use the camera.</string>
-	<string name="label_tuning_tune_name">If you are currently at <i>%1$s</i>, make [@string/name_app] better by tuning for faster and more accurate discovery.</string>
-	<string name="label_tuning_edit_name">Update [@string/container_plural_lowercase] details for %1$s like the address or customize links.</string>
 
 	<string name="label_report_message">Why are you reporting this</string>
 	<string name="label_report_option_spam">Spam</string>
@@ -407,14 +375,9 @@
 
 	<string name="label_message_count">Messages</string>
 	<string name="label_watch_count">Watching</string>
-	<string name="label_last_message_date">Last message:</string>
 	<string name="label_created_by">Created</string>
 	<string name="label_owned_by">[@string/container_singular] owned by</string>
 
-	<string name="label_section_banner">Great banner</string>
-	<string name="label_section_tuning">Lock it in</string>
-
-	<string name="label_patch_edit_category">Type</string>
 	<string name="label_patch_edit_place">Linked place</string>
 	<string name="label_patch_edit_privacy">Privacy</string>
 	<string name="label_patch_privacy_public">Public</string>
@@ -422,14 +385,9 @@
 	<string name="label_patch_privacy_public_help">Anyone can see the patch, its members and their messages.</string>
 	<string name="label_patch_privacy_private_help">Anyone can find the patch and see who\'s in it. Only members can see messages.</string>
 
-	<string name="label_edit_new_title">New</string>
-
-	<string name="label_notification_ticker">Message from [@string/name_app]</string>
-
 	<string name="label_drawer_open">Open drawer</string>
 	<string name="label_drawer_close">Close drawer</string>
 
-	<string name="label_patch_private_flag">Private</string>
 	<string name="label_patch_category_default">Group or event</string>
 	<string name="label_patch_hidden_flag" tools:ignore="UnusedResources">(Secret)</string>
 	<string name="label_patch_owner_flag" tools:ignore="UnusedResources">(Owner)</string>
@@ -484,22 +442,17 @@
 	<!-- Labels: Misc -->
 
 	<string name="label_message_to_prefix">"To:  "</string>
-	<string name="label_spinner_patch_type">Select patch type</string>
 
 	<string name="label_user_watching_none">none yet</string>
 	<string name="label_user_created_none">none yet</string>
 	<string name="label_notifications_empty">No notifications yet</string>
 	<string name="label_watching_empty">Watch [@string/container_plural_lowercase] and browse them here</string>
 	<string name="label_created_empty">Make [@string/container_plural_lowercase] and browse them here</string>
-	<string name="label_sent_empty">No messages posted yet</string>
 	<string name="label_watchers_empty">No watchers yet</string>
 	<string name="label_likes_empty">No likes yet</string>
-	<string name="label_feed_messages_title">Messages</string>
-	<string name="label_feed_alerts_title">Alerts</string>
 	<string name="label_tuning_tune_no_name">If you are currently at the location for this patch, help make Patchr better by tuning the patch for faster discovery.</string>
 	<string name="label_message_share_title">Share message to&#8230;</string>
 	<string name="label_private_description" tools:ignore="UnusedResources">Users can only see posted messages if you approve their watch request.</string>
-	<string name="label_privacy">Public</string>
 
 	<string name="label_patch_type_event">Event</string>
 	<string name="label_patch_type_group">Group</string>
@@ -520,44 +473,16 @@
 	<string name="label_message_edit_message">Edit your message to: %1$s.</string>
 	<string name="label_message_shared">Shared by</string>
 
-	<string name="label_message_new_patch">Make a patch.</string>
-	<string name="label_message_new_to_place">Make a patch for: %1$s.</string>
-
 	<string name="label_register_message">You\'ll love Patchr! Join to post messages, create patches and share with your friends.</string>
 	<string name="label_search">Patchr</string>
 	<string name="label_share_to_hint">type to search users</string>
 	<string name="label_share_completion_hint">Pick users to share with.</string>
-
-	<string name="label_notification_ticker_patch_insert">%1$s: dropped a [@string/container_singular_lowercase]</string>
-	<string name="label_notification_ticker_patch_insert_nearby">%1$s: dropped a [@string/container_singular_lowercase] nearby</string>
-	<string name="label_notification_ticker_patch_share">%1$s: invited you to a [@string/container_singular_lowercase]</string>
-	<string name="label_notification_ticker_message_insert">%1$s: %2$s</string>
-	<string name="label_notification_ticker_message_share">%1$s: shared a message with you</string>
-	<string name="label_notification_ticker_photo_insert">%1$s: posted a photo to \'%2$s\'</string>
-	<string name="label_notification_ticker_photo_share">%1$s: shared a photo with you</string>
-
-	<!-- Labels: Notifications -->
-
-	<string name="label_notification_message_nearby_subtitle">Sent a message to a %1$s nearby.</string>
-	<string name="label_notification_message_watchto_subtitle">Sent a message to a %1$s you are watching.</string>
-	<string name="label_notification_message_ownto_subtitle">Sent a message to a %1$s of yours.</string>
-	<string name="label_notification_message_reply_nearby_subtitle">Replied to a message at a %1$s nearby.</string>
-	<string name="label_notification_message_reply_watchto_subtitle">Replied to a message at a %1$s you are watching.</string>
-	<string name="label_notification_message_reply_ownto_subtitle">Replied to a message at a %1$s of yours.</string>
-	<string name="label_notification_patch_nearby_subtitle">Dropped a new patch nearby.</string>
-	<string name="label_notification_share_subtitle">Shared with you.</string>
-	<string name="label_notification_watch_subtitle">Started watching a patch of yours: %1$s</string>
 
 	<!-- Labels: Navigation -->
 
 	<string name="label_drawer_item_nearby">Nearby</string>
 	<string name="label_drawer_item_watch">Watching</string>
 	<string name="label_drawer_item_create">Owner</string>
-
-	<string name="label_tab_item_content">Content</string>
-	<string name="label_tab_item_settings">Settings</string>
-	<string name="label_tab_item_profile">Profile</string>
-	<string name="label_tab_item_account">Account</string>
 
 	<string name="label_drawer_section_patches">PATCHES</string>
 	<string name="label_drawer_section_trending">TRENDING</string>
@@ -568,40 +493,13 @@
 	<string name="label_drawer_item_more_settings">Settings</string>
 	<string name="label_drawer_item_more_feedback">Send feedback</string>
 
-	<string name="label_view_map">Map</string>
-	<string name="label_view_list">List</string>
-
 	<string name="label_user_watching">Watching</string>
 	<string name="label_user_created">Owner</string>
-
-	<string name="tooltip_patch_new_part1">
-		Patches let a group of people share messages about places and events!
-	</string>
-	<string name="tooltip_patch_new_part2">
-		" &#8226; Parties and sporting events\n &#8226; Family vacations\n &#8226; Projects and meetings"
-	</string>
-	<string name="tooltip_patches_new_part3">
-		This patch will be locked to your current location.
-		Invite some friends and get the conversation started!
-	</string>
-	<string name="tooltip_action_item_patch_new">Tap to create a new patch.</string>
-	<string name="tooltip_list_nearby">Your world is filled with patches! Discover them or create one of your own.</string>
-	<string name="tooltip_patch_watch">Stay connected to patches by tapping the watch button.</string>
-	<string name="tooltip_patch_share" tools:ignore="UnusedResources">Invite your friends to this patch.</string>
 
 	<!-- Hints -->
 
 	<string name="hint_patch_title">Title</string>
 	<string name="hint_patch_description">Tell people about your patch</string>
-	<string name="hint_patch_tip">Tip: Add hashtags for custom searches.</string>
-	<string name="hint_patch_category">Patch type</string>
-	<string name="hint_patch_privacy">Set privacy</string>
-	<string name="hint_patch_sub_category">Set subcategory</string>
-	<string name="hint_phone">Phone</string>
-	<string name="hint_address">Address</string>
-	<string name="hint_state">State</string>
-	<string name="hint_city">City</string>
-	<string name="hint_zipcode">Zipcode</string>
 	<string name="hint_feedback">Feedback</string>
 	<string name="hint_picture_search">Search</string>
 	<string name="hint_message_name">Subject</string>
