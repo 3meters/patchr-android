@@ -168,6 +168,7 @@
 	<string name="alert_signin_message_add">Sign in to post [@schema]s.</string>
 	<string name="alert_signin_message_edit">Sign in to edit [@schema]s.</string>
 	<string name="alert_signin_message_patch_tune">Sign in to tune [@string/container_plural_lowercase].</string>
+	<string name="alert_signin_message_share">Sign in to share.</string>
 
 	<!-- Alerts: confirm dirty -->
 

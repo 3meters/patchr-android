@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.WindowManager;
@@ -22,7 +21,31 @@ import com.aircandi.utilities.Dialogs;
 
 @SuppressLint("Registered")
 public class SplashForm extends ActionBarActivity {
-
+	/*
+	 * Splash acts as a sticky guard when:
+	 *
+	 * - Sharing requires a signed in user
+	 * - Play services are not available
+	 * - The app must be updated to be used
+	 *
+	 * Splash always displays when the app user is anonymous, otherwise
+	 * it gets finished before it usually has a chance to display.
+	 *
+	 * Splash runs whenever the app is launched and opportunistically
+	 * does some clean-up on the memory data store, forces a location reset, and
+	 * clears the new notification count. Basically a soft restart.
+	 *
+	 * Splash launches can be because of:
+	 *
+	 * - Start of app by user
+	 * - Relaunch after backing out of app
+	 * - Routing back to splash because user signs out.
+	 * - Routing back to splash because SEND intent (share) needs user sign-in.
+	 * - Routing back to splash because app update required.
+	 * - Routing back to splash because play services required.
+	 *
+	 * Running splash is not required to start activities.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,24 +66,23 @@ public class SplashForm extends ActionBarActivity {
 		/* Restart notification tracking */
 		NotificationManager.getInstance().setNewNotificationCount(0);
 
-		if (!Patchr.applicationUpdateRequired) {
-			/*
-			 * Check to make sure play services are working properly. This call will finish
-			 * the activity if play services are missing and can't be installed or if the user
-			 * refuses to install them. If play services can be fixed, then resume will be
-			 * called again.
-			 */
-			if (AndroidManager.checkPlayServices(this)) {
-				if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-					showButtons();
-				}
-				else {
-					startHomeActivity();
-				}
-			}
-		}
-		else {
+		if (Patchr.applicationUpdateRequired) {
 			updateRequired();
+			return;
+		}
+		/*
+		 * Check to make sure play services are working properly. This call will finish
+		 * the activity if play services are missing and can't be installed or if the user
+		 * refuses to install them. If play services can be fixed, then resume will be
+		 * called again.
+		 */
+		if (AndroidManager.checkPlayServices(this)) {
+			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				showButtons();
+			}
+			else {
+				startHomeActivity();
+			}
 		}
 	}
 
@@ -69,32 +91,22 @@ public class SplashForm extends ActionBarActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	protected void startHomeActivity() {
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous() && Patchr.firstStartIntent != null) {
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous() && Patchr.sendIntent != null) {
 			/*
-			 * Launching to handle an intent. This only happens if the app is being started from
-			 * scratch to handle the intent. App could have been killed by Android for lots of
-			 * reasons like memory pressure, etc. We init and then refire the intent.
-			 *
-			 * Could be from a notification or a shared message/patch/photo.
-			 *
-			 * NOTE: Broadcast receivers like the gcm won't get called if the app
-			 * was force closed by the user in Settings->Apps. Will get called if the
-			 * app was closed by any other method.
+			 * Someone wants to share something with Patchr users and they were not
+			 * already signed into Patchr. We need them to sign in and then we get them
+			 * back to the activity to handle the share.
 			 */
-			TaskStackBuilder
-					.create(Patchr.applicationContext)
-					.addNextIntent(new Intent(Patchr.applicationContext, AircandiForm.class))
-					.addNextIntent(Patchr.firstStartIntent)
-					.startActivities();
-			finish();
+			this.startActivity(Patchr.sendIntent);
 		}
 		else {
 			Patchr.router.route(this, Route.HOME, null, null);
-			finish();
 		}
 
-		/* Always ok to make sure firstStartIntent isn't still around */
-		Patchr.firstStartIntent = null;
+		finish();
+
+		/* Always ok to make sure sendIntent is cleared */
+		Patchr.sendIntent = null;
 	}
 
 	private void showButtons() {
@@ -132,7 +144,7 @@ public class SplashForm extends ActionBarActivity {
 	}
 
 	@SuppressWarnings("ucd")
-	public void onStartButtonClick(View view) {
+	public void onGuestButtonClick(View view) {
 		if (Patchr.applicationUpdateRequired) {
 			updateRequired();
 			return;
@@ -143,10 +155,10 @@ public class SplashForm extends ActionBarActivity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (requestCode == Constants.ACTIVITY_SIGNIN) {
-			if (resultCode == Constants.RESULT_USER_SIGNED_IN) {
+			if (resultCode == Constants.RESULT_USER_SIGNED_IN
+					&& !Patchr.getInstance().getCurrentUser().isAnonymous()) {
 				/*
 				 * Sign in handled
-				 * - registered install with aircandi
 				 * - loads data for signed in user
 				 */
 				startHomeActivity();

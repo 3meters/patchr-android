@@ -121,53 +121,45 @@ public abstract class BaseActivity extends ActionBarActivity
 		 * their create/initialize processing.
 		 */
 		Logger.d(this, "Activity created");
-		if (Patchr.firstStartApp) {
-			Logger.d(this, "App unstarted: redirecting to splash");
-			Patchr.firstStartIntent = getIntent();
-			Patchr.router.route(this, Route.SPLASH, null, null);
-			super.onCreate(savedInstanceState);
-			finish();
+
+		mResources = getResources();
+		/*
+		 * Theme must be set before contentView is processed.
+		 */
+		setTheme(isDialog(), isTransparent());
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
+		/* Cheat some data from the extras early */
+		final Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			mLayoutResId = extras.getInt(Constants.EXTRA_LAYOUT_RESID);
 		}
-		else {
-			mResources = getResources();
-			/*
-			 * Theme must be set before contentView is processed.
-			 */
-			setTheme(isDialog(), isTransparent());
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
-			/* Cheat some data from the extras early */
-			final Bundle extras = getIntent().getExtras();
-			if (extras != null) {
-				mLayoutResId = extras.getInt(Constants.EXTRA_LAYOUT_RESID);
-			}
+		super.setContentView(getLayoutId());
+		super.onCreate(savedInstanceState);
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-			super.setContentView(getLayoutId());
-			super.onCreate(savedInstanceState);
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		/* View layout event */
+		final View view = getWindow().getDecorView().findViewById(android.R.id.content);
+		if (view != null && view.getViewTreeObserver().isAlive()) {
+			view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
-			/* View layout event */
-			final View view = getWindow().getDecorView().findViewById(android.R.id.content);
-			if (view != null && view.getViewTreeObserver().isAlive()) {
-				view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-
-					public void onGlobalLayout() {
-						//noinspection deprecation
-						view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-						onViewLayout();  // Only used by PatchForm
-					}
-				});
-			}
-
-			/* Nfc */
-			Uri uri = Uri.parse("http://3meters.com/qrcode");
-			NfcManager.pushUri(uri, this);
-
-			/* Event sequence */
-			unpackIntent();
-			initialize(savedInstanceState);
-			getActionBarToolbar(); // Init the toolbar as action bar
+				public void onGlobalLayout() {
+					//noinspection deprecation
+					view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+					onViewLayout();  // Only used by PatchForm
+				}
+			});
 		}
+
+		/* Nfc */
+		Uri uri = Uri.parse("http://3meters.com/qrcode");
+		NfcManager.pushUri(uri, this);
+
+		/* Event sequence */
+		unpackIntent();
+		initialize(savedInstanceState);
+		getActionBarToolbar(); // Init the toolbar as action bar
 	}
 
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -489,7 +481,7 @@ public abstract class BaseActivity extends ActionBarActivity
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRemoveEntity");
 				final ModelResult result = DataController.getInstance()
-				                                 .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove_entity_message", NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				                                         .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove_entity_message", NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				isCancelled();
 				return result;
 			}

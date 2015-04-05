@@ -1620,6 +1620,10 @@ public class DataController {
 	 * Utilities
 	 *--------------------------------------------------------------------------------------------*/
 
+	public void warmup() {
+		/* Just here to force DataController to register for dispatches */
+	}
+
 	public Integer clearEntities(String schema, String type, Boolean foundByProximity) {
 		return ENTITY_STORE.removeEntities(schema, type, foundByProximity);
 	}

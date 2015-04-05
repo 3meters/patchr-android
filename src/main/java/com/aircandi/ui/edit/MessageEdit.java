@@ -105,16 +105,22 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		/*
 		 * Special pre-handling because this form can be called directly
 		 * because of a sharing intent and we need a signed in user. If user
 		 * signs in they will be routed back to this form again.
 		 */
-		if (!isFinishing()) {
-			if (!Patchr.firstStartApp && Patchr.getInstance().getCurrentUser().isAnonymous()) {
-				Patchr.firstStartIntent = getIntent();
-				Patchr.router.route(this, Route.SPLASH, null, null);
-			}
+		Intent intent = getIntent();
+		if (intent.getAction() != null
+				&& intent.getAction().equals(Intent.ACTION_SEND)
+				&& Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			Patchr.sendIntent = getIntent();
+			Patchr.router.route(this, Route.SPLASH, null, null);
+			finish();
+
+			String message = StringManager.getString(R.string.alert_signin_message_share);
+			Dialogs.signinRequired(this, message);
 		}
 	}
 
@@ -488,7 +494,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				if (mPhotoView != null) {
 					if (mEntity.photo != null) {
 						if (mPhotoView.getPhoto() == null
-								|| !mPhotoView.getPhoto().sameAs(mEntity.getPhoto())){
+								|| !mPhotoView.getPhoto().sameAs(mEntity.getPhoto())) {
 							/* This activity implements target */
 							UI.setVisibility(mButtonPhotoEdit, View.GONE);
 							UI.setVisibility(mButtonPhotoDelete, View.GONE);
@@ -606,14 +612,14 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 	@Override
 	public void onPrepareLoad(Drawable drawable) {
-//		runOnUiThread(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//				mAnimatorPhoto.requestLayout();
-//				mAnimatorPhoto.setDisplayedChild(1);
-//			}
-//		});
+		//		runOnUiThread(new Runnable() {
+		//
+		//			@Override
+		//			public void run() {
+		//				mAnimatorPhoto.requestLayout();
+		//				mAnimatorPhoto.setDisplayedChild(1);
+		//			}
+		//		});
 	}
 
 	public void onCancelPhotoButtonClick(View view) {
@@ -725,8 +731,8 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 	@Override
 	protected void beforeInsert(Entity entity, List<Link> links) {
-        /*
-         * We link replies to the places they are associated with. This give us the option
+	    /*
+	     * We link replies to the places they are associated with. This give us the option
 		 * to thread, flatten or do some combo. Called on background thread.
 		 */
 		if (mMessageType.equals(MessageType.REPLY)) {
@@ -752,8 +758,8 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 	@Override
 	protected boolean afterInsert() {
-        /*
-         * Only called if the insert was successful. Called on main ui thread.
+	    /*
+	     * Only called if the insert was successful. Called on main ui thread.
 		 */
 		if (!mMessageType.equals(MessageType.SHARE)) {
 			Entity currentPlace = Patchr.getInstance().getCurrentPatch();

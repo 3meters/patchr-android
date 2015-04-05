@@ -74,9 +74,7 @@ public class Patchr extends MultiDexApplication {
 
 	private static Patchr instance;
 
-	@NonNull
-	public static Boolean firstStartApp    = true;  // Used to detect when app is first started
-	public static Intent  firstStartIntent = null;  // Used when we are started to handle an intent
+	public static Intent sendIntent;  // Used when we are started to handle a send intent
 
 	@NonNull
 	public static SharedPreferences        settings;
@@ -224,6 +222,9 @@ public class Patchr extends MultiDexApplication {
 		/* Initialize managers */
 		initializeManagers();
 
+		/* Warmup DataController */
+		DataController.getInstance().warmup();
+
 		/* Required to deserialize notifications */
 		controllerMap.put(Constants.SCHEMA_ENTITY_PATCH, new Patches());
 		controllerMap.put(Constants.SCHEMA_ENTITY_PLACE, new Places());
@@ -239,8 +240,6 @@ public class Patchr extends MultiDexApplication {
 
 		/* Ensure install is registered. */
 		Dispatcher.getInstance().post(new RegisterInstallEvent(false));
-
-		firstStartApp = false;
 	}
 
 	protected void initializeManagers() {

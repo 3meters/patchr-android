@@ -16,7 +16,11 @@ import android.support.v4.content.WakefulBroadcastReceiver;
  */
 @SuppressWarnings("ucd")
 public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
-
+	/*
+	 * NOTE: Broadcast receivers like the gcm won't get called if the app
+	 * was force closed by the user in Settings->Apps. Will get called if the
+	 * app was closed by any other method.
+	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
 
