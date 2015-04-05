@@ -97,11 +97,11 @@
 				android:textColor="@color/text_dark" />
 
 			<com.aircandi.ui.widgets.AirButton
-				android:id="@+id/button_start"
+				android:id="@+id/button_guest"
 				style="@style/button_link"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/button_height"
-				android:onClick="onStartButtonClick"
+				android:onClick="onGuestButtonClick"
 				android:text="@string/splash_button_start"
 				android:textColor="@color/text_dark" />
 		</LinearLayout>
