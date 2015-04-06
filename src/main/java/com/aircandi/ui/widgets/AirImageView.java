@@ -222,9 +222,7 @@ public class AirImageView extends FrameLayout implements Target {
 			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), inBitmap);
 			UI.showDrawableInImageView(bitmapDrawable, mImageMain, true);
 			showMissing(false);
-			if (mShowBusy) {
-				showLoading(false);
-			}
+			showLoading(false);
 		}
 	}
 

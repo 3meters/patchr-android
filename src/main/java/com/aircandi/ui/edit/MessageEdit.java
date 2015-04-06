@@ -576,6 +576,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 		UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
 		UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
+		mPhotoView.showLoading(false);
 		mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.slide_in_bottom_long);
 		mAnimatorPhoto.requestLayout();
 		mAnimatorPhoto.setDisplayedChild(1);
