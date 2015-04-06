@@ -9,7 +9,6 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 
 import com.aircandi.components.FontManager;
-import com.aircandi.utilities.UI;
 
 public class TextDrawable extends Drawable {
 
@@ -19,10 +18,10 @@ public class TextDrawable extends Drawable {
 	private int   mTextColor;
 	private float mTextWidth;
 
-	public TextDrawable(String text) {
+	public TextDrawable(String text, Float textSize) {
 
 		mText = text;
-		mTextSize = UI.getRawPixelsForScaledPixels(18f);
+		mTextSize = textSize;       // In raw pixels
 		mTextColor = Color.DKGRAY;
 		buildPaint();
 	}

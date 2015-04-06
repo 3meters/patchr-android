@@ -51,13 +51,14 @@ public class AirTokenCompleteTextView extends TokenCompleteTextView {
 
 	public void initialize() {
 		if (mPrefixResId != 0) {
-			TextDrawable text = new TextDrawable(StringManager.getString(mPrefixResId));
+			TextDrawable text = new TextDrawable(StringManager.getString(mPrefixResId)
+					, (float) UI.getRawPixelsForScaledPixels(20f));
 			TypedArray ta = getContext().obtainStyledAttributes(R.styleable.AircandiTheme);
 			int color = ta.getColor(R.styleable.AircandiTheme_textColorSecondary, 0);
 			ta.recycle();
 			text.setTextColor(color);
-			text.setTextSize((float) UI.getRawPixelsForScaledPixels(20f));
-			text.setBounds(0, 0, (int) text.getTextWidth(), 0);
+			/* Bounding rectangle for draw location: left, top, right, bottom */
+			text.setBounds(0, UI.getRawPixelsForScaledPixels(5f), (int) text.getTextWidth(), 0);
 			this.setCompoundDrawables(text, null, null, null);
 		}
 	}
