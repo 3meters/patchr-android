@@ -95,6 +95,7 @@ public class EntityListFragment extends BaseFragment
 	protected Boolean mEntityCacheEnabled = true;
 	protected Boolean mReverseSort        = false;
 	protected Boolean mFabEnabled         = true;
+	protected Boolean mShowIndex          = true;
 
 	/* Runtime data */
 	protected Integer mPhotoWidthPixels;
@@ -780,6 +781,11 @@ public class EntityListFragment extends BaseFragment
 		return this;
 	}
 
+	public EntityListFragment setShowIndex(Boolean showIndex) {
+		mShowIndex = showIndex;
+		return this;
+	}
+
 	public Integer getTitleResId() {
 		return mTitleResId;
 	}
@@ -929,6 +935,14 @@ public class EntityListFragment extends BaseFragment
 						|| view.findViewById(R.id.animator_more) != null
 						|| view.findViewById(R.id.item_placeholder) != null) {
 					view = LayoutInflater.from(getActivity()).inflate(mListItemResId, null);
+
+					/* Some fixup so we don't need additional boilerplate list item layout */
+					if (!mShowIndex) {
+						View index = view.findViewById(R.id.index);
+						if (index != null) {
+							((ViewGroup)index.getParent()).removeView(index);
+						}
+					}
 				}
 
 				if (entity != null) {

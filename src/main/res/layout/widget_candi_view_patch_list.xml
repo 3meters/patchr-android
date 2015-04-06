@@ -25,8 +25,10 @@
 		android:layout_margin="4dp"
 		android:background="@drawable/bg_round_scrim"
 		android:gravity="center"
+		android:visibility="gone"
 		android:textAppearance="?android:attr/textAppearanceSmall"
 		android:textColor="@color/white"
+		tools:visibility="visible"
 		tools:text="99" />
 
 	<RelativeLayout

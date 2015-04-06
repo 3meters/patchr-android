@@ -47,6 +47,7 @@ public class PatchList extends BaseActivity {
 				.setLinkType(mListLinkType)
 				.setLinkDirection(Direction.out.name())
 				.setPageSize(Integers.getInteger(R.integer.page_size_entities))
+				.setShowIndex(false)
 				.setListPagingEnabled(true)
 				.setListViewType(ViewType.LIST)
 				.setListLayoutResId(R.layout.patch_list_fragment)
