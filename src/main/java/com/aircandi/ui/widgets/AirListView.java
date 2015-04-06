@@ -230,26 +230,6 @@ public class AirListView extends ListView implements OnScrollListener {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	protected void addAlphaEffect() {
-		if (mHeaderView == null) return;
-
-		View topChild = getChildAt(0);
-		int scrollPosition;
-		if (topChild == null) {
-			scrollPosition = 0;
-		}
-		else {
-			scrollPosition = -topChild.getTop();
-		}
-
-		int currentHeaderHeight = mHeaderView.getHeight();
-
-		int headerHeight = currentHeaderHeight - mActionBar.getHeight();
-		float ratio = (float) Math.min(Math.max(scrollPosition, 0), headerHeight) / headerHeight;
-		int newAlpha = (int) (ratio * 255);
-		mActionBarBackgroundDrawable.setAlpha(newAlpha);
-	}
-
 	protected void parallaxScroll() {
 		if (mIsCircular) {
 			circularParallax();
@@ -326,10 +306,6 @@ public class AirListView extends ListView implements OnScrollListener {
 
 	public void setActionBarBackgroundDrawable(Drawable actionBarBackgroundDrawable) {
 		mActionBarBackgroundDrawable = actionBarBackgroundDrawable;
-	}
-
-	public void setHeaderView(View headerView) {
-		mHeaderView = headerView;
 	}
 
 	public void setActionBar(ActionBar actionBar) {
