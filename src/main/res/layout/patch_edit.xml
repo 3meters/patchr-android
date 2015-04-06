@@ -95,7 +95,7 @@
 						android:clickable="true"
 						android:gravity="center"
 						android:onClick="onChangePhotoButtonClick"
-						android:text="@string/button_set_picture"
+						android:text="@string/button_set_banner"
 						android:textAppearance="?android:attr/textAppearance"
 						android:textColor="?attr/textColorCandiView"
 						tools:visibility="gone" />

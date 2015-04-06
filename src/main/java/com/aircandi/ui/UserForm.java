@@ -58,7 +58,6 @@ public class UserForm extends BaseEntityForm {
 				.setListItemResId(R.layout.temp_listitem_message)
 				.setHeaderViewResId(R.layout.widget_list_header_user);
 
-
 		if (!currentUser) {
 			((EntityListFragment) mCurrentFragment).setSelfBind(false);
 		}
@@ -129,17 +128,23 @@ public class UserForm extends BaseEntityForm {
 	@Override
 	public void draw(View view) {
 
+		/* List header is acting like our form area in the layout */
+		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
+			view = ((EntityListFragment) mCurrentFragment).getHeaderView();
+		}
+
 		if (view == null) {
 			view = findViewById(android.R.id.content);
 		}
+
 		mFirstDraw = false;
 
 		User user = (User) mEntity;
 
-		final CandiView candiView = (CandiView) findViewById(R.id.candi_view);
-		final AirImageView photoView = (AirImageView) findViewById(R.id.photo);
-		final TextView name = (TextView) findViewById(R.id.name);
-		final TextView area = (TextView) findViewById(R.id.area);
+		final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
+		final AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
+		final TextView name = (TextView) view.findViewById(R.id.name);
+		final TextView area = (TextView) view.findViewById(R.id.area);
 
 		if (candiView != null) {
 			/*

@@ -183,8 +183,11 @@ public class PatchForm extends BaseEntityForm {
 						if (((Patch) mEntity).privacy.equals(Constants.PRIVACY_PRIVATE)) {
 
 							final boolean enabled = (!mRestrictedForUser || Type.isTrue(mPreApproved));
-							if (enabled && ((Patch) mEntity).privacy.equals(Constants.PRIVACY_PRIVATE)) {
-								UI.showToastNotification(StringManager.getString(R.string.alert_auto_watch), Toast.LENGTH_SHORT, Gravity.CENTER);
+							if (enabled) {
+								UI.showToastNotification(StringManager.getString(R.string.alert_autowatch_confirmation), Toast.LENGTH_SHORT, Gravity.CENTER);
+							}
+							else {
+								UI.showToastNotification(StringManager.getString(R.string.alert_watch_request_sent), Toast.LENGTH_SHORT, Gravity.CENTER);
 							}
 
 							bind(BindingMode.MANUAL);
@@ -199,6 +202,13 @@ public class PatchForm extends BaseEntityForm {
 					else if (event.actionType == ActionType.ACTION_LINK_DELETE_WATCH) {
 						Logger.v(this, "Data result accepted: " + event.actionType.name().toString());
 						if (((Patch) mEntity).privacy.equals(Constants.PRIVACY_PRIVATE)) {
+
+							if (mWatchStatus == WatchStatus.REQUESTED) {
+								UI.showToastNotification(StringManager.getString(R.string.alert_watch_request_canceled), Toast.LENGTH_SHORT, Gravity.CENTER);
+							}
+							else {
+								UI.showToastNotification(StringManager.getString(R.string.alert_unwatch_confirmation), Toast.LENGTH_SHORT, Gravity.CENTER);
+							}
 
 							bind(BindingMode.MANUAL);
 							if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
@@ -487,9 +497,16 @@ public class PatchForm extends BaseEntityForm {
 		 * - Header views are visible by default
 		 */
 		Logger.v(this, "Draw called");
+
+		/* List header is acting like our form area in the layout */
+		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
+			view = ((EntityListFragment) mCurrentFragment).getHeaderView();
+		}
+
 		if (view == null) {
 			view = findViewById(android.R.id.content);
 		}
+
 		mFirstDraw = false;
 
 		/* Some state management */
@@ -644,7 +661,7 @@ public class PatchForm extends BaseEntityForm {
 		}
 	}
 
-	public void drawAlertGroup(View view){
+	public void drawAlertGroup(View view) {
 		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
 
 		if (alertGroup != null && mEntity != null) {
