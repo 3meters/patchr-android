@@ -72,8 +72,6 @@
 	<string name="dialog_cancel">Cancel</string>
 
 	<string name="dialog_address_builder_title" tools:ignore="UnusedResources">Address</string>
-	<string name="dialog_place_picker_search_title">Pick a [@string/container_singular_lowercase]</string>
-	<string name="dialog_photo_picker_search_title">Photo search</string>
 
 	<string name="dialog_photo_action_title">Select photo</string>
 	<string name="dialog_photo_action_search">Search for photos</string>
@@ -139,7 +137,6 @@
 
 	<string name="alert_signed_out">Signed out.</string>
 	<string name="alert_copied_to_clipboard">Copied to clipboard</string>
-	<string name="alert_auto_watch">You are now watching this patch</string>
 	<string name="alert_location_services_disabled">Waiting for location&#8230;</string>
 
 	<string name="alert_watch_request_sent">Join request sent</string>
@@ -209,9 +206,9 @@
 
 	<!-- Errors -->
 
-	<string name="error_location_poor">Location service is poor or unavailable, retry later</string>
-	<string name="error_image_too_large">Photo is too large for the current device.</string>
-	<string name="error_image_unusable">Photo is unusable.</string>
+	<string name="error_location_poor" tools:ignore="UnusedResources">Location service is poor or unavailable, retry later</string>
+	<string name="error_image_too_large" tools:ignore="UnusedResources">Photo is too large for the current device.</string>
+	<string name="error_image_unusable" tools:ignore="UnusedResources">Photo is unusable.</string>
 	<string name="error_gcm_registration_failed">Registration for messages failed.</string>
 	<string name="error_storage_unmounted">SD card is not mounted.</string>
 	<string name="error_google_play_services_unavailable">Google Play Services must be installed and up-to-date.</string>
@@ -222,8 +219,8 @@
 	<string name="error_signup_email_taken">Email address is already being used.</string>
 	<string name="error_signup_password_weak">Password is too weak. Passwords must be at least 6 characters long, not be part of your user name, and not be certain commmon words.</string>
 	<string name="error_change_password_unauthorized">Old password is invalid.</string>
-	<string name="error_whitelist_unauthorized">This is an invitation-only beta. Only invited users are able to register user accounts.</string>
-	<string name="error_unverified_unauthorized">The email address for the account has not been verified.</string>
+	<string name="error_whitelist_unauthorized" tools:ignore="UnusedResources">This is an invitation-only beta. Only invited users are able to register user accounts.</string>
+	<string name="error_unverified_unauthorized" tools:ignore="UnusedResources">The email address for the account has not been verified.</string>
 	<string name="error_invalid_email">Email address is invalid.</string>
 	<string name="error_session_expired_title">Session expired</string>
 	<string name="error_session_expired">Your login session expired. Please sign in again.</string>
@@ -233,11 +230,11 @@
 
 	<string name="error_signin_failed">Wrong email and password combination.</string>
 	<string name="error_signin_password_incorrect">The password is incorrect.</string>
-	<string name="error_signin_email_not_found">The email address couldn\'t be found.</string>
+	<string name="error_signin_email_not_found" tools:ignore="UnusedResources">The email address couldn\'t be found.</string>
 
 	<!-- Errors: validation -->
 
-	<string name="error_weburi_invalid">Web address isn\'t in a valid format.</string>
+	<string name="error_weburi_invalid" tools:ignore="UnusedResources">Web address isn\'t in a valid format.</string>
 	<string name="error_missing_fullname">Enter a name.</string>
 	<string name="error_missing_email">Enter an email address.</string>
 	<string name="error_missing_password_weak">Password must be a minimum of six characters long.</string>
@@ -261,9 +258,9 @@
 	<string name="error_client_request_not_found">Resource not found</string>
 	<string name="error_service_gateway_timeout">The servers might be overloaded.</string>
 	<string name="error_service_unavailable">Your network connection is poor or the servers are overloaded.</string>
-	<string name="error_service_unknown">Oops, something went wrong. Try again and it might work.</string>
+	<string name="error_service_unknown" tools:ignore="UnusedResources">Oops, something went wrong. Try again and it might work.</string>
 	<string name="error_service_unknown_status">Internal 500 service error.</string>
-	<string name="error_service_unknown_exception">Unhandled exception, sorry about that!</string>
+	<string name="error_service_unknown_exception" tools:ignore="UnusedResources">Unhandled exception, sorry about that!</string>
 	<string name="error_service_file_not_found">File couldn\'t be found.</string>
 	<string name="error_service_unhandled_request_error">Unhandled request error</string>
 
@@ -283,7 +280,6 @@
 	<string name="progress_deleting">Deleting&#8230;</string>
 	<string name="progress_removing">Removing&#8230;</string>
 	<string name="progress_changing_password">Changing&#8230;</string>
-	<string name="progress_searching">Searching&#8230;</string>
 	<string name="progress_signing_in">Signing in&#8230;</string>
 	<string name="progress_reset_verify">Verifying&#8230;</string>
 
@@ -344,9 +340,7 @@
 	<string name="label_email">Email</string>
 	<string name="label_locked" tools:ignore="UnusedResources">Locked</string>
 	<string name="label_locked_description" tools:ignore="UnusedResources">Users can browse but not add content</string>
-	<string name="label_search_patches_hint">Search patches</string>
 	<string name="label_search_places_hint">Search places</string>
-	<string name="label_search_completion_hint">Pick a patch to browse.</string>
 	<string name="label_location_edit_message">Tap or tap and hold to set the location for the [@string/container_singular_lowercase].</string>
 
 	<string name="label_location_provider_none">Location: None</string>
@@ -417,7 +411,6 @@
     </string>
 
 	<string name="label_patch_share_body_self">"Check out the \'%1$s\' [@string/container_singular_lowercase]!"</string>
-	<string name="label_patch_share_body_self_oncreate">"Check out the \'%1$s\' [@string/container_singular_lowercase] I just dropped!"</string>
 
 	<string name="label_message_share_subject">[@string/name_app] message shared by %1$s</string>
 	<string name="label_message_share_body_install" tools:ignore="UnusedResources">Get the [@string/name_app] app at\u0020</string>
