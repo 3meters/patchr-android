@@ -48,7 +48,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.otto.Subscribe;
@@ -74,21 +73,10 @@ public class PatchEdit extends BaseEntityEdit {
 	protected AirProgressBar mMapProgressBar;
 	protected GoogleMap      mMap;
 	protected Marker         mMarker;
-	protected LatLng         mLocation;
-	protected Entity         mPlaceToLinkTo;
+
+	protected Entity mPlaceToLinkTo;
 
 	private Boolean mPlaceDirty = false;
-
-	public void unpackIntent() {
-		super.unpackIntent();
-		final Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			final String json = extras.getString(Constants.EXTRA_ENTITY_PARENT);
-			if (json != null) {
-				mPlaceToLinkTo = (Entity) Json.jsonToObject(json, Json.ObjectType.ENTITY);
-			}
-		}
-	}
 
 	@Override
 	public void initialize(Bundle savedInstanceState) {
@@ -122,12 +110,12 @@ public class PatchEdit extends BaseEntityEdit {
 					mMap.getUiSettings().setMapToolbarEnabled(false);
 					MapsInitializer.initialize(Patchr.applicationContext); // Initializes BitmapDescriptorFactory
 
-					drawLocation();
-
 					if (mMapView.getViewTreeObserver().isAlive()) {
 						mMapView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-							@SuppressWarnings("deprecation") // We use the new method when supported
-							@SuppressLint("NewApi") // We check which build version we are using.
+							@SuppressWarnings("deprecation")
+							// We use the new method when supported
+							@SuppressLint("NewApi")
+							// We check which build version we are using.
 							@Override
 							public void onGlobalLayout() {
 
@@ -137,13 +125,7 @@ public class PatchEdit extends BaseEntityEdit {
 								else {
 									mMapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 								}
-
-								if (mLocation != null) {
-									mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLocation, 17f));
-									mMapView.setVisibility(View.VISIBLE);
-									mMapProgressBar.hide();
-									mMapView.invalidate();
-								}
+								drawLocation();
 							}
 						});
 					}
@@ -159,24 +141,15 @@ public class PatchEdit extends BaseEntityEdit {
 		Patch patch = (Patch) mEntity;
 
 		if (!mEditing) {
-			if (mPlaceToLinkTo != null) {
-				/*
-				 * Place was passed in for default linking.
-				 */
-				((Patch) mEntity).location = mPlaceToLinkTo.location;
-				mProximityDisabled = true;
-			}
-			else {
-				final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
-				if (location != null) {
-					if (patch.location == null) {
-						patch.location = new AirLocation();
-					}
-					patch.location.lat = location.lat;
-					patch.location.lng = location.lng;
-					patch.location.accuracy = location.accuracy;
-					patch.location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
+			final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+			if (location != null) {
+				if (patch.location == null) {
+					patch.location = new AirLocation();
 				}
+				patch.location.lat = location.lat;
+				patch.location.lng = location.lng;
+				patch.location.accuracy = location.accuracy;
+				patch.location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
 			}
 		}
 		else {
@@ -247,46 +220,53 @@ public class PatchEdit extends BaseEntityEdit {
 		 * available. If a location isn't available for whatever reason we show the
 		 * map without a marker and say so in a label. From that point on, the only way
 		 * a patch gets a location is if the user sets one or it is linked to a place.
+		 *
+		 * When linked to a place, the patch location is set to a copy of the place
+		 * location. If the place link is later cleared, the patch location stays
+		 * unchanged.
 		 */
-		Patch patch = (Patch) mEntity;
+		Patch patch = (Patch) mEntity;  // Always set by the time we get here
 		mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_none));
 
 		if (mMap != null) {
 			mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-		}
 
-		if (mMap != null && mMapView != null && patch.location != null) {
+			if (patch.location != null) {
 
-			mLocation = new LatLng(patch.location.lat.doubleValue(), patch.location.lng.doubleValue());
-			mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
-
-			if (patch.location.provider != null) {
-				if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_USER)) {
-					mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_user));
-				}
-				else if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_PLACE)) {
-					if (mPlaceToLinkTo != null) {
-						mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_place));
+				mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
+				if (patch.location.provider != null) {
+					if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_USER)) {
+						mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_user));
 					}
-					else {
-						mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_unknown));
+					else if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_PLACE)) {
+						if (mPlaceToLinkTo != null) {
+							mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_place));
+						}
+						else {
+							mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_unknown));
+						}
 					}
-				}
-				else if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
-					if (mEditing) {
-						mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
-					}
-					else {
-						mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_google_new));
+					else if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
+						if (mEditing) {
+							mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
+						}
+						else {
+							mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_google_new));
+						}
 					}
 				}
+
+				mMap.clear();
+				mMap.addMarker(new MarkerOptions()
+						.position(patch.location.asLatLng())
+						.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
+						.anchor(0.5f, 0.5f));
+
+				mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(((Patch) mEntity).location.asLatLng(), 17f));
+				mMapView.setVisibility(View.VISIBLE);
+				mMapProgressBar.hide();
+				mMapView.invalidate();
 			}
-
-			mMap.clear();
-			mMap.addMarker(new MarkerOptions()
-					.position(mLocation)
-					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
-					.anchor(0.5f, 0.5f));
 		}
 	}
 

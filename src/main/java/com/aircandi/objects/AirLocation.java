@@ -3,6 +3,7 @@ package com.aircandi.objects;
 import android.support.annotation.NonNull;
 
 import com.aircandi.service.Expose;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -80,5 +81,9 @@ public class AirLocation extends ServiceObject implements Cloneable, Serializabl
 		toLocation.setLongitude(location.lng.doubleValue());
 
 		return fromLocation.distanceTo(toLocation);
+	}
+
+	public LatLng asLatLng() {
+		return new LatLng(this.lat.doubleValue(), this.lng.doubleValue());
 	}
 }
