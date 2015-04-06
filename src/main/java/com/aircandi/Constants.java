@@ -25,7 +25,6 @@ public class Constants {
 	public static final String EXTRA_ENTITY_TYPE      = "com.aircandi.EXTRA_ENTITY_TYPE";
 	public static final String EXTRA_ENTITIES         = "com.aircandi.EXTRA_ENTITIES";
 	public static final String EXTRA_ENTITY           = "com.aircandi.EXTRA_ENTITY";
-	public static final String EXTRA_ENTITY_PARENT    = "com.aircandi.EXTRA_ENTITY_PARENT";
 
 	public static final String EXTRA_NOTIFICATION_ID = "com.aircandi.EXTRA_NOTIFICATION_ID";
 	public static final String EXTRA_PATCH           = "com.aircandi.EXTRA_PATCH";

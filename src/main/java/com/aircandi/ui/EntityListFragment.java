@@ -700,19 +700,6 @@ public class EntityListFragment extends BaseFragment
 		return this;
 	}
 
-	public EntityListFragment setHeaderView(View headerView) {
-		if (mHeaderView != null) {
-			((ListView) mListView).removeHeaderView(mHeaderView);
-		}
-		if (mParallaxHeader) {
-			((AirListView) mListView).addParallaxedHeaderView(mHeaderView);
-		}
-		else {
-			((ListView) mListView).addHeaderView(mHeaderView);
-		}
-		return this;
-	}
-
 	public EntityListFragment setFooterViewResId(Integer footerViewResId) {
 		mFooterViewResId = footerViewResId;
 		return this;
