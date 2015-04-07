@@ -56,6 +56,7 @@ public class OkHttp extends BaseConnection {
 		client.setConnectTimeout(Constants.TIMEOUT_CONNECTION, TimeUnit.MILLISECONDS);
 		client.setReadTimeout(Constants.TIMEOUT_SOCKET_READ, TimeUnit.MILLISECONDS);
 		client.setWriteTimeout(Constants.TIMEOUT_SOCKET_WRITE, TimeUnit.MILLISECONDS);
+		client.setRetryOnConnectionFailure(true);
 	}
 
 	@NonNull
@@ -94,8 +95,13 @@ public class OkHttp extends BaseConnection {
 			request = builder.build();
 
 			/* Execute request */
+			OkHttpClient okHttpClient = client;
+			if (!serviceRequest.getRetryOnConnectionFailure()) {
+				okHttpClient = client.clone();
+				okHttpClient.setRetryOnConnectionFailure(false);
+			}
 
-			call = client.newCall(request);
+			call = okHttpClient.newCall(request);
 			response = call.execute();
 			if (serviceRequest.getStopwatch() != null) {
 				serviceRequest.getStopwatch().segmentTime("Http service: request execute completed");
@@ -271,9 +277,5 @@ public class OkHttp extends BaseConnection {
 			}
 		}
 		return contentType.toString();
-	}
-
-	public OkHttpClient getClient() {
-		return client;
 	}
 }

@@ -70,9 +70,9 @@ import java.util.Locale;
 public class DataController {
 
 	private Number mActivityDate;                                           // Monitored by nearby
-	private              Boolean     mRegistered             = false;
-	private              Boolean     mRegistering            = false;
-	private static final EntityStore ENTITY_STORE            = new EntityStore();
+	private              Boolean     mRegistered  = false;
+	private              Boolean     mRegistering = false;
+	private static final EntityStore ENTITY_STORE = new EntityStore();
 
 	private DataController() {
 		try {
@@ -546,27 +546,6 @@ public class DataController {
 		return result;
 	}
 
-	private ModelResult getDocumentId(String collection, Object tag) {
-
-		final ModelResult result = new ModelResult();
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_REST + collection + "/genId")
-				.setRequestType(RequestType.GET)
-				.setTag(tag)
-				.setSuppressUI(true)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.SERVICE_ENTRY, Json.ServiceDataWrapper.TRUE);
-			result.serviceResponse.data = ((ServiceEntry) serviceData.data).id;
-		}
-		return result;
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * user updates
 	 *--------------------------------------------------------------------------------------------*/
@@ -835,6 +814,7 @@ public class DataController {
 		ModelResult result = new ModelResult();
 
 		/* Upload image to S3 as needed */
+
 		if (bitmap != null && !bitmap.isRecycled()) {
 			PhotoType photoType = PhotoType.GENERAL;
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
@@ -843,13 +823,10 @@ public class DataController {
 			result.serviceResponse = storeImageAtS3(entity, null, bitmap, photoType);
 		}
 
-		/* Pre-fetch an id so a failed request can be retried */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			result = getDocumentId(entity.getCollection(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-		}
 
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			entity.id = (String) result.serviceResponse.data;
+			/* Clear any temp entity id */
+			entity.id = null;
 
 			/* Construct entity, link, and observation */
 			final Bundle parameters = new Bundle();
@@ -950,6 +927,7 @@ public class DataController {
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, serviceDataType, Json.ServiceDataWrapper.TRUE);
 			final Entity insertedEntity = (Entity) serviceData.data;
+			entity.id = insertedEntity.id;
 			/*
 			 * Optimization: Add soft 'create' link so user entity doesn't have to be refetched
 			 */
@@ -1526,9 +1504,7 @@ public class DataController {
 
 	public ModelResult insertDocument(Document document, Object tag) {
 
-		/* Pre-fetch an id so a failed request can be retried */
-		ModelResult result = getDocumentId(Document.collectionId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-		document.id = (String) result.serviceResponse.data;
+		ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("document", "object:" + Json.objectToJson(document, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
