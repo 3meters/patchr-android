@@ -2,6 +2,7 @@ package com.aircandi.components;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 
 import com.aircandi.Patchr;
 import com.aircandi.objects.Entity;
@@ -21,6 +22,7 @@ public class StringManager {
 
 	private StringManager() {}
 
+	@NonNull
 	public static String getString(int resId) {
 		return getString(Patchr.applicationContext.getResources().getString(resId)
 				, Patchr.applicationContext
@@ -28,6 +30,7 @@ public class StringManager {
 				, null);
 	}
 
+	@NonNull
 	public static String getString(String string) {
 		return getString(string
 				, Patchr.applicationContext
@@ -35,6 +38,7 @@ public class StringManager {
 				, null);
 	}
 
+	@NonNull
 	public static String getString(int resId, Context context, Resources resources) {
 		return getString(Patchr.applicationContext.getResources().getString(resId)
 				, context
@@ -45,6 +49,7 @@ public class StringManager {
 	/*
 	 * Overloads with schema parameter
 	 */
+	@NonNull
 	public static String getString(int resId, String schema) {
 		return getString(Patchr.applicationContext.getResources().getString(resId)
 				, Patchr.applicationContext
@@ -52,6 +57,7 @@ public class StringManager {
 				, schema);
 	}
 
+	@NonNull
 	public static String getString(String string, String schema) {
 		return getString(string
 				, Patchr.applicationContext
@@ -59,6 +65,7 @@ public class StringManager {
 				, schema);
 	}
 
+	@NonNull
 	public static String getString(int resId, Context context, Resources resources, String schema) {
 		return getString(Patchr.applicationContext.getResources().getString(resId)
 				, context
@@ -66,6 +73,7 @@ public class StringManager {
 				, schema);
 	}
 
+	@NonNull
 	public static synchronized String getString(String string, Context context, Resources resources, String schema) {
 
 		stringBuilder.setLength(0);

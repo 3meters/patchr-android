@@ -28,6 +28,7 @@ import com.aircandi.events.LinkInsertEvent;
 import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
@@ -47,10 +48,11 @@ import java.util.Locale;
 public abstract class BaseEntityForm extends BaseActivity {
 
 	@NonNull
-	protected Integer mLinkProfile;
+	protected Integer mLinkProfile = LinkSpecType.NO_LINKS;
+	@NonNull
+	protected Integer mLikeStatus  = LikeStatus.NONE;     // Set in draw
+	protected Boolean mBound       = false;
 	protected Integer mTransitionType;
-	protected Integer mLikeStatus = LikeStatus.NONE;     // Set in draw
-	protected Boolean mBound      = false;
 
 	/* Inputs */
 	@SuppressWarnings("ucd")

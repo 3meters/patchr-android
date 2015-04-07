@@ -268,8 +268,6 @@ public class Dialogs {
 	public static void locked(@NonNull final Activity activity, @NonNull Entity entity) {
 
 		String message = StringManager.getString(R.string.alert_entity_locked, entity.schema);
-		if (message != null) {
-			Dialogs.alertDialogSimple(activity, null, message);
-		}
+		Dialogs.alertDialogSimple(activity, null, message);
 	}
 }

@@ -146,6 +146,9 @@ public class MediaManager {
 	public static File copyBitmapToSharePath(Bitmap bitmap) {
 
 		File file = null;
+		String path = getSharePath();
+		if (path == null) return null;
+
 		try {
 			file = new File(getSharePath());
 			FileOutputStream outputStream = new FileOutputStream(file);

@@ -29,7 +29,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	private static final long            serialVersionUID = 4979315562693226461L;
 	private static final GooglePlusProxy imageResizer     = new GooglePlusProxy();
 
-	@NonNull
 	@Expose
 	public String prefix;
 	@Expose
@@ -38,7 +37,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	public Number width;
 	@Expose
 	public Number height;
-	@NonNull
 	@Expose
 	public String source;
 	@Expose

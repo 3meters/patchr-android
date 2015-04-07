@@ -132,11 +132,11 @@ public class Patch extends Entity implements Cloneable, Serializable {
 				 */
 				if (object1.distance == null && object2.distance == null)
 					return 0;
-				else if (object1.distance == null && object2.distance != null)
+				else if (object1.distance == null)
 					return 1;
-				else if (object2.distance == null && object1.distance != null)
+				else if (object2.distance == null)
 					return -1;
-				else if (object1.distance != null && object2.distance != null) {
+				else {
 					if (object1.distance.intValue() < object2.distance.intValue())
 						return -1;
 					else if (object1.distance.intValue() > object2.distance.intValue())
@@ -144,7 +144,6 @@ public class Patch extends Entity implements Cloneable, Serializable {
 					else
 						return 0;
 				}
-				return 0;
 			}
 		}
 	}

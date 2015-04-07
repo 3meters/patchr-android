@@ -76,22 +76,19 @@ public class Patchr extends MultiDexApplication {
 
 	public static Intent sendIntent;  // Used when we are started to handle a send intent
 
-	@NonNull
-	public static SharedPreferences        settings;
-	@NonNull
-	public static SharedPreferences.Editor settingsEditor;
-	@NonNull
 	public static Context                  applicationContext;
-	@NonNull
-	public static Handler                  mainThreadHandler;
-	@NonNull
 	public static PackageManager           packageManager;
+	public static SharedPreferences        settings;
+	public static SharedPreferences.Editor settingsEditor;
+
 	@NonNull
-	public static Router                   router;
+	public static Handler   mainThreadHandler = new Handler(Looper.getMainLooper());
 	@NonNull
-	public static Stopwatch                stopwatch1;
+	public static Router    router            = new Router();
 	@NonNull
-	public static Stopwatch                stopwatch2;
+	public static Stopwatch stopwatch1        = new Stopwatch(); // $codepro.audit.disable stringLiterals;
+	@NonNull
+	public static Stopwatch stopwatch2        = new Stopwatch(); // $codepro.audit.disable stringLiterals;
 
 	@NonNull
 	public static String                         themeTone                 = ThemeTone.LIGHT;
@@ -124,13 +121,10 @@ public class Patchr extends MultiDexApplication {
 	private User     mCurrentUser;
 
 	/* Common preferences */
-	@NonNull
 	private String mPrefTheme;
 
 	/* Dev preferences */
-	@NonNull
 	private Boolean mPrefEnableDev;
-	@NonNull
 	private String  mPrefTestingBeacons;
 
 	/* Install id components */
@@ -165,14 +159,7 @@ public class Patchr extends MultiDexApplication {
 
 		/* Must have this so activity rerouting works. */
 		applicationContext = getApplicationContext();
-
-		stopwatch1 = new Stopwatch(); // $codepro.audit.disable stringLiterals
-		stopwatch2 = new Stopwatch(); // $codepro.audit.disable stringLiterals
-
-		mainThreadHandler = new Handler(Looper.getMainLooper());
 		packageManager = applicationContext.getPackageManager();
-
-		/* Make settings available app wide */
 		settings = PreferenceManager.getDefaultSharedPreferences(applicationContext);
 		settingsEditor = settings.edit();
 
@@ -246,9 +233,6 @@ public class Patchr extends MultiDexApplication {
 
 		/* Warmup media manager */
 		MediaManager.warmup();
-
-		/* Inject dispatch manager */
-		router = new Router();
 
 		/* Connectivity monitoring */
 		NetworkManager.getInstance().initialize();

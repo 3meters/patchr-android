@@ -38,7 +38,6 @@ import com.aircandi.objects.Photo.PhotoType;
 import com.aircandi.objects.Proximity;
 import com.aircandi.objects.ServiceBase.UpdateScope;
 import com.aircandi.objects.ServiceData;
-import com.aircandi.objects.ServiceEntry;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.User;
 import com.aircandi.service.RequestType;

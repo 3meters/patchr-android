@@ -941,16 +941,14 @@ public class EntityListFragment extends BaseFragment
 					if (!mShowIndex) {
 						View index = view.findViewById(R.id.index);
 						if (index != null) {
-							((ViewGroup)index.getParent()).removeView(index);
+							((ViewGroup) index.getParent()).removeView(index);
 						}
 					}
 				}
 
-				if (entity != null) {
-					bindListItem(entity, view, mGroupTag);
-					view.setClickable(true);
-					view.setOnClickListener(EntityListFragment.this);
-				}
+				bindListItem(entity, view, mGroupTag);
+				view.setClickable(true);
+				view.setOnClickListener(EntityListFragment.this);
 			}
 			return view;
 		}

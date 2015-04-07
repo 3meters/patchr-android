@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,7 +62,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	private Entity mShareEntity;
 
 	private ViewAnimator             mAnimatorTo;
-	@NonNull
 	private ViewAnimator             mAnimatorPhoto;
 	private ViewGroup                mShareHolder;
 	private ViewGroup                mShare;
@@ -133,12 +131,16 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		mInsertedResId = R.string.alert_message_sent;
 
 		mAnimatorPhoto = (ViewAnimator) findViewById(R.id.animator_photo);
-		mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
-		mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
+		if (mAnimatorPhoto != null) {
+			mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
+			mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
+		}
 
 		mAnimatorTo = (ViewAnimator) findViewById(R.id.animator_to);
-		mAnimatorTo.setInAnimation(this, R.anim.fade_in_short);
-		mAnimatorTo.setOutAnimation(this, R.anim.fade_out_short);
+		if (mAnimatorTo != null) {
+			mAnimatorTo.setInAnimation(this, R.anim.fade_in_short);
+			mAnimatorTo.setOutAnimation(this, R.anim.fade_out_short);
+		}
 		mButtonToClear = (ImageView) findViewById(R.id.to_clear);
 		mShareHolder = (ViewGroup) findViewById(R.id.share_holder);
 		mShare = (ViewGroup) findViewById(R.id.share_entity);
@@ -267,10 +269,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 												                               .get();
 
 												File file = MediaManager.copyBitmapToSharePath(bitmap);
+												Uri uri = MediaManager.getSharePathUri();
 
-												if (file != null) {
+												if (file != null && uri != null) {
 													Photo photo = new Photo()
-															.setPrefix(MediaManager.getSharePathUri().toString())
+															.setPrefix(uri.toString())
 															.setStore(true)
 															.setSource(Photo.PhotoSource.file);
 													onPhotoSelected(photo); // mDirty gets set in this method
@@ -340,10 +343,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 										                               .get();
 
 										File file = MediaManager.copyBitmapToSharePath(bitmap);
+										Uri uri = MediaManager.getSharePathUri();
 
-										if (file != null) {
+										if (file != null && uri != null) {
 											Photo photo = new Photo()
-													.setPrefix(MediaManager.getSharePathUri().toString())
+													.setPrefix(uri.toString())
 													.setStore(true)
 													.setSource(Photo.PhotoSource.file);
 											onPhotoSelected(photo); // mDirty gets set in this method

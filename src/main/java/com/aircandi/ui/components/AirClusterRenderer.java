@@ -228,11 +228,11 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 	 */
 	@SuppressLint("HandlerLeak")
 	private class ViewModifier extends Handler {
-		private static final int     RUN_TASK                    = 0;
-		private static final int     TASK_FINISHED               = 1;
-		private              boolean mViewModificationInProgress = false;
 
-		private RenderTask mNextClusters = null;
+		private static final int        RUN_TASK                    = 0;
+		private static final int        TASK_FINISHED               = 1;
+		private              boolean    mViewModificationInProgress = false;
+		private              RenderTask mNextClusters               = null;
 
 		@Override
 		public void handleMessage(@NonNull Message msg) {
@@ -269,8 +269,10 @@ public class AirClusterRenderer<T extends ClusterItem> implements ClusterRendere
 					sendEmptyMessage(TASK_FINISHED);
 				}
 			});
+
 			renderTask.setProjection(mMap.getProjection());
 			renderTask.setMapZoom(mMap.getCameraPosition().zoom);
+
 			new Thread(renderTask).start();
 		}
 
