@@ -27,6 +27,7 @@ import com.aircandi.components.DataController.ActionType;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MenuManager;
+import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.DataErrorEvent;
@@ -158,6 +159,7 @@ public class PatchForm extends BaseEntityForm {
 
 				@Override
 				public void run() {
+
 					if (event.actionType == ActionType.ACTION_GET_ENTITY) {
 						/* Not watching a restricted patch and pre-approved */
 						if (mWatchStatus == WatchStatus.NONE
@@ -197,6 +199,7 @@ public class PatchForm extends BaseEntityForm {
 						}
 						else {
 							draw(null);
+							onProcessingComplete(NetworkManager.ResponseCode.SUCCESS);
 						}
 					}
 					else if (event.actionType == ActionType.ACTION_LINK_DELETE_WATCH) {
@@ -217,6 +220,7 @@ public class PatchForm extends BaseEntityForm {
 						}
 						else {
 							draw(null);
+							onProcessingComplete(NetworkManager.ResponseCode.SUCCESS);
 						}
 					}
 				}
