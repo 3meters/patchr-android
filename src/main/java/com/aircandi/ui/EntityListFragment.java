@@ -921,12 +921,13 @@ public class EntityListFragment extends BaseFragment
 			else {
 
 				Entity entity = mEntities.get(position);
-				entity.index = position + 1;
 
 				/* Perform cache lookup to make sure we are using the latest */
 				if (mEntityCacheEnabled && DataController.getStoreEntity(entity.id) != null) {
 					entity = DataController.getStoreEntity(entity.id);
 				}
+
+				entity.index = position + 1;
 
                 /*
                  * Holder is created and bound to view elements by the controller in bindListItem.
