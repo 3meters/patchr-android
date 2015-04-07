@@ -95,6 +95,15 @@ public class AircandiForm extends BaseActivity {
 		/* Notifications fragment */
 		mFragmentNotifications = new NotificationListFragment();
 
+		/*
+		 * Keyed on current user. Activity date tickled each time:
+		 * - a notification is received
+		 * - insert entity
+		 * - delete entity
+		 * - insert link
+		 * - delete link
+		 * - like/unlike entity
+		 */
 		((EntityListFragment) mFragmentNotifications)
 				.setMonitorEntityId(Patchr.getInstance().getCurrentUser().id)
 				.setActionType(ActionType.ACTION_GET_NOTIFICATIONS)
