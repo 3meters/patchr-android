@@ -249,6 +249,7 @@ public class EntityStore {
 
 		parameters.putString("location", "object:" + Json.objectToJson(location));
 		parameters.putInt("limit", Patchr.applicationContext.getResources().getInteger(R.integer.limit_places_radar));
+		parameters.putBoolean("rest", false);
 		parameters.putInt("radius", Constants.PATCH_NEAR_RADIUS);
 
 		if (linkOptions != null) {
