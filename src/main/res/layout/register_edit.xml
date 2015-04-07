@@ -159,16 +159,30 @@
 						android:textAppearance="?android:attr/textAppearance"
 						custom:textId="@string/label_password_unmask" />
 
-					<Button
-						android:id="@+id/button_register"
-						style="@style/button_link"
+					<RelativeLayout
 						android:layout_width="match_parent"
-						android:layout_height="@dimen/button_height"
+						android:layout_height="wrap_content"
+						android:gravity="center_vertical"
+						android:orientation="horizontal"
 						android:layout_marginBottom="16dp"
-						android:layout_marginLeft="4dp"
-						android:layout_marginRight="4dp"
-						android:onClick="onRegisterButtonClick"
-						android:text="@string/button_register" />
+						android:paddingLeft="4dp"
+						android:paddingRight="4dp">
+
+						<View
+							android:layout_width="match_parent"
+							android:layout_height="@dimen/button_height"
+							android:background="@color/brand_accent" />
+
+						<Button
+							android:id="@+id/button_register"
+							style="@style/button_link"
+							android:layout_width="match_parent"
+							android:layout_height="@dimen/button_height"
+							android:minWidth="200dp"
+							android:onClick="onRegisterButtonClick"
+							android:textColor="@color/white"
+							android:text="@string/button_register" />
+					</RelativeLayout>
 
 					<RelativeLayout
 						android:layout_width="match_parent"

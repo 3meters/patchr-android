@@ -115,7 +115,8 @@
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/button_likes"
 					android:onClick="onWatchingListButtonClick"
-					android:orientation="horizontal">
+					android:orientation="horizontal"
+					tools:ignore="RelativeOverlap">
 
 					<com.aircandi.ui.widgets.AirTextMedium
 						android:id="@+id/watching_count"
@@ -140,7 +141,6 @@
 					android:layout_width="@dimen/button_height"
 					android:layout_height="@dimen/button_height"
 					android:layout_toLeftOf="@+id/button_watch"
-					android:layout_toRightOf="@+id/button_watching"
 					android:clickable="true"
 					android:onClick="onLikeButtonClick">
 
