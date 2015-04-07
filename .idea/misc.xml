@@ -4,9 +4,6 @@
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
-  <component name="ProjectDictionaryState">
-    <dictionary name="Jayma" />
-  </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
       <profile-state>
@@ -27,4 +24,3 @@
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
 </project>
-
