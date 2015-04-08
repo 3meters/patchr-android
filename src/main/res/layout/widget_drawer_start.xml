@@ -157,31 +157,6 @@
 					custom:textId="@string/label_drawer_item_create" />
 			</RelativeLayout>
 
-			<!-- Trending section -->
-
-			<LinearLayout
-				android:id="@+id/group_trending_header"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical">
-
-				<com.aircandi.ui.widgets.AirTextLight
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_vertical"
-					android:layout_marginLeft="12dp"
-					android:layout_marginTop="8dp"
-					android:text="@string/label_drawer_section_trending"
-					android:textAppearance="?android:attr/textAppearance"
-					android:textColor="@color/brand_primary"
-					custom:textId="@string/label_drawer_section_trending" />
-
-				<View
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/rule_header_height"
-					android:background="@color/brand_primary_dark" />
-			</LinearLayout>
-
 			<RelativeLayout
 				android:id="@+id/item_trend_activity"
 				style="@style/selectable_item"
@@ -191,6 +166,11 @@
 				android:onClick="onDrawerItemClick"
 				android:orientation="horizontal"
 				android:tag="trend_active">
+
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/rule_divider_height"
+					android:background="?attr/ruleColor" />
 
 				<ImageView
 					android:id="@+id/image_trend_activity"
@@ -212,42 +192,6 @@
 					android:text="@string/label_drawer_item_trend_active"
 					android:textAppearance="?android:attr/textAppearanceMedium"
 					custom:textId="@string/label_drawer_item_trend_active" />
-			</RelativeLayout>
-
-			<RelativeLayout
-				android:id="@+id/item_trend_popular"
-				style="@style/selectable_item"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/drawer_item_height"
-				android:clickable="true"
-				android:onClick="onDrawerItemClick"
-				android:orientation="horizontal"
-				android:tag="trend_popular">
-
-				<View
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/rule_divider_height"
-					android:background="?attr/ruleColor" />
-
-				<ImageView
-					android:id="@+id/image_trend_popular"
-					android:layout_width="@dimen/image_extra_small"
-					android:layout_height="@dimen/image_extra_small"
-					android:layout_centerVertical="true"
-					android:layout_marginLeft="12dp"
-					android:layout_marginRight="6dp"
-					android:focusable="false"
-					android:src="?attr/iconDrawerTrendPopular" />
-
-				<com.aircandi.ui.widgets.AirTextLight
-					android:id="@id/name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_centerVertical="true"
-					android:layout_toRightOf="@+id/image_trend_popular"
-					android:text="@string/label_drawer_item_trend_popular"
-					android:textAppearance="?android:attr/textAppearanceMedium"
-					custom:textId="@string/label_drawer_item_trend_popular" />
 			</RelativeLayout>
 
 			<!-- More section -->

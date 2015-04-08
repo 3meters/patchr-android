@@ -326,34 +326,6 @@ public class AircandiForm extends BaseActivity {
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
-			/* Trending popular */
-
-			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_TREND_POPULAR)) {
-
-				fragment = new TrendListFragment();
-
-				((EntityListFragment) fragment)
-						.setActionType(ActionType.ACTION_GET_TREND)
-						.setLinkType(Constants.TYPE_LINK_WATCH)
-						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
-						.setListPagingEnabled(false)
-						.setEntityCacheEnabled(false)
-						.setHeaderViewResId(R.layout.widget_list_header_trends_popular)
-						.setListItemResId(R.layout.temp_listitem_trends)
-						.setListViewType(ViewType.LIST)
-						.setListLayoutResId(R.layout.trends_list_fragment)
-						.setListEmptyMessageResId(R.string.label_created_empty)
-						.setTitleResId(R.string.form_title_trends_popular);
-
-				((TrendListFragment) fragment)
-						.setToSchema(Constants.SCHEMA_ENTITY_PATCH)
-						.setFromSchema(Constants.SCHEMA_ENTITY_USER)
-						.setCountLabelResId(R.string.label_trends_count_popular);
-
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
-			}
-
 			/* Trending active */
 
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_TREND_ACTIVE)) {
@@ -502,7 +474,6 @@ public class AircandiForm extends BaseActivity {
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_watch).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_create).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_trend_activity).findViewById(R.id.name));
-			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_trend_popular).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_more_settings).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_more_feedback).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceMedium((TextView) mCurrentNavView.findViewById(R.id.name));
