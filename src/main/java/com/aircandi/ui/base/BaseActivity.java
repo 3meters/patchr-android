@@ -236,25 +236,6 @@ public abstract class BaseActivity extends ActionBarActivity
 		AnimationManager.doOverridePendingTransition(this, getExitTransitionType());
 	}
 
-	protected Integer getExitTransitionType() {
-		Integer transitionType = TransitionType.FORM_BACK;
-		if (mTransitionType != TransitionType.FORM_TO) {
-			if (mTransitionType == TransitionType.DRILL_TO) {
-				transitionType = TransitionType.DRILL_BACK;
-			}
-			else if (mTransitionType == TransitionType.BUILDER_TO) {
-				transitionType = TransitionType.BUILDER_BACK;
-			}
-			else if (mTransitionType == TransitionType.VIEW_TO) {
-				transitionType = TransitionType.VIEW_BACK;
-			}
-			else if (mTransitionType == TransitionType.DIALOG_TO) {
-				transitionType = TransitionType.DIALOG_BACK;
-			}
-		}
-		return transitionType;
-	}
-
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		Logger.d(this, "Configuration changed");
@@ -575,6 +556,25 @@ public abstract class BaseActivity extends ActionBarActivity
 		if (mPrefChangeNewSearchNeeded || mPrefChangeRefreshUiNeeded || mPrefChangeReloadNeeded) {
 			Patchr.getInstance().snapshotPreferences();
 		}
+	}
+
+	protected Integer getExitTransitionType() {
+		Integer transitionType = TransitionType.FORM_BACK;
+		if (mTransitionType != TransitionType.FORM_TO) {
+			if (mTransitionType == TransitionType.DRILL_TO) {
+				transitionType = TransitionType.DRILL_BACK;
+			}
+			else if (mTransitionType == TransitionType.BUILDER_TO) {
+				transitionType = TransitionType.BUILDER_BACK;
+			}
+			else if (mTransitionType == TransitionType.VIEW_TO) {
+				transitionType = TransitionType.VIEW_BACK;
+			}
+			else if (mTransitionType == TransitionType.DIALOG_TO) {
+				transitionType = TransitionType.DIALOG_BACK;
+			}
+		}
+		return transitionType;
 	}
 
 	/*--------------------------------------------------------------------------------------------
