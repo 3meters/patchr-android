@@ -130,8 +130,7 @@
 		<attr name="iconDrawerNearby" format="reference" />
 		<attr name="iconDrawerWatch" format="reference" />
 		<attr name="iconDrawerCreate" format="reference" />
-		<attr name="iconDrawerTrendActive" format="reference" />
-		<attr name="iconDrawerTrendPopular" format="reference" />
+		<attr name="iconDrawerExplore" format="reference" />
 		<attr name="iconDrawerSettings" format="reference" />
 		<attr name="iconDrawerSend" format="reference" />
 

@@ -158,7 +158,7 @@
 			</RelativeLayout>
 
 			<RelativeLayout
-				android:id="@+id/item_trend_activity"
+				android:id="@+id/item_explore"
 				style="@style/selectable_item"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/drawer_item_height"
@@ -173,7 +173,7 @@
 					android:background="?attr/ruleColor" />
 
 				<ImageView
-					android:id="@+id/image_trend_activity"
+					android:id="@+id/image_explore"
 					android:layout_width="@dimen/image_extra_small"
 					android:layout_height="@dimen/image_extra_small"
 					android:layout_centerVertical="true"
@@ -181,14 +181,14 @@
 					android:layout_marginRight="6dp"
 					android:focusable="false"
 					android:padding="3dp"
-					android:src="?attr/iconDrawerTrendActive" />
+					android:src="?attr/iconDrawerExplore" />
 
 				<com.aircandi.ui.widgets.AirTextLight
 					android:id="@id/name"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_centerVertical="true"
-					android:layout_toRightOf="@+id/image_trend_activity"
+					android:layout_toRightOf="@+id/image_explore"
 					android:text="@string/label_drawer_item_trend_active"
 					android:textAppearance="?android:attr/textAppearanceMedium"
 					custom:textId="@string/label_drawer_item_trend_active" />

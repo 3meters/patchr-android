@@ -211,8 +211,7 @@
 		<item name="iconDrawerNearby">@drawable/ic_action_signal_dark</item>
 		<item name="iconDrawerWatch">@drawable/ic_action_watch_dark</item>
 		<item name="iconDrawerCreate">@drawable/ic_action_edit_dark</item>
-		<item name="iconDrawerTrendActive">@drawable/ic_action_line_chart_dark</item>
-		<item name="iconDrawerTrendPopular">@drawable/ic_action_users_dark</item>
+		<item name="iconDrawerExplore">@drawable/ic_action_explore_dark</item>
 		<item name="iconDrawerSettings">@drawable/ic_action_settings_dark</item>
 		<item name="iconDrawerSend">@drawable/ic_action_send_dark</item>
 
@@ -245,8 +244,7 @@
 		<item name="iconDrawerNearby">@drawable/ic_action_signal_light</item>
 		<item name="iconDrawerWatch">@drawable/ic_action_watch_light</item>
 		<item name="iconDrawerCreate">@drawable/ic_action_edit_light</item>
-		<item name="iconDrawerTrendActive">@drawable/ic_action_line_chart_light</item>
-		<item name="iconDrawerTrendPopular">@drawable/ic_action_users_light</item>
+		<item name="iconDrawerExplore">@drawable/ic_action_explore_light</item>
 		<item name="iconDrawerSettings">@drawable/ic_action_settings_light</item>
 		<item name="iconDrawerSend">@drawable/ic_action_send_light</item>
 

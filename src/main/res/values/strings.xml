@@ -32,8 +32,7 @@
 	<string name="form_title_nearby" tools:ignore="UnusedResources">Nearby</string>
 	<string name="form_title_watch" tools:ignore="UnusedResources">Watching</string>
 	<string name="form_title_create" tools:ignore="UnusedResources">My patches</string>
-	<string name="form_title_trends_popular" tools:ignore="UnusedResources">Most popular</string>
-	<string name="form_title_trends_active" tools:ignore="UnusedResources">Most active</string>
+	<string name="form_title_trends_active" tools:ignore="UnusedResources">Explore</string>
 	<string name="form_title_notifications" tools:ignore="UnusedResources">Notifications</string>
 	<string name="form_title_likes_list" tools:ignore="UnusedResources">People who like this</string>
 	<string name="form_title_watching_list" tools:ignore="UnusedResources">People who are watching this</string>
@@ -476,13 +475,11 @@
 	<string name="label_drawer_item_nearby">Nearby</string>
 	<string name="label_drawer_item_watch">Watching</string>
 	<string name="label_drawer_item_create">Owner</string>
+	<string name="label_drawer_item_trend_active">Explore</string>
 
 	<string name="label_drawer_section_patches">PATCHES</string>
-	<string name="label_drawer_section_trending">TRENDING</string>
 	<string name="label_drawer_section_more">MORE</string>
 
-	<string name="label_drawer_item_trend_active">Most active</string>
-	<string name="label_drawer_item_trend_popular">Most popular</string>
 	<string name="label_drawer_item_more_settings">Settings</string>
 	<string name="label_drawer_item_more_feedback">Send feedback</string>
 
