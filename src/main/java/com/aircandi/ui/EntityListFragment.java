@@ -451,6 +451,7 @@ public class EntityListFragment extends BaseFragment
 
 		if (mLinkType != null) {
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, mLinkType);
+			extras.putString(Constants.EXTRA_ENTITY_FOR_ID, mMonitorEntityId);
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mMonitorEntityId);
 			Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
 			return;
