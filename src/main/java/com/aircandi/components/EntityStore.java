@@ -41,7 +41,7 @@ public class EntityStore {
 	 * Store loading from service
 	 *--------------------------------------------------------------------------------------------*/
 
-	ServiceResponse loadEntities(List<String> entityIds, LinkSpec linkOptions, CacheStamp cacheStamp, Object tag) {
+	ServiceResponse loadEntities(List<String> entityIds, LinkSpec links, CacheStamp cacheStamp, Object tag) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putStringArrayList("entityIds", (ArrayList<String>) entityIds);
@@ -66,8 +66,8 @@ public class EntityStore {
 			}
 		}
 
-		if (linkOptions != null) {
-			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
+		if (links != null) {
+			parameters.putString("links", "object:" + Json.objectToJson(links));
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
@@ -117,7 +117,7 @@ public class EntityStore {
 		return serviceResponse;
 	}
 
-	ServiceResponse loadEntitiesForEntity(String forEntityId, LinkSpec linkOptions, Cursor cursor, CacheStamp cacheStamp, Stopwatch stopwatch, Object tag) {
+	ServiceResponse loadEntitiesForEntity(String forEntityId, LinkSpec links, Cursor cursor, CacheStamp cacheStamp, Stopwatch stopwatch, Object tag) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("entityId", forEntityId);
@@ -127,8 +127,8 @@ public class EntityStore {
 					+ "{\"activityDate\":{\"$gt\":" + cacheStamp.activityDate.longValue() + "}}");
 		}
 
-		if (linkOptions != null) {
-			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
+		if (links != null) {
+			parameters.putString("links", "object:" + Json.objectToJson(links));
 		}
 
 		if (cursor != null) {
@@ -173,13 +173,13 @@ public class EntityStore {
 		return serviceResponse;
 	}
 
-	ServiceResponse loadEntitiesByProximity(List<String> beaconIds, LinkSpec linkOptions, Cursor cursor, String installId, Object tag, Stopwatch stopwatch) {
+	ServiceResponse loadEntitiesByProximity(List<String> beaconIds, LinkSpec links, Cursor cursor, String installId, Object tag, Stopwatch stopwatch) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putStringArrayList("beaconIds", (ArrayList<String>) beaconIds);
 
-		if (linkOptions != null) {
-			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
+		if (links != null) {
+			parameters.putString("links", "object:" + Json.objectToJson(links));
 		}
 
 		if (cursor != null) {
@@ -243,7 +243,7 @@ public class EntityStore {
 		return serviceResponse;
 	}
 
-	ServiceResponse loadEntitiesNearLocation(AirLocation location, LinkSpec linkOptions, String installId, List<String> excludeIds, Object tag) {
+	ServiceResponse loadEntitiesNearLocation(AirLocation location, LinkSpec links, String installId, List<String> excludeIds, Object tag) {
 
 		final Bundle parameters = new Bundle();
 
@@ -252,8 +252,8 @@ public class EntityStore {
 		parameters.putBoolean("rest", false);
 		parameters.putInt("radius", Constants.PATCH_NEAR_RADIUS);
 
-		if (linkOptions != null) {
-			parameters.putString("links", "object:" + Json.objectToJson(linkOptions));
+		if (links != null) {
+			parameters.putString("links", "object:" + Json.objectToJson(links));
 		}
 
 		if (installId != null) {

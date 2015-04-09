@@ -32,6 +32,7 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.LinkSpec;
 import com.aircandi.objects.LinkSpecFactory;
+import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoType;
@@ -114,11 +115,11 @@ public class DataController {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncGetEntity");
 
-				LinkSpec options = LinkSpecFactory.build(event.linkProfile);
+				LinkSpec links = LinkSpecFactory.build(event.linkProfile);
 				final List<String> loadEntityIds = new ArrayList<String>();
 				loadEntityIds.add(event.entityId);
 
-				ServiceResponse serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, options, event.cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ServiceResponse serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, links, event.cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					ServiceData serviceData = (ServiceData) serviceResponse.data;
@@ -556,6 +557,12 @@ public class DataController {
 		parameters.putString("email", email);
 		parameters.putString("password", password);
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
+		parameters.putBoolean("getEntities", true);
+
+		LinkSpec links = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
+		if (links != null) {
+			parameters.putString("links", "object:" + Json.objectToJson(links));
+		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "signin")
@@ -722,8 +729,13 @@ public class DataController {
 		final Bundle parameters = new Bundle();
 		parameters.putString("secret", ContainerManager.getContainerHolder().getContainer().getString(Patchr.USER_SECRET));
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
+		parameters.putBoolean("getEntities", true);
 		user.id = null; // remove temp id we assigned
-
+		/*
+		 * Call to user/create internally calls auth/signin after creating the user. The final
+		 * response comes from auth/signin. New users don't have any links yet so we don't
+		 * need to provide any link specs.
+		 */
 		ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "create")
 				.setRequestType(RequestType.INSERT)
@@ -733,7 +745,7 @@ public class DataController {
 				.setUseSecret(true)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		/* insert user. */
+		/* Insert user */
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -741,39 +753,34 @@ public class DataController {
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_register", null, 0);
 			String jsonResponse = (String) result.serviceResponse.data;
 			ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
-			user = serviceData.user;
-			user.session = serviceData.session;
+			User registeredUser = serviceData.user;
+			registeredUser.session = serviceData.session;
+			result.data = registeredUser;
 			/*
-			 * Put image to S3 if we have one. Handles setting up the photo
-			 * object on user
+			 * Put image to S3 if we have one. Handles setting up the photo object on user
 			 */
 			if (bitmap != null && !bitmap.isRecycled()) {
-				result.serviceResponse = storeImageAtS3(null, user, bitmap, PhotoType.USER);
-			}
 
-			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-				/*
-				 * Update user to capture the uri for the image we saved.
-				 */
-				serviceRequest = new ServiceRequest()
-						.setUri(user.getEntryUri())
-						.setRequestType(RequestType.UPDATE)
-						.setRequestBody(Json.objectToJson(user, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
-						.setResponseFormat(ResponseFormat.JSON);
-
-				if (!user.isAnonymous()) {
-					serviceRequest.setSession(user.session);
-				}
-
-				/* Doing an update so we don't need anything back */
-				result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+				result.serviceResponse = storeImageAtS3(null, registeredUser, bitmap, PhotoType.USER);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					jsonResponse = (String) result.serviceResponse.data;
-					serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
-					final User insertedUser = (User) serviceData.data;
-					insertedUser.session = user.session;
-					result.data = insertedUser;
+					/*
+					 * Update user to capture the uri for the image we saved.
+					 *
+					 * To get to here, we had to have a successful user registration. If this
+					 * call fails, the user photo won't be captured but we still consider the
+					 * registration operation a success.
+					 */
+					serviceRequest = new ServiceRequest()
+							.setUri(registeredUser.getEntryUri())
+							.setRequestType(RequestType.UPDATE)
+							.setRequestBody(Json.objectToJson(registeredUser, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
+							.setResponseFormat(ResponseFormat.JSON);
+
+					if (!registeredUser.isAnonymous()) {
+						serviceRequest.setSession(user.session);
+					}
+					NetworkManager.getInstance().request(serviceRequest);
 				}
 			}
 		}
