@@ -49,10 +49,10 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	@NonNull
 	protected Integer mLinkProfile = LinkSpecType.NO_LINKS;
-	@NonNull
-	protected Integer mLikeStatus  = LikeStatus.NONE;     // Set in draw
-	protected Boolean mBound       = false;
 	protected Integer mTransitionType;
+
+	/* Part of binding logic */
+	protected Boolean mBound = false;
 
 	/* Inputs */
 	@SuppressWarnings("ucd")

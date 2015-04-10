@@ -380,7 +380,8 @@ public class PatchForm extends BaseEntityForm {
 				return;
 			}
 
-			like(mLikeStatus == LikeStatus.NONE);
+			Link linkLike = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
+			like(linkLike == null);
 		}
 	}
 
@@ -511,19 +512,12 @@ public class PatchForm extends BaseEntityForm {
 			view = findViewById(android.R.id.content);
 		}
 
-		mFirstDraw = false;
-
 		/* Some state management */
 
 		Patch patch = (Patch) mEntity;
-
 		Link linkWatching = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
-		Link linkLike = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
-
 		mRestrictedForUser = patch.isRestrictedForCurrentUser();
 		mWatchStatus = (linkWatching == null) ? WatchStatus.NONE : (linkWatching.enabled) ? WatchStatus.WATCHING : WatchStatus.REQUESTED;
-		mLikeStatus = (linkLike == null) ? LikeStatus.NONE : LikeStatus.LIKE;
-
 		Boolean owner = (patch.ownerId != null && patch.ownerId.equals(Patchr.getInstance().getCurrentUser().id));
 
 		final View holderPlace = view.findViewById(R.id.holder_place);

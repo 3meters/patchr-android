@@ -156,16 +156,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 			drawPhoto();
 
-			if (!TextUtils.isEmpty(entity.name)) {
-				if (mName != null) {
-					mName.setText(entity.name);
-				}
+			if (mName != null && !TextUtils.isEmpty(entity.name)) {
+				mName.setText(entity.name);
 			}
-
-			if (!TextUtils.isEmpty(entity.description)) {
-				if (mDescription != null) {
-					mDescription.setText(entity.description);
-				}
+			if (mDescription != null && !TextUtils.isEmpty(entity.description)) {
+				mDescription.setText(entity.description);
 			}
 
 			mFirstDraw = false;

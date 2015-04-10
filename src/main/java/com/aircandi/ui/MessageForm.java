@@ -159,7 +159,8 @@ public class MessageForm extends BaseEntityForm {
 			return;
 		}
 
-		like(mLikeStatus == LikeStatus.NONE);
+		Link linkLike = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
+		like(linkLike == null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -205,7 +206,6 @@ public class MessageForm extends BaseEntityForm {
 		if (view == null) {
 			view = findViewById(android.R.id.content);
 		}
-		mFirstDraw = false;
 
 		final AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
 		final View holderUser = view.findViewById(R.id.holder_user);
@@ -258,10 +258,6 @@ public class MessageForm extends BaseEntityForm {
 				flowLayout.addView(entityView);
 			}
 		}
-
-		/* Some state management */
-		Link linkLike = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
-		mLikeStatus = (linkLike == null) ? LikeStatus.NONE : LikeStatus.LIKE;
 
 		/* Message patch context */
 

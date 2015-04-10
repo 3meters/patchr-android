@@ -94,7 +94,6 @@ public class PlaceForm extends BaseEntityForm {
 		if (view == null) {
 			view = findViewById(android.R.id.content);
 		}
-		mFirstDraw = false;
 
 		/* Photo overlayed with info */
 		final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);

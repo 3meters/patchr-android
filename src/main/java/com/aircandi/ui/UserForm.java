@@ -65,7 +65,6 @@ public class UserForm extends BaseEntityForm {
 		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mCurrentFragment).commit();
 	}
 
-
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
@@ -137,8 +136,6 @@ public class UserForm extends BaseEntityForm {
 			view = findViewById(android.R.id.content);
 		}
 
-		mFirstDraw = false;
-
 		User user = (User) mEntity;
 
 		final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
@@ -188,10 +185,7 @@ public class UserForm extends BaseEntityForm {
 			}
 		}
 
-		drawButtons(view);
-	}
-
-	public void drawButtons(View view) {
+		/* Button state */
 
 		mButtonWatching = (TextView) findViewById(R.id.button_watching);
 		mButtonCreated = (TextView) findViewById(R.id.button_created);
