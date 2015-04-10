@@ -451,9 +451,7 @@
 	<string name="label_patch_type_place">Place</string>
 	<string name="label_patch_type_project">Project</string>
 
-	<string name="label_trends_count_popular">Watchers</string>
 	<string name="label_trends_count_active">Messages</string>
-	<string name="label_trends_header_message_popular">[@string/container_plural] with the most watchers.</string>
 	<string name="label_trends_header_message_active">[@string/container_plural] where people have the most to say.</string>
 
 	<string name="label_watcher_enabled" tools:ignore="UnusedResources">Yes</string>
