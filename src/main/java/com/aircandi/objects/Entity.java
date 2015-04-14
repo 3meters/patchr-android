@@ -113,8 +113,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Boolean highlighted      = false;                   // Used to track one shot highlighting
 	@NonNull
 	public Boolean read             = true;                    // Used to track if the user has browsed.
-	@NonNull
-	public Boolean autowatchable    = false;                   // Used to track if the user has browsed.
 
 	public Float distance;                                      // Used to cache most recent distance calculation.
 	public Number index = 0;                                   // Used to cross reference list position for mapping.

@@ -27,31 +27,13 @@ public class MenuManager {
 		String activityName = activity.getClass().getSimpleName();
 		MenuInflater menuInflater = activity.getMenuInflater();
 
-		if (activityName.equals("AircandiForm")) {
-			/*
-			 * Fragments set menu items when they are configured which are
-			 * later added in BaseFragment.onCreateOptionsMenu.
-			 */
-			menuInflater.inflate(R.menu.menu_notifications, menu);
-			menuInflater.inflate(R.menu.menu_sign_in, menu);
-			return true;
-		}
-		else if (activityName.equals("PatchForm")) {
-			menuInflater.inflate(R.menu.menu_sign_in, menu);
-			menuInflater.inflate(R.menu.menu_invite, menu);
-			menuInflater.inflate(R.menu.menu_map, menu);
-			return true;
-		}
-		else if (activityName.equals("PlaceForm")) {
+		/*
+		 * Fragments set menu items when they are configured which are
+		 * later added in BaseFragment.onCreateOptionsMenu.
+		 */
+		if (activityName.equals("PlaceForm")) {
 			menuInflater.inflate(R.menu.menu_sign_in, menu);
 			menuInflater.inflate(R.menu.menu_map, menu);
-			return true;
-		}
-		else if (activityName.equals("UserForm")) {
-			menuInflater.inflate(R.menu.menu_refresh, menu);
-			menuInflater.inflate(R.menu.menu_edit_user, menu);
-			menuInflater.inflate(R.menu.menu_sign_out, menu);
-			menuInflater.inflate(R.menu.menu_report, menu);
 			return true;
 		}
 		else if (activityName.equals("MessageForm")) {
@@ -80,17 +62,6 @@ public class MenuManager {
 		}
 		else if (activityName.equals("PhotoForm")) {
 			menuInflater.inflate(R.menu.menu_share_photo, menu);
-			return true;
-		}
-		else if (activityName.equals("EntityList")) {
-			menuInflater.inflate(R.menu.menu_refresh, menu);
-			menuInflater.inflate(R.menu.menu_add, menu);
-			menuInflater.inflate(R.menu.menu_sign_in, menu);
-			return true;
-		}
-		else if (activityName.equals("MapForm")) {
-			menuInflater.inflate(R.menu.menu_navigate, menu);
-			menuInflater.inflate(R.menu.menu_sign_in, menu);
 			return true;
 		}
 
@@ -203,7 +174,7 @@ public class MenuManager {
 		 * you can see the message you have the ability to share it.
 		 */
 		if (entity == null) return false;
-		if (!entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+		if (!(entity instanceof Patch)) {
 			return true;
 		}
 		else {

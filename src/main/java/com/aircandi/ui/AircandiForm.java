@@ -1,10 +1,10 @@
 package com.aircandi.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Gravity;
@@ -25,6 +25,7 @@ import com.aircandi.components.MapManager;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NotificationManager;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.ActionEvent;
 import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.events.RegisterInstallEvent;
 import com.aircandi.objects.CacheStamp;
@@ -39,7 +40,6 @@ import com.aircandi.ui.components.ListController;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
-import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.squareup.otto.Subscribe;
 
@@ -105,7 +105,7 @@ public class AircandiForm extends BaseActivity {
 		 * - like/unlike entity
 		 */
 		((EntityListFragment) mFragmentNotifications)
-				.setMonitorEntityId(Patchr.getInstance().getCurrentUser().id)
+				.setScopingEntityId(Patchr.getInstance().getCurrentUser().id)
 				.setActionType(ActionType.ACTION_GET_NOTIFICATIONS)
 				.setPageSize(Integers.getInteger(R.integer.page_size_notifications))
 				.setListViewType(ViewType.LIST)
@@ -116,7 +116,7 @@ public class AircandiForm extends BaseActivity {
 				.setFabEnabled(false)
 				.setSelfBind(false);
 
-		getFragmentManager()
+		getSupportFragmentManager()
 				.beginTransaction()
 				.replace(R.id.fragment_holder_notifications, mFragmentNotifications)
 				.commit();
@@ -127,6 +127,11 @@ public class AircandiForm extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe
+	public void onViewClick(ActionEvent event) {
+		super.onViewClick(event);
+	}
 
 	@Override
 	public void onRefresh() {
@@ -176,9 +181,6 @@ public class AircandiForm extends BaseActivity {
 		Entity entity = (Entity) view.getTag();
 		if (!(entity.schema.equals(Constants.SCHEMA_ENTITY_USER) && ((User) entity).isAnonymous())) {
 			Bundle extras = new Bundle();
-			if (Type.isTrue(entity.autowatchable)) {
-				extras.putBoolean(Constants.EXTRA_PRE_APPROVED, true);
-			}
 			Patchr.router.route(this, Route.BROWSE, entity, extras);
 		}
 		if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
@@ -197,18 +199,6 @@ public class AircandiForm extends BaseActivity {
 		}
 		mNextFragmentTag = (String) view.getTag();
 		mDrawerLayout.closeDrawer(mDrawerLeft);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onMoreButtonClick(View view) {
-		EntityListFragment fragment = (EntityListFragment) mCurrentFragment;
-		fragment.onMoreButtonClick(view);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onMoreNotificationsButtonClick(View view) {
-		EntityListFragment fragment = (EntityListFragment) mFragmentNotifications;
-		fragment.onMoreButtonClick(view);
 	}
 
 	@Override
@@ -272,6 +262,8 @@ public class AircandiForm extends BaseActivity {
 						.setHeaderViewResId(R.layout.widget_list_header_nearby)
 						.setTitleResId(R.string.form_title_nearby);
 
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
@@ -283,7 +275,7 @@ public class AircandiForm extends BaseActivity {
 				fragment = new EntityListFragment();
 
 				((EntityListFragment) fragment)
-						.setMonitorEntityId(Patchr.getInstance().getCurrentUser().id)
+						.setScopingEntityId(Patchr.getInstance().getCurrentUser().id)
 						.setActionType(ActionType.ACTION_GET_ENTITIES)
 						.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
 						.setLinkType(Constants.TYPE_LINK_WATCH)
@@ -297,6 +289,8 @@ public class AircandiForm extends BaseActivity {
 						.setListEmptyMessageResId(R.string.label_watching_empty)
 						.setTitleResId(R.string.form_title_watch);
 
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
@@ -308,7 +302,7 @@ public class AircandiForm extends BaseActivity {
 				fragment = new EntityListFragment();
 
 				((EntityListFragment) fragment)
-						.setMonitorEntityId(Patchr.getInstance().getCurrentUser().id)
+						.setScopingEntityId(Patchr.getInstance().getCurrentUser().id)
 						.setActionType(ActionType.ACTION_GET_ENTITIES)
 						.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
 						.setLinkType(Constants.TYPE_LINK_CREATE)
@@ -322,6 +316,8 @@ public class AircandiForm extends BaseActivity {
 						.setListEmptyMessageResId(R.string.label_created_empty)
 						.setTitleResId(R.string.form_title_create);
 
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
@@ -350,6 +346,8 @@ public class AircandiForm extends BaseActivity {
 						.setFromSchema(Constants.SCHEMA_ENTITY_MESSAGE)
 						.setCountLabelResId(R.string.label_trends_count_active);
 
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
@@ -371,6 +369,8 @@ public class AircandiForm extends BaseActivity {
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
 
 				fragment = new MapListFragment();
+				((MapListFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
+				((MapListFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
 				((MapListFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_list);
 			}
 
@@ -408,8 +408,8 @@ public class AircandiForm extends BaseActivity {
 			}
 		}
 
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		ft.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		//ft.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
 
 		if (mCurrentFragment != null) {
 			ft.detach(mCurrentFragment);

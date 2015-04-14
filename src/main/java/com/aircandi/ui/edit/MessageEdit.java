@@ -407,9 +407,9 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			UI.setVisibility(mAnimatorTo, View.GONE);
 		}
 		else {
-			Entity currentPlace = Patchr.getInstance().getCurrentPatch();
-			if (currentPlace != null) {
-				mTo.addObject(currentPlace);
+			Entity currentPatch = Patchr.getInstance().getCurrentPatch();
+			if (currentPatch != null) {
+				mTo.addObject(currentPatch);
 			}
 		}
 
@@ -724,8 +724,8 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	     * Only called if the insert was successful. Called on main ui thread.
 		 */
 		if (!mMessageType.equals(MessageType.SHARE)) {
-			Entity currentPlace = Patchr.getInstance().getCurrentPatch();
-			if (mTos.size() > 0 && (currentPlace == null || !currentPlace.id.equals(mTos.get(0).id))) {
+			Entity currentPatch = Patchr.getInstance().getCurrentPatch();
+			if (mTos.size() > 0 && (currentPatch == null || !currentPatch.id.equals(mTos.get(0).id))) {
 				Patchr.router.route(this, Route.BROWSE, mTos.get(0), null);
 			}
 		}

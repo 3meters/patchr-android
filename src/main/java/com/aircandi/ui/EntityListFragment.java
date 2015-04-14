@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -15,7 +16,6 @@ import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ListView;
-import android.widget.ViewAnimator;
 import android.widget.ViewSwitcher;
 
 import com.aircandi.Constants;
@@ -29,23 +29,25 @@ import com.aircandi.components.DownloadManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.ActionEvent;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataNoopEvent;
 import com.aircandi.events.DataResultEvent;
 import com.aircandi.events.EntitiesLoadedEvent;
 import com.aircandi.events.EntitiesRequestEvent;
+import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IBusy;
 import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.LinkSpecType;
+import com.aircandi.objects.OnViewCreatedListener;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.base.BaseFragment;
-import com.aircandi.ui.components.AnimationFactory;
 import com.aircandi.ui.components.BusyController;
 import com.aircandi.ui.components.FloatingActionController;
 import com.aircandi.ui.components.ListController;
@@ -69,13 +71,13 @@ public class EntityListFragment extends BaseFragment
 		           AbsListView.OnScrollListener {
 
 	/* Widgets */
-	protected AbsListView    mListView;
-	protected View           mLoadingView;
-	protected View           mHeaderView;
-	protected View           mHeaderCandiView;
-	private   ViewAnimator   mHeaderViewAnimator;
-	protected View           mFooterView;
-	protected ListController mListController;
+	protected AbsListView        mListView;
+	protected View               mLoadingView;
+	protected Fragment mHeaderFragment;
+	protected View               mHeaderView;
+	protected View               mHeaderCandiView;
+	protected View               mFooterView;
+	protected ListController     mListController;
 
 	/* Resources */
 	protected Integer mHeaderViewResId;
@@ -108,8 +110,8 @@ public class EntityListFragment extends BaseFragment
 
 	/* Data binding */
 	protected ActionType mActionType = ActionType.ACTION_GET_ENTITIES;
-	protected String  mMonitorEntityId;
-	protected Entity  mMonitorEntity;
+	protected String  mScopingEntityId;     // Used to scope the entity collection
+	protected Entity  mScopingEntity;       // Set after first service query
 	protected Integer mPageSize;
 	protected String  mLinkSchema;
 	protected String  mLinkType;
@@ -206,6 +208,32 @@ public class EntityListFragment extends BaseFragment
 			}
 		}
 
+		if (mHeaderFragment != null) {
+			EntityFormFragment headerFragment = (EntityFormFragment) mHeaderFragment;
+			if (headerFragment.getParallax()) {
+				headerFragment.setOnViewCreatedListener(new OnViewCreatedListener() {
+
+					public void onViewCreated(View view) {
+						/*
+						 * Parallax the photo
+						 */
+						if (view != null) {
+							View candiView = view.findViewById(R.id.candi_view);
+							if (candiView != null && mListView instanceof AirListView) {
+								View photo = candiView.findViewById(R.id.photo);
+								((AirListView) mListView).addParallaxedView(photo);
+							}
+						}
+					}
+				});
+			}
+
+			getChildFragmentManager()
+					.beginTransaction()
+					.replace(R.id.fragment_holder, mHeaderFragment)
+					.commit();
+		}
+
 		if (mFooterViewResId != null && mListView != null && mListViewType.equals(ViewType.LIST)) {
 			mFooterView = inflater.inflate(mFooterViewResId, mListView, false);
 			((ListView) mListView).addFooterView(mFooterView);
@@ -240,22 +268,12 @@ public class EntityListFragment extends BaseFragment
 			}
 		}
 
-		if (mHeaderView != null) {
-			/*
-			 * Parallax the photo
-			 */
-			mHeaderCandiView = mHeaderView.findViewById(R.id.candi_view);
-			if (mHeaderCandiView != null && mListView instanceof AirListView) {
-				View photo = mHeaderCandiView.findViewById(R.id.photo);
-				((AirListView) mListView).addParallaxedView(photo);
-			}
-			/*
-			 * Grab the animator
-			 */
-			mHeaderViewAnimator = (ViewAnimator) mHeaderView.findViewById(R.id.animator_header);
-		}
-
 		return view;
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
 	}
 
 	@Override
@@ -320,11 +338,11 @@ public class EntityListFragment extends BaseFragment
 
 		request.setActionType(mActionType)
 		       .setMode(mode)
-		       .setEntityId(mMonitorEntityId)
+		       .setEntityId(mScopingEntityId)
 		       .setTag(System.identityHashCode(this));
 
-		if (mBound && mMonitorEntity != null && mode != BindingMode.MANUAL) {
-			request.setCacheStamp(mMonitorEntity.getCacheStamp());
+		if (mBound && mScopingEntity != null && mode != BindingMode.MANUAL) {
+			request.setCacheStamp(mScopingEntity.getCacheStamp());
 		}
 
 		Logger.v(this, "CacheStamp: " + (request.cacheStamp != null ? request.cacheStamp.toString() : "null"));
@@ -378,7 +396,7 @@ public class EntityListFragment extends BaseFragment
 					}
 
 					if (event.entity != null) {
-						mMonitorEntity = event.entity;
+						mScopingEntity = event.entity;
 					}
 
 					if (mLoadingView != null) {
@@ -441,6 +459,26 @@ public class EntityListFragment extends BaseFragment
 		}
 	}
 
+	@Subscribe
+	public void onViewClick(ActionEvent event) {
+		/*
+		 * Base activity broadcasts view clicks that target onViewClick. This lets
+		 * us handle view clicks inside fragments if we want.
+		 */
+		if (event.view != null) {
+			Integer id = event.view.getId();
+
+			/* Dynamic button we need to redirect */
+			if (id == R.id.button_alert) {
+				id = (Integer) event.view.getTag();
+			}
+
+			if (id == R.id.button_more) {
+				onMoreButtonClick(event.view);
+			}
+		}
+	}
+
 	@Override
 	public void onClick(View v) {
 
@@ -451,8 +489,8 @@ public class EntityListFragment extends BaseFragment
 
 		if (mLinkType != null) {
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, mLinkType);
-			extras.putString(Constants.EXTRA_ENTITY_FOR_ID, mMonitorEntityId);
-			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mMonitorEntityId);
+			extras.putString(Constants.EXTRA_ENTITY_FOR_ID, mScopingEntityId);
+			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mScopingEntityId);
 			Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
 			return;
 		}
@@ -460,8 +498,21 @@ public class EntityListFragment extends BaseFragment
 		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
-	public void onHeaderClick(View view) {
-		AnimationFactory.flipTransition(mHeaderViewAnimator, AnimationFactory.FlipDirection.BOTTOM_TOP, 200);
+	@Subscribe
+	public void onNotificationReceived(final NotificationReceivedEvent event) {
+		/*
+		 * Refresh the list because something happened with our parent.
+		 */
+		if ((event.notification.parentId != null && event.notification.parentId.equals(mScopingEntityId))
+				|| (event.notification.targetId != null && event.notification.targetId.equals(mScopingEntityId))) {
+
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					bind(BindingMode.AUTO);
+				}
+			});
+		}
 	}
 
 	@Override
@@ -500,7 +551,7 @@ public class EntityListFragment extends BaseFragment
 		return false;
 	}
 
-	public void onMoreButtonClick(View view) {
+	protected void onMoreButtonClick(View view) {
 		((ViewSwitcher) mLoadingView.findViewById(R.id.animator_more)).setDisplayedChild(1);
 		fetch(mEntities.size(), mPageSize, BindingMode.MANUAL);
 	}
@@ -702,6 +753,11 @@ public class EntityListFragment extends BaseFragment
 		return this;
 	}
 
+	public EntityListFragment setHeaderFragment(Fragment fragment) {
+		mHeaderFragment = fragment;
+		return this;
+	}
+
 	public EntityListFragment setFooterViewResId(Integer footerViewResId) {
 		mFooterViewResId = footerViewResId;
 		return this;
@@ -757,13 +813,8 @@ public class EntityListFragment extends BaseFragment
 		return this;
 	}
 
-	public EntityListFragment setMonitorEntityId(String monitorEntityId) {
-		mMonitorEntityId = monitorEntityId;
-		return this;
-	}
-
-	public EntityListFragment setMonitorEntity(Entity monitorEntity) {
-		mMonitorEntity = monitorEntity;
+	public EntityListFragment setScopingEntityId(String scopingEntityId) {
+		mScopingEntityId = scopingEntityId;
 		return this;
 	}
 
@@ -825,16 +876,16 @@ public class EntityListFragment extends BaseFragment
 		return mMore;
 	}
 
-	public String getMonitorEntityId() {
-		return mMonitorEntityId;
+	public String getScopingEntityId() {
+		return mScopingEntityId;
 	}
 
 	public Integer getPageSize() {
 		return mPageSize;
 	}
 
-	public Entity getMonitorEntity() {
-		return mMonitorEntity;
+	public Entity getScopingEntity() {
+		return mScopingEntity;
 	}
 
 	public String getLinkType() {

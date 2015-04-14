@@ -87,22 +87,6 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 					, StringManager.getString(R.string.dialog_photo_action_camera), Constants.PHOTO_ACTION_CAMERA));
 		}
 
-		/* Only show if a photo has been set */
-		if (mEntity.photo != null) {
-			listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
-			                            ? R.drawable.ic_action_edit_light
-			                            : R.drawable.ic_action_edit_dark
-					, StringManager.getString(R.string.dialog_photo_action_edit), Constants.PHOTO_ACTION_EDIT));
-		}
-
-		/* Everyone gets the default option */
-		if (mEntity.type == null) {
-			listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
-			                            ? R.drawable.ic_action_picture_light
-			                            : R.drawable.ic_action_picture_dark
-					, StringManager.getString(R.string.dialog_photo_action_default), Constants.PHOTO_ACTION_DEFAULT));
-		}
-
 		mName.setText(StringManager.getString(R.string.dialog_photo_action_title));
 
 		mListAdapter = new ListAdapter(this, listData);

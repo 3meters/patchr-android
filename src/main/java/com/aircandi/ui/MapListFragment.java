@@ -29,8 +29,8 @@ import com.aircandi.utilities.Dialogs;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -46,7 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class MapListFragment extends MapFragment implements ClusterManager.OnClusterClickListener<MapListFragment.EntityItem>
+public class MapListFragment extends SupportMapFragment implements ClusterManager.OnClusterClickListener<MapListFragment.EntityItem>
 		, ClusterManager.OnClusterInfoWindowClickListener<MapListFragment.EntityItem>
 		, ClusterManager.OnClusterItemClickListener<MapListFragment.EntityItem>
 		, ClusterManager.OnClusterItemInfoWindowClickListener<MapListFragment.EntityItem>

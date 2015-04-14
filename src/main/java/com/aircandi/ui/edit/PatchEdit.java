@@ -179,7 +179,7 @@ public class PatchEdit extends BaseEntityEdit {
 			mButtonPrivacy.setText(StringManager.getString(R.string.label_patch_edit_privacy) + ": " + value);
 		}
 
-		UI.setVisibility(findViewById(R.id.button_create), (mEditing ? View.GONE : View.VISIBLE));
+		UI.setVisibility(findViewById(R.id.button_holder), (mEditing ? View.GONE : View.VISIBLE));
 
 		/* Category */
 

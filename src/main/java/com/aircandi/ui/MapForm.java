@@ -7,6 +7,7 @@ import com.aircandi.R;
 import com.aircandi.components.MapManager;
 import com.aircandi.objects.Entity;
 import com.aircandi.ui.base.BaseActivity;
+import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.utilities.Json;
 
 import java.util.ArrayList;
@@ -41,7 +42,10 @@ public class MapForm extends BaseActivity {
 				.setZoomLevel(MapManager.ZOOM_SCALE_NEARBY)
 				.draw();
 
-		getFragmentManager()
+		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_navigate);
+		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_sign_in);
+
+		getSupportFragmentManager()
 				.beginTransaction()
 				.replace(R.id.fragment_holder, mCurrentFragment)
 				.commit();

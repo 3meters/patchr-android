@@ -58,8 +58,9 @@
 		android:layout_width="@dimen/button_round_medium"
 		android:layout_height="@dimen/button_round_medium"
 		android:clickable="true"
-		android:onClick="onFabButtonClick"
-		android:visibility="invisible"
+		android:onClick="onViewClick"
+		android:visibility="gone"
+		android:alpha="0"
 		tools:visibility="visible">
 
 		<ImageView

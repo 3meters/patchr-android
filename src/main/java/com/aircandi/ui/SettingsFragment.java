@@ -12,7 +12,6 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.support.annotation.NonNull;
@@ -34,6 +33,7 @@ import com.aircandi.ui.widgets.ListPreferenceMultiSelect;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.UI;
+import com.github.machinarius.preferencefragment.PreferenceFragment;
 
 @SuppressWarnings("deprecation")
 public class SettingsFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {

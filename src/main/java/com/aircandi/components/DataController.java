@@ -190,7 +190,7 @@ public class DataController {
 								.setActionType(event.actionType)
 								.setMode(event.mode)
 								.setCursor(event.cursor)
-								.setEntity(serviceData.entity)
+								.setEntity(serviceData.entity)  // Not a fully decorated entity
 								.setTag(event.tag);
 						Dispatcher.getInstance().post(data);
 					}
@@ -1740,6 +1740,7 @@ public class DataController {
 		ACTION_LINK_DELETE_LIKE,
 		ACTION_LINK_INSERT_WATCH,
 		ACTION_LINK_DELETE_WATCH,
-		ACTION_SHARE_CHECK
+		ACTION_SHARE_CHECK,
+		ACTION_VIEW_CLICK
 	}
 }

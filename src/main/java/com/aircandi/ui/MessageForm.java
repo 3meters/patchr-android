@@ -409,9 +409,6 @@ public class MessageForm extends BaseEntityForm {
 			View shareView = LayoutInflater.from(this).inflate(layoutResId, null, false);
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(shareEntity.schema);
 			controller.bind(shareEntity, shareView, null);
-			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				shareEntity.autowatchable = true;
-			}
 			shareFrame.setTag(shareEntity);
 			shareFrame.addView(shareView);
 

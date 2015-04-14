@@ -9,7 +9,7 @@
 	android:layout_height="wrap_content"
 	android:baselineAligned="false"
 	android:clickable="true"
-	android:onClick="onEntityClick"
+	android:onClick="onViewClick"
 	android:padding="10dp">
 
 	<ImageView
@@ -61,7 +61,7 @@
 		android:layout_marginTop="2dp"
 		android:background="?attr/backgroundPlaceholder"
 		android:clickable="true"
-		android:onClick="onEntityClick"
+		android:onClick="onViewClick"
 		custom:config="rgb_565"
 		custom:fitType="fixed"
 		custom:sizeHint="@dimen/image_small" />
@@ -150,7 +150,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:clickable="true"
-				android:onClick="onEntityClick"
+				android:onClick="onViewClick"
 				custom:cardBackgroundColor="?attr/backgroundButtonShare"
 				custom:cardCornerRadius="3dp"
 				custom:cardElevation="2dp"

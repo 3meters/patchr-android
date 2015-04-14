@@ -12,13 +12,14 @@
 		tools:layout_height="230dp">
 
 		<RelativeLayout
+			android:id="@+id/header_page_one"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:clickable="true"
+			android:onClick="onViewClick"
 			android:descendantFocusability="blocksDescendants"
 			android:focusable="false"
 			android:focusableInTouchMode="false"
-			android:onClick="onHeaderClick"
 			android:orientation="vertical">
 
 			<com.aircandi.ui.widgets.CandiView
@@ -34,7 +35,7 @@
 				android:layout_height="50dp"
 				android:background="?attr/backgroundCard"
 				android:clickable="true"
-				android:onClick="onPlaceClick"
+				android:onClick="onViewClick"
 				android:paddingLeft="@dimen/form_body_padding"
 				android:visibility="gone"
 				tools:visibility="visible">
@@ -61,7 +62,7 @@
 				android:layout_margin="10dp"
 				android:background="?attr/backgroundRound"
 				android:clickable="true"
-				android:onClick="onPlaceClick"
+				android:onClick="onViewClick"
 				android:padding="3dp"
 				android:scaleType="centerCrop"
 				android:visibility="gone"
@@ -86,7 +87,7 @@
 					android:layout_height="@dimen/button_height"
 					android:layout_centerVertical="true"
 					android:layout_marginRight="12dp"
-					android:onClick="onLikesListButtonClick"
+					android:onClick="onViewClick"
 					android:orientation="horizontal">
 
 					<com.aircandi.ui.widgets.AirTextMedium
@@ -114,7 +115,7 @@
 					android:layout_height="@dimen/button_height"
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/button_likes"
-					android:onClick="onWatchingListButtonClick"
+					android:onClick="onViewClick"
 					android:orientation="horizontal"
 					tools:ignore="RelativeOverlap">
 
@@ -142,7 +143,7 @@
 					android:layout_height="@dimen/button_height"
 					android:layout_toLeftOf="@+id/button_watch"
 					android:clickable="true"
-					android:onClick="onLikeButtonClick">
+					android:onClick="onViewClick">
 
 					<ImageView
 						android:id="@+id/button_image"
@@ -171,7 +172,7 @@
 					android:layout_alignParentRight="true"
 					android:layout_height="@dimen/button_height"
 					android:clickable="true"
-					android:onClick="onWatchButtonClick">
+					android:onClick="onViewClick">
 
 					<ImageView
 						android:id="@id/button_image"
@@ -203,7 +204,7 @@
 				android:layout_alignParentLeft="true"
 				android:layout_alignBottom="@+id/candi_view"
 				android:clickable="true"
-				android:onClick="onTuneButtonClick"
+				android:onClick="onViewClick"
 				android:padding="10dp"
 				android:scaleType="fitCenter"
 				android:src="@drawable/ic_action_signal_dark"
@@ -212,14 +213,15 @@
 		</RelativeLayout>
 
 		<RelativeLayout
+			android:id="@+id/header_page_two"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:background="?attr/backgroundCardField"
 			android:clickable="true"
+			android:onClick="onViewClick"
 			android:descendantFocusability="blocksDescendants"
 			android:focusable="false"
 			android:focusableInTouchMode="false"
-			android:onClick="onHeaderClick"
 			android:orientation="vertical"
 			android:padding="8dp">
 
@@ -247,6 +249,7 @@
 			android:layout_height="@dimen/form_field_height"
 			android:gravity="center"
 			android:padding="8dp"
+			android:onClick="onViewClick"
 			android:textAppearance="?android:attr/textAppearance"
 			tools:text="Create a patch" />
 

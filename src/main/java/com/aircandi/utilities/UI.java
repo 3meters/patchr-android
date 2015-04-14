@@ -284,6 +284,12 @@ public class UI {
 		}
 	}
 
+	public static void setClickListener(View view, View.OnClickListener listener) {
+		if (view != null) {
+			view.setOnClickListener(listener);
+		}
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Input
    	 *--------------------------------------------------------------------------------------------*/

@@ -303,11 +303,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		});
 	}
 
-	public void onEntityClick(View view) {
-		Entity entity = (Entity) view.getTag();
-		Patchr.router.route(this, Route.BROWSE, entity, null);
-	}
-
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		/*
 		 * Called before onResume. If we are returning from the market app, we get a zero result code whether the user

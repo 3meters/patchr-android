@@ -7,12 +7,12 @@
 	android:padding="10dp">
 
 	<com.aircandi.ui.widgets.AirButton
-		android:id="@+id/button_more"
+		android:id="@+id/button_more_notifications"
 		style="@style/button_outline"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/button_height"
 		android:layout_gravity="center"
-		android:onClick="onMoreNotificationsButtonClick"
+		android:onClick="onViewClick"
 		android:text="@string/label_list_more" />
 
 	<ProgressBar

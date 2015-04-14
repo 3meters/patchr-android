@@ -1,10 +1,12 @@
 package com.aircandi.ui.base;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,14 +16,17 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
 import com.aircandi.components.MenuManager;
+import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IForm;
 import com.aircandi.objects.Entity;
+import com.aircandi.objects.Route;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.DateTime;
 
@@ -48,9 +53,10 @@ public abstract class BaseFragment extends Fragment implements IForm {
 	 * - onDetach
 	 */
 
+	protected Boolean mIsVisible  = false;
+	protected Boolean mProcessing = false;
 	protected Resources mResources;
 	protected String    mGroupTag;
-	protected Boolean mIsVisible = false;
 
 	/* Resources */
 	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
@@ -223,9 +229,20 @@ public abstract class BaseFragment extends Fragment implements IForm {
 			item.setVisible(MenuManager.canUserEdit(entity));
 		}
 
+		item = menu.findItem(R.id.add);
+		if (item != null && entity != null) {
+			item.setVisible(MenuManager.showAction(Route.ADD, entity, null));
+			item.setTitle(StringManager.getString(R.string.menu_item_add_entity, entity.schema));
+		}
+
 		item = menu.findItem(R.id.delete);
 		if (item != null) {
 			item.setVisible(MenuManager.canUserDelete(entity));
+		}
+
+		item = menu.findItem(R.id.remove);
+		if (item != null) {
+			item.setVisible(MenuManager.showAction(Route.REMOVE, entity, null));
 		}
 
 		item = menu.findItem(R.id.share);
@@ -236,6 +253,21 @@ public abstract class BaseFragment extends Fragment implements IForm {
 		item = menu.findItem(R.id.share_photo);
 		if (item != null) {
 			item.setVisible(MenuManager.canUserShare(entity));
+		}
+
+		item = menu.findItem(R.id.signin);
+		if (item != null && Patchr.getInstance().getCurrentUser() != null) {
+			item.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
+		}
+
+		item = menu.findItem(R.id.signout);
+		if (item != null) {
+			item.setVisible(MenuManager.showAction(Route.EDIT, entity, null));
+		}
+
+		item = menu.findItem(R.id.navigate);
+		if (item != null && Patchr.getInstance().getCurrentUser() != null) {
+			item.setVisible(entity.getLocation() != null);
 		}
 
 		item = menu.findItem(R.id.invite);

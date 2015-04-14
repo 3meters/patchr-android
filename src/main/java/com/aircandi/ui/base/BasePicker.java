@@ -7,32 +7,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.Logger;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBind.BindingMode;
-import com.aircandi.objects.Entity;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.utilities.Json;
 
 public abstract class BasePicker extends Activity {
 
 	protected String mPrefTheme;
-	protected Entity mEntity;
-
-	public void unpackIntent() {
-
-		final Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			final String jsonEntity = extras.getString(Constants.EXTRA_ENTITY);
-			if (jsonEntity != null) {
-				mEntity = (Entity) Json.jsonToObject(jsonEntity, Json.ObjectType.ENTITY);
-			}
-		}
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -47,7 +32,6 @@ public abstract class BasePicker extends Activity {
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		if (!isFinishing()) {
-			unpackIntent();
 			initialize(savedInstanceState);
 		}
 	}

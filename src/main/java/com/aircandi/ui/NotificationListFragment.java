@@ -14,6 +14,7 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.NotificationManager;
+import com.aircandi.events.ActionEvent;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataNoopEvent;
 import com.aircandi.events.DataResultEvent;
@@ -63,11 +64,11 @@ public class NotificationListFragment extends EntityListFragment
 				.setCursor(cursor);
 
 		request.setActionType(mActionType)
-		       .setEntityId(mMonitorEntityId)
+		       .setEntityId(mScopingEntityId)
 		       .setTag(System.identityHashCode(this));
 
-		if (mBound && mMonitorEntity != null && mode != BindingMode.MANUAL) {
-			request.setCacheStamp(mMonitorEntity.getCacheStamp());
+		if (mBound && mScopingEntity != null && mode != BindingMode.MANUAL) {
+			request.setCacheStamp(mScopingEntity.getCacheStamp());
 		}
 
 		Dispatcher.getInstance().post(request);
@@ -130,6 +131,21 @@ public class NotificationListFragment extends EntityListFragment
 	@Subscribe
 	public void onDataNoop(DataNoopEvent event) {
 		super.onDataNoop(event);
+	}
+
+	@Subscribe
+	public void onViewClick(ActionEvent event) {
+		/*
+		 * Base activity broadcasts view clicks that target onViewClick. This lets
+		 * us handle view clicks inside fragments if we want.
+		 */
+		if (event.view != null) {
+			Integer id = event.view.getId();
+
+			if (id == R.id.button_more_notifications) {
+				onMoreButtonClick(event.view);
+			}
+		}
 	}
 
 	@Override

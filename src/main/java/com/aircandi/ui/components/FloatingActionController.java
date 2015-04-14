@@ -13,10 +13,9 @@ import com.aircandi.utilities.UI;
 public class FloatingActionController {
 
 	private View mView;
-	private Boolean mEnabled = true;
-	private Boolean mLocked  = false;
 	private Boolean mHidden  = false;
 	private Boolean mSliding = false;
+	private Boolean mFading  = false;
 	private ImageView mFabIcon;
 	private ObjectAnimator mSlideInAnim  = ObjectAnimator.ofFloat(null, "translationY", 0);
 	private ObjectAnimator mSlideOutAnim = ObjectAnimator.ofFloat(null, "translationY", 0);
@@ -35,9 +34,10 @@ public class FloatingActionController {
 		 * Skips if already visible and full opacity. Always ensures
 		 * default position.
 		 */
-		if (mView == null || (mView.getVisibility() == View.VISIBLE && mView.getAlpha() == 1f))
+		if (mView == null || mFading || (mView.getVisibility() == View.VISIBLE && mView.getAlpha() == 1f))
 			return;
 
+		mFading = true;
 		mView.setAlpha(0f);
 		mView.setTranslationY(0f);
 		mView.setVisibility(View.VISIBLE);
@@ -47,7 +47,12 @@ public class FloatingActionController {
 			@Override
 			public void onAnimationStart(Animator animator) {
 				mView.setClickable(true);
+			}
+
+			@Override
+			public void onAnimationEnd(Animator animator) {
 				animator.removeAllListeners();
+				mFading = false;
 			}
 		});
 		anim.start();
@@ -58,11 +63,12 @@ public class FloatingActionController {
 			 * Skips if already gone and fully transparent. Always ensures
 			 * default position.
 			 */
-		if (mView == null || (mView.getVisibility() == View.GONE && mView.getAlpha() == 0f))
+		if (mView == null || mFading || (mView.getVisibility() == View.GONE && mView.getAlpha() == 0f))
 			return;
 
-		ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 0f);
+		mFading = true;
 		mView.setTranslationY(0f);
+		ObjectAnimator anim = ObjectAnimator.ofFloat(mView, "alpha", 0f);
 		anim.setDuration(AnimationManager.DURATION_MEDIUM);
 		anim.addListener(new SimpleAnimationListener() {
 			@Override
@@ -70,6 +76,7 @@ public class FloatingActionController {
 				mView.setClickable(false);
 				mView.setVisibility(View.GONE);
 				animator.removeAllListeners();
+				mFading = false;
 			}
 		});
 		anim.start();
@@ -79,7 +86,7 @@ public class FloatingActionController {
 		/*
 		 * Skips if locked, sliding or already hidden.
 		 */
-		if (mLocked || mSliding || mHidden || mView == null) return;
+		if (mSliding || mHidden || mView == null) return;
 
 		mSliding = true;
 		mSlideOutAnim.setTarget(mView);
@@ -101,7 +108,7 @@ public class FloatingActionController {
 		/*
 		 * Skips if locked, sliding or not hidden.
 		 */
-		if (mLocked || mSliding || !mHidden) return;
+		if (mSliding || !mHidden) return;
 
 		mSliding = true;
 		mSlideInAnim.setTarget(mView);
@@ -118,34 +125,6 @@ public class FloatingActionController {
 
 		mSlideInAnim.setStartDelay(delay);
 		mSlideInAnim.start();
-	}
-
-	public View getView() {
-		return mView;
-	}
-
-	public Boolean isEnabled() {
-		return mEnabled;
-	}
-
-	public Boolean isLocked() {
-		return mLocked;
-	}
-
-	public FloatingActionController setEnabled(Boolean enabled) {
-		if (!enabled) {
-			fadeOut();
-		}
-		else {
-			fadeIn();
-		}
-		mEnabled = enabled;
-		return this;
-	}
-
-	public FloatingActionController setLocked(Boolean locked) {
-		mLocked = locked;
-		return this;
 	}
 
 	public FloatingActionController setView(View view) {

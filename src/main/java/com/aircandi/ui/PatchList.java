@@ -7,10 +7,12 @@ import com.aircandi.Constants;
 import com.aircandi.R;
 import com.aircandi.components.DataController;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.utilities.Integers;
+import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
 public class PatchList extends BaseActivity {
@@ -42,7 +44,7 @@ public class PatchList extends BaseActivity {
 		mCurrentFragment = new EntityListFragment();
 
 		((EntityListFragment) mCurrentFragment)
-				.setMonitorEntityId(mEntityId)
+				.setScopingEntityId(mEntityId)
 				.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
 				.setLinkType(mListLinkType)
 				.setLinkDirection(Direction.out.name())
@@ -56,7 +58,7 @@ public class PatchList extends BaseActivity {
 				.setListEmptyMessageResId(mListEmptyMessageResId)
 				.setTitleResId(mListTitleResId);
 
-		getFragmentManager()
+		getSupportFragmentManager()
 				.beginTransaction()
 				.add(R.id.fragment_holder, mCurrentFragment)
 				.commit();
@@ -76,10 +78,30 @@ public class PatchList extends BaseActivity {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@SuppressWarnings("ucd")
-	public void onMoreButtonClick(View view) {
-		((EntityListFragment) mCurrentFragment).onMoreButtonClick(view);
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		/*
+		 * Gets called direct at the activity level and receives
+		 * events from fragments.
+		 */
+		mProcessing = false;
+		mUiController.getBusyController().hide(false);
 	}
+
+	@Override
+	public void onRefresh() {
+		/*
+		 * Called from swipe refresh or routing. Always treated
+		 * as an aggresive refresh.
+		 */
+		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
+			((EntityListFragment) mCurrentFragment).onRefresh();
+		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	protected int getLayoutId() {

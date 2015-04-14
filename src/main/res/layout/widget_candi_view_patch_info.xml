@@ -92,13 +92,13 @@
 			custom:layoutId="@layout/widget_user_view_detailed_horizontal" />
 
 		<Button
-			android:id="@+id/button_more"
+			android:id="@+id/button_toggle"
 			style="@style/button_flat"
 			android:layout_width="wrap_content"
 			android:layout_height="24dp"
 			android:layout_weight="0"
 			android:tag="collapsed"
-			android:onClick="onToggleDescriptionButtonClick"
+			android:onClick="onViewClick"
 			tools:text="more" />
 	</LinearLayout>
 

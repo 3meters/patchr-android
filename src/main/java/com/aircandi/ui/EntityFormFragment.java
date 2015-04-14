@@ -1,10 +1,11 @@
-package com.aircandi.ui.base;
+package com.aircandi.ui;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,13 +26,17 @@ import com.aircandi.events.EntityRequestEvent;
 import com.aircandi.events.LinkDeleteEvent;
 import com.aircandi.events.LinkInsertEvent;
 import com.aircandi.events.ProcessingCompleteEvent;
+import com.aircandi.interfaces.IBind;
 import com.aircandi.objects.Count;
+import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.LinkSpecType;
+import com.aircandi.objects.OnViewCreatedListener;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
-import com.aircandi.ui.EntityListFragment;
+import com.aircandi.ui.base.BaseActivity;
+import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Errors;
@@ -40,38 +45,35 @@ import com.squareup.otto.Subscribe;
 
 import java.util.Locale;
 
-public abstract class BaseEntityForm extends BaseActivity {
+public class EntityFormFragment extends BaseFragment implements IBind {
 
 	@NonNull
 	protected Integer mLinkProfile = LinkSpecType.NO_LINKS;
-	protected Integer mTransitionType;
+	protected OnViewCreatedListener mOnViewCreatedListener;
 
 	/* Part of binding logic */
 	protected Boolean mBound = false;
+	protected Entity mEntity;
 
 	/* Inputs */
-	@SuppressWarnings("ucd")
-	public    String mParentId;
-	protected String mListLinkType;
-	protected String mNotificationId;
-
-	@Override
-	public void unpackIntent() {
-		super.unpackIntent();
-
-		final Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			mParentId = extras.getString(Constants.EXTRA_ENTITY_PARENT_ID);
-			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
-			mTransitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
-			mNotificationId = extras.getString(Constants.EXTRA_NOTIFICATION_ID);
-		}
-	}
+	protected String  mEntityId;
+	public    String  mParentId;
+	protected String  mListLinkType;
+	protected Integer mTransitionType;
+	protected String  mNotificationId;
+	protected Integer mLayoutResId;
+	protected Boolean mParallax = false;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public void onViewCreated(final View view, Bundle savedInstanceState) {
+		if (mOnViewCreatedListener != null) {
+			mOnViewCreatedListener.onViewCreated(view);
+		}
+	}
 
 	@Subscribe
 	public void onDataResult(final DataResultEvent event) {
@@ -79,53 +81,44 @@ public abstract class BaseEntityForm extends BaseActivity {
 		if (event.tag.equals(System.identityHashCode(this))
 				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
 
-			Logger.v(this, "Data result accepted: " + event.actionType.name().toString());
+			if (event.actionType == ActionType.ACTION_GET_ENTITY) {
 
-			runOnUiThread(new Runnable() {
+				mBound = true;
+				if (event.entity != null) {
+					mEntity = event.entity;
 
-				@Override
-				public void run() {
-
-					if (event.actionType == ActionType.ACTION_GET_ENTITY) {
-
-						mBound = true;
-						if (event.entity != null) {
-							mEntity = event.entity;
-
-							if (mParentId != null) {
-								mEntity.toId = mParentId;
-							}
-
-							if (mEntity instanceof Patch) {
-								Patchr.getInstance().setCurrentPatch(mEntity);
-							}
-						}
-						/*
-						 * Possible to hit this before options menu has been set. If so then
-						 * configureStandardMenuItems will be called in onCreateOptionsMenu.
-						 */
-						if (mOptionMenu != null) {
-							configureStandardMenuItems(mOptionMenu);
-						}
-
-						/* Ensure this is flagged as read */
-						if (mNotificationId != null) {
-							if (NotificationManager.getInstance().getNotifications().containsKey(mNotificationId)) {
-								NotificationManager.getInstance().getNotifications().get(mNotificationId).read = true;
-							}
-						}
-
-						draw(null);
-						onProcessingComplete(new ProcessingCompleteEvent());
+					if (mParentId != null) {
+						mEntity.toId = mParentId;
 					}
-					else if (event.actionType == ActionType.ACTION_LINK_INSERT_LIKE
-							|| event.actionType == ActionType.ACTION_LINK_DELETE_LIKE) {
 
-						draw(null);
-						onProcessingComplete(new ProcessingCompleteEvent());
+					if (mEntity instanceof Patch) {
+						Patchr.getInstance().setCurrentPatch(mEntity);
 					}
 				}
-			});
+
+				if (getActivity() != null && !getActivity().isFinishing()) {
+					Menu menu = ((BaseActivity) getActivity()).getOptionMenu();
+					if (menu != null) {
+						configureStandardMenuItems(((BaseActivity) getActivity()).getOptionMenu());
+					}
+				}
+
+				/* Ensure this is flagged as read */
+				if (mNotificationId != null) {
+					if (NotificationManager.getInstance().getNotifications().containsKey(mNotificationId)) {
+						NotificationManager.getInstance().getNotifications().get(mNotificationId).read = true;
+					}
+				}
+
+				draw(getView());
+				onProcessingComplete();
+			}
+			else if (event.actionType == ActionType.ACTION_LINK_INSERT_LIKE
+					|| event.actionType == ActionType.ACTION_LINK_DELETE_LIKE) {
+
+				draw(getView());
+				onProcessingComplete();
+			}
 		}
 	}
 
@@ -137,19 +130,19 @@ public abstract class BaseEntityForm extends BaseActivity {
 			Boolean linkAction = (event.actionType.name().toLowerCase(Locale.US).contains("link"));
 
 			if (linkAction) {
-				runOnUiThread(new Runnable() {
+				getActivity().runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						draw(null);     // Chance to clear any embedded busy ui
+						draw(getView());     // Chance to clear any embedded busy ui
 					}
 				});
 			}
 
-			onProcessingComplete(new ProcessingCompleteEvent());
+			onProcessingComplete();
 
 			/* We eat errors for network operations the user didn't specifically initiate. */
 			if (!mBound || event.mode == BindingMode.MANUAL || linkAction) {
-				Errors.handleError(BaseEntityForm.this, event.errorResponse);
+				Errors.handleError(getActivity(), event.errorResponse);
 			}
 		}
 	}
@@ -158,14 +151,8 @@ public abstract class BaseEntityForm extends BaseActivity {
 	public void onDataNoop(DataNoopEvent event) {
 		if (event.tag.equals(System.identityHashCode(this))) {
 			Logger.v(this, "Data no-op accepted: " + event.actionType.name().toString());
-			onProcessingComplete(new ProcessingCompleteEvent());
+			onProcessingComplete();
 		}
-	}
-
-	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		mProcessing = false;
-		mUiController.getBusyController().hide(false);
 	}
 
 	@Override
@@ -175,45 +162,42 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 * as an aggresive refresh.
 		 */
 		bind(BindingMode.MANUAL); // Called from Routing
-		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
-			((EntityListFragment) mCurrentFragment).onRefresh();
-		}
 	}
 
 	@Override
+	public void onScollToTop() {}
+
+	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		/*
+		 * Cases that use activity result
+		 * 
+		 * - Candi picker returns entity id for a move
+		 * - Template picker returns type of candi to add as a child
+		 */
 		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
 			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
 				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
-					finish();
-					AnimationManager.doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+					getActivity().finish();
+					AnimationManager.doOverridePendingTransition(getActivity(), TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
 				}
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	@Override
-	protected void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		Logger.d(this, "Activity saving state");
-	}
-
-	@Override
-	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+	protected void onProcessingComplete() {
 		/*
-		 * Will only be called if the activity is destroyed and restored. Restore
-		 * state could be handled in onCreate or here later in the lifecycle after
-		 * everything has been initialized.
+		 * Broadcast event so interested parties can do some work if needed.
 		 */
-		super.onRestoreInstanceState(savedInstanceState);
-		Logger.d(this, "Activity restoring state");
+		Dispatcher.getInstance().post(new ProcessingCompleteEvent().setTag(System.identityHashCode(this)));
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Override
 	public void bind(final BindingMode mode) {
 		/*
 		 * Called on main thread.
@@ -234,6 +218,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		Dispatcher.getInstance().post(request);
 	}
 
+	@Override
 	public void draw(View view) {}
 
 	public void drawLikeWatch(View view) {
@@ -334,10 +319,10 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 	public void like(final boolean activate) {
 
-		runOnUiThread(new Runnable() {
+		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				ViewAnimator animator = (ViewAnimator) findViewById(R.id.button_like);
+				ViewAnimator animator = (ViewAnimator) getView().findViewById(R.id.button_like);
 				if (animator != null) {
 					animator.setDisplayedChild(1);  // Turned off in drawButtons
 				}
@@ -383,9 +368,65 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 	}
 
-	@Override
 	public Boolean related(@NonNull String entityId) {
 		return entityId.equals(mEntityId);
+	}
+
+	@Override
+	protected int getLayoutId() {
+		return mLayoutResId;
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
+
+	public EntityFormFragment setEntityId(String entityId) {
+		mEntityId = entityId;
+		return this;
+	}
+
+	public EntityFormFragment setParentId(String parentId) {
+		mParentId = parentId;
+		return this;
+	}
+
+	public EntityFormFragment setListLinkType(String listLinkType) {
+		mListLinkType = listLinkType;
+		return this;
+	}
+
+	public EntityFormFragment setTransitionType(Integer transitionType) {
+		mTransitionType = transitionType;
+		return this;
+	}
+
+	public EntityFormFragment setNotificationId(String notificationId) {
+		mNotificationId = notificationId;
+		return this;
+	}
+
+	public EntityFormFragment setLayoutResId(Integer layoutResId) {
+		mLayoutResId = layoutResId;
+		return this;
+	}
+
+	public EntityFormFragment setParallax(Boolean parallax) {
+		mParallax = parallax;
+		return this;
+	}
+
+	public EntityFormFragment setOnViewCreatedListener(OnViewCreatedListener onViewCreatedListener) {
+		mOnViewCreatedListener = onViewCreatedListener;
+		return this;
+	}
+
+	public Entity getEntity() {
+		return mEntity;
+	}
+
+	public Boolean getParallax() {
+		return mParallax;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -393,7 +434,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
-	protected void onResume() {
+	public void onResume() {
 		super.onResume();
 		/*
 		 * We have to be pretty aggressive about refreshing the UI because
@@ -406,7 +447,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 * - Change in user which effects which candi and UI should be visible.
 		 * - User profile could have been updated and we don't catch that.
 		 */
-		if (!isFinishing()) {
+		if (!getActivity().isFinishing()) {
 			if (mEntity instanceof Patch) {
 				Patchr.getInstance().setCurrentPatch(mEntity);
 			}

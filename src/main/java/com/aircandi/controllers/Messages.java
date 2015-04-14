@@ -162,9 +162,6 @@ public class Messages extends EntityControllerBase {
 			View shareView = LayoutInflater.from(view.getContext()).inflate(layoutResId, null, false);
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(shareEntity.schema);
 			controller.bind(shareEntity, shareView, groupTag);
-			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				shareEntity.autowatchable = true;
-			}
 			holder.share.setTag(shareEntity);
 			holder.share.addView(shareView);
 

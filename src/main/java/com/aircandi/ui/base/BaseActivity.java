@@ -3,7 +3,6 @@ package com.aircandi.ui.base;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -13,6 +12,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -43,6 +43,7 @@ import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.NfcManager;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.ActionEvent;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.interfaces.IForm;
@@ -62,6 +63,7 @@ import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
 import com.aircandi.utilities.UI;
+import com.squareup.otto.Subscribe;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -107,10 +109,9 @@ public abstract class BaseActivity extends ActionBarActivity
 	protected Boolean mPrefChangeReloadNeeded    = false;
 
 	public Resources mResources;
-	public    Boolean mFirstDraw    = true;
-	protected Boolean mClickEnabled = false;                        // NO_UCD (unused code)
-	protected Boolean mProcessing   = false;
-	protected Boolean mRestarting   = false;
+	public    Boolean mFirstDraw  = true;
+	protected Boolean mProcessing = false;
+	protected Boolean mRestarting = false;
 
 	/* Theme */
 	protected String mPrefTheme;
@@ -196,18 +197,6 @@ public abstract class BaseActivity extends ActionBarActivity
 		Logger.d(this, "Activity view layout completed");
 	}
 
-	@SuppressWarnings("ucd")
-	public void onPhotoClick(View view) {
-		Photo photo = (Photo) view.getTag();
-
-		if (photo != null) {
-			final String jsonPhoto = Json.objectToJson(photo);
-			Bundle extras = new Bundle();
-			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.router.route(this, Route.PHOTO, null, extras);
-		}
-	}
-
 	@Override
 	public void onRefresh() {}
 
@@ -242,9 +231,55 @@ public abstract class BaseActivity extends ActionBarActivity
 		super.onConfigurationChanged(newConfig);
 	}
 
-	@SuppressWarnings("ucd")
-	public void onCancelButtonClick(View view) {
-		Patchr.router.route(this, Route.CANCEL, null, null);
+	public void onViewClick(View view) {
+		Dispatcher.getInstance().post(new ActionEvent()
+				.setActionType(DataController.ActionType.ACTION_VIEW_CLICK)
+				.setView(view));
+	}
+
+	@Subscribe
+	public void onViewClick(ActionEvent event) {
+		/*
+		 * Base activity broadcasts view clicks that target onViewClick. This lets
+		 * us handle view clicks inside fragments if we want.
+		 */
+		if (mProcessing) return;
+
+		if (event.view != null) {
+			mProcessing = true;
+			Integer id = event.view.getId();
+
+			if (id == R.id.photo) {
+				onPhotoClick(event.view);
+			}
+			else if (id == R.id.share_entity
+					|| id == R.id.item_row
+					|| id == R.id.holder_user
+					|| id == R.id.user_photo
+					|| id == R.id.user_current) {
+				onEntityClick(event.view);
+			}
+			mProcessing = false;
+		}
+	}
+
+	public void onEntityClick(View view) {
+		Entity entity = (Entity) view.getTag();
+		if (entity == null) return;
+
+		Bundle extras = new Bundle();
+		Patchr.router.route(this, Route.BROWSE, entity, extras);
+	}
+
+	public void onPhotoClick(View view) {
+		Photo photo = (Photo) view.getTag();
+
+		if (photo != null) {
+			final String jsonPhoto = Json.objectToJson(photo);
+			Bundle extras = new Bundle();
+			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
+			Patchr.router.route(this, Route.PHOTO, null, extras);
+		}
 	}
 
 	@Override
@@ -804,7 +839,7 @@ public abstract class BaseActivity extends ActionBarActivity
 		Dispatcher.getInstance().register(this);
 		Patchr.getInstance().setCurrentActivity(this);
 		mUiController.resume();
-		mClickEnabled = true;
+		mProcessing = false;
 		/*
 		 * We always check to make sure play services are working properly. This call will finish 
 		 * the activity if play services are missing and can't be installed or if the user

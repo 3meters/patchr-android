@@ -42,8 +42,8 @@ public class TrendListFragment extends EntityListFragment {
 		request.setActionType(mActionType)
 		       .setTag(System.identityHashCode(this));
 
-		if (mBound && mMonitorEntity != null && mode != BindingMode.MANUAL) {
-			request.setCacheStamp(mMonitorEntity.getCacheStamp());
+		if (mBound && mScopingEntity != null && mode != BindingMode.MANUAL) {
+			request.setCacheStamp(mScopingEntity.getCacheStamp());
 		}
 
 		Dispatcher.getInstance().post(request);

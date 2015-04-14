@@ -14,7 +14,7 @@
 		android:layout_height="wrap_content"
 		android:background="?attr/backgroundFormSecondary"
 		android:clickable="true"
-		android:onClick="onEntityClick"
+		android:onClick="onViewClick"
 		custom:layoutId="@layout/widget_user_view_drawer" />
 
 	<com.aircandi.ui.widgets.AirScrollView

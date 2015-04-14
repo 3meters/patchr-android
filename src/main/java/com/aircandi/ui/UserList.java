@@ -16,16 +16,20 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.ProcessingCompleteEvent;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
+import com.aircandi.objects.Patch;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.ui.EntityListFragment.ViewType;
 import com.aircandi.ui.base.BaseActivity;
+import com.aircandi.ui.components.ListController;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.Maps;
+import com.squareup.otto.Subscribe;
 
 @SuppressWarnings("ucd")
 public class UserList extends BaseActivity {
@@ -59,7 +63,7 @@ public class UserList extends BaseActivity {
 		mCurrentFragment = new UserListFragment();
 
 		((EntityListFragment) mCurrentFragment)
-				.setMonitorEntityId(mEntityId)
+				.setScopingEntityId(mEntityId)
 				.setLinkSchema(Constants.SCHEMA_ENTITY_USER)
 				.setLinkType(mListLinkType)
 				.setLinkDirection(Direction.in.name())
@@ -76,7 +80,10 @@ public class UserList extends BaseActivity {
 			((EntityListFragment) mCurrentFragment).setLinkWhere(Maps.asMap("enabled", true));
 		}
 
-		getFragmentManager().beginTransaction().add(R.id.fragment_holder, mCurrentFragment).commit();
+		getSupportFragmentManager()
+				.beginTransaction()
+				.add(R.id.fragment_holder, mCurrentFragment)
+				.commit();
 	}
 
 	@Override
@@ -91,9 +98,25 @@ public class UserList extends BaseActivity {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@SuppressWarnings("ucd")
-	public void onMoreButtonClick(View view) {
-		((EntityListFragment) mCurrentFragment).onMoreButtonClick(view);
+	@Subscribe
+	public void onProcessingComplete(ProcessingCompleteEvent event) {
+		/*
+		 * Gets called direct at the activity level and receives
+		 * events from fragments.
+		 */
+		mProcessing = false;
+		mUiController.getBusyController().hide(false);
+	}
+
+	@Override
+	public void onRefresh() {
+		/*
+		 * Called from swipe refresh or routing. Always treated
+		 * as an aggresive refresh.
+		 */
+		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
+			((EntityListFragment) mCurrentFragment).onRefresh();
+		}
 	}
 
 	public void onShareButtonClick(View view) {

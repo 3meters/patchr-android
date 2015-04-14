@@ -1,13 +1,13 @@
 package com.aircandi.components;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.v4.app.Fragment;
 
 import com.aircandi.Constants;
 import com.aircandi.Patchr;
@@ -463,7 +463,6 @@ public class Router {
 		else if (route == Route.PHOTO_SOURCE) {
 
 			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoActionPicker.class);
-			intentBuilder.setEntity(entity);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PICTURE_SOURCE_PICK);
 			AnimationManager.doOverridePendingTransition(activity, TransitionType.DIALOG_TO);
 		}
