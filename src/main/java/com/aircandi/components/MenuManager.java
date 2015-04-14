@@ -31,6 +31,10 @@ public class MenuManager {
 		 * Fragments set menu items when they are configured which are
 		 * later added in BaseFragment.onCreateOptionsMenu.
 		 */
+		if (activityName.equals("AircandiForm")) {
+			menuInflater.inflate(R.menu.menu_notifications, menu);
+			return true;
+		}
 		if (activityName.equals("PlaceForm")) {
 			menuInflater.inflate(R.menu.menu_sign_in, menu);
 			menuInflater.inflate(R.menu.menu_map, menu);

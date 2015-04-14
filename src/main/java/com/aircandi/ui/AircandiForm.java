@@ -262,7 +262,6 @@ public class AircandiForm extends BaseActivity {
 						.setHeaderViewResId(R.layout.widget_list_header_nearby)
 						.setTitleResId(R.string.form_title_nearby);
 
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
@@ -289,7 +288,6 @@ public class AircandiForm extends BaseActivity {
 						.setListEmptyMessageResId(R.string.label_watching_empty)
 						.setTitleResId(R.string.form_title_watch);
 
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
@@ -316,7 +314,6 @@ public class AircandiForm extends BaseActivity {
 						.setListEmptyMessageResId(R.string.label_created_empty)
 						.setTitleResId(R.string.form_title_create);
 
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
@@ -346,7 +343,6 @@ public class AircandiForm extends BaseActivity {
 						.setFromSchema(Constants.SCHEMA_ENTITY_MESSAGE)
 						.setCountLabelResId(R.string.label_trends_count_active);
 
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
@@ -369,8 +365,6 @@ public class AircandiForm extends BaseActivity {
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
 
 				fragment = new MapListFragment();
-				((MapListFragment) fragment).getMenuResIds().add(R.menu.menu_notifications);
-				((MapListFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
 				((MapListFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_list);
 			}
 
