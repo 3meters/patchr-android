@@ -383,11 +383,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 	}
 
-	@Override
-	public Boolean related(@NonNull String entityId) {
-		return entityId.equals(mEntityId);
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/

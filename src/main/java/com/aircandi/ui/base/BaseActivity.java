@@ -527,7 +527,7 @@ public abstract class BaseActivity extends ActionBarActivity
 	}
 
 	public Boolean related(@NonNull String entityId) {
-		return false;
+		return (mEntityId != null && entityId.equals(mEntityId));
 	}
 
 	@Override

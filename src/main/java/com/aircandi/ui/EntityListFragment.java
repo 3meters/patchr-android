@@ -71,13 +71,13 @@ public class EntityListFragment extends BaseFragment
 		           AbsListView.OnScrollListener {
 
 	/* Widgets */
-	protected AbsListView        mListView;
-	protected View               mLoadingView;
-	protected Fragment mHeaderFragment;
-	protected View               mHeaderView;
-	protected View               mHeaderCandiView;
-	protected View               mFooterView;
-	protected ListController     mListController;
+	protected AbsListView    mListView;
+	protected View           mLoadingView;
+	protected Fragment       mHeaderFragment;
+	protected View           mHeaderView;
+	protected View           mHeaderCandiView;
+	protected View           mFooterView;
+	protected ListController mListController;
 
 	/* Resources */
 	protected Integer mHeaderViewResId;
@@ -111,7 +111,7 @@ public class EntityListFragment extends BaseFragment
 	/* Data binding */
 	protected ActionType mActionType = ActionType.ACTION_GET_ENTITIES;
 	protected String  mScopingEntityId;     // Used to scope the entity collection
-	protected Entity  mScopingEntity;       // Set after first service query
+	protected Entity  mScopingEntity;       // Set after first service query, used to manage cache stamp
 	protected Integer mPageSize;
 	protected String  mLinkSchema;
 	protected String  mLinkType;
@@ -395,8 +395,8 @@ public class EntityListFragment extends BaseFragment
 						}
 					}
 
-					if (event.entity != null) {
-						mScopingEntity = event.entity;
+					if (event.scopingEntity != null) {
+						mScopingEntity = event.scopingEntity;
 					}
 
 					if (mLoadingView != null) {
@@ -702,6 +702,10 @@ public class EntityListFragment extends BaseFragment
 		if (mHeaderView != null) {
 			((ListView) mListView).removeHeaderView(mHeaderView);
 		}
+	}
+
+	public Boolean related(@NonNull String entityId) {
+		return entityId.equals(mScopingEntityId);
 	}
 
 	@Override

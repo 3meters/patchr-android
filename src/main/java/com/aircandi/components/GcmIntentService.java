@@ -86,6 +86,12 @@ public class GcmIntentService extends IntentService {
 					Boolean background = (Patchr.getInstance().getCurrentActivity() == null);
 					Boolean showingTarget = showingEntity(notification.targetId);
 
+					/*
+					 * Currently, notifications are priority.TWO by default with the following exceptions:
+					 *
+					 * - Patch inserted nearby
+					 * - Message inserted nearby
+					 */
 					if (background
 							|| !showingTarget
 							|| notification.priority.intValue() == Notification.Priority.ONE) {

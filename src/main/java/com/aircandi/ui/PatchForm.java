@@ -105,7 +105,7 @@ public class PatchForm extends BaseActivity {
 		/*
 		 * Cherry pick the entity so we can add some wrapper functionality.
 		 */
-		if (event.entity == null || event.entity.id.equals(mEntityId)) {
+		if (event.entity != null && event.entity.id.equals(mEntityId)) {
 			mEntity = event.entity;
 			Patchr.getInstance().setCurrentPatch(mEntity);
 		}

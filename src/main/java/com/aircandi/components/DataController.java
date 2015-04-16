@@ -190,7 +190,7 @@ public class DataController {
 								.setActionType(event.actionType)
 								.setMode(event.mode)
 								.setCursor(event.cursor)
-								.setEntity(serviceData.entity)  // Not a fully decorated entity
+								.setScopingEntity(serviceData.entity)  // Entity straight from db and not processed by getEntities
 								.setTag(event.tag);
 						Dispatcher.getInstance().post(data);
 					}
@@ -1589,7 +1589,7 @@ public class DataController {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			final String json = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(json, Json.ObjectType.LINK, Json.ServiceDataWrapper.TRUE);
-			if (serviceData.data != null) {
+			if (serviceData.data != null && serviceData.count.intValue() > 0) {
 				final List<Link> links = (List<Link>) serviceData.data;
 				result.data = links;
 			}

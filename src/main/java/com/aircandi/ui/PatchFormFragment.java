@@ -132,6 +132,7 @@ public class PatchFormFragment extends EntityFormFragment {
 
 	@Subscribe
 	public void onDataResult(final DataResultEvent event) {
+
 		if (event.tag.equals(System.identityHashCode(this))
 				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
 
@@ -535,15 +536,26 @@ public class PatchFormFragment extends EntityFormFragment {
 					}
 				}
 				else {
-					if (mWatchStatus == WatchStatus.REQUESTED) {
-						buttonAlert.setText(R.string.button_list_watch_request_cancel);
-						buttonAlert.setTag(R.id.button_watch);
-					}
-					else if (mWatchStatus == WatchStatus.NONE) {
+					if (mWatchStatus == WatchStatus.NONE) {
 						buttonAlert.setText(R.string.button_list_watch_request);
 						buttonAlert.setTag(R.id.button_watch);
 					}
-					else if (mJustApproved) {
+					else if (mWatchStatus == WatchStatus.REQUESTED) {
+						buttonAlert.setText(R.string.button_list_watch_request_cancel);
+						buttonAlert.setTag(R.id.button_watch);
+					}
+					else if (mWatchStatus == WatchStatus.WATCHING) {
+						if (!hasMessaged) {
+							buttonAlert.setText(StringManager.getString(R.string.button_no_message));
+							buttonAlert.setTag(R.id.add);
+						}
+						else {
+							buttonAlert.setText(StringManager.getString(R.string.button_list_share));
+							buttonAlert.setTag(R.id.share);
+						}
+					}
+
+					if (mJustApproved) {  // We add a little sugar by using a flag set by an 'approved' notification
 						if (hasMessaged) {
 							buttonAlert.setText(StringManager.getString(R.string.button_just_approved));
 							buttonAlert.setTag(R.id.share);
@@ -552,14 +564,6 @@ public class PatchFormFragment extends EntityFormFragment {
 							buttonAlert.setText(StringManager.getString(R.string.button_just_approved_no_message));
 							buttonAlert.setTag(R.id.add);
 						}
-					}
-					else if (!hasMessaged) {
-						buttonAlert.setText(StringManager.getString(R.string.button_no_message));
-						buttonAlert.setTag(R.id.add);
-					}
-					else {
-						buttonAlert.setText(StringManager.getString(R.string.button_list_share));
-						buttonAlert.setTag(R.id.share);
 					}
 				}
 			}

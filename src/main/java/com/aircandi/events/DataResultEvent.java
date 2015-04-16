@@ -15,6 +15,7 @@ public class DataResultEvent{
 	public Object            data;
 	public List<Entity>      entities;       // convenience if data = entities
 	public Entity            entity;         // convenience if data = entity
+	public Entity            scopingEntity;  // Special case for lists
 	public Cursor            cursor;         // The cursor used for the request
 	public Boolean           more;           // used if data = pageable array
 	public Object            tag;            // passed with request
@@ -43,6 +44,11 @@ public class DataResultEvent{
 
 	public DataResultEvent setEntity(Entity entity) {
 		this.entity = entity;
+		return this;
+	}
+
+	public DataResultEvent setScopingEntity(Entity entity) {
+		this.scopingEntity = entity;
 		return this;
 	}
 

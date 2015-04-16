@@ -322,9 +322,11 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				ViewAnimator animator = (ViewAnimator) getView().findViewById(R.id.button_like);
-				if (animator != null) {
-					animator.setDisplayedChild(1);  // Turned off in drawButtons
+				if (getView() != null) {
+					ViewAnimator animator = (ViewAnimator) getView().findViewById(R.id.button_like);
+					if (animator != null) {
+						animator.setDisplayedChild(1);  // Turned off in drawButtons
+					}
 				}
 			}
 		});

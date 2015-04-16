@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -491,17 +490,6 @@ public class MessageForm extends BaseEntityForm {
 		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 
 		builder.startChooser();
-	}
-
-	@Override
-	public Boolean related(@NonNull String entityId) {
-		Boolean related = super.related(entityId);
-		if (!related) {
-			if (mEntity != null && entityId.equals(mEntity.patchId)) {
-				return true;
-			}
-		}
-		return related;
 	}
 
 	@Override

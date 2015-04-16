@@ -5,8 +5,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,7 +14,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ListView;
 import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.aircandi.Patchr;
 import com.aircandi.R;
@@ -219,61 +216,72 @@ public abstract class BaseFragment extends Fragment implements IForm {
 		return true;
 	}
 
-	public void configureStandardMenuItems(Menu menu) {
+	public void configureStandardMenuItems(final Menu menu) {
 
-		/* Remove menu items per policy */
-		Entity entity = ((BaseActivity) getActivity()).getEntity();
+		if (menu == null) return;
 
-		MenuItem item = menu.findItem(R.id.edit);
-		if (item != null) {
-			item.setVisible(MenuManager.canUserEdit(entity));
-		}
+		getActivity().runOnUiThread(new Runnable() {
 
-		item = menu.findItem(R.id.add);
-		if (item != null && entity != null) {
-			item.setVisible(MenuManager.showAction(Route.ADD, entity, null));
-			item.setTitle(StringManager.getString(R.string.menu_item_add_entity, entity.schema));
-		}
+			@Override
+			public void run() {
 
-		item = menu.findItem(R.id.delete);
-		if (item != null) {
-			item.setVisible(MenuManager.canUserDelete(entity));
-		}
+				/* Remove menu items per policy */
+				Entity entity = ((BaseActivity) getActivity()).getEntity();
 
-		item = menu.findItem(R.id.remove);
-		if (item != null) {
-			item.setVisible(MenuManager.showAction(Route.REMOVE, entity, null));
-		}
+				if (entity == null) return;
 
-		item = menu.findItem(R.id.share);
-		if (item != null) {
-			item.setVisible(MenuManager.canUserShare(entity));
-		}
+				MenuItem item = menu.findItem(R.id.edit);
+				if (item != null) {
+					item.setVisible(MenuManager.canUserEdit(entity));
+				}
 
-		item = menu.findItem(R.id.share_photo);
-		if (item != null) {
-			item.setVisible(MenuManager.canUserShare(entity));
-		}
+				item = menu.findItem(R.id.add);
+				if (item != null) {
+					item.setVisible(MenuManager.showAction(Route.ADD, entity, null));
+					item.setTitle(StringManager.getString(R.string.menu_item_add_entity, entity.schema));
+				}
 
-		item = menu.findItem(R.id.signin);
-		if (item != null && Patchr.getInstance().getCurrentUser() != null) {
-			item.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
-		}
+				item = menu.findItem(R.id.delete);
+				if (item != null) {
+					item.setVisible(MenuManager.canUserDelete(entity));
+				}
 
-		item = menu.findItem(R.id.signout);
-		if (item != null) {
-			item.setVisible(MenuManager.showAction(Route.EDIT, entity, null));
-		}
+				item = menu.findItem(R.id.remove);
+				if (item != null) {
+					item.setVisible(MenuManager.showAction(Route.REMOVE, entity, null));
+				}
 
-		item = menu.findItem(R.id.navigate);
-		if (item != null && Patchr.getInstance().getCurrentUser() != null) {
-			item.setVisible(entity.getLocation() != null);
-		}
+				item = menu.findItem(R.id.share);
+				if (item != null) {
+					item.setVisible(MenuManager.canUserShare(entity));
+				}
 
-		item = menu.findItem(R.id.invite);
-		if (item != null) {
-			item.setVisible(MenuManager.canUserShare(entity));
-		}
+				item = menu.findItem(R.id.share_photo);
+				if (item != null) {
+					item.setVisible(MenuManager.canUserShare(entity));
+				}
+
+				item = menu.findItem(R.id.signin);
+				if (item != null && Patchr.getInstance().getCurrentUser() != null) {
+					item.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
+				}
+
+				item = menu.findItem(R.id.signout);
+				if (item != null) {
+					item.setVisible(MenuManager.showAction(Route.EDIT, entity, null));
+				}
+
+				item = menu.findItem(R.id.navigate);
+				if (item != null && Patchr.getInstance().getCurrentUser() != null) {
+					item.setVisible(entity.getLocation() != null);
+				}
+
+				item = menu.findItem(R.id.invite);
+				if (item != null) {
+					item.setVisible(MenuManager.canUserShare(entity));
+				}
+			}
+		});
 	}
 
 	/*--------------------------------------------------------------------------------------------
