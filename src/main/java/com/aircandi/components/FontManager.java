@@ -7,15 +7,9 @@ import com.aircandi.Patchr;
 
 public class FontManager {
 
-	public static Typeface fontRobotoThin;
 	public static Typeface fontRobotoLight;
 	public static Typeface fontRobotoRegular;
 	public static Typeface fontRobotoMedium;
-	public static Typeface fontRobotoBold;
-
-	public static Typeface fontRobotoCondensedLight;
-	public static Typeface fontRobotoCondensedRegular;
-	public static Typeface fontRobotoCondensedBold;
 
 	private static FontManager        instance;
 	private static FontManagerCreator creator;
@@ -33,24 +27,13 @@ public class FontManager {
 	}
 
 	private void initialize() {
-		fontRobotoThin = Typeface.createFromAsset(Patchr.applicationContext.getAssets(), "Roboto-Thin.ttf");
 		fontRobotoLight = Typeface.createFromAsset(Patchr.applicationContext.getAssets(), "Roboto-Light.ttf");
 		fontRobotoRegular = Typeface.createFromAsset(Patchr.applicationContext.getAssets(), "Roboto-Regular.ttf");
 		fontRobotoMedium = Typeface.createFromAsset(Patchr.applicationContext.getAssets(), "Roboto-Medium.ttf");
-		fontRobotoBold = Typeface.createFromAsset(Patchr.applicationContext.getAssets(), "Roboto-Bold.ttf");
-		fontRobotoCondensedLight = Typeface.createFromAsset(Patchr.applicationContext.getAssets(), "RobotoCondensed-Light.ttf");
-		fontRobotoCondensedRegular = Typeface.createFromAsset(Patchr.applicationContext.getAssets(), "RobotoCondensed-Regular.ttf");
-		fontRobotoCondensedBold = Typeface.createFromAsset(Patchr.applicationContext.getAssets(), "RobotoCondensed-Bold.ttf");
 	}
 
 	protected FontManager() {
 		initialize();
-	}
-
-	public void setTypefaceThin(TextView view) {
-		if (view != null) {
-			view.setTypeface(fontRobotoThin);
-		}
 	}
 
 	public void setTypefaceLight(TextView view) {
@@ -68,30 +51,6 @@ public class FontManager {
 	public void setTypefaceMedium(TextView view) {
 		if (view != null) {
 			view.setTypeface(fontRobotoMedium);
-		}
-	}
-
-	public void setTypefaceBold(TextView view) {
-		if (view != null) {
-			view.setTypeface(fontRobotoBold);
-		}
-	}
-
-	public void setTypefaceCondensedLight(TextView view) {
-		if (view != null) {
-			view.setTypeface(fontRobotoCondensedLight);
-		}
-	}
-
-	public void setTypefaceCondensedRegular(TextView view) {
-		if (view != null) {
-			view.setTypeface(fontRobotoCondensedRegular);
-		}
-	}
-
-	public void setTypefaceCondensedBold(TextView view) {
-		if (view != null) {
-			view.setTypeface(fontRobotoCondensedBold);
 		}
 	}
 
