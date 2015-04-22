@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<!-- Base theme applied no matter what API -->
+
+	<style name="base_theme_dark" parent="Theme.AppCompat.NoActionBar"/>
+
+	<style name="base_theme_light" parent="Theme.AppCompat.Light.NoActionBar"/>
+
+	<style name="base_theme_dialog_dark" parent="Theme.AppCompat.Dialog"/>
+
+	<style name="base_theme_dialog_light" parent="Theme.AppCompat.Light.Dialog"/>
+
+</resources>

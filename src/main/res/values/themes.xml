@@ -20,7 +20,7 @@
 		- Custom line and text colors in pages, forms, buttons.
 	-->
 
-	<style name="aircandi_theme_dark" parent="Theme.AppCompat.NoActionBar">
+	<style name="aircandi_theme_dark" parent="base_theme_dark">
 
 		<item name="themeTone">dark</item>
 		<item name="android:windowBackground">@color/background_dark</item>
@@ -102,7 +102,7 @@
 
 	</style>
 
-	<style name="aircandi_theme_light" parent="Theme.AppCompat.Light.NoActionBar">
+	<style name="aircandi_theme_light" parent="base_theme_light">
 
 		<item name="themeTone">light</item>
 		<item name="android:windowBackground">@color/background_light</item>
@@ -256,7 +256,7 @@
 
 	<!-- Dialog Themes -->
 
-	<style name="aircandi_theme_dialog_dark" parent="Theme.AppCompat.Dialog">
+	<style name="aircandi_theme_dialog_dark" parent="base_theme_dialog_dark">
 
 		<item name="themeTone">dark</item>
 		<item name="android:windowIsTranslucent">true</item>
@@ -276,7 +276,7 @@
 
 	</style>
 
-	<style name="aircandi_theme_dialog_light" parent="Theme.AppCompat.Light.Dialog">
+	<style name="aircandi_theme_dialog_light" parent="base_theme_dialog_light">
 
 		<item name="themeTone">light</item>
 		<item name="android:windowNoTitle">true</item>
