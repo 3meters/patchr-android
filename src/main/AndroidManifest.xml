@@ -58,11 +58,11 @@
 	<application
 		android:name=".Patchr"
 		android:hardwareAccelerated="true"
-		android:icon="@drawable/ic_launcher"
+		android:icon="@drawable/ic_img_launcher"
 		android:allowBackup="false"
 		android:label="@string/name_app"
 		android:theme="@style/aircandi_theme_snow"
-		tools:replace="label, allowBackup">
+		tools:replace="label, allowBackup, android:icon">
 
 		<!-- Service keys -->
 		<meta-data
@@ -243,7 +243,7 @@
 		<activity
 			android:name=".ui.edit.MessageEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:icon="@drawable/ic_launcher"
+			android:icon="@drawable/ic_img_launcher"
 			android:label="@string/name_app"
 			android:windowSoftInputMode="stateHidden">
 			<intent-filter>
