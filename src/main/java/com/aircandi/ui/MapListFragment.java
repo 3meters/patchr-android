@@ -82,6 +82,8 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 			@Override
 			public void onMapReady(@NonNull GoogleMap googleMap) {
 
+				if (getActivity() == null) return;
+
 				mMap = googleMap;
 
 				mClusterManager = new ClusterManager<EntityItem>(getActivity(), mMap);

@@ -35,9 +35,14 @@ public class MenuManager {
 			menuInflater.inflate(R.menu.menu_notifications, menu);
 			return true;
 		}
-		if (activityName.equals("PlaceForm")) {
+		else if (activityName.equals("PlaceForm")) {
 			menuInflater.inflate(R.menu.menu_sign_in, menu);
 			menuInflater.inflate(R.menu.menu_map, menu);
+			return true;
+		}
+		else if (activityName.equals("MapForm")) {
+			menuInflater.inflate(R.menu.menu_sign_in, menu);
+			menuInflater.inflate(R.menu.menu_navigate, menu);
 			return true;
 		}
 		else if (activityName.equals("MessageForm")) {

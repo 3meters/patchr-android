@@ -42,9 +42,6 @@ public class MapForm extends BaseActivity {
 				.setZoomLevel(MapManager.ZOOM_SCALE_NEARBY)
 				.draw();
 
-		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_navigate);
-		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_sign_in);
-
 		getSupportFragmentManager()
 				.beginTransaction()
 				.replace(R.id.fragment_holder, mCurrentFragment)
