@@ -16,13 +16,15 @@ public class ServiceError {
 	@Expose
 	public Number       code;
 	@Expose
+	public Number       status;
+	@Expose
 	public String       message;
 	@Expose
 	public String       errors;
 	@Expose
-	public List<String> appStack;    // optional
+	public List<String> stack;
 	@Expose
-	public String       stack;
+	public List<String> appStack;    // optional
 
 	public static ServiceError setPropertiesFromMap(ServiceError serviceError, Map map, Boolean nameMapping) {
 		/*
@@ -30,9 +32,12 @@ public class ServiceError {
 		 */
 		serviceError.name = (String) map.get("name");
 		serviceError.code = (Number) map.get("code");
+		serviceError.status = (Number) map.get("status");
 		serviceError.message = (String) map.get("message");
-		serviceError.stack = (String) map.get("stack");
 
+		if (map.get("stack") != null) {
+			serviceError.stack = (List<String>) map.get("stack");
+		}
 		if (map.get("appStack") != null) {
 			serviceError.appStack = (List<String>) map.get("appStack");
 		}
