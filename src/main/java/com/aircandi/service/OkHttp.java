@@ -162,7 +162,7 @@ public class OkHttp extends BaseConnection {
 				serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, exception);
 			}
 
-			if (exception.getMessage().toLowerCase(Locale.US).contains("cancel")) {
+			if (exception.getMessage() != null && exception.getMessage().toLowerCase(Locale.US).contains("cancel")) {
 				if (call.isCanceled()) {
 					Logger.w(this, "Network request cancelled: " + request.tag());
 				}

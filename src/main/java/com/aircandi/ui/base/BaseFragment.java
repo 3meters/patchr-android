@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -218,9 +219,11 @@ public abstract class BaseFragment extends Fragment implements IForm {
 
 	public void configureStandardMenuItems(final Menu menu) {
 
-		if (menu == null) return;
+		FragmentActivity fragmentActivity = getActivity();
 
-		getActivity().runOnUiThread(new Runnable() {
+		if (menu == null || fragmentActivity == null) return;
+
+		fragmentActivity.runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
