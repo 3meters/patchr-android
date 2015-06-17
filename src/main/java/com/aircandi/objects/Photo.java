@@ -59,8 +59,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	public Boolean store         = false;
 	@NonNull
 	public Boolean resizerActive = false;
-	@NonNull
-	public Boolean resizerUsed   = false;
 
 	public Number resizerWidth;
 
@@ -205,7 +203,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 				 * If photo comes with native height/width then use it otherwise
 				 * resize based on width.
 				 */
-				this.resizerUsed = true;
 				if (this.width != null && this.height != null) {
 
 					Float photoAspectRatio = this.width.floatValue() / this.height.floatValue();
@@ -397,15 +394,8 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	}
 
 	@NonNull
-	public Photo setProxy(Boolean proxyActive) {
-		setProxy(proxyActive, null, null);
-		return this;
-	}
-
-	@NonNull
 	public Photo setProxy(Boolean proxyActive, Integer height, Integer width) {
 		this.resizerActive = proxyActive;
-		this.resizerUsed = false;
 		if (proxyActive) {
 			this.resizerWidth = width;
 			this.resizerHeight = height;
