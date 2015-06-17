@@ -152,7 +152,7 @@ public class MenuManager {
 	@NonNull
 	public static Boolean canUserRemoveFromPatch(Entity entity) {
 		if (entity == null) return false;
-		if (entity.type.equals(Constants.TYPE_LINK_SHARE)) return false;
+		if (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE)) return false;
 
 		Link placeLink = entity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH, entity.patchId, Direction.out);
 		return placeLink != null
