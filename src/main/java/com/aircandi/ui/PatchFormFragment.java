@@ -184,7 +184,7 @@ public class PatchFormFragment extends EntityFormFragment {
 			return;
 		}
 
-			/* Cancel request */
+		/* Cancel request */
 		if (mWatchStatus == WatchStatus.WATCHING) {
 			if (((Patch) mEntity).isRestrictedForCurrentUser()) {
 				confirmLeave();

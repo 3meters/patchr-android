@@ -60,7 +60,6 @@
 					android:drawableRight="?attr/iconClear"
 					android:hint="@string/label_password"
 					android:inputType="textPassword"
-
 					android:visibility="gone" />
 
 				<Button

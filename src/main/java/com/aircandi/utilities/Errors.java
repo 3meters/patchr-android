@@ -63,7 +63,7 @@ public final class Errors {
 
 					@Override
 					public void run() {
-						Dialogs.alertDialog(R.drawable.ic_launcher
+						Dialogs.alertDialog(R.drawable.ic_img_launcher
 								, null
 								, errorMessage
 								, null
