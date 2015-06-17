@@ -750,8 +750,10 @@ public abstract class BaseActivity extends ActionBarActivity
 		}
 
 		menuItem = menu.findItem(R.id.signin);
-		if (menuItem != null && Patchr.getInstance().getCurrentUser() != null) {
-			menuItem.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
+		if (menuItem != null) {
+			if (Patchr.getInstance().getCurrentUser() != null) {
+				menuItem.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
+			}
 		}
 
 		menuItem = menu.findItem(R.id.signout);

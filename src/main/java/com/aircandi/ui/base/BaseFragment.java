@@ -225,12 +225,21 @@ public abstract class BaseFragment extends Fragment implements IForm {
 			@Override
 			public void run() {
 
+				/* Sign-in isn't dependent on an entity for policy */
+
+				MenuItem item = menu.findItem(R.id.signin);
+				if (item != null) {
+					if (Patchr.getInstance().getCurrentUser() != null) {
+						item.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
+					}
+				}
+
 				/* Remove menu items per policy */
 				Entity entity = ((BaseActivity) getActivity()).getEntity();
 
 				if (entity == null) return;
 
-				MenuItem item = menu.findItem(R.id.edit);
+				item = menu.findItem(R.id.edit);
 				if (item != null) {
 					item.setVisible(MenuManager.canUserEdit(entity));
 				}
@@ -259,11 +268,6 @@ public abstract class BaseFragment extends Fragment implements IForm {
 				item = menu.findItem(R.id.share_photo);
 				if (item != null) {
 					item.setVisible(MenuManager.canUserShare(entity));
-				}
-
-				item = menu.findItem(R.id.signin);
-				if (item != null && Patchr.getInstance().getCurrentUser() != null) {
-					item.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
 				}
 
 				item = menu.findItem(R.id.signout);
