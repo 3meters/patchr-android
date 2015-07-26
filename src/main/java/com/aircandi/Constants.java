@@ -35,7 +35,6 @@ public class Constants {
 
 	public static final String EXTRA_LAYOUT_RESID                = "com.aircandi.EXTRA_LAYOUT_RESID";
 	public static final String EXTRA_MESSAGE                     = "com.aircandi.EXTRA_MESSAGE";
-	public static final String EXTRA_CATEGORY                    = "com.aircandi.EXTRA_CATEGORY";
 	public static final String EXTRA_LOCATION                    = "com.aircandi.EXTRA_LOCATION";
 	public static final String EXTRA_PRIVACY                     = "com.aircandi.EXTRA_PRIVACY";
 	public static final String EXTRA_SEARCH_PHRASE               = "com.aircandi.EXTRA_SEARCH_PHRASE";
@@ -225,7 +224,6 @@ public class Constants {
 	public static final int ACTIVITY_APPLICATION_PICK    = 560;
 	public static final int ACTIVITY_PREFERENCES         = 600;
 	public static final int ACTIVITY_ADDRESS_EDIT        = 800;
-	public static final int ACTIVITY_CATEGORY_EDIT       = 810;
 	public static final int ACTIVITY_LOCATION_EDIT       = 820;
 	public static final int ACTIVITY_PRIVACY_EDIT        = 830;
 	public static final int ACTIVITY_PHOTO_EDIT          = 840;

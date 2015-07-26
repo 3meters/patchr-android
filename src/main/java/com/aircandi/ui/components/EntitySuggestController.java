@@ -296,6 +296,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 				holder.name = (TextView) view.findViewById(R.id.name);
 				holder.subhead = (TextView) view.findViewById(R.id.subhead);
 				holder.categoryName = (TextView) view.findViewById(R.id.category_name);
+				holder.type = (TextView) view.findViewById(R.id.type);
 				view.setTag(holder);
 			}
 			else {
@@ -312,12 +313,20 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 					UI.setVisibility(holder.name, View.VISIBLE);
 				}
 
-				UI.setVisibility(holder.categoryName, View.GONE);
-				if (entity instanceof Patch) {
-					Category category = ((Patch) entity).category;
+				if (entity instanceof Place) {
+					UI.setVisibility(holder.categoryName, View.GONE);
+					Category category = ((Place) entity).category;
 					if (category != null && !TextUtils.isEmpty(category.name)) {
 						holder.categoryName.setText(Html.fromHtml(category.name));
 						UI.setVisibility(holder.categoryName, View.VISIBLE);
+					}
+				}
+
+				if (entity instanceof Patch) {
+					UI.setVisibility(holder.type, View.GONE);
+					if (entity.type != null && !TextUtils.isEmpty(entity.type)) {
+						holder.type.setText(Html.fromHtml(entity.type));
+						UI.setVisibility(holder.type, View.VISIBLE);
 					}
 				}
 
@@ -513,6 +522,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		public TextView     name;
 		public TextView     subhead;
 		public TextView     categoryName;
+		public TextView     type;
 		public AirImageView photoView;
 		public ImageView    indicator;
 		public String       photoUri;    // Used for verification after fetching image // NO_UCD (unused code)

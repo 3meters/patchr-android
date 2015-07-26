@@ -366,7 +366,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 					markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker));
 				}
 				markerOptions.title(!(TextUtils.isEmpty(patch.name)) ? patch.name : StringManager.getString(R.string.container_singular));
-				markerOptions.snippet((patch.category != null && !TextUtils.isEmpty(patch.category.name)) ? patch.category.name : null);
+				markerOptions.snippet((!TextUtils.isEmpty(patch.type)) ? patch.type : null);
 			}
 			else if (entityItem.mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				final Place place = (Place) entityItem.mEntity;

@@ -24,7 +24,6 @@
 	<string name="form_title_proximity_edit" tools:ignore="UnusedResources">Tune patch proximity</string>
 
 	<string name="form_title_privacy_builder" tools:ignore="UnusedResources">Privacy setting</string>
-	<string name="form_title_category_builder" tools:ignore="UnusedResources">Category</string>
 	<string name="form_title_photo_picker" tools:ignore="UnusedResources">Photo search</string>
 	<string name="form_title_location_picker" tools:ignore="UnusedResources">Set patch location</string>
 
@@ -242,7 +241,7 @@
 	<string name="error_missing_message">Enter a message.</string>
 	<string name="error_missing_report_option">Choose a reason.</string>
 	<string name="error_missing_patch_name">Enter a name for the patch.</string>
-	<string name="error_missing_patch_category">Select a patch type.</string>
+	<string name="error_missing_patch_type">Select a patch type.</string>
 
 	<!-- Errors: connectivity -->
 
@@ -381,7 +380,8 @@
 	<string name="label_drawer_open">Open drawer</string>
 	<string name="label_drawer_close">Close drawer</string>
 
-	<string name="label_patch_category_default">Group or event</string>
+	<string name="label_place_category_default">Place</string>
+	<string name="label_patch_type_default">Place</string>
 	<string name="label_patch_hidden_flag" tools:ignore="UnusedResources">(Secret)</string>
 	<string name="label_patch_owner_flag" tools:ignore="UnusedResources">(Owner)</string>
 	<string name="label_indicator_watching" tools:ignore="UnusedResources">Watchers</string>
@@ -499,6 +499,7 @@
 	<string name="dummy_title_short" tools:ignore="UnusedResources">Zoka Coffee</string>
 	<string name="dummy_subtitle" tools:ignore="UnusedResources">Roasters &amp; Tea Company</string>
 	<string name="dummy_category_name" tools:ignore="UnusedResources">Coffee Shop</string>
+	<string name="dummy_type_patch" tools:ignore="UnusedResources">Place Patch</string>
 	<string name="dummy_subtitle_notification" tools:ignore="UnusedResources">added a picture to a [@string/container_singular_lowercase] you are watching.</string>
 	<string name="dummy_name" tools:ignore="UnusedResources">Jay Massena</string>
 	<string name="dummy_alert" tools:ignore="UnusedResources">Link failed verification</string>

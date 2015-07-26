@@ -27,7 +27,6 @@ import com.aircandi.events.LocationUpdatedEvent;
 import com.aircandi.events.ProcessingCanceledEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.AirLocation;
-import com.aircandi.objects.Category;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Patch;
@@ -40,7 +39,6 @@ import com.aircandi.ui.widgets.AirProgressBar;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
 import com.aircandi.utilities.Json;
-import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -53,7 +51,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
-import java.util.Locale;
 
 @SuppressLint("Registered")
 public class PatchEdit extends BaseEntityEdit {
@@ -63,11 +60,11 @@ public class PatchEdit extends BaseEntityEdit {
 	private   TextView     mLocationLabel;
 	protected AirImageView mPhotoViewPlace;
 
-	private RadioGroup  mButtonGroupCategory;
-	private RadioButton mButtonCategoryEvent;
-	private RadioButton mButtonCategoryGroup;
-	private RadioButton mButtonCategoryPlace;
-	private RadioButton mButtonCategoryProject;
+	private RadioGroup  mButtonGroupType;
+	private RadioButton mButtonTypeEvent;
+	private RadioButton mButtonTypeGroup;
+	private RadioButton mButtonTypePlace;
+	private RadioButton mButtonTypeProject;
 
 	protected MapView        mMapView;
 	protected AirProgressBar mMapProgressBar;
@@ -85,11 +82,11 @@ public class PatchEdit extends BaseEntityEdit {
 		mInsertProgressResId = R.string.progress_saving_patch;
 		mInsertedResId = R.string.alert_inserted_patch;
 
-		mButtonCategoryEvent = (RadioButton) findViewById(R.id.radio_event);
-		mButtonCategoryGroup = (RadioButton) findViewById(R.id.radio_group);
-		mButtonCategoryPlace = (RadioButton) findViewById(R.id.radio_place);
-		mButtonCategoryProject = (RadioButton) findViewById(R.id.radio_project);
-		mButtonGroupCategory = (RadioGroup) findViewById(R.id.buttons_category);
+		mButtonTypeEvent = (RadioButton) findViewById(R.id.radio_event);
+		mButtonTypeGroup = (RadioButton) findViewById(R.id.radio_group);
+		mButtonTypePlace = (RadioButton) findViewById(R.id.radio_place);
+		mButtonTypeProject = (RadioButton) findViewById(R.id.radio_project);
+		mButtonGroupType = (RadioGroup) findViewById(R.id.buttons_type);
 
 		mButtonPlace = (TextView) findViewById(R.id.button_place);
 		mButtonPrivacy = (TextView) findViewById(R.id.button_privacy);
@@ -181,20 +178,20 @@ public class PatchEdit extends BaseEntityEdit {
 
 		UI.setVisibility(findViewById(R.id.button_holder), (mEditing ? View.GONE : View.VISIBLE));
 
-		/* Category */
+		/* Type */
 
-		if (mButtonGroupCategory != null && patch.category != null) {
+		if (mButtonGroupType != null && patch.type != null) {
 			Integer id = R.id.radio_event;
-			if (patch.category.id.equals(Patch.PatchCategory.GROUP.toLowerCase(Locale.US))) {
+			if (patch.type.equals(Patch.Type.GROUP)) {
 				id = R.id.radio_group;
 			}
-			else if (patch.category.id.equals(Patch.PatchCategory.PLACE.toLowerCase(Locale.US))) {
+			else if (patch.type.equals(Patch.Type.PLACE)) {
 				id = R.id.radio_place;
 			}
-			else if (patch.category.id.equals(Patch.PatchCategory.PROJECT.toLowerCase(Locale.US))) {
+			else if (patch.type.equals(Patch.Type.PROJECT)) {
 				id = R.id.radio_project;
 			}
-			mButtonGroupCategory.check(id);
+			mButtonGroupType.check(id);
 		}
 
 		/* Linked place */
@@ -316,31 +313,29 @@ public class PatchEdit extends BaseEntityEdit {
 		onAccept();
 	}
 
-	public void onCategoryLabelClick(View view) {
-		String categoryId = (String) view.getTag();
-		if (categoryId.equals(Patch.PatchCategory.EVENT)) {
-			mButtonCategoryEvent.performClick();
+	public void onTypeLabelClick(View view) {
+		mDirty = true;
+		String type = (String) view.getTag();
+		if (type.equals(Patch.Type.EVENT)) {
+			mButtonTypeEvent.performClick();
 		}
-		else if (categoryId.equals(Patch.PatchCategory.GROUP)) {
-			mButtonCategoryGroup.performClick();
+		else if (type.equals(Patch.Type.GROUP)) {
+			mButtonTypeGroup.performClick();
 		}
-		else if (categoryId.equals(Patch.PatchCategory.PLACE)) {
-			mButtonCategoryPlace.performClick();
+		else if (type.equals(Patch.Type.PLACE)) {
+			mButtonTypePlace.performClick();
 		}
-		else if (categoryId.equals(Patch.PatchCategory.PROJECT)) {
-			mButtonCategoryProject.performClick();
+		else if (type.equals(Patch.Type.PROJECT)) {
+			mButtonTypeProject.performClick();
 		}
 	}
 
-	public void onCategoryButtonClick(View view) {
+	public void onTypeButtonClick(View view) {
 
-		String categoryId = (String) view.getTag();
-		Category category = new Category()
-				.setId(categoryId.toLowerCase(Locale.US))
-				.setName(categoryId);
-
-		mButtonGroupCategory.check(view.getId());
-		((Patch) mEntity).category = category;
+		mDirty = true;
+		String type = (String) view.getTag();
+		mButtonGroupType.check(view.getId());
+		((Patch) mEntity).type = type;
 	}
 
 	public void onPlacePickerClick(View view) {
@@ -459,7 +454,7 @@ public class PatchEdit extends BaseEntityEdit {
 					Place place = (Place) mButtonPlace.getTag();
 
 					/* Adding a new place. */
-					if (place != null && Type.isTrue(place.synthetic)) {
+					if (place != null && com.aircandi.utilities.Type.isTrue(place.synthetic)) {
 						result = DataController.getInstance().insertEntity(place, null, null, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 							Entity insertedPlace = (Entity) result.data;
@@ -631,10 +626,10 @@ public class PatchEdit extends BaseEntityEdit {
 			return false;
 		}
 
-		if (patch.category == null) {
+		if (patch.type == null) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
-					, StringManager.getString(R.string.error_missing_patch_category)
+					, StringManager.getString(R.string.error_missing_patch_type)
 					, null
 					, this
 					, android.R.string.ok

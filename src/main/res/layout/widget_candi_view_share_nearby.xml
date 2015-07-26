@@ -33,7 +33,7 @@
 		tools:text="@string/dummy_title_short" />
 
 	<com.aircandi.ui.widgets.AirTextView
-		android:id="@+id/category_name"
+		android:id="@+id/type"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignLeft="@+id/name"

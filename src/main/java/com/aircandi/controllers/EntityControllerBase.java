@@ -23,6 +23,7 @@ import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Notification;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.Place;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.EntityListFragment.ViewType;
@@ -32,6 +33,8 @@ import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.UI;
+
+import java.util.Locale;
 
 public abstract class EntityControllerBase implements IEntityController {
 
@@ -208,13 +211,25 @@ public abstract class EntityControllerBase implements IEntityController {
 		/* Category */
 
 		UI.setVisibility(holder.categoryName, View.GONE);
-		if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)
-				|| entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-			Patch patch = (Patch) entity;
+		if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
+			Place place = (Place) entity;
 			if (holder.categoryName != null) {
-				if (patch.category != null && !TextUtils.isEmpty(patch.category.name)) {
-					holder.categoryName.setText(Html.fromHtml(patch.category.name + " Patch"));
+				if (place.category != null && !TextUtils.isEmpty(place.category.name)) {
+					holder.categoryName.setText((place.category.name).toUpperCase(Locale.US));
 					UI.setVisibility(holder.categoryName, View.VISIBLE);
+				}
+			}
+		}
+
+		/* Type */
+
+		UI.setVisibility(holder.type, View.GONE);
+		if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+			Patch patch = (Patch) entity;
+			if (holder.type != null) {
+				if (patch.type != null && !TextUtils.isEmpty(patch.type)) {
+					holder.type.setText((patch.type + " patch").toUpperCase(Locale.US));
+					UI.setVisibility(holder.type, View.VISIBLE);
 				}
 			}
 		}
@@ -361,6 +376,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.patchPhotoView = (AirImageView) view.findViewById(R.id.patch_photo);
 		holder.patchName = (TextView) view.findViewById(R.id.patch_name);
 		holder.categoryName = (TextView) view.findViewById(R.id.category_name);
+		holder.type = (TextView) view.findViewById(R.id.type);
 	}
 
 	@Override

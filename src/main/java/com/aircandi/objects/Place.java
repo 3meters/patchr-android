@@ -19,7 +19,7 @@ import java.util.Random;
  * @author Jayma
  */
 @SuppressWarnings("ucd")
-public class Place extends Patch implements Cloneable, Serializable {
+public class Place extends Entity implements Cloneable, Serializable {
 
 	private static final long   serialVersionUID = -3599862145425838670L;
 	public static final  String collectionId     = "places";
@@ -43,6 +43,8 @@ public class Place extends Patch implements Cloneable, Serializable {
 	public String      phone;
 	@Expose
 	public ProviderMap provider;
+	@Expose
+	public Category category;
 
 	@Expose(serialize = false, deserialize = true)
 	public Number      applinkDate;
@@ -172,6 +174,10 @@ public class Place extends Patch implements Cloneable, Serializable {
 		entity.postalCode = (String) map.get("postalCode");
 		entity.phone = (String) map.get("phone");
 		entity.applinkDate = (Number) map.get("applinkDate");
+
+		if (map.get("category") != null) {
+			entity.category = Category.setPropertiesFromMap(new Category(), (HashMap<String, Object>) map.get("category"), nameMapping);
+		}
 
 		if (map.get("provider") != null) {
 			entity.provider = ProviderMap.setPropertiesFromMap(new ProviderMap(), (HashMap<String, Object>) map.get("provider"), nameMapping);

@@ -15,7 +15,6 @@ public class IntentBuilder {
 	private Class<?> mClass;
 	private String   mAction;
 	private Uri      mData;
-	private String   mCategory;
 	private String   mMimeType;
 	private Bundle mExtras = new Bundle();
 
@@ -46,9 +45,6 @@ public class IntentBuilder {
 			}
 			if (mMimeType != null) {
 				intent.setType(mMimeType);
-			}
-			if (mCategory != null) {
-				intent.addCategory(mCategory);
 			}
 		}
 
@@ -128,10 +124,6 @@ public class IntentBuilder {
 		if (extras != null) {
 			mExtras.putAll(extras);
 		}
-	}
-
-	public String getCategory() {
-		return mCategory;
 	}
 
 	public String getMimeType() {

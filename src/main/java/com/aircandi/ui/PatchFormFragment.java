@@ -380,7 +380,7 @@ public class PatchFormFragment extends EntityFormFragment {
 				final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
 				final AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
 				final TextView name = (TextView) view.findViewById(R.id.name);
-				final TextView category_name = (TextView) view.findViewById(R.id.category_name);
+				final TextView type = (TextView) view.findViewById(R.id.type);
 
 				/* Primary candi image */
 
@@ -414,12 +414,12 @@ public class PatchFormFragment extends EntityFormFragment {
 						}
 					}
 
-					UI.setVisibility(category_name, View.GONE);
-					if (category_name != null) {
-						category_name.setText(null);
-						if (!TextUtils.isEmpty(mEntity.subtitle)) {
-							category_name.setText(Html.fromHtml(mEntity.subtitle));
-							UI.setVisibility(category_name, View.VISIBLE);
+					UI.setVisibility(type, View.GONE);
+					if (type != null) {
+						type.setText(null);
+						if (!TextUtils.isEmpty(mEntity.type)) {
+							type.setText(Html.fromHtml(mEntity.type));
+							UI.setVisibility(type, View.VISIBLE);
 						}
 					}
 				}

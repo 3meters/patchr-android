@@ -55,6 +55,7 @@ public class CandiView extends RelativeLayout {
 	protected AirImageView mPhotoView;
 	protected AirImageView mCategoryPhoto;
 	protected TextView     mCategoryName;
+	protected TextView     mType;
 	protected TextView     mPlaceName;
 	protected TextView     mName;
 	protected TextView     mIndex;
@@ -118,6 +119,7 @@ public class CandiView extends RelativeLayout {
 		mArea = (TextView) mLayout.findViewById(R.id.area);
 		mEmail = (TextView) mLayout.findViewById(R.id.email);
 		mDistance = (TextView) mLayout.findViewById(R.id.distance);
+		mType = (TextView) mLayout.findViewById(R.id.type);
 		mCategoryName = (TextView) mLayout.findViewById(R.id.category_name);
 		mCategoryPhoto = (AirImageView) mLayout.findViewById(R.id.category_photo);
 		mPlaceName = (TextView) mLayout.findViewById(R.id.place_name);
@@ -258,26 +260,20 @@ public class CandiView extends RelativeLayout {
 					}
 				}
 
-				/* Category name */
+				/* Type */
 
-				Category category = patch.category;
-				setVisibility(mCategoryName, View.GONE);
-				if (mCategoryName != null) {
-					setVisibility(mCategoryName, View.INVISIBLE);
-					if (category != null && category.name != null && !category.id.equals("generic")) {
-						if (patch instanceof Place) {
-							mCategoryName.setText(Html.fromHtml((category.name).toUpperCase(Locale.US)));
-						}
-						else {
-							mCategoryName.setText(Html.fromHtml((category.name + " patch").toUpperCase(Locale.US)));
-						}
-						setVisibility(mCategoryName, View.VISIBLE);
+				setVisibility(mType, View.GONE);
+				if (mType != null) {
+					setVisibility(mType, View.INVISIBLE);
+					if (patch.type != null) {
+						mType.setText(Html.fromHtml((patch.type + " patch").toUpperCase(Locale.US)));
+						setVisibility(mType, View.VISIBLE);
 					}
 					else {
-						/* No category so show default label */
-						String categoryName = StringManager.getString(R.string.label_patch_category_default).toUpperCase(Locale.US);
-						mCategoryName.setText(categoryName);
-						setVisibility(mCategoryName, View.VISIBLE);
+						/* No type so show default label */
+						String type = (StringManager.getString(R.string.label_patch_type_default) + " patch").toUpperCase(Locale.US);
+						mType.setText(type);
+						setVisibility(mType, View.VISIBLE);
 					}
 				}
 
@@ -285,6 +281,36 @@ public class CandiView extends RelativeLayout {
 
 				if (mPrivacyGroup != null) {
 					mPrivacyGroup.setVisibility((patch.privacy != null && patch.privacy.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
+				}
+
+				/* Indicators */
+
+				showIndicators(entity, options);
+
+				/* Distance */
+
+				showDistance(entity);
+			}
+
+			if (entity instanceof Place) {
+				Place place = (Place) entity;
+
+				/* Category */
+
+				Category category = place.category;
+				setVisibility(mCategoryName, View.GONE);
+				if (mCategoryName != null) {
+					setVisibility(mCategoryName, View.INVISIBLE);
+					if (category != null && category.name != null && !category.id.equals("generic")) {
+						mCategoryName.setText(Html.fromHtml((category.name).toUpperCase(Locale.US)));
+						setVisibility(mCategoryName, View.VISIBLE);
+					}
+					else {
+						/* No category so show default label */
+						String categoryName = StringManager.getString(R.string.label_place_category_default).toUpperCase(Locale.US);
+						mCategoryName.setText(categoryName);
+						setVisibility(mCategoryName, View.VISIBLE);
+					}
 				}
 
 				/* Category photo */
@@ -312,17 +338,6 @@ public class CandiView extends RelativeLayout {
 					mCategoryPhoto.setVisibility(View.VISIBLE);
 				}
 
-				/* Indicators */
-
-				showIndicators(entity, options);
-
-				/* Distance */
-
-				showDistance(entity);
-			}
-
-			if (entity instanceof Place) {
-				Place place = (Place) entity;
 				/* Address */
 
 				setVisibility(mAddress, View.GONE);
