@@ -1442,7 +1442,6 @@ public class DataController {
 				, parseInstallId
 				, Patchr.getInstance().getinstallId());
 
-		install.parseInstallId = parseInstallId;
 		install.clientVersionName = Patchr.getVersionName(Patchr.applicationContext, AircandiForm.class);
 		install.clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
 		install.clientPackageName = Patchr.applicationContext.getPackageName();
