@@ -54,7 +54,7 @@ public class GcmIntentService extends IntentService {
 				String data = extras.getString("data");
 				if (isEntity(data)) {
 
-					Notification notification = (Notification) Json.jsonToObject(data, Json.ObjectType.ENTITY);
+					@SuppressWarnings("ConstantConditions") Notification notification = (Notification) Json.jsonToObject(data, Json.ObjectType.ENTITY);
 
 					User currentUser = Patchr.getInstance().getCurrentUser();
 					if (notification.userId != null && currentUser != null && currentUser.id.equals(notification.userId))

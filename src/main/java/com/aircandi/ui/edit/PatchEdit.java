@@ -438,6 +438,8 @@ public class PatchEdit extends BaseEntityEdit {
 
 		if (placeDirty()) {
 
+			final Place place = (Place) mButtonPlace.getTag();
+
 			mTaskService = new AsyncTask() {
 
 				@Override
@@ -451,7 +453,6 @@ public class PatchEdit extends BaseEntityEdit {
 
 					ModelResult result = new ModelResult();
 					Link placeLink = mEntity.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
-					Place place = (Place) mButtonPlace.getTag();
 
 					/* Adding a new place. */
 					if (place != null && com.aircandi.utilities.Type.isTrue(place.synthetic)) {

@@ -71,6 +71,9 @@ public class PasswordEdit extends BaseEdit {
 	@Override
 	protected void update() {
 
+		final String passwordOld = mPasswordOld.getText().toString();
+		final String password = mPassword.getText(). toString();
+
 		new AsyncTask() {
 
 			@Override
@@ -83,8 +86,8 @@ public class PasswordEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncUpdatePassword");
 				final ModelResult result = DataController.getInstance().updatePassword(
 						Patchr.getInstance().getCurrentUser().id,
-						mPasswordOld.getText().toString(),
-						mPassword.getText().toString(),
+						passwordOld,
+						password,
 						PasswordEdit.class.getSimpleName(),
 						NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;

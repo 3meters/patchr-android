@@ -57,7 +57,7 @@ public abstract class BaseConnection implements IConnection {
 					if (serviceRequest.getParameters().get(key) instanceof ArrayList<?>) {
 
 						List<String> items = serviceRequest.getParameters().getStringArrayList(key);
-						if (items.size() == 0) {
+						if (items == null || items.size() == 0) {
 							requestBody.append("[],");
 						}
 						else {
@@ -76,17 +76,19 @@ public abstract class BaseConnection implements IConnection {
 
 					/* Strings and objects */
 					else if (serviceRequest.getParameters().get(key) instanceof String) {
+						//noinspection ConstantConditions
 						String value = serviceRequest.getParameters().get(key).toString();
 						if (value.startsWith("object:")) {
-							requestBody.append(serviceRequest.getParameters().get(key).toString().substring(7) + ",");
+							requestBody.append(value.substring(7) + ",");
 						}
 						else {
-							requestBody.append("\"" + serviceRequest.getParameters().get(key).toString() + "\",");
+							requestBody.append("\"" + value + "\",");
 						}
 					}
 
 					/* Numbers and booleans */
 					else {
+						//noinspection ConstantConditions
 						requestBody.append(serviceRequest.getParameters().get(key).toString() + ",");
 					}
 				}

@@ -281,22 +281,24 @@ public class Router {
 			}
 
 			final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
-			final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
-			Uri uri = Uri.parse(photo.getUri());
+			if (jsonPhoto != null) {
+				final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
+				Uri uri = Uri.parse(photo.getUri());
 
-			if (AndroidManager.getInstance().isAviaryInstalled()) {
-				Intent intent = new Intent("aviary.intent.action.EDIT");
-				intent.setDataAndType(uri, "image/*"); // required
-				intent.putExtra("app-id", Patchr.applicationContext.getPackageName()); // required ( it's your app unique package name )
-				intent.putExtra("output-format", Bitmap.CompressFormat.JPEG.name());
-				intent.putExtra("output-quality", 90);
-				intent.putExtra("save-on-no-changes", false);
+				if (AndroidManager.getInstance().isAviaryInstalled()) {
+					Intent intent = new Intent("aviary.intent.action.EDIT");
+					intent.setDataAndType(uri, "image/*"); // required
+					intent.putExtra("app-id", Patchr.applicationContext.getPackageName()); // required ( it's your app unique package name )
+					intent.putExtra("output-format", Bitmap.CompressFormat.JPEG.name());
+					intent.putExtra("output-quality", 90);
+					intent.putExtra("save-on-no-changes", false);
 
-				activity.startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);
-				AnimationManager.doOverridePendingTransition(activity, TransitionType.DRILL_TO);
-			}
-			else {
-				Dialogs.installAviary(activity);
+					activity.startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);
+					AnimationManager.doOverridePendingTransition(activity, TransitionType.DRILL_TO);
+				}
+				else {
+					Dialogs.installAviary(activity);
+				}
 			}
 		}
 

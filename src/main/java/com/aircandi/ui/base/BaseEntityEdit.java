@@ -358,8 +358,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 					final Bundle extras = intent.getExtras();
 					final String json = extras.getString(Constants.EXTRA_PHOTO);
-					final Photo photo = (Photo) Json.jsonToObject(json, Json.ObjectType.PHOTO);
-					onPhotoSelected(photo);
+					if (json != null) {
+						final Photo photo = (Photo) Json.jsonToObject(json, Json.ObjectType.PHOTO);
+						onPhotoSelected(photo);
+					}
 				}
 			}
 			else if (requestCode == ChooserType.REQUEST_PICK_PICTURE) {
@@ -438,6 +440,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		try {
 			String directory = MediaManager.getTempDirectory(MediaManager.tempDirectoryName);
 			if (directory != null) {
+				//noinspection deprecation
 				mImageChooserManager = new ImageChooserManager(this
 						, ChooserType.REQUEST_PICK_PICTURE
 						, directory
@@ -461,6 +464,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		try {
 			String directory = MediaManager.getPhotoDirectory();
 			if (directory != null) {
+				//noinspection deprecation
 				mImageChooserManager = new ImageChooserManager(this
 						, ChooserType.REQUEST_CAPTURE_PICTURE
 						, directory

@@ -225,7 +225,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		UI.setVisibility(holder.type, View.GONE);
 		if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-			Patch patch = (Patch) entity;
+			@SuppressWarnings("ConstantConditions") Patch patch = (Patch) entity;
 			if (holder.type != null) {
 				if (patch.type != null && !TextUtils.isEmpty(patch.type)) {
 					holder.type.setText((patch.type + " patch").toUpperCase(Locale.US));

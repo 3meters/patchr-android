@@ -146,6 +146,8 @@ public class ResetEdit extends BaseEdit {
 
 		Logger.d(this, "Verifying email and install for password reset");
 
+		final String email = mEmail.getText().toString().trim().toLowerCase(Locale.US);
+
 		new AsyncTask() {
 
 			@Override
@@ -158,7 +160,6 @@ public class ResetEdit extends BaseEdit {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRequestPasswordReset");
 
-				String email = mEmail.getText().toString().trim().toLowerCase(Locale.US);
 				ModelResult result = DataController.getInstance().requestPasswordReset(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
@@ -213,6 +214,8 @@ public class ResetEdit extends BaseEdit {
 
 		Logger.d(this, "Resetting password for: " + mUser.email);
 
+		final String password = mPassword.getText().toString();
+
 		new AsyncTask() {
 
 			@Override
@@ -223,8 +226,6 @@ public class ResetEdit extends BaseEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncResetPassword");
-
-				String password = mPassword.getText().toString();
 				ModelResult result = DataController.getInstance().resetPassword(password, mUser, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
