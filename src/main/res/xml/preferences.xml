@@ -26,7 +26,7 @@
 				android:defaultValue="@bool/pref_notifications_nearby_default"
 				android:summary="@string/pref_notifications_nearby_summary"
 				android:title="@string/pref_notifications_nearby_title"
-				android:key="@string/pref_messages_nearby" />
+				android:key="@string/pref_patches_nearby" />
 
 			<CheckBoxPreference
 				android:id="@+id/Pref_Notifications_Watch"

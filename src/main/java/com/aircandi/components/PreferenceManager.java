@@ -13,7 +13,7 @@ public class PreferenceManager {
 public Boolean notificationEnabled(@NonNull String triggerCategory, @NonNull String eventCategory) {
 
 	if (triggerCategory.equals(Notification.TriggerCategory.NEARBY)) {
-		if (!Patchr.settings.getBoolean(StringManager.getString(R.string.pref_messages_nearby)
+		if (!Patchr.settings.getBoolean(StringManager.getString(R.string.pref_patches_nearby)
 				, Booleans.getBoolean(R.bool.pref_notifications_nearby_default)))
 			return false;
 	}
