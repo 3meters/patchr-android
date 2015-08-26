@@ -95,6 +95,7 @@
 		<attr name="iconAdd" format="reference" />
 		<attr name="iconCancel" format="reference" />
 		<attr name="iconClear" format="reference" />
+		<attr name="iconFavorite" format="reference" />
 		<attr name="iconForward" format="reference" />
 		<attr name="iconLike" format="reference" />
 		<attr name="iconLocation" format="reference" />
@@ -128,6 +129,7 @@
 		<attr name="iconActionWatch" format="reference" />
 
 		<attr name="iconDrawerNearby" format="reference" />
+		<attr name="iconDrawerFavorite" format="reference" />
 		<attr name="iconDrawerWatch" format="reference" />
 		<attr name="iconDrawerCreate" format="reference" />
 		<attr name="iconDrawerExplore" format="reference" />

@@ -267,6 +267,32 @@ public class AircandiForm extends BaseActivity {
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
+			/* Likes */
+
+			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_LIKE)) {
+
+				fragment = new EntityListFragment();
+
+				((EntityListFragment) fragment)
+						.setScopingEntityId(Patchr.getInstance().getCurrentUser().id)
+						.setActionType(ActionType.ACTION_GET_ENTITIES)
+						.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
+						.setLinkType(Constants.TYPE_LINK_LIKE)
+						.setLinkDirection(Link.Direction.out.name())
+						.setListPagingEnabled(true)
+						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
+						.setListItemResId(R.layout.temp_listitem_patch)
+						.setListLoadingResId(R.layout.temp_listitem_loading)
+						.setListViewType(ViewType.LIST)
+						.setListLayoutResId(R.layout.patch_list_fragment)
+						.setListEmptyMessageResId(R.string.label_likes_empty)
+						.setTitleResId(R.string.form_title_like);
+
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
+				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
+			}
+
 			/* Watching */
 
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_WATCH)) {
@@ -465,8 +491,7 @@ public class AircandiForm extends BaseActivity {
 	protected void updateDrawer() {
 		if (mCurrentNavView != null) {
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_nearby).findViewById(R.id.name));
-			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_watch).findViewById(R.id.name));
-			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_create).findViewById(R.id.name));
+			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_like).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_explore).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_more_settings).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_more_feedback).findViewById(R.id.name));
@@ -490,14 +515,12 @@ public class AircandiForm extends BaseActivity {
 		if (configChange) {
 			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
 				mConfiguredForAnonymous = true;
-				findViewById(R.id.item_watch).setVisibility(View.GONE);
-				findViewById(R.id.item_create).setVisibility(View.GONE);
+				findViewById(R.id.item_like).setVisibility(View.GONE);
 				mUserView.databind(Patchr.getInstance().getCurrentUser());
 			}
 			else {
 				mConfiguredForAnonymous = false;
-				findViewById(R.id.item_watch).setVisibility(View.VISIBLE);
-				findViewById(R.id.item_create).setVisibility(View.VISIBLE);
+				findViewById(R.id.item_like).setVisibility(View.VISIBLE);
 				mUserView.databind(Patchr.getInstance().getCurrentUser());
 				mCacheStamp = Patchr.getInstance().getCurrentUser().getCacheStamp();
 			}

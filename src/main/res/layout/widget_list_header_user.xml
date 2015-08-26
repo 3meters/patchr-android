@@ -32,6 +32,31 @@
 		android:orientation="vertical">
 
 		<com.aircandi.ui.widgets.AirTextLight
+			android:id="@+id/button_likes"
+			style="@style/selectable_item"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/form_field_height"
+			android:clickable="true"
+			android:drawableLeft="?attr/iconDrawerFavorite"
+			android:drawablePadding="8dp"
+			android:ellipsize="end"
+			android:gravity="center_vertical"
+			android:maxLines="1"
+			android:onClick="onViewClick"
+			android:paddingBottom="2dp"
+			android:paddingLeft="8dp"
+			android:paddingRight="8dp"
+			android:paddingTop="2dp"
+			android:tag="like"
+			android:textAppearance="?attr/textAppearanceMediumLarge"
+			android:textColor="@color/selector_link_text_dark" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_divider_height"
+			android:background="?attr/ruleColor" />
+
+		<com.aircandi.ui.widgets.AirTextLight
 			android:id="@+id/button_watching"
 			style="@style/selectable_item"
 			android:layout_width="match_parent"

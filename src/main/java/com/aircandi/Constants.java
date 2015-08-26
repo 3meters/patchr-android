@@ -233,6 +233,7 @@ public class Constants {
 
 	public static final String FRAGMENT_TYPE_NEARBY        = "nearby";
 	public static final String FRAGMENT_TYPE_WATCH         = "watch";
+	public static final String FRAGMENT_TYPE_LIKE          = "like";
 	public static final String FRAGMENT_TYPE_CREATE        = "create";
 	public static final String FRAGMENT_TYPE_TREND_POPULAR = "trend_popular";
 	public static final String FRAGMENT_TYPE_TREND_ACTIVE  = "trend_active";

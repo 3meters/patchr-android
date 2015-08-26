@@ -31,6 +31,7 @@
 	<string name="form_title_nearby" tools:ignore="UnusedResources">Nearby</string>
 	<string name="form_title_watch" tools:ignore="UnusedResources">Watching</string>
 	<string name="form_title_create" tools:ignore="UnusedResources">My patches</string>
+	<string name="form_title_like" tools:ignore="UnusedResources">Favorites</string>
 	<string name="form_title_trends_active" tools:ignore="UnusedResources">Explore</string>
 	<string name="form_title_notifications" tools:ignore="UnusedResources">Notifications</string>
 	<string name="form_title_likes_list" tools:ignore="UnusedResources">People who like this</string>
@@ -437,11 +438,12 @@
 
 	<string name="label_user_watching_none">none yet</string>
 	<string name="label_user_created_none">none yet</string>
+	<string name="label_user_likes_none">none yet</string>
 	<string name="label_notifications_empty">No notifications yet</string>
 	<string name="label_watching_empty">Watch [@string/container_plural_lowercase] and browse them here</string>
 	<string name="label_created_empty">Make [@string/container_plural_lowercase] and browse them here</string>
+	<string name="label_likes_empty">Favorite [@string/container_plural_lowercase] and browse them here</string>
 	<string name="label_watchers_empty">No watchers yet</string>
-	<string name="label_likes_empty">No likes yet</string>
 	<string name="label_tuning_tune_no_name">If you are currently at the location for this patch, help make Patchr better by tuning the patch for faster discovery.</string>
 	<string name="label_message_share_title">Share message to&#8230;</string>
 	<string name="label_private_description" tools:ignore="UnusedResources">Users can only see posted messages if you approve their watch request.</string>
@@ -473,6 +475,7 @@
 	<string name="label_drawer_item_nearby">Nearby</string>
 	<string name="label_drawer_item_watch">Watching</string>
 	<string name="label_drawer_item_create">Owner</string>
+	<string name="label_drawer_item_like">Favorites</string>
 	<string name="label_drawer_item_trend_active">Explore</string>
 
 	<string name="label_drawer_section_patches">PATCHES</string>
@@ -483,6 +486,7 @@
 
 	<string name="label_user_watching">Watching</string>
 	<string name="label_user_created">Owner</string>
+	<string name="label_user_likes">Favorites</string>
 
 	<!-- Hints -->
 

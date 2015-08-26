@@ -62,6 +62,8 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		/* Configure dividers to the thickness we want */
 		if (root != null) {
 			ListView list = (ListView) root.findViewById(android.R.id.list);
+			Integer padding = UI.getRawPixelsForDisplayPixels(10.0f);
+			list.setPadding(padding, 0, padding, padding);
 			list.setDividerHeight(UI.getRawPixelsForDisplayPixels(0.5f));
 		}
 

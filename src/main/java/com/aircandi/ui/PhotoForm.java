@@ -56,7 +56,9 @@ public class PhotoForm extends BaseActivity implements IBind {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
-			mPhoto = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
+			if (jsonPhoto != null) {
+				mPhoto = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
+			}
 		}
 	}
 

@@ -238,7 +238,12 @@ public class NotificationListFragment extends EntityListFragment
 				drawableResId = UI.getResIdForAttribute(getActivity(), R.attr.iconShare);
 			}
 			else if (entity.type.equals(Notification.NotificationType.LIKE)) {
-				drawableResId = UI.getResIdForAttribute(getActivity(), R.attr.iconLike);
+				if (notification.event.equals("like_entity_patch")) {
+					drawableResId = UI.getResIdForAttribute(getActivity(), R.attr.iconFavorite);
+				}
+				else if (notification.event.equals("like_entity_message")) {
+					drawableResId = UI.getResIdForAttribute(getActivity(), R.attr.iconLike);
+				}
 			}
 			if (drawableResId != null) {
 				holder.photoType.setImageResource(drawableResId);

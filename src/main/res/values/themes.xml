@@ -86,6 +86,7 @@
 		<item name="iconAdd">@drawable/ic_add_dark</item>
 		<item name="iconCancel">@drawable/ic_action_cancel_dark</item>
 		<item name="iconClear">@drawable/ic_action_cancel_dark</item>
+		<item name="iconFavorite">@drawable/ic_img_star_dark</item>
 		<item name="iconForward">@drawable/ic_action_forward_dark</item>
 		<item name="iconLocation">@drawable/ic_img_location_dark</item>
 		<item name="iconLike">@drawable/ic_img_like_dark</item>
@@ -168,6 +169,7 @@
 		<item name="iconAdd">@drawable/ic_add_light</item>
 		<item name="iconCancel">@drawable/ic_action_cancel_light</item>
 		<item name="iconClear">@drawable/ic_action_cancel_light</item>
+		<item name="iconFavorite">@drawable/ic_img_star_light</item>
 		<item name="iconForward">@drawable/ic_action_forward_light</item>
 		<item name="iconLike">@drawable/ic_img_like_light</item>
 		<item name="iconLocation">@drawable/ic_img_location_light</item>
@@ -209,6 +211,7 @@
 		<!-- Navigation drawer icons -->
 
 		<item name="iconDrawerNearby">@drawable/ic_action_signal_dark</item>
+		<item name="iconDrawerFavorite">@drawable/ic_action_star_10_dark</item>
 		<item name="iconDrawerWatch">@drawable/ic_action_watch_dark</item>
 		<item name="iconDrawerCreate">@drawable/ic_action_edit_dark</item>
 		<item name="iconDrawerExplore">@drawable/ic_action_explore_dark</item>
@@ -242,6 +245,7 @@
 		<!-- Navigation drawer icons -->
 
 		<item name="iconDrawerNearby">@drawable/ic_action_signal_light</item>
+		<item name="iconDrawerFavorite">@drawable/ic_action_star_10_light</item>
 		<item name="iconDrawerWatch">@drawable/ic_action_watch_light</item>
 		<item name="iconDrawerCreate">@drawable/ic_action_edit_light</item>
 		<item name="iconDrawerExplore">@drawable/ic_action_explore_light</item>

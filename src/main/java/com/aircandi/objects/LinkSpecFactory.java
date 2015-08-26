@@ -28,6 +28,7 @@ public class LinkSpecFactory {
 
 			Resources resources = Patchr.applicationContext.getResources();
 			Number limitProximity = resources.getInteger(R.integer.limit_links_proximity_default);
+			Number limitLike = resources.getInteger(R.integer.limit_links_like_default);
 			Number limitCreate = resources.getInteger(R.integer.limit_links_create_default);
 			Number limitWatch = resources.getInteger(R.integer.limit_links_watch_default);
 			Number limitContent = resources.getInteger(R.integer.limit_links_content_default);
@@ -69,6 +70,8 @@ public class LinkSpecFactory {
 			}
 			else if (linkProfile == LinkSpecType.LINKS_FOR_USER_CURRENT) {
 
+				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, true, true, limitLike)
+						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, true, limitCreate)
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, true, true, limitWatch)
@@ -78,6 +81,8 @@ public class LinkSpecFactory {
 			}
 			else if (linkProfile == LinkSpecType.LINKS_FOR_USER) {
 
+				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, false, true, 0)
+						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, false, true, 0)
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, false, true, 0)

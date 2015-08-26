@@ -81,40 +81,11 @@
 				android:paddingLeft="70dp">
 
 				<LinearLayout
-					android:id="@+id/button_likes"
-					style="@style/selectable_item"
-					android:layout_width="wrap_content"
-					android:layout_height="@dimen/button_height"
-					android:layout_centerVertical="true"
-					android:layout_marginRight="12dp"
-					android:onClick="onViewClick"
-					android:orientation="horizontal">
-
-					<com.aircandi.ui.widgets.AirTextMedium
-						android:id="@+id/likes_count"
-						android:layout_width="wrap_content"
-						android:layout_height="match_parent"
-						android:gravity="center_vertical"
-						android:layout_marginRight="4dp"
-						android:textColor="?attr/textColorCandiView"
-						tools:text="12" />
-
-					<com.aircandi.ui.widgets.AirTextLight
-						android:id="@+id/likes_label"
-						android:layout_width="wrap_content"
-						android:layout_height="match_parent"
-						android:gravity="center_vertical"
-						android:text="@string/label_button_likes"
-						android:textColor="?attr/textColorCandiView" />
-				</LinearLayout>
-
-				<LinearLayout
 					android:id="@+id/button_watching"
 					style="@style/selectable_item"
 					android:layout_width="wrap_content"
 					android:layout_height="@dimen/button_height"
 					android:layout_centerVertical="true"
-					android:layout_toRightOf="@+id/button_likes"
 					android:onClick="onViewClick"
 					android:orientation="horizontal"
 					tools:ignore="RelativeOverlap">
@@ -154,7 +125,7 @@
 						android:adjustViewBounds="true"
 						android:alpha="1.0"
 						android:scaleType="fitCenter"
-						android:src="@drawable/ic_img_like_dark" />
+						android:src="@drawable/ic_img_star_dark" />
 
 					<ProgressBar
 						android:id="@+id/button_progress"

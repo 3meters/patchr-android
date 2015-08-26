@@ -313,8 +313,8 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 					UI.setVisibility(holder.name, View.VISIBLE);
 				}
 
+				UI.setVisibility(holder.categoryName, View.GONE);
 				if (entity instanceof Place) {
-					UI.setVisibility(holder.categoryName, View.GONE);
 					Category category = ((Place) entity).category;
 					if (category != null && !TextUtils.isEmpty(category.name)) {
 						holder.categoryName.setText(Html.fromHtml(category.name));
@@ -322,8 +322,8 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 					}
 				}
 
+				UI.setVisibility(holder.type, View.GONE);
 				if (entity instanceof Patch) {
-					UI.setVisibility(holder.type, View.GONE);
 					if (entity.type != null && !TextUtils.isEmpty(entity.type)) {
 						holder.type.setText(Html.fromHtml(entity.type));
 						UI.setVisibility(holder.type, View.VISIBLE);

@@ -7,7 +7,6 @@ import com.aircandi.R;
 import com.aircandi.components.MapManager;
 import com.aircandi.objects.Entity;
 import com.aircandi.ui.base.BaseActivity;
-import com.aircandi.ui.base.BaseFragment;
 import com.aircandi.utilities.Json;
 
 import java.util.ArrayList;

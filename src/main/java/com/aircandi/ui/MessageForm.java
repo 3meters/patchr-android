@@ -25,6 +25,7 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
+import com.aircandi.events.ActionEvent;
 import com.aircandi.events.DataErrorEvent;
 import com.aircandi.events.DataNoopEvent;
 import com.aircandi.events.DataResultEvent;
@@ -178,6 +179,11 @@ public class MessageForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onShareClick(View view) {
 		share();
+	}
+
+	@Subscribe
+	public void onViewClick(ActionEvent event) {
+		super.onViewClick(event);
 	}
 
 	@Override

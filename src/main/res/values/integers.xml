@@ -6,6 +6,7 @@
 	<integer name="limit_indicators_radar">2</integer>
 	<integer name="limit_links_content_default">2</integer>
 
+	<integer name="limit_links_like_default">0</integer>
 	<integer name="limit_links_watch_default">0</integer>
 	<integer name="limit_links_create_default">0</integer>
 	<integer name="limit_links_proximity_default">10</integer>
