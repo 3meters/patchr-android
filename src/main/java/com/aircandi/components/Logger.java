@@ -35,15 +35,13 @@ public class Logger {
 		VERBOSE
 	}
 
-	private static StringBuilder stringBuilder = new StringBuilder();
-
 	private static void Log(LogLevel logLevel, Object taskContext, String msgFormat) {
 		Log(logLevel, taskContext, msgFormat, null);
 	}
 
 	private static void Log(LogLevel logLevel, Object taskContext, String msgFormat, Throwable t) {
 
-		stringBuilder.setLength(0);
+		StringBuilder stringBuilder = new StringBuilder();
 		if (taskContext != null) {
 			stringBuilder.append("[" + Thread.currentThread().getName() + "]: " + taskContext.getClass().getSimpleName() + ": ");
 		}

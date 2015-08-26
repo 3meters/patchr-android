@@ -100,6 +100,7 @@ public class EntityListFragment extends BaseFragment
 	protected Boolean mShowIndex          = true;
 
 	/* Runtime data */
+	protected Boolean mRecreated = false;
 	protected Integer mPhotoWidthPixels;
 	protected Integer mVisibleColumns = 1;
 	protected Integer mVisibleRows    = 3;
@@ -127,15 +128,8 @@ public class EntityListFragment extends BaseFragment
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		/*
-		 * If the bundle includes state then we know the fragment is being completely
-		 * recreated. Rather than try to restore all the state that was passed in
-		 * using settings when originally created, just bail.
-		 */
 		if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
-			Intent intent = getActivity().getIntent();
-			getActivity().finish();
-			startActivity(intent);
+			mRecreated = true;
 		}
 		else {
 			mAdapter = new ListAdapter(mEntities);
@@ -146,6 +140,17 @@ public class EntityListFragment extends BaseFragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
+		/*
+		 * If the bundle includes state then we know the fragment is being completely
+		 * recreated. Rather than try to restore all the state that was passed in
+		 * using settings when originally created, just bail.
+		 */
+		if (mRecreated) {
+			Intent intent = getActivity().getIntent();
+			getActivity().finish();
+			startActivity(intent);
+			return view;
+		}
 		/*
 		 * The listview scroll position seems to be preserved between destroy view
 		 * and create view. Probably falls into the bucket of view properties that are

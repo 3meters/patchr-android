@@ -309,7 +309,7 @@ public class EntityStore {
 
 	Entity getStoreEntity(Object key) {
 		//noinspection SuspiciousMethodCalls
-		return mCacheMap.get(key);
+		return key != null ? mCacheMap.get(key) : null;
 	}
 
 	@SuppressWarnings("ConstantConditions")
