@@ -326,9 +326,9 @@ public class CandiView extends RelativeLayout {
 						}
 					}
 					else {
-							/*
-							 * Fall back to default.
-							 */
+						/*
+						 * Fall back to default.
+						 */
 						DownloadManager.with(Patchr.applicationContext).load(R.drawable.default_88)
 								.resize(mCategoryPhoto.getSizeHint(), mCategoryPhoto.getSizeHint())    // Memory size
 								.centerCrop()

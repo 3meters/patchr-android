@@ -284,9 +284,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 												}
 											}
 											catch (FileNotFoundException e) {
+												Reporting.logMessage("Picasso failed to load bitmap");
 												Reporting.logException(e);
 											}
 											catch (IOException e) {
+												Reporting.logMessage("Picasso failed to load bitmap");
 												Reporting.logException(e);
 											}
 											return result;
@@ -357,9 +359,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 										}
 									}
 									catch (FileNotFoundException e) {
+										Reporting.logMessage("Picasso failed to load bitmap");
 										Reporting.logException(e);
 									}
 									catch (IOException e) {
+										Reporting.logMessage("Picasso failed to load bitmap");
 										Reporting.logException(e);
 									}
 									return result;

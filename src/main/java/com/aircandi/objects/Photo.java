@@ -56,7 +56,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	@NonNull
 	public Boolean usingDefault  = false;
 	@NonNull
-	public Boolean store         = false;
+	public Boolean store         = false;   // Hint that photo needs to be stored.
 	@NonNull
 	public Boolean resizerActive = false;
 

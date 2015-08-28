@@ -11,6 +11,8 @@ import com.aircandi.utilities.Reporting;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.Listener;
 
+import java.io.IOException;
+
 /*
  * Bitmap memory management
  *
@@ -45,7 +47,9 @@ public class DownloadManager {
 					/*
 					 * 404 Not Found: if image not found.
 					 * 400 Bad Request: if invalid hostname.
-					 * 502 Bad Gateway.
+					 * 502 Bad Gateway: means somethings wrong with web server or the service provider. We might be
+					 *     using the Google resizer and it got an invalid response from the image providing server. The
+					 *     Google resizing service throws it back as an invalid response.
 					 * 504 Unsatisfiable request (only-if-cached). This is returned by Picasso when the network
 					 * isn't available and the image isn't cached.
 					 *
@@ -57,8 +61,9 @@ public class DownloadManager {
 							|| e.getMessage().contains("504")
 							|| e.getMessage().contains("502"));
 					if (!expected) {
-						Reporting.logMessage("Image load failed with unexpected code: " + (uri != null ? uri.toString() : "No uri"));
-						Reporting.logException(e);
+						String message = "Picasso image load failed with unexpected code: " + (uri != null ? uri.toString() : "No uri");
+						Reporting.logMessage(message);
+						Reporting.logException(new IOException(message, e));
 					}
 					Logger.w(instance, "Image load failed: " + e.getClass().getSimpleName());
 					Logger.w(instance, "Image load failed: " + e.getMessage());

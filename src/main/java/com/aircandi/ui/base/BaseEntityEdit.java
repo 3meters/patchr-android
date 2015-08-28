@@ -453,9 +453,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 		}
 		catch (IllegalArgumentException e) {
+			Reporting.logMessage("Image chooser failed to handle photo from device");
 			Reporting.logException(e);
 		}
 		catch (Exception e) {
+			Reporting.logMessage("Image chooser failed to handle photo from device");
 			Reporting.logException(e);
 		}
 	}
@@ -478,9 +480,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 		}
 		catch (IllegalArgumentException e) {
+			Reporting.logMessage("Image chooser failed to handle photo from camera");
 			Reporting.logException(e);
 		}
 		catch (Exception e) {
+			Reporting.logMessage("Image chooser failed to handle photo from camera");
 			Reporting.logException(e);
 		}
 	}
@@ -577,7 +581,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 							                        .get();
 							DownloadManager.logBitmap(BaseEntityEdit.this, bitmap);
-
 							if (isCancelled()) return null;
 						}
 						catch (OutOfMemoryError err) {
@@ -585,9 +588,15 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							Reporting.logMessage("OutOfMemoryError: uri: " + mEntity.getPhoto().getUri());
 							throw err;
 						}
-						catch (IOException ignore) {}
+						catch (IOException ignore) { }
 					}
 					catch (IOException ignore) {
+						/*
+						 * This is where we are ignoring exceptions like our reset problem with picasso. This
+						 * can happen pulling an image from the network or from a local file.
+						 */
+						Reporting.logMessage("Picasso failed to load bitmap");
+						Reporting.logException(ignore);
 						if (isCancelled()) return null;
 					}
 				}
@@ -706,6 +715,8 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							catch (IOException ignore) {}
 						}
 						catch (IOException ignore) {
+							Reporting.logMessage("Picasso failed to load bitmap");
+							Reporting.logException(ignore);
 							if (isCancelled()) return null;
 						}
 					}

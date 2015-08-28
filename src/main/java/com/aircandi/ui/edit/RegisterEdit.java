@@ -35,6 +35,7 @@ import com.aircandi.objects.User;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.utilities.Dialogs;
 import com.aircandi.utilities.Errors;
+import com.aircandi.utilities.Reporting;
 import com.aircandi.utilities.Type;
 import com.aircandi.utilities.UI;
 import com.aircandi.utilities.Utilities;
@@ -238,6 +239,8 @@ public class RegisterEdit extends BaseEntityEdit {
 						catch (IOException ignore) {}
 					}
 					catch (IOException ignore) {
+						Reporting.logMessage("Picasso failed to load bitmap");
+						Reporting.logException(ignore);
 						if (isCancelled()) return null;
 					}
 				}

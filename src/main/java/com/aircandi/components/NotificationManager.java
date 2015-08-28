@@ -114,6 +114,7 @@ public class NotificationManager {
 				builder.setLargeIcon(bitmap);
 			}
 			catch (IOException e) {
+				Reporting.logMessage("Picasso failed to load bitmap");
 				Reporting.logException(e);
 			}
 		}
@@ -157,7 +158,8 @@ public class NotificationManager {
 			mNotificationService.notify(tag, 0, builder.build());
 		}
 		catch (IOException e) {
-			Reporting.logException(e);
+			Reporting.logMessage("Picasso failed to load bitmap");
+			Reporting.logException(new IOException("Picasso failed to load bitmap", e));
 		}
 	}
 
