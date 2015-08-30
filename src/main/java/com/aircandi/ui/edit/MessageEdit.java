@@ -25,6 +25,7 @@ import com.aircandi.R;
 import com.aircandi.components.DataController;
 import com.aircandi.components.DataController.SuggestScope;
 import com.aircandi.components.DownloadManager;
+import com.aircandi.components.Logger;
 import com.aircandi.components.MediaManager;
 import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
@@ -284,12 +285,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 												}
 											}
 											catch (FileNotFoundException e) {
-												Reporting.logMessage("Picasso failed to load bitmap");
-												Reporting.logException(e);
+												Reporting.logException(new FileNotFoundException("Picasso failed to load bitmap"));
 											}
 											catch (IOException e) {
 												Reporting.logMessage("Picasso failed to load bitmap");
-												Reporting.logException(e);
+												Reporting.logException(new IOException("Picasso failed to load bitmap", e));
 											}
 											return result;
 										}
@@ -359,12 +359,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 										}
 									}
 									catch (FileNotFoundException e) {
-										Reporting.logMessage("Picasso failed to load bitmap");
-										Reporting.logException(e);
+										Reporting.logException(new FileNotFoundException("Picasso failed to load bitmap"));
 									}
 									catch (IOException e) {
 										Reporting.logMessage("Picasso failed to load bitmap");
-										Reporting.logException(e);
+										Reporting.logException(new IOException("Picasso failed to load bitmap", e));
 									}
 									return result;
 								}
@@ -488,7 +487,17 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 							UI.setVisibility(mButtonPhotoEdit, View.GONE);
 							UI.setVisibility(mButtonPhotoDelete, View.GONE);
 							mPhotoView.showLoading(true);
-							UI.drawPhoto(mPhotoView, mEntity.getPhoto());
+							mProcessing = true;                             // So user can't post while we a trying to fetch the photo
+
+							Photo photo = mEntity.getPhoto();
+							if (photo.source.equals(Photo.PhotoSource.file)) {
+								Logger.d(MessageEdit.this, "Loading image from file: " + photo.getUri());
+							}
+							else if (!photo.source.equals(Photo.PhotoSource.resource)) {
+								Logger.d(MessageEdit.this, "Loading image from network: " + photo.getUri());
+							}
+
+							UI.drawPhoto(mPhotoView, mEntity.getPhoto());   // Only place we try to load a photo
 						}
 					}
 
@@ -573,7 +582,9 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	@Override
 	public void onBitmapFailed(Drawable arg0) {
 		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
+		onCancelPhotoButtonClick(null);
 		drawPhoto();
+		mProcessing = false;
 	}
 
 	@Override
@@ -582,8 +593,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
 		UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
 
+		mProcessing = false;
+
 		UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
 		UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
+
 		mPhotoView.showLoading(false);
 		mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.slide_in_bottom_long);
 		mAnimatorPhoto.requestLayout();
@@ -604,10 +618,9 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	}
 
 	public void onCancelPhotoButtonClick(View view) {
-		onPhotoCanceled();
 		mEntity.photo = null;
 		mPhotoView.setPhoto(null);
-		drawPhoto();
+		onPhotoCanceled();
 	}
 
 	public void onEntityClearButtonClick(View view) {

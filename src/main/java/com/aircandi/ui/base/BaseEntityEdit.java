@@ -279,7 +279,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			public void run() {
 				if (image != null) {
 					Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_used_from_device", null, 0);
-					final Uri photoUri = Uri.parse("file:" + image.getFilePathOriginal());
+					final Uri photoUri = Uri.parse("file://" + image.getFilePathOriginal());
 					MediaManager.scanMedia(photoUri);
 					Photo photo = new Photo()
 							.setPrefix(photoUri.toString())
@@ -379,7 +379,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					if (changed) {
 						Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_edited", null, 0);
 					}
-					final Uri photoUri = Uri.parse("file:" + intent.getData().toString());
+					final Uri photoUri = Uri.parse("file://" + intent.getData().toString());
 					MediaManager.scanMedia(photoUri);
 					Photo photo = new Photo()
 							.setPrefix(photoUri.toString())
@@ -443,7 +443,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				//noinspection deprecation
 				mImageChooserManager = new ImageChooserManager(this
 						, ChooserType.REQUEST_PICK_PICTURE
-						, directory
 						, false);
 				mImageChooserManager.setImageChooserListener((BaseEntityEdit) this);
 				mImageChooserManager.choose();
@@ -480,12 +479,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 		}
 		catch (IllegalArgumentException e) {
-			Reporting.logMessage("Image chooser failed to handle photo from camera");
-			Reporting.logException(e);
+			Reporting.logException(new IllegalArgumentException("Image chooser failed to handle photo from camera", e));
 		}
 		catch (Exception e) {
-			Reporting.logMessage("Image chooser failed to handle photo from camera");
-			Reporting.logException(e);
+			Reporting.logException(new Exception("Image chooser failed to handle photo from camera", e));
 		}
 	}
 
@@ -595,8 +592,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						 * This is where we are ignoring exceptions like our reset problem with picasso. This
 						 * can happen pulling an image from the network or from a local file.
 						 */
-						Reporting.logMessage("Picasso failed to load bitmap");
-						Reporting.logException(ignore);
+						Reporting.logException(new IOException("Picasso failed to load bitmap", ignore));
 						if (isCancelled()) return null;
 					}
 				}
@@ -715,8 +711,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							catch (IOException ignore) {}
 						}
 						catch (IOException ignore) {
-							Reporting.logMessage("Picasso failed to load bitmap");
-							Reporting.logException(ignore);
+							Reporting.logException(new IOException("Picasso failed to load bitmap", ignore));
 							if (isCancelled()) return null;
 						}
 					}

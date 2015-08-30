@@ -138,7 +138,7 @@ public class MediaManager {
 	public static Uri getSharePathUri() {
 		String sharePath = getSharePath();
 		if (sharePath != null) {
-			return Uri.parse("file:" + sharePath);
+			return Uri.parse("file://" + sharePath);
 		}
 		return null;
 	}

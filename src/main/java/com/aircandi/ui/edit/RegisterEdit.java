@@ -239,8 +239,7 @@ public class RegisterEdit extends BaseEntityEdit {
 						catch (IOException ignore) {}
 					}
 					catch (IOException ignore) {
-						Reporting.logMessage("Picasso failed to load bitmap");
-						Reporting.logException(ignore);
+						Reporting.logException(new IOException("Picasso failed to load bitmap", ignore));
 						if (isCancelled()) return null;
 					}
 				}

@@ -59,6 +59,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.TagManager;
+import com.kbeanie.imagechooser.api.BChooserPreferences;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 
@@ -205,6 +206,10 @@ public class Patchr extends MultiDexApplication {
 
 		/* Inject configuration */
 		openContainer(StringManager.getString(R.string.id_container));
+
+		/* Set the folder used by image chooser for all files */
+		BChooserPreferences preferences = new BChooserPreferences(this);
+		preferences.setFolderName("Pictures/Patchr");
 
 		/* Initialize managers */
 		initializeManagers();

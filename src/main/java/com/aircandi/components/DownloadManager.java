@@ -47,6 +47,7 @@ public class DownloadManager {
 					/*
 					 * 404 Not Found: if image not found.
 					 * 400 Bad Request: if invalid hostname.
+					 * 403 Forbidden: most likely image requires authentication.
 					 * 502 Bad Gateway: means somethings wrong with web server or the service provider. We might be
 					 *     using the Google resizer and it got an invalid response from the image providing server. The
 					 *     Google resizing service throws it back as an invalid response.
@@ -58,6 +59,7 @@ public class DownloadManager {
 					 */
 					boolean expected = (e.getMessage().contains("404")
 							|| e.getMessage().contains("400")
+							|| e.getMessage().contains("403")
 							|| e.getMessage().contains("504")
 							|| e.getMessage().contains("502"));
 					if (!expected) {
