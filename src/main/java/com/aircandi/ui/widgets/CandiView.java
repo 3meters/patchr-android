@@ -32,6 +32,7 @@ import com.aircandi.objects.Place;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.ShortcutSettings;
 import com.aircandi.objects.User;
+import com.aircandi.ui.components.CircleTransform;
 import com.aircandi.utilities.Colors;
 import com.aircandi.utilities.Integers;
 import com.aircandi.utilities.UI;
@@ -369,7 +370,12 @@ public class CandiView extends RelativeLayout {
 			if (mPhotoView.getPhoto() == null || !photo.getUri().equals(mPhotoView.getPhoto().getUri())) {
 				mPhotoView.setTag(photo);
 				mPhotoView.setGroupTag(groupId);
-				UI.drawPhoto(mPhotoView, photo);
+				if (mPhotoView.getTransformKey() != null && mPhotoView.getTransformKey().equals("circle")) {
+					UI.drawPhoto(mPhotoView, photo, new CircleTransform());
+				}
+				else {
+					UI.drawPhoto(mPhotoView, photo);
+				}
 			}
 		}
 	}

@@ -42,6 +42,7 @@ import com.aircandi.objects.Photo;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEntityForm;
+import com.aircandi.ui.components.CircleTransform;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.EntityView;
 import com.aircandi.ui.widgets.FlowLayout;
@@ -284,7 +285,7 @@ public class MessageForm extends BaseEntityForm {
 					/* Photo */
 					Photo photo = linkPlace.shortcut.photo;
 					if (photo == null) {
-						photo = Entity.getDefaultPhoto(Constants.SCHEMA_ENTITY_PATCH);
+						photo = Entity.getDefaultPhoto(Constants.SCHEMA_ENTITY_PATCH, null);
 					}
 					if (patchPhotoView.getPhoto() == null || !patchPhotoView.getPhoto().getUri().equals(photo.getUri())) {
 						UI.drawPhoto(patchPhotoView, photo);
@@ -310,7 +311,7 @@ public class MessageForm extends BaseEntityForm {
 			if (mEntity.creator != null) {
 				Photo photo = mEntity.creator.getPhoto();
 				if (userPhotoView.getPhoto() == null || !userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
-					UI.drawPhoto(userPhotoView, photo);
+					UI.drawPhoto(userPhotoView, photo, new CircleTransform());
 				}
 				UI.setVisibility(userPhotoView, View.VISIBLE);
 			}

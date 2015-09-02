@@ -430,6 +430,8 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		public static String google          = "google";                    // set if photo comes from google - used for place photos
 		@NonNull
 		public static String yelp            = "yelp";                      // set if photo comes from yelp - used for place photos
+		@NonNull
+		public static String gravatar        = "gravatar";                  // set if photo comes from gravatar - used for default user photos
 
 		/* System sources */
 

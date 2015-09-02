@@ -19,6 +19,7 @@ import com.aircandi.objects.Message;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.MessageForm;
+import com.aircandi.ui.components.CircleTransform;
 import com.aircandi.ui.edit.MessageEdit;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.Integers;
@@ -96,7 +97,7 @@ public class Messages extends EntityControllerBase {
 			Photo photo = entity.creator.getPhoto();
 			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
 				holder.userPhotoView.setGroupTag(groupTag);
-				UI.drawPhoto(holder.userPhotoView, photo);
+				UI.drawPhoto(holder.userPhotoView, photo, new CircleTransform());
 			}
 			holder.userPhotoView.setTag(entity.creator);
 			UI.setVisibility(holder.userPhotoView, View.VISIBLE);

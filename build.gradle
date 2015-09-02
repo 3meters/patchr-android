@@ -39,6 +39,8 @@ android {
         targetSdkVersion 22
         versionCode 211
         versionName '1.7.1'
+        renderscriptTargetApi 21
+        renderscriptSupportModeEnabled true
         multiDexEnabled true
     }
 

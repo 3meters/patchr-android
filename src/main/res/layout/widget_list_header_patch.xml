@@ -33,7 +33,7 @@
 				style="@style/selectable_image"
 				android:layout_width="match_parent"
 				android:layout_height="50dp"
-				android:background="?attr/backgroundCard"
+				android:background="@color/overlay_30_pcnt"
 				android:clickable="true"
 				android:onClick="onViewClick"
 				android:paddingLeft="@dimen/form_body_padding"
@@ -49,7 +49,7 @@
 					android:paddingRight="@dimen/image_medium"
 					android:singleLine="true"
 					android:textAppearance="@style/text_appearance_medium"
-					android:textColor="@color/brand_primary_dark"
+					android:textColor="@color/white"
 					tools:text="Ranchero Deluxo" />
 
 			</FrameLayout>

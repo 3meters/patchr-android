@@ -27,6 +27,7 @@ import com.aircandi.objects.Place;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.EntityListFragment.ViewType;
+import com.aircandi.ui.components.CircleTransform;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.UserView;
@@ -261,7 +262,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		if (holder.patchPhotoView != null && parentEntity != null) {
 			Photo photo = parentEntity.photo;
 			if (photo == null) {
-				photo = Entity.getDefaultPhoto(Constants.SCHEMA_ENTITY_PATCH);
+				photo = Entity.getDefaultPhoto(Constants.SCHEMA_ENTITY_PATCH, null);
 			}
 			if (holder.patchPhotoView.getPhoto() == null || !holder.patchPhotoView.getPhoto().getUri().equals(photo.getUri())) {
 				holder.patchPhotoView.setTag(parentEntity);
@@ -299,7 +300,7 @@ public abstract class EntityControllerBase implements IEntityController {
 			Photo photo = entity.creator.getPhoto();
 			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
 				holder.userPhotoView.setTag(entity.creator);
-				UI.drawPhoto(holder.userPhotoView, photo);
+				UI.drawPhoto(holder.userPhotoView, photo, new CircleTransform());
 			}
 			UI.setVisibility(holder.userPhotoView, View.VISIBLE);
 		}
@@ -335,7 +336,12 @@ public abstract class EntityControllerBase implements IEntityController {
 		if (holder.photoView != null) {
 			final Photo photo = entity.getPhoto();
 			if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {
-				UI.drawPhoto(holder.photoView, photo);
+				if (holder.photoView.getTransformKey() != null && holder.photoView.getTransformKey().equals("circle")) {
+					UI.drawPhoto(holder.photoView, photo, new CircleTransform());
+				}
+				else {
+					UI.drawPhoto(holder.photoView, photo);
+				}
 			}
 			UI.setVisibility(holder.photoView, View.VISIBLE);
 		}

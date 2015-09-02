@@ -43,6 +43,12 @@
 
 	<string name="id_container">GTM-MV8KBB</string>
 
+	<!-- Blurring view -->
+
+	<integer name="default_blur_radius">15</integer>
+	<integer name="default_downsample_factor">8</integer>
+	<color name="default_overlay_color">#AAFFFFFF</color>
+
 	<!-- Splash -->
 
 	<string name="splash_button_signin">Sign in</string>

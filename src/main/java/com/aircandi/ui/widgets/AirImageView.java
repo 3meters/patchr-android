@@ -51,6 +51,7 @@ public class AirImageView extends FrameLayout implements Target {
 	private String mGroupTag;
 	private Float  mOffsetWidth;
 	private Float  mOffsetHeight;
+	private String mTransformKey;
 
 	public static final int MEASUREMENT_WIDTH  = 0;
 	public static final int MEASUREMENT_HEIGHT = 1;
@@ -97,6 +98,7 @@ public class AirImageView extends FrameLayout implements Target {
 				DEFAULT_ASPECT_RATIO_ENABLED);
 		mDominantMeasurement = ta.getInt(R.styleable.AirImageView_dominantMeasurement,
 				DEFAULT_DOMINANT_MEASUREMENT);
+		mTransformKey = ta.getString(R.styleable.AirImageView_transformKey);
 		ta.recycle();
 
 		if (!isInEditMode()) {
@@ -438,8 +440,11 @@ public class AirImageView extends FrameLayout implements Target {
 		mOffsetHeight = offsetHeight;
 	}
 
+	public String getTransformKey() {
+		return mTransformKey;
+	}
 
-/*--------------------------------------------------------------------------------------------
+	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 

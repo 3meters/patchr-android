@@ -149,8 +149,6 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		if (photo == null) {
 			photo = getDefaultPhoto();
 		}
-		//		photo.photoPlaceholder = getPlaceholderPhoto();
-		//		photo.photoBroken = getBrokenPhoto();
 		return photo;
 	}
 

@@ -42,6 +42,7 @@ import com.aircandi.objects.User;
 import com.aircandi.ui.components.AnimationFactory;
 import com.aircandi.ui.components.CircleTransform;
 import com.aircandi.ui.widgets.AirImageView;
+import com.aircandi.ui.widgets.BlurringView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Dialogs;
@@ -54,7 +55,8 @@ import java.util.Locale;
 
 public class PatchFormFragment extends EntityFormFragment {
 
-	private ViewAnimator mHeaderViewAnimator;
+	ViewAnimator mHeaderViewAnimator;
+	//BlurringView mBlurringView;
 	protected Boolean mJustApproved = false;               // Set in onMessage via notification
 	protected Integer mWatchStatus  = WatchStatus.NONE;    // Set in draw
 	protected Boolean mClickEnabled = false;                        // NO_UCD (unused code)
@@ -350,31 +352,6 @@ public class PatchFormFragment extends EntityFormFragment {
 				final AirImageView placePhotoView = (AirImageView) view.findViewById(R.id.place_photo);
 				final TextView placeName = (TextView) view.findViewById(R.id.place_name);
 
-				/* Place context */
-
-				UI.setVisibility(holderPlace, View.GONE);
-				UI.setVisibility(placePhotoView, View.GONE);
-				if (holderPlace != null) {
-					Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
-					if (linkPlace != null) {
-						holderPlace.setTag(linkPlace.shortcut.getAsEntity());
-
-						/* Name */
-						placeName.setText(linkPlace.shortcut.name);
-						UI.setVisibility(holderPlace, View.VISIBLE);
-
-						/* Photo */
-						Photo photo = linkPlace.shortcut.photo;
-						if (photo != null) {
-							if (placePhotoView.getPhoto() == null || !placePhotoView.getPhoto().getUri().equals(photo.getUri())) {
-								placePhotoView.setTag(linkPlace.shortcut.getAsEntity());
-								UI.drawPhoto(placePhotoView, photo, new CircleTransform());
-							}
-							UI.setVisibility(placePhotoView, View.VISIBLE);
-						}
-					}
-				}
-
 				/* Photo overlayed with info */
 
 				final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
@@ -481,6 +458,31 @@ public class PatchFormFragment extends EntityFormFragment {
 					}
 					else {
 						UI.setVisibility(userView, View.GONE);
+					}
+				}
+
+				/* Place context */
+
+				UI.setVisibility(holderPlace, View.GONE);
+				UI.setVisibility(placePhotoView, View.GONE);
+				if (holderPlace != null) {
+					Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
+					if (linkPlace != null) {
+						holderPlace.setTag(linkPlace.shortcut.getAsEntity());
+
+						/* Name */
+						placeName.setText(linkPlace.shortcut.name);
+						UI.setVisibility(holderPlace, View.VISIBLE);
+
+						/* Photo */
+						Photo photo = linkPlace.shortcut.photo;
+						if (photo != null) {
+							if (placePhotoView.getPhoto() == null || !placePhotoView.getPhoto().getUri().equals(photo.getUri())) {
+								placePhotoView.setTag(linkPlace.shortcut.getAsEntity());
+								UI.drawPhoto(placePhotoView, photo, new CircleTransform());
+							}
+							UI.setVisibility(placePhotoView, View.VISIBLE);
+						}
 					}
 				}
 			}
@@ -687,6 +689,11 @@ public class PatchFormFragment extends EntityFormFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Override
+	public void onResume() {
+		super.onResume();
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes

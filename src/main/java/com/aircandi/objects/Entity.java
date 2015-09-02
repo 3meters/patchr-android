@@ -12,6 +12,7 @@ import com.aircandi.objects.Link.Direction;
 import com.aircandi.service.Expose;
 import com.aircandi.service.SerializedName;
 import com.aircandi.utilities.Type;
+import com.aircandi.utilities.Utilities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -196,28 +197,38 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Photo getPhoto() {
 		Photo photo = this.photo;
 		if (photo == null) {
-			photo = getDefaultPhoto(this.schema);
+			String id = this.id;
+			if (this.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
+				Notification notification = (Notification) this;
+				id = notification.userId;
+			}
+			photo = getDefaultPhoto(this.schema, id);
 			photo.usingDefault = true;
 		}
 		return photo;
 	}
 
 	@NonNull
-	public static Photo getDefaultPhoto(String schema) {
+	public static Photo getDefaultPhoto(String schema, String id) {
 
-		String prefix = null;
+		String prefix = "img_default_patch";
+		String source = Photo.PhotoSource.resource;
+
 		if (schema != null) {
 			if (schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
 				prefix = "img_default_place_b";
 			}
-			else if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				prefix = "img_default_patch";
-			}
 			else if (schema.equals(Constants.SCHEMA_ENTITY_USER)
 					|| schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
-				prefix = (Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
-				         ? "img_default_user_light"
-				         : "img_default_user_dark";
+				if (id != null) {
+					prefix = "http://www.gravatar.com/avatar/" + Utilities.md5(id) + "?d=identicon&r=pg&s=200";
+					source = Photo.PhotoSource.gravatar;
+				}
+				else {
+					prefix = (Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
+					         ? "img_default_user_light"
+					         : "img_default_user_dark";
+				}
 			}
 		}
 
@@ -227,7 +238,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			         : "img_default_patch_dark";
 		}
 
-		Photo photo = new Photo(prefix, null, null, null, Photo.PhotoSource.resource);
+		Photo photo = new Photo(prefix, null, null, null, source);
 		return photo;
 	}
 
