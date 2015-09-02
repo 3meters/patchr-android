@@ -42,7 +42,6 @@ import com.aircandi.objects.User;
 import com.aircandi.ui.components.AnimationFactory;
 import com.aircandi.ui.components.CircleTransform;
 import com.aircandi.ui.widgets.AirImageView;
-import com.aircandi.ui.widgets.BlurringView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.UserView;
 import com.aircandi.utilities.Dialogs;
