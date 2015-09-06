@@ -133,7 +133,7 @@ public class PatchFormFragment extends EntityFormFragment {
 
 	@Subscribe
 	public void onDataResult(final DataResultEvent event) {
-
+		/* Can be called on background thread */
 		if (event.tag.equals(System.identityHashCode(this))
 				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
 
@@ -141,15 +141,18 @@ public class PatchFormFragment extends EntityFormFragment {
 
 			if (event.actionType == DataController.ActionType.ACTION_SHARE_CHECK) {
 				if (event.data != null) {
-					confirmJoin();
+					confirmJoin();  // Always uses ui thread
 				}
 				else {
-					watch(true);
+					watch(true);    // Always uses ui thread
 				}
 			}
 			else if (event.actionType == DataController.ActionType.ACTION_LINK_INSERT_WATCH
 					|| event.actionType == DataController.ActionType.ACTION_LINK_DELETE_WATCH) {
-				draw(getView());
+				/*
+				 * Rebind to capture the users watch state from the service and then draw.
+				 */
+				bind(BindingMode.AUTO);
 				onProcessingComplete();
 			}
 			else {
@@ -638,24 +641,30 @@ public class PatchFormFragment extends EntityFormFragment {
 	}
 
 	protected void confirmJoin() {
-		final AlertDialog dialog = Dialogs.alertDialog(null
-				, null
-				, StringManager.getString(R.string.alert_autowatch_message)
-				, null
-				, getActivity()
-				, R.string.alert_autowatch_positive
-				, R.string.alert_autowatch_negative
-				, null
-				, new DialogInterface.OnClickListener() {
 
+		getActivity().runOnUiThread(new Runnable() {
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_POSITIVE) {
-					watch(true /* activate */);
-				}
+			public void run() {
+				final AlertDialog dialog = Dialogs.alertDialog(null
+						, null
+						, StringManager.getString(R.string.alert_autowatch_message)
+						, null
+						, getActivity()
+						, R.string.alert_autowatch_positive
+						, R.string.alert_autowatch_negative
+						, null
+						, new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							watch(true /* activate */);
+						}
+					}
+				}, null);
+				dialog.setCanceledOnTouchOutside(false);
 			}
-		}, null);
-		dialog.setCanceledOnTouchOutside(false);
+		});
 	}
 
 	protected void confirmLeave() {
