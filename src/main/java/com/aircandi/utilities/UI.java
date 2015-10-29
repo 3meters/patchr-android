@@ -24,7 +24,6 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
-import com.aircandi.components.Logger;
 import com.aircandi.objects.Photo;
 import com.aircandi.ui.widgets.AirImageView;
 import com.squareup.picasso.RequestCreator;

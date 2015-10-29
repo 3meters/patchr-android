@@ -211,7 +211,10 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@NonNull
 	public static Photo getDefaultPhoto(String schema, String id) {
 
-		String prefix = "img_default_patch";
+		String prefix = (Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
+		                ? "img_default_patch_light"
+		                : "img_default_patch_dark";
+
 		String source = Photo.PhotoSource.resource;
 
 		if (schema != null) {
@@ -230,12 +233,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 					         : "img_default_user_dark";
 				}
 			}
-		}
-
-		if (prefix == null) {
-			prefix = (Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
-			         ? "img_default_patch_light"
-			         : "img_default_patch_dark";
 		}
 
 		Photo photo = new Photo(prefix, null, null, null, source);

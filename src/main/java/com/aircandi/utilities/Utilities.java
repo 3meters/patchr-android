@@ -40,9 +40,7 @@ public class Utilities {
 			}
 			return hexString.toString();
 
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
+		} catch (NoSuchAlgorithmException e) { /* ignore */ }
 		return "";
 	}
 

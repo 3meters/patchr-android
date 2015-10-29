@@ -18,8 +18,8 @@ import com.aircandi.objects.Route;
 import com.aircandi.service.ServiceResponse;
 import com.aircandi.ui.base.BaseActivity;
 
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.client.ClientProtocolException;
+//import org.apache.http.NoHttpResponseException;
+//import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 
 import java.io.EOFException;
@@ -298,8 +298,7 @@ public final class Errors {
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_connection_poor)).setTrack(false);
 
 					//noinspection deprecation
-					if (exception instanceof ConnectException
-							|| exception instanceof NoHttpResponseException)
+					if (exception instanceof ConnectException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unavailable));
 
 					if (exception instanceof SocketException) {
@@ -316,10 +315,6 @@ public final class Errors {
 					if (exception instanceof FileNotFoundException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_file_not_found));
 
-					//noinspection deprecation
-					if (exception instanceof ClientProtocolException)
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_client_request_error));
-
 					if (exception instanceof EOFException)
 						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_client_request_stream_error));
 				}
@@ -329,7 +324,6 @@ public final class Errors {
 							|| exception instanceof ConnectTimeoutException
 							|| exception instanceof InterruptedIOException
 							|| exception instanceof SocketTimeoutException
-							|| exception instanceof ConnectException
 							|| exception instanceof SocketException) {
 						return new ErrorResponse(ResponseType.AUTO, StringManager.getString(R.string.error_connection_poor));
 					}
