@@ -41,6 +41,12 @@
 		<enum name="fixed" value="1" />
 		<enum name="none" value="2" />
 	</attr>
+	<attr name="sizeCategory" format="enum">
+		<enum name="none" value="0" />
+		<enum name="standard" value="1" />
+		<enum name="thumbnail" value="2" />
+		<enum name="profile" value="3" />
+	</attr>
 	<attr name="offsetWidth" format="float" />
 	<attr name="offsetHeight" format="float" />
 	<attr name="sizeHint" format="dimension" />
@@ -165,6 +171,7 @@
 		<attr name="offsetWidth" />
 		<attr name="showBusy" />
 		<attr name="sizeHint" />
+		<attr name="sizeCategory" />
 		<attr name="transformKey" />
 	</declare-styleable>
 	<declare-styleable name="PxBlurringView">

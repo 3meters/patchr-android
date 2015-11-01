@@ -17,6 +17,7 @@ import com.aircandi.events.EntitiesRequestEvent;
 import com.aircandi.events.EntityRequestEvent;
 import com.aircandi.events.LinkDeleteEvent;
 import com.aircandi.events.LinkInsertEvent;
+import com.aircandi.events.LinkMuteEvent;
 import com.aircandi.events.NotificationsRequestEvent;
 import com.aircandi.events.RegisterInstallEvent;
 import com.aircandi.events.ShareCheckEvent;
@@ -299,11 +300,36 @@ public class DataController {
 						, event.toId
 						, event.type
 						, event.enabled
-						, event.fromShortcut
-						, event.toShortcut
-						, event.actionEvent
-						, event.skipCache
-						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						, event.toShortcut, event.actionEvent, event.skipCache, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, event.fromShortcut
+				);
+
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					DataResultEvent data = new DataResultEvent()
+							.setActionType(event.actionType)
+							.setTag(event.tag);
+					Dispatcher.getInstance().post(data);
+				}
+				else {
+					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
+					error.setActionType(event.actionType)
+					     .setTag(event.tag);
+					Dispatcher.getInstance().post(error);
+				}
+				return null;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Subscribe
+	public void onLinkMute(final LinkMuteEvent event) {
+
+		new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncMuteLink");
+
+				ModelResult result = muteLink(event.linkId, event.mute, event.actionEvent);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					DataResultEvent data = new DataResultEvent()
@@ -761,7 +787,7 @@ public class DataController {
 			 */
 			if (bitmap != null && !bitmap.isRecycled()) {
 
-				result.serviceResponse = storeImageAtS3(null, registeredUser, bitmap, PhotoType.USER);
+				result.serviceResponse = storeImageAtS3(null, registeredUser, bitmap);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					/*
@@ -826,7 +852,7 @@ public class DataController {
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
 				photoType = PhotoType.USER;
 			}
-			result.serviceResponse = storeImageAtS3(entity, null, bitmap, photoType);
+			result.serviceResponse = storeImageAtS3(entity, null, bitmap);
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -962,7 +988,6 @@ public class DataController {
 		 * - on the updated entity
 		 * - on any upstream entities the updated entity is linked to
 		 * - disabled links are excluded
-		 * - like/create/watch links are not followed
 		 */
 		final ModelResult result = new ModelResult();
 
@@ -972,7 +997,7 @@ public class DataController {
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
 				photoType = PhotoType.USER;
 			}
-			result.serviceResponse = storeImageAtS3(entity, null, bitmap, photoType);
+			result.serviceResponse = storeImageAtS3(entity, null, bitmap);
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -1246,11 +1271,11 @@ public class DataController {
 			, String toId
 			, String type
 			, Boolean enabled
-			, Shortcut fromShortcut
 			, Shortcut toShortcut
 			, String actionEvent
 			, Boolean skipCache
-			, Object tag) {
+			, Object tag
+			, Shortcut fromShortcut) {
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -1352,6 +1377,32 @@ public class DataController {
 
 		return result;
 	}
+
+	public ModelResult muteLink(String linkId, Boolean mute, String actionEvent) {
+		ModelResult result = new ModelResult();
+
+//		final Bundle parameters = new Bundle();
+//		parameters.putBoolean("mute", mute);
+
+		final ServiceRequest serviceRequest = new ServiceRequest()
+				.setUri(Constants.URL_PROXIBASE_SERVICE_REST + "links/" + linkId)
+				.setRequestType(RequestType.UPDATE)
+				.setRequestBody("{ \"mute\": " + String.valueOf(mute) + "}")
+				.setResponseFormat(ResponseFormat.JSON);
+
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
+		}
+
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			Reporting.sendEvent(Reporting.TrackerCategory.LINK, actionEvent, null, 0);
+		}
+
+		return result;
+	}
+
 
 	public ModelResult removeLinks(String fromId, String toId, String type, String schema, String actionEvent, Object tag) {
 		/*
@@ -1534,7 +1585,7 @@ public class DataController {
 		return result;
 	}
 
-	private ServiceResponse storeImageAtS3(Entity entity, User user, Bitmap bitmap, PhotoType photoType) {
+	private ServiceResponse storeImageAtS3(Entity entity, User user, Bitmap bitmap) {
 		/*
 		 * TODO: We are going with a garbage collection scheme for orphaned
 		 * images. We need to use an extended property on S3 items that is set to a date when collection is ok. This
@@ -1549,15 +1600,15 @@ public class DataController {
 		 */
 		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
 		final String imageKey = String.valueOf((user != null) ? user.id : Patchr.getInstance().getCurrentUser().id) + "_" + stringDate + ".jpg";
-		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3, photoType);
+		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3);
 
 		/* Update the photo object for the entity or user */
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			if (entity != null) {
-				entity.photo = new Photo(imageKey, null, bitmap.getWidth(), bitmap.getHeight(), Photo.getPhotoSourceByPhotoType(photoType));
+				entity.photo = new Photo(imageKey, null, bitmap.getWidth(), bitmap.getHeight(), Photo.PhotoSource.aircandi_images);
 			}
 			else if (user != null) {
-				user.photo = new Photo(imageKey, null, bitmap.getWidth(), bitmap.getHeight(), Photo.getPhotoSourceByPhotoType(photoType));
+				user.photo = new Photo(imageKey, null, bitmap.getWidth(), bitmap.getHeight(), Photo.PhotoSource.aircandi_images);
 			}
 		}
 
@@ -1739,6 +1790,7 @@ public class DataController {
 		ACTION_LINK_DELETE_LIKE,
 		ACTION_LINK_INSERT_WATCH,
 		ACTION_LINK_DELETE_WATCH,
+		ACTION_LINK_MUTE_WATCH,
 		ACTION_SHARE_CHECK,
 		ACTION_VIEW_CLICK
 	}

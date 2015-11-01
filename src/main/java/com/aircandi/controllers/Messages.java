@@ -17,6 +17,7 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Message;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.MessageForm;
 import com.aircandi.ui.components.CircleTransform;
@@ -95,7 +96,7 @@ public class Messages extends EntityControllerBase {
 		     * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
 			 */
 			Photo photo = entity.creator.getPhoto();
-			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
+			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
 				holder.userPhotoView.setGroupTag(groupTag);
 				UI.drawPhoto(holder.userPhotoView, photo, new CircleTransform());
 			}
@@ -176,7 +177,7 @@ public class Messages extends EntityControllerBase {
 				final Photo photo = entity.getPhoto();
 
 				if (entity.photo != null) {
-					if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {
+					if (holder.photoView.getPhoto() == null || !photo.getDirectUri().equals(holder.photoView.getPhoto().getDirectUri())) {
 						holder.photoView.setTag(photo);
 						holder.photoView.setCenterCrop(false);
 						holder.photoView.setGroupTag(groupTag);

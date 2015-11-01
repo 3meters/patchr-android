@@ -19,8 +19,8 @@ import android.widget.TextView;
 import com.aircandi.Patchr;
 import com.aircandi.Patchr.ThemeTone;
 import com.aircandi.R;
-import com.aircandi.components.DownloadManager;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.utilities.UI;
 import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
@@ -41,12 +41,13 @@ public class AirImageView extends FrameLayout implements Target {
 	private boolean   mShowBusy   = true;
 	private ScaleType mScaleType  = ScaleType.CENTER_CROP;
 	private Boolean   mCenterCrop = true;
-	private Integer mLayoutId;
-	private float   mAspectRatio;
-	private boolean mAspectRatioEnabled;
-	private int     mDominantMeasurement;
-	private Integer mSizeHint;
-	private FitType mFitType;
+	private Integer                        mLayoutId;
+	private float                          mAspectRatio;
+	private boolean                        mAspectRatioEnabled;
+	private int                            mDominantMeasurement;
+	private Integer                        mSizeHint;
+	private PhotoSizeCategory              mSizeCategory;
+	private FitType                        mFitType;
 	private Bitmap.Config mConfig = Bitmap.Config.ARGB_8888;
 	private String mGroupTag;
 	private Float  mOffsetWidth;
@@ -89,6 +90,7 @@ public class AirImageView extends FrameLayout implements Target {
 		mFitType = FitType.values()[ta.getInteger(R.styleable.AirImageView_fitType, FitType.NONE.ordinal())];
 		mConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.AirImageView_config, Bitmap.Config.ARGB_8888.ordinal())];
 		mSizeHint = ta.getDimensionPixelSize(R.styleable.AirImageView_sizeHint, Integer.MAX_VALUE);
+		mSizeCategory = PhotoSizeCategory.values()[ta.getInteger(R.styleable.AirImageView_sizeCategory, PhotoSizeCategory.THUMBNAIL.ordinal())];
 		mShowBusy = ta.getBoolean(R.styleable.AirImageView_showBusy, true);
 		mLayoutId = ta.getResourceId(R.styleable.AirImageView_layoutId, R.layout.widget_imageview);
 		mOffsetWidth = ta.getFloat(R.styleable.AirImageView_offsetWidth, DEFAULT_OFFSET);
@@ -220,7 +222,6 @@ public class AirImageView extends FrameLayout implements Target {
 		}
 		else {
 			/* Just passes through if image debug dev setting is off */
-			DownloadManager.logBitmap(this, inBitmap, mImageMain);
 			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), inBitmap);
 			UI.showDrawableInImageView(bitmapDrawable, mImageMain, true);
 			showMissing(false);
@@ -442,6 +443,14 @@ public class AirImageView extends FrameLayout implements Target {
 
 	public String getTransformKey() {
 		return mTransformKey;
+	}
+
+	public PhotoSizeCategory getSizeCategory() {
+		return mSizeCategory;
+	}
+
+	public void setSizeCategory(PhotoSizeCategory sizeCategory) {
+		mSizeCategory = sizeCategory;
 	}
 
 	/*--------------------------------------------------------------------------------------------

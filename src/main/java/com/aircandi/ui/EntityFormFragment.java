@@ -221,7 +221,7 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 	@Override
 	public void draw(View view) {}
 
-	public void drawLikeWatch(View view) {
+	public void drawButtons(View view) {
 
 		/* We don't support like/watch for users */
 		if (mEntity.id != null && mEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
@@ -313,6 +313,31 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 			}
 			else {
 				UI.setVisibility(watching, View.GONE);
+			}
+		}
+
+		/* Mute button coloring */
+		ViewAnimator mute = (ViewAnimator) view.findViewById(R.id.button_mute);
+		if (mute != null) {
+			mute.setDisplayedChild(0);
+			Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
+			if (link == null || !link.enabled) {
+				UI.setVisibility(mute, View.GONE);
+			}
+			else {
+				ImageView image = (ImageView) mute.findViewById(R.id.button_image);
+				if (link.mute != null && link.mute) {
+					/* Sound is off */
+					image.setColorFilter(null);
+					image.setAlpha(0.5f);
+				}
+				else {
+					/* Sound is on */
+					final int color = Colors.getColor(R.color.brand_primary);
+					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+					image.setAlpha(1.0f);
+				}
+				UI.setVisibility(mute, View.VISIBLE);
 			}
 		}
 	}

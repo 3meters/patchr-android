@@ -33,6 +33,7 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Patch.ReasonType;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.User;
 import com.aircandi.ui.widgets.AirImageView;
@@ -301,7 +302,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			}
 			else {
 				holder = (ViewHolder) view.getTag();
-				if (holder.photoView.getTag().equals(entity.getPhoto().getUri())) return view;
+				if (holder.photoView.getTag().equals(entity.getPhoto().getDirectUri())) return view;
 			}
 
 			if (entity != null) {
@@ -354,7 +355,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 				if (holder.photoView != null) {
 					Photo photo = entity.getPhoto();
-					if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {
+					if (holder.photoView.getPhoto() == null || !photo.getDirectUri().equals(holder.photoView.getPhoto().getDirectUri())) {
 						UI.drawPhoto(holder.photoView, photo);
 						holder.photoView.setTag(photo);
 					}

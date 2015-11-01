@@ -6,6 +6,7 @@ import android.os.Build;
 import android.util.Log;
 
 import com.aircandi.components.StringManager;
+import com.aircandi.utilities.UI;
 
 import java.util.concurrent.Executor;
 
@@ -31,7 +32,7 @@ public class Constants {
 	public static final String EXTRA_PATCH_ID        = "com.aircandi.EXTRA_PATCH_ID";
 	public static final String EXTRA_URI             = "com.aircandi.EXTRA_URI";
 
-	public static final String EXTRA_MESSAGE_TYPE          = "com.aircandi.EXTRA_MESSAGE_TYPE";
+	public static final String EXTRA_MESSAGE_TYPE = "com.aircandi.EXTRA_MESSAGE_TYPE";
 
 	public static final String EXTRA_LAYOUT_RESID                = "com.aircandi.EXTRA_LAYOUT_RESID";
 	public static final String EXTRA_MESSAGE                     = "com.aircandi.EXTRA_MESSAGE";
@@ -115,6 +116,7 @@ public class Constants {
 	public static final float DIALOGS_DIM_AMOUNT        = 0.5f;
 	public static final int   INTERVAL_BUSY_MINIMUM     = 1000;
 	public static final int   INTERVAL_BUSY_DELAY       = 0;
+	public static final int   PIXEL_SCALE               = UI.getRawPixelsForDisplayPixels(1f);
 
 	public static final int RADAR_BEACON_SIGNAL_BUCKET_SIZE = 1;
 	/*
@@ -263,11 +265,11 @@ public class Constants {
 	public static final boolean SUPPORTS_LOLLIPOP           = android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 
 	/* Install id */
-	public static final String  INSTALL_TYPE_RANDOM                              = "random_uuid";
-	public static final String  INSTALL_TYPE_ANDROID_ID                          = "android_id";
-	public static final String  INSTALL_TYPE_SERIAL                              = "serial_num";
-	public static       boolean DEV_ENABLED                                      = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
-	public static       boolean STAGING_ENABLED                                  = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_use_staging_service), false);
+	public static final String  INSTALL_TYPE_RANDOM     = "random_uuid";
+	public static final String  INSTALL_TYPE_ANDROID_ID = "android_id";
+	public static final String  INSTALL_TYPE_SERIAL     = "serial_num";
+	public static       boolean DEV_ENABLED             = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
+	public static       boolean STAGING_ENABLED         = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_use_staging_service), false);
 
 	/*--------------------------------------------------------------------------------------------
 	 * Service constants

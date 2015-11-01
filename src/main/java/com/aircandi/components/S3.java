@@ -45,19 +45,21 @@ public class S3 {
 		return S3Holder.instance;
 	}
 
-	public ServiceResponse putImage(final String imageKey, Bitmap bitmap, Integer quality, final PhotoType photoType) {
+	public ServiceResponse putImage(final String imageKey, Bitmap bitmap, Integer quality) {
 
 		try {
 			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+
 			final byte[] bitmapBytes = outputStream.toByteArray();
 			final ByteArrayInputStream inputStream = new ByteArrayInputStream(bitmapBytes);
 			final ObjectMetadata metadata = new ObjectMetadata();
+
 			metadata.setContentLength(bitmapBytes.length);
 			metadata.setContentType("image/jpeg");
 			outputStream.close();
 
-			mUpload = mManager.upload(getBucketForPhotoType(photoType), imageKey, inputStream, metadata);
+			mUpload = mManager.upload("aircandi-images", imageKey, inputStream, metadata);
 
 			mUpload.addProgressListener(new ProgressListener() {
 				public void progressChanged(ProgressEvent progressEvent) {
@@ -69,7 +71,7 @@ public class S3 {
 			});
 
 			mUpload.waitForCompletion();
-			mManager.getAmazonS3Client().setObjectAcl(getBucketForPhotoType(photoType), imageKey, CannedAccessControlList.PublicRead);
+			mManager.getAmazonS3Client().setObjectAcl("aircandi-images", imageKey, CannedAccessControlList.PublicRead);
 
 			return new ServiceResponse();
 		}
@@ -96,18 +98,5 @@ public class S3 {
 			mUpload.abort();
 			Logger.v(this, "Image upload aborted");
 		}
-	}
-
-	public static String getBucketForPhotoType(PhotoType photoType) {
-		if (photoType == PhotoType.GENERAL) {
-			return StringManager.getString(R.string.s3_bucket_images);
-		}
-		else if (photoType == PhotoType.USER) {
-			return StringManager.getString(R.string.s3_bucket_users);
-		}
-		else if (photoType == PhotoType.THUMBNAIL) {
-			return StringManager.getString(R.string.s3_bucket_thumbnails);
-		}
-		return StringManager.getString(R.string.s3_bucket_images);
 	}
 }

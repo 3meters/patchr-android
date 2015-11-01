@@ -39,6 +39,7 @@ import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Message;
 import com.aircandi.objects.Message.MessageType;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEntityForm;
@@ -287,7 +288,7 @@ public class MessageForm extends BaseEntityForm {
 					if (photo == null) {
 						photo = Entity.getDefaultPhoto(Constants.SCHEMA_ENTITY_PATCH, null);
 					}
-					if (patchPhotoView.getPhoto() == null || !patchPhotoView.getPhoto().getUri().equals(photo.getUri())) {
+					if (patchPhotoView.getPhoto() == null || !patchPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
 						UI.drawPhoto(patchPhotoView, photo);
 					}
 
@@ -310,7 +311,7 @@ public class MessageForm extends BaseEntityForm {
 		if (userPhotoView != null) {
 			if (mEntity.creator != null) {
 				Photo photo = mEntity.creator.getPhoto();
-				if (userPhotoView.getPhoto() == null || !userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
+				if (userPhotoView.getPhoto() == null || !userPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
 					UI.drawPhoto(userPhotoView, photo, new CircleTransform());
 				}
 				UI.setVisibility(userPhotoView, View.VISIBLE);

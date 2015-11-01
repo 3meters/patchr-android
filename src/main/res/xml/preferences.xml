@@ -36,13 +36,6 @@
 				android:key="@string/pref_messages_watch" />
 
 			<CheckBoxPreference
-				android:id="@+id/Pref_Notifications_Own"
-				android:defaultValue="@bool/pref_notifications_own_default"
-				android:summary="@string/pref_notifications_own_summary"
-				android:title="@string/pref_notifications_own_title"
-				android:key="@string/pref_messages_own" />
-
-			<CheckBoxPreference
 				android:id="@+id/Pref_Notifications_Like"
 				android:defaultValue="@bool/pref_notifications_like_default"
 				android:summary="@string/pref_notifications_like_summary"

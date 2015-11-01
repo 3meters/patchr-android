@@ -81,9 +81,10 @@ public class UserListFragment extends EntityListFragment {
 
 		/* Special binding if list of patch watchers */
 		if (holder.candiView != null) {
+
 			ViewGroup layout = holder.candiView.getLayout();
 			Entity parent = ((BaseActivity) getActivity()).getEntity();
-			Boolean isOwner = entity.id.equals(parent.ownerId);
+			Boolean itemIsOwner = entity.id.equals(parent.ownerId);
 
 			TextView role = (TextView) layout.findViewById(R.id.role);
 			View editGroup = layout.findViewById(R.id.owner_edit_group);
@@ -95,7 +96,7 @@ public class UserListFragment extends EntityListFragment {
 				UI.setVisibility(editGroup, View.GONE);
 				UI.setVisibility(deleteButton, View.GONE);
 
-				if (isOwner) {
+				if (itemIsOwner) {
 					role.setText(User.Role.OWNER);
 					UI.setVisibility(layout.findViewById(R.id.role), View.VISIBLE);
 				}

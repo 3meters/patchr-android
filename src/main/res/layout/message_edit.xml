@@ -189,6 +189,7 @@
 								custom:fitType="fixed"
 								custom:layoutId="@layout/widget_imageview_cancelable"
 								custom:showBusy="true"
+								custom:sizeCategory="standard"
 								custom:sizeHint="300dp" />
 
 							<RelativeLayout

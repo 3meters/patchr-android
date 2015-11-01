@@ -37,6 +37,7 @@
 		custom:fitType="fixed"
 		custom:layoutId="@layout/widget_imageview_candi_view"
 		custom:showBusy="true"
+		custom:sizeCategory="thumbnail"
 		custom:sizeHint="@dimen/image_extra_small" />
 
 	<ImageView

@@ -14,6 +14,7 @@
 		android:scaleType="centerCrop"
 		custom:config="rgb_565"
 		custom:fitType="auto"
+		custom:sizeCategory="thumbnail"
 		custom:layoutId="@layout/widget_imageview" />
 
 </FrameLayout>

@@ -13,6 +13,7 @@ import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.objects.Notification;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.ui.AircandiForm;
 import com.aircandi.utilities.Reporting;
 
@@ -100,16 +101,15 @@ public class NotificationManager {
 
 		/* Large icon */
 		if (notification.photo != null) {
-			String photoUri = notification.photo.getUri();
+			String url = notification.photo.getUri(PhotoSizeCategory.PROFILE);
 
 			try {
 				@SuppressWarnings("SuspiciousNameCombination")
 				Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
-				                               .load(photoUri)
+				                               .load(url)
 				                               .centerCrop()
 				                               .resizeDimen(R.dimen.notification_large_icon_width, R.dimen.notification_large_icon_width)
 				                               .get();
-				DownloadManager.logBitmap(this, bitmap);
 
 				builder.setLargeIcon(bitmap);
 			}
@@ -139,15 +139,15 @@ public class NotificationManager {
 
 	public void useBigPicture(final NotificationCompat.Builder builder, final Notification notification) {
 
-		final String imageUri = notification.photoBig.getUri();
+		final String url = notification.photoBig.getUri(PhotoSizeCategory.STANDARD);
 
 		try {
 			Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
-			                               .load(imageUri)
+			                               .load(url)
 			                               .centerCrop()
 			                               .resizeDimen(R.dimen.notification_big_picture_width, R.dimen.notification_big_picture_height)
 			                               .get();
-			DownloadManager.logBitmap(this, bitmap);
+
 			NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle()
 					.bigPicture(bitmap)
 					.setBigContentTitle(notification.name)

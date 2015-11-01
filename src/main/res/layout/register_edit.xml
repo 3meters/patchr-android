@@ -61,6 +61,7 @@
 					custom:fitType="fixed"
 					custom:layoutId="@layout/widget_imageview_candi_view"
 					custom:showBusy="true"
+					custom:sizeCategory="standard"
 					custom:sizeHint="@dimen/image_extra_large" />
 
 				<RelativeLayout

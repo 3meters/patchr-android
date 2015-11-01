@@ -61,6 +61,7 @@
 					custom:fitType="fixed"
 					custom:layoutId="@layout/widget_imageview"
 					custom:showBusy="true"
+					custom:sizeCategory="thumbnail"
 					custom:sizeHint="@dimen/image_small" />
 			</RelativeLayout>
 
@@ -94,6 +95,7 @@
 					custom:fitType="fixed"
 					custom:layoutId="@layout/widget_imageview"
 					custom:showBusy="true"
+					custom:sizeCategory="profile"
 					custom:sizeHint="@dimen/image_small" />
 
 				<com.aircandi.ui.widgets.AirTextView
@@ -159,6 +161,7 @@
 				custom:dominantMeasurement="width"
 				custom:fitType="auto"
 				custom:layoutId="@layout/widget_imageview"
+				custom:sizeCategory="standard"
 				tools:visibility="visible" />
 
 			<!-- Buttons -->

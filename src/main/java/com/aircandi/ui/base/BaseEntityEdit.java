@@ -31,6 +31,7 @@ import com.aircandi.objects.Beacon;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.service.ServiceResponse;
@@ -231,7 +232,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		/* Ensure photo logic has the latest property values */
 		gather();
 
-		/* Route it */
+		/* Route it - editor loads image directly from s3 skipping imgix service  */
 		if (mEntity.photo != null) {
 			final String jsonPhoto = Json.objectToJson(mEntity.photo);
 			Bundle bundle = new Bundle();
@@ -308,7 +309,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		 * Called before onResume. If we are returning from the market app, we get a zero result code whether the user
 		 * decided to start an install or not.
 		 */
-		if (resultCode == Activity.RESULT_OK) {
+		if (resultCode != Activity.RESULT_CANCELED) {
 
 			if (requestCode == Constants.ACTIVITY_PICTURE_SOURCE_PICK) {
 
@@ -333,15 +334,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						else if (photoSource.equals(Constants.PHOTO_ACTION_CAMERA)) {
 
 							photoFromCamera();
-						}
-						else if (photoSource.equals(Constants.PHOTO_ACTION_EDIT)) {
-
-							if (mEntity.photo != null) {
-								final String jsonPhoto = Json.objectToJson(mEntity.photo);
-								Bundle bundle = new Bundle();
-								bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-								Patchr.router.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
-							}
 						}
 						else if (photoSource.equals(Constants.PHOTO_ACTION_DEFAULT)
 								|| photoSource.equals(Constants.PHOTO_ACTION_WEBSITE_THUMBNAIL)) {
@@ -558,11 +550,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 					try {
 						bitmap = DownloadManager.with(Patchr.applicationContext)
-						                        .load(mEntity.getPhoto().getUri())
+						                        .load(mEntity.getPhoto().getDirectUri())
 						                        .centerInside()
 						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 						                        .get();
-						DownloadManager.logBitmap(BaseEntityEdit.this, bitmap);
+
 						if (isCancelled()) return null;
 					}
 					catch (OutOfMemoryError error) {
@@ -573,16 +565,16 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						System.gc();
 						try {
 							bitmap = DownloadManager.with(Patchr.applicationContext)
-							                        .load(mEntity.getPhoto().getUri())
+							                        .load(mEntity.getPhoto().getDirectUri())
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 							                        .get();
-							DownloadManager.logBitmap(BaseEntityEdit.this, bitmap);
+
 							if (isCancelled()) return null;
 						}
 						catch (OutOfMemoryError err) {
 							/* Give up and log it */
-							Reporting.logMessage("OutOfMemoryError: uri: " + mEntity.getPhoto().getUri());
+							Reporting.logMessage("OutOfMemoryError: uri: " + mEntity.getPhoto().getDirectUri());
 							throw err;
 						}
 						catch (IOException ignore) { }
@@ -686,11 +678,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 						try {
 							bitmap = DownloadManager.with(Patchr.applicationContext)
-							                        .load(mEntity.getPhoto().getUri())
+							                        .load(mEntity.getPhoto().getDirectUri())
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 							                        .get();
-							DownloadManager.logBitmap(BaseEntityEdit.this, bitmap);
+
 							if (isCancelled()) return null;
 						}
 						catch (OutOfMemoryError error) {
@@ -701,11 +693,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							System.gc();
 							try {
 								bitmap = DownloadManager.with(Patchr.applicationContext)
-								                        .load(mEntity.getPhoto().getUri())
+								                        .load(mEntity.getPhoto().getDirectUri())
 								                        .centerInside()
 								                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 								                        .get();
-								DownloadManager.logBitmap(BaseEntityEdit.this, bitmap);
+
 								if (isCancelled()) return null;
 							}
 							catch (IOException ignore) {}

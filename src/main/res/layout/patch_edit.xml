@@ -77,6 +77,7 @@
 					custom:fitType="auto"
 					custom:layoutId="@layout/widget_imageview_candi_view"
 					custom:showBusy="true"
+					custom:sizeCategory="standard"
 					tools:src="@drawable/img_default_patch" />
 
 				<RelativeLayout
@@ -224,6 +225,7 @@
 					custom:config="rgb_565"
 					custom:fitType="fixed"
 					custom:layoutId="@layout/widget_imageview_candi_view"
+					custom:sizeCategory="thumbnail"
 					custom:sizeHint="88dp" />
 
 				<com.aircandi.ui.widgets.AirButton

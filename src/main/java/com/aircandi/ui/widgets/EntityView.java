@@ -15,10 +15,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aircandi.R;
-import com.aircandi.components.DownloadManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.utilities.UI;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -113,7 +113,7 @@ public class EntityView extends LinearLayout implements Target {
 
 			if (mPhotoView != null) {
 				Photo photo = mEntity.getPhoto();
-				if (mPhotoView.getPhoto() == null || !photo.getUri().equals(mPhotoView.getPhoto().getUri())) {
+				if (mPhotoView.getPhoto() == null || !photo.getDirectUri().equals(mPhotoView.getPhoto().getDirectUri())) {
 					mPhotoView.setTarget(this);
 					UI.drawPhoto(mPhotoView, photo);
 					mPhotoView.setTag(photo);
@@ -150,7 +150,6 @@ public class EntityView extends LinearLayout implements Target {
 	    /*
 	     * Called on main thread and whether bitmap was loaded from network or memory.
 	     */
-		DownloadManager.logBitmap(EntityView.this, bitmap, mPhotoView.getImageView());
 		final BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
 		if (mAnimateDisabled) {
 			mPhotoView.getImageView().setImageDrawable(bitmapDrawable);

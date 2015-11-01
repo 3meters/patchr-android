@@ -74,6 +74,7 @@
 		custom:config="rgb_565"
 		custom:fitType="fixed"
 		custom:layoutId="@layout/widget_imageview_candi_view"
+		custom:sizeCategory="thumbnail"
 		custom:sizeHint="@dimen/image_medium_small" />
 
 </RelativeLayout>

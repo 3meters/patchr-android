@@ -16,6 +16,7 @@ import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AboutForm;
@@ -283,7 +284,8 @@ public class Router {
 			final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
 			if (jsonPhoto != null) {
 				final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
-				Uri uri = Uri.parse(photo.getUri());
+				final String url = photo.getDirectUri();
+				Uri uri = Uri.parse(url);
 
 				if (AndroidManager.getInstance().isAviaryInstalled()) {
 					Intent intent = new Intent("aviary.intent.action.EDIT");

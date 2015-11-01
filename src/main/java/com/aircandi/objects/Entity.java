@@ -180,7 +180,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return Type.equal(this.id, other.id)
 				&& Type.equal(this.name, other.name)
 				&& Type.equal(this.description, other.description)
-				&& this.getPhoto().getUri().equals(other.getPhoto().getUri())
+				&& this.getPhoto().getDirectUri().equals(other.getPhoto().getDirectUri())
 				&& !(this.linksIn != null && other.linksIn != null && this.linksIn.size() != other.linksIn.size())
 				&& !(this.linksOut != null && other.linksOut != null && this.linksOut.size() != other.linksOut.size());
 	}

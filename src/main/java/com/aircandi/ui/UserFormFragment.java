@@ -19,6 +19,7 @@ import com.aircandi.objects.Count;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
@@ -84,9 +85,6 @@ public class UserFormFragment extends EntityFormFragment {
 		else if (linkType.equals(Constants.TYPE_LINK_CREATE)) {
 			titleResId = R.string.label_drawer_item_create;
 		}
-		else if (linkType.equals(Constants.TYPE_LINK_LIKE)) {
-			titleResId = R.string.label_drawer_item_like;
-		}
 
 		int emptyResId = 0;
 		if (linkType.equals(Constants.TYPE_LINK_WATCH)) {
@@ -94,9 +92,6 @@ public class UserFormFragment extends EntityFormFragment {
 		}
 		else if (linkType.equals(Constants.TYPE_LINK_CREATE)) {
 			emptyResId = R.string.label_created_empty;
-		}
-		else if (linkType.equals(Constants.TYPE_LINK_LIKE)) {
-			emptyResId = R.string.label_likes_empty;
 		}
 
 		Bundle extras = new Bundle();
@@ -181,16 +176,10 @@ public class UserFormFragment extends EntityFormFragment {
 
 				TextView buttonWatching = (TextView) view.findViewById(R.id.button_watching);
 				TextView buttonCreated = (TextView) view.findViewById(R.id.button_created);
-				TextView buttonLikes = (TextView) view.findViewById(R.id.button_likes);
 
 				Count watching = mEntity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
 				Count created = mEntity.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
-				Count likes = mEntity.getCount(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
 
-				buttonLikes.setText(StringManager.getString(R.string.label_user_likes)
-						+ ": " + ((likes != null)
-						          ? String.valueOf(likes.count.intValue())
-						          : StringManager.getString(R.string.label_user_likes_none)));
 				buttonWatching.setText(StringManager.getString(R.string.label_user_watching)
 						+ ": " + ((watching != null)
 						          ? String.valueOf(watching.count.intValue())

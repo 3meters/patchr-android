@@ -17,12 +17,12 @@
 		android:protectionLevel="signature" />
 
 	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />    <!-- On demand Storage permission group with v23 -->
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />     <!-- On demand Storage permission group with v23 -->
 
 	<!-- Support location -->
 
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />      <!-- On demand Location permission group with v23 -->
 
 	<!-- Support network and wifi interactions -->
 
@@ -37,7 +37,7 @@
 
 	<!-- To support GCM -->
 
-	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+	<uses-permission android:name="android.permission.GET_ACCOUNTS" />              <!-- On demand Contacts permission group with v23 -->
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
 	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 	<uses-permission android:name="com.aircandi.catalina.permission.C2D_MESSAGE" />
@@ -54,6 +54,8 @@
 	<!-- Used to beam patches and download links -->
 
 	<uses-permission android:name="android.permission.NFC" />
+
+	<!-- NOTE: We don't need CAMERA permission because imagechooser lib uses intent -->
 
 	<application
 		android:name=".Patchr"

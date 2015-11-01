@@ -23,6 +23,7 @@ import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Notification;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
@@ -264,7 +265,7 @@ public abstract class EntityControllerBase implements IEntityController {
 			if (photo == null) {
 				photo = Entity.getDefaultPhoto(Constants.SCHEMA_ENTITY_PATCH, null);
 			}
-			if (holder.patchPhotoView.getPhoto() == null || !holder.patchPhotoView.getPhoto().getUri().equals(photo.getUri())) {
+			if (holder.patchPhotoView.getPhoto() == null || !holder.patchPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
 				holder.patchPhotoView.setTag(parentEntity);
 				UI.drawPhoto(holder.patchPhotoView, photo);
 			}
@@ -298,7 +299,7 @@ public abstract class EntityControllerBase implements IEntityController {
 			 * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
 			 */
 			Photo photo = entity.creator.getPhoto();
-			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getUri().equals(photo.getUri())) {
+			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
 				holder.userPhotoView.setTag(entity.creator);
 				UI.drawPhoto(holder.userPhotoView, photo, new CircleTransform());
 			}
@@ -335,12 +336,17 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		if (holder.photoView != null) {
 			final Photo photo = entity.getPhoto();
-			if (holder.photoView.getPhoto() == null || !photo.getUri().equals(holder.photoView.getPhoto().getUri())) {
+			if (holder.photoView.getPhoto() == null || !photo.getDirectUri().equals(holder.photoView.getPhoto().getDirectUri())) {
 				if (holder.photoView.getTransformKey() != null && holder.photoView.getTransformKey().equals("circle")) {
 					UI.drawPhoto(holder.photoView, photo, new CircleTransform());
 				}
 				else {
-					UI.drawPhoto(holder.photoView, photo);
+					if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+						UI.drawPhoto(holder.photoView, photo);
+					}
+					else {
+						UI.drawPhoto(holder.photoView, photo);
+					}
 				}
 			}
 			UI.setVisibility(holder.photoView, View.VISIBLE);

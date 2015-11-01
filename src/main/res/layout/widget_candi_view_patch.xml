@@ -18,6 +18,7 @@
 		custom:dominantMeasurement="width"
 		custom:fitType="auto"
 		custom:layoutId="@layout/widget_imageview_candi_view"
+		custom:sizeCategory="standard"
 		custom:offsetHeight="0.35"
 		custom:offsetWidth="0.0" />
 

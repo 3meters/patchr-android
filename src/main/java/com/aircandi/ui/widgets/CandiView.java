@@ -27,7 +27,7 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Photo.PhotoSource;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.ShortcutSettings;
@@ -367,7 +367,7 @@ public class CandiView extends RelativeLayout {
 			}
 
 			Photo photo = mEntity.getPhoto();
-			if (mPhotoView.getPhoto() == null || !photo.getUri().equals(mPhotoView.getPhoto().getUri())) {
+			if (mPhotoView.getPhoto() == null || !photo.getDirectUri().equals(mPhotoView.getPhoto().getDirectUri())) {
 				mPhotoView.setTag(photo);
 				mPhotoView.setGroupTag(groupId);
 				if (mPhotoView.getTransformKey() != null && mPhotoView.getTransformKey().equals("circle")) {
@@ -461,49 +461,6 @@ public class CandiView extends RelativeLayout {
 		if (mWatchCount != null) {
 			Count watchCount = entity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, Direction.in);
 			mWatchCount.setText((watchCount != null) ? String.valueOf(watchCount.count.intValue()) : "0");
-		}
-	}
-
-	protected void addIndicator(Integer id, String photoUri, String name, Integer sizePixels, IndicatorOptions options) {
-
-		View view = LayoutInflater.from(getContext()).inflate(R.layout.temp_nearby_link_item, null);
-		view.setId(id);
-		AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
-		TextView label = (TextView) view.findViewById(R.id.name);
-
-		label.setVisibility(View.GONE);
-		if (name != null) {
-			label.setText(name);
-			label.setVisibility(View.VISIBLE);
-		}
-
-		if (options.iconsEnabled) {
-			photoView.setSizeHint(sizePixels);
-			Photo photo = new Photo(photoUri, null, null, null, PhotoSource.resource);
-			UI.drawPhoto(photoView, photo);
-		}
-		else {
-			photoView.setVisibility(View.GONE);
-		}
-
-		mHolderPreviews.addView(view);
-	}
-
-	public void updateIndicator(Integer id, String value) {
-
-		View view = findViewById(id);
-		if (view == null) return;
-
-		AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
-		TextView label = (TextView) view.findViewById(R.id.name);
-
-		if (photoView != null && label != null) {
-			if (!label.getText().equals(value)) {
-				label.setText(value);
-				if (photoView.getVisibility() != View.GONE) {
-					UI.drawPhoto(photoView, photoView.getPhoto());
-				}
-			}
 		}
 	}
 

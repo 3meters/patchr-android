@@ -19,6 +19,7 @@
 		custom:config="rgb_565"
 		custom:fitType="fixed"
 		custom:layoutId="@layout/widget_imageview_candi_view"
+		custom:sizeCategory="profile"
 		custom:sizeHint="@dimen/image_medium" />
 
 	<com.aircandi.ui.widgets.AirTextLight

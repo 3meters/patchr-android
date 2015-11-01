@@ -214,10 +214,8 @@ public class UserList extends BaseActivity {
 						, toId
 						, Constants.TYPE_LINK_WATCH
 						, enabled
-						, null
-						, toShortcut
-						, actionEvent
-						, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						, toShortcut, actionEvent, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null
+				);
 				return result;
 			}
 

@@ -32,7 +32,7 @@ public class Patches extends EntityControllerBase {
 		Patch entity = new Patch();
 		entity.schema = mSchema;
 		entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME); // Temporary
-		entity.privacy = Constants.PRIVACY_PRIVATE;
+		entity.privacy = Constants.PRIVACY_PUBLIC;
 
 		return entity;
 	}

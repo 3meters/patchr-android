@@ -474,7 +474,7 @@
 
 	<string name="label_drawer_item_nearby">Nearby</string>
 	<string name="label_drawer_item_watch">Watching</string>
-	<string name="label_drawer_item_create">Owner</string>
+	<string name="label_drawer_item_create">Own</string>
 	<string name="label_drawer_item_like">Favorites</string>
 	<string name="label_drawer_item_trend_active">Explore</string>
 

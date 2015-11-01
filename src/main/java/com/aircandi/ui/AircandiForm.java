@@ -491,8 +491,8 @@ public class AircandiForm extends BaseActivity {
 	protected void updateDrawer() {
 		if (mCurrentNavView != null) {
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_nearby).findViewById(R.id.name));
-			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_like).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_watch).findViewById(R.id.name));
+			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_own).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_explore).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_more_settings).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_more_feedback).findViewById(R.id.name));
@@ -516,12 +516,14 @@ public class AircandiForm extends BaseActivity {
 		if (configChange) {
 			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
 				mConfiguredForAnonymous = true;
-				findViewById(R.id.item_like).setVisibility(View.GONE);
+				findViewById(R.id.item_watch).setVisibility(View.GONE);
+				findViewById(R.id.item_own).setVisibility(View.GONE);
 				mUserView.databind(Patchr.getInstance().getCurrentUser());
 			}
 			else {
 				mConfiguredForAnonymous = false;
-				findViewById(R.id.item_like).setVisibility(View.VISIBLE);
+				findViewById(R.id.item_watch).setVisibility(View.VISIBLE);
+				findViewById(R.id.item_own).setVisibility(View.VISIBLE);
 				mUserView.databind(Patchr.getInstance().getCurrentUser());
 				mCacheStamp = Patchr.getInstance().getCurrentUser().getCacheStamp();
 			}

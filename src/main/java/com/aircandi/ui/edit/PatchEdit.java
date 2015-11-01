@@ -30,6 +30,7 @@ import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Patch;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
@@ -487,10 +488,8 @@ public class PatchEdit extends BaseEntityEdit {
 									, place.id
 									, Constants.TYPE_LINK_PROXIMITY
 									, true
-									, null
-									, null
-									, "insert_link_proximity"
-									, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+									, null, "insert_link_proximity", true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null
+							);
 						}
 					}
 					return result;

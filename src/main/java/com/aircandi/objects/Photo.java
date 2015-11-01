@@ -9,9 +9,9 @@ import com.aircandi.Constants;
 import com.aircandi.Patchr;
 import com.aircandi.R;
 import com.aircandi.components.StringManager;
-import com.aircandi.objects.ImageResult.Thumbnail;
 import com.aircandi.service.Expose;
 import com.aircandi.utilities.Type;
+import com.aircandi.utilities.UI;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -114,14 +114,15 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	}
 
 	@NonNull
-	public String getUri() {
-		return getSizedUri(this.width, this.height, false);
+	public String getUri(PhotoSizeCategory category) {
+		final String url = UI.url(this.prefix, this.source, category);
+		return url;
 	}
 
 	@NonNull
-	public String getUriWrapped() {
-		/* Only called from UI.loadView */
-		return getSizedUri(this.width, this.height, true);
+	public String getDirectUri() {
+		final String url = UI.url(this.prefix, this.source, PhotoSizeCategory.NONE);
+		return url;
 	}
 
 	@NonNull
@@ -182,12 +183,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 					|| this.source.equals(PhotoSource.aircandi_images)) {
 				builder.append(StringManager.getString(R.string.url_media_images) + this.prefix);
 			}
-			else if (this.source.equals(PhotoSource.aircandi_thumbnails)) {
-				builder.append(StringManager.getString(R.string.url_media_thumbnails) + this.prefix);
-			}
-			else if (this.source.equals(PhotoSource.aircandi_users)) {
-				builder.append(StringManager.getString(R.string.url_media_users) + this.prefix);
-			}
 			else if (this.source.equals(PhotoSource.generic)) {
 				builder.append(this.prefix);
 			}
@@ -224,16 +219,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 
 	@NonNull
 	public static String getPhotoSourceByPhotoType(PhotoType photoType) {
-		if (photoType == PhotoType.GENERAL) {
-			return PhotoSource.aircandi_images;
-		}
-		else if (photoType == PhotoType.USER) {
-			return PhotoSource.aircandi_users;
-		}
-		if (photoType == PhotoType.THUMBNAIL) {
-			return PhotoSource.aircandi_thumbnails;
-		}
-		return PhotoSource.generic;
+		return PhotoSource.aircandi_images;
 	}
 
 	public static Boolean isDrawable(@NonNull String uri) {
@@ -245,25 +231,8 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		/*
 		 * We assume alpha unless we see a jpg|jpeg.
 		 */
-		String uri = photo.getUri();
+		String uri = photo.getDirectUri();
 		return (!(uri.toLowerCase(Locale.US).contains(".jpg") || uri.toLowerCase(Locale.US).contains(".jpeg")));
-	}
-
-	@NonNull
-	public ImageResult getAsImageResult() {
-
-		final ImageResult imageResult = new ImageResult();
-		if (width != null) {
-			imageResult.setWidth(width.longValue());
-		}
-		if (height != null) {
-			imageResult.setHeight(height.longValue());
-		}
-		imageResult.setMediaUrl(getUri());
-		final Thumbnail thumbnail = new Thumbnail();
-		thumbnail.setUrl(getSizedUri(100, 100, true));
-		imageResult.setThumbnail(thumbnail);
-		return imageResult;
 	}
 
 	public static Integer getResourceIdFromResourceName(@NonNull Context context, String resourceName) {
@@ -311,7 +280,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		if (obj == null) return false;
 		if (!((Object) this).getClass().equals(obj.getClass())) return false;
 		final Photo other = (Photo) obj;
-		return (Type.equal(this.getUri(), other.getUri()));
+		return (Type.equal(this.getDirectUri(), other.getDirectUri()));
 	}
 
 	public static boolean same(Object obj1, Object obj2) {

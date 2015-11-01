@@ -29,6 +29,7 @@ import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.RegisterInstallEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
@@ -213,11 +214,11 @@ public class RegisterEdit extends BaseEntityEdit {
 					/* Synchronous call to get the bitmap */
 					try {
 						bitmap = DownloadManager.with(Patchr.applicationContext)
-						                        .load(mEntity.getPhoto().getUri())
+						                        .load(mEntity.getPhoto().getUri(PhotoSizeCategory.STANDARD))
 						                        .centerInside()
 						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 						                        .get();
-						DownloadManager.logBitmap(RegisterEdit.this, bitmap);
+
 						if (isCancelled()) return null;
 					}
 					catch (OutOfMemoryError error) {
@@ -228,11 +229,10 @@ public class RegisterEdit extends BaseEntityEdit {
 						System.gc();
 						try {
 							bitmap = DownloadManager.with(Patchr.applicationContext)
-							                        .load(mEntity.getPhoto().getUri())
+							                        .load(mEntity.getPhoto().getUri(PhotoSizeCategory.STANDARD))
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 							                        .get();
-							DownloadManager.logBitmap(RegisterEdit.this, bitmap);
 
 							if (isCancelled()) return null;
 						}

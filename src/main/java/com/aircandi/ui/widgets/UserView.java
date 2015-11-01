@@ -20,6 +20,7 @@ import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.User;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.UI;
@@ -131,7 +132,7 @@ public class UserView extends RelativeLayout {
 			}
 
 			if (mPhotoView != null) {
-				if (mPhotoView.getPhoto() == null || !mPhotoView.getPhoto().getUri().equals(user.getPhoto().getUri())) {
+				if (mPhotoView.getPhoto() == null || !mPhotoView.getPhoto().getDirectUri().equals(user.getPhoto().getDirectUri())) {
 					Photo photo = user.getPhoto();
 					UI.drawPhoto(mPhotoView, photo);
 				}

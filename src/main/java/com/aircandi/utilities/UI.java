@@ -25,6 +25,7 @@ import com.aircandi.R;
 import com.aircandi.components.AnimationManager;
 import com.aircandi.components.DownloadManager;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.ui.widgets.AirImageView;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Transformation;
@@ -79,7 +80,7 @@ public class UI {
 		}
 	}
 
-	public static void loadView(@NonNull final AirImageView photoView, @NonNull final Photo photo, final Transformation transform) {
+	private static void loadView(@NonNull final AirImageView photoView, @NonNull final Photo photo, final Transformation transform) {
 		/*
 		 * This is the only patch in the code that turns on proxy handling.
 		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
@@ -87,6 +88,8 @@ public class UI {
 		 */
 		int width = photoView.getImageView().getWidth();
 		int height = photoView.getImageView().getHeight();
+
+		PhotoSizeCategory category = photoView.getSizeCategory();
 
 		if (photoView.getFitType() == AirImageView.FitType.NONE) {
 			width = Constants.IMAGE_DIMENSION_MAX;
@@ -108,6 +111,7 @@ public class UI {
 						.resize(width, height)
 						.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.PHOTO_GROUP_TAG_DEFAULT)
 						.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
+
 				if (transform != null) {
 					creator.transform(transform);
 				}
@@ -118,25 +122,28 @@ public class UI {
 
 			RequestCreator creator = DownloadManager
 					.with(Patchr.applicationContext)
-					.load(photo.getUri())
+					.load(photo.getDirectUri())
 					.centerCrop()   // Needed so resize() keeps aspect ratio
 					.resize(width, height)
 					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.PHOTO_GROUP_TAG_DEFAULT)
 					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
+
 			if (transform != null) {
 				creator.transform(transform);
 			}
 			creator.into(photoView);
 		}
-		else {
+		else {  /* url */
 
 			photo.setProxy(true, height, width);
+			String url = UI.url(photo.prefix, photo.source, category);
 			RequestCreator creator = DownloadManager
 					.with(Patchr.applicationContext)
-					.load(photo.getUriWrapped())
-					.placeholder(UI.getResIdForAttribute(photoView.getContext(), R.attr.backgroundPlaceholder))
-					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.PHOTO_GROUP_TAG_DEFAULT)
-					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
+					.load(url)
+			        .placeholder(UI.getResIdForAttribute(photoView.getContext(), R.attr.backgroundPlaceholder))
+			        .tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.PHOTO_GROUP_TAG_DEFAULT)
+			        .config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
+
 			if (transform != null) {
 				creator.transform(transform);
 			}
@@ -145,6 +152,63 @@ public class UI {
 
 		/* Final step */
 		photoView.getImageView().setBackgroundResource(0);
+	}
+
+	public static String url(String prefix, String source, PhotoSizeCategory category) {
+		/*
+		 * If category is null then will return a straight conversion of prefix.
+		 */
+		String path = prefix;
+
+		if (category != null) {
+
+			Integer quality = 75;
+			if (Constants.PIXEL_SCALE >= 3) {
+				quality = 25;
+			}
+			else if (Constants.PIXEL_SCALE >= 2) {
+				quality = 50;
+			}
+
+			if (source.equals(Photo.PhotoSource.aircandi_images)) {
+				Integer width = (category == PhotoSizeCategory.STANDARD) ? 400 : 100;
+				if (category == PhotoSizeCategory.NONE) {
+					path = "http://aircandi-images.s3.amazonaws.com/" + prefix;
+				}
+				else if (category == PhotoSizeCategory.PROFILE) {
+					path = "https://3meters-images.imgix.net/" + prefix
+							+ "?w=" + String.valueOf(width)
+							+ "&dpr=" + String.valueOf(Constants.PIXEL_SCALE)
+							+ "&q=" + String.valueOf(quality)
+							+ "&h=" + String.valueOf(width)
+							+ "&fit=min&trim=auto";
+				}
+				else {
+					path = "https://3meters-images.imgix.net/" + prefix
+							+ "?w=" + String.valueOf(width)
+							+ "&dpr=" + String.valueOf(Constants.PIXEL_SCALE)
+							+ "&q=" + String.valueOf(quality);
+				}
+			}
+			else if (source.equals(Photo.PhotoSource.google)) {
+				Integer width = Constants.IMAGE_DIMENSION_MAX * Constants.PIXEL_SCALE;
+				if (prefix.contains("?")) {
+					path = prefix + "&maxwidth=" + String.valueOf(width);
+				}
+				else {
+					path = prefix + "?maxwidth=" + String.valueOf(width);
+				}
+			}
+			else if (source.equals(Photo.PhotoSource.gravatar)) {
+				Integer width = 100 * Constants.PIXEL_SCALE;
+				path = prefix + "&s=" + String.valueOf(width);
+			}
+			else { /* source == file */
+				path = prefix;
+			}
+		}
+
+		return path;
 	}
 
 	/*--------------------------------------------------------------------------------------------

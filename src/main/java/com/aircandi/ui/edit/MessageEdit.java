@@ -36,6 +36,7 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Message;
 import com.aircandi.objects.Message.MessageType;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.ui.components.EntitySuggestController;
@@ -491,10 +492,10 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 							Photo photo = mEntity.getPhoto();
 							if (photo.source.equals(Photo.PhotoSource.file)) {
-								Logger.d(MessageEdit.this, "Loading image from file: " + photo.getUri());
+								Logger.d(MessageEdit.this, "Loading image from file: " + photo.getDirectUri());
 							}
 							else if (!photo.source.equals(Photo.PhotoSource.resource)) {
-								Logger.d(MessageEdit.this, "Loading image from network: " + photo.getUri());
+								Logger.d(MessageEdit.this, "Loading image from network: " + photo.getDirectUri());
 							}
 
 							UI.drawPhoto(mPhotoView, mEntity.getPhoto());   // Only place we try to load a photo
@@ -589,7 +590,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 	@Override
 	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
-		DownloadManager.logBitmap(MessageEdit.this, bitmap, mPhotoView.getImageView());
+
 		final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
 		UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
 

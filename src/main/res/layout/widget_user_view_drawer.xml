@@ -15,6 +15,7 @@
 		custom:config="rgb_565"
 		custom:fitType="fixed"
 		custom:layoutId="@layout/widget_imageview"
+		custom:sizeCategory="profile"
 		custom:sizeHint="60dp" />
 
 	<LinearLayout

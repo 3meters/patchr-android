@@ -17,6 +17,7 @@
 		custom:config="rgb_565"
 		custom:dominantMeasurement="width"
 		custom:fitType="auto"
+		custom:sizeCategory="standard"
 		custom:layoutId="@layout/widget_imageview_candi_view" />
 
 	<View

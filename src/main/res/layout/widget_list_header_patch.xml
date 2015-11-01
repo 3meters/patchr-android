@@ -71,6 +71,7 @@
 				custom:layoutId="@layout/widget_imageview"
 				custom:showBusy="true"
 				custom:sizeHint="@dimen/image_medium"
+				custom:sizeCategory="thumbnail"
 				tools:visibility="visible" />
 
 			<RelativeLayout
@@ -109,7 +110,7 @@
 				</LinearLayout>
 
 				<ViewAnimator
-					android:id="@+id/button_like"
+					android:id="@+id/button_mute"
 					android:layout_width="@dimen/button_height"
 					android:layout_height="@dimen/button_height"
 					android:layout_toLeftOf="@+id/button_watch"
@@ -125,7 +126,7 @@
 						android:adjustViewBounds="true"
 						android:alpha="1.0"
 						android:scaleType="fitCenter"
-						android:src="@drawable/ic_img_star_dark" />
+						android:src="@drawable/ic_img_mute_dark" />
 
 					<ProgressBar
 						android:id="@+id/button_progress"

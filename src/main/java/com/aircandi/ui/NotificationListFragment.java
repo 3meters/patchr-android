@@ -24,6 +24,7 @@ import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Notification;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
@@ -203,7 +204,7 @@ public class NotificationListFragment extends EntityListFragment
 		if (holder.photoViewBig != null) {
 			UI.setVisibility(holder.photoViewBig, View.GONE);
 			if (notification.photoBig != null) {
-				if (holder.photoViewBig.getPhoto() == null || !notification.photoBig.getUri().equals(holder.photoViewBig.getPhoto().getUri())) {
+				if (holder.photoViewBig.getPhoto() == null || !notification.photoBig.getDirectUri().equals(holder.photoViewBig.getPhoto().getDirectUri())) {
 					holder.photoViewBig.setTag(notification.photoBig);
 					holder.photoViewBig.setCenterCrop(false);
 					UI.drawPhoto(holder.photoViewBig, notification.photoBig);

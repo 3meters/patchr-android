@@ -3,6 +3,7 @@ package com.aircandi.ui;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
@@ -20,6 +21,7 @@ import com.aircandi.R;
 import com.aircandi.components.DataController;
 import com.aircandi.components.Dispatcher;
 import com.aircandi.components.Logger;
+import com.aircandi.components.ModelResult;
 import com.aircandi.components.StringManager;
 import com.aircandi.events.ActionEvent;
 import com.aircandi.events.DataErrorEvent;
@@ -35,6 +37,7 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
+import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
@@ -109,11 +112,8 @@ public class PatchFormFragment extends EntityFormFragment {
 			else if (id == R.id.button_watch) {
 				onWatchButtonClick(event.view);
 			}
-			else if (id == R.id.button_likes) {
-				onLikesListButtonClick(event.view);
-			}
-			else if (id == R.id.button_like) {
-				onLikeButtonClick(event.view);
+			else if (id == R.id.button_mute) {
+				onMuteButtonClick(event.view);
 			}
 			else if (id == R.id.button_tune) {
 				onTuneButtonClick(event.view);
@@ -224,7 +224,7 @@ public class PatchFormFragment extends EntityFormFragment {
 	}
 
 	@SuppressWarnings("ucd")
-	private void onLikeButtonClick(View view) {
+	private void onMuteButtonClick(View view) {
 
 		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
 			String message = StringManager.getString(R.string.alert_signin_message_like, mEntity.schema);
@@ -232,8 +232,8 @@ public class PatchFormFragment extends EntityFormFragment {
 			return;
 		}
 
-		Link linkLike = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
-		like(linkLike == null);
+		Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
+		mute(link.mute == null || !link.mute);
 	}
 
 	@SuppressWarnings("ucd")
@@ -406,7 +406,7 @@ public class PatchFormFragment extends EntityFormFragment {
 				/* Buttons */
 
 				UI.setVisibility(view.findViewById(R.id.button_tune), (owner ? View.VISIBLE : View.GONE));
-				drawLikeWatch(view);
+				drawButtons(view);
 				drawAlertGroup(view);
 
 				final CandiView candiViewInfo = (CandiView) view.findViewById(R.id.candi_view_info);
@@ -479,7 +479,7 @@ public class PatchFormFragment extends EntityFormFragment {
 						/* Photo */
 						Photo photo = linkPlace.shortcut.photo;
 						if (photo != null) {
-							if (placePhotoView.getPhoto() == null || !placePhotoView.getPhoto().getUri().equals(photo.getUri())) {
+							if (placePhotoView.getPhoto() == null || !placePhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
 								placePhotoView.setTag(linkPlace.shortcut.getAsEntity());
 								UI.drawPhoto(placePhotoView, photo, new CircleTransform());
 							}
@@ -626,6 +626,40 @@ public class PatchFormFragment extends EntityFormFragment {
 
 			Dispatcher.getInstance().post(update);
 		}
+	}
+
+	public void mute(final Boolean mute) {
+
+		final Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
+		final String actionEvent = mute ? "mute_watch_entity" : "unmute_watch_entity";
+
+		new AsyncTask() {
+
+			@Override
+			protected void onPreExecute() {
+				if (getView() != null) {
+					ViewAnimator animator = (ViewAnimator) getView().findViewById(R.id.button_mute);
+					if (animator != null) {
+						animator.setDisplayedChild(1);  // Turned off in drawButtons
+					}
+				}
+			}
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncMuteLink");
+				ModelResult result = DataController.getInstance().muteLink(link.id, mute, actionEvent);
+				return result;
+			}
+
+			@Override
+			protected void onPostExecute(Object response) {
+				final ModelResult result = (ModelResult) response;
+				bind(BindingMode.AUTO);
+				onProcessingComplete();
+			}
+
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	protected void shareCheck() {
