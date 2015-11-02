@@ -113,8 +113,8 @@ public class Notification extends Entity implements Cloneable, Serializable {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static class Priority {
-		public static Integer ONE   = 1;
-		public static Integer TWO   = 2;
+		public static Integer ONE   = 1;    // All bells and whistles for in-app notifications
+		public static Integer TWO   = 2;    // Mute chirping/toast for in-app notifications
 		public static Integer THREE = 3;
 	}
 

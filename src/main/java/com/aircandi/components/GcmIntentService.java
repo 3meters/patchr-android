@@ -87,17 +87,14 @@ public class GcmIntentService extends IntentService {
 					Boolean showingTarget = showingEntity(notification.targetId);
 
 					/*
-					 * Currently, notifications are priority.TWO by default with the following exceptions:
+					 * Notifications associated with unmuted patches are priority.ONE
+					 * Notifications associated with muted patches are priority.TWO with the following exceptions:
 					 *
 					 * - Patch inserted nearby
-					 * - Message inserted nearby
+					 * - Action requests like join request, join approval, message share, patch invite.
 					 */
-					if (background
-							|| !showingTarget
-							|| notification.priority.intValue() == Notification.Priority.ONE) {
-
-						if (background || notification.getTriggerCategory().equals(Notification.TriggerCategory.NEARBY)) {
-
+					if (background) {
+						if (notification.priority.intValue() == Notification.Priority.ONE) {
 							/*
 							 * Build intent that can be used in association with the notification
 							 * - Intents route directly to the activity if the application is already running.
@@ -125,10 +122,6 @@ public class GcmIntentService extends IntentService {
 						     */
 							NotificationManager.getInstance().statusNotification(notification, Patchr.applicationContext);
 						}
-						else {
-							/* Chirp */
-							MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);
-						}
 					}
 
 					/*
@@ -136,13 +129,15 @@ public class GcmIntentService extends IntentService {
 					 */
 
 					else {
-						/* Chirp */
-						MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);
+						if (notification.priority.intValue() == Notification.Priority.ONE) {
+							/* Chirp */
+							MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);   // Won't play if user turned off sounds
 
-						/* Vibrate */
-						Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-						if (vibrator != null && vibrator.hasVibrator()) {
-							vibrator.vibrate(new long[]{0, 400, 400, 400}, -1);
+							/* Vibrate */
+							Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+							if (vibrator != null && vibrator.hasVibrator()) {
+								vibrator.vibrate(new long[]{0, 400, 400, 400}, -1);
+							}
 						}
 					}
 
