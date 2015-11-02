@@ -328,11 +328,13 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 				ImageView image = (ImageView) mute.findViewById(R.id.button_image);
 				if (link.mute != null && link.mute) {
 					/* Sound is off */
+					image.setImageResource(R.drawable.ic_img_mute_off_dark);
 					image.setColorFilter(null);
 					image.setAlpha(0.5f);
 				}
 				else {
 					/* Sound is on */
+					image.setImageResource(R.drawable.ic_img_mute_dark);
 					final int color = Colors.getColor(R.color.brand_primary);
 					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
 					image.setAlpha(1.0f);

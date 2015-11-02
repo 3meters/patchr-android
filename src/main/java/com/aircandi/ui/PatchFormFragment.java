@@ -656,7 +656,7 @@ public class PatchFormFragment extends EntityFormFragment {
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 				bind(BindingMode.AUTO);
-				onProcessingComplete();
+				onProcessingComplete(); // Updates ui like floating button
 			}
 
 		}.executeOnExecutor(Constants.EXECUTOR);
