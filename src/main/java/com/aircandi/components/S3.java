@@ -3,11 +3,9 @@ package com.aircandi.components;
 import android.graphics.Bitmap;
 
 import com.aircandi.Patchr;
-import com.aircandi.R;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.events.ProcessingCanceledEvent;
 import com.aircandi.events.ProcessingProgressEvent;
-import com.aircandi.objects.Photo.PhotoType;
 import com.aircandi.service.ServiceResponse;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;

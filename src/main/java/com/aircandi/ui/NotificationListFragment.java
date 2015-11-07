@@ -24,7 +24,6 @@ import com.aircandi.interfaces.IEntityController;
 import com.aircandi.objects.Cursor;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Notification;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;

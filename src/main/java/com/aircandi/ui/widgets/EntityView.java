@@ -18,7 +18,6 @@ import com.aircandi.R;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.utilities.UI;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;

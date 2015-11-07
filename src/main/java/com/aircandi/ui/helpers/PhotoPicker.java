@@ -36,7 +36,6 @@ import com.aircandi.objects.ImageResult;
 import com.aircandi.objects.ImageResult.Thumbnail;
 import com.aircandi.objects.Photo;
 import com.aircandi.objects.Photo.PhotoSource;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.ServiceData;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.service.RequestType;

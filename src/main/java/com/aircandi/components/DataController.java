@@ -36,7 +36,6 @@ import com.aircandi.objects.LinkSpecFactory;
 import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Photo.PhotoType;
 import com.aircandi.objects.Proximity;
 import com.aircandi.objects.ServiceBase.UpdateScope;
 import com.aircandi.objects.ServiceData;
@@ -848,10 +847,6 @@ public class DataController {
 		/* Upload image to S3 as needed */
 
 		if (bitmap != null && !bitmap.isRecycled()) {
-			PhotoType photoType = PhotoType.GENERAL;
-			if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-				photoType = PhotoType.USER;
-			}
 			result.serviceResponse = storeImageAtS3(entity, null, bitmap);
 		}
 
@@ -993,10 +988,6 @@ public class DataController {
 
 		/* Upload new images to S3 as needed. */
 		if (bitmap != null) {
-			PhotoType photoType = PhotoType.GENERAL;
-			if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-				photoType = PhotoType.USER;
-			}
 			result.serviceResponse = storeImageAtS3(entity, null, bitmap);
 		}
 

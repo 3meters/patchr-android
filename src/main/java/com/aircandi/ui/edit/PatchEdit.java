@@ -30,7 +30,6 @@ import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Patch;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;

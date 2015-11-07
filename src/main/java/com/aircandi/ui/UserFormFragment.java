@@ -19,7 +19,6 @@ import com.aircandi.objects.Count;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;

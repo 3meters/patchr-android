@@ -32,13 +32,25 @@
 # -dontpreverify
 
 -dontobfuscate
--dontnote
 
 #/*-------------------------------------------------------------------------------------------------
 # Android specific settings
 #/*-------------------------------------------------------------------------------------------------
 
 -dontwarn sun.misc.Unsafe
+-keepattributes *Annotation*
+-keepattributes SourceFile
+-keepattributes Signature
+-keepattributes LineNumberTable
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+
+#/*-------------------------------------------------------------------------------------------------
+# Patchr specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-keep class com.aircandi.events.**			{ *; }
+-dontnote com.aircandi.**
 
 #/*-------------------------------------------------------------------------------------------------
 # AWS specific settings
@@ -56,20 +68,23 @@
 -keep class org.codehaus.**                             { *; }
 -keep class org.joda.convert.*                          { *; }
 -keep class com.amazonaws.org.joda.convert.*            { *; }
--keepattributes Signature,*Annotation*,EnclosingMethod
+
 -keepnames class com.fasterxml.jackson.**               { *; }
 -keepnames class com.amazonaws.**                       { *; }
 
+-dontwarn com.amazonaws.auth.policy.conditions.S3ConditionFactory
+-dontwarn org.joda.time.**
 -dontwarn com.fasterxml.jackson.databind.**
--dontwarn com.fasterxml.jackson.core.**
 -dontwarn javax.xml.stream.events.**
 -dontwarn org.codehaus.jackson.**
 -dontwarn org.apache.commons.logging.impl.**
 -dontwarn org.apache.http.conn.scheme.**
 -dontwarn org.apache.http.annotation.**
 -dontwarn org.ietf.jgss.**
--dontwarn org.joda.convert.**
 -dontwarn org.w3c.dom.bootstrap.**
+
+-dontwarn com.fasterxml.jackson.core.**
+-dontwarn org.joda.convert.**
 
 #SDK split into multiple jars so certain classes may be referenced but not used
 -dontwarn com.amazonaws.services.s3.**
@@ -81,9 +96,11 @@
 #/*-------------------------------------------------------------------------------------------------
 
 -keep class android.support.v7.widget.SearchView { *; }
--dontwarn android.support.v7.**
 -keep class android.support.v7.** { *; }
 -keep interface android.support.v7.** { *; }
+
+-dontwarn android.support.**
+-dontnote android.support.**
 
 #/*-------------------------------------------------------------------------------------------------
 # ImageChooser specific settings
@@ -95,18 +112,14 @@
 # Crashlytics specific settings
 #/*-------------------------------------------------------------------------------------------------
 
--keepattributes SourceFile,LineNumberTable
-
 #/*-------------------------------------------------------------------------------------------------
 # Otto specific settings
 #/*-------------------------------------------------------------------------------------------------
 
--keepattributes *Annotation*
 -keepclassmembers class ** {
     @com.squareup.otto.Subscribe public *;
     @com.squareup.otto.Produce public *;
 }
--keep class com.aircandi.events.**			{ *; }
 
 #/*-------------------------------------------------------------------------------------------------
 # Picasso specific settings
@@ -124,29 +137,22 @@
 # Parse specific settings
 #/*-------------------------------------------------------------------------------------------------
 
--keepnames class com.parse.** { *; }    # for easier debugging
--keep class com.parse.** { *; }
+#-keepnames class com.parse.** { *; }    # for easier debugging
+#-keep class com.parse.** { *; }
 
 #/*-------------------------------------------------------------------------------------------------
 # Google play services api specific settings
+#
+# ProGuard directives are included in the Play services client libraries to preserve the required
+# classes. The Android Plugin for Gradle automatically appends ProGuard configuration files in
+# an AAR (Android ARchive) package and appends that package to your ProGuard configuration.
 #/*-------------------------------------------------------------------------------------------------
 
--keep class * extends java.util.ListResourceBundle {
-    protected Object[][] getContents();
-}
+#/*-------------------------------------------------------------------------------------------------
+# Google specific settings
+#/*-------------------------------------------------------------------------------------------------
 
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
--keepnames @com.google.android.gms.common.annotation.KeepName class *
--keepclassmembernames class * {
-    @com.google.android.gms.common.annotation.KeepName *;
-}
-
--keepnames class * implements android.os.Parcelable {
-    public static final ** CREATOR;
-}
+-dontnote **ILicensingService
 
 #/*-------------------------------------------------------------------------------------------------
 # Java specific settings

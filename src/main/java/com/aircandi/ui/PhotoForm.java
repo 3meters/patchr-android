@@ -23,7 +23,6 @@ import com.aircandi.components.MediaManager;
 import com.aircandi.components.StringManager;
 import com.aircandi.interfaces.IBind;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseActivity;
 import com.aircandi.ui.widgets.AirImageView;

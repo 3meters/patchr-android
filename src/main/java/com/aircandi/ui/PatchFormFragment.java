@@ -37,7 +37,6 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
@@ -77,7 +76,7 @@ public class PatchFormFragment extends EntityFormFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
-		mHeaderViewAnimator = (ViewAnimator) view.findViewById(R.id.animator_header);
+		mHeaderViewAnimator = (ViewAnimator) (view != null ? view.findViewById(R.id.animator_header) : null);
 		return view;
 	}
 
@@ -654,7 +653,6 @@ public class PatchFormFragment extends EntityFormFragment {
 
 			@Override
 			protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
 				bind(BindingMode.AUTO);
 				onProcessingComplete(); // Updates ui like floating button
 			}

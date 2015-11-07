@@ -23,7 +23,6 @@ import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Notification;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;

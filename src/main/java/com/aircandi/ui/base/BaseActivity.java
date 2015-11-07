@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -20,7 +21,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -780,10 +780,10 @@ public abstract class BaseActivity extends ActionBarActivity
 
 				@Override
 				public void onClick(View view) {
-					if (mDrawerLayout.isDrawerOpen(Gravity.START)) {
+					if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
 						mDrawerLayout.closeDrawer(mDrawerLeft);
 					}
-					if (mDrawerLayout.isDrawerOpen(Gravity.END)) {
+					if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
 						mNotificationActionIcon.animate().rotation(0f).setDuration(200);
 						mDrawerLayout.closeDrawer(mDrawerRight);
 					}

@@ -36,7 +36,6 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Message;
 import com.aircandi.objects.Message.MessageType;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.base.BaseEntityEdit;
 import com.aircandi.ui.components.EntitySuggestController;

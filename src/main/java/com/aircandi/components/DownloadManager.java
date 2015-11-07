@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.net.Uri;
-import android.view.View;
 
 import com.aircandi.Patchr;
 import com.aircandi.utilities.Reporting;

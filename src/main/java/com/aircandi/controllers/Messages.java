@@ -17,7 +17,6 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Message;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.MessageForm;
 import com.aircandi.ui.components.CircleTransform;

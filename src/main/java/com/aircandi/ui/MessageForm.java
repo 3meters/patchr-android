@@ -39,7 +39,6 @@ import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Message;
 import com.aircandi.objects.Message.MessageType;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEntityForm;

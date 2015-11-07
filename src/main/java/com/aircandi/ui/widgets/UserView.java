@@ -20,7 +20,6 @@ import com.aircandi.objects.Count;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.User;
 import com.aircandi.utilities.DateTime;
 import com.aircandi.utilities.UI;

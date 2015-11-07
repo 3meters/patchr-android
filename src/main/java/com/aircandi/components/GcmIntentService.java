@@ -84,7 +84,6 @@ public class GcmIntentService extends IntentService {
 					 */
 
 					Boolean background = (Patchr.getInstance().getCurrentActivity() == null);
-					Boolean showingTarget = showingEntity(notification.targetId);
 
 					/*
 					 * Notifications associated with unmuted patches are priority.ONE

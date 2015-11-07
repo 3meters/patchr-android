@@ -33,7 +33,6 @@ import com.aircandi.objects.Entity;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Patch.ReasonType;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Place;
 import com.aircandi.objects.User;
 import com.aircandi.ui.widgets.AirImageView;

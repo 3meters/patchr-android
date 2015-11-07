@@ -5,9 +5,9 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
@@ -472,7 +472,7 @@ public class AircandiForm extends BaseActivity {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Boolean showingNotifications = (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(Gravity.END));
+				Boolean showingNotifications = (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(GravityCompat.END));
 				Integer newNotificationCount = NotificationManager.getInstance().getNewNotificationCount();
 
 				if ((ifDrawerVisible || !showingNotifications) && mNotificationsBadgeGroup != null) {
@@ -590,15 +590,15 @@ public class AircandiForm extends BaseActivity {
 		getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (mDrawerLayout.isDrawerOpen(Gravity.END)) {
+				if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
 					mNotificationActionIcon.animate().rotation(0f).setDuration(200);
 					mDrawerLayout.closeDrawer(mDrawerRight);
 				}
-				else if (mDrawerLayout.isDrawerOpen(Gravity.START)) {
+				else if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
 					mDrawerLayout.closeDrawer(mDrawerLeft);
 				}
 				else {
-					mDrawerLayout.openDrawer(Gravity.START);
+					mDrawerLayout.openDrawer(GravityCompat.START);
 				}
 			}
 		});
