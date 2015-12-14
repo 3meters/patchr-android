@@ -35,19 +35,14 @@ public class LinkSpecFactory {
 
 			if (linkProfile == LinkSpecType.LINKS_FOR_PATCH || linkProfile == LinkSpecType.LINKS_FOR_BEACONS) {
 				/*
-				 * These are the same because LINKS_FOR_BEACONS is used to produce places and we want the same link
-				 * profile for places regardless of what code path fetches them.
+				 * These are the same because LINKS_FOR_BEACONS is used to produce patches and we want the same link
+				 * profile for patches regardless of what code path fetches them.
 				 */
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, true, true, limitProximity)
 						.setDirection(Direction.out));
-				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE, true, true, 1)
-						.setDirection(Direction.out));
-				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitContent)
-						.setDirection(Direction.both));
+//				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitContent)
+//						.setDirection(Direction.both));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
-						, Maps.asMap("_from", currentUser.id))
-						.setDirection(Direction.in));
-				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_USER, true, true, 1
 						, Maps.asMap("_from", currentUser.id))
 						.setDirection(Direction.in));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
