@@ -82,7 +82,7 @@
 
 		<!-- Images and icons -->
 
-		<item name="imgLogo">@drawable/img_logo_dark</item>
+		<item name="imgLogo">@drawable/img_logo</item>
 		<item name="iconAdd">@drawable/ic_add_dark</item>
 		<item name="iconCancel">@drawable/ic_action_cancel_dark</item>
 		<item name="iconClear">@drawable/ic_action_cancel_dark</item>
@@ -165,7 +165,7 @@
 
 		<!-- Images and icons -->
 
-		<item name="imgLogo">@drawable/img_logo_dark</item>
+		<item name="imgLogo">@drawable/img_logo</item>
 		<item name="iconAdd">@drawable/ic_add_light</item>
 		<item name="iconCancel">@drawable/ic_action_cancel_light</item>
 		<item name="iconClear">@drawable/ic_action_cancel_light</item>

@@ -51,9 +51,9 @@
 
 	<!-- Splash -->
 
-	<string name="splash_button_signin">Sign in</string>
-	<string name="splash_button_start">Guest</string>
-	<string name="splash_button_signup">Join Patchr</string>
+	<string name="splash_button_signin">Log in</string>
+	<string name="splash_button_start">Skip</string>
+	<string name="splash_button_signup">Sign up</string>
 
 	<!-- Attribution -->
 

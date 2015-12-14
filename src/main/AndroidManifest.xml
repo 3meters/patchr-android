@@ -60,7 +60,7 @@
 	<application
 		android:name=".Patchr"
 		android:hardwareAccelerated="true"
-		android:icon="@drawable/ic_img_launcher"
+		android:icon="@drawable/ic_launcher"
 		android:allowBackup="false"
 		android:label="@string/name_app"
 		android:theme="@style/aircandi_theme_snow"
