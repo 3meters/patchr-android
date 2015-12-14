@@ -218,10 +218,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		String source = Photo.PhotoSource.resource;
 
 		if (schema != null) {
-			if (schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-				prefix = "img_default_place_b";
-			}
-			else if (schema.equals(Constants.SCHEMA_ENTITY_USER)
+			if (schema.equals(Constants.SCHEMA_ENTITY_USER)
 					|| schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
 				if (id != null) {
 					prefix = "http://www.gravatar.com/avatar/" + Utilities.md5(id) + "?d=identicon&r=pg&s=200";
@@ -662,9 +659,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		String prefix = id.substring(0, 2);
 		if (prefix.equals("be")) {
 			return Constants.SCHEMA_ENTITY_BEACON;
-		}
-		else if (prefix.equals("pl")) {
-			return Constants.SCHEMA_ENTITY_PLACE;
 		}
 		else if (prefix.equals("pa")) {
 			return Constants.SCHEMA_ENTITY_PATCH;

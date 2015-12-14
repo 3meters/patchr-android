@@ -11,9 +11,9 @@
 	<dimen name="image_extra_extra_large">250dp</dimen>
 	<dimen name="image_extra_large">200dp</dimen>
 	<dimen name="image_large">150dp</dimen>
-	<dimen name="image_medium_large">125dp</dimen>
+	<dimen name="image_medium_large">128dp</dimen>
 	<dimen name="image_medium">100dp</dimen>
-	<dimen name="image_medium_small">75dp</dimen>
+	<dimen name="image_medium_small">80dp</dimen>
 	<dimen name="image_small">50dp</dimen>
 	<dimen name="image_combo_button">24dp</dimen>
 	<dimen name="image_extra_small">35dp</dimen>
@@ -28,7 +28,7 @@
 
 	<!-- Image categories -->
 
-	<item name="aspect_ratio_place_image" format="float" type="dimen">0.65</item>
+	<item name="aspect_ratio_patch_image" format="float" type="dimen">0.65</item>
 	<item name="aspect_ratio_message_image" format="float" type="dimen">0.75</item>
 	<item name="aspect_ratio_message_item_image" format="float" type="dimen">0.5</item>
 

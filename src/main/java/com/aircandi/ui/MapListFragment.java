@@ -22,7 +22,6 @@ import com.aircandi.components.StringManager;
 import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Patch;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.ui.components.AirClusterRenderer;
 import com.aircandi.utilities.Dialogs;
@@ -367,11 +366,6 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 				}
 				markerOptions.title(!(TextUtils.isEmpty(patch.name)) ? patch.name : StringManager.getString(R.string.container_singular));
 				markerOptions.snippet((!TextUtils.isEmpty(patch.type)) ? patch.type : null);
-			}
-			else if (entityItem.mEntity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-				final Place place = (Place) entityItem.mEntity;
-				markerOptions.title(!(TextUtils.isEmpty(place.name)) ? place.name : StringManager.getString(R.string.container_singular));
-				markerOptions.snippet((place.category != null && !TextUtils.isEmpty(place.category.name)) ? place.category.name : null);
 			}
 		}
 

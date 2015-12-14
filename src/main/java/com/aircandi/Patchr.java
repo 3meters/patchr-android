@@ -34,7 +34,6 @@ import com.aircandi.components.StringManager;
 import com.aircandi.controllers.Messages;
 import com.aircandi.controllers.Notifications;
 import com.aircandi.controllers.Patches;
-import com.aircandi.controllers.Places;
 import com.aircandi.controllers.Users;
 import com.aircandi.events.RegisterInstallEvent;
 import com.aircandi.interfaces.IEntityController;
@@ -219,7 +218,6 @@ public class Patchr extends MultiDexApplication {
 
 		/* Required to deserialize notifications */
 		controllerMap.put(Constants.SCHEMA_ENTITY_PATCH, new Patches());
-		controllerMap.put(Constants.SCHEMA_ENTITY_PLACE, new Places());
 		controllerMap.put(Constants.SCHEMA_ENTITY_USER, new Users());
 		controllerMap.put(Constants.SCHEMA_ENTITY_MESSAGE, new Messages());
 		controllerMap.put(Constants.SCHEMA_ENTITY_NOTIFICATION, new Notifications());

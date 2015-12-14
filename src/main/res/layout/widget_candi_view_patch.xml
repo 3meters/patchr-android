@@ -11,7 +11,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:scaleType="centerCrop"
-		custom:aspectRatio="@dimen/aspect_ratio_place_image"
+		custom:aspectRatio="@dimen/aspect_ratio_patch_image"
 		custom:aspectRatioEnabled="true"
 		android:background="?attr/backgroundPlaceholder"
 		custom:config="rgb_565"

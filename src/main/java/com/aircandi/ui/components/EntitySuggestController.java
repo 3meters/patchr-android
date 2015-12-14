@@ -28,12 +28,10 @@ import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
 import com.aircandi.objects.AirLocation;
-import com.aircandi.objects.Category;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Patch.ReasonType;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.User;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.AirTokenCompleteTextView;
@@ -79,7 +77,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	private String                              mPrefix;
 	private TokenCompleteTextView.TokenListener mTokenListener;
 
-	private DataController.SuggestScope mSuggestScope = DataController.SuggestScope.PLACES;
+	private DataController.SuggestScope mSuggestScope = DataController.SuggestScope.PATCHES;
 
 	public EntitySuggestController(@NonNull Context context) {
 
@@ -164,10 +162,10 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		/* Add patch to auto complete array */
 		try {
 			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(
-					StringManager.getString(R.string.setting_place_searches), "{}"));
+					StringManager.getString(R.string.setting_patch_searches), "{}"));
 			final String jsonEntity = Json.objectToJson(entity);
 			jsonSearchMap.put(entity.id, jsonEntity);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_place_searches), jsonSearchMap.toString());
+			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_patch_searches), jsonSearchMap.toString());
 			Patchr.settingsEditor.commit();
 		}
 		catch (JSONException e) {
@@ -313,15 +311,6 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 					UI.setVisibility(holder.name, View.VISIBLE);
 				}
 
-				UI.setVisibility(holder.categoryName, View.GONE);
-				if (entity instanceof Place) {
-					Category category = ((Place) entity).category;
-					if (category != null && !TextUtils.isEmpty(category.name)) {
-						holder.categoryName.setText(Html.fromHtml(category.name));
-						UI.setVisibility(holder.categoryName, View.VISIBLE);
-					}
-				}
-
 				UI.setVisibility(holder.type, View.GONE);
 				if (entity instanceof Patch) {
 					if (entity.type != null && !TextUtils.isEmpty(entity.type)) {
@@ -332,16 +321,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 				UI.setVisibility(holder.subhead, View.GONE);
 				if (holder.subhead != null) {
-					if (entity instanceof Place) {
-						Place place = (Place) entity;
-						String address = place.getAddressString(false);
-
-						if (!TextUtils.isEmpty(address)) {
-							holder.subhead.setText(address);
-							UI.setVisibility(holder.subhead, View.VISIBLE);
-						}
-					}
-					else if (entity instanceof User) {
+					if (entity instanceof User) {
 						User user = (User) entity;
 						if (!TextUtils.isEmpty(user.area)) {
 							holder.subhead.setText(user.area);

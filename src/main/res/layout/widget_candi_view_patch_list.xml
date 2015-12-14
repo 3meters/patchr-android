@@ -42,24 +42,11 @@
 		android:paddingRight="10dp"
 		android:paddingTop="8dp">
 
-		<com.aircandi.ui.widgets.AirTextView
-			android:id="@+id/place_name"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_alignParentTop="true"
-			android:layout_toLeftOf="@+id/distance"
-			android:ellipsize="end"
-			android:singleLine="true"
-			android:textAllCaps="true"
-			android:textAppearance="?attr/textAppearanceExtraSmall"
-			android:textColor="?attr/textColorSecondary"
-			tools:text="Peaks Frozen Yogurt" />
-
 		<com.aircandi.ui.widgets.AirTextLight
 			android:id="@+id/name"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_below="@+id/place_name"
+			android:layout_alignParentTop="true"
 			android:layout_toLeftOf="@+id/distance"
 			android:ellipsize="end"
 			android:singleLine="true"

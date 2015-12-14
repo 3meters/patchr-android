@@ -31,11 +31,6 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	@SerializedName(name = "visibility")
 	public String privacy;                                    // private|public|hidden
 
-	/* Patch (synthesized for the client) */
-
-	@Expose(serialize = false, deserialize = true)
-	public Place place;
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -84,21 +79,12 @@ public class Patch extends Entity implements Cloneable, Serializable {
 		patch.locked = (Boolean) ((map.get("locked") != null) ? map.get("locked") : false);
 		patch.privacy = (String) (nameMapping ? map.get("visibility") : map.get("privacy"));
 
-		if (map.get("place") != null) {
-			patch.place = Place.setPropertiesFromMap(new Place(), (HashMap<String, Object>) map.get("place"), nameMapping);
-		}
-
 		return patch;
 	}
 
 	@Override
 	public Patch clone() {
 		final Patch patch = (Patch) super.clone();
-		if (patch != null) {
-			if (place != null) {
-				patch.place = place.clone();
-			}
-		}
 		return patch;
 	}
 

@@ -57,9 +57,7 @@
 
 	<!-- Attribution -->
 
-	<string name="label_place_provider_foursquare" tools:ignore="UnusedResources">Powered by Foursquare</string>
 	<string name="label_place_provider_google" tools:ignore="UnusedResources">Powered by Google</string>
-	<string name="label_place_provider_factual" tools:ignore="UnusedResources">Powered by Factual</string>
 
 	<!-- Feedback -->
 

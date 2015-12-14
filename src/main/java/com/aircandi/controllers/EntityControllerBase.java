@@ -23,7 +23,6 @@ import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Notification;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.ViewHolder;
 import com.aircandi.ui.EntityListFragment.ViewType;
@@ -207,19 +206,6 @@ public abstract class EntityControllerBase implements IEntityController {
 		if (holder.subhead != null && !TextUtils.isEmpty(entity.subtitle)) {
 			holder.subhead.setText(Html.fromHtml(entity.subtitle));
 			UI.setVisibility(holder.subhead, View.VISIBLE);
-		}
-
-		/* Category */
-
-		UI.setVisibility(holder.categoryName, View.GONE);
-		if (entity.schema.equals(Constants.SCHEMA_ENTITY_PLACE)) {
-			Place place = (Place) entity;
-			if (holder.categoryName != null) {
-				if (place.category != null && !TextUtils.isEmpty(place.category.name)) {
-					holder.categoryName.setText((place.category.name).toUpperCase(Locale.US));
-					UI.setVisibility(holder.categoryName, View.VISIBLE);
-				}
-			}
 		}
 
 		/* Type */

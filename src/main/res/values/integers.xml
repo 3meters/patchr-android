@@ -11,7 +11,7 @@
 	<integer name="limit_links_create_default">0</integer>
 	<integer name="limit_links_proximity_default">10</integer>
 
-	<integer name="limit_places_radar">50</integer>
+	<integer name="limit_patches_radar">50</integer>
 	<integer name="anim_duration_extra_long">300</integer>
 	<integer name="anim_duration_short_medium">200</integer>
 	<integer name="min_lines_patch_description">1</integer>

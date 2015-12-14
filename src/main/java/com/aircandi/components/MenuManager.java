@@ -154,9 +154,9 @@ public class MenuManager {
 		if (entity == null) return false;
 		if (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE)) return false;
 
-		Link placeLink = entity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH, entity.patchId, Direction.out);
-		return placeLink != null
-				&& placeLink.ownerId.equals(Patchr.getInstance().getCurrentUser().id)
+		Link patchLink = entity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH, entity.patchId, Direction.out);
+		return patchLink != null
+				&& patchLink.ownerId.equals(Patchr.getInstance().getCurrentUser().id)
 				&& !entity.ownerId.equals(Patchr.getInstance().getCurrentUser().id);
 	}
 
@@ -205,7 +205,7 @@ public class MenuManager {
 			if (forId == null) return false;
 			String forSchema = Entity.getSchemaForId(forId);
 			/*
-			 * Message can be listed for places or current user.
+			 * Message can be listed for patches or current user.
 		     */
 			if (forSchema == null || forSchema.equals(Constants.SCHEMA_ENTITY_USER))
 				return false;

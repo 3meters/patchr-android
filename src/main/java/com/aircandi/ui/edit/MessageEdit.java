@@ -72,7 +72,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 	private List<Entity>                mTos          = new ArrayList<Entity>();
 	private String                      mMessageType  = MessageType.ROOT;
-	private DataController.SuggestScope mSuggestScope = DataController.SuggestScope.PLACES;
+	private DataController.SuggestScope mSuggestScope = SuggestScope.PATCHES;
 	private ToMode                      mToMode       = ToMode.SINGLE;
 	private Boolean                     mToEditable   = true;
 
@@ -87,7 +87,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 				mMessageType = MessageType.ROOT;
 			}
 			mMessage = extras.getString(Constants.EXTRA_MESSAGE);
-			mSuggestScope = SuggestScope.values()[extras.getInt(Constants.EXTRA_SEARCH_SCOPE, SuggestScope.PLACES.ordinal())];
+			mSuggestScope = SuggestScope.values()[extras.getInt(Constants.EXTRA_SEARCH_SCOPE, SuggestScope.PATCHES.ordinal())];
 			mToMode = ToMode.values()[extras.getInt(Constants.EXTRA_TO_MODE, ToMode.SINGLE.ordinal())];
 			mToEditable = extras.getBoolean(Constants.EXTRA_TO_EDITABLE, true);
 		}

@@ -70,7 +70,7 @@
 					android:layout_marginRight="4dp"
 					android:background="?attr/backgroundPlaceholder"
 					android:scaleType="centerCrop"
-					custom:aspectRatio="@dimen/aspect_ratio_place_image"
+					custom:aspectRatio="@dimen/aspect_ratio_patch_image"
 					custom:aspectRatioEnabled="true"
 					custom:config="rgb_565"
 					custom:dominantMeasurement="width"
@@ -196,55 +196,6 @@
 					android:background="?attr/backgroundButtonLink"
 					android:clickable="true"
 					android:onClick="onLocationBuilderClick" />
-
-			</RelativeLayout>
-
-			<!-- Place -->
-
-			<RelativeLayout
-				style="@style/button_link"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginBottom="8dp"
-				android:layout_marginLeft="4dp"
-				android:layout_marginRight="4dp"
-				android:background="?attr/backgroundButtonLink"
-				android:clickable="true"
-				android:onClick="onPlacePickerClick"
-				tools:visibility="gone">
-
-				<com.aircandi.ui.widgets.AirImageView
-					android:id="@+id/place_photo"
-					android:layout_width="88dp"
-					android:layout_height="88dp"
-					android:layout_centerVertical="true"
-					android:layout_marginBottom="8dp"
-					android:layout_marginLeft="8dp"
-					android:layout_marginTop="8dp"
-					android:visibility="gone"
-					custom:config="rgb_565"
-					custom:fitType="fixed"
-					custom:layoutId="@layout/widget_imageview_candi_view"
-					custom:sizeCategory="thumbnail"
-					custom:sizeHint="88dp" />
-
-				<com.aircandi.ui.widgets.AirButton
-					android:id="@+id/button_place"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_centerVertical="true"
-					android:layout_toRightOf="@+id/place_photo"
-					android:background="@color/transparent"
-					android:clickable="false"
-					android:drawableRight="?attr/iconForward"
-					android:ellipsize="end"
-					android:gravity="left|center_vertical"
-					android:maxLines="3"
-					android:padding="8dp"
-					android:textAllCaps="false"
-					android:textAppearance="?android:attr/textAppearanceMedium"
-					android:textColor="?attr/textColor"
-					tools:text="Linked Place: Tommy Bahamas First Place in South Seattle University Village" />
 
 			</RelativeLayout>
 

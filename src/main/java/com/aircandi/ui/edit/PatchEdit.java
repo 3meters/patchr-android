@@ -30,7 +30,6 @@ import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Patch;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.base.BaseEntityEdit;
@@ -56,7 +55,6 @@ import java.util.List;
 public class PatchEdit extends BaseEntityEdit {
 
 	private   TextView     mButtonPrivacy;
-	private   TextView     mButtonPlace;
 	private   TextView     mLocationLabel;
 	protected AirImageView mPhotoViewPlace;
 
@@ -88,11 +86,9 @@ public class PatchEdit extends BaseEntityEdit {
 		mButtonTypeProject = (RadioButton) findViewById(R.id.radio_project);
 		mButtonGroupType = (RadioGroup) findViewById(R.id.buttons_type);
 
-		mButtonPlace = (TextView) findViewById(R.id.button_place);
 		mButtonPrivacy = (TextView) findViewById(R.id.button_privacy);
 		mMapView = (MapView) findViewById(R.id.mapview);
 		mMapProgressBar = (AirProgressBar) findViewById(R.id.map_progress);
-		mPhotoViewPlace = (AirImageView) findViewById(R.id.place_photo);
 		mLocationLabel = (TextView) findViewById(R.id.location_label);
 
 		if (mMapView != null) {
@@ -149,12 +145,6 @@ public class PatchEdit extends BaseEntityEdit {
 				patch.location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
 			}
 		}
-		else {
-			Link linkPlace = patch.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
-			if (linkPlace != null) {
-				mPlaceToLinkTo = linkPlace.shortcut.getAsEntity();
-			}
-		}
 
 		draw(null);
 	}
@@ -194,20 +184,6 @@ public class PatchEdit extends BaseEntityEdit {
 			mButtonGroupType.check(id);
 		}
 
-		/* Linked place */
-
-		if (mButtonPlace != null) {
-			UI.setVisibility(mPhotoViewPlace, View.GONE);
-
-			mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": None");
-			if (mPlaceToLinkTo != null) {
-				mButtonPlace.setTag(mPlaceToLinkTo);
-				mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": " + mPlaceToLinkTo.name);
-				UI.drawPhoto(mPhotoViewPlace, mPlaceToLinkTo.getPhoto());
-				UI.setVisibility(mPhotoViewPlace, View.VISIBLE);
-			}
-		}
-
 		super.draw(view);
 	}
 
@@ -234,14 +210,6 @@ public class PatchEdit extends BaseEntityEdit {
 				if (patch.location.provider != null) {
 					if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_USER)) {
 						mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_user));
-					}
-					else if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_PLACE)) {
-						if (mPlaceToLinkTo != null) {
-							mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_place));
-						}
-						else {
-							mLocationLabel.setText(StringManager.getString(R.string.label_location_provider_unknown));
-						}
 					}
 					else if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
 						if (mEditing) {
@@ -338,21 +306,6 @@ public class PatchEdit extends BaseEntityEdit {
 		((Patch) mEntity).type = type;
 	}
 
-	public void onPlacePickerClick(View view) {
-		Bundle extras = new Bundle();
-		extras.putInt(Constants.EXTRA_SEARCH_SCOPE, DataController.SuggestScope.PLACES.ordinal());
-		extras.putBoolean(Constants.EXTRA_SEARCH_RETURN_ENTITY, true);
-		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
-
-		if (mButtonPlace.getTag() != null) {
-			Entity entity = (Entity) mButtonPlace.getTag();
-			extras.putBoolean(Constants.EXTRA_SEARCH_CLEAR_BUTTON, true);
-			extras.putString(Constants.EXTRA_SEARCH_CLEAR_BUTTON_MESSAGE, StringManager.getString(R.string.button_clear_place));
-			extras.putString(Constants.EXTRA_SEARCH_PHRASE, entity.name);
-		}
-		Patchr.router.route(this, Route.SEARCH, mEntity, extras);
-	}
-
 	public void onPrivacyBuilderClick(View view) {
 		Patchr.router.route(this, Route.PRIVACY_EDIT, mEntity, null);
 	}
@@ -365,29 +318,7 @@ public class PatchEdit extends BaseEntityEdit {
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
 		if (resultCode != Activity.RESULT_CANCELED) {
-			if (requestCode == Constants.ACTIVITY_SEARCH) {
-				if (intent == null || intent.getExtras() == null) {
-					mDirty = true;
-					mPlaceToLinkTo = null;
-					mButtonPlace.setTag(null);
-					mButtonPlace.setText(StringManager.getString(R.string.label_patch_edit_place) + ": None");
-					UI.setVisibility(mPhotoViewPlace, View.GONE);
-				}
-				else {
-					final Bundle extras = intent.getExtras();
-					final String json = extras.getString(Constants.EXTRA_ENTITY);
-					if (json != null) {
-						final Place place = (Place) Json.jsonToObject(json, Json.ObjectType.ENTITY);
-						mDirty = true;
-						((Patch) mEntity).location = place.location;
-						((Patch) mEntity).location.provider = Constants.LOCATION_PROVIDER_PLACE;
-						mProximityDisabled = true;
-						mPlaceToLinkTo = place;
-					}
-				}
-				draw(null);
-			}
-			else if (requestCode == Constants.ACTIVITY_PRIVACY_EDIT) {
+			if (requestCode == Constants.ACTIVITY_PRIVACY_EDIT) {
 				if (intent != null && intent.getExtras() != null) {
 					final Bundle extras = intent.getExtras();
 					final String privacy = extras.getString(Constants.EXTRA_PRIVACY);
@@ -435,100 +366,11 @@ public class PatchEdit extends BaseEntityEdit {
 	}
 
 	public void accept() {
-
-		if (placeDirty()) {
-
-			final Place place = (Place) mButtonPlace.getTag();
-
-			mTaskService = new AsyncTask() {
-
-				@Override
-				protected void onPreExecute() {
-					mUiController.getBusyController().show(BusyAction.Update);
-				}
-
-				@Override
-				protected Object doInBackground(Object... params) {
-					Thread.currentThread().setName("AsyncInsertPlace");
-
-					ModelResult result = new ModelResult();
-					Link placeLink = mEntity.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
-
-					/* Adding a new place. */
-					if (place != null && com.aircandi.utilities.Type.isTrue(place.synthetic)) {
-						result = DataController.getInstance().insertEntity(place, null, null, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
-							Entity insertedPlace = (Entity) result.data;
-							place.id = insertedPlace.id;
-							place.synthetic = false;
-						}
-					}
-
-					/* Link management */
-					if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
-
-						/* Existing link so delete it */
-						if (placeLink != null) {
-							result = DataController.getInstance().deleteLink(mEntity.id
-									, placeLink.shortcut.id
-									, Constants.TYPE_LINK_PROXIMITY
-									, true
-									, Constants.SCHEMA_ENTITY_PLACE
-									, "delete_link_proximity", NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-						}
-						/*
-						 * If editing then add link here otherwise it will be added when
-						 * the entity is inserted
-						 */
-						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS
-								&& mEditing && place != null) {
-							result = DataController.getInstance().insertLink(null
-									, mEntity.id
-									, place.id
-									, Constants.TYPE_LINK_PROXIMITY
-									, true
-									, null, "insert_link_proximity", true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null
-							);
-						}
-					}
-					return result;
-				}
-
-				@Override
-				protected void onPostExecute(Object response) {
-					ModelResult result = (ModelResult) response;
-					if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
-						if (mEditing) {
-							update();
-						}
-						else {
-							insert();
-						}
-					}
-					else {
-						Errors.handleError(PatchEdit.this, result.serviceResponse);
-					}
-				}
-			}.executeOnExecutor(Constants.EXECUTOR);
-			return;
-		}
-
 		if (mEditing) {
 			update();
 		}
 		else {
 			insert();
-		}
-	}
-
-	@Override
-	protected void beforeInsert(Entity entity, List<Link> links) {
-	    /*
-	     * We link patches to the places if needed. Called on background thread.
-		 */
-		if (mButtonPlace.getTag() != null) {
-			final Place place = (Place) mButtonPlace.getTag();
-			links.add(new Link(place.id, Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE));
 		}
 	}
 
@@ -583,29 +425,6 @@ public class PatchEdit extends BaseEntityEdit {
 				AnimationManager.doOverridePendingTransition(PatchEdit.this, TransitionType.FORM_BACK);
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	private boolean placeDirty() {
-
-		final Link placeLink = mEntity.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
-
-		final Boolean originalLink = (placeLink != null);
-		final Boolean newLink = (mButtonPlace.getTag() != null);
-
-		/* Staying unlinked */
-		if (!originalLink && !newLink)
-			return false;
-
-		/* Staying linked so compare targets */
-		if (originalLink && newLink) {
-			String oldId = placeLink.shortcut.id;
-			String newId = ((Entity) mButtonPlace.getTag()).id;
-			if (oldId.equals(newId))
-				return false;
-		}
-
-		/* Making a change */
-		return true;
 	}
 
 	@Override

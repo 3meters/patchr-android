@@ -32,7 +32,6 @@ import com.aircandi.events.LinkInsertEvent;
 import com.aircandi.events.NotificationReceivedEvent;
 import com.aircandi.events.ShareCheckEvent;
 import com.aircandi.objects.Count;
-import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.LinkSpecType;
 import com.aircandi.objects.Patch;
@@ -42,7 +41,6 @@ import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.objects.User;
 import com.aircandi.ui.components.AnimationFactory;
-import com.aircandi.ui.components.CircleTransform;
 import com.aircandi.ui.widgets.AirImageView;
 import com.aircandi.ui.widgets.CandiView;
 import com.aircandi.ui.widgets.UserView;
@@ -100,10 +98,6 @@ public class PatchFormFragment extends EntityFormFragment {
 			if (id == R.id.header_page_one
 					|| id == R.id.header_page_two) {
 				onHeaderClick(event.view);
-			}
-			else if (id == R.id.place_photo
-					|| id == R.id.holder_place) {
-				onPlaceClick(event.view);
 			}
 			else if (id == R.id.button_watching) {
 				onWatchingListButtonClick(event.view);
@@ -168,12 +162,6 @@ public class PatchFormFragment extends EntityFormFragment {
 	@Subscribe
 	public void onDataNoop(DataNoopEvent event) {
 		super.onDataNoop(event);
-	}
-
-	@SuppressWarnings("ucd")
-	private void onPlaceClick(View view) {
-		Entity entity = (Entity) view.getTag();
-		Patchr.router.route(getActivity(), Route.BROWSE, entity, null);
 	}
 
 	@SuppressWarnings("ucd")
@@ -318,7 +306,7 @@ public class PatchFormFragment extends EntityFormFragment {
 		if (getView() != null) {
 			AirImageView image = (AirImageView) getView().findViewById(R.id.photo);
 			TypedValue typedValue = new TypedValue();
-			getResources().getValue(R.dimen.aspect_ratio_place_image, typedValue, true);
+			getResources().getValue(R.dimen.aspect_ratio_patch_image, typedValue, true);
 			image.setAspectRatio(typedValue.getFloat());
 		}
 	}
@@ -348,10 +336,6 @@ public class PatchFormFragment extends EntityFormFragment {
 				Link linkWatching = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
 				mWatchStatus = (linkWatching == null) ? WatchStatus.NONE : (linkWatching.enabled) ? WatchStatus.WATCHING : WatchStatus.REQUESTED;
 				Boolean owner = (mEntity.ownerId != null && mEntity.ownerId.equals(Patchr.getInstance().getCurrentUser().id));
-
-				final View holderPlace = view.findViewById(R.id.holder_place);
-				final AirImageView placePhotoView = (AirImageView) view.findViewById(R.id.place_photo);
-				final TextView placeName = (TextView) view.findViewById(R.id.place_name);
 
 				/* Photo overlayed with info */
 
@@ -426,12 +410,12 @@ public class PatchFormFragment extends EntityFormFragment {
 
 				/* Patch specific info */
 
-				final Patch place = (Patch) mEntity;
+				final Patch patch = (Patch) mEntity;
 
 				UI.setVisibility(description, View.GONE);
 				UI.setVisibility(buttonMore, View.GONE);
-				if (description != null && !TextUtils.isEmpty(place.description)) {
-					description.setText(Html.fromHtml(place.description));
+				if (description != null && !TextUtils.isEmpty(patch.description)) {
+					description.setText(Html.fromHtml(patch.description));
 					UI.setVisibility(description, View.VISIBLE);
 					buttonMore.setText(StringManager.getString(R.string.button_text_expand));
 					//if (description.getLineCount() > 3) {
@@ -459,31 +443,6 @@ public class PatchFormFragment extends EntityFormFragment {
 					}
 					else {
 						UI.setVisibility(userView, View.GONE);
-					}
-				}
-
-				/* Place context */
-
-				UI.setVisibility(holderPlace, View.GONE);
-				UI.setVisibility(placePhotoView, View.GONE);
-				if (holderPlace != null) {
-					Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
-					if (linkPlace != null) {
-						holderPlace.setTag(linkPlace.shortcut.getAsEntity());
-
-						/* Name */
-						placeName.setText(linkPlace.shortcut.name);
-						UI.setVisibility(holderPlace, View.VISIBLE);
-
-						/* Photo */
-						Photo photo = linkPlace.shortcut.photo;
-						if (photo != null) {
-							if (placePhotoView.getPhoto() == null || !placePhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
-								placePhotoView.setTag(linkPlace.shortcut.getAsEntity());
-								UI.drawPhoto(placePhotoView, photo, new CircleTransform());
-							}
-							UI.setVisibility(placePhotoView, View.VISIBLE);
-						}
 					}
 				}
 			}

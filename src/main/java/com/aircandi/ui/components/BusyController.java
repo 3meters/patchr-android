@@ -83,13 +83,13 @@ public class BusyController implements IBusy {
 					}
 					else if (busyAction == BusyAction.Scanning_Empty) {
 						/*
-						 * Scanning for places.
+						 * Scanning for patches.
 						 */
 						startProgressBar();
 					}
 					else if (busyAction == BusyAction.Scanning) {
 						/*
-						 * Scanning for places.
+						 * Scanning for patches.
 						 */
 						startSwipeRefreshIndicator();
 					}

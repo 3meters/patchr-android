@@ -267,32 +267,6 @@ public class AircandiForm extends BaseActivity {
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
 			}
 
-			/* Likes */
-
-			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_LIKE)) {
-
-				fragment = new EntityListFragment();
-
-				((EntityListFragment) fragment)
-						.setScopingEntityId(Patchr.getInstance().getCurrentUser().id)
-						.setActionType(ActionType.ACTION_GET_ENTITIES)
-						.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
-						.setLinkType(Constants.TYPE_LINK_LIKE)
-						.setLinkDirection(Link.Direction.out.name())
-						.setListPagingEnabled(true)
-						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
-						.setListItemResId(R.layout.temp_listitem_patch)
-						.setListLoadingResId(R.layout.temp_listitem_loading)
-						.setListViewType(ViewType.LIST)
-						.setListLayoutResId(R.layout.patch_list_fragment)
-						.setListEmptyMessageResId(R.string.label_likes_empty)
-						.setTitleResId(R.string.form_title_like);
-
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_view_as_map);
-				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_search);
-			}
-
 			/* Watching */
 
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_WATCH)) {
@@ -307,7 +281,7 @@ public class AircandiForm extends BaseActivity {
 						.setLinkDirection(Link.Direction.out.name())
 						.setListPagingEnabled(true)
 						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
-						.setListItemResId(R.layout.temp_listitem_patch)
+						.setListItemResId(R.layout.temp_listitem_nearby)
 						.setListLoadingResId(R.layout.temp_listitem_loading)
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.patch_list_fragment)
@@ -333,7 +307,7 @@ public class AircandiForm extends BaseActivity {
 						.setLinkDirection(Link.Direction.out.name())
 						.setListPagingEnabled(true)
 						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
-						.setListItemResId(R.layout.temp_listitem_patch)
+						.setListItemResId(R.layout.temp_listitem_nearby)
 						.setListLoadingResId(R.layout.temp_listitem_loading)
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.patch_list_fragment)

@@ -172,7 +172,6 @@
 
 				<data android:host="patchr.com" />
 				<data android:pathPrefix="/patch" />
-				<data android:pathPrefix="/place" />
 				<data android:scheme="http" />
 				<data android:scheme="https" />
 			</intent-filter>
@@ -197,10 +196,6 @@
 				<data android:scheme="https" />
 			</intent-filter>
 		</activity>
-		<activity
-			android:name=".ui.PlaceForm"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name=".ui.UserForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"

@@ -138,7 +138,6 @@ public class Constants {
 	public static final String SCHEMA_ENTITY_MESSAGE      = "message";
 	public static final String SCHEMA_ENTITY_NOTIFICATION = "notification";
 	public static final String SCHEMA_ENTITY_PATCH        = "patch";
-	public static final String SCHEMA_ENTITY_PLACE        = "place";
 	public static final String SCHEMA_ENTITY_PICTURE      = "post";  // Used for sharing a photo
 	public static final String SCHEMA_ENTITY_USER         = "user";
 	public static final String SCHEMA_LINK                = "link";
@@ -202,7 +201,6 @@ public class Constants {
 
 	public static final String LOCATION_PROVIDER_GOOGLE = "fused";
 	public static final String LOCATION_PROVIDER_USER   = "user";
-	public static final String LOCATION_PROVIDER_PLACE  = "place";
 
 	/* Package names */
 	public static final String PACKAGE_NAME_FACEBOOK    = "com.facebook.katana";

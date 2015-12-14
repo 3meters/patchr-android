@@ -208,10 +208,10 @@ public class NearbyListFragment extends EntityListFragment {
 				Logger.d(getActivity(), "Entities for beacons finished event: ** done **");
 				Patchr.stopwatch1.segmentTime("Entities by proximity finished event fired");
 				Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
-						, "places_by_proximity_downloaded"
+						, "patches_by_proximity_downloaded"
 						, NetworkManager.getInstance().getNetworkType());
 
-				Patchr.stopwatch1.stop("Search for places by beacon complete");
+				Patchr.stopwatch1.stop("Search for patches by beacon complete");
 				mCacheStamp = DataController.getInstance().getGlobalCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
@@ -258,7 +258,7 @@ public class NearbyListFragment extends EntityListFragment {
 									Logger.d(getActivity(), "Patches near location finished event: ** done **");
 									Patchr.stopwatch2.stop("Location processing: Patches near location complete");
 									Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
-											, "places_near_location_downloaded"
+											, "patches_near_location_downloaded"
 											, NetworkManager.getInstance().getNetworkType());
 
 									Dispatcher.getInstance().post(new EntitiesUpdatedEvent(entitiesForEvent, "onLocationChanged"));
@@ -475,7 +475,7 @@ public class NearbyListFragment extends EntityListFragment {
 			protected Object doInBackground(Object... params) {
 
 				Thread.currentThread().setName("AsyncSearchForPatches");
-				Patchr.stopwatch1.start("beacon_search", "Search for places by beacon");
+				Patchr.stopwatch1.start("beacon_search", "Search for patches by beacon");
 
 				DataController.getInstance().clearEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 				if (NetworkManager.getInstance().isWifiEnabled()) {

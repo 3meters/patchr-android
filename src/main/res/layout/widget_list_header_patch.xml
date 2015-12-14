@@ -28,52 +28,6 @@
 				android:layout_height="match_parent"
 				custom:layoutRef="@layout/widget_candi_view_patch" />
 
-			<FrameLayout
-				android:id="@+id/holder_place"
-				style="@style/selectable_image"
-				android:layout_width="match_parent"
-				android:layout_height="50dp"
-				android:background="@color/overlay_30_pcnt"
-				android:clickable="true"
-				android:onClick="onViewClick"
-				android:paddingLeft="@dimen/form_body_padding"
-				android:visibility="gone"
-				tools:visibility="visible">
-
-				<com.aircandi.ui.widgets.AirTextLight
-					android:id="@+id/place_name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_vertical"
-					android:ellipsize="end"
-					android:paddingRight="@dimen/image_medium"
-					android:singleLine="true"
-					android:textAppearance="@style/text_appearance_medium"
-					android:textColor="@color/white"
-					tools:text="Ranchero Deluxo" />
-
-			</FrameLayout>
-
-			<com.aircandi.ui.widgets.AirImageView
-				android:id="@+id/place_photo"
-				android:layout_width="@dimen/image_medium"
-				android:layout_height="@dimen/image_medium"
-				android:layout_alignParentRight="true"
-				android:layout_margin="10dp"
-				android:background="?attr/backgroundRound"
-				android:clickable="true"
-				android:onClick="onViewClick"
-				android:padding="3dp"
-				android:scaleType="centerCrop"
-				android:visibility="gone"
-				custom:config="rgb_565"
-				custom:fitType="fixed"
-				custom:layoutId="@layout/widget_imageview"
-				custom:showBusy="true"
-				custom:sizeHint="@dimen/image_medium"
-				custom:sizeCategory="thumbnail"
-				tools:visibility="visible" />
-
 			<RelativeLayout
 				android:id="@+id/button_holder"
 				android:layout_width="match_parent"

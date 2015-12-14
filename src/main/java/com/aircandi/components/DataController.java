@@ -524,10 +524,7 @@ public class DataController {
 		parameters.putLong("limit", limit);
 		parameters.putString("_user", userId); // So service can handle places the current user is watching
 
-		if (suggestScope == SuggestScope.PLACES) {
-			parameters.putBoolean("places", true);
-		}
-		else if (suggestScope == SuggestScope.PATCHES) {
+		if (suggestScope == SuggestScope.PATCHES) {
 			parameters.putBoolean("patches", true);
 		}
 		else if (suggestScope == SuggestScope.USERS) {
@@ -1185,7 +1182,7 @@ public class DataController {
 
 		/* Reproduce the service call effect locally */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.LINK, untuning ? "place_untune" : "place_tune", null, 0);
+			Reporting.sendEvent(Reporting.TrackerCategory.LINK, untuning ? "patch_untune" : "patch_tune", null, 0);
 			mActivityDate = DateTime.nowDate().getTime();   // So nearby fragment picks up the change
 
 			if (beacons != null) {
@@ -1670,7 +1667,7 @@ public class DataController {
 				proximity);
 
 		Collections.sort(patches, new Patch.SortByProximityAndDistance());
-		Number limit = Patchr.applicationContext.getResources().getInteger(R.integer.limit_places_radar);
+		Number limit = Patchr.applicationContext.getResources().getInteger(R.integer.limit_patches_radar);
 
 		return (patches.size() > limit.intValue()) ? patches.subList(0, limit.intValue()) : patches;
 	}
@@ -1766,7 +1763,6 @@ public class DataController {
 
 	public static enum SuggestScope {
 		PATCHES,
-		PLACES,
 		USERS,
 		PATCHES_USERS,
 		ALL

@@ -27,7 +27,6 @@ import com.aircandi.objects.Link;
 import com.aircandi.objects.Link.Direction;
 import com.aircandi.objects.Patch;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.Shortcut;
 import com.aircandi.objects.ShortcutSettings;
 import com.aircandi.objects.User;
@@ -56,7 +55,6 @@ public class CandiView extends RelativeLayout {
 	protected AirImageView mCategoryPhoto;
 	protected TextView     mCategoryName;
 	protected TextView     mType;
-	protected TextView     mPlaceName;
 	protected TextView     mName;
 	protected TextView     mIndex;
 	protected TextView     mSubhead;
@@ -122,7 +120,6 @@ public class CandiView extends RelativeLayout {
 		mType = (TextView) mLayout.findViewById(R.id.type);
 		mCategoryName = (TextView) mLayout.findViewById(R.id.category_name);
 		mCategoryPhoto = (AirImageView) mLayout.findViewById(R.id.category_photo);
-		mPlaceName = (TextView) mLayout.findViewById(R.id.place_name);
 		mHolderPreviews = (LinearLayout) mLayout.findViewById(R.id.previews);
 		mHolderInfo = (LinearLayout) mLayout.findViewById(R.id.info_holder);
 		mCount = (TextView) mLayout.findViewById(R.id.count);
@@ -249,17 +246,6 @@ public class CandiView extends RelativeLayout {
 
 				Patch patch = (Patch) entity;
 
-				/* Place name */
-
-				setVisibility(mPlaceName, View.GONE);
-				if (mPlaceName != null) {
-					Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_PLACE);
-					if (linkPlace != null) {
-						mPlaceName.setText(linkPlace.shortcut.name);
-						UI.setVisibility(mPlaceName, View.VISIBLE);
-					}
-				}
-
 				/* Type */
 
 				setVisibility(mType, View.GONE);
@@ -290,69 +276,6 @@ public class CandiView extends RelativeLayout {
 				/* Distance */
 
 				showDistance(entity);
-			}
-
-			if (entity instanceof Place) {
-				Place place = (Place) entity;
-
-				/* Category */
-
-				Category category = place.category;
-				setVisibility(mCategoryName, View.GONE);
-				if (mCategoryName != null) {
-					setVisibility(mCategoryName, View.INVISIBLE);
-					if (category != null && category.name != null && !category.id.equals("generic")) {
-						mCategoryName.setText(Html.fromHtml((category.name).toUpperCase(Locale.US)));
-						setVisibility(mCategoryName, View.VISIBLE);
-					}
-					else {
-						/* No category so show default label */
-						String categoryName = StringManager.getString(R.string.label_place_category_default).toUpperCase(Locale.US);
-						mCategoryName.setText(categoryName);
-						setVisibility(mCategoryName, View.VISIBLE);
-					}
-				}
-
-				/* Category photo */
-
-				setVisibility(mCategoryPhoto, View.INVISIBLE);
-				if (mCategoryPhoto != null) {
-					mCategoryPhoto.setSizeHint(UI.getRawPixelsForDisplayPixels(50f));
-					if (category != null) {
-						Photo photo = category.photo.clone();
-						if (!Photo.same(mCategoryPhoto.getPhoto(), photo)) {
-							mCategoryPhoto.setGroupTag(groupId);
-							UI.drawPhoto(mCategoryPhoto, photo);
-						}
-					}
-					else {
-						/*
-						 * Fall back to default.
-						 */
-						DownloadManager.with(Patchr.applicationContext).load(R.drawable.default_88)
-								.resize(mCategoryPhoto.getSizeHint(), mCategoryPhoto.getSizeHint())    // Memory size
-								.centerCrop()
-								.into(mCategoryPhoto);
-					}
-					mCategoryPhoto.getImageView().setColorFilter(Colors.getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
-					mCategoryPhoto.setVisibility(View.VISIBLE);
-				}
-
-				/* Address */
-
-				setVisibility(mAddress, View.GONE);
-				if (mAddress != null) {
-					String addressBlock = place.getAddressBlock();
-
-					if (place.phone != null) {
-						addressBlock += "<br/>" + place.getFormattedPhone();
-					}
-
-					if (!"".equals(addressBlock)) {
-						mAddress.setText(Html.fromHtml(addressBlock));
-						UI.setVisibility(mAddress, View.VISIBLE);
-					}
-				}
 			}
 		}
 	}
@@ -525,10 +448,6 @@ public class CandiView extends RelativeLayout {
 		if (view != null) {
 			view.setVisibility(visibility);
 		}
-	}
-
-	public void setPlace(Patch place) {
-		mEntity = place;
 	}
 
 	public void setLayoutId(Integer layoutId) {

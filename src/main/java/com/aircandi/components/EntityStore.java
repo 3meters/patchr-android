@@ -248,7 +248,7 @@ public class EntityStore {
 		final Bundle parameters = new Bundle();
 
 		parameters.putString("location", "object:" + Json.objectToJson(location));
-		parameters.putInt("limit", Patchr.applicationContext.getResources().getInteger(R.integer.limit_places_radar));
+		parameters.putInt("limit", Patchr.applicationContext.getResources().getInteger(R.integer.limit_patches_radar));
 		parameters.putBoolean("rest", false);
 		parameters.putInt("radius", Constants.PATCH_NEAR_RADIUS);
 
@@ -293,7 +293,7 @@ public class EntityStore {
 
 				/* Clean out all patches not found via proximity */
 				Integer removeCount = removeEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, false /* not found by proximity */);
-				Logger.v(this, "Removed synthetic places from cache: count = " + String.valueOf(removeCount));
+				Logger.v(this, "Removed patches from cache: count = " + String.valueOf(removeCount));
 
 				/* Push patch entities to cache */
 				upsertEntities(entities);

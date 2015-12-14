@@ -300,7 +300,6 @@
 	<string name="button_privacy">Privacy policy</string>
 	<string name="button_legal">Open source licenses</string>
 	<string name="button_forgot_password">Forgot password?</string>
-	<string name="button_clear_place">Clear linked place</string>
 	<string name="button_create_patch">Create patch</string>
 
 	<string name="button_tuning_tune">I\'m here</string>
@@ -339,14 +338,13 @@
 	<string name="label_email">Email</string>
 	<string name="label_locked" tools:ignore="UnusedResources">Locked</string>
 	<string name="label_locked_description" tools:ignore="UnusedResources">Users can browse but not add content</string>
-	<string name="label_search_places_hint">Search places</string>
+	<string name="label_search_places_hint">Search patches</string>
 	<string name="label_location_edit_message">Tap or tap and hold to set the location for the [@string/container_singular_lowercase].</string>
 
 	<string name="label_location_provider_none">Location: None</string>
 	<string name="label_location_provider_google_new">Location: You are here</string>
 	<string name="label_location_provider_google">Location: Patch was created here</string>
 	<string name="label_location_provider_user">Location: You set this location</string>
-	<string name="label_location_provider_place">Location: Linked place is here</string>
 	<string name="label_location_provider_unknown">Location: Last location set</string>
 	<string name="label_patch_type">Patch type</string>
 
@@ -371,7 +369,6 @@
 	<string name="label_created_by">Created</string>
 	<string name="label_owned_by">[@string/container_singular] owned by</string>
 
-	<string name="label_patch_edit_place">Linked place</string>
 	<string name="label_patch_edit_privacy">Privacy</string>
 	<string name="label_patch_privacy_public">Public</string>
 	<string name="label_patch_privacy_private">Private</string>

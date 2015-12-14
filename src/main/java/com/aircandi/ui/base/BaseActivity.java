@@ -51,7 +51,6 @@ import com.aircandi.objects.AirLocation;
 import com.aircandi.objects.Entity;
 import com.aircandi.objects.Link;
 import com.aircandi.objects.Photo;
-import com.aircandi.objects.Place;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
 import com.aircandi.ui.AircandiForm;
@@ -710,9 +709,6 @@ public abstract class BaseActivity extends ActionBarActivity
 				throw new IllegalArgumentException("Tried to navigate without a location");
 			}
 			String address = null;
-			if (mEntity instanceof Place && mEntity.fuzzy) {
-				address = ((Place) mEntity).getAddressString(true);
-			}
 
 			AndroidManager.getInstance().callMapNavigation(this
 					, location.lat.doubleValue()

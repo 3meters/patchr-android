@@ -262,7 +262,7 @@ public class ProximityController {
 
 			/* Clean out all patches found via proximity */
 			Integer removeCount = DataController.getInstance().clearEntities(Constants.SCHEMA_ENTITY_PATCH, Constants.TYPE_ANY, true /* found by proximity */);
-			Logger.v(this, "Removed proximity places from cache: count = " + String.valueOf(removeCount));
+			Logger.v(this, "Removed proximity patches from cache: count = " + String.valueOf(removeCount));
 
 			mLastBeaconLoadDate = DateTime.nowDate().getTime();
 
@@ -280,7 +280,7 @@ public class ProximityController {
 
 		/* Cursor */
 		Cursor cursor = new Cursor()
-				.setLimit(Patchr.applicationContext.getResources().getInteger(R.integer.limit_places_radar))
+				.setLimit(Patchr.applicationContext.getResources().getInteger(R.integer.limit_patches_radar))
 				.setSort(Maps.asMap("modifiedDate", -1))
 				.setSkip(0);
 
@@ -317,8 +317,8 @@ public class ProximityController {
 		 */
 		final List<String> excludePlaceIds = new ArrayList<String>();
 		for (Entity entity : DataController.getInstance().getPatches(true /* proximity required */)) {
-			Patch place = (Patch) entity;
-			excludePlaceIds.add(place.id);
+			Patch patch = (Patch) entity;
+			excludePlaceIds.add(patch.id);
 		}
 
 		String installId = Patchr.getInstance().getinstallId();
