@@ -708,12 +708,11 @@ public abstract class BaseActivity extends ActionBarActivity
 			if (location == null) {
 				throw new IllegalArgumentException("Tried to navigate without a location");
 			}
-			String address = null;
 
 			AndroidManager.getInstance().callMapNavigation(this
 					, location.lat.doubleValue()
 					, location.lng.doubleValue()
-					, address
+					, null
 					, mEntity.name);
 			return true;
 		}

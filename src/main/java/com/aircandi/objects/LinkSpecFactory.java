@@ -31,7 +31,6 @@ public class LinkSpecFactory {
 			Number limitLike = resources.getInteger(R.integer.limit_links_like_default);
 			Number limitCreate = resources.getInteger(R.integer.limit_links_create_default);
 			Number limitWatch = resources.getInteger(R.integer.limit_links_watch_default);
-			Number limitContent = resources.getInteger(R.integer.limit_links_content_default);
 
 			if (linkProfile == LinkSpecType.LINKS_FOR_PATCH || linkProfile == LinkSpecType.LINKS_FOR_BEACONS) {
 				/*
@@ -40,8 +39,6 @@ public class LinkSpecFactory {
 				 */
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, true, true, limitProximity)
 						.setDirection(Direction.out));
-//				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitContent)
-//						.setDirection(Direction.both));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
 						, Maps.asMap("_from", currentUser.id))
 						.setDirection(Direction.in));
