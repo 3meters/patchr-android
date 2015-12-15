@@ -37,7 +37,6 @@
 			android:textAllCaps="true"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:textColor="?attr/textColorSecondary"
-			custom:textId="@string/dummy_category_name"
 			tools:text="@string/dummy_category_name" />
 
 		<com.aircandi.ui.widgets.AirTextView

@@ -18,7 +18,7 @@
 	<string name="form_title_feedback_edit" tools:ignore="UnusedResources">Send feedback</string>
 	<string name="form_title_report_edit" tools:ignore="UnusedResources">Report a problem</string>
 	<string name="form_title_password_edit" tools:ignore="UnusedResources">Change password</string>
-	<string name="form_title_signin_edit" tools:ignore="UnusedResources">Sign in</string>
+	<string name="form_title_signin_edit" tools:ignore="UnusedResources">Log in</string>
 	<string name="form_title_register_edit" tools:ignore="UnusedResources">Join Patchr</string>
 	<string name="form_title_reset_edit" tools:ignore="UnusedResources">Password reset</string>
 	<string name="form_title_proximity_edit" tools:ignore="UnusedResources">Tune patch proximity</string>
@@ -46,8 +46,8 @@
 	<string name="menu_item_share">Share</string>
 	<string name="menu_item_search">Search</string>
 	<string name="menu_item_navigate">Directions</string>
-	<string name="menu_item_signout">Sign out</string>
-	<string name="menu_item_signin">Sign in</string>
+	<string name="menu_item_signout">Log out</string>
+	<string name="menu_item_signin">Log in</string>
 	<string name="menu_item_send">Send</string>
 	<string name="menu_item_invite">Invite</string>
 	<string name="menu_item_map">Map location</string>
@@ -143,10 +143,10 @@
 
 	<!-- Alerts: anonymous -->
 
-	<string name="alert_signin_message">Sign in to use this feature.</string>
-	<string name="alert_signin_message_add">Sign in to post [@schema]s.</string>
-	<string name="alert_signin_message_edit">Sign in to edit [@schema]s.</string>
-	<string name="alert_signin_message_share">Sign in to share.</string>
+	<string name="alert_signin_message">Log in to use this feature.</string>
+	<string name="alert_signin_message_add">Log in to post [@schema]s.</string>
+	<string name="alert_signin_message_edit">Log in to edit [@schema]s.</string>
+	<string name="alert_signin_message_share">Log in to share.</string>
 
 	<!-- Alerts: confirm dirty -->
 
@@ -199,9 +199,9 @@
 	<string name="alert_delete_message_message">Are you sure you want to delete this message from %1$s?</string>
 	<string name="alert_delete_message_message_no_name">Are you sure you want to delete this message?</string>
 
-	<string name="alert_signin_message_watch">Sign in to watch [@schema]es.</string>
-	<string name="alert_signin_message_like">Sign in to like [@schema]es.</string>
-	<string name="alert_signin_message_patch_new">Sign in to create a new [@string/container_singular_lowercase].</string>
+	<string name="alert_signin_message_watch">Log in to watch [@schema]es.</string>
+	<string name="alert_signin_message_like">Log in to like [@schema]es.</string>
+	<string name="alert_signin_message_patch_new">Log in to create a new [@string/container_singular_lowercase].</string>
 
 	<!-- Errors -->
 
@@ -222,8 +222,8 @@
 	<string name="error_unverified_unauthorized" tools:ignore="UnusedResources">The email address for the account has not been verified.</string>
 	<string name="error_invalid_email">Email address is invalid.</string>
 	<string name="error_session_expired_title">Session expired</string>
-	<string name="error_session_expired">Your login session expired. Please sign in again.</string>
-	<string name="error_session_invalid">Your login session is invalid. Please sign in again.</string>
+	<string name="error_session_expired">Your session expired. Please log in again.</string>
+	<string name="error_session_invalid">Your session is invalid. Please log in again.</string>
 	<string name="error_email_not_found">The email address could not be found.</string>
 	<string name="error_install_not_found">This email address has not been used with this installation. Please contact support to reset your password</string>
 
@@ -246,7 +246,7 @@
 
 	<!-- Errors: connectivity -->
 
-	<string name="error_connection_walled_garden">To enable internet access, you may need to use a browser to sign in on the wifi network.</string>
+	<string name="error_connection_walled_garden">To enable internet access, you may need to use a browser to log in on the wifi network.</string>
 	<string name="error_connection_airplane_mode">You are not connected to a network. Check if you have Airplane Mode on.</string>
 	<string name="error_connection_none">You appear to be offline or not connected to a network.</string>
 	<string name="error_connection_poor">Your network connection is haywire. Try again and it might work.</string>
@@ -292,8 +292,8 @@
 	<string name="button_set_picture">Set photo</string>
 	<string name="button_set_banner">Set banner</string>
 	<string name="button_change_password">Change password</string>
-	<string name="button_sign_in">Sign in</string>
-	<string name="button_register">Join</string>
+	<string name="button_sign_in">Log in</string>
+	<string name="button_register">Sign up</string>
 	<string name="button_reset_password">Submit</string>
 	<string name="button_cancel" tools:ignore="ButtonCase">Cancel</string>
 	<string name="button_terms">Terms of Service</string>
@@ -321,7 +321,7 @@
 	</plurals>
 
 	<string name="button_alert_radar">Make a patch</string>
-	<string name="button_alert_radar_anonymous">Sign in and make a patch</string>
+	<string name="button_alert_radar_anonymous">Log in and make a patch</string>
 	<string name="button_alert_radar_no_patch">Make your first patch</string>
 
 	<string name="button_text_expand">More</string>

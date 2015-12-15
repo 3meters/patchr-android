@@ -240,7 +240,7 @@
 		<activity
 			android:name=".ui.edit.MessageEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:icon="@drawable/ic_img_launcher"
+			android:icon="@drawable/img_logo"
 			android:label="@string/name_app"
 			android:windowSoftInputMode="stateHidden">
 			<intent-filter>

@@ -89,7 +89,7 @@ public class Dialogs {
 
 				@Override
 				public void run() {
-					alertDialog(R.drawable.ic_img_launcher
+					alertDialog(R.drawable.ic_launcher
 							, titleText
 							, message
 							, null
@@ -115,7 +115,7 @@ public class Dialogs {
 
 	public static void updateApp(@NonNull final Activity activity) {
 
-		final AlertDialog updateDialog = alertDialog(R.drawable.ic_img_launcher
+		final AlertDialog updateDialog = alertDialog(R.drawable.ic_launcher
 				, StringManager.getString(R.string.dialog_update_title)
 				, StringManager.getString(R.string.dialog_update_message)
 				, null
@@ -169,7 +169,7 @@ public class Dialogs {
 
 	public static void installAviary(@NonNull final Activity activity) {
 
-		final AlertDialog updateDialog = alertDialog(R.drawable.ic_img_launcher
+		final AlertDialog updateDialog = alertDialog(R.drawable.ic_launcher
 				, StringManager.getString(R.string.dialog_aviary_title)
 				, StringManager.getString(R.string.dialog_aviary_message)
 				, null

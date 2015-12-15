@@ -49,7 +49,7 @@
 
 		<item name="textColor">@color/text_dark</item>
 		<item name="textColorSecondary">@color/text_secondary_dark</item>
-		<item name="textColorButtonLink">@color/brand_accent</item>
+		<item name="textColorButtonLink">@color/brand_primary</item>
 		<item name="textColorBullet">@color/brand_primary</item>
 		<item name="textColorCandiView">@color/text_color</item>
 		<item name="textSelector">@color/selector_text_dark</item>
@@ -132,7 +132,7 @@
 
 		<item name="textColor">@color/text_light</item>
 		<item name="textColorSecondary">@color/text_secondary_light</item>
-		<item name="textColorButtonLink">@color/brand_accent</item>
+		<item name="textColorButtonLink">@color/brand_primary</item>
 		<item name="textColorBullet">@color/brand_primary</item>
 		<item name="textColorCandiView">@color/text_color</item>
 		<item name="textSelector">@color/selector_text_light</item>

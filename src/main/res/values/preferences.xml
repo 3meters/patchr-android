@@ -29,10 +29,10 @@
 	<string name="pref_category_title_about">ABOUT</string>
 	<string name="pref_category_title_account">ACCOUNT</string>
 
-	<string name="pref_signout_title">Sign out</string>
-	<string name="pref_signin_title">Sign in</string>
-	<string name="pref_signout_summary">Sign out of [@string/name_app]</string>
-	<string name="pref_signin_summary">Sign in to [@string/name_app]</string>
+	<string name="pref_signout_title">Log out</string>
+	<string name="pref_signin_title">Log in</string>
+	<string name="pref_signout_summary">Log out of [@string/name_app]</string>
+	<string name="pref_signin_summary">Log in to [@string/name_app]</string>
 
 	<string name="pref_theme_title">Themes</string>
 	<string name="pref_theme_dialog_title">Select a theme.</string>

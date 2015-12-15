@@ -9,10 +9,10 @@
 
 	<!-- Branding colors -->
 
-	<color name="brand_primary">#ffFB8C00</color>
-	<color name="brand_primary_light">#ffffb74d</color>
-	<color name="brand_primary_dark">#ffef6c00</color>
-	<color name="brand_accent">#ff00c0ff</color>
+	<color name="brand_primary">#ffFF7600</color>
+	<color name="brand_primary_light">#ffFF9439</color>
+	<color name="brand_primary_dark">#ffC55B00</color>
+	<color name="brand_accent">#ff69D3E7</color>
 
 	<!-- Base colors -->
 

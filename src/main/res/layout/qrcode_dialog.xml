@@ -13,7 +13,7 @@
 		android:padding="15sp"
 		android:text="@string/dialog_qrcode_message"
 		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:textColor="@color/brand_primary" />
+		android:textColor="@color/brand_accent" />
 
 	<View
 		android:layout_width="match_parent"

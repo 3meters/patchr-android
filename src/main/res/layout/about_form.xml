@@ -41,7 +41,7 @@
 					android:layout_height="@dimen/image_medium_small"
 					android:layout_gravity="center_horizontal"
 					android:layout_marginBottom="15dp"
-					android:src="@drawable/ic_img_launcher" />
+					android:src="@drawable/ic_launcher" />
 
 				<com.aircandi.ui.widgets.AirTextLight
 					android:id="@+id/app_name"
@@ -50,7 +50,7 @@
 					android:layout_gravity="center_horizontal"
 					android:text="@string/name_app"
 					android:textAppearance="?android:attr/textAppearanceLarge"
-					android:textColor="@color/brand_primary_dark"
+					android:textColor="@color/brand_accent"
 					custom:textId="@string/name_app" />
 
 				<com.aircandi.ui.widgets.AirTextView
