@@ -229,7 +229,10 @@ public class Patchr extends MultiDexApplication {
 		ActivityRecognitionManager.getInstance().initialize(applicationContext);
 
 		/* Ensure install is registered. */
-		Dispatcher.getInstance().post(new RegisterInstallEvent(false));
+		Boolean registered = Patchr.settings.getBoolean(StringManager.getString(R.string.setting_install_registered), false);
+		if (!registered) {
+			Dispatcher.getInstance().post(new RegisterInstallEvent());
+		}
 	}
 
 	protected void initializeManagers() {
@@ -309,7 +312,7 @@ public class Patchr extends MultiDexApplication {
 		final String jsonSession = settings.getString(StringManager.getString(R.string.setting_user_session), null);
 
 		if (jsonUser != null && jsonSession != null) {
-			Logger.i(this, "Auto sign in using cached user...");
+			Logger.i(this, "Auto log in using cached user...");
 			final User user = (User) Json.jsonToObject(jsonUser, Json.ObjectType.ENTITY);
 			user.session = (Session) Json.jsonToObject(jsonSession, Json.ObjectType.SESSION);
 			setCurrentUser(user, false);  // Does not block because of 'false', also updates persisted user
@@ -319,7 +322,7 @@ public class Patchr extends MultiDexApplication {
 		/* Couldn't auto signin so fall back to anonymous */
 		final User anonymous = (User) DataController.getInstance().loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
 		setCurrentUser(anonymous, false);  // Does not block because of 'false'
-		Logger.i(this, "Auto sign in using anonymous user");
+		Logger.i(this, "Auto log in using anonymous user");
 	}
 
 	@NonNull

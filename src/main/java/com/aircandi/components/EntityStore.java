@@ -77,10 +77,6 @@ public class EntityStore {
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
 		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -143,10 +139,6 @@ public class EntityStore {
 				.setResponseFormat(ResponseFormat.JSON)
 				.setStopwatch(stopwatch);
 
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
 		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -197,10 +189,6 @@ public class EntityStore {
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON)
 				.setStopwatch(stopwatch);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
 
 		if (stopwatch != null) {
 			stopwatch.segmentTime("Load entities: service call started");
@@ -270,10 +258,6 @@ public class EntityStore {
 				.setParameters(parameters)
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
 
 		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 

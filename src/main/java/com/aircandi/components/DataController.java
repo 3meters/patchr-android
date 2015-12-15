@@ -70,7 +70,6 @@ import java.util.Locale;
 public class DataController {
 
 	private Number mActivityDate;                                           // Monitored by nearby
-	private              Boolean     mRegistered  = false;
 	private              Boolean     mRegistering = false;
 	private static final EntityStore ENTITY_STORE = new EntityStore();
 
@@ -415,7 +414,7 @@ public class DataController {
 	@Subscribe
 	public void onRegisterInstall(RegisterInstallEvent event) {
 
-		if (mRegistering || (!event.force && mRegistered)) return;
+		if (mRegistering) return;
 		mRegistering = true;
 
 		new AsyncTask() {
@@ -426,7 +425,10 @@ public class DataController {
 
 				/* We register installs even if the user is anonymous. */
 				ModelResult result = registerInstall();
-				mRegistered = (result.serviceResponse.responseCode == ResponseCode.SUCCESS);
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					Patchr.settingsEditor.putBoolean(StringManager.getString(R.string.setting_install_registered), true);
+					Patchr.settingsEditor.commit();
+				}
 				mRegistering = false;
 
 				return null;
@@ -497,10 +499,6 @@ public class DataController {
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -552,10 +550,6 @@ public class DataController {
 				.setParameters(parameters)
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -623,6 +617,7 @@ public class DataController {
 				.setIgnoreResponseData(true)
 				.setResponseFormat(ResponseFormat.JSON);
 
+		/* Leave this because we are using GET */
 		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
 			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
 		}
@@ -662,10 +657,6 @@ public class DataController {
 				.setTag(tag)
 				.setActivityName(activityName)
 				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -935,10 +926,6 @@ public class DataController {
 					.setTag(tag)
 					.setResponseFormat(ResponseFormat.JSON);
 
-			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-				serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-			}
-
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		}
 
@@ -1011,10 +998,6 @@ public class DataController {
 					.setTag(tag)
 					.setResponseFormat(ResponseFormat.JSON);
 
-			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-				serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-			}
-
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		}
 
@@ -1068,10 +1051,6 @@ public class DataController {
 					.setParameters(parameters)
 					.setTag(tag)
 					.setResponseFormat(ResponseFormat.JSON);
-
-			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-				serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-			}
 
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		}
@@ -1173,10 +1152,6 @@ public class DataController {
 				.setParameters(parameters)
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -1287,10 +1262,6 @@ public class DataController {
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
 		 * We update the cache directly instead of refreshing from the service
@@ -1334,10 +1305,6 @@ public class DataController {
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
 		 * We update the cache directly instead of refreshing from the service
@@ -1378,10 +1345,6 @@ public class DataController {
 				.setRequestBody("{ \"mute\": " + String.valueOf(mute) + "}")
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -1410,10 +1373,6 @@ public class DataController {
 				.setParameters(parameters)
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
@@ -1448,7 +1407,8 @@ public class DataController {
 				.setUri(Constants.URL_PROXIBASE_SERVICE_STATS
 						+ "to/" + toSchema + (toSchema.equals(Constants.SCHEMA_ENTITY_PATCH) ? "es" : "s")
 						+ "/from/" + fromSchema + (fromSchema.equals(Constants.SCHEMA_ENTITY_PATCH) ? "es" : "s")
-						+ "?type=" + trendType)
+						+ "?type=" + trendType
+						+ "&limit=50")
 				.setRequestType(RequestType.GET)
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
@@ -1499,10 +1459,6 @@ public class DataController {
 				.setTag(NetworkManager.SERVICE_GROUP_TAG_DEFAULT)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -1538,10 +1494,6 @@ public class DataController {
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
-
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		return result;
 	}
@@ -1559,10 +1511,6 @@ public class DataController {
 				.setParameters(parameters)
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -1617,10 +1565,6 @@ public class DataController {
 				.setParameters(parameters)
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
-
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
-		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 

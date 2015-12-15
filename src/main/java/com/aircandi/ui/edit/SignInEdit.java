@@ -26,7 +26,6 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.RegisterInstallEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.Route;
 import com.aircandi.objects.TransitionType;
@@ -137,9 +136,6 @@ public class SignInEdit extends BaseEdit {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncSignIn");
 				ModelResult result = DataController.getInstance().signin(email, password, SignInEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Dispatcher.getInstance().post(new RegisterInstallEvent(true)); // Updates the user id currently associated with the install.
-				}
 				return result;
 			}
 

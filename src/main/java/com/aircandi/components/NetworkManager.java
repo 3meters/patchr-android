@@ -168,6 +168,11 @@ public class NetworkManager {
 			return new ServiceResponse(ResponseCode.FAILED, null, new NoNetworkException());
 		}
 
+		if (!Patchr.getInstance().getCurrentUser().isAnonymous() && serviceRequest.getRequestType() != RequestType.GET) {
+			serviceRequest.getParameters().putString("user", Patchr.getInstance().getCurrentUser().id);
+			serviceRequest.getParameters().putString("session", Patchr.getInstance().getCurrentUser().session.key);
+		}
+
 		ServiceResponse serviceResponse = mOkClient.request(serviceRequest);
 
 		/* Check for valid client version */

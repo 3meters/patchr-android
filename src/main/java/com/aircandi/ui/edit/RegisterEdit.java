@@ -27,7 +27,6 @@ import com.aircandi.components.ModelResult;
 import com.aircandi.components.NetworkManager;
 import com.aircandi.components.NetworkManager.ResponseCode;
 import com.aircandi.components.StringManager;
-import com.aircandi.events.RegisterInstallEvent;
 import com.aircandi.interfaces.IBusy.BusyAction;
 import com.aircandi.objects.PhotoSizeCategory;
 import com.aircandi.objects.Route;
@@ -257,9 +256,7 @@ public class RegisterEdit extends BaseEntityEdit {
 					 * We automatically consider the user signed in.
 					 */
 					final User user = (User) result.data;
-					if (Patchr.getInstance().setCurrentUser(user, true)) {
-						Dispatcher.getInstance().post(new RegisterInstallEvent(true)); // Updates the user id currently associated with the install.
-					}
+					Patchr.getInstance().setCurrentUser(user, true);
 				}
 				return result;
 			}

@@ -158,7 +158,7 @@ public class SplashForm extends ActionBarActivity {
 			if (resultCode == Constants.RESULT_USER_SIGNED_IN
 					&& !Patchr.getInstance().getCurrentUser().isAnonymous()) {
 				/*
-				 * Sign in handled
+				 * Log in handled
 				 * - loads data for signed in user
 				 */
 				startHomeActivity();

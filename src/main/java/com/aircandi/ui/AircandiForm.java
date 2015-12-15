@@ -617,8 +617,11 @@ public class AircandiForm extends BaseActivity {
 			mUserView.databind(Patchr.getInstance().getCurrentUser());
 		}
 
-		/* Ensure install is registered. Does nothing if already registered. */
-		Dispatcher.getInstance().post(new RegisterInstallEvent(false));
+		/* Ensure install is registered. */
+		Boolean registered = Patchr.settings.getBoolean(StringManager.getString(R.string.setting_install_registered), false);
+		if (!registered) {
+			Dispatcher.getInstance().post(new RegisterInstallEvent());
+		}
 	}
 
 	@Override
