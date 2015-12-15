@@ -13,7 +13,7 @@
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<com.aircandi.ui.widgets.AirScrollView
+	<com.patchr.ui.widgets.AirScrollView
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_gravity="center_horizontal"
@@ -29,7 +29,7 @@
 
 			<!-- Title -->
 
-			<com.aircandi.ui.widgets.AirEditText
+			<com.patchr.ui.widgets.AirEditText
 				android:id="@+id/name"
 				style="@style/form_edit"
 				android:layout_width="match_parent"
@@ -41,7 +41,7 @@
 
 			<!-- Description -->
 
-			<com.aircandi.ui.widgets.AirEditText
+			<com.patchr.ui.widgets.AirEditText
 				android:id="@+id/description"
 				style="@style/form_edit"
 				android:layout_width="match_parent"
@@ -62,7 +62,7 @@
 				android:layout_marginBottom="8dp"
 				tools:visibility="gone">
 
-				<com.aircandi.ui.widgets.AirImageView
+				<com.patchr.ui.widgets.AirImageView
 					android:id="@+id/photo"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
 					android:layout_alignTop="@+id/photo"
 					android:background="@drawable/scrim_medium">
 
-					<com.aircandi.ui.widgets.AirTextView
+					<com.patchr.ui.widgets.AirTextView
 						android:id="@+id/button_photo_set"
 						style="@style/button_flat"
 						android:layout_width="match_parent"
@@ -133,7 +133,7 @@
 
 			<!-- Privacy -->
 
-			<com.aircandi.ui.widgets.AirButton
+			<com.patchr.ui.widgets.AirButton
 				android:id="@+id/button_privacy"
 				style="@style/button_link"
 				android:layout_width="match_parent"
@@ -161,7 +161,7 @@
 				android:layout_marginRight="4dp"
 				tools:visibility="gone">
 
-				<com.aircandi.ui.widgets.AirTextLight
+				<com.patchr.ui.widgets.AirTextLight
 					android:id="@+id/location_label"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -181,7 +181,7 @@
 					custom:liteMode="true"
 					custom:mapType="none" />
 
-				<com.aircandi.ui.widgets.AirProgressBar
+				<com.patchr.ui.widgets.AirProgressBar
 					android:id="@+id/map_progress"
 					style="?android:attr/progressBarStyle"
 					android:layout_width="@dimen/progress_small_width"
@@ -201,7 +201,7 @@
 
 			<!-- Type -->
 
-			<com.aircandi.ui.widgets.AirTextLight
+			<com.patchr.ui.widgets.AirTextLight
 				android:layout_width="match_parent"
 				android:layout_height="48dp"
 				android:layout_marginLeft="2dp"
@@ -235,7 +235,7 @@
 						android:layout_height="wrap_content"
 						android:orientation="horizontal">
 
-						<com.aircandi.ui.widgets.AirTextLight
+						<com.patchr.ui.widgets.AirTextLight
 							android:layout_width="wrap_content"
 							android:layout_height="48dp"
 							android:layout_weight="1"
@@ -246,7 +246,7 @@
 							android:text="@string/label_patch_type_event"
 							android:textAppearance="?android:attr/textAppearanceMedium" />
 
-						<com.aircandi.ui.widgets.AirRadioButton
+						<com.patchr.ui.widgets.AirRadioButton
 							android:id="@+id/radio_event"
 							android:layout_width="wrap_content"
 							android:layout_height="@dimen/form_field_height"
@@ -266,7 +266,7 @@
 						android:layout_height="wrap_content"
 						android:orientation="horizontal">
 
-						<com.aircandi.ui.widgets.AirTextLight
+						<com.patchr.ui.widgets.AirTextLight
 							android:layout_width="wrap_content"
 							android:layout_height="48dp"
 							android:layout_weight="1"
@@ -278,7 +278,7 @@
 							android:textAppearance="?android:attr/textAppearanceMedium"
 							tools:text="@string/label_patch_type_group" />
 
-						<com.aircandi.ui.widgets.AirRadioButton
+						<com.patchr.ui.widgets.AirRadioButton
 							android:id="@+id/radio_group"
 							android:layout_width="wrap_content"
 							android:layout_height="@dimen/form_field_height"
@@ -298,7 +298,7 @@
 						android:layout_height="wrap_content"
 						android:orientation="horizontal">
 
-						<com.aircandi.ui.widgets.AirTextLight
+						<com.patchr.ui.widgets.AirTextLight
 							android:layout_width="wrap_content"
 							android:layout_height="48dp"
 							android:layout_weight="1"
@@ -310,7 +310,7 @@
 							android:textAppearance="?android:attr/textAppearanceMedium"
 							tools:text="@string/label_patch_type_place" />
 
-						<com.aircandi.ui.widgets.AirRadioButton
+						<com.patchr.ui.widgets.AirRadioButton
 							android:id="@+id/radio_place"
 							android:layout_width="wrap_content"
 							android:layout_height="@dimen/form_field_height"
@@ -330,7 +330,7 @@
 						android:layout_height="wrap_content"
 						android:orientation="horizontal">
 
-						<com.aircandi.ui.widgets.AirTextLight
+						<com.patchr.ui.widgets.AirTextLight
 							android:layout_width="wrap_content"
 							android:layout_height="48dp"
 							android:layout_weight="1"
@@ -342,7 +342,7 @@
 							android:textAppearance="?android:attr/textAppearanceMedium"
 							tools:text="@string/label_patch_type_project" />
 
-						<com.aircandi.ui.widgets.AirRadioButton
+						<com.patchr.ui.widgets.AirRadioButton
 							android:id="@+id/radio_project"
 							android:layout_width="wrap_content"
 							android:layout_height="@dimen/form_field_height"
@@ -385,7 +385,7 @@
 
 		</LinearLayout>
 
-	</com.aircandi.ui.widgets.AirScrollView>
+	</com.patchr.ui.widgets.AirScrollView>
 </LinearLayout>
 
 

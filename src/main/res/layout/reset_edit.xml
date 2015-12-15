@@ -11,7 +11,7 @@
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<com.aircandi.ui.widgets.AirScrollView
+	<com.patchr.ui.widgets.AirScrollView
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_gravity="center_horizontal"
@@ -24,7 +24,7 @@
 			android:layout_height="wrap_content"
 			android:orientation="vertical">
 
-			<com.aircandi.ui.widgets.AirTextLight
+			<com.patchr.ui.widgets.AirTextLight
 				android:id="@+id/content_message"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -41,7 +41,7 @@
 				android:gravity="center_vertical|top"
 				android:orientation="vertical">
 
-				<com.aircandi.ui.widgets.AirEditText
+				<com.patchr.ui.widgets.AirEditText
 					android:id="@+id/email"
 					style="@style/form_edit"
 					android:layout_width="match_parent"
@@ -51,7 +51,7 @@
 					android:hint="@string/label_email"
 					android:inputType="textEmailAddress" />
 
-				<com.aircandi.ui.widgets.AirEditText
+				<com.patchr.ui.widgets.AirEditText
 					android:id="@+id/password"
 					style="@style/form_edit"
 					android:layout_width="match_parent"
@@ -74,5 +74,5 @@
 			</LinearLayout>
 		</LinearLayout>
 
-	</com.aircandi.ui.widgets.AirScrollView>
+	</com.patchr.ui.widgets.AirScrollView>
 </LinearLayout>

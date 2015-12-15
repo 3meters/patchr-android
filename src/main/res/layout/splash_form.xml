@@ -51,7 +51,7 @@
 				android:layout_gravity="center_vertical"
 				android:orientation="vertical">
 
-				<com.aircandi.ui.widgets.AirTextLight
+				<com.patchr.ui.widgets.AirTextLight
 					android:id="@+id/name"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -75,7 +75,7 @@
 			android:visibility="gone"
 			tools:visibility="visible">
 
-			<com.aircandi.ui.widgets.AirButton
+			<com.patchr.ui.widgets.AirButton
 				android:id="@+id/button_signin"
 				style="@style/button_link"
 				android:layout_width="match_parent"
@@ -85,7 +85,7 @@
 				android:text="@string/splash_button_signin"
 				android:textColor="@color/text_dark" />
 
-			<com.aircandi.ui.widgets.AirButton
+			<com.patchr.ui.widgets.AirButton
 				android:id="@+id/button_signup"
 				style="@style/button_link"
 				android:layout_width="match_parent"
@@ -95,7 +95,7 @@
 				android:text="@string/splash_button_signup"
 				android:textColor="@color/text_dark" />
 
-			<com.aircandi.ui.widgets.AirButton
+			<com.patchr.ui.widgets.AirButton
 				android:id="@+id/button_guest"
 				style="@style/button_link"
 				android:layout_width="match_parent"

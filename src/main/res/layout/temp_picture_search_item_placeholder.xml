@@ -5,7 +5,7 @@
 	android:layout_height="wrap_content"
 	android:padding="2dp">
 
-	<com.aircandi.ui.widgets.AirTextView
+	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/item_image"
 		style="@style/form_text_placeholder"
 		android:layout_width="match_parent"

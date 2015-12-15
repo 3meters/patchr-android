@@ -4,7 +4,7 @@
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content">
 
-	<com.aircandi.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirImageView
 		android:id="@+id/widget_photo"
 		style="@style/selectable_image"
 		android:layout_width="60dp"
@@ -25,7 +25,7 @@
 		android:layout_toRightOf="@+id/widget_photo"
 		android:orientation="vertical">
 
-		<com.aircandi.ui.widgets.AirTextView
+		<com.patchr.ui.widgets.AirTextView
 			android:id="@+id/widget_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
 			android:textAppearance="?android:attr/textAppearance"
 			custom:textId="@string/label_drawer_item_nearby" />
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/area"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

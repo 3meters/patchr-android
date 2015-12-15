@@ -3,7 +3,7 @@
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools">
 
-	<com.aircandi.ui.widgets.AirTextView
+	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/image_missing"
 		style="@style/missing"
 		android:layout_width="match_parent"
@@ -13,14 +13,14 @@
 		android:visibility="gone"
 		custom:textId="@string/label_photo_missing" />
 
-	<com.aircandi.ui.widgets.CropImageView
+	<com.patchr.ui.widgets.CropImageView
 		android:id="@+id/image_main"
 		style="@style/picture"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:scaleType="centerCrop" />
 
-	<com.aircandi.ui.widgets.AirProgressBar
+	<com.patchr.ui.widgets.AirProgressBar
 		android:id="@+id/image_progress"
 		style="?android:attr/progressBarStyle"
 		android:layout_width="@dimen/progress_small_width"

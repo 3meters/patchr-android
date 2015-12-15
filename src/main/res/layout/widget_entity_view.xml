@@ -5,7 +5,7 @@
 	android:layout_height="wrap_content"
 	android:orientation="horizontal">
 
-	<com.aircandi.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirImageView
 		android:id="@+id/entity_view_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_small"
@@ -25,7 +25,7 @@
 		android:layout_gravity="center_vertical"
 		android:orientation="vertical">
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/entity_view_label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
 			android:textAppearance="@style/text_appearance_small"
 			android:textColor="?attr/textColorSecondary" />
 
-		<com.aircandi.ui.widgets.AirTextView
+		<com.patchr.ui.widgets.AirTextView
 			android:id="@+id/entity_view_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
 			android:textAppearance="@style/text_appearance_small"
 			custom:textId="@string/dummy_title" />
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/entity_view_subtitle"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

@@ -7,7 +7,7 @@
 	android:descendantFocusability="blocksDescendants"
 	android:orientation="horizontal">
 
-	<com.aircandi.ui.widgets.AirTextLight
+	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/label"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
 		tools:text="Patch owned by"
 		custom:textId="@string/label_created_by" />
 
-	<com.aircandi.ui.widgets.AirTextView
+	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/widget_name"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

@@ -11,7 +11,7 @@
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<com.aircandi.ui.widgets.AirScrollView
+	<com.patchr.ui.widgets.AirScrollView
 		android:id="@+id/form_list"
 		style="@style/form_content_layout"
 		android:layout_width="match_parent"
@@ -32,7 +32,7 @@
 				android:layout_marginBottom="8dp"
 				android:orientation="vertical">
 
-				<com.aircandi.ui.widgets.AirRadioButton
+				<com.patchr.ui.widgets.AirRadioButton
 					android:id="@+id/button_public"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -41,7 +41,7 @@
 					android:textAppearance="?attr/textAppearanceMediumLarge"
 					tools:text="@string/label_patch_privacy_public" />
 
-				<com.aircandi.ui.widgets.AirTextLight
+				<com.patchr.ui.widgets.AirTextLight
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:paddingLeft="32dp"
@@ -56,7 +56,7 @@
 				android:layout_height="wrap_content"
 				android:orientation="vertical">
 
-				<com.aircandi.ui.widgets.AirRadioButton
+				<com.patchr.ui.widgets.AirRadioButton
 					android:id="@+id/button_private"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -65,7 +65,7 @@
 					android:textAppearance="?attr/textAppearanceMediumLarge"
 					tools:text="@string/label_patch_privacy_private" />
 
-				<com.aircandi.ui.widgets.AirTextLight
+				<com.patchr.ui.widgets.AirTextLight
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:paddingLeft="32dp"
@@ -76,5 +76,5 @@
 			</LinearLayout>
 		</RadioGroup>
 
-	</com.aircandi.ui.widgets.AirScrollView>
+	</com.patchr.ui.widgets.AirScrollView>
 </LinearLayout>

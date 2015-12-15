@@ -16,7 +16,7 @@
 		android:layout_height="match_parent"
 		android:background="@color/background_picture_detail">
 
-		<com.aircandi.ui.widgets.AirImageView
+		<com.patchr.ui.widgets.AirImageView
 			android:id="@+id/photo"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
@@ -34,21 +34,21 @@
 			android:orientation="vertical"
 			android:padding="10dp">
 
-			<com.aircandi.ui.widgets.AirTextLight
+			<com.patchr.ui.widgets.AirTextLight
 				android:id="@+id/name"
 				style="@style/form_title"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:textColor="@color/text_dark" />
 
-			<com.aircandi.ui.widgets.UserView
+			<com.patchr.ui.widgets.UserView
 				android:id="@+id/author"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				custom:layoutId="@layout/widget_user_view_text_only_dark" />
 		</LinearLayout>
 
-		<com.aircandi.ui.widgets.SquareButton
+		<com.patchr.ui.widgets.SquareButton
 			android:id="@+id/form_message"
 			style="@style/list_message"
 			android:layout_width="@dimen/button_round_width"

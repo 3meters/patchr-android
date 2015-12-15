@@ -5,7 +5,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
-	<com.aircandi.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirImageView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="match_parent"
@@ -49,7 +49,7 @@
 				android:gravity="center_vertical"
 				android:orientation="horizontal">
 
-				<com.aircandi.ui.widgets.AirTextView
+				<com.patchr.ui.widgets.AirTextView
 					android:id="@+id/type"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
 						android:src="@drawable/ic_action_lock_closed_dark"
 						android:tint="@color/brand_primary" />
 
-					<com.aircandi.ui.widgets.AirTextView
+					<com.patchr.ui.widgets.AirTextView
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:text="@string/label_patch_privacy_private"
@@ -91,7 +91,7 @@
 
 			</LinearLayout>
 
-			<com.aircandi.ui.widgets.AirTextLight
+			<com.patchr.ui.widgets.AirTextLight
 				android:id="@+id/name"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -108,7 +108,7 @@
 		</LinearLayout>
 	</LinearLayout>
 
-	<com.aircandi.ui.widgets.AirTextView
+	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/distance_ignore"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

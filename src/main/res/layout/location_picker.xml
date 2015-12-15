@@ -13,7 +13,7 @@
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<com.aircandi.ui.widgets.AirScrollView
+	<com.patchr.ui.widgets.AirScrollView
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_gravity="center_horizontal"
@@ -25,7 +25,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
-			<com.aircandi.ui.widgets.AirTextLight
+			<com.patchr.ui.widgets.AirTextLight
 				android:id="@+id/content_message"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -44,5 +44,5 @@
 
 		</RelativeLayout>
 
-	</com.aircandi.ui.widgets.AirScrollView>
+	</com.patchr.ui.widgets.AirScrollView>
 </LinearLayout>

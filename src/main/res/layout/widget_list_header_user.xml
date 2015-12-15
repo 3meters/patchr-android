@@ -25,7 +25,7 @@
 			custom:cardElevation="2dp"
 			custom:cardUseCompatPadding="true">
 
-			<com.aircandi.ui.widgets.CandiView
+			<com.patchr.ui.widgets.CandiView
 				android:id="@+id/candi_view"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
 		android:layout_below="@+id/card"
 		android:orientation="vertical">
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/button_watching"
 			style="@style/selectable_item"
 			android:layout_width="match_parent"
@@ -65,7 +65,7 @@
 			android:layout_height="@dimen/rule_divider_height"
 			android:background="?attr/ruleColor" />
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/button_created"
 			style="@style/selectable_item"
 			android:layout_width="match_parent"

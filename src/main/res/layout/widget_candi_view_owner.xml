@@ -9,7 +9,7 @@
 		android:layout_alignParentTop="true"
 		android:background="?attr/cardHighlightColor" />
 
-	<com.aircandi.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirImageView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_medium"
@@ -22,7 +22,7 @@
 		custom:sizeCategory="profile"
 		custom:sizeHint="@dimen/image_medium" />
 
-	<com.aircandi.ui.widgets.AirTextLight
+	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/name"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
 		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:textStyle="bold" />
 
-	<com.aircandi.ui.widgets.AirTextView
+	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/email"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -47,7 +47,7 @@
 		android:textAppearance="?android:attr/textAppearanceSmall"
 		android:textColor="?attr/textColorSecondary" />
 
-	<com.aircandi.ui.widgets.AirTextView
+	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/area"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
 		android:textAppearance="?android:attr/textAppearanceSmall"
 		android:textColor="?attr/textColorSecondary" />
 
-	<com.aircandi.ui.widgets.AirTextLight
+	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/owner_flag"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"

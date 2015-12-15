@@ -23,7 +23,7 @@
 			android:orientation="horizontal"
 			android:padding="5dp">
 
-			<com.aircandi.ui.widgets.AirAutoCompleteTextView
+			<com.patchr.ui.widgets.AirAutoCompleteTextView
 				android:id="@+id/search_text"
 				android:layout_width="0dp"
 				android:layout_height="@dimen/form_field_height"
@@ -39,7 +39,7 @@
 				android:singleLine="true" />
 		</LinearLayout>
 
-		<com.aircandi.ui.widgets.AirGridView
+		<com.patchr.ui.widgets.AirGridView
 			android:id="@+id/grid"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
@@ -52,7 +52,7 @@
 			android:scrollbars="none"
 			android:stretchMode="columnWidth" />
 
-		<com.aircandi.ui.widgets.SquareButton
+		<com.patchr.ui.widgets.SquareButton
 			android:id="@+id/form_message"
 			style="@style/list_message"
 			android:layout_width="@dimen/button_round_width"
@@ -62,7 +62,7 @@
 			tools:text="@string/label_radar_empty"
 			tools:visibility="visible" />
 
-		<com.aircandi.ui.widgets.AirProgressBar
+		<com.patchr.ui.widgets.AirProgressBar
 			android:id="@+id/form_progress"
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="@dimen/progress_width"

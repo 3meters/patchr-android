@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+	The package element below is used internally only: R class, activity/service registrations.
+	The	official application id used in the app .apk and in the Google Play store is specified
+	in build.gradle
+-->
 <manifest
-	package="com.aircandi"
+	package="com.patchr"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:installLocation="auto">
@@ -10,10 +15,10 @@
 		android:required="true" />
 
 	<permission
-		android:name="com.aircandi.catalina.permission.MAPS_RECEIVE"
+		android:name="com.patchr.permission.MAPS_RECEIVE"
 		android:protectionLevel="signature" />
 	<permission
-		android:name="com.aircandi.catalina.permission.C2D_MESSAGE"
+		android:name="com.patchr.permission.C2D_MESSAGE"
 		android:protectionLevel="signature" />
 
 	<uses-permission android:name="android.permission.INTERNET" />
@@ -31,7 +36,7 @@
 
 	<!-- Support play services -->
 
-	<uses-permission android:name="com.aircandi.catalina.permission.MAPS_RECEIVE" />
+	<uses-permission android:name="com.patchr.permission.MAPS_RECEIVE" />
 	<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 	<uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
@@ -39,7 +44,7 @@
 
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
 	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-	<uses-permission android:name="com.aircandi.catalina.permission.C2D_MESSAGE" />
+	<uses-permission android:name="com.patchr.permission.C2D_MESSAGE" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 	<!-- To support Notifications and Aviary -->
@@ -62,7 +67,7 @@
 		android:icon="@drawable/ic_launcher"
 		android:allowBackup="false"
 		android:label="@string/name_app"
-		android:theme="@style/aircandi_theme_snow"
+		android:theme="@style/patchr_theme_snow"
 		tools:replace="label, allowBackup, android:icon">
 
 		<!-- Service keys -->
@@ -101,7 +106,7 @@
 				<action android:name="com.google.android.c2dm.intent.RECEIVE" />
 				<action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-				<category android:name="com.aircandi.catalina" />
+				<category android:name="com.patchr" />
 			</intent-filter>
 		</receiver>
 
@@ -114,7 +119,7 @@
 				<action android:name="com.google.android.c2dm.intent.RECEIVE" />
 				<action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-				<category android:name="com.aircandi.catalina" />
+				<category android:name="com.patchr" />
 			</intent-filter>
 		</receiver>
 		<receiver android:name="com.parse.ParseBroadcastReceiver">
@@ -138,7 +143,7 @@
 		<activity
 			android:name=".ui.SplashForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/aircandi_theme_midnight_notitlebar"
+			android:theme="@style/patchr_theme_midnight_notitlebar"
 			android:windowSoftInputMode="stateHidden">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -313,7 +318,7 @@
 		<activity
 			android:name=".ui.helpers.PhotoActionPicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/aircandi_theme_dialog_light"
+			android:theme="@style/patchr_theme_dialog_light"
 			android:windowSoftInputMode="stateHidden" />
 		<activity
 			android:name=".ui.helpers.PrivacyBuilder"
@@ -323,7 +328,7 @@
 		<activity
 			android:name=".ui.helpers.QrcodeDialog"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/aircandi_theme_dialog_light"
+			android:theme="@style/patchr_theme_dialog_light"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Misc -->
@@ -334,7 +339,7 @@
 			android:exported="false"
 			android:label="@string/form_title_settings_form">
 			<intent-filter>
-				<action android:name="com.aircandi.Preferences" />
+				<action android:name="com.patchr.Preferences" />
 				<category android:name="android.intent.category.PREFERENCE" />
 			</intent-filter>
 		</activity>

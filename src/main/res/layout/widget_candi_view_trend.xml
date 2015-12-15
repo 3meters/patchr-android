@@ -7,7 +7,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
-	<com.aircandi.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirImageView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_medium_small"
@@ -27,7 +27,7 @@
 		android:layout_toRightOf="@+id/photo"
 		android:orientation="vertical">
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/name"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
 			android:gravity="center_vertical"
 			android:orientation="horizontal">
 
-			<com.aircandi.ui.widgets.AirTextView
+			<com.patchr.ui.widgets.AirTextView
 				android:id="@+id/type"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -89,14 +89,14 @@
 			android:orientation="horizontal"
 			android:paddingBottom="4dp">
 
-			<com.aircandi.ui.widgets.AirTextMedium
+			<com.patchr.ui.widgets.AirTextMedium
 				android:id="@+id/count_value"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginRight="5dp"
 				tools:text="24" />
 
-			<com.aircandi.ui.widgets.AirTextView
+			<com.patchr.ui.widgets.AirTextView
 				android:id="@+id/count_label"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -107,7 +107,7 @@
 		</LinearLayout>
 	</LinearLayout>
 
-	<com.aircandi.ui.widgets.AirTextLight
+	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/index"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

@@ -13,7 +13,7 @@
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<com.aircandi.ui.widgets.AirScrollView
+	<com.patchr.ui.widgets.AirScrollView
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_gravity="center_horizontal"
@@ -25,7 +25,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content">
 
-			<com.aircandi.ui.widgets.AirTextLight
+			<com.patchr.ui.widgets.AirTextLight
 				android:id="@+id/content_message"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content">
 
-					<com.aircandi.ui.widgets.AirTokenCompleteTextView
+					<com.patchr.ui.widgets.AirTokenCompleteTextView
 						android:id="@+id/to"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -77,7 +77,7 @@
 						android:orientation="horizontal"
 						android:paddingLeft="10dp">
 
-						<com.aircandi.ui.widgets.AirTextLight
+						<com.patchr.ui.widgets.AirTextLight
 							android:id="@+id/entity_label"
 							android:layout_width="wrap_content"
 							android:layout_height="match_parent"
@@ -89,7 +89,7 @@
 							android:textAppearance="?attr/textAppearanceMediumLarge"
 							android:textColor="?attr/textColorSecondary" />
 
-						<com.aircandi.ui.widgets.EntityView
+						<com.patchr.ui.widgets.EntityView
 							android:id="@+id/entity_view"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -126,7 +126,7 @@
 						android:layout_height="wrap_content"
 						android:layout_marginBottom="5dp">
 
-						<com.aircandi.ui.widgets.AirEditText
+						<com.patchr.ui.widgets.AirEditText
 							android:id="@+id/name"
 							android:layout_width="match_parent"
 							android:layout_height="@dimen/message_field_height"
@@ -135,7 +135,7 @@
 							android:inputType="textCapSentences|textAutoCorrect"
 							android:visibility="gone" />
 
-						<com.aircandi.ui.widgets.AirEditText
+						<com.patchr.ui.widgets.AirEditText
 							android:id="@+id/description"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -177,7 +177,7 @@
 							android:layout_marginBottom="16dp"
 							android:orientation="vertical">
 
-							<com.aircandi.ui.widgets.AirImageView
+							<com.patchr.ui.widgets.AirImageView
 								android:id="@+id/photo"
 								style="@style/selectable_image"
 								android:layout_width="match_parent"
@@ -252,5 +252,5 @@
 			</LinearLayout>
 		</RelativeLayout>
 
-	</com.aircandi.ui.widgets.AirScrollView>
+	</com.patchr.ui.widgets.AirScrollView>
 </LinearLayout>

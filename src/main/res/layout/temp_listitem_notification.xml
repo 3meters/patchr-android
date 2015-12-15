@@ -12,7 +12,7 @@
 
 	<!-- Patch context -->
 
-	<com.aircandi.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirImageView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_small"
@@ -34,7 +34,7 @@
 
 		<!-- We pack all the information into the subtitle property -->
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/summary"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
 
 		<!-- Photo -->
 
-		<com.aircandi.ui.widgets.AirImageView
+		<com.patchr.ui.widgets.AirImageView
 			android:id="@+id/photo_big"
 			style="@style/selectable_image"
 			android:layout_width="match_parent"
@@ -83,7 +83,7 @@
 				android:src="?attr/iconMessage"
 				android:tint="@color/brand_primary" />
 
-			<com.aircandi.ui.widgets.AirTextLight
+			<com.patchr.ui.widgets.AirTextLight
 				android:id="@+id/modified_date"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"

@@ -14,7 +14,7 @@
 
 	<!-- textview is a hack to force the action bar button to the height we want -->
 
-	<com.aircandi.ui.widgets.AirTextView
+	<com.patchr.ui.widgets.AirTextView
 		style="@style/actionbar_beacons"
 		android:layout_width="wrap_content"
 		android:layout_height="@dimen/action_bar_default_height"

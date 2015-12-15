@@ -14,7 +14,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content">
 
-		<com.aircandi.ui.widgets.AirImageView
+		<com.patchr.ui.widgets.AirImageView
 			android:id="@+id/photo"
 			style="@style/selectable_image"
 			android:layout_width="@dimen/image_medium_large"
@@ -33,7 +33,7 @@
 			android:gravity="bottom"
 			android:orientation="vertical">
 
-			<com.aircandi.ui.widgets.AirTextLight
+			<com.patchr.ui.widgets.AirTextLight
 				android:id="@+id/distance"
 				android:layout_width="@dimen/image_medium_large"
 				android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
 
 		</LinearLayout>
 
-		<com.aircandi.ui.widgets.AirTextView
+		<com.patchr.ui.widgets.AirTextView
 			android:id="@+id/index"
 			android:layout_width="32dp"
 			android:layout_height="32dp"
@@ -73,7 +73,7 @@
 			android:paddingRight="10dp"
 			android:paddingTop="2dp">
 
-			<com.aircandi.ui.widgets.AirTextLight
+			<com.patchr.ui.widgets.AirTextLight
 				android:id="@+id/name"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
 				android:layout_height="wrap_content"
 				android:orientation="horizontal">
 
-				<com.aircandi.ui.widgets.AirTextView
+				<com.patchr.ui.widgets.AirTextView
 					android:id="@+id/type"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -137,7 +137,7 @@
 				android:layout_gravity="bottom"
 				android:orientation="vertical">
 
-				<com.aircandi.ui.widgets.AirTextLight
+				<com.patchr.ui.widgets.AirTextLight
 					android:id="@+id/message_count"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -147,7 +147,7 @@
 					android:textSize="28sp"
 					tools:text="31" />
 
-				<com.aircandi.ui.widgets.AirTextView
+				<com.patchr.ui.widgets.AirTextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
@@ -172,7 +172,7 @@
 				android:layout_gravity="bottom"
 				android:orientation="vertical">
 
-				<com.aircandi.ui.widgets.AirTextLight
+				<com.patchr.ui.widgets.AirTextLight
 					android:id="@+id/watch_count"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -182,7 +182,7 @@
 					android:textSize="28sp"
 					tools:text="12" />
 
-				<com.aircandi.ui.widgets.AirTextView
+				<com.patchr.ui.widgets.AirTextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"

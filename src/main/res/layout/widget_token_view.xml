@@ -8,7 +8,7 @@
 	android:background="?attr/backgroundToken"
 	android:orientation="horizontal">
 
-	<com.aircandi.ui.widgets.AirTextLight
+	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/entity_view_name"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
 		android:layout_height="match_parent"
 		android:background="?attr/cardHighlightColor" />
 
-	<com.aircandi.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirImageView
 		android:id="@+id/entity_view_photo"
 		android:layout_width="@dimen/image_extra_small"
 		android:layout_height="@dimen/image_extra_small"

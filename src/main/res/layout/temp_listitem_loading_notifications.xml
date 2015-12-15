@@ -6,7 +6,7 @@
 	android:layout_height="80sp"
 	android:padding="10dp">
 
-	<com.aircandi.ui.widgets.AirButton
+	<com.patchr.ui.widgets.AirButton
 		android:id="@+id/button_more_notifications"
 		style="@style/button_outline"
 		android:layout_width="match_parent"

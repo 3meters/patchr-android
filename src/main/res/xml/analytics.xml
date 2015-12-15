@@ -25,43 +25,43 @@
 
 	<!-- The screen names that will appear in the reporting -->
 
-	<screenName name="com.aircandi.ui.AboutForm">AboutForm</screenName>
-	<screenName name="com.aircandi.ui.AircandiForm">AircandiForm</screenName>
-	<screenName name="com.aircandi.ui.MapForm">MapForm</screenName>
-	<screenName name="com.aircandi.ui.MessageForm">MessageForm</screenName>
-	<screenName name="com.aircandi.ui.PatchForm">PatchForm</screenName>
-	<screenName name="com.aircandi.ui.PatchList">PatchList</screenName>
-	<screenName name="com.aircandi.ui.PhotoForm">PhotoForm</screenName>
-	<screenName name="com.aircandi.ui.PlaceForm">PlaceForm</screenName>
-	<screenName name="com.aircandi.ui.SearchForm">SearchForm</screenName>
-	<screenName name="com.aircandi.ui.SettingsForm">SettingsForm</screenName>
-	<screenName name="com.aircandi.ui.SplashForm">SplashForm</screenName>
-	<screenName name="com.aircandi.ui.UserForm">UserForm</screenName>
-	<screenName name="com.aircandi.ui.WatcherList">WatcherList</screenName>
+	<screenName name="com.patchr.ui.AboutForm">AboutForm</screenName>
+	<screenName name="com.patchr.ui.AircandiForm">AircandiForm</screenName>
+	<screenName name="com.patchr.ui.MapForm">MapForm</screenName>
+	<screenName name="com.patchr.ui.MessageForm">MessageForm</screenName>
+	<screenName name="com.patchr.ui.PatchForm">PatchForm</screenName>
+	<screenName name="com.patchr.ui.PatchList">PatchList</screenName>
+	<screenName name="com.patchr.ui.PhotoForm">PhotoForm</screenName>
+	<screenName name="com.patchr.ui.PlaceForm">PlaceForm</screenName>
+	<screenName name="com.patchr.ui.SearchForm">SearchForm</screenName>
+	<screenName name="com.patchr.ui.SettingsForm">SettingsForm</screenName>
+	<screenName name="com.patchr.ui.SplashForm">SplashForm</screenName>
+	<screenName name="com.patchr.ui.UserForm">UserForm</screenName>
+	<screenName name="com.patchr.ui.WatcherList">WatcherList</screenName>
 
-	<screenName name="com.aircandi.ui.MapListFragment">MapList</screenName>
-	<screenName name="com.aircandi.ui.NearbyListFragment">NearbyList</screenName>
-	<screenName name="com.aircandi.ui.EntityListFragment">PatchList</screenName>
-	<screenName name="com.aircandi.ui.TrendListFragment">TrendList</screenName>
+	<screenName name="com.patchr.ui.MapListFragment">MapList</screenName>
+	<screenName name="com.patchr.ui.NearbyListFragment">NearbyList</screenName>
+	<screenName name="com.patchr.ui.EntityListFragment">PatchList</screenName>
+	<screenName name="com.patchr.ui.TrendListFragment">TrendList</screenName>
 
 	<!-- Edit -->
 
-	<screenName name="com.aircandi.ui.edit.FeedbackEdit">FeedbackEdit</screenName>
-	<screenName name="com.aircandi.ui.edit.MessageEdit">MessageEdit</screenName>
-	<screenName name="com.aircandi.ui.edit.PasswordEdit">PasswordEdit</screenName>
-	<screenName name="com.aircandi.ui.edit.PatchEdit">PatchEdit</screenName>
-	<screenName name="com.aircandi.ui.edit.ProximityEdit">ProximityEdit</screenName>
-	<screenName name="com.aircandi.ui.edit.RegisterEdit">RegisterEdit</screenName>
-	<screenName name="com.aircandi.ui.edit.ReportEdit">ReportEdit</screenName>
-	<screenName name="com.aircandi.ui.edit.ResetEdit">ResetEdit</screenName>
-	<screenName name="com.aircandi.ui.edit.SignInEdit">SigninEdit</screenName>
-	<screenName name="com.aircandi.ui.edit.UserEdit">UserEdit</screenName>
+	<screenName name="com.patchr.ui.edit.FeedbackEdit">FeedbackEdit</screenName>
+	<screenName name="com.patchr.ui.edit.MessageEdit">MessageEdit</screenName>
+	<screenName name="com.patchr.ui.edit.PasswordEdit">PasswordEdit</screenName>
+	<screenName name="com.patchr.ui.edit.PatchEdit">PatchEdit</screenName>
+	<screenName name="com.patchr.ui.edit.ProximityEdit">ProximityEdit</screenName>
+	<screenName name="com.patchr.ui.edit.RegisterEdit">RegisterEdit</screenName>
+	<screenName name="com.patchr.ui.edit.ReportEdit">ReportEdit</screenName>
+	<screenName name="com.patchr.ui.edit.ResetEdit">ResetEdit</screenName>
+	<screenName name="com.patchr.ui.edit.SignInEdit">SigninEdit</screenName>
+	<screenName name="com.patchr.ui.edit.UserEdit">UserEdit</screenName>
 
 	<!-- Builders -->
 
-	<screenName name="com.aircandi.ui.helpers.LocationPicker">LocationPicker</screenName>
-	<screenName name="com.aircandi.ui.helpers.PhotoPicker">PhotoPicker</screenName>
-	<screenName name="com.aircandi.ui.helpers.PhotoSourcePicker">PhotoSourcePicker</screenName>
-	<screenName name="com.aircandi.ui.helpers.PrivacyBuilder">PrivacyBuilder</screenName>
+	<screenName name="com.patchr.ui.helpers.LocationPicker">LocationPicker</screenName>
+	<screenName name="com.patchr.ui.helpers.PhotoPicker">PhotoPicker</screenName>
+	<screenName name="com.patchr.ui.helpers.PhotoSourcePicker">PhotoSourcePicker</screenName>
+	<screenName name="com.patchr.ui.helpers.PrivacyBuilder">PrivacyBuilder</screenName>
 
 </resources>

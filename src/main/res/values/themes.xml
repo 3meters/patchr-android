@@ -20,7 +20,7 @@
 		- Custom line and text colors in pages, forms, buttons.
 	-->
 
-	<style name="aircandi_theme_dark" parent="base_theme_dark">
+	<style name="patchr_theme_dark" parent="base_theme_dark">
 
 		<item name="themeTone">dark</item>
 		<item name="android:windowBackground">@color/background_dark</item>
@@ -103,7 +103,7 @@
 
 	</style>
 
-	<style name="aircandi_theme_light" parent="base_theme_light">
+	<style name="patchr_theme_light" parent="base_theme_light">
 
 		<item name="themeTone">light</item>
 		<item name="android:windowBackground">@color/background_light</item>
@@ -186,7 +186,7 @@
 
 	</style>
 
-	<style name="aircandi_theme_midnight" parent="aircandi_theme_dark">
+	<style name="patchr_theme_midnight" parent="patchr_theme_dark">
 
 		<!-- Action bar icons -->
 
@@ -220,7 +220,7 @@
 
 	</style>
 
-	<style name="aircandi_theme_snow" parent="aircandi_theme_light">
+	<style name="patchr_theme_snow" parent="patchr_theme_light">
 
 		<!-- Action bar icons -->
 
@@ -256,11 +256,11 @@
 
 	<!-- Spinners -->
 
-	<style name="aircandi_spinner" parent="" />
+	<style name="patchr_spinner" parent="" />
 
 	<!-- Dialog Themes -->
 
-	<style name="aircandi_theme_dialog_dark" parent="base_theme_dialog_dark">
+	<style name="patchr_theme_dialog_dark" parent="base_theme_dialog_dark">
 
 		<item name="themeTone">dark</item>
 		<item name="android:windowIsTranslucent">true</item>
@@ -280,7 +280,7 @@
 
 	</style>
 
-	<style name="aircandi_theme_dialog_light" parent="base_theme_dialog_light">
+	<style name="patchr_theme_dialog_light" parent="base_theme_dialog_light">
 
 		<item name="themeTone">light</item>
 		<item name="android:windowNoTitle">true</item>
@@ -308,23 +308,23 @@
 
 	<!-- No title theme versions -->
 
-	<style name="aircandi_theme_midnight_notitlebar" parent="aircandi_theme_midnight">
+	<style name="patchr_theme_midnight_notitlebar" parent="patchr_theme_midnight">
 		<item name="android:windowNoTitle">true</item>
 	</style>
 
-	<style name="aircandi_theme_snow_notitlebar" parent="aircandi_theme_snow">
+	<style name="patchr_theme_snow_notitlebar" parent="patchr_theme_snow">
 		<item name="android:windowNoTitle">true</item>
 	</style>
 
 	<!-- Translucent theme versions -->
 
-	<style name="aircandi_theme_midnight_transparent" parent="aircandi_theme_midnight">
+	<style name="patchr_theme_midnight_transparent" parent="patchr_theme_midnight">
 		<item name="android:windowIsTranslucent">true</item>
 		<item name="android:windowBackground">@android:color/transparent</item>
 		<item name="android:backgroundDimEnabled">false</item>
 	</style>
 
-	<style name="aircandi_theme_snow_transparent" parent="aircandi_theme_snow">
+	<style name="patchr_theme_snow_transparent" parent="patchr_theme_snow">
 		<item name="android:windowIsTranslucent">true</item>
 		<item name="android:windowBackground">@android:color/transparent</item>
 		<item name="android:backgroundDimEnabled">false</item>

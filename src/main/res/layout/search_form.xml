@@ -12,7 +12,7 @@
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<com.aircandi.ui.widgets.AirRelativeLayout
+	<com.patchr.ui.widgets.AirRelativeLayout
 		android:id="@+id/view"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
@@ -29,7 +29,7 @@
 			android:visibility="gone"
 			tools:visibility="visible">
 
-			<com.aircandi.ui.widgets.AirButton
+			<com.patchr.ui.widgets.AirButton
 				android:id="@+id/button_clear"
 				style="@style/button_flat"
 				android:layout_width="match_parent"
@@ -46,7 +46,7 @@
 
 		</RelativeLayout>
 
-		<com.aircandi.ui.widgets.AirListView
+		<com.patchr.ui.widgets.AirListView
 			android:id="@+id/list"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
@@ -71,6 +71,6 @@
 			android:visibility="gone"
 			tools:visibility="visible" />
 
-	</com.aircandi.ui.widgets.AirRelativeLayout>
+	</com.patchr.ui.widgets.AirRelativeLayout>
 
 </LinearLayout>

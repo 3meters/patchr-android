@@ -22,7 +22,7 @@
 		android:layout_marginTop="9dp"
 		android:background="@drawable/bg_round_primary" />
 
-	<com.aircandi.ui.widgets.AirTextView
+	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/text"
 		android:layout_width="32dp"
 		android:layout_height="32dp"

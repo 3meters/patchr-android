@@ -17,7 +17,7 @@
 			android:summary="Settings used to test functionality"
 			android:title="Test settings">
 
-			<com.aircandi.ui.widgets.ListPreferenceMultiSelect
+			<com.patchr.ui.widgets.ListPreferenceMultiSelect
 				android:id="@+id/Pref_Testing_Beacons"
 				android:defaultValue="natural"
 				android:dialogTitle="Beacons to include"

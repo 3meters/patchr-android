@@ -7,13 +7,13 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<com.aircandi.ui.widgets.AirSwipeRefreshLayout
+	<com.patchr.ui.widgets.AirSwipeRefreshLayout
 		android:id="@+id/swipe"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_centerHorizontal="true">
 
-		<com.aircandi.ui.widgets.AirListView
+		<com.patchr.ui.widgets.AirListView
 			android:id="@+id/list"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
@@ -30,9 +30,9 @@
 			android:scrollingCache="false"
 			custom:parallax_factor="1.9" />
 
-	</com.aircandi.ui.widgets.AirSwipeRefreshLayout>
+	</com.patchr.ui.widgets.AirSwipeRefreshLayout>
 
-	<com.aircandi.ui.widgets.SquareButton
+	<com.patchr.ui.widgets.SquareButton
 		android:id="@+id/list_message"
 		style="@style/list_message"
 		android:layout_width="@dimen/button_round_width"
@@ -42,7 +42,7 @@
 		tools:text="@string/label_radar_empty"
 		tools:visibility="visible" />
 
-	<com.aircandi.ui.widgets.AirProgressBar
+	<com.patchr.ui.widgets.AirProgressBar
 		android:id="@+id/list_progress"
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="@dimen/progress_width"

@@ -23,7 +23,7 @@
 
 		<!-- Only here because we don't own the fragment layout -->
 
-		<com.aircandi.ui.widgets.AirProgressBar
+		<com.patchr.ui.widgets.AirProgressBar
 			android:id="@+id/form_progress"
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="@dimen/progress_width"

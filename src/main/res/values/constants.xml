@@ -3,14 +3,9 @@
 
 	<!-- Names -->
 
-	<string name="name_app_family" tools:ignore="UnusedResources">Aircandi</string>
-	<string name="name_app_family_lowercase" tools:ignore="UnusedResources">aircandi</string>
-
 	<string name="name_app" tools:ignore="UnusedResources">Patchr</string>
 	<string name="name_app_lowercase" tools:ignore="UnusedResources">patchr</string>
 	<string name="name_company" tools:ignore="UnusedResources">3meters LLC.</string>
-
-	<string name="app_family_attribution" tools:ignore="UnusedResources">by [@string/name_app_family_lowercase]</string>
 
 	<!--
 		We get complete substitution with the following exceptions
@@ -31,13 +26,13 @@
 	<string name="parse_app_id" tools:ignore="UnusedResources">EonZJ4FXEADijslgqXCkg37sOGpB7AB9lDYxoHtz</string>
 	<string name="parse_client_key" tools:ignore="UnusedResources">5QRFlRQ3j7gkxyJ2cBYbHTK98WRQhoHCnHdpEKSD</string>
 	<string name="id_gcm_sender" tools:ignore="UnusedResources">657673071389</string>
-	<string name="id_package" tools:ignore="UnusedResources">com.aircandi.catalina</string>
-	<string name="id_referrer" tools:ignore="UnusedResources">com.aircandi.catalina</string>
+	<string name="id_package" tools:ignore="UnusedResources">com.patchr</string>
+	<string name="id_referrer" tools:ignore="UnusedResources">com.patchr</string>
 	<string name="uri_play_store" tools:ignore="UnusedResources">http://bit.ly/1wnySLm</string>
 
 	<!-- Late binding: Aircandi applications always subclass GcmIntentService -->
 
-	<string name="class_gcm_intent_service" tools:ignore="UnusedResources">com.aircandi.components.GcmIntentService</string>
+	<string name="class_gcm_intent_service" tools:ignore="UnusedResources">com.patchr.components.GcmIntentService</string>
 
 	<!-- Tag manager -->
 

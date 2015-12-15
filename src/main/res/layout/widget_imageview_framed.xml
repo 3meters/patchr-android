@@ -9,7 +9,7 @@
 		android:background="?attr/backgroundPictureFramed"
 		android:visibility="visible" />
 
-	<com.aircandi.ui.widgets.AirTextView
+	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/image_missing"
 		style="@style/missing"
 		android:layout_width="match_parent"
@@ -29,7 +29,7 @@
 		android:adjustViewBounds="true"
 		android:scaleType="centerCrop" />
 
-	<com.aircandi.ui.widgets.AirProgressBar
+	<com.patchr.ui.widgets.AirProgressBar
 		android:id="@+id/image_progress"
 		style="?android:attr/progressBarStyle"
 		android:visibility="gone"

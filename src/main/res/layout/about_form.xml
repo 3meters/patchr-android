@@ -12,7 +12,7 @@
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<com.aircandi.ui.widgets.AirScrollView
+	<com.patchr.ui.widgets.AirScrollView
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_gravity="center_horizontal"
@@ -43,7 +43,7 @@
 					android:layout_marginBottom="15dp"
 					android:src="@drawable/ic_launcher" />
 
-				<com.aircandi.ui.widgets.AirTextLight
+				<com.patchr.ui.widgets.AirTextLight
 					android:id="@+id/app_name"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -53,16 +53,7 @@
 					android:textColor="@color/brand_accent"
 					custom:textId="@string/name_app" />
 
-				<com.aircandi.ui.widgets.AirTextView
-					android:id="@+id/app_family_name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_horizontal"
-					android:text="@string/name_app_family"
-					android:visibility="gone"
-					custom:textId="@string/app_family_attribution" />
-
-				<com.aircandi.ui.widgets.AirTextView
+				<com.patchr.ui.widgets.AirTextView
 					android:id="@+id/version"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -70,7 +61,7 @@
 					android:text="@string/dummy_version"
 					custom:textId="@string/dummy_version" />
 
-				<com.aircandi.ui.widgets.AirTextView
+				<com.patchr.ui.widgets.AirTextView
 					android:id="@+id/copyright"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -117,7 +108,7 @@
 				android:orientation="vertical"
 				android:visibility="gone">
 
-				<com.aircandi.ui.widgets.AirTextView
+				<com.patchr.ui.widgets.AirTextView
 					android:id="@+id/install"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -132,7 +123,7 @@
 
 					<TableRow>
 
-						<com.aircandi.ui.widgets.AirTextView
+						<com.patchr.ui.widgets.AirTextView
 							android:id="@+id/install_id"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -149,7 +140,7 @@
 
 					<TableRow>
 
-						<com.aircandi.ui.widgets.AirTextView
+						<com.patchr.ui.widgets.AirTextView
 							android:id="@+id/install_type"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -166,7 +157,7 @@
 
 					<TableRow>
 
-						<com.aircandi.ui.widgets.AirTextView
+						<com.patchr.ui.widgets.AirTextView
 							android:id="@+id/install_date"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -182,7 +173,7 @@
 
 					<TableRow>
 
-						<com.aircandi.ui.widgets.AirTextView
+						<com.patchr.ui.widgets.AirTextView
 							android:id="@+id/service_url"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -195,7 +186,7 @@
 			</LinearLayout>
 		</RelativeLayout>
 
-	</com.aircandi.ui.widgets.AirScrollView>
+	</com.patchr.ui.widgets.AirScrollView>
 </LinearLayout>
 
 

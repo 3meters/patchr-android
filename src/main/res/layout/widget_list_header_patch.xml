@@ -22,7 +22,7 @@
 			android:focusableInTouchMode="false"
 			android:orientation="vertical">
 
-			<com.aircandi.ui.widgets.CandiView
+			<com.patchr.ui.widgets.CandiView
 				android:id="@+id/candi_view"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
@@ -45,7 +45,7 @@
 					android:orientation="horizontal"
 					tools:ignore="RelativeOverlap">
 
-					<com.aircandi.ui.widgets.AirTextMedium
+					<com.patchr.ui.widgets.AirTextMedium
 						android:id="@+id/watching_count"
 						android:layout_width="wrap_content"
 						android:layout_height="match_parent"
@@ -54,7 +54,7 @@
 						android:textColor="?attr/textColorCandiView"
 						tools:text="12" />
 
-					<com.aircandi.ui.widgets.AirTextLight
+					<com.patchr.ui.widgets.AirTextLight
 						android:id="@+id/watching_label"
 						android:layout_width="wrap_content"
 						android:layout_height="match_parent"
@@ -151,7 +151,7 @@
 			android:orientation="vertical"
 			android:padding="8dp">
 
-			<com.aircandi.ui.widgets.CandiView
+			<com.patchr.ui.widgets.CandiView
 				android:id="@+id/candi_view_info"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"

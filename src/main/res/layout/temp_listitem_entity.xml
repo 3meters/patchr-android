@@ -9,7 +9,7 @@
 	android:paddingBottom="2dp"
 	android:paddingTop="2dp">
 
-	<com.aircandi.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirImageView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_medium"
@@ -29,7 +29,7 @@
 		android:layout_toRightOf="@+id/photo"
 		android:orientation="vertical">
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/name"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
 			android:textStyle="bold"
 			custom:textId="@string/dummy_title_short" />
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/subhead"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
 			android:textStyle="italic"
 			custom:textId="@string/dummy_subtitle" />
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/description"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -69,7 +69,7 @@
 		android:layout_toRightOf="@+id/photo"
 		android:orientation="vertical">
 
-		<com.aircandi.ui.widgets.AirTextView
+		<com.patchr.ui.widgets.AirTextView
 			android:id="@+id/comments"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
 			android:textColor="?attr/textColorSecondary"
 			custom:textId="@string/dummy_comments" />
 
-		<com.aircandi.ui.widgets.UserView
+		<com.patchr.ui.widgets.UserView
 			android:id="@+id/creator"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

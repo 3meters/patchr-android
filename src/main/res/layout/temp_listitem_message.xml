@@ -31,7 +31,7 @@
 		android:gravity="center_vertical"
 		android:orientation="horizontal">
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/patch_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -51,7 +51,7 @@
 			android:visibility="gone" />
 	</LinearLayout>
 
-	<com.aircandi.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirImageView
 		android:id="@+id/user_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_small"
@@ -81,7 +81,7 @@
 			android:layout_marginBottom="2dp"
 			android:orientation="horizontal">
 
-			<com.aircandi.ui.widgets.AirTextMedium
+			<com.patchr.ui.widgets.AirTextMedium
 				android:id="@+id/user_name"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -95,7 +95,7 @@
 				android:textStyle="bold"
 				tools:text="@string/dummy_username" />
 
-			<com.aircandi.ui.widgets.AirTextLight
+			<com.patchr.ui.widgets.AirTextLight
 				android:id="@+id/created_date"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
 				tools:text="@string/dummy_timesince_short" />
 		</RelativeLayout>
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/description"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -115,7 +115,7 @@
 
 		<!-- Photo -->
 
-		<com.aircandi.ui.widgets.AirImageView
+		<com.patchr.ui.widgets.AirImageView
 			android:id="@+id/photo"
 			style="@style/selectable_image"
 			android:layout_width="match_parent"
@@ -178,7 +178,7 @@
 				android:orientation="horizontal"
 				tools:ignore="UselessParent">
 
-				<com.aircandi.ui.widgets.AirTextMedium
+				<com.patchr.ui.widgets.AirTextMedium
 					android:id="@+id/likes_count"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
@@ -187,7 +187,7 @@
 					android:textColor="@color/brand_primary_dark"
 					tools:text="12" />
 
-				<com.aircandi.ui.widgets.AirTextLight
+				<com.patchr.ui.widgets.AirTextLight
 					android:id="@+id/likes_label"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"

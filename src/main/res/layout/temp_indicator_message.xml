@@ -18,7 +18,7 @@
 		android:src="@drawable/ic_img_message_light"
 		android:tint="@color/brand_primary" />
 
-	<com.aircandi.ui.widgets.AirTextLight
+	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/indicator_message"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"

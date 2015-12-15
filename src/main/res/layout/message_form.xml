@@ -12,7 +12,7 @@
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<com.aircandi.ui.widgets.AirScrollView
+	<com.patchr.ui.widgets.AirScrollView
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_gravity="center_horizontal"
@@ -34,7 +34,7 @@
 				android:onClick="onPatchClick"
 				android:paddingLeft="@dimen/form_body_padding">
 
-				<com.aircandi.ui.widgets.AirTextLight
+				<com.patchr.ui.widgets.AirTextLight
 					android:id="@+id/patch_name"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -47,7 +47,7 @@
 					android:textAppearance="@style/text_appearance_medium"
 					android:textColor="@color/brand_primary_dark" />
 
-				<com.aircandi.ui.widgets.AirImageView
+				<com.patchr.ui.widgets.AirImageView
 					android:id="@+id/patch_photo"
 					style="@style/selectable_image"
 					android:layout_width="@dimen/image_medium"
@@ -84,7 +84,7 @@
 				android:paddingRight="@dimen/form_body_padding"
 				tools:layout_height="50dp">
 
-				<com.aircandi.ui.widgets.AirImageView
+				<com.patchr.ui.widgets.AirImageView
 					android:id="@+id/user_photo"
 					style="@style/selectable_image"
 					android:layout_width="@dimen/image_small"
@@ -98,7 +98,7 @@
 					custom:sizeCategory="profile"
 					custom:sizeHint="@dimen/image_small" />
 
-				<com.aircandi.ui.widgets.AirTextView
+				<com.patchr.ui.widgets.AirTextView
 					android:id="@+id/user_name"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
 
 			</LinearLayout>
 
-			<com.aircandi.ui.widgets.AirTextLight
+			<com.patchr.ui.widgets.AirTextLight
 				android:id="@+id/description"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -131,7 +131,7 @@
 				android:paddingLeft="@dimen/form_body_padding"
 				android:paddingRight="@dimen/form_body_padding">
 
-				<com.aircandi.ui.widgets.AirTextLight
+				<com.patchr.ui.widgets.AirTextLight
 					android:id="@+id/created_date"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -143,7 +143,7 @@
 
 			<!-- Photo -->
 
-			<com.aircandi.ui.widgets.AirImageView
+			<com.patchr.ui.widgets.AirImageView
 				android:id="@+id/photo"
 				style="@style/selectable_image"
 				android:layout_width="match_parent"
@@ -210,7 +210,7 @@
 					android:onClick="onLikesListButtonClick"
 					android:orientation="horizontal">
 
-					<com.aircandi.ui.widgets.AirTextMedium
+					<com.patchr.ui.widgets.AirTextMedium
 						android:id="@+id/likes_count"
 						android:layout_width="wrap_content"
 						android:layout_height="match_parent"
@@ -219,7 +219,7 @@
 						android:textColor="@color/brand_primary_dark"
 						tools:text="12" />
 
-					<com.aircandi.ui.widgets.AirTextLight
+					<com.patchr.ui.widgets.AirTextLight
 						android:id="@+id/likes_label"
 						android:layout_width="wrap_content"
 						android:layout_height="match_parent"
@@ -266,7 +266,7 @@
 				android:paddingRight="@dimen/form_body_padding"
 				android:visibility="gone">
 
-				<com.aircandi.ui.widgets.AirTextLight
+				<com.patchr.ui.widgets.AirTextLight
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="top"
@@ -275,7 +275,7 @@
 					android:textAppearance="?attr/textAppearanceMediumLarge"
 					android:textColor="?attr/textColorSecondary" />
 
-				<com.aircandi.ui.widgets.FlowLayout
+				<com.patchr.ui.widgets.FlowLayout
 					android:id="@+id/flow_recipients"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -284,6 +284,6 @@
 
 		</LinearLayout>
 
-	</com.aircandi.ui.widgets.AirScrollView>
+	</com.patchr.ui.widgets.AirScrollView>
 
 </LinearLayout>

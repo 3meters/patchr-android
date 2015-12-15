@@ -12,13 +12,13 @@
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<com.aircandi.ui.widgets.AirLinearLayout
+	<com.patchr.ui.widgets.AirLinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_gravity="center_horizontal"
 		android:orientation="vertical">
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/content_message"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -29,7 +29,7 @@
 
 		<!-- Title and Content -->
 
-		<com.aircandi.ui.widgets.AirEditText
+		<com.patchr.ui.widgets.AirEditText
 			android:id="@+id/description"
 			style="@style/form_edit"
 			android:layout_width="match_parent"
@@ -43,12 +43,12 @@
 			android:isScrollContainer="true"
 			android:minLines="10" />
 
-		<com.aircandi.ui.widgets.UserView
+		<com.patchr.ui.widgets.UserView
 			android:id="@+id/created_by"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginLeft="12dp"
 			custom:layoutId="@layout/widget_user_view_compact" />
 
-	</com.aircandi.ui.widgets.AirLinearLayout>
+	</com.patchr.ui.widgets.AirLinearLayout>
 </LinearLayout>

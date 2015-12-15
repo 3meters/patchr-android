@@ -57,7 +57,7 @@
 
 	<!-- Theme attributes -->
 
-	<declare-styleable name="AircandiTheme">
+	<declare-styleable name="AppTheme">
 		<attr name="themeTone" format="string" />
 
 		<attr name="textAppearanceMediumLarge" format="reference" />

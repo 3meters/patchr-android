@@ -5,7 +5,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<com.aircandi.ui.widgets.AirTextLight
+	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/name"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
 		android:layout_alignParentBottom="true"
 		android:gravity="center_horizontal">
 
-		<com.aircandi.ui.widgets.AirButton
+		<com.patchr.ui.widgets.AirButton
 			android:id="@+id/button_cancel"
 			style="@style/button_flat"
 			android:layout_width="match_parent"

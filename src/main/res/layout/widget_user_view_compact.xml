@@ -9,7 +9,7 @@
 	android:paddingRight="10dp"
 	android:paddingTop="5dp">
 
-	<com.aircandi.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirImageView
 		android:id="@+id/widget_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_extra_small"
@@ -30,7 +30,7 @@
 		android:layout_toRightOf="@+id/widget_photo"
 		android:orientation="vertical">
 
-		<com.aircandi.ui.widgets.AirTextLight
+		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/widget_name"
 			style="@style/candi_user"
 			android:layout_width="wrap_content"

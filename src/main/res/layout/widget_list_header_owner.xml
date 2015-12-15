@@ -15,7 +15,7 @@
 	android:paddingTop="4dp"
 	tools:ignore="UnusedResources">
 
-	<com.aircandi.ui.widgets.CandiView
+	<com.patchr.ui.widgets.CandiView
 		android:id="@+id/candi_view"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"

@@ -13,7 +13,7 @@
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<com.aircandi.ui.widgets.AirScrollView
+	<com.patchr.ui.widgets.AirScrollView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_horizontal"
@@ -28,7 +28,7 @@
 
 			<!-- User picture -->
 
-			<com.aircandi.ui.widgets.AirImageView
+			<com.patchr.ui.widgets.AirImageView
 				android:id="@+id/photo"
 				style="@style/selectable_image"
 				android:layout_width="@dimen/image_extra_large"
@@ -54,7 +54,7 @@
 				android:layout_alignTop="@+id/photo"
 				android:background="@drawable/scrim_medium">
 
-				<com.aircandi.ui.widgets.AirTextView
+				<com.patchr.ui.widgets.AirTextView
 					android:id="@+id/button_photo_set"
 					style="@style/button_flat"
 					android:layout_width="match_parent"
@@ -105,7 +105,7 @@
 				android:layout_marginBottom="8dp"
 				android:orientation="vertical">
 
-				<com.aircandi.ui.widgets.AirEditText
+				<com.patchr.ui.widgets.AirEditText
 					android:id="@+id/name"
 					style="@style/form_edit"
 					android:layout_width="match_parent"
@@ -114,7 +114,7 @@
 					android:hint="@string/label_fullname"
 					android:inputType="textCapWords|textPersonName|textNoSuggestions" />
 
-				<com.aircandi.ui.widgets.AirEditText
+				<com.patchr.ui.widgets.AirEditText
 					android:id="@+id/area"
 					style="@style/form_edit"
 					android:layout_width="match_parent"
@@ -123,7 +123,7 @@
 					android:hint="@string/label_location"
 					android:inputType="textPostalAddress|textAutoCorrect" />
 
-				<com.aircandi.ui.widgets.AirEditText
+				<com.patchr.ui.widgets.AirEditText
 					android:id="@+id/email"
 					style="@style/form_edit"
 					android:layout_width="match_parent"
@@ -146,6 +146,6 @@
 			</LinearLayout>
 		</RelativeLayout>
 
-	</com.aircandi.ui.widgets.AirScrollView>
+	</com.patchr.ui.widgets.AirScrollView>
 
 </LinearLayout>

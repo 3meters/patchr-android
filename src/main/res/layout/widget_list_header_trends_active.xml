@@ -7,7 +7,7 @@
 	android:focusableInTouchMode="false"
 	android:orientation="vertical">
 
-	<com.aircandi.ui.widgets.AirTextLight
+	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/content_message"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"

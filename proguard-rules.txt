@@ -49,8 +49,8 @@
 # Patchr specific settings
 #/*-------------------------------------------------------------------------------------------------
 
--keep class com.aircandi.events.**			{ *; }
--dontnote com.aircandi.**
+-keep class com.patchr.events.**			{ *; }
+-dontnote com.patchr.**
 
 #/*-------------------------------------------------------------------------------------------------
 # AWS specific settings

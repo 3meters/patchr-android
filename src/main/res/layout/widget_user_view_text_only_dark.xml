@@ -6,7 +6,7 @@
 	android:gravity="center_vertical"
 	android:orientation="horizontal">
 
-	<com.aircandi.ui.widgets.AirTextView
+	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/widget_name"
 		style="@style/candi_user"
 		android:layout_width="wrap_content"
@@ -15,7 +15,7 @@
 		android:textColor="#ffffffff"
 		custom:textId="@string/dummy_name" />
 
-	<com.aircandi.ui.widgets.AirTextView
+	<com.patchr.ui.widgets.AirTextView
 		style="@style/bullet"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -24,7 +24,7 @@
 		android:paddingRight="3dp"
 		custom:textId="@string/symbol_bullet" />
 
-	<com.aircandi.ui.widgets.AirTextView
+	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/timesince"
 		style="@style/candi_user"
 		android:layout_width="wrap_content"

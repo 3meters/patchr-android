@@ -27,18 +27,18 @@ apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion '22'
+    buildToolsVersion '22.0.1'
 
     defaultConfig {
         /*
          * Official package name used by the Google Play store.
          * WARNING: Changing this will create a new app with no history.
          */
-        applicationId 'com.aircandi.catalina'
+        applicationId 'com.patchr.android'
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 215
-        versionName '1.7.5'
+        versionCode 1
+        versionName '0.9.0'
         multiDexEnabled true
     }
 
@@ -48,7 +48,7 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('aircandi.keystore')
+            storeFile file('app.keystore')
             keyAlias 'aircandi'
             storePassword 'Doo.dah.1'
             keyPassword 'Doo.dah.1'

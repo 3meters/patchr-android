@@ -5,7 +5,7 @@
 	android:layout_height="wrap_content"
 	android:padding="2dp">
 
-	<com.aircandi.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirImageView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="wrap_content"
