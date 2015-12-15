@@ -28,6 +28,7 @@ public class TrendListFragment extends EntityListFragment {
 	@Override
 	public void bind(final BindingMode mode) {
 		if (mEntities.size() == 0 || mode == BindingMode.MANUAL) {
+			mEntities.clear();
 			super.bind(mode);
 		}
 	}
