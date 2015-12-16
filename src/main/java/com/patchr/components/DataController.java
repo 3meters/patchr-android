@@ -1336,12 +1336,10 @@ public class DataController {
 	public ModelResult muteLink(String linkId, Boolean mute, String actionEvent) {
 		ModelResult result = new ModelResult();
 
-//		final Bundle parameters = new Bundle();
-//		parameters.putBoolean("mute", mute);
-
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(Constants.URL_PROXIBASE_SERVICE_REST + "links/" + linkId)
 				.setRequestType(RequestType.UPDATE)
+				.setParameters(new Bundle())
 				.setRequestBody("{ \"mute\": " + String.valueOf(mute) + "}")
 				.setResponseFormat(ResponseFormat.JSON);
 
@@ -1353,7 +1351,6 @@ public class DataController {
 
 		return result;
 	}
-
 
 	public ModelResult removeLinks(String fromId, String toId, String type, String schema, String actionEvent, Object tag) {
 		/*

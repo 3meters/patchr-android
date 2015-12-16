@@ -21,6 +21,7 @@ import com.patchr.Patchr;
 import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.NoNetworkException;
 import com.patchr.objects.ServiceData;
+import com.patchr.objects.User;
 import com.patchr.service.BaseConnection;
 import com.patchr.service.OkHttp;
 import com.patchr.service.RequestType;
@@ -168,9 +169,10 @@ public class NetworkManager {
 			return new ServiceResponse(ResponseCode.FAILED, null, new NoNetworkException());
 		}
 
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous() && serviceRequest.getRequestType() != RequestType.GET) {
-			serviceRequest.getParameters().putString("user", Patchr.getInstance().getCurrentUser().id);
-			serviceRequest.getParameters().putString("session", Patchr.getInstance().getCurrentUser().session.key);
+		User user = Patchr.getInstance().getCurrentUser();
+		if (!user.isAnonymous() && serviceRequest.getRequestType() != RequestType.GET) {
+			serviceRequest.getParameters().putString("user", user.id);
+			serviceRequest.getParameters().putString("session", user.session.key);
 		}
 
 		ServiceResponse serviceResponse = mOkClient.request(serviceRequest);
