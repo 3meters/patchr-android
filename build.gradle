@@ -37,8 +37,8 @@ android {
         applicationId 'com.patchr.android'
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 1
-        versionName '0.9.0'
+        versionCode 215
+        versionName '1.8.0'
         multiDexEnabled true
     }
 
