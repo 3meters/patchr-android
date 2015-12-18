@@ -389,7 +389,6 @@ public class Patchr extends MultiDexApplication {
 					mUniqueType = Constants.INSTALL_TYPE_RANDOM;
 				}
 			}
-			mUniqueId += "." + applicationContext.getPackageName();
 			mUniqueDate = DateTime.nowDate().getTime();
 			settingsEditor.putString(StringManager.getString(R.string.setting_unique_id_type), mUniqueType);
 			settingsEditor.putString(StringManager.getString(R.string.setting_unique_id), mUniqueId);
