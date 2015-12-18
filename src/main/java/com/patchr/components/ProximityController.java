@@ -309,25 +309,13 @@ public class ProximityController {
 	}
 
 	public synchronized ServiceResponse getEntitiesNearLocation(AirLocation location) {
-		/*
-		 * We find all aircandi patch entities in the cache via proximity that are active based
-		 * on the current search parameters (beacons and search radius) and could be supplied by the patch provider. We
-		 * create an array of the provider patch id's and pass them so they can be excluded from the places
-		 * that get returned.
-		 */
-		final List<String> excludePlaceIds = new ArrayList<String>();
-		for (Entity entity : DataController.getInstance().getPatches(true /* proximity required */)) {
-			Patch patch = (Patch) entity;
-			excludePlaceIds.add(patch.id);
-		}
 
 		String installId = Patchr.getInstance().getinstallId();
 
 		/* Only place in the code that calls loadEntitiesNearLocation */
 		ServiceResponse serviceResponse = mEntityStore.loadEntitiesNearLocation(location
 				, LinkSpecFactory.build(LinkSpecType.LINKS_FOR_PATCH)
-				, installId
-				, excludePlaceIds, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				, installId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 		return serviceResponse;
 	}

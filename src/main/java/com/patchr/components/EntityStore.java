@@ -231,7 +231,7 @@ public class EntityStore {
 		return serviceResponse;
 	}
 
-	ServiceResponse loadEntitiesNearLocation(AirLocation location, LinkSpec links, String installId, List<String> excludeIds, Object tag) {
+	ServiceResponse loadEntitiesNearLocation(AirLocation location, LinkSpec links, String installId, Object tag) {
 
 		final Bundle parameters = new Bundle();
 
@@ -246,10 +246,6 @@ public class EntityStore {
 
 		if (installId != null) {
 			parameters.putString("installId", installId);
-		}
-
-		if (excludeIds != null && excludeIds.size() > 0) {
-			parameters.putStringArrayList("excludeIds", (ArrayList<String>) excludeIds);
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
