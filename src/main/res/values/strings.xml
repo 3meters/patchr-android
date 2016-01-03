@@ -80,7 +80,7 @@
 	<string name="dialog_photo_action_default">Default</string>
 
 	<string name="dialog_update_title">Update available</string>
-	<string name="dialog_update_message">Please update to the latest version of [@string/name_app].</string>
+	<string name="dialog_update_message">Your version is not compatible with the Patchr servce. Please update to the latest version of [@string/name_app].</string>
 	<string name="dialog_update_ok">Update</string>
 	<string name="dialog_update_cancel">No thanks</string>
 
