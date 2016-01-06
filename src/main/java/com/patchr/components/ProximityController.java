@@ -25,7 +25,6 @@ import com.patchr.objects.Cursor;
 import com.patchr.objects.Entity;
 import com.patchr.objects.LinkSpecFactory;
 import com.patchr.objects.LinkSpecType;
-import com.patchr.objects.Patch;
 import com.patchr.objects.ServiceData;
 import com.patchr.service.ServiceResponse;
 import com.patchr.ui.widgets.ListPreferenceMultiSelect;

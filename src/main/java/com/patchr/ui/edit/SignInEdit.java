@@ -20,7 +20,6 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.FontManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;

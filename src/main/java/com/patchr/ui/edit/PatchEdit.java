@@ -28,7 +28,6 @@ import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Link;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
@@ -36,7 +35,6 @@ import com.patchr.ui.base.BaseEntityEdit;
 import com.patchr.ui.widgets.AirImageView;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.UI;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -48,8 +46,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.otto.Subscribe;
-
-import java.util.List;
 
 @SuppressLint("Registered")
 public class PatchEdit extends BaseEntityEdit {
