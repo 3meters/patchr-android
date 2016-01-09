@@ -177,7 +177,7 @@ public class NetworkManager {
 
 		ServiceResponse serviceResponse = mOkClient.request(serviceRequest);
 
-		/* Check for valid client version */
+		/* Check for valid client version and also capture service status code */
 		serviceResponse = clientVersionCheck(serviceRequest, serviceResponse);
 
 		/* Single point to handle request failures. */
@@ -208,15 +208,16 @@ public class NetworkManager {
 			 */
 			ServiceData serviceData = (ServiceData) Json.jsonToObject((String) serviceResponse.data, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 
+			if (serviceData.error != null && serviceData.error.code != null) {
+				serviceResponse.statusCodeService = serviceData.error.code.floatValue();
+			}
+
 			if (serviceData.clientMinVersions != null
 					&& serviceData.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
 
 				Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
 				if ((Integer) serviceData.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode) {
 					serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
-				}
-				else if (serviceData.error != null && serviceData.error.code != null) {
-					serviceResponse.statusCodeService = serviceData.error.code.floatValue();
 				}
 			}
 		}
