@@ -41,7 +41,11 @@ public class Dialogs {
 			, OnClickListener listenerClick
 			, OnCancelListener listenerCancel) {
 
-		final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		Integer theme = (Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
+		                ? AlertDialog.THEME_DEVICE_DEFAULT_LIGHT
+		                : AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+
+		final AlertDialog.Builder builder = new AlertDialog.Builder(context, theme);
 
 		if (iconResource != null) {
 			builder.setIcon(iconResource);
