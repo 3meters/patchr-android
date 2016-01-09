@@ -3,6 +3,7 @@ package com.patchr.ui;
 import android.view.View;
 import android.widget.TextView;
 
+import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.Dispatcher;
@@ -12,7 +13,9 @@ import com.patchr.events.DataNoopEvent;
 import com.patchr.events.DataResultEvent;
 import com.patchr.events.TrendRequestEvent;
 import com.patchr.interfaces.IEntityController;
+import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
+import com.patchr.objects.Link;
 import com.patchr.objects.ViewHolder;
 import com.patchr.utilities.UI;
 import com.squareup.otto.Subscribe;
@@ -97,8 +100,9 @@ public class TrendListFragment extends EntityListFragment {
 		if (((ViewHolderExtended) holder).countLabel != null) {
 			((ViewHolderExtended) holder).countLabel.setText(StringManager.getString(mCountLabelResId).toUpperCase(Locale.US));
 		}
-		if (((ViewHolderExtended) holder).countValue != null && entity.count != null) {
-			((ViewHolderExtended) holder).countValue.setText(String.valueOf(entity.count.intValue()));
+		if (((ViewHolderExtended) holder).countValue != null) {
+			Count messageCount = entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, null, Link.Direction.in);
+			((ViewHolderExtended) holder).countValue.setText(String.valueOf(messageCount.count.intValue()));
 		}
 
 		/* Replace index with rank */

@@ -33,6 +33,7 @@ import com.patchr.objects.Link;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.LinkSpec;
 import com.patchr.objects.LinkSpecFactory;
+import com.patchr.objects.LinkSpecItem;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
@@ -48,6 +49,7 @@ import com.patchr.service.ServiceResponse;
 import com.patchr.ui.AircandiForm;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Json;
+import com.patchr.utilities.Maps;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.parse.ParseInstallation;
@@ -1391,22 +1393,26 @@ public class DataController {
 	public ModelResult getTrending(String toSchema, String fromSchema, String trendType, Object tag) {
 		ModelResult result = new ModelResult();
 
-		/*
-		 * Patches ranked by message count
-		 * https://api.aircandi.com/v1/stats/to/patches/from/messages?type=content
-		 * 
-		 * Patches ranked by watchers
-		 * https://api.aircandi.com/v1/stats/to/patches/from/users?type=watch
-		 * watch
-		 */
+		final User currentUser = Patchr.getInstance().getCurrentUser();
+
+		LinkSpec links = new LinkSpec().setActive(new ArrayList<LinkSpecItem>());
+		links.shortcuts = false;
+		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
+				, Maps.asMap("_from", currentUser.id))
+				.setDirection(Direction.in));
+		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
+				, Maps.asMap("_creator", currentUser.id))
+				.setDirection(Direction.in));
+
+		final Bundle parameters = new Bundle();
+		parameters.putBoolean("getEntities", true);
+		parameters.putInt("limit", 50);
+		parameters.putString("links", "object:" + Json.objectToJson(links));
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_STATS
-						+ "to/" + toSchema + (toSchema.equals(Constants.SCHEMA_ENTITY_PATCH) ? "es" : "s")
-						+ "/from/" + fromSchema + (fromSchema.equals(Constants.SCHEMA_ENTITY_PATCH) ? "es" : "s")
-						+ "?type=" + trendType
-						+ "&limit=50")
-				.setRequestType(RequestType.GET)
+				.setUri(Constants.URL_PROXIBASE_SERVICE_PATCHES + "interesting")
+				.setRequestType(RequestType.METHOD)
+				.setParameters(parameters)
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
 
