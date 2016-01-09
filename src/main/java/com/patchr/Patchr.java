@@ -175,21 +175,6 @@ public class Patchr extends MultiDexApplication {
 		/* Turn on crash reporting */
 		Fabric.with(this, new Crashlytics());
 
-		/* Setup the analytics tracker */
-		GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-		if (analytics != null) {
-			/*
-			 * Set how often auto dispatch gets fired in seconds.
-			 * Note: The default is 30 minutes which is crazy. iOS default is 2 minutes so we are
-			 * going to be a bit aggresive and make it one minute for ship.
-			 */
-			analytics.setLocalDispatchPeriod(Constants.TIME_ONE_MINUTE);
-
-			/* Info on what is being tracked is output to logcat */
-			analytics.getLogger().setLogLevel(com.google.android.gms.analytics.Logger.LogLevel.VERBOSE);
-			mTracker = analytics.newTracker(R.xml.analytics);
-		}
-
 		/* Turn on parse */
 		Parse.initialize(this
 				, StringManager.getString(R.string.parse_app_id)        // application id
@@ -489,7 +474,18 @@ public class Patchr extends MultiDexApplication {
 		Logger.v(this, "Setting current patch to: " + currentPatch);
 	}
 
-	public Tracker getTracker() {
+	synchronized public Tracker getTracker() {
+		/* Setup the analytics tracker */
+		if (mTracker == null) {
+			GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+			/*
+			 * Set how often auto dispatch gets fired in seconds.
+			 * Note: The default is 30 minutes which is crazy. iOS default is 2 minutes so we are
+			 * going to be a bit aggresive and make it one minute for ship.
+			 */
+			analytics.setLocalDispatchPeriod(Constants.TIME_ONE_MINUTE);
+			mTracker = analytics.newTracker(R.xml.analytics);
+		}
 		return mTracker;
 	}
 
