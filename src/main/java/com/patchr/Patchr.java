@@ -68,6 +68,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import io.branch.referral.Branch;
 import io.fabric.sdk.android.Fabric;
 
 public class Patchr extends MultiDexApplication {
@@ -174,6 +175,9 @@ public class Patchr extends MultiDexApplication {
 
 		/* Turn on crash reporting */
 		Fabric.with(this, new Crashlytics());
+
+		/* Turn on branch */
+		Branch.getAutoInstance(this);
 
 		/* Turn on parse */
 		Parse.initialize(this

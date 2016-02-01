@@ -85,6 +85,9 @@
 			android:value="6f4074ec11634bd78eb00909102844ec" />
 		<meta-data android:name="com.parse.push.notification_icon"
 			android:resource="@drawable/ic_stat_notification"/>
+		<meta-data android:name="io.branch.sdk.BranchKey"
+			android:value="key_live_aabKfhL9u6piQ93E2lzVslklzraKnSc3" />
+
 
 		<!-- Services -->
 
@@ -175,6 +178,7 @@
 			android:name=".ui.SplashForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:theme="@style/patchr_theme_midnight_notitlebar"
+			android:launchMode="singleTask"
 			android:windowSoftInputMode="stateHidden">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -182,6 +186,7 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
+
 		<activity
 			android:name=".ui.AircandiForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"

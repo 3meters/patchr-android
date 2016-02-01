@@ -398,7 +398,7 @@
 		<item quantity="other">watching</item>
 	</plurals>
 
-	<!-- Labels: Sharing -->
+	<!-- Labels: Patch invite -->
 
 	<string name="label_patch_share_title">Invite people to \'%1$s\' patch using&#8230;</string>
 	<string name="label_patch_share_subject">\'%1$s\' [@string/container_singular_lowercase]</string>
@@ -406,8 +406,9 @@
     <string name="label_patch_share_body">
         "You\'ve been invited to a [@string/container_singular_lowercase]! \n\nhttp://patchr.com/patch/%1$s \n\n[@string/label_patch_share_body_install][@string/uri_play_store]"
     </string>
-
 	<string name="label_patch_share_body_self">"Check out the \'%1$s\' [@string/container_singular_lowercase]!"</string>
+
+	<!-- Labels: Message share -->
 
 	<string name="label_message_share_subject">[@string/name_app] message shared by %1$s</string>
 	<string name="label_message_share_body_install" tools:ignore="UnusedResources">Get the [@string/name_app] app at\u0020</string>
@@ -417,6 +418,8 @@
 
 	<string name="label_message_share_body_self">"Check out %1$s\'s message to the \'%2$s\' [@string/container_singular_lowercase]!"</string>
 	<string name="label_message_share_body_self_no_patch">"Check out %1$s\'s message to a [@string/container_singular_lowercase]!"</string>
+
+	<!-- Labels: Photo share -->
 
 	<string name="label_photo_share_subject">[@string/name_app] photo shared by %1$s</string>
     <string name="label_photo_share_body_self">

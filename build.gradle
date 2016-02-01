@@ -135,4 +135,5 @@ dependencies {
     }
     compile 'com.parse.bolts:bolts-android:1.+'
     compile 'com.parse:parse-android:1.+'
+	compile 'io.branch.sdk.android:library:1.+'
 }
