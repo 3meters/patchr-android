@@ -48,6 +48,8 @@ Certificate fingerprints:
          Signature algorithm name: SHA1withRSA
          Version: 3
 
+ Key hash: ncsuBTJxRoMNnn88rAOnelX58ig=
+
 *******************************************
          
 Current Release Key
@@ -77,6 +79,8 @@ Certificate fingerprints:
          SHA256: 09:AC:27:1E:40:7E:6C:42:1B:9D:D6:2B:72:0A:51:44:11:16:D3:61:45:37:A9:3C:2A:E9:20:E3:EC:A6:86:D3
          Signature algorithm name: SHA1withRSA
          Version: 3
+
+ Key hash: WTZ5o56h5R+IJn+MCN7eAfIvHO0=
 
 *******************************************
 

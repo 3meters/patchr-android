@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.appevents.AppEventsLogger;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -647,6 +648,8 @@ public class AircandiForm extends BaseActivity {
 		if (!registered) {
 			Dispatcher.getInstance().post(new RegisterInstallEvent());
 		}
+
+		AppEventsLogger.activateApp(this);
 	}
 
 	@Override
@@ -658,6 +661,7 @@ public class AircandiForm extends BaseActivity {
 		 */
 		mPauseDate = DateTime.nowDate().getTime();
 		super.onPause();
+		AppEventsLogger.deactivateApp(this);
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 import android.widget.Toast;
 
+import com.facebook.FacebookSdk;
 import com.patchr.components.ActivityRecognitionManager;
 import com.patchr.components.ContainerManager;
 import com.patchr.components.DataController;
@@ -178,6 +179,9 @@ public class Patchr extends MultiDexApplication {
 
 		/* Turn on branch */
 		Branch.getAutoInstance(this);
+
+		/* Turn on facebook */
+		FacebookSdk.sdkInitialize(this);
 
 		/* Turn on parse */
 		Parse.initialize(this

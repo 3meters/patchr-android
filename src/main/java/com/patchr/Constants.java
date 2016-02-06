@@ -13,9 +13,10 @@ import java.util.concurrent.Executor;
 @SuppressWarnings("ucd")
 public class Constants {
 
-	public static final int      LOG_LEVEL   = Patchr.debug ? Log.VERBOSE : Log.DEBUG;
-	public static final int      ERROR_LEVEL = Log.VERBOSE;
-	public static final Executor EXECUTOR    = AsyncTask.SERIAL_EXECUTOR;
+	public static final int      LOG_LEVEL       = Patchr.debug ? Log.VERBOSE : Log.DEBUG;
+	public static final int      ERROR_LEVEL     = Log.VERBOSE;
+	public static final Executor EXECUTOR        = AsyncTask.SERIAL_EXECUTOR;
+	public static final String   FACEBOOK_APP_ID = "894654857249670";
 
 	/* Activity parameters */
 	public static final String EXTRA_ENTITY_PARENT_ID = "com.patchr.EXTRA_PARENT_ENTITY_ID";
@@ -256,7 +257,7 @@ public class Constants {
 	public static final int RESULT_PROFILE_UPDATED        = 310;
 	public static final int RESULT_USER_SIGNED_IN         = 400;
 
-	public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 100;
+	public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION  = 100;
 	public static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 200;
 
 	public static final boolean SUPPORTS_ICE_CREAM_SANDWICH = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;

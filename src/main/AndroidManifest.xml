@@ -90,6 +90,14 @@
 			android:resource="@drawable/ic_stat_notification"/>
 		<meta-data android:name="io.branch.sdk.BranchKey"
 			android:value="key_live_aabKfhL9u6piQ93E2lzVslklzraKnSc3" />
+		<meta-data android:name="com.facebook.sdk.ApplicationId"
+			android:value="@string/facebook_app_id"/>
+
+		<!-- Providers -->
+
+		<provider android:authorities="com.facebook.app.FacebookContentProvider894654857249670"
+			android:name="com.facebook.FacebookContentProvider"
+			android:exported="true" />
 
 		<!-- Services -->
 

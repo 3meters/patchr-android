@@ -21,7 +21,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_gravity="center_horizontal"
-			android:background="?attr/backgroundCardField"
+			android:background="?attr/backgroundForm"
 			android:fillViewport="true">
 
 			<!-- Content -->

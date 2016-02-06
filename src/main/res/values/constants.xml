@@ -34,6 +34,10 @@
 
 	<string name="class_gcm_intent_service" tools:ignore="UnusedResources">com.patchr.components.GcmIntentService</string>
 
+	<!-- Facebook -->
+
+	<string name="facebook_app_id">894654857249670</string>
+
 	<!-- Tag manager -->
 
 	<string name="id_container">GTM-MV8KBB</string>
