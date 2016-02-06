@@ -15,6 +15,7 @@ import com.patchr.objects.Patch;
 import com.patchr.objects.Route;
 import com.patchr.ui.base.BaseEdit;
 import com.patchr.ui.base.BaseEntityEdit;
+import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Type;
 
 public class MenuManager {
@@ -32,12 +33,9 @@ public class MenuManager {
 		 * later added in BaseFragment.onCreateOptionsMenu.
 		 */
 		if (activityName.equals("AircandiForm")) {
-			menuInflater.inflate(R.menu.menu_notifications, menu);
-			return true;
-		}
-		else if (activityName.equals("PlaceForm")) {
-			menuInflater.inflate(R.menu.menu_sign_in, menu);
-			menuInflater.inflate(R.menu.menu_map, menu);
+			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				menuInflater.inflate(R.menu.menu_notifications, menu);
+			}
 			return true;
 		}
 		else if (activityName.equals("MapForm")) {

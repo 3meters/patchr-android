@@ -1,5 +1,6 @@
 package com.patchr.ui.edit;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import com.patchr.components.DataController;
 import com.patchr.components.LocationManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
+import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.events.ProcessingCanceledEvent;
@@ -470,8 +472,10 @@ public class PatchEdit extends BaseEntityEdit {
 
 	@Override
 	public void onResume() {
-		if (!mEditing && LocationManager.getInstance().isLocationAccessEnabled()) {
-			LocationManager.getInstance().start(true);  // Location triggers sequence
+		if (PermissionUtil.hasSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+			if (!mEditing && LocationManager.getInstance().isLocationAccessEnabled()) {
+				LocationManager.getInstance().start(true);  // Location triggers sequence
+			}
 		}
 		super.onResume();
 	}

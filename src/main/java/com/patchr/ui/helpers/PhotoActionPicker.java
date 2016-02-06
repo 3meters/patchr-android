@@ -1,10 +1,14 @@
 package com.patchr.ui.helpers;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +25,12 @@ import com.patchr.Patchr.ThemeTone;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.MediaManager;
+import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.interfaces.IBind.BindingMode;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BasePicker;
+import com.patchr.utilities.Dialogs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,18 +80,21 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 		                            ? R.drawable.ic_action_search_light : R.drawable.ic_action_search_dark
 				, StringManager.getString(R.string.dialog_photo_action_search), Constants.PHOTO_ACTION_SEARCH));
 
-		listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
-		                            ? R.drawable.ic_action_tiles_large_light
-		                            : R.drawable.ic_action_tiles_large_dark
-				, StringManager.getString(R.string.dialog_photo_action_gallery), Constants.PHOTO_ACTION_GALLERY));
-
-		/* Only show the camera choice if there is one and there is a place to store the image */
-		if (MediaManager.canCaptureWithCamera()) {
+		if (PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 			listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
-			                            ? R.drawable.ic_action_camera_light
-			                            : R.drawable.ic_action_camera_dark
-					, StringManager.getString(R.string.dialog_photo_action_camera), Constants.PHOTO_ACTION_CAMERA));
+			                            ? R.drawable.ic_action_tiles_large_light
+			                            : R.drawable.ic_action_tiles_large_dark
+					, StringManager.getString(R.string.dialog_photo_action_gallery), Constants.PHOTO_ACTION_GALLERY));
+
+			/* Only show the camera choice if there is one and there is a place to store the image */
+			if (MediaManager.canCaptureWithCamera()) {
+				listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
+				                            ? R.drawable.ic_action_camera_light
+				                            : R.drawable.ic_action_camera_dark
+						, StringManager.getString(R.string.dialog_photo_action_camera), Constants.PHOTO_ACTION_CAMERA));
+			}
 		}
+
 
 		mName.setText(StringManager.getString(R.string.dialog_photo_action_title));
 

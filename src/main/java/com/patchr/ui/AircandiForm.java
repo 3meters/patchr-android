@@ -9,6 +9,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,8 +25,11 @@ import com.patchr.components.Logger;
 import com.patchr.components.MapManager;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NotificationManager;
+import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.events.ActionEvent;
+import com.patchr.events.LocationAllowedEvent;
+import com.patchr.events.LocationDeniedEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.events.RegisterInstallEvent;
 import com.patchr.objects.CacheStamp;
@@ -85,6 +89,10 @@ public class AircandiForm extends BaseActivity {
 
 		mDrawerLeft = findViewById(R.id.left_drawer);
 		mDrawerRight = findViewById(R.id.right_drawer);
+		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			((ViewGroup) mDrawerRight.getParent()).removeView(mDrawerRight);
+			mDrawerRight = null;
+		}
 
 		/* Check if the device is tethered */
 		tetherAlert();
@@ -116,10 +124,12 @@ public class AircandiForm extends BaseActivity {
 				.setFabEnabled(false)
 				.setSelfBind(false);
 
-		getSupportFragmentManager()
-				.beginTransaction()
-				.replace(R.id.fragment_holder_notifications, mFragmentNotifications)
-				.commit();
+		if (mDrawerRight != null) {
+			getSupportFragmentManager()
+					.beginTransaction()
+					.replace(R.id.fragment_holder_notifications, mFragmentNotifications)
+					.commit();
+		}
 
 		setCurrentFragment(mNextFragmentTag);
 	}
@@ -152,7 +162,7 @@ public class AircandiForm extends BaseActivity {
 	public void onBackPressed() {
 
 		if (mDrawerLayout != null) {
-			if (mDrawerLayout.isDrawerOpen(mDrawerRight)) {
+			if (mDrawerRight != null && mDrawerLayout.isDrawerOpen(mDrawerRight)) {
 				mNotificationActionIcon.animate().rotation(0f).setDuration(200);
 				mDrawerLayout.closeDrawer(mDrawerRight);
 				return;
@@ -230,6 +240,21 @@ public class AircandiForm extends BaseActivity {
 	@SuppressWarnings("ucd")
 	public void onFabButtonClick(View view) {
 		Patchr.router.route(this, Route.NEW_PLACE, null, null);
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+		switch (requestCode) {
+			case Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+				if (PermissionUtil.verifyPermissions(grantResults)) {
+					Dispatcher.getInstance().post(new LocationAllowedEvent());
+				}
+				else {
+					Dispatcher.getInstance().post(new LocationDeniedEvent());
+				}
+				return;
+			}
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -526,7 +551,7 @@ public class AircandiForm extends BaseActivity {
 						setCurrentFragment(mNextFragmentTag);
 					}
 				}
-				else if (drawerView.getId() == R.id.right_drawer) {
+				else if (drawerView.getId() == R.id.right_drawer && mDrawerRight != null) {
 					NotificationManager.getInstance().setNewNotificationCount(0);
 					updateNotificationIndicator(false);
 				}
@@ -536,7 +561,7 @@ public class AircandiForm extends BaseActivity {
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
 
-				if (drawerView.getId() == R.id.right_drawer) {
+				if (drawerView.getId() == R.id.right_drawer && mDrawerRight != null) {
 					NotificationManager.getInstance().setNewNotificationCount(0);
 					NotificationManager.getInstance().cancelAllNotifications();
 					updateNotificationIndicator(true);
@@ -548,7 +573,7 @@ public class AircandiForm extends BaseActivity {
 			public void onDrawerSlide(View drawerView, float slideOffset) {
 				super.onDrawerSlide(drawerView, slideOffset);
 
-				if (drawerView.getId() == R.id.right_drawer) {
+				if (drawerView.getId() == R.id.right_drawer && mDrawerRight != null) {
 					mNotificationActionIcon.setRotation(90 * slideOffset);
 				}
 			}
@@ -564,7 +589,7 @@ public class AircandiForm extends BaseActivity {
 		getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
+				if (mDrawerRight != null && mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
 					mNotificationActionIcon.animate().rotation(0f).setDuration(200);
 					mDrawerLayout.closeDrawer(mDrawerRight);
 				}

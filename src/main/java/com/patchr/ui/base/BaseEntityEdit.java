@@ -1,12 +1,16 @@
 package com.patchr.ui.base;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
@@ -23,6 +27,7 @@ import com.patchr.components.MediaManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
+import com.patchr.components.PermissionUtil;
 import com.patchr.components.ProximityController;
 import com.patchr.components.StringManager;
 import com.patchr.interfaces.IBusy.BusyAction;
@@ -36,6 +41,7 @@ import com.patchr.objects.TransitionType;
 import com.patchr.service.ServiceResponse;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.widgets.AirImageView;
+import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
@@ -132,6 +138,8 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				}
 			});
 		}
+
+		ensurePermissions();
 	}
 
 	public void bind(BindingMode mode) {
@@ -420,6 +428,51 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_set_to_default", null, 0);
 		onPhotoSelected(null);
 	}
+
+	private void ensurePermissions() {
+
+		if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+			if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						final AlertDialog dialog = Dialogs.alertDialog(null
+								, StringManager.getString(R.string.alert_permission_storage_title)
+								, StringManager.getString(R.string.alert_permission_storage_message)
+								, null
+								, BaseEntityEdit.this
+								, R.string.alert_permission_storage_positive
+								, R.string.alert_permission_storage_negative
+								, null
+								, new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_POSITIVE) {
+									ActivityCompat.requestPermissions(BaseEntityEdit.this
+											, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+											, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+								}
+							}
+						}, null);
+						dialog.setCanceledOnTouchOutside(false);
+					}
+				});
+			}
+			else {
+				/*
+				 * No explanation needed, we can request the permission.
+				 * Parent activity will broadcast an event when permission request is complete.
+				 */
+				ActivityCompat.requestPermissions(this
+						, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+						, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+			}
+		}
+	}
+
 
 	/*--------------------------------------------------------------------------------------------
 	 * Pickers

@@ -1,5 +1,6 @@
 package com.patchr.ui.edit;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -9,12 +10,14 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.patchr.Constants;
+import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
+import com.patchr.components.PermissionUtil;
 import com.patchr.components.ProximityController;
 import com.patchr.components.ProximityController.ScanReason;
 import com.patchr.components.StringManager;
@@ -140,7 +143,8 @@ public class ProximityEdit extends BaseEntityEdit {
 		if (!mTuned) {
 			mUntuning = false;
 			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
-			if (NetworkManager.getInstance().isWifiEnabled()) {
+			if (NetworkManager.getInstance().isWifiEnabled()
+					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				mTuningInProcess = true;
 				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 			}
@@ -154,7 +158,8 @@ public class ProximityEdit extends BaseEntityEdit {
 		if (!mUntuned) {
 			mUntuning = true;
 			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
-			if (NetworkManager.getInstance().isWifiEnabled()) {
+			if (NetworkManager.getInstance().isWifiEnabled()
+					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				mTuningInProcess = true;
 				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 			}

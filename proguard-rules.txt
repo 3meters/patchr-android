@@ -134,11 +134,19 @@
 -dontwarn okio.**
 
 #/*-------------------------------------------------------------------------------------------------
+# Branch specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-keep class com.google.android.gms.ads.identifier.** { *; }
+
+#/*-------------------------------------------------------------------------------------------------
 # Parse specific settings
 #/*-------------------------------------------------------------------------------------------------
 
 #-keepnames class com.parse.** { *; }    # for easier debugging
 #-keep class com.parse.** { *; }
+-dontwarn android.net.SSLCertificateSocketFactory
+-dontwarn android.app.Notification
 
 #/*-------------------------------------------------------------------------------------------------
 # Google play services api specific settings

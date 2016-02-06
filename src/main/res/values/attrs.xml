@@ -99,6 +99,8 @@
 		<attr name="backgroundToken" format="color|reference" />
 
 		<attr name="imgLogo" format="reference" />
+		<attr name="imgFacebook" format="reference" />
+
 		<attr name="iconAdd" format="reference" />
 		<attr name="iconCancel" format="reference" />
 		<attr name="iconClear" format="reference" />
@@ -109,6 +111,7 @@
 		<attr name="iconLocked" format="reference" />
 		<attr name="iconMediaMessage" format="reference" />
 		<attr name="iconMessage" format="reference" />
+		<attr name="iconOverflow" format="reference" />
 		<attr name="iconPatch" format="reference" />
 		<attr name="iconPicture" format="reference" />
 		<attr name="iconSearch" format="reference" />
@@ -116,6 +119,7 @@
 		<attr name="iconShare" format="reference" />
 		<attr name="iconUser" format="reference" />
 		<attr name="iconWatch" format="reference" />
+		<attr name="iconFacebook" format="reference" />
 
 		<attr name="iconActionAccept" format="reference" />
 		<attr name="iconActionAdd" format="reference" />

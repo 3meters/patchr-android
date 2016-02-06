@@ -1,5 +1,6 @@
 package com.patchr.ui.helpers;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,8 +9,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.patchr.Constants;
+import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
+import com.patchr.components.PermissionUtil;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseActivity;
@@ -150,14 +153,17 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 
 	private void setUpMap() {
 
-		mMap.setMyLocationEnabled(true);
 		mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		mMap.setLocationSource(null);
 
 		UiSettings uiSettings = mMap.getUiSettings();
 
+		if (PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
+			mMap.setMyLocationEnabled(true);
+			uiSettings.setMyLocationButtonEnabled(true);
+		}
+
 		uiSettings.setZoomControlsEnabled(true);
-		uiSettings.setMyLocationButtonEnabled(true);
 		uiSettings.setAllGesturesEnabled(true);
 		uiSettings.setCompassEnabled(true);
 

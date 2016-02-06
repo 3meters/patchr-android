@@ -1,5 +1,6 @@
 package com.patchr.components;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -161,7 +162,9 @@ public class ProximityController {
 		 */
 		if (event.activityState == ActivityState.ARRIVING) {
 			Logger.d(this, "Proximity update: activity state = arriving");
-			ProximityController.getInstance().scanForWifi(ScanReason.MONITORING);
+			if (PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
+				ProximityController.getInstance().scanForWifi(ScanReason.MONITORING);
+			}
 			if (Patchr.getInstance().getPrefEnableDev()) {
 				UI.showToastNotification("Proximity update: activity state = arriving", Toast.LENGTH_SHORT);
 			}

@@ -256,6 +256,9 @@ public class Constants {
 	public static final int RESULT_PROFILE_UPDATED        = 310;
 	public static final int RESULT_USER_SIGNED_IN         = 400;
 
+	public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 100;
+	public static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 200;
+
 	public static final boolean SUPPORTS_ICE_CREAM_SANDWICH = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 	public static final boolean SUPPORTS_JELLY_BEAN         = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN;
 	public static final boolean SUPPORTS_JELLY_BEAN_MR1     = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;

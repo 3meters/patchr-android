@@ -1,5 +1,6 @@
 package com.patchr.ui;
 
+import android.Manifest;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.location.Location;
@@ -18,6 +19,7 @@ import com.patchr.R;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.MapManager;
+import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Entity;
@@ -99,15 +101,19 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 				mClusterManager.setOnClusterItemClickListener(MapListFragment.this);
 				mClusterManager.setOnClusterItemInfoWindowClickListener(MapListFragment.this);
 
-				mMap.setOnMyLocationButtonClickListener(MapListFragment.this);
 				mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-				mMap.setMyLocationEnabled(true);  // Causes connect() log error by gms client
-				mMap.setLocationSource(null);
 
 				UiSettings uiSettings = mMap.getUiSettings();
 
+				if (PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
+					mMap.setMyLocationEnabled(true);  // Causes connect() log error by gms client
+					uiSettings.setMyLocationButtonEnabled(true);
+					mMap.setOnMyLocationButtonClickListener(MapListFragment.this);
+				}
+
+				mMap.setLocationSource(null);
+
 				uiSettings.setZoomControlsEnabled(true);
-				uiSettings.setMyLocationButtonEnabled(true);
 				uiSettings.setAllGesturesEnabled(true);
 				uiSettings.setCompassEnabled(true);
 

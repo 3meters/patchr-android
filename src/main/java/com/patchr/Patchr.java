@@ -247,7 +247,9 @@ public class Patchr extends MultiDexApplication {
 		 * the current version from the network.
 		 */
 		TagManager tagManager = TagManager.getInstance(this);
-		tagManager.setVerboseLoggingEnabled(true);
+		if (Patchr.debug) {
+			tagManager.setVerboseLoggingEnabled(true);
+		}
 		PendingResult<ContainerHolder> pending = tagManager.loadContainerPreferNonDefault(containerId, R.raw.gtm_default_container);
 
 		pending.setResultCallback(new ResultCallback<ContainerHolder>() {

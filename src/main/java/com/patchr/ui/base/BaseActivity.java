@@ -19,6 +19,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -67,7 +68,7 @@ import com.squareup.otto.Subscribe;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class BaseActivity extends ActionBarActivity
+public abstract class BaseActivity extends AppCompatActivity
 		implements SwipeRefreshLayout.OnRefreshListener, IForm, IBind {
 
 	private   Toolbar mActionBarToolbar;
@@ -136,8 +137,9 @@ public abstract class BaseActivity extends ActionBarActivity
 			mLayoutResId = extras.getInt(Constants.EXTRA_LAYOUT_RESID);
 		}
 
-		super.setContentView(getLayoutId());
 		super.onCreate(savedInstanceState);
+		setContentView(getLayoutId());
+
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 		/* View layout event */
@@ -306,9 +308,9 @@ public abstract class BaseActivity extends ActionBarActivity
 		/*
 		 * By default we show the nav indicator and the title.
 		 */
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().setDisplayShowTitleEnabled(true);
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		if (super.getSupportActionBar() != null) {
+			super.getSupportActionBar().setDisplayShowTitleEnabled(true);
+			super.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 
 		getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
@@ -329,7 +331,7 @@ public abstract class BaseActivity extends ActionBarActivity
 		if (mActionBarToolbar == null) {
 			mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar);
 			if (mActionBarToolbar != null) {
-				setSupportActionBar(mActionBarToolbar);
+				super.setSupportActionBar(mActionBarToolbar);
 			}
 		}
 		return mActionBarToolbar;
@@ -686,7 +688,7 @@ public abstract class BaseActivity extends ActionBarActivity
 				mDrawerToggle.onOptionsItemSelected(item);
 			}
 			if (mDrawerLayout != null) {
-				if (mDrawerLayout.isDrawerOpen(mDrawerRight)) {
+				if (mDrawerRight != null && mDrawerLayout.isDrawerOpen(mDrawerRight)) {
 					mNotificationActionIcon.animate().rotation(0f).setDuration(200);
 					mDrawerLayout.closeDrawer(mDrawerRight);
 				}
@@ -778,13 +780,15 @@ public abstract class BaseActivity extends ActionBarActivity
 					if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
 						mDrawerLayout.closeDrawer(mDrawerLeft);
 					}
-					if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
-						mNotificationActionIcon.animate().rotation(0f).setDuration(200);
-						mDrawerLayout.closeDrawer(mDrawerRight);
-					}
-					else {
-						mNotificationActionIcon.animate().rotation(90f).setDuration(200);
-						mDrawerLayout.openDrawer(mDrawerRight);
+					if (mDrawerRight != null) {
+						if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
+							mNotificationActionIcon.animate().rotation(0f).setDuration(200);
+							mDrawerLayout.closeDrawer(mDrawerRight);
+						}
+						else {
+							mNotificationActionIcon.animate().rotation(90f).setDuration(200);
+							mDrawerLayout.openDrawer(mDrawerRight);
+						}
 					}
 				}
 			});

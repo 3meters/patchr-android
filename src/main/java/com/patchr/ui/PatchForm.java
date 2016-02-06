@@ -6,12 +6,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
+import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.flipboard.bottomsheet.commons.IntentPickerSheetView;
+import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController.ActionType;
+import com.patchr.components.IntentBuilder;
 import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
 import com.patchr.events.ActionEvent;
@@ -20,15 +26,24 @@ import com.patchr.events.ProcessingCompleteEvent;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Message;
 import com.patchr.objects.Patch;
+import com.patchr.objects.Photo;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.base.BaseFragment;
 import com.patchr.ui.components.ListController;
+import com.patchr.ui.edit.MessageEdit;
+import com.patchr.ui.widgets.InsetViewTransformer;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.Type;
+import com.patchr.utilities.UI;
 import com.squareup.otto.Subscribe;
+
+import io.branch.indexing.BranchUniversalObject;
+import io.branch.referral.Branch;
+import io.branch.referral.BranchError;
+import io.branch.referral.util.LinkProperties;
 
 @SuppressLint("Registered")
 public class PatchForm extends BaseActivity {
@@ -36,6 +51,7 @@ public class PatchForm extends BaseActivity {
 	protected EntityFormFragment mHeaderFragment;
 	protected String             mListLinkType;
 	protected String             mNotificationId;
+	protected BottomSheetLayout  mBottomSheetLayout;
 
 	@Override
 	public void unpackIntent() {
@@ -56,6 +72,8 @@ public class PatchForm extends BaseActivity {
 
 		mCurrentFragment = new EntityListFragment();
 		mHeaderFragment = new PatchFormFragment();
+		mBottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
+		mBottomSheetLayout.setPeekOnDismiss(true);
 
 		mHeaderFragment
 				.setEntityId(mEntityId)
@@ -228,21 +246,129 @@ public class PatchForm extends BaseActivity {
 	@Override
 	public void share() {
 
-		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
+		final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
+		final String title = String.format(StringManager.getString(R.string.label_patch_share_title), patchName);
+		final Activity activity = this;
 
-		builder.setSubject(String.format(StringManager.getString(R.string.label_patch_share_subject)
+		MenuSheetView menuSheetView = new MenuSheetView(this, MenuSheetView.MenuType.GRID, "Invite friends using...", new MenuSheetView.OnMenuItemClickListener() {
+
+					@Override
+					public boolean onMenuItemClick(MenuItem item) {
+						if (item.getItemId() == R.id.invite_using_patchr) {
+							/*
+							 * Go to patchr share directly but looks just like an external share
+							 */
+							final IntentBuilder intentBuilder = new IntentBuilder(activity, MessageEdit.class);
+							final Intent intent = intentBuilder.create();
+							intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+							intent.putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
+							intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
+							intent.setAction(Intent.ACTION_SEND);
+							activity.startActivity(intent);
+							AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
+							mBottomSheetLayout.dismissSheet();
+						}
+						else if (item.getItemId() == R.id.invite_using_other) {
+							showBuiltInSharePicker(title);
+							mBottomSheetLayout.dismissSheet();
+						}
+						else {
+							mBottomSheetLayout.dismissSheet();
+							UI.showToastNotification(item.getTitle().toString(), Toast.LENGTH_SHORT);
+						}
+						return true;
+					}
+				});
+
+		menuSheetView.inflateMenu(R.menu.menu_invite_sheet);
+		mBottomSheetLayout.showWithSheetView(menuSheetView, new InsetViewTransformer());
+	}
+
+	public void showBuiltInSharePicker(final String title) {
+
+		final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
+		final String referrerName = Patchr.getInstance().getCurrentUser().name;
+		final String ownerName = mEntity.owner.name;
+		final String path = "patch/" + mEntityId;
+
+		BranchUniversalObject applink = new BranchUniversalObject()
+				.setCanonicalIdentifier(path)
+				.setTitle(String.format("Invite by %1$s to the %2$s patch", referrerName, patchName)) // $og_title
+				.addContentMetadata("entityId", mEntityId)
+				.addContentMetadata("entitySchema", Constants.SCHEMA_ENTITY_PATCH)
+				.addContentMetadata("referrerName", referrerName)
+				.addContentMetadata("ownerName", ownerName)
+				.addContentMetadata("patchName", patchName);
+
+		if (mEntity.photo != null) {
+			Photo photo = mEntity.getPhoto();
+			String settings = "h=250&crop&fit=crop&q=50";
+			String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
+			applink.setContentImageUrl(photoUrl);  // $og_image_url
+		}
+
+		if (mEntity.description != null) {
+			applink.setContentDescription(mEntity.description); // $og_description
+		}
+
+		LinkProperties linkProperties = new LinkProperties()
+				.setChannel("patchr-android")
+				.setFeature(Branch.FEATURE_TAG_INVITE);
+
+		applink.generateShortUrl(this, linkProperties, new Branch.BranchLinkCreateListener() {
+
+			@Override
+			public void onLinkCreate(String url, BranchError error) {
+
+				if (error == null) {
+					ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(PatchForm.this);
+					builder.setChooserTitle(title);
+					builder.setType("text/plain");
+					/*
+					 * subject: Invitation to the \'%1$s\' patch
+					 * body: %1$s has invited you to the %2$s patch! %3$s
+					 */
+					builder.setSubject(String.format(StringManager.getString(R.string.label_patch_share_subject), patchName));
+					builder.setText(String.format(StringManager.getString(R.string.label_patch_share_body), referrerName, patchName, url));
+
+					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+					builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
+					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
+
+					builder.startChooser();
+				}
+			}
+		});
+	}
+
+	public void showSmartSharePicker(String title) {
+
+		final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+		shareIntent.setType("text/plain");
+		shareIntent.putExtra(Intent.EXTRA_SUBJECT, String.format(StringManager.getString(R.string.label_patch_share_subject)
 				, (mEntity.name != null) ? mEntity.name : "A"));
+		shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(StringManager.getString(R.string.label_patch_share_body), mEntityId));
+		shareIntent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+		shareIntent.putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
+		shareIntent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
 
-		builder.setType("text/plain");
-		builder.setText(String.format(StringManager.getString(R.string.label_patch_share_body), mEntityId));
-		builder.setChooserTitle(String.format(StringManager.getString(R.string.label_patch_share_title)
-				, (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase)));
+		IntentPickerSheetView intentPickerSheet = new IntentPickerSheetView(this, shareIntent, "Invite using...", new IntentPickerSheetView.OnIntentPickedListener() {
+			@Override
+			public void onIntentPicked(IntentPickerSheetView.ActivityInfo activityInfo) {
+				mBottomSheetLayout.dismissSheet();
+				startActivity(activityInfo.getConcreteIntent(shareIntent));
+			}
+		});
 
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
+		/* Filter out built in sharing options such as bluetooth and beam. */
+		intentPickerSheet.setFilter(new IntentPickerSheetView.Filter() {
+			@Override
+			public boolean include(IntentPickerSheetView.ActivityInfo info) {
+				return !info.componentName.getPackageName().startsWith("com.android");
+			}
+		});
 
-		builder.startChooser();
+		mBottomSheetLayout.showWithSheetView(intentPickerSheet);
 	}
 
 	@Override

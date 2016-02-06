@@ -1,10 +1,18 @@
 package com.patchr.ui;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,12 +30,15 @@ import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
+import com.patchr.components.PermissionUtil;
 import com.patchr.components.ProximityController;
 import com.patchr.components.ProximityController.ScanReason;
 import com.patchr.components.StringManager;
 import com.patchr.events.BeaconsLockedEvent;
 import com.patchr.events.EntitiesByProximityCompleteEvent;
 import com.patchr.events.EntitiesUpdatedEvent;
+import com.patchr.events.LocationAllowedEvent;
+import com.patchr.events.LocationDeniedEvent;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.events.QueryWifiScanReceivedEvent;
 import com.patchr.interfaces.IBusy;
@@ -44,6 +55,7 @@ import com.patchr.objects.User;
 import com.patchr.objects.ViewHolder;
 import com.patchr.service.ServiceResponse;
 import com.patchr.ui.base.BaseActivity;
+import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
@@ -63,13 +75,20 @@ public class NearbyListFragment extends EntityListFragment {
 	private String mDebugLocation = "--";
 
 	private Number mEntityModelBeaconDate;
-	private   LocationHandler mLocationHandler             = new LocationHandler();
-	private   Boolean         mAtLeastOneLocationProcessed = false;
-	protected AtomicBoolean   mLocationDialogShot          = new AtomicBoolean(false);
+	private LocationHandler mLocationHandler             = new LocationHandler();
+	private Boolean         mAtLeastOneLocationProcessed = false;
+
+	protected AtomicBoolean mLocationDialogShot = new AtomicBoolean(false);
 	protected AsyncTask mTaskPatchesNearLocation;
 	protected AsyncTask mTaskPatchesByProximity;
 
 	private CacheStamp mCacheStamp;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		ensurePermissions();
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -341,6 +360,19 @@ public class NearbyListFragment extends EntityListFragment {
 		mAdapter.notifyDataSetChanged();
 	}
 
+	@Subscribe
+	@SuppressWarnings("ucd")
+	public void onLocationAllowed(final LocationAllowedEvent event) {
+		setListEmptyMessageResId(R.string.label_radar_empty);
+		onRefresh();
+	}
+
+	@Subscribe
+	@SuppressWarnings("ucd")
+	public void onLocationDenied(final LocationDeniedEvent event) {
+		/* Here but being used yet. */
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -354,37 +386,42 @@ public class NearbyListFragment extends EntityListFragment {
 		 */
 		Boolean stampDirty = !DataController.getInstance().getGlobalCacheStamp().equals(mCacheStamp);
 
-		/* Start location processing */
-		if (LocationManager.getInstance().isLocationAccessEnabled()) {
-			/*
-			 * If manual mode then first location available is used and not possibly
-			 * optimized out. This ensures that the location based patches will be rebuilt
-			 * even if you haven't moved an inch.
-			 */
+		if (PermissionUtil.hasSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-			if (mode == BindingMode.MANUAL || stampDirty) {
-				LocationManager.getInstance().stop();
-				LocationManager.getInstance().start(true);  // Location update triggers searchForPatches
+			/* Start location processing */
+			if (LocationManager.getInstance().isLocationAccessEnabled()) {
+				/*
+				 * If manual mode then first location available is used and not possibly
+				 * optimized out. This ensures that the location based patches will be rebuilt
+				 * even if you haven't moved an inch.
+				 */
+				if (mode == BindingMode.MANUAL || stampDirty) {
+					LocationManager.getInstance().stop();
+					LocationManager.getInstance().start(true);  // Location update triggers searchForPatches
+				}
+				else {
+					LocationManager.getInstance().start(false); // Location update triggers searchForPatches
+				}
+				return;
 			}
 			else {
-				LocationManager.getInstance().start(false); // Location update triggers searchForPatches
+				/* Let them know that location services are disabled */
+				if (!mLocationDialogShot.get()) {
+					Dialogs.locationServicesDisabled(getActivity(), mLocationDialogShot);
+				}
+				else {
+					UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
+				}
 			}
-			return;
+
+			/* Start a wifi scan */
+			if (NetworkManager.getInstance().isWifiEnabled()) {
+				searchForPatches(); // Chains from wifi to near (if location locked)
+				return;
+			}
 		}
 		else {
-			/* Let them know that location services are disabled */
-			if (!mLocationDialogShot.get()) {
-				Dialogs.locationServicesDisabled(getActivity(), mLocationDialogShot);
-			}
-			else {
-				UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
-			}
-		}
-
-		/* Start a wifi scan */
-		if (NetworkManager.getInstance().isWifiEnabled()) {
-			searchForPatches(); // Chains from wifi to near (if location locked)
-			return;
+			showSnackbar();
 		}
 
 		/* Got nothing to work with so drop our pants */
@@ -478,7 +515,8 @@ public class NearbyListFragment extends EntityListFragment {
 				Patchr.stopwatch1.start("beacon_search", "Search for patches by beacon");
 
 				DataController.getInstance().clearEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
-				if (NetworkManager.getInstance().isWifiEnabled()) {
+				if (NetworkManager.getInstance().isWifiEnabled()
+						&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
 					ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 				}
 				else {
@@ -487,6 +525,68 @@ public class NearbyListFragment extends EntityListFragment {
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	private void showSnackbar() {
+		Snackbar snackbar = Snackbar.make(getView(), "Snackbar", Snackbar.LENGTH_LONG);
+		//snackbar.getView().setBackgroundColor(Colors.getColor(R.color.brand_accent));
+		snackbar.setActionTextColor(Colors.getColor(R.color.brand_primary));
+		snackbar.setText(R.string.alert_location_permission_denied)
+		        .setAction("Settings", new View.OnClickListener() {
+			        @Override
+			        public void onClick(View v) {
+				        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+				        Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+				        intent.setData(uri);
+				        startActivityForResult(intent, 100);
+			        }
+		        })
+		        .show();
+
+	}
+
+	private void ensurePermissions() {
+
+		if (!PermissionUtil.hasSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+			if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						final AlertDialog dialog = Dialogs.alertDialog(null
+								, StringManager.getString(R.string.alert_permission_location_title)
+								, StringManager.getString(R.string.alert_permission_location_message)
+								, null
+								, getActivity()
+								, R.string.alert_permission_location_positive
+								, R.string.alert_permission_location_negative
+								, null
+								, new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_POSITIVE) {
+									ActivityCompat.requestPermissions(getActivity()
+											, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
+											, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+								}
+							}
+						}, null);
+						dialog.setCanceledOnTouchOutside(false);
+					}
+				});
+			}
+			else {
+				/*
+				 * No explanation needed, we can request the permission.
+				 * Parent activity will broadcast an event when permission request is complete.
+				 */
+				ActivityCompat.requestPermissions(getActivity()
+						, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
+						, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+			}
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------

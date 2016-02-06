@@ -83,16 +83,19 @@
 		<!-- Images and icons -->
 
 		<item name="imgLogo">@drawable/img_logo</item>
+		<item name="imgFacebook">@drawable/img_facebook</item>
+
 		<item name="iconAdd">@drawable/ic_add_dark</item>
 		<item name="iconCancel">@drawable/ic_action_cancel_dark</item>
 		<item name="iconClear">@drawable/ic_action_cancel_dark</item>
-		<item name="iconFavorite">@drawable/ic_img_star_dark</item>
+		<item name="iconFacebook">@drawable/ic_img_facebook_dark</item>
 		<item name="iconForward">@drawable/ic_action_forward_dark</item>
 		<item name="iconLocation">@drawable/ic_img_location_dark</item>
 		<item name="iconLike">@drawable/ic_img_like_dark</item>
 		<item name="iconLocked">@drawable/ic_action_lock_closed_dark</item>
 		<item name="iconMediaMessage">@drawable/ic_img_media_message_dark</item>
 		<item name="iconMessage">@drawable/ic_img_message_dark</item>
+		<item name="iconOverflow">@drawable/ic_img_overflow_dark</item>
 		<item name="iconPatch">@drawable/ic_img_patch_dark</item>
 		<item name="iconPicture">@drawable/ic_img_picture_dark</item>
 		<item name="iconSearch">@drawable/ic_action_search_dark</item>
@@ -166,9 +169,12 @@
 		<!-- Images and icons -->
 
 		<item name="imgLogo">@drawable/img_logo</item>
+		<item name="imgFacebook">@drawable/img_facebook</item>
+
 		<item name="iconAdd">@drawable/ic_add_light</item>
 		<item name="iconCancel">@drawable/ic_action_cancel_light</item>
 		<item name="iconClear">@drawable/ic_action_cancel_light</item>
+		<item name="iconFacebook">@drawable/ic_img_facebook_light</item>
 		<item name="iconFavorite">@drawable/ic_img_star_light</item>
 		<item name="iconForward">@drawable/ic_action_forward_light</item>
 		<item name="iconLike">@drawable/ic_img_like_light</item>
@@ -176,6 +182,7 @@
 		<item name="iconLocked">@drawable/ic_action_lock_closed_light</item>
 		<item name="iconMediaMessage">@drawable/ic_img_media_message_light</item>
 		<item name="iconMessage">@drawable/ic_img_message_light</item>
+		<item name="iconOverflow">@drawable/ic_img_overflow_light</item>
 		<item name="iconPatch">@drawable/ic_img_patch_light</item>
 		<item name="iconPicture">@drawable/ic_img_picture_light</item>
 		<item name="iconSearch">@drawable/ic_action_search_light</item>

@@ -1,5 +1,6 @@
 package com.patchr.ui;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,17 +10,22 @@ import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.flipboard.bottomsheet.commons.IntentPickerSheetView;
+import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
+import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
@@ -43,9 +49,11 @@ import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseEntityForm;
 import com.patchr.ui.components.CircleTransform;
+import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.widgets.AirImageView;
 import com.patchr.ui.widgets.EntityView;
 import com.patchr.ui.widgets.FlowLayout;
+import com.patchr.ui.widgets.InsetViewTransformer;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -55,9 +63,15 @@ import com.squareup.otto.Subscribe;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.branch.indexing.BranchUniversalObject;
+import io.branch.referral.Branch;
+import io.branch.referral.BranchError;
+import io.branch.referral.util.LinkProperties;
+
 public class MessageForm extends BaseEntityForm {
 
 	private List<Entity> mTos = new ArrayList<Entity>();
+	protected BottomSheetLayout mBottomSheetLayout;
 
 	@Override
 	public void unpackIntent() {
@@ -85,7 +99,10 @@ public class MessageForm extends BaseEntityForm {
 	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
+
 		mLinkProfile = LinkSpecType.LINKS_FOR_MESSAGE;
+		mBottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
+		mBottomSheetLayout.setPeekOnDismiss(true);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -179,6 +196,13 @@ public class MessageForm extends BaseEntityForm {
 
 	@SuppressWarnings("ucd")
 	public void onShareClick(View view) {
+
+		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			String message = StringManager.getString(R.string.alert_signin_message_share);
+			Dialogs.signinRequired(this, message);
+			return;
+		}
+
 		share();
 	}
 
@@ -484,19 +508,144 @@ public class MessageForm extends BaseEntityForm {
 	@Override
 	public void share() {
 
-		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
+		final String entityName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
+		final String title = String.format(StringManager.getString(R.string.label_message_share_title), entityName);
+		final Activity activity = this;
 
-		builder.setChooserTitle(String.format(StringManager.getString(R.string.label_message_share_title)
-				, (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase)));
-		builder.setType("text/plain");
-		builder.setSubject(String.format(StringManager.getString(R.string.label_message_share_subject), Patchr.getInstance().getCurrentUser().name));
-		builder.setText(String.format(StringManager.getString(R.string.label_message_share_body), mEntityId));
+		MenuSheetView menuSheetView = new MenuSheetView(this, MenuSheetView.MenuType.GRID, "Share using...", new MenuSheetView.OnMenuItemClickListener() {
 
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				if (item.getItemId() == R.id.share_using_patchr) {
+					/*
+					 * Go to patchr share directly but looks just like an external share
+					 */
+					mBottomSheetLayout.dismissSheet();
+					final IntentBuilder intentBuilder = new IntentBuilder(activity, MessageEdit.class);
+					final Intent intent = intentBuilder.create();
+					intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+					intent.putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
+					intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+					intent.setAction(Intent.ACTION_SEND);
+					activity.startActivity(intent);
+					AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
+				}
+				else if (item.getItemId() == R.id.share_using_other) {
+					mBottomSheetLayout.dismissSheet();
+					showBuiltInSharePicker(title);
+				}
+				else {
+					mBottomSheetLayout.dismissSheet();
+					UI.showToastNotification(item.getTitle().toString(), Toast.LENGTH_SHORT);
+				}
+				return true;
+			}
+		});
 
-		builder.startChooser();
+		menuSheetView.inflateMenu(R.menu.menu_share_sheet);
+		mBottomSheetLayout.showWithSheetView(menuSheetView, new InsetViewTransformer());
+	}
+
+	public void showBuiltInSharePicker(final String title) {
+
+		final String patchName = (mEntity.patch.name != null) ? mEntity.patch.name : StringManager.getString(R.string.container_singular_lowercase);
+		final String referrerName = Patchr.getInstance().getCurrentUser().name;
+		final String ownerName = mEntity.owner.name;
+		final String path = "message/" + mEntityId;
+
+		BranchUniversalObject applink = new BranchUniversalObject()
+				.setCanonicalIdentifier(path)
+				.addContentMetadata("entityId", mEntityId)
+				.addContentMetadata("entitySchema", Constants.SCHEMA_ENTITY_MESSAGE)
+				.addContentMetadata("referrerName", referrerName)
+				.addContentMetadata("ownerName", ownerName);
+
+		if (patchName != null) {
+			applink.addContentMetadata("patchName", patchName);
+		}
+
+		if (mEntity.photo != null) {
+			Photo photo = mEntity.getPhoto();
+			String settings = "h=500&crop&fit=crop&q=50";
+			String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
+			applink.setContentImageUrl(photoUrl);  // $og_image_url
+		}
+		else if (mEntity.patch != null) {
+			Photo photo = mEntity.patch.getPhoto();
+			String settings = "h=500&crop&fit=crop&q=50";
+			String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
+			applink.setContentImageUrl(photoUrl);  // $og_image_url
+		}
+
+		String description = String.format("%1$s posted a photo using Patchr", ownerName);
+		if (patchName != null) {
+			description = String.format("%1$s posted a photo to the %2$s patch using Patchr", ownerName, patchName);
+		}
+		if (mEntity.description != null) {
+			description = String.format("%1$s posted: \"%2$s\"", ownerName, mEntity.description);
+		}
+
+		applink.setTitle(String.format("Shared by %1$s", referrerName));    // $og_title
+		applink.setContentDescription(mEntity.description);                 // $og_description
+
+		LinkProperties linkProperties = new LinkProperties()
+				.setChannel("patchr-android")
+				.setFeature(Branch.FEATURE_TAG_SHARE);
+
+		applink.generateShortUrl(this, linkProperties, new Branch.BranchLinkCreateListener() {
+
+			@Override
+			public void onLinkCreate(String url, BranchError error) {
+
+				if (error == null) {
+					ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(MessageForm.this);
+					builder.setChooserTitle(title);
+					builder.setType("text/plain");
+					/*
+					 * subject: Invitation to the \'%1$s\' patch
+					 * body: %1$s has invited you to the %2$s patch! %3$s
+					 */
+					builder.setSubject(String.format(StringManager.getString(R.string.label_message_share_subject), ownerName));
+					builder.setText(String.format(StringManager.getString(R.string.label_message_share_body), ownerName, patchName, url));
+
+					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+					builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
+					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+
+					builder.startChooser();
+				}
+			}
+		});
+	}
+
+	public void showSmartSharePicker(String title) {
+
+		final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+		shareIntent.setType("text/plain");
+		shareIntent.putExtra(Intent.EXTRA_SUBJECT, String.format(StringManager.getString(R.string.label_message_share_subject)
+				, (mEntity.name != null) ? mEntity.name : "A"));
+		shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(StringManager.getString(R.string.label_message_share_body), mEntityId));
+		shareIntent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+		shareIntent.putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
+		shareIntent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+
+		IntentPickerSheetView intentPickerSheet = new IntentPickerSheetView(this, shareIntent, "Invite using...", new IntentPickerSheetView.OnIntentPickedListener() {
+			@Override
+			public void onIntentPicked(IntentPickerSheetView.ActivityInfo activityInfo) {
+				mBottomSheetLayout.dismissSheet();
+				startActivity(activityInfo.getConcreteIntent(shareIntent));
+			}
+		});
+
+		/* Filter out built in sharing options such as bluetooth and beam. */
+		intentPickerSheet.setFilter(new IntentPickerSheetView.Filter() {
+			@Override
+			public boolean include(IntentPickerSheetView.ActivityInfo info) {
+				return !info.componentName.getPackageName().startsWith("com.android");
+			}
+		});
+
+		mBottomSheetLayout.showWithSheetView(intentPickerSheet);
 	}
 
 	@Override

@@ -243,6 +243,13 @@ public class PatchFormFragment extends EntityFormFragment {
 
 	@SuppressWarnings("ucd")
 	private void onShareButtonClick(View view) {
+
+		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			String message = StringManager.getString(R.string.alert_signin_message_share);
+			Dialogs.signinRequired(getActivity(), message);
+			return;
+		}
+
 		if (mEntity != null) {
 			Patchr.router.route(getActivity(), Route.SHARE, mEntity, null);
 		}
