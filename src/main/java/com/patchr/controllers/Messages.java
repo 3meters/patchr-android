@@ -3,6 +3,7 @@ package com.patchr.controllers;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.patchr.Constants;
@@ -21,6 +22,7 @@ import com.patchr.objects.ViewHolder;
 import com.patchr.ui.MessageForm;
 import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.edit.MessageEdit;
+import com.patchr.ui.widgets.UserPhotoView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;
@@ -91,14 +93,8 @@ public class Messages extends EntityControllerBase {
 
 		UI.setVisibility(holder.userPhotoView, View.GONE);
 		if (holder.userPhotoView != null && entity.creator != null) {
-		    /*
-		     * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
-			 */
-			Photo photo = entity.creator.getPhoto();
-			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
-				holder.userPhotoView.setGroupTag(groupTag);
-				UI.drawPhoto(holder.userPhotoView, photo, new CircleTransform());
-			}
+			((UserPhotoView) holder.userPhotoView).databind(entity.creator);
+			holder.userPhotoView.setGroupTag(groupTag);
 			holder.userPhotoView.setTag(entity.creator);
 			UI.setVisibility(holder.userPhotoView, View.VISIBLE);
 		}
@@ -178,7 +174,6 @@ public class Messages extends EntityControllerBase {
 				if (entity.photo != null) {
 					if (holder.photoView.getPhoto() == null || !photo.getDirectUri().equals(holder.photoView.getPhoto().getDirectUri())) {
 						holder.photoView.setTag(photo);
-						holder.photoView.setCenterCrop(false);
 						holder.photoView.setGroupTag(groupTag);
 						UI.drawPhoto(holder.photoView, photo);
 					}

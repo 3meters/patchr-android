@@ -57,12 +57,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	public Boolean usingDefault  = false;
 	@NonNull
 	public Boolean store         = false;   // Hint that photo needs to be stored.
-	@NonNull
-	public Boolean resizerActive = false;
-
-	public Number resizerWidth;
-
-	public Number resizerHeight;
 
 	public Photo() {}
 
@@ -92,14 +86,12 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 			throw new RuntimeException("Photo object is missing required source property");
 		}
 		photo.source = (String) map.get("source");
+
 		photo.createdDate = (Number) map.get("createdDate");
 		photo.name = (String) map.get("name");
 		photo.description = (String) map.get("description");
-		photo.usingDefault = (Boolean) map.get("usingDefault");
+
 		photo.store = (Boolean) map.get("store");
-		photo.resizerActive = (Boolean) map.get("resizerActive");
-		photo.resizerWidth = (Number) map.get("resizerWidth");
-		photo.resizerHeight = (Number) map.get("resizerHeight");
 
 		if (map.get("user") != null) {
 			photo.user = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("user"), nameMapping);
@@ -123,98 +115,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	public String getDirectUri() {
 		final String url = UI.url(this.prefix, this.source, PhotoSizeCategory.NONE);
 		return url;
-	}
-
-	@NonNull
-	private String getSizedUri(Number maxWidth, Number maxHeight, @NonNull Boolean wrapped) {
-
-		if (this.source.equals(PhotoSource.resource)) {
-			return ("resource:" + this.prefix);
-		}
-		else if (this.source.equals(PhotoSource.assets_categories)) {
-			return (Constants.URL_PROXIBASE_SERVICE_ASSETS_CATEGORIES + this.prefix);
-		}
-		else if (this.source.equals(PhotoSource.assets_applinks)) {
-			return (Constants.URL_PROXIBASE_SERVICE_ASSETS_APPLINK_ICONS + this.prefix);
-		}
-		else if (this.source.equals(PhotoSource.bing)) {
-			return this.prefix;
-		}
-		else if (this.source.equals(PhotoSource.facebook)) {
-			return this.prefix;
-		}
-		else if (this.source.equals(PhotoSource.foursquare)) {
-			if (wrapped && Type.isTrue(this.resizerActive) && this.resizerWidth != null && this.resizerHeight != null) {
-				return (this.prefix + String.valueOf(this.resizerWidth.intValue()) + "x" + String.valueOf(this.resizerHeight.intValue()) + this.suffix);
-			}
-			else {
-				/* Sometimes we have height/width info and sometimes we don't */
-				if (this.suffix != null) {
-					Integer targetWidth = (maxWidth != null) ? maxWidth.intValue() : 256;
-					Integer targetHeight = (maxHeight != null) ? maxHeight.intValue() : 256;
-					return (this.prefix + String.valueOf(targetWidth.intValue()) + "x" + String.valueOf(targetHeight.intValue()) + this.suffix);
-				}
-			}
-			return this.prefix;
-		}
-		else if (this.source.equals(PhotoSource.foursquare_icon)) {
-			if (this.suffix != null) {
-				return (this.prefix + "88" + this.suffix);
-			}
-			return this.prefix;
-		}
-		else if (this.source.equals(PhotoSource.google)) {
-			int width = (maxWidth != null) ? maxWidth.intValue() : Constants.IMAGE_DIMENSION_MAX;
-			if (wrapped && Type.isTrue(this.resizerActive) && this.resizerWidth != null) {
-				width = this.resizerWidth.intValue();
-			}
-
-			if (this.prefix.contains("?")) {
-				return (this.prefix + "&maxwidth=" + String.valueOf(width));
-			}
-			else {
-				return (this.prefix + "?maxwidth=" + String.valueOf(width));
-			}
-		}
-		else {
-
-			StringBuilder builder = new StringBuilder();
-			if (this.source.equals(PhotoSource.aircandi)
-					|| this.source.equals(PhotoSource.aircandi_images)) {
-				builder.append(StringManager.getString(R.string.url_media_images) + this.prefix);
-			}
-			else if (this.source.equals(PhotoSource.generic)) {
-				builder.append(this.prefix);
-			}
-			else if (this.source.equals(PhotoSource.yelp)) {
-				builder.append(this.prefix);
-			}
-			else {
-				builder.append(this.prefix);
-			}
-
-			if (wrapped && Type.isTrue(this.resizerActive) && this.resizerWidth != null && this.resizerHeight != null) {
-				/*
-				 * If photo comes with native height/width then use it otherwise
-				 * resize based on width.
-				 */
-				if (this.width != null && this.height != null) {
-
-					Float photoAspectRatio = this.width.floatValue() / this.height.floatValue();
-					Float targetAspectRatio = this.resizerWidth.floatValue() / this.resizerHeight.floatValue();
-
-					ResizeDimension dimension = (targetAspectRatio >= photoAspectRatio) ? ResizeDimension.WIDTH : ResizeDimension.HEIGHT;
-
-					return (imageResizer.convert(builder.toString()
-							, dimension == ResizeDimension.WIDTH ? this.resizerWidth.intValue() : this.resizerHeight.intValue()
-							, dimension));
-				}
-				else {
-					return (imageResizer.convert(builder.toString(), this.resizerWidth.intValue(), ResizeDimension.WIDTH));
-				}
-			}
-			return builder.toString();
-		}
 	}
 
 	@NonNull
@@ -362,19 +262,19 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return this;
 	}
 
-	@NonNull
-	public Photo setProxy(Boolean proxyActive, Integer height, Integer width) {
-		this.resizerActive = proxyActive;
-		if (proxyActive) {
-			this.resizerWidth = width;
-			this.resizerHeight = height;
-		}
-		else {
-			this.resizerWidth = null;
-			this.resizerHeight = null;
-		}
-		return this;
-	}
+	//	@NonNull
+	//	public Photo setProxy(Boolean proxyActive, Integer height, Integer width) {
+	//		this.resizerActive = proxyActive;
+	//		if (proxyActive) {
+	//			this.resizerWidth = width;
+	//			this.resizerHeight = height;
+	//		}
+	//		else {
+	//			this.resizerWidth = null;
+	//			this.resizerHeight = null;
+	//		}
+	//		return this;
+	//	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes

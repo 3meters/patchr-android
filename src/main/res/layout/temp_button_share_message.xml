@@ -4,8 +4,8 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
-	android:layout_margin="16dp"
 	android:layout_height="wrap_content"
+	android:layout_margin="16dp"
 	android:baselineAligned="false">
 
 	<!-- Patch context -->
@@ -38,7 +38,7 @@
 			android:visibility="gone" />
 	</LinearLayout>
 
-	<com.patchr.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.UserPhotoView
 		android:id="@+id/user_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_small"
@@ -68,8 +68,8 @@
 				android:id="@+id/user_name"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_toLeftOf="@+id/created_date"
 				android:layout_centerVertical="true"
+				android:layout_toLeftOf="@+id/created_date"
 				android:textStyle="bold" />
 
 			<com.patchr.ui.widgets.AirTextLight
@@ -91,21 +91,14 @@
 
 		<!-- Photo -->
 
-		<com.patchr.ui.widgets.AirImageView
+		<com.patchr.ui.widgets.AirPhotoView
 			android:id="@+id/photo"
 			style="@style/selectable_image"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginLeft="2dp"
 			android:layout_marginTop="7dp"
-			android:scaleType="centerCrop"
-			custom:aspectRatio="@dimen/aspect_ratio_message_item_image"
-			custom:aspectRatioEnabled="true"
-			custom:config="rgb_565"
-			custom:dominantMeasurement="width"
-			custom:fitType="auto"
-			custom:sizeCategory="standard"
-			custom:layoutId="@layout/widget_imageview" />
+			custom:sizeCategory="standard" />
 
 	</LinearLayout>
 

@@ -4,16 +4,19 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
+import com.patchr.components.Logger;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 import java.util.regex.Pattern;
 
-public class Utilities {
+public class Utils {
 
 	public static Boolean validEmail(@NonNull String email) {
 		return EMAIL_ADDRESS.matcher(email).matches();
@@ -42,6 +45,38 @@ public class Utilities {
 
 		} catch (NoSuchAlgorithmException e) { /* ignore */ }
 		return "";
+	}
+
+	public static String initialsFromName(String fullname) {
+		String[] words = fullname.split(" ");
+		String initials = "";
+		for (String word : words) {
+			initials += word.charAt(0);
+			if (initials.length() >= 2) {
+				break;
+			}
+		}
+		return initials;
+	}
+
+	public static Long numberFromName(String fullname) {
+		Logger.v(Utils.class, "User name: " + fullname);
+		Long accum = 0L;
+		for (char character: fullname.toCharArray()) {
+			accum += (int) character;
+		}
+		return accum;
+	}
+
+	public static int randomColor(long seed) {
+		Random generator = new Random(seed);
+		float junk = generator.nextFloat();
+		float hue = generator.nextFloat()  * (360.0f - 0.0f);
+		float saturation = generator.nextFloat() * (1.0f - 0.5f) + 0.5f; // 0.5 to 1.0, away from white
+		float brightness = generator.nextFloat() * (1.0f - 0.5f) + 0.5f; // 0.5 to 1.0, away from black
+		float[] hsv = {hue, saturation, brightness};
+		Logger.v("randomColor", String.format("randomColor seed: %1$s hue: %2$s sat: %3$s bri: %4$s", String.valueOf(seed), String.valueOf(hue), String.valueOf(saturation), String.valueOf(brightness)));
+		return Color.HSVToColor(hsv);
 	}
 
 	public static Long getMemoryAvailable() {

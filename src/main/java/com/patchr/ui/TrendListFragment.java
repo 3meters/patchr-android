@@ -8,6 +8,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.StringManager;
+import com.patchr.events.ActionEvent;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
 import com.patchr.events.DataResultEvent;
@@ -70,6 +71,11 @@ public class TrendListFragment extends EntityListFragment {
 	@Subscribe
 	public void onDataNoop(DataNoopEvent event) {
 		super.onDataNoop(event);
+	}
+
+	@Subscribe
+	public void onViewClick(ActionEvent event) {
+		super.onViewClick(event);
 	}
 
 	/*--------------------------------------------------------------------------------------------

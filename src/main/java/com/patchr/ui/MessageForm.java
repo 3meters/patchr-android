@@ -48,12 +48,12 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseEntityForm;
-import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.edit.MessageEdit;
-import com.patchr.ui.widgets.AirImageView;
+import com.patchr.ui.widgets.AirPhotoView;
 import com.patchr.ui.widgets.EntityView;
 import com.patchr.ui.widgets.FlowLayout;
 import com.patchr.ui.widgets.InsetViewTransformer;
+import com.patchr.ui.widgets.UserPhotoView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -237,13 +237,13 @@ public class MessageForm extends BaseEntityForm {
 			view = findViewById(android.R.id.content);
 		}
 
-		final AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
+		final AirPhotoView photoView = (AirPhotoView) view.findViewById(R.id.photo);
 		final View holderUser = view.findViewById(R.id.holder_user);
 		final View holderPatch = view.findViewById(R.id.holder_patch);
 		final TextView description = (TextView) view.findViewById(R.id.description);
-		final AirImageView patchPhotoView = (AirImageView) view.findViewById(R.id.patch_photo);
+		final AirPhotoView patchPhotoView = (AirPhotoView) view.findViewById(R.id.patch_photo);
 		final TextView patchName = (TextView) view.findViewById(R.id.patch_name);
-		final AirImageView userPhotoView = (AirImageView) view.findViewById(R.id.user_photo);
+		final UserPhotoView userPhotoView = (UserPhotoView) view.findViewById(R.id.user_photo);
 		final TextView userName = (TextView) view.findViewById(R.id.user_name);
 		final TextView createdDate = (TextView) view.findViewById(R.id.created_date);
 		final FlowLayout flowLayout = (FlowLayout) view.findViewById(R.id.flow_recipients);
@@ -307,12 +307,11 @@ public class MessageForm extends BaseEntityForm {
 					UI.setVisibility(holderPatch, View.VISIBLE);
 
 					/* Photo */
-					Photo photo = linkPlace.shortcut.photo;
-					if (photo == null) {
-						photo = Entity.getDefaultPhoto(Constants.SCHEMA_ENTITY_PATCH, null);
-					}
-					if (patchPhotoView.getPhoto() == null || !patchPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
-						UI.drawPhoto(patchPhotoView, photo);
+					if (linkPlace.shortcut.photo != null) {
+						Photo photo = linkPlace.shortcut.photo;
+						if (patchPhotoView.getPhoto() == null || !patchPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
+							UI.drawPhoto(patchPhotoView, photo);
+						}
 					}
 
 					UI.setVisibility(patchPhotoView, View.VISIBLE);
@@ -333,17 +332,13 @@ public class MessageForm extends BaseEntityForm {
 
 		if (userPhotoView != null) {
 			if (mEntity.creator != null) {
-				Photo photo = mEntity.creator.getPhoto();
-				if (userPhotoView.getPhoto() == null || !userPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
-					UI.drawPhoto(userPhotoView, photo, new CircleTransform());
-				}
+				userPhotoView.databind(mEntity.creator);
 				UI.setVisibility(userPhotoView, View.VISIBLE);
 			}
 			else {
 				UI.setVisibility(userPhotoView, View.GONE);
 			}
 		}
-
 
 		/* User name */
 
@@ -474,7 +469,6 @@ public class MessageForm extends BaseEntityForm {
 					if (mEntity.photo != null) {
 						Photo photo = mEntity.getPhoto();
 						photoView.setTag(photo);
-						photoView.setCenterCrop(false);
 						UI.drawPhoto(photoView, photo);
 					}
 				}

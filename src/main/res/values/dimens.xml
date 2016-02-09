@@ -28,9 +28,9 @@
 
 	<!-- Image categories -->
 
-	<item name="aspect_ratio_patch_image" format="float" type="dimen">0.65</item>
+	<item name="aspect_ratio_patch_image" format="float" type="dimen">0.56</item>
 	<item name="aspect_ratio_message_image" format="float" type="dimen">0.75</item>
-	<item name="aspect_ratio_message_item_image" format="float" type="dimen">0.5</item>
+	<item name="aspect_ratio_message_item_image" format="float" type="dimen">0.56</item>
 
 	<!-- Rules -->
 

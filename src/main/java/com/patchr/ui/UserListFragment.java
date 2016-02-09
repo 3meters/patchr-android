@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.events.ActionEvent;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
 import com.patchr.events.DataResultEvent;
@@ -54,6 +55,11 @@ public class UserListFragment extends EntityListFragment {
 		extras.putString(Constants.EXTRA_ENTITY_ID, entity.id);
 
 		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
+	}
+
+	@Subscribe
+	public void onViewClick(ActionEvent event) {
+		super.onViewClick(event);
 	}
 
 	/*--------------------------------------------------------------------------------------------

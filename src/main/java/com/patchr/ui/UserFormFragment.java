@@ -22,9 +22,8 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
-import com.patchr.ui.widgets.AirImageView;
 import com.patchr.ui.widgets.CandiView;
-import com.patchr.utilities.Type;
+import com.patchr.ui.widgets.UserPhotoView;
 import com.patchr.utilities.UI;
 import com.squareup.otto.Subscribe;
 
@@ -68,13 +67,13 @@ public class UserFormFragment extends EntityFormFragment {
 			mProcessing = true;
 			Integer id = event.view.getId();
 			if (id == R.id.button_watching || id == R.id.button_created || id == R.id.button_likes) {
-				onPlaceListButtonClick(event.view);
+				onPatchListButtonClick(event.view);
 			}
 			mProcessing = false;
 		}
 	}
 
-	public void onPlaceListButtonClick(View view) {
+	public void onPatchListButtonClick(View view) {
 
 		String linkType = (String) view.getTag();
 		int titleResId = 0;
@@ -125,7 +124,7 @@ public class UserFormFragment extends EntityFormFragment {
 				User user = (User) mEntity;
 
 				final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
-				final AirImageView photoView = (AirImageView) view.findViewById(R.id.photo);
+				final UserPhotoView photoView = (UserPhotoView) view.findViewById(R.id.user_photo);
 				final TextView name = (TextView) view.findViewById(R.id.name);
 				final TextView area = (TextView) view.findViewById(R.id.area);
 
@@ -145,10 +144,6 @@ public class UserFormFragment extends EntityFormFragment {
 					if (photoView != null) {
 						Photo photo = mEntity.getPhoto();
 						UI.drawPhoto(photoView, photo);
-						if (Type.isFalse(photo.usingDefault)) {
-							photoView.setTag(photo);
-							photoView.setClickable(true);
-						}
 						UI.setVisibility(photoView, View.VISIBLE);
 					}
 

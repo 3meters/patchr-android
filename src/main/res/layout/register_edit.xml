@@ -33,36 +33,29 @@
 				android:background="?attr/backgroundFormSecondary"
 				android:gravity="center_horizontal"
 				android:padding="16dp"
-				tools:text="@string/label_register_message"
-				custom:textId="@string/label_register_message" />
+				custom:textId="@string/label_register_message"
+				tools:text="@string/label_register_message" />
 
 			<RelativeLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:padding="16dp"
 				android:layout_below="@+id/content_message"
 				android:gravity="center_vertical|top"
-				android:orientation="vertical">
+				android:orientation="vertical"
+				android:padding="16dp">
 
 				<!-- User picture -->
 
-				<com.patchr.ui.widgets.AirImageView
+				<com.patchr.ui.widgets.AirPhotoView
 					android:id="@+id/photo"
 					style="@style/selectable_image"
 					android:layout_width="@dimen/image_extra_large"
 					android:layout_height="@dimen/image_extra_large"
 					android:layout_marginBottom="8dp"
-					android:background="?attr/backgroundPlaceholder"
 					android:clickable="true"
 					android:minWidth="@dimen/image_extra_large"
 					android:onClick="onChangePhotoButtonClick"
-					android:scaleType="centerCrop"
-					custom:config="rgb_565"
-					custom:fitType="fixed"
-					custom:layoutId="@layout/widget_imageview_candi_view"
-					custom:showBusy="true"
-					custom:sizeCategory="standard"
-					custom:sizeHint="@dimen/image_extra_large" />
+					custom:sizeCategory="standard" />
 
 				<RelativeLayout
 					android:layout_width="match_parent"
@@ -90,9 +83,9 @@
 						style="@style/button_flat"
 						android:layout_width="@dimen/form_field_height"
 						android:layout_height="@dimen/form_field_height"
+						android:layout_alignParentLeft="true"
 						android:clickable="true"
 						android:gravity="center"
-						android:layout_alignParentLeft="true"
 						android:onClick="onEditPhotoButtonClick"
 						android:src="@drawable/ic_action_edit_dark"
 						android:textAppearance="?android:attr/textAppearance"
@@ -103,9 +96,9 @@
 						style="@style/button_flat"
 						android:layout_width="@dimen/form_field_height"
 						android:layout_height="@dimen/form_field_height"
+						android:layout_alignParentRight="true"
 						android:clickable="true"
 						android:gravity="center"
-						android:layout_alignParentRight="true"
 						android:onClick="onDeletePhotoButtonClick"
 						android:src="@drawable/ic_action_cancel_dark"
 						android:textAppearance="?android:attr/textAppearance"
@@ -153,8 +146,8 @@
 
 					<com.patchr.ui.widgets.AirCheckBox
 						android:id="@+id/chk_unmask"
-						android:layout_width="match_parent"
 						style="@style/form_checkbox"
+						android:layout_width="match_parent"
 						android:layout_height="@dimen/form_field_height"
 						android:layout_marginBottom="12dp"
 						android:textAppearance="?android:attr/textAppearance"
@@ -163,9 +156,9 @@
 					<RelativeLayout
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
+						android:layout_marginBottom="16dp"
 						android:gravity="center_vertical"
 						android:orientation="horizontal"
-						android:layout_marginBottom="16dp"
 						android:paddingLeft="4dp"
 						android:paddingRight="4dp">
 
@@ -181,8 +174,8 @@
 							android:layout_height="@dimen/button_height"
 							android:minWidth="200dp"
 							android:onClick="onRegisterButtonClick"
-							android:textColor="@color/white"
-							android:text="@string/button_register" />
+							android:text="@string/button_register"
+							android:textColor="@color/white" />
 					</RelativeLayout>
 
 					<RelativeLayout

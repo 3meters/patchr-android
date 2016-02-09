@@ -16,7 +16,7 @@ import com.patchr.ui.base.BaseEntityEdit;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Type;
-import com.patchr.utilities.Utilities;
+import com.patchr.utilities.Utils;
 import com.squareup.otto.Subscribe;
 
 public class UserEdit extends BaseEntityEdit {
@@ -128,7 +128,7 @@ public class UserEdit extends BaseEntityEdit {
 			return false;
 		}
 
-		if (!Utilities.validEmail(mEmail.getText().toString())) {
+		if (!Utils.validEmail(mEmail.getText().toString())) {
 			Dialogs.alertDialogSimple(this, null, StringManager.getString(R.string.error_invalid_email));
 			return false;
 		}

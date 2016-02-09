@@ -29,18 +29,13 @@
 		android:layout_height="match_parent"
 		android:background="?attr/cardHighlightColor" />
 
-	<com.patchr.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirPhotoView
 		android:id="@+id/entity_view_photo"
 		android:layout_width="@dimen/image_extra_small"
 		android:layout_height="@dimen/image_extra_small"
 		android:layout_gravity="center_vertical"
 		android:layout_weight="0"
-		custom:layoutId="@layout/widget_imageview_candi_view"
-		custom:config="rgb_565"
-		custom:showBusy="true"
-		custom:sizeHint="@dimen/image_extra_small"
-		custom:sizeCategory="thumbnail"
-		custom:fitType="fixed" />
+		custom:sizeCategory="thumbnail" />
 
 	<ImageView
 		android:id="@+id/button_delete_entity"

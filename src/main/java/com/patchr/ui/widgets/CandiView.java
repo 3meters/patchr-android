@@ -26,7 +26,6 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.ShortcutSettings;
 import com.patchr.objects.User;
-import com.patchr.ui.components.CircleTransform;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;
 
@@ -46,28 +45,29 @@ public class CandiView extends RelativeLayout {
 	protected Integer   mLayoutId;
 	protected ViewGroup mLayout;
 
-	protected AirImageView mPhotoView;
-	protected AirImageView mCategoryPhoto;
-	protected TextView     mCategoryName;
-	protected TextView     mType;
-	protected TextView     mName;
-	protected TextView     mIndex;
-	protected TextView     mSubhead;
-	protected TextView     mEmail;
-	protected TextView     mArea;
-	protected TextView     mDistance;
-	protected TextView     mCount;
-	protected TextView     mMessageCount;
-	protected TextView     mWatchCount;
-	protected TextView     mAddress;
-	protected View         mCandiViewGroup;
-	protected View         mPrivacyGroup;
-	protected LinearLayout mHolderPreviews;
-	protected LinearLayout mHolderInfo;
-	protected CacheStamp   mCacheStamp;
-	private   float        mAspectRatio;
-	private   boolean      mAspectRatioEnabled;
-	private   int          mDominantMeasurement;
+	protected AirPhotoView  mPhotoView;
+	protected UserPhotoView mUserPhotoView;
+	protected AirPhotoView  mCategoryPhoto;
+	protected TextView      mCategoryName;
+	protected TextView      mType;
+	protected TextView      mName;
+	protected TextView      mIndex;
+	protected TextView      mSubhead;
+	protected TextView      mEmail;
+	protected TextView      mArea;
+	protected TextView      mDistance;
+	protected TextView      mCount;
+	protected TextView      mMessageCount;
+	protected TextView      mWatchCount;
+	protected TextView      mAddress;
+	protected View          mCandiViewGroup;
+	protected View          mPrivacyGroup;
+	protected LinearLayout  mHolderPreviews;
+	protected LinearLayout  mHolderInfo;
+	protected CacheStamp    mCacheStamp;
+	private   float         mAspectRatio;
+	private   boolean       mAspectRatioEnabled;
+	private   int           mDominantMeasurement;
 
 	List<Shortcut> mShortcuts = new ArrayList<Shortcut>();
 
@@ -106,7 +106,8 @@ public class CandiView extends RelativeLayout {
 		mLayout = (ViewGroup) LayoutInflater.from(getContext()).inflate(mLayoutId, this, true);
 
 		mCandiViewGroup = mLayout.findViewById(R.id.candi_view_group);
-		mPhotoView = (AirImageView) mLayout.findViewById(R.id.photo);
+		mPhotoView = (AirPhotoView) mLayout.findViewById(R.id.photo);
+		mUserPhotoView = (UserPhotoView) mLayout.findViewById(R.id.user_photo);
 		mName = (TextView) mLayout.findViewById(R.id.name);
 		mSubhead = (TextView) mLayout.findViewById(R.id.subhead);
 		mArea = (TextView) mLayout.findViewById(R.id.area);
@@ -114,7 +115,7 @@ public class CandiView extends RelativeLayout {
 		mDistance = (TextView) mLayout.findViewById(R.id.distance);
 		mType = (TextView) mLayout.findViewById(R.id.type);
 		mCategoryName = (TextView) mLayout.findViewById(R.id.category_name);
-		mCategoryPhoto = (AirImageView) mLayout.findViewById(R.id.category_photo);
+		mCategoryPhoto = (AirPhotoView) mLayout.findViewById(R.id.category_photo);
 		mHolderPreviews = (LinearLayout) mLayout.findViewById(R.id.previews);
 		mHolderInfo = (LinearLayout) mLayout.findViewById(R.id.info_holder);
 		mCount = (TextView) mLayout.findViewById(R.id.count);
@@ -277,7 +278,13 @@ public class CandiView extends RelativeLayout {
 
 	protected void drawPhoto(String groupId) {
 
-		if (mPhotoView != null) {
+		if (mUserPhotoView != null) {
+			if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+				mUserPhotoView.setGroupTag(groupId);
+				mUserPhotoView.databind(mEntity);
+			}
+		}
+		else if (mPhotoView != null) {
 
 			if (mPhotoView.getImageView().getDrawable() != null) {
 				if (Photo.same(mPhotoView.getPhoto(), mEntity.getPhoto())) return;
@@ -287,12 +294,7 @@ public class CandiView extends RelativeLayout {
 			if (mPhotoView.getPhoto() == null || !photo.getDirectUri().equals(mPhotoView.getPhoto().getDirectUri())) {
 				mPhotoView.setTag(photo);
 				mPhotoView.setGroupTag(groupId);
-				if (mPhotoView.getTransformKey() != null && mPhotoView.getTransformKey().equals("circle")) {
-					UI.drawPhoto(mPhotoView, photo, new CircleTransform());
-				}
-				else {
-					UI.drawPhoto(mPhotoView, photo);
-				}
+				UI.drawPhoto(mPhotoView, photo);
 			}
 		}
 	}
@@ -449,11 +451,11 @@ public class CandiView extends RelativeLayout {
 		mLayoutId = layoutId;
 	}
 
-	public AirImageView getCandiImage() {
+	public AirPhotoView getCandiImage() {
 		return mPhotoView;
 	}
 
-	public void setCandiImage(AirImageView candiImage) {
+	public void setCandiImage(AirPhotoView candiImage) {
 		mPhotoView = candiImage;
 	}
 

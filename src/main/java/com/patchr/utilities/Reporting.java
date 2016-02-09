@@ -27,9 +27,9 @@ public class Reporting {
 		Crashlytics.setString("device_name", AndroidManager.getInstance().getDeviceName());
 
 		/* Memory info */
-		Crashlytics.setFloat("memory_max_mb", Utilities.maxMemoryMB());
-		Crashlytics.setFloat("memory_total_mb", Utilities.totalMemoryMB());
-		Crashlytics.setFloat("memory_free_mb", Utilities.freeMemoryMB());
+		Crashlytics.setFloat("memory_max_mb", Utils.maxMemoryMB());
+		Crashlytics.setFloat("memory_total_mb", Utils.totalMemoryMB());
+		Crashlytics.setFloat("memory_free_mb", Utils.freeMemoryMB());
 
 		/* Identifies device/install combo */
 		Crashlytics.setString("install_id", Patchr.getInstance().getinstallId());

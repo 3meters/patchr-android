@@ -26,9 +26,9 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.ViewHolder;
 import com.patchr.ui.EntityListFragment.ViewType;
-import com.patchr.ui.components.CircleTransform;
-import com.patchr.ui.widgets.AirImageView;
+import com.patchr.ui.widgets.AirPhotoView;
 import com.patchr.ui.widgets.CandiView;
+import com.patchr.ui.widgets.UserPhotoView;
 import com.patchr.ui.widgets.UserView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
@@ -245,11 +245,8 @@ public abstract class EntityControllerBase implements IEntityController {
 		}
 
 		UI.setVisibility(holder.patchPhotoView, View.GONE);
-		if (holder.patchPhotoView != null && parentEntity != null) {
+		if (holder.patchPhotoView != null && parentEntity != null && parentEntity.photo != null) {
 			Photo photo = parentEntity.photo;
-			if (photo == null) {
-				photo = Entity.getDefaultPhoto(Constants.SCHEMA_ENTITY_PATCH, null);
-			}
 			if (holder.patchPhotoView.getPhoto() == null || !holder.patchPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
 				holder.patchPhotoView.setTag(parentEntity);
 				UI.drawPhoto(holder.patchPhotoView, photo);
@@ -279,16 +276,18 @@ public abstract class EntityControllerBase implements IEntityController {
 		/* User photo */
 
 		UI.setVisibility(holder.userPhotoView, View.GONE);
-		if (holder.userPhotoView != null && entity.creator != null) {
+		if (holder.userPhotoView != null) {
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
+				holder.userPhotoView.databind(entity);
+				UI.setVisibility(holder.userPhotoView, View.VISIBLE);
+			}
+			else if (entity.creator != null) {
 		    /*
 			 * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
 			 */
-			Photo photo = entity.creator.getPhoto();
-			if (holder.userPhotoView.getPhoto() == null || !holder.userPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
-				holder.userPhotoView.setTag(entity.creator);
-				UI.drawPhoto(holder.userPhotoView, photo, new CircleTransform());
+				holder.userPhotoView.databind(entity.creator);
+				UI.setVisibility(holder.userPhotoView, View.VISIBLE);
 			}
-			UI.setVisibility(holder.userPhotoView, View.VISIBLE);
 		}
 
 		/* User name */
@@ -322,17 +321,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		if (holder.photoView != null) {
 			final Photo photo = entity.getPhoto();
 			if (holder.photoView.getPhoto() == null || !photo.getDirectUri().equals(holder.photoView.getPhoto().getDirectUri())) {
-				if (holder.photoView.getTransformKey() != null && holder.photoView.getTransformKey().equals("circle")) {
-					UI.drawPhoto(holder.photoView, photo, new CircleTransform());
-				}
-				else {
-					if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-						UI.drawPhoto(holder.photoView, photo);
-					}
-					else {
-						UI.drawPhoto(holder.photoView, photo);
-					}
-				}
+				UI.drawPhoto(holder.photoView, photo);
 			}
 			UI.setVisibility(holder.photoView, View.VISIBLE);
 		}
@@ -341,7 +330,7 @@ public abstract class EntityControllerBase implements IEntityController {
 	public void bindHolder(View view, ViewHolder holder) {
 
 		holder.candiView = (CandiView) view.findViewById(R.id.candi_view);
-		holder.photoView = (AirImageView) view.findViewById(R.id.photo);
+		holder.photoView = (AirPhotoView) view.findViewById(R.id.photo);
 		holder.name = (TextView) view.findViewById(R.id.name);
 		holder.subhead = (TextView) view.findViewById(R.id.subhead);
 		holder.summary = (TextView) view.findViewById(R.id.summary);
@@ -353,7 +342,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.comments = (TextView) view.findViewById(R.id.comments);
 		holder.share = (ViewGroup) view.findViewById(R.id.share_entity);
 		holder.alert = (ImageView) view.findViewById(R.id.alert_indicator);
-		holder.photoViewBig = (AirImageView) view.findViewById(R.id.photo_big);
+		holder.photoViewBig = (AirPhotoView) view.findViewById(R.id.photo_big);
 		holder.photoType = (ImageView) view.findViewById(R.id.photo_type);
 
 		if (holder.checked != null) {
@@ -368,9 +357,9 @@ public abstract class EntityControllerBase implements IEntityController {
 			});
 		}
 		holder.index = (TextView) view.findViewById(R.id.index);
-		holder.userPhotoView = (AirImageView) view.findViewById(R.id.user_photo);
+		holder.userPhotoView = (UserPhotoView) view.findViewById(R.id.user_photo);
 		holder.userName = (TextView) view.findViewById(R.id.user_name);
-		holder.patchPhotoView = (AirImageView) view.findViewById(R.id.patch_photo);
+		holder.patchPhotoView = (AirPhotoView) view.findViewById(R.id.patch_photo);
 		holder.patchName = (TextView) view.findViewById(R.id.patch_name);
 		holder.categoryName = (TextView) view.findViewById(R.id.category_name);
 		holder.type = (TextView) view.findViewById(R.id.type);

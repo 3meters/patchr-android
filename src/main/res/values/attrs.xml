@@ -47,8 +47,6 @@
 		<enum name="thumbnail" value="2" />
 		<enum name="profile" value="3" />
 	</attr>
-	<attr name="offsetWidth" format="float" />
-	<attr name="offsetHeight" format="float" />
 	<attr name="sizeHint" format="dimension" />
 	<attr name="config" format="enum">
 		<enum name="rgb_565" value="1" />
@@ -96,6 +94,7 @@
 		<attr name="backgroundPlaceholder" format="color|reference" />
 		<attr name="backgroundProgress" format="color|reference" />
 		<attr name="backgroundRound" format="color|reference" />
+		<attr name="backgroundRoundPlaceholder" format="color|reference" />
 		<attr name="backgroundToken" format="color|reference" />
 
 		<attr name="imgLogo" format="reference" />
@@ -164,15 +163,13 @@
 	<declare-styleable name="AirTextLight">
 		<attr name="textId" />
 	</declare-styleable>
-	<declare-styleable name="AirImageView">
+	<declare-styleable name="AirPhotoView">
 		<attr name="aspectRatio" />
 		<attr name="aspectRatioEnabled" />
 		<attr name="config" />
 		<attr name="dominantMeasurement" />
 		<attr name="fitType" />
 		<attr name="layoutId" />
-		<attr name="offsetHeight" />
-		<attr name="offsetWidth" />
 		<attr name="showBusy" />
 		<attr name="sizeHint" />
 		<attr name="sizeCategory" />

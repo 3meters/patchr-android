@@ -60,6 +60,10 @@ public class AirProgressBar extends ProgressBar {
 		super(context, attrs, 0);
 	}
 
+	public AirProgressBar(Context context, AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
+	}
+
 	@Override
 	public void onAttachedToWindow() {
 		super.onAttachedToWindow();

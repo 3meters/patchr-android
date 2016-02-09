@@ -26,7 +26,7 @@ import com.squareup.picasso.Target;
 public class EntityView extends LinearLayout implements Target {
 
 	private ViewGroup    mBoundView;
-	private AirImageView mPhotoView;
+	private AirPhotoView mPhotoView;
 	private TextView     mName;
 	private TextView     mSubtitle;
 	private TextView     mLabel;
@@ -67,7 +67,7 @@ public class EntityView extends LinearLayout implements Target {
 		if (mLayoutResId != null) {
 			removeAllViews();
 			mBoundView = (ViewGroup) LayoutInflater.from(getContext()).inflate(mLayoutResId, this, true);
-			mPhotoView = (AirImageView) mBoundView.findViewById(R.id.entity_view_photo);
+			mPhotoView = (AirPhotoView) mBoundView.findViewById(R.id.entity_view_photo);
 			mName = (TextView) mBoundView.findViewById(R.id.entity_view_name);
 			mSubtitle = (TextView) mBoundView.findViewById(R.id.entity_view_subtitle);
 			mLabel = (TextView) mBoundView.findViewById(R.id.entity_view_label);
@@ -179,7 +179,7 @@ public class EntityView extends LinearLayout implements Target {
 		mLayoutResId = layoutResId;
 	}
 
-	public AirImageView getPhotoView() {
+	public AirPhotoView getPhotoView() {
 		return mPhotoView;
 	}
 
@@ -187,7 +187,7 @@ public class EntityView extends LinearLayout implements Target {
 		mParentView = parentView;
 	}
 
-	public void setPhotoView(AirImageView mPhotoView) {
+	public void setPhotoView(AirPhotoView mPhotoView) {
 		this.mPhotoView = mPhotoView;
 	}
 }

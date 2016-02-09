@@ -177,20 +177,15 @@
 							android:layout_marginBottom="16dp"
 							android:orientation="vertical">
 
-							<com.patchr.ui.widgets.AirImageView
+							<com.patchr.ui.widgets.AirPhotoView
 								android:id="@+id/photo"
 								style="@style/selectable_image"
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
-								android:minWidth="@dimen/image_extra_extra_large"
 								android:minHeight="@dimen/button_height"
-								android:scaleType="centerCrop"
-								custom:config="rgb_565"
-								custom:fitType="fixed"
-								custom:layoutId="@layout/widget_imageview_cancelable"
-								custom:showBusy="true"
-								custom:sizeCategory="standard"
-								custom:sizeHint="300dp" />
+								android:minWidth="@dimen/image_extra_extra_large"
+								custom:aspectRatio="@dimen/aspect_ratio_message_image"
+								custom:sizeCategory="standard" />
 
 							<RelativeLayout
 								android:layout_width="match_parent"
@@ -203,11 +198,11 @@
 									style="@style/button_flat"
 									android:layout_width="@dimen/form_field_height"
 									android:layout_height="@dimen/form_field_height"
-									android:clickable="true"
-									android:src="@drawable/ic_action_edit_dark"
 									android:layout_alignParentLeft="true"
+									android:clickable="true"
 									android:gravity="center"
 									android:onClick="onEditPhotoButtonClick"
+									android:src="@drawable/ic_action_edit_dark"
 									android:textAppearance="?android:attr/textAppearance"
 									android:textColor="?attr/textColorCandiView" />
 
@@ -218,9 +213,9 @@
 									android:layout_height="@dimen/form_field_height"
 									android:layout_alignParentRight="true"
 									android:clickable="true"
-									android:src="@drawable/ic_action_cancel_dark"
 									android:gravity="center"
 									android:onClick="onDeletePhotoButtonClick"
+									android:src="@drawable/ic_action_cancel_dark"
 									android:textAppearance="?android:attr/textAppearance"
 									android:textColor="?attr/textColorCandiView" />
 

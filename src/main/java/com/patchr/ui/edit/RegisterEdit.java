@@ -37,7 +37,7 @@ import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
-import com.patchr.utilities.Utilities;
+import com.patchr.utilities.Utils;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -172,7 +172,7 @@ public class RegisterEdit extends BaseEntityEdit {
 					, null, null, null, null);
 			return false;
 		}
-		if (!Utilities.validEmail(mEmail.getText().toString())) {
+		if (!Utils.validEmail(mEmail.getText().toString())) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_invalid_email)

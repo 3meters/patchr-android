@@ -13,7 +13,7 @@
 		android:visibility="gone"
 		custom:textId="@string/label_photo_missing" />
 
-	<com.patchr.ui.widgets.CropImageView
+	<ImageView
 		android:id="@+id/image_main"
 		style="@style/picture"
 		android:layout_width="match_parent"

@@ -6,19 +6,13 @@
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
 
-	<com.patchr.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirPhotoView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:scaleType="centerCrop"
 		custom:aspectRatio="@dimen/aspect_ratio_patch_image"
-		custom:aspectRatioEnabled="true"
-		custom:config="rgb_565"
-		custom:dominantMeasurement="width"
-		custom:fitType="auto"
-		custom:sizeCategory="standard"
-		custom:layoutId="@layout/widget_imageview_candi_view" />
+		custom:sizeCategory="standard" />
 
 	<View
 		android:layout_width="match_parent"

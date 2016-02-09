@@ -4,19 +4,17 @@
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content">
 
-	<com.patchr.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.UserPhotoView
 		android:id="@+id/widget_photo"
 		style="@style/selectable_image"
 		android:layout_width="60dp"
 		android:layout_height="60dp"
 		android:layout_alignParentLeft="true"
 		android:layout_marginRight="10dp"
-		android:scaleType="centerCrop"
-		custom:config="rgb_565"
-		custom:fitType="fixed"
-		custom:layoutId="@layout/widget_imageview"
-		custom:sizeCategory="profile"
-		custom:sizeHint="60dp" />
+		android:layout_marginLeft="4dp"
+		android:layout_marginTop="4dp"
+		android:layout_marginBottom="4dp"
+		custom:sizeCategory="profile" />
 
 	<LinearLayout
 		android:layout_width="wrap_content"

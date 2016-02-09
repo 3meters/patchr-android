@@ -1,32 +1,28 @@
 package com.patchr.utilities;
 
 import android.animation.ObjectAnimator;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
-import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DownloadManager;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoSizeCategory;
-import com.patchr.ui.widgets.AirImageView;
+import com.patchr.ui.widgets.AirPhotoView;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Transformation;
 
@@ -39,11 +35,11 @@ public class UI {
 	 * Photos
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static void drawPhoto(@NonNull final AirImageView photoView, @NonNull final Photo photo) {
+	public static void drawPhoto(@NonNull final AirPhotoView photoView, @NonNull final Photo photo) {
 		drawPhoto(photoView, photo, null);
 	}
 
-	public static void drawPhoto(@NonNull final AirImageView photoView, @NonNull final Photo photo, final Transformation transform) {
+	public static void drawPhoto(@NonNull final AirPhotoView photoView, @NonNull final Photo photo, final Transformation transform) {
 	    /*
 	     * There are only a few places that don't use this code to display images:
 		 * - Notification icons - can't use AirImageView
@@ -51,36 +47,10 @@ public class UI {
 		 */
 		photoView.getImageView().setImageDrawable(null);
 		photoView.setPhoto(photo);
-
-		if (photoView.getFitType() == AirImageView.FitType.NONE
-				|| photoView.getFitType() == AirImageView.FitType.FIXED) {
-			loadView(photoView, photo, transform);
-		}
-		else if (photoView.getFitType() == AirImageView.FitType.AUTO) {
-			if (photoView.getImageView().getWidth() != 0) {
-				loadView(photoView, photo, transform);
-			}
-			else {
-				photoView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-
-					@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-					@SuppressWarnings("deprecation")
-					@Override
-					public void onGlobalLayout() {
-						loadView(photoView, photo, transform);
-						if (Constants.SUPPORTS_JELLY_BEAN) {
-							photoView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-						}
-						else {
-							photoView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-						}
-					}
-				});
-			}
-		}
+		loadView(photoView, photo, transform);
 	}
 
-	private static void loadView(@NonNull final AirImageView photoView, @NonNull final Photo photo, final Transformation transform) {
+	private static void loadView(@NonNull final AirPhotoView photoView, @NonNull final Photo photo, final Transformation transform) {
 		/*
 		 * This is the only patch in the code that turns on proxy handling.
 		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
@@ -91,15 +61,6 @@ public class UI {
 
 		PhotoSizeCategory category = photoView.getSizeCategory();
 
-		if (photoView.getFitType() == AirImageView.FitType.NONE) {
-			width = Constants.IMAGE_DIMENSION_MAX;
-			height = Constants.IMAGE_DIMENSION_MAX;
-		}
-		else if (photoView.getFitType() == AirImageView.FitType.FIXED) {
-			width = photoView.getSizeHint();
-			height = photoView.getSizeHint();
-		}
-
 		if (photo.source.equals(Photo.PhotoSource.resource)) {
 
 			Integer drawableId = photo.getResId();
@@ -108,7 +69,7 @@ public class UI {
 						.with(Patchr.applicationContext)
 						.load(drawableId)
 						.centerCrop()   // Needed so resize() keeps aspect ratio
-						.resize(width, height)
+						.resize(photoView.getWidth(), photoView.getHeight())
 						.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.PHOTO_GROUP_TAG_DEFAULT)
 						.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
 
@@ -124,7 +85,7 @@ public class UI {
 					.with(Patchr.applicationContext)
 					.load(photo.getDirectUri())
 					.centerCrop()   // Needed so resize() keeps aspect ratio
-					.resize(width, height)
+					.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.PHOTO_GROUP_TAG_DEFAULT)
 					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
 
@@ -135,12 +96,10 @@ public class UI {
 		}
 		else {  /* url */
 
-			photo.setProxy(true, height, width);
 			String url = UI.url(photo.prefix, photo.source, category);
 			RequestCreator creator = DownloadManager
 					.with(Patchr.applicationContext)
 					.load(url)
-			        .placeholder(UI.getResIdForAttribute(photoView.getContext(), R.attr.backgroundPlaceholder))
 			        .tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.PHOTO_GROUP_TAG_DEFAULT)
 			        .config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
 
@@ -198,10 +157,6 @@ public class UI {
 				else {
 					path = prefix + "?maxwidth=" + String.valueOf(width);
 				}
-			}
-			else if (source.equals(Photo.PhotoSource.gravatar)) {
-				Integer width = 100 * Constants.PIXEL_SCALE;
-				path = prefix + "&s=" + String.valueOf(width);
 			}
 			else { /* source == file */
 				path = prefix;

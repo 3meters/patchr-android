@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.DataController;
@@ -33,7 +34,7 @@ import com.patchr.objects.Patch;
 import com.patchr.objects.Patch.ReasonType;
 import com.patchr.objects.Photo;
 import com.patchr.objects.User;
-import com.patchr.ui.widgets.AirImageView;
+import com.patchr.ui.widgets.AirPhotoView;
 import com.patchr.ui.widgets.AirTokenCompleteTextView;
 import com.patchr.ui.widgets.TokenCompleteTextView;
 import com.patchr.utilities.Json;
@@ -288,9 +289,9 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			final Entity entity = (Entity) mAdapter.getItem(position);
 
 			if (view == null) {
-				view = LayoutInflater.from(mContext).inflate(R.layout.temp_place_search_item, null);
+				view = LayoutInflater.from(mContext).inflate(R.layout.temp_user_search_item, null);
 				holder = new ViewHolder();
-				holder.photoView = (AirImageView) view.findViewById(R.id.photo);
+				holder.photoView = (AirPhotoView) view.findViewById(R.id.photo);
 				holder.name = (TextView) view.findViewById(R.id.name);
 				holder.subhead = (TextView) view.findViewById(R.id.subhead);
 				holder.categoryName = (TextView) view.findViewById(R.id.category_name);
@@ -335,7 +336,12 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 				if (holder.photoView != null) {
 					Photo photo = entity.getPhoto();
 					if (holder.photoView.getPhoto() == null || !photo.getDirectUri().equals(holder.photoView.getPhoto().getDirectUri())) {
-						UI.drawPhoto(holder.photoView, photo);
+						if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+							UI.drawPhoto(holder.photoView, photo, new CircleTransform());
+						}
+						else {
+							UI.drawPhoto(holder.photoView, photo);
+						}
 						holder.photoView.setTag(photo);
 					}
 				}
@@ -503,7 +509,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		public TextView     subhead;
 		public TextView     categoryName;
 		public TextView     type;
-		public AirImageView photoView;
+		public AirPhotoView photoView;
 		public ImageView    indicator;
 		public String       photoUri;    // Used for verification after fetching image // NO_UCD (unused code)
 		public Object       data;        // object binding to

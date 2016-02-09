@@ -76,8 +76,9 @@
 		<item name="backgroundFormSecondary">@color/gray_80_pcnt</item>
 		<item name="backgroundPictureFramed">@drawable/bg_image_framed_dark</item>
 		<item name="backgroundProgress">@android:color/transparent</item>
-		<item name="backgroundPlaceholder">@drawable/bg_placeholder_dark</item>
+		<item name="backgroundPlaceholder">@color/background_placeholder_dark</item>
 		<item name="backgroundRound">@drawable/bg_round_dark</item>
+		<item name="backgroundRoundPlaceholder">@drawable/bg_round_placeholder_dark</item>
 		<item name="backgroundToken">@drawable/selector_token_dark</item>
 
 		<!-- Images and icons -->
@@ -162,8 +163,9 @@
 		<item name="backgroundFormSecondary">@color/gray_10_pcnt</item>
 		<item name="backgroundPictureFramed">@drawable/bg_image_framed_light</item>
 		<item name="backgroundProgress">@android:color/transparent</item>
-		<item name="backgroundPlaceholder">@drawable/bg_placeholder_light</item>
+		<item name="backgroundPlaceholder">@color/background_placeholder_light</item>
 		<item name="backgroundRound">@drawable/bg_round_light</item>
+		<item name="backgroundRoundPlaceholder">@drawable/bg_round_placeholder_light</item>
 		<item name="backgroundToken">@drawable/selector_token_light</item>
 
 		<!-- Images and icons -->

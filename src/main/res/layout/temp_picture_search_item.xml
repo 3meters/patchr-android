@@ -5,16 +5,12 @@
 	android:layout_height="wrap_content"
 	android:padding="2dp">
 
-	<com.patchr.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirPhotoView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:adjustViewBounds="true"
-		android:scaleType="centerCrop"
-		custom:config="rgb_565"
-		custom:fitType="auto"
-		custom:sizeCategory="thumbnail"
-		custom:layoutId="@layout/widget_imageview" />
+		custom:sizeCategory="thumbnail" />
 
 </FrameLayout>

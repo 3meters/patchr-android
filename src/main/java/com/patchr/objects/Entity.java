@@ -12,7 +12,7 @@ import com.patchr.objects.Link.Direction;
 import com.patchr.service.Expose;
 import com.patchr.service.SerializedName;
 import com.patchr.utilities.Type;
-import com.patchr.utilities.Utilities;
+import com.patchr.utilities.Utils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -195,45 +195,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	@NonNull
 	public Photo getPhoto() {
-		Photo photo = this.photo;
-		if (photo == null) {
-			String id = this.id;
-			if (this.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
-				Notification notification = (Notification) this;
-				id = notification.userId;
-			}
-			photo = getDefaultPhoto(this.schema, id);
-			photo.usingDefault = true;
-		}
-		return photo;
-	}
-
-	@NonNull
-	public static Photo getDefaultPhoto(String schema, String id) {
-
-		String prefix = (Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
-		                ? "img_default_patch_light"
-		                : "img_default_patch_dark";
-
-		String source = Photo.PhotoSource.resource;
-
-		if (schema != null) {
-			if (schema.equals(Constants.SCHEMA_ENTITY_USER)
-					|| schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
-				if (id != null) {
-					prefix = "http://www.gravatar.com/avatar/" + Utilities.md5(id) + "?d=identicon&r=pg&s=200";
-					source = Photo.PhotoSource.gravatar;
-				}
-				else {
-					prefix = (Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
-					         ? "img_default_user_light"
-					         : "img_default_user_dark";
-				}
-			}
-		}
-
-		Photo photo = new Photo(prefix, null, null, null, source);
-		return photo;
+		return this.photo;
 	}
 
 	public AirLocation getLocation() {

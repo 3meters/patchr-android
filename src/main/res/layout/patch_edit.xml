@@ -62,21 +62,13 @@
 				android:layout_marginBottom="8dp"
 				tools:visibility="gone">
 
-				<com.patchr.ui.widgets.AirImageView
+				<com.patchr.ui.widgets.AirPhotoView
 					android:id="@+id/photo"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginLeft="4dp"
 					android:layout_marginRight="4dp"
-					android:background="?attr/backgroundPlaceholder"
-					android:scaleType="centerCrop"
 					custom:aspectRatio="@dimen/aspect_ratio_patch_image"
-					custom:aspectRatioEnabled="true"
-					custom:config="rgb_565"
-					custom:dominantMeasurement="width"
-					custom:fitType="auto"
-					custom:layoutId="@layout/widget_imageview_candi_view"
-					custom:showBusy="true"
 					custom:sizeCategory="standard"
 					tools:src="@drawable/img_default_patch" />
 

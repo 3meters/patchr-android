@@ -9,22 +9,15 @@
 		android:layout_alignParentTop="true"
 		android:background="?attr/cardHighlightColor" />
 
-	<com.patchr.ui.widgets.AirImageView
-		android:id="@+id/photo"
+	<com.patchr.ui.widgets.UserPhotoView
+		android:id="@+id/user_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_medium"
 		android:layout_height="@dimen/image_medium"
+		android:layout_margin="8dp"
 		android:layout_marginRight="10dp"
 		android:clickable="true"
-		android:onClick="onPhotoClick"
-		android:scaleType="centerCrop"
-		android:layout_margin="8dp"
-		custom:config="rgb_565"
-		custom:fitType="fixed"
-		custom:transformKey="circle"
-		custom:layoutId="@layout/widget_imageview_candi_view"
-		custom:sizeCategory="profile"
-		custom:sizeHint="@dimen/image_medium" />
+		android:onClick="onPhotoClick" />
 
 	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/name"
@@ -32,7 +25,7 @@
 		android:layout_height="wrap_content"
 		android:layout_alignParentTop="true"
 		android:layout_marginTop="5dp"
-		android:layout_toRightOf="@+id/photo"
+		android:layout_toRightOf="@+id/user_photo"
 		android:ellipsize="end"
 		android:singleLine="true"
 		android:textAppearance="?android:attr/textAppearanceMedium" />

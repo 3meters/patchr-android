@@ -49,7 +49,7 @@ import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
-import com.patchr.utilities.Utilities;
+import com.patchr.utilities.Utils;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -194,7 +194,7 @@ public class Patchr extends MultiDexApplication {
 		snapshotPreferences();
 
 		/* Establish device memory class */
-		Logger.i(this, "Device memory class: " + String.valueOf(Utilities.maxMemoryMB()));
+		Logger.i(this, "Device memory class: " + String.valueOf(Utils.maxMemoryMB()));
 
 		/* Inject configuration */
 		openContainer(StringManager.getString(R.string.id_container));

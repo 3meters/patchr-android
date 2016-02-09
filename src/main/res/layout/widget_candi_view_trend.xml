@@ -7,18 +7,13 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
-	<com.patchr.ui.widgets.AirImageView
+	<com.patchr.ui.widgets.AirPhotoView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_medium_small"
 		android:layout_height="@dimen/image_medium_small"
 		android:layout_marginRight="10dp"
-		android:scaleType="centerCrop"
-		custom:config="rgb_565"
-		custom:fitType="fixed"
-		custom:layoutId="@layout/widget_imageview_candi_view"
-		custom:sizeCategory="thumbnail"
-		custom:sizeHint="@dimen/image_medium_small" />
+		custom:sizeCategory="thumbnail" />
 
 	<LinearLayout
 		android:layout_width="match_parent"

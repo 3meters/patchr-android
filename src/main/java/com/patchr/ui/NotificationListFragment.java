@@ -205,7 +205,6 @@ public class NotificationListFragment extends EntityListFragment
 			if (notification.photoBig != null) {
 				if (holder.photoViewBig.getPhoto() == null || !notification.photoBig.getDirectUri().equals(holder.photoViewBig.getPhoto().getDirectUri())) {
 					holder.photoViewBig.setTag(notification.photoBig);
-					holder.photoViewBig.setCenterCrop(false);
 					UI.drawPhoto(holder.photoViewBig, notification.photoBig);
 				}
 				UI.setVisibility(holder.photoViewBig, View.VISIBLE);

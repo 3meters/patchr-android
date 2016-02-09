@@ -21,6 +21,7 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Photo;
 import com.patchr.objects.User;
+import com.patchr.ui.components.CircleTransform;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 
@@ -28,7 +29,7 @@ import com.patchr.utilities.UI;
 public class UserView extends RelativeLayout {
 
 	private ViewGroup    mBoundView;
-	private AirImageView mPhotoView;
+	private AirPhotoView mPhotoView;
 	private ImageView    mImageLocked;
 	private ImageView    mImageWatched;
 	private TextView     mName;
@@ -65,7 +66,7 @@ public class UserView extends RelativeLayout {
 
 	private void initialize() {
 		if (!isInEditMode()) {
-			mPhotoView = (AirImageView) mBoundView.findViewById(R.id.widget_photo);
+			mPhotoView = (AirPhotoView) mBoundView.findViewById(R.id.widget_photo);
 			mName = (TextView) mBoundView.findViewById(R.id.widget_name);
 			mArea = (TextView) mBoundView.findViewById(R.id.area);
 			mLabel = (TextView) mBoundView.findViewById(R.id.label);
@@ -133,7 +134,7 @@ public class UserView extends RelativeLayout {
 			if (mPhotoView != null) {
 				if (mPhotoView.getPhoto() == null || !mPhotoView.getPhoto().getDirectUri().equals(user.getPhoto().getDirectUri())) {
 					Photo photo = user.getPhoto();
-					UI.drawPhoto(mPhotoView, photo);
+					UI.drawPhoto(mPhotoView, photo, new CircleTransform());
 				}
 			}
 
