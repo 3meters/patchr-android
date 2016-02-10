@@ -69,22 +69,16 @@ public abstract class BasePicker extends Activity {
 	public void bind(BindingMode mode) {}
 
 	public void setTheme(Boolean isDialog, Boolean isTransparent) {
-		mPrefTheme = Patchr.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
+		mPrefTheme = StringManager.getString(R.string.pref_theme_default);
 		/*
 		 * Need to use application context so our app level themes and attributes are available to actionbarsherlock
 		 */
 		Integer themeId = getApplicationContext().getResources().getIdentifier(mPrefTheme, "style", getPackageName());
 		if (isDialog) {
-			themeId = R.style.patchr_theme_dialog_dark;
-			if (mPrefTheme.equals("patchr_theme_snow")) {
-				themeId = R.style.patchr_theme_dialog_light;
-			}
+			themeId = R.style.patchr_theme_dialog_light;
 		}
 		else if (isTransparent) {
-			themeId = R.style.patchr_theme_midnight_transparent;
-			if (mPrefTheme.equals("patchr_theme_snow")) {
-				themeId = R.style.patchr_theme_snow_transparent;
-			}
+			themeId = R.style.patchr_theme_snow_transparent;
 		}
 
 		setTheme(themeId);

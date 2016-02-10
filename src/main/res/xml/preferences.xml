@@ -6,17 +6,6 @@
 		android:key="Pref_General_Category"
 		android:title="@string/pref_category_title_general">
 
-		<ListPreference
-			android:id="@+id/Pref_Theme"
-			android:key="@string/pref_theme"
-			android:defaultValue="@string/pref_theme_default"
-			android:dialogTitle="@string/pref_theme_dialog_title"
-			android:entries="@array/theme_entries"
-			android:entryValues="@array/theme_values"
-			android:negativeButtonText="@string/dialog_cancel"
-			android:positiveButtonText="@string/dialog_ok"
-			android:title="@string/pref_theme_title" />
-
 		<PreferenceScreen
 			android:key="Pref_Notifications_Screen"
 			android:title="Notifications">
