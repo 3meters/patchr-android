@@ -51,7 +51,7 @@
 	<!-- Splash -->
 
 	<string name="splash_button_signin">Log in</string>
-	<string name="splash_button_start">Skip</string>
+	<string name="splash_button_start">skip</string>
 	<string name="splash_button_signup">Sign up</string>
 
 	<!-- Attribution -->

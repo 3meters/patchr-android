@@ -319,10 +319,12 @@
 
 	<style name="patchr_theme_midnight_notitlebar" parent="patchr_theme_midnight">
 		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowTranslucentStatus">true</item>
 	</style>
 
 	<style name="patchr_theme_snow_notitlebar" parent="patchr_theme_snow">
 		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowTranslucentStatus">true</item>
 	</style>
 
 	<!-- Translucent theme versions -->

@@ -26,7 +26,7 @@ import com.patchr.ui.PatchList;
 import com.patchr.ui.PhotoForm;
 import com.patchr.ui.SearchForm;
 import com.patchr.ui.SettingsForm;
-import com.patchr.ui.SplashForm;
+import com.patchr.ui.LobbyForm;
 import com.patchr.ui.UserList;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.edit.FeedbackEdit;
@@ -35,7 +35,7 @@ import com.patchr.ui.edit.ProximityEdit;
 import com.patchr.ui.edit.RegisterEdit;
 import com.patchr.ui.edit.ReportEdit;
 import com.patchr.ui.edit.ResetEdit;
-import com.patchr.ui.edit.SignInEdit;
+import com.patchr.ui.edit.LoginEdit;
 import com.patchr.ui.helpers.LocationPicker;
 import com.patchr.ui.helpers.PhotoActionPicker;
 import com.patchr.ui.helpers.PhotoPicker;
@@ -355,7 +355,7 @@ public class Router {
 
 		else if (route == Route.SIGNIN) {
 
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, SignInEdit.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, LoginEdit.class);
 			activity.startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_SIGNIN);
 			AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
 		}
@@ -451,7 +451,7 @@ public class Router {
 
 		else if (route == Route.SPLASH) {
 
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, SplashForm.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, LobbyForm.class);
 			final Intent intent = intentBuilder.create();
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

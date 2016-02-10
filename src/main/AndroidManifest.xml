@@ -218,9 +218,10 @@
 		<!-- Forms -->
 
 		<activity
-			android:name=".ui.SplashForm"
+			android:name=".ui.LobbyForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:theme="@style/patchr_theme_midnight_notitlebar"
+			android:screenOrientation="portrait"
 			android:launchMode="singleTask"
 			android:windowSoftInputMode="stateHidden">
 
@@ -352,7 +353,7 @@
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.edit.SignInEdit"
+			android:name=".ui.edit.LoginEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_signin_edit"
 			android:windowSoftInputMode="adjustResize" />

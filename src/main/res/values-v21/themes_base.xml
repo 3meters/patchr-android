@@ -22,6 +22,12 @@
 		<item name="android:windowSharedElementExitTransition">@android:transition/move</item>
 	</style>
 
+	<style name="patchr_theme_midnight_notitlebar" parent="patchr_theme_midnight">
+		<item name="android:windowTranslucentStatus">true</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:statusBarColor">@android:color/transparent</item>
+	</style>
+
 	<style name="base_theme_dialog_dark" parent="Theme.AppCompat.Dialog" />
 
 	<style name="base_theme_dialog_light" parent="Theme.AppCompat.Light.Dialog" />

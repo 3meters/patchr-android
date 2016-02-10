@@ -20,22 +20,22 @@ import com.patchr.objects.Route;
 import com.patchr.utilities.Dialogs;
 
 @SuppressLint("Registered")
-public class SplashForm extends ActionBarActivity {
+public class LobbyForm extends ActionBarActivity {
 	/*
-	 * Splash acts as a sticky guard when:
+	 * Lobby acts as a sticky guard when:
 	 *
 	 * - Sharing requires a signed in user
 	 * - Play services are not available
 	 * - The app must be updated to be used
 	 *
-	 * Splash always displays when the app user is anonymous, otherwise
+	 * Lobby always displays when the app user is anonymous, otherwise
 	 * it gets finished before it usually has a chance to display.
 	 *
-	 * Splash runs whenever the app is launched and opportunistically
+	 * Lobby runs whenever the app is launched and opportunistically
 	 * does some clean-up on the memory data store, forces a location reset, and
 	 * clears the new notification count. Basically a soft restart.
 	 *
-	 * Splash launches can be because of:
+	 * Lobby launches can be because of:
 	 *
 	 * - Start of app by user
 	 * - Relaunch after backing out of app
@@ -44,14 +44,16 @@ public class SplashForm extends ActionBarActivity {
 	 * - Routing back to splash because app update required.
 	 * - Routing back to splash because play services required.
 	 *
-	 * Running splash is not required to start activities.
+	 * Running Lobby is not required to start activities.
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Logger.d(this, "Splash create");
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-		setContentView(R.layout.splash_form);
+//		getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+//		getWindow().setStatusBarColor(Color.TRANSPARENT);
+		setContentView(R.layout.lobby_form);
 		initialize();
 	}
 
@@ -110,7 +112,7 @@ public class SplashForm extends ActionBarActivity {
 	}
 
 	private void showButtons() {
-		findViewById(R.id.button_holder).setVisibility(View.VISIBLE);
+		//findViewById(R.id.button_holder).setVisibility(View.VISIBLE);
 	}
 
 	private void updateRequired() {

@@ -36,7 +36,7 @@ import com.patchr.utilities.Utils;
 
 import java.util.Locale;
 
-public class SignInEdit extends BaseEdit {
+public class LoginEdit extends BaseEdit {
 
 	private EditText mEmail;
 	private EditText mPassword;
@@ -128,13 +128,13 @@ public class SignInEdit extends BaseEdit {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in, SignInEdit.this);
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in, LoginEdit.this);
 			}
 
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncSignIn");
-				ModelResult result = DataController.getInstance().signin(email, password, SignInEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().signin(email, password, LoginEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -149,10 +149,10 @@ public class SignInEdit extends BaseEdit {
 
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();
-					AnimationManager.doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_BACK);
+					AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
-					Errors.handleError(SignInEdit.this, result.serviceResponse);
+					Errors.handleError(LoginEdit.this, result.serviceResponse);
 				}
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
@@ -201,7 +201,7 @@ public class SignInEdit extends BaseEdit {
 			if (resultCode == Constants.RESULT_USER_SIGNED_IN) {
 				setResultCode(Constants.RESULT_USER_SIGNED_IN);
 				finish();
-				AnimationManager.doOverridePendingTransition(SignInEdit.this, TransitionType.FORM_BACK);
+				AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
 			}
 		}
 
@@ -214,6 +214,6 @@ public class SignInEdit extends BaseEdit {
 
 	@Override
 	protected int getLayoutId() {
-		return R.layout.signin_edit;
+		return R.layout.login_edit;
 	}
 }

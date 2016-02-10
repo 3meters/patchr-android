@@ -21,7 +21,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.SplashForm;
+import com.patchr.ui.LobbyForm;
 import com.patchr.utilities.UI;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -80,7 +80,7 @@ public class AndroidManager {
 						@Override
 						public void onCancel(DialogInterface dialog) {
 							UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unavailable), Toast.LENGTH_LONG);
-							if (!(activity instanceof SplashForm)) {
+							if (!(activity instanceof LobbyForm)) {
 								Patchr.router.route(activity, Route.SPLASH, null, null);
 							}
 							else {

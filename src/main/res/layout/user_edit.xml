@@ -33,6 +33,7 @@
 				style="@style/selectable_image"
 				android:layout_width="@dimen/image_extra_large"
 				android:layout_height="@dimen/image_extra_large"
+				android:layout_centerHorizontal="true"
 				android:layout_marginBottom="8dp"
 				android:clickable="true"
 				android:minWidth="@dimen/image_extra_large"

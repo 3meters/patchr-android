@@ -7,6 +7,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
 import com.patchr.components.DownloadManager;
+import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
@@ -51,12 +54,14 @@ import com.kbeanie.imagechooser.api.ChooserType;
 import com.kbeanie.imagechooser.api.ChosenImage;
 import com.kbeanie.imagechooser.api.ImageChooserListener;
 import com.kbeanie.imagechooser.api.ImageChooserManager;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserListener {
+public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserListener, Target {
 
 	protected AirPhotoView        mPhotoView;
 	protected TextView            mName;
@@ -140,6 +145,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		}
 
 		ensurePermissions();
+
+		if (mPhotoView != null) {
+			mPhotoView.setTarget(this);
+		}
 	}
 
 	public void bind(BindingMode mode) {
@@ -176,31 +185,42 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	}
 
 	protected void drawPhoto() {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (mPhotoView != null) {
-					if (mPhotoView.getPhoto() == null
-							|| mEntity.photo == null
-							|| !mPhotoView.getPhoto().sameAs(mEntity.getPhoto())) {
-						UI.drawPhoto(mPhotoView, mEntity.getPhoto());
-					}
+		/*
+		 * Can be called from main or background thread.
+		 */
+		runOnUiThread(
+				new Runnable() {
+					@Override
+					public void run() {
+						if (mPhotoView != null) {
+							if (mPhotoView.getPhoto() == null || (mEntity.getPhoto() != null && !mPhotoView.getPhoto().sameAs(mEntity.getPhoto()))) {
 
-					/* Photo adornments */
-					UI.setVisibility(mButtonPhotoSet, View.GONE);
-					UI.setVisibility(mButtonPhotoEdit, View.GONE);
-					UI.setVisibility(mButtonPhotoDelete, View.GONE);
+								/* Photo adornments */
+								UI.setVisibility(mButtonPhotoSet, View.GONE);
+								UI.setVisibility(mButtonPhotoEdit, View.GONE);
+								UI.setVisibility(mButtonPhotoDelete, View.GONE);
 
-					if (mEntity.photo == null) {
-						UI.setVisibility(mButtonPhotoSet, View.VISIBLE);
-					}
-					else {
-						UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
-						UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
+								if (mEntity.getPhoto() == null) {
+									UI.setVisibility(mButtonPhotoSet, View.VISIBLE);
+								}
+								else {
+									UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
+									UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
+								}
+
+								if (mEntity.getPhoto() == null) {
+									mPhotoView.getImageView().setImageDrawable(null);
+								}
+								else {
+									mPhotoView.showLoading(true);
+									mProcessing = true;                             // So user can't post while we a trying to fetch the photo
+									UI.drawPhoto(mPhotoView, mEntity.getPhoto());   // Only place we try to load a photo
+								}
+							}
+						}
 					}
 				}
-			}
-		});
+		);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -297,6 +317,30 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 		});
 	}
+
+	@Override
+	public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
+
+		final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
+		UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
+
+		mProcessing = false;
+
+		UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
+		UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
+
+		mPhotoView.showLoading(false);
+	}
+
+	@Override
+	public void onBitmapFailed(Drawable arg0) {
+		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
+		drawPhoto();
+		mProcessing = false;
+	}
+
+	@Override
+	public void onPrepareLoad(Drawable drawable) { }
 
 	public void onError(final String reason) {
 	    /*

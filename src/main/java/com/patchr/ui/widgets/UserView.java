@@ -134,7 +134,9 @@ public class UserView extends RelativeLayout {
 			if (mPhotoView != null) {
 				if (mPhotoView.getPhoto() == null || !mPhotoView.getPhoto().getDirectUri().equals(user.getPhoto().getDirectUri())) {
 					Photo photo = user.getPhoto();
-					UI.drawPhoto(mPhotoView, photo, new CircleTransform());
+					if (photo != null) {
+						UI.drawPhoto(mPhotoView, photo, new CircleTransform());
+					}
 				}
 			}
 

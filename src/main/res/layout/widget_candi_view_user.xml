@@ -15,9 +15,7 @@
 		android:layout_width="@dimen/image_medium"
 		android:layout_height="@dimen/image_medium"
 		android:layout_margin="8dp"
-		android:layout_marginRight="10dp"
-		android:clickable="true"
-		android:onClick="onPhotoClick" />
+		android:layout_marginRight="10dp" />
 
 	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/name"

@@ -55,7 +55,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView.TokenListener, Target {
+public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView.TokenListener {
 
 	private String mMessage;
 	private String mShareId;
@@ -191,10 +191,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			TextView message = (TextView) findViewById(R.id.content_message);
 			message.setText(mMessage);
 			message.setVisibility(View.VISIBLE);
-		}
-
-		if (mPhotoView != null) {
-			mPhotoView.setTarget(this);
 		}
 	}
 
@@ -473,39 +469,19 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 	@Override
 	protected void drawPhoto() {
+		super.drawPhoto();
 		/*
 		 * Can be called from main or background thread.
 		 */
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (mPhotoView != null) {
-					if (mEntity.photo != null) {
-						if (mPhotoView.getPhoto() == null
-								|| !mPhotoView.getPhoto().sameAs(mEntity.getPhoto())) {
-							/* This activity implements target */
-							UI.setVisibility(mButtonPhotoEdit, View.GONE);
-							UI.setVisibility(mButtonPhotoDelete, View.GONE);
-							mPhotoView.showLoading(true);
-							mProcessing = true;                             // So user can't post while we a trying to fetch the photo
-
-							Photo photo = mEntity.getPhoto();
-							if (photo.source.equals(Photo.PhotoSource.file)) {
-								Logger.d(MessageEdit.this, "Loading image from file: " + photo.getDirectUri());
-							}
-							else if (!photo.source.equals(Photo.PhotoSource.resource)) {
-								Logger.d(MessageEdit.this, "Loading image from network: " + photo.getDirectUri());
-							}
-
-							UI.drawPhoto(mPhotoView, mEntity.getPhoto());   // Only place we try to load a photo
-						}
+		runOnUiThread(
+				new Runnable() {
+					@Override
+					public void run() {
+						mAnimatorPhoto.requestLayout();
+						mAnimatorPhoto.setDisplayedChild(mEntity.photo == null ? 0 : 1);
 					}
-
-					mAnimatorPhoto.requestLayout();
-					mAnimatorPhoto.setDisplayedChild(mEntity.photo == null ? 0 : 1);
 				}
-			}
-		});
+		);
 	}
 
     /*--------------------------------------------------------------------------------------------
@@ -580,25 +556,9 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	}
 
 	@Override
-	public void onBitmapFailed(Drawable arg0) {
-		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
-		onCancelPhotoButtonClick(null);
-		drawPhoto();
-		mProcessing = false;
-	}
-
-	@Override
 	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
+		super.onBitmapLoaded(bitmap, loadedFrom);
 
-		final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
-		UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
-
-		mProcessing = false;
-
-		UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
-		UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
-
-		mPhotoView.showLoading(false);
 		mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.slide_in_bottom_long);
 		mAnimatorPhoto.requestLayout();
 		mAnimatorPhoto.setDisplayedChild(1);
@@ -606,15 +566,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	}
 
 	@Override
-	public void onPrepareLoad(Drawable drawable) {
-		//		runOnUiThread(new Runnable() {
-		//
-		//			@Override
-		//			public void run() {
-		//				mAnimatorPhoto.requestLayout();
-		//				mAnimatorPhoto.setDisplayedChild(1);
-		//			}
-		//		});
+	public void onBitmapFailed(Drawable arg0) {
+		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
+		onCancelPhotoButtonClick(null);
+		drawPhoto();
+		mProcessing = false;
 	}
 
 	public void onCancelPhotoButtonClick(View view) {
