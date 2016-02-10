@@ -42,8 +42,8 @@ public class Dialogs {
 			, OnCancelListener listenerCancel) {
 
 		Integer theme = (Patchr.themeTone.equals(Patchr.ThemeTone.LIGHT))
-		                ? AlertDialog.THEME_DEVICE_DEFAULT_LIGHT
-		                : AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+		                ? android.R.style.Theme_DeviceDefault_Light_Dialog_Alert
+		                : android.R.style.Theme_DeviceDefault_Dialog_Alert;
 
 		final AlertDialog.Builder builder = new AlertDialog.Builder(context, theme);
 

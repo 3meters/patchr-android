@@ -528,21 +528,22 @@ public class NearbyListFragment extends EntityListFragment {
 	}
 
 	private void showSnackbar() {
-		Snackbar snackbar = Snackbar.make(getView(), "Snackbar", Snackbar.LENGTH_LONG);
-		//snackbar.getView().setBackgroundColor(Colors.getColor(R.color.brand_accent));
-		snackbar.setActionTextColor(Colors.getColor(R.color.brand_primary));
-		snackbar.setText(R.string.alert_location_permission_denied)
-		        .setAction("Settings", new View.OnClickListener() {
-			        @Override
-			        public void onClick(View v) {
-				        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-				        Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
-				        intent.setData(uri);
-				        startActivityForResult(intent, 100);
-			        }
-		        })
-		        .show();
-
+		if (getView() != null) {
+			Snackbar snackbar = Snackbar.make(getView(), "Snackbar", Snackbar.LENGTH_LONG);
+			//snackbar.getView().setBackgroundColor(Colors.getColor(R.color.brand_accent));
+			snackbar.setActionTextColor(Colors.getColor(R.color.brand_primary));
+			snackbar.setText(R.string.alert_location_permission_denied)
+			        .setAction("Settings", new View.OnClickListener() {
+				        @Override
+				        public void onClick(View v) {
+					        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+					        Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+					        intent.setData(uri);
+					        startActivityForResult(intent, 100);
+				        }
+			        })
+			        .show();
+		}
 	}
 
 	private void ensurePermissions() {

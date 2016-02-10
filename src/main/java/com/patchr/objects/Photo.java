@@ -5,10 +5,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.TypedValue;
 
-import com.patchr.Constants;
 import com.patchr.Patchr;
-import com.patchr.R;
-import com.patchr.components.StringManager;
 import com.patchr.service.Expose;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;

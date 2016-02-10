@@ -1,6 +1,6 @@
 package com.patchr.ui.base;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -64,9 +64,9 @@ public abstract class BaseFragment extends Fragment implements IForm {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(Context context) {
 		/* Called when the fragment has been associated with the activity. */
-		super.onAttach(activity);
+		super.onAttach(context);
 		Logger.d(this, "Fragment attached");
 	}
 

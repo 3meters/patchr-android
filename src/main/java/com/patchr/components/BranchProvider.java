@@ -10,9 +10,6 @@ import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
 
-/**
- * Created by jaymassena on 2/4/16.
- */
 public class BranchProvider {
 
 	public static void invite(Context context, Entity entity, User referrer) {

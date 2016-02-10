@@ -3,6 +3,7 @@ package com.patchr.ui;
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -244,7 +245,7 @@ public class AircandiForm extends BaseActivity {
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
 		switch (requestCode) {
 			case Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
 				if (PermissionUtil.verifyPermissions(grantResults)) {
@@ -253,7 +254,6 @@ public class AircandiForm extends BaseActivity {
 				else {
 					Dispatcher.getInstance().post(new LocationDeniedEvent());
 				}
-				return;
 			}
 		}
 	}

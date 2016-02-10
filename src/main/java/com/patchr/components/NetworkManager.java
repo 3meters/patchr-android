@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.net.wifi.WifiManager;
@@ -143,18 +144,21 @@ public class NetworkManager {
 			public void onReceive(final Context context, final Intent intent) {
 				if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
 
-					final NetworkInfo wifi = mConnectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-					final NetworkInfo mobile = mConnectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 					boolean noConnection = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 
 					if (noConnection) {
 						UI.showToastNotification("Lost network connection", Toast.LENGTH_SHORT);
 					}
-					if (wifi.isAvailable()) {
-						UI.showToastNotification("Wifi network is available", Toast.LENGTH_SHORT);
-					}
-					if (mobile.isAvailable()) {
-						UI.showToastNotification("Mobile network is available", Toast.LENGTH_SHORT);
+					else {
+						final Network network = mConnectivityManager.getActiveNetwork();
+						if (network != null) {
+							final NetworkInfo info = mConnectivityManager.getNetworkInfo(network);
+							if (info != null) {
+								if (info.isAvailable()) {
+									UI.showToastNotification(String.format("Network is available: %1$s", info.getTypeName()), Toast.LENGTH_SHORT);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -276,11 +280,14 @@ public class NetworkManager {
 	private boolean isConnectedOrConnecting() {
 		final ConnectivityManager cm = (ConnectivityManager) Patchr.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 		if (cm != null) {
-			final NetworkInfo[] info = cm.getAllNetworkInfo();
-			if (info != null) {
-				for (int i = 0; i < info.length; i++) {
-					if (info[i].getState() == State.CONNECTED || info[i].getState() == State.CONNECTING)
-						return true;
+			final Network[] networks = cm.getAllNetworks();
+			if (networks != null) {
+				for (Network network : networks) {
+					NetworkInfo info = cm.getNetworkInfo(network);
+					if (info != null) {
+						if (info.getState() == State.CONNECTED || info.getState() == State.CONNECTING)
+							return true;
+					}
 				}
 			}
 		}

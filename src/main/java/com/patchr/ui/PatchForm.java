@@ -322,7 +322,7 @@ public class PatchForm extends BaseActivity {
 
 					AppInviteDialog inviteDialog = new AppInviteDialog(PatchForm.this);
 
-					if (inviteDialog.canShow()) {
+					if (AppInviteDialog.canShow()) {
 
 						String photoUrl = null;
 
@@ -362,7 +362,7 @@ public class PatchForm extends BaseActivity {
 								Logger.w(this, String.format("Facebook invite error: %1$s", error.toString()));
 							}
 						});
-						inviteDialog.show(PatchForm.this, builder.build());
+						AppInviteDialog.show(PatchForm.this, builder.build());
 					}
 				}
 			}

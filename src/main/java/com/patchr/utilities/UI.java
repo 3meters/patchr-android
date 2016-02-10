@@ -56,9 +56,6 @@ public class UI {
 		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
 		 * Fit on photo is used when target size is desired and known only after view layout.
 		 */
-		int width = photoView.getImageView().getWidth();
-		int height = photoView.getImageView().getHeight();
-
 		PhotoSizeCategory category = photoView.getSizeCategory();
 
 		if (photo.source.equals(Photo.PhotoSource.resource)) {

@@ -4,7 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -20,7 +20,7 @@ import com.patchr.objects.Route;
 import com.patchr.utilities.Dialogs;
 
 @SuppressLint("Registered")
-public class LobbyForm extends ActionBarActivity {
+public class LobbyForm extends AppCompatActivity {
 	/*
 	 * Lobby acts as a sticky guard when:
 	 *

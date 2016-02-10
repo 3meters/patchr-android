@@ -12,7 +12,6 @@ import com.patchr.objects.Link.Direction;
 import com.patchr.service.Expose;
 import com.patchr.service.SerializedName;
 import com.patchr.utilities.Type;
-import com.patchr.utilities.Utils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -193,7 +192,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@NonNull
 	public Photo getPhoto() {
 		return this.photo;
 	}

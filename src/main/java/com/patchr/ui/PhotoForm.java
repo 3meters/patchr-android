@@ -10,7 +10,6 @@ import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 

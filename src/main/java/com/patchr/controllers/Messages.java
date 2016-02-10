@@ -3,7 +3,6 @@ package com.patchr.controllers;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.patchr.Constants;
@@ -20,7 +19,6 @@ import com.patchr.objects.Message;
 import com.patchr.objects.Photo;
 import com.patchr.objects.ViewHolder;
 import com.patchr.ui.MessageForm;
-import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.widgets.UserPhotoView;
 import com.patchr.utilities.DateTime;

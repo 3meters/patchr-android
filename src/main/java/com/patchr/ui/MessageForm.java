@@ -552,11 +552,8 @@ public class MessageForm extends BaseEntityForm {
 				.addContentMetadata("entityId", mEntityId)
 				.addContentMetadata("entitySchema", Constants.SCHEMA_ENTITY_MESSAGE)
 				.addContentMetadata("referrerName", referrerName)
-				.addContentMetadata("ownerName", ownerName);
-
-		if (patchName != null) {
-			applink.addContentMetadata("patchName", patchName);
-		}
+				.addContentMetadata("ownerName", ownerName)
+				.addContentMetadata("patchName", patchName);
 
 		if (mEntity.photo != null) {
 			Photo photo = mEntity.getPhoto();
@@ -571,16 +568,13 @@ public class MessageForm extends BaseEntityForm {
 			applink.setContentImageUrl(photoUrl);  // $og_image_url
 		}
 
-		String description = String.format("%1$s posted a photo using Patchr", ownerName);
-		if (patchName != null) {
-			description = String.format("%1$s posted a photo to the %2$s patch using Patchr", ownerName, patchName);
-		}
+		String description = String.format("%1$s posted a photo to the %2$s patch using Patchr", ownerName, patchName);
 		if (mEntity.description != null) {
 			description = String.format("%1$s posted: \"%2$s\"", ownerName, mEntity.description);
 		}
 
 		applink.setTitle(String.format("Shared by %1$s", referrerName));    // $og_title
-		applink.setContentDescription(mEntity.description);                 // $og_description
+		applink.setContentDescription(description);                 // $og_description
 
 		LinkProperties linkProperties = new LinkProperties()
 				.setChannel("patchr-android")

@@ -25,7 +25,6 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
 import com.patchr.components.DownloadManager;
-import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
@@ -193,34 +192,31 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					@Override
 					public void run() {
 						if (mPhotoView != null) {
-							if (mPhotoView.getPhoto() == null || (mEntity.getPhoto() != null && !mPhotoView.getPhoto().sameAs(mEntity.getPhoto()))) {
 
-								/* Photo adornments */
-								UI.setVisibility(mButtonPhotoSet, View.GONE);
-								UI.setVisibility(mButtonPhotoEdit, View.GONE);
-								UI.setVisibility(mButtonPhotoDelete, View.GONE);
+							/* Photo adornments */
+							UI.setVisibility(mButtonPhotoSet, View.GONE);
+							UI.setVisibility(mButtonPhotoEdit, View.GONE);
+							UI.setVisibility(mButtonPhotoDelete, View.GONE);
 
-								if (mEntity.getPhoto() == null) {
-									UI.setVisibility(mButtonPhotoSet, View.VISIBLE);
-								}
-								else {
-									UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
-									UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
-								}
+							if (mEntity.getPhoto() == null) {
+								UI.setVisibility(mButtonPhotoSet, View.VISIBLE);
+							}
+							else {
+								UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
+								UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
+							}
 
-								if (mEntity.getPhoto() == null) {
-									mPhotoView.getImageView().setImageDrawable(null);
-								}
-								else {
-									mPhotoView.showLoading(true);
-									mProcessing = true;                             // So user can't post while we a trying to fetch the photo
-									UI.drawPhoto(mPhotoView, mEntity.getPhoto());   // Only place we try to load a photo
-								}
+							if (mEntity.getPhoto() == null) {
+								mPhotoView.getImageView().setImageDrawable(null);
+							}
+							else if (mPhotoView.getPhoto() == null || !mPhotoView.getPhoto().sameAs(mEntity.getPhoto())) {
+								mPhotoView.showLoading(true);
+								mProcessing = true;                             // So user can't post while we a trying to fetch the photo
+								UI.drawPhoto(mPhotoView, mEntity.getPhoto());   // Only place we try to load a photo
 							}
 						}
 					}
-				}
-		);
+				});
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -237,8 +233,8 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		 */
 		if (!mEditing || isDirty()) {
 			if (validate()) {
-			    /*
-			     * Pull all the control values back into the entity object. Validate
+				/*
+				 * Pull all the control values back into the entity object. Validate
 				 * does that too but we don't know if validate is always being performed.
 				 */
 				gather();

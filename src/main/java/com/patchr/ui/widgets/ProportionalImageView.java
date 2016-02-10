@@ -5,9 +5,6 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-/**
- * Created by jaymassena on 2/7/16.
- */
 public class ProportionalImageView extends ImageView {
 
 	public ProportionalImageView(Context context) {

@@ -15,7 +15,6 @@ import com.patchr.objects.Patch;
 import com.patchr.objects.Route;
 import com.patchr.ui.base.BaseEdit;
 import com.patchr.ui.base.BaseEntityEdit;
-import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Type;
 
 public class MenuManager {

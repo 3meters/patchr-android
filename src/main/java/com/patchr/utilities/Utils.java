@@ -70,7 +70,7 @@ public class Utils {
 
 	public static int randomColor(long seed) {
 		Random generator = new Random(seed);
-		float junk = generator.nextFloat();
+		generator.nextFloat();
 		float hue = generator.nextFloat()  * (360.0f - 0.0f);
 		float saturation = generator.nextFloat() * (1.0f - 0.5f) + 0.5f; // 0.5 to 1.0, away from white
 		float brightness = generator.nextFloat() * (1.0f - 0.5f) + 0.5f; // 0.5 to 1.0, away from black

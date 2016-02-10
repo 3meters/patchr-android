@@ -6,9 +6,6 @@ import com.flipboard.bottomsheet.BaseViewTransformer;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.patchr.R;
 
-/**
- * Created by jaymassena on 2/4/16.
- */
 public class InsetViewTransformer extends BaseViewTransformer {
 
 	public static final float MAX_DIM_ALPHA = 0.4f;
@@ -25,7 +22,7 @@ public class InsetViewTransformer extends BaseViewTransformer {
 			ensureLayer(view, View.LAYER_TYPE_NONE);
 		}
 		else {
-			parent.setBackgroundColor(view.getResources().getColor(R.color.brand_accent));
+			parent.setBackgroundColor(view.getResources().getColor(R.color.brand_accent, null));
 			ensureLayer(view, View.LAYER_TYPE_HARDWARE);
 		}
 
