@@ -29,6 +29,7 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.events.ActionEvent;
 import com.patchr.events.LocationAllowedEvent;
 import com.patchr.events.LocationDeniedEvent;
@@ -38,7 +39,6 @@ import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Route;
-import com.patchr.objects.User;
 import com.patchr.ui.EntityListFragment.ViewType;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.base.BaseFragment;
@@ -53,7 +53,7 @@ import com.squareup.otto.Subscribe;
 public class AircandiForm extends BaseActivity {
 
 	protected Number  mPauseDate;
-	protected Boolean mConfiguredForAnonymous;
+	protected Boolean mConfiguredForAuthenticated;
 
 	protected Fragment mFragmentNotifications;
 	protected String   mNextFragmentTag;
@@ -85,13 +85,13 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		mUserView = (UserView) findViewById(R.id.user_current);
-		if (mUserView != null) {
-			mUserView.setTag(Patchr.getInstance().getCurrentUser());
+		if (mUserView != null && UserManager.getInstance().authenticated()) {
+			mUserView.setTag(UserManager.getInstance().getCurrentUser());
 		}
 
 		mDrawerLeft = findViewById(R.id.left_drawer);
 		mDrawerRight = findViewById(R.id.right_drawer);
-		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+		if (!UserManager.getInstance().authenticated()) {
 			((ViewGroup) mDrawerRight.getParent()).removeView(mDrawerRight);
 			mDrawerRight = null;
 		}
@@ -115,7 +115,7 @@ public class AircandiForm extends BaseActivity {
 		 * - like/unlike entity
 		 */
 		((EntityListFragment) mFragmentNotifications)
-				.setScopingEntityId(Patchr.getInstance().getCurrentUser().id)
+				.setScopingEntityId(UserManager.getInstance().authenticated() ? UserManager.getInstance().getCurrentUser().id : null)
 				.setActionType(ActionType.ACTION_GET_NOTIFICATIONS)
 				.setPageSize(Integers.getInteger(R.integer.page_size_notifications))
 				.setListViewType(ViewType.LIST)
@@ -191,9 +191,11 @@ public class AircandiForm extends BaseActivity {
 	@SuppressWarnings("ucd")
 	public void onEntityClick(View view) {
 		Entity entity = (Entity) view.getTag();
-		if (!(entity.schema.equals(Constants.SCHEMA_ENTITY_USER) && ((User) entity).isAnonymous())) {
-			Bundle extras = new Bundle();
-			Patchr.router.route(this, Route.BROWSE, entity, extras);
+		if (entity != null) {
+			if (!(entity.schema.equals(Constants.SCHEMA_ENTITY_USER) && !UserManager.getInstance().authenticated())) {
+				Bundle extras = new Bundle();
+				Patchr.router.route(this, Route.BROWSE, entity, extras);
+			}
 		}
 		if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mDrawerLeft)) {
 			mDrawerLayout.closeDrawer(mDrawerLeft);
@@ -300,7 +302,7 @@ public class AircandiForm extends BaseActivity {
 				fragment = new EntityListFragment();
 
 				((EntityListFragment) fragment)
-						.setScopingEntityId(Patchr.getInstance().getCurrentUser().id)
+						.setScopingEntityId(UserManager.getInstance().authenticated() ? UserManager.getInstance().getCurrentUser().id : null)
 						.setActionType(ActionType.ACTION_GET_ENTITIES)
 						.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
 						.setLinkType(Constants.TYPE_LINK_WATCH)
@@ -326,7 +328,7 @@ public class AircandiForm extends BaseActivity {
 				fragment = new EntityListFragment();
 
 				((EntityListFragment) fragment)
-						.setScopingEntityId(Patchr.getInstance().getCurrentUser().id)
+						.setScopingEntityId(UserManager.getInstance().authenticated() ? UserManager.getInstance().getCurrentUser().id : null)
 						.setActionType(ActionType.ACTION_GET_ENTITIES)
 						.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
 						.setLinkType(Constants.TYPE_LINK_CREATE)
@@ -509,23 +511,23 @@ public class AircandiForm extends BaseActivity {
 
 	protected void configureDrawer() {
 
-		Boolean configChange = mConfiguredForAnonymous == null
-				|| !Patchr.getInstance().getCurrentUser().isAnonymous().equals(mConfiguredForAnonymous)
-				|| (mCacheStamp != null && !mCacheStamp.equals(Patchr.getInstance().getCurrentUser().getCacheStamp()));
+		Boolean configChange = mConfiguredForAuthenticated == null
+				|| !UserManager.getInstance().authenticated().equals(mConfiguredForAuthenticated)
+				|| (mCacheStamp != null && !mCacheStamp.equals(UserManager.getInstance().getCurrentUser().getCacheStamp()));
 
 		if (configChange) {
-			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-				mConfiguredForAnonymous = true;
-				findViewById(R.id.item_watch).setVisibility(View.GONE);
-				findViewById(R.id.item_own).setVisibility(View.GONE);
-				mUserView.databind(Patchr.getInstance().getCurrentUser());
-			}
-			else {
-				mConfiguredForAnonymous = false;
+			if (UserManager.getInstance().authenticated()) {
+				mConfiguredForAuthenticated = true;
 				findViewById(R.id.item_watch).setVisibility(View.VISIBLE);
 				findViewById(R.id.item_own).setVisibility(View.VISIBLE);
-				mUserView.databind(Patchr.getInstance().getCurrentUser());
-				mCacheStamp = Patchr.getInstance().getCurrentUser().getCacheStamp();
+				mUserView.databind(UserManager.getInstance().getCurrentUser());
+				mCacheStamp = UserManager.getInstance().getCurrentUser().getCacheStamp();
+			}
+			else {
+				mConfiguredForAuthenticated = false;
+				findViewById(R.id.item_watch).setVisibility(View.GONE);
+				findViewById(R.id.item_own).setVisibility(View.GONE);
+				mUserView.databind(null);
 			}
 		}
 	}
@@ -639,8 +641,8 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		/* In case the user was edited from the drawer */
-		if (mUserView != null) {
-			mUserView.databind(Patchr.getInstance().getCurrentUser());
+		if (mUserView != null && UserManager.getInstance().authenticated()) {
+			mUserView.databind(UserManager.getInstance().getCurrentUser());
 		}
 
 		/* Ensure install is registered. */

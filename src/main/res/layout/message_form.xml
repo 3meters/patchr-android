@@ -90,11 +90,7 @@
 						android:layout_marginRight="5dp"
 						android:scaleType="centerCrop"
 						custom:config="rgb_565"
-						custom:fitType="fixed"
-						custom:layoutId="@layout/widget_imageview"
-						custom:showBusy="true"
-						custom:sizeCategory="profile"
-						custom:sizeHint="@dimen/image_small" />
+						custom:sizeCategory="profile" />
 
 					<com.patchr.ui.widgets.AirTextView
 						android:id="@+id/user_name"

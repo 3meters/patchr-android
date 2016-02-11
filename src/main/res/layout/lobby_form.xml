@@ -29,7 +29,7 @@
 			android:layout_height="72dp"
 			android:layout_gravity="center_horizontal"
 			android:layout_marginTop="4dp"
-			android:src="?attr/iconPatch" />
+			android:src="@drawable/ic_img_patch_dark" />
 
 		<TextView
 			android:id="@+id/name"
@@ -78,6 +78,7 @@
 		android:onClick="onGuestButtonClick"
 		android:text="@string/splash_button_start"
 		android:textAllCaps="false"
+		android:fontFamily="sans-serif-light"
 		android:layout_alignParentBottom="true"
 		android:layout_marginBottom="96dp"
 		android:textColor="@android:color/primary_text_dark"

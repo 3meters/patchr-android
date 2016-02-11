@@ -16,6 +16,7 @@ import com.patchr.components.DataController;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.NotificationManager;
+import com.patchr.components.UserManager;
 import com.patchr.objects.Route;
 import com.patchr.utilities.Dialogs;
 
@@ -79,7 +80,7 @@ public class LobbyForm extends AppCompatActivity {
 		 * called again.
 		 */
 		if (AndroidManager.checkPlayServices(this)) {
-			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			if (!UserManager.getInstance().authenticated()) {
 				showButtons();
 			}
 			else {
@@ -93,7 +94,7 @@ public class LobbyForm extends AppCompatActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	protected void startHomeActivity() {
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous() && Patchr.sendIntent != null) {
+		if (UserManager.getInstance().authenticated() && Patchr.sendIntent != null) {
 			/*
 			 * Someone wants to share something with Patchr users and they were not
 			 * already signed into Patchr. We need them to sign in and then we get them
@@ -158,7 +159,7 @@ public class LobbyForm extends AppCompatActivity {
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (requestCode == Constants.ACTIVITY_SIGNIN) {
 			if (resultCode == Constants.RESULT_USER_SIGNED_IN
-					&& !Patchr.getInstance().getCurrentUser().isAnonymous()) {
+					&& UserManager.getInstance().authenticated()) {
 				/*
 				 * Log in handled
 				 * - loads data for signed in user

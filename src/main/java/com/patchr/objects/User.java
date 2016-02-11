@@ -32,32 +32,9 @@ public class User extends Entity {
 	@Expose
 	public String  area;
 	@Expose
-	public String  bio;
-	@Expose
-	public String  webUri;
-	@Expose
 	public Boolean developer;
 	@Expose
 	public String  password;
-
-	@Expose(serialize = false, deserialize = true)
-	public String facebookId;
-	@Expose(serialize = false, deserialize = true)
-	public String twitterId;
-	@Expose(serialize = false, deserialize = true)
-	public String googleId;
-
-	@Expose
-	public String authSource;
-
-	@Expose(serialize = false, deserialize = true)
-	public String oauthId;
-	@Expose(serialize = false, deserialize = true)
-	public String oauthToken;
-	@Expose(serialize = false, deserialize = true)
-	public String oauthSecret;
-	@Expose(serialize = false, deserialize = true)
-	public String oauthData;
 
 	@Expose(serialize = false, deserialize = true)
 	public Number lastSignedInDate;
@@ -86,16 +63,6 @@ public class User extends Entity {
 		return collectionId;
 	}
 
-	@NonNull
-	public Boolean isAnonymous() {
-		return (id == null || id.equals(Constants.ANONYMOUS_USER_ID));
-	}
-
-	@NonNull
-	public Boolean isAdmin() {
-		return (id != null && id.equals(Constants.ADMIN_USER_ID));
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
@@ -108,11 +75,8 @@ public class User extends Entity {
 			entity.area = (String) map.get("area");
 			entity.email = (String) map.get("email");
 			entity.role = (String) map.get("role");
-			entity.bio = (String) map.get("bio");
-			entity.webUri = (String) map.get("webUri");
 			entity.developer = (Boolean) map.get("developer");
 			entity.password = (String) map.get("password");
-			entity.authSource = (String) map.get("authSource");
 			entity.lastSignedInDate = (Number) map.get("lastSignedInDate");
 			entity.validationDate = (Number) map.get("validationDate");
 			entity.validationNotifyDate = (Number) map.get("validationNotifyDate");

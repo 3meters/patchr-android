@@ -26,6 +26,7 @@ import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
 import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.events.ActionEvent;
 import com.patchr.events.DataResultEvent;
 import com.patchr.events.ProcessingCompleteEvent;
@@ -372,7 +373,7 @@ public class PatchForm extends BaseActivity {
 	public void androidInvite(final String title, final BranchUniversalObject applink, LinkProperties linkProperties) {
 
 		final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
-		final String referrerName = Patchr.getInstance().getCurrentUser().name;
+		final String referrerName = UserManager.getInstance().getCurrentUser().name;
 
 		applink.generateShortUrl(this, linkProperties, new Branch.BranchLinkCreateListener() {
 
@@ -403,7 +404,7 @@ public class PatchForm extends BaseActivity {
 	public BranchUniversalObject configureApplink() {
 
 		final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
-		final String referrerName = Patchr.getInstance().getCurrentUser().name;
+		final String referrerName = UserManager.getInstance().getCurrentUser().name;
 		final String ownerName = mEntity.owner.name;
 		final String path = "patch/" + mEntityId;
 

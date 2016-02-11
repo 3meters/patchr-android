@@ -19,39 +19,9 @@ import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 import android.widget.Toast;
 
-import com.facebook.FacebookSdk;
-import com.patchr.components.ActivityRecognitionManager;
-import com.patchr.components.ContainerManager;
-import com.patchr.components.DataController;
-import com.patchr.components.Dispatcher;
-import com.patchr.components.Logger;
-import com.patchr.components.MediaManager;
-import com.patchr.components.ModelResult;
-import com.patchr.components.NetworkManager;
-import com.patchr.components.NotificationManager;
-import com.patchr.components.Router;
-import com.patchr.components.Stopwatch;
-import com.patchr.components.StringManager;
-import com.patchr.controllers.Messages;
-import com.patchr.controllers.Notifications;
-import com.patchr.controllers.Patches;
-import com.patchr.controllers.Users;
-import com.patchr.events.RegisterInstallEvent;
-import com.patchr.interfaces.IEntityController;
-import com.patchr.objects.Entity;
-import com.patchr.objects.LinkSpec;
-import com.patchr.objects.LinkSpecFactory;
-import com.patchr.objects.LinkSpecType;
-import com.patchr.objects.Session;
-import com.patchr.objects.User;
-import com.patchr.utilities.DateTime;
-import com.patchr.utilities.Json;
-import com.patchr.utilities.Reporting;
-import com.patchr.utilities.Type;
-import com.patchr.utilities.UI;
-import com.patchr.utilities.Utils;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.crashlytics.android.Crashlytics;
+import com.facebook.FacebookSdk;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.api.PendingResult;
@@ -62,6 +32,29 @@ import com.google.android.gms.tagmanager.TagManager;
 import com.kbeanie.imagechooser.api.BChooserPreferences;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
+import com.patchr.components.ActivityRecognitionManager;
+import com.patchr.components.ContainerManager;
+import com.patchr.components.DataController;
+import com.patchr.components.Dispatcher;
+import com.patchr.components.Logger;
+import com.patchr.components.MediaManager;
+import com.patchr.components.NetworkManager;
+import com.patchr.components.Router;
+import com.patchr.components.Stopwatch;
+import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
+import com.patchr.controllers.Messages;
+import com.patchr.controllers.Notifications;
+import com.patchr.controllers.Patches;
+import com.patchr.controllers.Users;
+import com.patchr.events.RegisterInstallEvent;
+import com.patchr.interfaces.IEntityController;
+import com.patchr.objects.Entity;
+import com.patchr.objects.Preference;
+import com.patchr.utilities.DateTime;
+import com.patchr.utilities.Type;
+import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -84,16 +77,13 @@ public class Patchr extends MultiDexApplication {
 	public static SharedPreferences.Editor settingsEditor;
 
 	@NonNull
-	public static Handler   mainThreadHandler = new Handler(Looper.getMainLooper());
+	public static Handler                        mainThreadHandler         = new Handler(Looper.getMainLooper());
 	@NonNull
-	public static Router    router            = new Router();
+	public static Router                         router                    = new Router();
 	@NonNull
-	public static Stopwatch stopwatch1        = new Stopwatch(); // $codepro.audit.disable stringLiterals;
+	public static Stopwatch                      stopwatch1                = new Stopwatch(); // $codepro.audit.disable stringLiterals;
 	@NonNull
-	public static Stopwatch stopwatch2        = new Stopwatch(); // $codepro.audit.disable stringLiterals;
-
-	@NonNull
-	public static String                         themeTone                 = ThemeTone.LIGHT;
+	public static Stopwatch                      stopwatch2                = new Stopwatch(); // $codepro.audit.disable stringLiterals;
 	@NonNull
 	public static Map<String, IEntityController> controllerMap             = new HashMap<String, IEntityController>();
 	@NonNull
@@ -120,10 +110,6 @@ public class Patchr extends MultiDexApplication {
 	/* Current objects */
 	private Entity   mCurrentPatch;
 	private Activity mCurrentActivity;
-	private User     mCurrentUser;
-
-	/* Common preferences */
-	private String mPrefTheme;
 
 	/* Dev preferences */
 	private Boolean mPrefEnableDev;
@@ -216,7 +202,7 @@ public class Patchr extends MultiDexApplication {
 		controllerMap.put(Constants.SCHEMA_ENTITY_NOTIFICATION, new Notifications());
 
 		/* Must come after managers are initialized */
-		signinAuto();
+		UserManager.getInstance().signinAuto();
 
 		/* Start activity recognition */
 		ActivityRecognitionManager.getInstance().initialize(applicationContext);
@@ -238,9 +224,8 @@ public class Patchr extends MultiDexApplication {
 	}
 
 	public void snapshotPreferences() {
-		mPrefTheme = settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default));
-		mPrefEnableDev = settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
-		mPrefTestingBeacons = settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
+		mPrefEnableDev = settings.getBoolean(Preference.ENABLE_DEV, false);
+		mPrefTestingBeacons = settings.getString(Preference.TESTING_BEACONS, "natural");
 	}
 
 	public void openContainer(String containerId) {
@@ -270,8 +255,9 @@ public class Patchr extends MultiDexApplication {
 				/* Called when a successful refresh occurred for the given refresh type. */
 				Logger.v(this, "Container refresh success");
 
-				if (settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-						&& Patchr.getInstance().getCurrentUser() != null && Type.isTrue(Patchr.getInstance().getCurrentUser().developer)) {
+				if (Constants.DEV_ENABLED
+						&& UserManager.getInstance().authenticated()
+						&& Type.isTrue(UserManager.getInstance().getCurrentUser().developer)) {
 					UI.showToastNotification("Container refreshed", Toast.LENGTH_SHORT);
 				}
 
@@ -297,27 +283,6 @@ public class Patchr extends MultiDexApplication {
 			String secretKey = container.getString(AWS_SECRET_KEY);
 			awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
 		}
-	}
-
-	public void signinAuto() {
-		/*
-		 * Gets called on app create.
-		 */
-		final String jsonUser = settings.getString(StringManager.getString(R.string.setting_user), null);
-		final String jsonSession = settings.getString(StringManager.getString(R.string.setting_user_session), null);
-
-		if (jsonUser != null && jsonSession != null) {
-			Logger.i(this, "Auto log in using cached user...");
-			final User user = (User) Json.jsonToObject(jsonUser, Json.ObjectType.ENTITY);
-			user.session = (Session) Json.jsonToObject(jsonSession, Json.ObjectType.SESSION);
-			setCurrentUser(user, false);  // Does not block because of 'false', also updates persisted user
-			return;
-		}
-
-		/* Couldn't auto signin so fall back to anonymous */
-		final User anonymous = (User) DataController.getInstance().loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
-		setCurrentUser(anonymous, false);  // Does not block because of 'false'
-		Logger.i(this, "Auto log in using anonymous user");
 	}
 
 	@NonNull
@@ -422,58 +387,9 @@ public class Patchr extends MultiDexApplication {
 		throw new IllegalArgumentException("Failed to get version code");
 	}
 
-	public static class ThemeTone {
-		@NonNull
-		public static String DARK  = "dark";
-		@NonNull
-		public static String LIGHT = "light";
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-
-	@NonNull
-	public Boolean setCurrentUser(@NonNull User user, @NonNull Boolean refreshUser) {
-
-		mCurrentUser = user;
-		ModelResult result = new ModelResult();
-
-		if (user.isAnonymous()) {
-
-			Logger.i(this, "Activating anonymous user");
-
-			/* Cancel any current notifications in the status bar */
-			NotificationManager.getInstance().cancelAllNotifications();
-
-			/* Clear user settings */
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), null);
-			Patchr.settingsEditor.commit();
-		}
-		else {
-
-			Logger.i(this, "Activating authenticated user: " + Patchr.getInstance().getCurrentUser().id);
-
-			/* Load user data */
-			if (refreshUser) {
-				LinkSpec options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
-				result = DataController.getInstance().getEntity(user.id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-			}
-
-			/* Update settings */
-			final String jsonUser = Json.objectToJson(user);
-			final String jsonSession = Json.objectToJson(user.session);
-
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), user.email);
-			Patchr.settingsEditor.commit();
-		}
-
-		Reporting.updateCrashUser(user);
-		return (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS);
-	}
 
 	public void setCurrentActivity(Activity currentActivity) {
 		mCurrentActivity = currentActivity;
@@ -497,10 +413,6 @@ public class Patchr extends MultiDexApplication {
 			mTracker = analytics.newTracker(R.xml.analytics);
 		}
 		return mTracker;
-	}
-
-	public User getCurrentUser() {
-		return mCurrentUser;
 	}
 
 	@NonNull

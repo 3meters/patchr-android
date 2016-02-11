@@ -9,7 +9,6 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.DataController;
 import com.patchr.components.Logger;
@@ -17,6 +16,7 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.Document;
 import com.patchr.ui.base.BaseEntityEdit;
@@ -70,7 +70,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 
 	@Override
 	public void draw(View view) {
-		((UserView) findViewById(R.id.created_by)).databind(Patchr.getInstance().getCurrentUser(), null);
+		((UserView) findViewById(R.id.created_by)).databind(UserManager.getInstance().getCurrentUser(), null);
 	}
 
 	/*--------------------------------------------------------------------------------------------

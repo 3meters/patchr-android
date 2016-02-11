@@ -22,18 +22,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.github.machinarius.preferencefragment.PreferenceFragment;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.ContainerManager;
 import com.patchr.components.DownloadManager;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.objects.Route;
 import com.patchr.ui.widgets.ListPreferenceMultiSelect;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
-import com.github.machinarius.preferencefragment.PreferenceFragment;
 
 @SuppressWarnings("deprecation")
 public class SettingsFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
@@ -46,9 +47,9 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 		/* Load preferences layout */
 		addPreferencesFromResource(R.xml.preferences);
-		if (Patchr.getInstance().getCurrentUser() != null
-				&& Patchr.getInstance().getCurrentUser().developer != null
-				&& Patchr.getInstance().getCurrentUser().developer) {
+		if (UserManager.getInstance().authenticated()
+				&& UserManager.getInstance().getCurrentUser().developer != null
+				&& UserManager.getInstance().getCurrentUser().developer) {
 			addPreferencesFromResource(R.xml.preferences_dev);
 		}
 	}
@@ -197,24 +198,24 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		/* Listen for signin/out click */
 		pref = findPreference("Pref_Signin_Signout");
 		if (pref != null) {
-			if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-				pref.setTitle(StringManager.getString(R.string.pref_signin_title));
-				pref.setSummary(StringManager.getString(R.string.pref_signin_summary));
-			}
-			else {
+			if (UserManager.getInstance().authenticated()) {
 				pref.setTitle(StringManager.getString(R.string.pref_signout_title));
 				pref.setSummary(StringManager.getString(R.string.pref_signout_summary));
+			}
+			else {
+				pref.setTitle(StringManager.getString(R.string.pref_signin_title));
+				pref.setSummary(StringManager.getString(R.string.pref_signin_summary));
 			}
 
 			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
-						Patchr.router.route(getActivity(), Route.SIGNIN, null, null);
+					if (UserManager.getInstance().authenticated()) {
+						Patchr.router.route(getActivity(), Route.SIGNOUT, null, null);
 					}
 					else {
-						Patchr.router.route(getActivity(), Route.SIGNOUT, null, null);
+						Patchr.router.route(getActivity(), Route.SIGNIN, null, null);
 					}
 					return true;
 				}
@@ -225,9 +226,9 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 	private void initializeDev() {
 
 		/* Listen for dev toggle */
-		Preference pref = findPreference(StringManager.getString(R.string.pref_enable_dev));
+		Preference pref = findPreference(com.patchr.objects.Preference.ENABLE_DEV);
 		if (pref != null) {
-			Boolean enabled = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
+			Boolean enabled = Patchr.settings.getBoolean(com.patchr.objects.Preference.ENABLE_DEV, false);
 			enableDeveloper(enabled);
 
 			pref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -242,7 +243,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		}
 
 		/* Listen for tag refresh click */
-		final Preference prefTagRefresh = findPreference(StringManager.getString(R.string.pref_tag_refresh));
+		final Preference prefTagRefresh = findPreference(com.patchr.objects.Preference.TAG_REFRESH);
 		if (prefTagRefresh != null) {
 			prefTagRefresh.setSummary("Last refresh: "
 					+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
@@ -261,10 +262,10 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 	}
 
 	private void enableDeveloper(Boolean enable) {
-		findPreference(StringManager.getString(R.string.pref_testing_screen)).setEnabled(enable);
-		findPreference(StringManager.getString(R.string.pref_enable_location_high_accuracy)).setEnabled(enable);
-		findPreference(StringManager.getString(R.string.pref_tag_refresh)).setEnabled(enable);
-		findPreference(StringManager.getString(R.string.pref_use_staging_service)).setEnabled(enable);
+		findPreference(com.patchr.objects.Preference.TESTING_SCREEN).setEnabled(enable);
+		findPreference(com.patchr.objects.Preference.ENABLE_LOCATION_HIGH_ACCURACY).setEnabled(enable);
+		findPreference(com.patchr.objects.Preference.TAG_REFRESH).setEnabled(enable);
+		findPreference(com.patchr.objects.Preference.USE_STAGING_SERVICE).setEnabled(enable);
 		DownloadManager.getInstance().setDebugging(enable);
 	}
 
@@ -273,9 +274,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		Preference pref = findPreference("Pref_Notifications_Screen");
 		if (pref != null) {
 			pref.setShouldDisableView(true);
-			if (Patchr.getInstance().getCurrentUser() != null) {
-				pref.setEnabled(!(Patchr.getInstance().getCurrentUser().isAnonymous()));
-			}
+			pref.setEnabled(UserManager.getInstance().authenticated());
 		}
 	}
 

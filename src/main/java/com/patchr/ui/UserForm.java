@@ -4,8 +4,8 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.UserManager;
 import com.patchr.events.ActionEvent;
 import com.patchr.events.DataResultEvent;
 import com.patchr.events.ProcessingCompleteEvent;
@@ -26,7 +26,7 @@ public class UserForm extends BaseEntityForm {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
+		Boolean currentUser = UserManager.getInstance().authenticated() && UserManager.getInstance().getCurrentUser().id.equals(mEntityId);
 		mLinkProfile = currentUser ? LinkSpecType.LINKS_FOR_USER_CURRENT : LinkSpecType.LINKS_FOR_USER;
 
 		mCurrentFragment = new EntityListFragment();

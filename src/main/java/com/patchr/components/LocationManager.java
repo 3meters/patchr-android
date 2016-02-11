@@ -21,6 +21,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.objects.AirLocation;
+import com.patchr.objects.Preference;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
@@ -206,10 +207,10 @@ public class LocationManager implements
 		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
 
 		/* Developers can turn on high accuracy processing */
-		if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-				&& Patchr.getInstance().getCurrentUser() != null
-				&& Type.isTrue(Patchr.getInstance().getCurrentUser().developer)
-				&& Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_location_high_accuracy), false)) {
+		if (Constants.DEV_ENABLED
+				&& UserManager.getInstance().authenticated()
+				&& Type.isTrue(UserManager.getInstance().getCurrentUser().developer)
+				&& Patchr.settings.getBoolean(Preference.ENABLE_LOCATION_HIGH_ACCURACY, false)) {
 			mLocationRequest = LocationRequest.create()
 			                                  .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 			                                  .setSmallestDisplacement(MIN_DISPLACEMENT)

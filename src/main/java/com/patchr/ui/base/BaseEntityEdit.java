@@ -19,6 +19,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.kbeanie.imagechooser.api.ChooserType;
+import com.kbeanie.imagechooser.api.ChosenImage;
+import com.kbeanie.imagechooser.api.ImageChooserListener;
+import com.kbeanie.imagechooser.api.ImageChooserManager;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -32,6 +36,7 @@ import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.ProximityController;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Beacon;
@@ -49,10 +54,6 @@ import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
-import com.kbeanie.imagechooser.api.ChooserType;
-import com.kbeanie.imagechooser.api.ChosenImage;
-import com.kbeanie.imagechooser.api.ImageChooserListener;
-import com.kbeanie.imagechooser.api.ImageChooserManager;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -154,9 +155,9 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		if (!mEditing && mEntity == null && mEntitySchema != null) {
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(mEntitySchema);
 			mEntity = controller.makeNew();
-			if (Patchr.getInstance().getCurrentUser() != null) {
-				mEntity.creator = Patchr.getInstance().getCurrentUser();
-				mEntity.creatorId = Patchr.getInstance().getCurrentUser().id;
+			if (UserManager.getInstance().authenticated()) {
+				mEntity.creator = UserManager.getInstance().getCurrentUser();
+				mEntity.creatorId = UserManager.getInstance().getCurrentUser().id;
 			}
 		}
 		draw(null);

@@ -11,6 +11,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.GcmRegistrationIOException;
 import com.patchr.exceptions.ServiceException;
@@ -87,7 +88,7 @@ public final class Errors {
 		 * Perform any follow-up actions.
 		 */
 		if (errorResponse.signout && activity != null) {
-			((BaseActivity) activity).signout();
+			UserManager.getInstance().signout();
 		}
 		else if (errorResponse.splash) {
 			/*

@@ -20,97 +20,9 @@
 		- Custom line and text colors in pages, forms, buttons.
 	-->
 
-	<style name="patchr_theme_dark" parent="base_theme_dark">
+	<style name="patchr_theme" parent="base_theme">
 
-		<item name="themeTone">dark</item>
-		<item name="android:windowBackground">@color/background_dark</item>
-		<item name="colorPrimary">@color/brand_primary</item>
-		<item name="colorPrimaryDark">@color/brand_primary_dark</item>
-		<item name="colorAccent">@color/brand_accent</item>
-
-		<!-- Default overrides -->
-
-		<item name="android:editTextStyle">@style/form_edit</item>
-		<item name="android:checkboxStyle">@style/form_checkbox</item>
-		<item name="android:listViewStyle">@style/list_view</item>
-		<item name="android:textViewStyle">@style/text_view</item>
-
-		<item name="android:textColorPrimary">@color/text_dark</item>
-		<item name="android:textAppearance">@style/text_appearance</item>
-		<item name="android:textAppearanceLarge">@style/text_appearance_large</item>
-		<item name="android:textAppearanceMedium">@style/text_appearance_medium</item>
-		<item name="android:textAppearanceSmall">@style/text_appearance_small</item>
-		<item name="textAppearanceMediumLarge">@style/text_appearance_medium_large</item>
-		<item name="textAppearanceExtraLarge">@style/text_appearance_extra_large</item>
-		<item name="textAppearanceExtraSmall">@style/text_appearance_extra_small</item>
-		<item name="textAppearanceTiny">@style/text_appearance_tiny</item>
-
-		<!-- Text and line colors -->
-
-		<item name="textColor">@color/text_dark</item>
-		<item name="textColorSecondary">@color/text_secondary_dark</item>
-		<item name="textColorButtonLink">@color/brand_primary</item>
-		<item name="textColorBullet">@color/brand_primary</item>
-		<item name="textColorCandiView">@color/text_color</item>
-		<item name="textSelector">@color/selector_text_dark</item>
-		<item name="textSelectorLink">@color/selector_link_text_dark</item>
-		<item name="highlightColor">@color/background_highlight_dark</item>
-		<item name="ruleColor">@color/rule_30_dark</item>
-		<item name="ruleColorAccent">@color/brand_primary_dark</item>
-		<item name="cardShadowColor">@color/transparent</item>
-		<item name="cardHighlightColor">@color/rule_15_dark</item>
-		<item name="refreshColor">@color/white</item>
-		<item name="refreshColorBackground">@color/background_refresh_dark</item>
-		<item name="refreshColorNotifications">@color/white</item>
-		<item name="refreshColorBackgroundNotifications">@color/brand_accent</item>
-
-		<!-- Backgrounds -->
-
-		<item name="backgroundButtonLink">@drawable/selector_button_link_dark</item>
-		<item name="backgroundButtonRound">@drawable/selector_button_circle_dark</item>
-		<item name="backgroundButtonRoundGlow">@drawable/selector_button_circle_glow_dark</item>
-		<item name="backgroundButtonShare">@color/background_button_share_dark</item>
-		<item name="backgroundCard">@color/gray_80_pcnt</item>
-		<item name="backgroundCardField">@color/black</item>
-		<item name="backgroundForm">@color/black</item>
-		<item name="backgroundFormSecondary">@color/gray_80_pcnt</item>
-		<item name="backgroundPictureFramed">@drawable/bg_image_framed_dark</item>
-		<item name="backgroundProgress">@android:color/transparent</item>
-		<item name="backgroundPlaceholder">@color/background_placeholder_dark</item>
-		<item name="backgroundRound">@drawable/bg_round_dark</item>
-		<item name="backgroundRoundPlaceholder">@drawable/bg_round_placeholder_dark</item>
-		<item name="backgroundToken">@drawable/selector_token_dark</item>
-
-		<!-- Images and icons -->
-
-		<item name="imgLogo">@drawable/img_logo</item>
-		<item name="imgFacebook">@drawable/img_facebook</item>
-
-		<item name="iconAdd">@drawable/ic_add_dark</item>
-		<item name="iconCancel">@drawable/ic_action_cancel_dark</item>
-		<item name="iconClear">@drawable/ic_action_cancel_dark</item>
-		<item name="iconFacebook">@drawable/ic_img_facebook_dark</item>
-		<item name="iconForward">@drawable/ic_action_forward_dark</item>
-		<item name="iconLocation">@drawable/ic_img_location_dark</item>
-		<item name="iconLike">@drawable/ic_img_like_dark</item>
-		<item name="iconLocked">@drawable/ic_action_lock_closed_dark</item>
-		<item name="iconMediaMessage">@drawable/ic_img_media_message_dark</item>
-		<item name="iconMessage">@drawable/ic_img_message_dark</item>
-		<item name="iconOverflow">@drawable/ic_img_overflow_dark</item>
-		<item name="iconPatch">@drawable/ic_img_patch_dark</item>
-		<item name="iconPicture">@drawable/ic_img_picture_dark</item>
-		<item name="iconSearch">@drawable/ic_action_search_dark</item>
-		<item name="iconSend">@drawable/ic_action_send_dark</item>
-		<item name="iconShare">@drawable/ic_img_share_dark</item>
-		<item name="iconUser">@drawable/ic_action_user_dark</item>
-		<item name="iconWatch">@drawable/ic_img_watch_dark</item>
-
-	</style>
-
-	<style name="patchr_theme_light" parent="base_theme_light">
-
-		<item name="themeTone">light</item>
-		<item name="android:windowBackground">@color/background_light</item>
+		<item name="android:windowBackground">@color/background</item>
 		<item name="colorPrimary">@color/brand_primary</item>
 		<item name="colorPrimaryDark">@color/brand_primary_dark</item>
 		<item name="colorAccent">@color/brand_accent</item>
@@ -139,34 +51,34 @@
 		<item name="textColorButtonLink">@color/brand_primary</item>
 		<item name="textColorBullet">@color/brand_primary</item>
 		<item name="textColorCandiView">@color/text_color</item>
-		<item name="textSelector">@color/selector_text_light</item>
-		<item name="textSelectorLink">@color/selector_link_text_light</item>
-		<item name="highlightColor">@color/background_highlight_light</item>
+		<item name="textSelector">@color/selector_text</item>
+		<item name="textSelectorLink">@color/selector_link_text</item>
+		<item name="highlightColor">@color/background_highlight</item>
 		<item name="ruleColor">@color/rule_15_light</item>
 		<item name="ruleColorAccent">@color/brand_primary</item>
 		<item name="cardShadowColor">@color/gray_20_pcnt</item>
 		<item name="cardHighlightColor">@color/transparent</item>
 		<item name="refreshColor">@color/brand_primary</item>
-		<item name="refreshColorBackground">@color/background_refresh_light</item>
+		<item name="refreshColorBackground">@color/background_refresh</item>
 		<item name="refreshColorNotifications">@color/brand_accent</item>
-		<item name="refreshColorBackgroundNotifications">@color/background_refresh_light</item>
+		<item name="refreshColorBackgroundNotifications">@color/background_refresh</item>
 
 		<!-- Drawables and backgrounds -->
 
-		<item name="backgroundButtonLink">@drawable/selector_button_link_light</item>
-		<item name="backgroundButtonRound">@drawable/selector_button_circle_light</item>
-		<item name="backgroundButtonRoundGlow">@drawable/selector_button_circle_glow_light</item>
-		<item name="backgroundButtonShare">@color/background_button_share_light</item>
+		<item name="backgroundButtonLink">@drawable/selector_button_link</item>
+		<item name="backgroundButtonRound">@drawable/selector_button_circle</item>
+		<item name="backgroundButtonRoundGlow">@drawable/selector_button_circle_glow</item>
+		<item name="backgroundButtonShare">@color/background_button_share</item>
 		<item name="backgroundCard">@color/white</item>
 		<item name="backgroundCardField">@color/gray_10_pcnt</item>
-		<item name="backgroundForm">@color/background_light</item>
+		<item name="backgroundForm">@color/background</item>
 		<item name="backgroundFormSecondary">@color/gray_10_pcnt</item>
-		<item name="backgroundPictureFramed">@drawable/bg_image_framed_light</item>
+		<item name="backgroundPictureFramed">@drawable/bg_image_framed</item>
 		<item name="backgroundProgress">@android:color/transparent</item>
-		<item name="backgroundPlaceholder">@color/background_placeholder_light</item>
-		<item name="backgroundRound">@drawable/bg_round_light</item>
-		<item name="backgroundRoundPlaceholder">@drawable/bg_round_placeholder_light</item>
-		<item name="backgroundToken">@drawable/selector_token_light</item>
+		<item name="backgroundPlaceholder">@color/background_placeholder</item>
+		<item name="backgroundRound">@drawable/bg_round</item>
+		<item name="backgroundRoundPlaceholder">@drawable/bg_round_placeholder</item>
+		<item name="backgroundToken">@drawable/selector_token</item>
 
 		<!-- Images and icons -->
 
@@ -192,44 +104,6 @@
 		<item name="iconShare">@drawable/ic_img_share_light</item>
 		<item name="iconUser">@drawable/ic_action_user_light</item>
 		<item name="iconWatch">@drawable/ic_img_watch_light</item>
-
-	</style>
-
-	<style name="patchr_theme_midnight" parent="patchr_theme_dark">
-
-		<!-- Action bar icons -->
-
-		<item name="iconActionAccept">@drawable/ic_action_tick_dark</item>
-		<item name="iconActionAdd">@drawable/ic_action_add_dark</item>
-		<item name="iconActionAlert">@drawable/ic_action_alert_dark</item>
-		<item name="iconActionCancel">@drawable/ic_action_cancel_dark</item>
-		<item name="iconActionDelete">@drawable/ic_action_delete_dark</item>
-		<item name="iconActionDirections">@drawable/ic_action_directions_dark</item>
-		<item name="iconActionEdit">@drawable/ic_action_edit_dark</item>
-		<item name="iconActionInvite">@drawable/ic_action_person_add_dark</item>
-		<item name="iconActionList">@drawable/ic_action_list_dark</item>
-		<item name="iconActionMap">@drawable/ic_action_map_dark</item>
-		<item name="iconActionRefresh">@drawable/ic_action_refresh_dark</item>
-		<item name="iconActionSearch">@drawable/ic_action_search_dark</item>
-		<item name="iconActionSend">@drawable/ic_action_send_dark</item>
-		<item name="iconActionShare">@drawable/ic_action_share_dark</item>
-		<item name="iconActionSignal">@drawable/ic_action_signal_dark</item>
-		<item name="iconActionUsers">@drawable/ic_action_users_dark</item>
-		<item name="iconActionWatch">@drawable/ic_action_watch_dark</item>
-
-		<!-- Navigation drawer icons -->
-
-		<item name="iconDrawerNearby">@drawable/ic_action_signal_dark</item>
-		<item name="iconDrawerFavorite">@drawable/ic_action_star_10_dark</item>
-		<item name="iconDrawerWatch">@drawable/ic_action_watch_dark</item>
-		<item name="iconDrawerCreate">@drawable/ic_action_edit_dark</item>
-		<item name="iconDrawerExplore">@drawable/ic_action_explore_dark</item>
-		<item name="iconDrawerSettings">@drawable/ic_action_settings_dark</item>
-		<item name="iconDrawerSend">@drawable/ic_action_send_dark</item>
-
-	</style>
-
-	<style name="patchr_theme_snow" parent="patchr_theme_light">
 
 		<!-- Action bar icons -->
 
@@ -269,29 +143,8 @@
 
 	<!-- Dialog Themes -->
 
-	<style name="patchr_theme_dialog_dark" parent="base_theme_dialog_dark">
+	<style name="patchr_theme_dialog" parent="base_theme_dialog">
 
-		<item name="themeTone">dark</item>
-		<item name="android:windowIsTranslucent">true</item>
-		<item name="android:windowNoTitle">true</item>
-		<item name="android:backgroundDimAmount">0.6</item>
-
-		<!-- Text and line colors -->
-
-		<item name="android:textColor">@android:color/white</item>
-		<item name="textColor">@color/text_dark</item>
-		<item name="textColorButtonLink">@color/brand_primary</item>
-		<item name="ruleColor">@color/rule_30_dark</item>
-
-		<!-- Drawables and backgrounds -->
-
-		<item name="backgroundPictureFramed">@drawable/bg_image_framed_dark</item>
-
-	</style>
-
-	<style name="patchr_theme_dialog_light" parent="base_theme_dialog_light">
-
-		<item name="themeTone">light</item>
 		<item name="android:windowNoTitle">true</item>
 		<item name="android:windowIsTranslucent">true</item>
 		<item name="android:backgroundDimAmount">0.6</item>
@@ -311,31 +164,20 @@
 
 		<!-- Drawables and backgrounds -->
 
-		<item name="backgroundPictureFramed">@drawable/bg_image_framed_light</item>
+		<item name="backgroundPictureFramed">@drawable/bg_image_framed</item>
 
 	</style>
 
 	<!-- No title theme versions -->
 
-	<style name="patchr_theme_midnight_notitlebar" parent="patchr_theme_midnight">
-		<item name="android:windowNoTitle">true</item>
-		<item name="android:windowTranslucentStatus">true</item>
-	</style>
-
-	<style name="patchr_theme_snow_notitlebar" parent="patchr_theme_snow">
+	<style name="patchr_theme_notitlebar" parent="patchr_theme">
 		<item name="android:windowNoTitle">true</item>
 		<item name="android:windowTranslucentStatus">true</item>
 	</style>
 
 	<!-- Translucent theme versions -->
 
-	<style name="patchr_theme_midnight_transparent" parent="patchr_theme_midnight">
-		<item name="android:windowIsTranslucent">true</item>
-		<item name="android:windowBackground">@android:color/transparent</item>
-		<item name="android:backgroundDimEnabled">false</item>
-	</style>
-
-	<style name="patchr_theme_snow_transparent" parent="patchr_theme_snow">
+	<style name="patchr_theme_transparent" parent="patchr_theme">
 		<item name="android:windowIsTranslucent">true</item>
 		<item name="android:windowBackground">@android:color/transparent</item>
 		<item name="android:backgroundDimEnabled">false</item>

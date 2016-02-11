@@ -436,7 +436,8 @@
 
 	<!-- Labels: Photo share -->
 
-	<string name="label_photo_share_subject">Patch photo shared by %1$s</string>
+	<string name="label_photo_share_subject">Photo shared by %1$s</string>
+	<string name="label_photo_share_subject_guest">Photo shared from Patchr</string>
     <string name="label_photo_share_body_self">"Check out this Patchr photo! %1$s \n"</string>
 
 	<!-- Labels: Empty -->

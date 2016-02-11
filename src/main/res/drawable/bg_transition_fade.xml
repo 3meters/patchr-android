@@ -3,6 +3,6 @@
 
 	<!-- The drawables used here can be solid colors, gradients, shapes, images, etc. -->
 	<item android:drawable="@drawable/selector_image" />
-	<item android:drawable="@drawable/selector_image_highlight_light" />
+	<item android:drawable="@drawable/selector_image_highlight" />
 
 </transition>

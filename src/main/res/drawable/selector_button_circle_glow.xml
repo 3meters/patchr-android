@@ -3,8 +3,8 @@
 	<item android:state_focused="false" android:state_selected="false" android:state_pressed="false" android:drawable="@drawable/img_button_round_light" />
 
 	<!-- Focused states -->
-	<item android:state_focused="true" android:drawable="@drawable/bg_button_round_glow_pressed_light" />
+	<item android:state_focused="true" android:drawable="@drawable/bg_button_round_glow_pressed" />
 
 	<!-- Pressed -->
-	<item android:state_pressed="true" android:drawable="@drawable/bg_button_round_glow_pressed_light" />
+	<item android:state_pressed="true" android:drawable="@drawable/bg_button_round_glow_pressed" />
 </selector>

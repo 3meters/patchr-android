@@ -70,7 +70,7 @@
 		android:icon="@drawable/ic_launcher"
 		android:allowBackup="false"
 		android:label="@string/name_app"
-		android:theme="@style/patchr_theme_snow"
+		android:theme="@style/patchr_theme"
 		tools:replace="label, allowBackup, android:icon">
 
 		<!-- Service keys -->
@@ -220,7 +220,7 @@
 		<activity
 			android:name=".ui.LobbyForm"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/patchr_theme_midnight_notitlebar"
+			android:theme="@style/patchr_theme_notitlebar"
 			android:screenOrientation="portrait"
 			android:launchMode="singleTask"
 			android:windowSoftInputMode="stateHidden">
@@ -394,7 +394,7 @@
 		<activity
 			android:name=".ui.helpers.PhotoActionPicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/patchr_theme_dialog_light"
+			android:theme="@style/patchr_theme_dialog"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
@@ -406,7 +406,7 @@
 		<activity
 			android:name=".ui.helpers.QrcodeDialog"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/patchr_theme_dialog_light"
+			android:theme="@style/patchr_theme_dialog"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Misc -->

@@ -2,6 +2,9 @@ package com.patchr.ui.widgets;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.NonNull;
 import android.text.Html;
 import android.text.TextUtils;
@@ -14,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.patchr.Constants;
+import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.StringManager;
 import com.patchr.objects.Count;
@@ -94,7 +98,13 @@ public class UserView extends RelativeLayout {
 	private void draw() {
 		User user = (User) mUser;
 
-		if (user != null) {
+		if (user == null) {
+			Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img_default_user_light);
+			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
+			UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
+			mName.setText("Guest");
+		}
+		else {
 			if (mLabel != null) {
 				if (mLabelResId != 0) {
 					mLabel.setText(StringManager.getString(mLabelResId));

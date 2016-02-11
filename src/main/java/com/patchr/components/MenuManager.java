@@ -12,6 +12,7 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Patch;
+import com.patchr.objects.Preference;
 import com.patchr.objects.Route;
 import com.patchr.ui.base.BaseEdit;
 import com.patchr.ui.base.BaseEntityEdit;
@@ -32,7 +33,7 @@ public class MenuManager {
 		 * later added in BaseFragment.onCreateOptionsMenu.
 		 */
 		if (activityName.equals("AircandiForm")) {
-			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			if (UserManager.getInstance().authenticated()) {
 				menuInflater.inflate(R.menu.menu_notifications, menu);
 			}
 			return true;
@@ -131,34 +132,38 @@ public class MenuManager {
 
 	@NonNull
 	public static Boolean canUserEdit(Entity entity) {
+		if (!UserManager.getInstance().authenticated()) return false;
 		return entity != null
 				&& (entity.isOwnedByCurrentUser()
 				|| entity.isOwnedBySystem()
-				|| (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-				&& Type.isTrue(Patchr.getInstance().getCurrentUser().developer)));
+				|| (Patchr.settings.getBoolean(Preference.ENABLE_DEV, false)
+				&& Type.isTrue(UserManager.getInstance().getCurrentUser().developer)));
 	}
 
 	@NonNull
 	public static Boolean canUserDelete(Entity entity) {
+		if (!UserManager.getInstance().authenticated()) return false;
 		return entity != null
 				&& (entity.isOwnedByCurrentUser()
-				|| (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-				&& Type.isTrue(Patchr.getInstance().getCurrentUser().developer)));
+				|| (Patchr.settings.getBoolean(Preference.ENABLE_DEV, false)
+				&& Type.isTrue(UserManager.getInstance().getCurrentUser().developer)));
 	}
 
 	@NonNull
 	public static Boolean canUserRemoveFromPatch(Entity entity) {
+		if (!UserManager.getInstance().authenticated()) return false;
 		if (entity == null) return false;
 		if (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE)) return false;
 
 		Link patchLink = entity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH, entity.patchId, Direction.out);
 		return patchLink != null
-				&& patchLink.ownerId.equals(Patchr.getInstance().getCurrentUser().id)
-				&& !entity.ownerId.equals(Patchr.getInstance().getCurrentUser().id);
+				&& patchLink.ownerId.equals(UserManager.getInstance().getCurrentUser().id)
+				&& !entity.ownerId.equals(UserManager.getInstance().getCurrentUser().id);
 	}
 
 	@NonNull
 	public static Boolean canUserAdd(Entity entity) {
+		if (!UserManager.getInstance().authenticated()) return false;
 		if (entity == null) return true;
 
 		/* Current user is owner */
@@ -179,7 +184,9 @@ public class MenuManager {
 		 * can share a public patch. For messages, we assume that if
 		 * you can see the message you have the ability to share it.
 		 */
+		if (!UserManager.getInstance().authenticated()) return false;
 		if (entity == null) return false;
+
 		if (!(entity instanceof Patch)) {
 			return true;
 		}

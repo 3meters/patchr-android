@@ -22,6 +22,7 @@ import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.interfaces.IForm;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Route;
@@ -232,9 +233,7 @@ public abstract class BaseFragment extends Fragment implements IForm {
 
 				MenuItem item = menu.findItem(R.id.signin);
 				if (item != null) {
-					if (Patchr.getInstance().getCurrentUser() != null) {
-						item.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
-					}
+					item.setVisible(!UserManager.getInstance().authenticated());
 				}
 
 				/* Remove menu items per policy */
@@ -279,7 +278,7 @@ public abstract class BaseFragment extends Fragment implements IForm {
 				}
 
 				item = menu.findItem(R.id.navigate);
-				if (item != null && Patchr.getInstance().getCurrentUser() != null) {
+				if (item != null && UserManager.getInstance().authenticated()) {
 					item.setVisible(entity.getLocation() != null);
 				}
 

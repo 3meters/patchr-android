@@ -10,6 +10,8 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
+import com.patchr.objects.Preference;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseActivity;
@@ -53,10 +55,10 @@ public class AboutForm extends BaseActivity {
 		mVersion.setText(version);
 		mCopyright.setText(copyright);
 
-		if (Patchr.getInstance().getCurrentUser() != null
-				&& Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-				&& Patchr.getInstance().getCurrentUser().developer != null
-				&& Patchr.getInstance().getCurrentUser().developer) {
+		if (UserManager.getInstance().authenticated()
+				&& Constants.DEV_ENABLED
+				&& UserManager.getInstance().getCurrentUser().developer != null
+				&& UserManager.getInstance().getCurrentUser().developer) {
 			String serviceUrl = Constants.serviceUrl();
 			((TextView) findViewById(R.id.service_url)).setText(serviceUrl);
 			((TextView) findViewById(R.id.install_id)).setText(Patchr.getInstance().getinstallId());

@@ -51,15 +51,6 @@
 
 	<!-- /// Preferences developer /// -->
 
-	<!-- Keys -->
-
-	<string name="pref_enable_dev">pref_enable_dev</string>
-	<string name="pref_enable_location_high_accuracy">pref_enable_location_high_accuracy</string>
-	<string name="pref_use_staging_service">pref_use_staging_service</string>
-	<string name="pref_testing_screen">pref_testing_screen</string>
-	<string name="pref_testing_beacons">pref_testing_beacons</string>
-	<string name="pref_tag_refresh">pref_tag_refresh</string>
-
 	<!-- Defaults -->
 
 	<string name="pref_testing_beacons_default">natural</string>

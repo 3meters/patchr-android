@@ -31,23 +31,12 @@
 	<!-- Images -->
 
 	<attr name="aspectRatio" format="float" />
-	<attr name="aspectRatioEnabled" format="boolean" />
-	<attr name="dominantMeasurement">
-		<enum name="width" value="0" />
-		<enum name="height" value="1" />
-	</attr>
-	<attr name="fitType" format="enum">
-		<enum name="auto" value="0" />
-		<enum name="fixed" value="1" />
-		<enum name="none" value="2" />
-	</attr>
 	<attr name="sizeCategory" format="enum">
 		<enum name="none" value="0" />
 		<enum name="standard" value="1" />
 		<enum name="thumbnail" value="2" />
 		<enum name="profile" value="3" />
 	</attr>
-	<attr name="sizeHint" format="dimension" />
 	<attr name="config" format="enum">
 		<enum name="rgb_565" value="1" />
 		<enum name="argb_8888" value="3" />
@@ -56,7 +45,6 @@
 	<!-- Theme attributes -->
 
 	<declare-styleable name="AppTheme">
-		<attr name="themeTone" format="string" />
 
 		<attr name="textAppearanceMediumLarge" format="reference" />
 		<attr name="textAppearanceExtraLarge" format="reference" />
@@ -165,13 +153,8 @@
 	</declare-styleable>
 	<declare-styleable name="AirPhotoView">
 		<attr name="aspectRatio" />
-		<attr name="aspectRatioEnabled" />
 		<attr name="config" />
-		<attr name="dominantMeasurement" />
-		<attr name="fitType" />
-		<attr name="layoutId" />
 		<attr name="showBusy" />
-		<attr name="sizeHint" />
 		<attr name="sizeCategory" />
 		<attr name="transformKey" />
 	</declare-styleable>
@@ -183,8 +166,6 @@
 	<declare-styleable name="CandiView">
 		<attr name="layoutRef" />
 		<attr name="aspectRatio" />
-		<attr name="aspectRatioEnabled" />
-		<attr name="dominantMeasurement" />
 	</declare-styleable>
 	<declare-styleable name="UserView">
 		<attr name="layoutId" />

@@ -23,6 +23,7 @@ import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.events.ActionEvent;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
@@ -168,7 +169,7 @@ public class PatchFormFragment extends EntityFormFragment {
 
 		if (mEntity == null) return;
 
-		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+		if (!UserManager.getInstance().authenticated()) {
 			String message = StringManager.getString(R.string.alert_signin_message_watch, mEntity.schema);
 			Dialogs.signinRequired(getActivity(), message);
 			return;
@@ -212,7 +213,7 @@ public class PatchFormFragment extends EntityFormFragment {
 	@SuppressWarnings("ucd")
 	private void onMuteButtonClick(View view) {
 
-		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+		if (!UserManager.getInstance().authenticated()) {
 			String message = StringManager.getString(R.string.alert_signin_message_like, mEntity.schema);
 			Dialogs.signinRequired(getActivity(), message);
 			return;
@@ -243,7 +244,7 @@ public class PatchFormFragment extends EntityFormFragment {
 	@SuppressWarnings("ucd")
 	private void onShareButtonClick(View view) {
 
-		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+		if (!UserManager.getInstance().authenticated()) {
 			String message = StringManager.getString(R.string.alert_signin_message_share);
 			Dialogs.signinRequired(getActivity(), message);
 			return;
@@ -341,7 +342,7 @@ public class PatchFormFragment extends EntityFormFragment {
 
 				Link linkWatching = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
 				mWatchStatus = (linkWatching == null) ? WatchStatus.NONE : (linkWatching.enabled) ? WatchStatus.WATCHING : WatchStatus.REQUESTED;
-				Boolean owner = (mEntity.ownerId != null && mEntity.ownerId.equals(Patchr.getInstance().getCurrentUser().id));
+				Boolean owner = (UserManager.getInstance().authenticated() && mEntity.ownerId != null && mEntity.ownerId.equals(UserManager.getInstance().getCurrentUser().id));
 
 				/* Photo overlayed with info */
 
@@ -458,7 +459,7 @@ public class PatchFormFragment extends EntityFormFragment {
 		if (alertGroup != null && mEntity != null) {
 
 			Patch patch = (Patch) mEntity;
-			Boolean owner = (patch.ownerId != null && patch.ownerId.equals(Patchr.getInstance().getCurrentUser().id));
+			Boolean owner = (UserManager.getInstance().authenticated() && patch.ownerId != null && patch.ownerId.equals(UserManager.getInstance().getCurrentUser().id));
 			Boolean hasMessaged = (mEntity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
 			Boolean isPublic = (patch.privacy != null
 					&& patch.privacy.equals(Constants.PRIVACY_PUBLIC)
@@ -554,11 +555,11 @@ public class PatchFormFragment extends EntityFormFragment {
 		if (activate) {
 
 			/* Used as part of link management */
-			Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
+			Shortcut fromShortcut = UserManager.getInstance().getCurrentUser().getAsShortcut();
 			Shortcut toShortcut = mEntity.getAsShortcut();
 
 			LinkInsertEvent update = new LinkInsertEvent()
-					.setFromId(Patchr.getInstance().getCurrentUser().id)
+					.setFromId(UserManager.getInstance().getCurrentUser().id)
 					.setToId(mEntity.id)
 					.setType(Constants.TYPE_LINK_WATCH)
 					.setEnabled(enabled)
@@ -575,7 +576,7 @@ public class PatchFormFragment extends EntityFormFragment {
 		else {
 
 			LinkDeleteEvent update = new LinkDeleteEvent()
-					.setFromId(Patchr.getInstance().getCurrentUser().id)
+					.setFromId(UserManager.getInstance().getCurrentUser().id)
 					.setToId(mEntity.id)
 					.setType(Constants.TYPE_LINK_WATCH)
 					.setEnabled(enabled)
@@ -626,7 +627,7 @@ public class PatchFormFragment extends EntityFormFragment {
 
 		ShareCheckEvent event = new ShareCheckEvent()
 				.setEntityId(mEntity.id)
-				.setUserId(Patchr.getInstance().getCurrentUser().id);
+				.setUserId(UserManager.getInstance().getCurrentUser().id);
 
 		event.setActionType(DataController.ActionType.ACTION_SHARE_CHECK)
 		     .setTag(System.identityHashCode(this));

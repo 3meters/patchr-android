@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.UserManager;
 import com.patchr.objects.Link.Direction;
 import com.patchr.utilities.Maps;
 
@@ -21,7 +22,6 @@ public class LinkSpecFactory {
 		if (linkProfile == LinkSpecType.NO_LINKS)
 			return null;
 		else {
-			User currentUser = Patchr.getInstance().getCurrentUser();
 
 			LinkSpec linkSpec = new LinkSpec().setActive(new ArrayList<LinkSpecItem>());
 			linkSpec.shortcuts = true;
@@ -40,10 +40,10 @@ public class LinkSpecFactory {
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, true, true, limitProximity)
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
-						, Maps.asMap("_from", currentUser.id))
+						, UserManager.getInstance().authenticated() ? Maps.asMap("_from", UserManager.getInstance().getCurrentUser().id) : null)
 						.setDirection(Direction.in));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
-						, Maps.asMap("_creator", currentUser.id))
+						, UserManager.getInstance().authenticated() ? Maps.asMap("_creator", UserManager.getInstance().getCurrentUser().id) : null)
 						.setDirection(Direction.in));
 			}
 			else if (linkProfile == LinkSpecType.LINKS_FOR_MESSAGE) {
@@ -57,7 +57,7 @@ public class LinkSpecFactory {
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, true, true, 5)
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_USER, true, true, 1
-						, Maps.asMap("_from", currentUser.id))
+						, UserManager.getInstance().authenticated() ? Maps.asMap("_from", UserManager.getInstance().getCurrentUser().id) : null)
 						.setDirection(Direction.in));
 			}
 			else if (linkProfile == LinkSpecType.LINKS_FOR_USER_CURRENT) {

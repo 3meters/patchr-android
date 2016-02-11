@@ -19,6 +19,7 @@ import com.patchr.R;
 import com.patchr.components.DownloadManager;
 import com.patchr.components.MediaManager;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBind;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoSizeCategory;
@@ -147,7 +148,12 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
 		builder.setType("image/jpeg").setStream(MediaManager.getSharePathUri());
-		builder.setSubject(String.format(StringManager.getString(R.string.label_photo_share_subject), Patchr.getInstance().getCurrentUser().name));
+		if (UserManager.getInstance().authenticated()) {
+			builder.setSubject(String.format(StringManager.getString(R.string.label_photo_share_subject), UserManager.getInstance().getCurrentUser().name));
+		}
+		else {
+			builder.setSubject(StringManager.getString(R.string.label_photo_share_subject_guest));
+		}
 
 		builder.getIntent()
 		       .putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName())
@@ -188,8 +194,8 @@ public class PhotoForm extends BaseActivity implements IBind {
 		 */
 		if (item.getItemId() == R.id.share_photo) {
 
-			final AirPhotoView photoView = (AirPhotoView) findViewById(R.id.photo);
-			Bitmap bitmap = ((BitmapDrawable) photoView.getImageView().getDrawable()).getBitmap();
+			final PhotoView photoView = (PhotoView) findViewById(R.id.photo);
+			Bitmap bitmap = ((BitmapDrawable) photoView.getDrawable()).getBitmap();
 			File file = MediaManager.copyBitmapToSharePath(bitmap);
 
 			if (file == null) {

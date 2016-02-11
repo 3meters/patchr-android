@@ -45,10 +45,7 @@
 		android:layout_height="@dimen/image_small"
 		android:layout_alignTop="@+id/holder_content"
 		android:layout_marginRight="10dp"
-		custom:config="rgb_565"
-		custom:fitType="fixed"
-		custom:sizeCategory="profile"
-		custom:sizeHint="@dimen/image_small" />
+		custom:sizeCategory="profile" />
 
 	<LinearLayout
 		android:id="@+id/holder_content"

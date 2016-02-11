@@ -75,10 +75,10 @@ public abstract class BasePicker extends Activity {
 		 */
 		Integer themeId = getApplicationContext().getResources().getIdentifier(mPrefTheme, "style", getPackageName());
 		if (isDialog) {
-			themeId = R.style.patchr_theme_dialog_light;
+			themeId = R.style.patchr_theme_dialog;
 		}
 		else if (isTransparent) {
-			themeId = R.style.patchr_theme_snow_transparent;
+			themeId = R.style.patchr_theme_transparent;
 		}
 
 		setTheme(themeId);

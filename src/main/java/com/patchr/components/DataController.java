@@ -522,7 +522,9 @@ public class DataController {
 		parameters.putString("provider", Constants.PLACE_SUGGEST_PROVIDER);
 		parameters.putString("input", input.toLowerCase(Locale.US)); // matches any word that as input as prefix
 		parameters.putLong("limit", limit);
-		parameters.putString("_user", userId); // So service can handle places the current user is watching
+		if (userId != null) {
+			parameters.putString("_user", userId); // So service can handle places the current user is watching
+		}
 
 		if (suggestScope == SuggestScope.PATCHES) {
 			parameters.putBoolean("patches", true);
@@ -598,10 +600,10 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			Patchr.getInstance().setCurrentUser(user, true);
+			UserManager.getInstance().setCurrentUser(user, true);
 
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signin", null, 0);
-			Logger.i(this, "User signed in: " + Patchr.getInstance().getCurrentUser().name);
+			Logger.i(this, "User signed in: " + UserManager.getInstance().getCurrentUser().name);
 		}
 		return result;
 	}
@@ -620,8 +622,8 @@ public class DataController {
 				.setResponseFormat(ResponseFormat.JSON);
 
 		/* Leave this because we are using GET */
-		if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
-			serviceRequest.setSession(Patchr.getInstance().getCurrentUser().session);
+		if (UserManager.getInstance().authenticated()) {
+			serviceRequest.setSession(UserManager.getInstance().getCurrentUser().session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -630,15 +632,14 @@ public class DataController {
 		 */
 		Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signout", null, 0);
 		Logger.i(this, "User signed out: "
-				+ Patchr.getInstance().getCurrentUser().name
-				+ " (" + Patchr.getInstance().getCurrentUser().id + ")");
+				+ UserManager.getInstance().getCurrentUser().name
+				+ " (" + UserManager.getInstance().getCurrentUser().id + ")");
 
 		/* Set to anonymous user */
-		User anonymous = (User) loadEntityFromResources(R.raw.user_entity, Json.ObjectType.ENTITY);
-		Patchr.getInstance().setCurrentUser(anonymous, false);
+		UserManager.getInstance().setCurrentUser(null, false);
 
 		if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-			Logger.w(this, "User sign out but service call failed: " + Patchr.getInstance().getCurrentUser().id);
+			Logger.w(this, "User sign out but service call failed: " + UserManager.getInstance().getCurrentUser().id);
 		}
 		return result;
 	}
@@ -668,10 +669,10 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			Patchr.getInstance().setCurrentUser(user, true);
+			UserManager.getInstance().setCurrentUser(user, true);
 
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "password_change", null, 0);
-			Logger.i(this, "User changed password: " + Patchr.getInstance().getCurrentUser().name);
+			Logger.i(this, "User changed password: " + UserManager.getInstance().getCurrentUser().name);
 		}
 		return result;
 	}
@@ -729,10 +730,10 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			Patchr.getInstance().setCurrentUser(user, true);
+			UserManager.getInstance().setCurrentUser(user, true);
 
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signin", null, 0);
-			Logger.i(this, "Password reset and user signed in: " + Patchr.getInstance().getCurrentUser().name);
+			Logger.i(this, "Password reset and user signed in: " + UserManager.getInstance().getCurrentUser().name);
 		}
 
 		return result;
@@ -792,7 +793,7 @@ public class DataController {
 							.setRequestBody(Json.objectToJson(registeredUser, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
 							.setResponseFormat(ResponseFormat.JSON);
 
-					if (!registeredUser.isAnonymous()) {
+					if (UserManager.getInstance().authenticated()) {
 						serviceRequest.setSession(user.session);
 					}
 					NetworkManager.getInstance().request(serviceRequest);
@@ -945,12 +946,14 @@ public class DataController {
 			 * Optimization: Add soft 'create' link so user entity doesn't have to be refetched
 			 */
 			if (!entity.synthetic) {
-				Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-				ENTITY_STORE.fixupAddLink(Patchr.getInstance().getCurrentUser().id
-						, insertedEntity.id
-						, Constants.TYPE_LINK_CREATE
-						, null
-						, Patchr.getInstance().getCurrentUser().getAsShortcut(), insertedEntity.getAsShortcut());
+				if (UserManager.getInstance().authenticated()) {
+					UserManager.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+					ENTITY_STORE.fixupAddLink(UserManager.getInstance().getCurrentUser().id
+							, insertedEntity.id
+							, Constants.TYPE_LINK_CREATE
+							, null
+							, UserManager.getInstance().getCurrentUser().getAsShortcut(), insertedEntity.getAsShortcut());
+				}
 			}
 
 			result.data = insertedEntity;
@@ -1069,8 +1072,10 @@ public class DataController {
 			 * FIXME: This needs to be generalized to hunt down all links that have
 			 * this entity at either end and clean them up including any counts.
 			 */
-			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-			ENTITY_STORE.fixupRemoveLink(Patchr.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
+			if (UserManager.getInstance().authenticated()) {
+				UserManager.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+				ENTITY_STORE.fixupRemoveLink(UserManager.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
+			}
 
 			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				mActivityDate = DateTime.nowDate().getTime();
@@ -1379,7 +1384,9 @@ public class DataController {
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, "entity_remove", schema, 0);
-			Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+			if (UserManager.getInstance().authenticated()) {
+				UserManager.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+			}
 			ENTITY_STORE.fixupRemoveLink(fromId, toId, type, null);
 		}
 
@@ -1393,15 +1400,16 @@ public class DataController {
 	public ModelResult getTrending(String toSchema, String fromSchema, String trendType, Object tag) {
 		ModelResult result = new ModelResult();
 
-		final User currentUser = Patchr.getInstance().getCurrentUser();
+		final User currentUser = UserManager.getInstance().getCurrentUser();
 
 		LinkSpec links = new LinkSpec().setActive(new ArrayList<LinkSpecItem>());
 		links.shortcuts = false;
+
 		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
-				, Maps.asMap("_from", currentUser.id))
+				, UserManager.getInstance().authenticated() ? Maps.asMap("_from", currentUser.id) : null)
 				.setDirection(Direction.in));
 		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
-				, Maps.asMap("_creator", currentUser.id))
+				, UserManager.getInstance().authenticated() ? Maps.asMap("_creator", currentUser.id) : null)
 				.setDirection(Direction.in));
 
 		final Bundle parameters = new Bundle();
@@ -1440,7 +1448,7 @@ public class DataController {
 			throw new IllegalStateException("parseInstallId cannot be null");
 		}
 
-		Install install = new Install(Patchr.getInstance().getCurrentUser().id
+		Install install = new Install(UserManager.getInstance().authenticated() ? UserManager.getInstance().getCurrentUser().id : null
 				, parseInstallId
 				, Patchr.getInstance().getinstallId());
 
@@ -1538,7 +1546,7 @@ public class DataController {
 		 * Push it to S3. It is always formatted/compressed as a jpeg.
 		 */
 		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
-		final String imageKey = String.valueOf((user != null) ? user.id : Patchr.getInstance().getCurrentUser().id) + "_" + stringDate + ".jpg";
+		final String imageKey = String.valueOf((user != null) ? user.id : UserManager.getInstance().getCurrentUser().id) + "_" + stringDate + ".jpg";
 		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3);
 
 		/* Update the photo object for the entity or user */

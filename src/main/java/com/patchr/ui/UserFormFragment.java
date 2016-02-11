@@ -11,6 +11,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.events.ActionEvent;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
@@ -36,7 +37,7 @@ public class UserFormFragment extends EntityFormFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Boolean currentUser = Patchr.getInstance().getCurrentUser().id.equals(mEntityId);
+		Boolean currentUser = UserManager.getInstance().authenticated() && UserManager.getInstance().getCurrentUser().id.equals(mEntityId);
 		mLinkProfile = currentUser ? LinkSpecType.LINKS_FOR_USER_CURRENT : LinkSpecType.LINKS_FOR_USER;
 	}
 

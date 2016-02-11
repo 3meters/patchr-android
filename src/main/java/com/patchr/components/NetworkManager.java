@@ -173,8 +173,8 @@ public class NetworkManager {
 			return new ServiceResponse(ResponseCode.FAILED, null, new NoNetworkException());
 		}
 
-		User user = Patchr.getInstance().getCurrentUser();
-		if (!user.isAnonymous() && serviceRequest.getRequestType() != RequestType.GET) {
+		if (UserManager.getInstance().authenticated() && serviceRequest.getRequestType() != RequestType.GET) {
+			User user = UserManager.getInstance().getCurrentUser();
 			serviceRequest.getParameters().putString("user", user.id);
 			serviceRequest.getParameters().putString("session", user.session.key);
 		}

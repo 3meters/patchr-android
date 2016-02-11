@@ -17,12 +17,14 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.LocationManager;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
+import com.patchr.objects.Preference;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.ShortcutSettings;
 import com.patchr.objects.User;
@@ -65,17 +67,8 @@ public class CandiView extends RelativeLayout {
 	protected LinearLayout  mHolderPreviews;
 	protected LinearLayout  mHolderInfo;
 	protected CacheStamp    mCacheStamp;
-	private   float         mAspectRatio;
-	private   boolean       mAspectRatioEnabled;
-	private   int           mDominantMeasurement;
 
 	List<Shortcut> mShortcuts = new ArrayList<Shortcut>();
-
-	public static final  int     MEASUREMENT_WIDTH            = 0;
-	public static final  int     MEASUREMENT_HEIGHT           = 1;
-	private static final float   DEFAULT_ASPECT_RATIO         = 1f;
-	private static final boolean DEFAULT_ASPECT_RATIO_ENABLED = false;
-	private static final int     DEFAULT_DOMINANT_MEASUREMENT = MEASUREMENT_WIDTH;
 
 	public CandiView(Context context) {
 		this(context, null);
@@ -91,11 +84,6 @@ public class CandiView extends RelativeLayout {
 		if (attrs != null) {
 			final TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.CandiView, defStyle, 0);
 			mLayoutId = ta.getResourceId(R.styleable.CandiView_layoutRef, R.layout.widget_candi_view);
-			mAspectRatio = ta.getFloat(R.styleable.CandiView_aspectRatio, DEFAULT_ASPECT_RATIO);
-			mAspectRatioEnabled = ta.getBoolean(R.styleable.CandiView_aspectRatioEnabled,
-					DEFAULT_ASPECT_RATIO_ENABLED);
-			mDominantMeasurement = ta.getInt(R.styleable.CandiView_dominantMeasurement,
-					DEFAULT_DOMINANT_MEASUREMENT);
 			ta.recycle();
 			initialize();
 		}
@@ -129,37 +117,6 @@ public class CandiView extends RelativeLayout {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		if (!mAspectRatioEnabled) return;
-
-		int newWidth;
-		int newHeight;
-		switch (mDominantMeasurement) {
-			case MEASUREMENT_WIDTH:
-				newWidth = getMeasuredWidth();
-				newHeight = (int) (newWidth * mAspectRatio);
-				break;
-
-			case MEASUREMENT_HEIGHT:
-				newHeight = getMeasuredHeight();
-				newWidth = (int) (newHeight * mAspectRatio);
-				break;
-
-			default:
-				throw new IllegalStateException("Unknown measurement with ID " + mDominantMeasurement);
-		}
-
-		setMeasuredDimension(newWidth, newHeight);
-
-		if (mCandiViewGroup != null) {
-			int widthSpec = MeasureSpec.makeMeasureSpec(newWidth, View.MeasureSpec.EXACTLY);
-			int heightSpec = MeasureSpec.makeMeasureSpec(newHeight, View.MeasureSpec.EXACTLY);
-			mCandiViewGroup.measure(widthSpec, heightSpec);
-		}
-	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
@@ -290,11 +247,13 @@ public class CandiView extends RelativeLayout {
 				if (Photo.same(mPhotoView.getPhoto(), mEntity.getPhoto())) return;
 			}
 
-			Photo photo = mEntity.getPhoto();
-			if (mPhotoView.getPhoto() == null || !photo.getDirectUri().equals(mPhotoView.getPhoto().getDirectUri())) {
-				mPhotoView.setTag(photo);
-				mPhotoView.setGroupTag(groupId);
-				UI.drawPhoto(mPhotoView, photo);
+			if (mEntity.getPhoto() != null) {
+				Photo photo = mEntity.getPhoto();
+				if (mPhotoView.getPhoto() == null || !photo.getDirectUri().equals(mPhotoView.getPhoto().getDirectUri())) {
+					mPhotoView.setTag(photo);
+					mPhotoView.setGroupTag(groupId);
+					UI.drawPhoto(mPhotoView, photo);
+				}
 			}
 		}
 	}
@@ -396,34 +355,36 @@ public class CandiView extends RelativeLayout {
 			if (distance == null) {
 				info = "--";
 			}
-			else if (distance == -1f) { // $codepro.audit.disable floatComparison
-				info = "--";
-			}
 			else {
-				final float miles = distance * LocationManager.MetersToMilesConversion;
-				final float feet = distance * LocationManager.MetersToFeetConversion;
-				final float yards = distance * LocationManager.MetersToYardsConversion;
-
-				if (feet >= 0) {
-					if (miles >= 0.1) {
-						info = String.format(Locale.US, "%.1f mi", miles);
-					}
-					else if (feet >= 50) {
-						info = String.format(Locale.US, "%.0f yds", yards);
-					}
-					else {
-						info = String.format(Locale.US, "%.0f ft", feet);
-					}
+				if (distance == -1f) { // $codepro.audit.disable floatComparison
+					info = "--";
 				}
+				else {
+					final float miles = distance * LocationManager.MetersToMilesConversion;
+					final float feet = distance * LocationManager.MetersToFeetConversion;
+					final float yards = distance * LocationManager.MetersToYardsConversion;
 
-				if (Patchr.getInstance().getCurrentUser() != null
-						&& Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false)
-						&& Patchr.getInstance().getCurrentUser().developer != null
-						&& Patchr.getInstance().getCurrentUser().developer) {
-					info = target + info;
-				}
-				else if (feet <= 60) {
-					info = "here";
+					if (feet >= 0) {
+						if (miles >= 0.1) {
+							info = String.format(Locale.US, "%.1f mi", miles);
+						}
+						else if (feet >= 50) {
+							info = String.format(Locale.US, "%.0f yds", yards);
+						}
+						else {
+							info = String.format(Locale.US, "%.0f ft", feet);
+						}
+					}
+
+					if (UserManager.getInstance().authenticated()
+							&& Constants.DEV_ENABLED
+							&& UserManager.getInstance().getCurrentUser().developer != null
+							&& UserManager.getInstance().getCurrentUser().developer) {
+						info = target + info;
+					}
+					else if (feet <= 60) {
+						info = "here";
+					}
 				}
 			}
 
@@ -469,59 +430,6 @@ public class CandiView extends RelativeLayout {
 
 	public void setTextGroup(LinearLayout textGroup) {
 		mHolderInfo = textGroup;
-	}
-
-	/**
-	 * Get the aspect ratio for this image view.
-	 */
-	public float getAspectRatio() {
-		return mAspectRatio;
-	}
-
-	/**
-	 * Set the aspect ratio for this image view. This will update the view instantly.
-	 */
-	public void setAspectRatio(float aspectRatio) {
-		this.mAspectRatio = aspectRatio;
-		if (mAspectRatioEnabled) {
-			requestLayout();
-		}
-	}
-
-	/**
-	 * Get whether or not forcing the aspect ratio is enabled.
-	 */
-	public boolean getAspectRatioEnabled() {
-		return mAspectRatioEnabled;
-	}
-
-	/**
-	 * set whether or not forcing the aspect ratio is enabled. This will re-layout the view.
-	 */
-	public void setAspectRatioEnabled(boolean aspectRatioEnabled) {
-		this.mAspectRatioEnabled = aspectRatioEnabled;
-		requestLayout();
-	}
-
-	/**
-	 * Get the dominant measurement for the aspect ratio.
-	 */
-	public int getDominantMeasurement() {
-		return mDominantMeasurement;
-	}
-
-	/**
-	 * Set the dominant measurement for the aspect ratio.
-	 *
-	 * @see #MEASUREMENT_WIDTH
-	 * @see #MEASUREMENT_HEIGHT
-	 */
-	public void setDominantMeasurement(int dominantMeasurement) {
-		if (dominantMeasurement != MEASUREMENT_HEIGHT && dominantMeasurement != MEASUREMENT_WIDTH) {
-			throw new IllegalArgumentException("Invalid measurement type.");
-		}
-		this.mDominantMeasurement = dominantMeasurement;
-		requestLayout();
 	}
 
 	/*--------------------------------------------------------------------------------------------

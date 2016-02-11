@@ -27,6 +27,7 @@ import com.patchr.components.DownloadManager;
 import com.patchr.components.MediaManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Entity;
@@ -102,7 +103,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		Intent intent = getIntent();
 		if (intent.getAction() != null
 				&& intent.getAction().equals(Intent.ACTION_SEND)
-				&& Patchr.getInstance().getCurrentUser().isAnonymous()) {
+				&& !UserManager.getInstance().authenticated()) {
 			Patchr.sendIntent = getIntent();
 			Patchr.router.route(this, Route.SPLASH, null, null);
 			finish();
@@ -200,9 +201,9 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(mEntitySchema);
 			mEntity = controller.makeNew();
 
-			if (Patchr.getInstance().getCurrentUser() != null) {
-				mEntity.creator = Patchr.getInstance().getCurrentUser();
-				mEntity.creatorId = Patchr.getInstance().getCurrentUser().id;
+			if (UserManager.getInstance().authenticated()) {
+				mEntity.creator = UserManager.getInstance().getCurrentUser();
+				mEntity.creatorId = UserManager.getInstance().getCurrentUser().id;
 			}
 
 			/*

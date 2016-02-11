@@ -52,7 +52,7 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 
 	public Install() {}
 
-	public Install(@NonNull String userId, @NonNull String parseInstallId, @NonNull String installId) {
+	public Install(String userId, @NonNull String parseInstallId, @NonNull String installId) {
 		this.userId = userId;
 		this.parseInstallId = parseInstallId;
 		this.installId = installId;

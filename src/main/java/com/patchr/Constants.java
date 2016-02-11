@@ -6,6 +6,7 @@ import android.os.Build;
 import android.util.Log;
 
 import com.patchr.components.StringManager;
+import com.patchr.objects.Preference;
 import com.patchr.utilities.UI;
 
 import java.util.concurrent.Executor;
@@ -270,8 +271,8 @@ public class Constants {
 	public static final String  INSTALL_TYPE_RANDOM     = "random_uuid";
 	public static final String  INSTALL_TYPE_ANDROID_ID = "android_id";
 	public static final String  INSTALL_TYPE_SERIAL     = "serial_num";
-	public static       boolean DEV_ENABLED             = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false);
-	public static       boolean STAGING_ENABLED         = Patchr.settings.getBoolean(StringManager.getString(R.string.pref_use_staging_service), false);
+	public static       boolean DEV_ENABLED             = Patchr.settings.getBoolean(Preference.ENABLE_DEV, false);
+	public static       boolean STAGING_ENABLED         = Patchr.settings.getBoolean(Preference.USE_STAGING_SERVICE, false);
 
 	/*--------------------------------------------------------------------------------------------
 	 * Service constants

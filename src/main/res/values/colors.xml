@@ -14,85 +14,32 @@
 	<color name="brand_primary_dark">#ffC55B00</color>
 	<color name="brand_accent">#ff69D3E7</color>
 
-	<!-- Base colors -->
-
-	<color name="background_button_pressed_light">#64999999</color>
-
-	<!-- Branding icon colors -->
-
-	<color name="brand_actionbar_icon_light">@color/white</color>
-	<color name="brand_actionbar_icon_dark">@color/white</color>
-
-	<!-- Branding widgets backgrounds -->
-
-	<color name="brand_progress_bar_color">@color/holo_orange_light</color>
-	<color name="brand_progress_bar_splash_color">@color/holo_orange_light</color>
-	<color name="default_progress_bar_color">@color/holo_orange_light</color>
-
 	<!-- Text -->
 
 	<color name="text_dark">@color/gray_20_pcnt</color>
 	<color name="text_light">@color/black</color>
-	<color name="text_secondary_dark">@color/gray_50_pcnt</color>
 	<color name="text_secondary_light">@color/gray_50_pcnt</color>
-	<color name="text_alert_dark">@color/brand_primary</color>
-	<color name="text_alert_light">@color/brand_primary</color>
 	<color name="text_color">@color/white</color>
-	<color name="text_hint_dark">#bbffffff</color>
-	<color name="text_hint_light">#bb343434</color>
 
-	<!-- Accuracy -->
+	<!-- Borders -->
 
-	<color name="accuracy_halo">#66ffffff</color>
-	<color name="accuracy_center">#44000000</color>
-	<color name="accuracy_halo_wifi_disabled">#66999999</color>
-	<color name="accuracy_center_wifi_disabled">#ff999999</color>
-
-	<!-- Borders dark -->
-
-	<color name="stroke_placeholder_dark">@color/gray_90_pcnt</color>
-	<color name="stroke_button_dark">@color/gray_50_pcnt</color>
-	<color name="stroke_button_share_dark">@color/transparent</color>
-	<color name="stroke_button_round_dark">@color/gray_70_pcnt</color>
-
-	<!-- Borders light -->
-
-	<color name="stroke_placeholder_light">@color/gray_10_pcnt</color>
 	<color name="stroke_button_light">@color/gray_30_pcnt</color>
 	<color name="stroke_button_round_light">@color/gray_30_pcnt</color>
-	<color name="stroke_button_share_light">@color/transparent</color>
 
-	<!-- Backgrounds dark -->
+	<!-- Backgrounds -->
 
-	<color name="background_dark">@color/black</color>
-	<color name="background_secondary_dark">@color/gray_85_pcnt</color>
-	<color name="background_progress_dark">@color/gray_50_pcnt</color>
-	<color name="background_highlight_dark">@color/background_button_pressed_light</color>
-	<color name="background_placeholder_dark">@color/gray_90_pcnt</color>
-	<color name="background_button_dark">@color/gray_80_pcnt</color>
-	<color name="background_button_round_dark">@color/gray_80_pcnt</color>
-	<color name="background_help_dark">@color/overlay_help</color>
-	<color name="background_token_dark">@color/overlay_help</color>
-	<color name="background_button_share_dark">@color/gray_90_pcnt</color>
-	<color name="background_refresh_dark">@color/brand_primary_dark</color>
-
-	<!-- Backgrounds light -->
-
-	<color name="background_light">@color/white</color>
-	<color name="background_secondary_light">@color/gray_15_pcnt</color>
-	<color name="background_progress_light">@color/gray_15_pcnt</color>
-	<color name="background_highlight_light">@color/background_button_pressed_light</color>
-	<color name="background_placeholder_light">@color/gray_10_pcnt</color>
-	<color name="background_button_light">#1f000000</color>
-	<color name="background_help_light">@color/overlay_help</color>
-	<color name="background_button_share_light">@color/gray_05_pcnt</color>
-	<color name="background_button_round_light">#eeffffff</color>
-	<color name="background_refresh_light">@color/white</color>
+	<color name="background">@color/white</color>
+	<color name="background_highlight">#64999999</color>
+	<color name="background_placeholder">@color/gray_10_pcnt</color>
+	<color name="background_button">#1f000000</color>
+	<color name="background_button_share">@color/gray_05_pcnt</color>
+	<color name="background_button_round">#eeffffff</color>
+	<color name="background_refresh">@color/white</color>
 
 	<!-- Backgrounds all -->
 
-	<color name="background_pressed">@color/background_button_pressed_light</color>
-	<color name="background_button_pressed">@color/background_button_pressed_light</color>
+	<color name="background_pressed">#64999999</color>
+	<color name="background_button_pressed">#64999999</color>
 	<color name="background_picture_detail">@color/gray_85_pcnt</color>
 	<color name="pressed_highlight_color">#660099cc</color>
 

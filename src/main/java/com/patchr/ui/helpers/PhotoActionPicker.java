@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
-import com.patchr.Patchr.ThemeTone;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.MediaManager;
@@ -72,25 +71,19 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 		final List<Object> listData = new ArrayList<Object>();
 
 		/* Everyone gets these options */
-		listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
-		                            ? R.drawable.ic_action_search_light : R.drawable.ic_action_search_dark
+		listData.add(new PickerItem(R.drawable.ic_action_search_light
 				, StringManager.getString(R.string.dialog_photo_action_search), Constants.PHOTO_ACTION_SEARCH));
 
 		if (PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-			listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
-			                            ? R.drawable.ic_action_tiles_large_light
-			                            : R.drawable.ic_action_tiles_large_dark
+			listData.add(new PickerItem(R.drawable.ic_action_tiles_large_light
 					, StringManager.getString(R.string.dialog_photo_action_gallery), Constants.PHOTO_ACTION_GALLERY));
 
 			/* Only show the camera choice if there is one and there is a place to store the image */
 			if (MediaManager.canCaptureWithCamera()) {
-				listData.add(new PickerItem(Patchr.themeTone.equals(ThemeTone.LIGHT)
-				                            ? R.drawable.ic_action_camera_light
-				                            : R.drawable.ic_action_camera_dark
+				listData.add(new PickerItem(R.drawable.ic_action_camera_light
 						, StringManager.getString(R.string.dialog_photo_action_camera), Constants.PHOTO_ACTION_CAMERA));
 			}
 		}
-
 
 		mName.setText(StringManager.getString(R.string.dialog_photo_action_title));
 

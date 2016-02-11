@@ -31,6 +31,7 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.events.ActionEvent;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
@@ -170,7 +171,7 @@ public class MessageForm extends BaseEntityForm {
 		if (mProcessing) return;
 		mProcessing = true;
 
-		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+		if (!UserManager.getInstance().authenticated()) {
 			mProcessing = false;
 			String message = StringManager.getString(R.string.alert_signin_message_like, mEntity.schema);
 			Dialogs.signinRequired(this, message);
@@ -197,7 +198,7 @@ public class MessageForm extends BaseEntityForm {
 	@SuppressWarnings("ucd")
 	public void onShareClick(View view) {
 
-		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+		if (!UserManager.getInstance().authenticated()) {
 			String message = StringManager.getString(R.string.alert_signin_message_share);
 			Dialogs.signinRequired(this, message);
 			return;
@@ -543,7 +544,7 @@ public class MessageForm extends BaseEntityForm {
 	public void showBuiltInSharePicker(final String title) {
 
 		final String patchName = (mEntity.patch.name != null) ? mEntity.patch.name : StringManager.getString(R.string.container_singular_lowercase);
-		final String referrerName = Patchr.getInstance().getCurrentUser().name;
+		final String referrerName = UserManager.getInstance().getCurrentUser().name;
 		final String ownerName = mEntity.owner.name;
 		final String path = "message/" + mEntityId;
 

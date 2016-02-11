@@ -20,6 +20,7 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
@@ -237,7 +238,7 @@ public class ResetEdit extends BaseEdit {
 				mUiController.getBusyController().hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in)
-							+ " " + Patchr.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
+							+ " " + UserManager.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
 
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();

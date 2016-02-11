@@ -6,7 +6,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.DataController;
 import com.patchr.components.Logger;
@@ -14,6 +13,7 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.ui.base.BaseEdit;
 import com.patchr.utilities.Dialogs;
@@ -85,7 +85,7 @@ public class PasswordEdit extends BaseEdit {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncUpdatePassword");
 				final ModelResult result = DataController.getInstance().updatePassword(
-						Patchr.getInstance().getCurrentUser().id,
+						UserManager.getInstance().getCurrentUser().id,
 						passwordOld,
 						password,
 						PasswordEdit.class.getSimpleName(),
@@ -100,8 +100,8 @@ public class PasswordEdit extends BaseEdit {
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					Logger.i(this, "User changed password: "
-							+ Patchr.getInstance().getCurrentUser().name
-							+ " (" + Patchr.getInstance().getCurrentUser().id
+							+ UserManager.getInstance().getCurrentUser().name
+							+ " (" + UserManager.getInstance().getCurrentUser().id
 							+ ")");
 
 					UI.showToastNotification(StringManager.getString(R.string.alert_password_changed), Toast.LENGTH_SHORT);

@@ -34,7 +34,8 @@ public class DeepLinkActivity extends Activity {
 			return;
 		}
 
-		Branch.getInstance().initSession(new Branch.BranchReferralInitListener() {
+		Branch branch = Branch.getInstance(Patchr.applicationContext);
+		branch.initSession(new Branch.BranchReferralInitListener() {
 
 			@Override
 			public void onInitFinished(JSONObject referringParams, BranchError error) {

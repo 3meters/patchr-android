@@ -28,6 +28,7 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Patch;
@@ -416,7 +417,8 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 						Thread.currentThread().setName("AsyncSuggestEntities");
 						final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 						ModelResult modelResult = DataController.getInstance().suggest(chars.toString().trim()
-								, mSuggestScope, Patchr.getInstance().getCurrentUser().id
+								, mSuggestScope
+								, UserManager.getInstance().authenticated() ? UserManager.getInstance().getCurrentUser().id : null
 								, location
 								, LIMIT, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 

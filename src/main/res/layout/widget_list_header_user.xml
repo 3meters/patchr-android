@@ -58,7 +58,7 @@
 			android:paddingTop="2dp"
 			android:tag="watch"
 			android:textAppearance="?attr/textAppearanceMediumLarge"
-			android:textColor="@color/selector_link_text_dark" />
+			android:textColor="@color/selector_link_text" />
 
 		<View
 			android:layout_width="match_parent"
@@ -83,7 +83,7 @@
 			android:paddingTop="2dp"
 			android:tag="create"
 			android:textAppearance="?attr/textAppearanceMediumLarge"
-			android:textColor="@color/selector_link_text_dark" />
+			android:textColor="@color/selector_link_text" />
 
 		<View
 			android:layout_width="match_parent"

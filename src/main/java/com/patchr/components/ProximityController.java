@@ -26,6 +26,7 @@ import com.patchr.objects.Cursor;
 import com.patchr.objects.Entity;
 import com.patchr.objects.LinkSpecFactory;
 import com.patchr.objects.LinkSpecType;
+import com.patchr.objects.Preference;
 import com.patchr.objects.ServiceData;
 import com.patchr.service.ServiceResponse;
 import com.patchr.ui.widgets.ListPreferenceMultiSelect;
@@ -99,7 +100,7 @@ public class ProximityController {
 						}
 					}
 
-					final String testingBeacons = Patchr.settings.getString(StringManager.getString(R.string.pref_testing_beacons), "natural");
+					final String testingBeacons = Patchr.settings.getString(Preference.TESTING_BEACONS, "natural");
 
 					if (!ListPreferenceMultiSelect.contains("natural", testingBeacons, null)) {
 						mWifiList.clear();

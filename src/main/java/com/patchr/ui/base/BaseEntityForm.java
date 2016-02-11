@@ -18,6 +18,7 @@ import com.patchr.components.DataController.ActionType;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.NotificationManager;
+import com.patchr.components.UserManager;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
 import com.patchr.events.DataResultEvent;
@@ -239,7 +240,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	public void drawLikeWatch(View view) {
 
 		/* We don't support like/watch for users */
-		if (mEntity.id != null && mEntity.id.equals(Patchr.getInstance().getCurrentUser().id)) {
+		if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
 			UI.setVisibility(view.findViewById(R.id.button_holder), View.GONE);
 			return;
 		}
@@ -344,16 +345,18 @@ public abstract class BaseEntityForm extends BaseActivity {
 			}
 		});
 
-		Patchr.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+		if (UserManager.getInstance().authenticated()) {
+			UserManager.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+		}
 
 		if (activate) {
 
 			/* Used as part of link management */
-			Shortcut fromShortcut = Patchr.getInstance().getCurrentUser().getAsShortcut();
+			Shortcut fromShortcut = UserManager.getInstance().getCurrentUser().getAsShortcut();
 			Shortcut toShortcut = mEntity.getAsShortcut();
 
 			LinkInsertEvent update = new LinkInsertEvent()
-					.setFromId(Patchr.getInstance().getCurrentUser().id)
+					.setFromId(UserManager.getInstance().getCurrentUser().id)
 					.setToId(mEntity.id)
 					.setType(Constants.TYPE_LINK_LIKE)
 					.setEnabled(true)
@@ -370,7 +373,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		else {
 
 			LinkDeleteEvent update = new LinkDeleteEvent()
-					.setFromId(Patchr.getInstance().getCurrentUser().id)
+					.setFromId(UserManager.getInstance().getCurrentUser().id)
 					.setToId(mEntity.id)
 					.setType(Constants.TYPE_LINK_LIKE)
 					.setSchema(mEntity.schema)

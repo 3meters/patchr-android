@@ -26,6 +26,7 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.PhotoSizeCategory;
 import com.patchr.objects.Route;
@@ -255,7 +256,7 @@ public class RegisterEdit extends BaseEntityEdit {
 					 * We automatically consider the user signed in.
 					 */
 					final User user = (User) result.data;
-					Patchr.getInstance().setCurrentUser(user, true);
+					UserManager.getInstance().setCurrentUser(user, true);
 				}
 				return result;
 			}
@@ -280,7 +281,7 @@ public class RegisterEdit extends BaseEntityEdit {
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					Logger.i(RegisterEdit.this, "Inserted new user: " + mEntity.name + " (" + mEntity.id + ")");
-					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in) + " " + Patchr.getInstance().getCurrentUser().name,
+					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in) + " " + UserManager.getInstance().getCurrentUser().name,
 							Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
 					finish();

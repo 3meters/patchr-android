@@ -20,7 +20,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,6 +42,7 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.NfcManager;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.events.ActionEvent;
 import com.patchr.interfaces.IBind;
 import com.patchr.interfaces.IBusy.BusyAction;
@@ -51,6 +51,7 @@ import com.patchr.objects.AirLocation;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Photo;
+import com.patchr.objects.Preference;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.AircandiForm;
@@ -336,40 +337,6 @@ public abstract class BaseActivity extends AppCompatActivity
 		return mActionBarToolbar;
 	}
 
-	public void signout() {
-		Runnable task = new Runnable() {
-
-			@Override
-			public void run() {
-				new AsyncTask() {
-
-					@Override
-					protected void onPreExecute() {
-						mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_out, BaseActivity.this);
-					}
-
-					@Override
-					protected Object doInBackground(Object... params) {
-						Thread.currentThread().setName("AsyncSignOut");
-						final ModelResult result = DataController.getInstance().signoutComplete(NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-						return result;
-					}
-
-					@SuppressLint("NewApi")
-					@Override
-					protected void onPostExecute(Object response) {
-						/* Set to anonymous user even if service call fails */
-						UI.showToastNotification(StringManager.getString(R.string.alert_signed_out), Toast.LENGTH_SHORT);
-						mUiController.getBusyController().hide(false);
-						Patchr.router.route(BaseActivity.this, Route.SPLASH, null, null);
-					}
-				}.executeOnExecutor(Constants.EXECUTOR);
-			}
-		};
-
-		runOnUiThread(task);
-	}
-
 	public void confirmDelete() {
 		final AlertDialog dialog = Dialogs.alertDialog(null
 				, StringManager.getString(R.string.alert_delete_title)
@@ -540,19 +507,13 @@ public abstract class BaseActivity extends AppCompatActivity
 		 */
 		Integer themeId = getApplicationContext().getResources().getIdentifier(mPrefTheme, "style", getPackageName());
 		if (isDialog) {
-			themeId = R.style.patchr_theme_dialog_light;
+			themeId = R.style.patchr_theme_dialog;
 		}
 		else if (isTransparent) {
-			themeId = R.style.patchr_theme_snow_transparent;
+			themeId = R.style.patchr_theme_transparent;
 		}
 
 		setTheme(themeId);
-		final TypedValue resourceName = new TypedValue();
-		if (getTheme().resolveAttribute(R.attr.themeTone, resourceName, true)) {
-			if (resourceName.coerceToString() != null) {
-				Patchr.themeTone = (String) resourceName.coerceToString();
-			}
-		}
 	}
 
 	public void checkForPreferenceChanges() {
@@ -571,13 +532,12 @@ public abstract class BaseActivity extends AppCompatActivity
 		/* Dev prefs */
 
 		if (!Patchr.getInstance().getPrefEnableDev()
-		           .equals(Patchr.settings.getBoolean(StringManager.getString(R.string.pref_enable_dev), false))) {
+		           .equals(Patchr.settings.getBoolean(Preference.ENABLE_DEV, false))) {
 			mPrefChangeRefreshUiNeeded = true;
 			Logger.d(this, "Pref change: dev ui");
 		}
 
-		if (!Patchr.getInstance().getPrefTestingBeacons().equals(Patchr.settings.getString(StringManager.getString(R.string.pref_testing_beacons),
-				StringManager.getString(R.string.pref_testing_beacons_default)))) {
+		if (!Patchr.getInstance().getPrefTestingBeacons().equals(Patchr.settings.getString(Preference.TESTING_BEACONS, StringManager.getString(R.string.pref_testing_beacons_default)))) {
 			mPrefChangeNewSearchNeeded = true;
 			Logger.d(this, "Pref change: testing beacons");
 		}
@@ -741,9 +701,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
 		menuItem = menu.findItem(R.id.signin);
 		if (menuItem != null) {
-			if (Patchr.getInstance().getCurrentUser() != null) {
-				menuItem.setVisible(Patchr.getInstance().getCurrentUser().isAnonymous());
-			}
+			menuItem.setVisible(!UserManager.getInstance().authenticated());
 		}
 
 		menuItem = menu.findItem(R.id.signout);
@@ -752,7 +710,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		}
 
 		menuItem = menu.findItem(R.id.navigate);
-		if (menuItem != null && Patchr.getInstance().getCurrentUser() != null) {
+		if (menuItem != null && UserManager.getInstance().authenticated()) {
 			menuItem.setVisible(mEntity.getLocation() != null);
 		}
 
@@ -786,7 +744,7 @@ public abstract class BaseActivity extends AppCompatActivity
 				}
 			});
 
-			if (!Patchr.getInstance().getCurrentUser().isAnonymous()) {
+			if (UserManager.getInstance().authenticated()) {
 				View view = MenuItemCompat.getActionView(notifications);
 				mNotificationsBadgeGroup = view.findViewById(R.id.badge_group);
 				mNotificationsBadgeCount = (TextView) view.findViewById(R.id.badge_count);

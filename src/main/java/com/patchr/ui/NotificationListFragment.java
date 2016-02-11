@@ -14,6 +14,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.NotificationManager;
+import com.patchr.components.UserManager;
 import com.patchr.events.ActionEvent;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
@@ -42,7 +43,7 @@ public class NotificationListFragment extends EntityListFragment
 	public void bind(final BindingMode mode) {
 
 		/* Need to be signed in to see notifications */
-		if (Patchr.getInstance().getCurrentUser().isAnonymous()) {
+		if (!UserManager.getInstance().authenticated()) {
 			mEntities.clear();
 			mAdapter.setNotifyOnChange(false);
 			mAdapter.clear();

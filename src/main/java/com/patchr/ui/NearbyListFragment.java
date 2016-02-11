@@ -34,6 +34,7 @@ import com.patchr.components.PermissionUtil;
 import com.patchr.components.ProximityController;
 import com.patchr.components.ProximityController.ScanReason;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.events.BeaconsLockedEvent;
 import com.patchr.events.EntitiesByProximityCompleteEvent;
 import com.patchr.events.EntitiesUpdatedEvent;
@@ -445,9 +446,6 @@ public class NearbyListFragment extends EntityListFragment {
 
 	public void drawButtons(View view) {
 
-		User currentUser = Patchr.getInstance().getCurrentUser();
-		Boolean anonymous = currentUser.isAnonymous();
-		Count patched = Patchr.getInstance().getCurrentUser().getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
 
 		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
 		UI.setVisibility(alertGroup, View.GONE);
@@ -461,14 +459,17 @@ public class NearbyListFragment extends EntityListFragment {
 				rule.setVisibility(View.GONE);
 			}
 
-			if (anonymous) {
+			if (!UserManager.getInstance().authenticated()) {
 				buttonAlert.setText(R.string.button_alert_radar_anonymous);
 			}
-			if (patched != null) {
-				buttonAlert.setText(R.string.button_alert_radar);
-			}
 			else {
-				buttonAlert.setText(R.string.button_alert_radar_no_patch);
+				Count patched = UserManager.getInstance().getCurrentUser().getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
+				if (patched != null) {
+					buttonAlert.setText(R.string.button_alert_radar);
+				}
+				else {
+					buttonAlert.setText(R.string.button_alert_radar_no_patch);
+				}
 			}
 
 			buttonAlert.setOnClickListener(new View.OnClickListener() {

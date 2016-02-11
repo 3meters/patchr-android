@@ -3,6 +3,7 @@
 
 	<string name="setting_user">[@string/id_package]_setting_user</string>
 	<string name="setting_user_session">[@string/id_package]_setting_user_session</string>
+
 	<string name="setting_picture_search_last">[@string/id_package]_setting_picture_search_last</string>
 	<string name="setting_picture_searches">[@string/id_package]_setting_picture_searches</string>
 	<string name="setting_patch_searches">[@string/id_package]_setting_place_searches</string>

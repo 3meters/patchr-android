@@ -6,6 +6,7 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.components.DataController;
 import com.patchr.components.LocationManager;
+import com.patchr.components.UserManager;
 import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.CacheStamp.StampSource;
 import com.patchr.objects.Link.Direction;
@@ -159,8 +160,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@NonNull
 	public Boolean isOwnedByCurrentUser() {
 		Boolean owned = (ownerId != null
-				&& Patchr.getInstance().getCurrentUser() != null
-				&& ownerId.equals(Patchr.getInstance().getCurrentUser().id));
+				&& UserManager.getInstance().authenticated()
+				&& ownerId.equals(UserManager.getInstance().getCurrentUser().id));
 		return owned;
 	}
 
@@ -574,34 +575,38 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public Link linkFromAppUser(String linkType) {
-		if (linksIn != null) {
-			for (Link link : linksIn) {
-				if (link.type != null
-						&& link.type.equals(linkType)
-						&& link.fromId.equals(Patchr.getInstance().getCurrentUser().id))
-					return link;
+		if (UserManager.getInstance().authenticated()) {
+			if (linksIn != null) {
+				for (Link link : linksIn) {
+					if (link.type != null
+							&& link.type.equals(linkType)
+							&& link.fromId.equals(UserManager.getInstance().getCurrentUser().id))
+						return link;
+				}
 			}
 		}
 		return null;
 	}
 
 	public Link linkByAppUser(String linkType, String schema) {
-		if (linksIn != null) {
-			for (Link link : linksIn) {
-				if (link.type != null
-						&& link.type.equals(linkType)
-						&& link.targetSchema.equals(schema)
-						&& link.creatorId.equals(Patchr.getInstance().getCurrentUser().id))
-					return link;
+		if (UserManager.getInstance().authenticated()) {
+			if (linksIn != null) {
+				for (Link link : linksIn) {
+					if (link.type != null
+							&& link.type.equals(linkType)
+							&& link.targetSchema.equals(schema)
+							&& link.creatorId.equals(UserManager.getInstance().getCurrentUser().id))
+						return link;
+				}
 			}
-		}
-		if (linksOut != null) {
-			for (Link link : linksOut) {
-				if (link.type != null
-						&& link.type.equals(linkType)
-						&& link.targetSchema.equals(schema)
-						&& link.creatorId.equals(Patchr.getInstance().getCurrentUser().id))
-					return link;
+			if (linksOut != null) {
+				for (Link link : linksOut) {
+					if (link.type != null
+							&& link.type.equals(linkType)
+							&& link.targetSchema.equals(schema)
+							&& link.creatorId.equals(UserManager.getInstance().getCurrentUser().id))
+						return link;
+				}
 			}
 		}
 		return null;
