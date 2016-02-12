@@ -154,7 +154,7 @@ public class Router {
 
 		else if (route == Route.NEW) {
 
-			if (UserManager.getInstance().authenticated()) {
+			if (!UserManager.getInstance().authenticated()) {
 				if (schema == null) {
 					throw new IllegalArgumentException("Handling anonymous new requires schema");
 				}
@@ -460,8 +460,10 @@ public class Router {
 				((BaseActivity) activity).setResultCode(Activity.RESULT_CANCELED);
 			}
 			activity.startActivity(intent);
-			((Activity)activity).finish();
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_BACK);
+			if (activity instanceof Activity ) {
+				((Activity)activity).finish();
+				AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_BACK);
+			}
 		}
 
 		else if (route == Route.PHOTO_SOURCE) {

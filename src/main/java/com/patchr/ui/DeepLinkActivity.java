@@ -3,6 +3,7 @@ package com.patchr.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.patchr.Constants;
@@ -14,19 +15,17 @@ import com.patchr.utilities.Dialogs;
 
 import org.json.JSONObject;
 
+import java.util.Map;
+
+import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
+import io.branch.referral.util.LinkProperties;
 
 @SuppressLint("Registered")
 public class DeepLinkActivity extends Activity {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		initialize();
-	}
-
-	protected void initialize() {
+	protected void handleDeepLink() {
 
 		if (Patchr.applicationUpdateRequired) {
 			Patchr.router.route(DeepLinkActivity.this, Route.SPLASH, null, null);
@@ -34,61 +33,46 @@ public class DeepLinkActivity extends Activity {
 			return;
 		}
 
-		Branch branch = Branch.getInstance(Patchr.applicationContext);
-		branch.initSession(new Branch.BranchReferralInitListener() {
+		Intent intent = this.getIntent();
+		Uri uri = intent.getData();
 
-			@Override
-			public void onInitFinished(JSONObject referringParams, BranchError error) {
+		if (uri != null) {
+			Branch branch = Branch.getInstance(this);
+			branch.initSession(new Branch.BranchUniversalReferralInitListener() {
 
-				if (referringParams != null && referringParams.has("entitySchema")) {
+				@Override
+				public void onInitFinished(BranchUniversalObject branchUniversalObject, LinkProperties linkProperties, BranchError error) {
 
-					Logger.d(this, "Referring params received");
-					Bundle extras = new Bundle();
-					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, referringParams.optString("entitySchema"));
-					extras.putString(Constants.EXTRA_ENTITY_ID, referringParams.optString("entityId"));
-					extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-					Patchr.router.route(DeepLinkActivity.this, Route.BROWSE, null, extras);
+					if (branchUniversalObject != null) {
+						Map metadata = branchUniversalObject.getMetadata();
+						Bundle extras = new Bundle();
+						extras.putString(Constants.EXTRA_ENTITY_SCHEMA, (String) metadata.get("entitySchema"));
+						extras.putString(Constants.EXTRA_ENTITY_ID, (String) metadata.get("entityId"));
+						extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+						Patchr.router.route(DeepLinkActivity.this, Route.BROWSE, null, extras);
+						finish();
+						return;
+					}
+
+					if (error != null) {
+						Logger.w(this, error.getMessage());
+					}
+
+					Patchr.router.route(DeepLinkActivity.this, Route.SPLASH, null, null);
 					finish();
-					return;
 				}
-
-				if (error != null) {
-					Logger.w(this, error.getMessage());
-				}
-
-				Patchr.router.route(DeepLinkActivity.this, Route.SPLASH, null, null);
-				finish();
-
-			}
-		}, this.getIntent().getData(), this);
+			}, uri, this);
+		}
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	private void updateRequired() {
-		Dialogs.updateApp(this);
+	@Override
+	protected void onStart() {
+		super.onStart();
+		handleDeepLink();
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Dialogs
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
 
 	@Override
 	public void onNewIntent(Intent intent) {
 		this.setIntent(intent);
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
 }

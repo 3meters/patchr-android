@@ -152,8 +152,8 @@
 	<!-- Alerts: anonymous -->
 
 	<string name="alert_signin_message">Log in to use this feature.</string>
-	<string name="alert_signin_message_add">Log in to post [@schema]s.</string>
-	<string name="alert_signin_message_edit">Log in to edit [@schema]s.</string>
+	<string name="alert_signin_message_add">Log in to post messages.</string>
+	<string name="alert_signin_message_edit">Log in to edit messages.</string>
 	<string name="alert_signin_message_share">Log in to share.</string>
 
 	<!-- Alerts: location permission request -->

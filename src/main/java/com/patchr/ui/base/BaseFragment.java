@@ -301,6 +301,9 @@ public abstract class BaseFragment extends Fragment implements IForm {
 		 */
 		Logger.d(this, "Fragment start");
 		Dispatcher.getInstance().register(this);
+		if (getActivity() != null && !getActivity().isFinishing()) {
+			configureStandardMenuItems(((BaseActivity) getActivity()).getOptionMenu());
+		}
 		super.onStart();
 	}
 

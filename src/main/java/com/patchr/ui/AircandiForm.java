@@ -1,7 +1,9 @@
 package com.patchr.ui;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -39,6 +41,7 @@ import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Route;
+import com.patchr.objects.TransitionType;
 import com.patchr.ui.EntityListFragment.ViewType;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.base.BaseFragment;
@@ -48,6 +51,13 @@ import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;
 import com.squareup.otto.Subscribe;
+
+import java.util.Map;
+
+import io.branch.indexing.BranchUniversalObject;
+import io.branch.referral.Branch;
+import io.branch.referral.BranchError;
+import io.branch.referral.util.LinkProperties;
 
 @SuppressLint("Registered")
 public class AircandiForm extends BaseActivity {
@@ -431,7 +441,6 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		//ft.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
 
 		if (mCurrentFragment != null) {
 			ft.detach(mCurrentFragment);
@@ -618,9 +627,7 @@ public class AircandiForm extends BaseActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-
-		/* Make sure we are configured properly depending on user status */
-		configureDrawer();
+		configureDrawer(); /* Make sure we are configured properly depending on user status */
 	}
 
 	@Override

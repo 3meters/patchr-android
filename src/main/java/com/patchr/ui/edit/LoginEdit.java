@@ -149,8 +149,8 @@ public class LoginEdit extends BaseEdit {
 							+ " " + UserManager.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
 
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
+					Patchr.router.route(LoginEdit.this, Route.SPLASH, null, null);
 					finish();
-					AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Errors.handleError(LoginEdit.this, result.serviceResponse);

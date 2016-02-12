@@ -599,6 +599,7 @@ public class NearbyListFragment extends EntityListFragment {
 	public void onStart() {
 		super.onStart();
 
+		drawButtons(getView()); // User might have logged in/out while gone
 		Dispatcher.getInstance().register(mLocationHandler);
 
 		/* Start foreground activity recognition - stop proximity manager from background recognition */

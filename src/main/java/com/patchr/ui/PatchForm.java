@@ -218,6 +218,12 @@ public class PatchForm extends BaseActivity {
 	@Override
 	public void onAdd(Bundle extras) {
 
+		if (!UserManager.getInstance().authenticated()) {
+			String message = StringManager.getString(R.string.alert_signin_message_add);
+			Dialogs.signinRequired(this, message);
+			return;
+		}
+
 		if (mEntity == null) return;
 
 		if (MenuManager.canUserAdd(mEntity)) {

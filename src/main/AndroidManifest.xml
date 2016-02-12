@@ -93,6 +93,8 @@
 		<meta-data android:name="com.facebook.sdk.ApplicationId"
 			android:value="@string/facebook_app_id"/>
 
+		<meta-data android:name="io.branch.sdk.TestMode" android:value="false" />
+
 		<!-- Providers -->
 
 		<provider android:authorities="com.facebook.app.FacebookContentProvider894654857249670"
@@ -199,20 +201,22 @@
 			android:launchMode="singleInstance"
 			android:theme="@android:style/Theme.Translucent.NoTitleBar">
 
+			<!-- Old school deep linking -->
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
 				<data android:scheme="patchr" android:host="open" />
-			</intent-filter>
+			</intent-filter>-->
 
-			<!-- AppLink config -->
+			<!-- AppLink config
 			<intent-filter android:autoVerify="true">
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
 				<data android:scheme="https" android:host="bnc.lt" android:pathPrefix="/cdud" />
-			</intent-filter>
+			</intent-filter>-->
+
 		</activity>
 
 		<!-- Forms -->
@@ -238,6 +242,7 @@
 			<meta-data
 				android:name="android.app.searchable"
 				android:resource="@xml/searchable" />
+
 		</activity>
 
 		<activity

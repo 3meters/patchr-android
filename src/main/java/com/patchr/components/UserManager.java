@@ -175,6 +175,7 @@ public class UserManager {
 			this.jsonSession = Json.objectToJson(user.session);
 			this.userName = user.name;
 			this.userId = user.id;
+			this.sessionKey = user.session.key;
 			this.currentUser = user;
 
 			writeCredentials();

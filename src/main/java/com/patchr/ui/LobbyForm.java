@@ -18,7 +18,15 @@ import com.patchr.components.Logger;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.Route;
+import com.patchr.objects.TransitionType;
 import com.patchr.utilities.Dialogs;
+
+import java.util.Map;
+
+import io.branch.indexing.BranchUniversalObject;
+import io.branch.referral.Branch;
+import io.branch.referral.BranchError;
+import io.branch.referral.util.LinkProperties;
 
 @SuppressLint("Registered")
 public class LobbyForm extends AppCompatActivity {
@@ -52,8 +60,6 @@ public class LobbyForm extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		Logger.d(this, "Splash create");
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-//		getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-//		getWindow().setStatusBarColor(Color.TRANSPARENT);
 		setContentView(R.layout.lobby_form);
 		initialize();
 	}
@@ -80,10 +86,7 @@ public class LobbyForm extends AppCompatActivity {
 		 * called again.
 		 */
 		if (AndroidManager.checkPlayServices(this)) {
-			if (!UserManager.getInstance().authenticated()) {
-				showButtons();
-			}
-			else {
+			if (UserManager.getInstance().authenticated()) {
 				startHomeActivity();
 			}
 		}
@@ -110,10 +113,6 @@ public class LobbyForm extends AppCompatActivity {
 
 		/* Always ok to make sure sendIntent is cleared */
 		Patchr.sendIntent = null;
-	}
-
-	private void showButtons() {
-		//findViewById(R.id.button_holder).setVisibility(View.VISIBLE);
 	}
 
 	private void updateRequired() {
