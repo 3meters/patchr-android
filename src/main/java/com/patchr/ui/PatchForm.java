@@ -411,6 +411,7 @@ public class PatchForm extends BaseActivity {
 
 		final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
 		final String referrerName = UserManager.getInstance().getCurrentUser().name;
+		final String referrerId = UserManager.getInstance().getCurrentUser().id;
 		final String ownerName = mEntity.owner.name;
 		final String path = "patch/" + mEntityId;
 
@@ -420,6 +421,7 @@ public class PatchForm extends BaseActivity {
 				.addContentMetadata("entityId", mEntityId)
 				.addContentMetadata("entitySchema", Constants.SCHEMA_ENTITY_PATCH)
 				.addContentMetadata("referrerName", referrerName)
+				.addContentMetadata("referrerId", referrerId)
 				.addContentMetadata("ownerName", ownerName)
 				.addContentMetadata("patchName", patchName);
 
