@@ -106,72 +106,13 @@ public abstract class BaseActivity extends AppCompatActivity
 
 	protected Boolean mPrefChangeNewSearchNeeded = false;
 	protected Boolean mPrefChangeRefreshUiNeeded = false;
-	protected Boolean mPrefChangeReloadNeeded    = false;
 
 	public Resources mResources;
 	public    Boolean mFirstDraw  = true;
 	protected Boolean mProcessing = false;
 	protected Boolean mRestarting = false;
 
-	/* Theme */
-	protected String mPrefTheme;
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-	    /*
-	     * We do all this here so the work is finished before subclasses start
-		 * their create/initialize processing.
-		 */
-		Logger.d(this, "Activity created");
-
-		mResources = getResources();
-		/*
-		 * Theme must be set before contentView is processed.
-		 */
-		setTheme(isDialog(), isTransparent());
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-
-		/* Cheat some data from the extras early */
-		final Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			mLayoutResId = extras.getInt(Constants.EXTRA_LAYOUT_RESID);
-		}
-
-		super.onCreate(savedInstanceState);
-		setContentView(getLayoutId());
-
-		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
-		/* View layout event */
-		final View view = getWindow().getDecorView().findViewById(android.R.id.content);
-		if (view != null && view.getViewTreeObserver().isAlive()) {
-			view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-
-				public void onGlobalLayout() {
-					//noinspection deprecation
-					view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-					onViewLayout();  // Only used by PatchForm
-				}
-			});
-		}
-
-		/* Nfc */
-		Uri uri = Uri.parse("http://3meters.com/qrcode");
-		NfcManager.pushUri(uri, this);
-
-		/* Event sequence */
-		unpackIntent();
-		initialize(savedInstanceState);
-		getActionBarToolbar(); // Init the toolbar as action bar
-	}
-
-	protected void onPostCreate(Bundle savedInstanceState) {
-		configureActionBar();
-		super.onPostCreate(savedInstanceState);
-	}
-
-	@Override
-	public void unpackIntent() {
+	@Override public void unpackIntent() {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mLayoutResId = extras.getInt(Constants.EXTRA_LAYOUT_RESID);
@@ -179,67 +120,52 @@ public abstract class BaseActivity extends AppCompatActivity
 		}
 	}
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		mUiController.setBusyController(new BusyController());
-		mUiController.getBusyController().setProgressBar(findViewById(R.id.form_progress));
-		mUiController.setMessageController(new MessageController(findViewById(R.id.form_message)));
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		unpackIntent();
+		setTheme(R.style.patchr_theme);
+		setContentView(getLayoutId());
+		initialize(savedInstanceState);
+	}
+
+	@Override protected void onPostCreate(Bundle savedInstanceState) {
+		configureActionBar();
+		super.onPostCreate(savedInstanceState);
+	}
+
+	@Override protected void onRestart() {
+		super.onRestart();
+		checkForPreferenceChanges();
+	}
+
+	@Override protected void onResume() {
+		super.onResume();
+
+		Dispatcher.getInstance().register(this);
+		Patchr.getInstance().setCurrentActivity(this);
+		mUiController.resume();
+		mProcessing = false;
+		/*
+		 * We always check to make sure play services are working properly. This call will finish
+		 * the activity if play services are missing and can't be installed or if the user
+		 * refuses to install them. If play services can be fixed, then resume will be called again.
+		 */
+		AndroidManager.checkPlayServices(this);
+	}
+
+	@Override protected void onPause() {
+		super.onPause();
+		Dispatcher.getInstance().unregister(this);
+		mUiController.pause();
+		clearReferences();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void onViewLayout() {
-		/*
-		 * Called when initial view layout has completed and
-		 * views have been measured and sized.
-		 */
-		Logger.d(this, "Activity view layout completed");
-	}
-
-	@Override
-	public void onRefresh() {}
-
-	public void onAccept() {}
-
-	@Override
-	public void onAdd(Bundle extras) {
-		/* Schema target is in the extras */
-		Patchr.router.route(this, Route.NEW, mEntity, extras);
-	}
-
-	@Override
-	public void onBackPressed() {
-
-		if (BaseActivity.this instanceof AircandiForm) {
-			super.onBackPressed();
-		}
-		else {
-			Patchr.router.route(this, Route.CANCEL, null, null);
-		}
-	}
-
-	public void onCancel(Boolean force) {
-		setResultCode(Activity.RESULT_CANCELED);
-		finish();
-		AnimationManager.doOverridePendingTransition(this, getExitTransitionType());
-	}
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		Logger.d(this, "Configuration changed");
-		super.onConfigurationChanged(newConfig);
-	}
-
-	public void onViewClick(View view) {
-		Dispatcher.getInstance().post(new ActionEvent()
-				.setActionType(DataController.ActionType.ACTION_VIEW_CLICK)
-				.setView(view));
-	}
-
-	@Subscribe
-	public void onViewClick(ActionEvent event) {
+	@Subscribe public void onViewClick(ActionEvent event) {
 		/*
 		 * Base activity broadcasts view clicks that target onViewClick. This lets
 		 * us handle view clicks inside fragments if we want.
@@ -264,361 +190,38 @@ public abstract class BaseActivity extends AppCompatActivity
 		}
 	}
 
-	public void onEntityClick(View view) {
-		Entity entity = (Entity) view.getTag();
-		if (entity == null) return;
+	@Override public void onRefresh() {}
 
-		Bundle extras = new Bundle();
-		Patchr.router.route(this, Route.BROWSE, entity, extras);
+	@Override public void onAdd(Bundle extras) {
+
+		if (!UserManager.getInstance().authenticated()) {
+			UserManager.getInstance().showGuestGuard(this, "Sign up for a free account to post messages, make patches and more.");
+			return;
+		}
+
+		/* Schema target is in the extras */
+		Patchr.router.route(this, Route.NEW, mEntity, extras);
 	}
 
-	public void onPhotoClick(View view) {
-		Photo photo = (Photo) view.getTag();
-
-		if (photo != null) {
-			final String jsonPhoto = Json.objectToJson(photo);
-			Bundle extras = new Bundle();
-			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.router.route(this, Route.PHOTO, null, extras);
+	@Override public void onBackPressed() {
+		if (BaseActivity.this instanceof AircandiForm) {
+			super.onBackPressed();
+		}
+		else {
+			Patchr.router.route(this, Route.CANCEL, null, null);
 		}
 	}
 
-	@Override
-	public void onHelp() {}
+	@Override public void onHelp() {}
 
-	@Override
-	public void onError() {}
+	@Override public void onError() {}
 
-	@Override
-	public void onLowMemory() {
-		super.onLowMemory();
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+	@Override protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		Patchr.resultCode = Activity.RESULT_OK;
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	protected void configureActionBar() {
-		/*
-		 * By default we show the nav indicator and the title.
-		 */
-		if (super.getSupportActionBar() != null) {
-			super.getSupportActionBar().setDisplayShowTitleEnabled(true);
-			super.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		}
-
-		getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onBackPressed();
-			}
-		});
-	}
-
-	@Override
-	public void draw(View view) {}
-
-	@Override
-	public void bind(BindingMode mode) {}
-
-	protected Toolbar getActionBarToolbar() {
-		if (mActionBarToolbar == null) {
-			mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar);
-			if (mActionBarToolbar != null) {
-				super.setSupportActionBar(mActionBarToolbar);
-			}
-		}
-		return mActionBarToolbar;
-	}
-
-	public void confirmDelete() {
-		final AlertDialog dialog = Dialogs.alertDialog(null
-				, StringManager.getString(R.string.alert_delete_title)
-				, StringManager.getString(R.string.alert_delete_message_single)
-				, null
-				, this
-				, android.R.string.ok
-				, android.R.string.cancel
-				, null
-				, new DialogInterface.OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_POSITIVE) {
-					delete();
-				}
-			}
-		}
-				, null);
-		dialog.setCanceledOnTouchOutside(false);
-	}
-
-	public void confirmRemove(final String toId) {
-
-		String message = String.format(StringManager.getString(R.string.alert_remove_message_single_no_name), mEntity.name);
-		Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
-		if (linkPlace != null) {
-			message = String.format(StringManager.getString(R.string.alert_remove_message_single), linkPlace.shortcut.name);
-		}
-
-		final AlertDialog dialog = Dialogs.alertDialog(null
-				, StringManager.getString(R.string.alert_remove_title)
-				, message
-				, null
-				, this
-				, android.R.string.ok
-				, android.R.string.cancel
-				, null
-				, new DialogInterface.OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_POSITIVE) {
-					remove(toId);
-				}
-			}
-		}
-				, null);
-		dialog.setCanceledOnTouchOutside(false);
-	}
-
-	private void clearReferences() {
-		Activity currentActivity = Patchr.getInstance().getCurrentActivity();
-		if (currentActivity != null && currentActivity.equals(this)) {
-			Patchr.getInstance().setCurrentActivity(null);
-		}
-	}
-
-	public void setResultCode(int resultCode) {
-		setResult(resultCode);
-		Patchr.resultCode = resultCode;
-	}
-
-	public void setResultCode(int resultCode, Intent intent) {
-		setResult(resultCode, intent);
-		Patchr.resultCode = resultCode;
-	}
-
-	protected void delete() {
-		/*
-		 * TODO: We need to update the service so the recursive entity delete also deletes any associated resources
-		 * stored with S3. As currently coded, we will be orphaning any images associated with child entities.
-		 */
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mDeleteProgressResId, BaseActivity.this);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncDeleteEntity");
-				final ModelResult result = DataController.getInstance().deleteEntity(mEntity.id, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				mUiController.getBusyController().hide(true);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Logger.i(this, "Deleted entity: " + mEntity.id);
-					/*
-					 * We either go back to a list or to radar.
-					 */
-					UI.showToastNotification(StringManager.getString(mDeletedResId), Toast.LENGTH_SHORT);
-					setResultCode(Constants.RESULT_ENTITY_DELETED);
-					finish();
-					AnimationManager.doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
-				}
-				else {
-					Errors.handleError(BaseActivity.this, result.serviceResponse);
-				}
-				mProcessing = false;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	protected void remove(final String toId) {
-		/*
-		 * TODO: We need to update the service so the recursive entity delete also deletes any associated resources
-		 * stored with S3. As currently coded, we will be orphaning any images associated with child entities.
-		 */
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mRemoveProgressResId, BaseActivity.this);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncRemoveEntity");
-				final ModelResult result = DataController.getInstance()
-				                                         .removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove_entity_message", NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				isCancelled();
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				mUiController.getBusyController().hide(true);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Logger.i(this, "Removed entity: " + mEntity.id);
-					/*
-					 * We either go back to a list or to radar.
-					 */
-					UI.showToastNotification(StringManager.getString(mRemovedResId), Toast.LENGTH_SHORT);
-					setResultCode(Constants.RESULT_ENTITY_REMOVED);
-					finish();
-					AnimationManager.doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
-				}
-				else {
-					Errors.handleError(BaseActivity.this, result.serviceResponse);
-				}
-				mProcessing = false;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	public Boolean related(@NonNull String entityId) {
-		return (mEntityId != null && entityId.equals(mEntityId));
-	}
-
-	@Override
-	public void share() {}
-
-	public void setTheme(Boolean isDialog, Boolean isTransparent) {
-		mPrefTheme = StringManager.getString(R.string.pref_theme_default);
-		/*
-		 * Need to use application context so our app level themes and attributes are available to actionbarsherlock
-		 */
-		Integer themeId = getApplicationContext().getResources().getIdentifier(mPrefTheme, "style", getPackageName());
-		if (isDialog) {
-			themeId = R.style.patchr_theme_dialog;
-		}
-		else if (isTransparent) {
-			themeId = R.style.patchr_theme_transparent;
-		}
-
-		setTheme(themeId);
-	}
-
-	public void checkForPreferenceChanges() {
-
-		mPrefChangeNewSearchNeeded = false;
-		mPrefChangeRefreshUiNeeded = false;
-		mPrefChangeReloadNeeded = false;
-
-		/* Common prefs */
-
-		if (!mPrefTheme.equals(Patchr.settings.getString(StringManager.getString(R.string.pref_theme), StringManager.getString(R.string.pref_theme_default)))) {
-			Logger.d(this, "Pref change: theme, restarting current activity");
-			mPrefChangeReloadNeeded = true;
-		}
-
-		/* Dev prefs */
-
-		if (!Patchr.getInstance().getPrefEnableDev()
-		           .equals(Patchr.settings.getBoolean(Preference.ENABLE_DEV, false))) {
-			mPrefChangeRefreshUiNeeded = true;
-			Logger.d(this, "Pref change: dev ui");
-		}
-
-		if (!Patchr.getInstance().getPrefTestingBeacons().equals(Patchr.settings.getString(Preference.TESTING_BEACONS, StringManager.getString(R.string.pref_testing_beacons_default)))) {
-			mPrefChangeNewSearchNeeded = true;
-			Logger.d(this, "Pref change: testing beacons");
-		}
-
-		if (mPrefChangeNewSearchNeeded || mPrefChangeRefreshUiNeeded || mPrefChangeReloadNeeded) {
-			Patchr.getInstance().snapshotPreferences();
-		}
-	}
-
-	protected Integer getExitTransitionType() {
-		Integer transitionType = TransitionType.FORM_BACK;
-		if (mTransitionType != TransitionType.FORM_TO) {
-			if (mTransitionType == TransitionType.DRILL_TO) {
-				transitionType = TransitionType.DRILL_BACK;
-			}
-			else if (mTransitionType == TransitionType.BUILDER_TO) {
-				transitionType = TransitionType.BUILDER_BACK;
-			}
-			else if (mTransitionType == TransitionType.VIEW_TO) {
-				transitionType = TransitionType.VIEW_BACK;
-			}
-			else if (mTransitionType == TransitionType.DIALOG_TO) {
-				transitionType = TransitionType.DIALOG_BACK;
-			}
-		}
-		return transitionType;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
-
-	protected int getLayoutId() {
-		return 0;
-	}
-
-	public void setActivityTitle(String title) {
-		mActivityTitle = title;
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().setTitle(title);
-		}
-	}
-
-	public String getActivityTitle() {
-		return (String) ((mActivityTitle != null) ? mActivityTitle : getTitle());
-	}
-
-	public Menu getOptionMenu() {
-		return mOptionMenu;
-	}
-
-	protected Boolean isDialog() {
-		return false;
-	}
-
-	protected Boolean isTransparent() {
-		return false;
-	}
-
-	public String getEntityId() {
-		return mEntityId;
-	}
-
-	public Entity getEntity() {
-		return mEntity;
-	}
-
-	public Fragment getCurrentFragment() {
-		return null;
-	}
-
-	public Boolean getRestarting() {
-		return mRestarting;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
 		Logger.v(this, "Creating options menu");
 		/*
 		 * - activity is first started.
@@ -632,8 +235,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		return true;
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
 
 		Bundle extras = null;
 		if (item.getItemId() == android.R.id.home) {
@@ -675,6 +277,64 @@ public abstract class BaseActivity extends AppCompatActivity
 		Patchr.router.route(this, Patchr.router.routeForMenuId(item.getItemId()), mEntity, extras);
 		return true;
 	}
+
+	public void onEntityClick(View view) {
+		Entity entity = (Entity) view.getTag();
+		if (entity == null) return;
+
+		Bundle extras = new Bundle();
+		Patchr.router.route(this, Route.BROWSE, entity, extras);
+	}
+
+	public void onPhotoClick(View view) {
+		Photo photo = (Photo) view.getTag();
+
+		if (photo != null) {
+			final String jsonPhoto = Json.objectToJson(photo);
+			Bundle extras = new Bundle();
+			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
+			Patchr.router.route(this, Route.PHOTO, null, extras);
+		}
+	}
+
+	public void onAccept() {}
+
+	public void onCancel(Boolean force) {
+		setResultCode(Activity.RESULT_CANCELED);
+		finish();
+		AnimationManager.doOverridePendingTransition(this, getExitTransitionType());
+	}
+
+	public void onViewClick(View view) {
+		Dispatcher.getInstance().post(new ActionEvent()
+				.setActionType(DataController.ActionType.ACTION_VIEW_CLICK)
+				.setView(view));
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void initialize(Bundle savedInstanceState) {
+
+		mResources = getResources();
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+		NfcManager.pushUri(Uri.parse("http://3meters.com/qrcode"), this);
+
+		mUiController.setBusyController(new BusyController());
+		mUiController.getBusyController().setProgressBar(findViewById(R.id.form_progress));
+		mUiController.setMessageController(new MessageController(findViewById(R.id.form_message)));
+
+		getActionBarToolbar();
+	}
+
+	@Override public void draw(View view) {}
+
+	@Override public void bind(BindingMode mode) {}
+
+	@Override public void share() {}
 
 	protected void configureStandardMenuItems(Menu menu) {
 
@@ -752,75 +412,281 @@ public abstract class BaseActivity extends AppCompatActivity
 		}
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
+	protected void configureActionBar() {
+		/*
+		 * By default we show the nav indicator and the title.
+		 */
+		if (super.getSupportActionBar() != null) {
+			super.getSupportActionBar().setDisplayShowTitleEnabled(true);
+			super.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		}
 
-	@Override
-	protected void onRestart() {
-		Logger.d(this, "Activity restarting");
-		super.onRestart();
-		checkForPreferenceChanges();
+		getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
+			}
+		});
 	}
 
-	@Override
-	protected void onStart() {
-		/* Called everytime the activity is started or restarted. */
-		super.onStart();
-		if (!isFinishing()) {
-			Logger.d(this, "Activity starting");
+	public void confirmDelete() {
+		final AlertDialog dialog = Dialogs.alertDialog(null
+				, StringManager.getString(R.string.alert_delete_title)
+				, StringManager.getString(R.string.alert_delete_message_single)
+				, null
+				, this
+				, android.R.string.ok
+				, android.R.string.cancel
+				, null
+				, new DialogInterface.OnClickListener() {
 
-			if (mPrefChangeReloadNeeded) {
-				/*
-				 * Restarts this activity using the same intent as used for the previous start.
-				 */
-				mRestarting = true;
-				final Intent originalIntent = getIntent();
-				originalIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				finish();
-				overridePendingTransition(0, 0);
-				startActivity(originalIntent);
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					delete();
+				}
 			}
+		}
+				, null);
+		dialog.setCanceledOnTouchOutside(false);
+	}
+
+	public void confirmRemove(final String toId) {
+
+		String message = String.format(StringManager.getString(R.string.alert_remove_message_single_no_name), mEntity.name);
+		Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
+		if (linkPlace != null) {
+			message = String.format(StringManager.getString(R.string.alert_remove_message_single), linkPlace.shortcut.name);
+		}
+
+		final AlertDialog dialog = Dialogs.alertDialog(null
+				, StringManager.getString(R.string.alert_remove_title)
+				, message
+				, null
+				, this
+				, android.R.string.ok
+				, android.R.string.cancel
+				, null
+				, new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					remove(toId);
+				}
+			}
+		}
+				, null);
+		dialog.setCanceledOnTouchOutside(false);
+	}
+
+	private void clearReferences() {
+		Activity currentActivity = Patchr.getInstance().getCurrentActivity();
+		if (currentActivity != null && currentActivity.equals(this)) {
+			Patchr.getInstance().setCurrentActivity(null);
 		}
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		Logger.d(this, "Activity resuming");
-		Dispatcher.getInstance().register(this);
-		Patchr.getInstance().setCurrentActivity(this);
-		mUiController.resume();
-		mProcessing = false;
+	protected void delete() {
 		/*
-		 * We always check to make sure play services are working properly. This call will finish 
-		 * the activity if play services are missing and can't be installed or if the user
-		 * refuses to install them. If play services can be fixed, then resume will be called again.
+		 * TODO: We need to update the service so the recursive entity delete also deletes any associated resources
+		 * stored with S3. As currently coded, we will be orphaning any images associated with child entities.
 		 */
-		AndroidManager.checkPlayServices(this);
+
+		new AsyncTask() {
+
+			@Override
+			protected void onPreExecute() {
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mDeleteProgressResId, BaseActivity.this);
+			}
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncDeleteEntity");
+				final ModelResult result = DataController.getInstance().deleteEntity(mEntity.id, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				return result;
+			}
+
+			@Override
+			protected void onPostExecute(Object response) {
+				final ModelResult result = (ModelResult) response;
+
+				mUiController.getBusyController().hide(true);
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					Logger.i(this, "Deleted entity: " + mEntity.id);
+					/*
+					 * We either go back to a list or to radar.
+					 */
+					UI.showToastNotification(StringManager.getString(mDeletedResId), Toast.LENGTH_SHORT);
+					setResultCode(Constants.RESULT_ENTITY_DELETED);
+					finish();
+					AnimationManager.doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
+				}
+				else {
+					Errors.handleError(BaseActivity.this, result.serviceResponse);
+				}
+				mProcessing = false;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		Logger.d(this, "Activity pausing");
-		Dispatcher.getInstance().unregister(this);
-		mUiController.pause();
-		clearReferences();
+	protected void remove(final String toId) {
+		/*
+		 * TODO: We need to update the service so the recursive entity delete also deletes any associated resources
+		 * stored with S3. As currently coded, we will be orphaning any images associated with child entities.
+		 */
+
+		new AsyncTask() {
+
+			@Override
+			protected void onPreExecute() {
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mRemoveProgressResId, BaseActivity.this);
+			}
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncRemoveEntity");
+				final ModelResult result = DataController.getInstance()
+						.removeLinks(mEntity.id, toId, Constants.TYPE_LINK_CONTENT, mEntity.schema, "remove_entity_message", NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				isCancelled();
+				return result;
+			}
+
+			@Override
+			protected void onPostExecute(Object response) {
+				final ModelResult result = (ModelResult) response;
+
+				mUiController.getBusyController().hide(true);
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					Logger.i(this, "Removed entity: " + mEntity.id);
+					/*
+					 * We either go back to a list or to radar.
+					 */
+					UI.showToastNotification(StringManager.getString(mRemovedResId), Toast.LENGTH_SHORT);
+					setResultCode(Constants.RESULT_ENTITY_REMOVED);
+					finish();
+					AnimationManager.doOverridePendingTransition(BaseActivity.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
+				}
+				else {
+					Errors.handleError(BaseActivity.this, result.serviceResponse);
+				}
+				mProcessing = false;
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override
-	protected void onStop() {
-		Logger.d(this, "Activity stopping");
-		super.onStop();
+	public Boolean related(@NonNull String entityId) {
+		return (mEntityId != null && entityId.equals(mEntityId));
 	}
 
-	@Override
-	protected void onDestroy() {
-		/* This activity gets destroyed everytime we leave using back or finish(). */
-		Logger.d(this, "Activity destroying");
-		super.onDestroy();
+	public void checkForPreferenceChanges() {
+
+		mPrefChangeNewSearchNeeded = false;
+		mPrefChangeRefreshUiNeeded = false;
+
+		/* Dev prefs */
+
+		if (!Patchr.getInstance().getPrefEnableDev()
+				.equals(Patchr.settings.getBoolean(Preference.ENABLE_DEV, false))) {
+			mPrefChangeRefreshUiNeeded = true;
+			Logger.d(this, "Pref change: dev ui");
+		}
+
+		if (!Patchr.getInstance().getPrefTestingBeacons().equals(Patchr.settings.getString(Preference.TESTING_BEACONS, StringManager.getString(R.string.pref_testing_beacons_default)))) {
+			mPrefChangeNewSearchNeeded = true;
+			Logger.d(this, "Pref change: testing beacons");
+		}
+
+		if (mPrefChangeNewSearchNeeded || mPrefChangeRefreshUiNeeded) {
+			Patchr.getInstance().snapshotPreferences();
+		}
 	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
+
+	protected int getLayoutId() {
+		return 0;
+	}
+
+	protected Toolbar getActionBarToolbar() {
+		if (mActionBarToolbar == null) {
+			mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar);
+			if (mActionBarToolbar != null) {
+				super.setSupportActionBar(mActionBarToolbar);
+			}
+		}
+		return mActionBarToolbar;
+	}
+
+	public void setResultCode(int resultCode) {
+		setResult(resultCode);
+		Patchr.resultCode = resultCode;
+	}
+
+	public void setResultCode(int resultCode, Intent intent) {
+		setResult(resultCode, intent);
+		Patchr.resultCode = resultCode;
+	}
+
+	public void setActivityTitle(String title) {
+		mActivityTitle = title;
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setTitle(title);
+		}
+	}
+
+	protected Integer getExitTransitionType() {
+		Integer transitionType = TransitionType.FORM_BACK;
+		if (mTransitionType != TransitionType.FORM_TO) {
+			if (mTransitionType == TransitionType.DRILL_TO) {
+				transitionType = TransitionType.DRILL_BACK;
+			}
+			else if (mTransitionType == TransitionType.BUILDER_TO) {
+				transitionType = TransitionType.BUILDER_BACK;
+			}
+			else if (mTransitionType == TransitionType.VIEW_TO) {
+				transitionType = TransitionType.VIEW_BACK;
+			}
+			else if (mTransitionType == TransitionType.DIALOG_TO) {
+				transitionType = TransitionType.DIALOG_BACK;
+			}
+		}
+		return transitionType;
+	}
+
+	public String getActivityTitle() {
+		return (String) ((mActivityTitle != null) ? mActivityTitle : getTitle());
+	}
+
+	public Menu getOptionMenu() {
+		return mOptionMenu;
+	}
+
+	public String getEntityId() {
+		return mEntityId;
+	}
+
+	public Entity getEntity() {
+		return mEntity;
+	}
+
+	public Fragment getCurrentFragment() {
+		return null;
+	}
+
+	public Boolean getRestarting() {
+		return mRestarting;
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Menus
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
+	 * Lifecycle
+	 *--------------------------------------------------------------------------------------------*/
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes

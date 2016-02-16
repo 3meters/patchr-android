@@ -36,9 +36,10 @@ public abstract class BaseFragment extends Fragment implements IForm {
 	/*
 	 * Fragment lifecycle
 	 *
-	 * - onAttach (activity may not be fully initialized)
+	 * - onAttach (activity may not be fully initialized but fragment has been associated with it)
 	 * - onCreate
 	 * - onCreateView
+	 * - onViewCreated
 	 * - onActivityCreated (views created, safe to use findById)
 	 * - onViewStateRestored
 	 * - onStart (fragment becomes visible)
@@ -51,51 +52,29 @@ public abstract class BaseFragment extends Fragment implements IForm {
 	 * - onDestroy
 	 * - onDetach
 	 */
-
-	protected Boolean mIsVisible  = false;
-	protected Boolean mProcessing = false;
+	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
+	protected Boolean       mIsVisible  = false;
+	protected Boolean       mProcessing = false;
 	protected Resources mResources;
 	protected String    mGroupTag;
 
-	/* Resources */
-	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
+	@Override public void unpackIntent() {}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onAttach(Context context) {
-		/* Called when the fragment has been associated with the activity. */
-		super.onAttach(context);
-		Logger.d(this, "Fragment attached");
-	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	@Override public void onCreate(Bundle savedInstanceState) {
+		/* Called after onAttach */
 		super.onCreate(savedInstanceState);
-		Logger.d(this, "Fragment created: contextId: " + this.hashCode());
-		/*
-		 * Triggers fragment menu construction in some android versions
-		 * so mBusyManager must have already been created.
-		 */
-		setHasOptionsMenu(true);
-		mResources = getResources();
-		mGroupTag = String.valueOf(DateTime.nowDate().getTime());
+		initialize(savedInstanceState);
 	}
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		Logger.d(this, "Fragment view created");
+	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		/* Called between onCreate and onActivityCreate */
 		if (getActivity() == null || getActivity().isFinishing()) return null;
-
 		final View view = inflater.inflate(getLayoutId(), container, false);
 		return view;
 	}
 
-	@Override
-	public void onViewCreated(final View view, Bundle savedInstanceState) {
-
+	@Override public void onViewCreated(final View view, Bundle savedInstanceState) {
+		/* View hierarchy created but not attached to parent yet */
 		if (view != null && view.getViewTreeObserver().isAlive()) {
 			view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
@@ -108,98 +87,39 @@ public abstract class BaseFragment extends Fragment implements IForm {
 		}
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		Logger.d(this, "Activity for fragment created");
+	@Override public void onStart() {
+		/* Called everytime the fragment is started or restarted. */
+		super.onStart();
+		Dispatcher.getInstance().register(this);
+		if (getActivity() != null && !getActivity().isFinishing()) {
+			configureStandardMenuItems(((BaseActivity) getActivity()).getOptionMenu());
+		}
 	}
 
-	public void onViewLayout() {
+	@Override public void onResume() {
+		super.onResume();
+		if (getActivity() != null && getActivity() instanceof AircandiForm) {
+			((AircandiForm) getActivity()).updateNotificationIndicator(false);
+		}
+	}
+
+	@Override public void onStop() {
 		/*
-		 * Called when initial view layout has completed and
-		 * views have been measured and sized.
+		 * Triggers
+		 * - Switching to another fragment.
+		 * - Switching to launcher.
+		 * - Killing activity.
+		 * - Navigating to another activity.
 		 */
-		Logger.d(this, "Fragment view layout completed");
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		Logger.d(this, "Fragment detached");
-	}
-
-	@Override
-	public void onAdd(Bundle extras) {}
-
-	@Override
-	public void onHelp() {}
-
-	@Override
-	public void onError() {}
-
-	public abstract void onScollToTop();
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		Logger.d(this, "Configuration changed");
-		super.onConfigurationChanged(newConfig);
+		super.onStop();
+		Dispatcher.getInstance().unregister(this);
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Methods
+	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void unpackIntent() {}
-
-	@Override
-	public void initialize(Bundle savedInstanceState) {}
-
-	@Override
-	public void draw(View view) {}
-
-	protected void scrollToTop(final Object scroller) {
-		if (scroller instanceof ListView) {
-			getActivity().runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					((ListView) scroller).setSelection(0);
-				}
-			});
-		}
-		else if (scroller instanceof ScrollView) {
-			getActivity().runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					((ScrollView) scroller).smoothScrollTo(0, 0);
-				}
-			});
-		}
-	}
-
-	@Override
-	public void share() {}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
-
-	public List<Integer> getMenuResIds() {
-		return mMenuResIds;
-	}
-
-	protected int getLayoutId() {
-		return 0;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	@Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		/*
 		 * This is triggered by onCreate in some android versions
 		 * so any dependencies must have already been created.
@@ -212,11 +132,49 @@ public abstract class BaseFragment extends Fragment implements IForm {
 		configureStandardMenuItems(menu);
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
 		Patchr.router.route(getActivity(), Patchr.router.routeForMenuId(item.getItemId()), null, null);
 		return true;
 	}
+
+	@Override public void onAdd(Bundle extras) {}
+
+	@Override public void onHelp() {}
+
+	@Override public void onError() {}
+
+	@Override public void onConfigurationChanged(Configuration newConfig) {
+		Logger.d(this, "Configuration changed");
+		super.onConfigurationChanged(newConfig);
+	}
+
+	public void onViewLayout() {
+		/*
+		 * Called when initial view layout has completed and
+		 * views have been measured and sized.
+		 */
+		Logger.d(this, "Fragment view layout completed");
+	}
+
+	public abstract void onScollToTop();
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void initialize(Bundle savedInstanceState) {
+		/*
+		 * Triggers fragment menu construction in some android versions
+		 * so mBusyManager must have already been created.
+		 */
+		setHasOptionsMenu(true);    // Calls invalidateOptionsMenu on parent activity
+		mResources = getResources();
+		mGroupTag = String.valueOf(DateTime.nowDate().getTime());
+	}
+
+	@Override public void draw(View view) {}
+
+	@Override public void share() {}
 
 	public void configureStandardMenuItems(final Menu menu) {
 
@@ -290,66 +248,36 @@ public abstract class BaseFragment extends Fragment implements IForm {
 		});
 	}
 
+	protected void scrollToTop(final Object scroller) {
+		if (scroller instanceof ListView) {
+			getActivity().runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					((ListView) scroller).setSelection(0);
+				}
+			});
+		}
+		else if (scroller instanceof ScrollView) {
+			getActivity().runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					((ScrollView) scroller).smoothScrollTo(0, 0);
+				}
+			});
+		}
+	}
+
 	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
+	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onStart() {
-		/*
-		 * Called everytime the fragment is started or restarted.
-		 */
-		Logger.d(this, "Fragment start");
-		Dispatcher.getInstance().register(this);
-		if (getActivity() != null && !getActivity().isFinishing()) {
-			configureStandardMenuItems(((BaseActivity) getActivity()).getOptionMenu());
-		}
-		super.onStart();
+	public List<Integer> getMenuResIds() {
+		return mMenuResIds;
 	}
 
-	@Override
-	public void onResume() {
-		Logger.d(this, "Fragment resume");
-		if (getActivity() != null && getActivity() instanceof AircandiForm) {
-			((AircandiForm) getActivity()).updateNotificationIndicator(false);
-		}
-		super.onResume();
-	}
-
-	@Override
-	public void onPause() {
-		/*
-		 * user might be leaving fragment so do any work needed
-		 * because they might not come back.
-		 */
-		Logger.d(this, "Fragment pause");
-
-		super.onPause();
-	}
-
-	@Override
-	public void onStop() {
-		/*
-		 * Triggers
-		 * - Switching to another fragment.
-		 * - Switching to launcher.
-		 * - Killing activity.
-		 * - Navigating to another activity.
-		 */
-		Logger.d(this, "Fragment stop");
-		Dispatcher.getInstance().unregister(this);
-		super.onStop();
-	}
-
-	@Override
-	public void onDestroyView() {
-		Logger.d(this, "Fragment destroy view");
-		super.onDestroyView();
-	}
-
-	@Override
-	public void onDestroy() {
-		Logger.d(this, "Fragment destroy");
-		super.onDestroy();
+	protected int getLayoutId() {
+		return 0;
 	}
 }

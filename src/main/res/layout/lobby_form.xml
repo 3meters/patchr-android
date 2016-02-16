@@ -50,10 +50,11 @@
 			android:layout_marginBottom="8dp"
 			android:background="@drawable/bg_outlined_white"
 			android:fontFamily="sans-serif-light"
-			android:onClick="onSigninButtonClick"
+			android:onClick="onLoginButtonClick"
 			android:text="@string/splash_button_signin"
 			android:textColor="@android:color/primary_text_dark"
-			android:textSize="16sp" />
+			android:textSize="16sp"
+			android:visibility="invisible" />
 
 		<Button
 			android:id="@+id/button_signup"
@@ -65,23 +66,25 @@
 			android:onClick="onSignupButtonClick"
 			android:text="@string/splash_button_signup"
 			android:textColor="@android:color/primary_text_dark"
-			android:textSize="16sp" />
+			android:textSize="16sp"
+			android:visibility="invisible" />
 	</LinearLayout>
 
 	<Button
 		android:id="@+id/button_guest"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/button_height"
+		android:layout_alignParentBottom="true"
+		android:layout_marginBottom="96dp"
 		android:background="@color/transparent"
 		android:clickable="true"
+		android:fontFamily="sans-serif-light"
 		android:gravity="center"
 		android:onClick="onGuestButtonClick"
 		android:text="@string/splash_button_start"
 		android:textAllCaps="false"
-		android:fontFamily="sans-serif-light"
-		android:layout_alignParentBottom="true"
-		android:layout_marginBottom="96dp"
 		android:textColor="@android:color/primary_text_dark"
-		android:textSize="18sp" />
+		android:textSize="18sp"
+		android:visibility="invisible" />
 
 </RelativeLayout>

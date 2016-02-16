@@ -227,6 +227,12 @@ public class AircandiForm extends BaseActivity {
 
 	@Override
 	public void onAdd(Bundle extras) {
+
+		if (!UserManager.getInstance().authenticated()) {
+			UserManager.getInstance().showGuestGuard(this, "Sign up for a free account to make patches and more.");
+			return;
+		}
+
 		if (!extras.containsKey(Constants.EXTRA_ENTITY_SCHEMA)) {
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 		}

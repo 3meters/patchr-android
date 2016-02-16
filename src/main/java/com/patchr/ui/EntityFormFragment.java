@@ -65,19 +65,38 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 	protected Integer mLayoutResId;
 	protected Boolean mParallax = false;
 
+	@Override public void onResume() {
+		super.onResume();
+		/*
+		 * We have to be pretty aggressive about refreshing the UI because
+		 * there are lots of actions that could have happened while this activity
+		 * was stopped that change what the user would expect to see.
+		 *
+		 * - Entity deleted or modified
+		 * - Entity children modified
+		 * - New comments
+		 * - Change in user which effects which candi and UI should be visible.
+		 * - User profile could have been updated and we don't catch that.
+		 */
+		if (!getActivity().isFinishing()) {
+			if (mEntity instanceof Patch) {
+				Patchr.getInstance().setCurrentPatch(mEntity);
+			}
+			bind(BindingMode.AUTO);    // check to see if the cache stamp is stale
+		}
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onViewCreated(final View view, Bundle savedInstanceState) {
+	@Override public void onViewCreated(final View view, Bundle savedInstanceState) {
 		if (mOnViewCreatedListener != null) {
 			mOnViewCreatedListener.onViewCreated(view);
 		}
 	}
 
-	@Subscribe
-	public void onDataResult(final DataResultEvent event) {
+	@Subscribe public void onDataResult(final DataResultEvent event) {
 
 		if (event.tag.equals(System.identityHashCode(this))
 				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
@@ -123,8 +142,7 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 		}
 	}
 
-	@Subscribe
-	public void onDataError(DataErrorEvent event) {
+	@Subscribe public void onDataError(DataErrorEvent event) {
 		if (event.tag.equals(System.identityHashCode(this))) {
 			Logger.v(this, "Data error accepted: " + event.actionType.name().toString());
 
@@ -148,16 +166,14 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 		}
 	}
 
-	@Subscribe
-	public void onDataNoop(DataNoopEvent event) {
+	@Subscribe public void onDataNoop(DataNoopEvent event) {
 		if (event.tag.equals(System.identityHashCode(this))) {
 			Logger.v(this, "Data no-op accepted: " + event.actionType.name().toString());
 			onProcessingComplete();
 		}
 	}
 
-	@Override
-	public void onRefresh() {
+	@Override public void onRefresh() {
 		/*
 		 * Called from swipe refresh or routing. Always treated
 		 * as an aggresive refresh.
@@ -165,11 +181,9 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 		bind(BindingMode.MANUAL); // Called from Routing
 	}
 
-	@Override
-	public void onScollToTop() {}
+	@Override public void onScollToTop() {}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		/*
 		 * Cases that use activity result
 		 * 
@@ -198,8 +212,7 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void bind(final BindingMode mode) {
+	@Override public void bind(final BindingMode mode) {
 		/*
 		 * Called on main thread.
 		 */
@@ -219,8 +232,7 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 		Dispatcher.getInstance().post(request);
 	}
 
-	@Override
-	public void draw(View view) {}
+	@Override public void draw(View view) {}
 
 	public void drawButtons(View view) {
 
@@ -404,8 +416,7 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 		return entityId.equals(mEntityId);
 	}
 
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return mLayoutResId;
 	}
 
@@ -459,32 +470,6 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 
 	public Boolean getParallax() {
 		return mParallax;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		/*
-		 * We have to be pretty aggressive about refreshing the UI because
-		 * there are lots of actions that could have happened while this activity
-		 * was stopped that change what the user would expect to see.
-		 * 
-		 * - Entity deleted or modified
-		 * - Entity children modified
-		 * - New comments
-		 * - Change in user which effects which candi and UI should be visible.
-		 * - User profile could have been updated and we don't catch that.
-		 */
-		if (!getActivity().isFinishing()) {
-			if (mEntity instanceof Patch) {
-				Patchr.getInstance().setCurrentPatch(mEntity);
-			}
-			bind(BindingMode.AUTO);    // check to see if the cache stamp is stale
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------------

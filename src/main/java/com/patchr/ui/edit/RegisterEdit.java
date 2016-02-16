@@ -141,6 +141,7 @@ public class RegisterEdit extends BaseEntityEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Services
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Override
 	protected boolean validate() {
 		if (mName.getText().length() == 0) {

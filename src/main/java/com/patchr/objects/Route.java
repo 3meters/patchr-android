@@ -19,8 +19,8 @@ public class Route {
 	public static int CANCEL_FORCE       = 16;
 	public static int DELETE             = 17;
 	public static int SIGNOUT            = 18;
-	public static int SIGNIN             = 19;
-	public static int REGISTER           = 20;
+	public static int LOGIN              = 19;
+	public static int SIGNUP             = 20;
 	public static int ACCEPT             = 21;
 	public static int TERMS              = 22;
 	public static int PRIVACY            = 23;

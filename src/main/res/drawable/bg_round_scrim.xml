@@ -4,7 +4,7 @@
 
 	<gradient
 		android:angle="270"
-		android:endColor="@color/overlay_30_pcnt"
-		android:startColor="@color/overlay_30_pcnt" />
+		android:endColor="@color/scrim_30_pcnt"
+		android:startColor="@color/scrim_30_pcnt" />
 
 </shape>

@@ -55,17 +55,108 @@ public class LobbyForm extends AppCompatActivity {
 	 *
 	 * Running Lobby is not required to start activities.
 	 */
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Logger.d(this, "Splash create");
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		setContentView(R.layout.lobby_form);
+	}
+
+	@Override protected void onStart() {
+		super.onStart();
 		initialize();
 	}
 
-	@SuppressLint("ResourceAsColor")
+	@Override protected void onResume() {
+		super.onResume();
+		Patchr.getInstance().setCurrentActivity(this);
+	}
+
+	@Override protected void onPause() {
+		super.onPause();
+		clearReferences();
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	public void onLoginButtonClick(View view) {
+		if (Patchr.applicationUpdateRequired) {
+			updateRequired();
+			return;
+		}
+		Patchr.router.route(this, Route.LOGIN, null, null);
+	}
+
+	public void onSignupButtonClick(View view) {
+		if (Patchr.applicationUpdateRequired) {
+			updateRequired();
+			return;
+		}
+		Patchr.router.route(this, Route.SIGNUP, null, null);
+	}
+
+	public void onGuestButtonClick(View view) {
+		if (Patchr.applicationUpdateRequired) {
+			updateRequired();
+			return;
+		}
+		startHomeActivity();
+	}
+
+	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		if (requestCode == Constants.ACTIVITY_SIGNIN) {
+			if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.getInstance().authenticated()) {
+				startHomeActivity();
+			}
+		}
+		else if (requestCode == AndroidManager.PLAY_SERVICES_RESOLUTION_REQUEST) {
+			proceed();
+		}
+		super.onActivityResult(requestCode, resultCode, intent);
+	}
+
+	@Override public void onNewIntent(Intent intent) {
+		this.setIntent(intent);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
 	protected void initialize() {
+		/*
+		 * Check for a deep link.
+		 */
+		Branch.getInstance(Patchr.applicationContext).initSession(new Branch.BranchUniversalReferralInitListener() {
+
+			@Override
+			public void onInitFinished(BranchUniversalObject branchUniversalObject, LinkProperties linkProperties, BranchError error) {
+
+				if (branchUniversalObject != null) {
+					Map metadata = branchUniversalObject.getMetadata();
+					Bundle extras = new Bundle();
+					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, (String) metadata.get("entitySchema"));
+					extras.putString(Constants.EXTRA_ENTITY_ID, (String) metadata.get("entityId"));
+					extras.putString(Constants.EXTRA_INVITER_NAME, (String) metadata.get("referrerName"));
+					extras.putString(Constants.EXTRA_INVITER_PHOTO_URL, (String) metadata.get("referrerPhotoUrl"));
+					extras.putBoolean(Constants.EXTRA_SHOW_INVITER_WELCOME, true);
+					extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+					Patchr.router.route(LobbyForm.this, Route.BROWSE, null, extras);
+					finish();
+					return;
+				}
+				else {
+					if (error != null) {
+						Logger.w(this, error.getMessage());
+					}
+					proceed();
+				}
+			}
+		}, this.getIntent().getData(), this);
+	}
+
+	protected void proceed() {
 
 		/* Always reset the entity cache */
 		DataController.getInstance().clearStore();
@@ -85,24 +176,23 @@ public class LobbyForm extends AppCompatActivity {
 		 * refuses to install them. If play services can be fixed, then resume will be
 		 * called again.
 		 */
-		if (AndroidManager.checkPlayServices(this)) {
+		if (AndroidManager.checkPlayServices(LobbyForm.this)) {
 			if (UserManager.getInstance().authenticated()) {
 				startHomeActivity();
+			}
+			else {
+				showButtons();
 			}
 		}
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
 	protected void startHomeActivity() {
+		/*
+		 * Check if someone wants to share something with Patchr users from another app
+		 * and they were not already signed into Patchr. We need them to sign in and
+		 * then we get them back to the activity to handle the share.
+		 */
 		if (UserManager.getInstance().authenticated() && Patchr.sendIntent != null) {
-			/*
-			 * Someone wants to share something with Patchr users and they were not
-			 * already signed into Patchr. We need them to sign in and then we get them
-			 * back to the activity to handle the share.
-			 */
 			this.startActivity(Patchr.sendIntent);
 		}
 		else {
@@ -115,97 +205,14 @@ public class LobbyForm extends AppCompatActivity {
 		Patchr.sendIntent = null;
 	}
 
+	private void showButtons() {
+		findViewById(R.id.button_signin).setVisibility(View.VISIBLE);
+		findViewById(R.id.button_signup).setVisibility(View.VISIBLE);
+		findViewById(R.id.button_guest).setVisibility(View.VISIBLE);
+	}
+
 	private void updateRequired() {
 		Dialogs.updateApp(this);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Dialogs
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	@SuppressWarnings("ucd")
-	public void onSigninButtonClick(View view) {
-		if (Patchr.applicationUpdateRequired) {
-			updateRequired();
-			return;
-		}
-		Patchr.router.route(this, Route.SIGNIN, null, null);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onSignupButtonClick(View view) {
-		if (Patchr.applicationUpdateRequired) {
-			updateRequired();
-			return;
-		}
-		Patchr.router.route(this, Route.REGISTER, null, null);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onGuestButtonClick(View view) {
-		if (Patchr.applicationUpdateRequired) {
-			updateRequired();
-			return;
-		}
-		startHomeActivity();
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if (requestCode == Constants.ACTIVITY_SIGNIN) {
-			if (resultCode == Constants.RESULT_USER_SIGNED_IN
-					&& UserManager.getInstance().authenticated()) {
-				/*
-				 * Log in handled
-				 * - loads data for signed in user
-				 */
-				startHomeActivity();
-			}
-		}
-		else if (requestCode == AndroidManager.PLAY_SERVICES_RESOLUTION_REQUEST) {
-			initialize();
-		}
-		super.onActivityResult(requestCode, resultCode, intent);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-		Logger.d(this, "Splash start");
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		Logger.d(this, "Splash resume");
-		Patchr.getInstance().setCurrentActivity(this);
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		Logger.d(this, "Splash pause");
-		clearReferences();
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-		Logger.d(this, "Splash stop");
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		Logger.d(this, "Splash destroy");
 	}
 
 	private void clearReferences() {

@@ -1,54 +1,31 @@
 package com.patchr.components;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.widget.Toast;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
+import com.orhanobut.dialogplus.DialogPlus;
+import com.orhanobut.dialogplus.OnBackPressListener;
+import com.orhanobut.dialogplus.OnClickListener;
+import com.orhanobut.dialogplus.ViewHolder;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.ActivityRecognitionManager.ActivityState;
-import com.patchr.components.NetworkManager.ResponseCode;
-import com.patchr.events.ActivityStateEvent;
-import com.patchr.events.BeaconsLockedEvent;
-import com.patchr.events.EntitiesByProximityCompleteEvent;
-import com.patchr.events.EntitiesUpdatedEvent;
-import com.patchr.events.QueryWifiScanReceivedEvent;
-import com.patchr.interfaces.IBusy;
-import com.patchr.objects.AirLocation;
-import com.patchr.objects.Beacon;
-import com.patchr.objects.Cursor;
-import com.patchr.objects.Entity;
 import com.patchr.objects.LinkSpec;
 import com.patchr.objects.LinkSpecFactory;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Route;
-import com.patchr.objects.ServiceData;
 import com.patchr.objects.Session;
 import com.patchr.objects.User;
-import com.patchr.service.ServiceResponse;
-import com.patchr.ui.widgets.ListPreferenceMultiSelect;
-import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Json;
-import com.patchr.utilities.Maps;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.squareup.otto.Subscribe;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 public class UserManager {
 
@@ -94,10 +71,6 @@ public class UserManager {
 		}
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
-
 	public Boolean authenticated() {
 		return (this.userId != null && this.sessionKey != null);
 	}
@@ -121,13 +94,64 @@ public class UserManager {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	private void writeCredentials() {
+	public void showGuestGuard(final Context context, Integer resId) {
+		String message = StringManager.getString((resId == null) ? R.string.alert_signin_message : resId);
+		showGuestGuard(context, message);
+	}
+
+	public void showGuestGuard(final Context context, String message) {
+
+		View view = LayoutInflater.from(Patchr.applicationContext).inflate(R.layout.guest_guard_view, null, false);
+		ViewGroup.LayoutParams params = new ViewGroup.LayoutParams((int) UI.getScreenWidthRawPixels(context), (int) UI.getScreenHeightRawPixels(context));
+		view.setLayoutParams(params);
+
+		((TextView) view.findViewById(R.id.message)).setText(message);
+
+		DialogPlus dialog = DialogPlus.newDialog(context)
+				.setOnClickListener(new OnClickListener() {
+					@Override public void onClick(DialogPlus dialog, View view) {
+						if (view.getId() == R.id.button_login) {
+							Patchr.router.route(context, Route.LOGIN, null, null);
+						}
+						else if (view.getId() == R.id.button_signup) {
+							Patchr.router.route(context, Route.SIGNUP, null, null);
+						}
+						dialog.dismiss();
+					}
+				})
+				.setOnBackPressListener(new OnBackPressListener() {
+					@Override public void onBackPressed(DialogPlus dialog) {
+						dialog.dismiss();
+					}
+				})
+				.setContentHolder(new ViewHolder(view))
+				.setContentWidth((int) UI.getScreenWidthRawPixels(context))
+				.setContentHeight((int) UI.getScreenHeightRawPixels(context))
+				.setContentBackgroundResource(R.color.transparent)
+				.setOverlayBackgroundResource(R.color.scrim_70_pcnt)
+				.setCancelable(false)
+				.create();
+
+		dialog.show();
+	}
+
+	private void captureCredentials(User user) {
+
+		/* Update settings */
+		this.jsonUser = Json.objectToJson(user);
+		this.jsonSession = Json.objectToJson(user.session);
+		this.userName = user.name;
+		this.userId = user.id;
+		this.sessionKey = user.session.key;
+		this.currentUser = user;
+
+		BranchProvider.setIdentity(this.userId);
+		Reporting.updateCrashUser(this.currentUser);
+
 		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), this.jsonUser);
 		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), this.jsonSession);
 		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), this.currentUser.email);
-		Patchr.settingsEditor.apply();
-		BranchProvider.setIdentity(this.currentUser.id);
-		Reporting.updateCrashUser(this.currentUser);
+		Patchr.settingsEditor.commit();
 	}
 
 	private void discardCredentials() {
@@ -142,21 +166,24 @@ public class UserManager {
 		/* Cancel any current notifications in the status bar */
 		NotificationManager.getInstance().cancelAllNotifications();
 
+		Reporting.updateCrashUser(null);
+		BranchProvider.logout();
+
 		/* Clear user settings */
 		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
 		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), null);
-		Patchr.settingsEditor.apply();  // Asynch
-
-		Reporting.updateCrashUser(null);
-		BranchProvider.logout();
+		Patchr.settingsEditor.commit();  // Asynch
 	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 
 	public User getCurrentUser() {
 		return this.currentUser;
 	}
 
-	@NonNull
-	public Boolean setCurrentUser(@NonNull User user, @NonNull Boolean refreshUser) {
+	@NonNull public Boolean setCurrentUser(@NonNull User user, @NonNull Boolean refreshUser) {
 
 		ModelResult result = new ModelResult();
 
@@ -169,16 +196,7 @@ public class UserManager {
 				LinkSpec options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
 				result = DataController.getInstance().getEntity(user.id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
-
-			/* Update settings */
-			this.jsonUser = Json.objectToJson(user);
-			this.jsonSession = Json.objectToJson(user.session);
-			this.userName = user.name;
-			this.userId = user.id;
-			this.sessionKey = user.session.key;
-			this.currentUser = user;
-
-			writeCredentials();
+			captureCredentials(user);
 		}
 
 		return (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS);

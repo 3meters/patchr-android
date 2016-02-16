@@ -94,22 +94,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		/*
-		 * Special pre-handling because this form can be called directly
-		 * because of a sharing intent and we need a signed in user. If user
-		 * signs in they will be routed back to this form again.
-		 */
 		Intent intent = getIntent();
 		if (intent.getAction() != null
 				&& intent.getAction().equals(Intent.ACTION_SEND)
 				&& !UserManager.getInstance().authenticated()) {
-			Patchr.sendIntent = getIntent();
-			Patchr.router.route(this, Route.SPLASH, null, null);
-			finish();
-
-			String message = StringManager.getString(R.string.alert_signin_message_share);
-			Dialogs.signinRequired(this, message);
+				UserManager.getInstance().showGuestGuard(this, "Sign up for a free account to share using Patchr and more.");
 		}
 	}
 

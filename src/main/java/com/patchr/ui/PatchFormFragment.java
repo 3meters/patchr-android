@@ -32,6 +32,7 @@ import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.events.ShareCheckEvent;
+import com.patchr.events.WatchStatusChangedEvent;
 import com.patchr.objects.Count;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
@@ -41,6 +42,7 @@ import com.patchr.objects.Route;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
+import com.patchr.objects.WatchStatus;
 import com.patchr.ui.components.AnimationFactory;
 import com.patchr.ui.widgets.AirPhotoView;
 import com.patchr.ui.widgets.CandiView;
@@ -55,31 +57,29 @@ import java.util.Locale;
 public class PatchFormFragment extends EntityFormFragment {
 
 	ViewAnimator mHeaderViewAnimator;
-	//BlurringView mBlurringView;
 	protected Boolean mJustApproved = false;               // Set in onMessage via notification
 	protected Integer mWatchStatus  = WatchStatus.NONE;    // Set in draw
 	protected Boolean mClickEnabled = false;                        // NO_UCD (unused code)
 
-
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mLinkProfile = LinkSpecType.LINKS_FOR_PATCH;
 	}
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
 		mHeaderViewAnimator = (ViewAnimator) (view != null ? view.findViewById(R.id.animator_header) : null);
 		return view;
 	}
 
-	@Subscribe
-	public void onViewClick(ActionEvent event) {
+	@Override public void onResume() {
+		super.onResume();
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe public void onViewClick(ActionEvent event) {
 		/*
 		 * Base activity broadcasts view clicks that target onViewClick. This lets
 		 * us handle view clicks inside fragments if we want.
@@ -124,28 +124,20 @@ public class PatchFormFragment extends EntityFormFragment {
 		}
 	}
 
-	@Subscribe
-	public void onDataResult(final DataResultEvent event) {
+	@Subscribe public void onDataResult(final DataResultEvent event) {
+
 		/* Can be called on background thread */
 		if (event.tag.equals(System.identityHashCode(this))
 				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
 
 			Logger.v(this, "Data result accepted: " + event.actionType.name().toString());
 
-			if (event.actionType == DataController.ActionType.ACTION_SHARE_CHECK) {
-				if (event.data != null) {
-					confirmJoin();  // Always uses ui thread
-				}
-				else {
-					watch(true);    // Always uses ui thread
-				}
-			}
-			else if (event.actionType == DataController.ActionType.ACTION_LINK_INSERT_WATCH
+			if (event.actionType == DataController.ActionType.ACTION_LINK_INSERT_WATCH
 					|| event.actionType == DataController.ActionType.ACTION_LINK_DELETE_WATCH) {
 				/*
 				 * Rebind to capture the users watch state from the service and then draw.
 				 */
-				bind(BindingMode.AUTO);
+				Dispatcher.getInstance().post(new WatchStatusChangedEvent());
 				onProcessingComplete();
 			}
 			else {
@@ -154,24 +146,20 @@ public class PatchFormFragment extends EntityFormFragment {
 		}
 	}
 
-	@Subscribe
-	public void onDataError(DataErrorEvent event) {
+	@Subscribe public void onDataError(DataErrorEvent event) {
 		super.onDataError(event);
 	}
 
-	@Subscribe
-	public void onDataNoop(DataNoopEvent event) {
+	@Subscribe public void onDataNoop(DataNoopEvent event) {
 		super.onDataNoop(event);
 	}
 
-	@SuppressWarnings("ucd")
-	private void onWatchButtonClick(View view) {
+	protected void onWatchButtonClick(View view) {
 
 		if (mEntity == null) return;
 
 		if (!UserManager.getInstance().authenticated()) {
-			String message = StringManager.getString(R.string.alert_signin_message_watch, mEntity.schema);
-			Dialogs.signinRequired(getActivity(), message);
+			UserManager.getInstance().showGuestGuard(getActivity(), "Sign up for a free account to watch patches and more.");
 			return;
 		}
 
@@ -188,16 +176,10 @@ public class PatchFormFragment extends EntityFormFragment {
 			watch(false /* delete */);
 		}
 		else if (mWatchStatus == WatchStatus.NONE) {
-			if (((Patch) mEntity).isRestrictedForCurrentUser()) {
-				shareCheck();   // Checks for share link and if true then chains to confirmJoin else watch
-			}
-			else {
-				watch(true /* insert */);
-			}
+			watch(true /* insert */);
 		}
 	}
 
-	@SuppressWarnings("ucd")
 	private void onWatchingListButtonClick(View view) {
 		if (mEntity != null) {
 			Bundle extras = new Bundle();
@@ -210,20 +192,11 @@ public class PatchFormFragment extends EntityFormFragment {
 		}
 	}
 
-	@SuppressWarnings("ucd")
 	private void onMuteButtonClick(View view) {
-
-		if (!UserManager.getInstance().authenticated()) {
-			String message = StringManager.getString(R.string.alert_signin_message_like, mEntity.schema);
-			Dialogs.signinRequired(getActivity(), message);
-			return;
-		}
-
 		Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
 		mute(link.mute == null || !link.mute);
 	}
 
-	@SuppressWarnings("ucd")
 	private void onLikesListButtonClick(View view) {
 		if (mEntity != null) {
 			Bundle extras = new Bundle();
@@ -236,17 +209,14 @@ public class PatchFormFragment extends EntityFormFragment {
 		}
 	}
 
-	@SuppressWarnings("ucd")
 	private void onTuneButtonClick(View view) {
 		Patchr.router.route(getActivity(), Route.TUNE, mEntity, null);
 	}
 
-	@SuppressWarnings("ucd")
 	private void onShareButtonClick(View view) {
 
 		if (!UserManager.getInstance().authenticated()) {
-			String message = StringManager.getString(R.string.alert_signin_message_share);
-			Dialogs.signinRequired(getActivity(), message);
+			UserManager.getInstance().showGuestGuard(getActivity(), "Sign up for a free account to send patch invites and more.");
 			return;
 		}
 
@@ -267,7 +237,6 @@ public class PatchFormFragment extends EntityFormFragment {
 		AnimationFactory.flipTransition(mHeaderViewAnimator, AnimationFactory.FlipDirection.BOTTOM_TOP, 200);
 	}
 
-	@SuppressWarnings("ucd")
 	private void onToggleDescriptionButtonClick(View view) {
 		if (getView() != null) {
 			TextView description = (TextView) getView().findViewById(R.id.description);
@@ -284,8 +253,7 @@ public class PatchFormFragment extends EntityFormFragment {
 		}
 	}
 
-	@Subscribe
-	public void onNotificationReceived(final NotificationReceivedEvent event) {
+	@Subscribe public void onNotificationReceived(final NotificationReceivedEvent event) {
 		/*
 		 * Refresh the form because something new has been added to it like a message.
 		 */
@@ -305,8 +273,7 @@ public class PatchFormFragment extends EntityFormFragment {
 		}
 	}
 
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	@Override public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 
 		/* Reset the image aspect ratio */
@@ -322,9 +289,12 @@ public class PatchFormFragment extends EntityFormFragment {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@SuppressWarnings("ConstantConditions")
-	@Override
-	public void draw(final View view) {
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+		mLinkProfile = LinkSpecType.LINKS_FOR_PATCH;
+	}
+
+	@Override public void draw(final View view) {
 
 		if (view == null) {
 			Logger.w(this, "Draw called but no view");
@@ -341,7 +311,7 @@ public class PatchFormFragment extends EntityFormFragment {
 				/* Some state management */
 
 				Link linkWatching = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
-				mWatchStatus = (linkWatching == null) ? WatchStatus.NONE : (linkWatching.enabled) ? WatchStatus.WATCHING : WatchStatus.REQUESTED;
+				mWatchStatus = ((Patch) mEntity).watchStatus();
 				Boolean owner = (UserManager.getInstance().authenticated() && mEntity.ownerId != null && mEntity.ownerId.equals(UserManager.getInstance().getCurrentUser().id));
 
 				/* Photo overlayed with info */
@@ -569,7 +539,7 @@ public class PatchFormFragment extends EntityFormFragment {
 					.setSkipCache(false);
 
 			update.setActionType(DataController.ActionType.ACTION_LINK_INSERT_WATCH)
-			      .setTag(System.identityHashCode(this));
+					.setTag(System.identityHashCode(this));
 
 			Dispatcher.getInstance().post(update);
 		}
@@ -584,7 +554,7 @@ public class PatchFormFragment extends EntityFormFragment {
 					.setActionEvent("unwatch_entity_" + mEntity.schema.toLowerCase(Locale.US));
 
 			update.setActionType(DataController.ActionType.ACTION_LINK_DELETE_WATCH)
-			      .setTag(System.identityHashCode(this));
+					.setTag(System.identityHashCode(this));
 
 			Dispatcher.getInstance().post(update);
 		}
@@ -619,7 +589,6 @@ public class PatchFormFragment extends EntityFormFragment {
 				bind(BindingMode.AUTO);
 				onProcessingComplete(); // Updates ui like floating button
 			}
-
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
@@ -630,7 +599,7 @@ public class PatchFormFragment extends EntityFormFragment {
 				.setUserId(UserManager.getInstance().getCurrentUser().id);
 
 		event.setActionType(DataController.ActionType.ACTION_SHARE_CHECK)
-		     .setTag(System.identityHashCode(this));
+				.setTag(System.identityHashCode(this));
 
 		Dispatcher.getInstance().post(event);
 	}
@@ -683,28 +652,5 @@ public class PatchFormFragment extends EntityFormFragment {
 			}
 		}, null);
 		dialog.setCanceledOnTouchOutside(false);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onResume() {
-		super.onResume();
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
-
-	public static class WatchStatus {
-		public static int NONE      = 0;
-		public static int WATCHING  = 1;
-		public static int REQUESTED = 2;
 	}
 }

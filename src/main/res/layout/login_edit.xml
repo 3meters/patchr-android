@@ -72,7 +72,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/button_height"
 				android:minWidth="200dp"
-				android:onClick="onSignInButtonClick"
+				android:onClick="onLoginButtonClick"
 				android:textColor="@color/white"
 				android:text="@string/button_sign_in" />
 		</RelativeLayout>

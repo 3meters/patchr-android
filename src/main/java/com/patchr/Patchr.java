@@ -163,9 +163,6 @@ public class Patchr extends MultiDexApplication {
 		/* Turn on crash reporting */
 		Fabric.with(this, new Crashlytics());
 
-		/* Turn on branch */
-		Branch.getAutoInstance(this);
-
 		/* Turn on facebook */
 		FacebookSdk.sdkInitialize(this);
 
@@ -212,6 +209,9 @@ public class Patchr extends MultiDexApplication {
 		if (!registered) {
 			Dispatcher.getInstance().post(new RegisterInstallEvent());
 		}
+
+		/* Turn on branch */
+		Branch.getAutoInstance(this);
 	}
 
 	protected void initializeManagers() {

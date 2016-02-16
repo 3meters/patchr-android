@@ -90,7 +90,7 @@ public class UserListFragment extends EntityListFragment {
 
 			ViewGroup layout = holder.candiView.getLayout();
 			Entity parent = ((BaseActivity) getActivity()).getEntity();
-			Boolean itemIsOwner = entity.id.equals(parent.ownerId);
+			Boolean itemIsOwner = (parent != null && entity.id.equals(parent.ownerId));
 
 			TextView role = (TextView) layout.findViewById(R.id.role);
 			View editGroup = layout.findViewById(R.id.owner_edit_group);

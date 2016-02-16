@@ -42,7 +42,7 @@
 	<!-- Forms -->
 
 	<dimen name="form_field_height">48dp</dimen>
-	<dimen name="button_height">48dp</dimen>
+	<dimen name="button_height">44dp</dimen>
 	<dimen name="button_large_height">64dp</dimen>
 	<dimen name="button_small_height">24dp</dimen>
 	<dimen name="button_width_min">96dp</dimen>
@@ -50,6 +50,7 @@
 	<dimen name="button_floating_width_min">96dp</dimen>
 	<dimen name="button_stroke_width">0.5dp</dimen>
 	<dimen name="button_corner_radius">2dp</dimen>
+	<dimen name="toast_corner_radius">24dp</dimen>
 	<dimen name="list_max_width">640dp</dimen>
 	<dimen name="form_max_width">640dp</dimen>
 	<dimen name="grid_max_width">1000dp</dimen>

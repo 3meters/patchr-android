@@ -4,9 +4,9 @@
 
 	<gradient
 		android:angle="270"
-		android:centerColor="@color/overlay_30_pcnt"
-		android:endColor="@color/overlay_60_pcnt"
-		android:startColor="@color/overlay_00_pcnt"
+		android:centerColor="@color/scrim_30_pcnt"
+		android:endColor="@color/scrim_60_pcnt"
+		android:startColor="@color/transparent"
 		android:type="linear" />
 
 	<corners

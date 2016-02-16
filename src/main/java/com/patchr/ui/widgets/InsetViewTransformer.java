@@ -8,12 +8,20 @@ import com.patchr.R;
 
 public class InsetViewTransformer extends BaseViewTransformer {
 
-	public static final float MAX_DIM_ALPHA = 0.4f;
+	private float mDimAlpha = 0.4f;
+	private float mInsertPcnt = 0.9f;
+
+	public InsetViewTransformer() {}
+
+	public InsetViewTransformer(float dimAlpha, float insetPcnt) {
+		mDimAlpha = dimAlpha;
+		mInsertPcnt = insetPcnt;
+	}
 
 	@Override
 	public void transformView(float translation, float maxTranslation, float peekedTranslation, BottomSheetLayout parent, View view) {
 		float progress = Math.min(translation / peekedTranslation, 1);
-		float scale = (1 - progress) + progress * 0.9f;
+		float scale = (1 - progress) + progress * mInsertPcnt;
 		view.setScaleX(scale);
 		view.setScaleY(scale);
 
@@ -33,7 +41,7 @@ public class InsetViewTransformer extends BaseViewTransformer {
 	@Override
 	public float getDimAlpha(float translation, float maxTranslation, float peekedTranslation, BottomSheetLayout parent, View view) {
 		float progress = translation / maxTranslation;
-		return progress * MAX_DIM_ALPHA;
+		return progress * mDimAlpha;
 	}
 
 	private void ensureLayer(View view, int layerType) {

@@ -103,12 +103,6 @@ public class Router {
 
 		else if (route == Route.EDIT) {
 
-			if (UserManager.getInstance().authenticated()) {
-				String message = StringManager.getString(R.string.alert_signin_message_edit, schema);
-				Dialogs.signinRequired((Activity) activity, message);
-				return;
-			}
-
 			if (entity == null) {
 				throw new IllegalArgumentException("Dispatching edit requires entity");
 			}
@@ -153,18 +147,6 @@ public class Router {
 		}
 
 		else if (route == Route.NEW) {
-
-			if (!UserManager.getInstance().authenticated()) {
-				if (schema == null) {
-					throw new IllegalArgumentException("Handling anonymous new requires schema");
-				}
-				String message = StringManager.getString(R.string.alert_signin_message_add, schema);
-				if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-					message = StringManager.getString(R.string.alert_signin_message_patch_new, schema);
-				}
-				Dialogs.signinRequired((Activity) activity, message);
-				return;
-			}
 
 			if (!MenuManager.canUserAdd(entity)) {
 				return;
@@ -354,14 +336,14 @@ public class Router {
 			UserManager.getInstance().signout();
 		}
 
-		else if (route == Route.SIGNIN) {
+		else if (route == Route.LOGIN) {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, LoginEdit.class);
 			((Activity)activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_SIGNIN);
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
-		else if (route == Route.REGISTER) {
+		else if (route == Route.SIGNUP) {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, RegisterEdit.class);
 			((Activity)activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_SIGNIN);
@@ -557,7 +539,7 @@ public class Router {
 		else if (itemId == R.id.signout)
 			return Route.SIGNOUT;
 		else if (itemId == R.id.signin)
-			return Route.SIGNIN;
+			return Route.LOGIN;
 		else if (itemId == R.id.report)
 			return Route.REPORT;
 		else if (itemId == R.id.qrcode)

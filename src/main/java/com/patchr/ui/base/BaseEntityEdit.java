@@ -144,8 +144,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			});
 		}
 
-		ensurePermissions();
-
 		if (mPhotoView != null) {
 			mPhotoView.setTarget(this);
 		}
@@ -224,8 +222,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onAccept() {
+	@Override public void onAccept() {
 		if (mProcessing) return;
 		mProcessing = true;
 		/*
@@ -251,6 +248,27 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		}
 	}
 
+	@Override public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
+
+		final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
+		UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
+
+		mProcessing = false;
+
+		UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
+		UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
+
+		mPhotoView.showLoading(false);
+	}
+
+	@Override public void onBitmapFailed(Drawable arg0) {
+		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
+		drawPhoto();
+		mProcessing = false;
+	}
+
+	@Override public void onPrepareLoad(Drawable drawable) { }
+
 	public void onEditPhotoButtonClick(View view) {
 
 		/* Ensure photo logic has the latest property values */
@@ -266,6 +284,8 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	}
 
 	public void onChangePhotoButtonClick(View view) {
+
+		ensurePermissions(); // If no permissions then photo action picker will not show device photos option
 
 		/* Ensure photo logic has the latest property values */
 		gather();
@@ -314,30 +334,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 		});
 	}
-
-	@Override
-	public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
-
-		final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
-		UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
-
-		mProcessing = false;
-
-		UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
-		UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
-
-		mPhotoView.showLoading(false);
-	}
-
-	@Override
-	public void onBitmapFailed(Drawable arg0) {
-		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
-		drawPhoto();
-		mProcessing = false;
-	}
-
-	@Override
-	public void onPrepareLoad(Drawable drawable) { }
 
 	public void onError(final String reason) {
 	    /*
@@ -514,13 +510,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		}
 	}
 
-
 	/*--------------------------------------------------------------------------------------------
 	 * Pickers
 	 *--------------------------------------------------------------------------------------------*/
 
-	@SuppressLint("InlinedApi")
-	protected void photoFromGallery() {
+	@SuppressLint("InlinedApi") protected void photoFromGallery() {
 
 		try {
 			String directory = MediaManager.getTempDirectory(MediaManager.tempDirectoryName);
@@ -585,8 +579,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	 * Services
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	protected void beforeInsert(Entity entity, List<Link> links) {
+	@Override protected void beforeInsert(Entity entity, List<Link> links) {
 		if (mParentId != null) {
 			if (links == null) {
 				links = new ArrayList<Link>();
@@ -595,8 +588,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		}
 	}
 
-	@Override
-	protected void insert() {
+	@Override protected void insert() {
 
 		mTaskService = new AsyncTask() {
 
@@ -643,10 +635,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 					try {
 						bitmap = DownloadManager.with(Patchr.applicationContext)
-						                        .load(mEntity.getPhoto().getDirectUri())
-						                        .centerInside()
-						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-						                        .get();
+								.load(mEntity.getPhoto().getDirectUri())
+								.centerInside()
+								.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+								.get();
 
 						if (isCancelled()) return null;
 					}
@@ -658,10 +650,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						System.gc();
 						try {
 							bitmap = DownloadManager.with(Patchr.applicationContext)
-							                        .load(mEntity.getPhoto().getDirectUri())
-							                        .centerInside()
-							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
-							                        .get();
+									.load(mEntity.getPhoto().getDirectUri())
+									.centerInside()
+									.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
+									.get();
 
 							if (isCancelled()) return null;
 						}
@@ -743,8 +735,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override
-	protected void update() {
+	@Override protected void update() {
 
 		mTaskService = new AsyncTask() {
 
@@ -771,10 +762,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 						try {
 							bitmap = DownloadManager.with(Patchr.applicationContext)
-							                        .load(mEntity.getPhoto().getDirectUri())
-							                        .centerInside()
-							                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-							                        .get();
+									.load(mEntity.getPhoto().getDirectUri())
+									.centerInside()
+									.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+									.get();
 
 							if (isCancelled()) return null;
 						}
@@ -786,10 +777,10 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							System.gc();
 							try {
 								bitmap = DownloadManager.with(Patchr.applicationContext)
-								                        .load(mEntity.getPhoto().getDirectUri())
-								                        .centerInside()
-								                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
-								                        .get();
+										.load(mEntity.getPhoto().getDirectUri())
+										.centerInside()
+										.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
+										.get();
 
 								if (isCancelled()) return null;
 							}

@@ -87,7 +87,7 @@ public final class Errors {
 		/*
 		 * Perform any follow-up actions.
 		 */
-		if (errorResponse.signout && activity != null) {
+		if (errorResponse.signout && activity != null && UserManager.getInstance().authenticated()) {
 			UserManager.getInstance().signout();
 		}
 		else if (errorResponse.splash) {

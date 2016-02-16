@@ -14,12 +14,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
+import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DownloadManager;
+import com.patchr.components.FontManager;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoSizeCategory;
 import com.patchr.ui.widgets.AirPhotoView;
@@ -97,8 +100,8 @@ public class UI {
 			RequestCreator creator = DownloadManager
 					.with(Patchr.applicationContext)
 					.load(url)
-			        .tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.PHOTO_GROUP_TAG_DEFAULT)
-			        .config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
+					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.PHOTO_GROUP_TAG_DEFAULT)
+					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
 
 			if (transform != null) {
 				creator.transform(transform);
@@ -190,6 +193,11 @@ public class UI {
 		return metrics.widthPixels / metrics.density;
 	}
 
+	public static float getScreenHeightDisplayPixels(@NonNull Context context) {
+		final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+		return metrics.heightPixels / metrics.density;
+	}
+
 	public static float getScreenWidthRawPixels(@NonNull Context context) {
 		final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
 		return metrics.widthPixels;
@@ -255,6 +263,11 @@ public class UI {
 			public void run() {
 				final CharSequence text = message;
 				final Toast toast = Toast.makeText(Patchr.applicationContext, text, duration);
+				toast.getView().setBackgroundResource(R.drawable.bg_toast);
+				TextView view = (TextView) toast.getView().findViewById(android.R.id.message);
+				view.setTextColor(Colors.getColor(R.color.black));
+				view.setShadowLayer(0, 0, 0, 0);
+				FontManager.getInstance().setTypefaceLight(view);
 				if (gravity != 0) {
 					toast.setGravity(gravity, 0, 0);
 				}

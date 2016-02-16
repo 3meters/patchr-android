@@ -11,8 +11,23 @@
 
 	<color name="brand_primary">#ffFF7600</color>
 	<color name="brand_primary_light">#ffFF9439</color>
+	<color name="brand_primary_lighter">#ffFFAB63</color>
 	<color name="brand_primary_dark">#ffC55B00</color>
+	<color name="brand_primary_darker">#ff9B4800</color>
+
 	<color name="brand_accent">#ff69D3E7</color>
+	<color name="brand_accent_light">#ff95E4F3</color>
+	<color name="brand_accent_lighter">#ffCDF5FC</color>
+	<color name="brand_accent_dark">#ff44C0D7</color>
+	<color name="brand_accent_darker">#ff23A6BF</color>
+
+	<color name="accent_on_light">@color/brand_accent_darker</color>
+	<color name="accent_on_dark">@color/brand_accent</color>
+	<color name="brand_on_light">@color/brand_primary</color>
+	<color name="brand_on_dark">@color/brand_primary_light</color>
+
+	<color name="accent_fill">@color/brand_accent</color>
+	<color name="brand_fill">@color/brand_primary_light</color>
 
 	<!-- Text -->
 
@@ -47,25 +62,31 @@
 
 	<color name="background_token_selected">#880099CC</color>
 
+	<!-- Semi transparent backgrounds -->
+
+	<color name="white_10_pcnt">#18ffffff</color>
+	<color name="white_20_pcnt">#33ffffff</color>
+	<color name="white_30_pcnt">#4Dffffff</color>
+	<color name="white_40_pcnt">#66ffffff</color>
+	<color name="white_50_pcnt">#80ffffff</color>
+	<color name="white_60_pcnt">#9Affffff</color>
+	<color name="white_70_pcnt">#B3ffffff</color>
+	<color name="white_80_pcnt">#CDffffff</color>
+	<color name="white_90_pcnt">#E6ffffff</color>
+
 	<!-- Semi transparent scrims -->
 
-	<color name="overlay_00_pcnt">#00000000</color>
-	<color name="overlay_10_pcnt">#18000000</color>
-	<color name="overlay_20_pcnt">#33000000</color>
-	<color name="overlay_30_pcnt">#4D000000</color>
-	<color name="overlay_40_pcnt">#66000000</color>
-	<color name="overlay_50_pcnt">#80000000</color>
-	<color name="overlay_60_pcnt">#9A000000</color>
-	<color name="overlay_70_pcnt">#B3000000</color>
-	<color name="overlay_80_pcnt">#CD000000</color>
-	<color name="overlay_90_pcnt">#E6000000</color>
-	<color name="overlay_100_pcnt">#ff000000</color>
+	<color name="scrim_10_pcnt">#18000000</color>
+	<color name="scrim_20_pcnt">#33000000</color>
+	<color name="scrim_30_pcnt">#4D000000</color>
+	<color name="scrim_40_pcnt">#66000000</color>
+	<color name="scrim_50_pcnt">#80000000</color>
+	<color name="scrim_60_pcnt">#9A000000</color>
+	<color name="scrim_70_pcnt">#B3000000</color>
+	<color name="scrim_80_pcnt">#CD000000</color>
+	<color name="scrim_90_pcnt">#E6000000</color>
 
-	<color name="overlay_photo_detail">@color/overlay_40_pcnt</color>
-	<color name="overlay_help">@color/overlay_40_pcnt</color>
-
-	<color name="overlay_gray_light">#55333333</color>
-	<color name="overlay_gray_dark">#ff555555</color>
+	<color name="scrim_photo_detail">@color/scrim_40_pcnt</color>
 
 	<!-- Rules using alpha -->
 

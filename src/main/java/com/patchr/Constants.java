@@ -58,6 +58,9 @@ public class Constants {
 	public static final String EXTRA_SHARE_PATCH                 = "com.patchr.EXTRA_SHARE_PATCH";
 	public static final String EXTRA_PRE_APPROVED                = "com.patchr.EXTRA_PRE_APPROVED";
 	public static final String EXTRA_TRANSITION_TYPE             = "com.patchr.EXTRA_TRANSITION_TYPE";
+	public static final String EXTRA_SHOW_INVITER_WELCOME        = "com.patchr.EXTRA_SHOW_INVITER_WELCOME";
+	public static final String EXTRA_INVITER_NAME                = "com.patchr.EXTRA_INVITER_WELCOME";
+	public static final String EXTRA_INVITER_PHOTO_URL           = "com.patchr.EXTRA_INVITER_PHOTO_URL";
 
 	/* Activity parameters: lists */
 	public static final String EXTRA_LIST_LINK_TYPE         = "com.patchr.EXTRA_LIST_LINK_TYPE";

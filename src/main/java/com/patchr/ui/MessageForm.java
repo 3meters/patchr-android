@@ -173,8 +173,7 @@ public class MessageForm extends BaseEntityForm {
 
 		if (!UserManager.getInstance().authenticated()) {
 			mProcessing = false;
-			String message = StringManager.getString(R.string.alert_signin_message_like, mEntity.schema);
-			Dialogs.signinRequired(this, message);
+			UserManager.getInstance().showGuestGuard(this, "Sign up for a free account to like messages and more.");
 			return;
 		}
 
@@ -199,8 +198,7 @@ public class MessageForm extends BaseEntityForm {
 	public void onShareClick(View view) {
 
 		if (!UserManager.getInstance().authenticated()) {
-			String message = StringManager.getString(R.string.alert_signin_message_share);
-			Dialogs.signinRequired(this, message);
+			UserManager.getInstance().showGuestGuard(this, "Sign up for a free account to share messages and more.");
 			return;
 		}
 
@@ -502,6 +500,11 @@ public class MessageForm extends BaseEntityForm {
 
 	@Override
 	public void share() {
+
+		if (!UserManager.getInstance().authenticated()) {
+			UserManager.getInstance().showGuestGuard(this, "Sign up for a free account to share messages and more.");
+			return;
+		}
 
 		final String entityName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
 		final String title = String.format(StringManager.getString(R.string.label_message_share_title), entityName);

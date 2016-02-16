@@ -197,7 +197,7 @@ public class MenuManager {
 	}
 
 	@NonNull
-	public static Boolean showAction(Integer route, Entity entity, String forId) {
+	public static boolean showAction(Integer route, Entity entity, String forId) {
 
 		if (entity == null)
 			return false;

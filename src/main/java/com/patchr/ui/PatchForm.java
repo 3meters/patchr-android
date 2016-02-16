@@ -3,10 +3,19 @@ package com.patchr.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
@@ -22,6 +31,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController.ActionType;
+import com.patchr.components.DownloadManager;
 import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
 import com.patchr.components.MenuManager;
@@ -30,14 +40,18 @@ import com.patchr.components.UserManager;
 import com.patchr.events.ActionEvent;
 import com.patchr.events.DataResultEvent;
 import com.patchr.events.ProcessingCompleteEvent;
+import com.patchr.events.WatchStatusChangedEvent;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Message;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
+import com.patchr.objects.PhotoSizeCategory;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
+import com.patchr.objects.WatchStatus;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.base.BaseFragment;
+import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.components.ListController;
 import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.widgets.InsetViewTransformer;
@@ -59,14 +73,19 @@ import io.branch.referral.util.LinkProperties;
 @SuppressLint("Registered")
 public class PatchForm extends BaseActivity {
 
+	private final Handler mHandler = new Handler();
+
 	protected EntityFormFragment mHeaderFragment;
 	protected String             mListLinkType;
 	protected String             mNotificationId;
 	protected BottomSheetLayout  mBottomSheetLayout;
 	protected CallbackManager    mCallbackManager;
+	protected String             mInviterName;
+	protected String             mInviterPhotoUrl;
+	protected Boolean mShowInviterWelcome     = false;
+	protected Boolean mAuthenticatedForInvite = false;
 
-	@Override
-	public void unpackIntent() {
+	@Override public void unpackIntent() {
 		super.unpackIntent();
 
 		final Bundle extras = getIntent().getExtras();
@@ -75,11 +94,185 @@ public class PatchForm extends BaseActivity {
 			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
 			mTransitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
 			mNotificationId = extras.getString(Constants.EXTRA_NOTIFICATION_ID);
+			mInviterName = extras.getString(Constants.EXTRA_INVITER_NAME);
+			mInviterPhotoUrl = extras.getString(Constants.EXTRA_INVITER_PHOTO_URL);
 		}
 	}
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
+	@Override protected void onResume() {
+		super.onResume();
+		if (!isFinishing()) {
+			Patchr.getInstance().setCurrentPatch(mEntity);
+		}
+
+		if (mEntity != null && mEntity instanceof Patch) {
+			Patch patch = (Patch) mEntity;
+			if (mInviterName != null) {     // Active invitation
+				if (mBottomSheetLayout.isSheetShowing()) {
+					if (UserManager.getInstance().authenticated() && patch.watchStatus() != WatchStatus.NONE) {
+						mBottomSheetLayout.dismissSheet();
+						return;
+					}
+					else if (UserManager.getInstance().authenticated() != mAuthenticatedForInvite) {
+						showInviteWelcome(1000);
+					}
+				}
+				else {
+					showInviteWelcome(1500);
+				}
+			}
+		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe public void onDataResult(final DataResultEvent event) {
+		/*
+		 * Cherry pick the entity so we can add some wrapper functionality.
+		 */
+		if (event.entity != null && event.entity.id.equals(mEntityId)) {
+			Boolean firstBind = (mEntity == null);
+			mEntity = event.entity;
+			if (firstBind && mInviterName != null) {     // Active invitation
+				showInviteWelcome(1500);
+			}
+			Patchr.getInstance().setCurrentPatch(mEntity);
+			invalidateOptionsMenu();    // In case user authenticated
+		}
+	}
+
+	@Subscribe public void onViewClick(ActionEvent event) {
+		/*
+		 * Base activity broadcasts view clicks that target onViewClick. There are actions
+		 * that should be handled at the activity level like add a new entity.
+		 */
+		if (mProcessing) return;
+
+		if (event.view != null) {
+			mProcessing = true;
+			Integer id = event.view.getId();
+
+			/* Dynamic button we need to redirect */
+			if (id == R.id.button_alert) {
+				id = (Integer) event.view.getTag();
+			}
+
+			if (id == R.id.add || id == R.id.list_fab) {
+				onAdd(new Bundle());
+			}
+			else {
+				mProcessing = false;
+				super.onViewClick(event);
+			}
+			mProcessing = false;
+		}
+	}
+
+	@Subscribe public void onProcessingComplete(ProcessingCompleteEvent event) {
+		/*
+		 * Gets called direct at the activity level and receives
+		 * events from fragments.
+		 */
+		mProcessing = false;
+		mUiController.getBusyController().hide(false);
+
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				/*
+				 * Non-members can't add messages to private patches.
+				 */
+				if (mEntity != null && mEntity instanceof Patch) {
+					Patch patch = (Patch) mEntity;
+					ListController controller = ((EntityListFragment) mCurrentFragment).getListController();
+					if (patch.privacy != null
+							&& patch.privacy.equals(Constants.PRIVACY_PRIVATE)
+							&& !patch.isVisibleToCurrentUser()) {
+						controller.getFloatingActionController().fadeOut();
+					}
+					else {
+						controller.getFloatingActionController().fadeIn();
+					}
+				}
+			}
+		});
+	}
+
+	@Subscribe public void onWatchStatusChangedEvent(WatchStatusChangedEvent event) {
+		onRefresh();
+	}
+
+	@Override public void onRefresh() {
+		/*
+		 * Called from swipe refresh or routing. Always treated
+		 * as an aggresive refresh.
+		 */
+		if (mHeaderFragment != null) {
+			mHeaderFragment.onRefresh();
+		}
+		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
+			((EntityListFragment) mCurrentFragment).onRefresh();
+		}
+	}
+
+	@Override public void onAdd(Bundle extras) {
+
+		if (!UserManager.getInstance().authenticated()) {
+			UserManager.getInstance().showGuestGuard(this, "Sign up for a free account to post messages and more.");
+			return;
+		}
+
+		if (mEntity == null) return;
+
+		if (MenuManager.canUserAdd(mEntity)) {
+
+			String message = StringManager.getString(R.string.label_message_new_message);
+			if (!TextUtils.isEmpty(mEntity.name)) {
+				message = String.format(StringManager.getString(R.string.label_message_new_to_message), mEntity.name);
+			}
+
+			extras.putString(Constants.EXTRA_MESSAGE, message);
+			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntityId);
+			extras.putString(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
+			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+
+			Patchr.router.route(this, Route.NEW, null, extras);
+		}
+		else if (Type.isTrue(((Patch) mEntity).locked)) {
+			Dialogs.locked(this, mEntity);
+		}
+	}
+
+	@Override public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		if (mBottomSheetLayout.isSheetShowing()) {
+			mBottomSheetLayout.peekSheet();
+		}
+	}
+
+	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
+			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
+				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
+					finish();
+					AnimationManager.doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+				}
+			}
+			else if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.getInstance().authenticated()) {
+				onRefresh();
+			}
+			mCallbackManager.onActivityResult(requestCode, resultCode, intent);
+		}
+		super.onActivityResult(requestCode, resultCode, intent);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
 		mCurrentFragment = new EntityListFragment();
@@ -127,144 +320,7 @@ public class PatchForm extends BaseActivity {
 				.commit();
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Subscribe
-	public void onDataResult(final DataResultEvent event) {
-		/*
-		 * Cherry pick the entity so we can add some wrapper functionality.
-		 */
-		if (event.entity != null && event.entity.id.equals(mEntityId)) {
-			mEntity = event.entity;
-			Patchr.getInstance().setCurrentPatch(mEntity);
-		}
-	}
-
-	@Subscribe
-	public void onViewClick(ActionEvent event) {
-		/*
-		 * Base activity broadcasts view clicks that target onViewClick. There are actions
-		 * that should be handled at the activity level like add a new entity.
-		 */
-		if (mProcessing) return;
-
-		if (event.view != null) {
-			mProcessing = true;
-			Integer id = event.view.getId();
-
-			/* Dynamic button we need to redirect */
-			if (id == R.id.button_alert) {
-				id = (Integer) event.view.getTag();
-			}
-
-			if (id == R.id.add || id == R.id.list_fab) {
-				onAdd(new Bundle());
-			}
-			else {
-				mProcessing = false;
-				super.onViewClick(event);
-			}
-			mProcessing = false;
-		}
-	}
-
-	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		/*
-		 * Gets called direct at the activity level and receives
-		 * events from fragments.
-		 */
-		mProcessing = false;
-		mUiController.getBusyController().hide(false);
-
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				/*
-				 * Non-members can't add messages to private patches.
-				 */
-				if (mEntity != null && mEntity instanceof Patch) {
-					Patch patch = (Patch) mEntity;
-					ListController controller = ((EntityListFragment) mCurrentFragment).getListController();
-					if (patch.privacy != null
-							&& patch.privacy.equals(Constants.PRIVACY_PRIVATE)
-							&& !patch.isVisibleToCurrentUser()) {
-						controller.getFloatingActionController().fadeOut();
-					}
-					else {
-						controller.getFloatingActionController().fadeIn();
-					}
-				}
-			}
-		});
-	}
-
-	@Override
-	public void onRefresh() {
-		/*
-		 * Called from swipe refresh or routing. Always treated
-		 * as an aggresive refresh.
-		 */
-		if (mHeaderFragment != null) {
-			mHeaderFragment.onRefresh();
-		}
-		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
-			((EntityListFragment) mCurrentFragment).onRefresh();
-		}
-	}
-
-	@Override
-	public void onAdd(Bundle extras) {
-
-		if (!UserManager.getInstance().authenticated()) {
-			String message = StringManager.getString(R.string.alert_signin_message_add);
-			Dialogs.signinRequired(this, message);
-			return;
-		}
-
-		if (mEntity == null) return;
-
-		if (MenuManager.canUserAdd(mEntity)) {
-
-			String message = StringManager.getString(R.string.label_message_new_message);
-			if (!TextUtils.isEmpty(mEntity.name)) {
-				message = String.format(StringManager.getString(R.string.label_message_new_to_message), mEntity.name);
-			}
-
-			extras.putString(Constants.EXTRA_MESSAGE, message);
-			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntityId);
-			extras.putString(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
-			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-
-			Patchr.router.route(this, Route.NEW, null, extras);
-		}
-		else if (Type.isTrue(((Patch) mEntity).locked)) {
-			Dialogs.locked(this, mEntity);
-		}
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
-			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
-				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
-					finish();
-					AnimationManager.doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
-				}
-			}
-			mCallbackManager.onActivityResult(requestCode, resultCode, intent);
-		}
-		super.onActivityResult(requestCode, resultCode, intent);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void share() {
+	@Override public void share() {
 
 		final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
 		final String title = String.format(StringManager.getString(R.string.label_patch_share_title), patchName);
@@ -313,7 +369,77 @@ public class PatchForm extends BaseActivity {
 		});
 
 		menuSheetView.inflateMenu(R.menu.menu_invite_sheet);
+		mBottomSheetLayout.setPeekOnDismiss(true);
 		mBottomSheetLayout.showWithSheetView(menuSheetView, new InsetViewTransformer());
+	}
+
+	protected void showInviteWelcome(int delay) {
+
+		final Patch patch = (Patch) mEntity;
+
+		/* Don't show invite if already a member */
+		if (UserManager.getInstance().authenticated() && patch.watchStatus() != WatchStatus.NONE) {
+			return;
+		}
+
+		mHandler.postDelayed(new Runnable() {
+
+			@Override public void run() {
+
+				View view = LayoutInflater.from(PatchForm.this).inflate(R.layout.onboarding_view, null, false);
+
+				String heading = (mInviterName != null)
+				                 ? String.format("%1$s invites you to join this patch.", mInviterName)
+				                 : "A friend invites you to join this patch.";
+				((TextView) view.findViewById(R.id.message)).setText(heading);
+
+				ImageView imageView = (ImageView) view.findViewById(R.id.user_photo);
+
+				if (mInviterPhotoUrl != null) {
+					DownloadManager
+							.with(Patchr.applicationContext)
+							.load(Uri.parse(mInviterPhotoUrl))
+							.config(Bitmap.Config.RGB_565)
+							.transform(new CircleTransform())
+							.into(imageView);
+				}
+				else {
+					imageView.setVisibility(View.GONE);
+				}
+
+				if (UserManager.getInstance().authenticated()) {
+
+					mAuthenticatedForInvite = true;
+					((TextView) view.findViewById(R.id.action2_button)).setVisibility(View.GONE);
+					((TextView) view.findViewById(R.id.action1_button)).setText("JOIN");
+					((Button) view.findViewById(R.id.action1_button)).setOnClickListener(new View.OnClickListener() {
+						@Override public void onClick(View view) {
+							mBottomSheetLayout.dismissSheet();
+							PatchFormFragment header = (PatchFormFragment) mHeaderFragment;
+							header.onWatchButtonClick(view);
+						}
+					});
+				}
+				else {
+					mAuthenticatedForInvite = false;
+					((TextView) view.findViewById(R.id.action1_button)).setText("LOG IN");
+					((Button) view.findViewById(R.id.action1_button)).setOnClickListener(new View.OnClickListener() {
+						@Override public void onClick(View v) {
+							Patchr.router.route(PatchForm.this, Route.LOGIN, null, null);
+						}
+					});
+					((TextView) view.findViewById(R.id.action2_button)).setText("SIGN UP");
+					((Button) view.findViewById(R.id.action2_button)).setOnClickListener(new View.OnClickListener() {
+						@Override public void onClick(View v) {
+							Patchr.router.route(PatchForm.this, Route.SIGNUP, null, null);
+						}
+					});
+				}
+
+				mBottomSheetLayout.showWithSheetView(view, new InsetViewTransformer(0.2f, 0.95f));
+				mHandler.removeCallbacks(this);
+			}
+		}, delay);
 	}
 
 	public void facebookInvite(final String title, final BranchUniversalObject applink, LinkProperties linkProperties) {
@@ -425,6 +551,11 @@ public class PatchForm extends BaseActivity {
 				.addContentMetadata("ownerName", ownerName)
 				.addContentMetadata("patchName", patchName);
 
+		if (UserManager.getInstance().getCurrentUser().getPhoto() != null) {
+			Photo photo = UserManager.getInstance().getCurrentUser().getPhoto();
+			applink.addContentMetadata("referrerPhotoUrl", photo.getUri(PhotoSizeCategory.PROFILE));
+		}
+
 		if (mEntity.photo != null) {
 			Photo photo = mEntity.getPhoto();
 			String settings = "h=500&crop&fit=crop&q=50";
@@ -469,32 +600,14 @@ public class PatchForm extends BaseActivity {
 		mBottomSheetLayout.showWithSheetView(intentPickerSheet);
 	}
 
-	@Override
-	public void configureActionBar() {
+	@Override public void configureActionBar() {
 		super.configureActionBar();
 		if (getSupportActionBar() != null) {
 			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
 		}
 	}
 
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return R.layout.patch_form;
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if (!isFinishing()) {
-			Patchr.getInstance().setCurrentPatch(mEntity);
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
 }

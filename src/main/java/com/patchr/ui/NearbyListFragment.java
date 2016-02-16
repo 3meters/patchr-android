@@ -345,6 +345,12 @@ public class NearbyListFragment extends EntityListFragment {
 
 	@Override
 	public void onAdd(Bundle extras) {
+
+		if (!UserManager.getInstance().authenticated()) {
+			UserManager.getInstance().showGuestGuard(getActivity(), "Sign up for a free account to make patches and more.");
+			return;
+		}
+
 		/* Schema target is in the extras */
 		Patchr.router.route(getActivity(), Route.NEW, null, extras);
 	}
@@ -445,7 +451,6 @@ public class NearbyListFragment extends EntityListFragment {
 	}
 
 	public void drawButtons(View view) {
-
 
 		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
 		UI.setVisibility(alertGroup, View.GONE);

@@ -45,6 +45,11 @@ public class Patch extends Entity implements Cloneable, Serializable {
 		return true;
 	}
 
+	public int watchStatus() {
+		Link linkWatching = linkFromAppUser(Constants.TYPE_LINK_WATCH);
+		return ((linkWatching == null) ? WatchStatus.NONE : (linkWatching.enabled) ? WatchStatus.WATCHING : WatchStatus.REQUESTED);
+	}
+
 	@NonNull
 	public Boolean isRestricted() {
 		return (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC));

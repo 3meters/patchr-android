@@ -215,7 +215,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 						Patchr.router.route(getActivity(), Route.SIGNOUT, null, null);
 					}
 					else {
-						Patchr.router.route(getActivity(), Route.SIGNIN, null, null);
+						Patchr.router.route(getActivity(), Route.LOGIN, null, null);
 					}
 					return true;
 				}

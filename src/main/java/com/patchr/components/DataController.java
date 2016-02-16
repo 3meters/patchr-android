@@ -631,9 +631,6 @@ public class DataController {
 		 * We treat user as signed out even if the service call failed.
 		 */
 		Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signout", null, 0);
-		Logger.i(this, "User signed out: "
-				+ UserManager.getInstance().getCurrentUser().name
-				+ " (" + UserManager.getInstance().getCurrentUser().id + ")");
 
 		/* Set to anonymous user */
 		UserManager.getInstance().setCurrentUser(null, false);

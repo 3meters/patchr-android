@@ -106,15 +106,6 @@ public class Dialogs {
 		}
 	}
 
-	public static void signinRequired(final Activity activity, final Integer messageResId) {
-		String message = StringManager.getString((messageResId == null) ? R.string.alert_signin_message : messageResId);
-		signinRequired(activity, message);
-	}
-
-	public static void signinRequired(final Activity activity, final String message) {
-		UI.showToastNotification(message, Toast.LENGTH_SHORT);
-	}
-
 	public static void updateApp(@NonNull final Activity activity) {
 
 		final AlertDialog updateDialog = alertDialog(R.drawable.ic_launcher
@@ -222,7 +213,6 @@ public class Dialogs {
 		updateDialog.setCanceledOnTouchOutside(false);
 		updateDialog.show();
 	}
-
 
 	public static void installAviary(@NonNull final Activity activity) {
 

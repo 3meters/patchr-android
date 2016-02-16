@@ -102,7 +102,7 @@ public class LoginEdit extends BaseEdit {
 	}
 
 	@SuppressWarnings("ucd")
-	public void onSignInButtonClick(View view) {
+	public void onLoginButtonClick(View view) {
 		if (validate()) {
 			signin();
 		}
@@ -110,7 +110,7 @@ public class LoginEdit extends BaseEdit {
 
 	@SuppressWarnings("ucd")
 	public void onSignupButtonClick(View view) {
-		Patchr.router.route(this, Route.REGISTER, null, null);
+		Patchr.router.route(this, Route.SIGNUP, null, null);
 	}
 
 	@Override
@@ -145,12 +145,10 @@ public class LoginEdit extends BaseEdit {
 
 				mUiController.getBusyController().hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in)
-							+ " " + UserManager.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
-
+					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in) + " " + UserManager.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
 					setResultCode(Constants.RESULT_USER_SIGNED_IN);
-					Patchr.router.route(LoginEdit.this, Route.SPLASH, null, null);
 					finish();
+					AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Errors.handleError(LoginEdit.this, result.serviceResponse);

@@ -88,12 +88,14 @@
 			android:value="6f4074ec11634bd78eb00909102844ec" />
 		<meta-data android:name="com.parse.push.notification_icon"
 			android:resource="@drawable/ic_stat_notification"/>
-		<meta-data android:name="io.branch.sdk.BranchKey"
-			android:value="key_live_aabKfhL9u6piQ93E2lzVslklzraKnSc3" />
 		<meta-data android:name="com.facebook.sdk.ApplicationId"
 			android:value="@string/facebook_app_id"/>
-
-		<meta-data android:name="io.branch.sdk.TestMode" android:value="false" />
+		<meta-data android:name="io.branch.sdk.BranchKey"
+			android:value="key_test_nagIgfP2w3gbPZZyXerwZofkBBpJgTcO" />-->
+		<!--
+		<meta-data android:name="io.branch.sdk.BranchKey"
+			android:value="key_live_aabKfhL9u6piQ93E2lzVslklzraKnSc3" />-->
+		<meta-data android:name="io.branch.sdk.TestMode" android:value="true" />
 
 		<!-- Providers -->
 
@@ -200,23 +202,6 @@
 			android:noHistory="true"
 			android:launchMode="singleInstance"
 			android:theme="@android:style/Theme.Translucent.NoTitleBar">
-
-			<!-- Old school deep linking -->
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="patchr" android:host="open" />
-			</intent-filter>-->
-
-			<!-- AppLink config
-			<intent-filter android:autoVerify="true">
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="https" android:host="bnc.lt" android:pathPrefix="/cdud" />
-			</intent-filter>-->
-
 		</activity>
 
 		<!-- Forms -->
@@ -233,6 +218,24 @@
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
+
+			<!-- Old school deep linking -->
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="patchr" android:host="open" />
+			</intent-filter>
+
+			<!-- AppLink config -->
+			<intent-filter android:autoVerify="true">
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="https" android:host="bnc.lt" android:pathPrefix="/cdud" />
+				<data android:scheme="https" android:host="bnc.lt" android:pathPrefix="/b2dc" />
+			</intent-filter>
+
 		</activity>
 
 		<activity
