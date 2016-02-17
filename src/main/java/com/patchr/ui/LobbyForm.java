@@ -25,6 +25,7 @@ import java.util.Map;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
+import io.branch.referral.BranchApp;
 import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
 
@@ -76,9 +77,29 @@ public class LobbyForm extends AppCompatActivity {
 		clearReferences();
 	}
 
+	@Override protected void onStop() {
+		super.onStop();
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void onNewIntent(Intent intent) {
+		this.setIntent(intent);
+	}
+
+	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		if (requestCode == Constants.ACTIVITY_SIGNIN) {
+			if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.getInstance().authenticated()) {
+				startHomeActivity();
+			}
+		}
+		else if (requestCode == AndroidManager.PLAY_SERVICES_RESOLUTION_REQUEST) {
+			proceed();
+		}
+		super.onActivityResult(requestCode, resultCode, intent);
+	}
 
 	public void onLoginButtonClick(View view) {
 		if (Patchr.applicationUpdateRequired) {
@@ -102,22 +123,6 @@ public class LobbyForm extends AppCompatActivity {
 			return;
 		}
 		startHomeActivity();
-	}
-
-	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if (requestCode == Constants.ACTIVITY_SIGNIN) {
-			if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.getInstance().authenticated()) {
-				startHomeActivity();
-			}
-		}
-		else if (requestCode == AndroidManager.PLAY_SERVICES_RESOLUTION_REQUEST) {
-			proceed();
-		}
-		super.onActivityResult(requestCode, resultCode, intent);
-	}
-
-	@Override public void onNewIntent(Intent intent) {
-		this.setIntent(intent);
 	}
 
 	/*--------------------------------------------------------------------------------------------

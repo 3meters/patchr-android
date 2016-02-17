@@ -15,7 +15,8 @@
 		android:layout_width="@dimen/image_medium"
 		android:layout_height="@dimen/image_medium"
 		android:layout_margin="8dp"
-		android:layout_marginRight="10dp" />
+		android:layout_marginRight="10dp"
+		custom:sizeCategory="profile" />
 
 	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/name"

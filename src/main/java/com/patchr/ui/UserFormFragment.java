@@ -143,8 +143,7 @@ public class UserFormFragment extends EntityFormFragment {
 				else {
 					UI.setVisibility(photoView, View.GONE);
 					if (photoView != null) {
-						Photo photo = mEntity.getPhoto();
-						UI.drawPhoto(photoView, photo);
+						photoView.databind(mEntity);
 						UI.setVisibility(photoView, View.VISIBLE);
 					}
 

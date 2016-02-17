@@ -348,7 +348,7 @@ public class PatchForm extends BaseActivity {
 
 					LinkProperties linkProperties = new LinkProperties()
 							.setChannel("facebook")
-							.setFeature(Branch.FEATURE_TAG_INVITE);
+							.setFeature("app_invite");
 					facebookInvite(title, configureApplink(), linkProperties);
 					mBottomSheetLayout.dismissSheet();
 				}

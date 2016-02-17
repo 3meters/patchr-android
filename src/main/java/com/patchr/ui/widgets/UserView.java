@@ -141,11 +141,17 @@ public class UserView extends RelativeLayout {
 				}
 			}
 
+
 			if (mPhotoView != null) {
-				if (mPhotoView.getPhoto() == null || !mPhotoView.getPhoto().getDirectUri().equals(user.getPhoto().getDirectUri())) {
-					Photo photo = user.getPhoto();
-					if (photo != null) {
-						UI.drawPhoto(mPhotoView, photo, new CircleTransform());
+				if (mPhotoView instanceof UserPhotoView) {
+					((UserPhotoView)mPhotoView).databind(user);
+				}
+				else {
+					if (mPhotoView.getPhoto() == null || !mPhotoView.getPhoto().getDirectUri().equals(user.getPhoto().getDirectUri())) {
+						Photo photo = user.getPhoto();
+						if (photo != null) {
+							UI.drawPhoto(mPhotoView, photo, new CircleTransform());
+						}
 					}
 				}
 			}
