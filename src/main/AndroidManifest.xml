@@ -71,7 +71,7 @@
 		android:allowBackup="false"
 		android:label="@string/name_app"
 		android:theme="@style/patchr_theme"
-		tools:replace="label, allowBackup, android:icon">
+		tools:replace="label, allowBackup">
 
 		<!-- Service keys -->
 

@@ -1,0 +1,110 @@
+-------------------------------------------------------------------------------
+Branch
+-------------------------------------------------------------------------------
+
+Just open the app and the data uri is null and branch will instead try figure if this
+is a deferred deep link and that a click should be synthesized.
+
+-------------------------------------------------------------------------------
+
+Clicking branch link in any link supporting app on the device
+
+Data uri in the intent:
+https://bnc.lt/cdud/RFOdE5yr1q?branch_used=true
+
+Pass this to branch and get back:
+
+metadata_ = {java.util.HashMap@6007}  size = 27
+ 0 = {java.util.HashMap$HashMapEntry@6014} "$og_description" ->
+ 1 = {java.util.HashMap$HashMapEntry@6015} "~creation_source" -> "SDK"
+ 2 = {java.util.HashMap$HashMapEntry@6016} "source" -> "android"
+ 3 = {java.util.HashMap$HashMapEntry@6017} "+click_timestamp" -> "1455814477"
+ 4 = {java.util.HashMap$HashMapEntry@6018} "$canonical_identifier" -> "patch/pa.150627.59293.403.223036"
+ 5 = {java.util.HashMap$HashMapEntry@6019} "~channel" -> "patchr-android"
+ 6 = {java.util.HashMap$HashMapEntry@6020} "$keywords" -> "[]"
+ 7 = {java.util.HashMap$HashMapEntry@6021} "~tags" -> "[]"
+ 8 = {java.util.HashMap$HashMapEntry@6022} "ownerName" -> "Jay Massena"
+ 9 = {java.util.HashMap$HashMapEntry@6023} "~feature" -> "invite"
+ 10 = {java.util.HashMap$HashMapEntry@6024} "+is_first_session" -> "false"
+ 11 = {java.util.HashMap$HashMapEntry@6025} "~id" -> "228226693653908085"
+ 12 = {java.util.HashMap$HashMapEntry@6026} "$one_time_use" -> "false"
+ 13 = {java.util.HashMap$HashMapEntry@6027} "$exp_date" -> "0"
+ 14 = {java.util.HashMap$HashMapEntry@6028} "$og_title" -> "Invite by Larissa Massena to the Charleston Vacation Stop 2015 patch"
+ 15 = {java.util.HashMap$HashMapEntry@6029} "patchName" -> "Charleston Vacation Stop 2015"
+ 16 = {java.util.HashMap$HashMapEntry@6030} "entitySchema" -> "patch"
+ 17 = {java.util.HashMap$HashMapEntry@6031} "entityId" -> "pa.150627.59293.403.223036"
+ 18 = {java.util.HashMap$HashMapEntry@6032} "referrerId" -> "us.130826.58770.458.329831"
+ 19 = {java.util.HashMap$HashMapEntry@6033} "$og_image_url" -> "https://3meters-images.imgix.net/us.000000.00000.000.000001_20150627_122810.jpg?h=500&crop&fit=crop&q=50"
+ 20 = {java.util.HashMap$HashMapEntry@6034} "$content_type" ->
+ 21 = {java.util.HashMap$HashMapEntry@6035} "+clicked_branch_link" -> "true"
+ 22 = {java.util.HashMap$HashMapEntry@6036} "+match_guaranteed" -> "true"
+ 23 = {java.util.HashMap$HashMapEntry@6037} "$identity_id" -> "147528522007582076"
+ 24 = {java.util.HashMap$HashMapEntry@6038} "referrerPhotoUrl" -> "https://3meters-images.imgix.net/20160113_171050_0217_595149.jpg?w=100&dpr=3&q=25&h=100&fit=min&trim=auto"
+ 25 = {java.util.HashMap$HashMapEntry@6039} "referrerName" -> "Larissa Massena"
+ 26 = {java.util.HashMap$HashMapEntry@6040} "$canonical_url" ->
+
+ and
+
+ controlParams_ = {java.util.HashMap@6089}  size = 10
+  0 = {java.util.HashMap$HashMapEntry@6095} "$content_type" ->
+  1 = {java.util.HashMap$HashMapEntry@6096} "$og_description" ->
+  2 = {java.util.HashMap$HashMapEntry@6097} "$canonical_identifier" -> "patch/pa.150627.59293.403.223036"
+  3 = {java.util.HashMap$HashMapEntry@6098} "$og_title" -> "Invite by Larissa Massena to the Charleston Vacation Stop 2015 patch"
+  4 = {java.util.HashMap$HashMapEntry@6099} "$identity_id" -> "147528522007582076"
+  5 = {java.util.HashMap$HashMapEntry@6100} "$keywords" -> "[]"
+  6 = {java.util.HashMap$HashMapEntry@6101} "$canonical_url" ->
+  7 = {java.util.HashMap$HashMapEntry@6102} "$og_image_url" -> "https://3meters-images.imgix.net/us.000000.00000.000.000001_20150627_122810.jpg?h=500&crop&fit=crop&q=50"
+  8 = {java.util.HashMap$HashMapEntry@6103} "$one_time_use" -> "false"
+  9 = {java.util.HashMap$HashMapEntry@6104} "$exp_date" -> "0"
+
+-------------------------------------------------------------------------------
+
+Clicking app invite in Facebook: Patchr already installed
+
+Data uri in the intent:
+patchr://open?target_url=https%3A%2F%2Fbnc.lt%2Fcdud%2FQjbeDJhL2q
+
+Branch returns:
+
+metadata_ = {java.util.HashMap@5591}  size = 27
+ 0 = {java.util.HashMap$HashMapEntry@5598} "$og_description" -> "Tchaikovsky was a leading Russian composer of the late 19th century, whose works are notable for their melodic inspiration and their orchestration. He is regarded as the master composer for classical ballet, as demonstrated by his scores for Swan Lake, The Nutcracker, and Sleeping Beauty. Tchaikovsky was a leading Russian composer of the late 19th century, whose works are notable for their melodic inspiration and their orchestration. He is regarded as the master composer for classical ballet, as demonstrated by his scores for Swan Lake, The Nutcracker, and Sleeping Beauty."
+ 1 = {java.util.HashMap$HashMapEntry@5599} "~creation_source" -> "SDK"
+ 2 = {java.util.HashMap$HashMapEntry@5600} "source" -> "android"
+ 3 = {java.util.HashMap$HashMapEntry@5601} "+click_timestamp" -> "1455814993"
+ 4 = {java.util.HashMap$HashMapEntry@5602} "$canonical_identifier" -> "patch/pa.140901.56905.690.651693"
+ 5 = {java.util.HashMap$HashMapEntry@5603} "~channel" -> "facebook"
+ 6 = {java.util.HashMap$HashMapEntry@5604} "$keywords" -> "[]"
+ 7 = {java.util.HashMap$HashMapEntry@5605} "~tags" -> "[]"
+ 8 = {java.util.HashMap$HashMapEntry@5606} "ownerName" -> "Jay Massena"
+ 9 = {java.util.HashMap$HashMapEntry@5607} "~feature" -> "app_invite"
+ 10 = {java.util.HashMap$HashMapEntry@5608} "+is_first_session" -> "false"
+ 11 = {java.util.HashMap$HashMapEntry@5609} "~id" -> "228514480278000620"
+ 12 = {java.util.HashMap$HashMapEntry@5610} "$one_time_use" -> "false"
+ 13 = {java.util.HashMap$HashMapEntry@5611} "$exp_date" -> "0"
+ 14 = {java.util.HashMap$HashMapEntry@5612} "$og_title" -> "Invite by Jay Massena to the Massena Residence patch"
+ 15 = {java.util.HashMap$HashMapEntry@5613} "patchName" -> "Massena Residence"
+ 16 = {java.util.HashMap$HashMapEntry@5614} "entitySchema" -> "patch"
+ 17 = {java.util.HashMap$HashMapEntry@5615} "entityId" -> "pa.140901.56905.690.651693"
+ 18 = {java.util.HashMap$HashMapEntry@5616} "referrerId" -> "us.000000.00000.000.000001"
+ 19 = {java.util.HashMap$HashMapEntry@5617} "$og_image_url" -> "https://3meters-images.imgix.net/20151207_111006_0758_305692.jpg?h=500&crop&fit=crop&q=50"
+ 20 = {java.util.HashMap$HashMapEntry@5618} "$content_type" ->
+ 21 = {java.util.HashMap$HashMapEntry@5619} "+clicked_branch_link" -> "true"
+ 22 = {java.util.HashMap$HashMapEntry@5620} "+match_guaranteed" -> "true"
+ 23 = {java.util.HashMap$HashMapEntry@5621} "$identity_id" -> "147353870207555566"
+ 24 = {java.util.HashMap$HashMapEntry@5622} "referrerPhotoUrl" -> "https://3meters-images.imgix.net/20160128_215246_0897_571162.jpg?w=100&dpr=3&q=25&h=100&fit=min&trim=auto"
+ 25 = {java.util.HashMap$HashMapEntry@5623} "referrerName" -> "Jay Massena"
+ 26 = {java.util.HashMap$HashMapEntry@5624} "$canonical_url" ->
+
+ and
+
+ controlParams_ = {java.util.HashMap@5673}  size = 10
+  0 = {java.util.HashMap$HashMapEntry@5679} "$content_type" ->
+  1 = {java.util.HashMap$HashMapEntry@5680} "$og_description" -> "Tchaikovsky was a leading Russian composer of the late 19th century, whose works are notable for their melodic inspiration and their orchestration. He is regarded as the master composer for classical ballet, as demonstrated by his scores for Swan Lake, The Nutcracker, and Sleeping Beauty. Tchaikovsky was a leading Russian composer of the late 19th century, whose works are notable for their melodic inspiration and their orchestration. He is regarded as the master composer for classical ballet, as demonstrated by his scores for Swan Lake, The Nutcracker, and Sleeping Beauty."
+  2 = {java.util.HashMap$HashMapEntry@5681} "$canonical_identifier" -> "patch/pa.140901.56905.690.651693"
+  3 = {java.util.HashMap$HashMapEntry@5682} "$og_title" -> "Invite by Jay Massena to the Massena Residence patch"
+  4 = {java.util.HashMap$HashMapEntry@5683} "$identity_id" -> "147353870207555566"
+  5 = {java.util.HashMap$HashMapEntry@5684} "$keywords" -> "[]"
+  6 = {java.util.HashMap$HashMapEntry@5685} "$canonical_url" ->
+  7 = {java.util.HashMap$HashMapEntry@5686} "$og_image_url" -> "https://3meters-images.imgix.net/20151207_111006_0758_305692.jpg?h=500&crop&fit=crop&q=50"
+  8 = {java.util.HashMap$HashMapEntry@5687} "$one_time_use" -> "false"
+  9 = {java.util.HashMap$HashMapEntry@5688} "$exp_date" -> "0"

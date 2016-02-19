@@ -3,11 +3,13 @@ package com.patchr.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.facebook.applinks.AppLinkData;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -17,12 +19,14 @@ import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.UserManager;
+import com.patchr.objects.Preference;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.utilities.Dialogs;
 
 import java.util.Map;
 
+import bolts.AppLinks;
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
 import io.branch.referral.BranchApp;
@@ -86,6 +90,12 @@ public class LobbyForm extends AppCompatActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public void onNewIntent(Intent intent) {
+		/*
+		 * Because this activity is singleTask, it can be relaunched with a new intent. getIntent
+		 * returns the original launch intent so we update it so all intent based processing
+		 * sees the current one instead of the original. Facebook interactions can trigger new
+		 * intents.
+		 */
 		this.setIntent(intent);
 	}
 
@@ -131,14 +141,47 @@ public class LobbyForm extends AppCompatActivity {
 
 	protected void initialize() {
 		/*
+		 * Check for facebook deep link
+		 */
+		Uri targetUrl = AppLinks.getTargetUrlFromInboundIntent(this, getIntent());
+		if (targetUrl != null) {
+			Logger.i(this, "Facebbook applink target url: " + targetUrl.toString());
+			handleBranch();
+		}
+		else {
+			AppLinkData.fetchDeferredAppLinkData(this,
+					new AppLinkData.CompletionHandler() {
+						@Override public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
+							if (appLinkData != null) {
+								Logger.i(this, "Facebook deferred applink - target_url: " + appLinkData.getArgumentBundle().getString("target_url"));
+								Logger.i(this, "Facebook deferred applink - native_url: " + appLinkData.getArgumentBundle().getString("com.facebook.platform.APPLINK_NATIVE_URL"));
+							}
+							handleBranch();
+						}
+					});
+		}
+	}
+
+	protected void handleBranch() {
+		/*
 		 * Check for a deep link.
 		 */
+		final Uri uri = this.getIntent().getData();
+
 		Branch.getInstance(Patchr.applicationContext).initSession(new Branch.BranchUniversalReferralInitListener() {
 
 			@Override
 			public void onInitFinished(BranchUniversalObject branchUniversalObject, LinkProperties linkProperties, BranchError error) {
 
-				if (branchUniversalObject != null) {
+				Boolean facebookApplink = (linkProperties != null
+						&& linkProperties.getChannel().equals("facebook")
+						&& linkProperties.getFeature().equals("app_invite"));
+
+				if (facebookApplink) {
+					Logger.w(this, "Branch returned applink for facebook app invite");
+				}
+
+				if (!facebookApplink && branchUniversalObject != null) {
 					Map metadata = branchUniversalObject.getMetadata();
 					Bundle extras = new Bundle();
 					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, (String) metadata.get("entitySchema"));
@@ -151,17 +194,21 @@ public class LobbyForm extends AppCompatActivity {
 					finish();
 					return;
 				}
-				else {
-					if (error != null) {
-						Logger.w(this, error.getMessage());
-					}
-					proceed();
+				if (error != null) {
+					Logger.w(this, error.getMessage());
 				}
+				proceed();
 			}
-		}, this.getIntent().getData(), this);
+		});
 	}
 
 	protected void proceed() {
+
+		/* Hack to prevent false positives for deferred deep links */
+		if (Patchr.settings.getBoolean(Preference.IGNORE_DEFERRED, false)) {
+			Patchr.settingsEditor.putBoolean(Preference.IGNORE_DEFERRED, true);
+			Patchr.settingsEditor.commit();
+		}
 
 		/* Always reset the entity cache */
 		DataController.getInstance().clearStore();

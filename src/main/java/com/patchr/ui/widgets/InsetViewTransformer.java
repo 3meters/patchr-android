@@ -5,6 +5,7 @@ import android.view.View;
 import com.flipboard.bottomsheet.BaseViewTransformer;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.patchr.R;
+import com.patchr.utilities.Colors;
 
 public class InsetViewTransformer extends BaseViewTransformer {
 
@@ -30,7 +31,7 @@ public class InsetViewTransformer extends BaseViewTransformer {
 			ensureLayer(view, View.LAYER_TYPE_NONE);
 		}
 		else {
-			parent.setBackgroundColor(view.getResources().getColor(R.color.brand_accent, null));
+			parent.setBackgroundColor(Colors.getColor(R.color.brand_accent));
 			ensureLayer(view, View.LAYER_TYPE_HARDWARE);
 		}
 
