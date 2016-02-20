@@ -7,5 +7,5 @@ public class Preference {
 	public static String TESTING_BEACONS               = "pref_testing_beacons";
 	public static String TESTING_SCREEN                = "pref_testing_screen";
 	public static String USE_STAGING_SERVICE           = "pref_use_staging_service";
-	public static String IGNORE_DEFERRED               = "pref_first_run";
+	public static String FIRST_RUN                     = "pref_first_run";
 }

@@ -60,6 +60,7 @@ import com.patchr.utilities.Integers;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 import com.squareup.otto.Subscribe;
 
 import java.io.UnsupportedEncodingException;
@@ -331,9 +332,9 @@ public class PatchForm extends BaseActivity {
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 				if (item.getItemId() == R.id.invite_using_patchr) {
-							/*
-							 * Go to patchr share directly but looks just like an external share
-							 */
+					/*
+					 * Go to patchr share directly but looks just like an external share
+					 */
 					final IntentBuilder intentBuilder = new IntentBuilder(activity, MessageEdit.class);
 					final Intent intent = intentBuilder.create();
 					intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
@@ -342,28 +343,17 @@ public class PatchForm extends BaseActivity {
 					intent.setAction(Intent.ACTION_SEND);
 					activity.startActivity(intent);
 					AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
-					mBottomSheetLayout.dismissSheet();
 				}
 				else if (item.getItemId() == R.id.invite_using_facebook) {
-
-					LinkProperties linkProperties = new LinkProperties()
-							.setChannel("facebook")
-							.setFeature("app_invite");
-					facebookInvite(title, configureApplink(), linkProperties);
-					mBottomSheetLayout.dismissSheet();
+					FacebookProvider provider = new FacebookProvider();
+					provider.invite(title);
 				}
 				else if (item.getItemId() == R.id.invite_using_other) {
+					BranchProvider provider = new BranchProvider();
+					provider.invite(title);
+				}
 
-					LinkProperties linkProperties = new LinkProperties()
-							.setChannel("patchr-android")
-							.setFeature(Branch.FEATURE_TAG_INVITE);
-					androidInvite(title, configureApplink(), linkProperties);
-					mBottomSheetLayout.dismissSheet();
-				}
-				else {
-					mBottomSheetLayout.dismissSheet();
-					UI.showToastNotification(item.getTitle().toString(), Toast.LENGTH_SHORT);
-				}
+				mBottomSheetLayout.dismissSheet();
 				return true;
 			}
 		});
@@ -373,7 +363,48 @@ public class PatchForm extends BaseActivity {
 		mBottomSheetLayout.showWithSheetView(menuSheetView, new InsetViewTransformer());
 	}
 
-	protected void showInviteWelcome(int delay) {
+	@Override public void configureActionBar() {
+		super.configureActionBar();
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
+		}
+	}
+
+	@Override protected int getLayoutId() {
+		return R.layout.patch_form;
+	}
+
+	private void showSmartSharePicker(String title) {
+
+		final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+		shareIntent.setType("text/plain");
+		shareIntent.putExtra(Intent.EXTRA_SUBJECT, String.format(StringManager.getString(R.string.label_patch_share_subject)
+				, (mEntity.name != null) ? mEntity.name : "A"));
+		shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(StringManager.getString(R.string.label_patch_share_body), mEntityId));
+		shareIntent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+		shareIntent.putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
+		shareIntent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
+
+		IntentPickerSheetView intentPickerSheet = new IntentPickerSheetView(this, shareIntent, "Invite using...", new IntentPickerSheetView.OnIntentPickedListener() {
+			@Override
+			public void onIntentPicked(IntentPickerSheetView.ActivityInfo activityInfo) {
+				mBottomSheetLayout.dismissSheet();
+				startActivity(activityInfo.getConcreteIntent(shareIntent));
+			}
+		});
+
+		/* Filter out built in sharing options such as bluetooth and beam. */
+		intentPickerSheet.setFilter(new IntentPickerSheetView.Filter() {
+			@Override
+			public boolean include(IntentPickerSheetView.ActivityInfo info) {
+				return !info.componentName.getPackageName().startsWith("com.android");
+			}
+		});
+
+		mBottomSheetLayout.showWithSheetView(intentPickerSheet);
+	}
+
+	private void showInviteWelcome(int delay) {
 
 		final Patch patch = (Patch) mEntity;
 
@@ -442,172 +473,137 @@ public class PatchForm extends BaseActivity {
 		}, delay);
 	}
 
-	public void facebookInvite(final String title, final BranchUniversalObject applink, LinkProperties linkProperties) {
+	/*--------------------------------------------------------------------------------------------
+	 * Classes
+	 *--------------------------------------------------------------------------------------------*/
 
-		final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
+	public class BranchProvider {
 
-		applink.generateShortUrl(this, linkProperties, new Branch.BranchLinkCreateListener() {
+		public void invite(final String title) {
 
-			@Override
-			public void onLinkCreate(String url, BranchError error) {
+			final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
+			final String referrerName = UserManager.getInstance().getCurrentUser().name;
+			final String referrerId = UserManager.getInstance().getCurrentUser().id;
+			final String ownerName = mEntity.owner.name;
+			final String path = "patch/" + mEntityId;
 
-				if (error == null) {
+			BranchUniversalObject applink = new BranchUniversalObject()
+					.setCanonicalIdentifier(path)
+					.setTitle(String.format("Invite by %1$s to the %2$s patch", referrerName, patchName)) // $og_title
+					.addContentMetadata("entityId", mEntityId)
+					.addContentMetadata("entitySchema", Constants.SCHEMA_ENTITY_PATCH)
+					.addContentMetadata("referrerName", referrerName)
+					.addContentMetadata("referrerId", referrerId)
+					.addContentMetadata("ownerName", ownerName)
+					.addContentMetadata("patchName", patchName);
 
-					AppInviteDialog inviteDialog = new AppInviteDialog(PatchForm.this);
-
-					if (AppInviteDialog.canShow()) {
-
-						String photoUrl = null;
-
-						if (mEntity.photo != null) {
-							Photo photo = mEntity.getPhoto();
-							String patchNameEncoded = "";
-							try {
-								patchNameEncoded = URLEncoder.encode(patchName, "UTF-8");
-							}
-							catch (UnsupportedEncodingException e) {
-								Reporting.logException(e);
-							}
-							String settings = "w=1200&h=628&crop&fit=crop&q=25&txtsize=96&txtalign=left,bottom&txtcolor=fff&txtshad=5&txtpad=60&txtfont=Helvetica%20Neue%20Light";
-							photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s&txt=%3$s", photo.prefix, settings, patchNameEncoded);
-						}
-
-						AppInviteContent.Builder builder = new AppInviteContent.Builder();
-						builder.setApplinkUrl(url);
-						if (photoUrl != null) {
-							builder.setPreviewImageUrl(photoUrl);
-						}
-
-						inviteDialog.registerCallback(mCallbackManager, new FacebookCallback<AppInviteDialog.Result>() {
-
-							@Override
-							public void onSuccess(AppInviteDialog.Result result) {
-								UI.showToastNotification("Facebook invites sent", Toast.LENGTH_SHORT);
-							}
-
-							@Override
-							public void onCancel() {
-								UI.showToastNotification("Facebook invite cancelled", Toast.LENGTH_SHORT);
-							}
-
-							@Override
-							public void onError(FacebookException error) {
-								Logger.w(this, String.format("Facebook invite error: %1$s", error.toString()));
-							}
-						});
-						AppInviteDialog.show(PatchForm.this, builder.build());
-					}
-				}
+			if (UserManager.getInstance().getCurrentUser().getPhoto() != null) {
+				Photo photo = UserManager.getInstance().getCurrentUser().getPhoto();
+				applink.addContentMetadata("referrerPhotoUrl", photo.getUri(PhotoSizeCategory.PROFILE));
 			}
-		});
-	}
 
-	public void androidInvite(final String title, final BranchUniversalObject applink, LinkProperties linkProperties) {
+			if (mEntity.photo != null) {
+				Photo photo = mEntity.getPhoto();
+				String settings = "h=500&crop&fit=crop&q=50";
+				String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
+				applink.setContentImageUrl(photoUrl);  // $og_image_url
+			}
 
-		final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
-		final String referrerName = UserManager.getInstance().getCurrentUser().name;
+			if (mEntity.description != null) {
+				applink.setContentDescription(mEntity.description); // $og_description
+			}
 
-		applink.generateShortUrl(this, linkProperties, new Branch.BranchLinkCreateListener() {
+			LinkProperties linkProperties = new LinkProperties()
+					.setChannel("patchr-android")
+					.setFeature(Branch.FEATURE_TAG_INVITE);
 
-			@Override
-			public void onLinkCreate(String url, BranchError error) {
+			applink.generateShortUrl(PatchForm.this, linkProperties, new Branch.BranchLinkCreateListener() {
 
-				if (error == null) {
-					ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(PatchForm.this);
-					builder.setChooserTitle(title);
-					builder.setType("text/plain");
+				@Override
+				public void onLinkCreate(String url, BranchError error) {
+
+					if (error == null) {
+						ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(PatchForm.this);
+						builder.setChooserTitle(title);
+						builder.setType("text/plain");
 					/*
 					 * subject: Invitation to the \'%1$s\' patch
 					 * body: %1$s has invited you to the %2$s patch! %3$s
 					 */
-					builder.setSubject(String.format(StringManager.getString(R.string.label_patch_share_subject), patchName));
-					builder.setText(String.format(StringManager.getString(R.string.label_patch_share_body), referrerName, patchName, url));
+						builder.setSubject(String.format(StringManager.getString(R.string.label_patch_share_subject), patchName));
+						builder.setText(String.format(StringManager.getString(R.string.label_patch_share_body), referrerName, patchName, url));
 
-					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-					builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
-					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
+						builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+						builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
+						builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
 
-					builder.startChooser();
+						builder.startChooser();
+					}
 				}
+			});
+		}
+	}
+
+	public class FacebookProvider {
+
+		public void invite(final String title) {
+
+			final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
+			final String referrerName = UserManager.getInstance().getCurrentUser().name;
+			final String referrerId = UserManager.getInstance().getCurrentUser().id;
+			final String ownerName = mEntity.owner.name;
+			final String path = "patch/" + mEntityId;
+			String referrerPhotoUrl = "";
+			String referrerNameEncoded = Utils.encode(referrerName);
+
+			if (UserManager.getInstance().getCurrentUser().getPhoto() != null) {
+				Photo photo = UserManager.getInstance().getCurrentUser().getPhoto();
+				String photoUrlEncoded = Utils.encode(photo.getUri(PhotoSizeCategory.PROFILE));
+				referrerPhotoUrl = String.format("&referrerPhotoUrl=%1$s", photoUrlEncoded);
 			}
-		});
-	}
 
-	public BranchUniversalObject configureApplink() {
+			String queryString = String.format("entityId=%1$s&entitySchema=%2$s&referrerName=%3$s%4$s", mEntity.id, mEntity.schema, referrerNameEncoded, referrerPhotoUrl);
 
-		final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
-		final String referrerName = UserManager.getInstance().getCurrentUser().name;
-		final String referrerId = UserManager.getInstance().getCurrentUser().id;
-		final String ownerName = mEntity.owner.name;
-		final String path = "patch/" + mEntityId;
+			Uri uri = Uri.parse(String.format("https://fb.me/934234473291708?%1$s", queryString));
 
-		BranchUniversalObject applink = new BranchUniversalObject()
-				.setCanonicalIdentifier(path)
-				.setTitle(String.format("Invite by %1$s to the %2$s patch", referrerName, patchName)) // $og_title
-				.addContentMetadata("entityId", mEntityId)
-				.addContentMetadata("entitySchema", Constants.SCHEMA_ENTITY_PATCH)
-				.addContentMetadata("referrerName", referrerName)
-				.addContentMetadata("referrerId", referrerId)
-				.addContentMetadata("ownerName", ownerName)
-				.addContentMetadata("patchName", patchName);
+			AppInviteDialog inviteDialog = new AppInviteDialog(PatchForm.this);
 
-		if (UserManager.getInstance().getCurrentUser().getPhoto() != null) {
-			Photo photo = UserManager.getInstance().getCurrentUser().getPhoto();
-			applink.addContentMetadata("referrerPhotoUrl", photo.getUri(PhotoSizeCategory.PROFILE));
-		}
+			if (AppInviteDialog.canShow()) {
 
-		if (mEntity.photo != null) {
-			Photo photo = mEntity.getPhoto();
-			String settings = "h=500&crop&fit=crop&q=50";
-			String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
-			applink.setContentImageUrl(photoUrl);  // $og_image_url
-		}
+				String photoUrl = null;
 
-		if (mEntity.description != null) {
-			applink.setContentDescription(mEntity.description); // $og_description
-		}
+				if (mEntity.photo != null) {
+					Photo photo = mEntity.getPhoto();
+					String patchNameEncoded = Utils.encode(patchName);
+					String settings = "w=1200&h=628&crop&fit=crop&q=25&txtsize=96&txtalign=left,bottom&txtcolor=fff&txtshad=5&txtpad=60&txtfont=Helvetica%20Neue%20Light";
+					photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s&txt=%3$s", photo.prefix, settings, patchNameEncoded);
+				}
 
-		return applink;
-	}
+				AppInviteContent.Builder builder = new AppInviteContent.Builder();
+				builder.setApplinkUrl(uri.toString());
+				if (photoUrl != null) {
+					builder.setPreviewImageUrl(photoUrl);
+				}
 
-	public void showSmartSharePicker(String title) {
+				inviteDialog.registerCallback(mCallbackManager, new FacebookCallback<AppInviteDialog.Result>() {
 
-		final Intent shareIntent = new Intent(Intent.ACTION_SEND);
-		shareIntent.setType("text/plain");
-		shareIntent.putExtra(Intent.EXTRA_SUBJECT, String.format(StringManager.getString(R.string.label_patch_share_subject)
-				, (mEntity.name != null) ? mEntity.name : "A"));
-		shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(StringManager.getString(R.string.label_patch_share_body), mEntityId));
-		shareIntent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-		shareIntent.putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
-		shareIntent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
+					@Override
+					public void onSuccess(AppInviteDialog.Result result) {
+						UI.showToastNotification("Facebook invites sent", Toast.LENGTH_SHORT);
+					}
 
-		IntentPickerSheetView intentPickerSheet = new IntentPickerSheetView(this, shareIntent, "Invite using...", new IntentPickerSheetView.OnIntentPickedListener() {
-			@Override
-			public void onIntentPicked(IntentPickerSheetView.ActivityInfo activityInfo) {
-				mBottomSheetLayout.dismissSheet();
-				startActivity(activityInfo.getConcreteIntent(shareIntent));
+					@Override
+					public void onCancel() {
+						UI.showToastNotification("Facebook invite cancelled", Toast.LENGTH_SHORT);
+					}
+
+					@Override
+					public void onError(FacebookException error) {
+						Logger.w(this, String.format("Facebook invite error: %1$s", error.toString()));
+					}
+				});
+				AppInviteDialog.show(PatchForm.this, builder.build());
 			}
-		});
-
-		/* Filter out built in sharing options such as bluetooth and beam. */
-		intentPickerSheet.setFilter(new IntentPickerSheetView.Filter() {
-			@Override
-			public boolean include(IntentPickerSheetView.ActivityInfo info) {
-				return !info.componentName.getPackageName().startsWith("com.android");
-			}
-		});
-
-		mBottomSheetLayout.showWithSheetView(intentPickerSheet);
-	}
-
-	@Override public void configureActionBar() {
-		super.configureActionBar();
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
 		}
-	}
-
-	@Override protected int getLayoutId() {
-		return R.layout.patch_form;
 	}
 }

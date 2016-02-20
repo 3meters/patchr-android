@@ -4,11 +4,14 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.net.UrlQuerySanitizer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.amazonaws.org.apache.http.NameValuePair;
+import com.amazonaws.org.apache.http.client.utils.URLEncodedUtils;
 import com.facebook.applinks.AppLinkData;
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -24,12 +27,14 @@ import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.utilities.Dialogs;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
 
 import bolts.AppLinks;
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
-import io.branch.referral.BranchApp;
 import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
 
@@ -68,7 +73,7 @@ public class LobbyForm extends AppCompatActivity {
 
 	@Override protected void onStart() {
 		super.onStart();
-		initialize();
+		handleBranch();
 	}
 
 	@Override protected void onResume() {
@@ -83,6 +88,11 @@ public class LobbyForm extends AppCompatActivity {
 
 	@Override protected void onStop() {
 		super.onStop();
+		/* Hack to prevent false positives for deferred deep links */
+		if (Patchr.settings.getBoolean(Preference.FIRST_RUN, true)) {
+			Patchr.settingsEditor.putBoolean(Preference.FIRST_RUN, false);
+			Patchr.settingsEditor.commit();
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -139,29 +149,6 @@ public class LobbyForm extends AppCompatActivity {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	protected void initialize() {
-		/*
-		 * Check for facebook deep link
-		 */
-		Uri targetUrl = AppLinks.getTargetUrlFromInboundIntent(this, getIntent());
-		if (targetUrl != null) {
-			Logger.i(this, "Facebbook applink target url: " + targetUrl.toString());
-			handleBranch();
-		}
-		else {
-			AppLinkData.fetchDeferredAppLinkData(this,
-					new AppLinkData.CompletionHandler() {
-						@Override public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
-							if (appLinkData != null) {
-								Logger.i(this, "Facebook deferred applink - target_url: " + appLinkData.getArgumentBundle().getString("target_url"));
-								Logger.i(this, "Facebook deferred applink - native_url: " + appLinkData.getArgumentBundle().getString("com.facebook.platform.APPLINK_NATIVE_URL"));
-							}
-							handleBranch();
-						}
-					});
-		}
-	}
-
 	protected void handleBranch() {
 		/*
 		 * Check for a deep link.
@@ -173,15 +160,22 @@ public class LobbyForm extends AppCompatActivity {
 			@Override
 			public void onInitFinished(BranchUniversalObject branchUniversalObject, LinkProperties linkProperties, BranchError error) {
 
+				if (branchUniversalObject == null) {
+					handleFacebook();
+					return;
+				}
+
 				Boolean facebookApplink = (linkProperties != null
 						&& linkProperties.getChannel().equals("facebook")
 						&& linkProperties.getFeature().equals("app_invite"));
 
 				if (facebookApplink) {
 					Logger.w(this, "Branch returned applink for facebook app invite");
+					handleFacebook();
+					return;
 				}
 
-				if (!facebookApplink && branchUniversalObject != null) {
+				if (branchUniversalObject != null) {
 					Map metadata = branchUniversalObject.getMetadata();
 					Bundle extras = new Bundle();
 					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, (String) metadata.get("entitySchema"));
@@ -197,18 +191,58 @@ public class LobbyForm extends AppCompatActivity {
 				if (error != null) {
 					Logger.w(this, error.getMessage());
 				}
+				handleFacebook();
+			}
+		}, this.getIntent().getData(), this);
+	}
+
+	protected void handleFacebook() {
+		/*
+		 * Check for facebook deep link
+		 */
+		Uri targetUrl = AppLinks.getTargetUrl(getIntent());
+
+		if (targetUrl != null && targetUrl.getHost().equals("fb.me")) {
+			Logger.i(this, "Facebbook applink target url: " + targetUrl.toString());
+			UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(targetUrl.toString());
+
+			routeDeepLink(sanitizer.getValue("entityId")
+					, sanitizer.getValue("entitySchema")
+					, sanitizer.getValue("referrerName").replaceAll("_", " ")
+					, sanitizer.getValue("referrerPhotoUrl"));
+			finish();
+			return;
+		}
+		else {
+			if (!Patchr.settings.getBoolean(Preference.FIRST_RUN, true)) {
 				proceed();
 			}
-		});
+			else {
+				AppLinkData.fetchDeferredAppLinkData(this,
+						new AppLinkData.CompletionHandler() {
+							@Override public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
+								if (appLinkData != null) {
+									String targetUrlString = appLinkData.getArgumentBundle().getString("target_url");
+									if (targetUrlString != null) {
+										Logger.i(this, "Facebbook deferred applink target url: " + targetUrlString);
+										UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(targetUrlString);
+
+										routeDeepLink(sanitizer.getValue("entityId")
+												, sanitizer.getValue("entitySchema")
+												, sanitizer.getValue("referrerName").replaceAll("_", " ")
+												, sanitizer.getValue("referrerPhotoUrl"));
+										finish();
+										return;
+									}
+								}
+								handleBranch();
+							}
+						});
+			}
+		}
 	}
 
 	protected void proceed() {
-
-		/* Hack to prevent false positives for deferred deep links */
-		if (Patchr.settings.getBoolean(Preference.IGNORE_DEFERRED, false)) {
-			Patchr.settingsEditor.putBoolean(Preference.IGNORE_DEFERRED, true);
-			Patchr.settingsEditor.commit();
-		}
 
 		/* Always reset the entity cache */
 		DataController.getInstance().clearStore();
@@ -236,6 +270,16 @@ public class LobbyForm extends AppCompatActivity {
 				showButtons();
 			}
 		}
+	}
+
+	protected void routeDeepLink(String entityId, String entitySchema, String referrerName, String referrerPhotoUrl) {
+		Bundle extras = new Bundle();
+		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, entitySchema);
+		extras.putString(Constants.EXTRA_ENTITY_ID, entityId);
+		extras.putString(Constants.EXTRA_INVITER_NAME, referrerName);
+		extras.putString(Constants.EXTRA_INVITER_PHOTO_URL, referrerPhotoUrl);
+		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+		Patchr.router.route(LobbyForm.this, Route.BROWSE, null, extras);
 	}
 
 	protected void startHomeActivity() {

@@ -606,20 +606,6 @@ public abstract class BaseActivity extends AppCompatActivity
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	protected int getLayoutId() {
-		return 0;
-	}
-
-	protected Toolbar getActionBarToolbar() {
-		if (mActionBarToolbar == null) {
-			mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar);
-			if (mActionBarToolbar != null) {
-				super.setSupportActionBar(mActionBarToolbar);
-			}
-		}
-		return mActionBarToolbar;
-	}
-
 	public void setResultCode(int resultCode) {
 		setResult(resultCode);
 		Patchr.resultCode = resultCode;
@@ -635,25 +621,6 @@ public abstract class BaseActivity extends AppCompatActivity
 		if (getSupportActionBar() != null) {
 			getSupportActionBar().setTitle(title);
 		}
-	}
-
-	protected Integer getExitTransitionType() {
-		Integer transitionType = TransitionType.FORM_BACK;
-		if (mTransitionType != TransitionType.FORM_TO) {
-			if (mTransitionType == TransitionType.DRILL_TO) {
-				transitionType = TransitionType.DRILL_BACK;
-			}
-			else if (mTransitionType == TransitionType.BUILDER_TO) {
-				transitionType = TransitionType.BUILDER_BACK;
-			}
-			else if (mTransitionType == TransitionType.VIEW_TO) {
-				transitionType = TransitionType.VIEW_BACK;
-			}
-			else if (mTransitionType == TransitionType.DIALOG_TO) {
-				transitionType = TransitionType.DIALOG_BACK;
-			}
-		}
-		return transitionType;
 	}
 
 	public String getActivityTitle() {
@@ -678,6 +645,39 @@ public abstract class BaseActivity extends AppCompatActivity
 
 	public Boolean getRestarting() {
 		return mRestarting;
+	}
+
+	protected int getLayoutId() {
+		return 0;
+	}
+
+	protected Toolbar getActionBarToolbar() {
+		if (mActionBarToolbar == null) {
+			mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar);
+			if (mActionBarToolbar != null) {
+				super.setSupportActionBar(mActionBarToolbar);
+			}
+		}
+		return mActionBarToolbar;
+	}
+
+	protected Integer getExitTransitionType() {
+		Integer transitionType = TransitionType.FORM_BACK;
+		if (mTransitionType != TransitionType.FORM_TO) {
+			if (mTransitionType == TransitionType.DRILL_TO) {
+				transitionType = TransitionType.DRILL_BACK;
+			}
+			else if (mTransitionType == TransitionType.BUILDER_TO) {
+				transitionType = TransitionType.BUILDER_BACK;
+			}
+			else if (mTransitionType == TransitionType.VIEW_TO) {
+				transitionType = TransitionType.VIEW_BACK;
+			}
+			else if (mTransitionType == TransitionType.DIALOG_TO) {
+				transitionType = TransitionType.DIALOG_BACK;
+			}
+		}
+		return transitionType;
 	}
 
 	/*--------------------------------------------------------------------------------------------

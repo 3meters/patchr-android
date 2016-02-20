@@ -11,12 +11,23 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.components.Logger;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.regex.Pattern;
 
 public class Utils {
+
+	public static String encode(String target) {
+		try {
+			String encoded = URLEncoder.encode(target, "UTF-8");
+			return encoded;
+		}
+		catch (UnsupportedEncodingException e) { /* ignore */ }
+		return null;
+	}
 
 	public static Boolean validEmail(@NonNull String email) {
 		return EMAIL_ADDRESS.matcher(email).matches();
@@ -87,9 +98,7 @@ public class Utils {
 		return availableMemory;
 	}
 
-	@NonNull
-	@SuppressWarnings("ucd")
-	public static ScreenSize getScreenSize() {
+	@NonNull public static ScreenSize getScreenSize() {
 		int screenLayout = Patchr.applicationContext.getResources().getConfiguration().screenLayout;
 		screenLayout &= Configuration.SCREENLAYOUT_SIZE_MASK;
 
