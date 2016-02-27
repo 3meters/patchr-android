@@ -57,7 +57,7 @@ public class MenuManager {
 			 */
 			menuInflater.inflate(R.menu.menu_share_message, menu);
 			menuInflater.inflate(R.menu.menu_refresh, menu);
-			menuInflater.inflate(R.menu.menu_report, menu);
+			menuInflater.inflate(R.menu.menu_report_message, menu);
 			return true;
 		}
 		else if (activityName.equals("SearchForm")) {

@@ -16,7 +16,9 @@ import com.patchr.components.FontManager;
 import com.patchr.ui.components.SimpleTextWatcher;
 
 public class AirAutoCompleteTextView extends AutoCompleteTextView {
-
+	/*
+	 * Only used by the photo picker search
+	 */
 	private Boolean mEnableClearButton = false;
 
 	private Drawable mClearDrawable;
@@ -45,6 +47,7 @@ public class AirAutoCompleteTextView extends AutoCompleteTextView {
 		}
 
 		final Drawable[] drawables = getCompoundDrawables();
+
 		if (drawables.length == 4) {
 			mClearDrawable = drawables[2];
 			mSearchDrawable = drawables[0];

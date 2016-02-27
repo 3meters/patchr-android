@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -28,15 +29,17 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
+import com.patchr.components.Dispatcher;
 import com.patchr.components.DownloadManager;
 import com.patchr.components.MediaManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
-import com.patchr.components.PermissionUtil;
 import com.patchr.components.ProximityController;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.events.LocationAllowedEvent;
+import com.patchr.events.LocationDeniedEvent;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Beacon;
@@ -285,8 +288,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 	public void onChangePhotoButtonClick(View view) {
 
-		ensurePermissions(); // If no permissions then photo action picker will not show device photos option
-
 		/* Ensure photo logic has the latest property values */
 		gather();
 
@@ -372,16 +373,13 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							photoSearch(defaultSearch);
 						}
 						else if (photoSource.equals(Constants.PHOTO_ACTION_GALLERY)) {
-
 							photoFromGallery();
 						}
 						else if (photoSource.equals(Constants.PHOTO_ACTION_CAMERA)) {
-
 							photoFromCamera();
 						}
 						else if (photoSource.equals(Constants.PHOTO_ACTION_DEFAULT)
 								|| photoSource.equals(Constants.PHOTO_ACTION_WEBSITE_THUMBNAIL)) {
-
 							usePhotoDefault();
 						}
 					}
@@ -464,50 +462,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		 */
 		Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_set_to_default", null, 0);
 		onPhotoSelected(null);
-	}
-
-	private void ensurePermissions() {
-
-		if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-
-			if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						final AlertDialog dialog = Dialogs.alertDialog(null
-								, StringManager.getString(R.string.alert_permission_storage_title)
-								, StringManager.getString(R.string.alert_permission_storage_message)
-								, null
-								, BaseEntityEdit.this
-								, R.string.alert_permission_storage_positive
-								, R.string.alert_permission_storage_negative
-								, null
-								, new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								if (which == DialogInterface.BUTTON_POSITIVE) {
-									ActivityCompat.requestPermissions(BaseEntityEdit.this
-											, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-											, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-								}
-							}
-						}, null);
-						dialog.setCanceledOnTouchOutside(false);
-					}
-				});
-			}
-			else {
-				/*
-				 * No explanation needed, we can request the permission.
-				 * Parent activity will broadcast an event when permission request is complete.
-				 */
-				ActivityCompat.requestPermissions(this
-						, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-						, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-			}
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------------

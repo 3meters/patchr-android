@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	android:layout_gravity="center_vertical"
+	android:layout_height="35dp"
 	android:background="?attr/backgroundToken"
 	android:orientation="horizontal">
 
@@ -12,38 +11,14 @@
 		android:id="@+id/entity_view_name"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center_vertical"
 		android:ellipsize="end"
 		android:maxLines="1"
 		android:maxWidth="200dp"
 		android:paddingLeft="8dp"
 		android:paddingRight="8dp"
 		android:singleLine="true"
+		android:layout_centerVertical="true"
 		android:textAppearance="?android:attr/textAppearanceSmall"
 		tools:text="@string/dummy_title" />
 
-	<View
-		android:id="@+id/highlight"
-		android:layout_width="@dimen/rule_highlight_height"
-		android:layout_height="match_parent"
-		android:background="?attr/cardHighlightColor" />
-
-	<com.patchr.ui.widgets.AirPhotoView
-		android:id="@+id/entity_view_photo"
-		android:layout_width="@dimen/image_extra_small"
-		android:layout_height="@dimen/image_extra_small"
-		android:layout_gravity="center_vertical"
-		custom:sizeCategory="thumbnail" />
-
-	<ImageView
-		android:id="@+id/button_delete_entity"
-		android:layout_width="@dimen/image_extra_small"
-		android:layout_height="@dimen/image_extra_small"
-		android:layout_gravity="center_vertical"
-		android:adjustViewBounds="true"
-		android:padding="8dp"
-		android:scaleType="centerCrop"
-		android:src="?attr/iconCancel"
-		android:visibility="gone" />
-
-</LinearLayout>
+</RelativeLayout>

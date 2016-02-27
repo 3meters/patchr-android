@@ -59,7 +59,7 @@ public class UserForm extends BaseEntityForm {
 		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_refresh);
 		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_edit_user);
 		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_sign_out);
-		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_report);
+		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_report_user);
 
 		getSupportFragmentManager()
 				.beginTransaction()

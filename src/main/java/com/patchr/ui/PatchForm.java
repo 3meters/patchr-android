@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.support.v4.app.ShareCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +30,7 @@ import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.AndroidManager;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController.ActionType;
 import com.patchr.components.DownloadManager;
@@ -41,6 +43,7 @@ import com.patchr.events.ActionEvent;
 import com.patchr.events.DataResultEvent;
 import com.patchr.events.ProcessingCompleteEvent;
 import com.patchr.events.WatchStatusChangedEvent;
+import com.patchr.objects.AirLocation;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Message;
 import com.patchr.objects.Patch;
@@ -218,6 +221,14 @@ public class PatchForm extends BaseActivity {
 		}
 	}
 
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.leave_patch) {
+			((PatchFormFragment) mHeaderFragment).onWatchButtonClick(null);
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
 	@Override public void onAdd(Bundle extras) {
 
 		if (!UserManager.getInstance().authenticated()) {
@@ -311,9 +322,10 @@ public class PatchForm extends BaseActivity {
 		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_map);
 		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_refresh);
 		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_edit_patch);
+		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_leave_patch);
 		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_delete);
 		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_qrcode);
-		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_report);
+		((BaseFragment) mCurrentFragment).getMenuResIds().add(R.menu.menu_report_patch);
 
 		getSupportFragmentManager()
 				.beginTransaction()
@@ -548,41 +560,35 @@ public class PatchForm extends BaseActivity {
 
 		public void invite(final String title) {
 
-			final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
-			final String referrerName = UserManager.getInstance().getCurrentUser().name;
-			final String referrerId = UserManager.getInstance().getCurrentUser().id;
-			final String ownerName = mEntity.owner.name;
-			final String path = "patch/" + mEntityId;
-			String referrerPhotoUrl = "";
-			String referrerNameEncoded = Utils.encode(referrerName);
-
-			if (UserManager.getInstance().getCurrentUser().getPhoto() != null) {
-				Photo photo = UserManager.getInstance().getCurrentUser().getPhoto();
-				String photoUrlEncoded = Utils.encode(photo.getUri(PhotoSizeCategory.PROFILE));
-				referrerPhotoUrl = String.format("&referrerPhotoUrl=%1$s", photoUrlEncoded);
-			}
-
-			String queryString = String.format("entityId=%1$s&entitySchema=%2$s&referrerName=%3$s%4$s", mEntity.id, mEntity.schema, referrerNameEncoded, referrerPhotoUrl);
-
-			Uri uri = Uri.parse(String.format("https://fb.me/934234473291708?%1$s", queryString));
-
 			AppInviteDialog inviteDialog = new AppInviteDialog(PatchForm.this);
 
 			if (AppInviteDialog.canShow()) {
 
-				String photoUrl = null;
+				String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
+				String patchPhotoUrl = null;
+				String referrerNameEncoded = Utils.encode(UserManager.getInstance().getCurrentUser().name);
+				String referrerPhotoUrl = "";
+
+				if (UserManager.getInstance().getCurrentUser().getPhoto() != null) {
+					Photo photo = UserManager.getInstance().getCurrentUser().getPhoto();
+					String photoUrlEncoded = Utils.encode(photo.getUri(PhotoSizeCategory.PROFILE));
+					referrerPhotoUrl = String.format("&referrerPhotoUrl=%1$s", photoUrlEncoded);
+				}
+
+				String queryString = String.format("entityId=%1$s&entitySchema=%2$s&referrerName=%3$s%4$s", mEntity.id, mEntity.schema, referrerNameEncoded, referrerPhotoUrl);
+				Uri applink = Uri.parse(String.format("https://fb.me/934234473291708?%1$s", queryString));
 
 				if (mEntity.photo != null) {
 					Photo photo = mEntity.getPhoto();
 					String patchNameEncoded = Utils.encode(patchName);
 					String settings = "w=1200&h=628&crop&fit=crop&q=25&txtsize=96&txtalign=left,bottom&txtcolor=fff&txtshad=5&txtpad=60&txtfont=Helvetica%20Neue%20Light";
-					photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s&txt=%3$s", photo.prefix, settings, patchNameEncoded);
+					patchPhotoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s&txt=%3$s", photo.prefix, settings, patchNameEncoded);
 				}
 
 				AppInviteContent.Builder builder = new AppInviteContent.Builder();
-				builder.setApplinkUrl(uri.toString());
-				if (photoUrl != null) {
-					builder.setPreviewImageUrl(photoUrl);
+				builder.setApplinkUrl(applink.toString());
+				if (patchPhotoUrl != null) {
+					builder.setPreviewImageUrl(patchPhotoUrl);
 				}
 
 				inviteDialog.registerCallback(mCallbackManager, new FacebookCallback<AppInviteDialog.Result>() {

@@ -28,7 +28,7 @@ import com.patchr.objects.ViewHolder;
 import com.patchr.ui.EntityListFragment.ViewType;
 import com.patchr.ui.widgets.AirPhotoView;
 import com.patchr.ui.widgets.CandiView;
-import com.patchr.ui.widgets.UserPhotoView;
+import com.patchr.ui.widgets.EntityPhotoView;
 import com.patchr.ui.widgets.UserView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
@@ -357,7 +357,7 @@ public abstract class EntityControllerBase implements IEntityController {
 			});
 		}
 		holder.index = (TextView) view.findViewById(R.id.index);
-		holder.userPhotoView = (UserPhotoView) view.findViewById(R.id.user_photo);
+		holder.userPhotoView = (EntityPhotoView) view.findViewById(R.id.user_photo);
 		holder.userName = (TextView) view.findViewById(R.id.user_name);
 		holder.patchPhotoView = (AirPhotoView) view.findViewById(R.id.patch_photo);
 		holder.patchName = (TextView) view.findViewById(R.id.patch_name);

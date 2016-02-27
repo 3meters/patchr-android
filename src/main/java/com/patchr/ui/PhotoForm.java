@@ -51,8 +51,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	private PhotoViewAttacher mAttacher;
 	private MenuItem          mShareMenuItem;
 
-	@Override
-	public void unpackIntent() {
+	@Override public void unpackIntent() {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
@@ -62,8 +61,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 		}
 	}
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	@Override public void onCreate(Bundle savedInstanceState) {
 		/* This has to be called before setContentView */
 		super.onCreate(savedInstanceState);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -73,8 +71,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	@Override public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 	}
 
@@ -82,8 +79,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
+	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
 		mTransitionType = TransitionType.DRILL_TO;
@@ -93,8 +89,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 		bind(BindingMode.AUTO);
 	}
 
-	@Override
-	public void bind(BindingMode mode) {
+	@Override public void bind(BindingMode mode) {
 
 		final TextView name = (TextView) findViewById(R.id.name);
 		final UserView user = (UserView) findViewById(R.id.author);
@@ -146,11 +141,9 @@ public class PhotoForm extends BaseActivity implements IBind {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override
-	public void draw(View view) {}
+	@Override public void draw(View view) {}
 
-	@Override
-	public void share() {
+	@Override public void share() {
 
 		if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 			UI.showToastNotification("Sharing a photo requires permission to read and write to storage", Toast.LENGTH_SHORT);
@@ -181,7 +174,9 @@ public class PhotoForm extends BaseActivity implements IBind {
 	}
 
 	private void ensurePermissions() {
-
+		/*
+		 * Sharing a photo requires external storage permission.
+		 */
 		if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
 			if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
@@ -199,8 +194,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 								, null
 								, new DialogInterface.OnClickListener() {
 
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
+							@Override public void onClick(DialogInterface dialog, int which) {
 								if (which == DialogInterface.BUTTON_POSITIVE) {
 									ActivityCompat.requestPermissions(PhotoForm.this
 											, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
@@ -224,8 +218,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 		}
 	}
 
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return R.layout.photo_form;
 	}
 
@@ -233,8 +226,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onDestroy() {
+	@Override public void onDestroy() {
 		super.onDestroy();
 	}
 
@@ -242,8 +234,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 	 * Menus
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
 		/*
 		 * Time to put the photo where the share handler can find it.
 		 */

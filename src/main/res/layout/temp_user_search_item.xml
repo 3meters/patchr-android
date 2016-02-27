@@ -6,8 +6,10 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:paddingBottom="2dp"
-	android:paddingTop="2dp">
+	android:paddingLeft="8dp"
+	android:paddingRight="8dp"
+	android:paddingBottom="4dp"
+	android:paddingTop="4dp">
 
 	<LinearLayout
 		android:id="@+id/holder_body"
@@ -29,17 +31,6 @@
 			tools:text="@string/dummy_title_short" />
 
 		<com.patchr.ui.widgets.AirTextView
-			android:id="@+id/category_name"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:ellipsize="end"
-			android:singleLine="true"
-			android:textAllCaps="true"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:textColor="?attr/textColorSecondary"
-			tools:text="@string/dummy_category_name" />
-
-		<com.patchr.ui.widgets.AirTextView
 			android:id="@+id/type"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -48,6 +39,7 @@
 			android:textAllCaps="true"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:textColor="?attr/textColorSecondary"
+			android:visibility="gone"
 			custom:textId="@string/dummy_category_name"
 			tools:text="@string/dummy_category_name" />
 
@@ -63,13 +55,14 @@
 			tools:text="@string/dummy_subtitle" />
 	</LinearLayout>
 
-	<com.patchr.ui.widgets.UserPhotoView
+	<com.patchr.ui.widgets.EntityPhotoView
 		android:id="@+id/photo"
 		style="@style/selectable_image"
-		android:layout_width="60dp"
-		android:layout_height="60dp"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
 		android:layout_alignParentRight="true"
 		android:layout_alignParentTop="true"
+		custom:showBusy="false"
 		custom:sizeCategory="profile" />
 
 </RelativeLayout>

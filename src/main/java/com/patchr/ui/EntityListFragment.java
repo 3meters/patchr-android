@@ -125,8 +125,7 @@ public class EntityListFragment extends BaseFragment
 	protected Map          mLinkWhere = Maps.asMap("enabled", true);
 	protected ListAdapter mAdapter;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
 			mRecreated = true;
@@ -137,8 +136,7 @@ public class EntityListFragment extends BaseFragment
 	}
 
 	@SuppressLint("ResourceAsColor")
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
 		/*
 		 * If the bundle includes state then we know the fragment is being completely
@@ -276,19 +274,16 @@ public class EntityListFragment extends BaseFragment
 		return view;
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
+	@Override public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 	}
 
-	@Override
-	public void draw(View view) {
+	@Override public void draw(View view) {
 		mAdapter.notifyDataSetChanged();
 		Dispatcher.getInstance().post(new EntitiesLoadedEvent()); // Used by MessageForm to trigger item highlighting
 	}
 
-	@Override
-	public void bind(final BindingMode mode) {
+	@Override public void bind(final BindingMode mode) {
 		/*
 		 * Called on resume and externally when a parent entity wants to rebind a related entity list.
 		 * If additional entities have been paged in, we include them as part of the request size.
@@ -359,8 +354,7 @@ public class EntityListFragment extends BaseFragment
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe
-	public void onDataResult(final DataResultEvent event) {
+	@Subscribe public void onDataResult(final DataResultEvent event) {
 
 		if (event.tag.equals(System.identityHashCode(this))
 				&& (event.actionType == ActionType.ACTION_GET_ENTITIES
@@ -420,8 +414,7 @@ public class EntityListFragment extends BaseFragment
 		}
 	}
 
-	@Subscribe
-	public void onDataError(DataErrorEvent event) {
+	@Subscribe public void onDataError(DataErrorEvent event) {
 		if (event.tag.equals(System.identityHashCode(this))) {
 			Logger.v(this, "Data error accepted: " + event.actionType.name().toString());
 
@@ -434,8 +427,7 @@ public class EntityListFragment extends BaseFragment
 		}
 	}
 
-	@Subscribe
-	public void onDataNoop(DataNoopEvent event) {
+	@Subscribe public void onDataNoop(DataNoopEvent event) {
 		if (event.tag.equals(System.identityHashCode(this))) {
 			Logger.v(this, "Data no-op accepted: " + event.actionType.name().toString());
 			onProcessingComplete(ResponseCode.SUCCESS);
@@ -464,8 +456,7 @@ public class EntityListFragment extends BaseFragment
 		}
 	}
 
-	@Subscribe
-	public void onViewClick(ActionEvent event) {
+	@Subscribe public void onViewClick(ActionEvent event) {
 		/*
 		 * Base activity broadcasts view clicks that target onViewClick. This lets
 		 * us handle view clicks inside fragments if we want.
@@ -484,8 +475,7 @@ public class EntityListFragment extends BaseFragment
 		}
 	}
 
-	@Override
-	public void onClick(View v) {
+	@Override public void onClick(View v) {
 
 		final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
 		final Bundle extras = new Bundle();
@@ -503,8 +493,7 @@ public class EntityListFragment extends BaseFragment
 		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
-	@Subscribe
-	public void onNotificationReceived(final NotificationReceivedEvent event) {
+	@Subscribe public void onNotificationReceived(final NotificationReceivedEvent event) {
 		/*
 		 * Refresh the list because something happened with our parent.
 		 */
@@ -520,8 +509,7 @@ public class EntityListFragment extends BaseFragment
 		}
 	}
 
-	@Override
-	public void onRefresh() {
+	@Override public void onRefresh() {
 		/*
 		 * Called by refresh action or swipe refresh.
 		 */
@@ -534,8 +522,7 @@ public class EntityListFragment extends BaseFragment
 		}
 	}
 
-	@Override
-	public void onViewLayout() {
+	@Override public void onViewLayout() {
 		/*
 		 * Position bubble button initially allowing for the
 		 * list header height.
@@ -590,8 +577,7 @@ public class EntityListFragment extends BaseFragment
 		/* Do nothing */
 	}
 
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	@Override public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putInt(Constants.EXTRA_LIST_ITEM_RESID, mListItemResId);
 		outState.putString(Constants.EXTRA_LIST_VIEW_TYPE, mListViewType);
@@ -646,8 +632,7 @@ public class EntityListFragment extends BaseFragment
 		}
 	}
 
-	@Override
-	public void setMenuVisibility(final boolean visible) {
+	@Override public void setMenuVisibility(final boolean visible) {
 		/*
 		 * Called when fragment is going to be visible to the user and that's when
 		 * we want to start the data binding work. CreateView will have already been called.
@@ -713,8 +698,7 @@ public class EntityListFragment extends BaseFragment
 		return entityId.equals(mScopingEntityId);
 	}
 
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return mListLayoutResId;
 	}
 
@@ -872,8 +856,7 @@ public class EntityListFragment extends BaseFragment
 		return mListView;
 	}
 
-	@NonNull
-	public List<Entity> getEntities() {
+	@NonNull public List<Entity> getEntities() {
 		return mEntities;
 	}
 
@@ -905,8 +888,7 @@ public class EntityListFragment extends BaseFragment
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onResume() {
+	@Override public void onResume() {
 		/*
 		 * Called when fragment is attached and active but might
 		 * not be visible to the user yet. ViewPager has logic to
@@ -923,8 +905,7 @@ public class EntityListFragment extends BaseFragment
 		}
 	}
 
-	@Override
-	public void onPause() {
+	@Override public void onPause() {
 		super.onPause();
 		if (mListController != null) {
 			mListController.pause();
@@ -932,8 +913,7 @@ public class EntityListFragment extends BaseFragment
 		saveListPosition();
 	}
 
-	@Override
-	public void onDestroyView() {
+	@Override public void onDestroyView() {
 		if (DownloadManager.getInstance() != null) {
 			DownloadManager.getInstance().cancelTag(mGroupTag);
 		}

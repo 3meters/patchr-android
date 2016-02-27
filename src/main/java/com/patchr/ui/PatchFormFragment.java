@@ -5,10 +5,13 @@ import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -21,6 +24,7 @@ import com.patchr.R;
 import com.patchr.components.DataController;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
+import com.patchr.components.MenuManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
@@ -34,6 +38,7 @@ import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.events.ShareCheckEvent;
 import com.patchr.events.WatchStatusChangedEvent;
 import com.patchr.objects.Count;
+import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Patch;
@@ -43,6 +48,7 @@ import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
 import com.patchr.objects.WatchStatus;
+import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.components.AnimationFactory;
 import com.patchr.ui.widgets.AirPhotoView;
 import com.patchr.ui.widgets.CandiView;
@@ -440,6 +446,12 @@ public class PatchFormFragment extends EntityFormFragment {
 
 			Count requestCount = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, false, Link.Direction.in);
 
+			if (mWatchStatus == WatchStatus.NONE) {
+				buttonAlert.setText(R.string.button_list_watch_request);
+				buttonAlert.setTag(R.id.button_watch);
+				return;
+			}
+
 			/* Owner */
 
 			if (owner) {
@@ -458,7 +470,7 @@ public class PatchFormFragment extends EntityFormFragment {
 				}
 			}
 
-			/* Members and non-members */
+			/* Members */
 
 			else {
 				if (isPublic) {
@@ -472,11 +484,7 @@ public class PatchFormFragment extends EntityFormFragment {
 					}
 				}
 				else {
-					if (mWatchStatus == WatchStatus.NONE) {
-						buttonAlert.setText(R.string.button_list_watch_request);
-						buttonAlert.setTag(R.id.button_watch);
-					}
-					else if (mWatchStatus == WatchStatus.REQUESTED) {
+					if (mWatchStatus == WatchStatus.REQUESTED) {
 						buttonAlert.setText(R.string.button_list_watch_request_cancel);
 						buttonAlert.setTag(R.id.button_watch);
 					}
@@ -507,18 +515,6 @@ public class PatchFormFragment extends EntityFormFragment {
 	}
 
 	public void watch(final boolean activate) {
-
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (getView() != null) {
-					ViewAnimator animator = (ViewAnimator) getView().findViewById(R.id.button_watch);
-					if (animator != null) {
-						animator.setDisplayedChild(1);  // Turned off in drawButtons
-					}
-				}
-			}
-		});
 
 		final boolean enabled = !(((Patch) mEntity).isRestrictedForCurrentUser());
 
@@ -590,6 +586,28 @@ public class PatchFormFragment extends EntityFormFragment {
 				onProcessingComplete(); // Updates ui like floating button
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Override public void configureStandardMenuItems(final Menu menu) {
+
+		super.configureStandardMenuItems(menu);
+
+		FragmentActivity fragmentActivity = getActivity();
+		if (menu == null || fragmentActivity == null) return;
+
+		fragmentActivity.runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				MenuItem menuItem = menu.findItem(R.id.leave_patch);
+				if (menuItem != null) {
+					if (mEntity != null) {
+						Integer watchStatus = ((Patch) mEntity).watchStatus();
+						menuItem.setVisible(watchStatus == WatchStatus.WATCHING);
+					}
+				}
+			}
+		});
 	}
 
 	protected void shareCheck() {

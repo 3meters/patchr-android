@@ -452,38 +452,41 @@ public class NearbyListFragment extends EntityListFragment {
 
 	public void drawButtons(View view) {
 
-		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
-		UI.setVisibility(alertGroup, View.GONE);
-		if (alertGroup != null) {
+		if (view != null) {
 
-			TextView buttonAlert = (TextView) view.findViewById(R.id.button_alert);
-			if (buttonAlert == null) return;
+			ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
+			UI.setVisibility(alertGroup, View.GONE);
+			if (alertGroup != null) {
 
-			View rule = view.findViewById(R.id.rule_alert);
-			if (rule != null && Constants.SUPPORTS_KIT_KAT) {
-				rule.setVisibility(View.GONE);
-			}
+				TextView buttonAlert = (TextView) view.findViewById(R.id.button_alert);
+				if (buttonAlert == null) return;
 
-			if (!UserManager.getInstance().authenticated()) {
-				buttonAlert.setText(R.string.button_alert_radar_anonymous);
-			}
-			else {
-				Count patched = UserManager.getInstance().getCurrentUser().getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
-				if (patched != null) {
-					buttonAlert.setText(R.string.button_alert_radar);
+				View rule = view.findViewById(R.id.rule_alert);
+				if (rule != null && Constants.SUPPORTS_KIT_KAT) {
+					rule.setVisibility(View.GONE);
+				}
+
+				if (!UserManager.getInstance().authenticated()) {
+					buttonAlert.setText(R.string.button_alert_radar_anonymous);
 				}
 				else {
-					buttonAlert.setText(R.string.button_alert_radar_no_patch);
+					Count patched = UserManager.getInstance().getCurrentUser().getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
+					if (patched != null) {
+						buttonAlert.setText(R.string.button_alert_radar);
+					}
+					else {
+						buttonAlert.setText(R.string.button_alert_radar_no_patch);
+					}
 				}
-			}
 
-			buttonAlert.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					Patchr.router.route(getActivity(), Route.NEW_PLACE, null, null);
-				}
-			});
-			UI.setVisibility(alertGroup, View.VISIBLE);
+				buttonAlert.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						Patchr.router.route(getActivity(), Route.NEW_PLACE, null, null);
+					}
+				});
+				UI.setVisibility(alertGroup, View.VISIBLE);
+			}
 		}
 
 		Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled()

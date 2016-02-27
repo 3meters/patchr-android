@@ -32,21 +32,17 @@ import com.patchr.utilities.UI;
 @SuppressWarnings("ucd")
 public class UserView extends RelativeLayout {
 
-	private ViewGroup    mBoundView;
-	private AirPhotoView mPhotoView;
-	private ImageView    mImageLocked;
-	private ImageView    mImageWatched;
-	private TextView     mName;
-	private TextView     mEmail;
-	private TextView     mArea;
-	private TextView     mLabel;
-	private TextView     mWatchCount;
-	private TextView     mTimeSince;
+	private ViewGroup       mBoundView;
+	private EntityPhotoView mPhotoView;
+	private TextView        mName;
+	private TextView        mEmail;
+	private TextView        mArea;
+	private TextView        mLabel;
+	private TextView        mTimeSince;
 
 	private Entity  mUser;
 	private Integer mLabelResId;
 	private Long    mDate;
-	private Boolean mLocked = false;
 
 	public UserView(Context context) {
 		this(context, null);
@@ -70,14 +66,11 @@ public class UserView extends RelativeLayout {
 
 	private void initialize() {
 		if (!isInEditMode()) {
-			mPhotoView = (AirPhotoView) mBoundView.findViewById(R.id.widget_photo);
+			mPhotoView = (EntityPhotoView) mBoundView.findViewById(R.id.widget_photo);
 			mName = (TextView) mBoundView.findViewById(R.id.widget_name);
 			mArea = (TextView) mBoundView.findViewById(R.id.area);
 			mLabel = (TextView) mBoundView.findViewById(R.id.label);
 			mTimeSince = (TextView) mBoundView.findViewById(R.id.timesince);
-			mImageLocked = (ImageView) mBoundView.findViewById(R.id.image_locked);
-			mImageWatched = (ImageView) mBoundView.findViewById(R.id.image_watched);
-			mWatchCount = (TextView) mBoundView.findViewById(R.id.watch_count);
 		}
 
 		removeAllViews();
@@ -141,35 +134,8 @@ public class UserView extends RelativeLayout {
 				}
 			}
 
-
 			if (mPhotoView != null) {
-				if (mPhotoView instanceof UserPhotoView) {
-					((UserPhotoView)mPhotoView).databind(user);
-				}
-				else {
-					if (mPhotoView.getPhoto() == null || !mPhotoView.getPhoto().getDirectUri().equals(user.getPhoto().getDirectUri())) {
-						Photo photo = user.getPhoto();
-						if (photo != null) {
-							UI.drawPhoto(mPhotoView, photo, new CircleTransform());
-						}
-					}
-				}
-			}
-
-			if (mImageLocked != null) {
-				if (mLocked != null && mLocked) {
-					mImageLocked.setVisibility(View.VISIBLE);
-				}
-				else {
-					mImageLocked.setVisibility(View.INVISIBLE);
-				}
-			}
-
-			if (mBoundView.findViewById(R.id.stats_group) != null) {
-				if (mImageWatched != null) {
-					Count count = user.getCount(Constants.TYPE_LINK_WATCH, null, null, Direction.in);
-					mWatchCount.setText(String.valueOf((count != null) ? count.count.intValue() : 0));
-				}
+				((EntityPhotoView) mPhotoView).databind(user);
 			}
 		}
 	}
@@ -177,6 +143,7 @@ public class UserView extends RelativeLayout {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void setLabel(Integer labelResId) {
 		mLabelResId = labelResId;
 	}

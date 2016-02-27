@@ -25,11 +25,11 @@
 	<attr name="checkAll" format="string" />
 	<attr name="separator" format="string" />
 	<attr name="prefix" format="string" />
-	<attr name="showBusy" format="boolean" />
-	<attr name="transformKey" format="string" />
 
 	<!-- Images -->
 
+	<attr name="showBusy" format="boolean" />
+	<attr name="shape" format="string" />
 	<attr name="aspectRatio" format="float" />
 	<attr name="sizeCategory" format="enum">
 		<enum name="none" value="0" />
@@ -156,7 +156,7 @@
 		<attr name="config" />
 		<attr name="showBusy" />
 		<attr name="sizeCategory" />
-		<attr name="transformKey" />
+		<attr name="shape" />
 	</declare-styleable>
 	<declare-styleable name="PxBlurringView">
 		<attr name="blurRadius" format="integer" />

@@ -3,9 +3,9 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
-		android:id="@+id/report"
+		android:id="@+id/report_patch"
 		android:orderInCategory="99998"
-		android:title="@string/menu_item_report"
+		android:title="@string/menu_item_report_patch"
 		app:showAsAction="never" />
 
 </menu>

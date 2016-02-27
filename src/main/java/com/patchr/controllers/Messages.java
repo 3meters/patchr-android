@@ -20,7 +20,7 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.ViewHolder;
 import com.patchr.ui.MessageForm;
 import com.patchr.ui.edit.MessageEdit;
-import com.patchr.ui.widgets.UserPhotoView;
+import com.patchr.ui.widgets.EntityPhotoView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;
@@ -91,7 +91,7 @@ public class Messages extends EntityControllerBase {
 
 		UI.setVisibility(holder.userPhotoView, View.GONE);
 		if (holder.userPhotoView != null && entity.creator != null) {
-			((UserPhotoView) holder.userPhotoView).databind(entity.creator);
+			holder.userPhotoView.databind(entity.creator);
 			holder.userPhotoView.setGroupTag(groupTag);
 			holder.userPhotoView.setTag(entity.creator);
 			UI.setVisibility(holder.userPhotoView, View.VISIBLE);

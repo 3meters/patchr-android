@@ -67,7 +67,7 @@
 					android:id="@+id/button_mute"
 					android:layout_width="@dimen/button_height"
 					android:layout_height="@dimen/button_height"
-					android:layout_toLeftOf="@+id/button_watch"
+					android:layout_alignParentRight="true"
 					android:clickable="true"
 					android:onClick="onViewClick">
 
@@ -92,33 +92,6 @@
 						android:minHeight="30dp" />
 				</ViewAnimator>
 
-				<ViewAnimator
-					android:id="@+id/button_watch"
-					android:layout_width="@dimen/button_height"
-					android:layout_alignParentRight="true"
-					android:layout_height="@dimen/button_height"
-					android:clickable="true"
-					android:onClick="onViewClick">
-
-					<ImageView
-						android:id="@id/button_image"
-						android:layout_width="24dp"
-						android:layout_height="24dp"
-						android:layout_gravity="center"
-						android:adjustViewBounds="true"
-						android:alpha="1.0"
-						android:scaleType="fitCenter"
-						android:src="@drawable/ic_img_watch_dark" />
-
-					<ProgressBar
-						android:id="@id/button_progress"
-						android:layout_width="24dp"
-						android:layout_height="24dp"
-						android:layout_gravity="center"
-						android:focusable="true"
-						android:maxHeight="30dp"
-						android:minHeight="30dp" />
-				</ViewAnimator>
 
 			</RelativeLayout>
 

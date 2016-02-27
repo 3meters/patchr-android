@@ -19,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.DataController;
@@ -33,11 +32,11 @@ import com.patchr.objects.AirLocation;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Patch.ReasonType;
-import com.patchr.objects.Photo;
 import com.patchr.objects.User;
 import com.patchr.ui.widgets.AirPhotoView;
 import com.patchr.ui.widgets.AirTokenCompleteTextView;
 import com.patchr.ui.widgets.TokenCompleteTextView;
+import com.patchr.ui.widgets.EntityPhotoView;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
@@ -49,10 +48,10 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-;
-
 public class EntitySuggestController implements TokenCompleteTextView.TokenListener {
-
+	/*
+	 * Used by SearchForm and MessageEdit.
+	 */
 	@NonNull
 	private static Integer LIMIT = 10;
 
@@ -157,8 +156,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onTokenAdded(Object o) {
+	@Override public void onTokenAdded(Object o) {
 		Entity entity = (Entity) o;
 
 		/* Add patch to auto complete array */
@@ -175,8 +173,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		}
 	}
 
-	@Override
-	public void onTokenRemoved(Object o) {}
+	@Override public void onTokenRemoved(Object o) {}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
@@ -186,62 +183,52 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	@NonNull
-	public EntitySuggestController setSearchInput(EditText input) {
+	@NonNull public EntitySuggestController setSearchInput(EditText input) {
 		mSearchInput = input;
 		return this;
 	}
 
-	@NonNull
-	public EntitySuggestController setAdapter(ArrayAdapter adapter) {
+	@NonNull public EntitySuggestController setAdapter(ArrayAdapter adapter) {
 		mAdapter = adapter;
 		return this;
 	}
 
-	@NonNull
-	public EntitySuggestController setTokenListener(TokenCompleteTextView.TokenListener tokenListener) {
+	@NonNull public EntitySuggestController setTokenListener(TokenCompleteTextView.TokenListener tokenListener) {
 		mTokenListener = tokenListener;
 		return this;
 	}
 
-	@NonNull
-	public EntitySuggestController setSearchProgress(View progress) {
+	@NonNull public EntitySuggestController setSearchProgress(View progress) {
 		mSearchProgress = progress;
 		return this;
 	}
 
-	@NonNull
-	public EntitySuggestController setSearchImage(View image) {
+	@NonNull public EntitySuggestController setSearchImage(View image) {
 		mSearchImage = image;
 		return this;
 	}
 
-	@NonNull
-	public EntitySuggestController setPrefix(String mPrefix) {
+	@NonNull public EntitySuggestController setPrefix(String mPrefix) {
 		this.mPrefix = mPrefix;
 		return this;
 	}
 
-	@NonNull
-	public EntitySuggestController setSuggestScope(DataController.SuggestScope suggestScope) {
+	@NonNull public EntitySuggestController setSuggestScope(DataController.SuggestScope suggestScope) {
 		mSuggestScope = suggestScope;
 		return this;
 	}
 
-	@NonNull
-	public EntitySuggestController setListView(AbsListView listView) {
+	@NonNull public EntitySuggestController setListView(AbsListView listView) {
 		mListView = listView;
 		return this;
 	}
 
-	@NonNull
-	public EntitySuggestController setSearchView(SearchView searchView) {
+	@NonNull public EntitySuggestController setSearchView(SearchView searchView) {
 		mSearchView = searchView;
 		return this;
 	}
 
-	@NonNull
-	public EntitySuggestController setUiController(UiController uiController) {
+	@NonNull public EntitySuggestController setUiController(UiController uiController) {
 		mUiController = uiController;
 		return this;
 	}
@@ -254,8 +241,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		return mListView;
 	}
 
-	@NonNull
-	public List<Entity> getSeedEntities() {
+	@NonNull public List<Entity> getSeedEntities() {
 		return mSeedEntities;
 	}
 
@@ -282,8 +268,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		}
 
 		@SuppressWarnings("ConstantConditions")
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		@Override public View getView(int position, View convertView, ViewGroup parent) {
 
 			View view = convertView;
 			final ViewHolder holder;
@@ -292,7 +277,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			if (view == null) {
 				view = LayoutInflater.from(mContext).inflate(R.layout.temp_user_search_item, null);
 				holder = new ViewHolder();
-				holder.photoView = (AirPhotoView) view.findViewById(R.id.photo);
+				holder.photoView = (EntityPhotoView) view.findViewById(R.id.photo);
 				holder.name = (TextView) view.findViewById(R.id.name);
 				holder.subhead = (TextView) view.findViewById(R.id.subhead);
 				holder.categoryName = (TextView) view.findViewById(R.id.category_name);
@@ -301,7 +286,10 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			}
 			else {
 				holder = (ViewHolder) view.getTag();
-				if (holder.photoView.getTag().equals(entity.getPhoto().getDirectUri())) return view;
+				if (entity.photo != null && holder.photoView.getTag() != null) {
+					if (holder.photoView.getTag().equals(entity.getPhoto().getDirectUri()))
+						return view;
+				}
 			}
 
 			if (entity != null) {
@@ -335,16 +323,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
                 /* Photo */
 
 				if (holder.photoView != null) {
-					Photo photo = entity.getPhoto();
-					if (holder.photoView.getPhoto() == null || !photo.getDirectUri().equals(holder.photoView.getPhoto().getDirectUri())) {
-						if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-							UI.drawPhoto(holder.photoView, photo, new CircleTransform());
-						}
-						else {
-							UI.drawPhoto(holder.photoView, photo);
-						}
-						holder.photoView.setTag(photo);
-					}
+					holder.photoView.databind(entity);
 				}
 
 		        /* Indicator */
@@ -373,8 +352,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			return view;
 		}
 
-		@Override
-		public Filter getFilter() {
+		@Override public Filter getFilter() {
 			if (mFilter == null) {
 				mFilter = new SuggestFilter();
 			}
@@ -507,13 +485,13 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 	public static class ViewHolder {
 
-		public TextView     name;
-		public TextView     subhead;
-		public TextView     categoryName;
-		public TextView     type;
-		public AirPhotoView photoView;
-		public ImageView    indicator;
-		public String       photoUri;    // Used for verification after fetching image // NO_UCD (unused code)
-		public Object       data;        // object binding to
+		public TextView        name;
+		public TextView        subhead;
+		public TextView        categoryName;
+		public TextView        type;
+		public EntityPhotoView photoView;
+		public ImageView       indicator;
+		public String          photoUri;    // Used for verification after fetching image // NO_UCD (unused code)
+		public Object          data;        // object binding to
 	}
 }

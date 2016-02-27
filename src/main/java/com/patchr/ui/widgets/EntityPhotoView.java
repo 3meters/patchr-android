@@ -10,6 +10,7 @@ import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Photo;
@@ -19,20 +20,22 @@ import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
 @SuppressWarnings("ucd")
-public class UserPhotoView extends AirPhotoView {
+public class EntityPhotoView extends AirPhotoView {
 
-	private TextView mName;
+	private TextView mNameView;
 	private Entity   mEntity;
+	private String   mName;
+	private String   mUri;
 
-	public UserPhotoView(Context context) {
+	public EntityPhotoView(Context context) {
 		this(context, null);
 	}
 
-	public UserPhotoView(Context context, AttributeSet attrs) {
+	public EntityPhotoView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	public UserPhotoView(Context context, AttributeSet attrs, int defStyle) {
+	public EntityPhotoView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 	}
 
@@ -50,20 +53,26 @@ public class UserPhotoView extends AirPhotoView {
 		this.setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundRoundPlaceholder));
 		this.setBackgroundTintMode(PorterDuff.Mode.SRC_ATOP);
 
-		mName = new TextView(getContext());
+		mNameView = new TextView(getContext());
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		params.gravity = Gravity.CENTER;
-		mName.setLayoutParams(params);
-		mName.setVisibility(GONE);
+		mNameView.setLayoutParams(params);
+		mNameView.setVisibility(GONE);
 
-		mName.setTextColor(Colors.getColor(R.color.white));
-		mName.setGravity(Gravity.CENTER);
-		addView(mName);
+		mNameView.setTextColor(Colors.getColor(R.color.white));
+		mNameView.setGravity(Gravity.CENTER);
+		addView(mNameView);
 	}
 
 	public void databind(@NonNull Entity entity) {
 		mEntity = entity;
 		this.setTag(entity);
+		draw();
+	}
+
+	public void databind(@NonNull String uri, @NonNull String name) {
+		mName = name;
+		mUri = uri;
 		draw();
 	}
 
@@ -77,8 +86,9 @@ public class UserPhotoView extends AirPhotoView {
 
 				mImageMain.setVisibility(GONE);
 				mImageMain.setImageDrawable(null);
-				mName.setVisibility(VISIBLE);
-				mName.setText(null);
+				mNameView.setVisibility(VISIBLE);
+				mNameView.setText(null);
+
 				if (mShowBusy) {
 					showLoading(false);
 				}
@@ -90,19 +100,65 @@ public class UserPhotoView extends AirPhotoView {
 					Integer color = Utils.randomColor(seed);
 					this.setBackgroundTintList(ColorStateList.valueOf(color));
 
-					mName.setText(initials);
+					mNameView.setText(initials);
 				}
 			}
 			else {
-				mImageMain.setVisibility(VISIBLE);
-				mName.setVisibility(GONE);
+
 				Photo photo = mEntity.getPhoto();
-				UI.drawPhoto(this, photo, new CircleTransform());
+				String uri = UI.url(photo.prefix, photo.source, null);  // Will be just the prefix without host, params, etc.
+
+				if (mUriBound == null || !uri.equals(mUriBound)) {
+
+					mUriBound = uri;
+					mImageMain.setVisibility(VISIBLE);
+					mNameView.setVisibility(GONE);
+
+					if ((mShape.equals("auto") && mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) || mShape.equals("round")) {
+						UI.drawPhoto(this, photo, new CircleTransform());
+					}
+					else {
+						UI.drawPhoto(this, photo);
+					}
+				}
+			}
+		}
+		else if (mUri != null || mName != null) {
+
+			if (mUri != null) {
+
+				if (mUriBound == null || !mUri.equals(mUriBound)) {
+					mImageMain.setVisibility(VISIBLE);
+					mNameView.setVisibility(GONE);
+					Photo photo = mEntity.getPhoto();
+					if (mShape.equals("round")) {
+						UI.drawPhoto(this, photo, new CircleTransform());
+					}
+					else {
+						UI.drawPhoto(this, photo);
+					}
+				}
+			}
+			else if (mName != null) {
+
+				mImageMain.setVisibility(GONE);
+				mImageMain.setImageDrawable(null);
+				mNameView.setVisibility(VISIBLE);
+				mNameView.setText(null);
+				if (mShowBusy) {
+					showLoading(false);
+				}
+
+				if (!TextUtils.isEmpty(mName)) {
+
+					String initials = Utils.initialsFromName(mName);
+					long seed = Utils.numberFromName(mName);
+					Integer color = Utils.randomColor(seed);
+					this.setBackgroundTintList(ColorStateList.valueOf(color));
+
+					mNameView.setText(initials);
+				}
 			}
 		}
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
 }

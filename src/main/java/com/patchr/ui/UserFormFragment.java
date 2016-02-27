@@ -19,12 +19,11 @@ import com.patchr.events.DataResultEvent;
 import com.patchr.objects.Count;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
-import com.patchr.objects.Photo;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
 import com.patchr.ui.widgets.CandiView;
-import com.patchr.ui.widgets.UserPhotoView;
+import com.patchr.ui.widgets.EntityPhotoView;
 import com.patchr.utilities.UI;
 import com.squareup.otto.Subscribe;
 
@@ -125,7 +124,7 @@ public class UserFormFragment extends EntityFormFragment {
 				User user = (User) mEntity;
 
 				final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
-				final UserPhotoView photoView = (UserPhotoView) view.findViewById(R.id.user_photo);
+				final EntityPhotoView photoView = (EntityPhotoView) view.findViewById(R.id.user_photo);
 				final TextView name = (TextView) view.findViewById(R.id.name);
 				final TextView area = (TextView) view.findViewById(R.id.area);
 

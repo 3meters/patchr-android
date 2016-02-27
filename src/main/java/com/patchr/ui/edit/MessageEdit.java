@@ -74,8 +74,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 	private ToMode                      mToMode       = ToMode.SINGLE;
 	private Boolean                     mToEditable   = true;
 
-	@Override
-	public void unpackIntent() {
+	@Override public void unpackIntent() {
 		super.unpackIntent();
 
 		final Bundle extras = getIntent().getExtras();
@@ -91,8 +90,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 	}
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
 		if (intent.getAction() != null
@@ -102,88 +100,186 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 	}
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
+    /*--------------------------------------------------------------------------------------------
+     * Events
+     *--------------------------------------------------------------------------------------------*/
 
-		mEntitySchema = Constants.SCHEMA_ENTITY_MESSAGE;
+	@Override public void onAccept() {
 
-		if (Patchr.getInstance().getCurrentPatch() != null) {
-			mToEditable = false;
-		}
+		if (mProcessing) return;
+		mProcessing = true;
 
-		mDirtyExitTitleResId = R.string.alert_dirty_exit_title_message;
-		mDirtyExitMessageResId = R.string.alert_dirty_exit_message_message;
-		mDirtyExitPositiveResId = R.string.alert_dirty_send;
-		mInsertProgressResId = R.string.progress_sending;
-		mInsertedResId = R.string.alert_message_sent;
-
-		mAnimatorPhoto = (ViewAnimator) findViewById(R.id.animator_photo);
-		if (mAnimatorPhoto != null) {
-			mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
-			mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
-		}
-
-		mAnimatorTo = (ViewAnimator) findViewById(R.id.animator_to);
-		if (mAnimatorTo != null) {
-			mAnimatorTo.setInAnimation(this, R.anim.fade_in_short);
-			mAnimatorTo.setOutAnimation(this, R.anim.fade_out_short);
-		}
-		mButtonToClear = (ImageView) findViewById(R.id.to_clear);
-		mShareHolder = (ViewGroup) findViewById(R.id.share_holder);
-		mShare = (ViewGroup) findViewById(R.id.share_entity);
-		mTo = (AirTokenCompleteTextView) findViewById(R.id.to);
-		mTo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) {
+		if (isDirty() || mMessageType.equals(MessageType.SHARE)) {
+			if (validate()) { // validate() also gathers
+				if (mEditing) {
+					update();
+				}
+				else {
+					insert();
+				}
 			}
-		});
+		}
+		else {
+			onCancel(false);
+		}
+		mProcessing = false;
+	}
 
+	@Subscribe public void onCancelEvent(ProcessingCanceledEvent event) {
+		if (mTaskService != null) {
+			mTaskService.cancel(true);
+		}
+	}
+
+	@Override public void onTokenAdded(Object o) {
+
+		if (!mTos.contains((Entity) o)) {
+			mTos.add((Entity) o);
+		}
+
+		if (mToMode == ToMode.SINGLE && mTos.size() > 0) {
+			final EntityView entityView = (EntityView) findViewById(R.id.entity_view);
+			entityView.databind((Entity) mTos.get(0));
+			mAnimatorTo.setDisplayedChild(1);
+		}
+	}
+
+	@Override public void onTokenRemoved(Object o) {
+
+		if (mTos.contains((Entity) o)) {
+			mTos.remove((Entity) o);
+		}
+
+		if (mToMode == ToMode.SINGLE && mTos.size() == 0) {
+			mAnimatorTo.setDisplayedChild(0);
+		}
+	}
+
+	public void onError(final String reason) {
+		super.onError(reason);
+		/*
+		 * ImageChooser error trying to pick or take a photo
+		 */
+		drawPhoto();
+	}
+
+	protected void onPhotoCanceled() {
+		drawPhoto();
+	}
+
+	@Override public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
+		super.onBitmapLoaded(bitmap, loadedFrom);
+
+		mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.slide_in_bottom_long);
+		mAnimatorPhoto.requestLayout();
+		mAnimatorPhoto.setDisplayedChild(1);
+		mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
+	}
+
+	@Override public void onBitmapFailed(Drawable arg0) {
+		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
+		onCancelPhotoButtonClick(null);
+		drawPhoto();
+		mProcessing = false;
+	}
+
+	public void onCancelPhotoButtonClick(View view) {
+		mEntity.photo = null;
+		mPhotoView.setPhoto(null);
+		onPhotoCanceled();
+	}
+
+	public void onEntityClearButtonClick(View view) {
+
+        /* Means we are in single mode.*/
+		for (int i = mTo.getObjects().size(); i > 0; i--) {
+			mTo.getObjects().remove(i - 1);
+		}
+		mTo.requestFocus();
+	}
+
+    /*--------------------------------------------------------------------------------------------
+     * Methods
+     *--------------------------------------------------------------------------------------------*/
+
+    @Override public void initialize(Bundle savedInstanceState) {
+	    super.initialize(savedInstanceState);
+
+	    mEntitySchema = Constants.SCHEMA_ENTITY_MESSAGE;
+
+	    if (Patchr.getInstance().getCurrentPatch() != null) {
+		    mToEditable = false;
+	    }
+
+	    mDirtyExitTitleResId = R.string.alert_dirty_exit_title_message;
+	    mDirtyExitMessageResId = R.string.alert_dirty_exit_message_message;
+	    mDirtyExitPositiveResId = R.string.alert_dirty_send;
+	    mInsertProgressResId = R.string.progress_sending;
+	    mInsertedResId = R.string.alert_message_sent;
+
+	    mAnimatorPhoto = (ViewAnimator) findViewById(R.id.animator_photo);
+	    if (mAnimatorPhoto != null) {
+		    mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
+		    mAnimatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
+	    }
+
+	    mAnimatorTo = (ViewAnimator) findViewById(R.id.animator_to);
+	    if (mAnimatorTo != null) {
+		    mAnimatorTo.setInAnimation(this, R.anim.fade_in_short);
+		    mAnimatorTo.setOutAnimation(this, R.anim.fade_out_short);
+	    }
+
+	    mButtonToClear = (ImageView) findViewById(R.id.to_clear);
+	    mShareHolder = (ViewGroup) findViewById(R.id.share_holder);
+	    mShare = (ViewGroup) findViewById(R.id.share_entity);
+	    mTo = (AirTokenCompleteTextView) findViewById(R.id.to);
+	    mTo.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+		    @Override public void onFocusChange(View v, boolean hasFocus) {}
+	    });
 		/*
 		 * Make sure that we don't already have a patch set when
 		 * handling a share intent.
 		 */
-		Intent intent = getIntent();
-		if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEND)) {
+	    Intent intent = getIntent();
+	    if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEND)) {
 
-			mMessageType = MessageType.SHARE;
-			mSuggestScope = DataController.SuggestScope.USERS;
-			mShareSchema = Constants.SCHEMA_ENTITY_PICTURE;
-			mToMode = ToMode.MULTIPLE;
-			mToEditable = true;
+		    mMessageType = MessageType.SHARE;
+		    mSuggestScope = DataController.SuggestScope.USERS;
+		    mShareSchema = Constants.SCHEMA_ENTITY_PICTURE;
+		    mToMode = ToMode.MULTIPLE;
+		    mToEditable = true;
 
-			Patchr.getInstance().setCurrentPatch(null);
-			onEntityClearButtonClick(null);
+		    Patchr.getInstance().setCurrentPatch(null);
+		    onEntityClearButtonClick(null);
 
-			mDirtyExitTitleResId = R.string.alert_dirty_share_exit_title;
-			mDirtyExitMessageResId = R.string.alert_dirty_share_exit_message;
-			mDirtyExitPositiveResId = R.string.alert_dirty_share;
-			mInsertProgressResId = R.string.progress_sharing;
-			mInsertedResId = R.string.alert_shared;
-		}
+		    mDirtyExitTitleResId = R.string.alert_dirty_share_exit_title;
+		    mDirtyExitMessageResId = R.string.alert_dirty_share_exit_message;
+		    mDirtyExitPositiveResId = R.string.alert_dirty_share;
+		    mInsertProgressResId = R.string.progress_sharing;
+		    mInsertedResId = R.string.alert_shared;
+	    }
 
-		mTo.setLineSpacing(mToMode == ToMode.SINGLE ? 0 : (int) UI.getRawPixelsForDisplayPixels(5f), 1f);
-		mTo.setTokenLayoutResId(mToMode == ToMode.SINGLE
-		                        ? R.layout.widget_token_view_single
-		                        : R.layout.widget_token_view);
+	    mTo.setLineSpacing(mToMode == ToMode.SINGLE ? 0 : (int) UI.getRawPixelsForDisplayPixels(5f), 1f);
+	    mTo.setTokenLayoutResId(mToMode == ToMode.SINGLE
+	                            ? R.layout.widget_token_view_single
+	                            : R.layout.widget_token_view);
 
-		mEntitySuggest = new EntitySuggestController(this)
-				.setSearchInput(mTo)
-				.setTokenListener(this)
-				.setSuggestScope(mSuggestScope);
+	    mEntitySuggest = new EntitySuggestController(this)
+			    .setSearchInput(mTo)
+			    .setTokenListener(this)
+			    .setSuggestScope(mSuggestScope);
 
-		mEntitySuggest.init();
+	    mEntitySuggest.init();
 
-		if (mMessage != null) {
-			TextView message = (TextView) findViewById(R.id.content_message);
-			message.setText(mMessage);
-			message.setVisibility(View.VISIBLE);
-		}
-	}
+	    if (mMessage != null) {
+		    TextView message = (TextView) findViewById(R.id.content_message);
+		    message.setText(mMessage);
+		    message.setVisibility(View.VISIBLE);
+	    }
+    }
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	@Override
-	public void bind(BindingMode mode) {
+	@Override public void bind(BindingMode mode) {
 
 		if (!mEditing && mEntity == null && mEntitySchema != null) {
 
@@ -247,10 +343,10 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 											try {
 												Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
-												                               .load(photoUri)
-												                               .centerInside()
-												                               .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-												                               .get();
+														.load(photoUri)
+														.centerInside()
+														.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+														.get();
 
 												File file = MediaManager.copyBitmapToSharePath(bitmap);
 												Uri uri = MediaManager.getSharePathUri();
@@ -322,10 +418,10 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 									try {
 
 										Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
-										                               .load(photoUri)
-										                               .centerInside()
-										                               .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-										                               .get();
+												.load(photoUri)
+												.centerInside()
+												.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+												.get();
 
 										File file = MediaManager.copyBitmapToSharePath(bitmap);
 										Uri uri = MediaManager.getSharePathUri();
@@ -375,8 +471,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		draw(null);
 	}
 
-	@Override
-	public void draw(View view) {
+	@Override public void draw(View view) {
 	    /*
 	     * This method is only called when the activity is created.
          */
@@ -454,8 +549,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 	}
 
-	@Override
-	protected void drawPhoto() {
+	@Override protected void drawPhoto() {
 		super.drawPhoto();
 		/*
 		 * Can be called from main or background thread.
@@ -471,114 +565,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		);
 	}
 
-    /*--------------------------------------------------------------------------------------------
-     * Events
-     *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onAccept() {
-
-		if (mProcessing) return;
-		mProcessing = true;
-
-		if (isDirty() || mMessageType.equals(MessageType.SHARE)) {
-			if (validate()) { // validate() also gathers
-				if (mEditing) {
-					update();
-				}
-				else {
-					insert();
-				}
-			}
-		}
-		else {
-			onCancel(false);
-		}
-		mProcessing = false;
-	}
-
-	@Subscribe
-	public void onCancelEvent(ProcessingCanceledEvent event) {
-		if (mTaskService != null) {
-			mTaskService.cancel(true);
-		}
-	}
-
-	@Override
-	public void onTokenAdded(Object o) {
-
-		if (!mTos.contains((Entity) o)) {
-			mTos.add((Entity) o);
-		}
-
-		if (mToMode == ToMode.SINGLE && mTos.size() > 0) {
-			final EntityView entityView = (EntityView) findViewById(R.id.entity_view);
-			entityView.databind((Entity) mTos.get(0));
-			mAnimatorTo.setDisplayedChild(1);
-		}
-	}
-
-	@Override
-	public void onTokenRemoved(Object o) {
-
-		if (mTos.contains((Entity) o)) {
-			mTos.remove((Entity) o);
-		}
-
-		if (mToMode == ToMode.SINGLE && mTos.size() == 0) {
-			mAnimatorTo.setDisplayedChild(0);
-		}
-	}
-
-	public void onError(final String reason) {
-		super.onError(reason);
-		/*
-		 * ImageChooser error trying to pick or take a photo
-		 */
-		drawPhoto();
-	}
-
-	protected void onPhotoCanceled() {
-		drawPhoto();
-	}
-
-	@Override
-	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
-		super.onBitmapLoaded(bitmap, loadedFrom);
-
-		mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.slide_in_bottom_long);
-		mAnimatorPhoto.requestLayout();
-		mAnimatorPhoto.setDisplayedChild(1);
-		mAnimatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
-	}
-
-	@Override
-	public void onBitmapFailed(Drawable arg0) {
-		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
-		onCancelPhotoButtonClick(null);
-		drawPhoto();
-		mProcessing = false;
-	}
-
-	public void onCancelPhotoButtonClick(View view) {
-		mEntity.photo = null;
-		mPhotoView.setPhoto(null);
-		onPhotoCanceled();
-	}
-
-	public void onEntityClearButtonClick(View view) {
-
-        /* Means we are in single mode.*/
-		for (int i = mTo.getObjects().size(); i > 0; i--) {
-			mTo.getObjects().remove(i - 1);
-		}
-		mTo.requestFocus();
-	}
-
-    /*--------------------------------------------------------------------------------------------
-     * Methods
-     *--------------------------------------------------------------------------------------------*/
-
 	public void configureActionBar() {
 		super.configureActionBar();
 		if (getSupportActionBar() != null) {
@@ -592,8 +578,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		mAnimatorTo.setDisplayedChild(1);
 	}
 
-	@Override
-	protected boolean validate() {
+	@Override protected boolean validate() {
 		if (!super.validate()) return false;
 		/*
 		 * Transfering values from the controls to the entity is easier
@@ -636,8 +621,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		return true;
 	}
 
-	@Override
-	protected void gather() {
+	@Override protected void gather() {
 		super.gather();
 
 		if (!mEditing) {
@@ -653,13 +637,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 	}
 
-	@Override
-	protected String getLinkType() {
+	@Override protected String getLinkType() {
 		return Constants.TYPE_LINK_CONTENT;
 	}
 
-	@Override
-	protected void beforeInsert(Entity entity, List<Link> links) {
+	@Override protected void beforeInsert(Entity entity, List<Link> links) {
 	    /*
 	     * Called on background thread.
 		 */
@@ -678,8 +660,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 	}
 
-	@Override
-	protected boolean afterInsert() {
+	@Override protected boolean afterInsert() {
 	    /*
 	     * Only called if the insert was successful. Called on main ui thread.
 		 */
@@ -696,8 +677,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
      * Properties
      *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return R.layout.message_edit;
 	}
 

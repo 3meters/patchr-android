@@ -292,24 +292,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 			}
 		}
 
-		/* Watch button coloring */
-		ViewAnimator watch = (ViewAnimator) view.findViewById(R.id.button_watch);
-		if (watch != null) {
-			watch.setDisplayedChild(0);
-			UI.setVisibility(watch, View.VISIBLE);
-			Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
-			ImageView image = (ImageView) watch.findViewById(R.id.button_image);
-			if (link != null && link.enabled) {
-				final int color = Colors.getColor(R.color.brand_primary);
-				image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-				image.setAlpha(1.0f);
-			}
-			else {
-				image.setColorFilter(null);
-				image.setAlpha(0.5f);
-			}
-		}
-
 		/* Watching count */
 		View watching = view.findViewById(R.id.button_watching);
 		if (watching != null) {

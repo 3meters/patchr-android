@@ -13,7 +13,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.LocationManager;
 import com.patchr.components.StringManager;
@@ -24,7 +23,6 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
-import com.patchr.objects.Preference;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.ShortcutSettings;
 import com.patchr.objects.User;
@@ -47,26 +45,26 @@ public class CandiView extends RelativeLayout {
 	protected Integer   mLayoutId;
 	protected ViewGroup mLayout;
 
-	protected AirPhotoView  mPhotoView;
-	protected UserPhotoView mUserPhotoView;
-	protected AirPhotoView  mCategoryPhoto;
-	protected TextView      mCategoryName;
-	protected TextView      mType;
-	protected TextView      mName;
-	protected TextView      mIndex;
-	protected TextView      mSubhead;
-	protected TextView      mEmail;
-	protected TextView      mArea;
-	protected TextView      mDistance;
-	protected TextView      mCount;
-	protected TextView      mMessageCount;
-	protected TextView      mWatchCount;
-	protected TextView      mAddress;
-	protected View          mCandiViewGroup;
-	protected View          mPrivacyGroup;
-	protected LinearLayout  mHolderPreviews;
-	protected LinearLayout  mHolderInfo;
-	protected CacheStamp    mCacheStamp;
+	protected AirPhotoView    mPhotoView;
+	protected EntityPhotoView mUserPhotoView;
+	protected AirPhotoView    mCategoryPhoto;
+	protected TextView        mCategoryName;
+	protected TextView        mType;
+	protected TextView        mName;
+	protected TextView        mIndex;
+	protected TextView        mSubhead;
+	protected TextView        mEmail;
+	protected TextView        mArea;
+	protected TextView        mDistance;
+	protected TextView        mCount;
+	protected TextView        mMessageCount;
+	protected TextView        mWatchCount;
+	protected TextView        mAddress;
+	protected View            mCandiViewGroup;
+	protected View            mPrivacyGroup;
+	protected LinearLayout    mHolderPreviews;
+	protected LinearLayout    mHolderInfo;
+	protected CacheStamp      mCacheStamp;
 
 	List<Shortcut> mShortcuts = new ArrayList<Shortcut>();
 
@@ -95,7 +93,7 @@ public class CandiView extends RelativeLayout {
 
 		mCandiViewGroup = mLayout.findViewById(R.id.candi_view_group);
 		mPhotoView = (AirPhotoView) mLayout.findViewById(R.id.photo);
-		mUserPhotoView = (UserPhotoView) mLayout.findViewById(R.id.user_photo);
+		mUserPhotoView = (EntityPhotoView) mLayout.findViewById(R.id.user_photo);
 		mName = (TextView) mLayout.findViewById(R.id.name);
 		mSubhead = (TextView) mLayout.findViewById(R.id.subhead);
 		mArea = (TextView) mLayout.findViewById(R.id.area);

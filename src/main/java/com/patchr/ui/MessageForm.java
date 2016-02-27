@@ -54,7 +54,7 @@ import com.patchr.ui.widgets.AirPhotoView;
 import com.patchr.ui.widgets.EntityView;
 import com.patchr.ui.widgets.FlowLayout;
 import com.patchr.ui.widgets.InsetViewTransformer;
-import com.patchr.ui.widgets.UserPhotoView;
+import com.patchr.ui.widgets.EntityPhotoView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -242,7 +242,7 @@ public class MessageForm extends BaseEntityForm {
 		final TextView description = (TextView) view.findViewById(R.id.description);
 		final AirPhotoView patchPhotoView = (AirPhotoView) view.findViewById(R.id.patch_photo);
 		final TextView patchName = (TextView) view.findViewById(R.id.patch_name);
-		final UserPhotoView userPhotoView = (UserPhotoView) view.findViewById(R.id.user_photo);
+		final EntityPhotoView entityPhotoView = (EntityPhotoView) view.findViewById(R.id.user_photo);
 		final TextView userName = (TextView) view.findViewById(R.id.user_name);
 		final TextView createdDate = (TextView) view.findViewById(R.id.created_date);
 		final FlowLayout flowLayout = (FlowLayout) view.findViewById(R.id.flow_recipients);
@@ -329,13 +329,13 @@ public class MessageForm extends BaseEntityForm {
 
 		/* User photo */
 
-		if (userPhotoView != null) {
+		if (entityPhotoView != null) {
 			if (mEntity.creator != null) {
-				userPhotoView.databind(mEntity.creator);
-				UI.setVisibility(userPhotoView, View.VISIBLE);
+				entityPhotoView.databind(mEntity.creator);
+				UI.setVisibility(entityPhotoView, View.VISIBLE);
 			}
 			else {
-				UI.setVisibility(userPhotoView, View.GONE);
+				UI.setVisibility(entityPhotoView, View.GONE);
 			}
 		}
 

@@ -5,7 +5,7 @@
 	android:layout_height="wrap_content"
 	android:orientation="horizontal">
 
-	<com.patchr.ui.widgets.AirPhotoView
+	<com.patchr.ui.widgets.EntityPhotoView
 		android:id="@+id/entity_view_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_small"

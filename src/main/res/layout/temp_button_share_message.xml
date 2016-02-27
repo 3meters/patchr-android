@@ -38,7 +38,7 @@
 			android:visibility="gone" />
 	</LinearLayout>
 
-	<com.patchr.ui.widgets.UserPhotoView
+	<com.patchr.ui.widgets.EntityPhotoView
 		android:id="@+id/user_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_small"
@@ -95,6 +95,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginLeft="2dp"
 			android:layout_marginTop="7dp"
+			custom:aspectRatio="@dimen/aspect_ratio_message_item_image"
 			custom:sizeCategory="standard" />
 
 	</LinearLayout>

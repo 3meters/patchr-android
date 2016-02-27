@@ -540,7 +540,11 @@ public class Router {
 			return Route.SIGNOUT;
 		else if (itemId == R.id.signin)
 			return Route.LOGIN;
-		else if (itemId == R.id.report)
+		else if (itemId == R.id.report_patch)
+			return Route.REPORT;
+		else if (itemId == R.id.report_message)
+			return Route.REPORT;
+		else if (itemId == R.id.report_user)
 			return Route.REPORT;
 		else if (itemId == R.id.qrcode)
 			return Route.QRCODE;

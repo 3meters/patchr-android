@@ -17,24 +17,25 @@ import android.widget.Toast;
 import com.patchr.R;
 import com.patchr.components.StringManager;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Photo;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 @SuppressWarnings("ucd")
 public class EntityView extends LinearLayout implements Target {
-
-	private ViewGroup    mBoundView;
-	private AirPhotoView mPhotoView;
-	private TextView     mName;
-	private TextView     mSubtitle;
-	private TextView     mLabel;
-	private ImageView    mButtonDelete;
-	private Entity       mEntity;
-	private Integer      mLabelResId;
-	private Integer      mLayoutResId;
-	private View         mParentView;
+	/*
+	 * Only used for addressee tokens in message form and edit
+	 */
+	private ViewGroup       mBoundView;
+	private EntityPhotoView mPhotoView;
+	private TextView        mName;
+	private TextView        mSubtitle;
+	private TextView        mLabel;
+	private ImageView       mButtonDelete;
+	private Entity          mEntity;
+	private Integer         mLabelResId;
+	private Integer         mLayoutResId;
+	private View            mParentView;
 	private Boolean mAnimateDisabled = false;
 
 	public EntityView(Context context) {
@@ -67,7 +68,7 @@ public class EntityView extends LinearLayout implements Target {
 		if (mLayoutResId != null) {
 			removeAllViews();
 			mBoundView = (ViewGroup) LayoutInflater.from(getContext()).inflate(mLayoutResId, this, true);
-			mPhotoView = (AirPhotoView) mBoundView.findViewById(R.id.entity_view_photo);
+			mPhotoView = (EntityPhotoView) mBoundView.findViewById(R.id.entity_view_photo);
 			mName = (TextView) mBoundView.findViewById(R.id.entity_view_name);
 			mSubtitle = (TextView) mBoundView.findViewById(R.id.entity_view_subtitle);
 			mLabel = (TextView) mBoundView.findViewById(R.id.entity_view_label);
@@ -111,41 +112,17 @@ public class EntityView extends LinearLayout implements Target {
 			}
 
 			if (mPhotoView != null) {
-				Photo photo = mEntity.getPhoto();
-				if (mPhotoView.getPhoto() == null || !photo.getDirectUri().equals(mPhotoView.getPhoto().getDirectUri())) {
-					mPhotoView.setTarget(this);
-					UI.drawPhoto(mPhotoView, photo);
-					mPhotoView.setTag(photo);
-				}
+				mPhotoView.databind(mEntity);
+				mPhotoView.setTag(mEntity.getPhoto());
 			}
 		}
 	}
 
-	@Override
-	public void setSelected(boolean selected) {
-		super.setSelected(selected);
-
-		if (selected) {
-			if (mButtonDelete != null) {
-				mButtonDelete.setVisibility(View.VISIBLE);
-				mPhotoView.setVisibility(View.GONE);
-			}
-		}
-		else {
-			if (mButtonDelete != null) {
-				mButtonDelete.setVisibility(View.GONE);
-				mPhotoView.setVisibility(View.VISIBLE);
-			}
-		}
-	}
-
-	@Override
-	public void onBitmapFailed(Drawable arg0) {
+	@Override public void onBitmapFailed(Drawable arg0) {
 		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
 	}
 
-	@Override
-	public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
+	@Override public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
 	    /*
 	     * Called on main thread and whether bitmap was loaded from network or memory.
 	     */
@@ -161,12 +138,12 @@ public class EntityView extends LinearLayout implements Target {
 		}
 	}
 
-	@Override
-	public void onPrepareLoad(Drawable drawable) {}
+	@Override public void onPrepareLoad(Drawable drawable) {}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	public void setAnimateDisabled(Boolean animateDisabled) {
 		mAnimateDisabled = animateDisabled;
 	}
@@ -185,9 +162,5 @@ public class EntityView extends LinearLayout implements Target {
 
 	public void setParentView(View parentView) {
 		mParentView = parentView;
-	}
-
-	public void setPhotoView(AirPhotoView mPhotoView) {
-		this.mPhotoView = mPhotoView;
 	}
 }
