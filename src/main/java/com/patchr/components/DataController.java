@@ -632,12 +632,13 @@ public class DataController {
 		 */
 		Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signout", null, 0);
 
-		/* Set to anonymous user */
-		UserManager.getInstance().setCurrentUser(null, false);
-
 		if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 			Logger.w(this, "User sign out but service call failed: " + UserManager.getInstance().getCurrentUser().id);
 		}
+
+		/* Set to anonymous user */
+		UserManager.getInstance().setCurrentUser(null, false);
+
 		return result;
 	}
 
