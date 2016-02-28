@@ -491,11 +491,14 @@ public class NearbyListFragment extends EntityListFragment {
 
 		Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled()
 				|| LocationManager.getInstance().isLocationAccessEnabled());
-		if (proximityCapable) {
-			mListController.getFloatingActionController().fadeIn();
-		}
-		else {
-			mListController.getFloatingActionController().fadeOut();
+
+		if (mListController.getFloatingActionController() != null) {
+			if (proximityCapable)  {
+				mListController.getFloatingActionController().fadeIn();
+			}
+			else {
+				mListController.getFloatingActionController().fadeOut();
+			}
 		}
 	}
 
