@@ -103,12 +103,6 @@
 			android:name="com.parse.push.notification_icon"
 			android:resource="@drawable/ic_stat_notification"/>
 
-		<!-- Providers -->
-
-		<provider android:authorities="com.facebook.app.FacebookContentProvider894654857249670"
-			android:name="com.facebook.FacebookContentProvider"
-			android:exported="true" />
-
 		<!-- Services -->
 
 		<service
@@ -130,7 +124,8 @@
 
 		<receiver
 			android:name="io.branch.referral.InstallListener"
-			android:exported="true">
+			android:exported="true"
+			tools:ignore="ExportedReceiver">
 			<intent-filter>
 				<action android:name="com.android.vending.INSTALL_REFERRER" />
 			</intent-filter>
@@ -153,7 +148,8 @@
         -->
 		<receiver
 			android:name="com.google.android.gms.analytics.AnalyticsReceiver"
-			android:enabled="true">
+			android:enabled="true"
+			tools:ignore="ExportedReceiver">
 			<intent-filter>
 				<action android:name="com.google.android.gms.analytics.ANALYTICS_DISPATCH" />
 			</intent-filter>
@@ -169,7 +165,8 @@
 		-->
 		<receiver
 			android:name="com.google.android.gms.analytics.CampaignTrackingReceiver"
-			android:exported="true">
+			android:exported="true"
+			tools:ignore="ExportedReceiver">
 			<intent-filter>
 				<action android:name="com.android.vending.INSTALL_REFERRER" />
 			</intent-filter>

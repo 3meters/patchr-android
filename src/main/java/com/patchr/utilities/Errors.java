@@ -17,7 +17,6 @@ import com.patchr.exceptions.GcmRegistrationIOException;
 import com.patchr.exceptions.ServiceException;
 import com.patchr.objects.Route;
 import com.patchr.service.ServiceResponse;
-import com.patchr.ui.base.BaseActivity;
 
 //import org.apache.http.NoHttpResponseException;
 //import org.apache.http.client.ClientProtocolException;
@@ -33,8 +32,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Locale;
-
-;
 
 public final class Errors {
 
@@ -102,7 +99,7 @@ public final class Errors {
 
 	@NonNull
 	@SuppressWarnings("ConstantConditions")
-	public static final ErrorResponse getErrorResponse(Context context, @NonNull ServiceResponse serviceResponse) {
+	public static ErrorResponse getErrorResponse(Context context, @NonNull ServiceResponse serviceResponse) {
 
 		if (serviceResponse.statusCode != null) {
 
@@ -347,8 +344,7 @@ public final class Errors {
 			}
 		}
 
-		ErrorResponse errorResponse = new ErrorResponse(ResponseType.NONE, null);
-		return errorResponse;
+		return new ErrorResponse(ResponseType.NONE, null);
 	}
 
 	@NonNull
@@ -360,7 +356,7 @@ public final class Errors {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static enum ResponseType {
+	public enum ResponseType {
 		AUTO,
 		DIALOG,
 		TOAST,

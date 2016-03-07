@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.FrameLayout;
@@ -28,8 +29,9 @@ public class AirPhotoView extends FrameLayout implements Target {
 	private   Photo  mPhoto;
 	protected String mUriBound;
 
-	protected ImageView         mImageMain;
-	protected AirProgressBar    mProgressBar;
+	protected AppCompatImageView mImageMain;
+	protected AirProgressBar     mProgressBar;
+
 	protected Target            mTarget;
 	protected float             mAspectRatio;
 	protected PhotoSizeCategory mSizeCategory;
@@ -81,7 +83,7 @@ public class AirPhotoView extends FrameLayout implements Target {
 
 		/* Image - subclass could have provide it instead */
 		if (mImageMain == null) {
-			mImageMain = new ImageView(getContext());
+			mImageMain = new AppCompatImageView(getContext());
 			mImageMain.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 			mImageMain.setScaleType(mScaleType);
 			addView(mImageMain);
@@ -193,7 +195,7 @@ public class AirPhotoView extends FrameLayout implements Target {
 		return mImageMain;
 	}
 
-	public AirPhotoView setImageView(ImageView imageView) {
+	public AirPhotoView setImageView(AppCompatImageView imageView) {
 		mImageMain = imageView;
 		return this;
 	}

@@ -1,11 +1,11 @@
 package com.patchr.ui;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -24,8 +24,6 @@ import com.patchr.R;
 import com.patchr.components.DataController;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
-import com.patchr.components.MenuManager;
-import com.patchr.components.ModelResult;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.ActionEvent;
@@ -38,7 +36,6 @@ import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.events.ShareCheckEvent;
 import com.patchr.events.WatchStatusChangedEvent;
 import com.patchr.objects.Count;
-import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Patch;
@@ -48,7 +45,6 @@ import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
 import com.patchr.objects.WatchStatus;
-import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.components.AnimationFactory;
 import com.patchr.ui.widgets.AirPhotoView;
 import com.patchr.ui.widgets.CandiView;
@@ -136,7 +132,7 @@ public class PatchFormFragment extends EntityFormFragment {
 		if (event.tag.equals(System.identityHashCode(this))
 				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
 
-			Logger.v(this, "Data result accepted: " + event.actionType.name().toString());
+			Logger.v(this, "Data result accepted: " + event.actionType.name());
 
 			if (event.actionType == DataController.ActionType.ACTION_LINK_INSERT_WATCH
 					|| event.actionType == DataController.ActionType.ACTION_LINK_DELETE_WATCH) {
@@ -316,7 +312,6 @@ public class PatchFormFragment extends EntityFormFragment {
 
 				/* Some state management */
 
-				Link linkWatching = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
 				mWatchStatus = ((Patch) mEntity).watchStatus();
 				Boolean owner = (UserManager.getInstance().authenticated() && mEntity.ownerId != null && mEntity.ownerId.equals(UserManager.getInstance().getCurrentUser().id));
 
@@ -576,8 +571,7 @@ public class PatchFormFragment extends EntityFormFragment {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncMuteLink");
-				ModelResult result = DataController.getInstance().muteLink(link.id, mute, actionEvent);
-				return result;
+				return DataController.getInstance().muteLink(link.id, mute, actionEvent);
 			}
 
 			@Override

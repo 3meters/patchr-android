@@ -1,7 +1,7 @@
 package com.patchr.ui;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,7 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.flipboard.bottomsheet.commons.IntentPickerSheetView;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -51,10 +50,10 @@ import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseEntityForm;
 import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.widgets.AirPhotoView;
+import com.patchr.ui.widgets.EntityPhotoView;
 import com.patchr.ui.widgets.EntityView;
 import com.patchr.ui.widgets.FlowLayout;
 import com.patchr.ui.widgets.InsetViewTransformer;
-import com.patchr.ui.widgets.EntityPhotoView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -71,7 +70,7 @@ import io.branch.referral.util.LinkProperties;
 
 public class MessageForm extends BaseEntityForm {
 
-	private List<Entity> mTos = new ArrayList<Entity>();
+	private List<Entity> mTos = new ArrayList<>();
 	protected BottomSheetLayout mBottomSheetLayout;
 
 	@Override
@@ -612,36 +611,6 @@ public class MessageForm extends BaseEntityForm {
 		});
 	}
 
-	public void showSmartSharePicker(String title) {
-
-		final Intent shareIntent = new Intent(Intent.ACTION_SEND);
-		shareIntent.setType("text/plain");
-		shareIntent.putExtra(Intent.EXTRA_SUBJECT, String.format(StringManager.getString(R.string.label_message_share_subject)
-				, (mEntity.name != null) ? mEntity.name : "A"));
-		shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(StringManager.getString(R.string.label_message_share_body), mEntityId));
-		shareIntent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-		shareIntent.putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
-		shareIntent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-
-		IntentPickerSheetView intentPickerSheet = new IntentPickerSheetView(this, shareIntent, "Invite using...", new IntentPickerSheetView.OnIntentPickedListener() {
-			@Override
-			public void onIntentPicked(IntentPickerSheetView.ActivityInfo activityInfo) {
-				mBottomSheetLayout.dismissSheet();
-				startActivity(activityInfo.getConcreteIntent(shareIntent));
-			}
-		});
-
-		/* Filter out built in sharing options such as bluetooth and beam. */
-		intentPickerSheet.setFilter(new IntentPickerSheetView.Filter() {
-			@Override
-			public boolean include(IntentPickerSheetView.ActivityInfo info) {
-				return !info.componentName.getPackageName().startsWith("com.android");
-			}
-		});
-
-		mBottomSheetLayout.showWithSheetView(intentPickerSheet);
-	}
-
 	@Override
 	public void confirmDelete() {
 
@@ -687,8 +656,7 @@ public class MessageForm extends BaseEntityForm {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
 				String seedParentId = mEntity.type.equals(MessageType.ROOT) ? mEntity.patchId : null;
-				final ModelResult result = ((DataController) DataController.getInstance()).deleteMessage(mEntity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
+				return ((DataController) DataController.getInstance()).deleteMessage(mEntity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
 			@Override

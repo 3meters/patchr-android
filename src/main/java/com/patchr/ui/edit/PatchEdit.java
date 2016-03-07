@@ -15,13 +15,20 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
 import com.patchr.components.LocationManager;
-import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
@@ -39,14 +46,6 @@ import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.UI;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.otto.Subscribe;
 
 @SuppressLint("Registered")
@@ -105,7 +104,7 @@ public class PatchEdit extends BaseEntityEdit {
 						mMapView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 							@SuppressWarnings("deprecation")
 							// We use the new method when supported
-							@SuppressLint("NewApi")
+							//@SuppressLint("NewApi")
 							// We check which build version we are using.
 							@Override
 							public void onGlobalLayout() {
@@ -410,8 +409,7 @@ public class PatchEdit extends BaseEntityEdit {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncClearEntityProximity");
-				final ModelResult result = DataController.getInstance().trackEntity(mEntity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
+				return DataController.getInstance().trackEntity(mEntity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
 			@Override

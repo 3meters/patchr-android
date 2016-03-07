@@ -20,6 +20,6 @@
 		<item name="android:statusBarColor">@android:color/transparent</item>
 	</style>
 
-	<style name="base_theme_dialog" parent="Theme.AppCompat.Light.Dialog" />
+	<style name="base_theme_dialog" parent="Theme.AppCompat.Light.Dialog.Alert" />
 
 </resources>

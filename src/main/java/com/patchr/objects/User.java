@@ -1,8 +1,5 @@
 package com.patchr.objects;
 
-import android.support.annotation.NonNull;
-
-import com.patchr.Constants;
 import com.patchr.service.Expose;
 
 import java.util.ArrayList;
@@ -67,6 +64,7 @@ public class User extends Entity {
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
 
+	@SuppressWarnings("unchecked")
 	public static User setPropertiesFromMap(User entity, Map map, Boolean nameMapping) {
 
 		synchronized (entity) {
@@ -87,7 +85,7 @@ public class User extends Entity {
 
 			/* For local serialization */
 			if (map.get("stats") != null) {
-				entity.stats = new ArrayList<Count>();
+				entity.stats = new ArrayList<>();
 				final List<LinkedHashMap<String, Object>> statMaps = (List<LinkedHashMap<String, Object>>) map.get("stats");
 				for (Map<String, Object> statMap : statMaps) {
 					entity.stats.add(Count.setPropertiesFromMap(new Count(), statMap, nameMapping));
@@ -98,8 +96,8 @@ public class User extends Entity {
 		return entity;
 	}
 
-	@Override
-	public User clone() {
+	@SuppressWarnings("unchecked")
+	@Override public User clone() {
 		final User user = (User) super.clone();
 		if (user != null && stats != null) {
 			user.stats = (List<Count>) ((ArrayList) stats).clone();

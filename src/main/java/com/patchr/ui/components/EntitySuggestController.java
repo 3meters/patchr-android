@@ -33,7 +33,6 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Patch.ReasonType;
 import com.patchr.objects.User;
-import com.patchr.ui.widgets.AirPhotoView;
 import com.patchr.ui.widgets.AirTokenCompleteTextView;
 import com.patchr.ui.widgets.TokenCompleteTextView;
 import com.patchr.ui.widgets.EntityPhotoView;
@@ -56,7 +55,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	private static Integer LIMIT = 10;
 
 	@NonNull
-	private List<Entity> mSeedEntities      = new ArrayList<Entity>();
+	private List<Entity> mSeedEntities      = new ArrayList<>();
 	@NonNull
 	private Boolean      mSuggestInProgress = false;
 
@@ -263,7 +262,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		}
 
 		public SuggestArrayAdapter(@NonNull Context context, int resource, int textViewResourceId, List<Entity> seedEntities) {
-			super(context, resource, textViewResourceId, new ArrayList<Entity>(seedEntities));
+			super(context, resource, textViewResourceId, new ArrayList<>(seedEntities));
 			mSeedEntities = seedEntities;
 		}
 

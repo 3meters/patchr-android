@@ -92,7 +92,7 @@ public class ActivityRecognitionManager implements
 	}
 
 	@Override
-	public void onConnectionFailed(ConnectionResult result) {
+	public void onConnectionFailed(@NonNull ConnectionResult result) {
 		/*
 		 * Google Play services can resolve some errors it detects. If the error has a
 		 * resolution, try sending an Intent to start a Google Play services activity

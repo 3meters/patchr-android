@@ -2,10 +2,12 @@ package com.patchr.ui;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,20 +15,6 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.patchr.Constants;
-import com.patchr.Patchr;
-import com.patchr.R;
-import com.patchr.components.LocationManager;
-import com.patchr.components.Logger;
-import com.patchr.components.MapManager;
-import com.patchr.components.PermissionUtil;
-import com.patchr.components.StringManager;
-import com.patchr.objects.AirLocation;
-import com.patchr.objects.Entity;
-import com.patchr.objects.Patch;
-import com.patchr.objects.Route;
-import com.patchr.ui.components.AirClusterRenderer;
-import com.patchr.utilities.Dialogs;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -42,6 +30,19 @@ import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.ui.IconGenerator;
+import com.patchr.Constants;
+import com.patchr.Patchr;
+import com.patchr.R;
+import com.patchr.components.LocationManager;
+import com.patchr.components.Logger;
+import com.patchr.components.MapManager;
+import com.patchr.components.StringManager;
+import com.patchr.objects.AirLocation;
+import com.patchr.objects.Entity;
+import com.patchr.objects.Patch;
+import com.patchr.objects.Route;
+import com.patchr.ui.components.AirClusterRenderer;
+import com.patchr.utilities.Dialogs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +62,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 	protected String                     mRelatedListFragment;
 	protected Bitmap                     mMarkerBitmap;
 	protected Integer       mZoomLevel  = null;
-	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
+	protected List<Integer> mMenuResIds = new ArrayList<>();
 	protected Boolean       mShowIndex  = false;
 
 	@Override
@@ -87,7 +88,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 
 				mMap = googleMap;
 
-				mClusterManager = new ClusterManager<EntityItem>(getActivity(), mMap);
+				mClusterManager = new ClusterManager<>(getActivity(), mMap);
 				mClusterRenderer = new EntityRenderer(getActivity());
 				mClusterRenderer.setMinClusterSize(10);
 				mClusterManager.setRenderer(mClusterRenderer);
@@ -105,7 +106,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 
 				UiSettings uiSettings = mMap.getUiSettings();
 
-				if (PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
+				if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 					mMap.setMyLocationEnabled(true);  // Causes connect() log error by gms client
 					uiSettings.setMyLocationButtonEnabled(true);
 					mMap.setOnMyLocationButtonClickListener(MapListFragment.this);

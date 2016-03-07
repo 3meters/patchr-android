@@ -1,12 +1,9 @@
 package com.patchr.ui.base;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,12 +15,12 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -90,7 +87,7 @@ public abstract class BaseActivity extends AppCompatActivity
 	public    String mForId;
 
 	/* Fragments */
-	protected Map<String, Fragment> mFragments = new HashMap<String, Fragment>();
+	protected Map<String, Fragment> mFragments = new HashMap<>();
 	protected Fragment mCurrentFragment;
 	protected String   mCurrentFragmentTag;
 
@@ -321,7 +318,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-		NfcManager.pushUri(Uri.parse("http://3meters.com/qrcode"), this);
+		NfcManager.pushUri(Uri.parse("http://patchr.com"), this);
 
 		mUiController.setBusyController(new BusyController());
 		mUiController.getBusyController().setProgressBar(findViewById(R.id.form_progress));
@@ -503,8 +500,7 @@ public abstract class BaseActivity extends AppCompatActivity
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
-				final ModelResult result = DataController.getInstance().deleteEntity(mEntity.id, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
+				return DataController.getInstance().deleteEntity(mEntity.id, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
 			@Override

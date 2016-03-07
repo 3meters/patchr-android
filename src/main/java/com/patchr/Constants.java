@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
-import com.patchr.components.StringManager;
 import com.patchr.objects.Preference;
 import com.patchr.utilities.UI;
 

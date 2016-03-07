@@ -1,7 +1,6 @@
 package com.patchr.components;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -81,8 +80,7 @@ public class UserManager {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncSignOut");
-				final ModelResult result = DataController.getInstance().signoutComplete(NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
+				return DataController.getInstance().signoutComplete(NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
 			@SuppressLint("NewApi")
@@ -183,7 +181,7 @@ public class UserManager {
 		return this.currentUser;
 	}
 
-	@NonNull public Boolean setCurrentUser(@NonNull User user, @NonNull Boolean refreshUser) {
+	@NonNull public Boolean setCurrentUser(User user, @NonNull Boolean refreshUser) {
 
 		ModelResult result = new ModelResult();
 

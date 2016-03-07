@@ -98,20 +98,17 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	}
 
 	public Integer getResId() {
-		Integer resId = getResourceIdFromResourceName(Patchr.applicationContext, this.prefix);
-		return resId;
+		return getResourceIdFromResourceName(Patchr.applicationContext, this.prefix);
 	}
 
 	@NonNull
 	public String getUri(PhotoSizeCategory category) {
-		final String url = UI.url(this.prefix, this.source, category);
-		return url;
+		return UI.url(this.prefix, this.source, category);
 	}
 
 	@NonNull
 	public String getDirectUri() {
-		final String url = UI.url(this.prefix, this.source, PhotoSizeCategory.NONE);
-		return url;
+		return UI.url(this.prefix, this.source, PhotoSizeCategory.NONE);
 	}
 
 	@NonNull
@@ -136,10 +133,9 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 
 		final String resolvedResourceName = resolveResourceName(context, resourceName);
 		if (resolvedResourceName != null) {
-			final int resourceId = Patchr.applicationContext.getResources().getIdentifier(resolvedResourceName
+			return Patchr.applicationContext.getResources().getIdentifier(resolvedResourceName
 					, "drawable"
 					, Patchr.getInstance().getPackageName());
-			return resourceId;
 		}
 		return null;
 	}
@@ -149,10 +145,9 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		final String rawResourceName = uri.substring(uri.indexOf("resource:") + 9);
 		final String resolvedResourceName = resolveResourceName(context, rawResourceName);
 		if (resolvedResourceName != null) {
-			final int resourceId = Patchr.applicationContext.getResources().getIdentifier(resolvedResourceName
+			return Patchr.applicationContext.getResources().getIdentifier(resolvedResourceName
 					, "drawable"
 					, Patchr.getInstance().getPackageName());
-			return resourceId;
 		}
 		return null;
 	}
@@ -163,8 +158,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 			resourceId = Patchr.applicationContext.getResources().getIdentifier(rawResourceName, "attr", Patchr.getInstance().getPackageName());
 			final TypedValue value = new TypedValue();
 			if (context.getTheme().resolveAttribute(resourceId, value, true)) {
-				final String redirectedResourceName = (String) value.coerceToString();
-				return redirectedResourceName;
+				return (String) value.coerceToString();
 			}
 			else
 				return null;
@@ -320,29 +314,23 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		@NonNull
 		public static String aircandi            = "aircandi";              // legacy that maps to aircandi_images
 		@NonNull
-		public static String assets_applinks     = "assets.applinks";       // used when targeting something like the default applink icons
-		@NonNull
-		public static String facebook            = "facebook";              // set if photo comes from facebook - used for applinks
-		@NonNull
-		public static String twitter             = "twitter";               // set if photo comes from twitter - used for applinks
-		@NonNull
 		public static String aircandi_thumbnails = "aircandi.thumbnails";   // set when photo is stored by us and used to construct full uri to image data (s3)
 		@NonNull
 		public static String foursquare_icon     = "foursquare.icon";       // set if icon comes from foursquare - used for place categories
 	}
 
-	public static enum PhotoType {
+	public enum PhotoType {
 		GENERAL,
 		THUMBNAIL,
 		USER,
 	}
 
-	public static enum Orientation {
+	public enum Orientation {
 		LANDSCAPE,
 		PORTRAIT
 	}
 
-	public static enum ResizeDimension {
+	public enum ResizeDimension {
 		HEIGHT,
 		WIDTH
 	}
@@ -359,8 +347,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 
 		public String convert(String uri, Integer size, ResizeDimension dimension) {
 			String base = (dimension == ResizeDimension.WIDTH) ? baseWidth : baseHeight;
-			String converted = String.format(base, Uri.encode(uri), size);
-			return converted;
+			return String.format(base, Uri.encode(uri), size);
 		}
 	}
 }

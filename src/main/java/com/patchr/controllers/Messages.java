@@ -20,7 +20,6 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.ViewHolder;
 import com.patchr.ui.MessageForm;
 import com.patchr.ui.edit.MessageEdit;
-import com.patchr.ui.widgets.EntityPhotoView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;

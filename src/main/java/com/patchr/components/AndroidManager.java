@@ -13,9 +13,12 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.text.Html;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -23,8 +26,6 @@ import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.LobbyForm;
 import com.patchr.utilities.UI;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import java.util.List;
 
@@ -45,9 +46,11 @@ public class AndroidManager {
 
 	public static boolean checkPlayServices(Activity activity) {
 
-		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(Patchr.applicationContext);
+		GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+
+		int status = googleAPI.isGooglePlayServicesAvailable(Patchr.applicationContext);
 		if (status != ConnectionResult.SUCCESS) {
-			if (GooglePlayServicesUtil.isUserRecoverableError(status)) {
+			if (googleAPI.isUserResolvableError(status)) {
 				showPlayServicesErrorDialog(status, activity, null);
 			}
 			else {
@@ -67,9 +70,8 @@ public class AndroidManager {
 
 			activityTemp.runOnUiThread(new Runnable() {
 
-				Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status
-						, activityTemp
-						, PLAY_SERVICES_RESOLUTION_REQUEST);
+				GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+				Dialog dialog = googleAPI.getErrorDialog(activityTemp, status, PLAY_SERVICES_RESOLUTION_REQUEST);
 
 				@Override
 				public void run() {
@@ -103,50 +105,52 @@ public class AndroidManager {
 
 	public static String getPackageNameByAppName(String app) {
 		String packageName = null;
-		if (app.equals(Constants.TYPE_APP_FOURSQUARE)) {
-			packageName = Constants.PACKAGE_NAME_FOURSQUARE;
-		}
-		else if (app.equals(Constants.TYPE_APP_TRIPADVISOR)) {
-			packageName = Constants.PACKAGE_NAME_TRIPADVISOR;
-		}
-		else if (app.equals(Constants.TYPE_APP_TWITTER)) {
-			packageName = Constants.PACKAGE_NAME_TWITTER;
-		}
-		else if (app.equals(Constants.TYPE_APP_YELP)) {
-			packageName = Constants.PACKAGE_NAME_YELP;
+		switch (app) {
+			case Constants.TYPE_APP_FOURSQUARE:
+				packageName = Constants.PACKAGE_NAME_FOURSQUARE;
+				break;
+			case Constants.TYPE_APP_TRIPADVISOR:
+				packageName = Constants.PACKAGE_NAME_TRIPADVISOR;
+				break;
+			case Constants.TYPE_APP_TWITTER:
+				packageName = Constants.PACKAGE_NAME_TWITTER;
+				break;
+			case Constants.TYPE_APP_YELP:
+				packageName = Constants.PACKAGE_NAME_YELP;
+				break;
 		}
 		return packageName;
 	}
 
 	public static String getAppNameByPackageName(String packageName) {
 		String appName = null;
-		if (packageName.equals(Constants.PACKAGE_NAME_FOURSQUARE)) {
-			appName = Constants.TYPE_APP_FOURSQUARE;
-		}
-		else if (packageName.equals(Constants.PACKAGE_NAME_TRIPADVISOR)) {
-			appName = Constants.TYPE_APP_TRIPADVISOR;
-		}
-		else if (packageName.equals(Constants.PACKAGE_NAME_TWITTER)) {
-			appName = Constants.TYPE_APP_TWITTER;
-		}
-		else if (packageName.equals(Constants.PACKAGE_NAME_YELP)) {
-			appName = Constants.TYPE_APP_YELP;
+		switch (packageName) {
+			case Constants.PACKAGE_NAME_FOURSQUARE:
+				appName = Constants.TYPE_APP_FOURSQUARE;
+				break;
+			case Constants.PACKAGE_NAME_TRIPADVISOR:
+				appName = Constants.TYPE_APP_TRIPADVISOR;
+				break;
+			case Constants.PACKAGE_NAME_TWITTER:
+				appName = Constants.TYPE_APP_TWITTER;
+				break;
+			case Constants.PACKAGE_NAME_YELP:
+				appName = Constants.TYPE_APP_YELP;
+				break;
 		}
 		return appName;
 	}
 
 	public static Boolean isAppInstalled(String appName) {
 		String packageName = getPackageNameByAppName(appName);
-		final Boolean exists = doesPackageExist(packageName);
-		return exists;
+		return doesPackageExist(packageName);
 	}
 
 	public static Boolean hasIntentSupport(String app) {
-		Boolean intentSupport = (app.equals(Constants.TYPE_APP_FOURSQUARE)
+		return (app.equals(Constants.TYPE_APP_FOURSQUARE)
 				|| app.equals(Constants.TYPE_APP_TRIPADVISOR)
 				|| app.equals(Constants.TYPE_APP_TWITTER)
 				|| app.equals(Constants.TYPE_APP_YELP));
-		return intentSupport;
 	}
 
 	public static boolean doesPackageExist(String targetPackage) {
@@ -246,14 +250,8 @@ public class AndroidManager {
 		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
-	public void callSendToActivity(Context context, String placeName, String emailAddress, String subject, String body) {
-		final StringBuilder uriText = new StringBuilder(500);
-		if (subject != null) {
-			uriText.append("?subject=" + subject);
-		}
-		if (body != null) {
-			uriText.append("&body=" + body);
-		}
+	public void callSendToActivity(Context context, String placeName, String emailAddress, @NonNull String subject, @NonNull String body) {
+		final String uriText = String.format("?subject=%1$s&body=%2$s", subject, body);
 		final Intent intent = new Intent(android.content.Intent.ACTION_SENDTO, Uri.fromParts("mailto", emailAddress, uriText.toString()));
 		context.startActivity(Intent.createChooser(intent, "Send invite..."));
 	}
@@ -312,19 +310,6 @@ public class AndroidManager {
 		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
-	public void callFacebookActivity(Context context, String facebookId) {
-		/*
-		 * Calling the facebook app is actually a poorer experience than
-		 * calling the web app. The facebook app does not lock on to the profile id.
-		 * 
-		 * intent.setData(Uri.parse("fb://place/" + facebookId + ""));
-		 */
-		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-		intent.setData(Uri.parse("http://m.facebook.com/" + facebookId));
-		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
-	}
-
 	public void callYelpActivity(Context context, String sourceId, String sourceUri) {
 
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
@@ -351,10 +336,10 @@ public class AndroidManager {
 		final List<ResolveInfo> list = Patchr.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 
 		String p;
-		for (int i = 0; i < browserApps.length; i++) {
+		for (String browserApp : browserApps) {
 			for (ResolveInfo resolveInfo : list) {
 				p = resolveInfo.activityInfo.packageName;
-				if (p != null && p.startsWith(browserApps[i])) {
+				if (p != null && p.startsWith(browserApp)) {
 					intent.setPackage(p);
 					return intent;
 				}

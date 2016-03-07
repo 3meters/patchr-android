@@ -107,7 +107,7 @@ public class UserListFragment extends EntityListFragment {
 					UI.setVisibility(layout.findViewById(R.id.role), View.VISIBLE);
 				}
 				else {
-					if (parent.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+					if (parent != null && parent.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 						Patch patch = (Patch) parent;
 						if (patch.privacy != null
 								&& patch.privacy.equals(Constants.PRIVACY_PRIVATE)

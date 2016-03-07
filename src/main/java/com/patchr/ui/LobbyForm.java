@@ -10,8 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.amazonaws.org.apache.http.NameValuePair;
-import com.amazonaws.org.apache.http.client.utils.URLEncodedUtils;
 import com.facebook.applinks.AppLinkData;
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -27,9 +25,6 @@ import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.utilities.Dialogs;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Map;
 
 import bolts.AppLinks;
@@ -160,21 +155,6 @@ public class LobbyForm extends AppCompatActivity {
 			@Override
 			public void onInitFinished(BranchUniversalObject branchUniversalObject, LinkProperties linkProperties, BranchError error) {
 
-				if (branchUniversalObject == null) {
-					handleFacebook();
-					return;
-				}
-
-				Boolean facebookApplink = (linkProperties != null
-						&& linkProperties.getChannel().equals("facebook")
-						&& linkProperties.getFeature().equals("app_invite"));
-
-				if (facebookApplink) {
-					Logger.w(this, "Branch returned applink for facebook app invite");
-					handleFacebook();
-					return;
-				}
-
 				if (branchUniversalObject != null) {
 					Map metadata = branchUniversalObject.getMetadata();
 					Bundle extras = new Bundle();
@@ -188,12 +168,15 @@ public class LobbyForm extends AppCompatActivity {
 					finish();
 					return;
 				}
+
 				if (error != null) {
 					Logger.w(this, error.getMessage());
 				}
-				handleFacebook();
+
+				handleFacebook();   // Chaining
+
 			}
-		}, this.getIntent().getData(), this);
+		}, uri, this);
 	}
 
 	protected void handleFacebook() {
@@ -203,7 +186,7 @@ public class LobbyForm extends AppCompatActivity {
 		Uri targetUrl = AppLinks.getTargetUrl(getIntent());
 
 		if (targetUrl != null && targetUrl.getHost().equals("fb.me")) {
-			Logger.i(this, "Facebbook applink target url: " + targetUrl.toString());
+			Logger.i(this, "Facebook applink target url: " + targetUrl.toString());
 			UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(targetUrl.toString());
 
 			routeDeepLink(sanitizer.getValue("entityId")
@@ -211,7 +194,6 @@ public class LobbyForm extends AppCompatActivity {
 					, sanitizer.getValue("referrerName").replaceAll("_", " ")
 					, sanitizer.getValue("referrerPhotoUrl"));
 			finish();
-			return;
 		}
 		else {
 			if (!Patchr.settings.getBoolean(Preference.FIRST_RUN, true)) {
@@ -224,7 +206,7 @@ public class LobbyForm extends AppCompatActivity {
 								if (appLinkData != null) {
 									String targetUrlString = appLinkData.getArgumentBundle().getString("target_url");
 									if (targetUrlString != null) {
-										Logger.i(this, "Facebbook deferred applink target url: " + targetUrlString);
+										Logger.i(this, "Facebook deferred applink target url: " + targetUrlString);
 										UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(targetUrlString);
 
 										routeDeepLink(sanitizer.getValue("entityId")
@@ -235,7 +217,7 @@ public class LobbyForm extends AppCompatActivity {
 										return;
 									}
 								}
-								handleBranch();
+								proceed();
 							}
 						});
 			}
@@ -244,32 +226,36 @@ public class LobbyForm extends AppCompatActivity {
 
 	protected void proceed() {
 
-		/* Always reset the entity cache */
-		DataController.getInstance().clearStore();
-		LocationManager.getInstance().stop();
-		LocationManager.getInstance().setLocationLocked(null);
+		runOnUiThread(new Runnable() {
+			@Override public void run() {
+				/* Always reset the entity cache */
+				DataController.getInstance().clearStore();
+				LocationManager.getInstance().stop();
+				LocationManager.getInstance().setLocationLocked(null);
 
-		/* Restart notification tracking */
-		NotificationManager.getInstance().setNewNotificationCount(0);
+				/* Restart notification tracking */
+				NotificationManager.getInstance().setNewNotificationCount(0);
 
-		if (Patchr.applicationUpdateRequired) {
-			updateRequired();
-			return;
-		}
-		/*
-		 * Check to make sure play services are working properly. This call will finish
-		 * the activity if play services are missing and can't be installed or if the user
-		 * refuses to install them. If play services can be fixed, then resume will be
-		 * called again.
-		 */
-		if (AndroidManager.checkPlayServices(LobbyForm.this)) {
-			if (UserManager.getInstance().authenticated()) {
-				startHomeActivity();
+				if (Patchr.applicationUpdateRequired) {
+					updateRequired();
+					return;
+				}
+				/*
+				 * Check to make sure play services are working properly. This call will finish
+				 * the activity if play services are missing and can't be installed or if the user
+				 * refuses to install them. If play services can be fixed, then resume will be
+				 * called again.
+				 */
+				if (AndroidManager.checkPlayServices(LobbyForm.this)) {
+					if (UserManager.getInstance().authenticated()) {
+						startHomeActivity();
+					}
+					else {
+						showButtons();
+					}
+				}
 			}
-			else {
-				showButtons();
-			}
-		}
+		});
 	}
 
 	protected void routeDeepLink(String entityId, String entitySchema, String referrerName, String referrerPhotoUrl) {

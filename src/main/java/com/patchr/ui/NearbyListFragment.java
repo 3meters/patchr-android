@@ -2,7 +2,7 @@ package com.patchr.ui;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -52,7 +52,6 @@ import com.patchr.objects.Patch;
 import com.patchr.objects.Route;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.TransitionType;
-import com.patchr.objects.User;
 import com.patchr.objects.ViewHolder;
 import com.patchr.service.ServiceResponse;
 import com.patchr.ui.base.BaseActivity;
@@ -85,14 +84,12 @@ public class NearbyListFragment extends EntityListFragment {
 
 	private CacheStamp mCacheStamp;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		ensurePermissions();
 	}
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
 		if (view != null) {
 			draw(view);
@@ -100,16 +97,50 @@ public class NearbyListFragment extends EntityListFragment {
 		return view;
 	}
 
+	@Override public void onStart() {
+		super.onStart();
+
+		drawButtons(getView()); // User might have logged in/out while gone
+		Dispatcher.getInstance().register(mLocationHandler);
+
+		/* Start foreground activity recognition - stop proximity manager from background recognition */
+		try {
+			ProximityController.getInstance().unregister();
+		}
+		catch (Exception ignore) { /* ignnore */}
+	}
+
+	@Override public void onStop() {
+		super.onStop();
+
+		try {
+			Dispatcher.getInstance().unregister(mLocationHandler);
+		}
+		catch (Exception ignore) {/* ignore */}
+		/*
+		 * Parent could be restarting because of something like a theme change so
+		 * don't need to stop location updates or start activity monitoring.
+		 */
+		if (!((BaseActivity) getActivity()).getRestarting()) {
+
+			/* Stop location updates */
+			LocationManager.getInstance().stop();
+
+		    /* Start background activity recognition with proximity manager as the listener. */
+			ProximityController.getInstance().setLastBeaconInstallUpdate(null);
+			ProximityController.getInstance().register();
+		}
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onViewLayout() {
+	@Override public void onViewLayout() {
 		/* Stub to block default behavior */
 	}
 
-	public void onProcessingComplete(final ResponseCode responseCode) {
+	@Override public void onProcessingComplete(final ResponseCode responseCode) {
 		super.onProcessingComplete(responseCode);
 
 		Activity activity = getActivity();
@@ -131,17 +162,38 @@ public class NearbyListFragment extends EntityListFragment {
 		}
 	}
 
-	@Override
-	public void onClick(View view) {
+	@Override public void onClick(View view) {
 		final Patch entity = (Patch) ((ViewHolder) view.getTag()).data;
 		Bundle extras = new Bundle();
 		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onQueryWifiScanReceived(final QueryWifiScanReceivedEvent event) {
+	@Override public void onAdd(Bundle extras) {
+
+		if (!UserManager.getInstance().authenticated()) {
+			UserManager.getInstance().showGuestGuard(getActivity(), "Sign up for a free account to make patches and more.");
+			return;
+		}
+
+		/* Schema target is in the extras */
+		Patchr.router.route(getActivity(), Route.NEW, null, extras);
+	}
+
+	@Override public void onError() {
+		/* Kill busy */
+		onProcessingComplete(ResponseCode.FAILED);
+	}
+
+	@Override public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		mAdapter.notifyDataSetChanged();
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Notifications
+	 *--------------------------------------------------------------------------------------------*/
+	@Subscribe public void onQueryWifiScanReceived(final QueryWifiScanReceivedEvent event) {
 
 		if (getActivity() == null || getActivity().isFinishing()) return;
 		if (!isResumed()) return;  // So we don't process a query scan while not visible
@@ -169,9 +221,7 @@ public class NearbyListFragment extends EntityListFragment {
 		});
 	}
 
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onBeaconsLocked(BeaconsLockedEvent event) {
+	@Subscribe public void onBeaconsLocked(BeaconsLockedEvent event) {
 
 		if (getActivity() == null || getActivity().isFinishing()) return;
 		getActivity().runOnUiThread(new Runnable() {
@@ -184,8 +234,7 @@ public class NearbyListFragment extends EntityListFragment {
 					@Override
 					protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncGetPatchesForBeacons");
-						ServiceResponse serviceResponse = ProximityController.getInstance().getEntitiesByProximity();
-						return serviceResponse;
+						return ProximityController.getInstance().getEntitiesByProximity();
 					}
 
 					@Override
@@ -215,9 +264,7 @@ public class NearbyListFragment extends EntityListFragment {
 		});
 	}
 
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onEntitiesByProximityFinished(EntitiesByProximityCompleteEvent event) {
+	@Subscribe public void onEntitiesByProximityFinished(EntitiesByProximityCompleteEvent event) {
 
 		if (getActivity() == null || getActivity().isFinishing()) return;
 		getActivity().runOnUiThread(new Runnable() {
@@ -249,8 +296,7 @@ public class NearbyListFragment extends EntityListFragment {
 								Thread.currentThread().setName("AsyncGetPatchesNearLocation");
 								Logger.d(getActivity(), "Proximity finished event: Location locked so getting patches near location");
 								Patchr.stopwatch2.start("location_processing", "Location processing: get patches near location");
-								ServiceResponse serviceResponse = ProximityController.getInstance().getEntitiesNearLocation(location);
-								return serviceResponse;
+								return ProximityController.getInstance().getEntitiesNearLocation(location);
 							}
 
 							@Override
@@ -299,9 +345,7 @@ public class NearbyListFragment extends EntityListFragment {
 		});
 	}
 
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onEntitiesChanged(final EntitiesUpdatedEvent event) {
+	@Subscribe public void onEntitiesChanged(final EntitiesUpdatedEvent event) {
 
 		if (getActivity() == null || getActivity().isFinishing()) return;
 		getActivity().runOnUiThread(new Runnable() {
@@ -343,40 +387,12 @@ public class NearbyListFragment extends EntityListFragment {
 		});
 	}
 
-	@Override
-	public void onAdd(Bundle extras) {
-
-		if (!UserManager.getInstance().authenticated()) {
-			UserManager.getInstance().showGuestGuard(getActivity(), "Sign up for a free account to make patches and more.");
-			return;
-		}
-
-		/* Schema target is in the extras */
-		Patchr.router.route(getActivity(), Route.NEW, null, extras);
-	}
-
-	@Override
-	public void onError() {
-		/* Kill busy */
-		onProcessingComplete(ResponseCode.FAILED);
-	}
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		mAdapter.notifyDataSetChanged();
-	}
-
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onLocationAllowed(final LocationAllowedEvent event) {
+	@Subscribe public void onLocationAllowed(final LocationAllowedEvent event) {
 		setListEmptyMessageResId(R.string.label_radar_empty);
 		onRefresh();
 	}
 
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onLocationDenied(final LocationDeniedEvent event) {
+	@Subscribe public void onLocationDenied(final LocationDeniedEvent event) {
 		/* Here but being used yet. */
 	}
 
@@ -384,9 +400,8 @@ public class NearbyListFragment extends EntityListFragment {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void bind(BindingMode mode) {
-		Logger.d(this, "Bind called: " + mode.name().toString());
+	@Override public void bind(BindingMode mode) {
+		Logger.d(this, "Bind called: " + mode.name());
 		/*
 		 * Global cache stamp gets dirtied by delete, insert, update patch entity.
 		 * Also when gcm notification is received and targetSchema == patch.
@@ -436,7 +451,7 @@ public class NearbyListFragment extends EntityListFragment {
 		onProcessingComplete(ResponseCode.SUCCESS);
 	}
 
-	public void draw(final View view) {
+	@Override public void draw(final View view) {
 		Activity activity = getActivity();
 		if (activity != null && !activity.isFinishing()) {
 			activity.runOnUiThread(new Runnable() {
@@ -493,7 +508,7 @@ public class NearbyListFragment extends EntityListFragment {
 				|| LocationManager.getInstance().isLocationAccessEnabled());
 
 		if (mListController.getFloatingActionController() != null) {
-			if (proximityCapable)  {
+			if (proximityCapable) {
 				mListController.getFloatingActionController().fadeIn();
 			}
 			else {
@@ -545,16 +560,16 @@ public class NearbyListFragment extends EntityListFragment {
 			//snackbar.getView().setBackgroundColor(Colors.getColor(R.color.brand_accent));
 			snackbar.setActionTextColor(Colors.getColor(R.color.brand_primary));
 			snackbar.setText(R.string.alert_location_permission_denied)
-			        .setAction("Settings", new View.OnClickListener() {
-				        @Override
-				        public void onClick(View v) {
-					        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-					        Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
-					        intent.setData(uri);
-					        startActivityForResult(intent, 100);
-				        }
-			        })
-			        .show();
+					.setAction("Settings", new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+							Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+							intent.setData(uri);
+							startActivityForResult(intent, 100);
+						}
+					})
+					.show();
 		}
 	}
 
@@ -599,47 +614,6 @@ public class NearbyListFragment extends EntityListFragment {
 						, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
 						, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 			}
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onStart() {
-		super.onStart();
-
-		drawButtons(getView()); // User might have logged in/out while gone
-		Dispatcher.getInstance().register(mLocationHandler);
-
-		/* Start foreground activity recognition - stop proximity manager from background recognition */
-		try {
-			ProximityController.getInstance().unregister();
-		}
-		catch (Exception ignore) { /* ignnore */}
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-
-		try {
-			Dispatcher.getInstance().unregister(mLocationHandler);
-		}
-		catch (Exception ignore) {/* ignore */}
-		/*
-		 * Parent could be restarting because of something like a theme change so
-		 * don't need to stop location updates or start activity monitoring.
-		 */
-		if (!((BaseActivity) getActivity()).getRestarting()) {
-
-			/* Stop location updates */
-			LocationManager.getInstance().stop();
-
-		    /* Start background activity recognition with proximity manager as the listener. */
-			ProximityController.getInstance().setLastBeaconInstallUpdate(null);
-			ProximityController.getInstance().register();
 		}
 	}
 

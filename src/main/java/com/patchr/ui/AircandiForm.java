@@ -1,9 +1,7 @@
 package com.patchr.ui;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -41,7 +39,6 @@ import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Route;
-import com.patchr.objects.TransitionType;
 import com.patchr.ui.EntityListFragment.ViewType;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.base.BaseFragment;
@@ -51,8 +48,6 @@ import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;
 import com.squareup.otto.Subscribe;
-
-import java.util.Map;
 
 @SuppressLint("Registered")
 public class AircandiForm extends BaseActivity {
@@ -444,7 +439,7 @@ public class AircandiForm extends BaseActivity {
 		};
 
 		/* Set the drawer toggle as the DrawerListener */
-		mDrawerLayout.setDrawerListener(mDrawerToggle);
+		mDrawerLayout.addDrawerListener(mDrawerToggle);
 
 		if (mDrawerToggle != null) {
 			mDrawerToggle.syncState();

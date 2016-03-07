@@ -1,14 +1,17 @@
 package com.patchr.components;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -18,7 +21,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.patchr.Constants;
 import com.patchr.Patchr;
-import com.patchr.R;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Preference;
@@ -84,16 +86,14 @@ public class LocationManager implements
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onConnected(Bundle bundle) {
+	@Override public void onConnected(Bundle bundle) {
 		Logger.d(this, "Google location api connected");
 		if (mRequestingLocationUpdates) {
 			requestLocationUpdates();
 		}
 	}
 
-	@Override
-	public void onConnectionSuspended(int i) {
+	@Override public void onConnectionSuspended(int i) {
 		Logger.d(this, "Google location api connection suspended");
 		/* Use flag to determine if connection shut down on purpose. */
 		if (mRequestingLocationUpdates) {
@@ -101,8 +101,7 @@ public class LocationManager implements
 		}
 	}
 
-	@Override
-	public void onConnectionFailed(ConnectionResult result) {
+	@Override public void onConnectionFailed(@NonNull ConnectionResult result) {
 		/*
 		 * Google Play services can resolve some errors it detects. If the error has a
 		 * resolution, try sending an Intent to start a Google Play services activity
@@ -136,8 +135,7 @@ public class LocationManager implements
 		}
 	}
 
-	@Override
-	public void onLocationChanged(Location location) {
+	@Override public void onLocationChanged(Location location) {
 
 		if (location == null) return;
 
@@ -212,10 +210,10 @@ public class LocationManager implements
 				&& Type.isTrue(UserManager.getInstance().getCurrentUser().developer)
 				&& Patchr.settings.getBoolean(Preference.ENABLE_LOCATION_HIGH_ACCURACY, false)) {
 			mLocationRequest = LocationRequest.create()
-			                                  .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-			                                  .setSmallestDisplacement(MIN_DISPLACEMENT)
-			                                  .setInterval(Constants.TIME_FIFTEEN_SECONDS)
-			                                  .setFastestInterval(Constants.TIME_FIVE_SECONDS);
+					.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+					.setSmallestDisplacement(MIN_DISPLACEMENT)
+					.setInterval(Constants.TIME_FIFTEEN_SECONDS)
+					.setFastestInterval(Constants.TIME_FIVE_SECONDS);
 		}
 		/*
 		 * Balanced doesn't allow gps so if wifi isn't available then grind
@@ -223,18 +221,18 @@ public class LocationManager implements
 		 */
 		else if (tethered || (!NetworkManager.getInstance().isWifiEnabled())) {
 			mLocationRequest = LocationRequest.create()
-			                                  .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-			                                  .setSmallestDisplacement(MIN_DISPLACEMENT)
-			                                  .setInterval(Constants.TIME_FIFTEEN_SECONDS)
-			                                  .setFastestInterval(Constants.TIME_FIVE_SECONDS);
+					.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+					.setSmallestDisplacement(MIN_DISPLACEMENT)
+					.setInterval(Constants.TIME_FIFTEEN_SECONDS)
+					.setFastestInterval(Constants.TIME_FIVE_SECONDS);
 		}
 		/* Normal request */
 		else {
 			mLocationRequest = LocationRequest.create()
-			                                  .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-			                                  .setSmallestDisplacement(MIN_DISPLACEMENT)
-			                                  .setInterval(Constants.TIME_FIFTEEN_SECONDS)
-			                                  .setFastestInterval(Constants.TIME_FIFTEEN_SECONDS);
+					.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+					.setSmallestDisplacement(MIN_DISPLACEMENT)
+					.setInterval(Constants.TIME_FIFTEEN_SECONDS)
+					.setFastestInterval(Constants.TIME_FIFTEEN_SECONDS);
 		}
 
 		if (mGoogleApiClient.isConnected()) {
@@ -257,34 +255,33 @@ public class LocationManager implements
 		Logger.d(this, "Starting location updates");
 
 		/* Get last known location */
-		mLocationLastKnown = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-		if (mLocationLastKnown != null) {
-			onLocationChanged(mLocationLastKnown);
-		}
+		if (ActivityCompat.checkSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+			mLocationLastKnown = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+			if (mLocationLastKnown != null) {
+				onLocationChanged(mLocationLastKnown);
+			}
 
-		/* Start updates */
-		LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient
-				, mLocationRequest
-				, this);
+			/* Start updates */
+			LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient
+					, mLocationRequest
+					, this);
+		}
 	}
 
 	/* Public */
 
-	@NonNull
-	public Boolean hasMoved(Location locationCandidate) {
+	@NonNull public Boolean hasMoved(Location locationCandidate) {
 		if (mLocationLocked == null) return true;
 		final float distance = mLocationLocked.distanceTo(locationCandidate);
 		return (distance >= mLocationRequest.getSmallestDisplacement());
 	}
 
-	@NonNull
-	public Boolean isLocationAccessEnabled() {
+	@NonNull public Boolean isLocationAccessEnabled() {
 		return (mLocationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
 				|| mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER));
 	}
 
-	@NonNull
-	public ModelResult getAddressForLocation(final AirLocation location) {
+	@NonNull public ModelResult getAddressForLocation(final AirLocation location) {
 		/*
 		 * Can trigger network access so should be called on a background thread.
 		 */
@@ -304,8 +301,7 @@ public class LocationManager implements
 		return result;
 	}
 
-	@NonNull
-	public ModelResult getLocationFromAddress(String address) {
+	@NonNull public ModelResult getLocationFromAddress(String address) {
 		/*
 		 * Can trigger network access so should be called on a background thread.
 		 */

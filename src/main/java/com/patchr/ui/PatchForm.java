@@ -6,6 +6,10 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ShareCompat;
@@ -25,12 +29,10 @@ import com.facebook.FacebookException;
 import com.facebook.share.model.AppInviteContent;
 import com.facebook.share.widget.AppInviteDialog;
 import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.flipboard.bottomsheet.commons.IntentPickerSheetView;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.AndroidManager;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController.ActionType;
 import com.patchr.components.DownloadManager;
@@ -43,7 +45,6 @@ import com.patchr.events.ActionEvent;
 import com.patchr.events.DataResultEvent;
 import com.patchr.events.ProcessingCompleteEvent;
 import com.patchr.events.WatchStatusChangedEvent;
-import com.patchr.objects.AirLocation;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Message;
 import com.patchr.objects.Patch;
@@ -60,14 +61,10 @@ import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.widgets.InsetViewTransformer;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Integers;
-import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 import com.squareup.otto.Subscribe;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
@@ -75,7 +72,7 @@ import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
 
 @SuppressLint("Registered")
-public class PatchForm extends BaseActivity {
+public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMessageCallback, NfcAdapter.OnNdefPushCompleteCallback {
 
 	private final Handler mHandler = new Handler();
 
@@ -86,6 +83,7 @@ public class PatchForm extends BaseActivity {
 	protected CallbackManager    mCallbackManager;
 	protected String             mInviterName;
 	protected String             mInviterPhotoUrl;
+	protected String             mBranchLink;
 	protected Boolean mShowInviterWelcome     = false;
 	protected Boolean mAuthenticatedForInvite = false;
 
@@ -115,7 +113,6 @@ public class PatchForm extends BaseActivity {
 				if (mBottomSheetLayout.isSheetShowing()) {
 					if (UserManager.getInstance().authenticated() && patch.watchStatus() != WatchStatus.NONE) {
 						mBottomSheetLayout.dismissSheet();
-						return;
 					}
 					else if (UserManager.getInstance().authenticated() != mAuthenticatedForInvite) {
 						showInviteWelcome(1000);
@@ -132,6 +129,101 @@ public class PatchForm extends BaseActivity {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.leave_patch) {
+			((PatchFormFragment) mHeaderFragment).onWatchButtonClick(null);
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override public void onRefresh() {
+		/*
+		 * Called from swipe refresh or routing. Always treated
+		 * as an aggresive refresh.
+		 */
+		if (mHeaderFragment != null) {
+			mHeaderFragment.onRefresh();
+		}
+		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
+			((EntityListFragment) mCurrentFragment).onRefresh();
+		}
+	}
+
+	@Override public void onAdd(Bundle extras) {
+
+		if (!UserManager.getInstance().authenticated()) {
+			UserManager.getInstance().showGuestGuard(this, "Sign up for a free account to post messages and more.");
+			return;
+		}
+
+		if (mEntity == null) return;
+
+		if (MenuManager.canUserAdd(mEntity)) {
+
+			String message = StringManager.getString(R.string.label_message_new_message);
+			if (!TextUtils.isEmpty(mEntity.name)) {
+				message = String.format(StringManager.getString(R.string.label_message_new_to_message), mEntity.name);
+			}
+
+			extras.putString(Constants.EXTRA_MESSAGE, message);
+			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntityId);
+			extras.putString(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
+			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+
+			Patchr.router.route(this, Route.NEW, null, extras);
+		}
+		else if (Type.isTrue(((Patch) mEntity).locked)) {
+			Dialogs.locked(this, mEntity);
+		}
+	}
+
+	@Override public NdefMessage createNdefMessage(NfcEvent event) {
+		String uri = "https://patchr.com";
+		if (mBranchLink != null) {
+			uri = mBranchLink;
+		}
+		/* Create an NDEF message containing the branch link for this patch */
+		NdefRecord rec = NdefRecord.createUri(uri);
+		NdefRecord[] records = new NdefRecord[]{rec};
+		return new NdefMessage(records);
+	}
+
+	@Override public void onNdefPushComplete(NfcEvent event) {
+		UI.showToastNotification("Patch beamed!", Toast.LENGTH_SHORT);
+	}
+
+	@Override public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		if (mBottomSheetLayout.isSheetShowing()) {
+			mBottomSheetLayout.peekSheet();
+		}
+	}
+
+	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
+			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
+				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
+					finish();
+					AnimationManager.doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+				}
+			}
+			else if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.getInstance().authenticated()) {
+				onRefresh();
+			}
+			mCallbackManager.onActivityResult(requestCode, resultCode, intent);
+		}
+		super.onActivityResult(requestCode, resultCode, intent);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Notifications
+	 *--------------------------------------------------------------------------------------------*/
+
 	@Subscribe public void onDataResult(final DataResultEvent event) {
 		/*
 		 * Cherry pick the entity so we can add some wrapper functionality.
@@ -143,6 +235,7 @@ public class PatchForm extends BaseActivity {
 				showInviteWelcome(1500);
 			}
 			Patchr.getInstance().setCurrentPatch(mEntity);
+			makeBranchLink();           // Create or refresh so it's ready and correct
 			invalidateOptionsMenu();    // In case user authenticated
 		}
 	}
@@ -208,78 +301,6 @@ public class PatchForm extends BaseActivity {
 		onRefresh();
 	}
 
-	@Override public void onRefresh() {
-		/*
-		 * Called from swipe refresh or routing. Always treated
-		 * as an aggresive refresh.
-		 */
-		if (mHeaderFragment != null) {
-			mHeaderFragment.onRefresh();
-		}
-		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
-			((EntityListFragment) mCurrentFragment).onRefresh();
-		}
-	}
-
-	@Override public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.leave_patch) {
-			((PatchFormFragment) mHeaderFragment).onWatchButtonClick(null);
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	@Override public void onAdd(Bundle extras) {
-
-		if (!UserManager.getInstance().authenticated()) {
-			UserManager.getInstance().showGuestGuard(this, "Sign up for a free account to post messages and more.");
-			return;
-		}
-
-		if (mEntity == null) return;
-
-		if (MenuManager.canUserAdd(mEntity)) {
-
-			String message = StringManager.getString(R.string.label_message_new_message);
-			if (!TextUtils.isEmpty(mEntity.name)) {
-				message = String.format(StringManager.getString(R.string.label_message_new_to_message), mEntity.name);
-			}
-
-			extras.putString(Constants.EXTRA_MESSAGE, message);
-			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mEntityId);
-			extras.putString(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
-			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-
-			Patchr.router.route(this, Route.NEW, null, extras);
-		}
-		else if (Type.isTrue(((Patch) mEntity).locked)) {
-			Dialogs.locked(this, mEntity);
-		}
-	}
-
-	@Override public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		if (mBottomSheetLayout.isSheetShowing()) {
-			mBottomSheetLayout.peekSheet();
-		}
-	}
-
-	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
-			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
-				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
-					finish();
-					AnimationManager.doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
-				}
-			}
-			else if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.getInstance().authenticated()) {
-				onRefresh();
-			}
-			mCallbackManager.onActivityResult(requestCode, resultCode, intent);
-		}
-		super.onActivityResult(requestCode, resultCode, intent);
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -292,6 +313,13 @@ public class PatchForm extends BaseActivity {
 		mBottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
 		mBottomSheetLayout.setPeekOnDismiss(true);
 		mCallbackManager = CallbackManager.Factory.create();
+
+		NfcAdapter nfc = NfcAdapter.getDefaultAdapter(Patchr.applicationContext);
+
+		if (nfc != null) {
+			nfc.setNdefPushMessageCallback(this, this);
+			nfc.setOnNdefPushCompleteCallback(this, this);
+		}
 
 		mHeaderFragment
 				.setEntityId(mEntityId)
@@ -386,34 +414,21 @@ public class PatchForm extends BaseActivity {
 		return R.layout.patch_form;
 	}
 
-	private void showSmartSharePicker(String title) {
+	private void makeBranchLink() {
 
-		final Intent shareIntent = new Intent(Intent.ACTION_SEND);
-		shareIntent.setType("text/plain");
-		shareIntent.putExtra(Intent.EXTRA_SUBJECT, String.format(StringManager.getString(R.string.label_patch_share_subject)
-				, (mEntity.name != null) ? mEntity.name : "A"));
-		shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(StringManager.getString(R.string.label_patch_share_body), mEntityId));
-		shareIntent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-		shareIntent.putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
-		shareIntent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
+		BranchProvider provider = new BranchProvider();
+		BranchUniversalObject applink = provider.buildApplink();
+		LinkProperties linkProperties = new LinkProperties()
+				.setChannel("patchr-android")
+				.setFeature(Branch.FEATURE_TAG_INVITE);
 
-		IntentPickerSheetView intentPickerSheet = new IntentPickerSheetView(this, shareIntent, "Invite using...", new IntentPickerSheetView.OnIntentPickedListener() {
-			@Override
-			public void onIntentPicked(IntentPickerSheetView.ActivityInfo activityInfo) {
-				mBottomSheetLayout.dismissSheet();
-				startActivity(activityInfo.getConcreteIntent(shareIntent));
+		applink.generateShortUrl(PatchForm.this, linkProperties, new Branch.BranchLinkCreateListener() {
+			@Override public void onLinkCreate(String uri, BranchError error) {
+				if (error == null) {
+					mBranchLink = uri;
+				}
 			}
 		});
-
-		/* Filter out built in sharing options such as bluetooth and beam. */
-		intentPickerSheet.setFilter(new IntentPickerSheetView.Filter() {
-			@Override
-			public boolean include(IntentPickerSheetView.ActivityInfo info) {
-				return !info.componentName.getPackageName().startsWith("com.android");
-			}
-		});
-
-		mBottomSheetLayout.showWithSheetView(intentPickerSheet);
 	}
 
 	private void showInviteWelcome(int delay) {
@@ -491,7 +506,7 @@ public class PatchForm extends BaseActivity {
 
 	public class BranchProvider {
 
-		public void invite(final String title) {
+		public BranchUniversalObject buildApplink() {
 
 			final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
 			final String referrerName = UserManager.getInstance().getCurrentUser().name;
@@ -524,6 +539,16 @@ public class PatchForm extends BaseActivity {
 			if (mEntity.description != null) {
 				applink.setContentDescription(mEntity.description); // $og_description
 			}
+
+			return applink;
+		}
+
+		public void invite(final String title) {
+
+			final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
+			final String referrerName = UserManager.getInstance().getCurrentUser().name;
+
+			BranchUniversalObject applink = buildApplink();
 
 			LinkProperties linkProperties = new LinkProperties()
 					.setChannel("patchr-android")

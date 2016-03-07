@@ -11,7 +11,6 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.Preference;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseActivity;

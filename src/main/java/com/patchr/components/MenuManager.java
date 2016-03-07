@@ -32,44 +32,40 @@ public class MenuManager {
 		 * Fragments set menu items when they are configured which are
 		 * later added in BaseFragment.onCreateOptionsMenu.
 		 */
-		if (activityName.equals("AircandiForm")) {
-			if (UserManager.getInstance().authenticated()) {
-				menuInflater.inflate(R.menu.menu_notifications, menu);
-			}
-			return true;
-		}
-		else if (activityName.equals("MapForm")) {
-			menuInflater.inflate(R.menu.menu_sign_in, menu);
-			menuInflater.inflate(R.menu.menu_navigate, menu);
-			return true;
-		}
-		else if (activityName.equals("MessageForm")) {
-			/*
-			 * These are included but actual visibility is handled in BaseActivity.onPrepareOptionsMenu
-			 * which gets called everytime the overflow menu is displayed. If these are shown as actions
-			 * there might be a timing problem.
-			 */
-			menuInflater.inflate(R.menu.menu_edit_message, menu);
-			menuInflater.inflate(R.menu.menu_delete, menu);
-			menuInflater.inflate(R.menu.menu_remove, menu);
-			/*
-			 * Shown for everyone
-			 */
-			menuInflater.inflate(R.menu.menu_share_message, menu);
-			menuInflater.inflate(R.menu.menu_refresh, menu);
-			menuInflater.inflate(R.menu.menu_report_message, menu);
-			return true;
-		}
-		else if (activityName.equals("SearchForm")) {
-			menuInflater.inflate(R.menu.menu_search_view, menu);
-			return true;
-		}
-		else if (activityName.equals("AboutForm")) {
-			return true;
-		}
-		else if (activityName.equals("PhotoForm")) {
-			menuInflater.inflate(R.menu.menu_share_photo, menu);
-			return true;
+		switch (activityName) {
+			case "AircandiForm":
+				if (UserManager.getInstance().authenticated()) {
+					menuInflater.inflate(R.menu.menu_notifications, menu);
+				}
+				return true;
+			case "MapForm":
+				menuInflater.inflate(R.menu.menu_sign_in, menu);
+				menuInflater.inflate(R.menu.menu_navigate, menu);
+				return true;
+			case "MessageForm":
+				/*
+				 * These are included but actual visibility is handled in BaseActivity.onPrepareOptionsMenu
+				 * which gets called everytime the overflow menu is displayed. If these are shown as actions
+				 * there might be a timing problem.
+				 */
+				menuInflater.inflate(R.menu.menu_edit_message, menu);
+				menuInflater.inflate(R.menu.menu_delete, menu);
+				menuInflater.inflate(R.menu.menu_remove, menu);
+				/*
+				 * Shown for everyone
+				 */
+				menuInflater.inflate(R.menu.menu_share_message, menu);
+				menuInflater.inflate(R.menu.menu_refresh, menu);
+				menuInflater.inflate(R.menu.menu_report_message, menu);
+				return true;
+			case "SearchForm":
+				menuInflater.inflate(R.menu.menu_search_view, menu);
+				return true;
+			case "AboutForm":
+				return true;
+			case "PhotoForm":
+				menuInflater.inflate(R.menu.menu_share_photo, menu);
+				return true;
 		}
 
 		/* Editing */
@@ -132,6 +128,7 @@ public class MenuManager {
 
 	@NonNull
 	public static Boolean canUserEdit(Entity entity) {
+		//noinspection SimplifiableIfStatement
 		if (!UserManager.getInstance().authenticated()) return false;
 		return entity != null
 				&& (entity.isOwnedByCurrentUser()
@@ -142,6 +139,7 @@ public class MenuManager {
 
 	@NonNull
 	public static Boolean canUserDelete(Entity entity) {
+		//noinspection SimplifiableIfStatement
 		if (!UserManager.getInstance().authenticated()) return false;
 		return entity != null
 				&& (entity.isOwnedByCurrentUser()
@@ -196,7 +194,6 @@ public class MenuManager {
 		}
 	}
 
-	@NonNull
 	public static boolean showAction(Integer route, Entity entity, String forId) {
 
 		if (entity == null)

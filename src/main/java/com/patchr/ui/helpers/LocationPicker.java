@@ -3,21 +3,13 @@ package com.patchr.ui.helpers;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.Toast;
 
-import com.patchr.Constants;
-import com.patchr.Patchr;
-import com.patchr.R;
-import com.patchr.components.AnimationManager;
-import com.patchr.components.PermissionUtil;
-import com.patchr.objects.AirLocation;
-import com.patchr.objects.TransitionType;
-import com.patchr.ui.base.BaseActivity;
-import com.patchr.utilities.Json;
-import com.patchr.utilities.UI;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -28,6 +20,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.patchr.Constants;
+import com.patchr.R;
+import com.patchr.components.AnimationManager;
+import com.patchr.objects.AirLocation;
+import com.patchr.objects.TransitionType;
+import com.patchr.ui.base.BaseActivity;
+import com.patchr.utilities.Json;
+import com.patchr.utilities.UI;
 
 /*
  * We often will get duplicates because the ordering of images isn't
@@ -75,7 +75,6 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 				}
 			}
 		});
-
 	}
 
 	public void draw(View view) {}
@@ -158,7 +157,7 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 
 		UiSettings uiSettings = mMap.getUiSettings();
 
-		if (PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
+		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 			mMap.setMyLocationEnabled(true);
 			uiSettings.setMyLocationButtonEnabled(true);
 		}

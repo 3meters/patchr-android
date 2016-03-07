@@ -1,7 +1,6 @@
 package com.patchr.utilities;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,8 +9,8 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -24,8 +23,6 @@ import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-
-;
 
 public class Dialogs {
 
@@ -41,9 +38,7 @@ public class Dialogs {
 			, OnClickListener listenerClick
 			, OnCancelListener listenerCancel) {
 
-		Integer theme = android.R.style.Theme_DeviceDefault_Light_Dialog_Alert;
-
-		final AlertDialog.Builder builder = new AlertDialog.Builder(context, theme);
+		final AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.patchr_theme_dialog);
 
 		if (iconResource != null) {
 			builder.setIcon(iconResource);

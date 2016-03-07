@@ -29,7 +29,7 @@ public class NotificationManager {
 	private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
 	private Uri mSoundUri;
 	private Integer                   mNewNotificationCount = 0;
-	private Map<String, Notification> mNotifications        = new HashMap<String, Notification>();
+	private Map<String, Notification> mNotifications        = new HashMap<>();
 
 	private NotificationManager() {
 		mNotificationService = (android.app.NotificationManager) Patchr.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -108,7 +108,7 @@ public class NotificationManager {
 				Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
 				                               .load(url)
 				                               .centerCrop()
-				                               .resizeDimen(R.dimen.notification_large_icon_width, R.dimen.notification_large_icon_width)
+				                               .resizeDimen(R.dimen.notification_tray_large_icon_width, R.dimen.notification_tray_large_icon_width)
 				                               .get();
 
 				builder.setLargeIcon(bitmap);
@@ -145,7 +145,7 @@ public class NotificationManager {
 			Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
 			                               .load(url)
 			                               .centerCrop()
-			                               .resizeDimen(R.dimen.notification_big_picture_width, R.dimen.notification_big_picture_height)
+			                               .resizeDimen(R.dimen.notification_tray_big_picture_width, R.dimen.notification_tray_big_picture_height)
 			                               .get();
 
 			NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle()

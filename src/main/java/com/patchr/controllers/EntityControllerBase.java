@@ -282,9 +282,9 @@ public abstract class EntityControllerBase implements IEntityController {
 				UI.setVisibility(holder.userPhotoView, View.VISIBLE);
 			}
 			else if (entity.creator != null) {
-		    /*
-			 * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
-			 */
+			    /*
+				 * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
+				 */
 				holder.userPhotoView.databind(entity.creator);
 				UI.setVisibility(holder.userPhotoView, View.VISIBLE);
 			}

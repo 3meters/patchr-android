@@ -1,10 +1,7 @@
 package com.patchr.ui.base;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -12,8 +9,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
@@ -29,7 +24,6 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.DownloadManager;
 import com.patchr.components.MediaManager;
 import com.patchr.components.ModelResult;
@@ -38,8 +32,6 @@ import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.ProximityController;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.LocationAllowedEvent;
-import com.patchr.events.LocationDeniedEvent;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Beacon;
@@ -51,7 +43,6 @@ import com.patchr.objects.TransitionType;
 import com.patchr.service.ServiceResponse;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.widgets.AirPhotoView;
-import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
@@ -364,23 +355,24 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 					if (!TextUtils.isEmpty(photoSource)) {
 						mPhotoSource = photoSource;
-						if (photoSource.equals(Constants.PHOTO_ACTION_SEARCH)) {
-
-							String defaultSearch = null;
-							if (mEntity.name != null) {
-								defaultSearch = mEntity.name.trim();
-							}
-							photoSearch(defaultSearch);
-						}
-						else if (photoSource.equals(Constants.PHOTO_ACTION_GALLERY)) {
-							photoFromGallery();
-						}
-						else if (photoSource.equals(Constants.PHOTO_ACTION_CAMERA)) {
-							photoFromCamera();
-						}
-						else if (photoSource.equals(Constants.PHOTO_ACTION_DEFAULT)
-								|| photoSource.equals(Constants.PHOTO_ACTION_WEBSITE_THUMBNAIL)) {
-							usePhotoDefault();
+						switch (photoSource) {
+							case Constants.PHOTO_ACTION_SEARCH:
+								String defaultSearch = null;
+								if (mEntity.name != null) {
+									defaultSearch = mEntity.name.trim();
+								}
+								photoSearch(defaultSearch);
+								break;
+							case Constants.PHOTO_ACTION_GALLERY:
+								photoFromGallery();
+								break;
+							case Constants.PHOTO_ACTION_CAMERA:
+								photoFromCamera();
+								break;
+							case Constants.PHOTO_ACTION_DEFAULT:
+							case Constants.PHOTO_ACTION_WEBSITE_THUMBNAIL:
+								usePhotoDefault();
+								break;
 						}
 					}
 				}
@@ -484,10 +476,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
 			}
 		}
-		catch (IllegalArgumentException e) {
-			Reporting.logMessage("Image chooser failed to handle photo from device");
-			Reporting.logException(e);
-		}
 		catch (Exception e) {
 			Reporting.logMessage("Image chooser failed to handle photo from device");
 			Reporting.logException(e);
@@ -536,7 +524,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	@Override protected void beforeInsert(Entity entity, List<Link> links) {
 		if (mParentId != null) {
 			if (links == null) {
-				links = new ArrayList<Link>();
+				links = new ArrayList<>();
 			}
 			links.add(new Link(mParentId, getLinkType(), mEntity.schema));
 		}
@@ -629,7 +617,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				}
 
 				/* In case a derived class needs to augment the entity or add links before insert */
-				List<Link> links = new ArrayList<Link>();
+				List<Link> links = new ArrayList<>();
 				beforeInsert(mEntity, links);
 				if (isCancelled()) return null;
 

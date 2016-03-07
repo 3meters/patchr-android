@@ -12,20 +12,14 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.StringManager;
-import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Link.Direction;
-import com.patchr.objects.Photo;
 import com.patchr.objects.User;
-import com.patchr.ui.components.CircleTransform;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 

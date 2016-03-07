@@ -172,7 +172,6 @@
 
 	<style name="patchr_theme_notitlebar" parent="patchr_theme">
 		<item name="android:windowNoTitle">true</item>
-		<item name="android:windowTranslucentStatus">true</item>
 	</style>
 
 	<!-- Translucent theme versions -->

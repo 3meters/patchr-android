@@ -1,7 +1,6 @@
 package com.patchr.ui.widgets;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -51,7 +50,6 @@ public class EntityPhotoView extends AirPhotoView {
 		super.initialize(context);
 
 		this.setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundRoundPlaceholder));
-		this.setBackgroundTintMode(PorterDuff.Mode.SRC_ATOP);
 
 		mNameView = new TextView(getContext());
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -80,7 +78,7 @@ public class EntityPhotoView extends AirPhotoView {
 
 		if (mEntity != null) {
 
-			this.setBackgroundTintList(null);   // Clears any existing tint and returns to grey
+			this.getBackground().clearColorFilter();
 
 			if (mEntity.photo == null) {
 
@@ -98,7 +96,7 @@ public class EntityPhotoView extends AirPhotoView {
 					String initials = Utils.initialsFromName(mEntity.name);
 					long seed = Utils.numberFromName(mEntity.name);
 					Integer color = Utils.randomColor(seed);
-					this.setBackgroundTintList(ColorStateList.valueOf(color));
+					this.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
 
 					mNameView.setText(initials);
 				}
@@ -108,7 +106,7 @@ public class EntityPhotoView extends AirPhotoView {
 				Photo photo = mEntity.getPhoto();
 				String uri = UI.url(photo.prefix, photo.source, null);  // Will be just the prefix without host, params, etc.
 
-				if (mUriBound == null || !uri.equals(mUriBound)) {
+				//if (mUriBound == null || !uri.equals(mUriBound)) {
 
 					mUriBound = uri;
 					mImageMain.setVisibility(VISIBLE);
@@ -120,7 +118,7 @@ public class EntityPhotoView extends AirPhotoView {
 					else {
 						UI.drawPhoto(this, photo);
 					}
-				}
+				//}
 			}
 		}
 		else if (mUri != null || mName != null) {
@@ -139,7 +137,7 @@ public class EntityPhotoView extends AirPhotoView {
 					}
 				}
 			}
-			else if (mName != null) {
+			else {
 
 				mImageMain.setVisibility(GONE);
 				mImageMain.setImageDrawable(null);
@@ -154,7 +152,7 @@ public class EntityPhotoView extends AirPhotoView {
 					String initials = Utils.initialsFromName(mName);
 					long seed = Utils.numberFromName(mName);
 					Integer color = Utils.randomColor(seed);
-					this.setBackgroundTintList(ColorStateList.valueOf(color));
+					this.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
 
 					mNameView.setText(initials);
 				}

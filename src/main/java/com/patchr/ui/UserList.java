@@ -1,10 +1,9 @@
 package com.patchr.ui;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ShareCompat;
 import android.view.View;
 import android.widget.CompoundButton;
 
@@ -174,26 +173,6 @@ public class UserList extends BaseActivity {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void share() {
-
-		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
-
-		builder.setSubject(String.format(StringManager.getString(R.string.label_patch_share_subject)
-				, (mEntity.name != null) ? mEntity.name : "A"));
-
-		builder.setType("text/plain");
-		builder.setText(String.format(StringManager.getString(R.string.label_patch_share_body), mEntityId));
-		builder.setChooserTitle(String.format(StringManager.getString(R.string.label_patch_share_title)
-				, (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase)));
-
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, mEntityId);
-		builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
-
-		builder.startChooser();
-	}
-
 	public void approveMember(final Entity entity, final String linkId, final String fromId, final String toId, final Boolean enabled) {
 
 		final String actionEvent = (enabled ? "approve" : "unapprove") + "_watch_entity";
@@ -209,14 +188,13 @@ public class UserList extends BaseActivity {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncStatusUpdate");
-				ModelResult result = DataController.getInstance().insertLink(linkId
+				return DataController.getInstance().insertLink(linkId
 						, fromId
 						, toId
 						, Constants.TYPE_LINK_WATCH
 						, enabled
 						, toShortcut, actionEvent, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null
 				);
-				return result;
 			}
 
 			@Override
@@ -243,13 +221,12 @@ public class UserList extends BaseActivity {
 			@Override
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncWatchEntity");
-				ModelResult result = DataController.getInstance().deleteLink(fromId
+				return DataController.getInstance().deleteLink(fromId
 						, mEntity.id
 						, Constants.TYPE_LINK_WATCH
 						, false
 						, mEntity.schema
 						, actionEvent, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
 			}
 
 			@Override

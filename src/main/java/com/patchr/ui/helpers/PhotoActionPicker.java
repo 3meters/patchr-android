@@ -3,12 +3,13 @@ package com.patchr.ui.helpers;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.MediaManager;
@@ -91,7 +91,7 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 	public void bind(BindingMode mode) {
 
 		/* Shown as a dialog so doesn't have an action bar */
-		final List<Object> listData = new ArrayList<Object>();
+		final List<Object> listData = new ArrayList<>();
 
 		/* Everyone gets these options */
 		listData.add(new PickerItem(R.drawable.ic_action_search_light
@@ -113,45 +113,48 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 	}
 
 	private void ensurePermissions() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
-		if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+				if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
-			if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							final AlertDialog dialog = Dialogs.alertDialog(null
+									, StringManager.getString(R.string.alert_permission_storage_title)
+									, StringManager.getString(R.string.alert_permission_storage_message)
+									, null
+									, PhotoActionPicker.this
+									, R.string.alert_permission_storage_positive
+									, R.string.alert_permission_storage_negative
+									, null
+									, new DialogInterface.OnClickListener() {
 
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						final AlertDialog dialog = Dialogs.alertDialog(null
-								, StringManager.getString(R.string.alert_permission_storage_title)
-								, StringManager.getString(R.string.alert_permission_storage_message)
-								, null
-								, PhotoActionPicker.this
-								, R.string.alert_permission_storage_positive
-								, R.string.alert_permission_storage_negative
-								, null
-								, new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								if (which == DialogInterface.BUTTON_POSITIVE) {
-									ActivityCompat.requestPermissions(PhotoActionPicker.this
-											, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-											, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									if (which == DialogInterface.BUTTON_POSITIVE) {
+										if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+											ActivityCompat.requestPermissions(PhotoActionPicker.this
+													, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+													, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+										}
+									}
 								}
-							}
-						}, null);
-						dialog.setCanceledOnTouchOutside(false);
-					}
-				});
-			}
-			else {
+							}, null);
+							dialog.setCanceledOnTouchOutside(false);
+						}
+					});
+				}
+				else {
 				/*
 				 * No explanation needed, we can request the permission.
 				 * Parent activity will broadcast an event when permission request is complete.
 				 */
-				ActivityCompat.requestPermissions(this
-						, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-						, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+					ActivityCompat.requestPermissions(this
+							, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+							, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+				}
 			}
 		}
 	}

@@ -8,9 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.net.Network;
 import android.net.NetworkInfo;
-import android.net.NetworkInfo.State;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
@@ -149,17 +147,6 @@ public class NetworkManager {
 					if (noConnection) {
 						UI.showToastNotification("Lost network connection", Toast.LENGTH_SHORT);
 					}
-					else {
-						final Network network = mConnectivityManager.getActiveNetwork();
-						if (network != null) {
-							final NetworkInfo info = mConnectivityManager.getNetworkInfo(network);
-							if (info != null) {
-								if (info.isAvailable()) {
-									UI.showToastNotification(String.format("Network is available: %1$s", info.getTypeName()), Toast.LENGTH_SHORT);
-								}
-							}
-						}
-					}
 				}
 			}
 		};
@@ -277,23 +264,6 @@ public class NetworkManager {
 		return (activeNetwork != null && activeNetwork.isConnectedOrConnecting());
 	}
 
-	private boolean isConnectedOrConnecting() {
-		final ConnectivityManager cm = (ConnectivityManager) Patchr.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-		if (cm != null) {
-			final Network[] networks = cm.getAllNetworks();
-			if (networks != null) {
-				for (Network network : networks) {
-					NetworkInfo info = cm.getNetworkInfo(network);
-					if (info != null) {
-						if (info.getState() == State.CONNECTED || info.getState() == State.CONNECTING)
-							return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-
 	@SuppressWarnings("ucd")
 	public Boolean isMobileNetwork() {
 		/* Check if we're connected to a data network, and if so - if it's a mobile network. */
@@ -360,13 +330,7 @@ public class NetworkManager {
 					try {
 						isTethered = (Boolean) method.invoke(mWifiManager);
 					}
-					catch (IllegalArgumentException e) {
-						Reporting.logException(e);
-					}
-					catch (IllegalAccessException e) {
-						Reporting.logException(e);
-					}
-					catch (InvocationTargetException e) {
+					catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
 						Reporting.logException(e);
 					}
 				}
@@ -474,13 +438,13 @@ public class NetworkManager {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static enum ResponseCode {
+	public enum ResponseCode {
 		SUCCESS,
 		FAILED,
 		INTERRUPTED
 	}
 
-	public static enum ConnectedState {
+	public enum ConnectedState {
 		NONE,
 		NORMAL,
 	}

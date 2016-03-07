@@ -1,13 +1,15 @@
 package com.patchr.ui;
 
 import android.Manifest;
-import android.app.AlertDialog;
+import android.annotation.SuppressLint;
+import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
@@ -30,7 +32,6 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoSizeCategory;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseActivity;
-import com.patchr.ui.widgets.AirPhotoView;
 import com.patchr.ui.widgets.UserView;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
@@ -175,45 +176,47 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 	private void ensurePermissions() {
 		/*
-		 * Sharing a photo requires external storage permission.
+		 * Sharing a photo requires external storage permission on api 16+
 		 */
-		if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
-			if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+				if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						final AlertDialog dialog = Dialogs.alertDialog(null
-								, StringManager.getString(R.string.alert_permission_storage_title)
-								, StringManager.getString(R.string.alert_permission_storage_message)
-								, null
-								, PhotoForm.this
-								, R.string.alert_permission_storage_positive
-								, R.string.alert_permission_storage_negative
-								, null
-								, new DialogInterface.OnClickListener() {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							final AlertDialog dialog = Dialogs.alertDialog(null
+									, StringManager.getString(R.string.alert_permission_storage_title)
+									, StringManager.getString(R.string.alert_permission_storage_message)
+									, null
+									, PhotoForm.this
+									, R.string.alert_permission_storage_positive
+									, R.string.alert_permission_storage_negative
+									, null
+									, new DialogInterface.OnClickListener() {
 
-							@Override public void onClick(DialogInterface dialog, int which) {
-								if (which == DialogInterface.BUTTON_POSITIVE) {
-									ActivityCompat.requestPermissions(PhotoForm.this
-											, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-											, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+								@SuppressLint("InlinedApi") @Override public void onClick(DialogInterface dialog, int which) {
+									if (which == DialogInterface.BUTTON_POSITIVE) {
+										ActivityCompat.requestPermissions(PhotoForm.this
+												, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+												, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+									}
 								}
-							}
-						}, null);
-						dialog.setCanceledOnTouchOutside(false);
-					}
-				});
-			}
-			else {
+							}, null);
+							dialog.setCanceledOnTouchOutside(false);
+						}
+					});
+				}
+				else {
 				/*
 				 * No explanation needed, we can request the permission.
 				 * Parent activity will broadcast an event when permission request is complete.
 				 */
-				ActivityCompat.requestPermissions(this
-						, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-						, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+					ActivityCompat.requestPermissions(this
+							, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+							, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+				}
 			}
 		}
 	}

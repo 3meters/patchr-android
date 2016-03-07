@@ -43,7 +43,8 @@
 			android:layout_height="@dimen/button_height"
 			android:background="@drawable/bg_outlined_white"
 			android:fontFamily="sans-serif-light"
-			android:text="LOG IN"
+			android:text="@string/splash_button_signin"
+			android:textAllCaps="true"
 			android:textColor="@color/white"
 			android:textSize="16sp" />
 
@@ -54,7 +55,8 @@
 			android:layout_marginTop="8dp"
 			android:background="@drawable/bg_outlined_white"
 			android:fontFamily="sans-serif-light"
-			android:text="SIGN UP"
+			android:text="@string/splash_button_signup"
+			android:textAllCaps="true"
 			android:textColor="@color/white"
 			android:textSize="16sp" />
 

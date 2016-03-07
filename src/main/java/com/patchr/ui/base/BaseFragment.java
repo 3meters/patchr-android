@@ -1,6 +1,5 @@
 package com.patchr.ui.base;
 
-import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -52,7 +51,7 @@ public abstract class BaseFragment extends Fragment implements IForm {
 	 * - onDestroy
 	 * - onDetach
 	 */
-	protected List<Integer> mMenuResIds = new ArrayList<Integer>();
+	protected List<Integer> mMenuResIds = new ArrayList<>();
 	protected Boolean       mIsVisible  = false;
 	protected Boolean       mProcessing = false;
 	protected Resources mResources;
@@ -69,8 +68,7 @@ public abstract class BaseFragment extends Fragment implements IForm {
 	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		/* Called between onCreate and onActivityCreate */
 		if (getActivity() == null || getActivity().isFinishing()) return null;
-		final View view = inflater.inflate(getLayoutId(), container, false);
-		return view;
+		return inflater.inflate(getLayoutId(), container, false);
 	}
 
 	@Override public void onViewCreated(final View view, Bundle savedInstanceState) {

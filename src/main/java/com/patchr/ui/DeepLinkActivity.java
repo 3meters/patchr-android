@@ -11,9 +11,6 @@ import com.patchr.Patchr;
 import com.patchr.components.Logger;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
-import com.patchr.utilities.Dialogs;
-
-import org.json.JSONObject;
 
 import java.util.Map;
 
