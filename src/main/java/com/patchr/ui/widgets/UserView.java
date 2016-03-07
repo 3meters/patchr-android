@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.StringManager;
@@ -88,7 +89,7 @@ public class UserView extends RelativeLayout {
 		if (user == null) {
 			Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img_default_user_light);
 			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
-			UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
+			UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), Constants.ANIMATE_IMAGES);
 			mName.setText("Guest");
 		}
 		else {

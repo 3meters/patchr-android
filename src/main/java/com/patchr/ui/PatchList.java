@@ -56,6 +56,7 @@ public class PatchList extends BaseActivity {
 				.setListLoadingResId(R.layout.temp_listitem_loading)
 				.setListItemResId(R.layout.temp_listitem_nearby)
 				.setListEmptyMessageResId(mListEmptyMessageResId)
+				.setPauseOnFling(false)
 				.setTitleResId(mListTitleResId);
 
 		getSupportFragmentManager()

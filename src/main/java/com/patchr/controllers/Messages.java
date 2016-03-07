@@ -58,6 +58,7 @@ public class Messages extends EntityControllerBase {
 			bindHolder(view, holder);
 			view.setTag(holder);
 		}
+
 		holder.data = entity;
 
         /* Share */

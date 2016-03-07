@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.StringManager;
 import com.patchr.objects.Entity;
@@ -134,7 +135,7 @@ public class EntityView extends LinearLayout implements Target {
 			}
 		}
 		else {
-			UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
+			UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), Constants.ANIMATE_IMAGES);
 		}
 	}
 

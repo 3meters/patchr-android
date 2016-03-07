@@ -98,6 +98,7 @@ public class EntityListFragment extends BaseFragment
 	protected Boolean mReverseSort        = false;
 	protected Boolean mFabEnabled         = true;
 	protected Boolean mShowIndex          = true;
+	protected Boolean mPauseOnFling = true;
 
 	/* Runtime data */
 	protected Boolean mRecreated = false;
@@ -121,7 +122,7 @@ public class EntityListFragment extends BaseFragment
 	protected Boolean mBound    = false;
 
 	@NonNull
-	protected List<Entity> mEntities  = new ArrayList<Entity>();
+	protected List<Entity> mEntities  = new ArrayList<>();
 	protected Map          mLinkWhere = Maps.asMap("enabled", true);
 	protected ListAdapter mAdapter;
 
@@ -288,7 +289,7 @@ public class EntityListFragment extends BaseFragment
 		 * Called on resume and externally when a parent entity wants to rebind a related entity list.
 		 * If additional entities have been paged in, we include them as part of the request size.
 		 */
-		Logger.v(this, "Binding: " + mode.name().toString());
+		Logger.v(this, "Binding: " + mode.name());
 		Integer limit = mPageSize;
 		if (mEntities.size() > 0) {
 			limit = (int) Math.ceil((float) mEntities.size() / mPageSize) * mPageSize;
@@ -318,14 +319,14 @@ public class EntityListFragment extends BaseFragment
 				.setDirection(mLinkDirection);
 
 		if (mLinkType != null) {
-			List<String> linkTypes = new ArrayList<String>();
+			List<String> linkTypes = new ArrayList<>();
 			linkTypes.add(mLinkType);
 			cursor.setLinkTypes(linkTypes);
 		}
 
 		Integer linkProfile = LinkSpecType.NO_LINKS;
 		if (mLinkSchema != null) {
-			List<String> toSchemas = new ArrayList<String>();
+			List<String> toSchemas = new ArrayList<>();
 			toSchemas.add(mLinkSchema);
 			cursor.setToSchemas(toSchemas);
 			IEntityController controller = Patchr.getInstance().getControllerForSchema(mLinkSchema);
@@ -361,7 +362,7 @@ public class EntityListFragment extends BaseFragment
 				|| event.actionType == ActionType.ACTION_GET_NOTIFICATIONS
 				|| event.actionType == ActionType.ACTION_GET_TREND)) {
 
-			Logger.v(this, "Data result accepted: " + event.actionType.name().toString());
+			Logger.v(this, "Data result accepted: " + event.actionType.name());
 
 			getActivity().runOnUiThread(new Runnable() {
 
@@ -416,7 +417,7 @@ public class EntityListFragment extends BaseFragment
 
 	@Subscribe public void onDataError(DataErrorEvent event) {
 		if (event.tag.equals(System.identityHashCode(this))) {
-			Logger.v(this, "Data error accepted: " + event.actionType.name().toString());
+			Logger.v(this, "Data error accepted: " + event.actionType.name());
 
 			onProcessingComplete(ResponseCode.FAILED);
 
@@ -429,7 +430,7 @@ public class EntityListFragment extends BaseFragment
 
 	@Subscribe public void onDataNoop(DataNoopEvent event) {
 		if (event.tag.equals(System.identityHashCode(this))) {
-			Logger.v(this, "Data no-op accepted: " + event.actionType.name().toString());
+			Logger.v(this, "Data no-op accepted: " + event.actionType.name());
 			onProcessingComplete(ResponseCode.SUCCESS);
 		}
 	}
@@ -560,16 +561,18 @@ public class EntityListFragment extends BaseFragment
 
 	public void onDragBottom() {}
 
-	public void onScollToTop() {
+	public void onScollToTop() {    // Supposed to be misspelled
 		scrollToTop(mListView);
 	}
 
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		if (scrollState == SCROLL_STATE_IDLE) {
-			DownloadManager.getInstance().resumeTag(mGroupTag);
-		}
-		else if (scrollState == SCROLL_STATE_FLING) {
-			DownloadManager.getInstance().pauseTag(mGroupTag);
+		if (mPauseOnFling) {
+			if (scrollState == SCROLL_STATE_IDLE) {
+				DownloadManager.getInstance().resumeTag(mGroupTag);
+			}
+			else if (scrollState == SCROLL_STATE_FLING) {
+				DownloadManager.getInstance().pauseTag(mGroupTag);
+			}
 		}
 	}
 
@@ -831,6 +834,11 @@ public class EntityListFragment extends BaseFragment
 		return this;
 	}
 
+	public EntityListFragment setPauseOnFling(Boolean pauseOnFling) {
+		mPauseOnFling = pauseOnFling;
+		return this;
+	}
+
 	public Integer getTitleResId() {
 		return mTitleResId;
 	}
@@ -978,7 +986,7 @@ public class EntityListFragment extends BaseFragment
 						|| view.findViewById(R.id.item_placeholder) != null) {
 					view = LayoutInflater.from(getActivity()).inflate(mListItemResId, null);
 
-					/* Some fixup so we don't need additional boilerplate list item layout */
+					/* Some fix-up so we don't need additional boilerplate list item layout */
 					if (!mShowIndex) {
 						View index = view.findViewById(R.id.index);
 						if (index != null) {
@@ -1039,7 +1047,7 @@ public class EntityListFragment extends BaseFragment
 		public static String GRID = "grid";
 	}
 
-	public static enum AnimateType {
+	public  enum AnimateType {
 		FADE,
 		SLIDE
 	}
@@ -1048,7 +1056,6 @@ public class EntityListFragment extends BaseFragment
 		private Boolean oneShot = false;
 		private Boolean fired   = false;
 
-		@SuppressWarnings("ucd")
 		public Highlight(Boolean oneShot) {
 			this.oneShot = oneShot;
 		}

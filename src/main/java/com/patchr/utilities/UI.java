@@ -20,7 +20,6 @@ import android.widget.Toast;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.AnimationManager;
 import com.patchr.components.DownloadManager;
 import com.patchr.components.FontManager;
 import com.patchr.objects.Photo;
@@ -285,14 +284,13 @@ public class UI {
 			@Override
 			public void run() {
 				if (imageView != null) {
-					imageView.setImageDrawable(drawable);
-					imageView.invalidate();
-
 					if (animate) {
 						ObjectAnimator anim = ObjectAnimator.ofFloat(imageView, "alpha", 0f, 1f);
-						anim.setDuration(AnimationManager.DURATION_MEDIUM);
+						anim.setDuration(300);
 						anim.start();
 					}
+					imageView.setImageDrawable(drawable);
+					//imageView.invalidate();
 				}
 			}
 		});

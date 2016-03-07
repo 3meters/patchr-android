@@ -494,6 +494,7 @@ public class AircandiForm extends BaseActivity {
 						.setListItemResId(R.layout.temp_listitem_nearby)
 						.setListEmptyMessageResId(R.string.label_radar_empty)
 						.setHeaderViewResId(R.layout.widget_list_header_nearby)
+						.setPauseOnFling(false)
 						.setTitleResId(R.string.form_title_nearby);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
@@ -520,6 +521,7 @@ public class AircandiForm extends BaseActivity {
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.patch_list_fragment)
 						.setListEmptyMessageResId(R.string.label_watching_empty)
+						.setPauseOnFling(false)
 						.setTitleResId(R.string.form_title_watch);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
@@ -546,6 +548,7 @@ public class AircandiForm extends BaseActivity {
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.patch_list_fragment)
 						.setListEmptyMessageResId(R.string.label_created_empty)
+						.setPauseOnFling(false)
 						.setTitleResId(R.string.form_title_create);
 
 				((BaseFragment) fragment).getMenuResIds().add(R.menu.menu_sign_in);
@@ -570,6 +573,7 @@ public class AircandiForm extends BaseActivity {
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.trends_list_fragment)
 						.setListEmptyMessageResId(R.string.label_created_empty)
+						.setPauseOnFling(false)
 						.setTitleResId(R.string.form_title_trends_active);
 
 				((TrendListFragment) fragment)

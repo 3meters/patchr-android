@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
+import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.objects.Photo;
@@ -143,12 +144,11 @@ public class AirPhotoView extends FrameLayout implements Target {
 		else {
 			/* Just passes through if image debug dev setting is off */
 			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), inBitmap);
-			UI.showDrawableInImageView(bitmapDrawable, mImageMain, true);
+			UI.showDrawableInImageView(bitmapDrawable, mImageMain, Constants.ANIMATE_IMAGES);
 			showLoading(false);
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override public void onPrepareLoad(Drawable drawable) {
 		/*
 		 * Other code has taken over how the bitmap is handled.

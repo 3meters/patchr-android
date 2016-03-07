@@ -17,6 +17,7 @@ public class Constants {
 	public static final int      ERROR_LEVEL     = Log.VERBOSE;
 	public static final Executor EXECUTOR        = AsyncTask.SERIAL_EXECUTOR;
 	public static final String   FACEBOOK_APP_ID = "894654857249670";
+	public static final boolean  ANIMATE_IMAGES  = true;
 
 	/* Activity parameters */
 	public static final String EXTRA_ENTITY_PARENT_ID = "com.patchr.EXTRA_PARENT_ENTITY_ID";

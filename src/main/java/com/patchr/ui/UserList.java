@@ -70,6 +70,7 @@ public class UserList extends BaseActivity {
 				.setListLayoutResId(R.layout.user_list_fragment)
 				.setListLoadingResId(R.layout.temp_listitem_loading)
 				.setListItemResId(mListItemResId)
+				.setPauseOnFling(false)
 				.setTitleResId(mListTitleResId);
 
 		if (mListLinkType != null && mListLinkType.equals(Constants.TYPE_LINK_WATCH) && !mEntity.isOwnedByCurrentUser()
