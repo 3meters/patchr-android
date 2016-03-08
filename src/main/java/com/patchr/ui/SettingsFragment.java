@@ -27,7 +27,6 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.ContainerManager;
-import com.patchr.components.DownloadManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.Route;
@@ -35,6 +34,7 @@ import com.patchr.ui.widgets.ListPreferenceMultiSelect;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
+import com.squareup.picasso.Picasso;
 
 @SuppressWarnings("deprecation")
 public class SettingsFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
@@ -266,7 +266,8 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		findPreference(com.patchr.objects.Preference.ENABLE_LOCATION_HIGH_ACCURACY).setEnabled(enable);
 		findPreference(com.patchr.objects.Preference.TAG_REFRESH).setEnabled(enable);
 		findPreference(com.patchr.objects.Preference.USE_STAGING_SERVICE).setEnabled(enable);
-		DownloadManager.getInstance().setDebugging(enable);
+		Picasso.with(Patchr.applicationContext).setIndicatorsEnabled(enable);
+		Picasso.with(Patchr.applicationContext).setLoggingEnabled(enable);
 	}
 
 	private void handleAnonymous() {

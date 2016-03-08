@@ -43,21 +43,18 @@ import java.util.Locale;
 
 public abstract class BaseEntityForm extends BaseActivity {
 
+	/* Inputs */
+	@SuppressWarnings("ucd")
+	public String mParentId;
 	@NonNull
 	protected Integer mLinkProfile = LinkSpecType.NO_LINKS;
 	protected Integer mTransitionType;
-
 	/* Part of binding logic */
 	protected Boolean mBound = false;
-
-	/* Inputs */
-	@SuppressWarnings("ucd")
-	public    String mParentId;
 	protected String mListLinkType;
 	protected String mNotificationId;
 
-	@Override
-	public void unpackIntent() {
+	@Override public void unpackIntent() {
 		super.unpackIntent();
 
 		final Bundle extras = getIntent().getExtras();
@@ -70,12 +67,32 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 	}
 
+	@Override protected void onResume() {
+		super.onResume();
+		/*
+		 * We have to be pretty aggressive about refreshing the UI because
+		 * there are lots of actions that could have happened while this activity
+		 * was stopped that change what the user would expect to see.
+		 *
+		 * - Entity deleted or modified
+		 * - Entity children modified
+		 * - New comments
+		 * - Change in user which effects which candi and UI should be visible.
+		 * - User profile could have been updated and we don't catch that.
+		 */
+		if (!isFinishing()) {
+			if (mEntity instanceof Patch) {
+				Patchr.getInstance().setCurrentPatch(mEntity);
+			}
+			bind(BindingMode.AUTO);    // check to see if the cache stamp is stale
+		}
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe
-	public void onDataResult(final DataResultEvent event) {
+	@Subscribe public void onDataResult(final DataResultEvent event) {
 
 		if (event.tag.equals(System.identityHashCode(this))
 				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
@@ -130,8 +147,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 	}
 
-	@Subscribe
-	public void onDataError(DataErrorEvent event) {
+	@Subscribe public void onDataError(DataErrorEvent event) {
 		if (event.tag.equals(System.identityHashCode(this))) {
 			Logger.v(this, "Data error accepted: " + event.actionType.name().toString());
 
@@ -155,22 +171,19 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 	}
 
-	@Subscribe
-	public void onDataNoop(DataNoopEvent event) {
+	@Subscribe public void onDataNoop(DataNoopEvent event) {
 		if (event.tag.equals(System.identityHashCode(this))) {
 			Logger.v(this, "Data no-op accepted: " + event.actionType.name().toString());
 			onProcessingComplete(new ProcessingCompleteEvent());
 		}
 	}
 
-	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
+	@Subscribe public void onProcessingComplete(ProcessingCompleteEvent event) {
 		mProcessing = false;
 		mUiController.getBusyController().hide(false);
 	}
 
-	@Override
-	public void onRefresh() {
+	@Override public void onRefresh() {
 		/*
 		 * Called from swipe refresh or routing. Always treated
 		 * as an aggresive refresh.
@@ -181,8 +194,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 	}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
 			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
 				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
@@ -194,14 +206,12 @@ public abstract class BaseEntityForm extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	@Override
-	protected void onSaveInstanceState(@NonNull Bundle outState) {
+	@Override protected void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Logger.d(this, "Activity saving state");
 	}
 
-	@Override
-	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+	@Override protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
 		/*
 		 * Will only be called if the activity is destroyed and restored. Restore
 		 * state could be handled in onCreate or here later in the lifecycle after
@@ -224,9 +234,9 @@ public abstract class BaseEntityForm extends BaseActivity {
 				.setLinkProfile(mLinkProfile);
 
 		request.setActionType(ActionType.ACTION_GET_ENTITY)
-		       .setMode(mode)
-		       .setEntityId(mEntityId)
-		       .setTag(System.identityHashCode(this));
+				.setMode(mode)
+				.setEntityId(mEntityId)
+				.setTag(System.identityHashCode(this));
 
 		if (mBound && mEntity != null && mode != BindingMode.MANUAL) {
 			request.setCacheStamp(mEntity.getCacheStamp());
@@ -348,7 +358,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 					.setSkipCache(false);
 
 			update.setActionType(ActionType.ACTION_LINK_INSERT_LIKE)
-			      .setTag(System.identityHashCode(this));
+					.setTag(System.identityHashCode(this));
 
 			Dispatcher.getInstance().post(update);
 		}
@@ -362,7 +372,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 					.setActionEvent("unlike_entity_" + mEntity.schema.toLowerCase(Locale.US));
 
 			update.setActionType(ActionType.ACTION_LINK_DELETE_LIKE)
-			      .setTag(System.identityHashCode(this));
+					.setTag(System.identityHashCode(this));
 
 			Dispatcher.getInstance().post(update);
 		}
@@ -371,28 +381,6 @@ public abstract class BaseEntityForm extends BaseActivity {
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		/*
-		 * We have to be pretty aggressive about refreshing the UI because
-		 * there are lots of actions that could have happened while this activity
-		 * was stopped that change what the user would expect to see.
-		 * 
-		 * - Entity deleted or modified
-		 * - Entity children modified
-		 * - New comments
-		 * - Change in user which effects which candi and UI should be visible.
-		 * - User profile could have been updated and we don't catch that.
-		 */
-		if (!isFinishing()) {
-			if (mEntity instanceof Patch) {
-				Patchr.getInstance().setCurrentPatch(mEntity);
-			}
-			bind(BindingMode.AUTO);    // check to see if the cache stamp is stale
-		}
-	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes

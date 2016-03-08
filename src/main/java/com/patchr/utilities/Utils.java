@@ -22,8 +22,7 @@ public class Utils {
 
 	public static String encode(String target) {
 		try {
-			String encoded = URLEncoder.encode(target, "UTF-8");
-			return encoded;
+			return URLEncoder.encode(target, "UTF-8");
 		}
 		catch (UnsupportedEncodingException e) { /* ignore */ }
 		return null;
@@ -37,7 +36,7 @@ public class Utils {
 		return WEB_URL.matcher(webUri).matches();
 	}
 
-	public static final String md5(final String s) {
+	public static String md5(final String s) {
 		try {
 			// Create MD5 Hash
 			MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -45,9 +44,9 @@ public class Utils {
 			byte messageDigest[] = digest.digest();
 
 			// Create Hex String
-			StringBuffer hexString = new StringBuffer();
-			for (int i = 0; i < messageDigest.length; i++) {
-				String h = Integer.toHexString(0xFF & messageDigest[i]);
+			StringBuilder hexString = new StringBuilder();
+			for (byte aMessageDigest : messageDigest) {
+				String h = Integer.toHexString(0xFF & aMessageDigest);
 				while (h.length() < 2)
 					h = "0" + h;
 				hexString.append(h);
@@ -82,11 +81,8 @@ public class Utils {
 	public static int randomColor(long seed) {
 		Random generator = new Random(seed);
 		generator.nextFloat();
-		float hue = generator.nextFloat()  * (360.0f - 0.0f);
-		float saturation = generator.nextFloat() * (1.0f - 0.5f) + 0.5f; // 0.5 to 1.0, away from white
-		float brightness = generator.nextFloat() * (1.0f - 0.5f) + 0.5f; // 0.5 to 1.0, away from black
-		float[] hsv = {hue, saturation, brightness};
-		Logger.v("randomColor", String.format("randomColor seed: %1$s hue: %2$s sat: %3$s bri: %4$s", String.valueOf(seed), String.valueOf(hue), String.valueOf(saturation), String.valueOf(brightness)));
+		float hue = generator.nextFloat() * 360.0f;
+		float[] hsv = {hue, 0.7f, 0.8f};
 		return Color.HSVToColor(hsv);
 	}
 
@@ -94,8 +90,7 @@ public class Utils {
 		MemoryInfo memoryInfo = new MemoryInfo();
 		ActivityManager activityManager = (ActivityManager) Patchr.applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
 		activityManager.getMemoryInfo(memoryInfo);
-		long availableMemory = memoryInfo.availMem / 1048576L;
-		return availableMemory;
+		return memoryInfo.availMem / 1048576L;
 	}
 
 	@NonNull public static ScreenSize getScreenSize() {
@@ -116,7 +111,7 @@ public class Utils {
 		}
 	}
 
-	public static enum ScreenSize {
+	public enum ScreenSize {
 		SMALL,
 		NORMAL,
 		LARGE,

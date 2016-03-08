@@ -20,11 +20,11 @@ import android.widget.Toast;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.DownloadManager;
 import com.patchr.components.FontManager;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoSizeCategory;
 import com.patchr.ui.widgets.AirPhotoView;
+import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Transformation;
 
@@ -64,48 +64,45 @@ public class UI {
 
 			Integer drawableId = photo.getResId();
 			if (drawableId != null) {
-				RequestCreator creator = DownloadManager
+				RequestCreator creator = Picasso
 						.with(Patchr.applicationContext)
 						.load(drawableId)
 						.centerCrop()   // Needed so resize() keeps aspect ratio
 						.resize(photoView.getWidth(), photoView.getHeight())
-						.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.PHOTO_GROUP_TAG_DEFAULT)
 						.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
 
 				if (transform != null) {
 					creator.transform(transform);
 				}
-				creator.into(photoView);
+				creator.into(photoView.getImageView());
 			}
 		}
 		else if (photo.source.equals(Photo.PhotoSource.file)) {
 
-			RequestCreator creator = DownloadManager
+			RequestCreator creator = Picasso
 					.with(Patchr.applicationContext)
 					.load(photo.getDirectUri())
 					.centerCrop()   // Needed so resize() keeps aspect ratio
 					.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.PHOTO_GROUP_TAG_DEFAULT)
 					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
 
 			if (transform != null) {
 				creator.transform(transform);
 			}
-			creator.into(photoView);
+			creator.into(photoView.getImageView());
 		}
 		else {  /* url */
 
 			String url = UI.url(photo.prefix, photo.source, category);
-			RequestCreator creator = DownloadManager
+			RequestCreator creator = Picasso
 					.with(Patchr.applicationContext)
 					.load(url)
-					.tag(photoView.getGroupTag() != null ? photoView.getGroupTag() : DownloadManager.PHOTO_GROUP_TAG_DEFAULT)
 					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
 
 			if (transform != null) {
 				creator.transform(transform);
 			}
-			creator.into(photoView);
+			creator.into(photoView.getImageView());
 		}
 
 		/* Final step */

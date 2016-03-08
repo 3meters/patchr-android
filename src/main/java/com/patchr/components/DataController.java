@@ -69,6 +69,7 @@ import java.util.Locale;
  * Designed as a singleton. The private Constructor prevents any other class from instantiating.
  */
 
+@SuppressWarnings("unchecked")
 public class DataController {
 
 	private Number mActivityDate;                                           // Monitored by nearby
@@ -117,7 +118,7 @@ public class DataController {
 				Thread.currentThread().setName("AsyncGetEntity");
 
 				LinkSpec links = LinkSpecFactory.build(event.linkProfile);
-				final List<String> loadEntityIds = new ArrayList<String>();
+				final List<String> loadEntityIds = new ArrayList<>();
 				loadEntityIds.add(event.entityId);
 
 				ServiceResponse serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, links, event.cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
@@ -459,7 +460,7 @@ public class DataController {
 
 		Entity entity = ENTITY_STORE.getStoreEntity(entityId);
 		if (refresh || entity == null) {
-			final List<String> loadEntityIds = new ArrayList<String>();
+			final List<String> loadEntityIds = new ArrayList<>();
 			loadEntityIds.add(entityId);
 
 			/* This is the only place in the code that calls loadEntities */
@@ -867,7 +868,7 @@ public class DataController {
 					/*
 					 * Linking to beacons or sending to support nearby notifications
 					 */
-					final List<String> beaconStrings = new ArrayList<String>();
+					final List<String> beaconStrings = new ArrayList<>();
 
 					for (Beacon beacon : beacons) {
 
@@ -905,7 +906,7 @@ public class DataController {
 
 			/* Link */
 			if (links != null && links.size() > 0) {
-				final List<String> linkStrings = new ArrayList<String>();
+				final List<String> linkStrings = new ArrayList<>();
 				for (Link link : links) {
 					linkStrings.add("object:" + Json.objectToJson(link, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 				}
@@ -1109,7 +1110,7 @@ public class DataController {
 
 		if (beacons != null && beacons.size() > 0) {
 
-			final List<String> beaconStrings = new ArrayList<String>();
+			final List<String> beaconStrings = new ArrayList<>();
 			for (Beacon beacon : beacons) {
 				if (primaryBeacon != null && beacon.id.equals(primaryBeacon.id)) {
 					AirLocation location = LocationManager.getInstance().getAirLocationLocked();
@@ -1212,7 +1213,7 @@ public class DataController {
 							link.proximity.primary = true;
 						}
 						if (entity.linksOut == null) {
-							entity.linksOut = new ArrayList<Link>();
+							entity.linksOut = new ArrayList<>();
 						}
 						entity.linksOut.add(link);
 						/*
@@ -1581,8 +1582,7 @@ public class DataController {
 			final String json = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(json, Json.ObjectType.LINK, Json.ServiceDataWrapper.TRUE);
 			if (serviceData.data != null && serviceData.count.intValue() > 0) {
-				final List<Link> links = (List<Link>) serviceData.data;
-				result.data = links;
+				result.data = (List<Link>) serviceData.data;
 			}
 		}
 
@@ -1652,8 +1652,7 @@ public class DataController {
 				text.append(line);
 			}
 			final String jsonEntity = text.toString();
-			final Entity entity = (Entity) Json.jsonToObject(jsonEntity, objectType);
-			return entity;
+			return (Entity) Json.jsonToObject(jsonEntity, objectType);
 		}
 		catch (IOException exception) {
 			return null;
@@ -1680,8 +1679,7 @@ public class DataController {
 			while ((line = reader.readLine()) != null) {
 				text.append(line);
 			}
-			final String json = text.toString();
-			return json;
+			return text.toString();
 		}
 		catch (IOException exception) {
 			return null;
@@ -1714,14 +1712,14 @@ public class DataController {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static enum SuggestScope {
+	public enum SuggestScope {
 		PATCHES,
 		USERS,
 		PATCHES_USERS,
 		ALL
 	}
 
-	public static enum ActionType {
+	public enum ActionType {
 		ACTION_GET_ENTITY,
 		ACTION_GET_ENTITIES,
 		ACTION_GET_TREND,
@@ -1731,6 +1729,7 @@ public class DataController {
 		ACTION_LINK_INSERT_WATCH,
 		ACTION_LINK_DELETE_WATCH,
 		ACTION_LINK_MUTE_WATCH,
+		ACTION_ENTITY_INSERT,
 		ACTION_SHARE_CHECK,
 		ACTION_VIEW_CLICK
 	}

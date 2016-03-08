@@ -25,7 +25,6 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
 import com.patchr.components.DataController.ActionType;
 import com.patchr.components.Dispatcher;
-import com.patchr.components.DownloadManager;
 import com.patchr.components.Logger;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
@@ -566,14 +565,14 @@ public class EntityListFragment extends BaseFragment
 	}
 
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		if (mPauseOnFling) {
-			if (scrollState == SCROLL_STATE_IDLE) {
-				DownloadManager.getInstance().resumeTag(mGroupTag);
-			}
-			else if (scrollState == SCROLL_STATE_FLING) {
-				DownloadManager.getInstance().pauseTag(mGroupTag);
-			}
-		}
+//		if (mPauseOnFling) {
+//			if (scrollState == SCROLL_STATE_IDLE) {
+//				PicassoManager.shared().resumeTag(mGroupTag);
+//			}
+//			else if (scrollState == SCROLL_STATE_FLING) {
+//				PicassoManager.shared().pauseTag(mGroupTag);
+//			}
+//		}
 	}
 
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
@@ -919,13 +918,6 @@ public class EntityListFragment extends BaseFragment
 			mListController.pause();
 		}
 		saveListPosition();
-	}
-
-	@Override public void onDestroyView() {
-		if (DownloadManager.getInstance() != null) {
-			DownloadManager.getInstance().cancelTag(mGroupTag);
-		}
-		super.onDestroyView();
 	}
 
 	/*--------------------------------------------------------------------------------------------

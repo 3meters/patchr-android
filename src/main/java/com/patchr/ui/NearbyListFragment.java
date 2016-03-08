@@ -469,7 +469,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 		if (view != null) {
 
-			ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
+			ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.action_view);
 			UI.setVisibility(alertGroup, View.GONE);
 			if (alertGroup != null) {
 

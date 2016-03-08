@@ -16,6 +16,7 @@ import com.patchr.objects.Notification;
 import com.patchr.objects.PhotoSizeCategory;
 import com.patchr.ui.AircandiForm;
 import com.patchr.utilities.Reporting;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -105,7 +106,7 @@ public class NotificationManager {
 
 			try {
 				@SuppressWarnings("SuspiciousNameCombination")
-				Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
+				Bitmap bitmap = Picasso.with(Patchr.applicationContext)
 				                               .load(url)
 				                               .centerCrop()
 				                               .resizeDimen(R.dimen.notification_tray_large_icon_width, R.dimen.notification_tray_large_icon_width)
@@ -142,7 +143,7 @@ public class NotificationManager {
 		final String url = notification.photoBig.getUri(PhotoSizeCategory.STANDARD);
 
 		try {
-			Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
+			Bitmap bitmap = Picasso.with(Patchr.applicationContext)
 			                               .load(url)
 			                               .centerCrop()
 			                               .resizeDimen(R.dimen.notification_tray_big_picture_width, R.dimen.notification_tray_big_picture_height)

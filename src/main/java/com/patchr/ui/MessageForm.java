@@ -1,13 +1,14 @@
 package com.patchr.ui;
 
 import android.app.Activity;
-import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -58,6 +59,7 @@ import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -68,13 +70,13 @@ import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
 
+@SuppressWarnings("ConstantConditions")
 public class MessageForm extends BaseEntityForm {
 
 	private List<Entity> mTos = new ArrayList<>();
 	protected BottomSheetLayout mBottomSheetLayout;
 
-	@Override
-	public void unpackIntent() {
+	@Override public void unpackIntent() {
 		super.unpackIntent();
 
 		Intent intent = getIntent();
@@ -96,75 +98,35 @@ public class MessageForm extends BaseEntityForm {
 		}
 	}
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-
-		mLinkProfile = LinkSpecType.LINKS_FOR_MESSAGE;
-		mBottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
-		mBottomSheetLayout.setPeekOnDismiss(true);
+	@Override protected void onResume() {
+		super.onResume();
+		draw(null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe
-	public void onDataResult(DataResultEvent event) {
-		super.onDataResult(event); // Handles GET_ENTITY, INSERT_LIKE, DELETE_LIKE
-	}
-
-	@Subscribe
-	public void onDataError(DataErrorEvent event) {
-		super.onDataError(event);
-	}
-
-	@Subscribe
-	public void onDataNoop(DataNoopEvent event) {
-		super.onDataNoop(event);
-	}
-
-	@Subscribe
-	public void onNotificationReceived(final NotificationReceivedEvent event) {
-	    /*
-	     * Refresh the form because something might have changed e.g. new likes.
-		 */
-		if ((event.notification.parentId != null && event.notification.parentId.equals(mEntityId))
-				|| (event.notification.targetId != null && event.notification.targetId.equals(mEntityId))) {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					bind(BindingMode.AUTO);
-				}
-			});
-		}
-	}
-
-	@SuppressWarnings("ucd")
 	public void onPatchClick(View view) {
 		Entity entity = (Entity) view.getTag();
 		Patchr.router.route(MessageForm.this, Route.BROWSE, entity.patch, null);
 	}
 
-	@SuppressWarnings("ucd")
 	public void onEditClick(View view) {
 		Bundle extras = new Bundle();
 		Patchr.router.route(this, Route.EDIT, mEntity, extras);
 	}
 
-	@SuppressWarnings("ucd")
 	public void onDeleteClick(View view) {
 		Patchr.router.route(this, Route.DELETE, mEntity, null);
 	}
 
-	@SuppressWarnings("ucd")
 	public void onRemoveClick(View view) {
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, (String) view.getTag());
 		Patchr.router.route(this, Route.REMOVE, mEntity, extras);
 	}
 
-	@SuppressWarnings("ucd")
 	public void onLikeButtonClick(View view) {
 
 		if (mProcessing) return;
@@ -180,7 +142,6 @@ public class MessageForm extends BaseEntityForm {
 		like(linkLike == null);
 	}
 
-	@SuppressWarnings("ucd")
 	public void onLikesListButtonClick(View view) {
 		if (mEntity != null) {
 			Bundle extras = new Bundle();
@@ -193,7 +154,6 @@ public class MessageForm extends BaseEntityForm {
 		}
 	}
 
-	@SuppressWarnings("ucd")
 	public void onShareClick(View view) {
 
 		if (!UserManager.getInstance().authenticated()) {
@@ -204,13 +164,42 @@ public class MessageForm extends BaseEntityForm {
 		share();
 	}
 
-	@Subscribe
-	public void onViewClick(ActionEvent event) {
+	/*--------------------------------------------------------------------------------------------
+	 * Notifications
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe public void onDataResult(DataResultEvent event) {
+		super.onDataResult(event); // Handles GET_ENTITY, INSERT_LIKE, DELETE_LIKE
+	}
+
+	@Subscribe public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
+
+	@Subscribe public void onDataNoop(DataNoopEvent event) {
+		super.onDataNoop(event);
+	}
+
+	@Subscribe public void onNotificationReceived(final NotificationReceivedEvent event) {
+	    /*
+	     * Refresh the form because something might have changed e.g. new likes.
+		 */
+		if ((event.notification.parentId != null && event.notification.parentId.equals(mEntityId))
+				|| (event.notification.targetId != null && event.notification.targetId.equals(mEntityId))) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					bind(BindingMode.AUTO);
+				}
+			});
+		}
+	}
+
+	@Subscribe public void onViewClick(ActionEvent event) {
 		super.onViewClick(event);
 	}
 
-	@Override
-	public void onAdd(Bundle extras) {
+	@Override public void onAdd(Bundle extras) {
 		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 		super.onAdd(extras);
 	}
@@ -219,9 +208,15 @@ public class MessageForm extends BaseEntityForm {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@SuppressWarnings("ConstantConditions")
-	@Override
-	public void draw(View view) {
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+
+		mLinkProfile = LinkSpecType.LINKS_FOR_MESSAGE;
+		mBottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
+		mBottomSheetLayout.setPeekOnDismiss(true);
+	}
+
+	@Override public void draw(View view) {
 	    /*
 	     * For now, we assume that the candi form isn't recycled.
 		 *
@@ -231,6 +226,7 @@ public class MessageForm extends BaseEntityForm {
 		 * - WebImageView child views are gone by default
 		 * - Header views are visible by default
 		 */
+		if (mEntity == null) return;
 		if (view == null) {
 			view = findViewById(android.R.id.content);
 		}
@@ -297,6 +293,7 @@ public class MessageForm extends BaseEntityForm {
 			}
 			else {
 				Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
+
 				if (linkPlace != null) {
 					holderPatch.setTag(mEntity);
 
@@ -305,10 +302,24 @@ public class MessageForm extends BaseEntityForm {
 					UI.setVisibility(holderPatch, View.VISIBLE);
 
 					/* Photo */
+					patchPhotoView.getBackground().clearColorFilter();
+
 					if (linkPlace.shortcut.photo != null) {
+
 						Photo photo = linkPlace.shortcut.photo;
-						if (patchPhotoView.getPhoto() == null || !patchPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
-							UI.drawPhoto(patchPhotoView, photo);
+
+						/* Optimize if we already have the image */
+						if (patchPhotoView.getPhoto() != null && patchPhotoView.getImageView().getDrawable() != null) {
+							if (Photo.same(patchPhotoView.getPhoto(), photo)) return;
+						}
+
+						UI.drawPhoto(patchPhotoView, photo);
+					}
+					else {
+						if (!TextUtils.isEmpty(linkPlace.shortcut.name)) {
+							long seed = Utils.numberFromName(linkPlace.shortcut.name);
+							Integer color = Utils.randomColor(seed);
+							patchPhotoView.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
 						}
 					}
 
@@ -489,16 +500,14 @@ public class MessageForm extends BaseEntityForm {
 		}
 	}
 
-	@Override
-	public void configureActionBar() {
+	@Override public void configureActionBar() {
 		super.configureActionBar();
 		if (getSupportActionBar() != null) {
 			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
 		}
 	}
 
-	@Override
-	public void share() {
+	@Override public void share() {
 
 		if (!UserManager.getInstance().authenticated()) {
 			UserManager.getInstance().showGuestGuard(this, "Sign up for a free account to share messages and more.");
@@ -541,6 +550,78 @@ public class MessageForm extends BaseEntityForm {
 
 		menuSheetView.inflateMenu(R.menu.menu_share_sheet);
 		mBottomSheetLayout.showWithSheetView(menuSheetView, new InsetViewTransformer());
+	}
+
+	@Override public void confirmDelete() {
+
+		String message = String.format(StringManager.getString(R.string.alert_delete_message_message_no_name), mEntity.name);
+		if (mEntity.type.equals(MessageType.ROOT)) {
+			Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
+			if (linkPlace != null) {
+				message = String.format(StringManager.getString(R.string.alert_delete_message_message), linkPlace.shortcut.name);
+			}
+		}
+		final AlertDialog dialog = Dialogs.alertDialog(null
+				, StringManager.getString(R.string.alert_delete_message_title)
+				, message
+				, null
+				, this
+				, android.R.string.ok
+				, android.R.string.cancel
+				, null
+				, new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					delete();
+				}
+			}
+		}
+				, null);
+		dialog.setCanceledOnTouchOutside(false);
+	}
+
+	@Override protected void delete() {
+
+		new AsyncTask() {
+
+			@Override
+			protected void onPreExecute() {
+				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mDeleteProgressResId, MessageForm.this);
+			}
+
+			@Override
+			protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncDeleteEntity");
+				String seedParentId = mEntity.type.equals(MessageType.ROOT) ? mEntity.patchId : null;
+				return ((DataController) DataController.getInstance()).deleteMessage(mEntity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+			}
+
+			@Override
+			protected void onPostExecute(Object response) {
+				final ModelResult result = (ModelResult) response;
+
+				mUiController.getBusyController().hide(true);
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					Logger.i(this, "Deleted entity: " + mEntity.id);
+					/*
+					 * We either go back to a list or to radar.
+					 */
+					UI.showToastNotification(StringManager.getString(mDeletedResId), Toast.LENGTH_SHORT);
+					setResultCode(Constants.RESULT_ENTITY_DELETED);
+					finish();
+					AnimationManager.doOverridePendingTransition(MessageForm.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
+				}
+				else {
+					Errors.handleError(MessageForm.this, result.serviceResponse);
+				}
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Override protected int getLayoutId() {
+		return R.layout.message_form;
 	}
 
 	public void showBuiltInSharePicker(final String title) {
@@ -610,83 +691,4 @@ public class MessageForm extends BaseEntityForm {
 			}
 		});
 	}
-
-	@Override
-	public void confirmDelete() {
-
-		String message = String.format(StringManager.getString(R.string.alert_delete_message_message_no_name), mEntity.name);
-		if (mEntity.type.equals(MessageType.ROOT)) {
-			Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
-			if (linkPlace != null) {
-				message = String.format(StringManager.getString(R.string.alert_delete_message_message), linkPlace.shortcut.name);
-			}
-		}
-		final AlertDialog dialog = Dialogs.alertDialog(null
-				, StringManager.getString(R.string.alert_delete_message_title)
-				, message
-				, null
-				, this
-				, android.R.string.ok
-				, android.R.string.cancel
-				, null
-				, new DialogInterface.OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_POSITIVE) {
-					delete();
-				}
-			}
-		}
-				, null);
-		dialog.setCanceledOnTouchOutside(false);
-	}
-
-	@Override
-	protected void delete() {
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, mDeleteProgressResId, MessageForm.this);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncDeleteEntity");
-				String seedParentId = mEntity.type.equals(MessageType.ROOT) ? mEntity.patchId : null;
-				return ((DataController) DataController.getInstance()).deleteMessage(mEntity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				mUiController.getBusyController().hide(true);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Logger.i(this, "Deleted entity: " + mEntity.id);
-					/*
-					 * We either go back to a list or to radar.
-					 */
-					UI.showToastNotification(StringManager.getString(mDeletedResId), Toast.LENGTH_SHORT);
-					setResultCode(Constants.RESULT_ENTITY_DELETED);
-					finish();
-					AnimationManager.doOverridePendingTransition(MessageForm.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
-				}
-				else {
-					Errors.handleError(MessageForm.this, result.serviceResponse);
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	@Override
-	protected int getLayoutId() {
-		return R.layout.message_form;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
 }

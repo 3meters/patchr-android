@@ -3,8 +3,6 @@ package com.patchr.ui.widgets;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -12,17 +10,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
-import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoSizeCategory;
 import com.patchr.utilities.UI;
-import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
 
 @SuppressWarnings("ucd")
-public class AirPhotoView extends FrameLayout implements Target {
+public class AirPhotoView extends FrameLayout {
 
 	private static final float  DEFAULT_ASPECT_RATIO = 0f;
 	private static final String androidNamespace     = "http://schemas.android.com/apk/res/android";
@@ -117,52 +113,6 @@ public class AirPhotoView extends FrameLayout implements Target {
 			int widthSpec = MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY);
 			int heightSpec = MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY);
 			mImageMain.measure(widthSpec, heightSpec);
-		}
-	}
-
-	@Override public void onBitmapFailed(Drawable drawable) {
-		/*
-		 * Other code has taken over how the bitmap is handled.
-		 */
-		if (mTarget != null) {
-			mTarget.onBitmapFailed(drawable);
-		}
-		else {
-			if (mShowBusy) {
-				showLoading(false);
-			}
-		}
-	}
-
-	@Override public void onBitmapLoaded(Bitmap inBitmap, LoadedFrom loadedFrom) {
-		/*
-		 * Other code has taken over how the bitmap is handled.
-		 */
-		if (mTarget != null) {
-			mTarget.onBitmapLoaded(inBitmap, loadedFrom);
-		}
-		else {
-			/* Just passes through if image debug dev setting is off */
-			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), inBitmap);
-			UI.showDrawableInImageView(bitmapDrawable, mImageMain, Constants.ANIMATE_IMAGES);
-			showLoading(false);
-		}
-	}
-
-	@Override public void onPrepareLoad(Drawable drawable) {
-		/*
-		 * Other code has taken over how the bitmap is handled.
-		 */
-		if (mTarget != null) {
-			mTarget.onPrepareLoad(drawable);
-		}
-		else {
-			if (drawable != null) {
-				mImageMain.setBackgroundDrawable(drawable);
-			}
-			if (mShowBusy) {
-				showLoading(true);
-			}
 		}
 	}
 

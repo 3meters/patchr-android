@@ -2,7 +2,6 @@ package com.patchr.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -13,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +22,6 @@ import android.widget.Toast;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.DownloadManager;
 import com.patchr.components.MediaManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
@@ -38,6 +37,7 @@ import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
@@ -122,7 +122,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 				Bitmap bitmap = null;
 
 				try {
-					bitmap = DownloadManager.with(Patchr.applicationContext).load(url).get();
+					bitmap = Picasso.with(Patchr.applicationContext).load(url).get();
 				}
 				catch (IOException e) {
 					Reporting.logMessage("Picasso failed to load bitmap");

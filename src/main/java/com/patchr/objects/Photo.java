@@ -51,9 +51,9 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	public String description;
 
 	@NonNull
-	public Boolean usingDefault  = false;
+	public Boolean usingDefault = false;
 	@NonNull
-	public Boolean store         = false;   // Hint that photo needs to be stored.
+	public Boolean store        = false;   // Hint that photo needs to be stored.
 
 	public Photo() {}
 
@@ -175,8 +175,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	}
 
 	public static boolean same(Object obj1, Object obj2) {
-		return obj1 == null
-				&& obj2 == null
+		return (obj1 == null && obj2 == null)
 				|| (obj1 != null && ((Photo) obj1).sameAs(obj2));
 	}
 

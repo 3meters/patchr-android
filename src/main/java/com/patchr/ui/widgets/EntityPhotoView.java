@@ -104,21 +104,17 @@ public class EntityPhotoView extends AirPhotoView {
 			else {
 
 				Photo photo = mEntity.getPhoto();
-				String uri = UI.url(photo.prefix, photo.source, null);  // Will be just the prefix without host, params, etc.
+				mUriBound = UI.url(photo.prefix, photo.source, null);  // Will be just the prefix without host, params, etc.
 
-				//if (mUriBound == null || !uri.equals(mUriBound)) {
+				mImageMain.setVisibility(VISIBLE);
+				mNameView.setVisibility(GONE);
 
-					mUriBound = uri;
-					mImageMain.setVisibility(VISIBLE);
-					mNameView.setVisibility(GONE);
-
-					if ((mShape.equals("auto") && mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) || mShape.equals("round")) {
-						UI.drawPhoto(this, photo, new CircleTransform());
-					}
-					else {
-						UI.drawPhoto(this, photo);
-					}
-				//}
+				if ((mShape.equals("auto") && mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) || mShape.equals("round")) {
+					UI.drawPhoto(this, photo, new CircleTransform());
+				}
+				else {
+					UI.drawPhoto(this, photo);
+				}
 			}
 		}
 		else if (mUri != null || mName != null) {

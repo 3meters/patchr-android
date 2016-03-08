@@ -23,7 +23,6 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.DataController;
 import com.patchr.components.DataController.SuggestScope;
-import com.patchr.components.DownloadManager;
 import com.patchr.components.MediaManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.StringManager;
@@ -45,6 +44,7 @@ import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.squareup.otto.Subscribe;
+import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.LoadedFrom;
 
 import java.io.File;
@@ -125,12 +125,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		mProcessing = false;
 	}
 
-	@Subscribe public void onCancelEvent(ProcessingCanceledEvent event) {
-		if (mTaskService != null) {
-			mTaskService.cancel(true);
-		}
-	}
-
 	@Override public void onTokenAdded(Object o) {
 
 		if (!mTos.contains((Entity) o)) {
@@ -155,15 +149,11 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 	}
 
-	public void onError(final String reason) {
+	@Override public void onError(final String reason) {
 		super.onError(reason);
 		/*
 		 * ImageChooser error trying to pick or take a photo
 		 */
-		drawPhoto();
-	}
-
-	protected void onPhotoCanceled() {
 		drawPhoto();
 	}
 
@@ -183,6 +173,10 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		mProcessing = false;
 	}
 
+	protected void onPhotoCanceled() {
+		drawPhoto();
+	}
+
 	public void onCancelPhotoButtonClick(View view) {
 		mEntity.photo = null;
 		mPhotoView.setPhoto(null);
@@ -197,6 +191,16 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 		}
 		mTo.requestFocus();
 	}
+
+    /*--------------------------------------------------------------------------------------------
+     * Notifications
+     *--------------------------------------------------------------------------------------------*/
+
+    @Subscribe public void onCancelEvent(ProcessingCanceledEvent event) {
+	    if (mTaskService != null) {
+		    mTaskService.cancel(true);
+	    }
+    }
 
     /*--------------------------------------------------------------------------------------------
      * Methods
@@ -342,7 +346,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 											ModelResult result = new ModelResult();
 
 											try {
-												Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
+												Bitmap bitmap = Picasso.with(Patchr.applicationContext)
 														.load(photoUri)
 														.centerInside()
 														.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
@@ -417,7 +421,7 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 									try {
 
-										Bitmap bitmap = DownloadManager.with(Patchr.applicationContext)
+										Bitmap bitmap = Picasso.with(Patchr.applicationContext)
 												.load(photoUri)
 												.centerInside()
 												.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)

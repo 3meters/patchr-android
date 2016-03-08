@@ -81,81 +81,6 @@ public class PatchFormFragment extends EntityFormFragment {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe public void onViewClick(ActionEvent event) {
-		/*
-		 * Base activity broadcasts view clicks that target onViewClick. This lets
-		 * us handle view clicks inside fragments if we want.
-		 */
-		if (mProcessing) return;
-
-		if (event.view != null) {
-			mProcessing = true;
-			Integer id = event.view.getId();
-
-			/* Dynamic button we need to redirect */
-			if (id == R.id.button_alert) {
-				id = (Integer) event.view.getTag();
-			}
-
-			if (id == R.id.header_page_one
-					|| id == R.id.header_page_two) {
-				onHeaderClick(event.view);
-			}
-			else if (id == R.id.button_watching) {
-				onWatchingListButtonClick(event.view);
-			}
-			else if (id == R.id.button_watch) {
-				onWatchButtonClick(event.view);
-			}
-			else if (id == R.id.button_mute) {
-				onMuteButtonClick(event.view);
-			}
-			else if (id == R.id.button_tune) {
-				onTuneButtonClick(event.view);
-			}
-			else if (id == R.id.share) {
-				onShareButtonClick(event.view);
-			}
-			else if (id == R.id.button_toggle) {
-				onToggleDescriptionButtonClick(event.view);
-			}
-			else if (id == R.id.user_photo) {
-				onToggleDescriptionButtonClick(event.view);
-			}
-			mProcessing = false;
-		}
-	}
-
-	@Subscribe public void onDataResult(final DataResultEvent event) {
-
-		/* Can be called on background thread */
-		if (event.tag.equals(System.identityHashCode(this))
-				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
-
-			Logger.v(this, "Data result accepted: " + event.actionType.name());
-
-			if (event.actionType == DataController.ActionType.ACTION_LINK_INSERT_WATCH
-					|| event.actionType == DataController.ActionType.ACTION_LINK_DELETE_WATCH) {
-				/*
-				 * Rebind to capture the users watch state from the service and then draw.
-				 */
-				Dispatcher.getInstance().post(new WatchStatusChangedEvent());
-				onProcessingComplete();
-			}
-			else {
-				super.onDataResult(event);
-			}
-		}
-	}
-
-	@Subscribe public void onDataError(DataErrorEvent event) {
-		super.onDataError(event);
-	}
-
-	@Subscribe public void onDataNoop(DataNoopEvent event) {
-		super.onDataNoop(event);
-	}
-
 	protected void onWatchButtonClick(View view) {
 
 		if (mEntity == null) return;
@@ -253,6 +178,85 @@ public class PatchFormFragment extends EntityFormFragment {
 				buttonToggle.setTag(collapsed ? "expanded" : "collapsed");
 			}
 		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Notifications
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe public void onViewClick(ActionEvent event) {
+		/*
+		 * Base activity broadcasts view clicks that target onViewClick. This lets
+		 * us handle view clicks inside fragments if we want.
+		 */
+		if (mProcessing) return;
+
+		if (event.view != null) {
+			mProcessing = true;
+			Integer id = event.view.getId();
+
+			/* Dynamic button we need to redirect */
+			if (id == R.id.button_alert) {
+				id = (Integer) event.view.getTag();
+			}
+
+			if (id == R.id.header_page_one
+					|| id == R.id.header_page_two) {
+				onHeaderClick(event.view);
+			}
+			else if (id == R.id.button_watching) {
+				onWatchingListButtonClick(event.view);
+			}
+			else if (id == R.id.button_watch) {
+				onWatchButtonClick(event.view);
+			}
+			else if (id == R.id.button_mute) {
+				onMuteButtonClick(event.view);
+			}
+			else if (id == R.id.button_tune) {
+				onTuneButtonClick(event.view);
+			}
+			else if (id == R.id.share) {
+				onShareButtonClick(event.view);
+			}
+			else if (id == R.id.button_toggle) {
+				onToggleDescriptionButtonClick(event.view);
+			}
+			else if (id == R.id.user_photo) {
+				onToggleDescriptionButtonClick(event.view);
+			}
+			mProcessing = false;
+		}
+	}
+
+	@Subscribe public void onDataResult(final DataResultEvent event) {
+
+		/* Can be called on background thread */
+		if (event.tag.equals(System.identityHashCode(this))
+				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
+
+			Logger.v(this, "Data result accepted: " + event.actionType.name());
+
+			if (event.actionType == DataController.ActionType.ACTION_LINK_INSERT_WATCH
+					|| event.actionType == DataController.ActionType.ACTION_LINK_DELETE_WATCH) {
+				/*
+				 * Rebind to capture the users watch state from the service and then draw.
+				 */
+				Dispatcher.getInstance().post(new WatchStatusChangedEvent());
+				onProcessingComplete();
+			}
+			else {
+				super.onDataResult(event);
+			}
+		}
+	}
+
+	@Subscribe public void onDataError(DataErrorEvent event) {
+		super.onDataError(event);
+	}
+
+	@Subscribe public void onDataNoop(DataNoopEvent event) {
+		super.onDataNoop(event);
 	}
 
 	@Subscribe public void onNotificationReceived(final NotificationReceivedEvent event) {
@@ -365,7 +369,7 @@ public class PatchFormFragment extends EntityFormFragment {
 
 				UI.setVisibility(view.findViewById(R.id.button_tune), (owner ? View.VISIBLE : View.GONE));
 				drawButtons(view);
-				drawAlertGroup(view);
+				drawActionView(view);
 
 				final CandiView candiViewInfo = (CandiView) view.findViewById(R.id.candi_view_info);
 				final TextView description = (TextView) view.findViewById(R.id.description);
@@ -424,10 +428,10 @@ public class PatchFormFragment extends EntityFormFragment {
 		});
 	}
 
-	public void drawAlertGroup(View view) {
-		ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.alert_group);
+	public void drawActionView(View view) {
+		ViewGroup actionView = (ViewGroup) view.findViewById(R.id.action_view);
 
-		if (alertGroup != null && mEntity != null) {
+		if (actionView != null && mEntity != null) {
 
 			Patch patch = (Patch) mEntity;
 			Boolean owner = (UserManager.getInstance().authenticated() && patch.ownerId != null && patch.ownerId.equals(UserManager.getInstance().getCurrentUser().id));

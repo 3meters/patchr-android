@@ -19,7 +19,6 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
-import com.patchr.components.DownloadManager;
 import com.patchr.components.FontManager;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
@@ -39,6 +38,7 @@ import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -213,7 +213,7 @@ public class RegisterEdit extends BaseEntityEdit {
 					
 					/* Synchronous call to get the bitmap */
 					try {
-						bitmap = DownloadManager.with(Patchr.applicationContext)
+						bitmap = Picasso.with(Patchr.applicationContext)
 						                        .load(mEntity.getPhoto().getUri(PhotoSizeCategory.STANDARD))
 						                        .centerInside()
 						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
@@ -228,7 +228,7 @@ public class RegisterEdit extends BaseEntityEdit {
 						 */
 						System.gc();
 						try {
-							bitmap = DownloadManager.with(Patchr.applicationContext)
+							bitmap = Picasso.with(Patchr.applicationContext)
 							                        .load(mEntity.getPhoto().getUri(PhotoSizeCategory.STANDARD))
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)

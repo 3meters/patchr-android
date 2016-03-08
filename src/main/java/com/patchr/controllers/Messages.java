@@ -167,9 +167,8 @@ public class Messages extends EntityControllerBase {
 		    /* Photo */
 
 			if (holder.photoView != null) {
-				final Photo photo = entity.getPhoto();
-
 				if (entity.photo != null) {
+					final Photo photo = entity.getPhoto();
 					if (holder.photoView.getPhoto() == null || !photo.getDirectUri().equals(holder.photoView.getPhoto().getDirectUri())) {
 						holder.photoView.setTag(photo);
 						holder.photoView.setGroupTag(groupTag);

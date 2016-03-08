@@ -9,7 +9,7 @@
 	android:paddingTop="8dp">
 
 	<RelativeLayout
-		android:id="@+id/alert_group"
+		android:id="@+id/action_view"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:background="?attr/backgroundCard"

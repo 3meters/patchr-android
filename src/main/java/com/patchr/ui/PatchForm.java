@@ -35,7 +35,6 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController.ActionType;
-import com.patchr.components.DownloadManager;
 import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
 import com.patchr.components.MenuManager;
@@ -65,6 +64,7 @@ import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 import com.squareup.otto.Subscribe;
+import com.squareup.picasso.Picasso;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
@@ -81,11 +81,12 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 	protected String             mNotificationId;
 	protected BottomSheetLayout  mBottomSheetLayout;
 	protected CallbackManager    mCallbackManager;
-	protected String             mInviterName;
-	protected String             mInviterPhotoUrl;
+	protected String             mReferrerName;
+	protected String             mReferrerPhotoUrl;
 	protected String             mBranchLink;
-	protected Boolean mShowInviterWelcome     = false;
+	protected Boolean mShowReferrerWelcome    = false;
 	protected Boolean mAuthenticatedForInvite = false;
+	protected Boolean mAutoJoin               = false;
 
 	@Override public void unpackIntent() {
 		super.unpackIntent();
@@ -96,8 +97,8 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
 			mTransitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
 			mNotificationId = extras.getString(Constants.EXTRA_NOTIFICATION_ID);
-			mInviterName = extras.getString(Constants.EXTRA_INVITER_NAME);
-			mInviterPhotoUrl = extras.getString(Constants.EXTRA_INVITER_PHOTO_URL);
+			mReferrerName = extras.getString(Constants.EXTRA_INVITER_NAME);
+			mReferrerPhotoUrl = extras.getString(Constants.EXTRA_INVITER_PHOTO_URL);
 		}
 	}
 
@@ -109,7 +110,7 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 
 		if (mEntity != null && mEntity instanceof Patch) {
 			Patch patch = (Patch) mEntity;
-			if (mInviterName != null) {     // Active invitation
+			if (mReferrerName != null) {     // Active invitation
 				if (mBottomSheetLayout.isSheetShowing()) {
 					if (UserManager.getInstance().authenticated() && patch.watchStatus() != WatchStatus.NONE) {
 						mBottomSheetLayout.dismissSheet();
@@ -122,6 +123,13 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 					showInviteWelcome(1500);
 				}
 			}
+		}
+
+		if (mAutoJoin) {
+			PatchFormFragment header = (PatchFormFragment) mHeaderFragment;
+			header.onWatchButtonClick(null);
+			UI.showToastNotification("You are now a member of this patch!", Toast.LENGTH_SHORT);
+			mAutoJoin = false;
 		}
 	}
 
@@ -215,6 +223,18 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 			else if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.getInstance().authenticated()) {
 				onRefresh();
 			}
+			else if (requestCode == Constants.ACTIVITY_ENTITY_INSERT) {
+				if (intent != null && intent.getExtras() != null) {
+					String schema = intent.getExtras().getString(Constants.EXTRA_ENTITY_SCHEMA);
+					if (schema != null && schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+						Boolean hasMessaged = (mEntity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
+						Patch patch = (Patch) mEntity;
+						if (patch.watchStatus() == WatchStatus.NONE && !patch.isRestricted() && !hasMessaged) {
+							mAutoJoin = true;
+						}
+					}
+				}
+			}
 			mCallbackManager.onActivityResult(requestCode, resultCode, intent);
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -228,15 +248,19 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 		/*
 		 * Cherry pick the entity so we can add some wrapper functionality.
 		 */
-		if (event.entity != null && event.entity.id.equals(mEntityId)) {
-			Boolean firstBind = (mEntity == null);
-			mEntity = event.entity;
-			if (firstBind && mInviterName != null) {     // Active invitation
-				showInviteWelcome(1500);
+		if (event.entity != null) {
+			if (event.entity.id.equals(mEntityId)) {
+				Boolean firstBind = (mEntity == null);
+				mEntity = event.entity;
+				if (firstBind && mReferrerName != null) {     // Active invitation
+					showInviteWelcome(1500);
+				}
+				Patchr.getInstance().setCurrentPatch(mEntity);
+				if (firstBind) {
+					makeBranchLink();           // Create or refresh so it's ready and correct
+				}
+				invalidateOptionsMenu();    // In case user authenticated
 			}
-			Patchr.getInstance().setCurrentPatch(mEntity);
-			makeBranchLink();           // Create or refresh so it's ready and correct
-			invalidateOptionsMenu();    // In case user authenticated
 		}
 	}
 
@@ -446,17 +470,16 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 
 				View view = LayoutInflater.from(PatchForm.this).inflate(R.layout.onboarding_view, null, false);
 
-				String heading = (mInviterName != null)
-				                 ? String.format("%1$s invites you to join this patch.", mInviterName)
+				String heading = (mReferrerName != null)
+				                 ? String.format("%1$s invites you to join this patch.", mReferrerName)
 				                 : "A friend invites you to join this patch.";
 				((TextView) view.findViewById(R.id.message)).setText(heading);
 
 				ImageView imageView = (ImageView) view.findViewById(R.id.user_photo);
 
-				if (mInviterPhotoUrl != null) {
-					DownloadManager
-							.with(Patchr.applicationContext)
-							.load(Uri.parse(mInviterPhotoUrl))
+				if (mReferrerPhotoUrl != null) {
+					Picasso.with(Patchr.applicationContext)
+							.load(Uri.parse(mReferrerPhotoUrl))
 							.config(Bitmap.Config.RGB_565)
 							.transform(new CircleTransform())
 							.into(imageView);

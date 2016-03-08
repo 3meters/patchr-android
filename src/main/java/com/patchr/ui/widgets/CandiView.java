@@ -2,6 +2,7 @@ package com.patchr.ui.widgets;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.PorterDuff;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -28,6 +29,7 @@ import com.patchr.objects.ShortcutSettings;
 import com.patchr.objects.User;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -241,16 +243,25 @@ public class CandiView extends RelativeLayout {
 		}
 		else if (mPhotoView != null) {
 
-			if (mPhotoView.getImageView().getDrawable() != null) {
-				if (Photo.same(mPhotoView.getPhoto(), mEntity.getPhoto())) return;
-			}
+			mPhotoView.getBackground().clearColorFilter();
 
-			if (mEntity.getPhoto() != null) {
-				Photo photo = mEntity.getPhoto();
-				if (mPhotoView.getPhoto() == null || !photo.getDirectUri().equals(mPhotoView.getPhoto().getDirectUri())) {
-					mPhotoView.setTag(photo);
-					mPhotoView.setGroupTag(groupId);
-					UI.drawPhoto(mPhotoView, photo);
+			if (mEntity.photo != null) {
+
+				/* Optimize if we already have the image */
+				if (mPhotoView.getPhoto() != null && mPhotoView.getImageView().getDrawable() != null) {
+					if (Photo.same(mPhotoView.getPhoto(), mEntity.getPhoto())) return;
+				}
+
+				mPhotoView.setTag(mEntity.photo);
+				mPhotoView.setGroupTag(groupId);
+				UI.drawPhoto(mPhotoView, mEntity.photo);
+			}
+			else {
+				mPhotoView.getImageView().setImageDrawable(null);
+				if (!TextUtils.isEmpty(mEntity.name)) {
+					long seed = Utils.numberFromName(mEntity.name);
+					Integer color = Utils.randomColor(seed);
+					mPhotoView.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
 				}
 			}
 		}
