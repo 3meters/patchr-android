@@ -38,8 +38,8 @@ android {
 		applicationId 'com.patchr.android'
 		minSdkVersion 15        // ICS 4.0.3 and up
 		targetSdkVersion 23     // Marshmallow
-		versionCode 108
-		versionName '1.1.6'
+		versionCode 109
+		versionName '1.1.7'
 	}
 
 	lintOptions {
@@ -62,7 +62,7 @@ android {
 			 * each module and produce an APK that can be tested on Android Lollipop without
 			 * time consuming dex merging processes.
 			 */
-			minSdkVersion 21
+			minSdkVersion 15
 		}
 		prod {
 			/* The actual minSdkVersion for the application. */
