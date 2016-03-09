@@ -38,7 +38,7 @@ import com.patchr.objects.Route;
 import com.patchr.ui.base.BaseEntityEdit;
 import com.patchr.ui.components.EntitySuggestController;
 import com.patchr.ui.widgets.AirTokenCompleteTextView;
-import com.patchr.ui.widgets.EntityView;
+import com.patchr.ui.views.EntityView;
 import com.patchr.ui.widgets.TokenCompleteTextView;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;

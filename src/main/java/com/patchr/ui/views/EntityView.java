@@ -1,4 +1,4 @@
-package com.patchr.ui.widgets;
+package com.patchr.ui.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -157,7 +157,7 @@ public class EntityView extends LinearLayout implements Target {
 		mLayoutResId = layoutResId;
 	}
 
-	public AirPhotoView getPhotoView() {
+	public PhotoView getPhotoView() {
 		return mPhotoView;
 	}
 

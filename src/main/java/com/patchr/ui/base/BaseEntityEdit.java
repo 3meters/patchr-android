@@ -40,7 +40,7 @@ import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.service.ServiceResponse;
 import com.patchr.ui.components.SimpleTextWatcher;
-import com.patchr.ui.widgets.AirPhotoView;
+import com.patchr.ui.views.PhotoView;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
@@ -55,7 +55,7 @@ import java.util.List;
 
 public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserListener, Target {
 
-	protected AirPhotoView        mPhotoView;
+	protected PhotoView           mPhotoView;
 	protected TextView            mName;
 	protected TextView            mDescription;
 	protected View                mButtonPhotoDelete;
@@ -104,7 +104,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 		mName = (TextView) findViewById(R.id.name);
 		mDescription = (TextView) findViewById(R.id.description);
-		mPhotoView = (AirPhotoView) findViewById(R.id.photo);
+		mPhotoView = (PhotoView) findViewById(R.id.photo_view);
 		mButtonPhotoSet = findViewById(R.id.button_photo_set);
 		mButtonPhotoEdit = findViewById(R.id.button_photo_edit);
 		mButtonPhotoDelete = findViewById(R.id.button_photo_delete);

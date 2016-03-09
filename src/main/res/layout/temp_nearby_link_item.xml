@@ -6,8 +6,8 @@
 	android:orientation="horizontal"
 	android:paddingRight="2dp">
 
-	<com.patchr.ui.widgets.AirPhotoView
-		android:id="@+id/photo"
+	<com.patchr.ui.views.PhotoView
+		android:id="@+id/photo_view"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_tiny"
 		android:layout_height="@dimen/image_tiny"

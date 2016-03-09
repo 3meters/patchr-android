@@ -187,7 +187,7 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 			}
 
 			if (itemData != null) {
-				((ImageView) view.findViewById(R.id.photo)).setImageResource(itemData.iconResId);
+				((ImageView) view.findViewById(R.id.photo_view)).setImageResource(itemData.iconResId);
 				((TextView) view.findViewById(R.id.name)).setText(itemData.title);
 				view.setTag(itemData);
 			}

@@ -22,7 +22,7 @@
 			android:focusableInTouchMode="false"
 			android:orientation="vertical">
 
-			<com.patchr.ui.widgets.CandiView
+			<com.patchr.ui.views.CandiView
 				android:id="@+id/candi_view"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
@@ -124,7 +124,7 @@
 			android:orientation="vertical"
 			android:padding="8dp">
 
-			<com.patchr.ui.widgets.CandiView
+			<com.patchr.ui.views.CandiView
 				android:id="@+id/candi_view_info"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"

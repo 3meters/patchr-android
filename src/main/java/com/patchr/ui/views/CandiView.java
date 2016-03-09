@@ -1,4 +1,4 @@
-package com.patchr.ui.widgets;
+package com.patchr.ui.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -17,7 +17,6 @@ import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.LocationManager;
 import com.patchr.components.StringManager;
-import com.patchr.components.UserManager;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
@@ -47,9 +46,9 @@ public class CandiView extends RelativeLayout {
 	protected Integer   mLayoutId;
 	protected ViewGroup mLayout;
 
-	protected AirPhotoView    mPhotoView;
+	protected PhotoView       mPhotoView;
 	protected EntityPhotoView mUserPhotoView;
-	protected AirPhotoView    mCategoryPhoto;
+	protected PhotoView       mCategoryPhoto;
 	protected TextView        mCategoryName;
 	protected TextView        mType;
 	protected TextView        mName;
@@ -94,7 +93,7 @@ public class CandiView extends RelativeLayout {
 		mLayout = (ViewGroup) LayoutInflater.from(getContext()).inflate(mLayoutId, this, true);
 
 		mCandiViewGroup = mLayout.findViewById(R.id.candi_view_group);
-		mPhotoView = (AirPhotoView) mLayout.findViewById(R.id.photo);
+		mPhotoView = (PhotoView) mLayout.findViewById(R.id.photo_view);
 		mUserPhotoView = (EntityPhotoView) mLayout.findViewById(R.id.user_photo);
 		mName = (TextView) mLayout.findViewById(R.id.name);
 		mSubhead = (TextView) mLayout.findViewById(R.id.subhead);
@@ -103,7 +102,7 @@ public class CandiView extends RelativeLayout {
 		mDistance = (TextView) mLayout.findViewById(R.id.distance);
 		mType = (TextView) mLayout.findViewById(R.id.type);
 		mCategoryName = (TextView) mLayout.findViewById(R.id.category_name);
-		mCategoryPhoto = (AirPhotoView) mLayout.findViewById(R.id.category_photo);
+		mCategoryPhoto = (PhotoView) mLayout.findViewById(R.id.category_photo);
 		mHolderPreviews = (LinearLayout) mLayout.findViewById(R.id.previews);
 		mHolderInfo = (LinearLayout) mLayout.findViewById(R.id.info_holder);
 		mCount = (TextView) mLayout.findViewById(R.id.count);
@@ -385,10 +384,7 @@ public class CandiView extends RelativeLayout {
 						}
 					}
 
-					if (UserManager.getInstance().authenticated()
-							&& Constants.DEV_ENABLED
-							&& UserManager.getInstance().getCurrentUser().developer != null
-							&& UserManager.getInstance().getCurrentUser().developer) {
+					if (Utils.devModeEnabled()) {
 						info = target + info;
 					}
 					else if (feet <= 60) {
@@ -421,11 +417,11 @@ public class CandiView extends RelativeLayout {
 		mLayoutId = layoutId;
 	}
 
-	public AirPhotoView getCandiImage() {
+	public PhotoView getCandiImage() {
 		return mPhotoView;
 	}
 
-	public void setCandiImage(AirPhotoView candiImage) {
+	public void setCandiImage(PhotoView candiImage) {
 		mPhotoView = candiImage;
 	}
 

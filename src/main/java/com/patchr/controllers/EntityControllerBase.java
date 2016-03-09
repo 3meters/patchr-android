@@ -26,10 +26,10 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.ViewHolder;
 import com.patchr.ui.EntityListFragment.ViewType;
-import com.patchr.ui.widgets.AirPhotoView;
-import com.patchr.ui.widgets.CandiView;
-import com.patchr.ui.widgets.EntityPhotoView;
-import com.patchr.ui.widgets.UserView;
+import com.patchr.ui.views.PhotoView;
+import com.patchr.ui.views.CandiView;
+import com.patchr.ui.views.EntityPhotoView;
+import com.patchr.ui.views.UserView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;
@@ -330,7 +330,7 @@ public abstract class EntityControllerBase implements IEntityController {
 	public void bindHolder(View view, ViewHolder holder) {
 
 		holder.candiView = (CandiView) view.findViewById(R.id.candi_view);
-		holder.photoView = (AirPhotoView) view.findViewById(R.id.photo);
+		holder.photoView = (PhotoView) view.findViewById(R.id.photo_view);
 		holder.name = (TextView) view.findViewById(R.id.name);
 		holder.subhead = (TextView) view.findViewById(R.id.subhead);
 		holder.summary = (TextView) view.findViewById(R.id.summary);
@@ -342,7 +342,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.comments = (TextView) view.findViewById(R.id.comments);
 		holder.share = (ViewGroup) view.findViewById(R.id.share_entity);
 		holder.alert = (ImageView) view.findViewById(R.id.alert_indicator);
-		holder.photoViewBig = (AirPhotoView) view.findViewById(R.id.photo_big);
+		holder.photoViewBig = (PhotoView) view.findViewById(R.id.photo_big);
 		holder.photoType = (ImageView) view.findViewById(R.id.photo_type);
 
 		if (holder.checked != null) {
@@ -359,7 +359,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.index = (TextView) view.findViewById(R.id.index);
 		holder.userPhotoView = (EntityPhotoView) view.findViewById(R.id.user_photo);
 		holder.userName = (TextView) view.findViewById(R.id.user_name);
-		holder.patchPhotoView = (AirPhotoView) view.findViewById(R.id.patch_photo);
+		holder.patchPhotoView = (PhotoView) view.findViewById(R.id.patch_photo);
 		holder.patchName = (TextView) view.findViewById(R.id.patch_name);
 		holder.categoryName = (TextView) view.findViewById(R.id.category_name);
 		holder.type = (TextView) view.findViewById(R.id.type);

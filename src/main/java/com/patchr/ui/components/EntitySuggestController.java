@@ -35,7 +35,7 @@ import com.patchr.objects.Patch.ReasonType;
 import com.patchr.objects.User;
 import com.patchr.ui.widgets.AirTokenCompleteTextView;
 import com.patchr.ui.widgets.TokenCompleteTextView;
-import com.patchr.ui.widgets.EntityPhotoView;
+import com.patchr.ui.views.EntityPhotoView;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
@@ -276,7 +276,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			if (view == null) {
 				view = LayoutInflater.from(mContext).inflate(R.layout.temp_user_search_item, null);
 				holder = new ViewHolder();
-				holder.photoView = (EntityPhotoView) view.findViewById(R.id.photo);
+				holder.photoView = (EntityPhotoView) view.findViewById(R.id.photo_view);
 				holder.name = (TextView) view.findViewById(R.id.name);
 				holder.subhead = (TextView) view.findViewById(R.id.subhead);
 				holder.categoryName = (TextView) view.findViewById(R.id.category_name);

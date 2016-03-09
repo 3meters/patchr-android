@@ -22,8 +22,8 @@ import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
-import com.patchr.ui.widgets.CandiView;
-import com.patchr.ui.widgets.EntityPhotoView;
+import com.patchr.ui.views.CandiView;
+import com.patchr.ui.views.EntityPhotoView;
 import com.patchr.utilities.UI;
 import com.squareup.otto.Subscribe;
 

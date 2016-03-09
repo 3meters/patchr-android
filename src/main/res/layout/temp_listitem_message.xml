@@ -51,7 +51,7 @@
 			android:visibility="gone" />
 	</LinearLayout>
 
-	<com.patchr.ui.widgets.EntityPhotoView
+	<com.patchr.ui.views.EntityPhotoView
 		android:id="@+id/user_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_small"
@@ -112,8 +112,8 @@
 
 		<!-- Photo -->
 
-		<com.patchr.ui.widgets.AirPhotoView
-			android:id="@+id/photo"
+		<com.patchr.ui.views.PhotoView
+			android:id="@+id/photo_view"
 			style="@style/selectable_image"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

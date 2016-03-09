@@ -1,4 +1,4 @@
-package com.patchr.ui.widgets;
+package com.patchr.ui.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;

@@ -34,6 +34,7 @@ import com.patchr.ui.widgets.ListPreferenceMultiSelect;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 import com.squareup.picasso.Picasso;
 
 @SuppressWarnings("deprecation")
@@ -47,9 +48,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 		/* Load preferences layout */
 		addPreferencesFromResource(R.xml.preferences);
-		if (UserManager.getInstance().authenticated()
-				&& UserManager.getInstance().getCurrentUser().developer != null
-				&& UserManager.getInstance().getCurrentUser().developer) {
+		if (Utils.isDev()) {
 			addPreferencesFromResource(R.xml.preferences_dev);
 		}
 	}

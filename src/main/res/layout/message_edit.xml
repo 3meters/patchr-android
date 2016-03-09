@@ -89,7 +89,7 @@
 							android:textAppearance="?attr/textAppearanceMediumLarge"
 							android:textColor="?attr/textColorSecondary" />
 
-						<com.patchr.ui.widgets.EntityView
+						<com.patchr.ui.views.EntityView
 							android:id="@+id/entity_view"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -177,8 +177,8 @@
 							android:layout_marginBottom="16dp"
 							android:orientation="vertical">
 
-							<com.patchr.ui.widgets.AirPhotoView
-								android:id="@+id/photo"
+							<com.patchr.ui.views.PhotoView
+								android:id="@+id/photo_view"
 								style="@style/selectable_image"
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
@@ -190,7 +190,7 @@
 							<RelativeLayout
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
-								android:layout_alignTop="@+id/photo"
+								android:layout_alignTop="@+id/photo_view"
 								android:background="@drawable/scrim_medium">
 
 								<ImageButton

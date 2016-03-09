@@ -44,7 +44,7 @@ import com.patchr.service.ServiceRequest;
 import com.patchr.service.ServiceRequest.AuthType;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.widgets.AirAutoCompleteTextView;
-import com.patchr.ui.widgets.AirPhotoView;
+import com.patchr.ui.views.PhotoView;
 import com.patchr.ui.widgets.AirTextView;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
@@ -523,7 +523,7 @@ public class PhotoPicker extends BaseActivity {
 			if (view == null) {
 				view = LayoutInflater.from(PhotoPicker.this).inflate(R.layout.temp_picture_search_item, null);
 				holder = new ViewHolder();
-				holder.photoView = (AirPhotoView) view.findViewById(R.id.photo);
+				holder.photoView = (PhotoView) view.findViewById(R.id.photo_view);
 				Integer nudge = mResources.getDimensionPixelSize(R.dimen.grid_item_height_kick);
 				final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mPhotoWidthPixels, mPhotoWidthPixels - nudge);
 				holder.photoView.setLayoutParams(params);
@@ -552,7 +552,7 @@ public class PhotoPicker extends BaseActivity {
 
 	public static class ViewHolder {
 
-		public AirPhotoView photoView;
-		public ImageResult  data; // NO_UCD (unused code)
+		public PhotoView   photoView;
+		public ImageResult data; // NO_UCD (unused code)
 	}
 }

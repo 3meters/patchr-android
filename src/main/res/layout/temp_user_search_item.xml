@@ -16,7 +16,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
-		android:layout_toLeftOf="@+id/photo"
+		android:layout_toLeftOf="@+id/photo_view"
 		android:orientation="vertical">
 
 		<com.patchr.ui.widgets.AirTextLight
@@ -55,8 +55,8 @@
 			tools:text="@string/dummy_subtitle" />
 	</LinearLayout>
 
-	<com.patchr.ui.widgets.EntityPhotoView
-		android:id="@+id/photo"
+	<com.patchr.ui.views.EntityPhotoView
+		android:id="@+id/photo_view"
 		style="@style/selectable_image"
 		android:layout_width="48dp"
 		android:layout_height="48dp"

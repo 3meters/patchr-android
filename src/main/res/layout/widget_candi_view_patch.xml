@@ -5,8 +5,8 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
-	<com.patchr.ui.widgets.AirPhotoView
-		android:id="@+id/photo"
+	<com.patchr.ui.views.PhotoView
+		android:id="@+id/photo_view"
 		style="@style/selectable_image"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -103,7 +103,7 @@
 		android:id="@+id/distance_ignore"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignBottom="@+id/photo"
+		android:layout_alignBottom="@+id/photo_view"
 		android:layout_alignParentRight="true"
 		android:paddingBottom="12dp"
 		android:paddingRight="10dp"

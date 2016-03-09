@@ -50,11 +50,11 @@ import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseEntityForm;
 import com.patchr.ui.edit.MessageEdit;
-import com.patchr.ui.widgets.AirPhotoView;
-import com.patchr.ui.widgets.EntityPhotoView;
-import com.patchr.ui.widgets.EntityView;
+import com.patchr.ui.views.PhotoView;
+import com.patchr.ui.views.EntityPhotoView;
+import com.patchr.ui.views.EntityView;
 import com.patchr.ui.widgets.FlowLayout;
-import com.patchr.ui.widgets.InsetViewTransformer;
+import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -231,11 +231,11 @@ public class MessageForm extends BaseEntityForm {
 			view = findViewById(android.R.id.content);
 		}
 
-		final AirPhotoView photoView = (AirPhotoView) view.findViewById(R.id.photo);
+		final PhotoView photoView = (PhotoView) view.findViewById(R.id.photo_view);
 		final View holderUser = view.findViewById(R.id.holder_user);
 		final View holderPatch = view.findViewById(R.id.holder_patch);
 		final TextView description = (TextView) view.findViewById(R.id.description);
-		final AirPhotoView patchPhotoView = (AirPhotoView) view.findViewById(R.id.patch_photo);
+		final PhotoView patchPhotoView = (PhotoView) view.findViewById(R.id.patch_photo);
 		final TextView patchName = (TextView) view.findViewById(R.id.patch_name);
 		final EntityPhotoView entityPhotoView = (EntityPhotoView) view.findViewById(R.id.user_photo);
 		final TextView userName = (TextView) view.findViewById(R.id.user_name);

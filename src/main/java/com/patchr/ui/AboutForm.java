@@ -10,11 +10,11 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.StringManager;
-import com.patchr.components.UserManager;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.utilities.DateTime;
+import com.patchr.utilities.Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -54,10 +54,7 @@ public class AboutForm extends BaseActivity {
 		mVersion.setText(version);
 		mCopyright.setText(copyright);
 
-		if (UserManager.getInstance().authenticated()
-				&& Constants.DEV_ENABLED
-				&& UserManager.getInstance().getCurrentUser().developer != null
-				&& UserManager.getInstance().getCurrentUser().developer) {
+		if (Utils.devModeEnabled()) {
 			String serviceUrl = Constants.serviceUrl();
 			((TextView) findViewById(R.id.service_url)).setText(serviceUrl);
 			((TextView) findViewById(R.id.install_id)).setText(Patchr.getInstance().getinstallId());

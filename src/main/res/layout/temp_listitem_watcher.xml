@@ -5,7 +5,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
-	<com.patchr.ui.widgets.CandiView
+	<com.patchr.ui.views.CandiView
 		android:id="@+id/candi_view"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"

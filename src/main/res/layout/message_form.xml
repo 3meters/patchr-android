@@ -53,7 +53,7 @@
 						android:textAppearance="@style/text_appearance_medium"
 						android:textColor="@color/brand_primary_dark" />
 
-					<com.patchr.ui.widgets.AirPhotoView
+					<com.patchr.ui.views.PhotoView
 						android:id="@+id/patch_photo"
 						style="@style/selectable_image"
 						android:layout_width="@dimen/image_medium"
@@ -82,7 +82,7 @@
 					android:paddingRight="@dimen/form_body_padding"
 					tools:layout_height="50dp">
 
-					<com.patchr.ui.widgets.EntityPhotoView
+					<com.patchr.ui.views.EntityPhotoView
 						android:id="@+id/user_photo"
 						style="@style/selectable_image"
 						android:layout_width="@dimen/image_small"
@@ -137,8 +137,8 @@
 
 				<!-- Photo -->
 
-				<com.patchr.ui.widgets.AirPhotoView
-					android:id="@+id/photo"
+				<com.patchr.ui.views.PhotoView
+					android:id="@+id/photo_view"
 					style="@style/selectable_image"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"

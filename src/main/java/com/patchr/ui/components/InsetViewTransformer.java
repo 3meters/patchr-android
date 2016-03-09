@@ -1,4 +1,4 @@
-package com.patchr.ui.widgets;
+package com.patchr.ui.components;
 
 import android.view.View;
 

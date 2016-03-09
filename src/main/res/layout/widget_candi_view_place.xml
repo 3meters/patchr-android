@@ -6,8 +6,8 @@
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
 
-	<com.patchr.ui.widgets.AirPhotoView
-		android:id="@+id/photo"
+	<com.patchr.ui.views.PhotoView
+		android:id="@+id/photo_view"
 		style="@style/selectable_image"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"

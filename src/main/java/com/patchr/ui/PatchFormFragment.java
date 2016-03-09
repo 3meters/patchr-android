@@ -46,9 +46,9 @@ import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
 import com.patchr.objects.WatchStatus;
 import com.patchr.ui.components.AnimationFactory;
-import com.patchr.ui.widgets.AirPhotoView;
-import com.patchr.ui.widgets.CandiView;
-import com.patchr.ui.widgets.UserView;
+import com.patchr.ui.views.PhotoView;
+import com.patchr.ui.views.CandiView;
+import com.patchr.ui.views.UserView;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;
@@ -284,7 +284,7 @@ public class PatchFormFragment extends EntityFormFragment {
 
 		/* Reset the image aspect ratio */
 		if (getView() != null) {
-			AirPhotoView image = (AirPhotoView) getView().findViewById(R.id.photo);
+			PhotoView image = (PhotoView) getView().findViewById(R.id.photo_view);
 			TypedValue typedValue = new TypedValue();
 			getResources().getValue(R.dimen.aspect_ratio_patch_image, typedValue, true);
 			image.setAspectRatio(typedValue.getFloat());
@@ -322,7 +322,7 @@ public class PatchFormFragment extends EntityFormFragment {
 				/* Photo overlayed with info */
 
 				final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
-				final AirPhotoView photoView = (AirPhotoView) view.findViewById(R.id.photo);
+				final PhotoView photoView = (PhotoView) view.findViewById(R.id.photo_view);
 				final TextView name = (TextView) view.findViewById(R.id.name);
 				final TextView type = (TextView) view.findViewById(R.id.type);
 

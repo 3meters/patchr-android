@@ -101,7 +101,7 @@
 				android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
 				android:minLines="5" />
 
-			<com.patchr.ui.widgets.UserView
+			<com.patchr.ui.views.UserView
 				android:id="@+id/created_by"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"

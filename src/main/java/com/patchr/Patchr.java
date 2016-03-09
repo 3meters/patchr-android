@@ -52,7 +52,6 @@ import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Preference;
 import com.patchr.utilities.DateTime;
-import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
@@ -255,9 +254,7 @@ public class Patchr extends MultiDexApplication {
 				/* Called when a successful refresh occurred for the given refresh type. */
 				Logger.v(this, "Container refresh success");
 
-				if (Constants.DEV_ENABLED
-						&& UserManager.getInstance().authenticated()
-						&& Type.isTrue(UserManager.getInstance().getCurrentUser().developer)) {
+				if (Utils.devModeEnabled()) {
 					UI.showToastNotification("Container refreshed", Toast.LENGTH_SHORT);
 				}
 

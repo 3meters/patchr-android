@@ -151,7 +151,7 @@
 	<declare-styleable name="AirTextLight">
 		<attr name="textId" />
 	</declare-styleable>
-	<declare-styleable name="AirPhotoView">
+	<declare-styleable name="PhotoView">
 		<attr name="aspectRatio" />
 		<attr name="config" />
 		<attr name="showBusy" />

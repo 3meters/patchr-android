@@ -41,7 +41,7 @@ import com.patchr.objects.Patch;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseEntityEdit;
-import com.patchr.ui.widgets.AirPhotoView;
+import com.patchr.ui.views.PhotoView;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
@@ -51,9 +51,9 @@ import com.squareup.otto.Subscribe;
 @SuppressLint("Registered")
 public class PatchEdit extends BaseEntityEdit {
 
-	private   TextView     mButtonPrivacy;
-	private   TextView     mLocationLabel;
-	protected AirPhotoView mPhotoViewPlace;
+	private   TextView  mButtonPrivacy;
+	private   TextView  mLocationLabel;
+	protected PhotoView mPhotoViewPlace;
 
 	private RadioGroup  mButtonGroupType;
 	private RadioButton mButtonTypeEvent;

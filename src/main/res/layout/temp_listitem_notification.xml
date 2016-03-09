@@ -12,7 +12,7 @@
 
 	<!-- Patch context -->
 
-	<com.patchr.ui.widgets.EntityPhotoView
+	<com.patchr.ui.views.EntityPhotoView
 		android:id="@+id/user_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_small"
@@ -43,7 +43,7 @@
 
 		<!-- Photo -->
 
-		<com.patchr.ui.widgets.AirPhotoView
+		<com.patchr.ui.views.PhotoView
 			android:id="@+id/photo_big"
 			style="@style/selectable_image"
 			android:layout_width="match_parent"

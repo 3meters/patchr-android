@@ -1,4 +1,4 @@
-package com.patchr.ui.widgets;
+package com.patchr.ui.views;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
@@ -19,7 +19,7 @@ import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
 @SuppressWarnings("ucd")
-public class EntityPhotoView extends AirPhotoView {
+public class EntityPhotoView extends PhotoView {
 
 	private TextView mNameView;
 	private Entity   mEntity;
@@ -82,8 +82,8 @@ public class EntityPhotoView extends AirPhotoView {
 
 			if (mEntity.photo == null) {
 
-				mImageMain.setVisibility(GONE);
-				mImageMain.setImageDrawable(null);
+				mImageView.setVisibility(GONE);
+				mImageView.setImageDrawable(null);
 				mNameView.setVisibility(VISIBLE);
 				mNameView.setText(null);
 
@@ -106,7 +106,7 @@ public class EntityPhotoView extends AirPhotoView {
 				Photo photo = mEntity.getPhoto();
 				mUriBound = UI.url(photo.prefix, photo.source, null);  // Will be just the prefix without host, params, etc.
 
-				mImageMain.setVisibility(VISIBLE);
+				mImageView.setVisibility(VISIBLE);
 				mNameView.setVisibility(GONE);
 
 				if ((mShape.equals("auto") && mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) || mShape.equals("round")) {
@@ -122,7 +122,7 @@ public class EntityPhotoView extends AirPhotoView {
 			if (mUri != null) {
 
 				if (mUriBound == null || !mUri.equals(mUriBound)) {
-					mImageMain.setVisibility(VISIBLE);
+					mImageView.setVisibility(VISIBLE);
 					mNameView.setVisibility(GONE);
 					Photo photo = mEntity.getPhoto();
 					if (mShape.equals("round")) {
@@ -135,8 +135,8 @@ public class EntityPhotoView extends AirPhotoView {
 			}
 			else {
 
-				mImageMain.setVisibility(GONE);
-				mImageMain.setImageDrawable(null);
+				mImageView.setVisibility(GONE);
+				mImageView.setImageDrawable(null);
 				mNameView.setVisibility(VISIBLE);
 				mNameView.setText(null);
 				if (mShowBusy) {

@@ -1,4 +1,4 @@
-package com.patchr.ui.widgets;
+package com.patchr.ui.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -14,11 +14,12 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoSizeCategory;
+import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Target;
 
 @SuppressWarnings("ucd")
-public class AirPhotoView extends FrameLayout {
+public class PhotoView extends FrameLayout {
 
 	private static final float  DEFAULT_ASPECT_RATIO = 0f;
 	private static final String androidNamespace     = "http://schemas.android.com/apk/res/android";
@@ -26,7 +27,7 @@ public class AirPhotoView extends FrameLayout {
 	private   Photo  mPhoto;
 	protected String mUriBound;
 
-	protected AppCompatImageView mImageMain;
+	protected AppCompatImageView mImageView;
 	protected AirProgressBar     mProgressBar;
 
 	protected Target            mTarget;
@@ -40,25 +41,25 @@ public class AirPhotoView extends FrameLayout {
 
 	protected Bitmap.Config mConfig = Bitmap.Config.RGB_565;  // Used by picasso
 
-	public AirPhotoView(Context context) {
+	public PhotoView(Context context) {
 		this(context, null);
 	}
 
-	public AirPhotoView(Context context, AttributeSet attrs) {
+	public PhotoView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	public AirPhotoView(Context context, AttributeSet attributes, int defStyle) {
+	public PhotoView(Context context, AttributeSet attributes, int defStyle) {
 		super(context, attributes, defStyle);
 
-		final TypedArray ta = context.obtainStyledAttributes(attributes, R.styleable.AirPhotoView, defStyle, 0);
+		final TypedArray ta = context.obtainStyledAttributes(attributes, R.styleable.PhotoView, defStyle, 0);
 
-		mConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.AirPhotoView_config, Bitmap.Config.ARGB_8888.ordinal())];
-		mSizeCategory = PhotoSizeCategory.values()[ta.getInteger(R.styleable.AirPhotoView_sizeCategory, PhotoSizeCategory.THUMBNAIL.ordinal())];
-		mShowBusy = ta.getBoolean(R.styleable.AirPhotoView_showBusy, true);
-		mAspectRatio = ta.getFloat(R.styleable.AirPhotoView_aspectRatio, DEFAULT_ASPECT_RATIO);
-		if (ta.hasValue(R.styleable.AirPhotoView_shape)) {
-			mShape = ta.getString(R.styleable.AirPhotoView_shape);
+		mConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.PhotoView_config, Bitmap.Config.ARGB_8888.ordinal())];
+		mSizeCategory = PhotoSizeCategory.values()[ta.getInteger(R.styleable.PhotoView_sizeCategory, PhotoSizeCategory.THUMBNAIL.ordinal())];
+		mShowBusy = ta.getBoolean(R.styleable.PhotoView_showBusy, true);
+		mAspectRatio = ta.getFloat(R.styleable.PhotoView_aspectRatio, DEFAULT_ASPECT_RATIO);
+		if (ta.hasValue(R.styleable.PhotoView_shape)) {
+			mShape = ta.getString(R.styleable.PhotoView_shape);
 		}
 
 		ta.recycle();
@@ -79,11 +80,11 @@ public class AirPhotoView extends FrameLayout {
 		this.setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundPlaceholder));
 
 		/* Image - subclass could have provide it instead */
-		if (mImageMain == null) {
-			mImageMain = new AppCompatImageView(getContext());
-			mImageMain.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-			mImageMain.setScaleType(mScaleType);
-			addView(mImageMain);
+		if (mImageView == null) {
+			mImageView = new AppCompatImageView(getContext());
+			mImageView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			mImageView.setScaleType(mScaleType);
+			addView(mImageView);
 		}
 
 		/* Activity indicator - last added is in front */
@@ -112,7 +113,7 @@ public class AirPhotoView extends FrameLayout {
 			/* We have to enforce the sizing on the child imageview */
 			int widthSpec = MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY);
 			int heightSpec = MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY);
-			mImageMain.measure(widthSpec, heightSpec);
+			mImageView.measure(widthSpec, heightSpec);
 		}
 	}
 
@@ -142,11 +143,11 @@ public class AirPhotoView extends FrameLayout {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public ImageView getImageView() {
-		return mImageMain;
+		return mImageView;
 	}
 
-	public AirPhotoView setImageView(AppCompatImageView imageView) {
-		mImageMain = imageView;
+	public PhotoView setImageView(AppCompatImageView imageView) {
+		mImageView = imageView;
 		return this;
 	}
 
@@ -154,7 +155,7 @@ public class AirPhotoView extends FrameLayout {
 		return mGroupTag;
 	}
 
-	public AirPhotoView setGroupTag(String group) {
+	public PhotoView setGroupTag(String group) {
 		mGroupTag = group;
 		return this;
 	}
@@ -163,7 +164,7 @@ public class AirPhotoView extends FrameLayout {
 		return mScaleType;
 	}
 
-	public AirPhotoView setScaleType(ScaleType scaleType) {
+	public PhotoView setScaleType(ScaleType scaleType) {
 		mScaleType = scaleType;
 		return this;
 	}
@@ -172,7 +173,7 @@ public class AirPhotoView extends FrameLayout {
 		return mConfig;
 	}
 
-	public AirPhotoView setConfig(Bitmap.Config config) {
+	public PhotoView setConfig(Bitmap.Config config) {
 		mConfig = config;
 		return this;
 	}
@@ -181,7 +182,7 @@ public class AirPhotoView extends FrameLayout {
 		return mPhoto;
 	}
 
-	public AirPhotoView setPhoto(Photo photo) {
+	public PhotoView setPhoto(Photo photo) {
 		mPhoto = photo;
 		return this;
 	}
@@ -190,7 +191,7 @@ public class AirPhotoView extends FrameLayout {
 		return mTarget;
 	}
 
-	public AirPhotoView setTarget(Target target) {
+	public PhotoView setTarget(Target target) {
 		mTarget = target;
 		return this;
 	}
@@ -199,7 +200,7 @@ public class AirPhotoView extends FrameLayout {
 		return mAspectRatio;
 	}
 
-	public AirPhotoView setAspectRatio(Float aspectRatio) {
+	public PhotoView setAspectRatio(Float aspectRatio) {
 		this.mAspectRatio = aspectRatio;
 		requestLayout();
 		return this;
@@ -209,7 +210,7 @@ public class AirPhotoView extends FrameLayout {
 		return mSizeCategory;
 	}
 
-	public AirPhotoView setSizeCategory(PhotoSizeCategory sizeCategory) {
+	public PhotoView setSizeCategory(PhotoSizeCategory sizeCategory) {
 		mSizeCategory = sizeCategory;
 		return this;
 	}

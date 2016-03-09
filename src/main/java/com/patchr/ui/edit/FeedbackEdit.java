@@ -22,7 +22,7 @@ import com.patchr.objects.Document;
 import com.patchr.ui.base.BaseEntityEdit;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.widgets.AirEditText;
-import com.patchr.ui.widgets.UserView;
+import com.patchr.ui.views.UserView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;

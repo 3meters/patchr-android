@@ -23,7 +23,7 @@ import com.patchr.R;
 import com.patchr.components.FontManager;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoSizeCategory;
-import com.patchr.ui.widgets.AirPhotoView;
+import com.patchr.ui.views.PhotoView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Transformation;
@@ -37,11 +37,11 @@ public class UI {
 	 * Photos
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static void drawPhoto(@NonNull final AirPhotoView photoView, @NonNull final Photo photo) {
+	public static void drawPhoto(@NonNull final PhotoView photoView, @NonNull final Photo photo) {
 		drawPhoto(photoView, photo, null);
 	}
 
-	public static void drawPhoto(@NonNull final AirPhotoView photoView, @NonNull final Photo photo, final Transformation transform) {
+	public static void drawPhoto(@NonNull final PhotoView photoView, @NonNull final Photo photo, final Transformation transform) {
 	    /*
 	     * There are only a few places that don't use this code to display images:
 		 * - Notification icons - can't use AirImageView
@@ -52,7 +52,7 @@ public class UI {
 		loadView(photoView, photo, transform);
 	}
 
-	private static void loadView(@NonNull final AirPhotoView photoView, @NonNull final Photo photo, final Transformation transform) {
+	private static void loadView(@NonNull final PhotoView photoView, @NonNull final Photo photo, final Transformation transform) {
 		/*
 		 * This is the only patch in the code that turns on proxy handling.
 		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.

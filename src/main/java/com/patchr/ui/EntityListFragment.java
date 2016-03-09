@@ -97,7 +97,7 @@ public class EntityListFragment extends BaseFragment
 	protected Boolean mReverseSort        = false;
 	protected Boolean mFabEnabled         = true;
 	protected Boolean mShowIndex          = true;
-	protected Boolean mPauseOnFling = true;
+	protected Boolean mPauseOnFling       = true;
 
 	/* Runtime data */
 	protected Boolean mRecreated = false;
@@ -223,7 +223,7 @@ public class EntityListFragment extends BaseFragment
 						if (view != null) {
 							View candiView = view.findViewById(R.id.candi_view);
 							if (candiView != null && mListView instanceof AirListView) {
-								View photo = candiView.findViewById(R.id.photo);
+								View photo = candiView.findViewById(R.id.photo_view);
 								((AirListView) mListView).addParallaxedView(photo);
 							}
 						}
@@ -337,9 +337,9 @@ public class EntityListFragment extends BaseFragment
 				.setLinkProfile(linkProfile);
 
 		request.setActionType(mActionType)
-		       .setMode(mode)
-		       .setEntityId(mScopingEntityId)
-		       .setTag(System.identityHashCode(this));
+				.setMode(mode)
+				.setEntityId(mScopingEntityId)
+				.setTag(System.identityHashCode(this));
 
 		if (mBound && mScopingEntity != null && mode != BindingMode.MANUAL) {
 			request.setCacheStamp(mScopingEntity.getCacheStamp());
@@ -565,14 +565,14 @@ public class EntityListFragment extends BaseFragment
 	}
 
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
-//		if (mPauseOnFling) {
-//			if (scrollState == SCROLL_STATE_IDLE) {
-//				PicassoManager.shared().resumeTag(mGroupTag);
-//			}
-//			else if (scrollState == SCROLL_STATE_FLING) {
-//				PicassoManager.shared().pauseTag(mGroupTag);
-//			}
-//		}
+		//		if (mPauseOnFling) {
+		//			if (scrollState == SCROLL_STATE_IDLE) {
+		//				PicassoManager.shared().resumeTag(mGroupTag);
+		//			}
+		//			else if (scrollState == SCROLL_STATE_FLING) {
+		//				PicassoManager.shared().pauseTag(mGroupTag);
+		//			}
+		//		}
 	}
 
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
@@ -1039,7 +1039,7 @@ public class EntityListFragment extends BaseFragment
 		public static String GRID = "grid";
 	}
 
-	public  enum AnimateType {
+	public enum AnimateType {
 		FADE,
 		SLIDE
 	}

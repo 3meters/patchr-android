@@ -12,6 +12,7 @@ import com.patchr.components.StringManager;
 import com.patchr.objects.Entity;
 import com.patchr.objects.User;
 import com.patchr.ui.components.TextDrawable;
+import com.patchr.ui.views.EntityView;
 import com.patchr.utilities.UI;
 
 public class AirTokenCompleteTextView extends TokenCompleteTextView {

@@ -5,16 +5,16 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.patchr.ui.widgets.AirPhotoView;
-import com.patchr.ui.widgets.CandiView;
-import com.patchr.ui.widgets.EntityView;
-import com.patchr.ui.widgets.EntityPhotoView;
-import com.patchr.ui.widgets.UserView;
+import com.patchr.ui.views.PhotoView;
+import com.patchr.ui.views.CandiView;
+import com.patchr.ui.views.EntityView;
+import com.patchr.ui.views.EntityPhotoView;
+import com.patchr.ui.views.UserView;
 
 public class ViewHolder {
 
 	public CandiView       candiView;
-	public AirPhotoView    photoView;
+	public PhotoView       photoView;
 	public TextView        name;
 	public TextView        subhead;
 	public TextView        summary;
@@ -26,13 +26,13 @@ public class ViewHolder {
 	public TextView        userName;
 	public EntityPhotoView userPhotoView;
 	public TextView        patchName;
-	public AirPhotoView    patchPhotoView;
+	public PhotoView       patchPhotoView;
 	public TextView        categoryName;
-	public AirPhotoView    categoryPhotoView;
+	public PhotoView       categoryPhotoView;
 	public TextView        area;
 	public EntityView      parent;
 	public ViewGroup       share;
-	public AirPhotoView    photoViewBig;
+	public PhotoView       photoViewBig;
 	public ImageView       photoType;
 	public ImageView       alert;
 

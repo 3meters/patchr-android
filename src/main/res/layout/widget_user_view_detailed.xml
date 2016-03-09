@@ -51,7 +51,7 @@
 		</LinearLayout>
 	</LinearLayout>
 
-	<com.patchr.ui.widgets.EntityPhotoView
+	<com.patchr.ui.views.EntityPhotoView
 		android:id="@+id/widget_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_extra_small"

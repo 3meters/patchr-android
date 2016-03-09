@@ -31,7 +31,7 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoSizeCategory;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseActivity;
-import com.patchr.ui.widgets.UserView;
+import com.patchr.ui.views.UserView;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
@@ -84,7 +84,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 		super.initialize(savedInstanceState);
 
 		mTransitionType = TransitionType.DRILL_TO;
-		mPhotoView = (PhotoView) findViewById(R.id.photo);
+		mPhotoView = (PhotoView) findViewById(R.id.photo_view);
 		mPhotoView.setBackgroundColor(Colors.getColor(R.color.background_picture_detail));
 
 		bind(BindingMode.AUTO);
@@ -245,7 +245,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 			ensurePermissions();
 
-			final PhotoView photoView = (PhotoView) findViewById(R.id.photo);
+			final PhotoView photoView = (PhotoView) findViewById(R.id.photo_view);
 			Bitmap bitmap = ((BitmapDrawable) photoView.getDrawable()).getBitmap();
 			File file = MediaManager.copyBitmapToSharePath(bitmap);
 

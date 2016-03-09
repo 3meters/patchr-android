@@ -173,7 +173,7 @@ public abstract class BaseActivity extends AppCompatActivity
 			mProcessing = true;
 			Integer id = event.view.getId();
 
-			if (id == R.id.photo) {
+			if (id == R.id.photo_view) {
 				onPhotoClick(event.view);
 			}
 			else if (id == R.id.share_entity

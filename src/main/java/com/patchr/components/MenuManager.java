@@ -6,13 +6,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Patch;
-import com.patchr.objects.Preference;
 import com.patchr.objects.Route;
 import com.patchr.ui.base.BaseEdit;
 import com.patchr.ui.base.BaseEntityEdit;
@@ -128,23 +126,12 @@ public class MenuManager {
 
 	@NonNull
 	public static Boolean canUserEdit(Entity entity) {
-		//noinspection SimplifiableIfStatement
-		if (!UserManager.getInstance().authenticated()) return false;
-		return entity != null
-				&& (entity.isOwnedByCurrentUser()
-				|| entity.isOwnedBySystem()
-				|| (Patchr.settings.getBoolean(Preference.ENABLE_DEV, false)
-				&& Type.isTrue(UserManager.getInstance().getCurrentUser().developer)));
+		return UserManager.getInstance().authenticated() && entity != null && (entity.isOwnedByCurrentUser());
 	}
 
 	@NonNull
 	public static Boolean canUserDelete(Entity entity) {
-		//noinspection SimplifiableIfStatement
-		if (!UserManager.getInstance().authenticated()) return false;
-		return entity != null
-				&& (entity.isOwnedByCurrentUser()
-				|| (Patchr.settings.getBoolean(Preference.ENABLE_DEV, false)
-				&& Type.isTrue(UserManager.getInstance().getCurrentUser().developer)));
+		return UserManager.getInstance().authenticated() && entity != null && (entity.isOwnedByCurrentUser());
 	}
 
 	@NonNull

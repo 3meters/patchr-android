@@ -9,8 +9,8 @@
 	android:paddingBottom="2dp"
 	android:paddingTop="2dp">
 
-	<com.patchr.ui.widgets.AirPhotoView
-		android:id="@+id/photo"
+	<com.patchr.ui.views.PhotoView
+		android:id="@+id/photo_view"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_medium"
 		android:layout_height="@dimen/image_medium"
@@ -22,7 +22,7 @@
 		android:id="@+id/holder_body"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_toRightOf="@+id/photo"
+		android:layout_toRightOf="@+id/photo_view"
 		android:orientation="vertical">
 
 		<com.patchr.ui.widgets.AirTextLight
@@ -62,7 +62,7 @@
 		android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true"
 		android:layout_below="@+id/holder_body"
-		android:layout_toRightOf="@+id/photo"
+		android:layout_toRightOf="@+id/photo_view"
 		android:orientation="vertical">
 
 		<com.patchr.ui.widgets.AirTextView
@@ -74,7 +74,7 @@
 			android:textColor="?attr/textColorSecondary"
 			custom:textId="@string/dummy_comments" />
 
-		<com.patchr.ui.widgets.UserView
+		<com.patchr.ui.views.UserView
 			android:id="@+id/creator"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

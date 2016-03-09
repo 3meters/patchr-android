@@ -57,7 +57,7 @@ import com.patchr.ui.base.BaseFragment;
 import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.components.ListController;
 import com.patchr.ui.edit.MessageEdit;
-import com.patchr.ui.widgets.InsetViewTransformer;
+import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.Type;

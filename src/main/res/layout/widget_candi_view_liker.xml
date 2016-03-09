@@ -4,7 +4,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	tools:showIn="@layout/temp_listitem_liker">
 
-	<com.patchr.ui.widgets.EntityPhotoView
+	<com.patchr.ui.views.EntityPhotoView
 		android:id="@+id/user_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_medium_small"
