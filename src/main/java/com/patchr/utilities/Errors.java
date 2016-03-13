@@ -215,6 +215,8 @@ public final class Errors {
 							return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_password_weak));
 						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE)
 							return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_email_taken));
+						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_FORBIDDEN)
+							return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_forbidden));
 					}
 				}
 

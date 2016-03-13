@@ -26,6 +26,7 @@ import com.patchr.events.EntityRequestEvent;
 import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.ProcessingCompleteEvent;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.Count;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
@@ -251,11 +252,11 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 		/* We don't support like/watch for users */
 		if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-			UI.setVisibility(view.findViewById(R.id.button_holder), View.GONE);
+			UI.setVisibility(view.findViewById(R.id.toolbar), View.GONE);
 			return;
 		}
 
-		UI.setVisibility(view.findViewById(R.id.button_holder), View.VISIBLE);
+		UI.setVisibility(view.findViewById(R.id.toolbar), View.VISIBLE);
 
 		/* Like button coloring */
 		ViewAnimator like = (ViewAnimator) view.findViewById(R.id.button_like);
@@ -266,7 +267,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 			}
 			else {
 				Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
-				ImageView image = (ImageView) like.findViewById(R.id.button_image);
+				ImageView image = (ImageView) like.findViewById(R.id.mute_image);
 				if (link != null) {
 					final int color = Colors.getColor(R.color.brand_primary);
 					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
@@ -303,15 +304,15 @@ public abstract class BaseEntityForm extends BaseActivity {
 		}
 
 		/* Watching count */
-		View watching = view.findViewById(R.id.button_watching);
+		View watching = view.findViewById(R.id.members_button);
 		if (watching != null) {
 			Count count = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, true, Link.Direction.in);
 			if (count == null) {
 				count = new Count(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, null, 0);
 			}
 			if (count.count.intValue() > 0) {
-				TextView watchingCount = (TextView) view.findViewById(R.id.watching_count);
-				TextView watchingLabel = (TextView) view.findViewById(R.id.watching_label);
+				TextView watchingCount = (TextView) view.findViewById(R.id.members_count);
+				TextView watchingLabel = (TextView) view.findViewById(R.id.members_label);
 				if (watchingCount != null) {
 					String label = getResources().getQuantityString(R.plurals.label_watching, count.count.intValue(), count.count.intValue());
 					watchingCount.setText(String.valueOf(count.count.intValue()));

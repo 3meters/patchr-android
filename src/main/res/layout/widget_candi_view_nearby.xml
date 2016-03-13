@@ -10,16 +10,16 @@
 	android:orientation="horizontal">
 
 	<FrameLayout
-		android:id="@+id/holder_photo"
+		android:id="@+id/photo_group"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content">
 
-		<com.patchr.ui.views.PhotoView
-			android:id="@+id/photo_view"
+		<com.patchr.ui.views.ImageLayout
+			android:id="@+id/image_layout"
 			style="@style/selectable_image"
 			android:layout_width="@dimen/image_medium_large"
 			android:layout_height="@dimen/image_medium_large"
-			custom:sizeCategory="thumbnail" />
+			custom:category="thumbnail" />
 
 		<LinearLayout
 			android:layout_width="@dimen/image_medium_large"

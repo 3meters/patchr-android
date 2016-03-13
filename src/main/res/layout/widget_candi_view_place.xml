@@ -6,13 +6,13 @@
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
 
-	<com.patchr.ui.views.PhotoView
-		android:id="@+id/photo_view"
+	<com.patchr.ui.views.ImageLayout
+		android:id="@+id/image_layout"
 		style="@style/selectable_image"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		custom:aspectRatio="@dimen/aspect_ratio_patch_image"
-		custom:sizeCategory="standard" />
+		custom:category="standard" />
 
 	<View
 		android:layout_width="match_parent"

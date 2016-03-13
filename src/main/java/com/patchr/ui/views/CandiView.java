@@ -2,7 +2,6 @@ package com.patchr.ui.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.PorterDuff;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -27,7 +26,6 @@ import com.patchr.objects.Shortcut;
 import com.patchr.objects.ShortcutSettings;
 import com.patchr.objects.User;
 import com.patchr.utilities.Integers;
-import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
 import java.util.ArrayList;
@@ -46,26 +44,26 @@ public class CandiView extends RelativeLayout {
 	protected Integer   mLayoutId;
 	protected ViewGroup mLayout;
 
-	protected PhotoView       mPhotoView;
-	protected EntityPhotoView mUserPhotoView;
-	protected PhotoView       mCategoryPhoto;
-	protected TextView        mCategoryName;
-	protected TextView        mType;
-	protected TextView        mName;
-	protected TextView        mIndex;
-	protected TextView        mSubhead;
-	protected TextView        mEmail;
-	protected TextView        mArea;
-	protected TextView        mDistance;
-	protected TextView        mCount;
-	protected TextView        mMessageCount;
-	protected TextView        mWatchCount;
-	protected TextView        mAddress;
-	protected View            mCandiViewGroup;
-	protected View            mPrivacyGroup;
-	protected LinearLayout    mHolderPreviews;
-	protected LinearLayout    mHolderInfo;
-	protected CacheStamp      mCacheStamp;
+	protected ImageLayout  mPhotoView;
+	protected ImageLayout  mUserPhotoView;
+	protected ImageLayout  mCategoryPhoto;
+	protected TextView     mCategoryName;
+	protected TextView     mType;
+	protected TextView     mName;
+	protected TextView     mIndex;
+	protected TextView     mSubhead;
+	protected TextView     mEmail;
+	protected TextView     mArea;
+	protected TextView     mDistance;
+	protected TextView     mCount;
+	protected TextView     mMessageCount;
+	protected TextView     mWatchCount;
+	protected TextView     mAddress;
+	protected View         mCandiViewGroup;
+	protected View         mPrivacyGroup;
+	protected LinearLayout mHolderPreviews;
+	protected LinearLayout mHolderInfo;
+	protected CacheStamp   mCacheStamp;
 
 	List<Shortcut> mShortcuts = new ArrayList<Shortcut>();
 
@@ -93,8 +91,8 @@ public class CandiView extends RelativeLayout {
 		mLayout = (ViewGroup) LayoutInflater.from(getContext()).inflate(mLayoutId, this, true);
 
 		mCandiViewGroup = mLayout.findViewById(R.id.candi_view_group);
-		mPhotoView = (PhotoView) mLayout.findViewById(R.id.photo_view);
-		mUserPhotoView = (EntityPhotoView) mLayout.findViewById(R.id.user_photo);
+		mPhotoView = (ImageLayout) mLayout.findViewById(R.id.image_layout);
+		mUserPhotoView = (ImageLayout) mLayout.findViewById(R.id.user_photo);
 		mName = (TextView) mLayout.findViewById(R.id.name);
 		mSubhead = (TextView) mLayout.findViewById(R.id.subhead);
 		mArea = (TextView) mLayout.findViewById(R.id.area);
@@ -102,7 +100,7 @@ public class CandiView extends RelativeLayout {
 		mDistance = (TextView) mLayout.findViewById(R.id.distance);
 		mType = (TextView) mLayout.findViewById(R.id.type);
 		mCategoryName = (TextView) mLayout.findViewById(R.id.category_name);
-		mCategoryPhoto = (PhotoView) mLayout.findViewById(R.id.category_photo);
+		mCategoryPhoto = (ImageLayout) mLayout.findViewById(R.id.category_photo);
 		mHolderPreviews = (LinearLayout) mLayout.findViewById(R.id.previews);
 		mHolderInfo = (LinearLayout) mLayout.findViewById(R.id.info_holder);
 		mCount = (TextView) mLayout.findViewById(R.id.count);
@@ -236,33 +234,11 @@ public class CandiView extends RelativeLayout {
 
 		if (mUserPhotoView != null) {
 			if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-				mUserPhotoView.setGroupTag(groupId);
-				mUserPhotoView.databind(mEntity);
+				mUserPhotoView.setImageWithEntity(mEntity);
 			}
 		}
 		else if (mPhotoView != null) {
-
-			mPhotoView.getBackground().clearColorFilter();
-
-			if (mEntity.photo != null) {
-
-				/* Optimize if we already have the image */
-				if (mPhotoView.getPhoto() != null && mPhotoView.getImageView().getDrawable() != null) {
-					if (Photo.same(mPhotoView.getPhoto(), mEntity.getPhoto())) return;
-				}
-
-				mPhotoView.setTag(mEntity.photo);
-				mPhotoView.setGroupTag(groupId);
-				UI.drawPhoto(mPhotoView, mEntity.photo);
-			}
-			else {
-				mPhotoView.getImageView().setImageDrawable(null);
-				if (!TextUtils.isEmpty(mEntity.name)) {
-					long seed = Utils.numberFromName(mEntity.name);
-					Integer color = Utils.randomColor(seed);
-					mPhotoView.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-				}
-			}
+			mPhotoView.setImageWithEntity(mEntity);
 		}
 	}
 
@@ -289,7 +265,7 @@ public class CandiView extends RelativeLayout {
 						dirty = true;
 						break;
 					}
-					if (!Photo.same(shortcut.getPhoto(), shortcuts.get(i).getPhoto())) {
+					if (!Photo.same(shortcut.photo, shortcuts.get(i).photo)) {
 						dirty = true;
 						break;
 					}
@@ -417,11 +393,11 @@ public class CandiView extends RelativeLayout {
 		mLayoutId = layoutId;
 	}
 
-	public PhotoView getCandiImage() {
+	public ImageLayout getCandiImage() {
 		return mPhotoView;
 	}
 
-	public void setCandiImage(PhotoView candiImage) {
+	public void setCandiImage(ImageLayout candiImage) {
 		mPhotoView = candiImage;
 	}
 

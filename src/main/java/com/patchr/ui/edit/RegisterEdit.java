@@ -27,7 +27,7 @@ import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
-import com.patchr.objects.PhotoSizeCategory;
+import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
@@ -214,7 +214,7 @@ public class RegisterEdit extends BaseEntityEdit {
 					/* Synchronous call to get the bitmap */
 					try {
 						bitmap = Picasso.with(Patchr.applicationContext)
-						                        .load(mEntity.getPhoto().getUri(PhotoSizeCategory.STANDARD))
+						                        .load(mEntity.photo.uri(PhotoCategory.STANDARD))
 						                        .centerInside()
 						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 						                        .get();
@@ -229,7 +229,7 @@ public class RegisterEdit extends BaseEntityEdit {
 						System.gc();
 						try {
 							bitmap = Picasso.with(Patchr.applicationContext)
-							                        .load(mEntity.getPhoto().getUri(PhotoSizeCategory.STANDARD))
+							                        .load(mEntity.photo.uri(PhotoCategory.STANDARD))
 							                        .centerInside()
 							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 							                        .get();

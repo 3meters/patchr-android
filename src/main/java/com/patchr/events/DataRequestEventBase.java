@@ -1,17 +1,17 @@
 package com.patchr.events;
 
 import com.patchr.components.DataController.ActionType;
-import com.patchr.interfaces.IBind;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.CacheStamp;
 
 @SuppressWarnings("ucd")
 public abstract class DataRequestEventBase {
 
-	public String            entityId;
-	public ActionType        actionType;
-	public IBind.BindingMode mode;
-	public Object            tag;          // Uniquely identifies the requestor
-	public CacheStamp        cacheStamp;
+	public String      entityId;
+	public ActionType  actionType;
+	public BindingMode mode;
+	public Object      tag;          // Uniquely identifies the requestor
+	public CacheStamp  cacheStamp;
 
 	public DataRequestEventBase() {}
 
@@ -20,7 +20,7 @@ public abstract class DataRequestEventBase {
 		return this;
 	}
 
-	public DataRequestEventBase setMode(IBind.BindingMode mode) {
+	public DataRequestEventBase setMode(BindingMode mode) {
 		this.mode = mode;
 		return this;
 	}

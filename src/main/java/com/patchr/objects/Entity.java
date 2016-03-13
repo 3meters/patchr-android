@@ -165,12 +165,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return owned;
 	}
 
-	@NonNull
-	public Boolean isOwnedBySystem() {
-		Boolean owned = (ownerId != null && ownerId.equals(Constants.ADMIN_USER_ID));
-		return owned;
-	}
-
 	public boolean sameAs(Object obj) {
 		if (obj == null) return false;
 		if (!((Object) this).getClass().equals(obj.getClass())) return false;
@@ -180,7 +174,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return Type.equal(this.id, other.id)
 				&& Type.equal(this.name, other.name)
 				&& Type.equal(this.description, other.description)
-				&& this.getPhoto().getDirectUri().equals(other.getPhoto().getDirectUri())
+				&& this.photo.uri(PhotoCategory.NONE).equals(other.photo.uri(PhotoCategory.NONE))
 				&& !(this.linksIn != null && other.linksIn != null && this.linksIn.size() != other.linksIn.size())
 				&& !(this.linksOut != null && other.linksOut != null && this.linksOut.size() != other.linksOut.size());
 	}

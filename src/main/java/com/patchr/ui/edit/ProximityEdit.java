@@ -26,6 +26,7 @@ import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.events.QueryWifiScanReceivedEvent;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.Beacon;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.Patch;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseEntityEdit;
@@ -51,7 +52,7 @@ public class ProximityEdit extends BaseEntityEdit {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mButtonTune = (Button) findViewById(R.id.button_tune);
+		mButtonTune = (Button) findViewById(R.id.tune_button);
 		mButtonUntune = (Button) findViewById(R.id.button_untune);
 	}
 

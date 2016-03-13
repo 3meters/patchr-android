@@ -27,7 +27,7 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.MediaManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
-import com.patchr.interfaces.IBind.BindingMode;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BasePicker;
 import com.patchr.utilities.Dialogs;
@@ -87,7 +87,6 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
 	public void bind(BindingMode mode) {
 
 		/* Shown as a dialog so doesn't have an action bar */
@@ -187,7 +186,7 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 			}
 
 			if (itemData != null) {
-				((ImageView) view.findViewById(R.id.photo_view)).setImageResource(itemData.iconResId);
+				((ImageView) view.findViewById(R.id.image_layout)).setImageResource(itemData.iconResId);
 				((TextView) view.findViewById(R.id.name)).setText(itemData.title);
 				view.setTag(itemData);
 			}

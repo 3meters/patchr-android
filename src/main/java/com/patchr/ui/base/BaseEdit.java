@@ -4,12 +4,10 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.view.View;
 
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.StringManager;
-import com.patchr.interfaces.IBind;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Route;
@@ -17,7 +15,7 @@ import com.patchr.utilities.Dialogs;
 
 import java.util.List;
 
-public abstract class BaseEdit extends BaseActivity implements IBind {
+public abstract class BaseEdit extends BaseActivity {
 
 	protected Boolean mEditing                = false;
 	protected Boolean mDirty                  = false;
@@ -27,24 +25,10 @@ public abstract class BaseEdit extends BaseActivity implements IBind {
 	protected Integer mDirtyExitPositiveResId = R.string.alert_dirty_save;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		bind(BindingMode.AUTO);
-	}
-
-	@Override
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 		Patchr.resultCode = Activity.RESULT_OK;
 	}
-
-	@Override
-	public void bind(BindingMode mode) {
-		draw(null);
-	}
-
-	@Override
-	public void draw(View view) {}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events

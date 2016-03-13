@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-	style="@style/selectable_item"
+<RelativeLayout style="@style/selectable_item"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:paddingBottom="4dp"
 	android:paddingLeft="8dp"
 	android:paddingRight="8dp"
-	android:paddingBottom="4dp"
 	android:paddingTop="4dp">
 
 	<LinearLayout
@@ -16,7 +15,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
-		android:layout_toLeftOf="@+id/photo_view"
+		android:layout_toLeftOf="@+id/image_layout"
 		android:orientation="vertical">
 
 		<com.patchr.ui.widgets.AirTextLight
@@ -55,14 +54,15 @@
 			tools:text="@string/dummy_subtitle" />
 	</LinearLayout>
 
-	<com.patchr.ui.views.EntityPhotoView
-		android:id="@+id/photo_view"
+	<com.patchr.ui.views.ImageLayout
+		android:id="@+id/image_layout"
 		style="@style/selectable_image"
 		android:layout_width="48dp"
 		android:layout_height="48dp"
 		android:layout_alignParentRight="true"
 		android:layout_alignParentTop="true"
-		custom:showBusy="false"
-		custom:sizeCategory="profile" />
+		custom:category="profile"
+		custom:shape="round"
+		custom:showBusy="false" />
 
 </RelativeLayout>

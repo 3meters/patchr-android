@@ -2,6 +2,7 @@ package com.patchr.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -13,6 +14,7 @@ import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ShareCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,23 +46,23 @@ import com.patchr.events.ActionEvent;
 import com.patchr.events.DataResultEvent;
 import com.patchr.events.ProcessingCompleteEvent;
 import com.patchr.events.WatchStatusChangedEvent;
+import com.patchr.objects.Link;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Message;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
-import com.patchr.objects.PhotoSizeCategory;
+import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.WatchStatus;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.base.BaseFragment;
 import com.patchr.ui.components.CircleTransform;
+import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.components.ListController;
 import com.patchr.ui.edit.MessageEdit;
-import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Integers;
-import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 import com.squareup.otto.Subscribe;
@@ -84,6 +86,8 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 	protected String             mReferrerName;
 	protected String             mReferrerPhotoUrl;
 	protected String             mBranchLink;
+	protected Integer mWatchStatus  = WatchStatus.NONE;    // Set in draw
+
 	protected Boolean mShowReferrerWelcome    = false;
 	protected Boolean mAuthenticatedForInvite = false;
 	protected Boolean mAutoJoin               = false;
@@ -149,6 +153,77 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 		return super.onOptionsItemSelected(item);
 	}
 
+	private void onShareButtonClick(View view) {
+
+		if (!UserManager.getInstance().authenticated()) {
+			UserManager.getInstance().showGuestGuard(this, "Sign up for a free account to send patch invites and more.");
+			return;
+		}
+
+		if (mEntity != null) {
+			share();
+		}
+	}
+
+	protected void onWatchButtonClick(View view) {
+
+		if (mEntity == null) return;
+
+		if (!UserManager.getInstance().authenticated()) {
+			UserManager.getInstance().showGuestGuard(getActivity(), "Sign up for a free account to watch patches and more.");
+			return;
+		}
+
+		/* Cancel request */
+		if (mWatchStatus == WatchStatus.WATCHING) {
+			if (((Patch) mEntity).isRestrictedForCurrentUser()) {
+				confirmLeave();
+			}
+			else {
+				watch(false /* delete */);
+			}
+		}
+		else if (mWatchStatus == WatchStatus.REQUESTED) {
+			watch(false /* delete */);
+		}
+		else if (mWatchStatus == WatchStatus.NONE) {
+			watch(true /* insert */);
+		}
+	}
+
+	private void onWatchingListButtonClick(View view) {
+		if (mEntity != null) {
+			Bundle extras = new Bundle();
+			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_WATCH);
+			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_watching_list);
+			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_user);
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+			extras.putInt(Constants.EXTRA_LIST_EMPTY_RESID, R.string.label_watchers_empty);
+			Patchr.router.route(getActivity(), Route.USER_LIST, mEntity, extras);
+		}
+	}
+
+	private void onMuteButtonClick(View view) {
+		Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
+		mute(link.mute == null || !link.mute);
+	}
+
+	private void onLikesListButtonClick(View view) {
+		if (mEntity != null) {
+			Bundle extras = new Bundle();
+			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_LIKE);
+			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_likes_list);
+			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_liker);
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+			extras.putInt(Constants.EXTRA_LIST_EMPTY_RESID, R.string.label_likes_empty);
+			Patchr.router.route(getActivity(), Route.USER_LIST, mEntity, extras);
+		}
+	}
+
+	private void onTuneButtonClick(View view) {
+		Patchr.router.route(getActivity(), Route.TUNE, mEntity, null);
+	}
+
 	@Override public void onRefresh() {
 		/*
 		 * Called from swipe refresh or routing. Always treated
@@ -184,9 +259,6 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 
 			Patchr.router.route(this, Route.NEW, null, extras);
-		}
-		else if (Type.isTrue(((Patch) mEntity).locked)) {
-			Dialogs.locked(this, mEntity);
 		}
 	}
 
@@ -276,7 +348,7 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 			Integer id = event.view.getId();
 
 			/* Dynamic button we need to redirect */
-			if (id == R.id.button_alert) {
+			if (id == R.id.action_button) {
 				id = (Integer) event.view.getTag();
 			}
 
@@ -335,7 +407,7 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 		mCurrentFragment = new EntityListFragment();
 		mHeaderFragment = new PatchFormFragment();
 		mBottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
-		mBottomSheetLayout.setPeekOnDismiss(true);
+		if (mBottomSheetLayout != null) mBottomSheetLayout.setPeekOnDismiss(true);
 		mCallbackManager = CallbackManager.Factory.create();
 
 		NfcAdapter nfc = NfcAdapter.getDefaultAdapter(Patchr.applicationContext);
@@ -360,7 +432,6 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 				.setLinkType(Constants.TYPE_LINK_CONTENT)
 				.setLinkDirection(Direction.in.name())
 				.setPageSize(Integers.getInteger(R.integer.page_size_messages))
-				.setHeaderFragment(mHeaderFragment)
 				.setHeaderViewResId(R.layout.entity_form)
 				.setFooterViewResId(R.layout.widget_list_footer_message)
 				.setListItemResId(R.layout.temp_listitem_message)
@@ -385,7 +456,7 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 				.commit();
 	}
 
-	@Override public void share() {
+	public void share() {
 
 		final String patchName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
 		final String title = String.format(StringManager.getString(R.string.label_patch_share_title), patchName);
@@ -425,6 +496,56 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 		menuSheetView.inflateMenu(R.menu.menu_invite_sheet);
 		mBottomSheetLayout.setPeekOnDismiss(true);
 		mBottomSheetLayout.showWithSheetView(menuSheetView, new InsetViewTransformer());
+	}
+
+	protected void confirmJoin() {
+
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				final AlertDialog dialog = Dialogs.alertDialog(null
+						, null
+						, StringManager.getString(R.string.alert_autowatch_message)
+						, null
+						, getActivity()
+						, R.string.alert_autowatch_positive
+						, R.string.alert_autowatch_negative
+						, null
+						, new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_POSITIVE) {
+									watch(true /* activate */);
+								}
+							}
+						}, null);
+				dialog.setCanceledOnTouchOutside(false);
+			}
+		});
+	}
+
+	protected void confirmLeave() {
+		/* User (non-owner) wants to unwatch a private patch */
+		final AlertDialog dialog = Dialogs.alertDialog(null
+				, null
+				, StringManager.getString(R.string.alert_unwatch_message)
+				, null
+				, getActivity()
+				, R.string.alert_unwatch_positive
+				, android.R.string.cancel
+				, null
+				, new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							mJustApproved = false;
+							watch(false /* delete */);
+						}
+					}
+				}, null);
+		dialog.setCanceledOnTouchOutside(false);
 	}
 
 	@Override public void configureActionBar() {
@@ -547,13 +668,13 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 					.addContentMetadata("ownerName", ownerName)
 					.addContentMetadata("patchName", patchName);
 
-			if (UserManager.getInstance().getCurrentUser().getPhoto() != null) {
-				Photo photo = UserManager.getInstance().getCurrentUser().getPhoto();
-				applink.addContentMetadata("referrerPhotoUrl", photo.getUri(PhotoSizeCategory.PROFILE));
+			if (UserManager.getInstance().getCurrentUser().photo != null) {
+				Photo photo = UserManager.getInstance().getCurrentUser().photo;
+				applink.addContentMetadata("referrerPhotoUrl", photo.uri(PhotoCategory.PROFILE));
 			}
 
 			if (mEntity.photo != null) {
-				Photo photo = mEntity.getPhoto();
+				Photo photo = mEntity.photo;
 				String settings = "h=500&crop&fit=crop&q=50";
 				String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
 				applink.setContentImageUrl(photoUrl);  // $og_image_url
@@ -617,9 +738,9 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 				String referrerNameEncoded = Utils.encode(UserManager.getInstance().getCurrentUser().name);
 				String referrerPhotoUrl = "";
 
-				if (UserManager.getInstance().getCurrentUser().getPhoto() != null) {
-					Photo photo = UserManager.getInstance().getCurrentUser().getPhoto();
-					String photoUrlEncoded = Utils.encode(photo.getUri(PhotoSizeCategory.PROFILE));
+				if (UserManager.getInstance().getCurrentUser().photo != null) {
+					Photo photo = UserManager.getInstance().getCurrentUser().photo;
+					String photoUrlEncoded = Utils.encode(photo.uri(PhotoCategory.PROFILE));
 					referrerPhotoUrl = String.format("&referrerPhotoUrl=%1$s", photoUrlEncoded);
 				}
 
@@ -627,7 +748,7 @@ public class PatchForm extends BaseActivity implements NfcAdapter.CreateNdefMess
 				Uri applink = Uri.parse(String.format("https://fb.me/934234473291708?%1$s", queryString));
 
 				if (mEntity.photo != null) {
-					Photo photo = mEntity.getPhoto();
+					Photo photo = mEntity.photo;
 					String patchNameEncoded = Utils.encode(patchName);
 					String settings = "w=1200&h=628&crop&fit=crop&q=25&txtsize=96&txtalign=left,bottom&txtcolor=fff&txtshad=5&txtpad=60&txtfont=Helvetica%20Neue%20Light";
 					patchPhotoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s&txt=%3$s", photo.prefix, settings, patchNameEncoded);

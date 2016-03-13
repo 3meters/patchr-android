@@ -29,13 +29,13 @@
 		android:layout_height="match_parent"
 		android:background="?attr/cardHighlightColor" />
 
-	<com.patchr.ui.views.EntityPhotoView
+	<com.patchr.ui.views.ImageLayout
 		android:id="@+id/entity_view_photo"
 		android:layout_width="@dimen/image_extra_small"
 		android:layout_height="@dimen/image_extra_small"
 		android:layout_gravity="center_vertical"
 		android:layout_weight="0"
-		custom:sizeCategory="thumbnail" />
+		custom:category="thumbnail" />
 
 	<ImageView
 		android:id="@+id/button_delete_entity"

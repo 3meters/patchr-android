@@ -12,7 +12,7 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
-import com.patchr.interfaces.IBind.BindingMode;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.TransitionType;
 
 public abstract class BasePicker extends Activity {

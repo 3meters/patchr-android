@@ -21,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 
+import com.commonsware.cwac.endless.EndlessAdapter;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -43,14 +44,12 @@ import com.patchr.service.ResponseFormat;
 import com.patchr.service.ServiceRequest;
 import com.patchr.service.ServiceRequest.AuthType;
 import com.patchr.ui.base.BaseActivity;
+import com.patchr.ui.views.ImageLayout;
 import com.patchr.ui.widgets.AirAutoCompleteTextView;
-import com.patchr.ui.views.PhotoView;
 import com.patchr.ui.widgets.AirTextView;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
-import com.patchr.utilities.UI;
-import com.commonsware.cwac.endless.EndlessAdapter;
 
 import org.json.JSONException;
 
@@ -171,7 +170,7 @@ public class PhotoPicker extends BaseActivity {
 				if (((EndlessImageAdapter) mGridView.getAdapter()).getItemViewType(position) != Adapter.IGNORE_ITEM_VIEW_TYPE) {
 
 					ImageResult imageResult = mImages.get(position);
-					Photo photo = imageResult.getPhoto();
+					Photo photo = imageResult.photo;
 					/*
 					 * Photo gets set for images that are already being used like pictures linked to places so
 					 * an empty photo means the image is coming from external service like bing.
@@ -523,7 +522,7 @@ public class PhotoPicker extends BaseActivity {
 			if (view == null) {
 				view = LayoutInflater.from(PhotoPicker.this).inflate(R.layout.temp_picture_search_item, null);
 				holder = new ViewHolder();
-				holder.photoView = (PhotoView) view.findViewById(R.id.photo_view);
+				holder.photoView = (ImageLayout) view.findViewById(R.id.image_layout);
 				Integer nudge = mResources.getDimensionPixelSize(R.dimen.grid_item_height_kick);
 				final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mPhotoWidthPixels, mPhotoWidthPixels - nudge);
 				holder.photoView.setLayoutParams(params);
@@ -540,7 +539,7 @@ public class PhotoPicker extends BaseActivity {
 				holder.photoView.setTag(itemData.getThumbnail().getUrl());
 				Thumbnail thumbnail = itemData.getThumbnail();
 				Photo photo = new Photo().setPrefix(thumbnail.getUrl()).setSource(PhotoSource.bing);
-				UI.drawPhoto(holder.photoView, photo);
+				holder.photoView.setImageWithPhoto(photo);
 			}
 			return view;
 		}
@@ -552,7 +551,7 @@ public class PhotoPicker extends BaseActivity {
 
 	public static class ViewHolder {
 
-		public PhotoView   photoView;
+		public ImageLayout photoView;
 		public ImageResult data; // NO_UCD (unused code)
 	}
 }

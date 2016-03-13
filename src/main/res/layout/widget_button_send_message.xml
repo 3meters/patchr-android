@@ -36,7 +36,7 @@
 			android:textColor="@color/brand_primary" />
 
 		<ImageView
-			android:id="@+id/button_image"
+			android:id="@+id/mute_image"
 			android:layout_width="@dimen/image_combo_button"
 			android:layout_height="@dimen/image_combo_button"
 			android:src="?attr/iconSend" />

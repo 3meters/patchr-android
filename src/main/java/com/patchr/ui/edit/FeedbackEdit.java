@@ -6,6 +6,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.patchr.Constants;
@@ -18,11 +19,13 @@ import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.Document;
+import com.patchr.objects.User;
 import com.patchr.ui.base.BaseEntityEdit;
 import com.patchr.ui.components.SimpleTextWatcher;
+import com.patchr.ui.views.ImageLayout;
 import com.patchr.ui.widgets.AirEditText;
-import com.patchr.ui.views.UserView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -34,8 +37,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 
 	private Document mFeedback;
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
+	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 		/*
 		 * Feedback are not really an entity type so we handle
@@ -56,8 +58,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 		}
 	}
 
-	@Override
-	public void bind(BindingMode mode) {
+	@Override public void bind(BindingMode mode) {
 		/*
 		 * Not a real entity so we completely override databind.
 		 */
@@ -68,27 +69,25 @@ public class FeedbackEdit extends BaseEntityEdit {
 		draw(null);
 	}
 
-	@Override
-	public void draw(View view) {
-		((UserView) findViewById(R.id.created_by)).databind(UserManager.getInstance().getCurrentUser(), null);
+	@Override public void draw(View view) {
+		User user = UserManager.getInstance().getCurrentUser();
+		((ImageLayout)findViewById(R.id.user_photo)).setImageWithEntity(user);
+		((TextView)findViewById(R.id.user_name)).setText(user.name);
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	protected String getLinkType() {
+	@Override protected String getLinkType() {
 		return null;
 	}
 
-	@Override
-	protected void gather() {
+	@Override protected void gather() {
 		mFeedback.data.put("message", mDescription.getText().toString().trim());
 	}
 
-	@Override
-	protected boolean validate() {
+	@Override protected boolean validate() {
 		if (!super.validate()) return false;
 		if (mDescription.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
@@ -103,8 +102,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 		return true;
 	}
 
-	@Override
-	protected void insert() {
+	@Override protected void insert() {
 
 		Logger.i(this, "Insert feedback");
 
@@ -140,8 +138,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return R.layout.feedback_edit;
 	}
 }

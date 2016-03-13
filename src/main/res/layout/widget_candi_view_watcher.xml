@@ -2,15 +2,16 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	tools:showIn="@layout/temp_listitem_watcher">
+	tools:showIn="@layout/wrapper_user_view">
 
-	<com.patchr.ui.views.EntityPhotoView
+	<com.patchr.ui.views.ImageLayout
 		android:id="@+id/user_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_medium_small"
 		android:layout_height="@dimen/image_medium_small"
 		android:layout_margin="8dp"
-		custom:sizeCategory="profile" />
+		custom:shape="round"
+		custom:category="profile" />
 
 	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/name"
@@ -70,7 +71,7 @@
 			android:layout_height="wrap_content"
 			android:layout_centerVertical="true"
 			android:layout_marginRight="8dp"
-			android:text="@string/label_watcher_enable"
+			android:text="@string/label_watcher_enabled"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			tools:text="Approved:" />
 

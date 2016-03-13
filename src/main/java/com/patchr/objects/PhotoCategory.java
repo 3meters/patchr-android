@@ -1,6 +1,6 @@
 package com.patchr.objects;
 
-public enum PhotoSizeCategory {
+public enum PhotoCategory {
 	/*
 	 * Always append new enum items because there is a
 	 * dependency on ordering for persistence.

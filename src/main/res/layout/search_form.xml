@@ -38,7 +38,7 @@
 				tools:text="Clear linked place" />
 
 			<View
-				android:id="@+id/rule_alert"
+				android:id="@+id/action_rule"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/rule_divider_height"
 				android:layout_below="@id/button_clear"

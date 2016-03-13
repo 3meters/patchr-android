@@ -14,7 +14,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
-		android:layout_toLeftOf="@+id/photo_view"
+		android:layout_toLeftOf="@+id/image_layout"
 		android:orientation="vertical">
 
 		<com.patchr.ui.widgets.AirTextLight
@@ -63,13 +63,13 @@
 			tools:text="@string/dummy_subtitle" />
 	</LinearLayout>
 
-	<com.patchr.ui.views.PhotoView
-		android:id="@+id/photo_view"
+	<com.patchr.ui.views.ImageLayout
+		android:id="@+id/image_layout"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_medium_small"
 		android:layout_height="@dimen/image_medium_small"
 		android:layout_alignParentRight="true"
 		android:layout_alignParentTop="true"
-		custom:sizeCategory="thumbnail" />
+		custom:category="thumbnail" />
 
 </RelativeLayout>

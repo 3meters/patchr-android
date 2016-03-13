@@ -2,13 +2,13 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto">
 
-	<com.patchr.ui.views.PhotoView
-		android:id="@+id/photo_view"
+	<com.patchr.ui.views.ImageLayout
+		android:id="@+id/image_layout"
 		style="@style/selectable_image"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		custom:aspectRatio="@dimen/aspect_ratio_patch_image"
-		custom:sizeCategory="standard" />
+		custom:category="standard" />
 
 	<LinearLayout
 		android:id="@+id/info_holder"
@@ -22,7 +22,7 @@
 		android:paddingRight="15dp"
 		android:paddingTop="10dp">
 
-		<com.patchr.ui.views.PhotoView
+		<com.patchr.ui.views.ImageLayout
 			android:id="@+id/category_photo"
 			style="@style/selectable_image"
 			android:layout_width="@dimen/image_small"
@@ -31,7 +31,7 @@
 			android:layout_marginRight="10dp"
 			android:adjustViewBounds="true"
 			android:scaleType="fitCenter"
-			custom:sizeCategory="thumbnail" />
+			custom:category="thumbnail" />
 
 		<LinearLayout
 			android:layout_width="wrap_content"
@@ -80,7 +80,7 @@
 		android:id="@+id/distance_ignore"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignBottom="@+id/photo_view"
+		android:layout_alignBottom="@+id/image_layout"
 		android:layout_alignParentRight="true"
 		android:paddingBottom="12dp"
 		android:paddingRight="10dp"

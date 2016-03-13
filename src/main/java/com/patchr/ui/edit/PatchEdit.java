@@ -36,12 +36,13 @@ import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.AirLocation;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseEntityEdit;
-import com.patchr.ui.views.PhotoView;
+import com.patchr.ui.views.ImageLayout;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
@@ -51,9 +52,9 @@ import com.squareup.otto.Subscribe;
 @SuppressLint("Registered")
 public class PatchEdit extends BaseEntityEdit {
 
-	private   TextView  mButtonPrivacy;
-	private   TextView  mLocationLabel;
-	protected PhotoView mPhotoViewPlace;
+	private   TextView    mButtonPrivacy;
+	private   TextView    mLocationLabel;
+	protected ImageLayout mPhotoViewPlace;
 
 	private RadioGroup  mButtonGroupType;
 	private RadioButton mButtonTypeEvent;
@@ -163,7 +164,7 @@ public class PatchEdit extends BaseEntityEdit {
 			mButtonPrivacy.setText(StringManager.getString(R.string.label_patch_edit_privacy) + ": " + value);
 		}
 
-		UI.setVisibility(findViewById(R.id.button_holder), (mEditing ? View.GONE : View.VISIBLE));
+		UI.setVisibility(findViewById(R.id.toolbar), (mEditing ? View.GONE : View.VISIBLE));
 
 		/* Type */
 

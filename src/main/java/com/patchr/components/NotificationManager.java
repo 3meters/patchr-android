@@ -13,7 +13,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.Notification;
-import com.patchr.objects.PhotoSizeCategory;
+import com.patchr.objects.PhotoCategory;
 import com.patchr.ui.AircandiForm;
 import com.patchr.utilities.Reporting;
 import com.squareup.picasso.Picasso;
@@ -102,7 +102,7 @@ public class NotificationManager {
 
 		/* Large icon */
 		if (notification.photo != null) {
-			String url = notification.photo.getUri(PhotoSizeCategory.PROFILE);
+			String url = notification.photo.uri(PhotoCategory.PROFILE);
 
 			try {
 				@SuppressWarnings("SuspiciousNameCombination")
@@ -140,7 +140,7 @@ public class NotificationManager {
 
 	public void useBigPicture(final NotificationCompat.Builder builder, final Notification notification) {
 
-		final String url = notification.photoBig.getUri(PhotoSizeCategory.STANDARD);
+		final String url = notification.photoBig.uri(PhotoCategory.STANDARD);
 
 		try {
 			Bitmap bitmap = Picasso.with(Patchr.applicationContext)

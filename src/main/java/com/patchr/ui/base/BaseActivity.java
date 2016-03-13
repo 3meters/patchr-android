@@ -41,9 +41,7 @@ import com.patchr.components.NfcManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.ActionEvent;
-import com.patchr.interfaces.IBind;
 import com.patchr.interfaces.IBusy.BusyAction;
-import com.patchr.interfaces.IForm;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
@@ -66,7 +64,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class BaseActivity extends AppCompatActivity
-		implements SwipeRefreshLayout.OnRefreshListener, IForm, IBind {
+		implements SwipeRefreshLayout.OnRefreshListener {
 
 	private   Toolbar mActionBarToolbar;
 	protected Menu    mOptionMenu;
@@ -109,7 +107,7 @@ public abstract class BaseActivity extends AppCompatActivity
 	protected Boolean mProcessing = false;
 	protected Boolean mRestarting = false;
 
-	@Override public void unpackIntent() {
+	public void unpackIntent() {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mLayoutResId = extras.getInt(Constants.EXTRA_LAYOUT_RESID);
@@ -173,23 +171,21 @@ public abstract class BaseActivity extends AppCompatActivity
 			mProcessing = true;
 			Integer id = event.view.getId();
 
-			if (id == R.id.photo_view) {
+			if (id == R.id.image_layout) {
 				onPhotoClick(event.view);
 			}
 			else if (id == R.id.share_entity
 					|| id == R.id.item_row
 					|| id == R.id.holder_user
 					|| id == R.id.user_photo
-					|| id == R.id.user_current) {
+					|| id == R.id.user_group) {
 				onEntityClick(event.view);
 			}
 			mProcessing = false;
 		}
 	}
 
-	@Override public void onRefresh() {}
-
-	@Override public void onAdd(Bundle extras) {
+	public void onAdd(Bundle extras) {
 
 		if (!UserManager.getInstance().authenticated()) {
 			UserManager.getInstance().showGuestGuard(this, "Sign up for a free account to post messages, make patches and more.");
@@ -208,10 +204,6 @@ public abstract class BaseActivity extends AppCompatActivity
 			Patchr.router.route(this, Route.CANCEL, null, null);
 		}
 	}
-
-	@Override public void onHelp() {}
-
-	@Override public void onError() {}
 
 	@Override protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		Patchr.resultCode = Activity.RESULT_OK;
@@ -308,11 +300,13 @@ public abstract class BaseActivity extends AppCompatActivity
 				.setView(view));
 	}
 
+	@Override public void onRefresh() {}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void initialize(Bundle savedInstanceState) {
+	public void initialize(Bundle savedInstanceState) {
 
 		mResources = getResources();
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -326,12 +320,6 @@ public abstract class BaseActivity extends AppCompatActivity
 
 		getActionBarToolbar();
 	}
-
-	@Override public void draw(View view) {}
-
-	@Override public void bind(BindingMode mode) {}
-
-	@Override public void share() {}
 
 	protected void configureStandardMenuItems(Menu menu) {
 
@@ -437,20 +425,20 @@ public abstract class BaseActivity extends AppCompatActivity
 				, null
 				, new DialogInterface.OnClickListener() {
 
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_POSITIVE) {
-					delete();
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							delete();
+						}
+					}
 				}
-			}
-		}
 				, null);
 		dialog.setCanceledOnTouchOutside(false);
 	}
 
 	public void confirmRemove(final String toId) {
 
-		String message = String.format(StringManager.getString(R.string.alert_remove_message_single_no_name), mEntity.name);
+		String message = StringManager.getString(R.string.alert_remove_message_single_no_name);
 		Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
 		if (linkPlace != null) {
 			message = String.format(StringManager.getString(R.string.alert_remove_message_single), linkPlace.shortcut.name);
@@ -466,13 +454,13 @@ public abstract class BaseActivity extends AppCompatActivity
 				, null
 				, new DialogInterface.OnClickListener() {
 
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_POSITIVE) {
-					remove(toId);
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							remove(toId);
+						}
+					}
 				}
-			}
-		}
 				, null);
 		dialog.setCanceledOnTouchOutside(false);
 	}
@@ -675,14 +663,6 @@ public abstract class BaseActivity extends AppCompatActivity
 		}
 		return transitionType;
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes

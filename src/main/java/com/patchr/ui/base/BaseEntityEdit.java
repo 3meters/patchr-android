@@ -33,6 +33,7 @@ import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy;
 import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Beacon;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Photo;
@@ -40,7 +41,7 @@ import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.service.ServiceResponse;
 import com.patchr.ui.components.SimpleTextWatcher;
-import com.patchr.ui.views.PhotoView;
+import com.patchr.ui.views.ImageLayout;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
@@ -55,7 +56,7 @@ import java.util.List;
 
 public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserListener, Target {
 
-	protected PhotoView           mPhotoView;
+	protected ImageLayout         mPhotoView;
 	protected TextView            mName;
 	protected TextView            mDescription;
 	protected View                mButtonPhotoDelete;
@@ -104,7 +105,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 		mName = (TextView) findViewById(R.id.name);
 		mDescription = (TextView) findViewById(R.id.description);
-		mPhotoView = (PhotoView) findViewById(R.id.photo_view);
+		mPhotoView = (ImageLayout) findViewById(R.id.image_layout);
 		mButtonPhotoSet = findViewById(R.id.button_photo_set);
 		mButtonPhotoEdit = findViewById(R.id.button_photo_edit);
 		mButtonPhotoDelete = findViewById(R.id.button_photo_delete);
@@ -137,7 +138,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		}
 
 		if (mPhotoView != null) {
-			mPhotoView.setTarget(this);
+			mPhotoView.target = this;
 		}
 	}
 
@@ -189,7 +190,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							UI.setVisibility(mButtonPhotoEdit, View.GONE);
 							UI.setVisibility(mButtonPhotoDelete, View.GONE);
 
-							if (mEntity.getPhoto() == null) {
+							if (mEntity.photo == null) {
 								UI.setVisibility(mButtonPhotoSet, View.VISIBLE);
 							}
 							else {
@@ -197,13 +198,13 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 								UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
 							}
 
-							if (mEntity.getPhoto() == null) {
-								mPhotoView.getImageView().setImageDrawable(null);
+							if (mEntity.photo == null) {
+								mPhotoView.imageView.setImageDrawable(null);
 							}
-							else if (mPhotoView.getPhoto() == null || !mPhotoView.getPhoto().sameAs(mEntity.getPhoto())) {
+							else {
 								mPhotoView.showLoading(true);
 								mProcessing = true;                             // So user can't post while we a trying to fetch the photo
-								UI.drawPhoto(mPhotoView, mEntity.getPhoto());   // Only place we try to load a photo
+								mPhotoView.setImageWithPhoto(mEntity.photo);    // Only place we try to load a photo
 							}
 						}
 					}
@@ -243,7 +244,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	@Override public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
 
 		final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
-		UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), true);
+		UI.showDrawableInImageView(bitmapDrawable, mPhotoView.imageView, true);
 
 		mProcessing = false;
 
@@ -396,7 +397,6 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	public void onDeletePhotoButtonClick(View view) {
 		mDirty = (mEditing);
 		mEntity.photo = null;
-		mPhotoView.setPhoto(null);
 		drawPhoto();
 	}
 
@@ -474,7 +474,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 					try {
 						bitmap = Picasso.with(Patchr.applicationContext)
-								.load(mEntity.getPhoto().getDirectUri())
+								.load(mEntity.photo.uriDirect())
 								.centerInside()
 								.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 								.get();
@@ -489,7 +489,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						System.gc();
 						try {
 							bitmap = Picasso.with(Patchr.applicationContext)
-									.load(mEntity.getPhoto().getDirectUri())
+									.load(mEntity.photo.uriDirect())
 									.centerInside()
 									.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 									.get();
@@ -498,7 +498,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						}
 						catch (OutOfMemoryError err) {
 							/* Give up and log it */
-							Reporting.logMessage("OutOfMemoryError: uri: " + mEntity.getPhoto().getDirectUri());
+							Reporting.logMessage("OutOfMemoryError: uri: " + mEntity.photo.uriDirect());
 							throw err;
 						}
 						catch (IOException ignore) { }
@@ -601,7 +601,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 						try {
 							bitmap = Picasso.with(Patchr.applicationContext)
-									.load(mEntity.getPhoto().getDirectUri())
+									.load(mEntity.photo.uriDirect())
 									.centerInside()
 									.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 									.get();
@@ -616,7 +616,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							System.gc();
 							try {
 								bitmap = Picasso.with(Patchr.applicationContext)
-										.load(mEntity.getPhoto().getDirectUri())
+										.load(mEntity.photo.uriDirect())
 										.centerInside()
 										.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 										.get();

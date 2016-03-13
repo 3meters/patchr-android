@@ -19,7 +19,7 @@ public class ImageResult {
 	private Thumbnail thumbnail;
 
 	/* client only */
-	private Photo photo;
+	public Photo photo;
 
 	public static ImageResult setPropertiesFromMap(ImageResult imageResult, Map map, Boolean nameMapping) {
 		/*

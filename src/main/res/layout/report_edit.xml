@@ -101,12 +101,30 @@
 				android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
 				android:minLines="5" />
 
-			<com.patchr.ui.views.UserView
-				android:id="@+id/created_by"
+			<LinearLayout
+				android:id="@+id/user_group"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_marginLeft="4dp"
-				custom:layoutId="@layout/widget_user_view_compact" />
+				android:orientation="horizontal">
+
+				<com.patchr.ui.views.ImageLayout
+					android:id="@+id/user_photo"
+					style="@style/selectable_image"
+					android:layout_width="@dimen/image_extra_small"
+					android:layout_height="@dimen/image_extra_small"
+					android:layout_marginRight="5dp"
+					custom:category="profile"
+					custom:shape="round" />
+
+				<com.patchr.ui.widgets.AirTextLight
+					android:id="@+id/user_name"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical"
+					android:ellipsize="end"
+					android:singleLine="true" />
+
+			</LinearLayout>
 		</LinearLayout>
 
 	</com.patchr.ui.widgets.AirLinearLayout>

@@ -29,6 +29,7 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.interfaces.IEntityController;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Message;
@@ -37,8 +38,8 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.Route;
 import com.patchr.ui.base.BaseEntityEdit;
 import com.patchr.ui.components.EntitySuggestController;
-import com.patchr.ui.widgets.AirTokenCompleteTextView;
 import com.patchr.ui.views.EntityView;
+import com.patchr.ui.widgets.AirTokenCompleteTextView;
 import com.patchr.ui.widgets.TokenCompleteTextView;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;
@@ -179,7 +180,6 @@ public class MessageEdit extends BaseEntityEdit implements TokenCompleteTextView
 
 	public void onCancelPhotoButtonClick(View view) {
 		mEntity.photo = null;
-		mPhotoView.setPhoto(null);
 		onPhotoCanceled();
 	}
 

@@ -33,9 +33,9 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Patch.ReasonType;
 import com.patchr.objects.User;
+import com.patchr.ui.views.ImageLayout;
 import com.patchr.ui.widgets.AirTokenCompleteTextView;
 import com.patchr.ui.widgets.TokenCompleteTextView;
-import com.patchr.ui.views.EntityPhotoView;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
@@ -276,7 +276,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			if (view == null) {
 				view = LayoutInflater.from(mContext).inflate(R.layout.temp_user_search_item, null);
 				holder = new ViewHolder();
-				holder.photoView = (EntityPhotoView) view.findViewById(R.id.photo_view);
+				holder.photoView = (ImageLayout) view.findViewById(R.id.image_layout);
 				holder.name = (TextView) view.findViewById(R.id.name);
 				holder.subhead = (TextView) view.findViewById(R.id.subhead);
 				holder.categoryName = (TextView) view.findViewById(R.id.category_name);
@@ -286,7 +286,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			else {
 				holder = (ViewHolder) view.getTag();
 				if (entity.photo != null && holder.photoView.getTag() != null) {
-					if (holder.photoView.getTag().equals(entity.getPhoto().getDirectUri()))
+					if (holder.photoView.getTag().equals(entity.photo.uriDirect()))
 						return view;
 				}
 			}
@@ -322,7 +322,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
                 /* Photo */
 
 				if (holder.photoView != null) {
-					holder.photoView.databind(entity);
+					holder.photoView.setImageWithEntity(entity);
 				}
 
 		        /* Indicator */
@@ -484,13 +484,13 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 	public static class ViewHolder {
 
-		public TextView        name;
-		public TextView        subhead;
-		public TextView        categoryName;
-		public TextView        type;
-		public EntityPhotoView photoView;
-		public ImageView       indicator;
-		public String          photoUri;    // Used for verification after fetching image // NO_UCD (unused code)
-		public Object          data;        // object binding to
+		public TextView    name;
+		public TextView    subhead;
+		public TextView    categoryName;
+		public TextView    type;
+		public ImageLayout photoView;
+		public ImageView   indicator;
+		public String      photoUri;    // Used for verification after fetching image // NO_UCD (unused code)
+		public Object      data;        // object binding to
 	}
 }

@@ -4,13 +4,14 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	tools:showIn="@layout/temp_listitem_liker">
 
-	<com.patchr.ui.views.EntityPhotoView
+	<com.patchr.ui.views.ImageLayout
 		android:id="@+id/user_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_medium_small"
 		android:layout_height="@dimen/image_medium_small"
 		android:layout_margin="8dp"
-		custom:sizeCategory="profile" />
+		custom:category="profile"
+		custom:shape="round" />
 
 	<com.patchr.ui.widgets.AirTextLight
 		android:id="@+id/name"

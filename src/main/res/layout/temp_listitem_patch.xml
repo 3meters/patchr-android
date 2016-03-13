@@ -17,11 +17,11 @@
 		custom:cardElevation="2dp"
 		custom:cardUseCompatPadding="true">
 
-		<com.patchr.ui.views.CandiView
-			android:id="@+id/candi_view"
+		<com.patchr.ui.views.PatchView
+			android:id="@+id/item_view"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			custom:layoutRef="@layout/widget_candi_view_patch_list" />
+			android:layout_height="wrap_content" />
+
 	</android.support.v7.widget.CardView>
 
 </RelativeLayout>

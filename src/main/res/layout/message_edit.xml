@@ -177,20 +177,20 @@
 							android:layout_marginBottom="16dp"
 							android:orientation="vertical">
 
-							<com.patchr.ui.views.PhotoView
-								android:id="@+id/photo_view"
+							<com.patchr.ui.views.ImageLayout
+								android:id="@+id/image_layout"
 								style="@style/selectable_image"
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
 								android:minHeight="@dimen/button_height"
 								android:minWidth="@dimen/image_extra_extra_large"
 								custom:aspectRatio="@dimen/aspect_ratio_message_image"
-								custom:sizeCategory="standard" />
+								custom:category="standard" />
 
 							<RelativeLayout
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
-								android:layout_alignTop="@+id/photo_view"
+								android:layout_alignTop="@+id/image_layout"
 								android:background="@drawable/scrim_medium">
 
 								<ImageButton

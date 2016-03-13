@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:showIn="@layout/wrapper_message_view">
+
+	<!-- Patch context -->
+
+	<LinearLayout
+		android:id="@+id/holder_patch"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignLeft="@+id/holder_content"
+		android:gravity="center_vertical"
+		android:visibility="gone"
+		android:orientation="horizontal">
+
+		<com.patchr.ui.widgets.AirTextLight
+			android:id="@+id/patch_name"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical"
+			android:layout_marginRight="8dp"
+			android:ellipsize="end"
+			android:singleLine="true"
+			android:textAppearance="@style/text_appearance_small"
+			android:textColor="?attr/textColorSecondary" />
+
+	</LinearLayout>
+
+	<com.patchr.ui.views.ImageLayout
+		android:id="@+id/user_photo"
+		style="@style/selectable_image"
+		android:layout_width="@dimen/image_small"
+		android:layout_height="@dimen/image_small"
+		android:layout_alignTop="@+id/holder_content"
+		android:layout_marginRight="10dp"
+		android:layout_marginTop="2dp"
+		android:clickable="true"
+		android:onClick="onViewClick"
+		custom:category="profile"
+		custom:shape="round" />
+
+	<LinearLayout
+		android:id="@+id/holder_content"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/holder_patch"
+		android:layout_toRightOf="@+id/user_photo"
+		android:orientation="vertical">
+
+		<RelativeLayout
+			android:id="@+id/holder_author"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="2dp"
+			android:orientation="horizontal">
+
+			<com.patchr.ui.widgets.AirTextMedium
+				android:id="@+id/user_name"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_gravity="center_vertical"
+				android:layout_toLeftOf="@+id/created_date"
+				android:ellipsize="end"
+				android:maxWidth="150dp"
+				android:minWidth="100dp"
+				android:singleLine="true"
+				android:textStyle="bold"
+				tools:text="@string/dummy_username" />
+
+			<com.patchr.ui.widgets.AirTextLight
+				android:id="@+id/created_date"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_centerVertical="true"
+				android:textColor="?attr/textColorSecondary"
+				tools:text="@string/dummy_timesince_short" />
+		</RelativeLayout>
+
+		<com.patchr.ui.widgets.AirTextLight
+			android:id="@+id/description"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:ellipsize="end"
+			android:maxLines="5"
+			tools:text="@string/dummy_message" />
+
+		<!-- Photo -->
+
+		<com.patchr.ui.views.ImageLayout
+			android:id="@+id/image_layout"
+			style="@style/selectable_image"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="2dp"
+			android:layout_marginTop="12dp"
+			android:clickable="true"
+			android:onClick="onPhotoClick"
+			custom:aspectRatio="@dimen/aspect_ratio_message_item_image"
+			custom:category="standard" />
+
+	</LinearLayout>
+
+</merge>

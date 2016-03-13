@@ -8,14 +8,52 @@
 
 	<!-- Current user -->
 
-	<com.patchr.ui.views.UserView
-		android:id="@+id/user_current"
+	<RelativeLayout
+		android:id="@+id/user_group"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:background="?attr/backgroundFormSecondary"
 		android:clickable="true"
-		android:onClick="onViewClick"
-		custom:layoutId="@layout/widget_user_view_drawer" />
+		android:padding="8dp"
+		android:onClick="onViewClick">
+
+		<com.patchr.ui.views.ImageLayout
+			android:id="@+id/user_photo"
+			style="@style/selectable_image"
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:layout_alignParentLeft="true"
+			android:layout_marginRight="10dp"
+			custom:category="profile"
+			custom:shape="round" />
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerVertical="true"
+			android:layout_toRightOf="@+id/user_photo"
+			android:orientation="vertical">
+
+			<com.patchr.ui.widgets.AirTextView
+				android:id="@+id/user_name"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:ellipsize="end"
+				android:singleLine="true"
+				android:textAppearance="?android:attr/textAppearance"
+				android:textColor="@color/brand_primary"
+				custom:textId="@string/label_drawer_item_nearby" />
+
+			<com.patchr.ui.widgets.AirTextLight
+				android:id="@+id/user_area"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:ellipsize="end"
+				android:singleLine="true"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		</LinearLayout>
+
+	</RelativeLayout>
 
 	<com.patchr.ui.widgets.AirScrollView
 		android:layout_width="match_parent"

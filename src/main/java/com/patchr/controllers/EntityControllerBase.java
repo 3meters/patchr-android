@@ -26,9 +26,8 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.ViewHolder;
 import com.patchr.ui.EntityListFragment.ViewType;
-import com.patchr.ui.views.PhotoView;
+import com.patchr.ui.views.ImageLayout;
 import com.patchr.ui.views.CandiView;
-import com.patchr.ui.views.EntityPhotoView;
 import com.patchr.ui.views.UserView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
@@ -246,11 +245,7 @@ public abstract class EntityControllerBase implements IEntityController {
 
 		UI.setVisibility(holder.patchPhotoView, View.GONE);
 		if (holder.patchPhotoView != null && parentEntity != null && parentEntity.photo != null) {
-			Photo photo = parentEntity.photo;
-			if (holder.patchPhotoView.getPhoto() == null || !holder.patchPhotoView.getPhoto().getDirectUri().equals(photo.getDirectUri())) {
-				holder.patchPhotoView.setTag(parentEntity);
-				UI.drawPhoto(holder.patchPhotoView, photo);
-			}
+			holder.patchPhotoView.setImageWithEntity(parentEntity);
 			UI.setVisibility(holder.patchPhotoView, View.VISIBLE);
 		}
 
@@ -268,7 +263,7 @@ public abstract class EntityControllerBase implements IEntityController {
 		if (holder.creator != null && entity.creator != null) {
 			if (!entity.ownerId.equals(Constants.ADMIN_USER_ID)
 					&& !entity.ownerId.equals(Constants.ANONYMOUS_USER_ID)) {
-				holder.creator.databind(entity.creator, entity.modifiedDate.longValue());
+				holder.creator.databind(entity.creator);
 				UI.setVisibility(holder.creator, View.VISIBLE);
 			}
 		}
@@ -278,14 +273,14 @@ public abstract class EntityControllerBase implements IEntityController {
 		UI.setVisibility(holder.userPhotoView, View.GONE);
 		if (holder.userPhotoView != null) {
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
-				holder.userPhotoView.databind(entity);
+				holder.userPhotoView.setImageWithEntity(entity);
 				UI.setVisibility(holder.userPhotoView, View.VISIBLE);
 			}
 			else if (entity.creator != null) {
 			    /*
 				 * Acting a cheap proxy for user view so setting photoview to entity instead of photo.
 				 */
-				holder.userPhotoView.databind(entity.creator);
+				holder.userPhotoView.setImageWithEntity(entity.creator);
 				UI.setVisibility(holder.userPhotoView, View.VISIBLE);
 			}
 		}
@@ -319,10 +314,8 @@ public abstract class EntityControllerBase implements IEntityController {
 		/* Photo */
 
 		if (holder.photoView != null) {
-			final Photo photo = entity.getPhoto();
-			if (holder.photoView.getPhoto() == null || !photo.getDirectUri().equals(holder.photoView.getPhoto().getDirectUri())) {
-				UI.drawPhoto(holder.photoView, photo);
-			}
+			final Photo photo = entity.photo;
+			holder.photoView.setImageWithPhoto(photo);
 			UI.setVisibility(holder.photoView, View.VISIBLE);
 		}
 	}
@@ -330,7 +323,7 @@ public abstract class EntityControllerBase implements IEntityController {
 	public void bindHolder(View view, ViewHolder holder) {
 
 		holder.candiView = (CandiView) view.findViewById(R.id.candi_view);
-		holder.photoView = (PhotoView) view.findViewById(R.id.photo_view);
+		holder.photoView = (ImageLayout) view.findViewById(R.id.image_layout);
 		holder.name = (TextView) view.findViewById(R.id.name);
 		holder.subhead = (TextView) view.findViewById(R.id.subhead);
 		holder.summary = (TextView) view.findViewById(R.id.summary);
@@ -341,9 +334,8 @@ public abstract class EntityControllerBase implements IEntityController {
 		holder.modifiedDate = (TextView) view.findViewById(R.id.modified_date);
 		holder.comments = (TextView) view.findViewById(R.id.comments);
 		holder.share = (ViewGroup) view.findViewById(R.id.share_entity);
-		holder.alert = (ImageView) view.findViewById(R.id.alert_indicator);
-		holder.photoViewBig = (PhotoView) view.findViewById(R.id.photo_big);
-		holder.photoType = (ImageView) view.findViewById(R.id.photo_type);
+		holder.alert = (ImageView) view.findViewById(R.id.recency_indicator);
+		holder.photoType = (ImageView) view.findViewById(R.id.notification_type);
 
 		if (holder.checked != null) {
 			holder.checked.setOnClickListener(new View.OnClickListener() {
@@ -357,9 +349,9 @@ public abstract class EntityControllerBase implements IEntityController {
 			});
 		}
 		holder.index = (TextView) view.findViewById(R.id.index);
-		holder.userPhotoView = (EntityPhotoView) view.findViewById(R.id.user_photo);
+		holder.userPhotoView = (ImageLayout) view.findViewById(R.id.user_photo);
 		holder.userName = (TextView) view.findViewById(R.id.user_name);
-		holder.patchPhotoView = (PhotoView) view.findViewById(R.id.patch_photo);
+		holder.patchPhotoView = (ImageLayout) view.findViewById(R.id.patch_photo);
 		holder.patchName = (TextView) view.findViewById(R.id.patch_name);
 		holder.categoryName = (TextView) view.findViewById(R.id.category_name);
 		holder.type = (TextView) view.findViewById(R.id.type);

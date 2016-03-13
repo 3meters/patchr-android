@@ -27,7 +27,7 @@ import com.patchr.events.EntityRequestEvent;
 import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.ProcessingCompleteEvent;
-import com.patchr.interfaces.IBind;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
@@ -46,7 +46,7 @@ import com.squareup.otto.Subscribe;
 
 import java.util.Locale;
 
-public class EntityFormFragment extends BaseFragment implements IBind {
+public class EntityFormFragment extends BaseFragment {
 
 	@NonNull
 	protected Integer mLinkProfile = LinkSpecType.NO_LINKS;
@@ -64,6 +64,12 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 	protected String  mNotificationId;
 	protected Integer mLayoutResId;
 	protected Boolean mParallax = false;
+
+	@Override public void onViewCreated(final View view, Bundle savedInstanceState) {
+		if (mOnViewCreatedListener != null) {
+			mOnViewCreatedListener.onViewCreated(view);
+		}
+	}
 
 	@Override public void onResume() {
 		super.onResume();
@@ -89,12 +95,6 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override public void onViewCreated(final View view, Bundle savedInstanceState) {
-		if (mOnViewCreatedListener != null) {
-			mOnViewCreatedListener.onViewCreated(view);
-		}
-	}
 
 	@Subscribe public void onDataResult(final DataResultEvent event) {
 
@@ -173,15 +173,13 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 		}
 	}
 
-	@Override public void onRefresh() {
+	public void onRefresh() {
 		/*
 		 * Called from swipe refresh or routing. Always treated
 		 * as an aggresive refresh.
 		 */
 		bind(BindingMode.MANUAL); // Called from Routing
 	}
-
-	@Override public void onScollToTop() {}
 
 	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		/*
@@ -212,7 +210,7 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void bind(final BindingMode mode) {
+	public void bind(final BindingMode mode) {
 		/*
 		 * Called on main thread.
 		 */
@@ -221,9 +219,9 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 				.setLinkProfile(mLinkProfile);
 
 		request.setActionType(ActionType.ACTION_GET_ENTITY)
-		       .setMode(mode)
-		       .setEntityId(mEntityId)
-		       .setTag(System.identityHashCode(this));
+				.setMode(mode)
+				.setEntityId(mEntityId)
+				.setTag(System.identityHashCode(this));
 
 		if (mBound && mEntity != null && mode != BindingMode.MANUAL) {
 			request.setCacheStamp(mEntity.getCacheStamp());
@@ -232,17 +230,17 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 		Dispatcher.getInstance().post(request);
 	}
 
-	@Override public void draw(View view) {}
+	public void draw(View view) {}
 
 	public void drawButtons(View view) {
 
 		/* We don't support like/watch for users */
 		if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-			UI.setVisibility(view.findViewById(R.id.button_holder), View.GONE);
+			UI.setVisibility(view.findViewById(R.id.toolbar), View.GONE);
 			return;
 		}
 
-		UI.setVisibility(view.findViewById(R.id.button_holder), View.VISIBLE);
+		UI.setVisibility(view.findViewById(R.id.toolbar), View.VISIBLE);
 
 		/* Like button coloring */
 		ViewAnimator like = (ViewAnimator) view.findViewById(R.id.button_like);
@@ -253,7 +251,7 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 			}
 			else {
 				Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
-				ImageView image = (ImageView) like.findViewById(R.id.button_image);
+				ImageView image = (ImageView) like.findViewById(R.id.mute_image);
 				if (link != null) {
 					final int color = Colors.getColor(R.color.brand_primary);
 					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
@@ -290,15 +288,15 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 		}
 
 		/* Watching count */
-		View watching = view.findViewById(R.id.button_watching);
+		View watching = view.findViewById(R.id.members_button);
 		if (watching != null) {
 			Count count = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, true, Link.Direction.in);
 			if (count == null) {
 				count = new Count(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, null, 0);
 			}
 			if (count.count.intValue() > 0) {
-				TextView watchingCount = (TextView) view.findViewById(R.id.watching_count);
-				TextView watchingLabel = (TextView) view.findViewById(R.id.watching_label);
+				TextView watchingCount = (TextView) view.findViewById(R.id.members_count);
+				TextView watchingLabel = (TextView) view.findViewById(R.id.members_label);
 				if (watchingCount != null) {
 					String label = getResources().getQuantityString(R.plurals.label_watching, count.count.intValue(), count.count.intValue());
 					watchingCount.setText(String.valueOf(count.count.intValue()));
@@ -312,7 +310,7 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 		}
 
 		/* Mute button coloring */
-		ViewAnimator mute = (ViewAnimator) view.findViewById(R.id.button_mute);
+		ViewAnimator mute = (ViewAnimator) view.findViewById(R.id.mute_button);
 		if (mute != null) {
 			mute.setDisplayedChild(0);
 			Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
@@ -320,7 +318,7 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 				UI.setVisibility(mute, View.GONE);
 			}
 			else {
-				ImageView image = (ImageView) mute.findViewById(R.id.button_image);
+				ImageView image = (ImageView) mute.findViewById(R.id.mute_image);
 				if (link.mute != null && link.mute) {
 					/* Sound is off */
 					image.setImageResource(R.drawable.ic_img_mute_off_dark);
@@ -374,7 +372,7 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 					.setSkipCache(false);
 
 			update.setActionType(ActionType.ACTION_LINK_INSERT_LIKE)
-			      .setTag(System.identityHashCode(this));
+					.setTag(System.identityHashCode(this));
 
 			Dispatcher.getInstance().post(update);
 		}
@@ -388,7 +386,7 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 					.setActionEvent("unlike_entity_" + mEntity.schema.toLowerCase(Locale.US));
 
 			update.setActionType(ActionType.ACTION_LINK_DELETE_LIKE)
-			      .setTag(System.identityHashCode(this));
+					.setTag(System.identityHashCode(this));
 
 			Dispatcher.getInstance().post(update);
 		}
@@ -396,10 +394,6 @@ public class EntityFormFragment extends BaseFragment implements IBind {
 
 	public Boolean related(@NonNull String entityId) {
 		return entityId.equals(mEntityId);
-	}
-
-	@Override protected int getLayoutId() {
-		return mLayoutResId;
 	}
 
 	/*--------------------------------------------------------------------------------------------

@@ -2,42 +2,94 @@ package com.patchr.ui;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.View;
 
 import com.patchr.Constants;
+import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.DataController;
 import com.patchr.components.UserManager;
 import com.patchr.events.ActionEvent;
 import com.patchr.events.DataResultEvent;
 import com.patchr.events.ProcessingCompleteEvent;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
+import com.patchr.objects.Route;
+import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseEntityForm;
 import com.patchr.ui.base.BaseFragment;
+import com.patchr.ui.views.UserDetailView;
 import com.patchr.utilities.Integers;
 import com.squareup.otto.Subscribe;
 
 @SuppressLint("Registered")
-@SuppressWarnings("ucd")
 public class UserForm extends BaseEntityForm {
 
-	protected EntityFormFragment mHeaderFragment;
+	private UserDetailView header;
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
+	 * Notifications
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe public void onDataResult(final DataResultEvent event) {
+
+		runOnUiThread(new Runnable() {
+
+			@Override public void run() {
+				if (event.actionType == DataController.ActionType.ACTION_GET_ENTITY) {
+					if (event.entity != null && event.entity.id != null && event.entity.id.equals(mEntityId)) {
+						mEntity = event.entity;
+						header.databind(mEntity);
+						if (mOptionMenu != null) {
+							configureStandardMenuItems(mOptionMenu);
+						}
+					}
+				}
+
+					/* Update menu items */
+				if (event.actionType == DataController.ActionType.ACTION_GET_ENTITIES) {
+					if (event.scopingEntity != null && event.scopingEntity.id.equals(mEntityId)) {
+						if (mOptionMenu != null) {
+							configureStandardMenuItems(mOptionMenu);
+						}
+					}
+				}
+			}
+		});
+	}
+
+	@Subscribe public void onProcessingComplete(ProcessingCompleteEvent event) {
+		/*
+		 * Gets called direct at the activity level and receives
+		 * events from fragments.
+		 */
+		mProcessing = false;
+		mUiController.getBusyController().hide(false);
+	}
+
+	@Subscribe public void onViewClick(ActionEvent event) {
+		super.onViewClick(event);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
 		Boolean currentUser = UserManager.getInstance().authenticated() && UserManager.getInstance().getCurrentUser().id.equals(mEntityId);
 		mLinkProfile = currentUser ? LinkSpecType.LINKS_FOR_USER_CURRENT : LinkSpecType.LINKS_FOR_USER;
 
-		mCurrentFragment = new EntityListFragment();
-		mHeaderFragment = new UserFormFragment();
+		this.header = new UserDetailView(this);
+		this.header.buttonOwner.setOnClickListener(this);
+		this.header.buttonMember.setOnClickListener(this);
 
-		mHeaderFragment
-				.setEntityId(mEntityId)
-				.setListLinkType(mListLinkType)
-				.setTransitionType(mTransitionType)
-				.setNotificationId(mNotificationId)
-				.setLayoutResId(R.layout.widget_list_header_user);
+		mCurrentFragment = new EntityListFragment();
 
 		((EntityListFragment) mCurrentFragment)
 				.setScopingEntityId(mEntityId)
@@ -45,8 +97,7 @@ public class UserForm extends BaseEntityForm {
 				.setLinkType(Constants.TYPE_LINK_CREATE)
 				.setLinkDirection(Link.Direction.out.name())
 				.setPageSize(Integers.getInteger(R.integer.page_size_messages))
-				.setHeaderFragment(mHeaderFragment)
-				.setHeaderViewResId(R.layout.entity_form)
+				.setHeaderView(this.header)
 				.setListViewType(EntityListFragment.ViewType.LIST)
 				.setListLayoutResId(R.layout.entity_list_fragment)
 				.setListLoadingResId(R.layout.temp_listitem_loading)
@@ -67,65 +118,7 @@ public class UserForm extends BaseEntityForm {
 				.commit();
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Subscribe
-	public void onDataResult(DataResultEvent event) {
-		/*
-		 * Cherry pick the entity so we can add some wrapper functionality.
-		 */
-		if (event.entity == null || event.entity.id.equals(mEntityId)) {
-			mEntity = event.entity;
-
-			/* Update menu items */
-			if (mOptionMenu != null) {
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						configureStandardMenuItems(mOptionMenu);
-					}
-				});
-			}
-		}
-	}
-
-	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		/*
-		 * Gets called direct at the activity level and receives
-		 * events from fragments.
-		 */
-		mProcessing = false;
-		mUiController.getBusyController().hide(false);
-	}
-
-	@Subscribe
-	public void onViewClick(ActionEvent event) {
-		super.onViewClick(event);
-	}
-
-	@Override
-	public void onRefresh() {
-		/*
-		 * Called from swipe refresh or routing. Always treated
-		 * as an aggresive refresh.
-		 */
-		if (mHeaderFragment != null) {
-			mHeaderFragment.onRefresh();
-		}
-		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
-			((EntityListFragment) mCurrentFragment).onRefresh();
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return R.layout.user_form;
 	}
 }

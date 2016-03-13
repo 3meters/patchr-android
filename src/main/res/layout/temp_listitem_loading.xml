@@ -7,7 +7,7 @@
 	android:padding="10dp">
 
 	<com.patchr.ui.widgets.AirButton
-		android:id="@+id/button_more"
+		android:id="@+id/more_button"
 		style="@style/button_outline"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/button_height"

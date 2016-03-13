@@ -3,12 +3,12 @@ package com.patchr.ui;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.CardView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -38,10 +38,8 @@ import com.patchr.events.DataNoopEvent;
 import com.patchr.events.DataResultEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.interfaces.IBusy.BusyAction;
-import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
-import com.patchr.objects.Link.Direction;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Message;
 import com.patchr.objects.Message.MessageType;
@@ -49,20 +47,17 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseEntityForm;
-import com.patchr.ui.edit.MessageEdit;
-import com.patchr.ui.views.PhotoView;
-import com.patchr.ui.views.EntityPhotoView;
-import com.patchr.ui.views.EntityView;
-import com.patchr.ui.widgets.FlowLayout;
 import com.patchr.ui.components.InsetViewTransformer;
+import com.patchr.ui.edit.MessageEdit;
+import com.patchr.ui.views.ImageLayout;
+import com.patchr.ui.views.MessageView;
+import com.patchr.ui.views.PatchView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
-import com.patchr.utilities.Utils;
 import com.squareup.otto.Subscribe;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.branch.indexing.BranchUniversalObject;
@@ -73,7 +68,6 @@ import io.branch.referral.util.LinkProperties;
 @SuppressWarnings("ConstantConditions")
 public class MessageForm extends BaseEntityForm {
 
-	private List<Entity> mTos = new ArrayList<>();
 	protected BottomSheetLayout mBottomSheetLayout;
 
 	@Override public void unpackIntent() {
@@ -231,65 +225,34 @@ public class MessageForm extends BaseEntityForm {
 			view = findViewById(android.R.id.content);
 		}
 
-		final PhotoView photoView = (PhotoView) view.findViewById(R.id.photo_view);
+		final ImageLayout photoView = (ImageLayout) view.findViewById(R.id.image_layout);
 		final View holderUser = view.findViewById(R.id.holder_user);
 		final View holderPatch = view.findViewById(R.id.holder_patch);
 		final TextView description = (TextView) view.findViewById(R.id.description);
-		final PhotoView patchPhotoView = (PhotoView) view.findViewById(R.id.patch_photo);
+		final ImageLayout patchPhotoView = (ImageLayout) view.findViewById(R.id.patch_photo);
 		final TextView patchName = (TextView) view.findViewById(R.id.patch_name);
-		final EntityPhotoView entityPhotoView = (EntityPhotoView) view.findViewById(R.id.user_photo);
+		final ImageLayout userPhotoView = (ImageLayout) view.findViewById(R.id.user_photo);
 		final TextView userName = (TextView) view.findViewById(R.id.user_name);
 		final TextView createdDate = (TextView) view.findViewById(R.id.created_date);
-		final FlowLayout flowLayout = (FlowLayout) view.findViewById(R.id.flow_recipients);
+		final ViewGroup buttonHolder = (ViewGroup) view.findViewById(R.id.toolbar);
+
 		final ViewGroup shareHolder = (ViewGroup) view.findViewById(R.id.share_holder);
-		final ViewGroup shareFrame = (ViewGroup) view.findViewById(R.id.share_entity);
-		final ViewGroup toHolder = (ViewGroup) view.findViewById(R.id.to_holder);
+		final ViewGroup shareView = (ViewGroup) view.findViewById(R.id.share_entity);
+
+		final ViewGroup shareRecipientsHolder = (ViewGroup) view.findViewById(R.id.share_recipients_holder);
+		final TextView shareRecipients = (TextView) view.findViewById(R.id.share_recipients);
 
         /* Share */
 
 		Boolean share = (mEntity.type != null && mEntity.type.equals(Constants.TYPE_LINK_SHARE));
 
-		if (share) {
-
-			UI.setVisibility(toHolder, View.VISIBLE);
-
-			flowLayout.setSpacingHorizontal(UI.getRawPixelsForDisplayPixels(4f));
-			flowLayout.setSpacingVertical(UI.getRawPixelsForDisplayPixels(4f));
-			flowLayout.setClickable(false);
-
-			/* Reset */
-			mTos.clear();
-			flowLayout.removeAllViews();
-
-            /* Check for recipients */
-			List<Link> links = mEntity.getLinks(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, null, Direction.out);
-			for (Link link : links) {
-				mTos.add(link.shortcut.getAsEntity());
-			}
-
-			for (Entity entity : mTos) {
-
-				EntityView entityView = new EntityView(this);
-				entityView.setLayout(R.layout.widget_token_view);
-				entityView.initialize();
-				entityView.databind(entity);
-				entityView.setClickable(false);
-
-				FlowLayout.LayoutParams params = new FlowLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-				params.setCenterHorizontal(false);
-				entityView.setLayoutParams(params);
-
-				flowLayout.addView(entityView);
-			}
-		}
-
 		/* Message patch context */
 
 		if (holderPatch != null) {
 			if (share) {
-				patchName.setText(StringManager.getString(R.string.label_message_shared));
 				UI.setEnabled(holderPatch, false);
 				UI.setVisibility(holderPatch, View.VISIBLE);
+				UI.setVisibility(patchPhotoView, View.GONE);
 			}
 			else {
 				Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
@@ -302,27 +265,12 @@ public class MessageForm extends BaseEntityForm {
 					UI.setVisibility(holderPatch, View.VISIBLE);
 
 					/* Photo */
-					patchPhotoView.getBackground().clearColorFilter();
-
 					if (linkPlace.shortcut.photo != null) {
-
-						Photo photo = linkPlace.shortcut.photo;
-
-						/* Optimize if we already have the image */
-						if (patchPhotoView.getPhoto() != null && patchPhotoView.getImageView().getDrawable() != null) {
-							if (Photo.same(patchPhotoView.getPhoto(), photo)) return;
-						}
-
-						UI.drawPhoto(patchPhotoView, photo);
+						patchPhotoView.setImageWithPhoto(linkPlace.shortcut.photo);
 					}
 					else {
-						if (!TextUtils.isEmpty(linkPlace.shortcut.name)) {
-							long seed = Utils.numberFromName(linkPlace.shortcut.name);
-							Integer color = Utils.randomColor(seed);
-							patchPhotoView.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-						}
+						patchPhotoView.setImageWithText(linkPlace.shortcut.name, false);
 					}
-
 					UI.setVisibility(patchPhotoView, View.VISIBLE);
 				}
 				else {
@@ -339,13 +287,13 @@ public class MessageForm extends BaseEntityForm {
 
 		/* User photo */
 
-		if (entityPhotoView != null) {
+		if (userPhotoView != null) {
 			if (mEntity.creator != null) {
-				entityPhotoView.databind(mEntity.creator);
-				UI.setVisibility(entityPhotoView, View.VISIBLE);
+				userPhotoView.setImageWithEntity(mEntity.creator);
+				UI.setVisibility(userPhotoView, View.VISIBLE);
 			}
 			else {
-				UI.setVisibility(entityPhotoView, View.GONE);
+				UI.setVisibility(userPhotoView, View.GONE);
 			}
 		}
 
@@ -405,18 +353,24 @@ public class MessageForm extends BaseEntityForm {
 			}
 		}
 
+		UI.setVisibility(photoView, View.GONE);
+		UI.setVisibility(shareHolder, View.GONE);
+		UI.setVisibility(buttonHolder, View.GONE);
+		UI.setVisibility(shareRecipientsHolder, View.GONE);
+
         /* Shared entity */
 
-		Entity shareEntity = null;
-		Link linkEntity = null;
-
 		if (share) {
-			linkEntity = mEntity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH);
+
+			Entity shareEntity = null;
+
+			Link linkEntity = mEntity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH);
 			if (linkEntity != null) {
 				if (linkEntity.shortcut != null) {
 					shareEntity = linkEntity.shortcut.getAsEntity();
 				}
 			}
+
 			if (shareEntity == null) {
 				linkEntity = mEntity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_MESSAGE);
 				if (linkEntity != null) {
@@ -425,78 +379,77 @@ public class MessageForm extends BaseEntityForm {
 					}
 				}
 			}
-		}
 
-		if (shareEntity != null) {
+			if (shareEntity != null) {
 
-            /* Message that shares an entity */
+				shareView.removeAllViews();
 
-			int layoutResId = 0;
-			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				layoutResId = R.layout.temp_button_share_patch;
-			}
-			else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-				layoutResId = R.layout.temp_button_share_message;
-			}
-
-			shareFrame.removeAllViews();
-			View shareView = LayoutInflater.from(this).inflate(layoutResId, null, false);
-			IEntityController controller = Patchr.getInstance().getControllerForSchema(shareEntity.schema);
-			controller.bind(shareEntity, shareView, null);
-			shareFrame.setTag(shareEntity);
-			shareFrame.addView(shareView);
-
-			UI.setVisibility(shareHolder, View.VISIBLE);
-		}
-		else if (shareEntity == null && linkEntity != null) {
-
-			/* Message that shares an entity but shortcut was blocked */
-
-			if (linkEntity.targetSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-
-				shareFrame.removeAllViews();
-				View shareView = LayoutInflater.from(this).inflate(R.layout.temp_button_share_message_blocked, null, false);
-
-				Entity entity = new Message();
-				entity.schema = Constants.SCHEMA_ENTITY_MESSAGE;
-				entity.id = linkEntity.toId;
-
-				shareFrame.setTag(entity);
-				shareFrame.addView(shareView);
+				if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+					patchName.setText(StringManager.getString(R.string.label_message_invite));
+					PatchView patchView = new PatchView(this, R.layout.patch_view_attachment);
+					patchView.databind(shareEntity);
+					CardView cardView = (CardView) shareView;
+					int padding = UI.getRawPixelsForDisplayPixels(0f);
+					cardView.setContentPadding(padding, padding, padding, padding);
+					shareView.setTag(shareEntity);
+					shareView.addView(patchView);
+				}
+				else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+					patchName.setText(StringManager.getString(R.string.label_message_shared));
+					MessageView messageView = new MessageView(this, R.layout.message_view_attachment);
+					messageView.databind(shareEntity);
+					CardView cardView = (CardView) shareView;
+					int padding = UI.getRawPixelsForDisplayPixels(8f);
+					cardView.setContentPadding(padding, padding, padding, padding);
+					shareView.setTag(shareEntity);
+					shareView.addView(messageView);
+				}
 
 				UI.setVisibility(shareHolder, View.VISIBLE);
 			}
-		}
-		else {
+			else if (linkEntity != null) {
 
-			UI.setVisibility(shareHolder, View.GONE);
+				/* Message that shares an entity but shortcut was blocked by permissions */
 
-		    /* Message that includes a photo */
+				if (linkEntity.targetSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 
-			if (photoView != null) {
-				if (!Photo.same(photoView.getPhoto(), mEntity.getPhoto())) {
-					if (mEntity.photo != null) {
-						Photo photo = mEntity.getPhoto();
-						photoView.setTag(photo);
-						UI.drawPhoto(photoView, photo);
-					}
-				}
-				if (mEntity.photo != null) {
-					UI.setVisibility(photoView, View.VISIBLE);
-				}
-				else {
-					UI.setVisibility(photoView, View.GONE);
+					shareView.removeAllViews();
+					View blockView = LayoutInflater.from(this).inflate(R.layout.temp_button_share_message_blocked, null, false);
+
+					Entity message = new Message();
+					message.schema = Constants.SCHEMA_ENTITY_MESSAGE;
+					message.id = linkEntity.toId;
+
+					shareView.setTag(message);
+					shareView.addView(blockView);
+
+					UI.setVisibility(shareHolder, View.VISIBLE);
 				}
 			}
-		}
 
-        /* Likes */
-		if (shareEntity == null) {
-			drawLikeWatch(view);
+			/* Show share recipients */
+
+			UI.setVisibility(shareRecipientsHolder, View.VISIBLE);
+			StringBuilder recipientsString = new StringBuilder();
+			List<Link> links = mEntity.getLinks(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, null, Link.Direction.out);
+			for (Link link : links) {
+				recipientsString.append(link.shortcut.name);
+			}
+			shareRecipients.setText(recipientsString);
 		}
 		else {
-			UI.setVisibility(view.findViewById(R.id.button_like), View.GONE);
-			UI.setVisibility(view.findViewById(R.id.button_likes), View.GONE);
+
+			/* A message without a share */
+
+			if (mEntity.photo != null) {
+				final Photo photo = mEntity.photo;
+				photoView.setImageWithPhoto(photo);
+				photoView.setTag(photo);
+				UI.setVisibility(photoView, View.VISIBLE);
+			}
+
+            /* Likes */
+			drawLikeWatch(view);    // Handled in parent class
 		}
 	}
 
@@ -515,7 +468,7 @@ public class MessageForm extends BaseEntityForm {
 		}
 
 		final String entityName = (mEntity.name != null) ? mEntity.name : StringManager.getString(R.string.container_singular_lowercase);
-		final String title = String.format(StringManager.getString(R.string.label_message_share_title), entityName);
+		final String title = StringManager.getString(R.string.label_message_share_title);
 		final Activity activity = this;
 
 		MenuSheetView menuSheetView = new MenuSheetView(this, MenuSheetView.MenuType.GRID, "Share using...", new MenuSheetView.OnMenuItemClickListener() {
@@ -554,7 +507,7 @@ public class MessageForm extends BaseEntityForm {
 
 	@Override public void confirmDelete() {
 
-		String message = String.format(StringManager.getString(R.string.alert_delete_message_message_no_name), mEntity.name);
+		String message = StringManager.getString(R.string.alert_delete_message_message_no_name);
 		if (mEntity.type.equals(MessageType.ROOT)) {
 			Link linkPlace = mEntity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
 			if (linkPlace != null) {
@@ -571,13 +524,13 @@ public class MessageForm extends BaseEntityForm {
 				, null
 				, new DialogInterface.OnClickListener() {
 
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_POSITIVE) {
-					delete();
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							delete();
+						}
+					}
 				}
-			}
-		}
 				, null);
 		dialog.setCanceledOnTouchOutside(false);
 	}
@@ -642,13 +595,13 @@ public class MessageForm extends BaseEntityForm {
 				.addContentMetadata("patchName", patchName);
 
 		if (mEntity.photo != null) {
-			Photo photo = mEntity.getPhoto();
+			Photo photo = mEntity.photo;
 			String settings = "h=500&crop&fit=crop&q=50";
 			String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
 			applink.setContentImageUrl(photoUrl);  // $og_image_url
 		}
 		else if (mEntity.patch != null) {
-			Photo photo = mEntity.patch.getPhoto();
+			Photo photo = mEntity.patch.photo;
 			String settings = "h=500&crop&fit=crop&q=50";
 			String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
 			applink.setContentImageUrl(photoUrl);  // $og_image_url

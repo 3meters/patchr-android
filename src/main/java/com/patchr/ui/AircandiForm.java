@@ -2,6 +2,9 @@ package com.patchr.ui;
 
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -39,11 +42,12 @@ import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Route;
+import com.patchr.objects.User;
 import com.patchr.ui.EntityListFragment.ViewType;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.base.BaseFragment;
 import com.patchr.ui.components.ListController;
-import com.patchr.ui.views.UserView;
+import com.patchr.ui.views.ImageLayout;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;
@@ -64,8 +68,11 @@ public class AircandiForm extends BaseActivity {
 	protected Boolean mRightDrawerOpen = false;
 
 	protected String mTitle = StringManager.getString(R.string.name_app);
-	protected UserView   mUserView;
-	protected CacheStamp mCacheStamp;
+	protected ViewGroup   userGroup;
+	protected ImageLayout userPhoto;
+	protected TextView    userName;
+	protected TextView    userArea;
+	protected CacheStamp  mCacheStamp;
 
 	protected View mCurrentNavView;
 
@@ -95,8 +102,8 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		/* In case the user was edited from the drawer */
-		if (mUserView != null && UserManager.getInstance().authenticated()) {
-			mUserView.databind(UserManager.getInstance().getCurrentUser());
+		if (userGroup != null && UserManager.getInstance().authenticated()) {
+			updateUser();
 		}
 
 		/* Ensure install is registered. */
@@ -259,9 +266,13 @@ public class AircandiForm extends BaseActivity {
 			FontManager.getInstance().setTypefaceMedium((TextView) view.findViewById(R.id.name));
 		}
 
-		mUserView = (UserView) findViewById(R.id.user_current);
-		if (mUserView != null && UserManager.getInstance().authenticated()) {
-			mUserView.setTag(UserManager.getInstance().getCurrentUser());
+		this.userGroup = (ViewGroup) findViewById(R.id.user_group);
+		this.userPhoto = (ImageLayout) userGroup.findViewById(R.id.user_photo);
+		this.userName = (TextView) userGroup.findViewById(R.id.user_name);
+		this.userArea = (TextView) userGroup.findViewById(R.id.user_area);
+
+		if (userGroup != null && UserManager.getInstance().authenticated()) {
+			userGroup.setTag(UserManager.getInstance().getCurrentUser());
 		}
 
 		mDrawerLeft = findViewById(R.id.left_drawer);
@@ -309,6 +320,31 @@ public class AircandiForm extends BaseActivity {
 		}
 
 		setCurrentFragment(mNextFragmentTag);
+	}
+
+	private void updateUser() {
+		if (UserManager.getInstance().authenticated()) {
+			mConfiguredForAuthenticated = true;
+			User user = UserManager.getInstance().getCurrentUser();
+			this.userPhoto.setImageWithEntity(user);
+			this.userName.setText(user.name);
+			this.userArea.setText(user.area);
+			this.userGroup.setTag(user);
+			findViewById(R.id.item_watch).setVisibility(View.VISIBLE);
+			findViewById(R.id.item_own).setVisibility(View.VISIBLE);
+			mCacheStamp = UserManager.getInstance().getCurrentUser().getCacheStamp();
+		}
+		else {
+			mConfiguredForAuthenticated = false;
+			Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img_default_user_light);
+			final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
+			UI.showDrawableInImageView(bitmapDrawable, this.userPhoto.imageView, Constants.ANIMATE_IMAGES);
+			this.userName.setText("Guest");
+			this.userArea.setText(null);
+			this.userGroup.setTag(null);
+			findViewById(R.id.item_watch).setVisibility(View.GONE);
+			findViewById(R.id.item_own).setVisibility(View.GONE);
+		}
 	}
 
 	private void tetherAlert() {
@@ -372,19 +408,7 @@ public class AircandiForm extends BaseActivity {
 				|| (mCacheStamp != null && !mCacheStamp.equals(UserManager.getInstance().getCurrentUser().getCacheStamp()));
 
 		if (configChange) {
-			if (UserManager.getInstance().authenticated()) {
-				mConfiguredForAuthenticated = true;
-				findViewById(R.id.item_watch).setVisibility(View.VISIBLE);
-				findViewById(R.id.item_own).setVisibility(View.VISIBLE);
-				mUserView.databind(UserManager.getInstance().getCurrentUser());
-				mCacheStamp = UserManager.getInstance().getCurrentUser().getCacheStamp();
-			}
-			else {
-				mConfiguredForAuthenticated = false;
-				findViewById(R.id.item_watch).setVisibility(View.GONE);
-				findViewById(R.id.item_own).setVisibility(View.GONE);
-				mUserView.databind(null);
-			}
+			updateUser();
 		}
 	}
 
@@ -491,7 +515,7 @@ public class AircandiForm extends BaseActivity {
 				((EntityListFragment) fragment)
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.nearby_fragment)
-						.setListItemResId(R.layout.temp_listitem_nearby)
+						.setListItemResId(R.layout.temp_listitem_patch)
 						.setListEmptyMessageResId(R.string.label_radar_empty)
 						.setHeaderViewResId(R.layout.widget_list_header_nearby)
 						.setPauseOnFling(false)
@@ -516,7 +540,7 @@ public class AircandiForm extends BaseActivity {
 						.setLinkDirection(Link.Direction.out.name())
 						.setListPagingEnabled(true)
 						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
-						.setListItemResId(R.layout.temp_listitem_nearby)
+						.setListItemResId(R.layout.temp_listitem_patch)
 						.setListLoadingResId(R.layout.temp_listitem_loading)
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.patch_list_fragment)
@@ -543,7 +567,7 @@ public class AircandiForm extends BaseActivity {
 						.setLinkDirection(Link.Direction.out.name())
 						.setListPagingEnabled(true)
 						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
-						.setListItemResId(R.layout.temp_listitem_nearby)
+						.setListItemResId(R.layout.temp_listitem_patch)
 						.setListLoadingResId(R.layout.temp_listitem_loading)
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.patch_list_fragment)
@@ -569,7 +593,7 @@ public class AircandiForm extends BaseActivity {
 						.setEntityCacheEnabled(false)
 						.setHeaderViewResId(R.layout.widget_list_header_trends_active)
 						.setPageSize(Integers.getInteger(R.integer.page_size_entities))
-						.setListItemResId(R.layout.temp_listitem_trends)
+						.setListItemResId(R.layout.temp_listitem_patch)
 						.setListViewType(ViewType.LIST)
 						.setListLayoutResId(R.layout.trends_list_fragment)
 						.setListEmptyMessageResId(R.string.label_created_empty)

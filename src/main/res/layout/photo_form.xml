@@ -17,7 +17,7 @@
 		android:background="@color/background_picture_detail">
 
 		<uk.co.senab.photoview.PhotoView
-			android:id="@+id/photo_view"
+			android:id="@+id/image_layout"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent" />
 

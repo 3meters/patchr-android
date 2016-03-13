@@ -2,7 +2,6 @@ package com.patchr.ui;
 
 import android.Manifest;
 import android.app.Activity;
-import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -13,6 +12,7 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,11 +48,8 @@ import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
-import com.patchr.objects.Patch;
 import com.patchr.objects.Route;
 import com.patchr.objects.ServiceData;
-import com.patchr.objects.TransitionType;
-import com.patchr.objects.ViewHolder;
 import com.patchr.service.ServiceResponse;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.utilities.Colors;
@@ -163,10 +160,7 @@ public class NearbyListFragment extends EntityListFragment {
 	}
 
 	@Override public void onClick(View view) {
-		final Patch entity = (Patch) ((ViewHolder) view.getTag()).data;
-		Bundle extras = new Bundle();
-		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
+		super.onClick(view);
 	}
 
 	@Override public void onAdd(Bundle extras) {
@@ -193,6 +187,7 @@ public class NearbyListFragment extends EntityListFragment {
 	/*--------------------------------------------------------------------------------------------
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Subscribe public void onQueryWifiScanReceived(final QueryWifiScanReceivedEvent event) {
 
 		if (getActivity() == null || getActivity().isFinishing()) return;
@@ -469,14 +464,14 @@ public class NearbyListFragment extends EntityListFragment {
 
 		if (view != null) {
 
-			ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.action_view);
+			ViewGroup alertGroup = (ViewGroup) view.findViewById(R.id.action_group);
 			UI.setVisibility(alertGroup, View.GONE);
 			if (alertGroup != null) {
 
-				TextView buttonAlert = (TextView) view.findViewById(R.id.button_alert);
+				TextView buttonAlert = (TextView) view.findViewById(R.id.action_button);
 				if (buttonAlert == null) return;
 
-				View rule = view.findViewById(R.id.rule_alert);
+				View rule = view.findViewById(R.id.action_rule);
 				if (rule != null && Constants.SUPPORTS_KIT_KAT) {
 					rule.setVisibility(View.GONE);
 				}
@@ -507,7 +502,7 @@ public class NearbyListFragment extends EntityListFragment {
 		Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled()
 				|| LocationManager.getInstance().isLocationAccessEnabled());
 
-		if (mListController.getFloatingActionController() != null) {
+		if (mListController != null && mListController.getFloatingActionController() != null) {
 			if (proximityCapable) {
 				mListController.getFloatingActionController().fadeIn();
 			}

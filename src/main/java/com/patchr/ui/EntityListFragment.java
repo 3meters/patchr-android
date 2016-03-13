@@ -1,11 +1,9 @@
 package com.patchr.ui;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -35,13 +33,14 @@ import com.patchr.events.DataResultEvent;
 import com.patchr.events.EntitiesLoadedEvent;
 import com.patchr.events.EntitiesRequestEvent;
 import com.patchr.events.NotificationReceivedEvent;
-import com.patchr.interfaces.IBind;
 import com.patchr.interfaces.IBusy;
 import com.patchr.interfaces.IEntityController;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.Cursor;
 import com.patchr.objects.Entity;
 import com.patchr.objects.LinkSpecType;
-import com.patchr.objects.OnViewCreatedListener;
+import com.patchr.objects.Notification;
+import com.patchr.objects.Patch;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.ViewHolder;
@@ -51,7 +50,10 @@ import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.FloatingActionController;
 import com.patchr.ui.components.ListController;
 import com.patchr.ui.components.MessageController;
-import com.patchr.ui.widgets.AirListView;
+import com.patchr.ui.views.MessageView;
+import com.patchr.ui.views.NotificationView;
+import com.patchr.ui.views.PatchView;
+import com.patchr.ui.views.UserView;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Maps;
@@ -63,18 +65,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class EntityListFragment extends BaseFragment
-		implements IBind,
-		           AirListView.OnDragListener,
-		           OnClickListener,
-		           AbsListView.OnScrollListener {
+public class EntityListFragment extends BaseFragment implements OnClickListener {
 
 	/* Widgets */
 	protected AbsListView    mListView;
 	protected View           mLoadingView;
-	protected Fragment       mHeaderFragment;
 	protected View           mHeaderView;
-	protected View           mHeaderCandiView;
 	protected View           mFooterView;
 	protected ListController mListController;
 
@@ -100,7 +96,6 @@ public class EntityListFragment extends BaseFragment
 	protected Boolean mPauseOnFling       = true;
 
 	/* Runtime data */
-	protected Boolean mRecreated = false;
 	protected Integer mPhotoWidthPixels;
 	protected Integer mVisibleColumns = 1;
 	protected Integer mVisibleRows    = 3;
@@ -120,24 +115,12 @@ public class EntityListFragment extends BaseFragment
 	protected Boolean mSelfBind = true;
 	protected Boolean mBound    = false;
 
-	@NonNull
-	protected List<Entity> mEntities  = new ArrayList<>();
-	protected Map          mLinkWhere = Maps.asMap("enabled", true);
-	protected ListAdapter mAdapter;
+	@NonNull protected List<Entity> mEntities  = new ArrayList<>();
+	protected          Map          mLinkWhere = Maps.asMap("enabled", true);
+	protected          ListAdapter  mAdapter   = new ListAdapter(mEntities);
 
-	@Override public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
-			mRecreated = true;
-		}
-		else {
-			mAdapter = new ListAdapter(mEntities);
-		}
-	}
-
-	@SuppressLint("ResourceAsColor")
 	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = super.onCreateView(inflater, container, savedInstanceState);
+		View view = inflater.inflate(mListLayoutResId, container, false);
 		/*
 		 * If the bundle includes state then we know the fragment is being completely
 		 * recreated. Rather than try to restore all the state that was passed in
@@ -164,9 +147,6 @@ public class EntityListFragment extends BaseFragment
 
 		mEmpty = (mAdapter == null || mAdapter.getCount() == 0);
 		mListView = (AbsListView) view.findViewById(R.id.list);
-		if (mListView != null) {
-			((AirListView) mListView).setScrollListener(this);
-		}
 
 		/* Setup list controller */
 		mListController = new ListController();
@@ -201,40 +181,8 @@ public class EntityListFragment extends BaseFragment
 			mLoadingView = LayoutInflater.from(getActivity()).inflate(mListLoadingResId, null);
 		}
 
-		if (mHeaderViewResId != null && mListView != null && mListViewType.equals(ViewType.LIST)) {
-			mHeaderView = inflater.inflate(mHeaderViewResId, mListView, false);
-			if (mParallaxHeader && mListView instanceof AirListView) {
-				((AirListView) mListView).addParallaxedHeaderView(mHeaderView);
-			}
-			else {
-				((ListView) mListView).addHeaderView(mHeaderView);
-			}
-		}
-
-		if (mHeaderFragment != null) {
-			EntityFormFragment headerFragment = (EntityFormFragment) mHeaderFragment;
-			if (headerFragment.getParallax()) {
-				headerFragment.setOnViewCreatedListener(new OnViewCreatedListener() {
-
-					public void onViewCreated(View view) {
-						/*
-						 * Parallax the photo
-						 */
-						if (view != null) {
-							View candiView = view.findViewById(R.id.candi_view);
-							if (candiView != null && mListView instanceof AirListView) {
-								View photo = candiView.findViewById(R.id.photo_view);
-								((AirListView) mListView).addParallaxedView(photo);
-							}
-						}
-					}
-				});
-			}
-
-			getChildFragmentManager()
-					.beginTransaction()
-					.replace(R.id.fragment_holder, mHeaderFragment)
-					.commit();
+		if (mHeaderView != null && mListView != null && mListViewType.equals(ViewType.LIST)) {
+			((ListView) mListView).addHeaderView(mHeaderView);
 		}
 
 		if (mFooterViewResId != null && mListView != null && mListViewType.equals(ViewType.LIST)) {
@@ -247,11 +195,6 @@ public class EntityListFragment extends BaseFragment
 			Integer nudge = mResources.getDimensionPixelSize(R.dimen.grid_item_height_kick);
 			final AbsListView.LayoutParams params = new AbsListView.LayoutParams(mPhotoWidthPixels, mPhotoWidthPixels - nudge);
 			mLoadingView.setLayoutParams(params);
-		}
-
-		/* Pulled from host activity by super */
-		if (mListView != null && mFabEnabled) {
-			((AirListView) mListView).setDragListener(this);
 		}
 
 		/*
@@ -278,80 +221,117 @@ public class EntityListFragment extends BaseFragment
 		super.onActivityCreated(savedInstanceState);
 	}
 
-	@Override public void draw(View view) {
-		mAdapter.notifyDataSetChanged();
-		Dispatcher.getInstance().post(new EntitiesLoadedEvent()); // Used by MessageForm to trigger item highlighting
-	}
-
-	@Override public void bind(final BindingMode mode) {
+	@Override public void onResume() {
 		/*
-		 * Called on resume and externally when a parent entity wants to rebind a related entity list.
-		 * If additional entities have been paged in, we include them as part of the request size.
+		 * Called when fragment is attached and active but might
+		 * not be visible to the user yet. ViewPager has logic to
+		 * pre-create fragments even if they aren't visible yet.
 		 */
-		Logger.v(this, "Binding: " + mode.name());
-		Integer limit = mPageSize;
-		if (mEntities.size() > 0) {
-			limit = (int) Math.ceil((float) mEntities.size() / mPageSize) * mPageSize;
+		super.onResume();
+		if (mListController != null) {
+			/* Slides it in only if it is currently out. */
+			mListController.getFloatingActionController().slideIn(AnimationManager.DURATION_SHORT, 500);
 		}
 
-		fetch(0, limit, mode);
-
-		if (mode != BindingMode.MANUAL) {
-			mListController.getMessageController().showMessage(false);
-		}
-
-		if (!mBound) {
-			mListController.getBusyController().show(IBusy.BusyAction.Refreshing_Empty);
+		if (mSelfBind && getActivity() != null && !getActivity().isFinishing()) {
+			bind(BindingMode.AUTO);
 		}
 	}
 
-	public void fetch(Integer skip, Integer limit, BindingMode mode) {
-		/*
-		 * Sorting is applied to links not the entities on the service side.
-		 */
-		Integer skipCount = ((int) Math.ceil((double) skip / mPageSize) * mPageSize);
-		Cursor cursor = new Cursor()
-				.setLimit(limit)
-				.setSort(Maps.asMap("modifiedDate", -1))
-				.setSkip(skipCount)
-				.setWhere(mLinkWhere)
-				.setDirection(mLinkDirection);
-
-		if (mLinkType != null) {
-			List<String> linkTypes = new ArrayList<>();
-			linkTypes.add(mLinkType);
-			cursor.setLinkTypes(linkTypes);
+	@Override public void onPause() {
+		super.onPause();
+		if (mListController != null) {
+			mListController.pause();
 		}
-
-		Integer linkProfile = LinkSpecType.NO_LINKS;
-		if (mLinkSchema != null) {
-			List<String> toSchemas = new ArrayList<>();
-			toSchemas.add(mLinkSchema);
-			cursor.setToSchemas(toSchemas);
-			IEntityController controller = Patchr.getInstance().getControllerForSchema(mLinkSchema);
-			linkProfile = controller.getLinkProfile();
-		}
-
-		EntitiesRequestEvent request = new EntitiesRequestEvent()
-				.setCursor(cursor)
-				.setLinkProfile(linkProfile);
-
-		request.setActionType(mActionType)
-				.setMode(mode)
-				.setEntityId(mScopingEntityId)
-				.setTag(System.identityHashCode(this));
-
-		if (mBound && mScopingEntity != null && mode != BindingMode.MANUAL) {
-			request.setCacheStamp(mScopingEntity.getCacheStamp());
-		}
-
-		Logger.v(this, "CacheStamp: " + (request.cacheStamp != null ? request.cacheStamp.toString() : "null"));
-
-		Dispatcher.getInstance().post(request);
+		saveListPosition();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void onClick(View view) {
+
+		if (view.getTag() != null) {
+			final Entity entity = (Entity) view.getTag();
+			final Bundle extras = new Bundle();
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+
+			if (entity instanceof Notification) {
+				Notification notification = (Notification) entity;
+				extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Entity.getSchemaForId(notification.targetId));
+				extras.putString(Constants.EXTRA_ENTITY_ID, notification.targetId);
+				extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, notification.parentId);
+			}
+
+			Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
+			return;
+		}
+
+		final Entity entity = (Entity) ((ViewHolder) view.getTag()).data;
+		final Bundle extras = new Bundle();
+
+		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+
+		if (mLinkType != null) {
+			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, mLinkType);
+			extras.putString(Constants.EXTRA_ENTITY_FOR_ID, mScopingEntityId);
+			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mScopingEntityId);
+			Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
+			return;
+		}
+
+		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
+	}
+
+	public void onRefresh() {
+		/*
+		 * Called by refresh action or swipe refresh.
+		 */
+		if (mSelfBind && getActivity() != null && !getActivity().isFinishing()) {
+			saveListPosition();
+			bind(BindingMode.MANUAL);
+		}
+		else {
+			mListController.getBusyController().hide(false);
+		}
+	}
+
+	public void onProcessingComplete(final ResponseCode responseCode) {
+
+		Activity activity = getActivity();
+		if (activity != null && !activity.isFinishing()) {
+			activity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mListController.getBusyController().hide(false);
+					if (getAdapter().getCount() == 0
+							&& mListEmptyMessageResId != null
+							&& (responseCode == null || responseCode == ResponseCode.SUCCESS)) {
+						mListController.getMessageController().setMessage(StringManager.getString(mListEmptyMessageResId));
+						mListController.getMessageController().fadeIn(Constants.TIME_ONE_SECOND);
+					}
+					else {
+						mListController.getMessageController().fadeOut(); // Only fades if currently visible
+					}
+				}
+			});
+		}
+	}
+
+	protected void onNextPageClick(View view) {
+		((ViewSwitcher) mLoadingView.findViewById(R.id.animator_more)).setDisplayedChild(1);
+		fetch(mEntities.size(), mPageSize, BindingMode.MANUAL);
+	}
+
+	@Override public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt(Constants.EXTRA_LIST_ITEM_RESID, mListItemResId);
+		outState.putString(Constants.EXTRA_LIST_VIEW_TYPE, mListViewType);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe public void onDataResult(final DataResultEvent event) {
@@ -434,28 +414,6 @@ public class EntityListFragment extends BaseFragment
 		}
 	}
 
-	public void onProcessingComplete(final ResponseCode responseCode) {
-
-		Activity activity = getActivity();
-		if (activity != null && !activity.isFinishing()) {
-			activity.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					mListController.getBusyController().hide(false);
-					if (getAdapter().getCount() == 0
-							&& mListEmptyMessageResId != null
-							&& (responseCode == null || responseCode == ResponseCode.SUCCESS)) {
-						mListController.getMessageController().setMessage(StringManager.getString(mListEmptyMessageResId));
-						mListController.getMessageController().fadeIn(Constants.TIME_ONE_SECOND);
-					}
-					else {
-						mListController.getMessageController().fadeOut(); // Only fades if currently visible
-					}
-				}
-			});
-		}
-	}
-
 	@Subscribe public void onViewClick(ActionEvent event) {
 		/*
 		 * Base activity broadcasts view clicks that target onViewClick. This lets
@@ -465,32 +423,14 @@ public class EntityListFragment extends BaseFragment
 			Integer id = event.view.getId();
 
 			/* Dynamic button we need to redirect */
-			if (id == R.id.button_alert) {
+			if (id == R.id.action_button) {
 				id = (Integer) event.view.getTag();
 			}
 
-			if (id == R.id.button_more) {
-				onMoreButtonClick(event.view);
+			if (id == R.id.more_button) {
+				onNextPageClick(event.view);
 			}
 		}
-	}
-
-	@Override public void onClick(View v) {
-
-		final Entity entity = (Entity) ((ViewHolder) v.getTag()).data;
-		final Bundle extras = new Bundle();
-
-		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-
-		if (mLinkType != null) {
-			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, mLinkType);
-			extras.putString(Constants.EXTRA_ENTITY_FOR_ID, mScopingEntityId);
-			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, mScopingEntityId);
-			Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
-			return;
-		}
-
-		Patchr.router.route(getActivity(), Route.BROWSE, entity, extras);
 	}
 
 	@Subscribe public void onNotificationReceived(final NotificationReceivedEvent event) {
@@ -509,85 +449,118 @@ public class EntityListFragment extends BaseFragment
 		}
 	}
 
-	@Override public void onRefresh() {
-		/*
-		 * Called by refresh action or swipe refresh.
-		 */
-		if (mSelfBind && getActivity() != null && !getActivity().isFinishing()) {
-			saveListPosition();
-			bind(BindingMode.MANUAL);
-		}
-		else {
-			mListController.getBusyController().hide(false);
-		}
-	}
-
-	@Override public void onViewLayout() {
-		/*
-		 * Position bubble button initially allowing for the
-		 * list header height.
-		 */
-		if (mHeaderView != null) {
-			mListController.getMessageController().position(null, mHeaderView, null);
-			mListController.getBusyController().position(mHeaderView, null);
-		}
-	}
-
-	public boolean onDragEvent(AirListView.DragEvent event, Float dragX, Float dragY) {
-		/*
-		 * Fired by list fragments.
-		 */
-		if (event == AirListView.DragEvent.DRAG) {
-			handleListDrag();
-		}
-		return false;
-	}
-
-	protected void onMoreButtonClick(View view) {
-		((ViewSwitcher) mLoadingView.findViewById(R.id.animator_more)).setDisplayedChild(1);
-		fetch(mEntities.size(), mPageSize, BindingMode.MANUAL);
-	}
-
-	public void handleListDrag() {
-		AirListView.DragDirection direction = ((AirListView) mListView).getDragDirectionLast();
-		if (direction == AirListView.DragDirection.DOWN) {
-			mListController.getFloatingActionController().slideIn(AnimationManager.DURATION_SHORT, 0);
-		}
-		else {
-			mListController.getFloatingActionController().slideOut(AnimationManager.DURATION_SHORT);
-		}
-	}
-
-	public void onDragBottom() {}
-
-	public void onScollToTop() {    // Supposed to be misspelled
-		scrollToTop(mListView);
-	}
-
-	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		//		if (mPauseOnFling) {
-		//			if (scrollState == SCROLL_STATE_IDLE) {
-		//				PicassoManager.shared().resumeTag(mGroupTag);
-		//			}
-		//			else if (scrollState == SCROLL_STATE_FLING) {
-		//				PicassoManager.shared().pauseTag(mGroupTag);
-		//			}
-		//		}
-	}
-
-	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		/* Do nothing */
-	}
-
-	@Override public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putInt(Constants.EXTRA_LIST_ITEM_RESID, mListItemResId);
-		outState.putString(Constants.EXTRA_LIST_VIEW_TYPE, mListViewType);
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	public void draw(View view) {
+		mAdapter.notifyDataSetChanged();
+		Dispatcher.getInstance().post(new EntitiesLoadedEvent()); // Used by MessageForm to trigger item highlighting
+	}
+
+	public void bind(final BindingMode mode) {
+		/*
+		 * Called on resume and externally when a parent entity wants to rebind a related entity list.
+		 * If additional entities have been paged in, we include them as part of the request size.
+		 */
+		Logger.v(this, "Binding: " + mode.name());
+		Integer limit = mPageSize;
+		if (mEntities.size() > 0) {
+			limit = (int) Math.ceil((float) mEntities.size() / mPageSize) * mPageSize;
+		}
+
+		fetch(0, limit, mode);
+
+		if (mode != BindingMode.MANUAL) {
+			mListController.getMessageController().showMessage(false);
+		}
+
+		if (!mBound) {
+			mListController.getBusyController().show(IBusy.BusyAction.Refreshing_Empty);
+		}
+	}
+
+	public void fetch(Integer skip, Integer limit, BindingMode mode) {
+		/*
+		 * Sorting is applied to links not the entities on the service side.
+		 */
+		Integer skipCount = ((int) Math.ceil((double) skip / mPageSize) * mPageSize);
+		Cursor cursor = new Cursor()
+				.setLimit(limit)
+				.setSort(Maps.asMap("modifiedDate", -1))
+				.setSkip(skipCount)
+				.setWhere(mLinkWhere)
+				.setDirection(mLinkDirection);
+
+		if (mLinkType != null) {
+			List<String> linkTypes = new ArrayList<>();
+			linkTypes.add(mLinkType);
+			cursor.setLinkTypes(linkTypes);
+		}
+
+		Integer linkProfile = LinkSpecType.NO_LINKS;
+		if (mLinkSchema != null) {
+			List<String> toSchemas = new ArrayList<>();
+			toSchemas.add(mLinkSchema);
+			cursor.setToSchemas(toSchemas);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(mLinkSchema);
+			linkProfile = controller.getLinkProfile();
+		}
+
+		EntitiesRequestEvent request = new EntitiesRequestEvent()
+				.setCursor(cursor)
+				.setLinkProfile(linkProfile);
+
+		request.setActionType(mActionType)
+				.setMode(mode)
+				.setEntityId(mScopingEntityId)
+				.setTag(System.identityHashCode(this));
+
+		if (mBound && mScopingEntity != null && mode != BindingMode.MANUAL) {
+			request.setCacheStamp(mScopingEntity.getCacheStamp());
+		}
+
+		Logger.v(this, "CacheStamp: " + (request.cacheStamp != null ? request.cacheStamp.toString() : "null"));
+
+		Dispatcher.getInstance().post(request);
+	}
+
+	protected void bindListItem(Entity entity, View view, String groupTag) {
+		if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+			view.setTag(entity);
+			PatchView patchView = (PatchView) view.findViewById(R.id.item_view);
+			patchView.databind(entity);
+		}
+		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+			view.setTag(entity);
+			MessageView messageView = (MessageView) view.findViewById(R.id.item_view);
+			messageView.databind(entity);
+		}
+		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
+			view.setTag(entity);
+			NotificationView notificationView = (NotificationView) view.findViewById(R.id.item_view);
+			notificationView.databind(entity);
+		}
+		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+			view.setTag(entity);
+			UserView userView = (UserView) view.findViewById(R.id.item_view);
+			if (this.mLinkType.equals(Constants.TYPE_LINK_WATCH)) {
+				Entity patch = ((BaseActivity) getActivity()).getEntity();
+				Boolean itemIsOwner = (patch != null && entity.id.equals(patch.ownerId));
+				userView.databind(entity, !itemIsOwner, itemIsOwner);
+				userView.patch = (Patch) patch;
+			}
+			else {
+				userView.databind(entity);
+			}
+		}
+		else {
+			IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
+			controller.bind(entity, view, groupTag);
+		}
+	}
+
+	public void drawHighlights(Entity entity, View view) {}
 
 	protected void injectEntities(ListAdapter adapter) {}
 
@@ -700,10 +673,6 @@ public class EntityListFragment extends BaseFragment
 		return entityId.equals(mScopingEntityId);
 	}
 
-	@Override protected int getLayoutId() {
-		return mListLayoutResId;
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
@@ -743,13 +712,13 @@ public class EntityListFragment extends BaseFragment
 		return this;
 	}
 
-	public EntityListFragment setHeaderViewResId(Integer headerViewResId) {
-		mHeaderViewResId = headerViewResId;
+	public EntityListFragment setHeaderView(View headerView) {
+		mHeaderView = headerView;
 		return this;
 	}
 
-	public EntityListFragment setHeaderFragment(Fragment fragment) {
-		mHeaderFragment = fragment;
+	public EntityListFragment setHeaderViewResId(Integer headerViewResId) {
+		mHeaderViewResId = headerViewResId;
 		return this;
 	}
 
@@ -892,35 +861,6 @@ public class EntityListFragment extends BaseFragment
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override public void onResume() {
-		/*
-		 * Called when fragment is attached and active but might
-		 * not be visible to the user yet. ViewPager has logic to
-		 * pre-create fragments even if they aren't visible yet.
-		 */
-		super.onResume();
-		if (mListController != null) {
-			/* Slides it in only if it is currently out. */
-			mListController.getFloatingActionController().slideIn(AnimationManager.DURATION_SHORT, 500);
-		}
-
-		if (mSelfBind && getActivity() != null && !getActivity().isFinishing()) {
-			bind(BindingMode.AUTO);
-		}
-	}
-
-	@Override public void onPause() {
-		super.onPause();
-		if (mListController != null) {
-			mListController.pause();
-		}
-		saveListPosition();
-	}
-
-	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
@@ -930,8 +870,7 @@ public class EntityListFragment extends BaseFragment
 			super(getActivity(), 0, entities);
 		}
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		@Override public View getView(int position, View convertView, ViewGroup parent) {
 
 			if (mListPagingEnabled
 					&& mMore
@@ -994,8 +933,7 @@ public class EntityListFragment extends BaseFragment
 			return view;
 		}
 
-		@Override
-		public int getCount() {
+		@Override public int getCount() {
 			if (mListPagingEnabled && mMore)
 				return mEntities.size() + 1;
 			else if (mListViewType.equals(ViewType.GRID)) {
@@ -1007,18 +945,15 @@ public class EntityListFragment extends BaseFragment
 			}
 		}
 
-		@Override
-		public Entity getItem(int position) {
+		@Override public Entity getItem(int position) {
 			return mEntities.get(position);
 		}
 
-		@Override
-		public boolean areAllItemsEnabled() {
+		@Override public boolean areAllItemsEnabled() {
 			return false;
 		}
 
-		@Override
-		public boolean isEnabled(int position) {
+		@Override public boolean isEnabled(int position) {
 			return true;
 		}
 
@@ -1026,13 +961,6 @@ public class EntityListFragment extends BaseFragment
 			return mEntities;
 		}
 	}
-
-	protected void bindListItem(Entity entity, View view, String groupTag) {
-		IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
-		controller.bind(entity, view, groupTag);
-	}
-
-	public void drawHighlights(Entity entity, View view) {}
 
 	public static class ViewType {
 		public static String LIST = "list";

@@ -14,7 +14,6 @@ import com.patchr.objects.Patch;
 import com.patchr.objects.Route;
 import com.patchr.ui.base.BaseEdit;
 import com.patchr.ui.base.BaseEntityEdit;
-import com.patchr.utilities.Type;
 
 public class MenuManager {
 
@@ -152,12 +151,7 @@ public class MenuManager {
 		if (entity == null) return true;
 
 		/* Current user is owner */
-		if (entity.isOwnedByCurrentUser() || entity.isOwnedBySystem()) return true;
-
-		/* Locked */
-		if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-			return Type.isFalse(((Patch) entity).locked);
-		}
+		if (entity.isOwnedByCurrentUser()) return true;
 
 		return true;
 	}

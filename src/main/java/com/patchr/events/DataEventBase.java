@@ -1,14 +1,14 @@
 package com.patchr.events;
 
 import com.patchr.components.DataController.ActionType;
-import com.patchr.interfaces.IBind;
+import com.patchr.objects.BindingMode;
 
 @SuppressWarnings("ucd")
 public abstract class DataEventBase {
 
-	public ActionType        actionType;
-	public IBind.BindingMode mode;
-	public Object            tag;          // Uniquely identifies the requestor
+	public ActionType  actionType;
+	public BindingMode mode;
+	public Object      tag;          // Uniquely identifies the requestor
 
 	public DataEventBase() {}
 
@@ -17,7 +17,7 @@ public abstract class DataEventBase {
 		return this;
 	}
 
-	public DataEventBase setMode(IBind.BindingMode mode) {
+	public DataEventBase setMode(BindingMode mode) {
 		this.mode = mode;
 		return this;
 	}

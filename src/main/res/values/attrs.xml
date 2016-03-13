@@ -30,8 +30,9 @@
 
 	<attr name="showBusy" format="boolean" />
 	<attr name="shape" format="string" />
+	<attr name="radius" format="integer" />
 	<attr name="aspectRatio" format="float" />
-	<attr name="sizeCategory" format="enum">
+	<attr name="category" format="enum">
 		<enum name="none" value="0" />
 		<enum name="standard" value="1" />
 		<enum name="thumbnail" value="2" />
@@ -151,17 +152,13 @@
 	<declare-styleable name="AirTextLight">
 		<attr name="textId" />
 	</declare-styleable>
-	<declare-styleable name="PhotoView">
+	<declare-styleable name="ImageLayout">
 		<attr name="aspectRatio" />
 		<attr name="config" />
 		<attr name="showBusy" />
-		<attr name="sizeCategory" />
+		<attr name="category" />
 		<attr name="shape" />
-	</declare-styleable>
-	<declare-styleable name="PxBlurringView">
-		<attr name="blurRadius" format="integer" />
-		<attr name="downsampleFactor" format="integer" />
-		<attr name="overlayColor" format="color" />
+		<attr name="radius" />
 	</declare-styleable>
 	<declare-styleable name="CandiView">
 		<attr name="layoutRef" />

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-	android:id="@+id/item_row"
+<RelativeLayout android:id="@+id/item_row"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
@@ -38,14 +37,15 @@
 			android:visibility="gone" />
 	</LinearLayout>
 
-	<com.patchr.ui.views.EntityPhotoView
+	<com.patchr.ui.views.ImageLayout
 		android:id="@+id/user_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_small"
 		android:layout_height="@dimen/image_small"
 		android:layout_alignTop="@+id/holder_content"
 		android:layout_marginRight="10dp"
-		custom:sizeCategory="profile" />
+		custom:category="profile"
+		custom:shape="round" />
 
 	<LinearLayout
 		android:id="@+id/holder_content"
@@ -88,15 +88,15 @@
 
 		<!-- Photo -->
 
-		<com.patchr.ui.views.PhotoView
-			android:id="@+id/photo_view"
+		<com.patchr.ui.views.ImageLayout
+			android:id="@+id/image_layout"
 			style="@style/selectable_image"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginLeft="2dp"
 			android:layout_marginTop="7dp"
 			custom:aspectRatio="@dimen/aspect_ratio_message_item_image"
-			custom:sizeCategory="standard" />
+			custom:category="standard" />
 
 	</LinearLayout>
 

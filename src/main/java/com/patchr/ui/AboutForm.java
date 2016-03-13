@@ -10,6 +10,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.StringManager;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseActivity;
@@ -33,7 +34,6 @@ public class AboutForm extends BaseActivity {
 		mCopyright = (TextView) findViewById(R.id.copyright);
 	}
 
-	@Override
 	public void bind(BindingMode mode) {
 		draw(null);
 	}

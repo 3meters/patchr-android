@@ -6,13 +6,13 @@
 	android:orientation="horizontal"
 	android:paddingRight="2dp">
 
-	<com.patchr.ui.views.PhotoView
-		android:id="@+id/photo_view"
+	<com.patchr.ui.views.ImageLayout
+		android:id="@+id/image_layout"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_tiny"
 		android:layout_height="@dimen/image_tiny"
 		android:layout_marginRight="3dp"
-		custom:sizeCategory="thumbnail" />
+		custom:category="thumbnail" />
 
 	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/name"

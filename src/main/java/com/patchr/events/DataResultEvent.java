@@ -1,7 +1,7 @@
 package com.patchr.events;
 
 import com.patchr.components.DataController.ActionType;
-import com.patchr.interfaces.IBind;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.Cursor;
 import com.patchr.objects.Entity;
 
@@ -10,15 +10,15 @@ import java.util.List;
 @SuppressWarnings("ucd")
 public class DataResultEvent{
 
-	public ActionType        actionType;
-	public IBind.BindingMode mode;
-	public Object            data;
-	public List<Entity>      entities;       // convenience if data = entities
-	public Entity            entity;         // convenience if data = entity
-	public Entity            scopingEntity;  // Special case for lists
-	public Cursor            cursor;         // The cursor used for the request
-	public Boolean           more;           // used if data = pageable array
-	public Object            tag;            // passed with request
+	public ActionType   actionType;
+	public BindingMode  mode;
+	public Object       data;
+	public List<Entity> entities;       // convenience if data = entities
+	public Entity       entity;         // convenience if data = entity
+	public Entity       scopingEntity;  // Special case for lists
+	public Cursor       cursor;         // The cursor used for the request
+	public Boolean      more;           // used if data = pageable array
+	public Object       tag;            // passed with request
 
 	public DataResultEvent() {}
 
@@ -27,7 +27,7 @@ public class DataResultEvent{
 		return this;
 	}
 
-	public DataResultEvent setMode(IBind.BindingMode mode) {
+	public DataResultEvent setMode(BindingMode mode) {
 		this.mode = mode;
 		return this;
 	}

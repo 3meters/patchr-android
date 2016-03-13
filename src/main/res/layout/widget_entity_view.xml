@@ -5,13 +5,13 @@
 	android:layout_height="wrap_content"
 	android:orientation="horizontal">
 
-	<com.patchr.ui.views.EntityPhotoView
+	<com.patchr.ui.views.ImageLayout
 		android:id="@+id/entity_view_photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_small"
 		android:layout_height="@dimen/image_small"
 		android:layout_marginRight="5dp"
-		custom:sizeCategory="thumbnail" />
+		custom:category="thumbnail" />
 
 	<LinearLayout
 		android:layout_width="wrap_content"

@@ -130,6 +130,9 @@ public class Constants {
 	 * 1007K to 152K.
 	 */
 	public static final int IMAGE_QUALITY_S3                = 70;
+	public static final int MAX_WIDTH_LIST                  = 640;
+	public static final int MAX_WIDTH_FORM                  = 640;
+	public static final int MAX_WIDTH_GRID                  = 1000;
 	/*
 	 * Consistent with 5 megapixel sampled by two.
 	 */

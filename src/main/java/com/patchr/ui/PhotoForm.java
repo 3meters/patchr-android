@@ -26,9 +26,9 @@ import com.patchr.components.MediaManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.interfaces.IBind;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.Photo;
-import com.patchr.objects.PhotoSizeCategory;
+import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.views.UserView;
@@ -45,7 +45,7 @@ import java.io.IOException;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
-public class PhotoForm extends BaseActivity implements IBind {
+public class PhotoForm extends BaseActivity {
 
 	private Photo             mPhoto;
 	private PhotoView         mPhotoView;
@@ -84,13 +84,13 @@ public class PhotoForm extends BaseActivity implements IBind {
 		super.initialize(savedInstanceState);
 
 		mTransitionType = TransitionType.DRILL_TO;
-		mPhotoView = (PhotoView) findViewById(R.id.photo_view);
+		mPhotoView = (PhotoView) findViewById(R.id.image_layout);
 		mPhotoView.setBackgroundColor(Colors.getColor(R.color.background_picture_detail));
 
 		bind(BindingMode.AUTO);
 	}
 
-	@Override public void bind(BindingMode mode) {
+	public void bind(BindingMode mode) {
 
 		final TextView name = (TextView) findViewById(R.id.name);
 		final UserView user = (UserView) findViewById(R.id.author);
@@ -98,15 +98,15 @@ public class PhotoForm extends BaseActivity implements IBind {
 		/* Title */
 		UI.setVisibility(name, View.GONE);
 		if (!TextUtils.isEmpty(mPhoto.getName())) {
-			name.setText(mPhoto.getName());
+			//name.setText(mPhoto.getName());
 			UI.setVisibility(name, View.VISIBLE);
 		}
 
 		/* Author block */
 		UI.setVisibility(user, View.GONE);
-		if (mPhoto.getUser() != null) {
+		if (mPhoto.user != null) {
 			Long createdAt = mPhoto.getCreatedAt() != null ? mPhoto.getCreatedAt().longValue() : null;
-			user.databind(mPhoto.getUser(), createdAt);
+			user.databind(mPhoto.user);
 			UI.setVisibility(user, View.VISIBLE);
 		}
 
@@ -118,7 +118,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncPhotoForm");
 
-				final String url = mPhoto.getUri(PhotoSizeCategory.STANDARD);
+				final String url = mPhoto.uri(PhotoCategory.STANDARD);
 				Bitmap bitmap = null;
 
 				try {
@@ -142,9 +142,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override public void draw(View view) {}
-
-	@Override public void share() {
+	public void share() {
 
 		if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 			UI.showToastNotification("Sharing a photo requires permission to read and write to storage", Toast.LENGTH_SHORT);
@@ -245,7 +243,7 @@ public class PhotoForm extends BaseActivity implements IBind {
 
 			ensurePermissions();
 
-			final PhotoView photoView = (PhotoView) findViewById(R.id.photo_view);
+			final PhotoView photoView = (PhotoView) findViewById(R.id.image_layout);
 			Bitmap bitmap = ((BitmapDrawable) photoView.getDrawable()).getBitmap();
 			File file = MediaManager.copyBitmapToSharePath(bitmap);
 

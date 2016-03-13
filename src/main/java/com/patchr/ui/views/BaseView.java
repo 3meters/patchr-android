@@ -14,7 +14,9 @@ public class BaseView {
 	}
 
 	protected void setOrGone(TextView text, String value) {
-		text.setText(!TextUtils.isEmpty(value) ? Html.fromHtml(value) : null);    // null becomes ""
-		text.setVisibility(TextUtils.isEmpty(value) ? View.GONE : View.VISIBLE);
+		if (text != null) {
+			text.setText(!TextUtils.isEmpty(value) ? Html.fromHtml(value) : null);    // null becomes ""
+			text.setVisibility(TextUtils.isEmpty(value) ? View.GONE : View.VISIBLE);
+		}
 	}
 }

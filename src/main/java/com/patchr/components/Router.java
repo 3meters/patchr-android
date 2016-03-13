@@ -229,7 +229,7 @@ public class Router {
 			final Photo photo = entity.photo;
 			photo.setCreatedAt(entity.modifiedDate.longValue());
 			photo.setName(entity.name);
-			photo.setUser(entity.creator);
+			photo.user = entity.creator;
 			final String jsonPhoto = Json.objectToJson(photo);
 			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
 
@@ -266,7 +266,7 @@ public class Router {
 			final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
 			if (jsonPhoto != null) {
 				final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
-				final String url = photo.getDirectUri();
+				final String url = photo.uriDirect();
 				Uri uri = Uri.parse(url);
 
 				if (AndroidManager.getInstance().isAviaryInstalled()) {

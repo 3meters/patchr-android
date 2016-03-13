@@ -28,8 +28,8 @@
 
 			<!-- User picture -->
 
-			<com.patchr.ui.views.PhotoView
-				android:id="@+id/photo_view"
+			<com.patchr.ui.views.ImageLayout
+				android:id="@+id/image_layout"
 				style="@style/selectable_image"
 				android:layout_width="@dimen/image_extra_large"
 				android:layout_height="@dimen/image_extra_large"
@@ -38,14 +38,14 @@
 				android:clickable="true"
 				android:minWidth="@dimen/image_extra_large"
 				android:onClick="onChangePhotoButtonClick"
-				custom:sizeCategory="standard" />
+				custom:category="standard" />
 
 			<RelativeLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_alignLeft="@+id/photo_view"
-				android:layout_alignRight="@+id/photo_view"
-				android:layout_alignTop="@+id/photo_view"
+				android:layout_alignLeft="@+id/image_layout"
+				android:layout_alignRight="@+id/image_layout"
+				android:layout_alignTop="@+id/image_layout"
 				android:background="@drawable/scrim_medium">
 
 				<com.patchr.ui.widgets.AirTextView
@@ -95,7 +95,7 @@
 				android:id="@+id/holder_body"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_below="@+id/photo_view"
+				android:layout_below="@+id/image_layout"
 				android:layout_marginBottom="8dp"
 				android:orientation="vertical">
 

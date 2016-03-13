@@ -9,14 +9,14 @@
 	android:paddingTop="8dp">
 
 	<RelativeLayout
-		android:id="@+id/action_view"
+		android:id="@+id/action_group"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:background="?attr/backgroundCard"
 		tools:ignore="UselessParent">
 
 		<Button
-			android:id="@+id/button_alert"
+			android:id="@+id/action_button"
 			style="@style/button_flat"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
@@ -26,10 +26,10 @@
 			tools:text="Create a patch" />
 
 		<View
-			android:id="@+id/rule_alert"
+			android:id="@+id/action_rule"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/rule_divider_height"
-			android:layout_below="@+id/button_alert"
+			android:layout_below="@+id/action_button"
 			android:background="?attr/ruleColor" />
 
 	</RelativeLayout>

@@ -18,11 +18,13 @@ import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
+import com.patchr.objects.BindingMode;
 import com.patchr.objects.Document;
+import com.patchr.objects.User;
 import com.patchr.ui.base.BaseEntityEdit;
 import com.patchr.ui.components.SimpleTextWatcher;
+import com.patchr.ui.views.ImageLayout;
 import com.patchr.ui.widgets.AirEditText;
-import com.patchr.ui.views.UserView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -72,7 +74,9 @@ public class ReportEdit extends BaseEntityEdit {
 
 	@Override
 	public void draw(View view) {
-		((UserView) findViewById(R.id.created_by)).databind(UserManager.getInstance().getCurrentUser(), null);
+		User user = UserManager.getInstance().getCurrentUser();
+		((ImageLayout)findViewById(R.id.user_photo)).setImageWithEntity(user);
+		((TextView)findViewById(R.id.user_name)).setText(user.name);
 	}
 
 	/*--------------------------------------------------------------------------------------------

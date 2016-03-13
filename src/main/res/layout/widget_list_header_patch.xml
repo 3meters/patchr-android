@@ -29,14 +29,14 @@
 				custom:layoutRef="@layout/widget_candi_view_patch" />
 
 			<RelativeLayout
-				android:id="@+id/button_holder"
+				android:id="@+id/toolbar"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_alignBottom="@+id/candi_view"
 				android:paddingLeft="70dp">
 
 				<LinearLayout
-					android:id="@+id/button_watching"
+					android:id="@+id/members_button"
 					style="@style/selectable_item"
 					android:layout_width="wrap_content"
 					android:layout_height="@dimen/button_height"
@@ -46,7 +46,7 @@
 					tools:ignore="RelativeOverlap">
 
 					<com.patchr.ui.widgets.AirTextMedium
-						android:id="@+id/watching_count"
+						android:id="@+id/members_count"
 						android:layout_width="wrap_content"
 						android:layout_height="match_parent"
 						android:gravity="center_vertical"
@@ -55,7 +55,7 @@
 						tools:text="12" />
 
 					<com.patchr.ui.widgets.AirTextLight
-						android:id="@+id/watching_label"
+						android:id="@+id/members_label"
 						android:layout_width="wrap_content"
 						android:layout_height="match_parent"
 						android:gravity="center_vertical"
@@ -64,7 +64,7 @@
 				</LinearLayout>
 
 				<ViewAnimator
-					android:id="@+id/button_mute"
+					android:id="@+id/mute_button"
 					android:layout_width="@dimen/button_height"
 					android:layout_height="@dimen/button_height"
 					android:layout_alignParentRight="true"
@@ -72,7 +72,7 @@
 					android:onClick="onViewClick">
 
 					<ImageView
-						android:id="@+id/button_image"
+						android:id="@+id/mute_image"
 						android:layout_width="24dp"
 						android:layout_height="24dp"
 						android:layout_gravity="center"
@@ -83,7 +83,7 @@
 						android:src="@drawable/ic_img_mute_dark" />
 
 					<ProgressBar
-						android:id="@+id/button_progress"
+						android:id="@+id/mute_progress"
 						android:layout_width="24dp"
 						android:layout_height="24dp"
 						android:layout_gravity="center"
@@ -96,7 +96,7 @@
 			</RelativeLayout>
 
 			<ImageView
-				android:id="@+id/button_tune"
+				android:id="@+id/tune_button"
 				style="@style/selectable_image"
 				android:layout_width="@dimen/button_height"
 				android:layout_height="@dimen/button_height"
@@ -136,13 +136,13 @@
 	</ViewAnimator>
 
 	<RelativeLayout
-		android:id="@+id/action_view"
+		android:id="@+id/action_group"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/animator_header">
 
 		<Button
-			android:id="@+id/button_alert"
+			android:id="@+id/action_button"
 			style="@style/button_flat"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
@@ -153,10 +153,10 @@
 			tools:text="Create a patch" />
 
 		<View
-			android:id="@+id/rule_alert"
+			android:id="@+id/action_rule"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/rule_divider_height"
-			android:layout_below="@+id/button_alert"
+			android:layout_below="@+id/action_button"
 			android:background="?attr/ruleColorAccent" />
 
 	</RelativeLayout>

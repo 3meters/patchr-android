@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	xmlns:tools="http://schemas.android.com/tools">
 
 	<RelativeLayout
 		android:id="@+id/card"
@@ -17,19 +15,74 @@
 		android:padding="4dp">
 
 		<android.support.v7.widget.CardView
+			android:id="@+id/card_view"
 			style="@style/selectable_image"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			custom:cardBackgroundColor="?attr/backgroundCard"
 			custom:cardCornerRadius="3dp"
 			custom:cardElevation="2dp"
-			custom:cardUseCompatPadding="true">
+			custom:cardUseCompatPadding="true"
+			custom:contentPadding="8dp">
 
-			<com.patchr.ui.views.CandiView
-				android:id="@+id/candi_view"
+			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				custom:layoutRef="@layout/widget_candi_view_user" />
+				android:baselineAligned="false"
+				android:orientation="horizontal">
+
+				<com.patchr.ui.views.ImageLayout
+					android:id="@+id/user_photo"
+					style="@style/selectable_image"
+					android:layout_width="@dimen/image_medium"
+					android:layout_height="@dimen/image_medium"
+					custom:category="profile"
+					custom:shape="round" />
+
+				<LinearLayout
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical"
+					android:layout_marginLeft="8dp"
+					android:layout_weight="1"
+					android:orientation="vertical">
+
+					<com.patchr.ui.widgets.AirTextLight
+						android:id="@+id/name"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:ellipsize="end"
+						android:singleLine="true"
+						android:textAppearance="?android:attr/textAppearanceLarge"
+						android:textColor="@color/brand_accent_darker"
+						tools:text="Aliza Wenk" />
+
+					<com.patchr.ui.widgets.AirTextView
+						android:id="@+id/email"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:ellipsize="end"
+						android:singleLine="true"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:textColor="?attr/textColorSecondary"
+						android:visibility="gone"
+						tools:text="aliza@3meters.com"
+						tools:visibility="visible" />
+
+					<com.patchr.ui.widgets.AirTextLight
+						android:id="@+id/area"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:ellipsize="end"
+						android:singleLine="true"
+						android:textAllCaps="true"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:textColor="?attr/textColorSecondary"
+						tools:text="Seattle, WA" />
+
+				</LinearLayout>
+
+			</LinearLayout>
 		</android.support.v7.widget.CardView>
 
 	</RelativeLayout>
@@ -41,7 +94,7 @@
 		android:orientation="vertical">
 
 		<com.patchr.ui.widgets.AirTextLight
-			android:id="@+id/button_watching"
+			android:id="@+id/button_member"
 			style="@style/selectable_item"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
@@ -66,7 +119,7 @@
 			android:background="?attr/ruleColor" />
 
 		<com.patchr.ui.widgets.AirTextLight
-			android:id="@+id/button_created"
+			android:id="@+id/button_owner"
 			style="@style/selectable_item"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/form_field_height"
@@ -91,5 +144,5 @@
 			android:background="?attr/ruleColor" />
 
 	</LinearLayout>
-</RelativeLayout>
+</merge>
 

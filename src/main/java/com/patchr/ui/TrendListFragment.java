@@ -1,27 +1,12 @@
 package com.patchr.ui;
 
-import android.view.View;
-import android.widget.TextView;
-
-import com.patchr.Constants;
-import com.patchr.Patchr;
-import com.patchr.R;
 import com.patchr.components.Dispatcher;
-import com.patchr.components.StringManager;
 import com.patchr.events.ActionEvent;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
 import com.patchr.events.DataResultEvent;
 import com.patchr.events.TrendRequestEvent;
-import com.patchr.interfaces.IEntityController;
-import com.patchr.objects.Count;
-import com.patchr.objects.Entity;
-import com.patchr.objects.Link;
-import com.patchr.objects.ViewHolder;
-import com.patchr.utilities.UI;
 import com.squareup.otto.Subscribe;
-
-import java.util.Locale;
 
 public class TrendListFragment extends EntityListFragment {
 
@@ -82,49 +67,9 @@ public class TrendListFragment extends EntityListFragment {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	protected void bindListItem(Entity entity, View view, String groupTag) {
-
-		IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
-
-		ViewHolder holder = (ViewHolder) view.getTag();
-		if (holder == null) {
-			holder = new ViewHolderExtended();
-
-			((ViewHolderExtended) holder).countValue = (TextView) view.findViewById(R.id.count_value);
-			((ViewHolderExtended) holder).countLabel = (TextView) view.findViewById(R.id.count_label);
-
-			controller.bindHolder(view, holder);
-			view.setTag(holder);
-		}
-		holder.data = entity;
-
-		controller.bind(entity, view, groupTag);
-		/*
-		 * Trending data
-		 */
-		if (((ViewHolderExtended) holder).countLabel != null) {
-			((ViewHolderExtended) holder).countLabel.setText(StringManager.getString(mCountLabelResId).toUpperCase(Locale.US));
-		}
-		if (((ViewHolderExtended) holder).countValue != null) {
-			Count messageCount = entity.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, null, Link.Direction.in);
-			((ViewHolderExtended) holder).countValue.setText(String.valueOf(messageCount.count.intValue()));
-		}
-
-		/* Replace index with rank */
-		if (holder.index != null && entity.rank != null) {
-			holder.index.setText(String.valueOf(entity.rank.intValue()));
-			UI.setVisibility(holder.index, View.VISIBLE);
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-
-	public Integer getCountLabelResId() {
-		return mCountLabelResId;
-	}
 
 	public TrendListFragment setCountLabelResId(Integer countLabelResId) {
 		mCountLabelResId = countLabelResId;
@@ -139,18 +84,5 @@ public class TrendListFragment extends EntityListFragment {
 	public TrendListFragment setFromSchema(String fromSchema) {
 		mFromSchema = fromSchema;
 		return this;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
-
-	public class ViewHolderExtended extends ViewHolder {
-		public TextView countValue;
-		public TextView countLabel;
 	}
 }

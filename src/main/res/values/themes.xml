@@ -137,6 +137,12 @@
 
 	</style>
 
+	<!-- Switches -->
+
+	<style name="patchr_switch">
+		<item name="colorControlActivated">@color/brand_primary</item>
+	</style>
+
 	<!-- Spinners -->
 
 	<style name="patchr_spinner" parent="" />

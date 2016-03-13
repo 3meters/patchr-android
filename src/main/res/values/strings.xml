@@ -252,6 +252,7 @@
 	<string name="error_session_invalid">Your session is invalid. Please log in again.</string>
 	<string name="error_email_not_found">The email address could not be found.</string>
 	<string name="error_install_not_found">This email address has not been used with this installation. Please contact support to reset your password</string>
+	<string name="error_forbidden">Insufficient permissions</string>
 
 	<string name="error_signin_failed">Wrong email and password combination.</string>
 	<string name="error_signin_password_incorrect">The password is incorrect.</string>
@@ -393,7 +394,7 @@
 	<string name="label_message_count">Messages</string>
 	<string name="label_watch_count">Members</string>
 	<string name="label_created_by">Created</string>
-	<string name="label_owned_by">[@string/container_singular] owned by</string>
+	<string name="label_owned_by">Patch owned by</string>
 
 	<string name="label_patch_edit_privacy">Privacy</string>
 	<string name="label_patch_privacy_public">Public</string>
@@ -428,13 +429,13 @@
 
 	<string name="label_patch_share_title">Invite people to \'%1$s\' patch using&#8230;</string>
 	<string name="label_patch_share_subject">Invitation to the \'%1$s\' patch</string>
-    <string name="label_patch_share_body">"%1$s has invited you to the %2$s patch! %3$s"</string>
+	<string name="label_patch_share_body">"%1$s has invited you to the %2$s patch! %3$s"</string>
 	<string name="label_patch_share_body_self">"Check out the \'%1$s\' patch!"</string>
 
 	<!-- Labels: Message share -->
 
 	<string name="label_message_share_subject">Patch message posted by %1$s</string>
-    <string name="label_message_share_body">"Check out %1$s\'s message posted to the %2$s patch! %3$s \n"</string>
+	<string name="label_message_share_body">"Check out %1$s\'s message posted to the %2$s patch! %3$s \n"</string>
 	<string name="label_message_share_body_self">"Check out %1$s\'s message to the \'%2$s\' patch!"</string>
 	<string name="label_message_share_body_self_no_patch">"Check out %1$s\'s message to a patch!"</string>
 
@@ -442,7 +443,7 @@
 
 	<string name="label_photo_share_subject">Photo shared by %1$s</string>
 	<string name="label_photo_share_subject_guest">Photo shared from Patchr</string>
-    <string name="label_photo_share_body_self">"Check out this Patchr photo! %1$s \n"</string>
+	<string name="label_photo_share_body_self">"Check out this Patchr photo! %1$s \n"</string>
 
 	<!-- Labels: Empty -->
 
@@ -475,14 +476,15 @@
 	<string name="label_trends_count_active">Messages</string>
 	<string name="label_trends_header_message_active">[@string/container_plural] where people have the most to say.</string>
 
-	<string name="label_watcher_enabled" tools:ignore="UnusedResources">Yes</string>
-	<string name="label_watcher_disabled" tools:ignore="UnusedResources">No</string>
-	<string name="label_watcher_enable" tools:ignore="UnusedResources">Approved:</string>
+	<string name="label_watcher_enabled" tools:ignore="UnusedResources">Approved</string>
+	<string name="label_watcher_not_enabled" tools:ignore="UnusedResources">Waiting</string>
 
 	<string name="label_message_new_message">Post a message to a patch.</string>
 	<string name="label_message_new_to_message">Post a message to: %1$s.</string>
 	<string name="label_message_edit_message">Edit your message to: %1$s.</string>
 	<string name="label_message_shared">Shared by</string>
+
+	<string name="label_message_invite">Invite from</string>
 
 	<string name="label_register_message">You\'ll love Patchr! Join to post messages, create patches and share with your friends.</string>
 	<string name="label_search">Patchr</string>
@@ -548,5 +550,8 @@
 	<string name="dummy_message" tools:ignore="UnusedResources">Ever wonder why fans refuse to use anything else? For more than four days, Patchr has attracted a growing family of loyal, almost zealous customers, known as “Patchniks”.</string>
 	<string name="dummy_description" tools:ignore="UnusedResources">Ever wonder why fans refuse to use anything else? For more than four days, [@string/name_app] has attracted a growing family of loyal, almost zealous customers, known as “Candiniks”. By remaining true to the quality tenets of our founder – emphasizing knowledge, taste, and using the senses to evaluate quality at every step – [@string/name_app] defines the gold standard by which all other proximity applications are judged.</string>
 	<string name="dummy_username" tools:ignore="UnusedResources">jay.massena</string>
+
+	<!-- TODO: Remove or change this placeholder text -->
+	<string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

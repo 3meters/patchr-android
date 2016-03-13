@@ -5,12 +5,12 @@
 	android:layout_height="wrap_content"
 	android:padding="2dp">
 
-	<com.patchr.ui.views.PhotoView
-		android:id="@+id/photo_view"
+	<com.patchr.ui.views.ImageLayout
+		android:id="@+id/image_layout"
 		style="@style/selectable_image"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:adjustViewBounds="true"
-		custom:sizeCategory="thumbnail" />
+		custom:category="thumbnail" />
 
 </FrameLayout>

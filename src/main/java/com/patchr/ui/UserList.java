@@ -1,11 +1,10 @@
 package com.patchr.ui;
 
-import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.widget.CompoundButton;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -13,13 +12,11 @@ import com.patchr.R;
 import com.patchr.components.DataController;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
-import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.events.ProcessingCompleteEvent;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Route;
-import com.patchr.objects.Shortcut;
 import com.patchr.ui.EntityListFragment.ViewType;
 import com.patchr.ui.base.BaseActivity;
 import com.patchr.utilities.Dialogs;
@@ -27,6 +24,8 @@ import com.patchr.utilities.Errors;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.Maps;
 import com.squareup.otto.Subscribe;
+
+import static com.patchr.objects.BindingMode.AUTO;
 
 @SuppressWarnings("ucd")
 public class UserList extends BaseActivity {
@@ -38,8 +37,7 @@ public class UserList extends BaseActivity {
 	protected Integer mListItemResId;
 	protected Integer mListEmptyMessageResId;
 
-	@Override
-	public void unpackIntent() {
+	@Override public void unpackIntent() {
 		super.unpackIntent();
 
 		final Bundle extras = getIntent().getExtras();
@@ -53,11 +51,87 @@ public class UserList extends BaseActivity {
 		}
 	}
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
+	@Override protected void onResume() {
+		super.onResume();
+		draw(null);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe public void onProcessingComplete(ProcessingCompleteEvent event) {
+		/*
+		 * Gets called direct at the activity level and receives
+		 * events from fragments.
+		 */
+		mProcessing = false;
+		mUiController.getBusyController().hide(false);
+	}
+
+	@Override public void onRefresh() {
+		/*
+		 * Called from swipe refresh or routing. Always treated
+		 * as an aggresive refresh.
+		 */
+		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
+			((EntityListFragment) mCurrentFragment).onRefresh();
+		}
+	}
+
+	public void onShareButtonClick(View view) {
+		Patchr.router.route(this, Route.SHARE, mEntity, null);
+	}
+
+	public void onDeleteRequestClick(View view) {
+
+		final Entity entity = (Entity) view.getTag();
+		Integer messageResId = entity.linkEnabled
+		                       ? R.string.dialog_decline_approved_private_message
+		                       : R.string.dialog_decline_requested_private_message;
+		Integer okResId = entity.linkEnabled
+		                  ? R.string.dialog_decline_approved_private_ok
+		                  : R.string.dialog_decline_requested_private_ok;
+		Integer cancelResId = entity.linkEnabled
+		                      ? R.string.dialog_decline_approved_private_cancel
+		                      : R.string.dialog_decline_requested_private_cancel;
+
+		/* Confirm a decline since the user won't be able to undo */
+		final AlertDialog declineDialog = Dialogs.alertDialog(null
+				, null
+				, StringManager.getString(messageResId)
+				, null
+				, this
+				, okResId
+				, cancelResId
+				, null
+				, new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							removeMember(entity.id);
+							dialog.dismiss();
+						}
+						else if (which == DialogInterface.BUTTON_NEGATIVE) {
+							dialog.dismiss();
+						}
+					}
+				}
+				, null);
+
+		declineDialog.setCanceledOnTouchOutside(false);
+		declineDialog.show();
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mCurrentFragment = new UserListFragment();
+		mCurrentFragment = new EntityListFragment();
 
 		((EntityListFragment) mCurrentFragment)
 				.setScopingEntityId(mEntityId)
@@ -84,136 +158,14 @@ public class UserList extends BaseActivity {
 				.commit();
 	}
 
-	@Override
-	public void draw(View view) {
+	@Override public void draw(View view) {
 		Integer titleResId = ((EntityListFragment) mCurrentFragment).getTitleResId();
 		if (titleResId != null) {
 			setActivityTitle(StringManager.getString(titleResId));
 		}
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
-		/*
-		 * Gets called direct at the activity level and receives
-		 * events from fragments.
-		 */
-		mProcessing = false;
-		mUiController.getBusyController().hide(false);
-	}
-
-	@Override
-	public void onRefresh() {
-		/*
-		 * Called from swipe refresh or routing. Always treated
-		 * as an aggresive refresh.
-		 */
-		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
-			((EntityListFragment) mCurrentFragment).onRefresh();
-		}
-	}
-
-	public void onShareButtonClick(View view) {
-		Patchr.router.route(this, Route.SHARE, mEntity, null);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onApprovedClick(View view) {
-		Entity fromEntity = (Entity) view.getTag();
-		Boolean approved = ((CompoundButton) view).isChecked();
-		approveMember(fromEntity, fromEntity.linkId, fromEntity.id, mEntity.id, approved);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onDeleteRequestClick(View view) {
-
-		final Entity entity = (Entity) view.getTag();
-		Integer messageResId = entity.linkEnabled
-		                       ? R.string.dialog_decline_approved_private_message
-		                       : R.string.dialog_decline_requested_private_message;
-		Integer okResId = entity.linkEnabled
-		                  ? R.string.dialog_decline_approved_private_ok
-		                  : R.string.dialog_decline_requested_private_ok;
-		Integer cancelResId = entity.linkEnabled
-		                      ? R.string.dialog_decline_approved_private_cancel
-		                      : R.string.dialog_decline_requested_private_cancel;
-
-		/* Confirm a decline since the user won't be able to undo */
-		final AlertDialog declineDialog = Dialogs.alertDialog(null
-				, null
-				, StringManager.getString(messageResId)
-				, null
-				, this
-				, okResId
-				, cancelResId
-				, null
-				, new DialogInterface.OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_POSITIVE) {
-					deleteMember(entity.id);
-					dialog.dismiss();
-				}
-				else if (which == DialogInterface.BUTTON_NEGATIVE) {
-					dialog.dismiss();
-				}
-			}
-		}
-				, null);
-
-		declineDialog.setCanceledOnTouchOutside(false);
-		declineDialog.show();
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	public void approveMember(final Entity entity, final String linkId, final String fromId, final String toId, final Boolean enabled) {
-
-		final String actionEvent = (enabled ? "approve" : "unapprove") + "_watch_entity";
-		final Shortcut toShortcut = new Shortcut();
-		toShortcut.schema = Constants.SCHEMA_ENTITY_PATCH;
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncStatusUpdate");
-				return DataController.getInstance().insertLink(linkId
-						, fromId
-						, toId
-						, Constants.TYPE_LINK_WATCH
-						, enabled
-						, toShortcut, actionEvent, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null
-				);
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				if (isFinishing()) return;
-				ModelResult result = (ModelResult) response;
-
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					entity.linkEnabled = enabled;
-				}
-				else {
-					Errors.handleError(UserList.this, result.serviceResponse);
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	public void deleteMember(final String fromId) {
+	public void removeMember(final String fromId) {
 
 		final String actionEvent = "declined_watch_entity";
 
@@ -234,8 +186,8 @@ public class UserList extends BaseActivity {
 			protected void onPostExecute(Object response) {
 				if (isFinishing()) return;
 				ModelResult result = (ModelResult) response;
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					((EntityListFragment) mCurrentFragment).bind(BindingMode.AUTO);
+				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+					((EntityListFragment) mCurrentFragment).bind(AUTO);
 				}
 				else {
 					if (result.serviceResponse.statusCodeService != null
@@ -247,18 +199,11 @@ public class UserList extends BaseActivity {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return R.layout.watcher_list;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Lifecycle
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		draw(null);
-	}
 }

@@ -91,8 +91,7 @@ public class Messages extends EntityControllerBase {
 
 		UI.setVisibility(holder.userPhotoView, View.GONE);
 		if (holder.userPhotoView != null && entity.creator != null) {
-			holder.userPhotoView.databind(entity.creator);
-			holder.userPhotoView.setGroupTag(groupTag);
+			holder.userPhotoView.setImageWithEntity(entity.creator);
 			holder.userPhotoView.setTag(entity.creator);
 			UI.setVisibility(holder.userPhotoView, View.VISIBLE);
 		}
@@ -168,12 +167,8 @@ public class Messages extends EntityControllerBase {
 
 			if (holder.photoView != null) {
 				if (entity.photo != null) {
-					final Photo photo = entity.getPhoto();
-					if (holder.photoView.getPhoto() == null || !photo.getDirectUri().equals(holder.photoView.getPhoto().getDirectUri())) {
-						holder.photoView.setTag(photo);
-						holder.photoView.setGroupTag(groupTag);
-						UI.drawPhoto(holder.photoView, photo);
-					}
+					final Photo photo = entity.photo;
+					holder.photoView.setImageWithPhoto(photo);
 					UI.setVisibility(holder.photoView, View.VISIBLE);
 				}
 			}
@@ -201,7 +196,7 @@ public class Messages extends EntityControllerBase {
 	public void bindHolder(View view, ViewHolder holder) {
 		((ViewHolderExtended) holder).likesCount = (TextView) view.findViewById(R.id.likes_count);
 		((ViewHolderExtended) holder).likesLabel = (TextView) view.findViewById(R.id.likes_label);
-		((ViewHolderExtended) holder).buttonLikes = view.findViewById(R.id.button_message_likes);
+		((ViewHolderExtended) holder).buttonLikes = view.findViewById(R.id.button_likes);
 		((ViewHolderExtended) holder).shareHolder = view.findViewById(R.id.share_holder);
 		super.bindHolder(view, holder);
 	}

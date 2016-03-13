@@ -27,16 +27,16 @@ public class EntityView extends LinearLayout implements Target {
 	/*
 	 * Only used for addressee tokens in message form and edit
 	 */
-	private ViewGroup       mBoundView;
-	private EntityPhotoView mPhotoView;
-	private TextView        mName;
-	private TextView        mSubtitle;
-	private TextView        mLabel;
-	private ImageView       mButtonDelete;
-	private Entity          mEntity;
-	private Integer         mLabelResId;
-	private Integer         mLayoutResId;
-	private View            mParentView;
+	private ViewGroup   mBoundView;
+	private ImageLayout mPhotoView;
+	private TextView    mName;
+	private TextView    mSubtitle;
+	private TextView    mLabel;
+	private ImageView   mButtonDelete;
+	private Entity      mEntity;
+	private Integer     mLabelResId;
+	private Integer     mLayoutResId;
+	private View        mParentView;
 	private Boolean mAnimateDisabled = false;
 
 	public EntityView(Context context) {
@@ -69,7 +69,7 @@ public class EntityView extends LinearLayout implements Target {
 		if (mLayoutResId != null) {
 			removeAllViews();
 			mBoundView = (ViewGroup) LayoutInflater.from(getContext()).inflate(mLayoutResId, this, true);
-			mPhotoView = (EntityPhotoView) mBoundView.findViewById(R.id.entity_view_photo);
+			mPhotoView = (ImageLayout) mBoundView.findViewById(R.id.entity_view_photo);
 			mName = (TextView) mBoundView.findViewById(R.id.entity_view_name);
 			mSubtitle = (TextView) mBoundView.findViewById(R.id.entity_view_subtitle);
 			mLabel = (TextView) mBoundView.findViewById(R.id.entity_view_label);
@@ -113,8 +113,8 @@ public class EntityView extends LinearLayout implements Target {
 			}
 
 			if (mPhotoView != null) {
-				mPhotoView.databind(mEntity);
-				mPhotoView.setTag(mEntity.getPhoto());
+				mPhotoView.setImageWithEntity(mEntity);
+				mPhotoView.setTag(mEntity.photo);
 			}
 		}
 	}
@@ -129,13 +129,13 @@ public class EntityView extends LinearLayout implements Target {
 	     */
 		final BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
 		if (mAnimateDisabled) {
-			mPhotoView.getImageView().setImageDrawable(bitmapDrawable);
+			mPhotoView.imageView.setImageDrawable(bitmapDrawable);
 			if (mParentView != null) {
 				mParentView.invalidate();
 			}
 		}
 		else {
-			UI.showDrawableInImageView(bitmapDrawable, mPhotoView.getImageView(), Constants.ANIMATE_IMAGES);
+			UI.showDrawableInImageView(bitmapDrawable, mPhotoView.imageView, Constants.ANIMATE_IMAGES);
 		}
 	}
 
@@ -157,7 +157,7 @@ public class EntityView extends LinearLayout implements Target {
 		mLayoutResId = layoutResId;
 	}
 
-	public PhotoView getPhotoView() {
+	public ImageLayout getPhotoView() {
 		return mPhotoView;
 	}
 

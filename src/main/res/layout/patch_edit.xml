@@ -62,22 +62,22 @@
 				android:layout_marginBottom="8dp"
 				tools:visibility="gone">
 
-				<com.patchr.ui.views.PhotoView
-					android:id="@+id/photo_view"
+				<com.patchr.ui.views.ImageLayout
+					android:id="@+id/image_layout"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginLeft="4dp"
 					android:layout_marginRight="4dp"
 					custom:aspectRatio="@dimen/aspect_ratio_patch_image"
-					custom:sizeCategory="standard"
+					custom:category="standard"
 					tools:src="@drawable/img_default_patch" />
 
 				<RelativeLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_alignLeft="@+id/photo_view"
-					android:layout_alignRight="@+id/photo_view"
-					android:layout_alignTop="@+id/photo_view"
+					android:layout_alignLeft="@+id/image_layout"
+					android:layout_alignRight="@+id/image_layout"
+					android:layout_alignTop="@+id/image_layout"
 					android:background="@drawable/scrim_medium">
 
 					<com.patchr.ui.widgets.AirTextView
@@ -350,7 +350,7 @@
 			<!-- Do it! -->
 
 			<RelativeLayout
-				android:id="@+id/button_holder"
+				android:id="@+id/toolbar"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="16dp"
