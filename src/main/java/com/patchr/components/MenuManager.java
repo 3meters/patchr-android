@@ -12,8 +12,7 @@ import com.patchr.objects.Link;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Route;
-import com.patchr.ui.base.BaseEdit;
-import com.patchr.ui.base.BaseEntityEdit;
+import com.patchr.ui.edit.BaseEdit;
 
 public class MenuManager {
 
@@ -31,12 +30,9 @@ public class MenuManager {
 		 */
 		switch (activityName) {
 			case "AircandiForm":
-				if (UserManager.getInstance().authenticated()) {
-					menuInflater.inflate(R.menu.menu_notifications, menu);
-				}
 				return true;
 			case "MapForm":
-				menuInflater.inflate(R.menu.menu_sign_in, menu);
+				menuInflater.inflate(R.menu.menu_log_in, menu);
 				menuInflater.inflate(R.menu.menu_navigate, menu);
 				return true;
 			case "MessageForm":
@@ -68,14 +64,14 @@ public class MenuManager {
 		/* Editing */
 
 		if (activityName.contains("PatchEdit")) {
-			if (((BaseEntityEdit) activity).isEditing()) {
+			if (((BaseEdit) activity).editing) {
 				menuInflater.inflate(R.menu.menu_save, menu);
 			}
 			menuInflater.inflate(R.menu.menu_delete_patch, menu);
 			return true;
 		}
 		else if (activityName.contains("MessageEdit")) {
-			Boolean editing = ((BaseEdit) activity).isEditing();
+			Boolean editing = ((BaseEdit) activity).editing;
 			if (editing) {
 				menuInflater.inflate(R.menu.menu_save, menu);
 				menuInflater.inflate(R.menu.menu_delete, menu);
@@ -86,7 +82,7 @@ public class MenuManager {
 			return true;
 		}
 		else if (activityName.equals("SignInEdit")) {
-			menuInflater.inflate(R.menu.menu_sign_in, menu);
+			menuInflater.inflate(R.menu.menu_log_in, menu);
 			menuInflater.inflate(R.menu.menu_accept, menu);
 			return true;
 		}
@@ -125,29 +121,29 @@ public class MenuManager {
 
 	@NonNull
 	public static Boolean canUserEdit(Entity entity) {
-		return UserManager.getInstance().authenticated() && entity != null && (entity.isOwnedByCurrentUser());
+		return UserManager.shared().authenticated() && entity != null && (entity.isOwnedByCurrentUser());
 	}
 
 	@NonNull
 	public static Boolean canUserDelete(Entity entity) {
-		return UserManager.getInstance().authenticated() && entity != null && (entity.isOwnedByCurrentUser());
+		return UserManager.shared().authenticated() && entity != null && (entity.isOwnedByCurrentUser());
 	}
 
 	@NonNull
 	public static Boolean canUserRemoveFromPatch(Entity entity) {
-		if (!UserManager.getInstance().authenticated()) return false;
+		if (!UserManager.shared().authenticated()) return false;
 		if (entity == null) return false;
 		if (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE)) return false;
 
 		Link patchLink = entity.getLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH, entity.patchId, Direction.out);
 		return patchLink != null
-				&& patchLink.ownerId.equals(UserManager.getInstance().getCurrentUser().id)
-				&& !entity.ownerId.equals(UserManager.getInstance().getCurrentUser().id);
+				&& patchLink.ownerId.equals(UserManager.currentUser.id)
+				&& !entity.ownerId.equals(UserManager.currentUser.id);
 	}
 
 	@NonNull
 	public static Boolean canUserAdd(Entity entity) {
-		if (!UserManager.getInstance().authenticated()) return false;
+		if (!UserManager.shared().authenticated()) return false;
 		if (entity == null) return true;
 
 		/* Current user is owner */
@@ -163,7 +159,7 @@ public class MenuManager {
 		 * can share a public patch. For messages, we assume that if
 		 * you can see the message you have the ability to share it.
 		 */
-		if (!UserManager.getInstance().authenticated()) return false;
+		if (!UserManager.shared().authenticated()) return false;
 		if (entity == null) return false;
 
 		if (!(entity instanceof Patch)) {
@@ -175,25 +171,12 @@ public class MenuManager {
 		}
 	}
 
-	public static boolean showAction(Integer route, Entity entity, String forId) {
+	public static boolean showAction(Integer route, Entity entity) {
 
 		if (entity == null)
 			return false;
-		else if (route == Route.ADD) {
-			if (entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE))
-				return true;
-		}
-		else if (route == Route.REMOVE) {
-			if (forId == null) return false;
-			String forSchema = Entity.getSchemaForId(forId);
-			/*
-			 * Message can be listed for patches or current user.
-		     */
-			if (forSchema == null || forSchema.equals(Constants.SCHEMA_ENTITY_USER))
-				return false;
-			else
-				return canUserRemoveFromPatch(entity);
-		}
+		else if (route == Route.REMOVE)
+			return canUserRemoveFromPatch(entity);
 		else if (route == Route.EDIT)
 			return canUserEdit(entity);
 		else if (route == Route.DELETE)

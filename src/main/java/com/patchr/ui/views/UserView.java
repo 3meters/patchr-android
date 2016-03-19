@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.patchr.Constants;
@@ -98,6 +99,9 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 
 		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
+
+		ListView.LayoutParams params = new ListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		this.setLayoutParams(params);
 
 		this.userPhoto = (ImageLayout) layout.findViewById(R.id.user_photo);
 		this.name = (TextView) layout.findViewById(R.id.name);

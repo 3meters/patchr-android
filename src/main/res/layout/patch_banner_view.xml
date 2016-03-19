@@ -112,7 +112,6 @@
 				android:layout_height="@dimen/button_height"
 				android:layout_alignParentLeft="true"
 				android:clickable="true"
-				android:onClick="onViewClick"
 				android:padding="10dp"
 				android:scaleType="fitCenter"
 				android:src="@drawable/ic_action_signal_dark"
@@ -129,7 +128,6 @@
 				android:layout_centerVertical="true"
 				android:layout_marginLeft="70dp"
 				android:layout_marginStart="70dp"
-				android:onClick="onViewClick"
 				android:orientation="horizontal"
 				tools:ignore="RelativeOverlap">
 
@@ -155,9 +153,8 @@
 				android:id="@+id/mute_button"
 				android:layout_width="@dimen/button_height"
 				android:layout_height="@dimen/button_height"
-				android:layout_toLeftOf="@+id/more_button"
-				android:clickable="true"
-				android:onClick="onViewClick">
+				android:layout_toLeftOf="@+id/next_page_button"
+				android:clickable="true">
 
 				<ImageView
 					android:id="@+id/mute_image"
@@ -182,13 +179,12 @@
 			</ViewAnimator>
 
 			<ImageView
-				android:id="@+id/more_button"
+				android:id="@+id/next_page_button"
 				style="@style/selectable_image"
 				android:layout_width="@dimen/button_height"
 				android:layout_height="@dimen/button_height"
 				android:layout_alignParentRight="true"
 				android:clickable="true"
-				android:onClick="onViewClick"
 				android:padding="10dp"
 				android:scaleType="fitCenter"
 				android:src="@drawable/ic_action_overflow_dark"

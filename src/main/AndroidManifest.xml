@@ -245,7 +245,7 @@
 		</activity>
 
 		<activity
-			android:name=".ui.PatchForm"
+			android:name=".ui.PatchScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:parentActivityName=".ui.AircandiForm"
 			android:windowSoftInputMode="stateHidden">
@@ -256,7 +256,7 @@
 		</activity>
 
 		<activity
-			android:name=".ui.MessageForm"
+			android:name=".ui.MessageScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:parentActivityName=".ui.AircandiForm"
 			android:windowSoftInputMode="stateHidden">
@@ -267,7 +267,7 @@
 		</activity>
 
 		<activity
-			android:name=".ui.UserForm"
+			android:name=".ui.UserScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_user_form"
 			android:windowSoftInputMode="stateHidden" />

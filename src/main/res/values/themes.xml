@@ -78,6 +78,7 @@
 		<item name="backgroundPlaceholder">@color/background_placeholder</item>
 		<item name="backgroundRound">@drawable/bg_round</item>
 		<item name="backgroundRoundPlaceholder">@drawable/bg_round_placeholder</item>
+		<item name="backgroundRoundedPlaceholder">@drawable/bg_rounded_placeholder</item>
 		<item name="backgroundToken">@drawable/selector_token</item>
 
 		<!-- Images and icons -->

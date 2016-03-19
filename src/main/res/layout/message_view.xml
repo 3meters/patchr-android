@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools">
+       xmlns:custom="http://schemas.android.com/apk/res-auto"
+       xmlns:tools="http://schemas.android.com/tools">
 
 	<RelativeLayout
+		android:id="@+id/message"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
@@ -32,14 +33,11 @@
 
 		<com.patchr.ui.views.ImageLayout
 			android:id="@+id/user_photo"
-			style="@style/selectable_image"
 			android:layout_width="@dimen/image_small"
 			android:layout_height="@dimen/image_small"
 			android:layout_alignTop="@+id/holder_content"
 			android:layout_marginRight="10dp"
 			android:layout_marginTop="2dp"
-			android:clickable="true"
-			android:onClick="onViewClick"
 			custom:category="profile"
 			custom:shape="round" />
 
@@ -93,7 +91,7 @@
 			<!-- Photo -->
 
 			<com.patchr.ui.views.ImageLayout
-				android:id="@+id/image_layout"
+				android:id="@+id/photo"
 				style="@style/selectable_image"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -101,7 +99,7 @@
 				android:layout_marginLeft="2dp"
 				android:layout_marginTop="12dp"
 				android:clickable="true"
-				android:onClick="onPhotoClick"
+				android:onClick="onClick"
 				custom:aspectRatio="@dimen/aspect_ratio_message_item_image"
 				custom:category="standard" />
 
@@ -121,7 +119,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:clickable="true"
-					android:onClick="onViewClick"
+					android:onClick="onClick"
 					custom:cardBackgroundColor="?attr/backgroundButtonShare"
 					custom:cardCornerRadius="3dp"
 					custom:cardElevation="2dp"

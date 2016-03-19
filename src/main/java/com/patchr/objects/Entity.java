@@ -160,8 +160,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@NonNull
 	public Boolean isOwnedByCurrentUser() {
 		Boolean owned = (ownerId != null
-				&& UserManager.getInstance().authenticated()
-				&& ownerId.equals(UserManager.getInstance().getCurrentUser().id));
+				&& UserManager.shared().authenticated()
+				&& ownerId.equals(UserManager.currentUser.id));
 		return owned;
 	}
 
@@ -569,12 +569,12 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public Link linkFromAppUser(String linkType) {
-		if (UserManager.getInstance().authenticated()) {
+		if (UserManager.shared().authenticated()) {
 			if (linksIn != null) {
 				for (Link link : linksIn) {
 					if (link.type != null
 							&& link.type.equals(linkType)
-							&& link.fromId.equals(UserManager.getInstance().getCurrentUser().id))
+							&& link.fromId.equals(UserManager.currentUser.id))
 						return link;
 				}
 			}
@@ -583,13 +583,13 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public Link linkByAppUser(String linkType, String schema) {
-		if (UserManager.getInstance().authenticated()) {
+		if (UserManager.shared().authenticated()) {
 			if (linksIn != null) {
 				for (Link link : linksIn) {
 					if (link.type != null
 							&& link.type.equals(linkType)
 							&& link.targetSchema.equals(schema)
-							&& link.creatorId.equals(UserManager.getInstance().getCurrentUser().id))
+							&& link.creatorId.equals(UserManager.currentUser.id))
 						return link;
 				}
 			}
@@ -598,7 +598,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 					if (link.type != null
 							&& link.type.equals(linkType)
 							&& link.targetSchema.equals(schema)
-							&& link.creatorId.equals(UserManager.getInstance().getCurrentUser().id))
+							&& link.creatorId.equals(UserManager.currentUser.id))
 						return link;
 				}
 			}

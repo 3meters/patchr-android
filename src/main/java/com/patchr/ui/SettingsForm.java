@@ -3,7 +3,6 @@ package com.patchr.ui;
 import android.os.Bundle;
 
 import com.patchr.R;
-import com.patchr.ui.base.BaseActivity;
 
 @SuppressWarnings("deprecation")
 public class SettingsForm extends BaseActivity {
@@ -12,10 +11,10 @@ public class SettingsForm extends BaseActivity {
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mCurrentFragment = new SettingsFragment();
+		currentFragment = new SettingsFragment();
 		getSupportFragmentManager()
 				.beginTransaction()
-				.add(R.id.fragment_holder, mCurrentFragment)
+				.add(R.id.fragment_holder, currentFragment)
 				.commit();
 	}
 

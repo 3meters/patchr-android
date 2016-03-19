@@ -8,6 +8,7 @@ import android.widget.ScrollView;
 
 import com.patchr.Constants;
 import com.patchr.R;
+import com.patchr.utilities.UI;
 
 public class AirScrollView extends ScrollView {
 
@@ -39,9 +40,10 @@ public class AirScrollView extends ScrollView {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measuredWidth = MeasureSpec.getSize(widthMeasureSpec);
-		if (mMaxWidth != null && mMaxWidth > 0 && mMaxWidth < measuredWidth) {
+		int maxWidth = UI.getRawPixelsForDisplayPixels((float) Constants.MAX_WIDTH_FORM);
+		if (maxWidth < measuredWidth) {
 			int measureMode = MeasureSpec.getMode(widthMeasureSpec);
-			widthMeasureSpec = MeasureSpec.makeMeasureSpec(mMaxWidth, measureMode);
+			widthMeasureSpec = MeasureSpec.makeMeasureSpec(maxWidth, measureMode);
 		}
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}

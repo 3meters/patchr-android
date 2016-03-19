@@ -3,23 +3,22 @@ package com.patchr.components;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.DetectedActivity;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.events.ActivityStateEvent;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.DetectedActivity;
 
 @SuppressWarnings("ucd")
 public class ActivityRecognitionManager implements
@@ -110,19 +109,6 @@ public class ActivityRecognitionManager implements
 					Reporting.logException(e);
 					mGoogleApiClient.connect();
 				}
-			}
-			else {
-			/* Display a dialog to the user with the error. */
-				AndroidManager.showPlayServicesErrorDialog(result.getErrorCode()
-						, Patchr.getInstance().getCurrentActivity()
-						, new DialogInterface.OnDismissListener() {
-
-					@Override
-					public void onDismiss(DialogInterface dialog) {
-						mResolvingError = false;
-					}
-				});
-				mResolvingError = true;
 			}
 		}
 	}

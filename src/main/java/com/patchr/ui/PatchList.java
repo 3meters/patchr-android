@@ -6,97 +6,67 @@ import android.view.View;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.DataController;
-import com.patchr.components.StringManager;
+import com.patchr.components.Dispatcher;
 import com.patchr.events.ProcessingCompleteEvent;
-import com.patchr.objects.Link.Direction;
-import com.patchr.ui.EntityListFragment.ViewType;
-import com.patchr.ui.base.BaseActivity;
-import com.patchr.utilities.Integers;
-import com.squareup.otto.Subscribe;
+import com.patchr.objects.Entity;
+import com.patchr.ui.fragments.EntityListFragment;
+
+import org.greenrobot.eventbus.Subscribe;
 
 @SuppressWarnings("ucd")
 public class PatchList extends BaseActivity {
 	/*
 	 * Thin wrapper around a list fragment.
 	 */
-	protected String  mListLinkType;
-	protected Integer mListTitleResId;
-	protected Integer mListEmptyMessageResId;
+	protected String  listLinkType;
+	protected Integer listTitleResId;
+	protected Integer listEmptyMessageResId;
+	private   Entity  entity;
+	private   String  entityId;
 
-	@Override
-	public void unpackIntent() {
+	@Override public void unpackIntent() {
 		super.unpackIntent();
 
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-			mEntity = DataController.getStoreEntity(mEntityId);
-			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
-			mListTitleResId = extras.getInt(Constants.EXTRA_LIST_TITLE_RESID);
-			mListEmptyMessageResId = extras.getInt(Constants.EXTRA_LIST_EMPTY_RESID);
+			this.entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
+			this.entity = DataController.getStoreEntity(this.entityId);
+			listLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
+			listTitleResId = extras.getInt(Constants.EXTRA_LIST_TITLE_RESID);
+			listEmptyMessageResId = extras.getInt(Constants.EXTRA_LIST_EMPTY_RESID);
 		}
 	}
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-
-		mCurrentFragment = new EntityListFragment();
-
-		((EntityListFragment) mCurrentFragment)
-				.setScopingEntityId(mEntityId)
-				.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
-				.setLinkType(mListLinkType)
-				.setLinkDirection(Direction.out.name())
-				.setPageSize(Integers.getInteger(R.integer.page_size_entities))
-				.setShowIndex(false)
-				.setListPagingEnabled(true)
-				.setListViewType(ViewType.LIST)
-				.setListLayoutResId(R.layout.patch_list_fragment)
-				.setListLoadingResId(R.layout.temp_listitem_loading)
-				.setListItemResId(R.layout.temp_listitem_patch)
-				.setListEmptyMessageResId(mListEmptyMessageResId)
-				.setPauseOnFling(false)
-				.setTitleResId(mListTitleResId);
-
-		getSupportFragmentManager()
-				.beginTransaction()
-				.add(R.id.fragment_holder, mCurrentFragment)
-				.commit();
-
-		draw(null);
+	@Override protected void onStart() {
+		super.onStart();
+		Dispatcher.getInstance().register(this);
 	}
 
-	@Override
-	public void draw(View view) {
-		Integer titleResId = ((EntityListFragment) mCurrentFragment).getTitleResId();
-		if (titleResId != null) {
-			setActivityTitle(StringManager.getString(titleResId));
-		}
+	@Override protected void onStop() {
+		Dispatcher.getInstance().unregister(this);
+		super.onStop();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe
-	public void onProcessingComplete(ProcessingCompleteEvent event) {
+	@Subscribe public void onProcessingComplete(ProcessingCompleteEvent event) {
 		/*
 		 * Gets called direct at the activity level and receives
 		 * events from fragments.
 		 */
-		mProcessing = false;
-		mUiController.getBusyController().hide(false);
+		processing = false;
+		uiController.getBusyController().hide(false);
 	}
 
-	@Override
 	public void onRefresh() {
 		/*
 		 * Called from swipe refresh or routing. Always treated
 		 * as an aggresive refresh.
 		 */
-		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
-			((EntityListFragment) mCurrentFragment).onRefresh();
+		if (currentFragment != null && currentFragment instanceof EntityListFragment) {
+			((EntityListFragment) currentFragment).listPresenter.refresh();
 		}
 	}
 
@@ -104,8 +74,34 @@ public class PatchList extends BaseActivity {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	protected int getLayoutId() {
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+
+		currentFragment = new EntityListFragment();
+
+//		((EntityListFragment) currentFragment).listPresenter
+//				//.setScopingEntityId(this.entityId)
+//				//.setLinkSchema(Constants.SCHEMA_ENTITY_PATCH)
+//				//.setLinkType(listLinkType)
+//				//.setLinkDirection(Link.Direction.out.name())
+//				//.setPageSize(Integers.getInteger(R.integer.page_size_entities))
+//				.setShowIndex(false)
+//				.setListLoadingResId(R.layout.temp_listitem_loading)
+//				.setListItemResId(R.layout.temp_listitem_patch)
+//				.setListEmptyMessageResId(listEmptyMessageResId)
+//				.setTitleResId(listTitleResId);
+
+		getSupportFragmentManager()
+				.beginTransaction()
+				.add(R.id.fragment_holder, currentFragment)
+				.commit();
+
+		draw(null);
+	}
+
+	public void draw(View view) {}
+
+	@Override protected int getLayoutId() {
 		return R.layout.entity_list;
 	}
 }

@@ -54,7 +54,7 @@ Entity manager activity date is tickled if:
 Activity, watching and created lists
 ------------------------------------
 
-We root on the current user entity (Aircandi.getInstance().getCurrentUser()). Dependency on create/watch
+We root on the current user entity (Aircandi.getInstance().currentUser). Dependency on create/watch
 activity being mirrored locally on current user entity.
 
 Binding is triggered when: 

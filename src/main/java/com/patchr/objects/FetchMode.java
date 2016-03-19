@@ -1,6 +1,6 @@
 package com.patchr.objects;
 
-public enum BindingMode {
+public enum FetchMode {
 	AUTO,
 	MANUAL,
 	FIRST,

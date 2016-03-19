@@ -5,8 +5,8 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.patchr.R;
@@ -17,18 +17,17 @@ import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
-public class NotificationView extends RelativeLayout {
+public class NotificationView extends FrameLayout {
 
 	private static final Object lock = new Object();
 
-	public Entity entity;
+	public    Entity   entity;
+	protected BaseView base;
+	protected Integer  layoutResId;
 
-	protected BaseView base        = new BaseView();
-	protected Integer  layoutResId = R.layout.notification_view;
-	protected ViewGroup layout;
-
+	protected ViewGroup   layout;
 	protected ImageLayout userPhoto;
-	protected ImageLayout entityPhoto;
+	protected ImageLayout notificationPhoto;
 	protected TextView    modifiedDate;
 	protected TextView    summary;
 	protected ImageView   notificationType;
@@ -44,6 +43,7 @@ public class NotificationView extends RelativeLayout {
 
 	public NotificationView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+		this.layoutResId = R.layout.notification_view;
 		initialize();
 	}
 
@@ -54,9 +54,11 @@ public class NotificationView extends RelativeLayout {
 	}
 
 	protected void initialize() {
+		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
+
 		this.userPhoto = (ImageLayout) layout.findViewById(R.id.user_photo);
-		this.entityPhoto = (ImageLayout) layout.findViewById(R.id.entity_photo);
+		this.notificationPhoto = (ImageLayout) layout.findViewById(R.id.notification_photo);
 		this.modifiedDate = (TextView) layout.findViewById(R.id.modified_date);
 		this.summary = (TextView) layout.findViewById(R.id.summary);
 		this.notificationType = (ImageView) layout.findViewById(R.id.notification_type);
@@ -92,12 +94,12 @@ public class NotificationView extends RelativeLayout {
 			base.setOrGone(this.summary, notification.summary);
 
 	        /* Photo */
-			UI.setVisibility(this.entityPhoto, GONE);
+			UI.setVisibility(this.notificationPhoto, GONE);
 			if (notification.photoBig != null) {
 				final Photo photo = notification.photoBig;
-				this.entityPhoto.setImageWithPhoto(photo);
-				this.entityPhoto.setTag(photo);
-				UI.setVisibility(this.entityPhoto, VISIBLE);
+				this.notificationPhoto.setImageWithPhoto(photo);
+				this.notificationPhoto.setTag(photo);
+				UI.setVisibility(this.notificationPhoto, VISIBLE);
 			}
 
 			/* Notification type */

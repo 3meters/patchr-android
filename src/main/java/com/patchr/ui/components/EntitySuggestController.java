@@ -276,7 +276,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			if (view == null) {
 				view = LayoutInflater.from(mContext).inflate(R.layout.temp_user_search_item, null);
 				holder = new ViewHolder();
-				holder.photoView = (ImageLayout) view.findViewById(R.id.image_layout);
+				holder.photoView = (ImageLayout) view.findViewById(R.id.photo);
 				holder.name = (TextView) view.findViewById(R.id.name);
 				holder.subhead = (TextView) view.findViewById(R.id.subhead);
 				holder.categoryName = (TextView) view.findViewById(R.id.category_name);
@@ -395,7 +395,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 						final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 						ModelResult modelResult = DataController.getInstance().suggest(chars.toString().trim()
 								, mSuggestScope
-								, UserManager.getInstance().authenticated() ? UserManager.getInstance().getCurrentUser().id : null
+								, UserManager.shared().authenticated() ? UserManager.currentUser.id : null
 								, location
 								, LIMIT, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 

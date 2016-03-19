@@ -13,14 +13,14 @@
 		android:background="?attr/backgroundCardField">
 
 		<com.patchr.ui.widgets.AirListView
-			android:id="@+id/list"
+			android:id="@+id/entity_list"
 			xmlns:android="http://schemas.android.com/apk/res/android"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_centerHorizontal="true"
 			android:animationCache="false"
 			android:background="?attr/backgroundCardField"
-			android:cacheColorHint="#00000000"
+			android:cacheColorHint="@color/transparent"
 			android:clipToPadding="false"
 			android:divider="@null"
 			android:paddingBottom="4dp"
@@ -37,7 +37,7 @@
 		android:layout_height="@dimen/button_round_height"
 		android:layout_centerInParent="true"
 		android:visibility="gone"
-		tools:text="@string/label_radar_empty"
+		tools:text="@string/label_nearby_empty"
 		tools:visibility="visible" />
 
 	<com.patchr.ui.widgets.AirProgressBar

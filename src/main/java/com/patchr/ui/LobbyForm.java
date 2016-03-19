@@ -1,7 +1,6 @@
 package com.patchr.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.net.UrlQuerySanitizer;
@@ -34,7 +33,7 @@ import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
 
 @SuppressLint("Registered")
-public class LobbyForm extends AppCompatActivity {
+public class LobbyForm extends AppCompatActivity implements View.OnClickListener {
 	/*
 	 * Lobby acts as a sticky guard when:
 	 *
@@ -71,16 +70,6 @@ public class LobbyForm extends AppCompatActivity {
 		handleBranch();
 	}
 
-	@Override protected void onResume() {
-		super.onResume();
-		Patchr.getInstance().setCurrentActivity(this);
-	}
-
-	@Override protected void onPause() {
-		super.onPause();
-		clearReferences();
-	}
-
 	@Override protected void onStop() {
 		super.onStop();
 		/* Hack to prevent false positives for deferred deep links */
@@ -94,6 +83,22 @@ public class LobbyForm extends AppCompatActivity {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Override public void onClick(View view) {
+		if (Patchr.applicationUpdateRequired) {
+			updateRequired();
+			return;
+		}
+		if (view.getId() == R.id.login_button) {
+			Patchr.router.route(this, Route.LOGIN, null, null);
+		}
+		else if (view.getId() == R.id.signup_button) {
+			Patchr.router.route(this, Route.SIGNUP, null, null);
+		}
+		else if (view.getId() == R.id.guest_button) {
+			startHomeActivity();
+		}
+	}
+
 	@Override public void onNewIntent(Intent intent) {
 		/*
 		 * Because this activity is singleTask, it can be relaunched with a new intent. getIntent
@@ -106,7 +111,7 @@ public class LobbyForm extends AppCompatActivity {
 
 	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (requestCode == Constants.ACTIVITY_SIGNIN) {
-			if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.getInstance().authenticated()) {
+			if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.shared().authenticated()) {
 				startHomeActivity();
 			}
 		}
@@ -116,33 +121,15 @@ public class LobbyForm extends AppCompatActivity {
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	public void onLoginButtonClick(View view) {
-		if (Patchr.applicationUpdateRequired) {
-			updateRequired();
-			return;
-		}
-		Patchr.router.route(this, Route.LOGIN, null, null);
-	}
-
-	public void onSignupButtonClick(View view) {
-		if (Patchr.applicationUpdateRequired) {
-			updateRequired();
-			return;
-		}
-		Patchr.router.route(this, Route.SIGNUP, null, null);
-	}
-
-	public void onGuestButtonClick(View view) {
-		if (Patchr.applicationUpdateRequired) {
-			updateRequired();
-			return;
-		}
-		startHomeActivity();
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
+
+	protected void initialize() {
+		findViewById(R.id.login_button).setOnClickListener(this);
+		findViewById(R.id.signup_button).setOnClickListener(this);
+		findViewById(R.id.guest_button).setOnClickListener(this);
+	}
 
 	protected void handleBranch() {
 		/*
@@ -174,7 +161,6 @@ public class LobbyForm extends AppCompatActivity {
 				}
 
 				handleFacebook();   // Chaining
-
 			}
 		}, uri, this);
 	}
@@ -247,7 +233,7 @@ public class LobbyForm extends AppCompatActivity {
 				 * called again.
 				 */
 				if (AndroidManager.checkPlayServices(LobbyForm.this)) {
-					if (UserManager.getInstance().authenticated()) {
+					if (UserManager.shared().authenticated()) {
 						startHomeActivity();
 					}
 					else {
@@ -274,7 +260,7 @@ public class LobbyForm extends AppCompatActivity {
 		 * and they were not already signed into Patchr. We need them to sign in and
 		 * then we get them back to the activity to handle the share.
 		 */
-		if (UserManager.getInstance().authenticated() && Patchr.sendIntent != null) {
+		if (UserManager.shared().authenticated() && Patchr.sendIntent != null) {
 			this.startActivity(Patchr.sendIntent);
 		}
 		else {
@@ -288,23 +274,12 @@ public class LobbyForm extends AppCompatActivity {
 	}
 
 	private void showButtons() {
-		findViewById(R.id.button_signin).setVisibility(View.VISIBLE);
-		findViewById(R.id.button_signup).setVisibility(View.VISIBLE);
-		findViewById(R.id.button_guest).setVisibility(View.VISIBLE);
+		findViewById(R.id.login_button).setVisibility(View.VISIBLE);
+		findViewById(R.id.signup_button).setVisibility(View.VISIBLE);
+		findViewById(R.id.guest_button).setVisibility(View.VISIBLE);
 	}
 
 	private void updateRequired() {
 		Dialogs.updateApp(this);
 	}
-
-	private void clearReferences() {
-		Activity currentActivity = Patchr.getInstance().getCurrentActivity();
-		if (currentActivity != null && currentActivity.equals(this)) {
-			Patchr.getInstance().setCurrentActivity(null);
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
 }

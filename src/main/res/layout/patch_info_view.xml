@@ -142,7 +142,6 @@
 						android:layout_height="24dp"
 						android:layout_gravity="bottom"
 						android:layout_marginRight="48dp"
-						android:onClick="onViewClick"
 						android:tag="collapsed"
 						android:visibility="gone"
 						tools:text="more"
@@ -151,14 +150,13 @@
 				</LinearLayout>
 
 				<ImageView
-					android:id="@+id/more_button"
+					android:id="@+id/next_page_button"
 					style="@style/selectable_image"
 					android:layout_width="@dimen/button_height"
 					android:layout_height="@dimen/button_height"
 					android:layout_alignParentBottom="true"
 					android:layout_alignParentRight="true"
 					android:clickable="true"
-					android:onClick="onViewClick"
 					android:paddingBottom="8dp"
 					android:paddingTop="8dp"
 					android:scaleType="fitCenter"

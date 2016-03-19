@@ -7,7 +7,7 @@
 	android:paddingRight="2dp">
 
 	<com.patchr.ui.views.ImageLayout
-		android:id="@+id/image_layout"
+		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_tiny"
 		android:layout_height="@dimen/image_tiny"

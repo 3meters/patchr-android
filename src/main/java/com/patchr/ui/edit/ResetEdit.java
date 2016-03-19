@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.patchr.Constants;
@@ -24,7 +23,6 @@ import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
-import com.patchr.ui.base.BaseEdit;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
@@ -35,55 +33,32 @@ import java.util.Locale;
 
 public class ResetEdit extends BaseEdit {
 
-	private EditText mEmail;
-	private EditText mPassword;
-	private Boolean mEmailConfirmed = false;
-	private TextView mMessage;
-	private User     mUser;
+	private EditText email;
+	private EditText password;
+	private boolean  emailConfirmed;
+	private TextView message;
+	private User     user;
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-
-		mMessage = (TextView) findViewById(R.id.content_message);
-		mEmail = (EditText) findViewById(R.id.email);
-		mPassword = (EditText) findViewById(R.id.password);
-
-		mPassword.setImeOptions(EditorInfo.IME_ACTION_GO);
-		mPassword.setOnEditorActionListener(new OnEditorActionListener() {
-
-			@Override
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if (actionId == EditorInfo.IME_ACTION_GO) {
-					onResetButtonClick(null);
-					return true;
-				}
-				return false;
-			}
-		});
-
-		final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
-		if (email != null) {
-			mEmail.setText(email);
-		}
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@SuppressWarnings("ucd")
 	public void onResetButtonClick(View view) {
 
-		if (mProcessing) return;
-		mProcessing = true;
+		if (this.processing) return;
+		this.processing = true;
 
-		if (!mEmailConfirmed) {
+		if (!emailConfirmed) {
 			if (validate()) {
 				requestReset();
 			}
 			else {
-				mProcessing = false;
+				this.processing = false;
 			}
 		}
 		else {
@@ -91,7 +66,7 @@ public class ResetEdit extends BaseEdit {
 				resetAndSignin();
 			}
 			else {
-				mProcessing = false;
+				this.processing = false;
 			}
 		}
 	}
@@ -100,14 +75,40 @@ public class ResetEdit extends BaseEdit {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	/*--------------------------------------------------------------------------------------------
-	 * Services
-	 *--------------------------------------------------------------------------------------------*/
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
 
-	@Override
-	protected boolean validate() {
-		if (!mEmailConfirmed) {
-			if (mEmail.getText().length() == 0) {
+		message = (TextView) findViewById(R.id.content_message);
+		email = (EditText) findViewById(R.id.email);
+		password = (EditText) findViewById(R.id.password);
+
+		if (password != null) {
+			password.setImeOptions(EditorInfo.IME_ACTION_GO);
+			password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+				@Override
+				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+					if (actionId == EditorInfo.IME_ACTION_GO) {
+						onResetButtonClick(null);
+						return true;
+					}
+					return false;
+				}
+			});
+		}
+	}
+
+	@Override public void bind() {
+		final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
+		if (email != null) {
+			this.email.setText(email);
+		}
+	}
+
+	@Override protected boolean validate() {
+		if (!emailConfirmed) {
+
+			if (email.getText().length() == 0) {
 				Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 						, null
 						, StringManager.getString(R.string.error_missing_email)
@@ -117,7 +118,8 @@ public class ResetEdit extends BaseEdit {
 						, null, null, null, null);
 				return false;
 			}
-			if (!Utils.validEmail(mEmail.getText().toString())) {
+
+			if (!Utils.validEmail(email.getText().toString())) {
 				Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 						, null
 						, StringManager.getString(R.string.error_invalid_email)
@@ -129,7 +131,8 @@ public class ResetEdit extends BaseEdit {
 			}
 		}
 		else {
-			if (mPassword.getText().length() < 6) {
+
+			if (password.getText().length() < 6) {
 				Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 						, null
 						, StringManager.getString(R.string.error_missing_password)
@@ -143,35 +146,36 @@ public class ResetEdit extends BaseEdit {
 		return true;
 	}
 
+	@Override protected int getLayoutId() {
+		return R.layout.reset_edit;
+	}
+
 	protected void requestReset() {
 
 		Logger.d(this, "Verifying email and install for password reset");
 
-		final String email = mEmail.getText().toString().trim().toLowerCase(Locale.US);
+		final String email = this.email.getText().toString().trim().toLowerCase(Locale.US);
 
 		new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
-				UI.hideSoftInput(mEmail);
+			@Override protected void onPreExecute() {
+				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
+				UI.hideSoftInput(ResetEdit.this.email);
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRequestPasswordReset");
 
 				ModelResult result = DataController.getInstance().requestPasswordReset(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mUiController.getBusyController().hide(false);
+				uiController.getBusyController().hide(false);
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-					mEmailConfirmed = false;
+					emailConfirmed = false;
 					if (result.serviceResponse.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
 
 						/* No such email */
@@ -182,7 +186,6 @@ public class ResetEdit extends BaseEdit {
 								, ResetEdit.this
 								, android.R.string.ok
 								, null, null, null, null);
-
 					}
 					else if (result.serviceResponse.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
 
@@ -200,64 +203,52 @@ public class ResetEdit extends BaseEdit {
 					}
 				}
 				else {
-					mUser = (User) result.data;
-					mEmailConfirmed = true;
-					mEmail.setVisibility(View.GONE);
-					mPassword.setVisibility(View.VISIBLE);
-					mMessage.setText(StringManager.getString(R.string.label_reset_message_password));
+					user = (User) result.data;
+					emailConfirmed = true;
+					ResetEdit.this.email.setVisibility(View.GONE);
+					password.setVisibility(View.VISIBLE);
+					message.setText(StringManager.getString(R.string.label_reset_message_password));
 				}
-				mProcessing = false;
+				processing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	protected void resetAndSignin() {
 
-		Logger.d(this, "Resetting password for: " + mUser.email);
+		Logger.d(this, "Resetting password for: " + user.email);
 
-		final String password = mPassword.getText().toString();
+		final String password = this.password.getText().toString();
 
 		new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in, ResetEdit.this);
+			@Override protected void onPreExecute() {
+				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in, ResetEdit.this);
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncResetPassword");
-				ModelResult result = DataController.getInstance().resetPassword(password, mUser, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().resetPassword(password, user, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mUiController.getBusyController().hide(true);
+				uiController.getBusyController().hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in)
-							+ " " + UserManager.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
+							+ " " + UserManager.currentUser.name, Toast.LENGTH_SHORT);
 
-					setResultCode(Constants.RESULT_USER_SIGNED_IN);
+					setResult(Constants.RESULT_USER_SIGNED_IN);
 					finish();
 					AnimationManager.doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Errors.handleError(ResetEdit.this, result.serviceResponse);
 				}
-				mProcessing = false;
+				processing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected int getLayoutId() {
-		return R.layout.reset_edit;
 	}
 }

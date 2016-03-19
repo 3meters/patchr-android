@@ -18,7 +18,7 @@ import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Message;
 import com.patchr.objects.Photo;
 import com.patchr.objects.ViewHolder;
-import com.patchr.ui.MessageForm;
+import com.patchr.ui.MessageScreen;
 import com.patchr.ui.edit.MessageEdit;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
@@ -31,7 +31,7 @@ public class Messages extends EntityControllerBase {
 	public Messages() {
 		mColorPrimary = R.color.brand_accent;
 		mSchema = Constants.SCHEMA_ENTITY_MESSAGE;
-		mBrowseClass = MessageForm.class;
+		mBrowseClass = MessageScreen.class;
 		mEditClass = MessageEdit.class;
 		mNewClass = MessageEdit.class;
 		mPageSize = Integers.getInteger(R.integer.page_size_messages);
@@ -55,7 +55,6 @@ public class Messages extends EntityControllerBase {
 		ViewHolder holder = (ViewHolder) view.getTag();
 		if (holder == null) {
 			holder = new ViewHolderExtended();
-			bindHolder(view, holder);
 			view.setTag(holder);
 		}
 
@@ -190,15 +189,6 @@ public class Messages extends EntityControllerBase {
 				}
 			}
 		}
-	}
-
-	@Override
-	public void bindHolder(View view, ViewHolder holder) {
-		((ViewHolderExtended) holder).likesCount = (TextView) view.findViewById(R.id.likes_count);
-		((ViewHolderExtended) holder).likesLabel = (TextView) view.findViewById(R.id.likes_label);
-		((ViewHolderExtended) holder).buttonLikes = view.findViewById(R.id.button_likes);
-		((ViewHolderExtended) holder).shareHolder = view.findViewById(R.id.share_holder);
-		super.bindHolder(view, holder);
 	}
 
 	@Override

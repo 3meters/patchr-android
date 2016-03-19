@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,7 +24,7 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.base.BaseActivity;
+import com.patchr.ui.BaseActivity;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.UI;
 
@@ -36,84 +35,67 @@ import com.patchr.utilities.UI;
 public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClickListener
 		, GoogleMap.OnMarkerDragListener {
 
-	protected MapView     mMapView;
-	protected GoogleMap   mMap;
-	protected AirLocation mOriginalLocation;
-	protected String      mTitle;
-	protected Marker      mMarker;
-	protected Boolean mDirty = false;
+	protected MapView     mapView;
+	protected GoogleMap   map;
+	protected AirLocation originalLocation;
+	protected String      title;
+	protected Marker      marker;
+	protected boolean     dirty;
 
-	@Override
-	public void unpackIntent() {
-		super.unpackIntent();
-
-		final Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			mTitle = extras.getString(Constants.EXTRA_TITLE);
-			final String json = extras.getString(Constants.EXTRA_LOCATION);
-			if (json != null) {
-				mOriginalLocation = (AirLocation) Json.jsonToObject(json, Json.ObjectType.AIR_LOCATION);
-			}
-		}
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		// Bind is called from map ready callback.
 	}
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-
-		mMapView = (MapView) findViewById(R.id.mapview);
-		mMapView.onCreate(savedInstanceState);
-		mMapView.getMapAsync(new OnMapReadyCallback() {
-			@Override
-			public void onMapReady(GoogleMap googleMap) {
-				mMap = googleMap;
-				if (checkReady()) {
-					setUpMap();
-					if (mOriginalLocation != null) {
-						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mOriginalLocation.lat.doubleValue(), mOriginalLocation.lng.doubleValue()), 17));
-					}
-				}
-			}
-		});
+	@Override public void onResume() {
+		if (mapView != null) mapView.onResume();
+		super.onResume();
 	}
 
-	public void draw(View view) {}
+	@Override public void onPause() {
+		if (mapView != null) mapView.onPause();
+		super.onPause();
+	}
+
+	@Override public void onDestroy() {
+		super.onDestroy();
+		if (mapView != null) mapView.onDestroy();
+	}
+
+	@Override public void onLowMemory() {
+		super.onLowMemory();
+		if (mapView != null) mapView.onLowMemory();
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onAccept() {
+	@Override public void onSubmit() {
 		save();
 	}
 
-	public void onCancel(Boolean force) {
-		setResultCode(Activity.RESULT_CANCELED);
+	@Override public void onCancel(Boolean force) {
+		setResult(Activity.RESULT_CANCELED);
 		finish();
 		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
 
-	@Override
-	public void onMapClick(LatLng latLng) {
-		mMarker.setPosition(latLng);
-		mDirty = true;
+	@Override public void onMapClick(LatLng latLng) {
+		marker.setPosition(latLng);
+		dirty = true;
 	}
 
-	@Override
-	public void onMarkerDragStart(Marker marker) {}
+	@Override public void onMarkerDragStart(Marker marker) {}
 
-	@Override
-	public void onMarkerDrag(Marker marker) {}
+	@Override public void onMarkerDrag(Marker marker) {}
 
-	@Override
-	public void onMarkerDragEnd(Marker marker) {
-		mDirty = true;
+	@Override public void onMarkerDragEnd(Marker marker) {
+		dirty = true;
 	}
 
-	@Override
-	protected void onSaveInstanceState(@NonNull Bundle outState) {
-		if (mMapView != null) mMapView.onSaveInstanceState(outState);
+	@Override protected void onSaveInstanceState(@NonNull Bundle outState) {
+		if (mapView != null) mapView.onSaveInstanceState(outState);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -121,19 +103,72 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Override public void unpackIntent() {
+		super.unpackIntent();
+
+		final Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			title = extras.getString(Constants.EXTRA_TITLE);
+			final String json = extras.getString(Constants.EXTRA_LOCATION);
+			if (json != null) {
+				originalLocation = (AirLocation) Json.jsonToObject(json, Json.ObjectType.AIR_LOCATION);
+			}
+		}
+	}
+
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+
+		mapView = (MapView) findViewById(R.id.mapview);
+		if (mapView != null) {
+			mapView.onCreate(savedInstanceState);
+			mapView.getMapAsync(new OnMapReadyCallback() {
+				@Override public void onMapReady(GoogleMap googleMap) {
+					map = googleMap;
+					if (checkReady()) {
+						setUpMap();
+						if (originalLocation != null) {
+							map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(originalLocation.lat.doubleValue(), originalLocation.lng.doubleValue()), 17));
+						}
+						bind();
+					}
+				}
+			});
+		}
+	}
+
+	@Override protected int getLayoutId() {
+		return R.layout.location_picker;
+	}
+
+	public void bind() {
+
+		if (originalLocation != null) {
+			marker = map.addMarker(new MarkerOptions()
+					.position(new LatLng(originalLocation.lat.doubleValue(), originalLocation.lng.doubleValue()))
+					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
+					.draggable(true));
+			marker.setAnchor(0.5f, 0.8f);
+			if (title != null) {
+				marker.setTitle(title);
+				marker.showInfoWindow();
+			}
+		}
+	}
+
 	private void save() {
 
-		if (!mDirty) {
+		if (!dirty) {
 			onCancel(true);
 			return;
 		}
 
 		final Intent intent = new Intent();
-		AirLocation location = new AirLocation(mMarker.getPosition().latitude, mMarker.getPosition().longitude);
+		AirLocation location = new AirLocation(marker.getPosition().latitude, marker.getPosition().longitude);
 		location.accuracy = 1;
 		String json = Json.objectToJson(location);
 		intent.putExtra(Constants.EXTRA_LOCATION, json);
-		setResultCode(Activity.RESULT_OK, intent);
+		setResult(Activity.RESULT_OK, intent);
 		finish();
 		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
@@ -143,7 +178,7 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 		 * Parent activity performs play services check. We can't get to
 		 * here if they are not available.
 		 */
-		if (mMap == null) {
+		if (map == null) {
 			UI.showToastNotification("Map not ready", Toast.LENGTH_SHORT);
 			return false;
 		}
@@ -152,13 +187,13 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 
 	private void setUpMap() {
 
-		mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-		mMap.setLocationSource(null);
+		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+		map.setLocationSource(null);
 
-		UiSettings uiSettings = mMap.getUiSettings();
+		UiSettings uiSettings = map.getUiSettings();
 
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-			mMap.setMyLocationEnabled(true);
+			map.setMyLocationEnabled(true);
 			uiSettings.setMyLocationButtonEnabled(true);
 		}
 
@@ -167,56 +202,7 @@ public class LocationPicker extends BaseActivity implements GoogleMap.OnMapClick
 		uiSettings.setCompassEnabled(true);
 
 		MapsInitializer.initialize(this);
-		mMap.setOnMapClickListener(this);
-		mMap.setOnMarkerDragListener(this);
-
-		if (mOriginalLocation != null) {
-			mMarker = mMap.addMarker(new MarkerOptions()
-					.position(new LatLng(mOriginalLocation.lat.doubleValue(), mOriginalLocation.lng.doubleValue()))
-					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
-					.draggable(true));
-			mMarker.setAnchor(0.5f, 0.8f);
-			if (mTitle != null) {
-				mMarker.setTitle(mTitle);
-				mMarker.showInfoWindow();
-			}
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onResume() {
-		if (mMapView != null) mMapView.onResume();
-		super.onResume();
-	}
-
-	@Override
-	public void onPause() {
-		if (mMapView != null) mMapView.onPause();
-		super.onPause();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		if (mMapView != null) mMapView.onDestroy();
-	}
-
-	@Override
-	public void onLowMemory() {
-		super.onLowMemory();
-		if (mMapView != null) mMapView.onLowMemory();
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected int getLayoutId() {
-		return R.layout.location_picker;
+		map.setOnMapClickListener(this);
+		map.setOnMarkerDragListener(this);
 	}
 }

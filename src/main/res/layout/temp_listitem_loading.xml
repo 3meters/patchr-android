@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ViewSwitcher
-	android:id="@+id/animator_more"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="80sp"
-	android:padding="10dp">
+<ViewSwitcher android:id="@+id/paging_button"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="60sp"
+              android:background="?attr/backgroundCardField"
+              android:padding="8dp">
 
-	<com.patchr.ui.widgets.AirButton
-		android:id="@+id/more_button"
-		style="@style/button_outline"
+	<com.patchr.ui.widgets.AirTextLight
+		android:id="@+id/next_page_button"
+		style="@style/selectable_image"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/button_height"
-		android:layout_gravity="center"
-		android:onClick="onViewClick"
-		android:text="@string/label_list_more" />
+		android:background="@color/white"
+		android:gravity="center"
+		android:maxLines="1"
+		android:text="@string/label_list_more"
+		android:textAllCaps="true"
+		android:textAppearance="?android:attr/textAppearanceSmall"
+		android:textColor="@color/selector_link_text" />
 
 	<ProgressBar
-		android:id="@+id/progress_more"
-		android:layout_width="50dp"
-		android:layout_height="50dp"
-		android:layout_gravity="center" />
+		android:id="@+id/next_page_progress"
+		android:layout_width="44dp"
+		android:layout_height="44dp"
+		android:layout_gravity="center"
+		android:padding="8dp" />
 
 </ViewSwitcher>

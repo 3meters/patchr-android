@@ -19,9 +19,10 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController.SuggestScope;
+import com.patchr.objects.FetchMode;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Route;
-import com.patchr.ui.base.BaseActivity;
+import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.EntitySuggestController;
 import com.patchr.utilities.Json;
 
@@ -40,9 +41,9 @@ public class SearchForm extends BaseActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void onClearButtonClick(View view) {
-		setResultCode(Activity.RESULT_OK);
+		setResult(Activity.RESULT_OK);
 		finish();
-		AnimationManager.doOverridePendingTransition(this, getExitTransitionType());
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_BACK);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -78,19 +79,18 @@ public class SearchForm extends BaseActivity {
 		}
 	}
 
-	@Override
-	public void bind(BindingMode mode) {
+	public void bind(FetchMode mode) {
 
 		if (mSearchView != null) {
 			mEntitySuggest
 					.setSearchView(mSearchView)
-					.setUiController(mUiController)
-					.setListView((ListView) findViewById(R.id.list))
+					.setUiController(uiController)
+					.setListView((ListView) findViewById(R.id.entity_list))
 					.setSuggestScope(mSuggestScope)
 					.init();
 		}
 
-		((ListView) findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		((ListView) findViewById(R.id.entity_list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Entity entity = (Entity) mEntitySuggest.getAdapter().getItem(position);
@@ -98,9 +98,9 @@ public class SearchForm extends BaseActivity {
 				final String json = Json.objectToJson(entity);
 				if (mReturnEntity) {
 					intent.putExtra(Constants.EXTRA_ENTITY, json);
-					setResultCode(Activity.RESULT_OK, intent);
+					setResult(Activity.RESULT_OK, intent);
 					finish();
-					AnimationManager.doOverridePendingTransition(SearchForm.this, getExitTransitionType());
+					AnimationManager.doOverridePendingTransition(SearchForm.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Patchr.router.route(SearchForm.this, Route.BROWSE, entity, null);
@@ -111,15 +111,10 @@ public class SearchForm extends BaseActivity {
 		if (mQuery != null) {
 			mSearchView.setQuery(mQuery, true);
 		}
-
-		draw(null);
 	}
 
 	public void configureActionBar() {
-		super.configureActionBar();
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().setDisplayShowTitleEnabled(false);  // Dont show title
-		}
+		actionBar.setDisplayShowTitleEnabled(false);
 	}
 
 	@Override
@@ -148,15 +143,15 @@ public class SearchForm extends BaseActivity {
 			mSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
 				@Override
 				public boolean onClose() {
-					setResultCode(Activity.RESULT_CANCELED);
+					setResult(Activity.RESULT_CANCELED);
 					finish();
-					AnimationManager.doOverridePendingTransition(SearchForm.this, getExitTransitionType());
+					AnimationManager.doOverridePendingTransition(SearchForm.this, TransitionType.FORM_BACK);
 					return false;
 				}
 			});
 		}
 
-		bind(BindingMode.AUTO);
+		bind(FetchMode.AUTO);
 
 		return true;
 	}

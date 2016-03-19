@@ -27,9 +27,7 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.MediaManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
-import com.patchr.objects.BindingMode;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.base.BasePicker;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
 
@@ -39,25 +37,20 @@ import java.util.List;
 @SuppressLint("Registered")
 public class PhotoActionPicker extends BasePicker implements OnItemClickListener {
 
-	private TextView    mName;
-	private ListView    mListView;
-	private ListAdapter mListAdapter;
+	private TextView    name;
+	private ListView    listView;
+	private ListAdapter listAdapter;
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-
-		mName = (TextView) findViewById(R.id.name);
-		mListView = (ListView) findViewById(R.id.form_list);
-		mListView.setOnItemClickListener(this);
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	@Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
 		final PickerItem choice = (PickerItem) view.getTag();
 
@@ -78,7 +71,7 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 
 		final Intent intent = new Intent();
 		intent.putExtra(Constants.EXTRA_PHOTO_SOURCE, choice.schema);
-		setResultCode(Activity.RESULT_OK, intent);
+		setResult(Activity.RESULT_OK, intent);
 		finish();
 		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
 	}
@@ -87,7 +80,17 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void bind(BindingMode mode) {
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+
+		name = (TextView) findViewById(R.id.name);
+		listView = (ListView) findViewById(R.id.form_list);
+		if (listView != null) {
+			listView.setOnItemClickListener(this);
+		}
+	}
+
+	public void bind() {
 
 		/* Shown as a dialog so doesn't have an action bar */
 		final List<Object> listData = new ArrayList<>();
@@ -105,10 +108,10 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 					, StringManager.getString(R.string.dialog_photo_action_camera), Constants.PHOTO_ACTION_CAMERA));
 		}
 
-		mName.setText(StringManager.getString(R.string.dialog_photo_action_title));
+		name.setText(StringManager.getString(R.string.dialog_photo_action_title));
 
-		mListAdapter = new ListAdapter(this, listData);
-		mListView.setAdapter(mListAdapter);
+		listAdapter = new ListAdapter(this, listData);
+		listView.setAdapter(listAdapter);
 	}
 
 	private void ensurePermissions() {
@@ -158,8 +161,7 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 		}
 	}
 
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return R.layout.photo_source_picker;
 	}
 
@@ -176,8 +178,7 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 			this.items = items;
 		}
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		@Override public View getView(int position, View convertView, ViewGroup parent) {
 			View view = convertView;
 			final PickerItem itemData = (PickerItem) items.get(position);
 
@@ -186,7 +187,7 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 			}
 
 			if (itemData != null) {
-				((ImageView) view.findViewById(R.id.image_layout)).setImageResource(itemData.iconResId);
+				((ImageView) view.findViewById(R.id.photo)).setImageResource(itemData.iconResId);
 				((TextView) view.findViewById(R.id.name)).setText(itemData.title);
 				view.setTag(itemData);
 			}

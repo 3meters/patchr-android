@@ -27,18 +27,18 @@ public class PatchBannerView extends FrameLayout {
 
 	private static final Object lock = new Object();
 
-	public    Entity     entity;
-	protected BaseView   base;
-	protected Integer    layoutResId;
+	public    Entity   entity;
+	protected BaseView base;
+	protected Integer  layoutResId;
 
 	protected ViewGroup    layout;
 	protected ImageLayout  photoView;
 	protected TextView     name;
 	protected TextView     type;
 	protected View         privacyGroup;
-	protected View         tuneButton;
+	public    View         tuneButton;
 	protected View         membersButton;
-	protected ViewAnimator muteButton;
+	public    ViewAnimator muteButton;
 	protected View         moreButton;
 
 	public PatchBannerView(Context context) {
@@ -73,7 +73,7 @@ public class PatchBannerView extends FrameLayout {
 		this.tuneButton = (View) layout.findViewById(R.id.tune_button);
 		this.membersButton = (View) layout.findViewById(R.id.members_button);
 		this.muteButton = (ViewAnimator) layout.findViewById(R.id.mute_button);
-		this.moreButton = (View) layout.findViewById(R.id.more_button);
+		this.moreButton = (View) layout.findViewById(R.id.next_page_button);
 	}
 
 	/*--------------------------------------------------------------------------------------------

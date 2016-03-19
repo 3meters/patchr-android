@@ -76,7 +76,6 @@
 					android:layout_marginBottom="8dp"
 					android:layout_marginTop="8dp"
 					android:clickable="true"
-					android:onClick="onViewClick"
 					android:orientation="horizontal"
 					android:paddingLeft="@dimen/form_body_padding"
 					android:paddingRight="@dimen/form_body_padding"
@@ -138,14 +137,13 @@
 				<!-- Photo -->
 
 				<com.patchr.ui.views.ImageLayout
-					android:id="@+id/image_layout"
+					android:id="@+id/photo"
 					style="@style/selectable_image"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginLeft="@dimen/form_body_padding"
 					android:layout_marginRight="@dimen/form_body_padding"
 					android:clickable="true"
-					android:onClick="onPhotoClick"
 					android:visibility="gone"
 					custom:aspectRatio="@dimen/aspect_ratio_message_image"
 					custom:category="standard"
@@ -231,7 +229,6 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:clickable="true"
-						android:onClick="onViewClick"
 						custom:cardBackgroundColor="?attr/backgroundButtonShare"
 						custom:cardCornerRadius="3dp"
 						custom:cardElevation="2dp"

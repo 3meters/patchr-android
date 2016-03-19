@@ -1,17 +1,17 @@
 package com.patchr.events;
 
-import com.patchr.components.DataController.ActionType;
-import com.patchr.objects.BindingMode;
+import com.patchr.objects.ActionType;
+import com.patchr.objects.FetchMode;
 import com.patchr.objects.Cursor;
 import com.patchr.objects.Entity;
 
 import java.util.List;
 
 @SuppressWarnings("ucd")
-public class DataResultEvent{
+public class EntitiesQueryResultEvent {
 
 	public ActionType   actionType;
-	public BindingMode  mode;
+	public FetchMode    mode;
 	public Object       data;
 	public List<Entity> entities;       // convenience if data = entities
 	public Entity       entity;         // convenience if data = entity
@@ -20,49 +20,49 @@ public class DataResultEvent{
 	public Boolean      more;           // used if data = pageable array
 	public Object       tag;            // passed with request
 
-	public DataResultEvent() {}
+	public EntitiesQueryResultEvent() {}
 
-	public DataResultEvent setActionType(ActionType actionType) {
+	public EntitiesQueryResultEvent setActionType(ActionType actionType) {
 		this.actionType = actionType;
 		return this;
 	}
 
-	public DataResultEvent setMode(BindingMode mode) {
+	public EntitiesQueryResultEvent setMode(FetchMode mode) {
 		this.mode = mode;
 		return this;
 	}
 
-	public DataResultEvent setData(Object data) {
+	public EntitiesQueryResultEvent setData(Object data) {
 		this.data = data;
 		return this;
 	}
 
-	public DataResultEvent setEntities(List<Entity> entities) {
+	public EntitiesQueryResultEvent setEntities(List<Entity> entities) {
 		this.entities = entities;
 		return this;
 	}
 
-	public DataResultEvent setEntity(Entity entity) {
+	public EntitiesQueryResultEvent setEntity(Entity entity) {
 		this.entity = entity;
 		return this;
 	}
 
-	public DataResultEvent setScopingEntity(Entity entity) {
+	public EntitiesQueryResultEvent setScopingEntity(Entity entity) {
 		this.scopingEntity = entity;
 		return this;
 	}
 
-	public DataResultEvent setCursor(Cursor cursor) {
+	public EntitiesQueryResultEvent setCursor(Cursor cursor) {
 		this.cursor = cursor;
 		return this;
 	}
 
-	public DataResultEvent setMore(Boolean more) {
+	public EntitiesQueryResultEvent setMore(Boolean more) {
 		this.more = more;
 		return this;
 	}
 
-	public DataResultEvent setTag(Object tag) {
+	public EntitiesQueryResultEvent setTag(Object tag) {
 		this.tag = tag;
 		return this;
 	}

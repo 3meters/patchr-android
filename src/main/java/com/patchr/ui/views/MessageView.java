@@ -79,7 +79,7 @@ public class MessageView extends FrameLayout {
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
 		this.userPhotoView = (ImageLayout) layout.findViewById(R.id.user_photo);
-		this.photoView = (ImageLayout) layout.findViewById(R.id.image_layout);
+		this.photoView = (ImageLayout) layout.findViewById(R.id.photo);
 		this.patchName = (TextView) layout.findViewById(R.id.patch_name);
 		this.userName = (TextView) layout.findViewById(R.id.user_name);
 		this.createdDate = (TextView) layout.findViewById(R.id.created_date);

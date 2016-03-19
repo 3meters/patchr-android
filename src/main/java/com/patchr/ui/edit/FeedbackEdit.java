@@ -4,7 +4,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,10 +18,8 @@ import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
-import com.patchr.objects.BindingMode;
 import com.patchr.objects.Document;
 import com.patchr.objects.User;
-import com.patchr.ui.base.BaseEntityEdit;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.views.ImageLayout;
 import com.patchr.ui.widgets.AirEditText;
@@ -33,63 +30,58 @@ import com.patchr.utilities.UI;
 
 import java.util.HashMap;
 
-public class FeedbackEdit extends BaseEntityEdit {
+public class FeedbackEdit extends BaseEdit {
 
-	private Document mFeedback;
+	private Document    feedback;
+	private ImageLayout userPhoto;
+	private TextView    userName;
+	private TextView    message;
 
-	@Override public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-		/*
-		 * Feedback are not really an entity type so we handle
-		 * all the expected initialization.
-		 */
-		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-
-		mDescription = (AirEditText) findViewById(R.id.description);
-
-		if (mDescription != null) {
-			mDescription.addTextChangedListener(new SimpleTextWatcher() {
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					mDirty = !TextUtils.isEmpty(s);
-				}
-			});
-		}
-	}
-
-	@Override public void bind(BindingMode mode) {
-		/*
-		 * Not a real entity so we completely override databind.
-		 */
-		mFeedback = new Document();
-		mFeedback.type = "feedback";
-		mFeedback.name = "patchr";
-		mFeedback.data = new HashMap<String, Object>();
-		draw(null);
-	}
-
-	@Override public void draw(View view) {
-		User user = UserManager.getInstance().getCurrentUser();
-		((ImageLayout)findViewById(R.id.user_photo)).setImageWithEntity(user);
-		((TextView)findViewById(R.id.user_name)).setText(user.name);
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override protected String getLinkType() {
-		return null;
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
+		description = (AirEditText) findViewById(R.id.description);
+
+		if (description != null) {
+			description.addTextChangedListener(new SimpleTextWatcher() {
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					dirty = !TextUtils.isEmpty(s);
+				}
+			});
+		}
+
+		this.feedback = new Document();
+		this.feedback.type = "feedback";
+		this.feedback.name = "patchr";
+		this.feedback.data = new HashMap<String, Object>();
+	}
+
+	@Override public void bind() {
+		User user = UserManager.currentUser;
+		this.userPhoto.setImageWithEntity(user);
+		this.userName.setText(user.name);
 	}
 
 	@Override protected void gather() {
-		mFeedback.data.put("message", mDescription.getText().toString().trim());
+		feedback.data.put("message", description.getText().toString().trim());
 	}
 
 	@Override protected boolean validate() {
 		if (!super.validate()) return false;
-		if (mDescription.getText().length() == 0) {
+		if (description.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_message)
@@ -108,24 +100,21 @@ public class FeedbackEdit extends BaseEntityEdit {
 
 		new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_sending, FeedbackEdit.this);
+			@Override protected void onPreExecute() {
+				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_sending, FeedbackEdit.this);
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertFeedback");
-				mFeedback.createdDate = DateTime.nowDate().getTime();
-				final ModelResult result = DataController.getInstance().insertDocument(mFeedback, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				feedback.createdDate = DateTime.nowDate().getTime();
+				final ModelResult result = DataController.getInstance().insertDocument(feedback, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mUiController.getBusyController().hide(true);
+				uiController.getBusyController().hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_feedback_sent), Toast.LENGTH_SHORT);
 					finish();
@@ -133,7 +122,7 @@ public class FeedbackEdit extends BaseEntityEdit {
 				else {
 					Errors.handleError(FeedbackEdit.this, result.serviceResponse);
 				}
-				mProcessing = false;
+				processing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}

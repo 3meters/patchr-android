@@ -18,10 +18,8 @@ import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
-import com.patchr.objects.BindingMode;
 import com.patchr.objects.Document;
 import com.patchr.objects.User;
-import com.patchr.ui.base.BaseEntityEdit;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.views.ImageLayout;
 import com.patchr.ui.widgets.AirEditText;
@@ -32,92 +30,76 @@ import com.patchr.utilities.UI;
 
 import java.util.HashMap;
 
-public class ReportEdit extends BaseEntityEdit {
+public class ReportEdit extends BaseEdit {
 
-	private Document mReport;
-	private String   mReportType;
+	private Document    report;
+	private String      reportType;
+	private ImageLayout userPhoto;
+	private TextView    userName;
+	private TextView    message;
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-	/*
-		 * Feedback are not really an entity type so we handle
-		 * all the expected initialization.
-		 */
-		mDescription = (AirEditText) findViewById(R.id.description);
-
-		if (mDescription != null) {
-			mDescription.addTextChangedListener(new SimpleTextWatcher() {
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					mDirty = !TextUtils.isEmpty(s);
-				}
-			});
-		}
-
-		((TextView) findViewById(R.id.content_message)).setText(StringManager.getString(R.string.label_report_message) + " " + mEntitySchema + "?");
-		mEditing = false;
-	}
-
-	@Override
-	public void bind(BindingMode mode) {
-		/*
-		 * Not a real entity so we completely override databind.
-		 */
-		mReport = new Document();
-		mReport.type = "report";
-		mReport.name = "patchr";
-		mReport.data = new HashMap<String, Object>();
-		draw(null);
-	}
-
-	@Override
-	public void draw(View view) {
-		User user = UserManager.getInstance().getCurrentUser();
-		((ImageLayout)findViewById(R.id.user_photo)).setImageWithEntity(user);
-		((TextView)findViewById(R.id.user_name)).setText(user.name);
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-	
-	@Override
-	public void onAccept() {
-		if (validate()) {
-			super.onAccept();
-		}
-	}
 
-	@SuppressWarnings("ucd")
 	public void onRadioButtonClicked(View view) {
-		mReportType = (String) view.getTag();
-		mDirty = true;
+		reportType = (String) view.getTag();
+		dirty = true;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	protected String getLinkType() {
-		return null;
-	}
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
 
-	@Override
-	protected void gather() {
-		if (!TextUtils.isEmpty(mDescription.getText().toString())) {
-			mReport.data.put("message", mDescription.getText().toString().trim());
+		description = (AirEditText) findViewById(R.id.description);
+
+		if (description != null) {
+			description.addTextChangedListener(new SimpleTextWatcher() {
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					dirty = !TextUtils.isEmpty(s);
+				}
+			});
 		}
-		mReport.data.put("type", mReportType);
-		mReport.data.put("target", mEntityId);
+
+		this.userPhoto = (ImageLayout) findViewById(R.id.user_photo);
+		this.userName = (TextView) findViewById(R.id.user_name);
+		this.message = (TextView) findViewById(R.id.content_message);
+
+		this.report = new Document();
+		this.report.type = "report";
+		this.report.name = "patchr";
+		this.report.data = new HashMap<String, Object>();
+
+		editing = false;
 	}
 
-	@Override
-	protected boolean validate() {
-		if (!super.validate()) return false;
-		if (TextUtils.isEmpty(mReportType)) {
+	@Override public void bind() {
+		this.message.setText(StringManager.getString(R.string.label_report_message) + " " + entitySchema + "?");
+		User user = UserManager.currentUser;
+		this.userPhoto.setImageWithEntity(user);
+		this.userName.setText(user.name);
+	}
+
+	@Override protected void gather() {
+		if (!TextUtils.isEmpty(description.getText().toString())) {
+			report.data.put("message", description.getText().toString().trim());
+		}
+		report.data.put("type", reportType);
+		report.data.put("target", entityId);
+	}
+
+	@Override protected boolean validate() {
+		if (TextUtils.isEmpty(reportType)) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_report_option)
@@ -130,31 +112,27 @@ public class ReportEdit extends BaseEntityEdit {
 		return true;
 	}
 
-	@Override
-	protected void insert() {
+	@Override protected void insert() {
 
 		Logger.i(this, "Insert report");
 
 		new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_sending, ReportEdit.this);
+			@Override protected void onPreExecute() {
+				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_sending, ReportEdit.this);
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertReport");
-				mReport.createdDate = DateTime.nowDate().getTime();
-				final ModelResult result = DataController.getInstance().insertDocument(mReport, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				report.createdDate = DateTime.nowDate().getTime();
+				final ModelResult result = DataController.getInstance().insertDocument(report, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mUiController.getBusyController().hide(true);
+				uiController.getBusyController().hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_report_sent), Toast.LENGTH_SHORT);
 					finish();
@@ -162,13 +140,12 @@ public class ReportEdit extends BaseEntityEdit {
 				else {
 					Errors.handleError(ReportEdit.this, result.serviceResponse);
 				}
-				mProcessing = false;
+				processing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return R.layout.report_edit;
 	}
 }

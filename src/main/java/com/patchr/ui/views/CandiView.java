@@ -91,7 +91,7 @@ public class CandiView extends RelativeLayout {
 		mLayout = (ViewGroup) LayoutInflater.from(getContext()).inflate(mLayoutId, this, true);
 
 		mCandiViewGroup = mLayout.findViewById(R.id.candi_view_group);
-		mPhotoView = (ImageLayout) mLayout.findViewById(R.id.image_layout);
+		mPhotoView = (ImageLayout) mLayout.findViewById(R.id.photo);
 		mUserPhotoView = (ImageLayout) mLayout.findViewById(R.id.user_photo);
 		mName = (TextView) mLayout.findViewById(R.id.name);
 		mSubhead = (TextView) mLayout.findViewById(R.id.subhead);

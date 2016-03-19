@@ -8,6 +8,7 @@ import android.widget.GridView;
 
 import com.patchr.Constants;
 import com.patchr.R;
+import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
 public class AirGridView extends GridView {
@@ -40,9 +41,10 @@ public class AirGridView extends GridView {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measuredWidth = MeasureSpec.getSize(widthMeasureSpec);
-		if (mMaxWidth != null && mMaxWidth > 0 && mMaxWidth < measuredWidth) {
+		int maxWidth = UI.getRawPixelsForDisplayPixels((float) Constants.MAX_WIDTH_GRID);
+		if (maxWidth < measuredWidth) {
 			int measureMode = MeasureSpec.getMode(widthMeasureSpec);
-			widthMeasureSpec = MeasureSpec.makeMeasureSpec(mMaxWidth, measureMode);
+			widthMeasureSpec = MeasureSpec.makeMeasureSpec(maxWidth, measureMode);
 		}
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}

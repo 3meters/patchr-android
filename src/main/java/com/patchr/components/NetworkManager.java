@@ -102,10 +102,6 @@ public class NetworkManager {
 
 	private NetworkManager() {
 		mOkClient = new OkHttp();
-		try {
-			Dispatcher.getInstance().register(this);
-		}
-		catch (IllegalArgumentException ignore) { /* ignore */ }
 	}
 
 	private static class NetworkManagerHolder {
@@ -160,8 +156,8 @@ public class NetworkManager {
 			return new ServiceResponse(ResponseCode.FAILED, null, new NoNetworkException());
 		}
 
-		if (UserManager.getInstance().authenticated() && serviceRequest.getRequestType() != RequestType.GET) {
-			User user = UserManager.getInstance().getCurrentUser();
+		if (UserManager.shared().authenticated() && serviceRequest.getRequestType() != RequestType.GET) {
+			User user = UserManager.currentUser;
 			serviceRequest.getParameters().putString("user", user.id);
 			serviceRequest.getParameters().putString("session", user.session.key);
 		}
@@ -250,8 +246,7 @@ public class NetworkManager {
 
 	@SuppressWarnings("deprecation")
 	@SuppressLint("NewApi") // We check which build version we are using.
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-	public static boolean isAirplaneMode(Context context) {
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1) public static boolean isAirplaneMode(Context context) {
 		ContentResolver cr = context.getContentResolver();
 		if (Constants.SUPPORTS_JELLY_BEAN_MR1)
 			return Settings.Global.getInt(cr, Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
@@ -264,7 +259,6 @@ public class NetworkManager {
 		return (activeNetwork != null && activeNetwork.isConnectedOrConnecting());
 	}
 
-	@SuppressWarnings("ucd")
 	public Boolean isMobileNetwork() {
 		/* Check if we're connected to a data network, and if so - if it's a mobile network. */
 		Boolean isMobileNetwork = null;
@@ -275,7 +269,6 @@ public class NetworkManager {
 		return isMobileNetwork;
 	}
 
-	@SuppressWarnings("ucd")
 	public String getNetworkType() {
 		/* Check if we're connected to a data network, and if so - if it's a mobile network. */
 		if (mConnectivityManager != null) {

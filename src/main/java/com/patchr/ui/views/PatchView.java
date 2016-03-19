@@ -64,7 +64,7 @@ public class PatchView extends FrameLayout {
 		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
-		this.photoView = (ImageLayout) layout.findViewById(R.id.image_layout);
+		this.photoView = (ImageLayout) layout.findViewById(R.id.photo);
 		this.name = (TextView) layout.findViewById(R.id.name);
 		this.distance = (TextView) layout.findViewById(R.id.distance);
 		this.type = (TextView) layout.findViewById(R.id.type);

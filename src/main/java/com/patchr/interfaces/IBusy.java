@@ -12,9 +12,9 @@ public interface IBusy {
 
 	public void hide(Boolean now);
 
-	public void pause();
+	public void onPause();
 
-	public void resume();
+	public void onResume();
 
 	public enum BusyAction {
 		Refreshing_Empty,

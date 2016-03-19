@@ -4,10 +4,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
+import android.widget.FrameLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.patchr.Constants;
@@ -23,7 +25,7 @@ import com.patchr.objects.User;
 import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
-public class UserDetailView extends RelativeLayout {
+public class UserDetailView extends FrameLayout {
 
 	private static final Object lock = new Object();
 
@@ -35,12 +37,13 @@ public class UserDetailView extends RelativeLayout {
 	protected Integer  layoutResId   = R.layout.user_detail_view;
 	private   Boolean  isCurrentUser = false;
 
-	public ImageLayout userPhoto;
-	public TextView    name;
-	public TextView    email;
-	public TextView    area;
-	public TextView    buttonMember;
-	public TextView    buttonOwner;
+	public ImageLayout          userPhoto;
+	public TextView             name;
+	public TextView             email;
+	public TextView             area;
+	public TextView             buttonMember;
+	public TextView             buttonOwner;
+	public FloatingActionButton editFab;
 
 	public UserDetailView(Context context) {
 		this(context, null, 0);
@@ -71,12 +74,17 @@ public class UserDetailView extends RelativeLayout {
 
 	private void initialize() {
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
+
+		ListView.LayoutParams params = new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT);
+		this.setLayoutParams(params);
+
 		this.userPhoto = (ImageLayout) layout.findViewById(R.id.user_photo);
 		this.name = (TextView) layout.findViewById(R.id.name);
 		this.email = (TextView) layout.findViewById(R.id.email);
 		this.area = (TextView) layout.findViewById(R.id.area);
 		this.buttonMember = (TextView) layout.findViewById(R.id.button_member);
 		this.buttonOwner = (TextView) layout.findViewById(R.id.button_owner);
+		this.editFab = (FloatingActionButton) layout.findViewById(R.id.edit_fab);
 	}
 
 	public void databind(Entity entity) {
@@ -84,10 +92,8 @@ public class UserDetailView extends RelativeLayout {
 		synchronized (lock) {
 
 			this.entity = entity;
-			this.isCurrentUser = UserManager.getInstance().authenticated()
-					&& UserManager.getInstance().getCurrentUser().id.equals(entity.id);
-
-			UI.setVisibility(this.email, GONE);
+			this.isCurrentUser = UserManager.shared().authenticated()
+					&& UserManager.currentUser.id.equals(entity.id);
 
 			if (entity == null) {
 				Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img_default_user_light);
@@ -109,6 +115,8 @@ public class UserDetailView extends RelativeLayout {
 				base.setOrGone(this.email, user.email);
 			}
 
+			this.editFab.setVisibility(this.isCurrentUser ? VISIBLE : GONE);
+
 			/* Button state */
 
 			Count watching = entity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
@@ -117,11 +125,11 @@ public class UserDetailView extends RelativeLayout {
 			this.buttonMember.setText(StringManager.getString(R.string.label_user_watching)
 					+ ": " + ((watching != null)
 					          ? String.valueOf(watching.count.intValue())
-					          : StringManager.getString(R.string.label_user_watching_none)));
+					          : StringManager.getString(R.string.label_profile_member_of_empty)));
 			this.buttonOwner.setText(StringManager.getString(R.string.label_user_created)
 					+ ": " + ((created != null)
 					          ? String.valueOf(created.count.intValue())
-					          : StringManager.getString(R.string.label_user_created_none)));
+					          : StringManager.getString(R.string.label_profile_owner_of_empty)));
 		}
 	}
 }

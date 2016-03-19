@@ -84,6 +84,7 @@
 		<attr name="backgroundProgress" format="color|reference" />
 		<attr name="backgroundRound" format="color|reference" />
 		<attr name="backgroundRoundPlaceholder" format="color|reference" />
+		<attr name="backgroundRoundedPlaceholder" format="color|reference" />
 		<attr name="backgroundToken" format="color|reference" />
 
 		<attr name="imgLogo" format="reference" />

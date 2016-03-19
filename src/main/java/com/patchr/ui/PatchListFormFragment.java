@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.patchr.R;
+import com.patchr.ui.fragments.EntityListFragment;
 
 public class PatchListFormFragment extends EntityListFragment {
 

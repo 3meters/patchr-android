@@ -123,9 +123,9 @@ public class Utils {
 	}
 
 	public static Boolean isDev() {
-		return (UserManager.getInstance().authenticated()
-				&& UserManager.getInstance().getCurrentUser().developer != null
-				&& UserManager.getInstance().getCurrentUser().developer);
+		return (UserManager.shared().authenticated()
+				&& UserManager.currentUser.developer != null
+				&& UserManager.currentUser.developer);
 	}
 
 	public static int randomColor(long seed) {

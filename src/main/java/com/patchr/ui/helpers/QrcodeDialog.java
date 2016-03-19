@@ -1,27 +1,10 @@
 package com.patchr.ui.helpers;
 
-import android.annotation.SuppressLint;
-
 import com.patchr.R;
-import com.patchr.ui.base.BasePicker;
 
-@SuppressLint("Registered")
 public class QrcodeDialog extends BasePicker {
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return R.layout.qrcode_dialog;
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
 }

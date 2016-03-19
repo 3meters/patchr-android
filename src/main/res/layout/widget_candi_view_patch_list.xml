@@ -8,7 +8,7 @@
 	android:layout_height="@dimen/image_medium_large">
 
 	<com.patchr.ui.views.ImageLayout
-		android:id="@+id/image_layout"
+		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="@dimen/image_medium_large"
 		android:layout_height="@dimen/image_medium_large"
@@ -31,7 +31,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentTop="true"
-		android:layout_toRightOf="@+id/image_layout"
+		android:layout_toRightOf="@+id/photo"
 		android:paddingBottom="8dp"
 		android:paddingLeft="10dp"
 		android:paddingRight="10dp"

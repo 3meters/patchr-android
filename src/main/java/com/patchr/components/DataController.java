@@ -6,22 +6,25 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import com.parse.ParseInstallation;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
-import com.patchr.events.DataResultEvent;
-import com.patchr.events.EntitiesRequestEvent;
-import com.patchr.events.EntityRequestEvent;
+import com.patchr.events.DataQueryResultEvent;
+import com.patchr.events.EntitiesQueryEvent;
+import com.patchr.events.EntitiesQueryResultEvent;
+import com.patchr.events.EntityQueryEvent;
+import com.patchr.events.EntityQueryResultEvent;
 import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.LinkMuteEvent;
-import com.patchr.events.NotificationsRequestEvent;
+import com.patchr.events.NotificationsQueryEvent;
 import com.patchr.events.RegisterInstallEvent;
 import com.patchr.events.ShareCheckEvent;
-import com.patchr.events.TrendRequestEvent;
+import com.patchr.events.TrendQueryEvent;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.CacheStamp;
@@ -52,8 +55,8 @@ import com.patchr.utilities.Json;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.parse.ParseInstallation;
-import com.squareup.otto.Subscribe;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -95,15 +98,14 @@ public class DataController {
 	 * Data request events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe
-	public void onEntityRequest(final EntityRequestEvent event) {
+	@Subscribe public void onEntityRequest(final EntityQueryEvent event) {
 
 		/* Called on main thread */
 
 		/* Provide cache entity if available */
 		final Entity entity = ENTITY_STORE.getStoreEntity(event.entityId);
 		if (entity != null) {
-			DataResultEvent data = new DataResultEvent()
+			EntityQueryResultEvent data = new EntityQueryResultEvent()
 					.setActionType(event.actionType)
 					.setEntity(entity)
 					.setTag(event.tag);
@@ -128,9 +130,9 @@ public class DataController {
 					final List<Entity> entities = (List<Entity>) serviceData.data;
 					if (entities.size() > 0) {
 						Entity entity = entities.get(0);
-						DataResultEvent data = new DataResultEvent()
+						EntityQueryResultEvent data = new EntityQueryResultEvent()
 								.setActionType(event.actionType)
-								.setMode(event.mode)
+								.setMode(event.fetchMode)
 								.setEntity(entity)
 								.setTag(event.tag);
 						Dispatcher.getInstance().post(data);
@@ -147,7 +149,7 @@ public class DataController {
 				else {
 					DataErrorEvent error = new DataErrorEvent(serviceResponse.errorResponse);
 					error.setActionType(event.actionType)
-					     .setMode(event.mode)
+					     .setMode(event.fetchMode)
 					     .setTag(event.tag);
 					Dispatcher.getInstance().post(error);
 				}
@@ -156,8 +158,7 @@ public class DataController {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onEntitiesRequest(final EntitiesRequestEvent event) {
+	@Subscribe public void onEntitiesRequest(final EntitiesQueryEvent event) {
 
 		/* Called on main thread */
 
@@ -186,11 +187,11 @@ public class DataController {
 						Dispatcher.getInstance().post(noop);
 					}
 					else {
-						DataResultEvent data = new DataResultEvent()
+						EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
 								.setEntities((List<Entity>) serviceData.data)
 								.setMore(serviceData.more)
 								.setActionType(event.actionType)
-								.setMode(event.mode)
+								.setMode(event.fetchMode)
 								.setCursor(event.cursor)
 								.setScopingEntity(serviceData.entity)  // Entity straight from db and not processed by getEntities
 								.setTag(event.tag);
@@ -200,7 +201,7 @@ public class DataController {
 				else {
 					DataErrorEvent error = new DataErrorEvent(serviceResponse.errorResponse);
 					error.setActionType(event.actionType)
-					     .setMode(event.mode)
+					     .setMode(event.fetchMode)
 					     .setTag(event.tag);
 					Dispatcher.getInstance().post(error);
 				}
@@ -209,15 +210,13 @@ public class DataController {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onTrendRequest(final TrendRequestEvent event) {
+	@Subscribe public void onTrendRequest(final TrendQueryEvent event) {
 
 		/* Called on main thread */
 
 		new AsyncTask() {
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncGetTrend");
 				/*
 				 * By default returns sorted by rank in ascending order.
@@ -225,14 +224,17 @@ public class DataController {
 				ModelResult result = getTrending(event.toSchema
 						, event.fromSchema
 						, event.linkType
+						, event.cursor
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (result.data != null) {
-						DataResultEvent data = new DataResultEvent()
+						EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
 								.setEntities((List<Entity>) result.data)
+								.setCursor(event.cursor)
 								.setActionType(event.actionType)
-								.setMode(event.mode)
+								.setMode(event.fetchMode)
+								.setMore(((ServiceData) result.serviceResponse.data).more)
 								.setTag(event.tag);
 						Dispatcher.getInstance().post(data);
 					}
@@ -240,7 +242,7 @@ public class DataController {
 				else {
 					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
 					error.setActionType(event.actionType)
-					     .setMode(event.mode)
+					     .setMode(event.fetchMode)
 					     .setTag(event.tag);
 					Dispatcher.getInstance().post(error);
 				}
@@ -249,8 +251,7 @@ public class DataController {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onNotificationsRequest(final NotificationsRequestEvent event) {
+	@Subscribe public void onNotificationsRequest(final NotificationsQueryEvent event) {
 
 		/* Called on main thread */
 
@@ -265,11 +266,11 @@ public class DataController {
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (result.data != null) {
-						DataResultEvent data = new DataResultEvent()
+						EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
 								.setEntities((List<Entity>) result.data)
 								.setCursor(event.cursor)
 								.setActionType(event.actionType)
-								.setMode(event.mode)
+								.setMode(event.fetchMode)
 								.setMore(((ServiceData) result.serviceResponse.data).more)
 								.setTag(event.tag);
 						Dispatcher.getInstance().post(data);
@@ -278,7 +279,7 @@ public class DataController {
 				else {
 					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
 					error.setActionType(event.actionType)
-					     .setMode(event.mode)
+					     .setMode(event.fetchMode)
 					     .setTag(event.tag);
 					Dispatcher.getInstance().post(error);
 				}
@@ -287,8 +288,7 @@ public class DataController {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onLinkInsert(final LinkInsertEvent event) {
+	@Subscribe public void onLinkInsert(final LinkInsertEvent event) {
 
 		new AsyncTask() {
 
@@ -305,7 +305,7 @@ public class DataController {
 				);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataResultEvent data = new DataResultEvent()
+					DataQueryResultEvent data = new DataQueryResultEvent()
 							.setActionType(event.actionType)
 							.setTag(event.tag);
 					Dispatcher.getInstance().post(data);
@@ -321,8 +321,7 @@ public class DataController {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onLinkMute(final LinkMuteEvent event) {
+	@Subscribe public void onLinkMute(final LinkMuteEvent event) {
 
 		new AsyncTask() {
 
@@ -333,7 +332,7 @@ public class DataController {
 				ModelResult result = muteLink(event.linkId, event.mute, event.actionEvent);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataResultEvent data = new DataResultEvent()
+					DataQueryResultEvent data = new DataQueryResultEvent()
 							.setActionType(event.actionType)
 							.setTag(event.tag);
 					Dispatcher.getInstance().post(data);
@@ -349,8 +348,7 @@ public class DataController {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onLinkDelete(final LinkDeleteEvent event) {
+	@Subscribe public void onLinkDelete(final LinkDeleteEvent event) {
 
 		new AsyncTask() {
 
@@ -367,7 +365,7 @@ public class DataController {
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataResultEvent data = new DataResultEvent()
+					DataQueryResultEvent data = new DataQueryResultEvent()
 							.setActionType(event.actionType)
 							.setTag(event.tag);
 					Dispatcher.getInstance().post(data);
@@ -383,8 +381,7 @@ public class DataController {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onShareCheck(final ShareCheckEvent event) {
+	@Subscribe public void onShareCheck(final ShareCheckEvent event) {
 
 		new AsyncTask() {
 
@@ -397,7 +394,7 @@ public class DataController {
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataResultEvent data = new DataResultEvent()
+					DataQueryResultEvent data = new DataQueryResultEvent()
 							.setActionType(event.actionType)
 							.setData(result.data)
 							.setTag(event.tag);
@@ -414,8 +411,7 @@ public class DataController {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onRegisterInstall(RegisterInstallEvent event) {
+	@Subscribe public void onRegisterInstall(RegisterInstallEvent event) {
 
 		if (mRegistering) return;
 		mRegistering = true;
@@ -601,10 +597,10 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			UserManager.getInstance().setCurrentUser(user, true);
+			UserManager.shared().setCurrentUser(user, true);
 
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signin", null, 0);
-			Logger.i(this, "User signed in: " + UserManager.getInstance().getCurrentUser().name);
+			Logger.i(this, "User signed in: " + UserManager.currentUser.name);
 		}
 		return result;
 	}
@@ -623,8 +619,8 @@ public class DataController {
 				.setResponseFormat(ResponseFormat.JSON);
 
 		/* Leave this because we are using GET */
-		if (UserManager.getInstance().authenticated()) {
-			serviceRequest.setSession(UserManager.getInstance().getCurrentUser().session);
+		if (UserManager.shared().authenticated()) {
+			serviceRequest.setSession(UserManager.currentUser.session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -634,11 +630,11 @@ public class DataController {
 		Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signout", null, 0);
 
 		if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-			Logger.w(this, "User sign out but service call failed: " + UserManager.getInstance().getCurrentUser().id);
+			Logger.w(this, "User sign out but service call failed: " + UserManager.currentUser.id);
 		}
 
 		/* Set to anonymous user */
-		UserManager.getInstance().setCurrentUser(null, false);
+		UserManager.shared().setCurrentUser(null, false);
 
 		return result;
 	}
@@ -668,10 +664,10 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			UserManager.getInstance().setCurrentUser(user, true);
+			UserManager.shared().setCurrentUser(user, true);
 
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "password_change", null, 0);
-			Logger.i(this, "User changed password: " + UserManager.getInstance().getCurrentUser().name);
+			Logger.i(this, "User changed password: " + UserManager.currentUser.name);
 		}
 		return result;
 	}
@@ -729,10 +725,10 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			UserManager.getInstance().setCurrentUser(user, true);
+			UserManager.shared().setCurrentUser(user, true);
 
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signin", null, 0);
-			Logger.i(this, "Password reset and user signed in: " + UserManager.getInstance().getCurrentUser().name);
+			Logger.i(this, "Password reset and user signed in: " + UserManager.currentUser.name);
 		}
 
 		return result;
@@ -792,7 +788,7 @@ public class DataController {
 							.setRequestBody(Json.objectToJson(registeredUser, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
 							.setResponseFormat(ResponseFormat.JSON);
 
-					if (UserManager.getInstance().authenticated()) {
+					if (UserManager.shared().authenticated()) {
 						serviceRequest.setSession(user.session);
 					}
 					NetworkManager.getInstance().request(serviceRequest);
@@ -945,13 +941,13 @@ public class DataController {
 			 * Optimization: Add soft 'create' link so user entity doesn't have to be refetched
 			 */
 			if (!entity.synthetic) {
-				if (UserManager.getInstance().authenticated()) {
-					UserManager.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-					ENTITY_STORE.fixupAddLink(UserManager.getInstance().getCurrentUser().id
+				if (UserManager.shared().authenticated()) {
+					UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
+					ENTITY_STORE.fixupAddLink(UserManager.currentUser.id
 							, insertedEntity.id
 							, Constants.TYPE_LINK_CREATE
 							, null
-							, UserManager.getInstance().getCurrentUser().getAsShortcut(), insertedEntity.getAsShortcut());
+							, UserManager.currentUser.getAsShortcut(), insertedEntity.getAsShortcut());
 				}
 			}
 
@@ -1071,9 +1067,9 @@ public class DataController {
 			 * FIXME: This needs to be generalized to hunt down all links that have
 			 * this entity at either end and clean them up including any counts.
 			 */
-			if (UserManager.getInstance().authenticated()) {
-				UserManager.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-				ENTITY_STORE.fixupRemoveLink(UserManager.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
+			if (UserManager.shared().authenticated()) {
+				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
+				ENTITY_STORE.fixupRemoveLink(UserManager.currentUser.id, entityId, Constants.TYPE_LINK_CREATE, null);
 			}
 
 			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
@@ -1383,8 +1379,8 @@ public class DataController {
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, "entity_remove", schema, 0);
-			if (UserManager.getInstance().authenticated()) {
-				UserManager.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+			if (UserManager.shared().authenticated()) {
+				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
 			}
 			ENTITY_STORE.fixupRemoveLink(fromId, toId, type, null);
 		}
@@ -1396,25 +1392,29 @@ public class DataController {
 	 * Reports
 	 *--------------------------------------------------------------------------------------------*/
 
-	public ModelResult getTrending(String toSchema, String fromSchema, String trendType, Object tag) {
+	public ModelResult getTrending(String toSchema, String fromSchema, String trendType, Cursor cursor, Object tag) {
 		ModelResult result = new ModelResult();
 
-		final User currentUser = UserManager.getInstance().getCurrentUser();
+		final User currentUser = UserManager.currentUser;
 
 		LinkSpec links = new LinkSpec().setActive(new ArrayList<LinkSpecItem>());
 		links.shortcuts = false;
 
 		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
-				, UserManager.getInstance().authenticated() ? Maps.asMap("_from", currentUser.id) : null)
+				, UserManager.shared().authenticated() ? Maps.asMap("_from", currentUser.id) : null)
 				.setDirection(Direction.in));
 		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
-				, UserManager.getInstance().authenticated() ? Maps.asMap("_creator", currentUser.id) : null)
+				, UserManager.shared().authenticated() ? Maps.asMap("_creator", currentUser.id) : null)
 				.setDirection(Direction.in));
 
 		final Bundle parameters = new Bundle();
 		parameters.putBoolean("getEntities", true);
 		parameters.putInt("limit", 50);
 		parameters.putString("links", "object:" + Json.objectToJson(links));
+
+		if (cursor != null) {
+			parameters.putString("cursor", "object:" + Json.objectToJson(cursor));
+		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(Constants.URL_PROXIBASE_SERVICE_PATCHES + "interesting")
@@ -1430,6 +1430,7 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
 			final List<Entity> entities = (List<Entity>) serviceData.data;
 			Collections.sort(entities, new Entity.SortByRank());
+			result.serviceResponse.data = serviceData;
 			result.data = entities;
 		}
 		return result;
@@ -1447,7 +1448,7 @@ public class DataController {
 			throw new IllegalStateException("parseInstallId cannot be null");
 		}
 
-		Install install = new Install(UserManager.getInstance().authenticated() ? UserManager.getInstance().getCurrentUser().id : null
+		Install install = new Install(UserManager.shared().authenticated() ? UserManager.currentUser.id : null
 				, parseInstallId
 				, Patchr.getInstance().getinstallId());
 
@@ -1545,7 +1546,7 @@ public class DataController {
 		 * Push it to S3. It is always formatted/compressed as a jpeg.
 		 */
 		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
-		final String imageKey = String.valueOf((user != null) ? user.id : UserManager.getInstance().getCurrentUser().id) + "_" + stringDate + ".jpg";
+		final String imageKey = String.valueOf((user != null) ? user.id : UserManager.currentUser.id) + "_" + stringDate + ".jpg";
 		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3);
 
 		/* Update the photo object for the entity or user */
@@ -1633,8 +1634,7 @@ public class DataController {
 	 * Other fetch routines
 	 *--------------------------------------------------------------------------------------------*/
 
-	@NonNull
-	public CacheStamp getGlobalCacheStamp() {
+	@NonNull public CacheStamp getGlobalCacheStamp() {
 		CacheStamp cacheStamp = new CacheStamp(mActivityDate, null);
 		cacheStamp.source = CacheStamp.StampSource.ENTITY_MANAGER.name().toLowerCase(Locale.US);
 		return cacheStamp;
@@ -1717,20 +1717,5 @@ public class DataController {
 		USERS,
 		PATCHES_USERS,
 		ALL
-	}
-
-	public enum ActionType {
-		ACTION_GET_ENTITY,
-		ACTION_GET_ENTITIES,
-		ACTION_GET_TREND,
-		ACTION_GET_NOTIFICATIONS,
-		ACTION_LINK_INSERT_LIKE,
-		ACTION_LINK_DELETE_LIKE,
-		ACTION_LINK_INSERT_WATCH,
-		ACTION_LINK_DELETE_WATCH,
-		ACTION_LINK_MUTE_WATCH,
-		ACTION_ENTITY_INSERT,
-		ACTION_SHARE_CHECK,
-		ACTION_VIEW_CLICK
 	}
 }

@@ -35,10 +35,6 @@ public class NotificationManager {
 	private NotificationManager() {
 		mNotificationService = (android.app.NotificationManager) Patchr.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
 		mSoundUri = Uri.parse("android.resource://" + Patchr.applicationContext.getPackageName() + "/" + R.raw.notification_activity);
-		try {
-			Dispatcher.getInstance().register(this);
-		}
-		catch (IllegalArgumentException ignore) { /* ignore */ }
 	}
 
 	private static class NotificationManagerHolder {

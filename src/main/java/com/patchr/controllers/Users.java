@@ -7,7 +7,7 @@ import com.patchr.R;
 import com.patchr.objects.Entity;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.User;
-import com.patchr.ui.UserForm;
+import com.patchr.ui.UserScreen;
 import com.patchr.ui.edit.UserEdit;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class Users extends EntityControllerBase {
 
 	public Users() {
-		mBrowseClass = UserForm.class;
+		mBrowseClass = UserScreen.class;
 		mEditClass = UserEdit.class;
 		mNewClass = UserEdit.class;
 		mSchema = Constants.SCHEMA_ENTITY_USER;

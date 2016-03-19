@@ -1,7 +1,8 @@
-package com.patchr.ui.base;
+package com.patchr.ui.edit;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -9,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
@@ -33,15 +35,16 @@ import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy;
 import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Beacon;
-import com.patchr.objects.BindingMode;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Photo;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.service.ServiceResponse;
+import com.patchr.ui.BaseActivity;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.views.ImageLayout;
+import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
@@ -54,189 +57,72 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserListener, Target {
+public abstract class BaseEdit extends BaseActivity implements ImageChooserListener, Target {
 
-	protected ImageLayout         mPhotoView;
-	protected TextView            mName;
-	protected TextView            mDescription;
-	protected View                mButtonPhotoDelete;
-	protected View                mButtonPhotoEdit;
-	protected View                mButtonPhotoSet;
-	protected String              mPhotoSource;
-	protected ImageChooserManager mImageChooserManager;
-	protected AsyncTask           mTaskService;
+	protected ImageLayout         photoView;
+	protected TextView            name;
+	protected TextView            description;
+	protected View                buttonPhotoDelete;
+	protected View                buttonPhotoEdit;
+	protected View                buttonPhotoSet;
+	protected String              photoSource;
+	protected ImageChooserManager imageChooserManager;
+	protected AsyncTask           taskService;
 
-	protected Boolean mBrokenLink        = false;
-	protected Boolean mProximityDisabled = false;
+	protected Boolean brokenLink        = false;
+	protected Boolean proximityDisabled = false;
 
-	protected Integer mInsertProgressResId = R.string.progress_saving;
-	protected Integer mUpdateProgressResId = R.string.progress_updating;
-	protected Integer mInsertedResId       = R.string.alert_inserted;
-	protected Integer mUpdatedResId        = R.string.alert_updated;
+	protected Integer insertProgressResId = R.string.progress_saving;
+	protected Integer updateProgressResId = R.string.progress_updating;
+	protected Integer insertedResId       = R.string.alert_inserted;
+	protected Integer updatedResId        = R.string.alert_updated;
 
 	/* Inputs */
-	public String mParentId;
-	public String mEntitySchema;
+	public String parentId;
+	public String entitySchema;
 
-	public void unpackIntent() {
-		super.unpackIntent();
-		/*
-		 * Intent inputs:
-		 * - Both: Edit_Only
-		 * - New: Schema (required), Parent_Entity_Id
-		 * - Edit: Entity (required)
-		 */
-		final Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			final String jsonEntity = extras.getString(Constants.EXTRA_ENTITY);
-			if (jsonEntity != null) {
-				mEntity = (Entity) Json.jsonToObject(jsonEntity, Json.ObjectType.ENTITY);
-			}
+	public Boolean editing = false;
+	public Boolean dirty   = false;
 
-			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-			mParentId = extras.getString(Constants.EXTRA_ENTITY_PARENT_ID);
-			mEntitySchema = extras.getString(Constants.EXTRA_ENTITY_SCHEMA);
-		}
-		mEditing = (mEntity != null);
-	}
-
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-
-		mName = (TextView) findViewById(R.id.name);
-		mDescription = (TextView) findViewById(R.id.description);
-		mPhotoView = (ImageLayout) findViewById(R.id.image_layout);
-		mButtonPhotoSet = findViewById(R.id.button_photo_set);
-		mButtonPhotoEdit = findViewById(R.id.button_photo_edit);
-		mButtonPhotoDelete = findViewById(R.id.button_photo_delete);
-
-		if (mName != null) {
-			mName.addTextChangedListener(new SimpleTextWatcher() {
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					if (mEntity.name == null || !s.toString().equals(mEntity.name)) {
-						if (!mFirstDraw) {
-							mDirty = true;
-						}
-					}
-				}
-			});
-		}
-		if (mDescription != null) {
-			mDescription.addTextChangedListener(new SimpleTextWatcher() {
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					if (mEntity != null && (mEntity.description == null || !s.toString().equals(mEntity.description))) {
-						if (!mFirstDraw) {
-							mDirty = true;
-						}
-					}
-				}
-			});
-		}
-
-		if (mPhotoView != null) {
-			mPhotoView.target = this;
-		}
-	}
-
-	public void bind(BindingMode mode) {
-		if (!mEditing && mEntity == null && mEntitySchema != null) {
-			IEntityController controller = Patchr.getInstance().getControllerForSchema(mEntitySchema);
-			mEntity = controller.makeNew();
-			if (UserManager.getInstance().authenticated()) {
-				mEntity.creator = UserManager.getInstance().getCurrentUser();
-				mEntity.creatorId = UserManager.getInstance().getCurrentUser().id;
-			}
-		}
-		draw(null);
-	}
-
-	public void draw(View view) {
-
-		if (mEntity != null) {
-
-			final Entity entity = mEntity;
-
-			/* Content */
-
-			drawPhoto();
-
-			if (mName != null && !TextUtils.isEmpty(entity.name)) {
-				mName.setText(entity.name);
-			}
-			if (mDescription != null && !TextUtils.isEmpty(entity.description)) {
-				mDescription.setText(entity.description);
-			}
-
-			mFirstDraw = false;
-		}
-	}
-
-	protected void drawPhoto() {
-		/*
-		 * Can be called from main or background thread.
-		 */
-		runOnUiThread(
-				new Runnable() {
-					@Override
-					public void run() {
-						if (mPhotoView != null) {
-
-							/* Photo adornments */
-							UI.setVisibility(mButtonPhotoSet, View.GONE);
-							UI.setVisibility(mButtonPhotoEdit, View.GONE);
-							UI.setVisibility(mButtonPhotoDelete, View.GONE);
-
-							if (mEntity.photo == null) {
-								UI.setVisibility(mButtonPhotoSet, View.VISIBLE);
-							}
-							else {
-								UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
-								UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
-							}
-
-							if (mEntity.photo == null) {
-								mPhotoView.imageView.setImageDrawable(null);
-							}
-							else {
-								mPhotoView.showLoading(true);
-								mProcessing = true;                             // So user can't post while we a trying to fetch the photo
-								mPhotoView.setImageWithPhoto(mEntity.photo);    // Only place we try to load a photo
-							}
-						}
-					}
-				});
-	}
+	protected Integer dirtyExitTitleResId    = R.string.alert_dirty_exit_title;
+	protected Integer dirtyExitMessageResId  = R.string.alert_dirty_exit_message;
+	protected Integer dirtyExitPositiveResId = R.string.alert_dirty_save;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void onAccept() {
-		if (mProcessing) return;
-		mProcessing = true;
+	@Override public void onCancel(Boolean force) {
+		if (!force && dirty) {
+			confirmDirtyExit();
+		}
+		else {
+			super.onCancel(force);
+		}
+	}
+
+	@Override public void onSubmit() {
+		if (this.processing) return;
+		this.processing = true;
 		/*
 		 * We assume that by accepting while creating a patch, the users intention is
 		 * to commit even if nothing is dirty.
 		 */
-		if (!mEditing || isDirty()) {
+		if (!editing || this.dirty) {
 			if (validate()) {
 				/*
 				 * Pull all the control values back into the entity object. Validate
 				 * does that too but we don't know if validate is always being performed.
 				 */
 				gather();
-				accept();
+				submit();
 			}
 			else {
-				mProcessing = false;
+				this.processing = false;
 			}
 		}
 		else {
-			mProcessing = false;
+			this.processing = false;
 			onCancel(false);
 		}
 	}
@@ -244,20 +130,20 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	@Override public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
 
 		final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
-		UI.showDrawableInImageView(bitmapDrawable, mPhotoView.imageView, true);
+		UI.showDrawableInImageView(bitmapDrawable, photoView.imageView, true);
 
-		mProcessing = false;
+		this.processing = false;
 
-		UI.setVisibility(mButtonPhotoEdit, View.VISIBLE);
-		UI.setVisibility(mButtonPhotoDelete, View.VISIBLE);
+		UI.setVisibility(buttonPhotoEdit, View.VISIBLE);
+		UI.setVisibility(buttonPhotoDelete, View.VISIBLE);
 
-		mPhotoView.showLoading(false);
+		photoView.showLoading(false);
 	}
 
 	@Override public void onBitmapFailed(Drawable arg0) {
 		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
-		drawPhoto();
-		mProcessing = false;
+		bindPhoto();
+		this.processing = false;
 	}
 
 	@Override public void onPrepareLoad(Drawable drawable) { }
@@ -307,12 +193,12 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 					final String photoSource = extras.getString(Constants.EXTRA_PHOTO_SOURCE);
 
 					if (!TextUtils.isEmpty(photoSource)) {
-						mPhotoSource = photoSource;
+						this.photoSource = photoSource;
 						switch (photoSource) {
 							case Constants.PHOTO_ACTION_SEARCH:
 								String defaultSearch = null;
-								if (mEntity.name != null) {
-									defaultSearch = mEntity.name.trim();
+								if (entity.name != null) {
+									defaultSearch = entity.name.trim();
 								}
 								photoSearch(defaultSearch);
 								break;
@@ -345,11 +231,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			}
 			else if (requestCode == ChooserType.REQUEST_PICK_PICTURE) {
 
-				mImageChooserManager.submit(requestCode, intent);
+				imageChooserManager.submit(requestCode, intent);
 			}
 			else if (requestCode == ChooserType.REQUEST_CAPTURE_PICTURE) {
 
-				mImageChooserManager.submit(requestCode, intent);
+				imageChooserManager.submit(requestCode, intent);
 			}
 			else if (requestCode == Constants.ACTIVITY_PHOTO_EDIT) {
 
@@ -377,8 +263,8 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		gather();
 
 		/* Route it - editor loads image directly from s3 skipping imgix service  */
-		if (mEntity.photo != null) {
-			final String jsonPhoto = Json.objectToJson(mEntity.photo);
+		if (entity.photo != null) {
+			final String jsonPhoto = Json.objectToJson(entity.photo);
 			Bundle bundle = new Bundle();
 			bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
 			Patchr.router.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
@@ -391,28 +277,28 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		gather();
 
 		/* Route it */
-		Patchr.router.route(this, Route.PHOTO_SOURCE, mEntity, null);
+		Patchr.router.route(this, Route.PHOTO_SOURCE, entity, null);
 	}
 
 	public void onDeletePhotoButtonClick(View view) {
-		mDirty = (mEditing);
-		mEntity.photo = null;
-		drawPhoto();
+		dirty = (editing);
+		entity.photo = null;
+		bindPhoto();
 	}
 
 	public void onPhotoSelected(Photo photo) {
 		/*
 		 * All photo selection sources and types end up here
 		 */
-		mDirty = !Photo.same(mEntity.photo, photo);
-		if (mDirty) {
+		dirty = !Photo.same(entity.photo, photo);
+		if (dirty) {
 
-			mEntity.photo = photo;
-			if (mEntity.photo != null) {
-				mEntity.photo.setStore(true);
+			entity.photo = photo;
+			if (entity.photo != null) {
+				entity.photo.setStore(true);
 			}
 
-			drawPhoto();
+			bindPhoto();
 		}
 	}
 
@@ -420,25 +306,169 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override protected void beforeInsert(Entity entity, List<Link> links) {
-		if (mParentId != null) {
-			if (links == null) {
-				links = new ArrayList<>();
+	public void unpackIntent() {
+		super.unpackIntent();
+		/*
+		 * Intent inputs:
+		 * - Both: Edit_Only
+		 * - New: Schema (required), Parent_Entity_Id
+		 * - Edit: Entity (required)
+		 */
+		final Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			final String jsonEntity = extras.getString(Constants.EXTRA_ENTITY);
+			if (jsonEntity != null) {
+				this.entity = (Entity) Json.jsonToObject(jsonEntity, Json.ObjectType.ENTITY);
 			}
-			links.add(new Link(mParentId, getLinkType(), mEntity.schema));
+
+			this.entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
+			this.parentId = extras.getString(Constants.EXTRA_ENTITY_PARENT_ID);
+			this.entitySchema = extras.getString(Constants.EXTRA_ENTITY_SCHEMA);
+		}
+		this.editing = (this.entity != null);
+	}
+
+	public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+
+		name = (TextView) findViewById(R.id.name);
+		description = (TextView) findViewById(R.id.description);
+		photoView = (ImageLayout) findViewById(R.id.photo);
+		buttonPhotoSet = findViewById(R.id.button_photo_set);
+		buttonPhotoEdit = findViewById(R.id.button_photo_edit);
+		buttonPhotoDelete = findViewById(R.id.button_photo_delete);
+
+		if (name != null) {
+			name.addTextChangedListener(new SimpleTextWatcher() {
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					if (entity.name == null || !s.toString().equals(entity.name)) {
+						if (!firstDraw) {
+							dirty = true;
+						}
+					}
+				}
+			});
+		}
+		if (description != null) {
+			description.addTextChangedListener(new SimpleTextWatcher() {
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					if (entity != null && (entity.description == null || !s.toString().equals(entity.description))) {
+						if (!firstDraw) {
+							dirty = true;
+						}
+					}
+				}
+			});
+		}
+
+		if (photoView != null) {
+			photoView.target = this;
+		}
+
+		/* Make new entity if we are not editing */
+		if (!editing && this.entity == null && entitySchema != null) {
+
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(entitySchema);
+			this.entity = controller.makeNew();
+
+			if (UserManager.shared().authenticated()) {
+				entity.creator = UserManager.currentUser;
+				entity.creatorId = UserManager.currentUser.id;
+			}
 		}
 	}
 
-	@Override protected void insert() {
+	public void bind() {
 
-		mTaskService = new AsyncTask() {
+		if (this.entity != null) {
+			if (name != null && !TextUtils.isEmpty(entity.name)) {
+				name.setText(entity.name);
+			}
+			if (description != null && !TextUtils.isEmpty(entity.description)) {
+				description.setText(entity.description);
+			}
+			bindPhoto();
+			firstDraw = false;
+		}
+	}
+
+	protected void bindPhoto() {
+
+		/* Can be called from main or background thread. */
+		runOnUiThread(
+				new Runnable() {
+					@Override public void run() {
+						if (photoView != null) {
+
+							/* Photo adornments */
+							UI.setVisibility(buttonPhotoSet, View.GONE);
+							UI.setVisibility(buttonPhotoEdit, View.GONE);
+							UI.setVisibility(buttonPhotoDelete, View.GONE);
+
+							if (entity.photo == null) {
+								UI.setVisibility(buttonPhotoSet, View.VISIBLE);
+							}
+							else {
+								UI.setVisibility(buttonPhotoEdit, View.VISIBLE);
+								UI.setVisibility(buttonPhotoDelete, View.VISIBLE);
+							}
+
+							if (entity.photo == null) {
+								photoView.imageView.setImageDrawable(null);
+							}
+							else {
+								processing = true;                             // So user can't post while we a trying to fetch the photo
+								photoView.setImageWithPhoto(entity.photo);    // Only place we try to load a photo
+							}
+						}
+					}
+				});
+	}
+
+	protected void beforeInsert(Entity entity, List<Link> links) {
+		if (parentId != null) {
+			if (links == null) {
+				links = new ArrayList<>();
+			}
+			links.add(new Link(parentId, getLinkType(), this.entity.schema));
+		}
+	}
+
+	protected boolean afterInsert() {
+		return true;
+	}
+
+	protected boolean afterUpdate() {
+		return true;
+	}
+
+	protected boolean validate() {
+		return true;
+	}
+
+	public void submit() {
+		if (editing) {
+			update();
+		}
+		else {
+			insert();
+		}
+	}
+
+	protected void insert() {
+
+		taskService = new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
-					mUiController.getBusyController().showProgressDialog(BaseEntityEdit.this);
+				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
+					uiController.getBusyController().showProgressDialog(BaseEdit.this);
 				}
 				else {
-					mUiController.getBusyController().show(IBusy.BusyAction.ActionWithMessage, mInsertProgressResId, BaseEntityEdit.this);
+					uiController.getBusyController().show(IBusy.BusyAction.ActionWithMessage, insertProgressResId, BaseEdit.this);
 				}
 			}
 
@@ -449,18 +479,18 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				Beacon primaryBeacon = null;
 
 				/* If parent id then this is a child */
-				if (mEntity.linksIn != null) {
-					mEntity.linksIn.clear();
+				if (entity.linksIn != null) {
+					entity.linksIn.clear();
 				}
 
-				if (mEntity.linksOut != null) {
-					mEntity.linksOut.clear();
+				if (entity.linksOut != null) {
+					entity.linksOut.clear();
 				}
 
-				mEntity.toId = mParentId;
+				entity.toId = parentId;
 
 				/* We only send beacons if a patch is being inserted */
-				if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH) && !mProximityDisabled) {
+				if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH) && !proximityDisabled) {
 					beacons = ProximityController.getInstance().getStrongestBeacons(Constants.PROXIMITY_BEACON_COVERAGE);
 					primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 				}
@@ -470,11 +500,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				 * photo from anywhere or a local photo from the device camera or gallery.
 				 */
 				Bitmap bitmap = null;
-				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
+				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
 
 					try {
 						bitmap = Picasso.with(Patchr.applicationContext)
-								.load(mEntity.photo.uriDirect())
+								.load(entity.photo.uriDirect())
 								.centerInside()
 								.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 								.get();
@@ -489,7 +519,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						System.gc();
 						try {
 							bitmap = Picasso.with(Patchr.applicationContext)
-									.load(mEntity.photo.uriDirect())
+									.load(entity.photo.uriDirect())
 									.centerInside()
 									.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 									.get();
@@ -498,7 +528,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						}
 						catch (OutOfMemoryError err) {
 							/* Give up and log it */
-							Reporting.logMessage("OutOfMemoryError: uri: " + mEntity.photo.uriDirect());
+							Reporting.logMessage("OutOfMemoryError: uri: " + entity.photo.uriDirect());
 							throw err;
 						}
 						catch (IOException ignore) { }
@@ -515,14 +545,14 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 				/* In case a derived class needs to augment the entity or add links before insert */
 				List<Link> links = new ArrayList<>();
-				beforeInsert(mEntity, links);
+				beforeInsert(entity, links);
 				if (isCancelled()) return null;
 
-				ModelResult result = DataController.getInstance().insertEntity(mEntity, links, beacons, primaryBeacon, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().insertEntity(entity, links, beacons, primaryBeacon, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
-				mUiController.getBusyController().hide(true);
+				uiController.getBusyController().hide(true);
 
 				return result;
 			}
@@ -540,7 +570,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				 * - During service calls assuming okhttp catches the interrupt.
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
-				mUiController.getBusyController().hide(true);
+				uiController.getBusyController().hide(true);
 				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
 			}
 
@@ -549,47 +579,44 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 					Entity insertedEntity = (Entity) result.data;
-					mEntity.id = insertedEntity.id;
+					entity.id = insertedEntity.id;
 
 
 					/*
 					 * In case a derived class needs to do something after a successful insert
 					 */
 					if (afterInsert()) { // Returns true if OK to finish
-						if (mInsertedResId != null && mInsertedResId != 0) {
-							UI.showToastNotification(StringManager.getString(mInsertedResId), Toast.LENGTH_SHORT);
+						if (insertedResId != null && insertedResId != 0) {
+							UI.showToastNotification(StringManager.getString(insertedResId), Toast.LENGTH_SHORT);
 						}
 						final Intent intent = new Intent();
 						intent.putExtra(Constants.EXTRA_ENTITY_SCHEMA, insertedEntity.schema);
-						setResultCode(Activity.RESULT_OK, intent);
 						finish();
-						AnimationManager.doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_BACK);
+						AnimationManager.doOverridePendingTransition(BaseEdit.this, TransitionType.FORM_BACK);
 					}
 				}
 				else {
-					Errors.handleError(BaseEntityEdit.this, result.serviceResponse);
+					Errors.handleError(BaseEdit.this, result.serviceResponse);
 				}
-				mProcessing = false;
+				processing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override protected void update() {
+	protected void update() {
 
-		mTaskService = new AsyncTask() {
+		taskService = new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
-				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
-					mUiController.getBusyController().showProgressDialog(BaseEntityEdit.this);
+			@Override protected void onPreExecute() {
+				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
+					uiController.getBusyController().showProgressDialog(BaseEdit.this);
 				}
 				else {
-					mUiController.getBusyController().show(IBusy.BusyAction.ActionWithMessage, R.string.progress_updating, BaseEntityEdit.this);
+					uiController.getBusyController().show(IBusy.BusyAction.ActionWithMessage, R.string.progress_updating, BaseEdit.this);
 				}
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertUpdateEntity");
 				ModelResult result = new ModelResult();
 
@@ -597,11 +624,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 
 					Bitmap bitmap = null;
-					if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
+					if (entity.photo != null && Type.isTrue(entity.photo.store)) {
 
 						try {
 							bitmap = Picasso.with(Patchr.applicationContext)
-									.load(mEntity.photo.uriDirect())
+									.load(entity.photo.uriDirect())
 									.centerInside()
 									.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 									.get();
@@ -616,7 +643,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 							System.gc();
 							try {
 								bitmap = Picasso.with(Patchr.applicationContext)
-										.load(mEntity.photo.uriDirect())
+										.load(entity.photo.uriDirect())
 										.centerInside()
 										.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 										.get();
@@ -631,18 +658,16 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 						}
 					}
 
-					beforeUpdate(mEntity);
-					result = DataController.getInstance().updateEntity(mEntity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					result = DataController.getInstance().updateEntity(entity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 					if (isCancelled()) return null;
 
 					/* Don't allow cancel if we made it this far */
-					mUiController.getBusyController().hide(true);
+					uiController.getBusyController().hide(true);
 				}
 				return result.serviceResponse;
 			}
 
-			@Override
-			protected void onCancelled(Object response) {
+			@Override protected void onCancelled(Object response) {
 				/*
 				 * Stopping Points (interrupt was triggered on background thread)
 				 * - When task is pulled from queue (if waiting)
@@ -650,45 +675,34 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 				 * - During service calls assuming okhttp catches the interrupt.
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
-				mUiController.getBusyController().hide(true);
+				uiController.getBusyController().hide(true);
 				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				final ServiceResponse serviceResponse = (ServiceResponse) response;
 
 				if (serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 					if (afterUpdate()) {  // Primary current use is for patch to cleanup proximity links if needed
-						UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
-						setResultCode(Activity.RESULT_OK);
+						UI.showToastNotification(StringManager.getString(updatedResId), Toast.LENGTH_SHORT);
 						finish();
-						AnimationManager.doOverridePendingTransition(BaseEntityEdit.this, TransitionType.FORM_BACK);
+						AnimationManager.doOverridePendingTransition(BaseEdit.this, TransitionType.FORM_BACK);
 					}
 				}
 				else {
-					Errors.handleError(BaseEntityEdit.this, serviceResponse);
+					Errors.handleError(BaseEdit.this, serviceResponse);
 				}
-				mProcessing = false;
+				processing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	protected void gather() {
-		if (mName != null) {
-			mEntity.name = Type.emptyAsNull(mName.getText().toString().trim());
+		if (name != null) {
+			entity.name = Type.emptyAsNull(name.getText().toString().trim());
 		}
-		if (mDescription != null) {
-			mEntity.description = Type.emptyAsNull(mDescription.getText().toString().trim());
-		}
-	}
-
-	public void accept() {
-		if (mEditing) {
-			update();
-		}
-		else {
-			insert();
+		if (description != null) {
+			entity.description = Type.emptyAsNull(description.getText().toString().trim());
 		}
 	}
 
@@ -697,7 +711,7 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 	}
 
 	protected void setEntityType(String type) {
-		mEntity.type = type;
+		entity.type = type;
 	}
 
 	protected void usePhotoDefault() {
@@ -706,6 +720,32 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 		 */
 		Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_set_to_default", null, 0);
 		onPhotoSelected(null);
+	}
+
+	protected void confirmDirtyExit() {
+
+		final AlertDialog dialog = Dialogs.alertDialog(null
+				, StringManager.getString(dirtyExitTitleResId)
+				, StringManager.getString(dirtyExitMessageResId)
+				, null
+				, BaseEdit.this
+				, dirtyExitPositiveResId
+				, android.R.string.cancel
+				, R.string.alert_dirty_discard
+				, new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							onSubmit();
+						}
+						else if (which == DialogInterface.BUTTON_NEUTRAL) {
+							Patchr.router.route(BaseEdit.this, Route.CANCEL_FORCE, null, null);
+						}
+					}
+				}
+				, null);
+		dialog.setCanceledOnTouchOutside(false);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -718,11 +758,11 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			String directory = MediaManager.getTempDirectory(MediaManager.tempDirectoryName);
 			if (directory != null) {
 				//noinspection deprecation
-				mImageChooserManager = new ImageChooserManager(this
+				imageChooserManager = new ImageChooserManager(this
 						, ChooserType.REQUEST_PICK_PICTURE
 						, false);
-				mImageChooserManager.setImageChooserListener((BaseEntityEdit) this);
-				mImageChooserManager.choose();
+				imageChooserManager.setImageChooserListener((BaseEdit) this);
+				imageChooserManager.choose();
 			}
 			else {
 				UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
@@ -739,13 +779,13 @@ public abstract class BaseEntityEdit extends BaseEdit implements ImageChooserLis
 			String directory = MediaManager.getPhotoDirectory();
 			if (directory != null) {
 				//noinspection deprecation
-				mImageChooserManager = new ImageChooserManager(this
+				imageChooserManager = new ImageChooserManager(this
 						, ChooserType.REQUEST_CAPTURE_PICTURE
 						, directory
 						, false);
 
-				mImageChooserManager.setImageChooserListener((BaseEntityEdit) this);
-				mImageChooserManager.choose();
+				imageChooserManager.setImageChooserListener((BaseEdit) this);
+				imageChooserManager.choose();
 			}
 			else {
 				UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);

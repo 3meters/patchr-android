@@ -69,7 +69,7 @@ public class PatchInfoView extends FrameLayout implements View.OnClickListener {
 		this.description = (TextView) layout.findViewById(R.id.description);
 		this.ownerName = (TextView) layout.findViewById(R.id.owner_name);
 		this.expandoButton = (Button) layout.findViewById(R.id.expando_button);
-		this.moreButton = (View) layout.findViewById(R.id.more_button);
+		this.moreButton = (View) layout.findViewById(R.id.next_page_button);
 	}
 
 	/*--------------------------------------------------------------------------------------------

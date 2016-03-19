@@ -34,7 +34,8 @@ import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.squareup.otto.Subscribe;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -154,9 +155,7 @@ public class ProximityController {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onActivityStateEvent(final ActivityStateEvent event) {
+	@Subscribe public void onActivityStateEvent(final ActivityStateEvent event) {
 		/*
 		 * Activity manager is checking for activity every thirty seconds and filters
 		 * out tilting and unknowns.

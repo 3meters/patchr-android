@@ -6,7 +6,9 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import com.patchr.Constants;
 import com.patchr.R;
+import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
 public class AirSwipeRefreshLayout extends SwipeRefreshLayout {
@@ -57,7 +59,8 @@ public class AirSwipeRefreshLayout extends SwipeRefreshLayout {
 	@Override
 	public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measuredWidth = MeasureSpec.getSize(widthMeasureSpec);
-		if (maxWidth != null && maxWidth > 0 && maxWidth < measuredWidth) {
+		int maxWidth = UI.getRawPixelsForDisplayPixels((float) Constants.MAX_WIDTH_FORM);
+		if (maxWidth < measuredWidth) {
 			int measureMode = MeasureSpec.getMode(widthMeasureSpec);
 			widthMeasureSpec = MeasureSpec.makeMeasureSpec(maxWidth, measureMode);
 		}

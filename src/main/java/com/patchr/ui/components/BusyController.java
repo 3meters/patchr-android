@@ -1,7 +1,6 @@
 package com.patchr.ui.components;
 
 import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,7 +21,8 @@ import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;
-import com.squareup.otto.Subscribe;
+
+import org.greenrobot.eventbus.Subscribe;
 
 public class BusyController implements IBusy {
 
@@ -36,7 +36,6 @@ public class BusyController implements IBusy {
 	private ObjectAnimator mFadeInAnim  = ObjectAnimator.ofFloat(null, "alpha", 1f);
 	private ObjectAnimator mFadeOutAnim = ObjectAnimator.ofFloat(null, "alpha", 0f);
 
-	@SuppressLint("ResourceAsColor")
 	public BusyController() {
 		mRunnableHide = new Runnable() {
 			@Override
@@ -46,17 +45,24 @@ public class BusyController implements IBusy {
 		};
 	}
 
+	public void onResume() {
+		Dispatcher.getInstance().register(this);
+	}
+
+	public void onPause() {
+		Dispatcher.getInstance().unregister(this);
+		hide(true);
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void show(final BusyAction busyAction) {
+	@Override public void show(final BusyAction busyAction) {
 		show(busyAction, null, null);
 	}
 
-	@Override
-	public void show(final BusyAction busyAction, final Object message, final Context context) {
+	@Override public void show(final BusyAction busyAction, final Object message, final Context context) {
 
 		/*
 		 * Make sure there are no pending busys waiting.
@@ -137,8 +143,7 @@ public class BusyController implements IBusy {
 		Patchr.mainThreadHandler.postDelayed(mRunnableShow, (busyAction == BusyAction.Refreshing_Empty) ? Constants.INTERVAL_BUSY_DELAY : 0);
 	}
 
-	@Override
-	public void showProgressDialog(final Context context) {
+	@Override public void showProgressDialog(final Context context) {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
@@ -183,8 +188,7 @@ public class BusyController implements IBusy {
 		Patchr.mainThreadHandler.postDelayed(mRunnableShow, 0);
 	}
 
-	@Override
-	public void hide(Boolean noDelay) {
+	@Override public void hide(Boolean noDelay) {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
@@ -212,18 +216,6 @@ public class BusyController implements IBusy {
 				stopSwipeRefreshIndicator();
 			}
 		});
-	}
-
-	public void position(final View header, final Integer headerHeightProjected) {
-		ListController.position(mProgressBar, header, headerHeightProjected);
-	}
-
-	@Subscribe
-	public void onProgressEvent(ProcessingProgressEvent event) {
-		if (mProgressDialog != null && mProgressDialog.isShowing() && !mProgressDialog.isIndeterminate()) {
-			Logger.v(this, "Progress event: " + event.percent + "%");
-			mProgressDialog.setProgress((int) event.percent);
-		}
 	}
 
 	public void startProgressBar() {
@@ -268,6 +260,17 @@ public class BusyController implements IBusy {
 	}
 
 	/*--------------------------------------------------------------------------------------------
+	 * Notifications
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe public void onProgressEvent(ProcessingProgressEvent event) {
+		if (mProgressDialog != null && mProgressDialog.isShowing() && !mProgressDialog.isIndeterminate()) {
+			Logger.v(this, "Progress event: " + event.percent + "%");
+			mProgressDialog.setProgress((int) event.percent);
+		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
@@ -283,24 +286,5 @@ public class BusyController implements IBusy {
 			mProgressBar = (AirProgressBar) progressBar;
 		}
 		return this;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	public void resume() {
-		try {
-			Dispatcher.getInstance().register(this);
-		}
-		catch (IllegalArgumentException e) {/* ignore */}
-	}
-
-	public void pause() {
-		try {
-			Dispatcher.getInstance().unregister(this);
-		}
-		catch (IllegalArgumentException e) {/* ignore */}
-		hide(true);
 	}
 }

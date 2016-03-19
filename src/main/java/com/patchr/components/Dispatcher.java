@@ -1,15 +1,14 @@
 package com.patchr.components;
 
-import com.squareup.otto.Bus;
-import com.squareup.otto.ThreadEnforcer;
+import org.greenrobot.eventbus.EventBus;
 
 public class Dispatcher {
 
 	private static class BusHolder {
-		public static final Bus instance = new Bus(ThreadEnforcer.ANY);
+		public static final EventBus instance = EventBus.getDefault();
 	}
 
-	public static Bus getInstance() {
+	public static EventBus getInstance() {
 		return BusHolder.instance;
 	}
 

@@ -2,7 +2,6 @@
 package com.patchr;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +35,7 @@ import com.patchr.components.ActivityRecognitionManager;
 import com.patchr.components.ContainerManager;
 import com.patchr.components.DataController;
 import com.patchr.components.Dispatcher;
+import com.patchr.components.Foreground;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.NetworkManager;
@@ -89,8 +89,6 @@ public class Patchr extends MultiDexApplication {
 	public static Boolean                        debug                     = false;
 	@NonNull
 	public static Boolean                        applicationUpdateRequired = false;
-	@NonNull
-	public static Integer                        resultCode                = Activity.RESULT_OK; // Used to cascade up the activity chain
 
 	public static BasicAWSCredentials awsCredentials = null;
 
@@ -108,7 +106,6 @@ public class Patchr extends MultiDexApplication {
 
 	/* Current objects */
 	private Entity   mCurrentPatch;
-	private Activity mCurrentActivity;
 
 	/* Dev preferences */
 	private Boolean mPrefEnableDev;
@@ -151,6 +148,8 @@ public class Patchr extends MultiDexApplication {
 		settingsEditor = settings.edit();
 
 		Logger.i(this, "First run configuration");
+
+		Foreground.init(this);
 
 		/* Make sure setting defaults are initialized */
 		PreferenceManager.setDefaultValues(this, R.xml.preferences_dev, true);
@@ -198,7 +197,7 @@ public class Patchr extends MultiDexApplication {
 		controllerMap.put(Constants.SCHEMA_ENTITY_NOTIFICATION, new Notifications());
 
 		/* Must come after managers are initialized */
-		UserManager.getInstance().signinAuto();
+		UserManager.shared().signinAuto();
 
 		/* Start activity recognition */
 		ActivityRecognitionManager.getInstance().initialize(applicationContext);
@@ -388,10 +387,6 @@ public class Patchr extends MultiDexApplication {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void setCurrentActivity(Activity currentActivity) {
-		mCurrentActivity = currentActivity;
-	}
-
 	public void setCurrentPatch(Entity currentPatch) {
 		mCurrentPatch = currentPatch;
 		Logger.v(this, "Setting current patch to: " + currentPatch);
@@ -420,10 +415,6 @@ public class Patchr extends MultiDexApplication {
 	@NonNull
 	public String getPrefTestingBeacons() {
 		return mPrefTestingBeacons;
-	}
-
-	public Activity getCurrentActivity() {
-		return mCurrentActivity;
 	}
 
 	public Entity getCurrentPatch() {

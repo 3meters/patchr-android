@@ -14,7 +14,7 @@
 			android:layout_height="wrap_content">
 
 			<com.patchr.ui.views.ImageLayout
-				android:id="@+id/image_layout"
+				android:id="@+id/photo"
 				style="@style/selectable_image"
 				android:layout_width="@dimen/image_medium_large"
 				android:layout_height="@dimen/image_medium_large"

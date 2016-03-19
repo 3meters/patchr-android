@@ -7,10 +7,6 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.patchr.Constants;
 import com.patchr.R;
@@ -25,10 +21,8 @@ import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.ViewHolder;
-import com.patchr.ui.EntityListFragment.ViewType;
-import com.patchr.ui.views.ImageLayout;
+import com.patchr.ui.components.ListPresenter;
 import com.patchr.ui.views.CandiView;
-import com.patchr.ui.views.UserView;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;
@@ -45,7 +39,7 @@ public abstract class EntityControllerBase implements IEntityController {
 	protected Class<?> mEditClass;
 	protected Class<?> mNewClass;
 
-	protected String  mListViewType = ViewType.LIST;
+	protected String  mListViewType = ListPresenter.ViewType.LIST;
 	protected Integer mPageSize     = Integers.getInteger(R.integer.page_size_entities);
 
 	protected Integer mListItemResId = R.layout.temp_listitem_entity;
@@ -123,9 +117,7 @@ public abstract class EntityControllerBase implements IEntityController {
 	public Intent edit(Context context, Entity entity, Bundle extras, Boolean start) {
 
 		IntentBuilder intentBuilder = new IntentBuilder(context, mEditClass);
-		intentBuilder
-				.setEntity(entity)
-				.addExtras(extras);
+		intentBuilder.setEntity(entity).addExtras(extras);
 		Intent intent = intentBuilder.create();
 
 		if (start) {
@@ -159,7 +151,6 @@ public abstract class EntityControllerBase implements IEntityController {
 		ViewHolder holder = (ViewHolder) view.getTag();
 		if (holder == null) {
 			holder = new ViewHolder();
-			bindHolder(view, holder);
 			view.setTag(holder);
 		}
 		holder.data = entity;
@@ -318,43 +309,6 @@ public abstract class EntityControllerBase implements IEntityController {
 			holder.photoView.setImageWithPhoto(photo);
 			UI.setVisibility(holder.photoView, View.VISIBLE);
 		}
-	}
-
-	public void bindHolder(View view, ViewHolder holder) {
-
-		holder.candiView = (CandiView) view.findViewById(R.id.candi_view);
-		holder.photoView = (ImageLayout) view.findViewById(R.id.image_layout);
-		holder.name = (TextView) view.findViewById(R.id.name);
-		holder.subhead = (TextView) view.findViewById(R.id.subhead);
-		holder.summary = (TextView) view.findViewById(R.id.summary);
-		holder.description = (TextView) view.findViewById(R.id.description);
-		holder.creator = (UserView) view.findViewById(R.id.creator);
-		holder.area = (TextView) view.findViewById(R.id.area);
-		holder.createdDate = (TextView) view.findViewById(R.id.created_date);
-		holder.modifiedDate = (TextView) view.findViewById(R.id.modified_date);
-		holder.comments = (TextView) view.findViewById(R.id.comments);
-		holder.share = (ViewGroup) view.findViewById(R.id.share_entity);
-		holder.alert = (ImageView) view.findViewById(R.id.recency_indicator);
-		holder.photoType = (ImageView) view.findViewById(R.id.notification_type);
-
-		if (holder.checked != null) {
-			holder.checked.setOnClickListener(new View.OnClickListener() {
-
-				@Override
-				public void onClick(View view) {
-					final CheckBox checkBox = (CheckBox) view;
-					final Entity entity = (Entity) checkBox.getTag();
-					entity.checked = checkBox.isChecked();
-				}
-			});
-		}
-		holder.index = (TextView) view.findViewById(R.id.index);
-		holder.userPhotoView = (ImageLayout) view.findViewById(R.id.user_photo);
-		holder.userName = (TextView) view.findViewById(R.id.user_name);
-		holder.patchPhotoView = (ImageLayout) view.findViewById(R.id.patch_photo);
-		holder.patchName = (TextView) view.findViewById(R.id.patch_name);
-		holder.categoryName = (TextView) view.findViewById(R.id.category_name);
-		holder.type = (TextView) view.findViewById(R.id.type);
 	}
 
 	@Override

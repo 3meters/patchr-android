@@ -1,4 +1,4 @@
-package com.patchr.ui;
+package com.patchr.ui.fragments;
 
 import android.content.res.Configuration;
 import android.os.AsyncTask;
@@ -25,13 +25,14 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
-import com.patchr.events.DataResultEvent;
+import com.patchr.events.DataQueryResultEvent;
 import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.events.ShareCheckEvent;
 import com.patchr.events.WatchStatusChangedEvent;
-import com.patchr.objects.BindingMode;
+import com.patchr.objects.ActionType;
+import com.patchr.objects.FetchMode;
 import com.patchr.objects.Count;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
@@ -41,7 +42,8 @@ import com.patchr.objects.WatchStatus;
 import com.patchr.ui.views.CandiView;
 import com.patchr.ui.views.ImageLayout;
 import com.patchr.utilities.UI;
-import com.squareup.otto.Subscribe;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Locale;
 
@@ -65,7 +67,7 @@ public class PatchFormFragment extends EntityFormFragment {
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe public void onDataResult(final DataResultEvent event) {
+	@Subscribe public void onDataResult(final DataQueryResultEvent event) {
 
 		/* Can be called on background thread */
 		if (event.tag.equals(System.identityHashCode(this))
@@ -73,12 +75,12 @@ public class PatchFormFragment extends EntityFormFragment {
 
 			Logger.v(this, "Data result accepted: " + event.actionType.name());
 
-			if (event.actionType == DataController.ActionType.ACTION_LINK_INSERT_WATCH
-					|| event.actionType == DataController.ActionType.ACTION_LINK_DELETE_WATCH) {
+			if (event.actionType == ActionType.ACTION_LINK_INSERT_WATCH
+					|| event.actionType == ActionType.ACTION_LINK_DELETE_WATCH) {
 				/*
 				 * Rebind to capture the users watch state from the service and then draw.
 				 */
-				int watchStatus = (event.actionType == DataController.ActionType.ACTION_LINK_INSERT_WATCH) ? WatchStatus.REQUESTED : WatchStatus.NONE;
+				int watchStatus = (event.actionType == ActionType.ACTION_LINK_INSERT_WATCH) ? WatchStatus.REQUESTED : WatchStatus.NONE;
 				Dispatcher.getInstance().post(new WatchStatusChangedEvent(watchStatus));
 				onProcessingComplete();
 			}
@@ -110,7 +112,7 @@ public class PatchFormFragment extends EntityFormFragment {
 			getActivity().runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					bind(BindingMode.AUTO);
+					bind(FetchMode.AUTO);
 				}
 			});
 		}
@@ -121,7 +123,7 @@ public class PatchFormFragment extends EntityFormFragment {
 
 		/* Reset the image aspect ratio */
 		if (getView() != null) {
-			ImageLayout image = (ImageLayout) getView().findViewById(R.id.image_layout);
+			ImageLayout image = (ImageLayout) getView().findViewById(R.id.photo);
 			TypedValue typedValue = new TypedValue();
 			getResources().getValue(R.dimen.aspect_ratio_patch_image, typedValue, true);
 			image.setAspectRatio(typedValue.getFloat());
@@ -153,12 +155,12 @@ public class PatchFormFragment extends EntityFormFragment {
 				/* Some state management */
 
 				mWatchStatus = ((Patch) mEntity).watchStatus();
-				Boolean owner = (UserManager.getInstance().authenticated() && mEntity.ownerId != null && mEntity.ownerId.equals(UserManager.getInstance().getCurrentUser().id));
+				Boolean owner = (UserManager.shared().authenticated() && mEntity.ownerId != null && mEntity.ownerId.equals(UserManager.currentUser.id));
 
 				/* Photo overlayed with info */
 
 				final CandiView candiView = (CandiView) view.findViewById(R.id.candi_view);
-				final ImageLayout photoView = (ImageLayout) view.findViewById(R.id.image_layout);
+				final ImageLayout photoView = (ImageLayout) view.findViewById(R.id.photo);
 				final TextView name = (TextView) view.findViewById(R.id.name);
 				final TextView type = (TextView) view.findViewById(R.id.type);
 
@@ -256,7 +258,7 @@ public class PatchFormFragment extends EntityFormFragment {
 		if (actionView != null && mEntity != null) {
 
 			Patch patch = (Patch) mEntity;
-			Boolean owner = (UserManager.getInstance().authenticated() && patch.ownerId != null && patch.ownerId.equals(UserManager.getInstance().getCurrentUser().id));
+			Boolean owner = (UserManager.shared().authenticated() && patch.ownerId != null && patch.ownerId.equals(UserManager.currentUser.id));
 			Boolean hasMessaged = (mEntity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
 			Boolean isPublic = (patch.privacy != null
 					&& patch.privacy.equals(Constants.PRIVACY_PUBLIC)
@@ -342,11 +344,11 @@ public class PatchFormFragment extends EntityFormFragment {
 		if (activate) {
 
 			/* Used as part of link management */
-			Shortcut fromShortcut = UserManager.getInstance().getCurrentUser().getAsShortcut();
+			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
 			Shortcut toShortcut = mEntity.getAsShortcut();
 
 			LinkInsertEvent update = new LinkInsertEvent()
-					.setFromId(UserManager.getInstance().getCurrentUser().id)
+					.setFromId(UserManager.currentUser.id)
 					.setToId(mEntity.id)
 					.setType(Constants.TYPE_LINK_WATCH)
 					.setEnabled(enabled)
@@ -355,7 +357,7 @@ public class PatchFormFragment extends EntityFormFragment {
 					.setActionEvent(((Patch) mEntity).isVisibleToCurrentUser() ? "watch_entity_patch" : "request_watch_entity")
 					.setSkipCache(false);
 
-			update.setActionType(DataController.ActionType.ACTION_LINK_INSERT_WATCH)
+			update.setActionType(ActionType.ACTION_LINK_INSERT_WATCH)
 					.setTag(System.identityHashCode(this));
 
 			Dispatcher.getInstance().post(update);
@@ -363,14 +365,14 @@ public class PatchFormFragment extends EntityFormFragment {
 		else {
 
 			LinkDeleteEvent update = new LinkDeleteEvent()
-					.setFromId(UserManager.getInstance().getCurrentUser().id)
+					.setFromId(UserManager.currentUser.id)
 					.setToId(mEntity.id)
 					.setType(Constants.TYPE_LINK_WATCH)
 					.setEnabled(enabled)
 					.setSchema(mEntity.schema)
 					.setActionEvent("unwatch_entity_" + mEntity.schema.toLowerCase(Locale.US));
 
-			update.setActionType(DataController.ActionType.ACTION_LINK_DELETE_WATCH)
+			update.setActionType(ActionType.ACTION_LINK_DELETE_WATCH)
 					.setTag(System.identityHashCode(this));
 
 			Dispatcher.getInstance().post(update);
@@ -402,7 +404,7 @@ public class PatchFormFragment extends EntityFormFragment {
 
 			@Override
 			protected void onPostExecute(Object response) {
-				bind(BindingMode.AUTO);
+				bind(FetchMode.AUTO);
 				onProcessingComplete(); // Updates ui like floating button
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
@@ -434,9 +436,9 @@ public class PatchFormFragment extends EntityFormFragment {
 
 		ShareCheckEvent event = new ShareCheckEvent()
 				.setEntityId(mEntity.id)
-				.setUserId(UserManager.getInstance().getCurrentUser().id);
+				.setUserId(UserManager.currentUser.id);
 
-		event.setActionType(DataController.ActionType.ACTION_SHARE_CHECK)
+		event.setActionType(ActionType.ACTION_SHARE_CHECK)
 				.setTag(System.identityHashCode(this));
 
 		Dispatcher.getInstance().post(event);

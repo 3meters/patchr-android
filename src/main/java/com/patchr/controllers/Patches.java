@@ -7,7 +7,7 @@ import com.patchr.R;
 import com.patchr.objects.Entity;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Patch;
-import com.patchr.ui.PatchForm;
+import com.patchr.ui.PatchScreen;
 import com.patchr.ui.edit.PatchEdit;
 import com.patchr.utilities.DateTime;
 
@@ -18,7 +18,7 @@ public class Patches extends EntityControllerBase {
 	public Patches() {
 		mColorPrimary = R.color.holo_red_dark;
 		mSchema = Constants.SCHEMA_ENTITY_PATCH;
-		mBrowseClass = PatchForm.class;
+		mBrowseClass = PatchScreen.class;
 		mEditClass = PatchEdit.class;
 		mNewClass = PatchEdit.class;
 		mListLayoutResId = R.layout.entity_list_fragment;

@@ -21,71 +21,85 @@
 
 		<!-- Content -->
 
-		<RelativeLayout
+		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:orientation="vertical"
 			android:padding="16dp">
 
 			<!-- User picture -->
 
-			<com.patchr.ui.views.ImageLayout
-				android:id="@+id/image_layout"
-				style="@style/selectable_image"
-				android:layout_width="@dimen/image_extra_large"
-				android:layout_height="@dimen/image_extra_large"
-				android:layout_centerHorizontal="true"
-				android:layout_marginBottom="8dp"
-				android:clickable="true"
-				android:minWidth="@dimen/image_extra_large"
-				android:onClick="onChangePhotoButtonClick"
-				custom:category="standard" />
-
 			<RelativeLayout
+				android:id="@+id/photo_edit"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_alignLeft="@+id/image_layout"
-				android:layout_alignRight="@+id/image_layout"
-				android:layout_alignTop="@+id/image_layout"
-				android:background="@drawable/scrim_medium">
+				android:layout_gravity="center_horizontal">
 
-				<com.patchr.ui.widgets.AirTextView
+				<com.patchr.ui.views.ImageLayout
+					android:id="@+id/photo"
+					style="@style/selectable_image"
+					android:layout_width="@dimen/image_extra_large"
+					android:layout_height="@dimen/image_extra_large"
+					android:layout_centerHorizontal="true"
+					android:background="?attr/backgroundRoundedPlaceholder"
+					android:clickable="true"
+					android:minWidth="@dimen/image_extra_large"
+					android:onClick="onChangePhotoButtonClick"
+					custom:category="standard"
+					custom:radius="16"
+					custom:shape="rounded" />
+
+				<ImageButton
 					android:id="@+id/button_photo_set"
 					style="@style/button_flat"
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/form_field_height"
+					android:layout_width="48dp"
+					android:layout_height="48dp"
+					android:layout_centerInParent="true"
+					android:background="@drawable/bg_round"
+					android:backgroundTint="#bbffffff"
 					android:clickable="true"
-					android:gravity="center"
 					android:onClick="onChangePhotoButtonClick"
+					android:src="@drawable/ic_action_camera_dark"
 					android:text="@string/button_set_picture"
 					android:textAppearance="?android:attr/textAppearance"
-					android:textColor="?attr/textColorCandiView"
-					tools:visibility="gone" />
+					android:tint="@color/brand_primary" />
 
 				<ImageButton
 					android:id="@+id/button_photo_edit"
 					style="@style/button_flat"
-					android:layout_width="@dimen/form_field_height"
-					android:layout_height="@dimen/form_field_height"
+					android:layout_width="36dp"
+					android:layout_height="36dp"
+					android:layout_alignBottom="@+id/photo"
+					android:layout_alignRight="@+id/photo"
+					android:layout_margin="8dp"
+					android:background="@drawable/bg_round"
+					android:backgroundTint="#bbffffff"
+					android:foregroundTint="@color/brand_primary"
 					android:clickable="true"
-					android:gravity="center"
-					android:layout_alignParentLeft="true"
 					android:onClick="onEditPhotoButtonClick"
 					android:src="@drawable/ic_action_edit_dark"
 					android:textAppearance="?android:attr/textAppearance"
-					android:textColor="?attr/textColorCandiView" />
+					android:textColor="?attr/textColorCandiView"
+					android:tint="@color/brand_primary" />
 
 				<ImageButton
 					android:id="@+id/button_photo_delete"
 					style="@style/button_flat"
-					android:layout_width="@dimen/form_field_height"
-					android:layout_height="@dimen/form_field_height"
+					android:layout_width="36dp"
+					android:layout_height="36dp"
+					android:layout_alignBottom="@+id/photo"
+					android:layout_alignLeft="@+id/photo"
+					android:layout_margin="8dp"
+					android:layout_marginBottom="8dp"
+					android:background="@drawable/bg_round"
+					android:backgroundTint="#bbffffff"
 					android:clickable="true"
 					android:gravity="center"
-					android:layout_alignParentRight="true"
 					android:onClick="onDeletePhotoButtonClick"
 					android:src="@drawable/ic_action_cancel_dark"
 					android:textAppearance="?android:attr/textAppearance"
-					android:textColor="?attr/textColorCandiView" />
+					android:textColor="?attr/textColorCandiView"
+					android:tint="@color/brand_primary" />
 
 			</RelativeLayout>
 
@@ -95,8 +109,8 @@
 				android:id="@+id/holder_body"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_below="@+id/image_layout"
 				android:layout_marginBottom="8dp"
+				android:layout_marginTop="8dp"
 				android:orientation="vertical">
 
 				<com.patchr.ui.widgets.AirEditText
@@ -138,7 +152,7 @@
 					android:onClick="onChangePasswordButtonClick"
 					android:text="@string/button_change_password" />
 			</LinearLayout>
-		</RelativeLayout>
+		</LinearLayout>
 
 	</com.patchr.ui.widgets.AirScrollView>
 

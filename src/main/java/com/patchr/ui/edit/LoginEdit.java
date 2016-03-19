@@ -29,7 +29,6 @@ import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.base.BaseEdit;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
@@ -39,39 +38,71 @@ import java.util.Locale;
 
 public class LoginEdit extends BaseEdit {
 
-	private EditText mEmail;
-	private EditText mPassword;
-	private CheckBox mPasswordUnmask;
+	private EditText email;
+	private EditText password;
+	private CheckBox passwordUnmask;
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	public void onForgotPasswordButtonClick(View view) {
+		Patchr.router.route(this, Route.PASSWORD_RESET, null, null);
+	}
+
+	public void onLoginButtonClick(View view) {
+		if (validate()) {
+			signin();
+		}
+	}
+
+	public void onSignupButtonClick(View view) {
+		Patchr.router.route(this, Route.SIGNUP, null, null);
+	}
+
+	@Override public void onSubmit() {
+		if (validate()) {
+			signin();
+		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mEmail = (EditText) findViewById(R.id.email);
-		mPassword = (EditText) findViewById(R.id.password);
-		mPasswordUnmask = (CheckBox) findViewById(R.id.chk_unmask);
+		email = (EditText) findViewById(R.id.email);
+		password = (EditText) findViewById(R.id.password);
+		passwordUnmask = (CheckBox) findViewById(R.id.chk_unmask);
 
-		mPasswordUnmask.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		passwordUnmask.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked) {
-					mPassword.setInputType(InputType.TYPE_CLASS_TEXT
+					password.setInputType(InputType.TYPE_CLASS_TEXT
 							| InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
 							| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-					FontManager.getInstance().setTypefaceDefault(mPassword);
+					FontManager.getInstance().setTypefaceDefault(password);
 				}
 				else {
-					mPassword.setInputType(InputType.TYPE_CLASS_TEXT
+					password.setInputType(InputType.TYPE_CLASS_TEXT
 							| InputType.TYPE_TEXT_VARIATION_PASSWORD
 							| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-					FontManager.getInstance().setTypefaceDefault(mPassword);
+					FontManager.getInstance().setTypefaceDefault(password);
 				}
 			}
 		});
 
-		mPassword.setImeOptions(EditorInfo.IME_ACTION_GO);
-		mPassword.setOnEditorActionListener(new OnEditorActionListener() {
+		password.setImeOptions(EditorInfo.IME_ACTION_GO);
+		password.setOnEditorActionListener(new OnEditorActionListener() {
 
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -84,52 +115,76 @@ public class LoginEdit extends BaseEdit {
 		});
 	}
 
-	@Override
-	public void draw(View view) {
+	@Override public void bind() {
 		final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
 		if (email != null) {
-			mEmail.setText(email);
-			mPassword.requestFocus();
+			this.email.setText(email);
+			password.requestFocus();
 		}
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-	@SuppressWarnings("ucd")
-	public void onForgotPasswordButtonClick(View view) {
-		Patchr.router.route(this, Route.PASSWORD_RESET, null, null);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onLoginButtonClick(View view) {
-		if (validate()) {
-			signin();
+	@Override protected boolean validate() {
+		if (password.getText().length() == 0) {
+			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
+					, null
+					, StringManager.getString(R.string.error_missing_password)
+					, null
+					, this
+					, android.R.string.ok
+					, null, null, null, null);
+			return false;
 		}
-	}
-
-	@SuppressWarnings("ucd")
-	public void onSignupButtonClick(View view) {
-		Patchr.router.route(this, Route.SIGNUP, null, null);
-	}
-
-	@Override
-	public void onAccept() {
-		if (validate()) {
-			signin();
+		if (password.getText().length() < 6) {
+			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
+					, null
+					, StringManager.getString(R.string.error_missing_password_weak)
+					, null
+					, this
+					, android.R.string.ok
+					, null, null, null, null);
+			return false;
 		}
+		if (!Utils.validEmail(email.getText().toString())) {
+			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
+					, null
+					, StringManager.getString(R.string.error_invalid_email)
+					, null
+					, this
+					, android.R.string.ok
+					, null, null, null, null);
+			return false;
+		}
+		return true;
+	}
+
+	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
+		if (requestCode == Constants.ACTIVITY_SIGNIN
+				|| requestCode == Constants.ACTIVITY_RESET_AND_SIGNIN) {
+			if (resultCode == Constants.RESULT_USER_SIGNED_IN) {
+				setResult(Constants.RESULT_USER_SIGNED_IN);
+				finish();
+				AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
+			}
+		}
+
+		super.onActivityResult(requestCode, resultCode, intent);
+	}
+
+	@Override protected int getLayoutId() {
+		return R.layout.login_edit;
 	}
 
 	private void signin() {
 
-		final String email = mEmail.getText().toString().toLowerCase(Locale.US);
-		final String password = mPassword.getText().toString();
+		final String email = this.email.getText().toString().toLowerCase(Locale.US);
+		final String password = this.password.getText().toString();
 
 		new AsyncTask() {
 
 			@Override
 			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in, LoginEdit.this);
+				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in, LoginEdit.this);
 			}
 
 			@Override
@@ -143,10 +198,10 @@ public class LoginEdit extends BaseEdit {
 			protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mUiController.getBusyController().hide(true);
+				uiController.getBusyController().hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in) + " " + UserManager.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
-					setResultCode(Constants.RESULT_USER_SIGNED_IN);
+					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in) + " " + UserManager.currentUser.name, Toast.LENGTH_SHORT);
+					setResult(Constants.RESULT_USER_SIGNED_IN);
 					finish();
 					AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
 				}
@@ -155,64 +210,5 @@ public class LoginEdit extends BaseEdit {
 				}
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	@Override
-	protected boolean validate() {
-		if (mPassword.getText().length() == 0) {
-			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-					, null
-					, StringManager.getString(R.string.error_missing_password)
-					, null
-					, this
-					, android.R.string.ok
-					, null, null, null, null);
-			return false;
-		}
-		if (mPassword.getText().length() < 6) {
-			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-					, null
-					, StringManager.getString(R.string.error_missing_password_weak)
-					, null
-					, this
-					, android.R.string.ok
-					, null, null, null, null);
-			return false;
-		}
-		if (!Utils.validEmail(mEmail.getText().toString())) {
-			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-					, null
-					, StringManager.getString(R.string.error_invalid_email)
-					, null
-					, this
-					, android.R.string.ok
-					, null, null, null, null);
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-		if (requestCode == Constants.ACTIVITY_SIGNIN
-				|| requestCode == Constants.ACTIVITY_RESET_AND_SIGNIN) {
-			if (resultCode == Constants.RESULT_USER_SIGNED_IN) {
-				setResultCode(Constants.RESULT_USER_SIGNED_IN);
-				finish();
-				AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
-			}
-		}
-
-		super.onActivityResult(requestCode, resultCode, intent);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected int getLayoutId() {
-		return R.layout.login_edit;
 	}
 }

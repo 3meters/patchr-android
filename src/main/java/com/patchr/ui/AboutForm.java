@@ -10,10 +10,9 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.StringManager;
-import com.patchr.objects.BindingMode;
+import com.patchr.objects.FetchMode;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.base.BaseActivity;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Utils;
 
@@ -27,18 +26,47 @@ public class AboutForm extends BaseActivity {
 	private TextView mCopyright;
 	private String   mVersionName;
 
-	@Override
+	@Override protected void onResume() {
+		super.onResume();
+		bind(FetchMode.AUTO);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void onCancel(Boolean force) {
+		setResult(Activity.RESULT_CANCELED);
+		finish();
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_BACK);
+	}
+
+	public void onTermsButtonClick(View view) {
+		Patchr.router.route(this, Route.TERMS, null, null);
+	}
+
+	public void onPrivacyButtonClick(View view) {
+		Patchr.router.route(this, Route.PRIVACY, null, null);
+	}
+
+	public void onLegalButtonClick(View view) {
+		Patchr.router.route(this, Route.LEGAL, null, null);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 		mVersion = (TextView) findViewById(R.id.version);
 		mCopyright = (TextView) findViewById(R.id.copyright);
 	}
 
-	public void bind(BindingMode mode) {
+	public void bind(FetchMode mode) {
 		draw(null);
 	}
 
-	@Override
 	public void draw(View view) {
 
 		final String year = new SimpleDateFormat("yyyy", Locale.US).format(Calendar.getInstance().getTime());
@@ -64,48 +92,7 @@ public class AboutForm extends BaseActivity {
 		}
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onCancel(Boolean force) {
-		setResultCode(Activity.RESULT_CANCELED);
-		finish();
-		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_BACK);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onTermsButtonClick(View view) {
-		Patchr.router.route(this, Route.TERMS, null, null);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onPrivacyButtonClick(View view) {
-		Patchr.router.route(this, Route.PRIVACY, null, null);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onLegalButtonClick(View view) {
-		Patchr.router.route(this, Route.LEGAL, null, null);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return R.layout.about_form;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		bind(BindingMode.AUTO);
 	}
 }

@@ -47,17 +47,17 @@
 		</RelativeLayout>
 
 		<com.patchr.ui.widgets.AirListView
-			android:id="@+id/list"
+			android:id="@+id/entity_list"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_below="@+id/holder_button_clear"
 			android:layout_marginLeft="4dp"
 			android:layout_marginRight="4dp"
 			android:animationCache="false"
-			android:cacheColorHint="#00000000"
+			android:cacheColorHint="@color/transparent"
 			android:divider="?attr/ruleColor"
 			android:dividerHeight="@dimen/rule_divider_height"
-			android:listSelector="#00000000"
+			android:listSelector="@color/transparent"
 			android:paddingTop="0dp"
 			android:scrollingCache="false" />
 

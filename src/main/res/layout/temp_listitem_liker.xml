@@ -6,7 +6,6 @@
 	android:layout_height="wrap_content"
 	android:background="@color/white"
 	android:clickable="true"
-	android:onClick="onViewClick"
 	android:padding="8dp">
 
 	<com.patchr.ui.views.UserView

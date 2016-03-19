@@ -26,11 +26,10 @@ import com.patchr.components.MediaManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.BindingMode;
+import com.patchr.objects.FetchMode;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.base.BaseActivity;
 import com.patchr.ui.views.UserView;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
@@ -83,14 +82,14 @@ public class PhotoForm extends BaseActivity {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mTransitionType = TransitionType.DRILL_TO;
-		mPhotoView = (PhotoView) findViewById(R.id.image_layout);
+		transitionType = TransitionType.DRILL_TO;
+		mPhotoView = (PhotoView) findViewById(R.id.photo);
 		mPhotoView.setBackgroundColor(Colors.getColor(R.color.background_picture_detail));
 
-		bind(BindingMode.AUTO);
+		bind(FetchMode.AUTO);
 	}
 
-	public void bind(BindingMode mode) {
+	public void bind(FetchMode mode) {
 
 		final TextView name = (TextView) findViewById(R.id.name);
 		final UserView user = (UserView) findViewById(R.id.author);
@@ -151,8 +150,8 @@ public class PhotoForm extends BaseActivity {
 
 		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
 		builder.setType("image/jpeg").setStream(MediaManager.getSharePathUri());
-		if (UserManager.getInstance().authenticated()) {
-			builder.setSubject(String.format(StringManager.getString(R.string.label_photo_share_subject), UserManager.getInstance().getCurrentUser().name));
+		if (UserManager.shared().authenticated()) {
+			builder.setSubject(String.format(StringManager.getString(R.string.label_photo_share_subject), UserManager.currentUser.name));
 		}
 		else {
 			builder.setSubject(StringManager.getString(R.string.label_photo_share_subject_guest));
@@ -166,10 +165,7 @@ public class PhotoForm extends BaseActivity {
 	}
 
 	protected void configureActionBar() {
-		super.configureActionBar();
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().setSubtitle("double-tap to zoom");
-		}
+		actionBar.setSubtitle("double-tap to zoom");
 	}
 
 	private void ensurePermissions() {
@@ -243,7 +239,7 @@ public class PhotoForm extends BaseActivity {
 
 			ensurePermissions();
 
-			final PhotoView photoView = (PhotoView) findViewById(R.id.image_layout);
+			final PhotoView photoView = (PhotoView) findViewById(R.id.photo);
 			Bitmap bitmap = ((BitmapDrawable) photoView.getDrawable()).getBitmap();
 			File file = MediaManager.copyBitmapToSharePath(bitmap);
 

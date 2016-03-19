@@ -63,7 +63,7 @@
 				tools:visibility="gone">
 
 				<com.patchr.ui.views.ImageLayout
-					android:id="@+id/image_layout"
+					android:id="@+id/photo"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginLeft="4dp"
@@ -75,9 +75,9 @@
 				<RelativeLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_alignLeft="@+id/image_layout"
-					android:layout_alignRight="@+id/image_layout"
-					android:layout_alignTop="@+id/image_layout"
+					android:layout_alignLeft="@+id/photo"
+					android:layout_alignRight="@+id/photo"
+					android:layout_alignTop="@+id/photo"
 					android:background="@drawable/scrim_medium">
 
 					<com.patchr.ui.widgets.AirTextView

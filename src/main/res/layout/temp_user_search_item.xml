@@ -15,7 +15,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
-		android:layout_toLeftOf="@+id/image_layout"
+		android:layout_toLeftOf="@+id/photo"
 		android:orientation="vertical">
 
 		<com.patchr.ui.widgets.AirTextLight
@@ -55,7 +55,7 @@
 	</LinearLayout>
 
 	<com.patchr.ui.views.ImageLayout
-		android:id="@+id/image_layout"
+		android:id="@+id/photo"
 		style="@style/selectable_image"
 		android:layout_width="48dp"
 		android:layout_height="48dp"

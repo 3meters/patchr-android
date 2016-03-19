@@ -46,6 +46,8 @@ public class AndroidManager {
 
 	public static boolean checkPlayServices(Activity activity) {
 
+		assert activity != null;
+
 		GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
 
 		int status = googleAPI.isGooglePlayServicesAvailable(Patchr.applicationContext);
@@ -65,38 +67,34 @@ public class AndroidManager {
 
 	public static void showPlayServicesErrorDialog(final int status, final Activity activity, final DialogInterface.OnDismissListener dismissListener) {
 
-		final Activity activityTemp = (activity != null) ? activity : Patchr.getInstance().getCurrentActivity();
-		if (activityTemp != null) {
+		activity.runOnUiThread(new Runnable() {
 
-			activityTemp.runOnUiThread(new Runnable() {
+			GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+			Dialog dialog = googleAPI.getErrorDialog(activity, status, PLAY_SERVICES_RESOLUTION_REQUEST);
 
-				GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
-				Dialog dialog = googleAPI.getErrorDialog(activityTemp, status, PLAY_SERVICES_RESOLUTION_REQUEST);
+			@Override
+			public void run() {
+				dialog.setCancelable(true);
+				dialog.setCanceledOnTouchOutside(false);
+				dialog.setOnCancelListener(new OnCancelListener() {
 
-				@Override
-				public void run() {
-					dialog.setCancelable(true);
-					dialog.setCanceledOnTouchOutside(false);
-					dialog.setOnCancelListener(new OnCancelListener() {
-
-						@Override
-						public void onCancel(DialogInterface dialog) {
-							UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unavailable), Toast.LENGTH_LONG);
-							if (!(activity instanceof LobbyForm)) {
-								Patchr.router.route(activity, Route.SPLASH, null, null);
-							}
-							else {
-								activity.finish();
-							}
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unavailable), Toast.LENGTH_LONG);
+						if (!(activity instanceof LobbyForm)) {
+							Patchr.router.route(activity, Route.SPLASH, null, null);
 						}
-					});
-					if (dismissListener != null) {
-						dialog.setOnDismissListener(dismissListener);
+						else {
+							activity.finish();
+						}
 					}
-					dialog.show();
+				});
+				if (dismissListener != null) {
+					dialog.setOnDismissListener(dismissListener);
 				}
-			});
-		}
+				dialog.show();
+			}
+		});
 	}
 
 	public static Boolean appExists(String app) {

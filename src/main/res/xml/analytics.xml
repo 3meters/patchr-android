@@ -39,10 +39,10 @@
 	<screenName name="com.patchr.ui.UserForm">UserForm</screenName>
 	<screenName name="com.patchr.ui.WatcherList">WatcherList</screenName>
 
-	<screenName name="com.patchr.ui.MapListFragment">MapList</screenName>
-	<screenName name="com.patchr.ui.NearbyListFragment">NearbyList</screenName>
-	<screenName name="com.patchr.ui.EntityListFragment">PatchList</screenName>
-	<screenName name="com.patchr.ui.TrendListFragment">TrendList</screenName>
+	<screenName name="com.patchr.ui.fragments.MapListFragment">MapList</screenName>
+	<screenName name="com.patchr.ui.fragments.NearbyListFragment">NearbyList</screenName>
+	<screenName name="com.patchr.ui.fragments.EntityListFragment">PatchList</screenName>
+	<screenName name="com.patchr.ui.fragments.TrendListFragment">TrendList</screenName>
 
 	<!-- Edit -->
 

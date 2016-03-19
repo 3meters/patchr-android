@@ -8,84 +8,53 @@ import android.widget.EditText;
 
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.Dispatcher;
 import com.patchr.components.StringManager;
 import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.objects.Route;
 import com.patchr.objects.User;
-import com.patchr.ui.base.BaseEntityEdit;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.Utils;
-import com.squareup.otto.Subscribe;
 
-public class UserEdit extends BaseEntityEdit {
+import org.greenrobot.eventbus.Subscribe;
 
-	private EditText mArea;
-	private EditText mEmail;
+public class UserEdit extends BaseEdit {
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
+	private EditText area;
+	private EditText email;
 
-		mArea = (EditText) findViewById(R.id.area);
-		mEmail = (EditText) findViewById(R.id.email);
-
-		if (mArea != null) {
-			mArea.addTextChangedListener(new SimpleTextWatcher() {
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					if (!s.toString().equals(((User) mEntity).area)) {
-						if (!mFirstDraw) {
-							mDirty = true;
-						}
-					}
-				}
-			});
-		}
-
-		if (mEmail != null) {
-			mEmail.addTextChangedListener(new SimpleTextWatcher() {
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					if (!s.toString().equals(((User) mEntity).email)) {
-						if (!mFirstDraw) {
-							mDirty = true;
-						}
-					}
-				}
-			});
-		}
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
 	}
 
-	@Override
-	public void draw(View view) {
-		super.draw(view);
+	@Override protected void onStart() {
+		super.onStart();
+		Dispatcher.getInstance().register(this);
+	}
 
-		User user = (User) mEntity;
-		if (mArea != null && !TextUtils.isEmpty(user.area)) {
-			mArea.setText(user.area);
-		}
-		if (mEmail != null && !TextUtils.isEmpty(user.email)) {
-			mEmail.setText(user.email);
-		}
+	@Override protected void onStop() {
+		Dispatcher.getInstance().unregister(this);
+		super.onStop();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@SuppressWarnings("ucd")
 	public void onChangePasswordButtonClick(View view) {
 		Patchr.router.route(this, Route.PASSWORD_CHANGE, null, null);
 	}
 
-	@Subscribe
-	public void onCancelEvent(ProcessingCanceledEvent event) {
-		if (mTaskService != null) {
-			mTaskService.cancel(true);
+	/*--------------------------------------------------------------------------------------------
+	 * Notifications
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe public void onCancelEvent(ProcessingCanceledEvent event) {
+		if (taskService != null) {
+			taskService.cancel(true);
 		}
 	}
 
@@ -93,29 +62,68 @@ public class UserEdit extends BaseEntityEdit {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	protected String getLinkType() {
-		return null;
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+
+		area = (EditText) findViewById(R.id.area);
+		email = (EditText) findViewById(R.id.email);
+
+		if (area != null) {
+			area.addTextChangedListener(new SimpleTextWatcher() {
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					if (!s.toString().equals(((User) entity).area)) {
+						if (!firstDraw) {
+							dirty = true;
+						}
+					}
+				}
+			});
+		}
+
+		if (email != null) {
+			email.addTextChangedListener(new SimpleTextWatcher() {
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					if (!s.toString().equals(((User) entity).email)) {
+						if (!firstDraw) {
+							dirty = true;
+						}
+					}
+				}
+			});
+		}
 	}
 
-	@Override
-	protected void gather() {
+	@Override public void bind() {
+		super.bind();
+
+		User user = (User) entity;
+		if (area != null && !TextUtils.isEmpty(user.area)) {
+			area.setText(user.area);
+		}
+		if (email != null && !TextUtils.isEmpty(user.email)) {
+			email.setText(user.email);
+		}
+	}
+
+	@Override protected void gather() {
 		super.gather();
 
-		User user = (User) mEntity;
-		if (mEmail != null) {
-			user.email = Type.emptyAsNull(mEmail.getText().toString().trim());
+		User user = (User) entity;
+		if (email != null) {
+			user.email = Type.emptyAsNull(email.getText().toString().trim());
 		}
-		if (mArea != null) {
-			user.area = Type.emptyAsNull(mArea.getText().toString().trim());
+		if (area != null) {
+			user.area = Type.emptyAsNull(area.getText().toString().trim());
 		}
 	}
 
-	@Override
-	protected boolean validate() {
-		if (!super.validate()) return false;
+	@Override protected boolean validate() {
 		gather();
-		User user = (User) mEntity;
+		User user = (User) entity;
 
 		if (user.name == null) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
@@ -128,23 +136,14 @@ public class UserEdit extends BaseEntityEdit {
 			return false;
 		}
 
-		if (!Utils.validEmail(mEmail.getText().toString())) {
+		if (!Utils.validEmail(email.getText().toString())) {
 			Dialogs.alertDialogSimple(this, null, StringManager.getString(R.string.error_invalid_email));
 			return false;
 		}
 		return true;
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Services
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return R.layout.user_edit;
 	}
 }

@@ -197,7 +197,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		/* Listen for signin/out click */
 		pref = findPreference("Pref_Signin_Signout");
 		if (pref != null) {
-			if (UserManager.getInstance().authenticated()) {
+			if (UserManager.shared().authenticated()) {
 				pref.setTitle(StringManager.getString(R.string.pref_signout_title));
 				pref.setSummary(StringManager.getString(R.string.pref_signout_summary));
 			}
@@ -210,7 +210,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					if (UserManager.getInstance().authenticated()) {
+					if (UserManager.shared().authenticated()) {
 						Patchr.router.route(getActivity(), Route.SIGNOUT, null, null);
 					}
 					else {
@@ -274,7 +274,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		Preference pref = findPreference("Pref_Notifications_Screen");
 		if (pref != null) {
 			pref.setShouldDisableView(true);
-			pref.setEnabled(UserManager.getInstance().authenticated());
+			pref.setEnabled(UserManager.shared().authenticated());
 		}
 	}
 

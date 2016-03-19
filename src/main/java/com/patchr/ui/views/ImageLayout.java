@@ -90,8 +90,15 @@ public class ImageLayout extends FrameLayout {
 	protected void initialize() {
 
 		/* Placeholder */
-		this.setBackgroundResource(UI.getResIdForAttribute(getContext()
-				, this.shape.equals("round") ? R.attr.backgroundRoundPlaceholder : R.attr.backgroundPlaceholder));
+		if (this.shape.equals("round")) {
+			this.setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundRoundPlaceholder));
+		}
+		else if (this.shape.equals("rounded")) {
+			this.setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundRoundedPlaceholder));
+		}
+		else {
+			this.setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundPlaceholder));
+		}
 
 		/* Image - subclass could have provide it instead */
 		if (this.imageView == null && !isInEditMode()) {
@@ -176,7 +183,7 @@ public class ImageLayout extends FrameLayout {
 		}
 		else if (shape.equals("rounded")) {
 			int displayRadius = UI.getRawPixelsForDisplayPixels((float) this.radius);
-			loadImageView(photo, new RoundedCornersTransformation(displayRadius, 0, RoundedCornersTransformation.CornerType.ALL));
+			loadImageView(photo, new RoundedCornersTransformation(displayRadius, 0));
 		}
 		else {
 			loadImageView(photo, null);
@@ -275,6 +282,10 @@ public class ImageLayout extends FrameLayout {
 
 			if (transform != null) {
 				creator.transform(transform);
+				if (this.shape.equals("rounded")) {
+					creator.centerCrop();
+					creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
+				}
 			}
 			creator.into(this.imageView);
 		}

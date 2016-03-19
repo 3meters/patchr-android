@@ -15,7 +15,6 @@ import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
-import com.patchr.ui.base.BaseEdit;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
@@ -23,44 +22,23 @@ import com.patchr.utilities.UI;
 @SuppressWarnings("ucd")
 public class PasswordEdit extends BaseEdit {
 
-	private EditText mPasswordOld;
-	private EditText mPassword;
-
-	/* Inputs */
-	protected String mEntityId;
-
-	@Override
-	public void unpackIntent() {
-		super.unpackIntent();
-		final Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-		}
-	}
-
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-
-		mPasswordOld = (EditText) findViewById(R.id.password_old);
-		mPassword = (EditText) findViewById(R.id.password);
-	}
+	private EditText passwordOld;
+	private EditText password;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onAccept() {
+	@Override public void onSubmit() {
 
-		if (mProcessing) return;
-		mProcessing = true;
+		if (this.processing) return;
+		this.processing = true;
 
 		if (validate()) {
 			update();
 		}
 		else {
-			mProcessing = false;
+			this.processing = false;
 		}
 	}
 
@@ -68,24 +46,28 @@ public class PasswordEdit extends BaseEdit {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	protected void update() {
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
 
-		final String passwordOld = mPasswordOld.getText().toString();
-		final String password = mPassword.getText(). toString();
+		passwordOld = (EditText) findViewById(R.id.password_old);
+		password = (EditText) findViewById(R.id.password);
+	}
+
+	@Override protected void update() {
+
+		final String passwordOld = this.passwordOld.getText().toString();
+		final String password = this.password.getText(). toString();
 
 		new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
+			@Override protected void onPreExecute() {
+				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncUpdatePassword");
 				final ModelResult result = DataController.getInstance().updatePassword(
-						UserManager.getInstance().getCurrentUser().id,
+						UserManager.currentUser.id,
 						passwordOld,
 						password,
 						PasswordEdit.class.getSimpleName(),
@@ -93,15 +75,14 @@ public class PasswordEdit extends BaseEdit {
 				return result;
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
-				mUiController.getBusyController().hide(true);
+				uiController.getBusyController().hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					Logger.i(this, "User changed password: "
-							+ UserManager.getInstance().getCurrentUser().name
-							+ " (" + UserManager.getInstance().getCurrentUser().id
+							+ UserManager.currentUser.name
+							+ " (" + UserManager.currentUser.id
 							+ ")");
 
 					UI.showToastNotification(StringManager.getString(R.string.alert_password_changed), Toast.LENGTH_SHORT);
@@ -111,15 +92,16 @@ public class PasswordEdit extends BaseEdit {
 				else {
 					Errors.handleError(PasswordEdit.this, result.serviceResponse);
 				}
-				mProcessing = false;
+				processing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override
-	protected boolean validate() {
+	@Override protected boolean validate() {
+
 		if (!super.validate()) return false;
-		if (mPasswordOld.getText().length() == 0) {
+
+		if (passwordOld.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_password_new)
@@ -129,7 +111,8 @@ public class PasswordEdit extends BaseEdit {
 					, null, null, null, null);
 			return false;
 		}
-		if (mPassword.getText().length() == 0) {
+
+		if (password.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_password_new)
@@ -139,7 +122,8 @@ public class PasswordEdit extends BaseEdit {
 					, null, null, null, null);
 			return false;
 		}
-		if (mPassword.getText().length() < 6) {
+
+		if (password.getText().length() < 6) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_password_weak)
@@ -149,11 +133,11 @@ public class PasswordEdit extends BaseEdit {
 					, null, null, null, null);
 			return false;
 		}
+
 		return true;
 	}
 
-	@Override
-	protected int getLayoutId() {
+	@Override protected int getLayoutId() {
 		return R.layout.password_edit;
 	}
 }

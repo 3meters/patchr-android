@@ -28,24 +28,24 @@ import com.patchr.utilities.UI;
 
 public class UserManager {
 
-	protected User   currentUser;
-	protected String userName;
-	protected String userId;
-	protected String sessionKey;
-	protected String jsonUser;
-	protected String jsonSession;
+	public static User   currentUser;
+	public static String userName;      // convenience
+	public static String userId;        // convenience
+	public static String sessionKey;
+	public static String jsonUser;
+	public static String jsonSession;
 
 	static class UserManagerHolder {
 		public static final UserManager instance = new UserManager();
 	}
 
-	public static UserManager getInstance() {
+	public static UserManager shared() {
 		return UserManagerHolder.instance;
 	}
 
 	private UserManager() {
-		this.jsonUser = Patchr.settings.getString(StringManager.getString(R.string.setting_user), null);
-		this.jsonSession = Patchr.settings.getString(StringManager.getString(R.string.setting_user_session), null);
+		jsonUser = Patchr.settings.getString(StringManager.getString(R.string.setting_user), null);
+		jsonSession = Patchr.settings.getString(StringManager.getString(R.string.setting_user_session), null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -60,18 +60,18 @@ public class UserManager {
 		/*
 		 * Gets called on app create.
 		 */
-		if (this.jsonUser != null && this.jsonSession != null) {
+		if (jsonUser != null && jsonSession != null) {
 			Logger.i(this, "Auto log in using cached user...");
 
-			final User user = (User) Json.jsonToObject(this.jsonUser, Json.ObjectType.ENTITY);
-			user.session = (Session) Json.jsonToObject(this.jsonSession, Json.ObjectType.SESSION);
+			final User user = (User) Json.jsonToObject(jsonUser, Json.ObjectType.ENTITY);
+			user.session = (Session) Json.jsonToObject(jsonSession, Json.ObjectType.SESSION);
 
 			setCurrentUser(user, false);  // Does not block because of 'false', also updates persisted user
 		}
 	}
 
 	public Boolean authenticated() {
-		return (this.userId != null && this.sessionKey != null);
+		return (userId != null && sessionKey != null);
 	}
 
 	public void signout() {
@@ -111,7 +111,7 @@ public class UserManager {
 						if (view.getId() == R.id.button_login) {
 							Patchr.router.route(context, Route.LOGIN, null, null);
 						}
-						else if (view.getId() == R.id.button_signup) {
+						else if (view.getId() == R.id.signup_button) {
 							Patchr.router.route(context, Route.SIGNUP, null, null);
 						}
 						dialog.dismiss();
@@ -136,30 +136,30 @@ public class UserManager {
 	private void captureCredentials(User user) {
 
 		/* Update settings */
-		this.jsonUser = Json.objectToJson(user);
-		this.jsonSession = Json.objectToJson(user.session);
-		this.userName = user.name;
-		this.userId = user.id;
-		this.sessionKey = user.session.key;
-		this.currentUser = user;
+		jsonUser = Json.objectToJson(user);
+		jsonSession = Json.objectToJson(user.session);
+		userName = user.name;
+		userId = user.id;
+		sessionKey = user.session.key;
+		currentUser = user;
 
-		BranchProvider.setIdentity(this.userId);
-		Reporting.updateCrashUser(this.currentUser);
+		BranchProvider.setIdentity(userId);
+		Reporting.updateCrashUser(currentUser);
 
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), this.jsonUser);
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), this.jsonSession);
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), this.currentUser.email);
+		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
+		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
+		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), currentUser.email);
 		Patchr.settingsEditor.commit();
 	}
 
 	private void discardCredentials() {
 
-		this.currentUser = null;
-		this.userName = null;
-		this.userId = null;
-		this.sessionKey = null;
-		this.jsonSession = null;
-		this.jsonUser = null;
+		currentUser = null;
+		userName = null;
+		userId = null;
+		sessionKey = null;
+		jsonSession = null;
+		jsonUser = null;
 
 		/* Cancel any current notifications in the status bar */
 		NotificationManager.getInstance().cancelAllNotifications();
@@ -176,10 +176,6 @@ public class UserManager {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-
-	public User getCurrentUser() {
-		return this.currentUser;
-	}
 
 	@NonNull public Boolean setCurrentUser(User user, @NonNull Boolean refreshUser) {
 

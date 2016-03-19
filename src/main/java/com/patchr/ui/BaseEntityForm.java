@@ -1,4 +1,4 @@
-package com.patchr.ui.base;
+package com.patchr.ui;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,46 +14,39 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.DataController.ActionType;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.NotificationManager;
-import com.patchr.components.UserManager;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
-import com.patchr.events.DataResultEvent;
-import com.patchr.events.EntityRequestEvent;
-import com.patchr.events.LinkDeleteEvent;
-import com.patchr.events.LinkInsertEvent;
+import com.patchr.events.DataQueryResultEvent;
+import com.patchr.events.EntityQueryEvent;
 import com.patchr.events.ProcessingCompleteEvent;
-import com.patchr.objects.BindingMode;
+import com.patchr.objects.ActionType;
 import com.patchr.objects.Count;
+import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Patch;
-import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.EntityListFragment;
+import com.patchr.ui.fragments.EntityListFragment;
 import com.patchr.utilities.Colors;
-import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
-import com.squareup.otto.Subscribe;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Locale;
 
 public abstract class BaseEntityForm extends BaseActivity {
 
 	/* Inputs */
-	@SuppressWarnings("ucd")
 	public String mParentId;
-	@NonNull
-	protected Integer mLinkProfile = LinkSpecType.NO_LINKS;
+	@NonNull protected Integer mLinkProfile = LinkSpecType.NO_LINKS;
 	protected Integer mTransitionType;
-	/* Part of binding logic */
-	protected Boolean mBound = false;
 	protected String mListLinkType;
 	protected String mNotificationId;
+	protected Boolean mBound;
 
 	@Override public void unpackIntent() {
 		super.unpackIntent();
@@ -61,11 +54,16 @@ public abstract class BaseEntityForm extends BaseActivity {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mParentId = extras.getString(Constants.EXTRA_ENTITY_PARENT_ID);
-			mEntityId = extras.getString(Constants.EXTRA_ENTITY_ID);
+			entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
 			mListLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
 			mTransitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
 			mNotificationId = extras.getString(Constants.EXTRA_NOTIFICATION_ID);
 		}
+	}
+
+	@Override protected void onStart() {
+		super.onStart();
+		Dispatcher.getInstance().register(this);
 	}
 
 	@Override protected void onResume() {
@@ -82,21 +80,26 @@ public abstract class BaseEntityForm extends BaseActivity {
 		 * - User profile could have been updated and we don't catch that.
 		 */
 		if (!isFinishing()) {
-			if (mEntity instanceof Patch) {
-				Patchr.getInstance().setCurrentPatch(mEntity);
+			if (entity instanceof Patch) {
+				Patchr.getInstance().setCurrentPatch(entity);
 			}
-			bind(BindingMode.AUTO);    // check to see if the cache stamp is stale
+			fetch(FetchMode.AUTO);    // check to see if the cache stamp is stale
 		}
+	}
+
+	@Override protected void onStop() {
+		Dispatcher.getInstance().unregister(this);
+		super.onStop();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe public void onDataResult(final DataResultEvent event) {
+	@Subscribe public void onDataResult(final DataQueryResultEvent event) {
 
 		if (event.tag.equals(System.identityHashCode(this))
-				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
+				&& (event.entity == null || event.entity.id.equals(entityId))) {
 
 			Logger.v(this, "Data result accepted: " + event.actionType.name().toString());
 
@@ -109,22 +112,22 @@ public abstract class BaseEntityForm extends BaseActivity {
 
 						mBound = true;
 						if (event.entity != null) {
-							mEntity = event.entity;
+							entity = event.entity;
 
 							if (mParentId != null) {
-								mEntity.toId = mParentId;
+								entity.toId = mParentId;
 							}
 
-							if (mEntity instanceof Patch) {
-								Patchr.getInstance().setCurrentPatch(mEntity);
+							if (entity instanceof Patch) {
+								Patchr.getInstance().setCurrentPatch(entity);
 							}
 						}
 						/*
 						 * Possible to hit this before options menu has been set. If so then
 						 * configureStandardMenuItems will be called in onCreateOptionsMenu.
 						 */
-						if (mOptionMenu != null) {
-							configureStandardMenuItems(mOptionMenu);
+						if (optionMenu != null) {
+							configureStandardMenuItems(optionMenu);
 						}
 
 						/* Ensure this is flagged as read */
@@ -166,7 +169,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 			onProcessingComplete(new ProcessingCompleteEvent());
 
 			/* We eat errors for network operations the user didn't specifically initiate. */
-			if (!mBound || event.mode == BindingMode.MANUAL || linkAction) {
+			if (!mBound || event.mode == FetchMode.MANUAL || linkAction) {
 				Errors.handleError(BaseEntityForm.this, event.errorResponse);
 			}
 		}
@@ -180,23 +183,23 @@ public abstract class BaseEntityForm extends BaseActivity {
 	}
 
 	@Subscribe public void onProcessingComplete(ProcessingCompleteEvent event) {
-		mProcessing = false;
-		mUiController.getBusyController().hide(false);
+		processing = false;
+		uiController.getBusyController().hide(false);
 	}
 
-	@Override public void onRefresh() {
+	public void onRefresh() {
 		/*
 		 * Called from swipe refresh or routing. Always treated
 		 * as an aggresive refresh.
 		 */
-		bind(BindingMode.MANUAL); // Called from Routing
-		if (mCurrentFragment != null && mCurrentFragment instanceof EntityListFragment) {
-			((EntityListFragment) mCurrentFragment).onRefresh();
+		fetch(FetchMode.MANUAL); // Called from Routing
+		if (currentFragment != null && currentFragment instanceof EntityListFragment) {
+			((EntityListFragment) currentFragment).listPresenter.refresh();
 		}
 	}
 
 	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
+		if (resultCode != Activity.RESULT_CANCELED) {
 			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
 				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
 					finish();
@@ -226,21 +229,20 @@ public abstract class BaseEntityForm extends BaseActivity {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void bind(final BindingMode mode) {
+	public void fetch(final FetchMode mode) {
 		/*
 		 * Called on main thread.
 		 */
 		Logger.v(this, "Binding: " + mode.name().toString());
-		EntityRequestEvent request = new EntityRequestEvent()
-				.setLinkProfile(mLinkProfile);
-
-		request.setActionType(ActionType.ACTION_GET_ENTITY)
-				.setMode(mode)
-				.setEntityId(mEntityId)
+		EntityQueryEvent request = new EntityQueryEvent();
+		request.setLinkProfile(mLinkProfile)
+				.setActionType(ActionType.ACTION_GET_ENTITY)
+				.setFetchMode(mode)
+				.setEntityId(entityId)
 				.setTag(System.identityHashCode(this));
 
-		if (mBound && mEntity != null && mode != BindingMode.MANUAL) {
-			request.setCacheStamp(mEntity.getCacheStamp());
+		if (mBound && entity != null && mode != FetchMode.MANUAL) {
+			request.setCacheStamp(entity.getCacheStamp());
 		}
 
 		Dispatcher.getInstance().post(request);
@@ -251,7 +253,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 	public void drawLikeWatch(View view) {
 
 		/* We don't support like/watch for users */
-		if (mEntity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+		if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
 			UI.setVisibility(view.findViewById(R.id.toolbar), View.GONE);
 			return;
 		}
@@ -262,11 +264,11 @@ public abstract class BaseEntityForm extends BaseActivity {
 		ViewAnimator like = (ViewAnimator) view.findViewById(R.id.button_like);
 		if (like != null) {
 			like.setDisplayedChild(0);
-			if (mEntity instanceof Patch && !((Patch) mEntity).isVisibleToCurrentUser()) {
+			if (entity instanceof Patch && !((Patch) entity).isVisibleToCurrentUser()) {
 				UI.setVisibility(like, View.GONE);
 			}
 			else {
-				Link link = mEntity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
+				Link link = entity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
 				ImageView image = (ImageView) like.findViewById(R.id.mute_image);
 				if (link != null) {
 					final int color = Colors.getColor(R.color.brand_primary);
@@ -284,7 +286,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		/* Like count */
 		View likes = view.findViewById(R.id.button_likes);
 		if (likes != null) {
-			Count count = mEntity.getCount(Constants.TYPE_LINK_LIKE, null, true, Link.Direction.in);
+			Count count = entity.getCount(Constants.TYPE_LINK_LIKE, null, true, Link.Direction.in);
 			if (count == null) {
 				count = new Count(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, null, 0);
 			}
@@ -306,7 +308,7 @@ public abstract class BaseEntityForm extends BaseActivity {
 		/* Watching count */
 		View watching = view.findViewById(R.id.members_button);
 		if (watching != null) {
-			Count count = mEntity.getCount(Constants.TYPE_LINK_WATCH, null, true, Link.Direction.in);
+			Count count = entity.getCount(Constants.TYPE_LINK_WATCH, null, true, Link.Direction.in);
 			if (count == null) {
 				count = new Count(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, null, 0);
 			}
@@ -324,71 +326,5 @@ public abstract class BaseEntityForm extends BaseActivity {
 				UI.setVisibility(watching, View.GONE);
 			}
 		}
-	}
-
-	public void like(final boolean activate) {
-
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				ViewAnimator animator = (ViewAnimator) findViewById(R.id.button_like);
-				if (animator != null) {
-					animator.setDisplayedChild(1);  // Turned off in drawButtons
-				}
-			}
-		});
-
-		if (UserManager.getInstance().authenticated()) {
-			UserManager.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-		}
-
-		if (activate) {
-
-			/* Used as part of link management */
-			Shortcut fromShortcut = UserManager.getInstance().getCurrentUser().getAsShortcut();
-			Shortcut toShortcut = mEntity.getAsShortcut();
-
-			LinkInsertEvent update = new LinkInsertEvent()
-					.setFromId(UserManager.getInstance().getCurrentUser().id)
-					.setToId(mEntity.id)
-					.setType(Constants.TYPE_LINK_LIKE)
-					.setEnabled(true)
-					.setFromShortcut(fromShortcut)
-					.setToShortcut(toShortcut)
-					.setActionEvent("like_entity_" + mEntity.schema.toLowerCase(Locale.US))
-					.setSkipCache(false);
-
-			update.setActionType(ActionType.ACTION_LINK_INSERT_LIKE)
-					.setTag(System.identityHashCode(this));
-
-			Dispatcher.getInstance().post(update);
-		}
-		else {
-
-			LinkDeleteEvent update = new LinkDeleteEvent()
-					.setFromId(UserManager.getInstance().getCurrentUser().id)
-					.setToId(mEntity.id)
-					.setType(Constants.TYPE_LINK_LIKE)
-					.setSchema(mEntity.schema)
-					.setActionEvent("unlike_entity_" + mEntity.schema.toLowerCase(Locale.US));
-
-			update.setActionType(ActionType.ACTION_LINK_DELETE_LIKE)
-					.setTag(System.identityHashCode(this));
-
-			Dispatcher.getInstance().post(update);
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
-
-	public static class LikeStatus {
-		public static int NONE = 0;
-		public static int LIKE = 1;
 	}
 }

@@ -40,10 +40,10 @@ public class LinkSpecFactory {
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, true, true, limitProximity)
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
-						, UserManager.getInstance().authenticated() ? Maps.asMap("_from", UserManager.getInstance().getCurrentUser().id) : null)
+						, UserManager.shared().authenticated() ? Maps.asMap("_from", UserManager.currentUser.id) : null)
 						.setDirection(Direction.in));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
-						, UserManager.getInstance().authenticated() ? Maps.asMap("_creator", UserManager.getInstance().getCurrentUser().id) : null)
+						, UserManager.shared().authenticated() ? Maps.asMap("_creator", UserManager.currentUser.id) : null)
 						.setDirection(Direction.in));
 			}
 			else if (linkProfile == LinkSpecType.LINKS_FOR_MESSAGE) {
@@ -57,7 +57,7 @@ public class LinkSpecFactory {
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, true, true, 5)
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_USER, true, true, 1
-						, UserManager.getInstance().authenticated() ? Maps.asMap("_from", UserManager.getInstance().getCurrentUser().id) : null)
+						, UserManager.shared().authenticated() ? Maps.asMap("_from", UserManager.currentUser.id) : null)
 						.setDirection(Direction.in));
 			}
 			else if (linkProfile == LinkSpecType.LINKS_FOR_USER_CURRENT) {

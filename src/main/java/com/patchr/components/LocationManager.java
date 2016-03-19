@@ -3,7 +3,6 @@ package com.patchr.components;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -119,18 +118,6 @@ public class LocationManager implements
 					Reporting.logException(e);
 					mGoogleApiClient.connect();
 				}
-			}
-			else {
-				/* Display a dialog to the user with the error. */
-				AndroidManager.showPlayServicesErrorDialog(result.getErrorCode()
-						, Patchr.getInstance().getCurrentActivity()
-						, new DialogInterface.OnDismissListener() {
-					@Override
-					public void onDismiss(DialogInterface dialog) {
-						mResolvingError = false;
-					}
-				});
-				mResolvingError = true;
 			}
 		}
 	}

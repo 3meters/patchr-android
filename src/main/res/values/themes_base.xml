@@ -3,8 +3,12 @@
 
 	<!-- Base theme applied no matter what API -->
 
-	<style name="base_theme" parent="Theme.AppCompat.Light.NoActionBar"/>
+	<style name="base_theme" parent="Theme.AppCompat.Light.NoActionBar" >
+		<item name="colorControlNormal">@color/gray_20_pcnt</item>
+		<item name="colorControlActivated">@color/brand_accent</item>
+		<item name="colorControlHighlight">@color/brand_accent</item>
+	</style>
 
-	<style name="base_theme_dialog" parent="Theme.AppCompat.Light.Dialog.Alert"/>
+	<style name="base_theme_dialog" parent="Theme.AppCompat.Light.Dialog.Alert" />
 
 </resources>

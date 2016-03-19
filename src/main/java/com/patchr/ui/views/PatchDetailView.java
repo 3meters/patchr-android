@@ -26,8 +26,8 @@ public class PatchDetailView extends FrameLayout implements View.OnClickListener
 	protected Integer    layoutResId;
 
 	protected ViewGroup       layout;
-	protected PatchBannerView bannerView;
-	protected PatchInfoView   infoView;
+	public    PatchBannerView bannerView;
+	public    PatchInfoView   infoView;
 	protected ViewGroup       actionGroup;
 	public    Button          actionButton;
 	protected ViewAnimator    headerAnimator;

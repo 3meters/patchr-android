@@ -91,8 +91,8 @@ public class EntityStore {
 				 * Keep current user synchronized if we refreshed the current user entity. This
 				 * logic also exists in update logic when editing a user entity.
 				 */
-				if (UserManager.getInstance().authenticated()) {
-					String currentUserId = UserManager.getInstance().getCurrentUser().id;
+				if (UserManager.shared().authenticated()) {
+					String currentUserId = UserManager.currentUser.id;
 					for (Entity entity : loadedEntities) {
 						if (entity.id.equals(currentUserId)) {
 							/*
@@ -100,8 +100,8 @@ public class EntityStore {
 							 * to call activateCurrentUser because we don't need to refetch link data
 							 * or change notification registration.
 							 */
-							((User) entity).session = UserManager.getInstance().getCurrentUser().session;
-							UserManager.getInstance().setCurrentUser((User) entity, false);  // Updates persisted user too
+							((User) entity).session = UserManager.currentUser.session;
+							UserManager.shared().setCurrentUser((User) entity, false);  // Updates persisted user too
 						}
 					}
 				}
@@ -439,12 +439,12 @@ public class EntityStore {
 		/*
 		 * Optimistically add a link to the store.
 		 */
-		if (!UserManager.getInstance().authenticated()) return;
+		if (!UserManager.shared().authenticated()) return;
 		Long time = DateTime.nowDate().getTime();
 
 		Entity toEntity = mCacheMap.get(toId);
-		if (toEntity != null && toEntity.id.equals(UserManager.getInstance().getCurrentUser().id)) {
-			toEntity = UserManager.getInstance().getCurrentUser();
+		if (toEntity != null && toEntity.id.equals(UserManager.currentUser.id)) {
+			toEntity = UserManager.currentUser;
 		}
 
 		if (toEntity != null) {
@@ -479,8 +479,8 @@ public class EntityStore {
 		 * Fixup out links too.
 		 */
 		Entity fromEntity = mCacheMap.get(fromId);
-		if (fromEntity != null && fromEntity.id.equals(UserManager.getInstance().getCurrentUser().id)) {
-			fromEntity = UserManager.getInstance().getCurrentUser();
+		if (fromEntity != null && fromEntity.id.equals(UserManager.currentUser.id)) {
+			fromEntity = UserManager.currentUser;
 		}
 
 		if (fromEntity != null) {
@@ -588,12 +588,12 @@ public class EntityStore {
 		 * get fresh links. Our primary purpose is that users expect to see their changes
 		 * reflected in a consistent way.
 		 */
-		if (!UserManager.getInstance().authenticated()) return;
+		if (!UserManager.shared().authenticated()) return;
 		Long time = DateTime.nowDate().getTime();
 
 		Entity toEntity = mCacheMap.get(toId);
-		if (toEntity != null && toEntity.id.equals(UserManager.getInstance().getCurrentUser().id)) {
-			toEntity = UserManager.getInstance().getCurrentUser();
+		if (toEntity != null && toEntity.id.equals(UserManager.currentUser.id)) {
+			toEntity = UserManager.currentUser;
 		}
 
 		if (toEntity != null) {
@@ -624,8 +624,8 @@ public class EntityStore {
 		 * Fixup out links too
 		 */
 		Entity fromEntity = mCacheMap.get(fromId);
-		if (fromEntity != null && fromEntity.id.equals(UserManager.getInstance().getCurrentUser().id)) {
-			fromEntity = UserManager.getInstance().getCurrentUser();
+		if (fromEntity != null && fromEntity.id.equals(UserManager.currentUser.id)) {
+			fromEntity = UserManager.currentUser;
 		}
 
 		if (fromEntity != null) {

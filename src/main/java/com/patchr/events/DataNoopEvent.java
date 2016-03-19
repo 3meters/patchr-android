@@ -1,6 +1,6 @@
 package com.patchr.events;
 
-import com.patchr.components.DataController.ActionType;
+import com.patchr.objects.ActionType;
 
 @SuppressWarnings("ucd")
 public class DataNoopEvent {

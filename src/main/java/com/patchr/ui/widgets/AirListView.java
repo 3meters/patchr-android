@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.widget.ListView;
 
 import com.patchr.Constants;
+import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
 public class AirListView extends ListView {
@@ -28,9 +29,10 @@ public class AirListView extends ListView {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int measuredWidth = MeasureSpec.getSize(widthMeasureSpec);
-		if (Constants.MAX_WIDTH_LIST < measuredWidth) {
+		int maxWidth = UI.getRawPixelsForDisplayPixels((float) Constants.MAX_WIDTH_LIST);
+		if (maxWidth < measuredWidth) {
 			int measureMode = MeasureSpec.getMode(widthMeasureSpec);
-			widthMeasureSpec = MeasureSpec.makeMeasureSpec(Constants.MAX_WIDTH_LIST, measureMode);
+			widthMeasureSpec = MeasureSpec.makeMeasureSpec(maxWidth, measureMode);
 		}
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}

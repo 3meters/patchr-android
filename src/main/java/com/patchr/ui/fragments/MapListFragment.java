@@ -1,4 +1,4 @@
-package com.patchr.ui;
+package com.patchr.ui.fragments;
 
 import android.Manifest;
 import android.content.Context;

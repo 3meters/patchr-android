@@ -23,13 +23,13 @@ import com.patchr.ui.AboutForm;
 import com.patchr.ui.AircandiForm;
 import com.patchr.ui.LobbyForm;
 import com.patchr.ui.MapForm;
-import com.patchr.ui.MapListFragment;
+import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.ui.PatchList;
 import com.patchr.ui.PhotoForm;
 import com.patchr.ui.SearchForm;
 import com.patchr.ui.SettingsForm;
 import com.patchr.ui.UserList;
-import com.patchr.ui.base.BaseActivity;
+import com.patchr.ui.BaseActivity;
 import com.patchr.ui.edit.FeedbackEdit;
 import com.patchr.ui.edit.LoginEdit;
 import com.patchr.ui.edit.PasswordEdit;
@@ -141,11 +141,6 @@ public class Router {
 			((BaseActivity) activity).onAdd(extras);
 		}
 
-		else if (route == Route.SHARE) {
-
-			((BaseActivity) activity).share();
-		}
-
 		else if (route == Route.NEW) {
 
 			if (!MenuManager.canUserAdd(entity)) {
@@ -156,11 +151,6 @@ public class Router {
 				IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
 				controller.insert(activity, extras, true);
 			}
-		}
-
-		else if (route == Route.REFRESH) {
-
-			((BaseActivity) activity).onRefresh();
 		}
 
 		else if (route == Route.MAP) {
@@ -286,9 +276,9 @@ public class Router {
 			}
 		}
 
-		else if (route == Route.ACCEPT) {
+		else if (route == Route.SUBMIT) {
 
-			((BaseActivity) activity).onAccept();    // Give activity a chance for discard confirmation
+			((BaseActivity) activity).onSubmit();    // Give activity a chance for discard confirmation
 		}
 
 		else if (route == Route.CANCEL) {
@@ -333,7 +323,7 @@ public class Router {
 
 		else if (route == Route.SIGNOUT) {
 
-			UserManager.getInstance().signout();
+			UserManager.shared().signout();
 		}
 
 		else if (route == Route.LOGIN) {
@@ -439,7 +429,7 @@ public class Router {
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			if (activity instanceof BaseActivity) {
-				((BaseActivity) activity).setResultCode(Activity.RESULT_CANCELED);
+				((BaseActivity) activity).setResult(Activity.RESULT_CANCELED);
 			}
 			activity.startActivity(intent);
 			if (activity instanceof Activity ) {
@@ -536,9 +526,9 @@ public class Router {
 			return Route.EDIT;
 		else if (itemId == android.R.id.home)
 			return Route.CANCEL;
-		else if (itemId == R.id.signout)
+		else if (itemId == R.id.logout)
 			return Route.SIGNOUT;
-		else if (itemId == R.id.signin)
+		else if (itemId == R.id.login)
 			return Route.LOGIN;
 		else if (itemId == R.id.report_patch)
 			return Route.REPORT;
@@ -549,7 +539,7 @@ public class Router {
 		else if (itemId == R.id.qrcode)
 			return Route.QRCODE;
 		else if (itemId == R.id.accept)
-			return Route.ACCEPT;
+			return Route.SUBMIT;
 		else if (itemId == R.id.refresh)
 			return Route.REFRESH;
 		else if (itemId == R.id.add)

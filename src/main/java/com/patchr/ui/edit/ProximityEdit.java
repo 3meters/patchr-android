@@ -14,6 +14,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
+import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
@@ -26,68 +27,49 @@ import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.events.QueryWifiScanReceivedEvent;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.Beacon;
-import com.patchr.objects.BindingMode;
 import com.patchr.objects.Patch;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.base.BaseEntityEdit;
 import com.patchr.utilities.UI;
-import com.squareup.otto.Subscribe;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
 @SuppressLint("Registered")
-public class ProximityEdit extends BaseEntityEdit {
+public class ProximityEdit extends BaseEdit {
 
-	private Button mButtonTune;
-	private Button mButtonUntune;
+	private Button buttonTune;
+	private Button buttonUntune;
 
-	private Boolean mTuned           = false;
-	private Boolean mUntuned         = false;
-	private Boolean mTuningInProcess = false;
-	private Boolean mUntuning        = false;
-	private Boolean mFirstTune       = true;
-	private Boolean mPlaceDirty      = false;
+	private Boolean tuned           = false;
+	private Boolean untuned         = false;
+	private Boolean tuningInProcess = false;
+	private Boolean untuning        = false;
+	private Boolean firstTune       = true;
+	private Boolean placeDirty      = false;
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-
-		mButtonTune = (Button) findViewById(R.id.tune_button);
-		mButtonUntune = (Button) findViewById(R.id.button_untune);
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
 	}
 
-	@Override
-	public void bind(BindingMode mode) {
-		mEntity = DataController.getStoreEntity(mEntityId);
-		draw(null);
+	@Override protected void onStart() {
+		super.onStart();
+		Dispatcher.getInstance().register(this);
 	}
 
-	@Override
-	public void draw(View view) {
-		/*
-		 * Only called when the activity is first created.
-		 */
-		Patch patch = (Patch) mEntity;
-
-		/* Tuning buttons */
-
-		final Boolean hasActiveProximityLink = patch.hasActiveProximity();
-		if (hasActiveProximityLink) {
-			mFirstTune = false;
-			UI.setVisibility(mButtonUntune, View.VISIBLE);
-		}
-
-		super.draw(view);
+	@Override protected void onStop() {
+		Dispatcher.getInstance().unregister(this);
+		super.onStop();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe
-	public void onQueryWifiScanReceived(final QueryWifiScanReceivedEvent event) {
+	@Subscribe public void onQueryWifiScanReceived(final QueryWifiScanReceivedEvent event) {
 
-		if (mTuningInProcess) {
+		if (tuningInProcess) {
 			runOnUiThread(new Runnable() {
 
 				@Override
@@ -100,28 +82,27 @@ public class ProximityEdit extends BaseEntityEdit {
 					    /*
 					     * We fake that the tuning happened because it is simpler than enabling/disabling ui
 						 */
-						mUiController.getBusyController().hide(false);
-						if (mUntuning) {
-							mButtonUntune.setText(R.string.button_tuning_tuned);
-							mUntuned = true;
+						uiController.getBusyController().hide(false);
+						if (untuning) {
+							buttonUntune.setText(R.string.button_tuning_tuned);
+							untuned = true;
 						}
 						else {
-							mButtonTune.setText(R.string.button_tuning_tuned);
-							mTuned = true;
+							buttonTune.setText(R.string.button_tuning_tuned);
+							tuned = true;
 						}
-						mButtonTune.forceLayout();
-						mButtonUntune.forceLayout();
-						mTuningInProcess = false;
+						buttonTune.forceLayout();
+						buttonUntune.forceLayout();
+						tuningInProcess = false;
 					}
 				}
 			});
 		}
 	}
 
-	@Subscribe
-	public void onBeaconsLocked(BeaconsLockedEvent event) {
+	@Subscribe public void onBeaconsLocked(BeaconsLockedEvent event) {
 
-		if (mTuningInProcess) {
+		if (tuningInProcess) {
 			runOnUiThread(new Runnable() {
 
 				@Override
@@ -133,20 +114,19 @@ public class ProximityEdit extends BaseEntityEdit {
 		}
 	}
 
-	@Subscribe
-	public void onCancelEvent(ProcessingCanceledEvent event) {
-		if (mTaskService != null) {
-			mTaskService.cancel(true);
+	@Subscribe public void onCancelEvent(ProcessingCanceledEvent event) {
+		if (taskService != null) {
+			taskService.cancel(true);
 		}
 	}
 
 	public void onTuneButtonClick(View view) {
-		if (!mTuned) {
-			mUntuning = false;
-			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
+		if (!tuned) {
+			untuning = false;
+			uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()
 					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
-				mTuningInProcess = true;
+				tuningInProcess = true;
 				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 			}
 			else {
@@ -156,12 +136,12 @@ public class ProximityEdit extends BaseEntityEdit {
 	}
 
 	public void onUntuneButtonClick(View view) {
-		if (!mUntuned) {
-			mUntuning = true;
-			mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
+		if (!untuned) {
+			untuning = true;
+			uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()
 					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
-				mTuningInProcess = true;
+				tuningInProcess = true;
 				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 			}
 			else {
@@ -174,11 +154,29 @@ public class ProximityEdit extends BaseEntityEdit {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void configureActionBar() {
-		super.configureActionBar();
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().setTitle(R.string.form_title_proximity_edit);
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+
+		buttonTune = (Button) findViewById(R.id.tune_button);
+		buttonUntune = (Button) findViewById(R.id.button_untune);
+	}
+
+	@Override public void bind() {
+		super.bind();
+
+		entity = DataController.getStoreEntity(entityId);
+		Patch patch = (Patch) entity;
+
+		final Boolean hasActiveProximityLink = patch.hasActiveProximity();
+		if (hasActiveProximityLink) {
+			firstTune = false;
+			UI.setVisibility(buttonUntune, View.VISIBLE);
 		}
+		actionBar.setTitle(R.string.form_title_proximity_edit);
+	}
+
+	@Override protected int getLayoutId() {
+		return R.layout.proximity_edit;
 	}
 
 	private void tuneProximity() {
@@ -193,65 +191,62 @@ public class ProximityEdit extends BaseEntityEdit {
 		 * - no links are created.
 		 * - entity_proximity action logged.
 		 */
-		Integer beaconMax = !mUntuning ? Constants.PROXIMITY_BEACON_COVERAGE : Constants.PROXIMITY_BEACON_UNCOVERAGE;
+		Integer beaconMax = !untuning ? Constants.PROXIMITY_BEACON_COVERAGE : Constants.PROXIMITY_BEACON_UNCOVERAGE;
 		final List<Beacon> beacons = ProximityController.getInstance().getStrongestBeacons(beaconMax);
 		final Beacon primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 
 		new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.Refreshing);
+			@Override protected void onPreExecute() {
+				uiController.getBusyController().show(BusyAction.Refreshing);
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncTrackEntityProximity");
 
-				final ModelResult result = DataController.getInstance().trackEntity(mEntity
+				final ModelResult result = DataController.getInstance().trackEntity(entity
 						, beacons
 						, primaryBeacon
-						, mUntuning, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+						, untuning, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				return result;
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
-				mUiController.getBusyController().hide(false);
+			@Override protected void onPostExecute(Object response) {
+				uiController.getBusyController().hide(false);
 
-				if (mTuned || mUntuned) {
+				if (tuned || untuned) {
 				    /* Undoing a tuning */
-					mButtonTune.setText(R.string.button_tuning_tune);
-					mButtonUntune.setText(R.string.button_tuning_untune);
-					mUntuned = false;
-					mTuned = false;
-					if (!mFirstTune) {
-						mButtonUntune.setVisibility(View.VISIBLE);
+					buttonTune.setText(R.string.button_tuning_tune);
+					buttonUntune.setText(R.string.button_tuning_untune);
+					untuned = false;
+					tuned = false;
+					if (!firstTune) {
+						buttonUntune.setVisibility(View.VISIBLE);
 					}
 					else {
-						mButtonUntune.setVisibility(View.GONE);
+						buttonUntune.setVisibility(View.GONE);
 					}
 				}
 				else {
 					/* Tuning or untuning */
-					if (mUntuning) {
-						mButtonUntune.setText(R.string.button_tuning_tuned);
-						mButtonTune.setText(R.string.button_tuning_undo);
-						mUntuned = true;
+					if (untuning) {
+						buttonUntune.setText(R.string.button_tuning_tuned);
+						buttonTune.setText(R.string.button_tuning_undo);
+						untuned = true;
 					}
 					else {
-						mButtonTune.setText(R.string.button_tuning_tuned);
-						mButtonUntune.setText(R.string.button_tuning_undo);
-						mTuned = true;
-						if (mButtonUntune.getVisibility() != View.VISIBLE) {
-							mButtonUntune.setVisibility(View.VISIBLE);
+						buttonTune.setText(R.string.button_tuning_tuned);
+						buttonUntune.setText(R.string.button_tuning_undo);
+						tuned = true;
+						if (buttonUntune.getVisibility() != View.VISIBLE) {
+							buttonUntune.setVisibility(View.VISIBLE);
 						}
 					}
 				}
-				mButtonTune.forceLayout();
-				mButtonUntune.forceLayout();
-				mTuningInProcess = false;
+				buttonTune.forceLayout();
+				buttonUntune.forceLayout();
+				tuningInProcess = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
@@ -260,39 +255,23 @@ public class ProximityEdit extends BaseEntityEdit {
 
 		new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.Refreshing);
+			@Override protected void onPreExecute() {
+				uiController.getBusyController().show(BusyAction.Refreshing);
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncClearEntityProximity");
-				final ModelResult result = DataController.getInstance().trackEntity(mEntity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				final ModelResult result = DataController.getInstance().trackEntity(entity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
-				mUiController.getBusyController().hide(false);
-				UI.showToastNotification(StringManager.getString(mUpdatedResId), Toast.LENGTH_SHORT);
-				setResultCode(Activity.RESULT_OK);
+			@Override protected void onPostExecute(Object response) {
+				uiController.getBusyController().hide(false);
+				UI.showToastNotification(StringManager.getString(updatedResId), Toast.LENGTH_SHORT);
+				setResult(Activity.RESULT_OK);
 				finish();
 				AnimationManager.doOverridePendingTransition(ProximityEdit.this, TransitionType.FORM_BACK);
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
-
-	@Override
-	protected int getLayoutId() {
-		return (mLayoutResId != null && mLayoutResId != 0) ? mLayoutResId : R.layout.proximity_edit;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
 }

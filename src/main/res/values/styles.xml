@@ -187,7 +187,7 @@
 
 	<style name="button_flat" parent="button">
 		<item name="android:textColor">?attr/textColorButtonLink</item>
-		<item name="android:background">?android:attr/selectableItemBackground</item>
+		<item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
 	</style>
 
 	<style name="button_link" parent="button">

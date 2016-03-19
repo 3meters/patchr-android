@@ -1,4 +1,4 @@
-package com.patchr.ui;
+package com.patchr.ui.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -15,19 +15,19 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.DataController.ActionType;
+import com.patchr.objects.ActionType;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
-import com.patchr.events.DataResultEvent;
-import com.patchr.events.EntityRequestEvent;
+import com.patchr.events.DataQueryResultEvent;
+import com.patchr.events.EntityQueryEvent;
 import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.ProcessingCompleteEvent;
-import com.patchr.objects.BindingMode;
+import com.patchr.objects.FetchMode;
 import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
@@ -36,13 +36,13 @@ import com.patchr.objects.OnViewCreatedListener;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.base.BaseActivity;
-import com.patchr.ui.base.BaseFragment;
+import com.patchr.ui.BaseActivity;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
-import com.squareup.otto.Subscribe;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Locale;
 
@@ -88,7 +88,7 @@ public class EntityFormFragment extends BaseFragment {
 			if (mEntity instanceof Patch) {
 				Patchr.getInstance().setCurrentPatch(mEntity);
 			}
-			bind(BindingMode.AUTO);    // check to see if the cache stamp is stale
+			bind(FetchMode.AUTO);    // check to see if the cache stamp is stale
 		}
 	}
 
@@ -96,7 +96,44 @@ public class EntityFormFragment extends BaseFragment {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe public void onDataResult(final DataResultEvent event) {
+	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		/*
+		 * Cases that use activity result
+		 *
+		 * - Candi picker returns entity id for a move
+		 * - Template picker returns type of candi to add as a child
+		 */
+		if (resultCode != Activity.RESULT_CANCELED) {
+			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
+				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
+					getActivity().finish();
+					AnimationManager.doOverridePendingTransition(getActivity(), TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
+				}
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, intent);
+	}
+
+	public void onRefresh() {
+		/*
+		 * Called from swipe refresh or routing. Always treated
+		 * as an aggresive refresh.
+		 */
+		bind(FetchMode.MANUAL); // Called from Routing
+	}
+
+	protected void onProcessingComplete() {
+		/*
+		 * Broadcast event so interested parties can do some work if needed.
+		 */
+		Dispatcher.getInstance().post(new ProcessingCompleteEvent().setTag(System.identityHashCode(this)));
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Notifications
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe public void onDataResult(final DataQueryResultEvent event) {
 
 		if (event.tag.equals(System.identityHashCode(this))
 				&& (event.entity == null || event.entity.id.equals(mEntityId))) {
@@ -117,10 +154,10 @@ public class EntityFormFragment extends BaseFragment {
 				}
 
 				if (getActivity() != null && !getActivity().isFinishing()) {
-					Menu menu = ((BaseActivity) getActivity()).getOptionMenu();
-					if (menu != null) {
-						configureStandardMenuItems(((BaseActivity) getActivity()).getOptionMenu());
-					}
+					Menu menu = ((BaseActivity) getActivity()).optionMenu;
+//					if (this.opti != null) {
+//						configureStandardMenuItems(((BaseActivity) getActivity()).optionMenu);
+//					}
 				}
 
 				/* Ensure this is flagged as read */
@@ -160,7 +197,7 @@ public class EntityFormFragment extends BaseFragment {
 			onProcessingComplete();
 
 			/* We eat errors for network operations the user didn't specifically initiate. */
-			if (!mBound || event.mode == BindingMode.MANUAL || linkAction) {
+			if (!mBound || event.mode == FetchMode.MANUAL || linkAction) {
 				Errors.handleError(getActivity(), event.errorResponse);
 			}
 		}
@@ -173,57 +210,23 @@ public class EntityFormFragment extends BaseFragment {
 		}
 	}
 
-	public void onRefresh() {
-		/*
-		 * Called from swipe refresh or routing. Always treated
-		 * as an aggresive refresh.
-		 */
-		bind(BindingMode.MANUAL); // Called from Routing
-	}
-
-	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		/*
-		 * Cases that use activity result
-		 * 
-		 * - Candi picker returns entity id for a move
-		 * - Template picker returns type of candi to add as a child
-		 */
-		if (resultCode != Activity.RESULT_CANCELED || Patchr.resultCode != Activity.RESULT_CANCELED) {
-			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
-				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
-					getActivity().finish();
-					AnimationManager.doOverridePendingTransition(getActivity(), TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
-				}
-			}
-		}
-		super.onActivityResult(requestCode, resultCode, intent);
-	}
-
-	protected void onProcessingComplete() {
-		/*
-		 * Broadcast event so interested parties can do some work if needed.
-		 */
-		Dispatcher.getInstance().post(new ProcessingCompleteEvent().setTag(System.identityHashCode(this)));
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void bind(final BindingMode mode) {
+	public void bind(final FetchMode mode) {
 		/*
 		 * Called on main thread.
 		 */
 		Logger.v(this, "Binding: " + mode.name().toString());
-		EntityRequestEvent request = new EntityRequestEvent()
-				.setLinkProfile(mLinkProfile);
-
-		request.setActionType(ActionType.ACTION_GET_ENTITY)
-				.setMode(mode)
+		EntityQueryEvent request = new EntityQueryEvent();
+		request.setLinkProfile(mLinkProfile)
+				.setActionType(ActionType.ACTION_GET_ENTITY)
+				.setFetchMode(mode)
 				.setEntityId(mEntityId)
 				.setTag(System.identityHashCode(this));
 
-		if (mBound && mEntity != null && mode != BindingMode.MANUAL) {
+		if (mBound && mEntity != null && mode != FetchMode.MANUAL) {
 			request.setCacheStamp(mEntity.getCacheStamp());
 		}
 
@@ -351,18 +354,18 @@ public class EntityFormFragment extends BaseFragment {
 			}
 		});
 
-		if (UserManager.getInstance().authenticated()) {
-			UserManager.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+		if (UserManager.shared().authenticated()) {
+			UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
 		}
 
 		if (activate) {
 
 			/* Used as part of link management */
-			Shortcut fromShortcut = UserManager.getInstance().getCurrentUser().getAsShortcut();
+			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
 			Shortcut toShortcut = mEntity.getAsShortcut();
 
 			LinkInsertEvent update = new LinkInsertEvent()
-					.setFromId(UserManager.getInstance().getCurrentUser().id)
+					.setFromId(UserManager.currentUser.id)
 					.setToId(mEntity.id)
 					.setType(Constants.TYPE_LINK_LIKE)
 					.setEnabled(true)
@@ -379,7 +382,7 @@ public class EntityFormFragment extends BaseFragment {
 		else {
 
 			LinkDeleteEvent update = new LinkDeleteEvent()
-					.setFromId(UserManager.getInstance().getCurrentUser().id)
+					.setFromId(UserManager.currentUser.id)
 					.setToId(mEntity.id)
 					.setType(Constants.TYPE_LINK_LIKE)
 					.setSchema(mEntity.schema)

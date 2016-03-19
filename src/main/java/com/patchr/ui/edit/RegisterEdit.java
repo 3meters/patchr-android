@@ -31,7 +31,6 @@ import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
-import com.patchr.ui.base.BaseEntityEdit;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
@@ -43,47 +42,76 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.util.Locale;
 
-public class RegisterEdit extends BaseEntityEdit {
+public class RegisterEdit extends BaseEdit {
 
-	private EditText mEmail;
-	private EditText mPassword;
-	private CheckBox mPasswordUnmask;
+	private EditText email;
+	private EditText password;
+	private CheckBox passwordUnmask;
+	
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
+	@Override public void onSubmit() {
+
+		if (processing) return;
+		processing = true;
+
+		if (validate()) {
+			gather();
+			register();
+		}
+		else {
+			processing = false;
+		}
+	}
+
+	public void onViewTermsButtonClick(View view) {
+		Patchr.router.route(this, Route.TERMS, null, null);
+	}
+
+	public void onRegisterButtonClick(View view) {
+		onSubmit();
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		mEntitySchema = Constants.SCHEMA_ENTITY_USER;
-		mEmail = (EditText) findViewById(R.id.email);
-		mPassword = (EditText) findViewById(R.id.password);
-		mPasswordUnmask = (CheckBox) findViewById(R.id.chk_unmask);
+		entitySchema = Constants.SCHEMA_ENTITY_USER;
+		email = (EditText) findViewById(R.id.email);
+		password = (EditText) findViewById(R.id.password);
+		passwordUnmask = (CheckBox) findViewById(R.id.chk_unmask);
 
-		mPasswordUnmask.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+		passwordUnmask.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked) {
-					mPassword.setInputType(InputType.TYPE_CLASS_TEXT
+					password.setInputType(InputType.TYPE_CLASS_TEXT
 							| InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
 							| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-					FontManager.getInstance().setTypefaceDefault(mPassword);
+					FontManager.getInstance().setTypefaceDefault(password);
 				}
 				else {
-					mPassword.setInputType(InputType.TYPE_CLASS_TEXT
+					password.setInputType(InputType.TYPE_CLASS_TEXT
 							| InputType.TYPE_TEXT_VARIATION_PASSWORD
 							| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-					FontManager.getInstance().setTypefaceDefault(mPassword);
+					FontManager.getInstance().setTypefaceDefault(password);
 				}
 			}
 		});
 
-		mPassword.setImeOptions(EditorInfo.IME_ACTION_GO);
-		mPassword.setOnEditorActionListener(new OnEditorActionListener() {
+		password.setImeOptions(EditorInfo.IME_ACTION_GO);
+		password.setOnEditorActionListener(new OnEditorActionListener() {
 
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
-					onAccept();
+					onSubmit();
 					return true;
 				}
 				return false;
@@ -91,60 +119,17 @@ public class RegisterEdit extends BaseEntityEdit {
 		});
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	@SuppressWarnings("ucd")
-	public void onViewTermsButtonClick(View view) {
-		Patchr.router.route(this, Route.TERMS, null, null);
-	}
-
-	@SuppressWarnings("ucd")
-	public void onRegisterButtonClick(View view) {
-		onAccept();
-	}
-
-	@Override
-	public void onAccept() {
-
-		if (mProcessing) return;
-		mProcessing = true;
-
-		if (validate()) {
-			gather();
-			update();
-		}
-		else {
-			mProcessing = false;
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected String getLinkType() {
-		return null;
-	}
-
-	@Override
-	protected void gather() {
+	@Override protected void gather() {
 		super.gather();
 
-		User user = (User) mEntity;
-		user.email = mEmail.getText().toString().trim().toLowerCase(Locale.US);
-		user.password = mPassword.getText().toString().trim();
+		User user = (User) entity;
+		user.email = email.getText().toString().trim().toLowerCase(Locale.US);
+		user.password = password.getText().toString().trim();
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Services
-	 *--------------------------------------------------------------------------------------------*/
+	@Override protected boolean validate() {
 
-	@Override
-	protected boolean validate() {
-		if (mName.getText().length() == 0) {
+		if (name.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_fullname)
@@ -154,7 +139,8 @@ public class RegisterEdit extends BaseEntityEdit {
 					, null, null, null, null);
 			return false;
 		}
-		if (mEmail.getText().length() == 0) {
+
+		if (email.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_email)
@@ -164,7 +150,8 @@ public class RegisterEdit extends BaseEntityEdit {
 					, null, null, null, null);
 			return false;
 		}
-		if (mPassword.getText().length() < 6) {
+
+		if (password.getText().length() < 6) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_password)
@@ -174,7 +161,8 @@ public class RegisterEdit extends BaseEntityEdit {
 					, null, null, null, null);
 			return false;
 		}
-		if (!Utils.validEmail(mEmail.getText().toString())) {
+
+		if (!Utils.validEmail(email.getText().toString())) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_invalid_email)
@@ -184,40 +172,42 @@ public class RegisterEdit extends BaseEntityEdit {
 					, null, null, null, null);
 			return false;
 		}
+
 		return true;
 	}
 
-	@Override
-	protected void update() {
+	@Override protected int getLayoutId() {
+		return R.layout.register_edit;
+	}
 
-		Logger.d(this, "Inserting user: " + mEntity.name);
+	protected void register() {
 
-		mTaskService = new AsyncTask() {
+		Logger.d(this, "Inserting user: " + entity.name);
 
-			@Override
-			protected void onPreExecute() {
-				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
-					mUiController.getBusyController().showProgressDialog(RegisterEdit.this);
+		taskService = new AsyncTask() {
+
+			@Override protected void onPreExecute() {
+				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
+					uiController.getBusyController().showProgressDialog(RegisterEdit.this);
 				}
 				else {
-					mUiController.getBusyController().show(BusyAction.Update);
+					uiController.getBusyController().show(BusyAction.Update);
 				}
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertUser");
 
 				Bitmap bitmap = null;
-				if (mEntity.photo != null && Type.isTrue(mEntity.photo.store)) {
-					
+				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
+
 					/* Synchronous call to get the bitmap */
 					try {
 						bitmap = Picasso.with(Patchr.applicationContext)
-						                        .load(mEntity.photo.uri(PhotoCategory.STANDARD))
-						                        .centerInside()
-						                        .resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-						                        .get();
+								.load(entity.photo.uri(PhotoCategory.STANDARD))
+								.centerInside()
+								.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+								.get();
 
 						if (isCancelled()) return null;
 					}
@@ -229,10 +219,10 @@ public class RegisterEdit extends BaseEntityEdit {
 						System.gc();
 						try {
 							bitmap = Picasso.with(Patchr.applicationContext)
-							                        .load(mEntity.photo.uri(PhotoCategory.STANDARD))
-							                        .centerInside()
-							                        .resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
-							                        .get();
+									.load(entity.photo.uri(PhotoCategory.STANDARD))
+									.centerInside()
+									.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
+									.get();
 
 							if (isCancelled()) return null;
 						}
@@ -244,26 +234,25 @@ public class RegisterEdit extends BaseEntityEdit {
 					}
 				}
 
-				ModelResult result = DataController.getInstance().registerUser((User) mEntity
-						, (mEntity.photo != null) ? bitmap : null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().registerUser((User) entity
+						, (entity.photo != null) ? bitmap : null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
-				mUiController.getBusyController().hide(true);
+				uiController.getBusyController().hide(true);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					/*
 					 * We automatically consider the user signed in.
 					 */
 					final User user = (User) result.data;
-					UserManager.getInstance().setCurrentUser(user, true);
+					UserManager.shared().setCurrentUser(user, true);
 				}
 				return result;
 			}
 
-			@Override
-			protected void onCancelled(Object response) {
+			@Override protected void onCancelled(Object response) {
 				/*
 				 * Stopping Points (interrupt was triggered on background thread)
 				 * - When task is pulled from queue (if waiting)
@@ -271,36 +260,27 @@ public class RegisterEdit extends BaseEntityEdit {
 				 * - During service calls assuming okhttp catches the interrupt.
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
-				mUiController.getBusyController().hide(true);
+				uiController.getBusyController().hide(true);
 				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-					Logger.i(RegisterEdit.this, "Inserted new user: " + mEntity.name + " (" + mEntity.id + ")");
-					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in) + " " + UserManager.getInstance().getCurrentUser().name,
+					Logger.i(RegisterEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
+					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in) + " " + UserManager.currentUser.name,
 							Toast.LENGTH_SHORT);
-					setResultCode(Constants.RESULT_USER_SIGNED_IN);
+					setResult(Constants.RESULT_USER_SIGNED_IN);
 					finish();
 					AnimationManager.doOverridePendingTransition(RegisterEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Errors.handleError(RegisterEdit.this, result.serviceResponse);
 				}
-				mProcessing = false;
+				processing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
-	@Override
-	protected int getLayoutId() {
-		return R.layout.register_edit;
 	}
 }

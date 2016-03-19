@@ -13,7 +13,6 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.Notification;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
-import com.patchr.ui.base.BaseActivity;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Json;
 
@@ -43,7 +42,7 @@ public class GcmIntentService extends GcmListenerService {
 
 				@SuppressWarnings("ConstantConditions") Notification notification = (Notification) Json.jsonToObject(data, Json.ObjectType.ENTITY);
 
-				User currentUser = UserManager.getInstance().getCurrentUser();
+				User currentUser = UserManager.currentUser;
 				if (notification.userId != null && currentUser != null && currentUser.id.equals(notification.userId))
 					return;
 
@@ -70,8 +69,7 @@ public class GcmIntentService extends GcmListenerService {
 				 * BACKGROUND, NEARBY, OR TARGET NOT VISIBLE
 				 */
 
-				Boolean background = (Patchr.getInstance().getCurrentActivity() == null);
-
+				Boolean background = Foreground.get().isBackground();
 				/*
 				 * Notifications associated with unmuted patches are priority.ONE
 				 * Notifications associated with muted patches are priority.TWO with the following exceptions:
@@ -140,14 +138,6 @@ public class GcmIntentService extends GcmListenerService {
 			if (map.get("schema") != null) {
 				return true;
 			}
-		}
-		return false;
-	}
-
-	protected Boolean showingEntity(String entityId) {
-		android.app.Activity currentActivity = Patchr.getInstance().getCurrentActivity();
-		if (currentActivity != null && currentActivity instanceof BaseActivity) {
-			return ((BaseActivity) currentActivity).related(entityId);
 		}
 		return false;
 	}

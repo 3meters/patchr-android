@@ -2,8 +2,8 @@ package com.patchr.ui.components;
 
 public class UiController {
 
-	private BusyController    mBusyController;
-	private MessageController mMessageController;
+	protected BusyController  mBusyController;
+	protected EmptyController mMessageController;
 
 	public UiController() {}
 
@@ -16,27 +16,27 @@ public class UiController {
 		return mBusyController;
 	}
 
-	public UiController setMessageController(MessageController messageController) {
+	public UiController setMessageController(EmptyController messageController) {
 		mMessageController = messageController;
 		if (mMessageController != null) {
-			mMessageController.showMessage(false);
+			mMessageController.showEmptyMessage(false);
 		}
 		return this;
 	}
 
-	public MessageController getMessageController() {
+	public EmptyController getMessageController() {
 		return mMessageController;
 	}
 
-	public void pause() {
+	public void onPause() {
 		if (mBusyController != null) {
-			mBusyController.pause();
+			mBusyController.onPause();
 		}
 	}
 
-	public void resume() {
+	public void onResume() {
 		if (mBusyController != null) {
-			mBusyController.resume();
+			mBusyController.onResume();
 		}
 	}
 }

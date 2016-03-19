@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.patchr.objects.Entity;
-import com.patchr.objects.ViewHolder;
 
 import java.util.Map;
 
@@ -20,8 +19,6 @@ public interface IEntityController {
 	public Intent insert(Context context, Bundle extras, Boolean start);
 
 	public void bind(Entity entity, View view, String groupTag);
-
-	public void bindHolder(View view, ViewHolder viewHolder);
 
 	public boolean supportsEditUi();
 
