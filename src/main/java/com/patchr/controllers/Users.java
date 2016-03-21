@@ -10,7 +10,6 @@ import com.patchr.objects.User;
 import com.patchr.ui.UserScreen;
 import com.patchr.ui.edit.UserEdit;
 import com.patchr.utilities.DateTime;
-import com.patchr.utilities.Integers;
 
 import java.util.Map;
 
@@ -21,7 +20,7 @@ public class Users extends EntityControllerBase {
 		mEditClass = UserEdit.class;
 		mNewClass = UserEdit.class;
 		mSchema = Constants.SCHEMA_ENTITY_USER;
-		mPageSize = Integers.getInteger(R.integer.page_size_users);
+		mPageSize = Constants.PAGE_SIZE;
 		mListLayoutResId = R.layout.entity_list_fragment;
 		mListLoadingResId = R.layout.temp_listitem_loading;
 	}

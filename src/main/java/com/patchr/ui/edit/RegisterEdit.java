@@ -52,7 +52,16 @@ public class RegisterEdit extends BaseEdit {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void onSubmit() {
+	public void onClick(View view) {
+		if (view.getId() == R.id.terms_button) {
+			Patchr.router.route(this, Route.TERMS, null, null);
+		}
+		else if (view.getId() == R.id.signup_button) {
+			submitAction();
+		}
+	}
+
+	@Override public void submitAction() {
 
 		if (processing) return;
 		processing = true;
@@ -64,14 +73,6 @@ public class RegisterEdit extends BaseEdit {
 		else {
 			processing = false;
 		}
-	}
-
-	public void onViewTermsButtonClick(View view) {
-		Patchr.router.route(this, Route.TERMS, null, null);
-	}
-
-	public void onRegisterButtonClick(View view) {
-		onSubmit();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -111,7 +112,7 @@ public class RegisterEdit extends BaseEdit {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
-					onSubmit();
+					submitAction();
 					return true;
 				}
 				return false;
@@ -129,6 +130,7 @@ public class RegisterEdit extends BaseEdit {
 
 	@Override protected boolean validate() {
 
+		gather();
 		if (name.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
@@ -188,10 +190,10 @@ public class RegisterEdit extends BaseEdit {
 
 			@Override protected void onPreExecute() {
 				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
-					uiController.getBusyController().showProgressDialog(RegisterEdit.this);
+					busyPresenter.showProgressDialog(RegisterEdit.this);
 				}
 				else {
-					uiController.getBusyController().show(BusyAction.Update);
+					busyPresenter.show(BusyAction.Update);
 				}
 			}
 
@@ -240,7 +242,7 @@ public class RegisterEdit extends BaseEdit {
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
-				uiController.getBusyController().hide(true);
+				busyPresenter.hide(true);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					/*
@@ -260,7 +262,7 @@ public class RegisterEdit extends BaseEdit {
 				 * - During service calls assuming okhttp catches the interrupt.
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
-				uiController.getBusyController().hide(true);
+				busyPresenter.hide(true);
 				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
 			}
 

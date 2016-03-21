@@ -6,20 +6,22 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.R;
@@ -29,20 +31,24 @@ import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.objects.TransitionType;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.UI;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @SuppressLint("Registered")
-public class PhotoActionPicker extends BasePicker implements OnItemClickListener {
+public class PhotoActionPicker extends AppCompatActivity implements OnItemClickListener {
 
 	private TextView    name;
 	private ListView    listView;
 	private ListAdapter listAdapter;
+	private PickerItem  pendingChoice;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		super.setContentView(R.layout.photo_action_picker);
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		initialize(savedInstanceState);
 		bind();
 	}
 
@@ -55,34 +61,53 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 		final PickerItem choice = (PickerItem) view.getTag();
 
 		if (choice.schema.equals(Constants.PHOTO_ACTION_GALLERY)) {
-			if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-				UI.showToastNotification("Using a gallery photo requires permission to access storage", Toast.LENGTH_SHORT);
-				ensurePermissions();
-				return;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+					pendingChoice = choice;
+					requestPermissions();
+					return;
+				}
 			}
 		}
 		else if (choice.schema.equals(Constants.PHOTO_ACTION_CAMERA)) {
-			if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-				UI.showToastNotification("Using the camera requires permission to access storage", Toast.LENGTH_SHORT);
-				ensurePermissions();
-				return;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+					pendingChoice = choice;
+					requestPermissions();
+					return;
+				}
 			}
 		}
 
-		final Intent intent = new Intent();
-		intent.putExtra(Constants.EXTRA_PHOTO_SOURCE, choice.schema);
-		setResult(Activity.RESULT_OK, intent);
-		finish();
-		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
+		pickerAction(choice);
+	}
+
+	@Override public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+		switch (requestCode) {
+			case Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+				if (PermissionUtil.verifyPermissions(grantResults)) {
+					pickerAction(pendingChoice);
+				}
+				else {
+					cancelAction(false);
+				}
+			}
+		}
+	}
+
+	@Override public void onBackPressed() {
+		cancelAction(true);
+	}
+
+	public void onCancelButtonClick(View view) {
+		cancelAction(true);
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-
+	public void initialize(Bundle savedInstanceState) {
 		name = (TextView) findViewById(R.id.name);
 		listView = (ListView) findViewById(R.id.form_list);
 		if (listView != null) {
@@ -114,24 +139,36 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 		listView.setAdapter(listAdapter);
 	}
 
-	private void ensurePermissions() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-			if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+	public void pickerAction(PickerItem choice) {
+		final Intent intent = new Intent();
+		intent.putExtra(Constants.EXTRA_PHOTO_SOURCE, choice.schema);
+		setResult(Activity.RESULT_OK, intent);
+		finish();
+		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
+	}
 
-				if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+	public void cancelAction(Boolean force) {
+		setResult(Activity.RESULT_CANCELED);
+		finish();
+		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
+	}
 
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							final AlertDialog dialog = Dialogs.alertDialog(null
-									, StringManager.getString(R.string.alert_permission_storage_title)
-									, StringManager.getString(R.string.alert_permission_storage_message)
-									, null
-									, PhotoActionPicker.this
-									, R.string.alert_permission_storage_positive
-									, R.string.alert_permission_storage_negative
-									, null
-									, new DialogInterface.OnClickListener() {
+	private void requestPermissions() {
+
+		if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					final AlertDialog dialog = Dialogs.alertDialog(null
+							, StringManager.getString(R.string.alert_permission_storage_title)
+							, StringManager.getString(R.string.alert_permission_storage_message)
+							, null
+							, PhotoActionPicker.this
+							, R.string.alert_permission_storage_positive
+							, R.string.alert_permission_storage_negative
+							, null
+							, new DialogInterface.OnClickListener() {
 
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
@@ -141,28 +178,25 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 													, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
 													, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
 										}
+										else {
+											cancelAction(false);
+										}
 									}
 								}
 							}, null);
-							dialog.setCanceledOnTouchOutside(false);
-						}
-					});
+					dialog.setCanceledOnTouchOutside(false);
 				}
-				else {
+			});
+		}
+		else {
 				/*
 				 * No explanation needed, we can request the permission.
 				 * Parent activity will broadcast an event when permission request is complete.
 				 */
-					ActivityCompat.requestPermissions(this
-							, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-							, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-				}
-			}
+			ActivityCompat.requestPermissions(this
+					, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+					, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
 		}
-	}
-
-	@Override protected int getLayoutId() {
-		return R.layout.photo_source_picker;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -179,6 +213,7 @@ public class PhotoActionPicker extends BasePicker implements OnItemClickListener
 		}
 
 		@Override public View getView(int position, View convertView, ViewGroup parent) {
+
 			View view = convertView;
 			final PickerItem itemData = (PickerItem) items.get(position);
 

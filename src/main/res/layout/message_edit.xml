@@ -154,7 +154,7 @@
 					<!-- Attachment -->
 
 					<ViewAnimator
-						android:id="@+id/animator_photo"
+						android:id="@+id/photo_animator"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_marginLeft="5dp"
@@ -194,27 +194,27 @@
 								android:background="@drawable/scrim_medium">
 
 								<ImageButton
-									android:id="@+id/button_photo_edit"
+									android:id="@+id/photo_edit_button"
 									style="@style/button_flat"
 									android:layout_width="@dimen/form_field_height"
 									android:layout_height="@dimen/form_field_height"
 									android:layout_alignParentLeft="true"
 									android:clickable="true"
 									android:gravity="center"
-									android:onClick="onEditPhotoButtonClick"
+									android:onClick="onClick"
 									android:src="@drawable/ic_action_edit_dark"
 									android:textAppearance="?android:attr/textAppearance"
 									android:textColor="?attr/textColorCandiView" />
 
 								<ImageButton
-									android:id="@+id/button_photo_delete"
+									android:id="@+id/photo_delete_button"
 									style="@style/button_flat"
 									android:layout_width="@dimen/form_field_height"
 									android:layout_height="@dimen/form_field_height"
 									android:layout_alignParentRight="true"
 									android:clickable="true"
 									android:gravity="center"
-									android:onClick="onDeletePhotoButtonClick"
+									android:onClick="onClick"
 									android:src="@drawable/ic_action_cancel_dark"
 									android:textAppearance="?android:attr/textAppearance"
 									android:textColor="?attr/textColorCandiView" />

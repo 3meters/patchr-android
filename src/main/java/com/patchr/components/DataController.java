@@ -49,7 +49,7 @@ import com.patchr.service.RequestType;
 import com.patchr.service.ResponseFormat;
 import com.patchr.service.ServiceRequest;
 import com.patchr.service.ServiceResponse;
-import com.patchr.ui.AircandiForm;
+import com.patchr.ui.MainScreen;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Maps;
@@ -1400,7 +1400,7 @@ public class DataController {
 		LinkSpec links = new LinkSpec().setActive(new ArrayList<LinkSpecItem>());
 		links.shortcuts = false;
 
-		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
+		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_USER, true, true, 1
 				, UserManager.shared().authenticated() ? Maps.asMap("_from", currentUser.id) : null)
 				.setDirection(Direction.in));
 		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
@@ -1452,8 +1452,8 @@ public class DataController {
 				, parseInstallId
 				, Patchr.getInstance().getinstallId());
 
-		install.clientVersionName = Patchr.getVersionName(Patchr.applicationContext, AircandiForm.class);
-		install.clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
+		install.clientVersionName = Patchr.getVersionName(Patchr.applicationContext, MainScreen.class);
+		install.clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
 		install.clientPackageName = Patchr.applicationContext.getPackageName();
 		install.deviceName = AndroidManager.getInstance().getDeviceName();
 		install.deviceType = "android";

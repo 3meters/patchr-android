@@ -204,7 +204,7 @@
 		<!-- Forms -->
 
 		<activity
-			android:name=".ui.LobbyForm"
+			android:name=".ui.LobbyScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:theme="@style/patchr_theme_notitlebar"
 			android:screenOrientation="portrait"
@@ -236,7 +236,7 @@
 		</activity>
 
 		<activity
-			android:name=".ui.AircandiForm"
+			android:name=".ui.MainScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_nearby">
 			<meta-data
@@ -247,23 +247,23 @@
 		<activity
 			android:name=".ui.PatchScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:parentActivityName=".ui.AircandiForm"
+			android:parentActivityName=".ui.MainScreen"
 			android:windowSoftInputMode="stateHidden">
 			<!-- The meta-data element is needed for versions lower than 4.1 -->
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.AircandiForm" />
+				android:value=".ui.MainScreen" />
 		</activity>
 
 		<activity
 			android:name=".ui.MessageScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:parentActivityName=".ui.AircandiForm"
+			android:parentActivityName=".ui.MainScreen"
 			android:windowSoftInputMode="stateHidden">
 			<!-- The meta-data element is needed for versions lower than 4.1 -->
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.AircandiForm" />
+				android:value=".ui.MainScreen" />
 		</activity>
 
 		<activity
@@ -273,24 +273,24 @@
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.PhotoForm"
+			android:name=".ui.PhotoScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_photo_form"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.MapForm"
+			android:name=".ui.MapScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_map_form"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.SearchForm"
+			android:name=".ui.SearchScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.AboutForm"
+			android:name=".ui.AboutScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_about_form"
 			android:windowSoftInputMode="stateHidden" />
@@ -298,13 +298,7 @@
 		<!-- Lists -->
 
 		<activity
-			android:name=".ui.UserList"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_watching_list"
-			android:windowSoftInputMode="stateHidden" />
-
-		<activity
-			android:name=".ui.PatchList"
+			android:name=".ui.ListScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_patch_list"
 			android:windowSoftInputMode="stateHidden" />
@@ -389,7 +383,7 @@
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.helpers.LocationPicker"
+			android:name=".ui.edit.LocationEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_location_picker"
 			android:windowSoftInputMode="stateHidden" />
@@ -407,16 +401,10 @@
 			android:label="@string/form_title_privacy_builder"
 			android:windowSoftInputMode="stateHidden" />
 
-		<activity
-			android:name=".ui.helpers.QrcodeDialog"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/patchr_theme_dialog"
-			android:windowSoftInputMode="stateHidden" />
-
 		<!-- Misc -->
 
 		<activity
-			android:name=".ui.SettingsForm"
+			android:name=".ui.SettingsScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:exported="false"
 			android:label="@string/form_title_settings_form">

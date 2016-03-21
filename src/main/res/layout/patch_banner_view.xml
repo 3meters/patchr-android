@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools">
+       xmlns:custom="http://schemas.android.com/apk/res-auto"
+       xmlns:tools="http://schemas.android.com/tools">
 
 	<RelativeLayout
 		android:id="@+id/content_group"
@@ -112,6 +112,7 @@
 				android:layout_height="@dimen/button_height"
 				android:layout_alignParentLeft="true"
 				android:clickable="true"
+				android:onClick="onClick"
 				android:padding="10dp"
 				android:scaleType="fitCenter"
 				android:src="@drawable/ic_action_signal_dark"
@@ -128,6 +129,8 @@
 				android:layout_centerVertical="true"
 				android:layout_marginLeft="70dp"
 				android:layout_marginStart="70dp"
+				android:clickable="true"
+				android:onClick="onClick"
 				android:orientation="horizontal"
 				tools:ignore="RelativeOverlap">
 
@@ -153,8 +156,9 @@
 				android:id="@+id/mute_button"
 				android:layout_width="@dimen/button_height"
 				android:layout_height="@dimen/button_height"
-				android:layout_toLeftOf="@+id/next_page_button"
-				android:clickable="true">
+				android:layout_alignParentRight="true"
+				android:clickable="true"
+				android:onClick="onClick">
 
 				<ImageView
 					android:id="@+id/mute_image"
@@ -177,21 +181,6 @@
 					android:maxHeight="30dp"
 					android:minHeight="30dp" />
 			</ViewAnimator>
-
-			<ImageView
-				android:id="@+id/next_page_button"
-				style="@style/selectable_image"
-				android:layout_width="@dimen/button_height"
-				android:layout_height="@dimen/button_height"
-				android:layout_alignParentRight="true"
-				android:clickable="true"
-				android:padding="10dp"
-				android:scaleType="fitCenter"
-				android:src="@drawable/ic_action_overflow_dark"
-				android:tint="@color/brand_primary"
-				android:tintMode="src_atop"
-				android:visibility="gone"
-				tools:visibility="visible" />
 
 		</RelativeLayout>
 

@@ -1,5 +1,6 @@
 package com.patchr.events;
 
+import com.patchr.Constants;
 import com.patchr.objects.ActionType;
 import com.patchr.objects.Cursor;
 import com.patchr.objects.FetchMode;
@@ -28,8 +29,9 @@ public class TrendQueryEvent extends AbsEntitiesQueryEvent {
 		return this;
 	}
 
-	public static TrendQueryEvent build(ActionType actionType, String fromSchema, String toSchema, String linkType, int pageSize) {
+	public static TrendQueryEvent build(ActionType actionType, String fromSchema, String toSchema, String linkType) {
 
+		Integer pageSize = Constants.PAGE_SIZE;
 		Integer skipCount = ((int) Math.ceil((double) 0 / pageSize) * pageSize);
 		Cursor cursor = new Cursor()
 				.setLimit(pageSize)

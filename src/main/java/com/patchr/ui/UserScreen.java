@@ -24,18 +24,15 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
-import com.patchr.objects.Notification;
 import com.patchr.objects.Photo;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.components.BusyController;
-import com.patchr.ui.components.EmptyController;
+import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.ListPresenter;
-import com.patchr.ui.edit.ReportEdit;
 import com.patchr.ui.edit.UserEdit;
 import com.patchr.ui.views.UserDetailView;
 import com.patchr.utilities.Colors;
-import com.patchr.utilities.Integers;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.UI;
@@ -43,7 +40,7 @@ import com.patchr.utilities.UI;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class UserScreen extends BaseActivity implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class UserScreen extends BaseScreen implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
 	private UserDetailView header;
 	private boolean        bound;
@@ -56,14 +53,17 @@ public class UserScreen extends BaseActivity implements View.OnClickListener, Sw
 
 	@Override public void onResume() {
 		super.onResume();
+
 		if (!isFinishing()) {
 			if (this.entity != null) {
 				bind();
 			}
+
 			fetch(FetchMode.AUTO);
-		}
-		if (this.listPresenter != null) {
-			this.listPresenter.onResume();
+
+			if (this.listPresenter != null) {
+				this.listPresenter.onResume();
+			}
 		}
 	}
 
@@ -89,51 +89,38 @@ public class UserScreen extends BaseActivity implements View.OnClickListener, Sw
 			final String jsonEntity = Json.objectToJson(entity);
 			startActivity(new Intent(this, UserEdit.class).putExtra(Constants.EXTRA_ENTITY, jsonEntity));
 		}
+		else if (view.getId() == R.id.member_of_button || view.getId() == R.id.owner_of_button) {
+			int titleResId = 0;
+			int emptyResId = 0;
+			String linkType = (String) view.getTag();
+
+			if (view.getId() == R.id.member_of_button) {
+				titleResId = R.string.label_drawer_item_watch;
+				emptyResId = R.string.label_member_of_empty;
+			}
+			else if (view.getId() == R.id.owner_of_button) {
+				titleResId = R.string.label_drawer_item_create;
+				emptyResId = R.string.label_owner_of_empty;
+			}
+
+			Bundle extras = new Bundle();
+			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_patch);
+			extras.putString(Constants.EXTRA_LIST_LINK_DIRECTION, Link.Direction.out.name());
+			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
+			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
+			extras.putInt(Constants.EXTRA_LIST_EMPTY_RESID, emptyResId);
+			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, titleResId);
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+			Patchr.router.route(this, Route.ENTITY_LIST, this.entity, extras);
+		}
 		else if (view.getTag() != null) {
 			if (view.getTag() instanceof Photo) {
 				Photo photo = (Photo) view.getTag();
-				if (photo != null) {
-					final String jsonPhoto = Json.objectToJson(photo);
-					Bundle extras = new Bundle();
-					extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-					Patchr.router.route(this, Route.PHOTO, null, extras);
-				}
+				navigateToPhoto(photo);
 			}
 			else if (view.getTag() instanceof Entity) {
 				final Entity entity = (Entity) view.getTag();
-				final Bundle extras = new Bundle();
-				extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-
-				if (entity instanceof Notification) {
-					Notification notification = (Notification) entity;
-					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Entity.getSchemaForId(notification.targetId));
-					extras.putString(Constants.EXTRA_ENTITY_ID, notification.targetId);
-					extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, notification.parentId);
-				}
-
-				Patchr.router.route(this, Route.BROWSE, entity, extras);
-			}
-			else {
-				int titleResId = 0;
-				int emptyResId = 0;
-				String linkType = (String) view.getTag();
-
-				if (view.getId() == R.id.button_member) {
-					titleResId = R.string.label_drawer_item_watch;
-					emptyResId = R.string.label_member_of_empty;
-				}
-				else if (view.getId() == R.id.button_owner) {
-					titleResId = R.string.label_drawer_item_create;
-					emptyResId = R.string.label_owner_of_empty;
-				}
-
-				Bundle extras = new Bundle();
-				extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
-				extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, titleResId);
-				extras.putInt(Constants.EXTRA_LIST_EMPTY_RESID, emptyResId);
-				extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-
-				Patchr.router.route(this, Route.PATCH_LIST, this.entity, extras);
+				navigateToEntity(entity);
 			}
 		}
 	}
@@ -141,9 +128,13 @@ public class UserScreen extends BaseActivity implements View.OnClickListener, Sw
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
 		this.optionMenu = menu;
+
+		/* Shown for owner */
+		getMenuInflater().inflate(R.menu.menu_logout, menu);    // base
+
+		/* Shown for everyone */
 		getMenuInflater().inflate(R.menu.menu_refresh, menu);
-		getMenuInflater().inflate(R.menu.menu_sign_out, menu);
-		getMenuInflater().inflate(R.menu.menu_report_user, menu);
+		getMenuInflater().inflate(R.menu.menu_report, menu);    // base
 
 		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
@@ -154,21 +145,10 @@ public class UserScreen extends BaseActivity implements View.OnClickListener, Sw
 		if (item.getItemId() == R.id.refresh) {
 			onRefresh();
 		}
-		else if (item.getItemId() == R.id.report_user) {
-			startActivity(new Intent(this, ReportEdit.class)
-					.putExtra(Constants.EXTRA_ENTITY_ID, this.entityId)
-					.putExtra(Constants.EXTRA_ENTITY_SCHEMA, this.entity.schema));
+		else {
+			Patchr.router.route(this, Patchr.router.routeForMenuId(item.getItemId()), entity, null);
 		}
-		else if (item.getItemId() == R.id.logout) {
-			UserManager.shared().signout();
-		}
-
 		return true;
-	}
-
-	@Override public boolean onPrepareOptionsMenu(Menu menu) {
-		configureStandardMenuItems(menu);
-		return super.onPrepareOptionsMenu(menu);
 	}
 
 	public void onRefresh() {
@@ -178,8 +158,16 @@ public class UserScreen extends BaseActivity implements View.OnClickListener, Sw
 				this.listPresenter.refresh();
 			}
 			else {
-				this.listPresenter.busyController.hide(false);
+				this.listPresenter.busyPresenter.hide(false);
 			}
+		}
+	}
+
+	public void onFetchComplete() {
+		super.onFetchComplete();
+		bind();
+		if (this.optionMenu != null) {
+			configureStandardMenuItems(optionMenu);
 		}
 	}
 
@@ -194,10 +182,7 @@ public class UserScreen extends BaseActivity implements View.OnClickListener, Sw
 				this.entity = event.entity;
 				this.listPresenter.scopingEntity = event.entity;
 				this.listPresenter.scopingEntityId = event.entity.id;
-				bind();
-				if (this.optionMenu != null) {
-					configureStandardMenuItems(optionMenu);
-				}
+				onFetchComplete();
 				this.listPresenter.fetch(FetchMode.AUTO);
 			}
 		}
@@ -228,14 +213,13 @@ public class UserScreen extends BaseActivity implements View.OnClickListener, Sw
 		this.listPresenter = new ListPresenter(this);
 		this.listPresenter.listView = (AbsListView) ((ViewGroup) this.rootView.findViewById(R.id.swipe)).getChildAt(1);
 		this.listPresenter.listItemResId = R.layout.temp_listitem_message;
-		this.listPresenter.busyController = new BusyController();
-		this.listPresenter.busyController.setProgressBar(this.rootView.findViewById(R.id.list_progress));
-		this.listPresenter.emptyController = new EmptyController(this.rootView.findViewById(R.id.list_message));
-		this.listPresenter.emptyController.setLabel(StringManager.getString(R.string.label_posted_empty));
+		this.listPresenter.busyPresenter = new BusyPresenter();
+		this.listPresenter.busyPresenter.setProgressBar(this.rootView.findViewById(R.id.list_progress));
+		this.listPresenter.emptyPresenter = new EmptyPresenter(this.rootView.findViewById(R.id.list_message));
+		this.listPresenter.emptyPresenter.setLabel(StringManager.getString(R.string.label_posted_empty));
 		this.listPresenter.headerView = this.header;
 
 		this.listPresenter.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
-				, Integers.getInteger(R.integer.page_size_messages)
 				, Maps.asMap("enabled", true)
 				, Link.Direction.out.name()
 				, Constants.TYPE_LINK_CREATE
@@ -245,12 +229,12 @@ public class UserScreen extends BaseActivity implements View.OnClickListener, Sw
 		/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
 		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) this.rootView.findViewById(R.id.swipe);
 		if (swipeRefresh != null) {
-			swipeRefresh.setColorSchemeColors(Colors.getColor(UI.getResIdForAttribute(this, R.attr.refreshColor)));
+			swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
 			swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(this, R.attr.refreshColorBackground));
 			swipeRefresh.setOnRefreshListener(this);
 			swipeRefresh.setRefreshing(false);
 			swipeRefresh.setEnabled(true);
-			this.listPresenter.busyController.setSwipeRefresh(swipeRefresh);
+			this.listPresenter.busyPresenter.setSwipeRefresh(swipeRefresh);
 		}
 
 		this.listPresenter.initialize(this, this.rootView);        // We init after everything is setup

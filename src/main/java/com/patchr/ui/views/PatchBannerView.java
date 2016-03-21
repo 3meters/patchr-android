@@ -100,9 +100,9 @@ public class PatchBannerView extends FrameLayout {
 			this.tuneButton.setVisibility(entity.isOwnedByCurrentUser() ? VISIBLE : GONE);
 
 			/* Members count */
-			Count count = entity.getCount(Constants.TYPE_LINK_WATCH, null, true, Link.Direction.in);
+			Count count = entity.getCount(Constants.TYPE_LINK_MEMBER, null, true, Link.Direction.in);
 			if (count == null) {
-				count = new Count(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, null, 0);
+				count = new Count(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_PATCH, null, 0);
 			}
 			if (count.count.intValue() > 0) {
 				TextView watchingCount = (TextView) this.membersButton.findViewById(R.id.members_count);
@@ -120,7 +120,7 @@ public class PatchBannerView extends FrameLayout {
 
 			/* Mute button */
 			this.muteButton.setDisplayedChild(0);
-			Link link = entity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
+			Link link = entity.linkFromAppUser(Constants.TYPE_LINK_MEMBER);
 			if (link == null || !link.enabled) {
 				UI.setVisibility(this.muteButton, View.GONE);
 			}

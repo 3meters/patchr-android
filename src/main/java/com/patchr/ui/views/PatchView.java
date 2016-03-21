@@ -105,7 +105,7 @@ public class PatchView extends FrameLayout {
 				base.setOrGone(this.messageCount, (messageCount != null) ? String.valueOf(messageCount.count.intValue()) : "0");
 
 				/* Watch count for nearby list */
-				Count watchCount = patch.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, Link.Direction.in);
+				Count watchCount = patch.getCount(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_USER, true, Link.Direction.in);
 				base.setOrGone(this.watchCount, (watchCount != null) ? String.valueOf(watchCount.count.intValue()) : "0");
 
 				/* Distance */

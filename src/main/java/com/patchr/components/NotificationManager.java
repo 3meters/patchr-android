@@ -14,7 +14,7 @@ import com.patchr.R;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.Notification;
 import com.patchr.objects.PhotoCategory;
-import com.patchr.ui.AircandiForm;
+import com.patchr.ui.MainScreen;
 import com.patchr.utilities.Reporting;
 import com.squareup.picasso.Picasso;
 
@@ -70,7 +70,7 @@ public class NotificationManager {
 
 		PendingIntent pendingIntent = TaskStackBuilder
 				.create(Patchr.applicationContext)
-				.addNextIntent(new Intent(Patchr.applicationContext, AircandiForm.class))
+				.addNextIntent(new Intent(Patchr.applicationContext, MainScreen.class))
 				.addNextIntent(notification.intent)
 				.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT);
 

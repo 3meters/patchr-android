@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.patchr.Constants;
@@ -38,8 +39,9 @@ import java.util.List;
 @SuppressLint("Registered")
 public class ProximityEdit extends BaseEdit {
 
-	private Button buttonTune;
-	private Button buttonUntune;
+	private Button   buttonTune;
+	private Button   buttonUntune;
+	private TextView title;
 
 	private Boolean tuned           = false;
 	private Boolean untuned         = false;
@@ -82,7 +84,7 @@ public class ProximityEdit extends BaseEdit {
 					    /*
 					     * We fake that the tuning happened because it is simpler than enabling/disabling ui
 						 */
-						uiController.getBusyController().hide(false);
+						busyPresenter.hide(false);
 						if (untuning) {
 							buttonUntune.setText(R.string.button_tuning_tuned);
 							untuned = true;
@@ -123,7 +125,7 @@ public class ProximityEdit extends BaseEdit {
 	public void onTuneButtonClick(View view) {
 		if (!tuned) {
 			untuning = false;
-			uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
+			busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()
 					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				tuningInProcess = true;
@@ -138,7 +140,7 @@ public class ProximityEdit extends BaseEdit {
 	public void onUntuneButtonClick(View view) {
 		if (!untuned) {
 			untuning = true;
-			uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
+			busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()
 					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				tuningInProcess = true;
@@ -159,6 +161,7 @@ public class ProximityEdit extends BaseEdit {
 
 		buttonTune = (Button) findViewById(R.id.tune_button);
 		buttonUntune = (Button) findViewById(R.id.button_untune);
+		title = (TextView) findViewById(R.id.title);
 	}
 
 	@Override public void bind() {
@@ -173,6 +176,7 @@ public class ProximityEdit extends BaseEdit {
 			UI.setVisibility(buttonUntune, View.VISIBLE);
 		}
 		actionBar.setTitle(R.string.form_title_proximity_edit);
+		title.setText(patch.name);
 	}
 
 	@Override protected int getLayoutId() {
@@ -198,7 +202,7 @@ public class ProximityEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				uiController.getBusyController().show(BusyAction.Refreshing);
+				busyPresenter.show(BusyAction.Refreshing);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -213,7 +217,7 @@ public class ProximityEdit extends BaseEdit {
 			}
 
 			@Override protected void onPostExecute(Object response) {
-				uiController.getBusyController().hide(false);
+				busyPresenter.hide(false);
 
 				if (tuned || untuned) {
 				    /* Undoing a tuning */
@@ -256,7 +260,7 @@ public class ProximityEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				uiController.getBusyController().show(BusyAction.Refreshing);
+				busyPresenter.show(BusyAction.Refreshing);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -266,7 +270,7 @@ public class ProximityEdit extends BaseEdit {
 			}
 
 			@Override protected void onPostExecute(Object response) {
-				uiController.getBusyController().hide(false);
+				busyPresenter.hide(false);
 				UI.showToastNotification(StringManager.getString(updatedResId), Toast.LENGTH_SHORT);
 				setResult(Activity.RESULT_OK);
 				finish();

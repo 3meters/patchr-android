@@ -88,7 +88,7 @@
 				android:layout_width="@dimen/button_height"
 				android:layout_height="@dimen/button_height"
 				android:layout_gravity="center_vertical"
-				android:onClick="onDeleteRequestClick"
+				android:onClick="onClick"
 				android:src="?attr/iconCancel"
 				android:tint="@color/brand_primary" />
 

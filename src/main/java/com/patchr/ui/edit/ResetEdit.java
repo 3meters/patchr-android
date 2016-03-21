@@ -3,6 +3,8 @@ package com.patchr.ui.edit;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -48,27 +50,24 @@ public class ResetEdit extends BaseEdit {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void onResetButtonClick(View view) {
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (this.processing) return;
-		this.processing = true;
+		this.optionMenu = menu;
 
-		if (!emailConfirmed) {
-			if (validate()) {
-				requestReset();
-			}
-			else {
-				this.processing = false;
-			}
+		getMenuInflater().inflate(R.menu.menu_submit, menu);
+		configureStandardMenuItems(menu);   // Tweaks based on permissions
+		return true;
+	}
+
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.submit) {
+			resetAction();
 		}
 		else {
-			if (validate()) {
-				resetAndSignin();
-			}
-			else {
-				this.processing = false;
-			}
+			return super.onOptionsItemSelected(item);
 		}
+		return true;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -89,7 +88,7 @@ public class ResetEdit extends BaseEdit {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 					if (actionId == EditorInfo.IME_ACTION_GO) {
-						onResetButtonClick(null);
+						resetAction();
 						return true;
 					}
 					return false;
@@ -106,6 +105,8 @@ public class ResetEdit extends BaseEdit {
 	}
 
 	@Override protected boolean validate() {
+
+		gather();
 		if (!emailConfirmed) {
 
 			if (email.getText().length() == 0) {
@@ -150,6 +151,29 @@ public class ResetEdit extends BaseEdit {
 		return R.layout.reset_edit;
 	}
 
+	public void resetAction() {
+
+		if (this.processing) return;
+		this.processing = true;
+
+		if (!emailConfirmed) {
+			if (validate()) {
+				requestReset();
+			}
+			else {
+				this.processing = false;
+			}
+		}
+		else {
+			if (validate()) {
+				resetAndSignin();
+			}
+			else {
+				this.processing = false;
+			}
+		}
+	}
+
 	protected void requestReset() {
 
 		Logger.d(this, "Verifying email and install for password reset");
@@ -159,7 +183,7 @@ public class ResetEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
+				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
 				UI.hideSoftInput(ResetEdit.this.email);
 			}
 
@@ -173,7 +197,7 @@ public class ResetEdit extends BaseEdit {
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				uiController.getBusyController().hide(false);
+				busyPresenter.hide(false);
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 					emailConfirmed = false;
 					if (result.serviceResponse.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
@@ -223,7 +247,7 @@ public class ResetEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in, ResetEdit.this);
+				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_signing_in, ResetEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -235,7 +259,7 @@ public class ResetEdit extends BaseEdit {
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				uiController.getBusyController().hide(true);
+				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in)
 							+ " " + UserManager.currentUser.name, Toast.LENGTH_SHORT);

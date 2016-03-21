@@ -51,23 +51,15 @@ public class LoginEdit extends BaseEdit {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void onForgotPasswordButtonClick(View view) {
-		Patchr.router.route(this, Route.PASSWORD_RESET, null, null);
-	}
-
-	public void onLoginButtonClick(View view) {
-		if (validate()) {
-			signin();
+	public void onClick(View view) {
+		if (view.getId() == R.id.login_button) {
+			submitAction();
 		}
-	}
-
-	public void onSignupButtonClick(View view) {
-		Patchr.router.route(this, Route.SIGNUP, null, null);
-	}
-
-	@Override public void onSubmit() {
-		if (validate()) {
-			signin();
+		else if (view.getId() == R.id.signup_button) {
+			Patchr.router.route(this, Route.SIGNUP, null, null);
+		}
+		else if (view.getId() == R.id.forgot_password_button) {
+			Patchr.router.route(this, Route.PASSWORD_RESET, null, null);
 		}
 	}
 
@@ -107,7 +99,7 @@ public class LoginEdit extends BaseEdit {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
-					signin();
+					login();
 					return true;
 				}
 				return false;
@@ -124,6 +116,7 @@ public class LoginEdit extends BaseEdit {
 	}
 
 	@Override protected boolean validate() {
+
 		if (password.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
@@ -175,30 +168,33 @@ public class LoginEdit extends BaseEdit {
 		return R.layout.login_edit;
 	}
 
-	private void signin() {
+	@Override public void submitAction() {
+		if (validate()) {
+			login();
+		}
+	}
+
+	private void login() {
 
 		final String email = this.email.getText().toString().toLowerCase(Locale.US);
 		final String password = this.password.getText().toString();
 
 		new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
-				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in, LoginEdit.this);
+			@Override protected void onPreExecute() {
+				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_signing_in, LoginEdit.this);
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncSignIn");
 				ModelResult result = DataController.getInstance().signin(email, password, LoginEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				uiController.getBusyController().hide(true);
+				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in) + " " + UserManager.currentUser.name, Toast.LENGTH_SHORT);
 					setResult(Constants.RESULT_USER_SIGNED_IN);

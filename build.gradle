@@ -43,6 +43,14 @@ android {
 		versionName '1.1.8'
 	}
 
+	sourceSets {
+		main {
+			res.srcDirs = [
+			        'src/main/res'
+			]
+		}
+	}
+
 	lintOptions {
 		checkReleaseBuilds false
 	}
@@ -119,6 +127,7 @@ android {
 		preDexLibraries false
 		javaMaxHeapSize "4g"
 	}
+	sourceSets { main { res.srcDirs = ['src/main/res', 'src/main/res/layout/screens'] } }
 }
 
 dependencies {

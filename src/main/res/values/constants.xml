@@ -69,11 +69,4 @@
 	<string name="uri_app_update_web">http://play.google.com/store/apps/details?id=[@string/id_package]&amp;referrer=utm_source%3D[@string/id_referrer]</string>
 	<string name="uri_aviary_install">market://details?id=com.aviary.android.feather&amp;referrer=utm_source%3D[@string/id_referrer]</string>
 
-	<!-- Service paging sizes -->
-
-	<integer name="page_size_entities">30</integer>
-	<integer name="page_size_users">30</integer>
-	<integer name="page_size_messages">50</integer>
-	<integer name="page_size_notifications">20</integer>
-
 </resources>

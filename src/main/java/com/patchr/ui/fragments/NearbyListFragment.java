@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
@@ -49,7 +48,6 @@ import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.ServiceData;
 import com.patchr.service.ServiceResponse;
-import com.patchr.ui.AircandiForm;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -78,16 +76,11 @@ public class NearbyListFragment extends EntityListFragment {
 		locationDialogShot = new AtomicBoolean(false);
 	}
 
-	@Override public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		ensurePermissions();
-	}
-
 	@Override public void onStart() {
 		bindActionButton(); // User might have logged in/out while gone
 		Dispatcher.getInstance().register(locationHandler);
 		Dispatcher.getInstance().unregister(ProximityController.getInstance()); /* Start foreground activity recognition - stop proximity manager from background recognition */
-		super.onStart();
+		super.onStart();    // Calls fetch(FetchMode.AUTO)
 	}
 
 	@Override public void onStop() {
@@ -101,6 +94,14 @@ public class NearbyListFragment extends EntityListFragment {
 		/* Start background activity recognition with proximity manager as the listener. */
 		ProximityController.getInstance().setLastBeaconInstallUpdate(null);
 		Dispatcher.getInstance().register(ProximityController.getInstance());
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void onRefresh() {
+		fetch(FetchMode.MANUAL);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -196,7 +197,7 @@ public class NearbyListFragment extends EntityListFragment {
 				cacheStamp = DataController.getInstance().getGlobalCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-					listPresenter.onProcessingComplete(ResponseCode.SUCCESS);
+					listPresenter.onFetchComplete(ResponseCode.SUCCESS);
 				}
 				else {
 
@@ -239,7 +240,7 @@ public class NearbyListFragment extends EntityListFragment {
 											, NetworkManager.getInstance().getNetworkType());
 
 									Dispatcher.getInstance().post(new EntitiesUpdatedEvent(entitiesForEvent, "onLocationChanged"));
-									listPresenter.onProcessingComplete(ResponseCode.SUCCESS);
+									listPresenter.onFetchComplete(ResponseCode.SUCCESS);
 								}
 								else {
 									Errors.handleError(getActivity(), serviceResponse);
@@ -248,7 +249,7 @@ public class NearbyListFragment extends EntityListFragment {
 						}.executeOnExecutor(Constants.EXECUTOR);
 					}
 					else {
-						listPresenter.onProcessingComplete(ResponseCode.SUCCESS);
+						listPresenter.onFetchComplete(ResponseCode.SUCCESS);
 					}
 				}
 			}
@@ -274,7 +275,7 @@ public class NearbyListFragment extends EntityListFragment {
 				listPresenter.getAdapter().notifyDataSetChanged();
 
 				if (entities.size() >= 2) {
-					listPresenter.onProcessingComplete(ResponseCode.SUCCESS);
+					listPresenter.onFetchComplete(ResponseCode.SUCCESS);
 				}
 
 				if (event.source.equals("onLocationChanged")) {
@@ -302,12 +303,13 @@ public class NearbyListFragment extends EntityListFragment {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe public void onLocationAllowed(final LocationAllowedEvent event) {
-		listPresenter.emptyController.setLabel(StringManager.getString(R.string.label_nearby_empty));
-		listPresenter.refresh();
+		fetch(FetchMode.MANUAL);
+		listPresenter.emptyPresenter.setLabel(StringManager.getString(R.string.label_nearby_empty));
 	}
 
 	@Subscribe public void onLocationDenied(final LocationDeniedEvent event) {
-		/* Here but being used yet. */
+		listPresenter.emptyPresenter.setLabel("Location services disabled for Patchr");
+		listPresenter.emptyPresenter.show(true);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -316,6 +318,11 @@ public class NearbyListFragment extends EntityListFragment {
 
 	@Override public void fetch(FetchMode mode) {
 		Logger.d(this, "Fetch called: " + mode.name());
+
+		if (!PermissionUtil.hasSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+			requestPermissions();
+			return;
+		}
 		/*
 		 * Global cache stamp gets dirtied by delete, insert, update patch entity.
 		 * Also when gcm notification is received and targetSchema == patch.
@@ -362,7 +369,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 		/* Location is dead to us so time for pants off */
 		bind();
-		listPresenter.onProcessingComplete(ResponseCode.SUCCESS);
+		listPresenter.onFetchComplete(ResponseCode.SUCCESS);
 	}
 
 	public void bind() {
@@ -410,7 +417,6 @@ public class NearbyListFragment extends EntityListFragment {
 						alertButton.setText(patched == null ? R.string.button_alert_radar_no_patch : R.string.button_alert_radar);
 					}
 
-					alertButton.setOnClickListener((AircandiForm) getActivity());
 					UI.setVisibility(alertGroup, View.VISIBLE);
 				}
 			}
@@ -426,8 +432,8 @@ public class NearbyListFragment extends EntityListFragment {
 			@Override protected void onPreExecute() {
 				Reporting.updateCrashKeys();
 				if (listPresenter.entities.size() == 0) {
-					listPresenter.busyController.show(IBusy.BusyAction.Scanning_Empty);
-					listPresenter.emptyController.fadeOut();
+					listPresenter.busyPresenter.show(IBusy.BusyAction.Scanning_Empty);
+					listPresenter.emptyPresenter.hide(true);
 				}
 				if (Patchr.getInstance().getPrefEnableDev()) {
 					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
@@ -470,47 +476,49 @@ public class NearbyListFragment extends EntityListFragment {
 		}
 	}
 
-	private void ensurePermissions() {
+	private void requestPermissions() {
 
-		if (!PermissionUtil.hasSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+		if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-			if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					final AlertDialog dialog = Dialogs.alertDialog(null
+							, StringManager.getString(R.string.alert_permission_location_title)
+							, StringManager.getString(R.string.alert_permission_location_message)
+							, null
+							, getActivity()
+							, R.string.alert_permission_location_positive
+							, R.string.alert_permission_location_negative
+							, null
+							, new DialogInterface.OnClickListener() {
 
-				getActivity().runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						final AlertDialog dialog = Dialogs.alertDialog(null
-								, StringManager.getString(R.string.alert_permission_location_title)
-								, StringManager.getString(R.string.alert_permission_location_message)
-								, null
-								, getActivity()
-								, R.string.alert_permission_location_positive
-								, R.string.alert_permission_location_negative
-								, null
-								, new DialogInterface.OnClickListener() {
-
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										if (which == DialogInterface.BUTTON_POSITIVE) {
-											ActivityCompat.requestPermissions(getActivity()
-													, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
-													, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-										}
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									if (which == DialogInterface.BUTTON_POSITIVE) {
+										ActivityCompat.requestPermissions(getActivity()
+												, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
+												, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 									}
-								}, null);
-						dialog.setCanceledOnTouchOutside(false);
-					}
-				});
-			}
-			else {
+									else {
+										listPresenter.busyPresenter.hide(true);
+										listPresenter.emptyPresenter.setLabel("Location services disabled for Patchr");
+										listPresenter.emptyPresenter.show(true);
+									}
+								}
+							}, null);
+					dialog.setCanceledOnTouchOutside(false);
+				}
+			});
+		}
+		else {
 				/*
 				 * No explanation needed, we can request the permission.
 				 * Parent activity will broadcast an event when permission request is complete.
 				 */
-				ActivityCompat.requestPermissions(getActivity()
-						, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
-						, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-			}
+			ActivityCompat.requestPermissions(getActivity()
+					, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
+					, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 		}
 	}
 
@@ -532,7 +540,7 @@ public class NearbyListFragment extends EntityListFragment {
 						searchForPatches();
 					}
 					else {
-						listPresenter.onProcessingComplete(ResponseCode.SUCCESS);
+						listPresenter.onFetchComplete(ResponseCode.SUCCESS);
 					}
 				}
 			}

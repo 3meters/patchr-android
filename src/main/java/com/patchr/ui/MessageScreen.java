@@ -38,14 +38,12 @@ import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.DataErrorEvent;
-import com.patchr.events.DataNoopEvent;
 import com.patchr.events.DataQueryResultEvent;
 import com.patchr.events.EntityQueryEvent;
+import com.patchr.events.EntityQueryResultEvent;
 import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.NotificationReceivedEvent;
-import com.patchr.events.ProcessingCompleteEvent;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.ActionType;
 import com.patchr.objects.Count;
@@ -72,6 +70,7 @@ import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 import java.util.Locale;
@@ -82,7 +81,7 @@ import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
 
 @SuppressWarnings("ConstantConditions")
-public class MessageScreen extends BaseActivity implements View.OnClickListener {
+public class MessageScreen extends BaseScreen {
 
 	protected BottomSheetLayout bottomSheetLayout;
 	protected ImageLayout       photoView;
@@ -129,34 +128,66 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void onClick(View v) {
-		UI.showToastNotification("Click!", Toast.LENGTH_SHORT);
+	public void onClick(View view) {
+		Integer id = view.getId();
+
+		if (id == R.id.like_button) {
+			likeAction();
+		}
+		else if (id == R.id.likes_button) {
+			likeListAction();
+		}
+		else if (view.getTag() != null) {
+			if (view.getTag() instanceof Photo) {
+				Photo photo = (Photo) view.getTag();
+				navigateToPhoto(photo);
+			}
+			else if (view.getTag() instanceof Entity) {
+				final Entity entity = (Entity) view.getTag();
+				navigateToEntity(entity);
+			}
+		}
 	}
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
 		this.optionMenu = menu;
-		getMenuInflater().inflate(R.menu.menu_edit_message, menu);
+
+		/* Shown for owner */
+		getMenuInflater().inflate(R.menu.menu_edit, menu);
 		getMenuInflater().inflate(R.menu.menu_delete, menu);
 		getMenuInflater().inflate(R.menu.menu_remove, menu);
 
 		/* Shown for everyone */
 		getMenuInflater().inflate(R.menu.menu_share_message, menu);
 		getMenuInflater().inflate(R.menu.menu_refresh, menu);
-		getMenuInflater().inflate(R.menu.menu_report_message, menu);
+		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
 
 		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
-		UI.showToastNotification("Menu click!", Toast.LENGTH_SHORT);
-		return true;
-	}
 
-	@Override public void onAdd(Bundle extras) {
-		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-		super.onAdd(extras);
+		if (item.getItemId() == R.id.delete) {
+			deleteAction();
+		}
+		else if (item.getItemId() == R.id.remove) {
+			removeAction();
+		}
+		else if (item.getItemId() == R.id.edit) {
+			editAction();
+		}
+		else if (item.getItemId() == R.id.refresh) {
+			fetch(FetchMode.MANUAL);
+		}
+		else if (item.getItemId() == R.id.share) {
+			shareAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
 	}
 
 	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -171,27 +202,28 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	public void onPatchClick(View view) {
-		Entity entity = (Entity) view.getTag();
-		Patchr.router.route(MessageScreen.this, Route.BROWSE, entity.patch, null);
-	}
-
-	public void onEditClick(View view) {
+	public void editAction() {
 		Bundle extras = new Bundle();
 		Patchr.router.route(this, Route.EDIT, entity, extras);
 	}
 
-	public void onDeleteClick(View view) {
-		Patchr.router.route(this, Route.DELETE, entity, null);
+	public void deleteAction() {
+		confirmDelete();
 	}
 
-	public void onRemoveClick(View view) {
-		Bundle extras = new Bundle();
-		extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, (String) view.getTag());
-		Patchr.router.route(this, Route.REMOVE, entity, extras);
+	public void removeAction() {
+		confirmRemove(parentId);    // Give activity a chance for remove confirmation
 	}
 
-	public void onLikeButtonClick(View view) {
+	public void shareAction() {
+		if (!UserManager.shared().authenticated()) {
+			UserManager.shared().showGuestGuard(this, "Sign up for a free account to share messages and more.");
+			return;
+		}
+		share();
+	}
+
+	public void likeAction() {
 
 		if (processing) return;
 		processing = true;
@@ -206,120 +238,74 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 		like(linkLike == null);
 	}
 
-	public void onLikesListButtonClick(View view) {
+	public void likeListAction() {
 		if (entity != null) {
 			Bundle extras = new Bundle();
+			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_user);
+			extras.putString(Constants.EXTRA_LIST_LINK_DIRECTION, Link.Direction.in.name());
+			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, Constants.SCHEMA_ENTITY_USER);
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_LIKE);
 			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_likes_list);
-			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_liker);
 			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-			Patchr.router.route(this, Route.USER_LIST, entity, extras);
+			Patchr.router.route(this, Route.ENTITY_LIST, entity, extras);
 		}
 	}
 
-	public void onShareClick(View view) {
-
-		if (!UserManager.shared().authenticated()) {
-			UserManager.shared().showGuestGuard(this, "Sign up for a free account to share messages and more.");
-			return;
-		}
-
-		share();
+	public void onFetchComplete() {
+		super.onFetchComplete();
+		bind();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe public void onDataResult(final DataQueryResultEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN) public void onEntityResult(final EntityQueryResultEvent event) {
 
-		if (event.tag.equals(System.identityHashCode(this))
-				&& (event.entity == null || event.entity.id.equals(entityId))) {
+		if (event.actionType == ActionType.ACTION_GET_ENTITY) {
 
-			Logger.v(this, "Data result accepted: " + event.actionType.name().toString());
+			if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
 
-			runOnUiThread(new Runnable() {
+				bound = true;
+				if (event.entity != null) {
+					entity = event.entity;
 
-				@Override
-				public void run() {
+					if (parentId != null) {
+						entity.toId = parentId;
+					}
 
-					if (event.actionType == ActionType.ACTION_GET_ENTITY) {
-
-						bound = true;
-						if (event.entity != null) {
-							entity = event.entity;
-
-							if (parentId != null) {
-								entity.toId = parentId;
-							}
-
-							if (entity instanceof Patch) {
-								Patchr.getInstance().setCurrentPatch(entity);
-							}
-						}
+					if (entity instanceof Patch) {
+						Patchr.getInstance().setCurrentPatch(entity);
+					}
+				}
 						/*
 						 * Possible to hit this before options menu has been set. If so then
 						 * configureStandardMenuItems will be called in onCreateOptionsMenu.
 						 */
-						if (optionMenu != null) {
-							configureStandardMenuItems(optionMenu);
-						}
+				if (optionMenu != null) {
+					configureStandardMenuItems(optionMenu);
+				}
 
 						/* Ensure this is flagged as read */
-						if (notificationId != null) {
-							if (NotificationManager.getInstance().getNotifications().containsKey(notificationId)) {
-								NotificationManager.getInstance().getNotifications().get(notificationId).read = true;
-							}
-						}
-
-						bind();
-						onProcessingComplete(new ProcessingCompleteEvent());
-					}
-					else if (event.actionType == ActionType.ACTION_LINK_INSERT_LIKE
-							|| event.actionType == ActionType.ACTION_LINK_DELETE_LIKE) {
-
-						bind();
-						onProcessingComplete(new ProcessingCompleteEvent());
+				if (notificationId != null) {
+					if (NotificationManager.getInstance().getNotifications().containsKey(notificationId)) {
+						NotificationManager.getInstance().getNotifications().get(notificationId).read = true;
 					}
 				}
-			});
-		}
-	}
 
-	@Subscribe public void onDataError(DataErrorEvent event) {
-		if (event.tag.equals(System.identityHashCode(this))) {
-			Logger.v(this, "Data error accepted: " + event.actionType.name().toString());
-
-			Boolean linkAction = (event.actionType.name().toLowerCase(Locale.US).contains("link"));
-
-			if (linkAction) {
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						bind();     // Chance to clear any embedded busy ui
-					}
-				});
-			}
-
-			onProcessingComplete(new ProcessingCompleteEvent());
-
-			/* We eat errors for network operations the user didn't specifically initiate. */
-			if (!bound || event.mode == FetchMode.MANUAL || linkAction) {
-				Errors.handleError(MessageScreen.this, event.errorResponse);
+				onFetchComplete();
 			}
 		}
 	}
 
-	@Subscribe public void onDataNoop(DataNoopEvent event) {
-		if (event.tag.equals(System.identityHashCode(this))) {
-			Logger.v(this, "Data no-op accepted: " + event.actionType.name().toString());
-			onProcessingComplete(new ProcessingCompleteEvent());
-		}
-	}
+	@Subscribe(threadMode = ThreadMode.MAIN) public void onDataQueryResult(final DataQueryResultEvent event) {
 
-	@Subscribe public void onProcessingComplete(ProcessingCompleteEvent event) {
-		processing = false;
-		uiController.getBusyController().hide(false);
+		if (event.actionType == ActionType.ACTION_LINK_INSERT_LIKE
+				|| event.actionType == ActionType.ACTION_LINK_DELETE_LIKE) {
+			if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
+				onFetchComplete();
+			}
+		}
 	}
 
 	@Subscribe public void onNotificationReceived(final NotificationReceivedEvent event) {
@@ -347,6 +333,10 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 		if (intent != null) {
 			final Bundle extras = intent.getExtras();
 
+			if (extras != null) {
+				this.entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
+			}
+
 			if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_VIEW)) {
 				Uri uri = intent.getData();
 				if (uri != null) {
@@ -364,8 +354,6 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 		bottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
 		bottomSheetLayout.setPeekOnDismiss(true);
 	}
-
-
 
 	@Override public void confirmDelete() {
 
@@ -402,7 +390,7 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_deleting, MessageScreen.this);
+				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_deleting, MessageScreen.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -414,7 +402,7 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				uiController.getBusyController().hide(true);
+				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Logger.i(this, "Deleted entity: " + entity.id);
 					/*
@@ -433,7 +421,7 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.message_form;
+		return R.layout.message_screen;
 	}
 
 	public void fetch(final FetchMode mode) {
@@ -500,7 +488,7 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 				Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
 
 				if (linkPlace != null) {
-					holderPatch.setTag(entity);
+					holderPatch.setTag(linkPlace.shortcut.getAsEntity());
 
 					/* Name */
 					patchName.setText(linkPlace.shortcut.name);
@@ -691,11 +679,11 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 			}
 
             /* Likes */
-			bindLikeWatch();    // Handled in parent class
+			bindLike();    // Handled in parent class
 		}
 	}
 
-	public void bindLikeWatch() {
+	public void bindLike() {
 
 		/* We don't support like/watch for users */
 		if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
@@ -706,7 +694,7 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 		UI.setVisibility(findViewById(R.id.toolbar), View.VISIBLE);
 
 		/* Like button coloring */
-		ViewAnimator like = (ViewAnimator) findViewById(R.id.button_like);
+		ViewAnimator like = (ViewAnimator) findViewById(R.id.like_button);
 		if (like != null) {
 			like.setDisplayedChild(0);
 			if (entity instanceof Patch && !((Patch) entity).isVisibleToCurrentUser()) {
@@ -714,7 +702,7 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 			}
 			else {
 				Link link = entity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
-				ImageView image = (ImageView) like.findViewById(R.id.mute_image);
+				ImageView image = (ImageView) like.findViewById(R.id.like_image);
 				if (link != null) {
 					final int color = Colors.getColor(R.color.brand_primary);
 					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
@@ -729,7 +717,7 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 		}
 
 		/* Like count */
-		View likes = findViewById(R.id.button_likes);
+		View likes = findViewById(R.id.likes_button);
 		if (likes != null) {
 			Count count = entity.getCount(Constants.TYPE_LINK_LIKE, null, true, Link.Direction.in);
 			if (count == null) {
@@ -749,28 +737,6 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 				UI.setVisibility(likes, View.GONE);
 			}
 		}
-
-		/* Watching count */
-		View watching = findViewById(R.id.members_button);
-		if (watching != null) {
-			Count count = entity.getCount(Constants.TYPE_LINK_WATCH, null, true, Link.Direction.in);
-			if (count == null) {
-				count = new Count(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, null, 0);
-			}
-			if (count.count.intValue() > 0) {
-				TextView watchingCount = (TextView) findViewById(R.id.members_count);
-				TextView watchingLabel = (TextView) findViewById(R.id.members_label);
-				if (watchingCount != null) {
-					String label = getResources().getQuantityString(R.plurals.label_watching, count.count.intValue(), count.count.intValue());
-					watchingCount.setText(String.valueOf(count.count.intValue()));
-					watchingLabel.setText(label);
-					UI.setVisibility(watching, View.VISIBLE);
-				}
-			}
-			else {
-				UI.setVisibility(watching, View.GONE);
-			}
-		}
 	}
 
 	public void like(final boolean activate) {
@@ -778,7 +744,7 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				ViewAnimator animator = (ViewAnimator) findViewById(R.id.button_like);
+				ViewAnimator animator = (ViewAnimator) findViewById(R.id.like_button);
 				if (animator != null) {
 					animator.setDisplayedChild(1);  // Turned off in drawButtons
 				}
@@ -827,11 +793,6 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 	}
 
 	public void share() {
-
-		if (!UserManager.shared().authenticated()) {
-			UserManager.shared().showGuestGuard(this, "Sign up for a free account to share messages and more.");
-			return;
-		}
 
 		final String entityName = (entity.name != null) ? entity.name : StringManager.getString(R.string.container_singular_lowercase);
 		final String title = StringManager.getString(R.string.label_message_share_title);
@@ -938,4 +899,5 @@ public class MessageScreen extends BaseActivity implements View.OnClickListener 
 			}
 		});
 	}
+
 }

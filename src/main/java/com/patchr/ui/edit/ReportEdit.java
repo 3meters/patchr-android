@@ -4,6 +4,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,7 +24,6 @@ import com.patchr.objects.Document;
 import com.patchr.objects.User;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.views.ImageLayout;
-import com.patchr.ui.widgets.AirEditText;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -47,6 +48,26 @@ public class ReportEdit extends BaseEdit {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+
+		this.optionMenu = menu;
+
+		getMenuInflater().inflate(R.menu.menu_send, menu);
+		configureStandardMenuItems(menu);   // Tweaks based on permissions
+		return true;
+	}
+
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.submit) {
+			super.submitAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
+	}
+
 	public void onRadioButtonClicked(View view) {
 		reportType = (String) view.getTag();
 		dirty = true;
@@ -58,8 +79,6 @@ public class ReportEdit extends BaseEdit {
 
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
-
-		description = (AirEditText) findViewById(R.id.description);
 
 		if (description != null) {
 			description.addTextChangedListener(new SimpleTextWatcher() {
@@ -99,6 +118,8 @@ public class ReportEdit extends BaseEdit {
 	}
 
 	@Override protected boolean validate() {
+
+		gather();
 		if (TextUtils.isEmpty(reportType)) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
@@ -119,7 +140,7 @@ public class ReportEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_sending, ReportEdit.this);
+				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_sending, ReportEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -132,7 +153,7 @@ public class ReportEdit extends BaseEdit {
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				uiController.getBusyController().hide(true);
+				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_report_sent), Toast.LENGTH_SHORT);
 					finish();

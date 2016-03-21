@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.flipboard.bottomsheet.BottomSheetLayout android:id="@+id/bottomsheet"
+                                             xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:custom="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+
+		<include
+			android:id="@+id/toolbar"
+			layout="@layout/include_toolbar_actionbar" />
+
+		<com.patchr.ui.widgets.AirScrollView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_gravity="center_horizontal"
+			android:background="?attr/backgroundForm"
+			android:fillViewport="true">
+
+			<!-- Content -->
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<RelativeLayout
+					android:id="@+id/holder_patch"
+					style="@style/selectable_item"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:clickable="true"
+					android:minHeight="44dp"
+					android:onClick="onClick"
+					android:paddingLeft="@dimen/form_body_padding">
+
+					<com.patchr.ui.widgets.AirTextLight
+						android:id="@+id/patch_name"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_alignParentLeft="true"
+						android:layout_centerVertical="true"
+						android:layout_marginRight="8dp"
+						android:layout_toLeftOf="@+id/patch_photo"
+						android:ellipsize="end"
+						android:singleLine="true"
+						android:textAppearance="@style/text_appearance_medium"
+						android:textColor="@color/brand_primary" />
+
+					<com.patchr.ui.views.ImageLayout
+						android:id="@+id/patch_photo"
+						android:layout_width="@dimen/image_medium"
+						android:layout_height="wrap_content"
+						android:layout_alignParentRight="true"
+						custom:aspectRatio="@dimen/aspect_ratio_patch_image"
+						custom:category="thumbnail" />
+				</RelativeLayout>
+
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/rule_divider_height"
+					android:background="?attr/ruleColor" />
+
+				<LinearLayout
+					android:id="@+id/holder_user"
+					style="@style/selectable_item"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="8dp"
+					android:layout_marginTop="8dp"
+					android:clickable="true"
+					android:onClick="onClick"
+					android:orientation="horizontal"
+					android:paddingLeft="@dimen/form_body_padding"
+					android:paddingRight="@dimen/form_body_padding"
+					tools:layout_height="50dp">
+
+					<com.patchr.ui.views.ImageLayout
+						android:id="@+id/user_photo"
+						android:layout_width="@dimen/image_small"
+						android:layout_height="@dimen/image_small"
+						android:layout_marginRight="5dp"
+						android:scaleType="centerCrop"
+						custom:category="profile"
+						custom:shape="round" />
+
+					<com.patchr.ui.widgets.AirTextView
+						android:id="@+id/user_name"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical"
+						android:ellipsize="end"
+						android:singleLine="true"
+						android:textStyle="bold"
+						tools:text="@string/dummy_username" />
+
+				</LinearLayout>
+
+				<com.patchr.ui.widgets.AirTextLight
+					android:id="@+id/description"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="4dp"
+					android:autoLink="web|email"
+					android:clickable="true"
+					android:linksClickable="true"
+					android:paddingLeft="@dimen/form_body_padding"
+					android:paddingRight="@dimen/form_body_padding"
+					android:textAppearance="@style/text_appearance_medium"
+					android:visibility="gone"
+					tools:text="@string/dummy_message" />
+
+				<RelativeLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="12dp"
+					android:paddingLeft="@dimen/form_body_padding"
+					android:paddingRight="@dimen/form_body_padding">
+
+					<com.patchr.ui.widgets.AirTextLight
+						android:id="@+id/created_date"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_centerVertical="true"
+						android:textAppearance="@style/text_appearance_small"
+						android:textColor="?attr/textColorSecondary"
+						tools:text="@string/dummy_timesince" />
+				</RelativeLayout>
+
+				<!-- Photo -->
+
+				<com.patchr.ui.views.ImageLayout
+					android:id="@+id/photo"
+					style="@style/selectable_image"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="@dimen/form_body_padding"
+					android:layout_marginRight="@dimen/form_body_padding"
+					android:clickable="true"
+					android:onClick="onClick"
+					android:visibility="gone"
+					custom:aspectRatio="@dimen/aspect_ratio_message_image"
+					custom:category="standard"
+					tools:visibility="visible" />
+
+				<!-- Buttons -->
+
+				<RelativeLayout
+					android:id="@+id/toolbar"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<ViewAnimator
+						android:id="@+id/like_button"
+						style="@style/selectable_image"
+						android:layout_width="@dimen/button_height"
+						android:layout_height="@dimen/button_height"
+						android:clickable="true"
+						android:onClick="onClick">
+
+						<ImageView
+							android:id="@+id/like_image"
+							android:layout_width="24dp"
+							android:layout_height="24dp"
+							android:layout_gravity="center"
+							android:adjustViewBounds="true"
+							android:alpha="0.5"
+							android:padding="2dp"
+							android:scaleType="fitCenter"
+							android:src="?attr/iconLike" />
+
+						<ProgressBar
+							android:id="@+id/like_progress"
+							android:layout_width="24dp"
+							android:layout_height="24dp"
+							android:layout_gravity="center"
+							android:focusable="true"
+							android:maxHeight="30dp"
+							android:minHeight="30dp" />
+					</ViewAnimator>
+
+					<LinearLayout
+						android:id="@+id/likes_button"
+						style="@style/selectable_item"
+						android:layout_width="wrap_content"
+						android:layout_height="@dimen/button_height"
+						android:layout_centerVertical="true"
+						android:layout_marginRight="8dp"
+						android:layout_toRightOf="@id/like_button"
+						android:clickable="true"
+						android:onClick="onClick"
+						android:orientation="horizontal">
+
+						<com.patchr.ui.widgets.AirTextMedium
+							android:id="@+id/likes_count"
+							android:layout_width="wrap_content"
+							android:layout_height="match_parent"
+							android:layout_marginRight="4dp"
+							android:gravity="center_vertical"
+							android:textColor="@color/brand_primary"
+							tools:text="12" />
+
+						<com.patchr.ui.widgets.AirTextLight
+							android:id="@+id/likes_label"
+							android:layout_width="wrap_content"
+							android:layout_height="match_parent"
+							android:gravity="center_vertical"
+							android:text="@string/label_button_likes"
+							android:textColor="@color/brand_primary" />
+					</LinearLayout>
+
+				</RelativeLayout>
+
+				<!-- Share entity -->
+
+				<RelativeLayout
+					android:id="@+id/share_holder"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="@dimen/form_body_padding"
+					android:layout_marginRight="@dimen/form_body_padding">
+
+					<android.support.v7.widget.CardView
+						android:id="@+id/share_entity"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:clickable="true"
+						android:onClick="onClick"
+						custom:cardBackgroundColor="?attr/backgroundButtonShare"
+						custom:cardCornerRadius="3dp"
+						custom:cardElevation="2dp"
+						custom:cardUseCompatPadding="true"
+						custom:contentPadding="4dp" />
+
+				</RelativeLayout>
+
+				<!-- Share to -->
+
+				<LinearLayout
+					android:id="@+id/share_recipients_holder"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="@dimen/form_body_padding"
+					android:layout_marginRight="@dimen/form_body_padding"
+					android:layout_marginTop="8dp"
+					android:orientation="horizontal"
+					android:visibility="gone">
+
+					<com.patchr.ui.widgets.AirTextLight
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical"
+						android:text="@string/label_message_to_prefix"
+						android:textAppearance="@style/text_appearance_medium"
+						android:textColor="?attr/textColorSecondary" />
+
+					<com.patchr.ui.widgets.AirTextLight
+						android:id="@+id/share_recipients"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical"
+						android:textAppearance="@style/text_appearance_medium"
+						android:textColor="@color/brand_accent_dark" />
+
+				</LinearLayout>
+
+			</LinearLayout>
+
+		</com.patchr.ui.widgets.AirScrollView>
+
+	</LinearLayout>
+</com.flipboard.bottomsheet.BottomSheetLayout>
+

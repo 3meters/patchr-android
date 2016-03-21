@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -30,15 +29,12 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Patch;
-import com.patchr.objects.Patch.ReasonType;
-import com.patchr.objects.User;
 import com.patchr.ui.views.ImageLayout;
+import com.patchr.ui.views.SearchItemView;
 import com.patchr.ui.widgets.AirTokenCompleteTextView;
 import com.patchr.ui.widgets.TokenCompleteTextView;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
-import com.patchr.utilities.UI;
 
 import org.json.JSONException;
 
@@ -51,68 +47,66 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	/*
 	 * Used by SearchForm and MessageEdit.
 	 */
-	@NonNull
 	private static Integer LIMIT = 10;
 
-	@NonNull
-	private List<Entity> mSeedEntities      = new ArrayList<>();
-	@NonNull
-	private Boolean      mSuggestInProgress = false;
+	private List<Entity>  seedEntities;
+	private ArrayAdapter  adapter;
+	private Context       context;
+	private AbsListView   listView;
+	private BusyPresenter busyPresenter;
 
-	private ArrayAdapter mAdapter;
-	private Context      mContext;
-	private AbsListView  mListView;
-	private UiController mUiController;
+	private EditText   searchInput;
+	private SearchView searchView;
+	private View       searchProgress;
+	private View       searchImage;
+	private boolean    suggestInProgress;
 
-	private EditText   mSearchInput;
-	private SearchView mSearchView;
-	private View       mSearchProgress;
-	private View       mSearchImage;
+	private Integer                             watchResId;
+	private Integer                             locationResId;
+	private Integer                             userResId;
+	private SimpleTextWatcher                   textWatcher;
+	private String                              suggestInput;
+	private String                              prefix;
+	private TokenCompleteTextView.TokenListener tokenListener;
 
-	private Integer                             mWatchResId;
-	private Integer                             mLocationResId;
-	private Integer                             mUserResId;
-	private SimpleTextWatcher                   mTextWatcher;
-	private String                              mSuggestInput;
-	private String                              mPrefix;
-	private TokenCompleteTextView.TokenListener mTokenListener;
+	private DataController.SuggestScope suggestScope;
 
-	private DataController.SuggestScope mSuggestScope = DataController.SuggestScope.PATCHES;
+	public EntitySuggestController(Context context) {
 
-	public EntitySuggestController(@NonNull Context context) {
-
-		mContext = context;
-		mAdapter = new SuggestArrayAdapter(mSeedEntities);
+		this.context = context;
+		this.seedEntities = new ArrayList<>();
+		this.adapter = new SuggestArrayAdapter(this.seedEntities);
+		this.suggestScope = DataController.SuggestScope.PATCHES;
 
 		final TypedValue resourceName = new TypedValue();
 		if (context.getTheme().resolveAttribute(R.attr.iconWatch, resourceName, true)) {
-			mWatchResId = resourceName.resourceId;
+			watchResId = resourceName.resourceId;
 		}
 		if (context.getTheme().resolveAttribute(R.attr.iconLocation, resourceName, true)) {
-			mLocationResId = resourceName.resourceId;
+			locationResId = resourceName.resourceId;
 		}
 		if (context.getTheme().resolveAttribute(R.attr.iconUser, resourceName, true)) {
-			mUserResId = resourceName.resourceId;
+			userResId = resourceName.resourceId;
 		}
 	}
 
 	public void init() {
 
 		/* Bind to adapter */
-		if (mSearchInput instanceof AirTokenCompleteTextView) {
-			AirTokenCompleteTextView input = (AirTokenCompleteTextView) mSearchInput;
+		if (searchInput instanceof AirTokenCompleteTextView) {
+			AirTokenCompleteTextView input = (AirTokenCompleteTextView) searchInput;
 			input.allowDuplicates(false);
 			input.setDeletionStyle(TokenCompleteTextView.TokenDeleteStyle.Clear);
 			input.setTokenClickStyle(TokenCompleteTextView.TokenClickStyle.Select);
-			input.setTokenListener(mTokenListener != null ? mTokenListener : this);
+			input.setTokenListener(tokenListener != null ? tokenListener : this);
 		}
 
-		if (mSearchInput instanceof AutoCompleteTextView) {
-			((AutoCompleteTextView) mSearchInput).setAdapter(mAdapter);
+		if (searchInput instanceof AutoCompleteTextView) {
+			((AutoCompleteTextView) searchInput).setAdapter(adapter);
 		}
-		else if (mSearchInput instanceof EditText && mListView != null) {
-			((ListView) mListView).setAdapter(mAdapter);
-			mSearchInput.addTextChangedListener(new SimpleTextWatcher() {
+		else if (searchInput instanceof EditText && listView != null) {
+			((ListView) listView).setAdapter(adapter);
+			searchInput.addTextChangedListener(new SimpleTextWatcher() {
 
 				@Override
 				public void afterTextChanged(@NonNull Editable s) {
@@ -120,9 +114,9 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 				}
 			});
 		}
-		else if (mSearchView != null && mListView != null) {
-			((ListView) mListView).setAdapter(mAdapter);
-			mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+		else if (searchView != null && listView != null) {
+			((ListView) listView).setAdapter(adapter);
+			searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 				@Override
 				public boolean onQueryTextSubmit(@NonNull String s) {
 					textChanged(s);
@@ -140,14 +134,14 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 	public void textChanged(@NonNull String input) {
 		if (!TextUtils.isEmpty(input) && input.length() >= 3) {
-			mAdapter.getFilter().filter(input);
+			adapter.getFilter().filter(input);
 		}
 		else {
-			mAdapter.clear();
-			if (mSeedEntities.size() > 0) {
-				mAdapter.add(mSeedEntities.get(0));
+			adapter.clear();
+			if (seedEntities.size() > 0) {
+				adapter.add(seedEntities.get(0));
 			}
-			mAdapter.notifyDataSetChanged();
+			adapter.notifyDataSetChanged();
 		}
 	}
 
@@ -183,69 +177,69 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 	 *--------------------------------------------------------------------------------------------*/
 
 	@NonNull public EntitySuggestController setSearchInput(EditText input) {
-		mSearchInput = input;
+		searchInput = input;
 		return this;
 	}
 
 	@NonNull public EntitySuggestController setAdapter(ArrayAdapter adapter) {
-		mAdapter = adapter;
+		this.adapter = adapter;
 		return this;
 	}
 
 	@NonNull public EntitySuggestController setTokenListener(TokenCompleteTextView.TokenListener tokenListener) {
-		mTokenListener = tokenListener;
+		this.tokenListener = tokenListener;
 		return this;
 	}
 
 	@NonNull public EntitySuggestController setSearchProgress(View progress) {
-		mSearchProgress = progress;
+		searchProgress = progress;
 		return this;
 	}
 
 	@NonNull public EntitySuggestController setSearchImage(View image) {
-		mSearchImage = image;
+		searchImage = image;
 		return this;
 	}
 
 	@NonNull public EntitySuggestController setPrefix(String mPrefix) {
-		this.mPrefix = mPrefix;
+		this.prefix = mPrefix;
 		return this;
 	}
 
 	@NonNull public EntitySuggestController setSuggestScope(DataController.SuggestScope suggestScope) {
-		mSuggestScope = suggestScope;
+		this.suggestScope = suggestScope;
 		return this;
 	}
 
 	@NonNull public EntitySuggestController setListView(AbsListView listView) {
-		mListView = listView;
+		this.listView = listView;
 		return this;
 	}
 
 	@NonNull public EntitySuggestController setSearchView(SearchView searchView) {
-		mSearchView = searchView;
+		this.searchView = searchView;
 		return this;
 	}
 
-	@NonNull public EntitySuggestController setUiController(UiController uiController) {
-		mUiController = uiController;
+	@NonNull public EntitySuggestController setBusyPresenter(BusyPresenter busyPresenter) {
+		this.busyPresenter = busyPresenter;
 		return this;
 	}
 
 	public SearchView getSearchView() {
-		return mSearchView;
+		return searchView;
 	}
 
 	public AbsListView getListView() {
-		return mListView;
+		return listView;
 	}
 
 	@NonNull public List<Entity> getSeedEntities() {
-		return mSeedEntities;
+		return seedEntities;
 	}
 
 	public ArrayAdapter getAdapter() {
-		return mAdapter;
+		return adapter;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -258,7 +252,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 		private List<Entity> mSeedEntities;
 
 		private SuggestArrayAdapter(List<Entity> seedEntities) {
-			this(mContext, 0, 0, seedEntities);
+			this(context, 0, 0, seedEntities);
 		}
 
 		public SuggestArrayAdapter(@NonNull Context context, int resource, int textViewResourceId, List<Entity> seedEntities) {
@@ -271,81 +265,16 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 
 			View view = convertView;
 			final ViewHolder holder;
-			final Entity entity = (Entity) mAdapter.getItem(position);
+			final Entity entity = (Entity) adapter.getItem(position);
 
 			if (view == null) {
-				view = LayoutInflater.from(mContext).inflate(R.layout.temp_user_search_item, null);
-				holder = new ViewHolder();
-				holder.photoView = (ImageLayout) view.findViewById(R.id.photo);
-				holder.name = (TextView) view.findViewById(R.id.name);
-				holder.subhead = (TextView) view.findViewById(R.id.subhead);
-				holder.categoryName = (TextView) view.findViewById(R.id.category_name);
-				holder.type = (TextView) view.findViewById(R.id.type);
-				view.setTag(holder);
-			}
-			else {
-				holder = (ViewHolder) view.getTag();
-				if (entity.photo != null && holder.photoView.getTag() != null) {
-					if (holder.photoView.getTag().equals(entity.photo.uriDirect()))
-						return view;
-				}
+				view = LayoutInflater.from(context).inflate(R.layout.temp_listitem_search, null);
 			}
 
 			if (entity != null) {
-				holder.data = entity;
-
-				UI.setVisibility(holder.name, View.GONE);
-				if (holder.name != null && entity.name != null && entity.name.length() > 0) {
-					holder.name.setText(entity.name);
-					UI.setVisibility(holder.name, View.VISIBLE);
-				}
-
-				UI.setVisibility(holder.type, View.GONE);
-				if (entity instanceof Patch) {
-					if (entity.type != null && !TextUtils.isEmpty(entity.type)) {
-						holder.type.setText(Html.fromHtml(entity.type));
-						UI.setVisibility(holder.type, View.VISIBLE);
-					}
-				}
-
-				UI.setVisibility(holder.subhead, View.GONE);
-				if (holder.subhead != null) {
-					if (entity instanceof User) {
-						User user = (User) entity;
-						if (!TextUtils.isEmpty(user.area)) {
-							holder.subhead.setText(user.area);
-							UI.setVisibility(holder.subhead, View.VISIBLE);
-						}
-					}
-				}
-
-                /* Photo */
-
-				if (holder.photoView != null) {
-					holder.photoView.setImageWithEntity(entity);
-				}
-
-		        /* Indicator */
-
-				UI.setVisibility(holder.indicator, View.INVISIBLE);
-				if (holder.indicator != null) {
-					if (entity instanceof Patch) {
-						if (entity.reason != null) {
-							if (entity.reason.equals(ReasonType.WATCH)) {
-								holder.indicator.setImageResource(mWatchResId);
-								UI.setVisibility(holder.indicator, View.VISIBLE);
-							}
-							else if (entity.reason.equals(ReasonType.LOCATION)) {
-								holder.indicator.setImageResource(mLocationResId);
-								UI.setVisibility(holder.indicator, View.VISIBLE);
-							}
-						}
-					}
-					else if (entity instanceof User) {
-						holder.indicator.setImageResource(mUserResId);
-						UI.setVisibility(holder.indicator, View.VISIBLE);
-					}
-				}
+				SearchItemView searchItemView = (SearchItemView) view.findViewById(R.id.item_view);
+				searchItemView.setTag(entity);
+				searchItemView.databind(entity);
 			}
 
 			return view;
@@ -367,26 +296,26 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			     * Called on background thread.
                  */
 				FilterResults result = new FilterResults();
-				if (!mSuggestInProgress) {
+				if (!suggestInProgress) {
 
-					mSuggestInProgress = true;
+					suggestInProgress = true;
 					if (chars != null && chars.length() > 0) {
 
-						if (mUiController != null) {
+						if (busyPresenter != null) {
 							Patchr.mainThreadHandler.post(new Runnable() {
 								@Override
 								public void run() {
-									mUiController.getBusyController().startProgressBar();
+									busyPresenter.startProgressBar();
 								}
 							});
 						}
 
-						if (mSearchProgress != null) {
-							mSearchInput.post(new Runnable() {
+						if (searchProgress != null) {
+							searchInput.post(new Runnable() {
 								@Override
 								public void run() {
-									mSearchImage.setVisibility(View.INVISIBLE);
-									mSearchProgress.setVisibility(View.VISIBLE);
+									searchImage.setVisibility(View.INVISIBLE);
+									searchProgress.setVisibility(View.VISIBLE);
 								}
 							});
 						}
@@ -394,7 +323,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 						Thread.currentThread().setName("AsyncSuggestEntities");
 						final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 						ModelResult modelResult = DataController.getInstance().suggest(chars.toString().trim()
-								, mSuggestScope
+								, suggestScope
 								, UserManager.shared().authenticated() ? UserManager.currentUser.id : null
 								, location
 								, LIMIT, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
@@ -417,7 +346,7 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 						result.count = mSeedEntities.size();
 					}
 
-					mSuggestInProgress = false;
+					suggestInProgress = false;
 				}
 				return result;
 			}
@@ -428,21 +357,21 @@ public class EntitySuggestController implements TokenCompleteTextView.TokenListe
 			    /*
 			     * Called on UI thread.
                  */
-				if (mUiController != null) {
+				if (busyPresenter != null) {
 					Patchr.mainThreadHandler.post(new Runnable() {
 						@Override
 						public void run() {
-							mUiController.getBusyController().stopProgressBar();
+							busyPresenter.stopProgressBar();
 						}
 					});
 				}
 
-				if (mSearchProgress != null) {
-					mSearchInput.post(new Runnable() {
+				if (searchProgress != null) {
+					searchInput.post(new Runnable() {
 						@Override
 						public void run() {
-							mSearchImage.setVisibility(View.VISIBLE);
-							mSearchProgress.setVisibility(View.INVISIBLE);
+							searchImage.setVisibility(View.VISIBLE);
+							searchProgress.setVisibility(View.INVISIBLE);
 						}
 					});
 				}

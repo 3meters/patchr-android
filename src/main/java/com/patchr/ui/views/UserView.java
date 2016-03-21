@@ -25,7 +25,6 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Patch;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.User;
 import com.patchr.utilities.Errors;
@@ -38,7 +37,7 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 
 	public    Entity     entity;
 	protected CacheStamp cacheStamp;
-	public    Patch      patch;
+	public    Entity     patch;
 	protected BaseView   base;
 	protected Integer    layoutResId;
 
@@ -182,7 +181,7 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 				return DataController.getInstance().insertLink(linkId
 						, fromId
 						, toId
-						, Constants.TYPE_LINK_WATCH
+						, Constants.TYPE_LINK_MEMBER
 						, enabled
 						, toShortcut, actionEvent, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null
 				);

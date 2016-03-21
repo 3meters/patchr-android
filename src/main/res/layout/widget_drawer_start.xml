@@ -15,6 +15,7 @@
 		android:layout_height="wrap_content"
 		android:background="?attr/backgroundFormSecondary"
 		android:clickable="true"
+		android:onClick="onClick"
 		android:padding="8dp">
 
 		<com.patchr.ui.views.ImageLayout

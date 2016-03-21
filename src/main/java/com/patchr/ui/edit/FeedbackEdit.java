@@ -4,6 +4,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,10 +21,8 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.Document;
-import com.patchr.objects.User;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.views.ImageLayout;
-import com.patchr.ui.widgets.AirEditText;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -43,6 +43,30 @@ public class FeedbackEdit extends BaseEdit {
 	}
 
 	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+
+		this.optionMenu = menu;
+
+		getMenuInflater().inflate(R.menu.menu_send, menu);
+		configureStandardMenuItems(menu);   // Tweaks based on permissions
+		return true;
+	}
+
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.submit) {
+			super.submitAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
+	}
+
+	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
@@ -51,7 +75,8 @@ public class FeedbackEdit extends BaseEdit {
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
-		description = (AirEditText) findViewById(R.id.description);
+		userPhoto = (ImageLayout) findViewById(R.id.user_photo);
+		userName = (TextView) findViewById(R.id.user_name);
 
 		if (description != null) {
 			description.addTextChangedListener(new SimpleTextWatcher() {
@@ -70,9 +95,8 @@ public class FeedbackEdit extends BaseEdit {
 	}
 
 	@Override public void bind() {
-		User user = UserManager.currentUser;
-		this.userPhoto.setImageWithEntity(user);
-		this.userName.setText(user.name);
+		this.userPhoto.setImageWithEntity(UserManager.currentUser);
+		this.userName.setText(UserManager.currentUser.name);
 	}
 
 	@Override protected void gather() {
@@ -80,7 +104,8 @@ public class FeedbackEdit extends BaseEdit {
 	}
 
 	@Override protected boolean validate() {
-		if (!super.validate()) return false;
+
+		gather();
 		if (description.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
@@ -101,7 +126,7 @@ public class FeedbackEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_sending, FeedbackEdit.this);
+				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_sending, FeedbackEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -114,7 +139,7 @@ public class FeedbackEdit extends BaseEdit {
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				uiController.getBusyController().hide(true);
+				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					UI.showToastNotification(StringManager.getString(R.string.alert_feedback_sent), Toast.LENGTH_SHORT);
 					finish();

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+
+	android:id="@+id/item_row"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+
+	<com.patchr.ui.views.SearchItemView
+		android:id="@+id/item_view"
+		style="@style/selectable_item"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:clickable="true"
+		android:onClick="onClick"
+		android:paddingBottom="4dp"
+		android:paddingLeft="8dp"
+		android:paddingRight="8dp"
+		android:paddingTop="4dp" />
+
+	<View
+		android:id="@+id/divider"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/rule_divider_height"
+		android:layout_alignParentBottom="true"
+		android:layout_gravity="center_vertical"
+		android:background="@color/gray_20_pcnt" />
+
+</RelativeLayout>

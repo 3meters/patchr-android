@@ -39,7 +39,7 @@ public class LinkSpecFactory {
 				 */
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, true, true, limitProximity)
 						.setDirection(Direction.out));
-				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
+				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_USER, true, true, 1
 						, UserManager.shared().authenticated() ? Maps.asMap("_from", UserManager.currentUser.id) : null)
 						.setDirection(Direction.in));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
@@ -66,7 +66,7 @@ public class LinkSpecFactory {
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, true, limitCreate)
 						.setDirection(Direction.out));
-				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, true, true, limitWatch)
+				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_PATCH, true, true, limitWatch)
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitCreate)
 						.setDirection(Direction.out));
@@ -77,7 +77,7 @@ public class LinkSpecFactory {
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, false, true, 0)
 						.setDirection(Direction.out));
-				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, false, true, 0)
+				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_PATCH, false, true, 0)
 						.setDirection(Direction.out));
 			}
 			return linkSpec;

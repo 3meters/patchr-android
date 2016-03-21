@@ -81,7 +81,7 @@
 					android:background="@drawable/scrim_medium">
 
 					<com.patchr.ui.widgets.AirTextView
-						android:id="@+id/button_photo_set"
+						android:id="@+id/photo_set_button"
 						style="@style/button_flat"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/form_field_height"
@@ -94,7 +94,7 @@
 						tools:visibility="gone" />
 
 					<ImageButton
-						android:id="@+id/button_photo_edit"
+						android:id="@+id/photo_edit_button"
 						style="@style/button_flat"
 						android:layout_width="@dimen/form_field_height"
 						android:layout_height="@dimen/form_field_height"
@@ -107,7 +107,7 @@
 						android:textColor="?attr/textColorCandiView" />
 
 					<ImageButton
-						android:id="@+id/button_photo_delete"
+						android:id="@+id/photo_delete_button"
 						style="@style/button_flat"
 						android:layout_width="@dimen/form_field_height"
 						android:layout_height="@dimen/form_field_height"
@@ -126,7 +126,7 @@
 			<!-- Privacy -->
 
 			<com.patchr.ui.widgets.AirButton
-				android:id="@+id/button_privacy"
+				android:id="@+id/privacy_policy_button"
 				style="@style/button_link"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"

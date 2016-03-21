@@ -13,7 +13,6 @@ import android.widget.ListView;
 import android.widget.ViewSwitcher;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.DataController;
 import com.patchr.components.Dispatcher;
@@ -26,11 +25,9 @@ import com.patchr.events.DataNoopEvent;
 import com.patchr.events.EntitiesQueryResultEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.interfaces.IBusy;
-import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.ActionType;
 import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
-import com.patchr.objects.Patch;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.NotificationView;
 import com.patchr.ui.views.PatchView;
@@ -45,8 +42,8 @@ import java.util.List;
 
 public class ListPresenter implements View.OnClickListener {
 
-	public BusyController          busyController;
-	public EmptyController         emptyController;
+	public BusyPresenter           busyPresenter;
+	public EmptyPresenter          emptyPresenter;
 	public OnInjectEntitiesHandler injectEntitiesHandler;
 
 	/* Widgets */
@@ -60,9 +57,9 @@ public class ListPresenter implements View.OnClickListener {
 	public Integer emptyMessageResId;
 
 	/* Configuration */
-	public String listViewType;
-	public Boolean entityCacheEnabled = true;            // false == always call service
-	public Boolean showIndex          = true;
+	public String  listViewType;
+	public boolean entityCacheDisabled;            // true == always call service
+	public Boolean showIndex = true;
 
 	/* Cached for grids */
 	public Integer photoWidthPixels;
@@ -97,14 +94,14 @@ public class ListPresenter implements View.OnClickListener {
 	}
 
 	public void onResume() {
-		if (this.busyController != null) {
-			this.busyController.onResume();
+		if (this.busyPresenter != null) {
+			this.busyPresenter.onResume();
 		}
 	}
 
 	public void onPause() {
-		if (this.busyController != null) {
-			this.busyController.onPause();
+		if (this.busyPresenter != null) {
+			this.busyPresenter.onPause();
 		}
 	}
 
@@ -129,17 +126,17 @@ public class ListPresenter implements View.OnClickListener {
 		}
 	}
 
-	public void onProcessingComplete(final NetworkManager.ResponseCode responseCode) {
-
+	public void onFetchComplete(final NetworkManager.ResponseCode responseCode) {
 		if (this.released) return;
+		assert responseCode != null;
 
-		this.busyController.hide(false);
+		this.busyPresenter.hide(false);
 
-		if (getAdapter().getCount() == 0 && (responseCode == null || responseCode == NetworkManager.ResponseCode.SUCCESS)) {
-			this.emptyController.fadeIn(Constants.TIME_ONE_SECOND);
+		if (adapter.getCount() == 0 && responseCode == NetworkManager.ResponseCode.SUCCESS) {
+			this.emptyPresenter.show(true);
 		}
 		else {
-			this.emptyController.fadeOut(); // Only fades if currently visible
+			this.emptyPresenter.hide(true); // Only fades if currently visible
 		}
 	}
 
@@ -194,21 +191,21 @@ public class ListPresenter implements View.OnClickListener {
 				this.bound = true;
 			}
 
-			onProcessingComplete(NetworkManager.ResponseCode.SUCCESS);
+			onFetchComplete(NetworkManager.ResponseCode.SUCCESS);
 		}
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN) public void onDataError(DataErrorEvent event) {
 		if (event.tag.equals(System.identityHashCode(this))) {
 			Logger.v(this, "Data error accepted: " + event.actionType.name());
-			onProcessingComplete(NetworkManager.ResponseCode.FAILED);
+			onFetchComplete(NetworkManager.ResponseCode.FAILED);
 		}
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN) public void onDataNoop(DataNoopEvent event) {
 		if (event.tag.equals(System.identityHashCode(this))) {
 			Logger.v(this, "Data no-op accepted: " + event.actionType.name());
-			onProcessingComplete(NetworkManager.ResponseCode.SUCCESS);
+			onFetchComplete(NetworkManager.ResponseCode.SUCCESS);
 		}
 	}
 
@@ -233,8 +230,8 @@ public class ListPresenter implements View.OnClickListener {
 		this.pagingControl = LayoutInflater.from(context).inflate(R.layout.temp_listitem_loading, null);
 		this.pagingControl.setOnClickListener(this);
 
-		if (this.emptyController != null && this.emptyMessageResId != null) {
-			this.emptyController.setLabel(StringManager.getString(this.emptyMessageResId));
+		if (this.emptyPresenter != null && this.emptyMessageResId != null) {
+			this.emptyPresenter.setLabel(StringManager.getString(this.emptyMessageResId));
 		}
 
 		if (this.headerView != null && this.listView != null && this.listViewType.equals(ViewType.LIST)) {
@@ -318,19 +315,20 @@ public class ListPresenter implements View.OnClickListener {
 			this.adapter.setNotifyOnChange(true);
 		}
 
-		Integer limit = this.query.pageSize;
+		Integer pageSize = this.query != null ? this.query.pageSize : 50;
+		Integer limit = pageSize;
 		if (this.entities.size() > 0) {
-			limit = (int) Math.ceil((float) this.entities.size() / this.query.pageSize) * this.query.pageSize;
+			limit = (int) Math.ceil((float) this.entities.size() / pageSize) * pageSize;
 		}
 
 		fetchItems(0, limit, mode);
 
 		if (mode != FetchMode.MANUAL) {
-			this.emptyController.showEmptyMessage(false);
+			this.emptyPresenter.hide(false);
 		}
 
 		if (!this.bound) {
-			this.busyController.show(IBusy.BusyAction.Refreshing_Empty);
+			this.busyPresenter.show(IBusy.BusyAction.Refreshing_Empty);
 		}
 	}
 
@@ -399,7 +397,7 @@ public class ListPresenter implements View.OnClickListener {
 				Entity entity = entities.get(position);
 
 				/* Perform cache lookup to make sure we are using the latest */
-				if (entityCacheEnabled && DataController.getStoreEntity(entity.id) != null) {
+				if (entityCacheDisabled && DataController.getStoreEntity(entity.id) != null) {
 					entity = DataController.getStoreEntity(entity.id);
 				}
 
@@ -424,8 +422,8 @@ public class ListPresenter implements View.OnClickListener {
 				}
 
 				if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-					view.setTag(entity);
 					PatchView patchView = (PatchView) view.findViewById(R.id.item_view);
+					patchView.setTag(entity);
 					patchView.databind(entity);
 				}
 				else if (entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
@@ -434,26 +432,24 @@ public class ListPresenter implements View.OnClickListener {
 					messageView.databind(entity);
 				}
 				else if (entity.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
-					view.setTag(entity);
 					NotificationView notificationView = (NotificationView) view.findViewById(R.id.item_view);
+					notificationView.setTag(entity);
 					notificationView.databind(entity);
 				}
 				else if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-					view.setTag(entity);
 					UserView userView = (UserView) view.findViewById(R.id.item_view);
-					if (query.cursor.linkTypes.get(0).equals(Constants.TYPE_LINK_WATCH)) {
+					userView.setTag(entity);
+					if (query.cursor.linkTypes.get(0).equals(Constants.TYPE_LINK_MEMBER)) {
 						if (scopingEntity != null) {
 							Boolean itemIsOwner = (entity.id.equals(scopingEntity.ownerId));
 							userView.databind(entity, !itemIsOwner, itemIsOwner);
-							userView.patch = (Patch) scopingEntity;
+							if (scopingEntity instanceof Entity) {
+								userView.patch = scopingEntity;
+							}
 							return view;
 						}
 					}
 					userView.databind(entity);
-				}
-				else {
-					IEntityController controller = Patchr.getInstance().getControllerForEntity(entity);
-					controller.bind(entity, view, groupTag);
 				}
 			}
 			return view;

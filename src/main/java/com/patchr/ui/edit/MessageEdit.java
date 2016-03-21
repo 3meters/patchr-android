@@ -8,8 +8,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -28,7 +30,6 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.ProcessingCanceledEvent;
-import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Message;
@@ -37,6 +38,8 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.Route;
 import com.patchr.ui.components.EntitySuggestController;
 import com.patchr.ui.views.EntityView;
+import com.patchr.ui.views.MessageView;
+import com.patchr.ui.views.PatchView;
 import com.patchr.ui.widgets.AirTokenCompleteTextView;
 import com.patchr.ui.widgets.TokenCompleteTextView;
 import com.patchr.utilities.Dialogs;
@@ -100,25 +103,34 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
      * Events
      *--------------------------------------------------------------------------------------------*/
 
-	@Override public void onSubmit() {
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (this.processing) return;
-		this.processing = true;
+		this.optionMenu = menu;
 
-		if (this.dirty || messageType.equals(MessageType.SHARE)) {
-			if (validate()) { // validate() also gathers
-				if (editing) {
-					update();
-				}
-				else {
-					insert();
-				}
-			}
+		if (editing) {
+			getMenuInflater().inflate(R.menu.menu_save, menu);
+			getMenuInflater().inflate(R.menu.menu_delete, menu);
 		}
 		else {
-			onCancel(false);
+			getMenuInflater().inflate(R.menu.menu_send, menu);
 		}
-		this.processing = false;
+
+		configureStandardMenuItems(menu);   // Tweaks based on permissions
+		return true;
+	}
+
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.delete) {
+			super.confirmDelete();
+		}
+		else if (item.getItemId() == R.id.submit) {
+			super.submitAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
 	}
 
 	@Override public void onTokenAdded(Object o) {
@@ -232,7 +244,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 		insertProgressResId = R.string.progress_sending;
 		insertedResId = R.string.alert_message_sent;
 
-		animatorPhoto = (ViewAnimator) findViewById(R.id.animator_photo);
+		animatorPhoto = (ViewAnimator) findViewById(R.id.photo_animator);
 		if (animatorPhoto != null) {
 			animatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
 			animatorPhoto.setOutAnimation(MessageEdit.this, R.anim.fade_out_medium);
@@ -488,14 +500,23 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 		TextView textView = (TextView) findViewById(R.id.description);
 		if (messageType.equals(MessageType.SHARE)) {
 
-			int layoutResId = 0;
-			if (shareSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				layoutResId = R.layout.temp_share_patch;
+			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+				PatchView patchView = new PatchView(this, R.layout.patch_view_attachment);
+				patchView.databind(shareEntity);
+				CardView cardView = (CardView) share;
+				int padding = UI.getRawPixelsForDisplayPixels(0f);
+				cardView.setContentPadding(padding, padding, padding, padding);
+				share.addView(patchView);
 			}
-			else if (shareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-				layoutResId = R.layout.temp_share_message;
+			else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+				MessageView messageView = new MessageView(this, R.layout.message_view_attachment);
+				messageView.databind(shareEntity);
+				CardView cardView = (CardView) share;
+				int padding = UI.getRawPixelsForDisplayPixels(8f);
+				cardView.setContentPadding(padding, padding, padding, padding);
+				share.addView(messageView);
 			}
-			else if (shareSchema.equals(Constants.SCHEMA_ENTITY_PICTURE)) {
+			else {
 				buttonPhotoDelete.setVisibility(View.GONE);
 			}
 
@@ -503,13 +524,6 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 					|| shareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				animatorPhoto.setVisibility(View.GONE);
 				shareHolder.setVisibility(View.VISIBLE);
-				View shareView = LayoutInflater.from(this).inflate(layoutResId, share, true);
-				IEntityController controller = Patchr.getInstance().getControllerForSchema(shareSchema);
-				controller.bind(shareEntity, shareView, null);
-
-				if (shareSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-					UI.setEnabled(shareView, false);
-				}
 			}
 
 			if (textView != null) {
@@ -553,11 +567,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 	}
 
 	@Override protected boolean validate() {
-		if (!super.validate()) return false;
-		/*
-		 * Transfering values from the controls to the entity is easier
-		 * with candigrams.
-		 */
+
 		gather();
 		Message message = (Message) entity;
 

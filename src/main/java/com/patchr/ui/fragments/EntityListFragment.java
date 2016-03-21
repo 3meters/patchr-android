@@ -1,21 +1,32 @@
 package com.patchr.ui.fragments;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 
+import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.Dispatcher;
+import com.patchr.components.MenuManager;
+import com.patchr.components.UserManager;
 import com.patchr.events.AbsEntitiesQueryEvent;
 import com.patchr.events.NotificationReceivedEvent;
+import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
-import com.patchr.ui.components.BusyController;
-import com.patchr.ui.components.EmptyController;
+import com.patchr.objects.Route;
+import com.patchr.ui.BaseScreen;
+import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.ListPresenter;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.UI;
@@ -23,25 +34,58 @@ import com.patchr.utilities.UI;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class EntityListFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
+/**
+ * Fragment lifecycle
+ * <p/>
+ * - onAttach (activity may not be fully initialized but fragment has been associated with it)
+ * - onCreate
+ * - onCreateView
+ * - onViewCreated
+ * - onActivityCreated (views created, safe to use findById)
+ * - onViewStateRestored
+ * - onStart (fragment becomes visible)
+ * - onResume
+ * <p/>
+ * - onPause
+ * - onStop
+ * - onSaveInstanceState
+ * - onDestroyView
+ * - onDestroy
+ * - onDetach
+ */
+public class EntityListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-	public ListPresenter listPresenter;
-	public Integer layoutResId = R.layout.entity_list_fragment;
-	public ListPresenter.OnInjectEntitiesHandler injectEntitiesHandler;
-	public Integer                               listItemResId;
-	public Integer                               emptyMessageResId;
+	public ListPresenter                         listPresenter;
 	public AbsEntitiesQueryEvent                 query;
+	public ListPresenter.OnInjectEntitiesHandler injectEntitiesHandler;
 	public View                                  headerView;
-	public Boolean entityCacheEnabled = true;            // false == always call service
+
+	public Integer layoutResId;
+	public Integer listItemResId;
+	public Integer titleResId;
+	public Integer emptyMessageResId;
+
+	public boolean entityCacheDisabled;            // true == always call service
 
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		this.layoutResId = R.layout.entity_list_fragment;
+
+		/* Force complete initialization if being recreated by the system */
+		boolean recreated = (savedInstanceState != null && !savedInstanceState.isEmpty());
+		if (recreated) {
+			Intent intent = getActivity().getIntent();
+			getActivity().finish();
+			startActivity(intent);
+		}
+
 		this.listPresenter = new ListPresenter(getContext());
 		this.listPresenter.listItemResId = this.listItemResId;
 		this.listPresenter.emptyMessageResId = this.emptyMessageResId;
 		this.listPresenter.query = this.query;
 		this.listPresenter.headerView = this.headerView;
-		this.listPresenter.entityCacheEnabled = this.entityCacheEnabled;
+		this.listPresenter.entityCacheDisabled = this.entityCacheDisabled;
 	}
 
 	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -59,6 +103,9 @@ public class EntityListFragment extends BaseFragment implements SwipeRefreshLayo
 	@Override public void onStart() {
 		super.onStart();
 		Dispatcher.getInstance().register(this);
+		if (getActivity() != null && !getActivity().isFinishing()) {
+			configureStandardMenuItems(((BaseScreen) getActivity()).optionMenu);
+		}
 		fetch(FetchMode.AUTO);
 	}
 
@@ -86,9 +133,12 @@ public class EntityListFragment extends BaseFragment implements SwipeRefreshLayo
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public void onRefresh() {
-		if (listPresenter != null) {
-			listPresenter.refresh();
-		}
+		fetch(FetchMode.MANUAL);
+	}
+
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+		Patchr.router.route(getActivity(), Patchr.router.routeForMenuId(item.getItemId()), null, null);
+		return true;
 	}
 
 	@Override public void onConfigurationChanged(Configuration newConfig) {
@@ -101,11 +151,13 @@ public class EntityListFragment extends BaseFragment implements SwipeRefreshLayo
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe(threadMode = ThreadMode.MAIN) public void onNotificationReceived(final NotificationReceivedEvent event) {
-
+		/*
+		 * If list is showing notifications and contains notification entity then replace it.
+		 */
 		if (listPresenter.entities.contains(event.notification)) {
 			listPresenter.entities.remove(event.notification);
 		}
-		listPresenter.emptyController.fadeOut();
+		listPresenter.emptyPresenter.hide(true);
 		listPresenter.adapter.insert(event.notification, 0);
 		listPresenter.adapter.notifyDataSetChanged();
 	}
@@ -119,37 +171,92 @@ public class EntityListFragment extends BaseFragment implements SwipeRefreshLayo
 		assert view != null;
 
 		this.listPresenter.listView = (AbsListView) ((ViewGroup) view.findViewById(R.id.swipe)).getChildAt(1);
-		this.listPresenter.emptyController = new EmptyController(view.findViewById(R.id.list_message));
-		this.listPresenter.busyController = new BusyController();
-		this.listPresenter.busyController.setProgressBar(view.findViewById(R.id.list_progress));
+		this.listPresenter.emptyPresenter = new EmptyPresenter(view.findViewById(R.id.list_message));
+		this.listPresenter.busyPresenter = new BusyPresenter();
+		this.listPresenter.busyPresenter.setProgressBar(view.findViewById(R.id.list_progress));
 
 		/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
 		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe);
 		if (swipeRefresh != null) {
-			swipeRefresh.setColorSchemeColors(Colors.getColor(UI.getResIdForAttribute(getContext(), R.attr.refreshColor)));
+			swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
 			swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(getContext(), R.attr.refreshColorBackground));
 			swipeRefresh.setOnRefreshListener(this);
 			swipeRefresh.setRefreshing(false);
 			swipeRefresh.setEnabled(true);
-			this.listPresenter.busyController.setSwipeRefresh(swipeRefresh);
+			this.listPresenter.busyPresenter.setSwipeRefresh(swipeRefresh);
 		}
 
 		this.listPresenter.initialize(getContext(), view);        // We init after everything is setup
 	}
 
 	public void fetch(FetchMode fetchMode) {
-		listPresenter.fetch(fetchMode);
+		if (listPresenter != null) {
+			listPresenter.fetch(fetchMode);
+		}
 	}
 
-	@Override public void setMenuVisibility(final boolean visible) {
-		/*
-		 * Called when fragment is going to be visible to the user and that's when
-		 * we want to start the data binding work. CreateView will have already been called.
-		 */
-		super.setMenuVisibility(visible);
-		isVisible = visible;
-		if (isVisible) {
-			listPresenter.fetch(FetchMode.AUTO);
-		}
+	public void configureStandardMenuItems(final Menu menu) {
+
+		FragmentActivity fragmentActivity = getActivity();
+		if (menu == null || fragmentActivity == null) return;
+
+		fragmentActivity.runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				/* Sign-in isn't dependent on an entity for policy */
+
+				MenuItem item = menu.findItem(R.id.login);
+				if (item != null) {
+					item.setVisible(!UserManager.shared().authenticated());
+				}
+
+				/* Remove menu items per policy */
+				Entity entity = ((BaseScreen) getActivity()).entity;
+
+				if (entity == null) return;
+
+				item = menu.findItem(R.id.edit);
+				if (item != null) {
+					item.setVisible(MenuManager.canUserEdit(entity));
+				}
+
+				item = menu.findItem(R.id.delete);
+				if (item != null) {
+					item.setVisible(MenuManager.canUserDelete(entity));
+				}
+
+				item = menu.findItem(R.id.remove);
+				if (item != null) {
+					item.setVisible(MenuManager.showAction(Route.REMOVE, entity));
+				}
+
+				item = menu.findItem(R.id.share);
+				if (item != null) {
+					item.setVisible(MenuManager.canUserShare(entity));
+				}
+
+				item = menu.findItem(R.id.share_photo);
+				if (item != null) {
+					item.setVisible(MenuManager.canUserShare(entity));
+				}
+
+				item = menu.findItem(R.id.logout);
+				if (item != null) {
+					item.setVisible(MenuManager.showAction(Route.EDIT, entity));
+				}
+
+				item = menu.findItem(R.id.navigate);
+				if (item != null && UserManager.shared().authenticated()) {
+					item.setVisible(entity.getLocation() != null);
+				}
+
+				item = menu.findItem(R.id.invite);
+				if (item != null) {
+					item.setVisible(MenuManager.canUserShare(entity));
+				}
+			}
+		});
 	}
 }

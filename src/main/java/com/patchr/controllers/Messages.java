@@ -21,7 +21,6 @@ import com.patchr.objects.ViewHolder;
 import com.patchr.ui.MessageScreen;
 import com.patchr.ui.edit.MessageEdit;
 import com.patchr.utilities.DateTime;
-import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;
 
 import java.util.Map;
@@ -34,7 +33,7 @@ public class Messages extends EntityControllerBase {
 		mBrowseClass = MessageScreen.class;
 		mEditClass = MessageEdit.class;
 		mNewClass = MessageEdit.class;
-		mPageSize = Integers.getInteger(R.integer.page_size_messages);
+		mPageSize = Constants.PAGE_SIZE;
 		mListLayoutResId = R.layout.entity_list_fragment;
 		mListItemResId = R.layout.temp_listitem_message;
 		mListLoadingResId = R.layout.temp_listitem_loading;

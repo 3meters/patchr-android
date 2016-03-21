@@ -82,8 +82,8 @@ public class UserDetailView extends FrameLayout {
 		this.name = (TextView) layout.findViewById(R.id.name);
 		this.email = (TextView) layout.findViewById(R.id.email);
 		this.area = (TextView) layout.findViewById(R.id.area);
-		this.buttonMember = (TextView) layout.findViewById(R.id.button_member);
-		this.buttonOwner = (TextView) layout.findViewById(R.id.button_owner);
+		this.buttonMember = (TextView) layout.findViewById(R.id.member_of_button);
+		this.buttonOwner = (TextView) layout.findViewById(R.id.owner_of_button);
 		this.editFab = (FloatingActionButton) layout.findViewById(R.id.edit_fab);
 	}
 
@@ -119,7 +119,7 @@ public class UserDetailView extends FrameLayout {
 
 			/* Button state */
 
-			Count watching = entity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
+			Count watching = entity.getCount(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
 			Count created = entity.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
 
 			this.buttonMember.setText(StringManager.getString(R.string.label_user_watching)

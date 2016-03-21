@@ -1,135 +1,22 @@
 package com.patchr.components;
 
-import android.app.Activity;
-import android.support.annotation.NonNull;
-import android.view.Menu;
-import android.view.MenuInflater;
-
 import com.patchr.Constants;
-import com.patchr.R;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Route;
-import com.patchr.ui.edit.BaseEdit;
 
 public class MenuManager {
 
-	@NonNull
-	public static Boolean onCreateOptionsMenu(Activity activity, Menu menu) {
-
-		/* Browsing */
-
-		String activityName = activity.getClass().getSimpleName();
-		MenuInflater menuInflater = activity.getMenuInflater();
-
-		/*
-		 * Fragments set menu items when they are configured which are
-		 * later added in BaseFragment.onCreateOptionsMenu.
-		 */
-		switch (activityName) {
-			case "AircandiForm":
-				return true;
-			case "MapForm":
-				menuInflater.inflate(R.menu.menu_log_in, menu);
-				menuInflater.inflate(R.menu.menu_navigate, menu);
-				return true;
-			case "MessageForm":
-				/*
-				 * These are included but actual visibility is handled in BaseActivity.onPrepareOptionsMenu
-				 * which gets called everytime the overflow menu is displayed. If these are shown as actions
-				 * there might be a timing problem.
-				 */
-				menuInflater.inflate(R.menu.menu_edit_message, menu);
-				menuInflater.inflate(R.menu.menu_delete, menu);
-				menuInflater.inflate(R.menu.menu_remove, menu);
-				/*
-				 * Shown for everyone
-				 */
-				menuInflater.inflate(R.menu.menu_share_message, menu);
-				menuInflater.inflate(R.menu.menu_refresh, menu);
-				menuInflater.inflate(R.menu.menu_report_message, menu);
-				return true;
-			case "SearchForm":
-				menuInflater.inflate(R.menu.menu_search_view, menu);
-				return true;
-			case "AboutForm":
-				return true;
-			case "PhotoForm":
-				menuInflater.inflate(R.menu.menu_share_photo, menu);
-				return true;
-		}
-
-		/* Editing */
-
-		if (activityName.contains("PatchEdit")) {
-			if (((BaseEdit) activity).editing) {
-				menuInflater.inflate(R.menu.menu_save, menu);
-			}
-			menuInflater.inflate(R.menu.menu_delete_patch, menu);
-			return true;
-		}
-		else if (activityName.contains("MessageEdit")) {
-			Boolean editing = ((BaseEdit) activity).editing;
-			if (editing) {
-				menuInflater.inflate(R.menu.menu_save, menu);
-				menuInflater.inflate(R.menu.menu_delete, menu);
-			}
-			else {
-				menuInflater.inflate(R.menu.menu_send, menu);
-			}
-			return true;
-		}
-		else if (activityName.equals("SignInEdit")) {
-			menuInflater.inflate(R.menu.menu_log_in, menu);
-			menuInflater.inflate(R.menu.menu_accept, menu);
-			return true;
-		}
-		else if (activityName.equals("ReportEdit")
-				|| activityName.equals("FeedbackEdit")) {
-			menuInflater.inflate(R.menu.menu_send, menu);
-			return true;
-		}
-		else if (activityName.equals("UserEdit")
-				|| activityName.equals("PasswordEdit")
-				|| activityName.contains("LocationPicker")) {
-			menuInflater.inflate(R.menu.menu_accept, menu);
-			return true;
-		}
-		else if (activityName.equals("ResetEdit")) {
-			menuInflater.inflate(R.menu.menu_accept, menu);
-			return true;
-		}
-		else if (activityName.equals("RegisterEdit")) {
-			return true;
-		}
-		else if (activityName.contains("Builder")) {
-			menuInflater.inflate(R.menu.menu_accept, menu);
-			return true;
-		}
-		else if (activityName.contains("PhotoPicker")) {
-			menuInflater.inflate(R.menu.menu_search_start, menu);
-			return true;
-		}
-		else if (activityName.contains("Picker")) {
-			menuInflater.inflate(R.menu.menu_accept, menu);
-			return true;
-		}
-		return false;
-	}
-
-	@NonNull
 	public static Boolean canUserEdit(Entity entity) {
 		return UserManager.shared().authenticated() && entity != null && (entity.isOwnedByCurrentUser());
 	}
 
-	@NonNull
 	public static Boolean canUserDelete(Entity entity) {
 		return UserManager.shared().authenticated() && entity != null && (entity.isOwnedByCurrentUser());
 	}
 
-	@NonNull
 	public static Boolean canUserRemoveFromPatch(Entity entity) {
 		if (!UserManager.shared().authenticated()) return false;
 		if (entity == null) return false;
@@ -141,7 +28,6 @@ public class MenuManager {
 				&& !entity.ownerId.equals(UserManager.currentUser.id);
 	}
 
-	@NonNull
 	public static Boolean canUserAdd(Entity entity) {
 		if (!UserManager.shared().authenticated()) return false;
 		if (entity == null) return true;
@@ -152,7 +38,6 @@ public class MenuManager {
 		return true;
 	}
 
-	@NonNull
 	public static Boolean canUserShare(Entity entity) {
 		/*
 		 * Must be owner or member to share a private patch. Anyone

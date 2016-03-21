@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -32,14 +34,24 @@ public class PrivacyBuilder extends BaseEdit {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void onSubmit() {
-		save();
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+
+		this.optionMenu = menu;
+
+		getMenuInflater().inflate(R.menu.menu_submit, menu);
+		configureStandardMenuItems(menu);   // Tweaks based on permissions
+		return true;
 	}
 
-	@Override public void onCancel(Boolean force) {
-		setResult(Activity.RESULT_CANCELED);
-		finish();
-		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.submit) {
+			submitAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
 	}
 
 	public void onRadioButtonClicked(View view) {
@@ -84,6 +96,16 @@ public class PrivacyBuilder extends BaseEdit {
 
 	@Override protected int getLayoutId() {
 		return R.layout.privacy_builder;
+	}
+
+	@Override public void submitAction() {
+		save();
+	}
+
+	@Override public void cancelAction(Boolean force) {
+		setResult(Activity.RESULT_CANCELED);
+		finish();
+		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
 	}
 
 	public void bind() {

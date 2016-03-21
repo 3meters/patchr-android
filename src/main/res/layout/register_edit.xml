@@ -7,8 +7,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="vertical"
-	tools:context=".ui.user.RegisterEdit">
+	android:orientation="vertical">
 
 	<include
 		android:id="@+id/toolbar"
@@ -67,7 +66,7 @@
 					android:background="@drawable/scrim_medium">
 
 					<com.patchr.ui.widgets.AirTextView
-						android:id="@+id/button_photo_set"
+						android:id="@+id/photo_set_button"
 						style="@style/button_flat"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/form_field_height"
@@ -80,7 +79,7 @@
 						tools:visibility="gone" />
 
 					<ImageButton
-						android:id="@+id/button_photo_edit"
+						android:id="@+id/photo_edit_button"
 						style="@style/button_flat"
 						android:layout_width="@dimen/form_field_height"
 						android:layout_height="@dimen/form_field_height"
@@ -93,7 +92,7 @@
 						android:textColor="?attr/textColorCandiView" />
 
 					<ImageButton
-						android:id="@+id/button_photo_delete"
+						android:id="@+id/photo_delete_button"
 						style="@style/button_flat"
 						android:layout_width="@dimen/form_field_height"
 						android:layout_height="@dimen/form_field_height"
@@ -169,12 +168,12 @@
 							android:background="@color/brand_accent" />
 
 						<Button
-							android:id="@+id/button_register"
+							android:id="@+id/signup_button"
 							style="@style/button_link"
 							android:layout_width="match_parent"
 							android:layout_height="@dimen/button_height"
 							android:minWidth="200dp"
-							android:onClick="onRegisterButtonClick"
+							android:onClick="onClick"
 							android:text="@string/button_register"
 							android:textColor="@color/white" />
 					</RelativeLayout>
@@ -195,11 +194,12 @@
 							custom:textId="@string/label_terms" />
 
 						<com.patchr.ui.widgets.AirTextLight
+							android:id="@+id/terms_button"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:layout_toRightOf="@id/terms"
 							android:clickable="true"
-							android:onClick="onViewTermsButtonClick"
+							android:onClick="onClick"
 							android:textColor="?attr/textSelectorLink"
 							custom:textId="@string/button_terms" />
 

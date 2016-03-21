@@ -87,7 +87,7 @@ public class UserManager {
 			@Override
 			protected void onPostExecute(Object response) {
 				/* Set to anonymous user even if service call fails */
-				Patchr.router.route(Patchr.applicationContext, Route.SPLASH, null, null);
+				Patchr.router.route(Patchr.applicationContext, Route.LOBBY, null, null);
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}

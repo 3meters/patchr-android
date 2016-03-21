@@ -19,6 +19,7 @@
 			android:layout_alignParentTop="true"
 			android:layout_centerHorizontal="true"
 			android:animationCache="false"
+			android:background="?attr/backgroundCardField"
 			android:cacheColorHint="@color/transparent"
 			android:divider="?attr/ruleColor"
 			android:dividerHeight="@dimen/rule_divider_height"

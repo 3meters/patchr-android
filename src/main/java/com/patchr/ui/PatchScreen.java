@@ -48,20 +48,20 @@ import com.patchr.components.Logger;
 import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.events.DataQueryResultEvent;
 import com.patchr.events.EntitiesQueryEvent;
 import com.patchr.events.EntityQueryEvent;
 import com.patchr.events.EntityQueryResultEvent;
 import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
-import com.patchr.events.ProcessingCompleteEvent;
-import com.patchr.events.WatchStatusChangedEvent;
+import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.ActionType;
+import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Message;
-import com.patchr.objects.Notification;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
@@ -69,18 +69,15 @@ import com.patchr.objects.Route;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.WatchStatus;
-import com.patchr.ui.components.BusyController;
+import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.CircleTransform;
-import com.patchr.ui.components.EmptyController;
+import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.components.ListPresenter;
 import com.patchr.ui.edit.MessageEdit;
-import com.patchr.ui.fragments.EntityListFragment;
 import com.patchr.ui.views.PatchDetailView;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Integers;
-import com.patchr.utilities.Json;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
@@ -97,8 +94,7 @@ import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
 
 @SuppressLint("Registered")
-public class PatchScreen extends BaseActivity implements View.OnClickListener
-		, SwipeRefreshLayout.OnRefreshListener
+public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefreshListener
 		, NfcAdapter.CreateNdefMessageCallback
 		, NfcAdapter.OnNdefPushCompleteCallback {
 
@@ -133,31 +129,49 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 
 	@Override protected void onResume() {
 		super.onResume();
-		if (!isFinishing()) {
-			Patchr.getInstance().setCurrentPatch(entity);
-		}
 
-		if (entity != null && entity instanceof Patch) {
-			Patch patch = (Patch) entity;
-			if (referrerName != null) {     // Active invitation
-				if (bottomSheetLayout.isSheetShowing()) {
-					if (UserManager.shared().authenticated() && patch.watchStatus() != WatchStatus.NONE) {
-						bottomSheetLayout.dismissSheet();
+		if (!isFinishing()) {
+
+			Patchr.getInstance().setCurrentPatch(entity);
+			if (this.entity != null) {
+				bind();
+			}
+
+			fetch(FetchMode.AUTO);
+
+			if (this.listPresenter != null) {
+				this.listPresenter.onResume();
+			}
+
+			if (entity != null && entity instanceof Patch) {
+				Patch patch = (Patch) entity;
+				if (referrerName != null) {     // Active invitation
+					if (bottomSheetLayout.isSheetShowing()) {
+						if (UserManager.shared().authenticated() && patch.watchStatus() != WatchStatus.NONE) {
+							bottomSheetLayout.dismissSheet();
+						}
+						else if (UserManager.shared().authenticated() != authenticatedForInvite) {
+							showInviteWelcome(1000);
+						}
 					}
-					else if (UserManager.shared().authenticated() != authenticatedForInvite) {
-						showInviteWelcome(1000);
+					else {
+						showInviteWelcome(1500);
 					}
-				}
-				else {
-					showInviteWelcome(1500);
 				}
 			}
-		}
 
-		if (autoJoin) {
-			onJoinButtonClick(null);
-			UI.showToastNotification("You are now a member of this patch!", Toast.LENGTH_SHORT);
-			autoJoin = false;
+			if (autoJoin) {
+				joinAction();
+				UI.showToastNotification("You are now a member of this patch!", Toast.LENGTH_SHORT);
+				autoJoin = false;
+			}
+		}
+	}
+
+	@Override protected void onPause() {
+		super.onPause();
+		if (this.listPresenter != null) {
+			this.listPresenter.onPause();
 		}
 	}
 
@@ -170,7 +184,7 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void onClick(View view) {
+	public void onClick(View view) {
 		/*
 		 * Base activity broadcasts view clicks that target onViewClick. There are actions
 		 * that should be handled at the activity level like add a new entity.
@@ -180,76 +194,88 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 		processing = true;
 		Integer id = view.getId();
 
-		/* Dynamic button we need to redirect */
+		/* Action button redirects based on tag */
 		if (id == R.id.action_button) {
 			id = (Integer) view.getTag();
 		}
 
-		if (id == R.id.add || id == R.id.list_fab) {
-			onAdd(new Bundle());
+		if (id == R.id.add) {
+			addAction();
 		}
-		processing = false;
-
-		if (view.getTag() != null) {
+		else if (id == R.id.fab) {
+			addAction();
+		}
+		else if (id == R.id.invite) {
+			inviteAction();
+		}
+		else if (id == R.id.join_button) {
+			joinAction();
+		}
+		else if (id == R.id.members_button) {
+			memberListAction();
+		}
+		else if (id == R.id.tune_button) {
+			tuneAction();
+		}
+		else if (id == R.id.mute_button) {
+			muteAction();
+		}
+		else if (view.getTag() != null) {
 			if (view.getTag() instanceof Photo) {
 				Photo photo = (Photo) view.getTag();
-				if (photo != null) {
-					final String jsonPhoto = Json.objectToJson(photo);
-					Bundle extras = new Bundle();
-					extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-					Patchr.router.route(this, Route.PHOTO, null, extras);
-				}
+				navigateToPhoto(photo);
 			}
 			else if (view.getTag() instanceof Entity) {
 				final Entity entity = (Entity) view.getTag();
-				final Bundle extras = new Bundle();
-				extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-
-				if (entity instanceof Notification) {
-					Notification notification = (Notification) entity;
-					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Entity.getSchemaForId(notification.targetId));
-					extras.putString(Constants.EXTRA_ENTITY_ID, notification.targetId);
-					extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, notification.parentId);
-				}
-
-				Patchr.router.route(this, Route.BROWSE, entity, extras);
-			}
-			else {
-
+				navigateToEntity(entity);
 			}
 		}
+
+		processing = false;
 	}
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
 		this.optionMenu = menu;
-		getMenuInflater().inflate(R.menu.menu_log_in, menu);
-		getMenuInflater().inflate(R.menu.menu_invite, menu);
-		getMenuInflater().inflate(R.menu.menu_map, menu);
-		getMenuInflater().inflate(R.menu.menu_refresh, menu);
-		getMenuInflater().inflate(R.menu.menu_edit_patch, menu);
-		getMenuInflater().inflate(R.menu.menu_leave_patch, menu);
+
+		/* Shown for owner */
+		getMenuInflater().inflate(R.menu.menu_edit, menu);
 		getMenuInflater().inflate(R.menu.menu_delete, menu);
-		getMenuInflater().inflate(R.menu.menu_qrcode, menu);
-		getMenuInflater().inflate(R.menu.menu_report_patch, menu);
+
+		/* Shown for everyone */
+		getMenuInflater().inflate(R.menu.menu_invite, menu);
+		getMenuInflater().inflate(R.menu.menu_refresh, menu);
+		getMenuInflater().inflate(R.menu.menu_leave_patch, menu);
+
+		getMenuInflater().inflate(R.menu.menu_login, menu);         // base
+		getMenuInflater().inflate(R.menu.menu_map, menu);           // base
+		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
 
 		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.leave_patch) {
-			onJoinButtonClick(null);
+
+		if (item.getItemId() == R.id.delete) {
+			deleteAction();
+		}
+		else if (item.getItemId() == R.id.edit) {
+			editAction();
+		}
+		else if (item.getItemId() == R.id.invite) {
+			inviteAction();
+		}
+		else if (item.getItemId() == R.id.refresh) {
+			onRefresh();
+		}
+		else if (item.getItemId() == R.id.leave_patch) {
+			joinAction();
 		}
 		else {
 			Patchr.router.route(this, Patchr.router.routeForMenuId(item.getItemId()), entity, null);
 		}
 		return true;
-	}
-
-	@Override public boolean onPrepareOptionsMenu(Menu menu) {
-		configureStandardMenuItems(menu);
-		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override public void onRefresh() {
@@ -259,33 +285,8 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 				this.listPresenter.refresh();
 			}
 			else {
-				this.listPresenter.busyController.hide(false);
+				this.listPresenter.busyPresenter.hide(false);
 			}
-		}
-	}
-
-	@Override public void onAdd(Bundle extras) {
-
-		if (!UserManager.shared().authenticated()) {
-			UserManager.shared().showGuestGuard(this, "Sign up for a free account to post messages and more.");
-			return;
-		}
-
-		if (entity == null) return;
-
-		if (MenuManager.canUserAdd(entity)) {
-
-			String message = StringManager.getString(R.string.label_message_new_message);
-			if (!TextUtils.isEmpty(entity.name)) {
-				message = String.format(StringManager.getString(R.string.label_message_new_to_message), entity.name);
-			}
-
-			extras.putString(Constants.EXTRA_MESSAGE, message);
-			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, entityId);
-			extras.putString(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
-			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-
-			Patchr.router.route(this, Route.NEW, null, extras);
 		}
 	}
 
@@ -339,62 +340,10 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	private void onShareButtonClick(View view) {
-
-		if (!UserManager.shared().authenticated()) {
-			UserManager.shared().showGuestGuard(this, "Sign up for a free account to send patch invites and more.");
-			return;
-		}
-
-		if (entity != null) {
-			share();
-		}
-	}
-
-	protected void onJoinButtonClick(View view) {
-
-		if (entity == null) return;
-
-		if (!UserManager.shared().authenticated()) {
-			UserManager.shared().showGuestGuard(this, "Sign up for a free account to watch patches and more.");
-			return;
-		}
-
-		/* Cancel request */
-		if (watchStatus == WatchStatus.WATCHING) {
-			if (((Patch) entity).isRestrictedForCurrentUser()) {
-				confirmLeave();
-			}
-			else {
-				watch(false /* delete */);
-			}
-		}
-		else if (watchStatus == WatchStatus.REQUESTED) {
-			watch(false /* delete */);
-		}
-		else if (watchStatus == WatchStatus.NONE) {
-			watch(true /* insert */);
-		}
-	}
-
-	private void onMembersListButtonClick(View view) {
-		if (entity != null) {
-			Bundle extras = new Bundle();
-			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_WATCH);
-			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_watching_list);
-			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_user);
-			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-			Patchr.router.route(this, Route.USER_LIST, entity, extras);
-		}
-	}
-
-	private void onMuteButtonClick(View view) {
-		Link link = entity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
-		mute(link.mute == null || !link.mute);
-	}
-
-	private void onTuneButtonClick(View view) {
-		Patchr.router.route(this, Route.TUNE, entity, null);
+	public void onFetchComplete() {
+		super.onFetchComplete();
+		bind();
+		supportInvalidateOptionsMenu();    // In case user authenticated
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -418,37 +367,139 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 				if (firstBind) {
 					makeBranchLink();           // Create or refresh so it's ready and correct
 				}
-				bind();
-				supportInvalidateOptionsMenu();    // In case user authenticated
+				onFetchComplete();
 				this.listPresenter.fetch(FetchMode.AUTO);
 			}
 		}
 	}
 
-	@Subscribe public void onProcessingComplete(ProcessingCompleteEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN) public void onNotificationReceived(final NotificationReceivedEvent event) {
 		/*
-		 * Gets called direct at the activity level and receives
-		 * events from fragments.
+		 * Refresh the form because something new has been added to it like a message.
 		 */
-		processing = false;
-		uiController.getBusyController().hide(false);
+		if ((event.notification.parentId != null && event.notification.parentId.equals(entityId))
+				|| (event.notification.targetId != null && event.notification.targetId.equals(entityId))) {
 
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				/*
-				 * Non-members can't add messages to private patches.
-				 */
-				if (entity != null && entity instanceof Patch) {
-					Patch patch = (Patch) entity;
-					ListPresenter controller = ((EntityListFragment) currentFragment).listPresenter;
-				}
+			if (event.notification.event.equals("approve_watch_entity")) {
+				justApproved = true;
 			}
-		});
+			fetch(FetchMode.AUTO);
+		}
 	}
 
-	@Subscribe public void onWatchStatusChangedEvent(WatchStatusChangedEvent event) {
-		onRefresh();
+	@Subscribe public void onDataResult(final DataQueryResultEvent event) {
+
+		/* Can be called on background thread */
+		if (event.tag.equals(System.identityHashCode(this))
+				&& (event.entity == null || event.entity.id.equals(entityId))) {
+
+			Logger.v(this, "Data result accepted: " + event.actionType.name());
+
+			if (event.actionType == ActionType.ACTION_LINK_INSERT_MEMBER
+					|| event.actionType == ActionType.ACTION_LINK_DELETE_MEMBER) {
+				fetch(FetchMode.AUTO);
+			}
+		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Actions
+	 *--------------------------------------------------------------------------------------------*/
+
+	private void muteAction() {
+		Link link = entity.linkFromAppUser(Constants.TYPE_LINK_MEMBER);
+		mute(link.mute == null || !link.mute);
+	}
+
+	private void tuneAction() {
+		Patchr.router.route(this, Route.TUNE, entity, null);
+	}
+
+	public void addAction() {
+
+		if (!UserManager.shared().authenticated()) {
+			UserManager.shared().showGuestGuard(this, "Sign up for a free account to post messages and more.");
+			return;
+		}
+
+		if (entity == null) return;
+
+		if (MenuManager.canUserAdd(entity)) {
+
+			String message = StringManager.getString(R.string.label_message_new_message);
+			if (!TextUtils.isEmpty(entity.name)) {
+				message = String.format(StringManager.getString(R.string.label_message_new_to_message), entity.name);
+			}
+
+			Bundle extras = new Bundle();
+
+			extras.putString(Constants.EXTRA_MESSAGE, message);
+			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, entityId);
+			extras.putString(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
+			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+
+			Patchr.router.route(this, Route.NEW, null, extras);
+		}
+	}
+
+	private void inviteAction() {
+
+		if (!UserManager.shared().authenticated()) {
+			UserManager.shared().showGuestGuard(this, "Sign up for a free account to send patch invites and more.");
+			return;
+		}
+
+		if (entity != null) {
+			share();
+		}
+	}
+
+	protected void joinAction() {
+
+		if (entity == null) return;
+
+		if (!UserManager.shared().authenticated()) {
+			UserManager.shared().showGuestGuard(this, "Sign up for a free account to watch patches and more.");
+			return;
+		}
+
+		/* Cancel request */
+		if (watchStatus == WatchStatus.WATCHING) {
+			if (((Patch) entity).isRestrictedForCurrentUser()) {
+				confirmLeave();
+			}
+			else {
+				join(false /* delete */);
+			}
+		}
+		else if (watchStatus == WatchStatus.REQUESTED) {
+			join(false /* delete */);
+		}
+		else if (watchStatus == WatchStatus.NONE) {
+			join(true /* insert */);
+		}
+	}
+
+	private void memberListAction() {
+		if (entity != null) {
+			Bundle extras = new Bundle();
+			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_user);
+			extras.putString(Constants.EXTRA_LIST_LINK_DIRECTION, Link.Direction.in.name());
+			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, Constants.SCHEMA_ENTITY_USER);
+			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_MEMBER);
+			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_member_list);
+			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+			Patchr.router.route(this, Route.ENTITY_LIST, entity, extras);
+		}
+	}
+
+	public void editAction() {
+		Bundle extras = new Bundle();
+		Patchr.router.route(this, Route.EDIT, entity, extras);
+	}
+
+	public void deleteAction() {
+		confirmDelete();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -479,14 +530,13 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 		this.listPresenter = new ListPresenter(this);
 		this.listPresenter.listView = (AbsListView) ((ViewGroup) this.rootView.findViewById(R.id.swipe)).getChildAt(1);
 		this.listPresenter.listItemResId = R.layout.temp_listitem_message;
-		this.listPresenter.busyController = new BusyController();
-		this.listPresenter.busyController.setProgressBar(this.rootView.findViewById(R.id.list_progress));
-		this.listPresenter.emptyController = new EmptyController(this.rootView.findViewById(R.id.list_message));
-		this.listPresenter.emptyController.setLabel(StringManager.getString(R.string.button_list_share));
+		this.listPresenter.busyPresenter = new BusyPresenter();
+		this.listPresenter.busyPresenter.setProgressBar(this.rootView.findViewById(R.id.list_progress));
+		this.listPresenter.emptyPresenter = new EmptyPresenter(this.rootView.findViewById(R.id.list_message));
+		this.listPresenter.emptyPresenter.setLabel(StringManager.getString(R.string.button_list_share));
 		this.listPresenter.headerView = this.header;
 
 		this.listPresenter.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
-				, Integers.getInteger(R.integer.page_size_messages)
 				, Maps.asMap("enabled", true)
 				, Link.Direction.in.name()
 				, Constants.TYPE_LINK_CONTENT
@@ -496,18 +546,16 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 		/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
 		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) this.rootView.findViewById(R.id.swipe);
 		if (swipeRefresh != null) {
-			swipeRefresh.setColorSchemeColors(Colors.getColor(UI.getResIdForAttribute(this, R.attr.refreshColor)));
+			swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
 			swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(this, R.attr.refreshColorBackground));
 			swipeRefresh.setOnRefreshListener(this);
 			swipeRefresh.setRefreshing(false);
 			swipeRefresh.setEnabled(true);
-			this.listPresenter.busyController.setSwipeRefresh(swipeRefresh);
+			this.listPresenter.busyPresenter.setSwipeRefresh(swipeRefresh);
 		}
 
 		View footer = LayoutInflater.from(this).inflate(R.layout.widget_list_footer_message, null);
-		View header = LayoutInflater.from(this).inflate(R.layout.entity_form, null);
 		listPresenter.footerView = footer;
-		listPresenter.headerView = header;
 
 		this.listPresenter.initialize(this, this.rootView);        // We init after everything is setup
 
@@ -524,7 +572,19 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.patch_form;
+		return R.layout.patch_screen;
+	}
+
+	@Override public void configureStandardMenuItems(final Menu menu) {
+
+		super.configureStandardMenuItems(menu);
+		MenuItem menuItem = menu.findItem(R.id.leave_patch);
+		if (menuItem != null) {
+			if (entity != null) {
+				Integer watchStatus = ((Patch) entity).watchStatus();
+				menuItem.setVisible(watchStatus == WatchStatus.WATCHING);
+			}
+		}
 	}
 
 	public void fetch(final FetchMode mode) {
@@ -533,11 +593,8 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 		 */
 		Logger.v(this, "Fetching: " + mode.name().toString());
 
-		Boolean currentUser = UserManager.shared().authenticated() && UserManager.currentUser.id.equals(this.entityId);
-		Integer linkProfile = currentUser ? LinkSpecType.LINKS_FOR_USER_CURRENT : LinkSpecType.LINKS_FOR_USER;
-
 		EntityQueryEvent request = new EntityQueryEvent();
-		request.setLinkProfile(linkProfile)
+		request.setLinkProfile(LinkSpecType.LINKS_FOR_PATCH)
 				.setActionType(ActionType.ACTION_GET_ENTITY)
 				.setFetchMode(mode)
 				.setEntityId(this.entityId)
@@ -552,7 +609,95 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 
 	public void bind() {
 		assert this.entity != null;
+		watchStatus = ((Patch) entity).watchStatus();
 		header.databind(this.entity);
+		bindActionView();
+	}
+
+	public void bindActionView() {
+
+		ViewGroup actionView = (ViewGroup) header.findViewById(R.id.action_group);
+
+		if (actionView != null && entity != null) {
+
+			Patch patch = (Patch) entity;
+			Boolean owner = (UserManager.shared().authenticated() && patch.ownerId != null && patch.ownerId.equals(UserManager.currentUser.id));
+			Boolean hasMessaged = (entity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
+			Boolean isPublic = (patch.privacy != null
+					&& patch.privacy.equals(Constants.PRIVACY_PUBLIC)
+					&& patch.isVisibleToCurrentUser());
+
+			TextView buttonAlert = (TextView) actionView.findViewById(R.id.action_button);
+			if (buttonAlert == null) return;
+
+			Count requestCount = entity.getCount(Constants.TYPE_LINK_MEMBER, null, false, Link.Direction.in);
+
+			if (watchStatus == WatchStatus.NONE) {
+				buttonAlert.setText(R.string.button_list_watch_request);
+				buttonAlert.setTag(R.id.join_button);
+				return;
+			}
+
+			/* Owner */
+
+			if (owner) {
+				/*
+				 * - Member requests then alert to handle
+				 * - No messages then alert to invite
+				 */
+				if (requestCount != null) {
+					String requests = getResources().getQuantityString(R.plurals.button_pending_requests, requestCount.count.intValue(), requestCount.count.intValue());
+					buttonAlert.setText(requests);
+					buttonAlert.setTag(R.id.members_button);
+				}
+				else {
+					buttonAlert.setText(StringManager.getString(R.string.button_list_share));
+					buttonAlert.setTag(R.id.invite);
+				}
+			}
+
+			/* Members */
+
+			else {
+				if (isPublic) {
+					if (!hasMessaged) {
+						buttonAlert.setText(StringManager.getString(R.string.button_no_message));
+						buttonAlert.setTag(R.id.add);
+					}
+					else {
+						buttonAlert.setText(StringManager.getString(R.string.button_list_share));
+						buttonAlert.setTag(R.id.invite);
+					}
+				}
+				else {
+					if (watchStatus == WatchStatus.REQUESTED) {
+						buttonAlert.setText(R.string.button_list_watch_request_cancel);
+						buttonAlert.setTag(R.id.join_button);
+					}
+					else if (watchStatus == WatchStatus.WATCHING) {
+						if (!hasMessaged) {
+							buttonAlert.setText(StringManager.getString(R.string.button_no_message));
+							buttonAlert.setTag(R.id.add);
+						}
+						else {
+							buttonAlert.setText(StringManager.getString(R.string.button_list_share));
+							buttonAlert.setTag(R.id.invite);
+						}
+					}
+
+					if (justApproved) {  // We add a little sugar by using a flag set by an 'approved' notification
+						if (hasMessaged) {
+							buttonAlert.setText(StringManager.getString(R.string.button_just_approved));
+							buttonAlert.setTag(R.id.invite);
+						}
+						else {
+							buttonAlert.setText(StringManager.getString(R.string.button_just_approved_no_message));
+							buttonAlert.setTag(R.id.add);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public void share() {
@@ -597,6 +742,75 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 		bottomSheetLayout.showWithSheetView(menuSheetView, new InsetViewTransformer());
 	}
 
+	public void join(final boolean activate) {
+
+		final boolean enabled = !(((Patch) entity).isRestrictedForCurrentUser());
+
+		if (activate) {
+
+			/* Used as part of link management */
+			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
+			Shortcut toShortcut = entity.getAsShortcut();
+
+			LinkInsertEvent update = new LinkInsertEvent()
+					.setFromId(UserManager.currentUser.id)
+					.setToId(entity.id)
+					.setType(Constants.TYPE_LINK_MEMBER)
+					.setEnabled(enabled)
+					.setFromShortcut(fromShortcut)
+					.setToShortcut(toShortcut)
+					.setActionEvent(((Patch) entity).isVisibleToCurrentUser() ? "watch_entity_patch" : "request_watch_entity")
+					.setSkipCache(false);
+
+			update.setActionType(ActionType.ACTION_LINK_INSERT_MEMBER)
+					.setTag(System.identityHashCode(this));
+
+			Dispatcher.getInstance().post(update);
+		}
+		else {
+
+			LinkDeleteEvent update = new LinkDeleteEvent()
+					.setFromId(UserManager.currentUser.id)
+					.setToId(entity.id)
+					.setType(Constants.TYPE_LINK_MEMBER)
+					.setEnabled(enabled)
+					.setSchema(entity.schema)
+					.setActionEvent("unwatch_entity_" + entity.schema.toLowerCase(Locale.US));
+
+			update.setActionType(ActionType.ACTION_LINK_DELETE_MEMBER)
+					.setTag(System.identityHashCode(this));
+
+			Dispatcher.getInstance().post(update);
+		}
+	}
+
+	public void mute(final Boolean mute) {
+
+		final Link link = entity.linkFromAppUser(Constants.TYPE_LINK_MEMBER);
+		final String actionEvent = mute ? "mute_watch_entity" : "unmute_watch_entity";
+
+		new AsyncTask() {
+
+			@Override protected void onPreExecute() {
+				if (header != null) {
+					ViewAnimator animator = (ViewAnimator) header.bannerView.muteButton;
+					if (animator != null) {
+						animator.setDisplayedChild(1);  // Turned off in drawButtons
+					}
+				}
+			}
+
+			@Override protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncMuteLink");
+				return DataController.getInstance().muteLink(link.id, mute, actionEvent);
+			}
+
+			@Override protected void onPostExecute(Object response) {
+				fetch(FetchMode.AUTO);
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
 	protected void confirmJoin() {
 
 		runOnUiThread(new Runnable() {
@@ -615,86 +829,13 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								if (which == DialogInterface.BUTTON_POSITIVE) {
-									watch(true /* activate */);
+									join(true /* activate */);
 								}
 							}
 						}, null);
 				dialog.setCanceledOnTouchOutside(false);
 			}
 		});
-	}
-
-	public void watch(final boolean activate) {
-
-		final boolean enabled = !(((Patch) entity).isRestrictedForCurrentUser());
-
-		if (activate) {
-
-			/* Used as part of link management */
-			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
-			Shortcut toShortcut = entity.getAsShortcut();
-
-			LinkInsertEvent update = new LinkInsertEvent()
-					.setFromId(UserManager.currentUser.id)
-					.setToId(entity.id)
-					.setType(Constants.TYPE_LINK_WATCH)
-					.setEnabled(enabled)
-					.setFromShortcut(fromShortcut)
-					.setToShortcut(toShortcut)
-					.setActionEvent(((Patch) entity).isVisibleToCurrentUser() ? "watch_entity_patch" : "request_watch_entity")
-					.setSkipCache(false);
-
-			update.setActionType(ActionType.ACTION_LINK_INSERT_WATCH)
-					.setTag(System.identityHashCode(this));
-
-			Dispatcher.getInstance().post(update);
-		}
-		else {
-
-			LinkDeleteEvent update = new LinkDeleteEvent()
-					.setFromId(UserManager.currentUser.id)
-					.setToId(entity.id)
-					.setType(Constants.TYPE_LINK_WATCH)
-					.setEnabled(enabled)
-					.setSchema(entity.schema)
-					.setActionEvent("unwatch_entity_" + entity.schema.toLowerCase(Locale.US));
-
-			update.setActionType(ActionType.ACTION_LINK_DELETE_WATCH)
-					.setTag(System.identityHashCode(this));
-
-			Dispatcher.getInstance().post(update);
-		}
-	}
-
-	public void mute(final Boolean mute) {
-
-		final Link link = entity.linkFromAppUser(Constants.TYPE_LINK_WATCH);
-		final String actionEvent = mute ? "mute_watch_entity" : "unmute_watch_entity";
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				if (header != null) {
-					ViewAnimator animator = (ViewAnimator) header.bannerView.muteButton;
-					if (animator != null) {
-						animator.setDisplayedChild(1);  // Turned off in drawButtons
-					}
-				}
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncMuteLink");
-				return DataController.getInstance().muteLink(link.id, mute, actionEvent);
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				//				bind(BindingMode.AUTO);
-				//				onProcessingComplete(); // Updates ui like floating button
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	protected void confirmLeave() {
@@ -713,7 +854,7 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 					public void onClick(DialogInterface dialog, int which) {
 						if (which == DialogInterface.BUTTON_POSITIVE) {
 							justApproved = false;
-							watch(false /* delete */);
+							join(false /* delete */);
 						}
 					}
 				}, null);
@@ -778,7 +919,7 @@ public class PatchScreen extends BaseActivity implements View.OnClickListener
 					((Button) view.findViewById(R.id.action1_button)).setOnClickListener(new View.OnClickListener() {
 						@Override public void onClick(View view) {
 							bottomSheetLayout.dismissSheet();
-							onJoinButtonClick(view);
+							joinAction();
 						}
 					});
 				}

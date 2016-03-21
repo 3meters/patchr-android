@@ -1,8 +1,12 @@
 package com.patchr.ui.edit;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
@@ -44,8 +48,37 @@ public class UserEdit extends BaseEdit {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void onChangePasswordButtonClick(View view) {
-		Patchr.router.route(this, Route.PASSWORD_CHANGE, null, null);
+	public void onClick(View view) {
+		if (view.getId() == R.id.change_password_button) {
+			Patchr.router.route(this, Route.PASSWORD_CHANGE, null, null);
+		}
+	}
+
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+
+		this.optionMenu = menu;
+
+		if (editing) {
+			getMenuInflater().inflate(R.menu.menu_save, menu);
+			getMenuInflater().inflate(R.menu.menu_delete, menu);
+		}
+
+		configureStandardMenuItems(menu);   // Tweaks based on permissions
+		return true;
+	}
+
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.delete) {
+			super.confirmDelete();
+		}
+		else if (item.getItemId() == R.id.submit) {
+			super.submitAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -122,9 +155,9 @@ public class UserEdit extends BaseEdit {
 	}
 
 	@Override protected boolean validate() {
+
 		gather();
 		User user = (User) entity;
-
 		if (user.name == null) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
@@ -145,5 +178,27 @@ public class UserEdit extends BaseEdit {
 
 	@Override protected int getLayoutId() {
 		return R.layout.user_edit;
+	}
+
+	@Override public void confirmDelete() {
+		final AlertDialog dialog = Dialogs.alertDialog(null
+				, StringManager.getString(R.string.alert_delete_account_title)
+				, StringManager.getString(R.string.alert_delete_account_message)
+				, null
+				, this
+				, android.R.string.ok
+				, android.R.string.cancel
+				, null
+				, new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							delete();
+						}
+					}
+				}
+				, null);
+		dialog.setCanceledOnTouchOutside(false);
 	}
 }

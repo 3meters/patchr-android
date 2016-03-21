@@ -8,6 +8,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.RadioButton;
@@ -112,6 +114,33 @@ public class PatchEdit extends BaseEdit {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+
+		this.optionMenu = menu;
+
+		if (editing) {
+			getMenuInflater().inflate(R.menu.menu_save, menu);
+			getMenuInflater().inflate(R.menu.menu_delete, menu);
+		}
+
+		configureStandardMenuItems(menu);   // Tweaks based on permissions
+		return true;
+	}
+
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.delete) {
+			super.confirmDelete();
+		}
+		else if (item.getItemId() == R.id.submit) {
+			super.submitAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
+	}
+
 	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
 		if (resultCode != Activity.RESULT_CANCELED) {
@@ -151,7 +180,7 @@ public class PatchEdit extends BaseEdit {
 	}
 
 	public void onCreateButtonClick(View view) {
-		onSubmit();
+		super.submitAction();
 	}
 
 	public void onTypeLabelClick(View view) {
@@ -258,7 +287,7 @@ public class PatchEdit extends BaseEdit {
 		buttonTypeProject = (RadioButton) findViewById(R.id.radio_project);
 		buttonGroupType = (RadioGroup) findViewById(R.id.buttons_type);
 
-		buttonPrivacy = (TextView) findViewById(R.id.button_privacy);
+		buttonPrivacy = (TextView) findViewById(R.id.privacy_policy_button);
 		mapView = (MapView) findViewById(R.id.mapview);
 		mapProgressBar = (AirProgressBar) findViewById(R.id.map_progress);
 		locationLabel = (TextView) findViewById(R.id.location_label);
@@ -336,15 +365,6 @@ public class PatchEdit extends BaseEdit {
 		}
 	}
 
-	@Override public void submit() {
-		if (editing) {
-			update();
-		}
-		else {
-			insert();
-		}
-	}
-
 	@Override protected boolean afterInsert() {
 	    /*
 	     * Only called if the insert was successful. Called on main ui thread.
@@ -370,7 +390,6 @@ public class PatchEdit extends BaseEdit {
 	}
 
 	@Override protected boolean validate() {
-		if (!super.validate()) return false;
 
 		gather();
 		Patch patch = (Patch) entity;
@@ -460,7 +479,7 @@ public class PatchEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				uiController.getBusyController().show(BusyAction.Refreshing);
+				busyPresenter.show(BusyAction.Refreshing);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -469,7 +488,7 @@ public class PatchEdit extends BaseEdit {
 			}
 
 			@Override protected void onPostExecute(Object response) {
-				uiController.getBusyController().hide(false);
+				busyPresenter.hide(false);
 				UI.showToastNotification(StringManager.getString(updatedResId), Toast.LENGTH_SHORT);
 				setResult(Activity.RESULT_OK);
 				finish();

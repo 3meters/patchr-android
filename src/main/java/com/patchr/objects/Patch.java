@@ -35,7 +35,7 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	@NonNull
 	public Boolean isVisibleToCurrentUser() {
 		if (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser()) {
-			Link link = linkFromAppUser(Constants.TYPE_LINK_WATCH);
+			Link link = linkFromAppUser(Constants.TYPE_LINK_MEMBER);
 			if (link == null || !link.enabled) {
 				return false;
 			}
@@ -44,7 +44,7 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	}
 
 	public int watchStatus() {
-		Link linkWatching = linkFromAppUser(Constants.TYPE_LINK_WATCH);
+		Link linkWatching = linkFromAppUser(Constants.TYPE_LINK_MEMBER);
 		return ((linkWatching == null) ? WatchStatus.NONE : (linkWatching.enabled) ? WatchStatus.WATCHING : WatchStatus.REQUESTED);
 	}
 

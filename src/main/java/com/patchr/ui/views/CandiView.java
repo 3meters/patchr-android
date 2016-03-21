@@ -321,7 +321,7 @@ public class CandiView extends RelativeLayout {
 
 		/* Watch count for nearby list */
 		if (mWatchCount != null) {
-			Count watchCount = entity.getCount(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, Direction.in);
+			Count watchCount = entity.getCount(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_USER, true, Direction.in);
 			mWatchCount.setText((watchCount != null) ? String.valueOf(watchCount.count.intValue()) : "0");
 		}
 	}

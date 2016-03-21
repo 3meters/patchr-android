@@ -2,6 +2,8 @@ package com.patchr.ui.edit;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -29,7 +31,30 @@ public class PasswordEdit extends BaseEdit {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void onSubmit() {
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+
+		this.optionMenu = menu;
+
+		if (editing) {
+			getMenuInflater().inflate(R.menu.menu_save, menu);
+		}
+
+		configureStandardMenuItems(menu);   // Tweaks based on permissions
+		return true;
+	}
+
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.submit) {
+			submitAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
+	}
+
+	@Override public void submitAction() {
 
 		if (this.processing) return;
 		this.processing = true;
@@ -61,7 +86,7 @@ public class PasswordEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				uiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
+				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -77,7 +102,7 @@ public class PasswordEdit extends BaseEdit {
 
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
-				uiController.getBusyController().hide(true);
+				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					Logger.i(this, "User changed password: "
@@ -99,8 +124,7 @@ public class PasswordEdit extends BaseEdit {
 
 	@Override protected boolean validate() {
 
-		if (!super.validate()) return false;
-
+		gather();
 		if (passwordOld.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null

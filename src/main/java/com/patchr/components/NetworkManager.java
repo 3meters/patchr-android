@@ -27,7 +27,7 @@ import com.patchr.service.RequestType;
 import com.patchr.service.ResponseFormat;
 import com.patchr.service.ServiceRequest;
 import com.patchr.service.ServiceResponse;
-import com.patchr.ui.AircandiForm;
+import com.patchr.ui.MainScreen;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
@@ -200,7 +200,7 @@ public class NetworkManager {
 			}
 
 			if (serviceData.clientMinVersions != null && serviceData.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
-				Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
+				Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
 				if ((Integer) serviceData.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode) {
 					serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
 				}

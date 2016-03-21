@@ -15,7 +15,6 @@
 
 			<com.patchr.ui.views.ImageLayout
 				android:id="@+id/photo"
-				style="@style/selectable_image"
 				android:layout_width="@dimen/image_medium_large"
 				android:layout_height="@dimen/image_medium_large"
 				custom:category="thumbnail" />

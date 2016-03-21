@@ -11,11 +11,11 @@ import com.patchr.utilities.UI;
 public class AirListView extends ListView {
 
 	public AirListView(Context context) {
-		this(context, null, 0);
+		super(context);
 	}
 
 	public AirListView(Context context, AttributeSet attrs) {
-		this(context, null, 0);
+		super(context, attrs);
 	}
 
 	public AirListView(Context context, AttributeSet attrs, int defStyle) {

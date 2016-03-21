@@ -30,12 +30,14 @@
 			<!-- Title -->
 
 			<com.patchr.ui.widgets.AirTextLight
-				android:id="@+id/name"
-				android:layout_width="match_parent"
+				android:id="@+id/title"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:gravity="center_horizontal"
 				android:textAppearance="?android:attr/textAppearanceMedium"
 				android:textSize="24sp"
 				tools:text="Dillons Birthday Party"
+				android:textColor="@color/brand_accent_darker"
 				android:layout_marginTop="16dp"
 				android:layout_marginBottom="16dp" />
 
@@ -51,6 +53,7 @@
 					android:id="@+id/label_tune"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:gravity="center_horizontal"
 					android:layout_marginBottom="16dp"
 					android:layout_marginLeft="2dp"
 					android:layout_marginRight="2dp"

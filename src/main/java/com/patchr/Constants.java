@@ -122,6 +122,7 @@ public class Constants {
 	public static final int   INTERVAL_BUSY_MINIMUM     = 1000;
 	public static final int   INTERVAL_BUSY_DELAY       = 0;
 	public static final int   PIXEL_SCALE               = UI.getRawPixelsForDisplayPixels(1f);
+	public static final int   PAGE_SIZE                 = 50;
 
 	public static final int RADAR_BEACON_SIGNAL_BUCKET_SIZE = 1;
 	/*
@@ -176,7 +177,7 @@ public class Constants {
 	/* Entity types */
 
 	public static final String TYPE_LINK_PROXIMITY = "proximity";
-	public static final String TYPE_LINK_WATCH     = "watch";
+	public static final String TYPE_LINK_MEMBER    = "watch";
 	public static final String TYPE_LINK_LIKE      = "like";
 	public static final String TYPE_LINK_CONTENT   = "content";
 	public static final String TYPE_LINK_CREATE    = "create";

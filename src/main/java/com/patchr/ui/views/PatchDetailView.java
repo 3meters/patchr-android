@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ViewAnimator;
 
-import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Entity;
@@ -62,9 +61,6 @@ public class PatchDetailView extends FrameLayout implements View.OnClickListener
 		this.actionGroup = (ViewGroup) layout.findViewById(R.id.action_group);
 		this.actionButton = (Button) layout.findViewById(R.id.action_button);
 		this.headerAnimator = (ViewAnimator) layout.findViewById(R.id.animator_header);
-		if (Constants.SUPPORTS_KIT_KAT) {
-			layout.findViewById(R.id.action_rule).setVisibility(View.GONE);
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -73,7 +69,7 @@ public class PatchDetailView extends FrameLayout implements View.OnClickListener
 
 	@Override public void onClick(View view) {
 		if (view.getId() == R.id.banner_view) {
-			AnimationFactory.flipTransition(this.headerAnimator, AnimationFactory.FlipDirection.TOP_BOTTOM, 200);
+			AnimationFactory.flipTransition(this.headerAnimator, AnimationFactory.FlipDirection.BOTTOM_TOP, 200);
 		}
 		else if (view.getId() == R.id.info_view) {
 			if (!((String) this.infoView.expandoButton.getTag()).equals("collapsed")) {
@@ -96,6 +92,7 @@ public class PatchDetailView extends FrameLayout implements View.OnClickListener
 
 			this.bannerView.databind(entity);
 			this.infoView.databind(entity);
+
 			this.bannerView.setOnClickListener(this);
 			this.infoView.setOnClickListener(this);
 		}

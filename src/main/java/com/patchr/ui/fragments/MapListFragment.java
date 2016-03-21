@@ -10,8 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -44,7 +42,6 @@ import com.patchr.objects.Route;
 import com.patchr.ui.components.AirClusterRenderer;
 import com.patchr.utilities.Dialogs;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -54,25 +51,21 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 		, ClusterManager.OnClusterItemInfoWindowClickListener<MapListFragment.EntityItem>
 		, GoogleMap.OnMyLocationButtonClickListener {
 
-	protected GoogleMap                  mMap;
-	protected ClusterManager<EntityItem> mClusterManager;
-	protected AirClusterRenderer         mClusterRenderer;
-	protected List<Entity>               mEntities;
-	protected Integer                    mTitleResId;
-	protected String                     mRelatedListFragment;
-	protected Bitmap                     mMarkerBitmap;
-	protected Integer       mZoomLevel  = null;
-	protected List<Integer> mMenuResIds = new ArrayList<>();
-	protected Boolean       mShowIndex  = false;
+	public    List<Entity>               entities;
+	public    Integer                    titleResId;
+	public    String                     relatedListFragment;
+	public    Integer                    zoomLevel;
+	public    boolean                    showIndex;
+	protected GoogleMap                  map;
+	protected ClusterManager<EntityItem> clusterManager;
+	protected AirClusterRenderer         clusterRenderer;
+	protected Bitmap                     markerBitmap;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
 	}
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = super.onCreateView(inflater, container, savedInstanceState);
 
 		/*
@@ -86,52 +79,61 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 
 				if (getActivity() == null) return;
 
-				mMap = googleMap;
+				map = googleMap;
 
-				mClusterManager = new ClusterManager<>(getActivity(), mMap);
-				mClusterRenderer = new EntityRenderer(getActivity());
-				mClusterRenderer.setMinClusterSize(10);
-				mClusterManager.setRenderer(mClusterRenderer);
+				clusterManager = new ClusterManager<>(getActivity(), map);
+				clusterRenderer = new EntityRenderer(getActivity());
+				clusterRenderer.setMinClusterSize(10);
+				clusterManager.setRenderer(clusterRenderer);
 
-				mMap.setOnCameraChangeListener(mClusterManager);
-				mMap.setOnMarkerClickListener(mClusterManager);
-				mMap.setOnInfoWindowClickListener(mClusterManager);
+				map.setOnCameraChangeListener(clusterManager);
+				map.setOnMarkerClickListener(clusterManager);
+				map.setOnInfoWindowClickListener(clusterManager);
 
-				mClusterManager.setOnClusterClickListener(MapListFragment.this);
-				mClusterManager.setOnClusterInfoWindowClickListener(MapListFragment.this);
-				mClusterManager.setOnClusterItemClickListener(MapListFragment.this);
-				mClusterManager.setOnClusterItemInfoWindowClickListener(MapListFragment.this);
+				clusterManager.setOnClusterClickListener(MapListFragment.this);
+				clusterManager.setOnClusterInfoWindowClickListener(MapListFragment.this);
+				clusterManager.setOnClusterItemClickListener(MapListFragment.this);
+				clusterManager.setOnClusterItemInfoWindowClickListener(MapListFragment.this);
 
-				mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+				map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-				UiSettings uiSettings = mMap.getUiSettings();
+				UiSettings uiSettings = map.getUiSettings();
 
 				if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-					mMap.setMyLocationEnabled(true);  // Causes connect() log error by gms client
+					map.setMyLocationEnabled(true);  // Causes connect() log error by gms client
 					uiSettings.setMyLocationButtonEnabled(true);
-					mMap.setOnMyLocationButtonClickListener(MapListFragment.this);
+					map.setOnMyLocationButtonClickListener(MapListFragment.this);
 				}
 
-				mMap.setLocationSource(null);
+				map.setLocationSource(null);
 
 				uiSettings.setZoomControlsEnabled(true);
 				uiSettings.setAllGesturesEnabled(true);
 				uiSettings.setCompassEnabled(true);
 
 				/* Entities to map are always set at start */
-				draw();
+				bind();
 			}
 		});
 
 		return root;
 	}
 
+	@Override public void onDestroyView() {
+		Logger.d(this, "Fragment destroy view");
+		super.onDestroyView();
+	}
+
+	@Override public void onDestroy() {
+		Logger.d(this, "Fragment destroy");
+		super.onDestroy();
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public boolean onMyLocationButtonClick() {
+	@Override public boolean onMyLocationButtonClick() {
 		if (!LocationManager.getInstance().isLocationAccessEnabled()) {
 			Dialogs.locationServicesDisabled(getActivity(), new AtomicBoolean(false));
 			return true;
@@ -139,8 +141,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 		return false;
 	}
 
-	@Override
-	public boolean onClusterClick(Cluster<EntityItem> cluster) {
+	@Override public boolean onClusterClick(Cluster<EntityItem> cluster) {
 
 		LatLngBounds.Builder builder = LatLngBounds.builder();
 		for (EntityItem item : cluster.getItems()) {
@@ -149,23 +150,20 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 		LatLngBounds bounds = builder.build();
 
 		CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 150);
-		mMap.animateCamera(cameraUpdate, 300, null);
+		map.animateCamera(cameraUpdate, 300, null);
 		return true;
 	}
 
-	@Override
-	public void onClusterInfoWindowClick(Cluster<EntityItem> entityItemCluster) {
+	@Override public void onClusterInfoWindowClick(Cluster<EntityItem> entityItemCluster) {
 		// Does nothing, but you could go to a list of the users.
 	}
 
-	@Override
-	public boolean onClusterItemClick(EntityItem entityItem) {
+	@Override public boolean onClusterItemClick(EntityItem entityItem) {
 		// Does nothing, but you could go into the user's profile page, for example.
 		return false;
 	}
 
-	@Override
-	public void onClusterItemInfoWindowClick(EntityItem entityItem) {
+	@Override public void onClusterItemInfoWindowClick(EntityItem entityItem) {
 		Patchr.router.route(getActivity(), Route.BROWSE, entityItem.mEntity, null);
 	}
 
@@ -173,20 +171,20 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void draw() {
+	public void bind() {
 		/*
 		 * Entities are injected into mEntities by the host activity.
 		 */
-		if (mClusterManager != null) {
-			mMap.clear();
-			mClusterManager.clearItems();
-			if (mEntities != null) {
-				for (Entity entity : mEntities) {
+		if (clusterManager != null) {
+			map.clear();
+			clusterManager.clearItems();
+			if (entities != null) {
+				for (Entity entity : entities) {
 					if (entity.getLocation() != null) {
-						entity.index = mEntities.indexOf(entity) + 1;
+						entity.index = entities.indexOf(entity) + 1;
 						AirLocation location = entity.getLocation();
 						EntityItem entityItem = new EntityItem(location.lat.doubleValue(), location.lng.doubleValue(), entity);
-						mClusterManager.addItem(entityItem);
+						clusterManager.addItem(entityItem);
 					}
 				}
 			}
@@ -197,26 +195,26 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 			/*
 			 * We could get this call before mMap has been set.
 			 */
-			if (mEntities == null || mEntities.size() == 0 || mMap == null) return;
+			if (entities == null || entities.size() == 0 || map == null) return;
 			/*
 			 * One only one entity then center on it.
 			 */
-			if (mEntities.size() == 1 && mZoomLevel != null) {
-				Patch patch = (Patch) mEntities.get(0);
+			if (entities.size() == 1 && zoomLevel != null) {
+				Patch patch = (Patch) entities.get(0);
 				AirLocation location = patch.getLocation();
 				if (location != null && location.lat != null && location.lng != null) {
-					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), mZoomLevel));
+					map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), zoomLevel));
 				}
 			}
 			/*
 			 * Multiple entities, center on grouping.
 			 */
 			else {
-				if (mZoomLevel != null) {
+				if (zoomLevel != null) {
 					Location location = LocationManager.getInstance().getLocationLocked();
 					if (location != null) {
 						LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mZoomLevel));
+						map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
 					}
 					else {
 						/*
@@ -224,15 +222,15 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 						 * that could center the user out in the ocean or something else
 						 * stupid.
 						 */
-						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MapManager.LATLNG_USA, MapManager.ZOOM_SCALE_USA));
+						map.moveCamera(CameraUpdateFactory.newLatLngZoom(MapManager.LATLNG_USA, MapManager.ZOOM_SCALE_USA));
 					}
 				}
 				else {
-					LatLngBounds bounds = getBounds(mEntities);
+					LatLngBounds bounds = getBounds(entities);
 					if (bounds != null) {
 						int padding = (int) (Math.min(mapView.getWidth(), mapView.getHeight()) * 0.2);
 						CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-						mMap.moveCamera(cameraUpdate);
+						map.moveCamera(cameraUpdate);
 					}
 				}
 			}
@@ -251,76 +249,6 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 			bounds = builder.build();
 		}
 		return bounds;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
-
-	public MapListFragment setEntities(List<Entity> entities) {
-		mEntities = entities;
-		return this;
-	}
-
-	public MapListFragment setTitleResId(Integer titleResId) {
-		mTitleResId = titleResId;
-		return this;
-	}
-
-	public MapListFragment setZoomLevel(Integer zoomLevel) {
-		mZoomLevel = zoomLevel;
-		return this;
-	}
-
-	public MapListFragment setRelatedListFragment(String relatedListFragment) {
-		mRelatedListFragment = relatedListFragment;
-		return this;
-	}
-
-	public MapListFragment setShowIndex(Boolean showIndex) {
-		mShowIndex = showIndex;
-		return this;
-	}
-
-	public String getRelatedListFragment() {
-		return mRelatedListFragment;
-	}
-
-	public List<Integer> getMenuResIds() {
-		return mMenuResIds;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Menus
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		/*
-		 * This is triggered by onCreate in some android versions
-		 * so any dependencies must have already been created.
-		 */
-		Logger.d(this, "Creating fragment options menu");
-		for (Integer menuResId : mMenuResIds) {
-			inflater.inflate(menuResId, menu);
-		}
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Lifecycle
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public void onDestroyView() {
-		Logger.d(this, "Fragment destroy view");
-		super.onDestroyView();
-	}
-
-	@Override
-	public void onDestroy() {
-		Logger.d(this, "Fragment destroy");
-		super.onDestroy();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -349,24 +277,24 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 	 */
 	private class EntityRenderer extends AirClusterRenderer<EntityItem> {
 
-		private IconGenerator mIconGenerator;
-		private View          mMarkerView;
+		private IconGenerator iconGenerator;
+		private View          markerView;
 
 		public EntityRenderer(Context context) {
-			super(context, mMap, mClusterManager);
-			mIconGenerator = new IconGenerator(context);
-			mMarkerView = LayoutInflater.from(context).inflate(R.layout.widget_marker_view, null, false);
-			mIconGenerator.setBackground(null);
-			mIconGenerator.setContentView(mMarkerView);
+			super(context, map, clusterManager);
+			iconGenerator = new IconGenerator(context);
+			markerView = LayoutInflater.from(context).inflate(R.layout.widget_marker_view, null, false);
+			iconGenerator.setBackground(null);
+			iconGenerator.setContentView(markerView);
 		}
 
-		@Override
-		protected void onBeforeClusterItemRendered(final EntityItem entityItem, final MarkerOptions markerOptions) {
+		@Override protected void onBeforeClusterItemRendered(final EntityItem entityItem, final MarkerOptions markerOptions) {
+
 			if (entityItem.mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				final Patch patch = (Patch) entityItem.mEntity;
-				if (mShowIndex && entityItem.mEntity.index != null) {
+				if (showIndex && entityItem.mEntity.index != null) {
 					String label = (entityItem.mEntity.index.intValue() <= 99) ? String.valueOf(entityItem.mEntity.index) : "+";
-					markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mIconGenerator.makeIcon(label)));
+					markerOptions.icon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon(label)));
 				}
 				else {
 					markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker));
@@ -376,11 +304,11 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 			}
 		}
 
-		@Override
-		protected void onClusterItemRendered(EntityItem clusterItem, Marker marker) {
+		@Override protected void onClusterItemRendered(EntityItem clusterItem, Marker marker) {
 			super.onClusterItemRendered(clusterItem, marker);
+
 			marker.setAnchor(0.5f, 0.8f);
-			if (mEntities != null && mEntities.size() == 1) {
+			if (entities != null && entities.size() == 1) {
 				marker.showInfoWindow();
 			}
 		}

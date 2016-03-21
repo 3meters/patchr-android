@@ -92,7 +92,7 @@ public final class Errors {
 			 * Mostly because a more current client version is required.
 			 */
 			if (activity != null && !activity.getClass().getSimpleName().equals("SplashForm")) {
-				Patchr.router.route(activity, Route.SPLASH, null, null);
+				Patchr.router.route(activity, Route.LOBBY, null, null);
 			}
 		}
 	}

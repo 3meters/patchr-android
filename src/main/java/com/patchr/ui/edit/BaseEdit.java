@@ -41,7 +41,7 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.service.ServiceResponse;
-import com.patchr.ui.BaseActivity;
+import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.views.ImageLayout;
 import com.patchr.utilities.Dialogs;
@@ -57,7 +57,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseEdit extends BaseActivity implements ImageChooserListener, Target {
+public abstract class BaseEdit extends BaseScreen implements ImageChooserListener, Target {
 
 	protected ImageLayout         photoView;
 	protected TextView            name;
@@ -91,41 +91,6 @@ public abstract class BaseEdit extends BaseActivity implements ImageChooserListe
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override public void onCancel(Boolean force) {
-		if (!force && dirty) {
-			confirmDirtyExit();
-		}
-		else {
-			super.onCancel(force);
-		}
-	}
-
-	@Override public void onSubmit() {
-		if (this.processing) return;
-		this.processing = true;
-		/*
-		 * We assume that by accepting while creating a patch, the users intention is
-		 * to commit even if nothing is dirty.
-		 */
-		if (!editing || this.dirty) {
-			if (validate()) {
-				/*
-				 * Pull all the control values back into the entity object. Validate
-				 * does that too but we don't know if validate is always being performed.
-				 */
-				gather();
-				submit();
-			}
-			else {
-				this.processing = false;
-			}
-		}
-		else {
-			this.processing = false;
-			onCancel(false);
-		}
-	}
 
 	@Override public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
 
@@ -306,7 +271,7 @@ public abstract class BaseEdit extends BaseActivity implements ImageChooserListe
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void unpackIntent() {
+	@Override public void unpackIntent() {
 		super.unpackIntent();
 		/*
 		 * Intent inputs:
@@ -328,15 +293,15 @@ public abstract class BaseEdit extends BaseActivity implements ImageChooserListe
 		this.editing = (this.entity != null);
 	}
 
-	public void initialize(Bundle savedInstanceState) {
+	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
 		name = (TextView) findViewById(R.id.name);
 		description = (TextView) findViewById(R.id.description);
 		photoView = (ImageLayout) findViewById(R.id.photo);
-		buttonPhotoSet = findViewById(R.id.button_photo_set);
-		buttonPhotoEdit = findViewById(R.id.button_photo_edit);
-		buttonPhotoDelete = findViewById(R.id.button_photo_delete);
+		buttonPhotoSet = findViewById(R.id.photo_set_button);
+		buttonPhotoEdit = findViewById(R.id.photo_edit_button);
+		buttonPhotoDelete = findViewById(R.id.photo_delete_button);
 
 		if (name != null) {
 			name.addTextChangedListener(new SimpleTextWatcher() {
@@ -379,6 +344,42 @@ public abstract class BaseEdit extends BaseActivity implements ImageChooserListe
 				entity.creator = UserManager.currentUser;
 				entity.creatorId = UserManager.currentUser.id;
 			}
+		}
+	}
+
+	@Override public void cancelAction(Boolean force) {
+		if (!force && dirty) {
+			confirmDirtyExit();
+		}
+		else {
+			super.cancelAction(force);
+		}
+	}
+
+	@Override public void submitAction() {
+		if (this.processing) return;
+
+		this.processing = true;
+		/*
+		 * We assume that by accepting while creating a patch, the users intention is
+		 * to commit even if nothing is dirty.
+		 */
+		if (!editing || this.dirty) {
+			if (validate()) {   // validate also gathers
+				if (editing) {
+					update();
+				}
+				else {
+					insert();
+				}
+			}
+			else {
+				this.processing = false;
+			}
+		}
+		else {
+			this.processing = false;
+			cancelAction(false);
 		}
 	}
 
@@ -450,25 +451,16 @@ public abstract class BaseEdit extends BaseActivity implements ImageChooserListe
 		return true;
 	}
 
-	public void submit() {
-		if (editing) {
-			update();
-		}
-		else {
-			insert();
-		}
-	}
-
 	protected void insert() {
 
 		taskService = new AsyncTask() {
 
 			@Override protected void onPreExecute() {
 				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
-					uiController.getBusyController().showProgressDialog(BaseEdit.this);
+					busyPresenter.showProgressDialog(BaseEdit.this);
 				}
 				else {
-					uiController.getBusyController().show(IBusy.BusyAction.ActionWithMessage, insertProgressResId, BaseEdit.this);
+					busyPresenter.show(IBusy.BusyAction.ActionWithMessage, insertProgressResId, BaseEdit.this);
 				}
 			}
 
@@ -552,7 +544,7 @@ public abstract class BaseEdit extends BaseActivity implements ImageChooserListe
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
-				uiController.getBusyController().hide(true);
+				busyPresenter.hide(true);
 
 				return result;
 			}
@@ -570,7 +562,7 @@ public abstract class BaseEdit extends BaseActivity implements ImageChooserListe
 				 * - During service calls assuming okhttp catches the interrupt.
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
-				uiController.getBusyController().hide(true);
+				busyPresenter.hide(true);
 				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
 			}
 
@@ -609,10 +601,10 @@ public abstract class BaseEdit extends BaseActivity implements ImageChooserListe
 
 			@Override protected void onPreExecute() {
 				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
-					uiController.getBusyController().showProgressDialog(BaseEdit.this);
+					busyPresenter.showProgressDialog(BaseEdit.this);
 				}
 				else {
-					uiController.getBusyController().show(IBusy.BusyAction.ActionWithMessage, R.string.progress_updating, BaseEdit.this);
+					busyPresenter.show(IBusy.BusyAction.ActionWithMessage, R.string.progress_updating, BaseEdit.this);
 				}
 			}
 
@@ -662,7 +654,7 @@ public abstract class BaseEdit extends BaseActivity implements ImageChooserListe
 					if (isCancelled()) return null;
 
 					/* Don't allow cancel if we made it this far */
-					uiController.getBusyController().hide(true);
+					busyPresenter.hide(true);
 				}
 				return result.serviceResponse;
 			}
@@ -675,7 +667,7 @@ public abstract class BaseEdit extends BaseActivity implements ImageChooserListe
 				 * - During service calls assuming okhttp catches the interrupt.
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
-				uiController.getBusyController().hide(true);
+				busyPresenter.hide(true);
 				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
 			}
 
@@ -737,10 +729,10 @@ public abstract class BaseEdit extends BaseActivity implements ImageChooserListe
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						if (which == DialogInterface.BUTTON_POSITIVE) {
-							onSubmit();
+							submitAction();
 						}
 						else if (which == DialogInterface.BUTTON_NEUTRAL) {
-							Patchr.router.route(BaseEdit.this, Route.CANCEL_FORCE, null, null);
+							cancelAction(true);
 						}
 					}
 				}

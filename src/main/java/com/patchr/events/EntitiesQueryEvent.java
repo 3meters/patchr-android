@@ -1,5 +1,6 @@
 package com.patchr.events;
 
+import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.ActionType;
@@ -13,8 +14,9 @@ import java.util.Map;
 @SuppressWarnings("ucd")
 public class EntitiesQueryEvent extends AbsEntitiesQueryEvent {
 
-	public static EntitiesQueryEvent build(ActionType actionType, int pageSize, Map where, String direction, String linkType, String toSchema, String entityId) {
+	public static EntitiesQueryEvent build(ActionType actionType, Map where, String direction, String linkType, String toSchema, String entityId) {
 
+		Integer pageSize = Constants.PAGE_SIZE;
 		Integer skipCount = ((int) Math.ceil((double) 0 / pageSize) * pageSize);
 		Cursor cursor = new Cursor()
 				.setLimit(pageSize)

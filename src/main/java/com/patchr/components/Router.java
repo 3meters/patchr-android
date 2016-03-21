@@ -19,17 +19,15 @@ import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.AboutForm;
-import com.patchr.ui.AircandiForm;
-import com.patchr.ui.LobbyForm;
-import com.patchr.ui.MapForm;
-import com.patchr.ui.fragments.MapListFragment;
-import com.patchr.ui.PatchList;
-import com.patchr.ui.PhotoForm;
-import com.patchr.ui.SearchForm;
-import com.patchr.ui.SettingsForm;
-import com.patchr.ui.UserList;
-import com.patchr.ui.BaseActivity;
+import com.patchr.ui.AboutScreen;
+import com.patchr.ui.BaseScreen;
+import com.patchr.ui.ListScreen;
+import com.patchr.ui.LobbyScreen;
+import com.patchr.ui.MainScreen;
+import com.patchr.ui.MapScreen;
+import com.patchr.ui.PhotoScreen;
+import com.patchr.ui.SearchScreen;
+import com.patchr.ui.SettingsScreen;
 import com.patchr.ui.edit.FeedbackEdit;
 import com.patchr.ui.edit.LoginEdit;
 import com.patchr.ui.edit.PasswordEdit;
@@ -37,11 +35,11 @@ import com.patchr.ui.edit.ProximityEdit;
 import com.patchr.ui.edit.RegisterEdit;
 import com.patchr.ui.edit.ReportEdit;
 import com.patchr.ui.edit.ResetEdit;
-import com.patchr.ui.helpers.LocationPicker;
+import com.patchr.ui.fragments.MapListFragment;
+import com.patchr.ui.edit.LocationEdit;
 import com.patchr.ui.helpers.PhotoActionPicker;
 import com.patchr.ui.helpers.PhotoPicker;
 import com.patchr.ui.helpers.PrivacyBuilder;
-import com.patchr.ui.helpers.QrcodeDialog;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Type;
@@ -66,7 +64,7 @@ public class Router {
 
 		if (route == Route.HOME) {
 
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, AircandiForm.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, MainScreen.class);
 			Intent intent = intentBuilder.create();
 			intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -101,16 +99,6 @@ public class Router {
 			}
 		}
 
-		else if (route == Route.EDIT) {
-
-			if (entity == null) {
-				throw new IllegalArgumentException("Dispatching edit requires entity");
-			}
-
-			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
-			controller.edit(activity, entity, extras, true);
-		}
-
 		else if (route == Route.TUNE) {
 
 			if (entity == null) {
@@ -125,40 +113,12 @@ public class Router {
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
-		else if (route == Route.ADD) {
-
-			((BaseActivity) activity).onAdd(new Bundle());
-		}
-
-		else if (route == Route.NEW_PLACE) {
-
-			if (extras == null) {
-				extras = new Bundle();
-			}
-
-			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
-
-			((BaseActivity) activity).onAdd(extras);
-		}
-
-		else if (route == Route.NEW) {
-
-			if (!MenuManager.canUserAdd(entity)) {
-				return;
-			}
-
-			if (schema != null) {
-				IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
-				controller.insert(activity, extras, true);
-			}
-		}
-
 		else if (route == Route.MAP) {
 
 			if (entity == null) {
 				throw new IllegalArgumentException("Dispatching map requires entity");
 			}
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, MapForm.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, MapScreen.class);
 			if (extras == null) {
 				extras = new Bundle();
 			}
@@ -170,7 +130,7 @@ public class Router {
 
 		else if (route == Route.SETTINGS) {
 
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, SettingsForm.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, SettingsScreen.class);
 			((Activity) activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PREFERENCES);
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
@@ -199,48 +159,16 @@ public class Router {
 
 		else if (route == Route.ABOUT) {
 
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, AboutForm.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, AboutScreen.class);
 			activity.startActivity(intentBuilder.create());
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-		}
-
-		else if (route == Route.PHOTOS) {
-
-			if (entity == null) {
-				throw new IllegalArgumentException("Valid entity required for selected route");
-			}
-			if (entity.photo == null) {
-				throw new IllegalArgumentException("Routing to photo form requires photo object");
-			}
-			if (extras == null) {
-				throw new IllegalArgumentException("Dispatching photos requires extras");
-			}
-
-			final Photo photo = entity.photo;
-			photo.setCreatedAt(entity.modifiedDate.longValue());
-			photo.setName(entity.name);
-			photo.user = entity.creator;
-			final String jsonPhoto = Json.objectToJson(photo);
-			extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoForm.class);
-
-			if (entity.toId != null) {
-				intentBuilder.setEntityParentId(entity.toId);
-			}
-
-			intentBuilder.addExtras(extras);
-
-			Intent intent = intentBuilder.create();
-			activity.startActivity(intent);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.DRILL_TO);
 		}
 
 		else if (route == Route.PHOTO) {
 		    /*
 			 * Single photo to show and it has already been serialized into the extras bundle.
 			 */
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoForm.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoScreen.class);
 			intentBuilder.setExtras(extras);
 			Intent intent = intentBuilder.create();
 			activity.startActivity(intent);
@@ -276,54 +204,21 @@ public class Router {
 			}
 		}
 
-		else if (route == Route.SUBMIT) {
-
-			((BaseActivity) activity).onSubmit();    // Give activity a chance for discard confirmation
-		}
-
-		else if (route == Route.CANCEL) {
-
-			((BaseActivity) activity).onCancel(false);    // Give activity a chance for discard confirmation
-		}
-
-		else if (route == Route.CANCEL_FORCE) {
-
-			((BaseActivity) activity).onCancel(true);    // Give activity a chance for discard confirmation
-		}
-
-		else if (route == Route.DELETE) {
-
-			((BaseActivity) activity).confirmDelete();    // Give activity a chance for discard confirmation
-		}
-
-		else if (route == Route.REMOVE) {
-
-			if (extras == null) {
-				throw new IllegalArgumentException("Dispatching remove requires extras");
-			}
-			((BaseActivity) activity).confirmRemove(extras.getString(Constants.EXTRA_ENTITY_PARENT_ID));    // Give activity a chance for remove confirmation
-		}
-
 		else if (route == Route.VIEW_AS_LIST) {
 
-			Fragment fragment = ((AircandiForm) activity).getCurrentFragment();
+			Fragment fragment = ((MainScreen) activity).getCurrentFragment();
 			if (fragment instanceof MapListFragment) {
-				String listFragment = ((MapListFragment) fragment).getRelatedListFragment();
+				String listFragment = ((MapListFragment) fragment).relatedListFragment;
 				if (listFragment == null) {
 					listFragment = Constants.FRAGMENT_TYPE_NEARBY;
 				}
-				((AircandiForm) activity).setCurrentFragment(listFragment);
+				((MainScreen) activity).switchToFragment(listFragment);
 			}
 		}
 
 		else if (route == Route.VIEW_AS_MAP) {
 
-			((AircandiForm) activity).setCurrentFragment(Constants.FRAGMENT_TYPE_MAP);
-		}
-
-		else if (route == Route.SIGNOUT) {
-
-			UserManager.shared().signout();
+			((MainScreen) activity).switchToFragment(Constants.FRAGMENT_TYPE_MAP);
 		}
 
 		else if (route == Route.LOGIN) {
@@ -395,7 +290,7 @@ public class Router {
 			if (entity == null) {
 				throw new IllegalArgumentException("Dispatching location edit requires entity");
 			}
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, LocationPicker.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, LocationEdit.class);
 			final Intent intent = intentBuilder.create();
 
 			if (((Patch) entity).location != null) {
@@ -422,14 +317,14 @@ public class Router {
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
-		else if (route == Route.SPLASH) {
+		else if (route == Route.LOBBY) {
 
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, LobbyForm.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, LobbyScreen.class);
 			final Intent intent = intentBuilder.create();
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-			if (activity instanceof BaseActivity) {
-				((BaseActivity) activity).setResult(Activity.RESULT_CANCELED);
+			if (activity instanceof BaseScreen) {
+				((BaseScreen) activity).setResult(Activity.RESULT_CANCELED);
 			}
 			activity.startActivity(intent);
 			if (activity instanceof Activity ) {
@@ -442,13 +337,6 @@ public class Router {
 
 			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoActionPicker.class);
 			((Activity)activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PICTURE_SOURCE_PICK);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.DIALOG_TO);
-		}
-
-		else if (route == Route.QRCODE) {
-
-			IntentBuilder intentBuilder = new IntentBuilder(activity, QrcodeDialog.class);
-			activity.startActivity(intentBuilder.create());
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.DIALOG_TO);
 		}
 
@@ -479,13 +367,13 @@ public class Router {
 			}
 			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, transitionType);
 
-			IntentBuilder intentBuilder = new IntentBuilder(activity, SearchForm.class);
+			IntentBuilder intentBuilder = new IntentBuilder(activity, SearchScreen.class);
 			intentBuilder.setExtras(extras);
 			((Activity)activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_SEARCH);
 			AnimationManager.doOverridePendingTransition((Activity) activity, transitionType);
 		}
 
-		else if (route == Route.USER_LIST) {
+		else if (route == Route.ENTITY_LIST) {
 
 			if (entity == null) {
 				throw new IllegalArgumentException("Dispatching user list requires entity");
@@ -496,49 +384,65 @@ public class Router {
 				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
 			}
 
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, UserList.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, ListScreen.class);
 			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.create());
 			AnimationManager.doOverridePendingTransition((Activity) activity, transitionType);
 		}
 
-		else if (route == Route.PATCH_LIST) {
+		/* Command routing: deprecated, remove asap */
+
+		else if (route == Route.NEW) {
+
+			if (!MenuManager.canUserAdd(entity)) {
+				return;
+			}
+
+			if (schema != null) {
+				IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
+				controller.insert(activity, extras, true);
+			}
+		}
+
+		else if (route == Route.EDIT) {
 
 			if (entity == null) {
-				throw new IllegalArgumentException("Dispatching watchers requires entity");
+				throw new IllegalArgumentException("Dispatching edit requires entity");
 			}
 
-			Integer transitionType = TransitionType.VIEW_TO;
-			if (extras != null) {
-				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
-			}
-
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, PatchList.class);
-			intentBuilder.setEntityId(entity.id).addExtras(extras);
-			activity.startActivity(intentBuilder.create());
-			AnimationManager.doOverridePendingTransition((Activity) activity, transitionType);
+			IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
+			controller.edit(activity, entity, extras, true);
 		}
+
+		else if (route == Route.SUBMIT) {
+
+			((BaseScreen) activity).submitAction();    // Give activity a chance for discard confirmation
+		}
+
+		else if (route == Route.DELETE) {
+
+			((BaseScreen) activity).confirmDelete();    // Give activity a chance for discard confirmation
+		}
+
+		else if (route == Route.REMOVE) {
+
+			if (extras == null) {
+				throw new IllegalArgumentException("Dispatching remove requires extras");
+			}
+			((BaseScreen) activity).confirmRemove(extras.getString(Constants.EXTRA_ENTITY_PARENT_ID));    // Give activity a chance for remove confirmation
+		}
+
 	}
 
 	public Integer routeForMenuId(int itemId) {
 
 		if (itemId == R.id.edit)
 			return Route.EDIT;
-		else if (itemId == android.R.id.home)
-			return Route.CANCEL;
-		else if (itemId == R.id.logout)
-			return Route.SIGNOUT;
 		else if (itemId == R.id.login)
 			return Route.LOGIN;
-		else if (itemId == R.id.report_patch)
+		else if (itemId == R.id.report)
 			return Route.REPORT;
-		else if (itemId == R.id.report_message)
-			return Route.REPORT;
-		else if (itemId == R.id.report_user)
-			return Route.REPORT;
-		else if (itemId == R.id.qrcode)
-			return Route.QRCODE;
-		else if (itemId == R.id.accept)
+		else if (itemId == R.id.submit)
 			return Route.SUBMIT;
 		else if (itemId == R.id.refresh)
 			return Route.REFRESH;

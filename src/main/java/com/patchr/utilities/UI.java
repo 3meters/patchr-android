@@ -220,6 +220,12 @@ public class UI {
 		}
 	}
 
+	public static void setTextView(View view, String text) {
+		if (view != null) {
+			((TextView) view).setText(text);
+		}
+	}
+
 	public static void setEnabled(@NonNull View view, boolean enabled) {
 		view.setEnabled(enabled);
 		if (view instanceof ViewGroup) {

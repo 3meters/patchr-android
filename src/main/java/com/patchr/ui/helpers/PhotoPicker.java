@@ -9,6 +9,8 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
@@ -42,7 +44,8 @@ import com.patchr.service.RequestType;
 import com.patchr.service.ResponseFormat;
 import com.patchr.service.ServiceRequest;
 import com.patchr.service.ServiceRequest.AuthType;
-import com.patchr.ui.BaseActivity;
+import com.patchr.ui.BaseScreen;
+import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.views.ImageLayout;
 import com.patchr.ui.widgets.AirAutoCompleteTextView;
 import com.patchr.ui.widgets.AirTextView;
@@ -61,7 +64,7 @@ import java.util.List;
  * We often will get duplicates because the ordering of images isn't
  * guaranteed while paging.
  */
-public class PhotoPicker extends BaseActivity {
+public class PhotoPicker extends BaseScreen {
 
 	private GridView                gridView;
 	private AirAutoCompleteTextView search;
@@ -74,6 +77,7 @@ public class PhotoPicker extends BaseActivity {
 	private ArrayAdapter<String> searchAdapter;
 	private String               titleOptional;
 	private Integer              photoWidthPixels;
+	private EmptyPresenter       emptyPresenter;
 
 	private static final long   PAGE_SIZE     = 49L;
 	private static final long   LIST_MAX      = 300L;
@@ -85,6 +89,7 @@ public class PhotoPicker extends BaseActivity {
 		if (!isFinishing()) {
 			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 		}
+		this.emptyPresenter = new EmptyPresenter(findViewById(R.id.form_message));
 		bind();
 	}
 
@@ -97,12 +102,24 @@ public class PhotoPicker extends BaseActivity {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void onSubmit() {
-		startSearch(null);
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+
+		this.optionMenu = menu;
+
+		getMenuInflater().inflate(R.menu.menu_search_start, menu);
+		configureStandardMenuItems(menu);   // Tweaks based on permissions
+		return true;
 	}
 
-	public void onSearchClick(View view) {
-		startSearch(view);
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.submit) {
+			submitAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -217,6 +234,10 @@ public class PhotoPicker extends BaseActivity {
 		return R.layout.photo_picker;
 	}
 
+	@Override public void submitAction() {
+		startSearch(null);
+	}
+
 	public void bind() {
 		if (!TextUtils.isEmpty(query)) {
 			gridView.setAdapter(new EndlessImageAdapter(images));
@@ -231,7 +252,7 @@ public class PhotoPicker extends BaseActivity {
 
 		/* Prep the UI */
 		images.clear();
-		uiController.getBusyController().show(BusyAction.Refreshing_Empty);
+		busyPresenter.show(BusyAction.Refreshing_Empty);
 
 		/* Hide soft keyboard */
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -408,13 +429,13 @@ public class PhotoPicker extends BaseActivity {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					uiController.getMessageController().fadeOut();
+					emptyPresenter.hide(true);
 				}
 			});
 			ModelResult result = loadSearchImages(queryDecorated, PAGE_SIZE, offset, Constants.BING_IMAGE_BYTES_MAX, Constants.BING_IMAGE_DIMENSION_MAX);
 			ServiceData serviceData = (ServiceData) result.serviceResponse.data;
 
-			uiController.getBusyController().hide(false);
+			busyPresenter.hide(false);
 			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 				mMoreImages = (ArrayList<ImageResult>) result.data;
@@ -425,8 +446,8 @@ public class PhotoPicker extends BaseActivity {
 
 							@Override
 							public void run() {
-								uiController.getMessageController().setLabel(StringManager.getString(R.string.label_photo_picker_empty) + " " + query);
-								uiController.getMessageController().fadeIn(Constants.TIME_ONE_SECOND);
+								emptyPresenter.setLabel(StringManager.getString(R.string.label_photo_picker_empty) + " " + query);
+								emptyPresenter.show(true);
 							}
 						});
 					}

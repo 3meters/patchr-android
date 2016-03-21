@@ -101,7 +101,7 @@
 				android:orientation="vertical">
 
 				<com.patchr.ui.widgets.AirTextLight
-					android:id="@+id/button_member"
+					android:id="@+id/member_of_button"
 					style="@style/selectable_item"
 					android:layout_width="match_parent"
 					android:layout_height="@dimen/form_field_height"
@@ -125,7 +125,7 @@
 					android:background="?attr/ruleColor" />
 
 				<com.patchr.ui.widgets.AirTextLight
-					android:id="@+id/button_owner"
+					android:id="@+id/owner_of_button"
 					style="@style/selectable_item"
 					android:layout_width="match_parent"
 					android:layout_height="@dimen/form_field_height"
