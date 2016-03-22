@@ -377,7 +377,7 @@
 		<!-- Builders/pickers -->
 
 		<activity
-			android:name=".ui.helpers.PhotoPicker"
+			android:name=".ui.PhotoSearchScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_photo_picker"
 			android:windowSoftInputMode="stateHidden" />
@@ -390,13 +390,13 @@
 
 		<!-- Theme setting required to get dialog treatment for all theming -->
 		<activity
-			android:name=".ui.helpers.PhotoActionPicker"
+			android:name=".ui.helpers.PhotoPicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:theme="@style/patchr_theme_dialog"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.helpers.PrivacyBuilder"
+			android:name=".ui.edit.PrivacyEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/form_title_privacy_builder"
 			android:windowSoftInputMode="stateHidden" />

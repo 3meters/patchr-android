@@ -26,9 +26,9 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.interfaces.IBusy.BusyAction;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.objects.TransitionType;
+import com.patchr.ui.components.BusyPresenter;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
@@ -56,10 +56,10 @@ public class LoginEdit extends BaseEdit {
 			submitAction();
 		}
 		else if (view.getId() == R.id.signup_button) {
-			Patchr.router.route(this, Route.SIGNUP, null, null);
+			Patchr.router.route(this, Command.SIGNUP, null, null);
 		}
 		else if (view.getId() == R.id.forgot_password_button) {
-			Patchr.router.route(this, Route.PASSWORD_RESET, null, null);
+			Patchr.router.route(this, Command.PASSWORD_RESET, null, null);
 		}
 	}
 
@@ -182,7 +182,7 @@ public class LoginEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_signing_in, LoginEdit.this);
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_signing_in, LoginEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {

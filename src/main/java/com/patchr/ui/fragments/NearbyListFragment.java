@@ -13,7 +13,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +38,6 @@ import com.patchr.events.LocationAllowedEvent;
 import com.patchr.events.LocationDeniedEvent;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.events.QueryWifiScanReceivedEvent;
-import com.patchr.interfaces.IBusy;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Count;
@@ -48,6 +46,7 @@ import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.ServiceData;
 import com.patchr.service.ServiceResponse;
+import com.patchr.ui.components.BusyPresenter;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -266,13 +265,13 @@ public class NearbyListFragment extends EntityListFragment {
 				Logger.d(getActivity(), "Entities changed event: updating radar");
 
 				/* Point radar adapter at the updated entities */
-				final int previousCount = ((ArrayAdapter) listPresenter.getAdapter()).getCount();
+				final int previousCount = listPresenter.adapter.getItemCount();
 				final List<Entity> entities = event.entities;
 
 				Logger.d(getActivity(), "Entities changed: source = " + event.source + ", count = " + String.valueOf(entities.size()));
 				listPresenter.entities.clear();
 				listPresenter.entities.addAll(entities);
-				listPresenter.getAdapter().notifyDataSetChanged();
+				listPresenter.adapter.notifyDataSetChanged();
 
 				if (entities.size() >= 2) {
 					listPresenter.onFetchComplete(ResponseCode.SUCCESS);
@@ -432,7 +431,7 @@ public class NearbyListFragment extends EntityListFragment {
 			@Override protected void onPreExecute() {
 				Reporting.updateCrashKeys();
 				if (listPresenter.entities.size() == 0) {
-					listPresenter.busyPresenter.show(IBusy.BusyAction.Scanning_Empty);
+					listPresenter.busyPresenter.show(BusyPresenter.BusyAction.Scanning_Empty);
 					listPresenter.emptyPresenter.hide(true);
 				}
 				if (Patchr.getInstance().getPrefEnableDev()) {

@@ -49,7 +49,7 @@ import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.Notification;
 import com.patchr.objects.Photo;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.objects.User;
 import com.patchr.ui.components.ListPresenter;
 import com.patchr.ui.fragments.EntityListFragment;
@@ -204,7 +204,7 @@ public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEnti
 			if (listFragment != null) {
 				Bundle extras = new Bundle();
 				extras.putString(Constants.EXTRA_FRAGMENT_TYPE, listFragment);
-				Patchr.router.route(this, Route.VIEW_AS_LIST, null, extras);
+				Patchr.router.route(this, Command.VIEW_AS_LIST, null, extras);
 			}
 			return;
 		}
@@ -275,7 +275,7 @@ public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEnti
 	}
 
 	public void onFabButtonClick(View view) {
-		Patchr.router.route(this, Route.NEW_PATCH, null, null);
+		Patchr.router.route(this, Command.NEW_PATCH, null, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -514,7 +514,7 @@ public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEnti
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
 		}
 
-		Patchr.router.route(this, Route.NEW, null, extras);
+		Patchr.router.add(this, Constants.SCHEMA_ENTITY_PATCH, extras, true);
 	}
 
 	private void tetherAlert() {
@@ -561,7 +561,7 @@ public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEnti
 			/* Nearby notifications are local only so inject them */
 			for (Map.Entry<String, Notification> entry : NotificationManager.getInstance().getNotifications().entrySet()) {
 				if (entry.getValue().getTriggerCategory().equals(Notification.TriggerCategory.NEARBY)) {
-					this.fragmentNotifications.listPresenter.adapter.add(entry.getValue());
+					this.fragmentNotifications.listPresenter.entities.add(entry.getValue());
 				}
 			}
 		}
@@ -648,14 +648,14 @@ public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEnti
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_SETTINGS)) {
 
 				nextFragmentTag = currentFragmentTag;
-				Patchr.router.route(this, Route.SETTINGS, null, null);
+				Patchr.router.route(this, Command.SETTINGS, null, null);
 				return;
 			}
 
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_FEEDBACK)) {
 
 				nextFragmentTag = currentFragmentTag;
-				Patchr.router.route(this, Route.FEEDBACK, null, null);
+				Patchr.router.route(this, Command.FEEDBACK, null, null);
 				return;
 			}
 

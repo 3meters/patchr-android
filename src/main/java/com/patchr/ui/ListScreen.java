@@ -5,9 +5,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
 
 import com.patchr.Constants;
 import com.patchr.R;
@@ -24,7 +23,7 @@ import com.patchr.objects.Link;
 import com.patchr.objects.Photo;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.EmptyPresenter;
-import com.patchr.ui.components.ListPresenter;
+import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.ui.fragments.EntityListFragment;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
@@ -39,15 +38,15 @@ public class ListScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 	/*
 	 * Thin wrapper around a list fragment.
 	 */
-	protected String        listLinkType;
-	protected String        listLinkSchema;
-	protected Integer       listTitleResId;
-	protected Integer       listEmptyMessageResId;
-	protected Integer       listItemResId;
-	protected String        listLinkDirection;
-	protected Entity        entity;
-	protected String        entityId;
-	protected ListPresenter listPresenter;
+	protected String           listLinkType;
+	protected String           listLinkSchema;
+	protected Integer          listTitleResId;
+	protected Integer          listEmptyMessageResId;
+	protected Integer          listItemResId;
+	protected String           listLinkDirection;
+	protected Entity           entity;
+	protected String           entityId;
+	protected RecyclePresenter listPresenter;
 
 	@Override protected void onStart() {
 		super.onStart();
@@ -128,8 +127,8 @@ public class ListScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 
 		assert this.rootView != null;
 
-		this.listPresenter = new ListPresenter(this);
-		this.listPresenter.listView = (AbsListView) ((ViewGroup) this.rootView.findViewById(R.id.swipe)).getChildAt(1);
+		this.listPresenter = new RecyclePresenter(this);
+		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
 		this.listPresenter.listItemResId = this.listItemResId;
 		this.listPresenter.busyPresenter = new BusyPresenter();
 		this.listPresenter.busyPresenter.setProgressBar(this.rootView.findViewById(R.id.list_progress));

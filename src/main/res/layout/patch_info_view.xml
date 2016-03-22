@@ -120,7 +120,7 @@
 						android:layout_height="wrap_content"
 						android:layout_gravity="bottom"
 						android:layout_marginRight="2dp"
-						custom:textId="@string/label_owned_by"
+						android:text="@string/label_owned_by"
 						tools:text="Patch owned by" />
 
 					<com.patchr.ui.widgets.AirTextLight
@@ -132,7 +132,7 @@
 						android:ellipsize="end"
 						android:singleLine="true"
 						android:textColor="@color/brand_accent_darker"
-						custom:textId="@string/dummy_name"
+						android:text="@string/dummy_name"
 						tools:text="Jay Massena" />
 
 					<Button

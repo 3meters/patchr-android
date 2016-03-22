@@ -13,7 +13,7 @@
 		android:layout_height="wrap_content"
 		android:gravity="center_vertical"
 		android:textColor="#ffffffff"
-		custom:textId="@string/dummy_name" />
+		android:text="@string/dummy_name" />
 
 	<com.patchr.ui.widgets.AirTextView
 		style="@style/bullet"
@@ -22,7 +22,7 @@
 		android:gravity="center_vertical"
 		android:paddingLeft="3dp"
 		android:paddingRight="3dp"
-		custom:textId="@string/symbol_bullet" />
+		android:text="@string/symbol_bullet" />
 
 	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/timesince"
@@ -31,6 +31,6 @@
 		android:layout_height="wrap_content"
 		android:gravity="center_vertical"
 		android:textColor="#ffffffff"
-		custom:textId="@string/dummy_timesince" />
+		android:text="@string/dummy_timesince" />
 
 </LinearLayout>

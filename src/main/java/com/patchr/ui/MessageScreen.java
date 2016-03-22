@@ -44,8 +44,8 @@ import com.patchr.events.EntityQueryResultEvent;
 import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.NotificationReceivedEvent;
-import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.ActionType;
+import com.patchr.objects.Command;
 import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
@@ -55,9 +55,9 @@ import com.patchr.objects.Message;
 import com.patchr.objects.Message.MessageType;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
-import com.patchr.objects.Route;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
+import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.views.ImageLayout;
@@ -204,7 +204,7 @@ public class MessageScreen extends BaseScreen {
 
 	public void editAction() {
 		Bundle extras = new Bundle();
-		Patchr.router.route(this, Route.EDIT, entity, extras);
+		Patchr.router.edit(this, entity, extras, true);
 	}
 
 	public void deleteAction() {
@@ -247,7 +247,7 @@ public class MessageScreen extends BaseScreen {
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_LIKE);
 			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_likes_list);
 			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-			Patchr.router.route(this, Route.ENTITY_LIST, entity, extras);
+			Patchr.router.route(this, Command.ENTITY_LIST, entity, extras);
 		}
 	}
 
@@ -390,7 +390,7 @@ public class MessageScreen extends BaseScreen {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_deleting, MessageScreen.this);
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_deleting, MessageScreen.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -617,7 +617,7 @@ public class MessageScreen extends BaseScreen {
 				if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 					patchName.setText(StringManager.getString(R.string.label_message_invite));
 					PatchView patchView = new PatchView(this, R.layout.patch_view_attachment);
-					patchView.databind(shareEntity);
+					patchView.bind(shareEntity);
 					CardView cardView = (CardView) shareView;
 					int padding = UI.getRawPixelsForDisplayPixels(0f);
 					cardView.setContentPadding(padding, padding, padding, padding);
@@ -627,7 +627,7 @@ public class MessageScreen extends BaseScreen {
 				else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 					patchName.setText(StringManager.getString(R.string.label_message_shared));
 					MessageView messageView = new MessageView(this, R.layout.message_view_attachment);
-					messageView.databind(shareEntity);
+					messageView.bind(shareEntity);
 					CardView cardView = (CardView) shareView;
 					int padding = UI.getRawPixelsForDisplayPixels(8f);
 					cardView.setContentPadding(padding, padding, padding, padding);

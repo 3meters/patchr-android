@@ -8,7 +8,7 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.StringManager;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
@@ -47,15 +47,15 @@ public class AboutScreen extends BaseScreen {
 	}
 
 	public void termsAction() {
-		Patchr.router.route(this, Route.TERMS, null, null);
+		Patchr.router.route(this, Command.TERMS, null, null);
 	}
 
 	public void privacyPolicyAction() {
-		Patchr.router.route(this, Route.PRIVACY, null, null);
+		Patchr.router.route(this, Command.PRIVACY, null, null);
 	}
 
 	public void legalAction() {
-		Patchr.router.route(this, Route.LEGAL, null, null);
+		Patchr.router.route(this, Command.LEGAL, null, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------

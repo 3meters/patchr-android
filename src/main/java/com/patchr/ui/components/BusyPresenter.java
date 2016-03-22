@@ -16,7 +16,6 @@ import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.events.ProcessingProgressEvent;
-import com.patchr.interfaces.IBusy;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
@@ -24,7 +23,7 @@ import com.patchr.utilities.Reporting;
 
 import org.greenrobot.eventbus.Subscribe;
 
-public class BusyPresenter implements IBusy {
+public class BusyPresenter {
 
 	private Runnable           mRunnableHide;
 	private Runnable           mRunnableShow;
@@ -58,11 +57,11 @@ public class BusyPresenter implements IBusy {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void show(final BusyAction busyAction) {
+	public void show(final BusyAction busyAction) {
 		show(busyAction, null, null);
 	}
 
-	@Override public void show(final BusyAction busyAction, final Object message, final Context context) {
+	public void show(final BusyAction busyAction, final Object message, final Context context) {
 
 		/*
 		 * Make sure there are no pending busys waiting.
@@ -143,7 +142,7 @@ public class BusyPresenter implements IBusy {
 		Patchr.mainThreadHandler.postDelayed(mRunnableShow, (busyAction == BusyAction.Refreshing_Empty) ? Constants.INTERVAL_BUSY_DELAY : 0);
 	}
 
-	@Override public void showProgressDialog(final Context context) {
+	public void showProgressDialog(final Context context) {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
@@ -188,7 +187,7 @@ public class BusyPresenter implements IBusy {
 		Patchr.mainThreadHandler.postDelayed(mRunnableShow, 0);
 	}
 
-	@Override public void hide(Boolean noDelay) {
+	public void hide(Boolean noDelay) {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
@@ -286,5 +285,14 @@ public class BusyPresenter implements IBusy {
 			mProgressBar = (AirProgressBar) progressBar;
 		}
 		return this;
+	}
+
+	public enum BusyAction {
+		Refreshing_Empty,
+		Refreshing,
+		Scanning_Empty,
+		Scanning,
+		ActionWithMessage,
+		Update,
 	}
 }

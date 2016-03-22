@@ -1,10 +1,6 @@
 package com.patchr.objects;
 
-import android.content.res.Resources;
-
 import com.patchr.Constants;
-import com.patchr.Patchr;
-import com.patchr.R;
 import com.patchr.components.UserManager;
 import com.patchr.objects.Link.Direction;
 import com.patchr.utilities.Maps;
@@ -26,18 +22,12 @@ public class LinkSpecFactory {
 			LinkSpec linkSpec = new LinkSpec().setActive(new ArrayList<LinkSpecItem>());
 			linkSpec.shortcuts = true;
 
-			Resources resources = Patchr.applicationContext.getResources();
-			Number limitProximity = resources.getInteger(R.integer.limit_links_proximity_default);
-			Number limitLike = resources.getInteger(R.integer.limit_links_like_default);
-			Number limitCreate = resources.getInteger(R.integer.limit_links_create_default);
-			Number limitWatch = resources.getInteger(R.integer.limit_links_watch_default);
-
 			if (linkProfile == LinkSpecType.LINKS_FOR_PATCH || linkProfile == LinkSpecType.LINKS_FOR_BEACONS) {
 				/*
 				 * These are the same because LINKS_FOR_BEACONS is used to produce patches and we want the same link
 				 * profile for patches regardless of what code path fetches them.
 				 */
-				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, true, true, limitProximity)
+				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, true, true, 10)
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_USER, true, true, 1
 						, UserManager.shared().authenticated() ? Maps.asMap("_from", UserManager.currentUser.id) : null)
@@ -62,13 +52,13 @@ public class LinkSpecFactory {
 			}
 			else if (linkProfile == LinkSpecType.LINKS_FOR_USER_CURRENT) {
 
-				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, true, true, limitLike)
+				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, true, true, 0)
 						.setDirection(Direction.out));
-				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, true, limitCreate)
+				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, true, 0)
 						.setDirection(Direction.out));
-				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_PATCH, true, true, limitWatch)
+				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_PATCH, true, true, 0)
 						.setDirection(Direction.out));
-				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_MESSAGE, true, true, limitCreate)
+				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 0)
 						.setDirection(Direction.out));
 			}
 			else if (linkProfile == LinkSpecType.LINKS_FOR_USER) {

@@ -43,21 +43,13 @@ import com.patchr.components.Router;
 import com.patchr.components.Stopwatch;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.controllers.Messages;
-import com.patchr.controllers.Notifications;
-import com.patchr.controllers.Patches;
-import com.patchr.controllers.Users;
 import com.patchr.events.RegisterInstallEvent;
-import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Preference;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -83,8 +75,6 @@ public class Patchr extends MultiDexApplication {
 	public static Stopwatch                      stopwatch1                = new Stopwatch(); // $codepro.audit.disable stringLiterals;
 	@NonNull
 	public static Stopwatch                      stopwatch2                = new Stopwatch(); // $codepro.audit.disable stringLiterals;
-	@NonNull
-	public static Map<String, IEntityController> controllerMap             = new HashMap<String, IEntityController>();
 	@NonNull
 	public static Boolean                        debug                     = false;
 	@NonNull
@@ -190,12 +180,6 @@ public class Patchr extends MultiDexApplication {
 		/* Warmup DataController */
 		DataController.getInstance().warmup();
 
-		/* Required to deserialize notifications */
-		controllerMap.put(Constants.SCHEMA_ENTITY_PATCH, new Patches());
-		controllerMap.put(Constants.SCHEMA_ENTITY_USER, new Users());
-		controllerMap.put(Constants.SCHEMA_ENTITY_MESSAGE, new Messages());
-		controllerMap.put(Constants.SCHEMA_ENTITY_NOTIFICATION, new Notifications());
-
 		/* Must come after managers are initialized */
 		UserManager.shared().signinAuto();
 
@@ -279,32 +263,6 @@ public class Patchr extends MultiDexApplication {
 			String secretKey = container.getString(AWS_SECRET_KEY);
 			awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
 		}
-	}
-
-	@NonNull
-	public IEntityController getControllerForSchema(@NonNull String schema) {
-		if (!controllerMap.containsKey(schema)) {
-			throw new IllegalArgumentException("No controller for schema: " + schema.toString());
-		}
-		return controllerMap.get(schema);
-	}
-
-	@NonNull
-	public IEntityController getControllerForClass(@NonNull Class<?> clazz) {
-		String schema = clazz.getSimpleName().toLowerCase(Locale.US);
-		if (!controllerMap.containsKey(schema)) {
-			throw new IllegalArgumentException("No controller for schema: " + schema.toString());
-		}
-		return controllerMap.get(schema);
-	}
-
-	@NonNull
-	public IEntityController getControllerForEntity(@NonNull Entity entity) {
-		String schema = entity.schema;
-		if (!controllerMap.containsKey(schema)) {
-			throw new IllegalArgumentException("No controller for schema: " + schema.toString());
-		}
-		return controllerMap.get(schema);
 	}
 
 	@NonNull

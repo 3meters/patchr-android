@@ -31,8 +31,7 @@
 				android:background="?attr/backgroundFormSecondary"
 				android:gravity="center_horizontal"
 				android:padding="16dp"
-				android:text="@string/label_reset_message_email"
-				custom:textId="@string/label_reset_message_email" />
+				android:text="@string/label_reset_message_email" />
 
 			<LinearLayout
 				style="@style/form_content_layout"

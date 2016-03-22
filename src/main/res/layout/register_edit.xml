@@ -32,7 +32,7 @@
 				android:background="?attr/backgroundFormSecondary"
 				android:gravity="center_horizontal"
 				android:padding="16dp"
-				custom:textId="@string/label_register_message"
+				android:text="@string/label_register_message"
 				tools:text="@string/label_register_message" />
 
 			<RelativeLayout
@@ -151,7 +151,7 @@
 						android:layout_height="@dimen/form_field_height"
 						android:layout_marginBottom="12dp"
 						android:textAppearance="?android:attr/textAppearance"
-						custom:textId="@string/label_password_unmask" />
+						android:text="@string/label_password_unmask" />
 
 					<RelativeLayout
 						android:layout_width="match_parent"
@@ -191,7 +191,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:layout_marginRight="1sp"
-							custom:textId="@string/label_terms" />
+							android:text="@string/label_terms" />
 
 						<com.patchr.ui.widgets.AirTextLight
 							android:id="@+id/terms_button"
@@ -201,7 +201,7 @@
 							android:clickable="true"
 							android:onClick="onClick"
 							android:textColor="?attr/textSelectorLink"
-							custom:textId="@string/button_terms" />
+							android:text="@string/button_terms" />
 
 					</RelativeLayout>
 				</LinearLayout>

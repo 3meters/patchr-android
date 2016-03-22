@@ -13,11 +13,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.patchr.Constants;
@@ -30,7 +27,6 @@ import com.patchr.components.UserManager;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.views.UserView;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
@@ -125,24 +121,6 @@ public class PhotoScreen extends BaseScreen {
 	}
 
 	public void bind() {
-
-		final TextView name = (TextView) findViewById(R.id.name);
-		final UserView user = (UserView) findViewById(R.id.author);
-
-		/* Title */
-		UI.setVisibility(name, View.GONE);
-		if (!TextUtils.isEmpty(photo.name)) {
-			UI.setTextView(name, photo.name);
-			UI.setVisibility(name, View.VISIBLE);
-		}
-
-		/* Author block */
-		UI.setVisibility(user, View.GONE);
-		if (photo.user != null && user != null) {
-			Long createdAt = photo.getCreatedAt() != null ? photo.getCreatedAt().longValue() : null;
-			user.databind(photo.user);
-			UI.setVisibility(user, View.VISIBLE);
-		}
 
 		/* Photo */
 

@@ -2,8 +2,7 @@ package com.patchr.utilities;
 
 import android.support.annotation.NonNull;
 
-import com.patchr.Patchr;
-import com.patchr.interfaces.IEntityController;
+import com.patchr.Constants;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Category;
@@ -12,6 +11,9 @@ import com.patchr.objects.Document;
 import com.patchr.objects.ImageResult;
 import com.patchr.objects.Install;
 import com.patchr.objects.Link;
+import com.patchr.objects.Message;
+import com.patchr.objects.Notification;
+import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.ServiceBase.UpdateScope;
 import com.patchr.objects.ServiceData;
@@ -19,6 +21,7 @@ import com.patchr.objects.ServiceEntry;
 import com.patchr.objects.ServiceObject;
 import com.patchr.objects.Session;
 import com.patchr.objects.Shortcut;
+import com.patchr.objects.User;
 import com.patchr.service.Expose;
 import com.patchr.service.SerializedName;
 
@@ -202,8 +205,18 @@ public class Json {
 				else if (objectType == Json.ObjectType.ENTITY) {
 					String schema = (String) map.get("schema");
 					if (schema != null) {
-						IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
-						list.add(controller.makeFromMap(map, nameMapping));
+						if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+							list.add(Patch.setPropertiesFromMap(new Patch(), map, nameMapping));
+						}
+						else if (schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+							list.add(Message.setPropertiesFromMap(new Message(), map, nameMapping));
+						}
+						else if (schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
+							list.add(Notification.setPropertiesFromMap(new Notification(), map, nameMapping));
+						}
+						else if (schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+							list.add(User.setPropertiesFromMap(new User(), map, nameMapping));
+						}
 					}
 				}
 				else if (objectType == Json.ObjectType.SESSION) {

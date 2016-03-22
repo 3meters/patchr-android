@@ -34,7 +34,7 @@
 			android:textAppearance="?android:attr/textAppearanceLarge"
 			android:textColor="?attr/textColor"
 			android:textStyle="bold"
-			custom:textId="@string/dummy_title_short" />
+			android:text="@string/dummy_title_short" />
 
 		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/subhead"
@@ -44,7 +44,7 @@
 			android:singleLine="true"
 			android:textColor="?attr/textColorSecondary"
 			android:textStyle="italic"
-			custom:textId="@string/dummy_subtitle" />
+			android:text="@string/dummy_subtitle" />
 
 		<com.patchr.ui.widgets.AirTextLight
 			android:id="@+id/description"
@@ -53,7 +53,7 @@
 			android:ellipsize="end"
 			android:maxLines="2"
 			android:visibility="gone"
-			custom:textId="@string/dummy_description" />
+			android:text="@string/dummy_description" />
 	</LinearLayout>
 
 	<LinearLayout
@@ -72,13 +72,12 @@
 			android:gravity="left"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:textColor="?attr/textColorSecondary"
-			custom:textId="@string/dummy_comments" />
+			android:text="@string/dummy_comments" />
 
 		<com.patchr.ui.views.UserView
 			android:id="@+id/creator"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			custom:layoutId="@layout/widget_user_view_text_only" />
+			android:layout_height="wrap_content" />
 	</LinearLayout>
 
 </RelativeLayout>

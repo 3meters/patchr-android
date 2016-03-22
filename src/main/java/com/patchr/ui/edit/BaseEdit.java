@@ -32,16 +32,18 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.ProximityController;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.interfaces.IBusy;
-import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Beacon;
+import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
+import com.patchr.objects.Message;
+import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
-import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
+import com.patchr.objects.User;
 import com.patchr.service.ServiceResponse;
 import com.patchr.ui.BaseScreen;
+import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.views.ImageLayout;
 import com.patchr.utilities.Dialogs;
@@ -232,7 +234,7 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 			final String jsonPhoto = Json.objectToJson(entity.photo);
 			Bundle bundle = new Bundle();
 			bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.router.route(this, Route.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
+			Patchr.router.route(this, Command.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
 		}
 	}
 
@@ -242,7 +244,7 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 		gather();
 
 		/* Route it */
-		Patchr.router.route(this, Route.PHOTO_SOURCE, entity, null);
+		Patchr.router.route(this, Command.PHOTO_SOURCE, entity, null);
 	}
 
 	public void onDeletePhotoButtonClick(View view) {
@@ -337,8 +339,15 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 		/* Make new entity if we are not editing */
 		if (!editing && this.entity == null && entitySchema != null) {
 
-			IEntityController controller = Patchr.getInstance().getControllerForSchema(entitySchema);
-			this.entity = controller.makeNew();
+			if (entitySchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+				this.entity = Message.build();
+			}
+			else if (entitySchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+				this.entity = Patch.build();
+			}
+			else if (entitySchema.equals(Constants.SCHEMA_ENTITY_USER)) {
+				this.entity = User.build();
+			}
 
 			if (UserManager.shared().authenticated()) {
 				entity.creator = UserManager.currentUser;
@@ -460,7 +469,7 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 					busyPresenter.showProgressDialog(BaseEdit.this);
 				}
 				else {
-					busyPresenter.show(IBusy.BusyAction.ActionWithMessage, insertProgressResId, BaseEdit.this);
+					busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, insertProgressResId, BaseEdit.this);
 				}
 			}
 
@@ -604,7 +613,7 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 					busyPresenter.showProgressDialog(BaseEdit.this);
 				}
 				else {
-					busyPresenter.show(IBusy.BusyAction.ActionWithMessage, R.string.progress_updating, BaseEdit.this);
+					busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_updating, BaseEdit.this);
 				}
 			}
 
@@ -794,11 +803,11 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 	protected void photoSearch(String defaultSearch) {
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_SEARCH_PHRASE, defaultSearch);
-		Patchr.router.route(this, Route.PHOTO_SEARCH, null, extras);
+		Patchr.router.route(this, Command.PHOTO_SEARCH, null, extras);
 	}
 
 	protected void photoFromPlace(Entity entity) {
-		Patchr.router.route(this, Route.PHOTO_PLACE_SEARCH, entity, null);
+		Patchr.router.route(this, Command.PHOTO_PLACE_SEARCH, entity, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------

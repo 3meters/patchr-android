@@ -150,7 +150,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickList
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.location_picker;
+		return R.layout.location_edit;
 	}
 
 	@Override public void submitAction() {

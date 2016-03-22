@@ -17,13 +17,12 @@ import android.os.Handler;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -61,11 +60,10 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
-import com.patchr.objects.Message;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.WatchStatus;
@@ -73,7 +71,7 @@ import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.InsetViewTransformer;
-import com.patchr.ui.components.ListPresenter;
+import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.views.PatchDetailView;
 import com.patchr.utilities.Colors;
@@ -101,10 +99,9 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	private final Handler handler = new Handler();
 
 	private   PatchDetailView   header;
-	private   ListPresenter     listPresenter;
+	private   RecyclePresenter  listPresenter;
 	protected BottomSheetLayout bottomSheetLayout;
 
-	protected String  listLinkType;
 	protected String  notificationId;
 	protected Integer watchStatus;    // Set in draw
 	private   boolean bound;
@@ -273,7 +270,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 			joinAction();
 		}
 		else {
-			Patchr.router.route(this, Patchr.router.routeForMenuId(item.getItemId()), entity, null);
+			return super.onOptionsItemSelected(item);
 		}
 		return true;
 	}
@@ -412,7 +409,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	}
 
 	private void tuneAction() {
-		Patchr.router.route(this, Route.TUNE, entity, null);
+		Patchr.router.route(this, Command.TUNE, entity, null);
 	}
 
 	public void addAction() {
@@ -426,19 +423,10 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 		if (MenuManager.canUserAdd(entity)) {
 
-			String message = StringManager.getString(R.string.label_message_new_message);
-			if (!TextUtils.isEmpty(entity.name)) {
-				message = String.format(StringManager.getString(R.string.label_message_new_to_message), entity.name);
-			}
-
 			Bundle extras = new Bundle();
-
-			extras.putString(Constants.EXTRA_MESSAGE, message);
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, entityId);
-			extras.putString(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.ROOT);
 			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-
-			Patchr.router.route(this, Route.NEW, null, extras);
+			Patchr.router.add(this, Constants.SCHEMA_ENTITY_MESSAGE, extras, true);
 		}
 	}
 
@@ -489,13 +477,13 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_MEMBER);
 			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_member_list);
 			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-			Patchr.router.route(this, Route.ENTITY_LIST, entity, extras);
+			Patchr.router.route(this, Command.ENTITY_LIST, entity, extras);
 		}
 	}
 
 	public void editAction() {
 		Bundle extras = new Bundle();
-		Patchr.router.route(this, Route.EDIT, entity, extras);
+		Patchr.router.edit(this, entity, extras, true);
 	}
 
 	public void deleteAction() {
@@ -512,7 +500,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-			listLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
 			transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
 			notificationId = extras.getString(Constants.EXTRA_NOTIFICATION_ID);
 			referrerName = extras.getString(Constants.EXTRA_INVITER_NAME);
@@ -527,8 +514,8 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 		this.header = new PatchDetailView(this);
 
-		this.listPresenter = new ListPresenter(this);
-		this.listPresenter.listView = (AbsListView) ((ViewGroup) this.rootView.findViewById(R.id.swipe)).getChildAt(1);
+		this.listPresenter = new RecyclePresenter(this);
+		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
 		this.listPresenter.listItemResId = R.layout.temp_listitem_message;
 		this.listPresenter.busyPresenter = new BusyPresenter();
 		this.listPresenter.busyPresenter.setProgressBar(this.rootView.findViewById(R.id.list_progress));
@@ -928,13 +915,13 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 					((TextView) view.findViewById(R.id.action1_button)).setText("LOG IN");
 					((Button) view.findViewById(R.id.action1_button)).setOnClickListener(new View.OnClickListener() {
 						@Override public void onClick(View v) {
-							Patchr.router.route(PatchScreen.this, Route.LOGIN, null, null);
+							Patchr.router.route(PatchScreen.this, Command.LOGIN, null, null);
 						}
 					});
 					((TextView) view.findViewById(R.id.action2_button)).setText("SIGN UP");
 					((Button) view.findViewById(R.id.action2_button)).setOnClickListener(new View.OnClickListener() {
 						@Override public void onClick(View v) {
-							Patchr.router.route(PatchScreen.this, Route.SIGNUP, null, null);
+							Patchr.router.route(PatchScreen.this, Command.SIGNUP, null, null);
 						}
 					});
 				}

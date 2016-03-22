@@ -27,7 +27,7 @@ import com.patchr.R;
 import com.patchr.components.ContainerManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.ui.widgets.ListPreferenceMultiSelect;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
@@ -183,7 +183,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					Patchr.router.route(getActivity(), Route.ABOUT, null, null);
+					Patchr.router.route(getActivity(), Command.ABOUT, null, null);
 					return true;
 				}
 			});
@@ -196,7 +196,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					Patchr.router.route(getActivity(), Route.FEEDBACK, null, null);
+					Patchr.router.route(getActivity(), Command.FEEDBACK, null, null);
 					return true;
 				}
 			});
@@ -219,10 +219,10 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
 					if (UserManager.shared().authenticated()) {
-						Patchr.router.route(getActivity(), Route.LOGOUT, null, null);
+						Patchr.router.route(getActivity(), Command.LOGOUT, null, null);
 					}
 					else {
-						Patchr.router.route(getActivity(), Route.LOGIN, null, null);
+						Patchr.router.route(getActivity(), Command.LOGIN, null, null);
 					}
 					return true;
 				}

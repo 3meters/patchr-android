@@ -26,11 +26,11 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.interfaces.IBusy.BusyAction;
+import com.patchr.objects.Command;
 import com.patchr.objects.PhotoCategory;
-import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
+import com.patchr.ui.components.BusyPresenter;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
@@ -54,7 +54,7 @@ public class RegisterEdit extends BaseEdit {
 
 	public void onClick(View view) {
 		if (view.getId() == R.id.terms_button) {
-			Patchr.router.route(this, Route.TERMS, null, null);
+			Patchr.router.route(this, Command.TERMS, null, null);
 		}
 		else if (view.getId() == R.id.signup_button) {
 			submitAction();
@@ -193,7 +193,7 @@ public class RegisterEdit extends BaseEdit {
 					busyPresenter.showProgressDialog(RegisterEdit.this);
 				}
 				else {
-					busyPresenter.show(BusyAction.Update);
+					busyPresenter.show(BusyPresenter.BusyAction.Update);
 				}
 			}
 

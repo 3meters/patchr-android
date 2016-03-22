@@ -94,7 +94,7 @@ public class MessageView extends FrameLayout {
 		this.shareRecipients = (TextView) layout.findViewById(R.id.share_recipients);
 	}
 
-	public void databind(Entity entity) {
+	public void bind(Entity entity) {
 
 		synchronized (lock) {
 
@@ -155,7 +155,7 @@ public class MessageView extends FrameLayout {
 
 					if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 						PatchView patchView = new PatchView(getContext(), R.layout.patch_view_attachment);
-						patchView.databind(shareEntity);
+						patchView.bind(shareEntity);
 						CardView cardView = (CardView) this.shareView;
 						int padding = UI.getRawPixelsForDisplayPixels(0f);
 						cardView.setContentPadding(padding, padding, padding, padding);
@@ -165,7 +165,7 @@ public class MessageView extends FrameLayout {
 					}
 					else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 						MessageView messageView = new MessageView(getContext(), R.layout.message_view_attachment);
-						messageView.databind(shareEntity);
+						messageView.bind(shareEntity);
 						CardView cardView = (CardView) this.shareView;
 						int padding = UI.getRawPixelsForDisplayPixels(8f);
 						cardView.setContentPadding(padding, padding, padding, padding);

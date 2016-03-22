@@ -15,7 +15,7 @@ import com.patchr.R;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.StringManager;
 import com.patchr.events.ProcessingCanceledEvent;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.objects.User;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.utilities.Dialogs;
@@ -50,7 +50,7 @@ public class UserEdit extends BaseEdit {
 
 	public void onClick(View view) {
 		if (view.getId() == R.id.change_password_button) {
-			Patchr.router.route(this, Route.PASSWORD_CHANGE, null, null);
+			Patchr.router.route(this, Command.PASSWORD_CHANGE, null, null);
 		}
 	}
 

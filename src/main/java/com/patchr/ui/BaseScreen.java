@@ -34,12 +34,11 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.DataErrorEvent;
 import com.patchr.events.DataNoopEvent;
-import com.patchr.interfaces.IBusy.BusyAction;
+import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Notification;
 import com.patchr.objects.Photo;
-import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.utilities.Dialogs;
@@ -146,7 +145,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 			cancelAction(false);
 		}
 		else if (item.getItemId() == R.id.report) {
-			Patchr.router.route(this, Route.REPORT, entity, null);
+			Patchr.router.route(this, Command.REPORT, entity, null);
 		}
 		else if (item.getItemId() == R.id.logout) {
 			UserManager.shared().signout();
@@ -214,38 +213,36 @@ public abstract class BaseScreen extends AppCompatActivity {
 		final String jsonPhoto = Json.objectToJson(photo);
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-		Patchr.router.route(this, Route.PHOTO, null, extras);
+		Patchr.router.route(this, Command.PHOTO, null, extras);
 	}
 
 	public void navigateToEntity(Entity entity) {
 		final Bundle extras = new Bundle();
-		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 
 		if (entity instanceof Notification) {
 			Notification notification = (Notification) entity;
-			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Entity.getSchemaForId(notification.targetId));
-			extras.putString(Constants.EXTRA_ENTITY_ID, notification.targetId);
-			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, notification.parentId);
+			Patchr.router.browse(this, notification.targetId, extras, true);
 		}
-
-		Patchr.router.route(this, Route.BROWSE, entity, extras);
+		else {
+			Patchr.router.browse(this, entity.id, extras, true);
+		}
 	}
 
 	protected void configureStandardMenuItems(Menu menu) {
 
 		MenuItem menuItem = menu.findItem(R.id.edit);
 		if (menuItem != null) {
-			menuItem.setVisible(MenuManager.showAction(Route.EDIT, entity));
+			menuItem.setVisible(MenuManager.showAction(Command.EDIT, entity));
 		}
 
 		menuItem = menu.findItem(R.id.delete);
 		if (menuItem != null) {
-			menuItem.setVisible(MenuManager.showAction(Route.DELETE, entity));
+			menuItem.setVisible(MenuManager.showAction(Command.DELETE, entity));
 		}
 
 		menuItem = menu.findItem(R.id.remove);
 		if (menuItem != null) {
-			menuItem.setVisible(MenuManager.showAction(Route.REMOVE, entity));
+			menuItem.setVisible(MenuManager.showAction(Command.REMOVE, entity));
 		}
 
 		menuItem = menu.findItem(R.id.login);
@@ -266,7 +263,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 		menuItem = menu.findItem(R.id.share);
 		if (menuItem != null) {
 			if (this instanceof PhotoScreen) {
-				menuItem.setVisible(MenuManager.showAction(Route.SHARE, entity));
+				menuItem.setVisible(MenuManager.showAction(Command.SHARE, entity));
 			}
 		}
 	}
@@ -327,7 +324,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_deleting, BaseScreen.this);
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_deleting, BaseScreen.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -361,7 +358,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_removing, BaseScreen.this);
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_removing, BaseScreen.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {

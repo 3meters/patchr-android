@@ -25,7 +25,6 @@ public class Constants {
 	public static final String EXTRA_ENTITY_FOR_ID    = "com.patchr.EXTRA_ENTITY_FOR_ID";
 	public static final String EXTRA_ENTITY_ID        = "com.patchr.EXTRA_ENTITY_ID";
 	public static final String EXTRA_ENTITY_SCHEMA    = "com.patchr.EXTRA_ENTITY_SCHEMA";
-	public static final String EXTRA_ENTITY_TYPE      = "com.patchr.EXTRA_ENTITY_TYPE";
 	public static final String EXTRA_ENTITIES         = "com.patchr.EXTRA_ENTITIES";
 	public static final String EXTRA_ENTITY           = "com.patchr.EXTRA_ENTITY";        // Only used to pass entities to map form->map fragment
 

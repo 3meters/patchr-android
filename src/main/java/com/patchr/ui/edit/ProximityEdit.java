@@ -26,10 +26,10 @@ import com.patchr.components.StringManager;
 import com.patchr.events.BeaconsLockedEvent;
 import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.events.QueryWifiScanReceivedEvent;
-import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.Patch;
 import com.patchr.objects.TransitionType;
+import com.patchr.ui.components.BusyPresenter;
 import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -125,7 +125,7 @@ public class ProximityEdit extends BaseEdit {
 	public void onTuneButtonClick(View view) {
 		if (!tuned) {
 			untuning = false;
-			busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
+			busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()
 					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				tuningInProcess = true;
@@ -140,7 +140,7 @@ public class ProximityEdit extends BaseEdit {
 	public void onUntuneButtonClick(View view) {
 		if (!untuned) {
 			untuning = true;
-			busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
+			busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()
 					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				tuningInProcess = true;
@@ -202,7 +202,7 @@ public class ProximityEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyAction.Refreshing);
+				busyPresenter.show(BusyPresenter.BusyAction.Refreshing);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -260,7 +260,7 @@ public class ProximityEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyAction.Refreshing);
+				busyPresenter.show(BusyPresenter.BusyAction.Refreshing);
 			}
 
 			@Override protected Object doInBackground(Object... params) {

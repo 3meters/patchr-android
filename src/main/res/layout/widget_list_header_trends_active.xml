@@ -14,6 +14,6 @@
 		android:background="?attr/backgroundCardField"
 		android:gravity="center_horizontal"
 		android:padding="16dp"
-		custom:textId="@string/label_trends_header_message_active" />
+		android:text="@string/label_trends_header_message_active" />
 
 </LinearLayout>

@@ -1,11 +1,10 @@
 package com.patchr.events;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
-import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.ActionType;
 import com.patchr.objects.Cursor;
 import com.patchr.objects.FetchMode;
+import com.patchr.objects.LinkSpecType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +31,13 @@ public class EntitiesQueryEvent extends AbsEntitiesQueryEvent {
 		toSchemas.add(toSchema);
 		cursor.setToSchemas(toSchemas);
 
-		IEntityController controller = Patchr.getInstance().getControllerForSchema(toSchema);
-		Integer linkProfile = controller.getLinkProfile();
+		Integer linkProfile = LinkSpecType.LINKS_FOR_PATCH;
+		if (toSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+			linkProfile = LinkSpecType.LINKS_FOR_MESSAGE;
+		}
+		else if (toSchema.equals(Constants.SCHEMA_ENTITY_USER)) {
+			linkProfile = LinkSpecType.LINKS_FOR_USER_CURRENT;
+		}
 
 		EntitiesQueryEvent request = new EntitiesQueryEvent();
 		request.setCursor(cursor)

@@ -69,7 +69,7 @@ public class NotificationView extends FrameLayout {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void databind(Entity entity) {
+	public void bind(Entity entity) {
 
 		synchronized (lock) {
 

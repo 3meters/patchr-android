@@ -1,30 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<attr name="layoutId" format="integer" />
-	<attr name="layoutRef" format="reference" />
-	<attr name="textId" format="integer" />
-	<attr name="keyId" format="integer" />
-	<attr name="label" format="integer|string" />
-	<attr name="maxWidth" format="dimension" />
-	<attr name="drawable" format="reference" />
-	<attr name="drawableScale" format="float" />
+	<!-- List Pref Multi Select -->
 
-	<attr name="parallax_factor" format="float" />
-	<attr name="inner_parallax_factor" format="float" />
-	<attr name="parallax_views_num" format="integer" />
-	<attr name="circular_parallax" format="boolean" />
-	<attr name="layoutHeader" format="integer" />
-	<attr name="layoutFooter" format="integer" />
-	<attr name="headerTitle" format="string" />
-	<attr name="layoutItems" format="integer" />
-	<attr name="itemMaxCount" format="integer" />
-	<attr name="showDivider" format="boolean" />
-	<attr name="maxLines" format="integer" />
-	<attr name="hint" format="string" />
-	<attr name="checkAll" format="string" />
+	<attr name="keyId" format="integer" />
 	<attr name="separator" format="string" />
-	<attr name="prefix" format="string" />
+	<attr name="checkAll" format="string" />
 
 	<!-- Images -->
 
@@ -138,21 +119,6 @@
 
 	</declare-styleable>
 
-	<declare-styleable name="AirTextView">
-		<attr name="textId" />
-	</declare-styleable>
-	<declare-styleable name="AirButton">
-		<attr name="textId" />
-	</declare-styleable>
-	<declare-styleable name="AirRadioButton">
-		<attr name="textId" />
-	</declare-styleable>
-	<declare-styleable name="AirCheckBox">
-		<attr name="textId" />
-	</declare-styleable>
-	<declare-styleable name="AirTextLight">
-		<attr name="textId" />
-	</declare-styleable>
 	<declare-styleable name="ImageLayout">
 		<attr name="aspectRatio" />
 		<attr name="config" />
@@ -160,40 +126,6 @@
 		<attr name="category" />
 		<attr name="shape" />
 		<attr name="radius" />
-	</declare-styleable>
-	<declare-styleable name="CandiView">
-		<attr name="layoutRef" />
-		<attr name="aspectRatio" />
-	</declare-styleable>
-	<declare-styleable name="UserView">
-		<attr name="layoutId" />
-		<attr name="label" />
-	</declare-styleable>
-	<declare-styleable name="EntityView">
-		<attr name="layoutId" />
-		<attr name="label" />
-	</declare-styleable>
-	<declare-styleable name="AirListView">
-		<attr name="maxWidth" />
-		<attr name="parallax_factor" />
-		<attr name="inner_parallax_factor" />
-		<attr name="parallax_views_num" />
-		<attr name="circular_parallax" />
-	</declare-styleable>
-	<declare-styleable name="AirGridView">
-		<attr name="maxWidth" />
-	</declare-styleable>
-	<declare-styleable name="AirScrollView">
-		<attr name="maxWidth" />
-	</declare-styleable>
-	<declare-styleable name="AirLinearLayout">
-		<attr name="maxWidth" />
-	</declare-styleable>
-	<declare-styleable name="AirRelativeLayout">
-		<attr name="maxWidth" />
-	</declare-styleable>
-	<declare-styleable name="AirTokenCompleteTextView">
-		<attr name="prefix" />
 	</declare-styleable>
 	<declare-styleable name="ListPreferenceMultiSelect">
 		<attr name="keyId" />

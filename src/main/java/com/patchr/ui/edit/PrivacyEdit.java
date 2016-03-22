@@ -1,4 +1,4 @@
-package com.patchr.ui.helpers;
+package com.patchr.ui.edit;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -17,7 +17,7 @@ import com.patchr.objects.TransitionType;
 import com.patchr.ui.edit.BaseEdit;
 
 @SuppressLint("Registered")
-public class PrivacyBuilder extends BaseEdit {
+public class PrivacyEdit extends BaseEdit {
 
 	private String      originalPrivacy;
 	private RadioGroup  buttonGroupPrivacy;

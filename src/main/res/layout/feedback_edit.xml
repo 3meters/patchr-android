@@ -24,8 +24,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="8dp"
 			android:background="?attr/backgroundFormSecondary"
-			android:padding="16dp"
-			custom:textId="@string/feedback_message" />
+			android:padding="16dp" />
 
 		<!-- Title and Content -->
 

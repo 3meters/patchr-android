@@ -15,7 +15,7 @@ import com.patchr.components.UserManager;
 import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.GcmRegistrationIOException;
 import com.patchr.exceptions.ServiceException;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.service.ServiceResponse;
 
 //import org.apache.http.NoHttpResponseException;
@@ -92,7 +92,7 @@ public final class Errors {
 			 * Mostly because a more current client version is required.
 			 */
 			if (activity != null && !activity.getClass().getSimpleName().equals("SplashForm")) {
-				Patchr.router.route(activity, Route.LOBBY, null, null);
+				Patchr.router.route(activity, Command.LOBBY, null, null);
 			}
 		}
 	}

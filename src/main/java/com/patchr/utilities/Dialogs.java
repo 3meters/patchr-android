@@ -19,7 +19,7 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.objects.TransitionType;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -276,7 +276,7 @@ public class Dialogs {
 			public void onClick(@NonNull DialogInterface dialog, int which) {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					Reporting.sendEvent(Reporting.TrackerCategory.UX, "patchr_location_settings_button_click", "com.patchr", 0);
-					Patchr.router.route(activity, Route.SETTINGS_LOCATION, null, null);
+					Patchr.router.route(activity, Command.SETTINGS_LOCATION, null, null);
 					dialog.dismiss();
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {

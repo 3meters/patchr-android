@@ -22,7 +22,7 @@
 			style="@style/candi_user"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			custom:textId="@string/label_created_by" />
+			android:text="@string/label_created_by" />
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -36,7 +36,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:lines="1"
-				custom:textId="@string/dummy_timesince" />
+				android:text="@string/dummy_timesince" />
 
 			<ImageView
 				android:id="@+id/image_locked"
@@ -79,7 +79,7 @@
 			android:maxLines="1"
 			android:textColor="?attr/textColorButtonLink"
 			android:textStyle="bold"
-			custom:textId="@string/dummy_name" />
+			android:text="@string/dummy_name" />
 
 		<com.patchr.ui.widgets.AirTextView
 			android:id="@+id/area"

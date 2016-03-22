@@ -35,9 +35,7 @@ import com.patchr.objects.Link;
 import com.patchr.objects.Message;
 import com.patchr.objects.Message.MessageType;
 import com.patchr.objects.Photo;
-import com.patchr.objects.Route;
 import com.patchr.ui.components.EntitySuggestController;
-import com.patchr.ui.views.EntityView;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.PatchView;
 import com.patchr.ui.widgets.AirTokenCompleteTextView;
@@ -60,7 +58,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 
 	private String message;
 	private String shareId;
-	private String shareSchema = Constants.SCHEMA_ENTITY_PICTURE;
+	private String shareSchema;
 	private Entity shareEntity;
 
 	private ViewAnimator             animatorTo;
@@ -71,14 +69,15 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 	private ImageView                buttonToClear;
 	private EntitySuggestController  entitySuggest;
 
-	private List<Entity>                recipients   = new ArrayList<Entity>();
-	private String                      messageType  = MessageType.ROOT;
-	private DataController.SuggestScope suggestScope = SuggestScope.PATCHES;
-	private ToMode                      toMode       = ToMode.SINGLE;
-	private Boolean                     toEditable   = true;
+	private List<Entity>                recipients;
+	private String                      messageType;
+	private DataController.SuggestScope suggestScope;
+	private ToMode                      toMode;
+	private Boolean                     toEditable;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		Intent intent = getIntent();
 		if (intent.getAction() != null
 				&& intent.getAction().equals(Intent.ACTION_SEND)
@@ -140,8 +139,8 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 		}
 
 		if (toMode == ToMode.SINGLE && recipients.size() > 0) {
-			final EntityView entityView = (EntityView) findViewById(R.id.entity_view);
-			entityView.databind((Entity) recipients.get(0));
+//			final EntityView entityView = (EntityView) findViewById(R.id.entity_view);
+//			entityView.databind((Entity) recipients.get(0));
 			animatorTo.setDisplayedChild(1);
 		}
 	}
@@ -218,11 +217,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			messageType = extras.getString(Constants.EXTRA_MESSAGE_TYPE);
-			if (messageType == null) {
-				messageType = MessageType.ROOT;
-			}
-			message = extras.getString(Constants.EXTRA_MESSAGE);
+			messageType = extras.getString(Constants.EXTRA_MESSAGE_TYPE, MessageType.ROOT);
 			suggestScope = SuggestScope.values()[extras.getInt(Constants.EXTRA_SEARCH_SCOPE, SuggestScope.PATCHES.ordinal())];
 			toMode = ToMode.values()[extras.getInt(Constants.EXTRA_TO_MODE, ToMode.SINGLE.ordinal())];
 			toEditable = extras.getBoolean(Constants.EXTRA_TO_EDITABLE, true);
@@ -233,6 +228,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 		super.initialize(savedInstanceState);   // Handles creating new entity if needed
 
 		entitySchema = Constants.SCHEMA_ENTITY_MESSAGE;
+		recipients = new ArrayList<Entity>();
 
 		if (Patchr.getInstance().getCurrentPatch() != null) {
 			toEditable = false;
@@ -460,17 +456,15 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 		                       ? R.layout.widget_token_view_single
 		                       : R.layout.widget_token_view);
 
-		entitySuggest = new EntitySuggestController(this)
-				.setSearchInput(to)
-				.setTokenListener(this)
-				.setSuggestScope(suggestScope);
-
-		entitySuggest.init();
+		entitySuggest = new EntitySuggestController(this);
+		entitySuggest.searchInput = to;
+		entitySuggest.tokenListener = this;
+		entitySuggest.suggestScope = this.suggestScope;
+		entitySuggest.initialize();
 
 		if (message != null) {
-			TextView message = (TextView) findViewById(R.id.content_message);
-			message.setText(this.message);
-			message.setVisibility(View.VISIBLE);
+			UI.setTextView(findViewById(R.id.content_message), this.message);
+			UI.setVisibility(findViewById(R.id.content_message), View.VISIBLE);
 		}
 	}
 
@@ -502,7 +496,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 
 			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				PatchView patchView = new PatchView(this, R.layout.patch_view_attachment);
-				patchView.databind(shareEntity);
+				patchView.bind(shareEntity);
 				CardView cardView = (CardView) share;
 				int padding = UI.getRawPixelsForDisplayPixels(0f);
 				cardView.setContentPadding(padding, padding, padding, padding);
@@ -510,7 +504,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 			}
 			else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				MessageView messageView = new MessageView(this, R.layout.message_view_attachment);
-				messageView.databind(shareEntity);
+				messageView.bind(shareEntity);
 				CardView cardView = (CardView) share;
 				int padding = UI.getRawPixelsForDisplayPixels(8f);
 				cardView.setContentPadding(padding, padding, padding, padding);
@@ -651,7 +645,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 		if (!messageType.equals(MessageType.SHARE)) {
 			Entity currentPatch = Patchr.getInstance().getCurrentPatch();
 			if (recipients.size() > 0 && (currentPatch == null || !currentPatch.id.equals(recipients.get(0).id))) {
-				Patchr.router.route(this, Route.BROWSE, recipients.get(0), null);
+				Patchr.router.browse(this, recipients.get(0).id, null, true);
 			}
 		}
 		return true;

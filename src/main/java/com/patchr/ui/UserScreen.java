@@ -3,11 +3,10 @@ package com.patchr.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -25,11 +24,11 @@ import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Photo;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.EmptyPresenter;
-import com.patchr.ui.components.ListPresenter;
+import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.ui.edit.UserEdit;
 import com.patchr.ui.views.UserDetailView;
 import com.patchr.utilities.Colors;
@@ -42,9 +41,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 public class UserScreen extends BaseScreen implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
-	private UserDetailView header;
-	private boolean        bound;
-	private ListPresenter  listPresenter;
+	private UserDetailView   header;
+	private boolean          bound;
+	private RecyclePresenter listPresenter;
 
 	@Override protected void onStart() {
 		super.onStart();
@@ -111,7 +110,7 @@ public class UserScreen extends BaseScreen implements View.OnClickListener, Swip
 			extras.putInt(Constants.EXTRA_LIST_EMPTY_RESID, emptyResId);
 			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, titleResId);
 			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-			Patchr.router.route(this, Route.ENTITY_LIST, this.entity, extras);
+			Patchr.router.route(this, Command.ENTITY_LIST, this.entity, extras);
 		}
 		else if (view.getTag() != null) {
 			if (view.getTag() instanceof Photo) {
@@ -146,7 +145,7 @@ public class UserScreen extends BaseScreen implements View.OnClickListener, Swip
 			onRefresh();
 		}
 		else {
-			Patchr.router.route(this, Patchr.router.routeForMenuId(item.getItemId()), entity, null);
+			return super.onOptionsItemSelected(item);
 		}
 		return true;
 	}
@@ -210,8 +209,8 @@ public class UserScreen extends BaseScreen implements View.OnClickListener, Swip
 		this.header.buttonOwner.setOnClickListener(this);
 		this.header.buttonMember.setOnClickListener(this);
 
-		this.listPresenter = new ListPresenter(this);
-		this.listPresenter.listView = (AbsListView) ((ViewGroup) this.rootView.findViewById(R.id.swipe)).getChildAt(1);
+		this.listPresenter = new RecyclePresenter(this);
+		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
 		this.listPresenter.listItemResId = R.layout.temp_listitem_message;
 		this.listPresenter.busyPresenter = new BusyPresenter();
 		this.listPresenter.busyPresenter.setProgressBar(this.rootView.findViewById(R.id.list_progress));

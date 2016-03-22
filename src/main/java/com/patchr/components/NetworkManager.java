@@ -21,7 +21,6 @@ import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.NoNetworkException;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.User;
-import com.patchr.service.BaseConnection;
 import com.patchr.service.OkHttp;
 import com.patchr.service.RequestType;
 import com.patchr.service.ResponseFormat;
@@ -93,7 +92,7 @@ public class NetworkManager {
 	private WifiManager         mWifiManager;
 	private ConnectivityManager mConnectivityManager;
 	private ConnectedState mConnectedState = ConnectedState.NORMAL;
-	private BaseConnection mOkClient;
+	private OkHttp mOkClient;
 
 	public static final String EXTRA_WIFI_AP_STATE          = "wifi_state";
 	public static final String WIFI_AP_STATE_CHANGED_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";

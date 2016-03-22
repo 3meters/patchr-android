@@ -33,8 +33,7 @@
 				android:background="?attr/backgroundCard"
 				android:gravity="center_horizontal"
 				android:padding="8dp"
-				custom:textId="@string/label_location_edit_message"
-				tools:text="@string/label_location_edit_message" />
+				android:text="@string/label_location_edit_message" />
 
 			<com.google.android.gms.maps.MapView
 				android:id="@+id/mapview"

@@ -23,6 +23,6 @@
 		android:textAppearance="@style/text_appearance_extra_small"
 		android:textColor="?attr/textColorCandiView"
 		android:visibility="visible"
-		custom:textId="@string/dummy_number" />
+		android:text="@string/dummy_number" />
 
 </LinearLayout>

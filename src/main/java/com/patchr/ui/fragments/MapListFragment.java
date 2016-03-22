@@ -38,7 +38,7 @@ import com.patchr.components.StringManager;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Patch;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.ui.components.AirClusterRenderer;
 import com.patchr.utilities.Dialogs;
 
@@ -164,7 +164,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 	}
 
 	@Override public void onClusterItemInfoWindowClick(EntityItem entityItem) {
-		Patchr.router.route(getActivity(), Route.BROWSE, entityItem.mEntity, null);
+		Patchr.router.browse(getActivity(), entityItem.mEntity.id, null, true);
 	}
 
 	/*--------------------------------------------------------------------------------------------

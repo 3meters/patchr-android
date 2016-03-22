@@ -74,7 +74,7 @@
 					android:ellipsize="end"
 					android:maxLines="2"
 					android:textAppearance="?android:attr/textAppearanceLarge"
-					custom:textId="@string/dummy_title"
+					android:text="@string/dummy_title"
 					tools:text="@string/dummy_title" />
 
 				<LinearLayout

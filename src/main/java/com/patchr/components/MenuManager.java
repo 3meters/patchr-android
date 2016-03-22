@@ -5,7 +5,7 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Link.Direction;
 import com.patchr.objects.Patch;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 
 public class MenuManager {
 
@@ -60,13 +60,13 @@ public class MenuManager {
 
 		if (entity == null)
 			return false;
-		else if (route == Route.REMOVE)
+		else if (route == Command.REMOVE)
 			return canUserRemoveFromPatch(entity);
-		else if (route == Route.EDIT)
+		else if (route == Command.EDIT)
 			return canUserEdit(entity);
-		else if (route == Route.DELETE)
+		else if (route == Command.DELETE)
 			return canUserDelete(entity);
-		else if (route == Route.SHARE)
+		else if (route == Command.SHARE)
 			return canUserShare(entity);
 
 		return false;

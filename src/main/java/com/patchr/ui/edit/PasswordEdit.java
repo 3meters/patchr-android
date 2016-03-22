@@ -16,7 +16,7 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.interfaces.IBusy.BusyAction;
+import com.patchr.ui.components.BusyPresenter;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
@@ -86,7 +86,7 @@ public class PasswordEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {

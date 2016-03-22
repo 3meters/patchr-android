@@ -50,7 +50,7 @@
 			android:layout_height="@dimen/form_field_height"
 			android:layout_marginBottom="8dp"
 			android:textAppearance="?android:attr/textAppearance"
-			custom:textId="@string/label_password_unmask" />
+			android:text="@string/label_password_unmask" />
 
 		<RelativeLayout
 			android:layout_width="match_parent"

@@ -19,7 +19,7 @@ import com.patchr.R;
 import com.patchr.objects.LinkSpec;
 import com.patchr.objects.LinkSpecFactory;
 import com.patchr.objects.LinkSpecType;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.objects.Session;
 import com.patchr.objects.User;
 import com.patchr.utilities.Json;
@@ -87,7 +87,7 @@ public class UserManager {
 			@Override
 			protected void onPostExecute(Object response) {
 				/* Set to anonymous user even if service call fails */
-				Patchr.router.route(Patchr.applicationContext, Route.LOBBY, null, null);
+				Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
@@ -109,10 +109,10 @@ public class UserManager {
 				.setOnClickListener(new OnClickListener() {
 					@Override public void onClick(DialogPlus dialog, View view) {
 						if (view.getId() == R.id.button_login) {
-							Patchr.router.route(context, Route.LOGIN, null, null);
+							Patchr.router.route(context, Command.LOGIN, null, null);
 						}
 						else if (view.getId() == R.id.signup_button) {
-							Patchr.router.route(context, Route.SIGNUP, null, null);
+							Patchr.router.route(context, Command.SIGNUP, null, null);
 						}
 						dialog.dismiss();
 					}

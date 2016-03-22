@@ -47,7 +47,7 @@
 			android:singleLine="true"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:textStyle="bold"
-			custom:textId="@string/dummy_title_short"
+			android:text="@string/dummy_title_short"
 			tools:text="@string/dummy_title_short" />
 
 		<LinearLayout

@@ -7,27 +7,27 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.MenuManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.AbsEntitiesQueryEvent;
 import com.patchr.events.NotificationReceivedEvent;
+import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
-import com.patchr.objects.Route;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.ListPresenter;
+import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.UI;
 
@@ -55,7 +55,7 @@ import org.greenrobot.eventbus.ThreadMode;
  */
 public class EntityListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-	public ListPresenter                         listPresenter;
+	public RecyclePresenter                      listPresenter;
 	public AbsEntitiesQueryEvent                 query;
 	public ListPresenter.OnInjectEntitiesHandler injectEntitiesHandler;
 	public View                                  headerView;
@@ -80,7 +80,7 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 			startActivity(intent);
 		}
 
-		this.listPresenter = new ListPresenter(getContext());
+		this.listPresenter = new RecyclePresenter(getContext());
 		this.listPresenter.listItemResId = this.listItemResId;
 		this.listPresenter.emptyMessageResId = this.emptyMessageResId;
 		this.listPresenter.query = this.query;
@@ -136,14 +136,9 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 		fetch(FetchMode.MANUAL);
 	}
 
-	@Override public boolean onOptionsItemSelected(MenuItem item) {
-		Patchr.router.route(getActivity(), Patchr.router.routeForMenuId(item.getItemId()), null, null);
-		return true;
-	}
-
 	@Override public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		listPresenter.getAdapter().notifyDataSetChanged();
+		listPresenter.adapter.notifyDataSetChanged();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -158,7 +153,7 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 			listPresenter.entities.remove(event.notification);
 		}
 		listPresenter.emptyPresenter.hide(true);
-		listPresenter.adapter.insert(event.notification, 0);
+		listPresenter.entities.add(0, event.notification);
 		listPresenter.adapter.notifyDataSetChanged();
 	}
 
@@ -170,7 +165,7 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 
 		assert view != null;
 
-		this.listPresenter.listView = (AbsListView) ((ViewGroup) view.findViewById(R.id.swipe)).getChildAt(1);
+		this.listPresenter.recycleView = (RecyclerView) view.findViewById(R.id.entity_list);
 		this.listPresenter.emptyPresenter = new EmptyPresenter(view.findViewById(R.id.list_message));
 		this.listPresenter.busyPresenter = new BusyPresenter();
 		this.listPresenter.busyPresenter.setProgressBar(view.findViewById(R.id.list_progress));
@@ -229,7 +224,7 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 
 				item = menu.findItem(R.id.remove);
 				if (item != null) {
-					item.setVisible(MenuManager.showAction(Route.REMOVE, entity));
+					item.setVisible(MenuManager.showAction(Command.REMOVE, entity));
 				}
 
 				item = menu.findItem(R.id.share);
@@ -244,7 +239,7 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 
 				item = menu.findItem(R.id.logout);
 				if (item != null) {
-					item.setVisible(MenuManager.showAction(Route.EDIT, entity));
+					item.setVisible(MenuManager.showAction(Command.EDIT, entity));
 				}
 
 				item = menu.findItem(R.id.navigate);

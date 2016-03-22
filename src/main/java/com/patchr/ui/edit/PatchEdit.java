@@ -37,11 +37,11 @@ import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.events.ProcessingCanceledEvent;
-import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.AirLocation;
+import com.patchr.objects.Command;
 import com.patchr.objects.Patch;
-import com.patchr.objects.Route;
 import com.patchr.objects.TransitionType;
+import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.views.ImageLayout;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Dialogs;
@@ -209,11 +209,11 @@ public class PatchEdit extends BaseEdit {
 	}
 
 	public void onPrivacyBuilderClick(View view) {
-		Patchr.router.route(this, Route.PRIVACY_EDIT, entity, null);
+		Patchr.router.route(this, Command.PRIVACY_EDIT, entity, null);
 	}
 
 	public void onLocationBuilderClick(View view) {
-		Patchr.router.route(this, Route.LOCATION_EDIT, entity, null);
+		Patchr.router.route(this, Command.LOCATION_EDIT, entity, null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -372,7 +372,7 @@ public class PatchEdit extends BaseEdit {
 		if (insertedResId != null && insertedResId != 0) {
 			UI.showToastNotification(StringManager.getString(insertedResId), Toast.LENGTH_SHORT);
 		}
-		Patchr.router.route(this, Route.BROWSE, entity, null);
+		Patchr.router.browse(this, entity.id, null, true);
 		return true;
 	}
 
@@ -479,7 +479,7 @@ public class PatchEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyAction.Refreshing);
+				busyPresenter.show(BusyPresenter.BusyAction.Refreshing);
 			}
 
 			@Override protected Object doInBackground(Object... params) {

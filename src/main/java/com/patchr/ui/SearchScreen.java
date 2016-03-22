@@ -2,12 +2,12 @@ package com.patchr.ui;
 
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ListView;
 
 import com.patchr.Constants;
 import com.patchr.R;
@@ -22,7 +22,7 @@ public class SearchScreen extends BaseScreen {
 	private SuggestScope            suggestScope;
 	private SearchView              searchView;
 	private String                  searchPhrase;
-	private ListView                listView;
+	private RecyclerView            listView;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
@@ -95,13 +95,13 @@ public class SearchScreen extends BaseScreen {
 			});
 		}
 
-		listView = (ListView) findViewById(R.id.results_list);
+		listView = (RecyclerView) findViewById(R.id.results_list);
 
-		entitySuggest.setSearchView(searchView)
-				.setBusyPresenter(busyPresenter)
-				.setListView(listView)
-				.setSuggestScope(suggestScope)
-				.init();
+		entitySuggest.searchView = this.searchView;
+		entitySuggest.busyPresenter = this.busyPresenter;
+		entitySuggest.listView = this.listView;
+		entitySuggest.suggestScope = this.suggestScope;
+		entitySuggest.initialize();
 
 		if (searchPhrase != null) {
 			searchView.setQuery(searchPhrase, true);

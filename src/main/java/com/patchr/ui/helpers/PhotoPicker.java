@@ -1,550 +1,247 @@
 package com.patchr.ui.helpers;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.os.Bundle;
-import android.text.InputType;
-import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.view.KeyEvent;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
-import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 
-import com.commonsware.cwac.endless.EndlessAdapter;
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.ContainerManager;
-import com.patchr.components.Logger;
-import com.patchr.components.ModelResult;
-import com.patchr.components.NetworkManager;
-import com.patchr.components.NetworkManager.ResponseCode;
+import com.patchr.components.AnimationManager;
+import com.patchr.components.MediaManager;
+import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
-import com.patchr.interfaces.IBusy.BusyAction;
-import com.patchr.objects.ImageResult;
-import com.patchr.objects.ImageResult.Thumbnail;
-import com.patchr.objects.Photo;
-import com.patchr.objects.Photo.PhotoSource;
-import com.patchr.objects.ServiceData;
 import com.patchr.objects.TransitionType;
-import com.patchr.service.RequestType;
-import com.patchr.service.ResponseFormat;
-import com.patchr.service.ServiceRequest;
-import com.patchr.service.ServiceRequest.AuthType;
-import com.patchr.ui.BaseScreen;
-import com.patchr.ui.components.EmptyPresenter;
-import com.patchr.ui.views.ImageLayout;
-import com.patchr.ui.widgets.AirAutoCompleteTextView;
-import com.patchr.ui.widgets.AirTextView;
-import com.patchr.utilities.Errors;
-import com.patchr.utilities.Json;
-import com.patchr.utilities.Reporting;
+import com.patchr.utilities.Dialogs;
 
-import org.json.JSONException;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * We often will get duplicates because the ordering of images isn't
- * guaranteed while paging.
- */
-public class PhotoPicker extends BaseScreen {
+@SuppressLint("Registered")
+public class PhotoPicker extends AppCompatActivity implements OnItemClickListener {
 
-	private GridView                gridView;
-	private AirAutoCompleteTextView search;
-	private final List<ImageResult> images = new ArrayList<ImageResult>();
+	private TextView    name;
+	private ListView    listView;
+	private ListAdapter listAdapter;
+	private PickerItem  pendingChoice;
 
-	private long offset = 0;
-	private String query;
-	private String defaultSearch;
-	private List<String> previousSearches = new ArrayList<String>();
-	private ArrayAdapter<String> searchAdapter;
-	private String               titleOptional;
-	private Integer              photoWidthPixels;
-	private EmptyPresenter       emptyPresenter;
-
-	private static final long   PAGE_SIZE     = 49L;
-	private static final long   LIST_MAX      = 300L;
-	private static final String QUERY_PREFIX  = "";
-	private static final String QUERY_DEFAULT = "wallpaper unusual places";
-
-	@Override public void onCreate(Bundle savedInstanceState) {
+	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (!isFinishing()) {
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-		}
-		this.emptyPresenter = new EmptyPresenter(findViewById(R.id.form_message));
+		super.setContentView(R.layout.photo_action_picker);
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		initialize(savedInstanceState);
 		bind();
-	}
-
-	@Override protected void onDestroy() {
-		super.onDestroy();
-		System.gc();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public boolean onCreateOptionsMenu(Menu menu) {
+	@Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-		this.optionMenu = menu;
+		final PickerItem choice = (PickerItem) view.getTag();
 
-		getMenuInflater().inflate(R.menu.menu_search_start, menu);
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
-		return true;
+		if (choice.schema.equals(Constants.PHOTO_ACTION_GALLERY)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+					pendingChoice = choice;
+					requestPermissions();
+					return;
+				}
+			}
+		}
+		else if (choice.schema.equals(Constants.PHOTO_ACTION_CAMERA)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+					pendingChoice = choice;
+					requestPermissions();
+					return;
+				}
+			}
+		}
+
+		pickerAction(choice);
 	}
 
-	@Override public boolean onOptionsItemSelected(MenuItem item) {
+	@Override public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+		switch (requestCode) {
+			case Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+				if (PermissionUtil.verifyPermissions(grantResults)) {
+					pickerAction(pendingChoice);
+				}
+				else {
+					cancelAction(false);
+				}
+			}
+		}
+	}
 
-		if (item.getItemId() == R.id.submit) {
-			submitAction();
-		}
-		else {
-			return super.onOptionsItemSelected(item);
-		}
-		return true;
+	@Override public void onBackPressed() {
+		cancelAction(true);
+	}
+
+	public void onCancelButtonClick(View view) {
+		cancelAction(true);
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-
-		transitionType = TransitionType.DIALOG_TO;
-		search = (AirAutoCompleteTextView) findViewById(R.id.search_text);
-
-		if (search != null) {
-
-			int inputType = search.getInputType();
-			inputType &= ~InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE;
-			search.setRawInputType(inputType);
-
-			final Bundle extras = getIntent().getExtras();
-			if (extras != null) {
-				defaultSearch = extras.getString(Constants.EXTRA_SEARCH_PHRASE);
-			}
-
-			if (!TextUtils.isEmpty(defaultSearch)) {
-				search.setText(defaultSearch);
-			}
-			else {
-				String lastSearch = Patchr.settings.getString(StringManager.getString(R.string.setting_picture_search_last), null);
-				if (!TextUtils.isEmpty(lastSearch)) {
-					search.setText(lastSearch);
-				}
-			}
-
-			search.setOnKeyListener(new OnKeyListener() {
-				@Override
-				public boolean onKey(View view, int keyCode, KeyEvent event) {
-					if (keyCode == KeyEvent.KEYCODE_ENTER) {
-						startSearch(view);
-						return true;
-					}
-					else
-						return false;
-				}
-			});
-
-			search.setOnItemClickListener(new OnItemClickListener() {
-
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					startSearch(view);
-				}
-			});
-
-			search.requestFocus();
+	public void initialize(Bundle savedInstanceState) {
+		name = (TextView) findViewById(R.id.name);
+		listView = (ListView) findViewById(R.id.form_list);
+		if (listView != null) {
+			listView.setOnItemClickListener(this);
 		}
-
-		gridView = (GridView) findViewById(R.id.grid);
-
-		/* Set spacing */
-		Integer requestedHorizontalSpacing = getResources().getDimensionPixelSize(R.dimen.grid_spacing_horizontal);
-		Integer requestedVerticalSpacing = getResources().getDimensionPixelSize(R.dimen.grid_spacing_vertical);
-		gridView.setHorizontalSpacing(requestedHorizontalSpacing);
-		gridView.setVerticalSpacing(requestedVerticalSpacing);
-
-		/* Stash some sizing info */
-		final DisplayMetrics metrics = getResources().getDisplayMetrics();
-		final Integer availableSpace = metrics.widthPixels - gridView.getPaddingLeft() - gridView.getPaddingRight();
-
-		Integer requestedColumnWidth = getResources().getDimensionPixelSize(R.dimen.grid_column_width_requested_medium);
-
-		Integer mNumColumns = (availableSpace + requestedHorizontalSpacing) / (requestedColumnWidth + requestedHorizontalSpacing);
-		if (mNumColumns <= 0) {
-			mNumColumns = 1;
-		}
-
-		int spaceLeftOver = availableSpace - (mNumColumns * requestedColumnWidth) - ((mNumColumns - 1) * requestedHorizontalSpacing);
-
-		photoWidthPixels = requestedColumnWidth + spaceLeftOver / mNumColumns;
-
-		gridView.setColumnWidth(photoWidthPixels);
-		gridView.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				if (((EndlessImageAdapter) gridView.getAdapter()).getItemViewType(position) != Adapter.IGNORE_ITEM_VIEW_TYPE) {
-
-					ImageResult imageResult = images.get(position);
-					Photo photo = imageResult.photo;
-					/*
-					 * Photo gets set for images that are already being used like pictures linked to places so
-					 * an empty photo means the image is coming from external service like bing.
-					 */
-					if (photo == null) {
-						photo = new Photo(imageResult.getMediaUrl(), null, imageResult.getWidth(), imageResult.getHeight(), PhotoSource.generic);
-					}
-					photo.name = titleOptional;
-
-					final Intent intent = new Intent();
-					final String jsonPhoto = Json.objectToJson(photo);
-					intent.putExtra(Constants.EXTRA_PHOTO, jsonPhoto);
-					setResult(Activity.RESULT_OK, intent);
-					finish();
-				}
-			}
-		});
-
-		/* Autocomplete */
-		initAutoComplete();
-		bindAutoCompleteAdapter();
-	}
-
-	@Override protected int getLayoutId() {
-		return R.layout.photo_picker;
-	}
-
-	@Override public void submitAction() {
-		startSearch(null);
 	}
 
 	public void bind() {
-		if (!TextUtils.isEmpty(query)) {
-			gridView.setAdapter(new EndlessImageAdapter(images));
+
+		/* Shown as a dialog so doesn't have an action bar */
+		final List<Object> listData = new ArrayList<>();
+
+		/* Everyone gets these options */
+		listData.add(new PickerItem(R.drawable.ic_action_search_light
+				, StringManager.getString(R.string.dialog_photo_action_search), Constants.PHOTO_ACTION_SEARCH));
+
+		listData.add(new PickerItem(R.drawable.ic_action_tiles_large_light
+				, StringManager.getString(R.string.dialog_photo_action_gallery), Constants.PHOTO_ACTION_GALLERY));
+
+		/* Only show the camera choice if there is one and there is a place to store the image */
+		if (MediaManager.canCaptureWithCamera()) {
+			listData.add(new PickerItem(R.drawable.ic_action_camera_light
+					, StringManager.getString(R.string.dialog_photo_action_camera), Constants.PHOTO_ACTION_CAMERA));
 		}
+
+		name.setText(StringManager.getString(R.string.dialog_photo_action_title));
+
+		listAdapter = new ListAdapter(this, listData);
+		listView.setAdapter(listAdapter);
 	}
 
-	private void startSearch(View view) {
-
-		search.dismissDropDown();
-
-		query = search.getText().toString().trim();
-
-		/* Prep the UI */
-		images.clear();
-		busyPresenter.show(BusyAction.Refreshing_Empty);
-
-		/* Hide soft keyboard */
-		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(search.getWindowToken(), 0);
-
-		/* Stash query so we can restore it in the future */
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_picture_search_last), query);
-		Patchr.settingsEditor.commit();
-
-		/* Add query to auto complete array */
-		try {
-			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(StringManager.getString(R.string.setting_picture_searches),
-					"{}"));
-			jsonSearchMap.put(query, query);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
-			Patchr.settingsEditor.commit();
-		}
-		catch (JSONException e) {
-			Reporting.logException(e);
-		}
-
-		/* Make sure the latest search appears in auto complete */
-		initAutoComplete();
-		bindAutoCompleteAdapter();
-
-		offset = 0;
-		titleOptional = query;
-
-		/* Trigger the adapter */
-		gridView.setAdapter(new EndlessImageAdapter(images));
+	public void pickerAction(PickerItem choice) {
+		final Intent intent = new Intent();
+		intent.putExtra(Constants.EXTRA_PHOTO_SOURCE, choice.schema);
+		setResult(Activity.RESULT_OK, intent);
+		finish();
+		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
 	}
 
-	private void initAutoComplete() {
-		try {
-			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(StringManager.getString(R.string.setting_picture_searches),
-					"{}"));
-			previousSearches.clear();
-			if (defaultSearch != null) {
-				jsonSearchMap.put(defaultSearch, defaultSearch);
-			}
-			org.json.JSONArray jsonSearches = jsonSearchMap.names();
-			if (jsonSearches != null) {
-				for (int i = 0; i < jsonSearches.length(); i++) {
-					String name = jsonSearches.getString(i);
-					previousSearches.add(jsonSearchMap.getString(name));
-				}
-			}
-		}
-		catch (JSONException e) {
-			Reporting.logException(e);
-		}
+	public void cancelAction(Boolean force) {
+		setResult(Activity.RESULT_CANCELED);
+		finish();
+		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
 	}
 
-	private void bindAutoCompleteAdapter() {
-		searchAdapter = new ArrayAdapter<String>(this
-				, android.R.layout.simple_dropdown_item_1line
-				, previousSearches);
-		search.setAdapter(searchAdapter);
-	}
+	private void requestPermissions() {
 
-	private ModelResult loadSearchImages(String query, long count, long offset, Integer maxSize, Integer maxDimen) {
+		if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
-		ModelResult result = new ModelResult();
-		try {
-			query = "%27" + URLEncoder.encode(query, "UTF-8") + "%27";
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					final AlertDialog dialog = Dialogs.alertDialog(null
+							, StringManager.getString(R.string.alert_permission_storage_title)
+							, StringManager.getString(R.string.alert_permission_storage_message)
+							, null
+							, PhotoPicker.this
+							, R.string.alert_permission_storage_positive
+							, R.string.alert_permission_storage_negative
+							, null
+							, new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									if (which == DialogInterface.BUTTON_POSITIVE) {
+										if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+											ActivityCompat.requestPermissions(PhotoPicker.this
+													, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+													, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+										}
+										else {
+											cancelAction(false);
+										}
+									}
+								}
+							}, null);
+					dialog.setCanceledOnTouchOutside(false);
+				}
+			});
 		}
-		catch (UnsupportedEncodingException e) {
-			Reporting.logException(e);
+		else {
+				/*
+				 * No explanation needed, we can request the permission.
+				 * Parent activity will broadcast an event when permission request is complete.
+				 */
+			ActivityCompat.requestPermissions(this
+					, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+					, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
 		}
-
-		final String bingUrl = Constants.URI_PROXIBASE_SEARCH_IMAGES
-				+ "?Query=" + query
-				+ "&Market=%27en-US%27&Adult=%27Strict%27&ImageFilters=%27size%3alarge%27"
-				+ "&$top=" + String.valueOf(count + 1)
-				+ "&$skip=" + String.valueOf(offset)
-				+ "&$format=Json";
-
-		final ServiceRequest serviceRequest = new ServiceRequest(bingUrl, RequestType.GET, ResponseFormat.JSON);
-		serviceRequest.setAuthType(AuthType.BASIC)
-				.setUserName(null)
-				.setPassword(ContainerManager.getContainerHolder().getContainer().getString(Patchr.BING_ACCESS_KEY));
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-			final ServiceData serviceData = (ServiceData) Json.jsonToObjects((String) result.serviceResponse.data
-					, Json.ObjectType.IMAGE_RESULT
-					, Json.ServiceDataWrapper.TRUE);
-
-			List<ImageResult> images = new ArrayList<ImageResult>();
-
-			if (serviceData.data != null) {
-				images = (ArrayList<ImageResult>) serviceData.data;
-			}
-
-				/* There are more so pop off the last */
-			if (images.size() > count) {
-				serviceData.more = true;
-				images.remove(images.size() - 1);
-			}
-
-				/* Stash the original count for paging */
-			serviceData.count = images.size();
-
-			result.serviceResponse.data = serviceData;
-
-			List<ImageResult> imagesFiltered = new ArrayList<ImageResult>();
-			for (ImageResult imageResult : images) {
-
-				Boolean usable = false;
-				if (imageResult.getFileSize() <= maxSize
-						&& imageResult.getHeight() <= maxDimen
-						&& imageResult.getWidth() <= maxDimen) {
-					usable = true;
-				}
-
-				if (usable) {
-					usable = (imageResult.getThumbnail() != null && imageResult.getThumbnail().getUrl() != null);
-				}
-
-				if (usable) {
-					for (ImageResult image : this.images) {
-						if (image.getThumbnail().getUrl().equals(imageResult.getThumbnail().getUrl())) {
-							usable = false;
-							break;
-						}
-					}
-				}
-
-				if (usable) {
-					imagesFiltered.add(imageResult);
-				}
-			}
-
-			result.data = imagesFiltered;
-		}
-
-		return result;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public class EndlessImageAdapter extends EndlessAdapter {
+	private class ListAdapter extends ArrayAdapter<Object> {
 
-		private List<ImageResult> mMoreImages = new ArrayList<ImageResult>();
+		private final List<Object> items;
 
-		private EndlessImageAdapter(List<ImageResult> list) {
-			super(new ListAdapter(list));
+		private ListAdapter(Context context, List<Object> items) {
+			super(context, 0, items);
+			this.items = items;
 		}
 
-		@Override
-		protected boolean cacheInBackground() {
-			/*
-			 * Triggered first time the adapter runs and when this function reported
-			 * more available and the special pending view is being rendered by getView.
-			 * Returning true means we think there are more items available to QUERY for.
-			 * 
-			 * This is called on background thread from an AsyncTask started by EndlessAdapter.
-			 * We load some data plus report whether there is more data available. If more data is
-			 * available, the pending view is appended.
-			 */
-			mMoreImages.clear();
-			String queryDecorated = query;
-			if (TextUtils.isEmpty(queryDecorated)) {
-				queryDecorated = QUERY_DEFAULT;
-			}
-			else {
-				queryDecorated = (QUERY_PREFIX + " " + queryDecorated).trim();
-			}
-
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					emptyPresenter.hide(true);
-				}
-			});
-			ModelResult result = loadSearchImages(queryDecorated, PAGE_SIZE, offset, Constants.BING_IMAGE_BYTES_MAX, Constants.BING_IMAGE_DIMENSION_MAX);
-			ServiceData serviceData = (ServiceData) result.serviceResponse.data;
-
-			busyPresenter.hide(false);
-			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-				mMoreImages = (ArrayList<ImageResult>) result.data;
-
-				if (mMoreImages.size() == 0) {
-					if (offset == 0) {
-						runOnUiThread(new Runnable() {
-
-							@Override
-							public void run() {
-								emptyPresenter.setLabel(StringManager.getString(R.string.label_photo_picker_empty) + " " + query);
-								emptyPresenter.show(true);
-							}
-						});
-					}
-					return false;
-				}
-				else {
-					Logger.d(this, "Query Bing for more images: start = " + String.valueOf(offset)
-							+ " new total = "
-							+ String.valueOf(getWrappedAdapter().getCount() + mMoreImages.size()));
-
-					if (!serviceData.more) {
-						return false;
-					}
-					else {
-						offset += serviceData.count.intValue();
-						return (getWrappedAdapter().getCount() + mMoreImages.size()) < LIST_MAX;
-					}
-				}
-			}
-			else {
-				Errors.handleError(PhotoPicker.this, result.serviceResponse);
-				return false;
-			}
-		}
-
-		@Override
-		protected View getPendingView(ViewGroup parent) {
-			/*
-			 * Gets called when adapter is being asked for a view for the last position
-			 * and the previous call to cacheInBackground reported that more = true. Also starts
-			 * another call to cacheInBackground().
-			 */
-			/* If nothing to show, return something empty. */
-			if (images.size() == 0) return new View(PhotoPicker.this);
-			View view = LayoutInflater.from(PhotoPicker.this).inflate(R.layout.temp_picture_search_item_placeholder, null);
-			Integer nudge = getResources().getDimensionPixelSize(R.dimen.grid_item_height_kick);
-			final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(photoWidthPixels, photoWidthPixels - nudge);
-			AirTextView placeholder = (AirTextView) view.findViewById(R.id.item_image);
-			placeholder.setLayoutParams(params);
-			return view;
-		}
-
-		@Override
-		protected void appendCachedData() {
-			/*
-			 * Is called immediately after cacheInBackground regardless
-			 * of whether it returned true/false.
-			 */
-			final ArrayAdapter<ImageResult> list = (ArrayAdapter<ImageResult>) getWrappedAdapter();
-			for (ImageResult imageResult : mMoreImages) {
-				list.add(imageResult);
-			}
-			notifyDataSetChanged();
-		}
-	}
-
-	private class ListAdapter extends ArrayAdapter<ImageResult> {
-
-		private ListAdapter(List<ImageResult> list) {
-			super(PhotoPicker.this, 0, list);
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		@Override public View getView(int position, View convertView, ViewGroup parent) {
 
 			View view = convertView;
-			final ViewHolder holder;
-			final ImageResult itemData = images.get(position);
+			final PickerItem itemData = (PickerItem) items.get(position);
 
 			if (view == null) {
-				view = LayoutInflater.from(PhotoPicker.this).inflate(R.layout.temp_picture_search_item, null);
-				holder = new ViewHolder();
-				holder.photoView = (ImageLayout) view.findViewById(R.id.photo);
-				Integer nudge = getResources().getDimensionPixelSize(R.dimen.grid_item_height_kick);
-				final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(photoWidthPixels, photoWidthPixels - nudge);
-				holder.photoView.setLayoutParams(params);
-				view.setTag(holder);
-			}
-			else {
-				holder = (ViewHolder) view.getTag();
-				if (holder.photoView.getTag().equals(itemData.getThumbnail().getUrl())) return view;
+				view = LayoutInflater.from(PhotoPicker.this).inflate(R.layout.temp_listitem_photo_source, null);
 			}
 
 			if (itemData != null) {
-
-				holder.data = itemData;
-				holder.photoView.setTag(itemData.getThumbnail().getUrl());
-				Thumbnail thumbnail = itemData.getThumbnail();
-				Photo photo = new Photo().setPrefix(thumbnail.getUrl()).setSource(PhotoSource.bing);
-				holder.photoView.setImageWithPhoto(photo);
+				((ImageView) view.findViewById(R.id.photo)).setImageResource(itemData.iconResId);
+				((TextView) view.findViewById(R.id.name)).setText(itemData.title);
+				view.setTag(itemData);
 			}
 			return view;
 		}
 	}
 
-	public static class ViewHolder {
-		public ImageLayout photoView;
-		public ImageResult data; // NO_UCD (unused code)
+	private class PickerItem {
+
+		public Integer iconResId;
+		public String  title;
+		public String  schema;
+
+		public PickerItem() {}
+
+		public PickerItem(Integer iconResId, String title, String schema) {
+			this.iconResId = iconResId;
+			this.title = title;
+			this.schema = schema;
+		}
 	}
 }

@@ -1,20 +1,16 @@
 package com.patchr.ui.components;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.util.DisplayMetrics;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
-import android.widget.GridView;
-import android.widget.ListView;
 import android.widget.ViewSwitcher;
 
-import com.patchr.Constants;
 import com.patchr.R;
-import com.patchr.components.DataController;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.NetworkManager;
@@ -27,29 +23,26 @@ import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.ActionType;
 import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
-import com.patchr.ui.views.MessageView;
-import com.patchr.ui.views.NotificationView;
-import com.patchr.ui.views.PatchView;
-import com.patchr.ui.views.UserView;
 import com.patchr.utilities.DateTime;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class ListPresenter implements View.OnClickListener {
+public class RecyclePresenter implements View.OnClickListener {
 
 	public BusyPresenter           busyPresenter;
 	public EmptyPresenter          emptyPresenter;
 	public OnInjectEntitiesHandler injectEntitiesHandler;
 
 	/* Widgets */
-	public  AbsListView listView;        // injected by host
-	private View        pagingControl;
-	public  View        headerView;
-	public  View        footerView;
+	public  RecyclerView recycleView;        // injected by host
+	private View         pagingControl;
+	public  View         headerView;
+	public  View         footerView;
 
 	/* Resources */
 	public Integer listItemResId;
@@ -66,26 +59,26 @@ public class ListPresenter implements View.OnClickListener {
 	public Integer visibleRows    = 3;
 
 	/* Runtime data */
-	public  List<Entity> entities;
-	public  ArrayAdapter adapter;
-	public  boolean      empty;           // Used to control busy feedback
-	public  boolean      more;            // Show paging control
-	public  boolean      bound;
-	public  boolean      released;
-	public  String       groupTag;
-	private Context      context;
+	public  List<Entity>         entities;
+	public  RecyclerView.Adapter adapter;
+	public  boolean              empty;           // Used to control busy feedback
+	public  boolean              more;            // Show paging control
+	public  boolean              bound;
+	public  boolean              released;
+	public  String               groupTag;
+	private Context              context;
 
 	/* Data binding */
 	public String                scopingEntityId;     // Used to scope the entity collection
 	public Entity                scopingEntity;       // Set after first service query, used to manage cache stamp
 	public AbsEntitiesQueryEvent query;
 
-	public ListPresenter(Context context) {
+	public RecyclePresenter(Context context) {
 
 		this.listViewType = ViewType.LIST;
 		this.entities = new ArrayList<>();
 		this.adapter = new SuperArrayAdapter(context, this.entities);
-		this.empty = (this.adapter.getCount() == 0);
+		this.empty = (this.adapter.getItemCount() == 0);
 		this.groupTag = String.valueOf(DateTime.nowDate().getTime());
 		this.context = context;
 
@@ -131,7 +124,7 @@ public class ListPresenter implements View.OnClickListener {
 
 		this.busyPresenter.hide(false);
 
-		if (adapter.getCount() == 0 && responseCode == NetworkManager.ResponseCode.SUCCESS) {
+		if (adapter.getItemCount() == 0 && responseCode == NetworkManager.ResponseCode.SUCCESS) {
 			this.emptyPresenter.show(true);
 		}
 		else {
@@ -157,21 +150,15 @@ public class ListPresenter implements View.OnClickListener {
 				this.more = event.more;
 				if (event.cursor != null && event.cursor.skip == 0) {
 					this.entities.clear();
-					this.adapter.setNotifyOnChange(false);
-					this.adapter.clear();
-					this.adapter.setNotifyOnChange(true);
 				}
 
 				/* Chance for sub class to inject additional entities */
 				if (this.injectEntitiesHandler != null) {
-					this.injectEntitiesHandler.injectEntities(this.adapter, this.query.actionType);
+					//this.injectEntitiesHandler.injectEntities(this.adapter, this.query.actionType);
 				}
 
-				for (Entity entity : event.entities) {
-					this.adapter.add(entity);
-				}
-
-				this.adapter.sort(new Entity.SortByPositionSortDate());
+				this.entities.addAll(event.entities);
+				Collections.sort(this.entities, new Entity.SortByPositionSortDate());
 				bind();
 			}
 
@@ -185,7 +172,7 @@ public class ListPresenter implements View.OnClickListener {
 					switcher.setDisplayedChild(0);
 				}
 			}
-			this.empty = (this.adapter == null || this.adapter.getCount() == 0);
+			this.empty = (this.adapter == null || this.adapter.getItemCount() == 0);
 			if (event.actionType == ActionType.ACTION_GET_ENTITIES) {
 				this.bound = true;
 			}
@@ -224,8 +211,7 @@ public class ListPresenter implements View.OnClickListener {
 
 		assert view != null;
 
-		this.listView = (AbsListView) ((ViewGroup) view.findViewById(R.id.swipe)).getChildAt(1);
-
+		this.recycleView = (RecyclerView) view.findViewById(R.id.entity_list);
 		this.pagingControl = LayoutInflater.from(context).inflate(R.layout.temp_listitem_loading, null);
 		this.pagingControl.setOnClickListener(this);
 
@@ -233,48 +219,8 @@ public class ListPresenter implements View.OnClickListener {
 			this.emptyPresenter.setLabel(StringManager.getString(this.emptyMessageResId));
 		}
 
-		if (this.headerView != null && this.listView != null && this.listViewType.equals(ViewType.LIST)) {
-			((ListView) this.listView).addHeaderView(this.headerView);
-		}
-
-		if (this.footerView != null && this.listView != null && this.listViewType.equals(ViewType.LIST)) {
-			((ListView) this.listView).addFooterView(this.footerView);
-		}
-
 		if (this.listViewType.equals(ViewType.GRID)) {
-
-			GridView gridView = (GridView) this.listView;
-			Resources resources = context.getResources();
-
-			/* Set spacing */
-			Integer requestedHorizontalSpacing = resources.getDimensionPixelSize(R.dimen.grid_spacing_horizontal);
-			Integer requestedVerticalSpacing = resources.getDimensionPixelSize(R.dimen.grid_spacing_vertical);
-			gridView.setHorizontalSpacing(requestedHorizontalSpacing);
-			gridView.setVerticalSpacing(requestedVerticalSpacing);
-
-			/* Stash some sizing info */
-			final DisplayMetrics metrics = resources.getDisplayMetrics();
-			final Integer availableWidth = metrics.widthPixels - gridView.getPaddingLeft() - gridView.getPaddingRight();
-			final Integer availableHeight = metrics.heightPixels - gridView.getPaddingTop() - gridView.getPaddingBottom();
-
-			Integer requestedColumnWidth = resources.getDimensionPixelSize(R.dimen.grid_column_width_requested_large);
-
-			this.visibleColumns = (availableWidth + requestedHorizontalSpacing) / (requestedColumnWidth + requestedHorizontalSpacing);
-			if (this.visibleColumns <= 0) {
-				this.visibleColumns = 1;
-			}
-
-			this.visibleRows = (availableHeight + requestedVerticalSpacing) / (requestedColumnWidth + requestedVerticalSpacing);
-			if (this.visibleRows <= 0) {
-				this.visibleRows = 1;
-			}
-
-			int spaceLeftOver = availableWidth - (this.visibleColumns * requestedColumnWidth) - ((this.visibleColumns - 1) * requestedHorizontalSpacing);
-
-			this.photoWidthPixels = requestedColumnWidth + spaceLeftOver / this.visibleColumns;
-			gridView.setColumnWidth(this.photoWidthPixels);
-			final AbsListView.LayoutParams params = new AbsListView.LayoutParams(this.photoWidthPixels, this.photoWidthPixels - 10);
-			this.pagingControl.setLayoutParams(params);
+			recycleView.setLayoutManager(new GridLayoutManager(context, 4));
 		}
 
 		/*
@@ -283,16 +229,16 @@ public class ListPresenter implements View.OnClickListener {
 		 * notifyDataSetChanged is called on the adapter when then lets the
 		 * UI know to repaint.
 		 */
-		if (this.listView != null) {
+		if (this.recycleView != null) {
 			if (this.listViewType.equals(ViewType.LIST)) {
-				((ListView) this.listView).setAdapter(this.adapter);
+				this.recycleView.setLayoutManager(new LinearLayoutManager(context));
+				this.recycleView.setAdapter(this.adapter);
 			}
 			else if (this.listViewType.equals(ViewType.GRID)) {
-				((GridView) this.listView).setAdapter(this.adapter);
+				this.recycleView.setLayoutManager(new GridLayoutManager(context, 4));
+				this.recycleView.setAdapter(this.adapter);
 			}
 		}
-
-		this.listView.invalidate();
 	}
 
 	public void refresh() {
@@ -309,9 +255,6 @@ public class ListPresenter implements View.OnClickListener {
 
 		if (mode == FetchMode.MANUAL) {
 			this.entities.clear();
-			this.adapter.setNotifyOnChange(false);
-			this.adapter.clear();
-			this.adapter.setNotifyOnChange(true);
 		}
 
 		Integer pageSize = this.query != null ? this.query.pageSize : 50;
@@ -355,123 +298,38 @@ public class ListPresenter implements View.OnClickListener {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	protected class SuperArrayAdapter extends ArrayAdapter<Entity> {
+	protected class SuperArrayAdapter extends RecyclerView.Adapter<ViewHolder> {
 
-		private Context context;
+		private List<Entity>   entities;
+		private LayoutInflater inflater;
 
 		public SuperArrayAdapter(Context context, List<Entity> entities) {
-			super(context, 0, entities);
-			this.context = context;
+			this.entities = entities;
+			this.inflater = LayoutInflater.from(context);
 		}
 
-		@Override public View getView(int position, View convertView, ViewGroup parent) {
+		@Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+			View view = inflater.inflate(listItemResId, parent, false);
 
-			if (more && position == entities.size() && entities.size() > 0) return pagingControl;
-
-			View view = convertView;
-
-			if (position >= entities.size() && position < (visibleColumns * visibleRows)) {
-				/*
-				 * Make the widget used to request more list items.
-				 */
-				if (view == null || view.findViewById(R.id.item_placeholder) == null) {
-					view = LayoutInflater.from(this.context).inflate(R.layout.temp_listitem_empty, null);
-					if (listView instanceof GridView) {
-						final AbsListView.LayoutParams params = new AbsListView.LayoutParams(photoWidthPixels, photoWidthPixels - (10 / 2));
-						view.findViewById(R.id.item_placeholder).setLayoutParams(params);
-					}
-				}
-				view.setTag(null);
-			}
-			else {
-
-				Entity entity = entities.get(position);
-
-				/* Perform cache lookup to make sure we are using the latest */
-				if (entityCacheDisabled && DataController.getStoreEntity(entity.id) != null) {
-					entity = DataController.getStoreEntity(entity.id);
-				}
-
-				entity.index = position + 1;
-
-                /*
-                 * Holder is created and bound to view elements by the controller in bindListItem.
-                 */
-				if (view == null
-						|| view.findViewById(R.id.paging_button) != null
-						|| view.findViewById(R.id.item_placeholder) != null) {
-
-					view = LayoutInflater.from(this.context).inflate(listItemResId, null);
-
-					/* Some fix-up so we don't need additional boilerplate list item layout */
-					if (!showIndex) {
-						View index = view.findViewById(R.id.index);
-						if (index != null) {
-							((ViewGroup) index.getParent()).removeView(index);
-						}
-					}
-				}
-
-				if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-					PatchView patchView = (PatchView) view.findViewById(R.id.item_view);
-					patchView.setTag(entity);
-					patchView.bind(entity);
-				}
-				else if (entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-					MessageView messageView = (MessageView) view.findViewById(R.id.item_view);
-					messageView.setTag(entity);
-					messageView.bind(entity);
-				}
-				else if (entity.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
-					NotificationView notificationView = (NotificationView) view.findViewById(R.id.item_view);
-					notificationView.setTag(entity);
-					notificationView.bind(entity);
-				}
-				else if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-					UserView userView = (UserView) view.findViewById(R.id.item_view);
-					userView.setTag(entity);
-					if (query.cursor.linkTypes.get(0).equals(Constants.TYPE_LINK_MEMBER)) {
-						if (scopingEntity != null) {
-							Boolean itemIsOwner = (entity.id.equals(scopingEntity.ownerId));
-							userView.bind(entity, !itemIsOwner, itemIsOwner);
-							if (scopingEntity instanceof Entity) {
-								userView.patch = scopingEntity;
-							}
-							return view;
-						}
-					}
-					userView.bind(entity);
+			/* Some fix-up so we don't need additional boilerplate list item layout */
+			if (!showIndex) {
+				View index = view.findViewById(R.id.index);
+				if (index != null) {
+					((ViewGroup) index.getParent()).removeView(index);
 				}
 			}
-			return view;
+
+			return new ViewHolder(view);
 		}
 
-		@Override public int getCount() {
-			if (more)
-				return entities.size() + 1;
-			else if (listViewType.equals(ViewType.GRID)) {
-				if (entities.size() == 0) return 0;
-				return Math.max(entities.size(), visibleColumns * visibleRows);
-			}
-			else {
-				return entities.size();
-			}
+		@Override public void onBindViewHolder(ViewHolder holder, int position) {
+			Entity entity = entities.get(position);
+			entity.index = position + 1;
+			holder.bind(entity, scopingEntity, query);
 		}
 
-		@Override public Entity getItem(int position) {
-			return entities.get(position);
-		}
-
-		@Override public boolean areAllItemsEnabled() {
-			return false;
-		}
-
-		@Override public boolean isEnabled(int position) {
-			return false;
-		}
-
-		public List<Entity> getItems() {
-			return entities;
+		@Override public int getItemCount() {
+			return entities.size();
 		}
 	}
 

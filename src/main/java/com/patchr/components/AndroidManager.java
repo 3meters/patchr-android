@@ -22,7 +22,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.LobbyScreen;
 import com.patchr.utilities.UI;
@@ -82,7 +82,7 @@ public class AndroidManager {
 					public void onCancel(DialogInterface dialog) {
 						UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unavailable), Toast.LENGTH_LONG);
 						if (!(activity instanceof LobbyScreen)) {
-							Patchr.router.route(activity, Route.LOBBY, null, null);
+							Patchr.router.route(activity, Command.LOBBY, null, null);
 						}
 						else {
 							activity.finish();

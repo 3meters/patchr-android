@@ -28,6 +28,6 @@
 		android:layout_marginTop="3dp"
 		android:layout_toRightOf="@+id/photo"
 		android:textAppearance="@style/text_appearance_medium"
-		custom:textId="@string/dummy_name" />
+		android:text="@string/dummy_name" />
 
 </RelativeLayout>

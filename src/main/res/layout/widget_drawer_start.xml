@@ -40,9 +40,9 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:singleLine="true"
+				android:text="@string/label_drawer_item_nearby"
 				android:textAppearance="?android:attr/textAppearance"
-				android:textColor="@color/brand_primary"
-				custom:textId="@string/label_drawer_item_nearby" />
+				android:textColor="@color/brand_primary" />
 
 			<com.patchr.ui.widgets.AirTextLight
 				android:id="@+id/user_area"
@@ -80,8 +80,7 @@
 					android:layout_marginTop="8dp"
 					android:text="@string/label_drawer_section_patches"
 					android:textAppearance="?android:attr/textAppearance"
-					android:textColor="@color/brand_primary"
-					custom:textId="@string/label_drawer_section_patches" />
+					android:textColor="@color/brand_primary" />
 
 				<View
 					android:layout_width="match_parent"
@@ -117,8 +116,7 @@
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/image_patches_nearby"
 					android:text="@string/label_drawer_item_nearby"
-					android:textAppearance="?android:attr/textAppearanceMedium"
-					custom:textId="@string/label_drawer_item_nearby" />
+					android:textAppearance="?android:attr/textAppearanceMedium" />
 			</RelativeLayout>
 
 			<RelativeLayout
@@ -154,8 +152,7 @@
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/image_patches_watch"
 					android:text="@string/label_drawer_item_watch"
-					android:textAppearance="?android:attr/textAppearanceMedium"
-					custom:textId="@string/label_drawer_item_watch" />
+					android:textAppearance="?android:attr/textAppearanceMedium" />
 			</RelativeLayout>
 
 			<RelativeLayout
@@ -191,8 +188,7 @@
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/image_patches_own"
 					android:text="@string/label_drawer_item_create"
-					android:textAppearance="?android:attr/textAppearanceMedium"
-					custom:textId="@string/label_drawer_item_create" />
+					android:textAppearance="?android:attr/textAppearanceMedium" />
 			</RelativeLayout>
 
 			<RelativeLayout
@@ -228,8 +224,7 @@
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/image_explore"
 					android:text="@string/label_drawer_item_trend_active"
-					android:textAppearance="?android:attr/textAppearanceMedium"
-					custom:textId="@string/label_drawer_item_trend_active" />
+					android:textAppearance="?android:attr/textAppearanceMedium" />
 			</RelativeLayout>
 
 			<!-- More section -->
@@ -248,8 +243,7 @@
 					android:layout_marginTop="8dp"
 					android:text="@string/label_drawer_section_more"
 					android:textAppearance="?android:attr/textAppearance"
-					android:textColor="@color/brand_primary"
-					custom:textId="@string/label_drawer_section_more" />
+					android:textColor="@color/brand_primary" />
 
 				<View
 					android:layout_width="match_parent"
@@ -285,8 +279,7 @@
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/image_more_settings"
 					android:text="@string/label_drawer_item_more_settings"
-					android:textAppearance="?android:attr/textAppearanceMedium"
-					custom:textId="@string/label_drawer_item_more_settings" />
+					android:textAppearance="?android:attr/textAppearanceMedium" />
 			</RelativeLayout>
 
 			<RelativeLayout
@@ -321,8 +314,7 @@
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/image_more_feedback"
 					android:text="@string/label_drawer_item_more_feedback"
-					android:textAppearance="?android:attr/textAppearanceMedium"
-					custom:textId="@string/label_drawer_item_more_feedback" />
+					android:textAppearance="?android:attr/textAppearanceMedium" />
 			</RelativeLayout>
 
 			<View

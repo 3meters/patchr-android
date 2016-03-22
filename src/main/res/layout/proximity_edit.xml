@@ -57,7 +57,7 @@
 					android:layout_marginBottom="16dp"
 					android:layout_marginLeft="2dp"
 					android:layout_marginRight="2dp"
-					custom:textId="@string/label_tuning_tune_no_name"
+					android:text="@string/label_tuning_tune_no_name"
 					tools:text="@string/label_tuning_tune_no_name" />
 
 				<LinearLayout

@@ -116,11 +116,11 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 		}
 	}
 
-	public void databind(Entity entity) {
-		databind(entity, false, false);
+	public void bind(Entity entity) {
+		bind(entity, false, false);
 	}
 
-	public void databind(Entity entity, Boolean enableEdit, Boolean asOwner) {
+	public void bind(Entity entity, Boolean enableEdit, Boolean asOwner) {
 
 		synchronized (lock) {
 

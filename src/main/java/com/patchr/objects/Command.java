@@ -1,10 +1,9 @@
 package com.patchr.objects;
 
-public class Route {
+public class Command {
 
 	public static int UNKNOWN            = 0;
 	public static int ADD                = 1;
-	public static int NEW                = 2;
 	public static int EDIT               = 3;
 	public static int BROWSE            = 4;
 	public static int PHOTO             = 7;

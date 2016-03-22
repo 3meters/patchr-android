@@ -8,7 +8,6 @@ import android.os.Vibrator;
 import com.google.android.gms.gcm.GcmListenerService;
 import com.patchr.Constants;
 import com.patchr.Patchr;
-import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Notification;
 import com.patchr.objects.TransitionType;
@@ -86,19 +85,12 @@ public class GcmIntentService extends GcmListenerService {
 						 *   intent again.
 						 */
 						if (targetSchema != null) {
-							IEntityController controller = Patchr.getInstance().getControllerForSchema(targetSchema);
 							Bundle extrasOut = new Bundle();
 							extrasOut.putBoolean(Constants.EXTRA_REFRESH_FROM_SERVICE, true);
 							extrasOut.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
 							extrasOut.putString(Constants.EXTRA_NOTIFICATION_ID, notification.id);
 							String parentId = (notification.parentId != null) ? notification.parentId : null;
-							notification.intent = controller.view(Patchr.applicationContext
-									, null
-									, notification.targetId
-									, parentId
-									, null
-									, extrasOut
-									, false);
+							notification.intent = Patchr.router.browse(Patchr.applicationContext, notification.targetId, extrasOut, false);
 						}
 
 					    /*

@@ -19,9 +19,9 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.Document;
 import com.patchr.objects.User;
+import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.views.ImageLayout;
 import com.patchr.utilities.DateTime;
@@ -140,7 +140,7 @@ public class ReportEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyAction.ActionWithMessage, R.string.progress_sending, ReportEdit.this);
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_sending, ReportEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {

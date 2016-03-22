@@ -15,7 +15,7 @@
 		android:layout_marginRight="2dp"
 		android:textAppearance="?android:attr/textAppearanceSmall"
 		tools:text="Patch owned by"
-		custom:textId="@string/label_created_by" />
+		android:text="@string/label_created_by" />
 
 	<com.patchr.ui.widgets.AirTextView
 		android:id="@+id/widget_name"
@@ -28,6 +28,6 @@
 		android:textColor="@color/brand_primary_dark"
 		android:textStyle="bold"
 		tools:text="Jay Massena"
-		custom:textId="@string/dummy_name" />
+		android:text="@string/dummy_name" />
 
 </LinearLayout>

@@ -50,16 +50,14 @@
 					android:layout_gravity="center_horizontal"
 					android:text="@string/name_app"
 					android:textAppearance="?android:attr/textAppearanceLarge"
-					android:textColor="@color/brand_accent"
-					custom:textId="@string/name_app" />
+					android:textColor="@color/brand_accent" />
 
 				<com.patchr.ui.widgets.AirTextView
 					android:id="@+id/version"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
-					android:text="@string/dummy_version"
-					custom:textId="@string/dummy_version" />
+					android:text="@string/dummy_version" />
 
 				<com.patchr.ui.widgets.AirTextView
 					android:id="@+id/copyright"
@@ -67,8 +65,7 @@
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
 					android:layout_marginBottom="30dp"
-					android:text="@string/dummy_copyright"
-					custom:textId="@string/dummy_copyright" />
+					android:text="@string/dummy_copyright" />
 
 				<Button
 					android:id="@+id/terms_button"
@@ -113,8 +110,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_marginBottom="5dp"
-					android:text="@string/label_about_install"
-					custom:textId="@string/label_about_install" />
+					android:text="@string/label_about_install" />
 
 				<TableLayout
 					android:id="@+id/holder_install"
@@ -129,8 +125,7 @@
 							android:layout_height="wrap_content"
 							android:text="@string/dummy_install_id"
 							android:textAppearance="?android:attr/textAppearanceSmall"
-							android:textColor="?attr/textColorSecondary"
-							custom:textId="@string/dummy_install_id" />
+							android:textColor="?attr/textColorSecondary" />
 					</TableRow>
 
 					<View
@@ -146,8 +141,7 @@
 							android:layout_height="wrap_content"
 							android:text="@string/dummy_install_type"
 							android:textAppearance="?android:attr/textAppearanceSmall"
-							android:textColor="?attr/textColorSecondary"
-							custom:textId="@string/dummy_install_type" />
+							android:textColor="?attr/textColorSecondary" />
 					</TableRow>
 
 					<View
@@ -163,8 +157,7 @@
 							android:layout_height="wrap_content"
 							android:text="@string/dummy_install_date"
 							android:textAppearance="?android:attr/textAppearanceSmall"
-							android:textColor="?attr/textColorSecondary"
-							custom:textId="@string/dummy_install_date" />
+							android:textColor="?attr/textColorSecondary" />
 					</TableRow>
 					<View
 						android:layout_width="match_parent"

@@ -33,7 +33,7 @@
 				android:gravity="center_horizontal"
 				android:padding="16dp"
 				android:visibility="gone"
-				custom:textId="@string/label_message_edit_message"
+				android:text="@string/label_message_edit_message"
 				tools:text="@string/label_message_edit_message"
 				tools:visibility="visible" />
 
@@ -65,8 +65,7 @@
 						android:hint="@string/label_share_to_hint"
 						android:imeOptions="flagNoExtractUi"
 						android:minHeight="65dp"
-						android:textAppearance="?attr/textAppearanceMediumLarge"
-						custom:prefix="@string/label_message_to_prefix" />
+						android:textAppearance="?attr/textAppearanceMediumLarge" />
 
 					<LinearLayout
 						android:layout_width="match_parent"
@@ -95,8 +94,7 @@
 							android:layout_height="wrap_content"
 							android:layout_gravity="center_vertical"
 							android:layout_weight="1"
-							android:background="?attr/backgroundToken"
-							custom:layoutId="@layout/widget_token_view_single" />
+							android:background="?attr/backgroundToken" />
 
 						<ImageView
 							android:id="@+id/to_clear"
