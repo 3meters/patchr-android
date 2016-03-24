@@ -14,7 +14,7 @@
 		<item name="android:windowSharedElementExitTransition">@android:transition/move</item>
 		<item name="colorControlNormal">@color/gray_20_pcnt</item>
 		<item name="colorControlActivated">@color/brand_accent</item>
-		<item name="colorControlHighlight">@color/brand_accent</item>
+		<item name="colorControlHighlight">@color/gray_10_pcnt</item>
 	</style>
 
 	<style name="patchr_theme_notitlebar" parent="patchr_theme">

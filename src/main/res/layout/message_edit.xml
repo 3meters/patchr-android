@@ -151,76 +151,10 @@
 
 					<!-- Attachment -->
 
-					<ViewAnimator
-						android:id="@+id/photo_animator"
+					<com.patchr.ui.views.PhotoEditView
+						android:id="@+id/photo_edit"
 						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_marginLeft="5dp"
-						android:layout_marginRight="5dp">
-
-						<ImageButton
-							style="@style/button_outline"
-							android:layout_width="match_parent"
-							android:layout_height="@dimen/button_height"
-							android:layout_gravity="top"
-							android:alpha="0.6"
-							android:clickable="true"
-							android:onClick="onChangePhotoButtonClick"
-							android:src="?attr/iconPicture" />
-
-						<RelativeLayout
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:layout_gravity="top"
-							android:layout_marginBottom="16dp"
-							android:orientation="vertical">
-
-							<com.patchr.ui.views.ImageLayout
-								android:id="@+id/photo"
-								style="@style/selectable_image"
-								android:layout_width="match_parent"
-								android:layout_height="wrap_content"
-								android:minHeight="@dimen/button_height"
-								android:minWidth="@dimen/image_extra_extra_large"
-								custom:aspectRatio="@dimen/aspect_ratio_message_image"
-								custom:category="standard" />
-
-							<RelativeLayout
-								android:layout_width="match_parent"
-								android:layout_height="wrap_content"
-								android:layout_alignTop="@+id/photo"
-								android:background="@drawable/scrim_medium">
-
-								<ImageButton
-									android:id="@+id/photo_edit_button"
-									style="@style/button_flat"
-									android:layout_width="@dimen/form_field_height"
-									android:layout_height="@dimen/form_field_height"
-									android:layout_alignParentLeft="true"
-									android:clickable="true"
-									android:gravity="center"
-									android:onClick="onClick"
-									android:src="@drawable/ic_action_edit_dark"
-									android:textAppearance="?android:attr/textAppearance"
-									android:textColor="?attr/textColorCandiView" />
-
-								<ImageButton
-									android:id="@+id/photo_delete_button"
-									style="@style/button_flat"
-									android:layout_width="@dimen/form_field_height"
-									android:layout_height="@dimen/form_field_height"
-									android:layout_alignParentRight="true"
-									android:clickable="true"
-									android:gravity="center"
-									android:onClick="onClick"
-									android:src="@drawable/ic_action_cancel_dark"
-									android:textAppearance="?android:attr/textAppearance"
-									android:textColor="?attr/textColorCandiView" />
-
-							</RelativeLayout>
-
-						</RelativeLayout>
-					</ViewAnimator>
+						android:layout_height="wrap_content"/>
 
 				</LinearLayout>
 			</LinearLayout>

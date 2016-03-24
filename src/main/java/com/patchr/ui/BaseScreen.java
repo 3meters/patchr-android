@@ -32,8 +32,6 @@ import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.NfcManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.DataErrorEvent;
-import com.patchr.events.DataNoopEvent;
 import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
@@ -45,9 +43,6 @@ import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.UI;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 public abstract class BaseScreen extends AppCompatActivity {
 
@@ -170,24 +165,6 @@ public abstract class BaseScreen extends AppCompatActivity {
 		processing = false;
 		if (busyPresenter != null) {
 			busyPresenter.hide(false);
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Notifications
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Subscribe(threadMode = ThreadMode.MAIN) public void onDataError(DataErrorEvent event) {
-		if (event.tag.equals(System.identityHashCode(this))) {
-			Logger.v(this, "Data error accepted: " + event.actionType.name());
-			onFetchComplete();
-		}
-	}
-
-	@Subscribe(threadMode = ThreadMode.MAIN) public void onDataNoop(DataNoopEvent event) {
-		if (event.tag.equals(System.identityHashCode(this))) {
-			Logger.v(this, "Data no-op accepted: " + event.actionType.name());
-			onFetchComplete();
 		}
 	}
 

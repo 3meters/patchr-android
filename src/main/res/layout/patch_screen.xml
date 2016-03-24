@@ -53,7 +53,7 @@
 					android:layout_height="@dimen/button_round_height"
 					android:layout_centerInParent="true"
 					android:visibility="gone"
-					tools:text="@string/label_nearby_empty"
+					tools:text="@string/empty_nearby"
 					tools:visibility="visible" />
 
 				<com.patchr.ui.widgets.AirProgressBar
@@ -80,6 +80,7 @@
 				android:src="@drawable/ic_add_dark"
 				custom:borderWidth="0dp"
 				custom:elevation="4dp"
+				custom:layout_behavior="com.patchr.ui.components.ScrollAwareFabBehavior"
 				custom:rippleColor="@color/brand_primary"
 				custom:useCompatPadding="true"
 				tools:visibility="visible" />

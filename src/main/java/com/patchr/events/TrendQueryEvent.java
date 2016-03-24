@@ -3,7 +3,6 @@ package com.patchr.events;
 import com.patchr.Constants;
 import com.patchr.objects.ActionType;
 import com.patchr.objects.Cursor;
-import com.patchr.objects.FetchMode;
 
 @SuppressWarnings("ucd")
 public class TrendQueryEvent extends AbsEntitiesQueryEvent {
@@ -14,38 +13,19 @@ public class TrendQueryEvent extends AbsEntitiesQueryEvent {
 
 	public TrendQueryEvent() {}
 
-	public TrendQueryEvent setToSchema(String toSchema) {
-		this.toSchema = toSchema;
-		return this;
-	}
-
-	public TrendQueryEvent setFromSchema(String fromSchema) {
-		this.fromSchema = fromSchema;
-		return this;
-	}
-
-	public TrendQueryEvent setLinkType(String linkType) {
-		this.linkType = linkType;
-		return this;
-	}
-
 	public static TrendQueryEvent build(ActionType actionType, String fromSchema, String toSchema, String linkType) {
 
-		Integer pageSize = Constants.PAGE_SIZE;
-		Integer skipCount = ((int) Math.ceil((double) 0 / pageSize) * pageSize);
-		Cursor cursor = new Cursor()
-				.setLimit(pageSize)
-				.setSkip(skipCount);
+		Integer skipCount = ((int) Math.ceil((double) 0 / Constants.PAGE_SIZE) * Constants.PAGE_SIZE);
+		Cursor cursor = new Cursor();
+		cursor.skip = skipCount;
 
 		TrendQueryEvent request = new TrendQueryEvent();
-		request.setCursor(cursor)
-				.setPageSize(pageSize)
-				.setActionType(actionType)
-				.setFetchMode(FetchMode.MANUAL);
 
-		request.setFromSchema(fromSchema)
-				.setToSchema(toSchema)
-				.setLinkType(linkType);
+		request.cursor = cursor;
+		request.actionType = actionType;
+		request.fromSchema = fromSchema;
+		request.toSchema = toSchema;
+		request.linkType = linkType;
 
 		return request;
 	}

@@ -39,8 +39,11 @@ public class AnimationManager {
 		else if (transitionType == TransitionType.BUILDER_BACK) {
 			activity.overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
 		}
-		/*
-		 * If needed, add non-default handling here for DIALOG_TO and DIALOG_BACK.
-		 */
+		else if (transitionType == TransitionType.DIALOG_TO) {
+			activity.overridePendingTransition(R.anim.fade_zoom_in, R.anim.hold);
+		}
+		else if (transitionType == TransitionType.DIALOG_BACK) {
+			activity.overridePendingTransition(R.anim.hold, R.anim.fade_zoom_out);
+		}
 	}
 }

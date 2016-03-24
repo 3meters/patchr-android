@@ -2,6 +2,7 @@ package com.patchr.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -19,12 +20,12 @@ import com.patchr.events.EntitiesQueryEvent;
 import com.patchr.events.EntityQueryEvent;
 import com.patchr.events.EntityQueryResultEvent;
 import com.patchr.objects.ActionType;
+import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Photo;
-import com.patchr.objects.Command;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.EmptyPresenter;
@@ -39,11 +40,12 @@ import com.patchr.utilities.UI;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class UserScreen extends BaseScreen implements View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class UserScreen extends BaseScreen implements SwipeRefreshLayout.OnRefreshListener {
 
-	private UserDetailView   header;
-	private boolean          bound;
-	private RecyclePresenter listPresenter;
+	private UserDetailView       header;
+	private boolean              bound;
+	private RecyclePresenter     listPresenter;
+	private FloatingActionButton fab;
 
 	@Override protected void onStart() {
 		super.onStart();
@@ -53,16 +55,10 @@ public class UserScreen extends BaseScreen implements View.OnClickListener, Swip
 	@Override public void onResume() {
 		super.onResume();
 
-		if (!isFinishing()) {
-			if (this.entity != null) {
-				bind();
-			}
-
-			fetch(FetchMode.AUTO);
-
-			if (this.listPresenter != null) {
-				this.listPresenter.onResume();
-			}
+		bind();
+		fetch(FetchMode.AUTO);
+		if (this.listPresenter != null) {
+			this.listPresenter.onResume();
 		}
 	}
 
@@ -82,9 +78,9 @@ public class UserScreen extends BaseScreen implements View.OnClickListener, Swip
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void onClick(View view) {
+	public void onClick(View view) {
 
-		if (view.getId() == R.id.edit_fab) {
+		if (view.getId() == R.id.fab) {
 			final String jsonEntity = Json.objectToJson(entity);
 			startActivity(new Intent(this, UserEdit.class).putExtra(Constants.EXTRA_ENTITY, jsonEntity));
 		}
@@ -95,11 +91,11 @@ public class UserScreen extends BaseScreen implements View.OnClickListener, Swip
 
 			if (view.getId() == R.id.member_of_button) {
 				titleResId = R.string.label_drawer_item_watch;
-				emptyResId = R.string.label_member_of_empty;
+				emptyResId = R.string.label_profile_member_of_empty;
 			}
 			else if (view.getId() == R.id.owner_of_button) {
 				titleResId = R.string.label_drawer_item_create;
-				emptyResId = R.string.label_owner_of_empty;
+				emptyResId = R.string.label_profile_owner_of_empty;
 			}
 
 			Bundle extras = new Bundle();
@@ -152,22 +148,11 @@ public class UserScreen extends BaseScreen implements View.OnClickListener, Swip
 
 	public void onRefresh() {
 		fetch(FetchMode.MANUAL);
-		if (this.listPresenter != null) {
-			if (!isFinishing()) {
-				this.listPresenter.refresh();
-			}
-			else {
-				this.listPresenter.busyPresenter.hide(false);
-			}
-		}
 	}
 
 	public void onFetchComplete() {
 		super.onFetchComplete();
-		bind();
-		if (this.optionMenu != null) {
-			configureStandardMenuItems(optionMenu);
-		}
+		supportInvalidateOptionsMenu();     // In case user authenticated
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -178,11 +163,22 @@ public class UserScreen extends BaseScreen implements View.OnClickListener, Swip
 
 		if (event.actionType == ActionType.ACTION_GET_ENTITY) {
 			if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
-				this.entity = event.entity;
-				this.listPresenter.scopingEntity = event.entity;
-				this.listPresenter.scopingEntityId = event.entity.id;
+				if (event.error != null) {
+					onFetchComplete();
+					return;
+				}
+
+				this.bound = true;
+
+				if (!event.noop) {
+					Boolean firstBind = (entity == null);
+					this.entity = event.entity;
+					this.listPresenter.scopingEntity = event.entity;
+					this.listPresenter.scopingEntityId = event.entity.id;
+					this.listPresenter.fetch(event.fetchMode); // Next in the chain
+				}
 				onFetchComplete();
-				this.listPresenter.fetch(FetchMode.AUTO);
+				bind();
 			}
 		}
 	}
@@ -205,9 +201,8 @@ public class UserScreen extends BaseScreen implements View.OnClickListener, Swip
 
 		assert this.rootView != null;
 
+		this.fab = (FloatingActionButton) findViewById(R.id.fab);
 		this.header = new UserDetailView(this);
-		this.header.buttonOwner.setOnClickListener(this);
-		this.header.buttonMember.setOnClickListener(this);
 
 		this.listPresenter = new RecyclePresenter(this);
 		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
@@ -215,7 +210,7 @@ public class UserScreen extends BaseScreen implements View.OnClickListener, Swip
 		this.listPresenter.busyPresenter = new BusyPresenter();
 		this.listPresenter.busyPresenter.setProgressBar(this.rootView.findViewById(R.id.list_progress));
 		this.listPresenter.emptyPresenter = new EmptyPresenter(this.rootView.findViewById(R.id.list_message));
-		this.listPresenter.emptyPresenter.setLabel(StringManager.getString(R.string.label_posted_empty));
+		this.listPresenter.emptyPresenter.setLabel(StringManager.getString(R.string.empty_posted_messages));
 		this.listPresenter.headerView = this.header;
 
 		this.listPresenter.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
@@ -267,7 +262,8 @@ public class UserScreen extends BaseScreen implements View.OnClickListener, Swip
 	}
 
 	public void bind() {
-		assert this.entity != null;
-		header.databind(this.entity);
+		if (this.entity != null) {
+			header.bind(this.entity);
+		}
 	}
 }

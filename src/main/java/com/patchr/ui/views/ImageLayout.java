@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -26,9 +28,9 @@ import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
-import com.squareup.picasso.Target;
 import com.squareup.picasso.Transformation;
 
 @SuppressWarnings("ucd")
@@ -41,16 +43,13 @@ public class ImageLayout extends FrameLayout {
 	private   String uri;
 	protected String uriBound;
 
-	private   String        name;
-	public    Target        target;
 	public    PhotoCategory category;
 	protected float         aspectRatio;
-	protected ScaleType     scaleType = ScaleType.CENTER_CROP;
+	protected ScaleType     scaleType;
 	public    Bitmap.Config bitmapConfig;  // Used by picasso
 	protected boolean       showBusy;
-
-	protected String shape = "auto";    // auto, square, round, rounded
-	protected Integer radius = 8;
+	protected String        shape;    // auto, square, round, rounded
+	protected Integer       radius;
 
 	public ImageLayout(Context context) {
 		this(context, null);
@@ -60,10 +59,14 @@ public class ImageLayout extends FrameLayout {
 		this(context, attrs, 0);
 	}
 
-	public ImageLayout(Context context, AttributeSet attributes, int defStyle) {
-		super(context, attributes, defStyle);
+	public ImageLayout(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
 
-		final TypedArray ta = context.obtainStyledAttributes(attributes, R.styleable.ImageLayout, defStyle, 0);
+		this.scaleType = ScaleType.CENTER_CROP;
+		this.shape = "auto";
+		this.radius = 8;
+
+		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ImageLayout, defStyle, 0);
 
 		this.bitmapConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.ImageLayout_config, Bitmap.Config.RGB_565.ordinal())];
 		this.category = PhotoCategory.values()[ta.getInteger(R.styleable.ImageLayout_category, PhotoCategory.THUMBNAIL.ordinal())];
@@ -78,7 +81,7 @@ public class ImageLayout extends FrameLayout {
 		ta.recycle();
 
 		if (!isInEditMode()) {
-			final int scaleTypeValue = attributes.getAttributeIntValue(androidNamespace, "scaleType", ScaleType.CENTER_CROP.ordinal());
+			final int scaleTypeValue = attrs.getAttributeIntValue(androidNamespace, "scaleType", ScaleType.CENTER_CROP.ordinal());
 			if (scaleTypeValue >= 0) {
 				this.scaleType = sScaleTypeArray[scaleTypeValue];
 			}
@@ -101,7 +104,7 @@ public class ImageLayout extends FrameLayout {
 		}
 
 		/* Image - subclass could have provide it instead */
-		if (this.imageView == null && !isInEditMode()) {
+		if (this.imageView == null) {
 			this.imageView = new AppCompatImageView(getContext());
 			this.imageView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 			this.imageView.setScaleType(this.scaleType);
@@ -127,6 +130,11 @@ public class ImageLayout extends FrameLayout {
 		this.progressBar.setLayoutParams(params);
 		this.progressBar.hide();
 		addView(this.progressBar);
+
+		if (isInEditMode()) {
+			Drawable dummy = ContextCompat.getDrawable(getContext(),R.drawable.img_dummy);
+			this.imageView.setImageDrawable(dummy);
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -158,14 +166,14 @@ public class ImageLayout extends FrameLayout {
 
 	public void setImageWithEntity(Entity entity) {
 		if (entity.photo != null) {
-			setImageWithPhoto(entity.photo);
+			setImageWithPhoto(entity.photo, null);
 		}
 		else {
 			setImageWithText(entity.name, (entity instanceof User));
 		}
 	}
 
-	public void setImageWithPhoto(Photo photo) {
+	public void setImageWithPhoto(Photo photo, Callback callback) {
 
 		/* Optimize if we already have the image */
 		if (photo.isUri() && this.uriBound != null && this.imageView.getDrawable() != null) {
@@ -179,14 +187,14 @@ public class ImageLayout extends FrameLayout {
 		this.nameView.setVisibility(GONE);
 
 		if (shape.equals("round")) {
-			loadImageView(photo, new CircleTransform());
+			loadImageView(photo, new CircleTransform(), callback);
 		}
 		else if (shape.equals("rounded")) {
 			int displayRadius = UI.getRawPixelsForDisplayPixels((float) this.radius);
-			loadImageView(photo, new RoundedCornersTransformation(displayRadius, 0));
+			loadImageView(photo, new RoundedCornersTransformation(displayRadius, 0), callback);
 		}
 		else {
-			loadImageView(photo, null);
+			loadImageView(photo, null, callback);
 		}
 	}
 
@@ -214,6 +222,18 @@ public class ImageLayout extends FrameLayout {
 		}
 	}
 
+	public void setImageWithResource(Integer resId, Transformation transform) {
+		RequestCreator creator = Picasso
+				.with(getContext())
+				.load(resId);
+
+		if (transform != null) {
+			creator.transform(transform);
+		}
+
+		creator.into(this.imageView);
+	}
+
 	public void showLoading(final Boolean visible) {
 
 		Patchr.mainThreadHandler.post(new Runnable() {
@@ -235,7 +255,7 @@ public class ImageLayout extends FrameLayout {
 		requestLayout();
 	}
 
-	private void loadImageView(@NonNull final Photo photo, final Transformation transform) {
+	private void loadImageView(@NonNull final Photo photo, final Transformation transform, Callback callback) {
 		/*
 		 * This is the only patch in the code that turns on proxy handling.
 		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
@@ -270,7 +290,7 @@ public class ImageLayout extends FrameLayout {
 			if (transform != null) {
 				creator.transform(transform);
 			}
-			creator.into(this.imageView);
+			creator.into(this.imageView, callback);
 		}
 		else {  /* url */
 
@@ -287,7 +307,7 @@ public class ImageLayout extends FrameLayout {
 					creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
 				}
 			}
-			creator.into(this.imageView);
+			creator.into(this.imageView, callback);
 		}
 	}
 

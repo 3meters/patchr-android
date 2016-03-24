@@ -25,6 +25,7 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Entity;
+import com.patchr.objects.Patch;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.User;
 import com.patchr.utilities.Errors;
@@ -117,10 +118,10 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 	}
 
 	public void bind(Entity entity) {
-		bind(entity, false, false);
+		bind(entity, null);
 	}
 
-	public void bind(Entity entity, Boolean enableEdit, Boolean asOwner) {
+	public void bind(Entity entity, Patch patch) {
 
 		synchronized (lock) {
 
@@ -150,15 +151,17 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 				base.setOrGone(this.email, user.email);
 			}
 
-			if (asOwner) {
-				base.setOrGone(this.role, User.Role.OWNER);
-			}
-
-			if (enableEdit && !asOwner) {
-				this.removeButton.setTag(entity);
-				this.enableSwitch.setChecked(entity.linkEnabled);
-				this.enableLabel.setText(entity.linkEnabled ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
-				UI.setVisibility(this.editGroup, VISIBLE);
+			if (patch != null) {
+				this.patch = patch;
+				if (user.id.equals(patch.ownerId)) {
+					base.setOrGone(this.role, User.Role.OWNER);
+				}
+				else {
+					this.removeButton.setTag(entity);
+					this.enableSwitch.setChecked(entity.linkEnabled);
+					this.enableLabel.setText(entity.linkEnabled ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
+					UI.setVisibility(this.editGroup, VISIBLE);
+				}
 			}
 		}
 	}

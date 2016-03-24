@@ -68,7 +68,7 @@ public class SearchItemView extends FrameLayout {
 		this.subtitle = (TextView) layout.findViewById(R.id.subtitle);
 	}
 
-	public void databind(Entity entity) {
+	public void bind(Entity entity) {
 
 		synchronized (lock) {
 

@@ -38,7 +38,6 @@ import com.patchr.components.StringManager;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Patch;
-import com.patchr.objects.Command;
 import com.patchr.ui.components.AirClusterRenderer;
 import com.patchr.utilities.Dialogs;
 

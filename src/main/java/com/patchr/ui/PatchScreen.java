@@ -55,6 +55,7 @@ import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.ActionType;
+import com.patchr.objects.Command;
 import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
@@ -63,7 +64,6 @@ import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
-import com.patchr.objects.Command;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.WatchStatus;
@@ -127,41 +127,36 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	@Override protected void onResume() {
 		super.onResume();
 
-		if (!isFinishing()) {
+		Patchr.getInstance().setCurrentPatch(entity);
 
-			Patchr.getInstance().setCurrentPatch(entity);
-			if (this.entity != null) {
-				bind();
-			}
+		bind();                             // Shows any data we already have
+		fetch(FetchMode.AUTO);              // Checks for data changes and binds again if needed
+		if (this.listPresenter != null) {
+			this.listPresenter.onResume();  // Update ui
+		}
 
-			fetch(FetchMode.AUTO);
-
-			if (this.listPresenter != null) {
-				this.listPresenter.onResume();
-			}
-
-			if (entity != null && entity instanceof Patch) {
-				Patch patch = (Patch) entity;
-				if (referrerName != null) {     // Active invitation
-					if (bottomSheetLayout.isSheetShowing()) {
-						if (UserManager.shared().authenticated() && patch.watchStatus() != WatchStatus.NONE) {
-							bottomSheetLayout.dismissSheet();
-						}
-						else if (UserManager.shared().authenticated() != authenticatedForInvite) {
-							showInviteWelcome(1000);
-						}
+		/* Check for invitation */
+		if (entity != null && entity instanceof Patch) {
+			Patch patch = (Patch) entity;
+			if (referrerName != null) {     // Active invitation
+				if (bottomSheetLayout.isSheetShowing()) {
+					if (UserManager.shared().authenticated() && patch.watchStatus() != WatchStatus.NONE) {
+						bottomSheetLayout.dismissSheet();
 					}
-					else {
-						showInviteWelcome(1500);
+					else if (UserManager.shared().authenticated() != authenticatedForInvite) {
+						showInviteWelcome(1000);
 					}
 				}
+				else {
+					showInviteWelcome(1500);
+				}
 			}
+		}
 
-			if (autoJoin) {
-				joinAction();
-				UI.showToastNotification("You are now a member of this patch!", Toast.LENGTH_SHORT);
-				autoJoin = false;
-			}
+		if (autoJoin) {
+			joinAction();
+			UI.showToastNotification("You are now a member of this patch!", Toast.LENGTH_SHORT);
+			autoJoin = false;
 		}
 	}
 
@@ -196,10 +191,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 			id = (Integer) view.getTag();
 		}
 
-		if (id == R.id.add) {
-			addAction();
-		}
-		else if (id == R.id.fab) {
+		if (id == R.id.fab) {
 			addAction();
 		}
 		else if (id == R.id.invite) {
@@ -277,14 +269,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 	@Override public void onRefresh() {
 		fetch(FetchMode.MANUAL);
-		if (this.listPresenter != null) {
-			if (!isFinishing()) {
-				this.listPresenter.refresh();
-			}
-			else {
-				this.listPresenter.busyPresenter.hide(false);
-			}
-		}
 	}
 
 	@Override public NdefMessage createNdefMessage(NfcEvent event) {
@@ -338,9 +322,8 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	}
 
 	public void onFetchComplete() {
-		super.onFetchComplete();
-		bind();
-		supportInvalidateOptionsMenu();    // In case user authenticated
+		super.onFetchComplete();            // Handles busy ui
+		supportInvalidateOptionsMenu();     // In case user authenticated
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -350,22 +333,37 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	@Subscribe(threadMode = ThreadMode.MAIN) public void onEntityResult(final EntityQueryResultEvent event) {
 
 		if (event.actionType == ActionType.ACTION_GET_ENTITY) {
-
 			if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
+				if (event.error != null) {
+					onFetchComplete();
+					return;
+				}
 
-				Boolean firstBind = (entity == null);
-				this.entity = event.entity;
-				this.listPresenter.scopingEntity = event.entity;
-				this.listPresenter.scopingEntityId = event.entity.id;
-				if (firstBind && referrerName != null) {     // Active invitation
-					showInviteWelcome(1500);
+				this.bound = true;
+
+				if (!event.noop) {
+
+					Logger.v(this, "Data result accepted: " + event.actionType.name());
+					Boolean firstBind = (this.entity == null);
+
+					this.entity = event.entity;
+					this.listPresenter.scopingEntity = event.entity;
+					this.listPresenter.scopingEntityId = event.entity.id;
+					Patchr.getInstance().setCurrentPatch(entity);   // Fresh!
+
+					if (firstBind && referrerName != null) {     // Active invitation
+						showInviteWelcome(1500);
+					}
+
+					if (firstBind) {
+						makeBranchLink();           // Create or refresh so it's ready and correct
+					}
+
+					this.listPresenter.fetch(event.fetchMode); // Next in the chain
 				}
-				Patchr.getInstance().setCurrentPatch(entity);
-				if (firstBind) {
-					makeBranchLink();           // Create or refresh so it's ready and correct
-				}
+
 				onFetchComplete();
-				this.listPresenter.fetch(FetchMode.AUTO);
+				bind();
 			}
 		}
 	}
@@ -391,10 +389,11 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 				&& (event.entity == null || event.entity.id.equals(entityId))) {
 
 			Logger.v(this, "Data result accepted: " + event.actionType.name());
-
-			if (event.actionType == ActionType.ACTION_LINK_INSERT_MEMBER
-					|| event.actionType == ActionType.ACTION_LINK_DELETE_MEMBER) {
-				fetch(FetchMode.AUTO);
+			if (event.error == null) {
+				if (event.actionType == ActionType.ACTION_LINK_INSERT_MEMBER
+						|| event.actionType == ActionType.ACTION_LINK_DELETE_MEMBER) {
+					fetch(FetchMode.AUTO);
+				}
 			}
 		}
 	}
@@ -595,76 +594,50 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	}
 
 	public void bind() {
-		assert this.entity != null;
-		watchStatus = ((Patch) entity).watchStatus();
-		header.databind(this.entity);
-		bindActionView();
-	}
+		if (this.entity != null) {
 
-	public void bindActionView() {
+			watchStatus = ((Patch) entity).watchStatus();
+			header.bind(this.entity);
 
-		ViewGroup actionView = (ViewGroup) header.findViewById(R.id.action_group);
-
-		if (actionView != null && entity != null) {
-
-			Patch patch = (Patch) entity;
-			Boolean owner = (UserManager.shared().authenticated() && patch.ownerId != null && patch.ownerId.equals(UserManager.currentUser.id));
-			Boolean hasMessaged = (entity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
-			Boolean isPublic = (patch.privacy != null
-					&& patch.privacy.equals(Constants.PRIVACY_PUBLIC)
-					&& patch.isVisibleToCurrentUser());
-
-			TextView buttonAlert = (TextView) actionView.findViewById(R.id.action_button);
-			if (buttonAlert == null) return;
-
-			Count requestCount = entity.getCount(Constants.TYPE_LINK_MEMBER, null, false, Link.Direction.in);
-
-			if (watchStatus == WatchStatus.NONE) {
-				buttonAlert.setText(R.string.button_list_watch_request);
-				buttonAlert.setTag(R.id.join_button);
-				return;
+			if (listPresenter != null) {
+				listPresenter.bind();
 			}
 
-			/* Owner */
+			/* Bind action button */
+			{
+				ViewGroup actionView = (ViewGroup) header.findViewById(R.id.action_group);
 
-			if (owner) {
-				/*
-				 * - Member requests then alert to handle
-				 * - No messages then alert to invite
-				 */
-				if (requestCount != null) {
-					String requests = getResources().getQuantityString(R.plurals.button_pending_requests, requestCount.count.intValue(), requestCount.count.intValue());
-					buttonAlert.setText(requests);
-					buttonAlert.setTag(R.id.members_button);
-				}
-				else {
-					buttonAlert.setText(StringManager.getString(R.string.button_list_share));
-					buttonAlert.setTag(R.id.invite);
-				}
-			}
+				if (actionView != null && entity != null) {
 
-			/* Members */
+					Patch patch = (Patch) entity;
+					Boolean owner = (UserManager.shared().authenticated() && patch.ownerId != null && patch.ownerId.equals(UserManager.currentUser.id));
+					Boolean hasMessaged = (entity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
+					Boolean isPublic = (patch.privacy != null
+							&& patch.privacy.equals(Constants.PRIVACY_PUBLIC)
+							&& patch.isVisibleToCurrentUser());
 
-			else {
-				if (isPublic) {
-					if (!hasMessaged) {
-						buttonAlert.setText(StringManager.getString(R.string.button_no_message));
-						buttonAlert.setTag(R.id.add);
-					}
-					else {
-						buttonAlert.setText(StringManager.getString(R.string.button_list_share));
-						buttonAlert.setTag(R.id.invite);
-					}
-				}
-				else {
-					if (watchStatus == WatchStatus.REQUESTED) {
-						buttonAlert.setText(R.string.button_list_watch_request_cancel);
+					TextView buttonAlert = (TextView) actionView.findViewById(R.id.action_button);
+					if (buttonAlert == null) return;
+
+					Count requestCount = entity.getCount(Constants.TYPE_LINK_MEMBER, null, false, Link.Direction.in);
+
+					if (watchStatus == WatchStatus.NONE) {
+						buttonAlert.setText(R.string.button_list_watch_request);
 						buttonAlert.setTag(R.id.join_button);
+						return;
 					}
-					else if (watchStatus == WatchStatus.WATCHING) {
-						if (!hasMessaged) {
-							buttonAlert.setText(StringManager.getString(R.string.button_no_message));
-							buttonAlert.setTag(R.id.add);
+
+					/* Owner */
+
+					if (owner) {
+						/*
+						 * - Member requests then alert to handle
+						 * - No messages then alert to invite
+						 */
+						if (requestCount != null) {
+							String requests = getResources().getQuantityString(R.plurals.button_pending_requests, requestCount.count.intValue(), requestCount.count.intValue());
+							buttonAlert.setText(requests);
+							buttonAlert.setTag(R.id.members_button);
 						}
 						else {
 							buttonAlert.setText(StringManager.getString(R.string.button_list_share));
@@ -672,14 +645,45 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 						}
 					}
 
-					if (justApproved) {  // We add a little sugar by using a flag set by an 'approved' notification
-						if (hasMessaged) {
-							buttonAlert.setText(StringManager.getString(R.string.button_just_approved));
-							buttonAlert.setTag(R.id.invite);
+					/* Members */
+
+					else {
+						if (isPublic) {
+							if (!hasMessaged) {
+								buttonAlert.setText(StringManager.getString(R.string.button_no_message));
+								buttonAlert.setTag(R.id.fab);
+							}
+							else {
+								buttonAlert.setText(StringManager.getString(R.string.button_list_share));
+								buttonAlert.setTag(R.id.invite);
+							}
 						}
 						else {
-							buttonAlert.setText(StringManager.getString(R.string.button_just_approved_no_message));
-							buttonAlert.setTag(R.id.add);
+							if (watchStatus == WatchStatus.REQUESTED) {
+								buttonAlert.setText(R.string.button_list_watch_request_cancel);
+								buttonAlert.setTag(R.id.join_button);
+							}
+							else if (watchStatus == WatchStatus.WATCHING) {
+								if (!hasMessaged) {
+									buttonAlert.setText(StringManager.getString(R.string.button_no_message));
+									buttonAlert.setTag(R.id.fab);
+								}
+								else {
+									buttonAlert.setText(StringManager.getString(R.string.button_list_share));
+									buttonAlert.setTag(R.id.invite);
+								}
+							}
+
+							if (justApproved) {  // We add a little sugar by using a flag set by an 'approved' notification
+								if (hasMessaged) {
+									buttonAlert.setText(StringManager.getString(R.string.button_just_approved));
+									buttonAlert.setTag(R.id.invite);
+								}
+								else {
+									buttonAlert.setText(StringManager.getString(R.string.button_just_approved_no_message));
+									buttonAlert.setTag(R.id.fab);
+								}
+							}
 						}
 					}
 				}

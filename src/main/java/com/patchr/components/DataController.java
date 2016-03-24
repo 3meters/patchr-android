@@ -11,8 +11,6 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.NetworkManager.ResponseCode;
-import com.patchr.events.DataErrorEvent;
-import com.patchr.events.DataNoopEvent;
 import com.patchr.events.DataQueryResultEvent;
 import com.patchr.events.EntitiesQueryEvent;
 import com.patchr.events.EntitiesQueryResultEvent;
@@ -102,16 +100,6 @@ public class DataController {
 
 		/* Called on main thread */
 
-		/* Provide cache entity if available */
-		final Entity entity = ENTITY_STORE.getStoreEntity(event.entityId);
-		if (entity != null) {
-			EntityQueryResultEvent data = new EntityQueryResultEvent()
-					.setActionType(event.actionType)
-					.setEntity(entity)
-					.setTag(event.tag);
-			Dispatcher.getInstance().post(data);
-		}
-
 		/* Check service for fresher version of the entity */
 		new AsyncTask() {
 
@@ -125,34 +113,27 @@ public class DataController {
 
 				ServiceResponse serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, links, event.cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
+				EntityQueryResultEvent data = new EntityQueryResultEvent()
+						.setActionType(event.actionType)
+						.setFetchMode(event.fetchMode)
+						.setTag(event.tag);
+
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					ServiceData serviceData = (ServiceData) serviceResponse.data;
 					final List<Entity> entities = (List<Entity>) serviceData.data;
+
 					if (entities.size() > 0) {
-						Entity entity = entities.get(0);
-						EntityQueryResultEvent data = new EntityQueryResultEvent()
-								.setActionType(event.actionType)
-								.setMode(event.fetchMode)
-								.setEntity(entity)
-								.setTag(event.tag);
-						Dispatcher.getInstance().post(data);
+						data.entity = entities.get(0);
 					}
 					else {
-						/*
-						 * We can't tell the difference between an entity missing because of the where criteria
-						 * or because of no match on the entity id. We treat both cases as a no-op.
-						 */
-						DataNoopEvent noop = new DataNoopEvent().setActionType(event.actionType).setTag(event.tag);
-						Dispatcher.getInstance().post(noop);
+						data.noop = true; // Could be missing because of criteria or no match on entity id.
 					}
 				}
 				else {
-					DataErrorEvent error = new DataErrorEvent(serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setMode(event.fetchMode)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
+					data.error = serviceResponse.errorResponse;
 				}
+				Dispatcher.getInstance().post(data);
+
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
@@ -176,35 +157,29 @@ public class DataController {
 
 				ServiceResponse serviceResponse = ENTITY_STORE.loadEntitiesForEntity(event.entityId, options, event.cursor, event.cacheStamp, null, event.tag);
 
+				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
+						.setActionType(event.actionType)
+						.setCursor(event.cursor)
+						.setTag(event.tag);
+
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+
 					ServiceData serviceData = (ServiceData) serviceResponse.data;
+					data.more = serviceData.more;
+					data.scopingEntity = serviceData.entity;  // Entity straight from db and not processed by getEntities
+					data.entities = (List<Entity>) serviceData.data;
 					/*
 					 * The parent entity is always returned unless we pass a cache stamp and it does
 					 * not have a fresher cache stamp.
                      */
 					if (event.cacheStamp != null && serviceData.entity == null) {
-						DataNoopEvent noop = new DataNoopEvent().setActionType(event.actionType).setTag(event.tag);
-						Dispatcher.getInstance().post(noop);
-					}
-					else {
-						EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
-								.setEntities((List<Entity>) serviceData.data)
-								.setMore(serviceData.more)
-								.setActionType(event.actionType)
-								.setMode(event.fetchMode)
-								.setCursor(event.cursor)
-								.setScopingEntity(serviceData.entity)  // Entity straight from db and not processed by getEntities
-								.setTag(event.tag);
-						Dispatcher.getInstance().post(data);
+						data.noop = true;
 					}
 				}
 				else {
-					DataErrorEvent error = new DataErrorEvent(serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setMode(event.fetchMode)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
+					data.error = serviceResponse.errorResponse;
 				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
@@ -227,25 +202,21 @@ public class DataController {
 						, event.cursor
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
+				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
+						.setCursor(event.cursor)
+						.setActionType(event.actionType)
+						.setTag(event.tag);
+
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (result.data != null) {
-						EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
-								.setEntities((List<Entity>) result.data)
-								.setCursor(event.cursor)
-								.setActionType(event.actionType)
-								.setMode(event.fetchMode)
-								.setMore(((ServiceData) result.serviceResponse.data).more)
-								.setTag(event.tag);
-						Dispatcher.getInstance().post(data);
+						data.entities = (List<Entity>) result.data;
+						data.more = ((ServiceData) result.serviceResponse.data).more;
 					}
 				}
 				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setMode(event.fetchMode)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
+					data.error = result.serviceResponse.errorResponse;
 				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
@@ -264,25 +235,21 @@ public class DataController {
 						, event.cursor
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
+				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
+						.setCursor(event.cursor)
+						.setActionType(event.actionType)
+						.setTag(event.tag);
+
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (result.data != null) {
-						EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
-								.setEntities((List<Entity>) result.data)
-								.setCursor(event.cursor)
-								.setActionType(event.actionType)
-								.setMode(event.fetchMode)
-								.setMore(((ServiceData) result.serviceResponse.data).more)
-								.setTag(event.tag);
-						Dispatcher.getInstance().post(data);
+						data.entities = (List<Entity>) result.data;
+						data.more = ((ServiceData) result.serviceResponse.data).more;
 					}
 				}
 				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setMode(event.fetchMode)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
+					data.error = result.serviceResponse.errorResponse;
 				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
@@ -304,18 +271,13 @@ public class DataController {
 						, event.toShortcut, event.actionEvent, event.skipCache, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, event.fromShortcut
 				);
 
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataQueryResultEvent data = new DataQueryResultEvent()
-							.setActionType(event.actionType)
-							.setTag(event.tag);
-					Dispatcher.getInstance().post(data);
+				DataQueryResultEvent data = new DataQueryResultEvent()
+						.setActionType(event.actionType)
+						.setTag(event.tag);
+				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
+					data.error = result.serviceResponse.errorResponse;
 				}
-				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
-				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
@@ -331,18 +293,13 @@ public class DataController {
 
 				ModelResult result = muteLink(event.linkId, event.mute, event.actionEvent);
 
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataQueryResultEvent data = new DataQueryResultEvent()
-							.setActionType(event.actionType)
-							.setTag(event.tag);
-					Dispatcher.getInstance().post(data);
+				DataQueryResultEvent data = new DataQueryResultEvent()
+						.setActionType(event.actionType)
+						.setTag(event.tag);
+				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
+					data.error = result.serviceResponse.errorResponse;
 				}
-				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
-				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
@@ -364,18 +321,13 @@ public class DataController {
 						, event.actionEvent
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataQueryResultEvent data = new DataQueryResultEvent()
-							.setActionType(event.actionType)
-							.setTag(event.tag);
-					Dispatcher.getInstance().post(data);
+				DataQueryResultEvent data = new DataQueryResultEvent()
+						.setActionType(event.actionType)
+						.setTag(event.tag);
+				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
+					data.error = result.serviceResponse.errorResponse;
 				}
-				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
-				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
@@ -393,19 +345,17 @@ public class DataController {
 						, event.userId
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
+				DataQueryResultEvent data = new DataQueryResultEvent()
+						.setActionType(event.actionType)
+						.setTag(event.tag);
+
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataQueryResultEvent data = new DataQueryResultEvent()
-							.setActionType(event.actionType)
-							.setData(result.data)
-							.setTag(event.tag);
-					Dispatcher.getInstance().post(data);
+					data.data = result.data;
 				}
 				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
+					data.error = result.serviceResponse.errorResponse;
 				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
@@ -1717,5 +1667,11 @@ public class DataController {
 		USERS,
 		PATCHES_USERS,
 		ALL
+	}
+
+	public enum FetchStrategy {
+		UseCache,
+		UseCacheAndVerify,
+		IgnoreCache
 	}
 }

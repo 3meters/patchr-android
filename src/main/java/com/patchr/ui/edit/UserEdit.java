@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.patchr.Patchr;
@@ -28,6 +29,7 @@ public class UserEdit extends BaseEdit {
 
 	private EditText area;
 	private EditText email;
+	private Button   submitDelete;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -181,6 +183,14 @@ public class UserEdit extends BaseEdit {
 	}
 
 	@Override public void confirmDelete() {
+		final EditText textConfirm = new EditText(this);
+		textConfirm.addTextChangedListener(new SimpleTextWatcher() {
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				submitDelete.setEnabled(s.toString().equals("YES"));
+			}
+		});
 		final AlertDialog dialog = Dialogs.alertDialog(null
 				, StringManager.getString(R.string.alert_delete_account_title)
 				, StringManager.getString(R.string.alert_delete_account_message)
@@ -199,6 +209,9 @@ public class UserEdit extends BaseEdit {
 					}
 				}
 				, null);
+		dialog.setView(textConfirm);
+		submitDelete = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+		submitDelete.setEnabled(false);
 		dialog.setCanceledOnTouchOutside(false);
 	}
 }

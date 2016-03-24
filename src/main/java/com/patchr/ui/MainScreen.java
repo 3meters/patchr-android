@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,14 +43,14 @@ import com.patchr.events.RegisterInstallEvent;
 import com.patchr.events.TrendQueryEvent;
 import com.patchr.objects.ActionType;
 import com.patchr.objects.CacheStamp;
+import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.Notification;
 import com.patchr.objects.Photo;
-import com.patchr.objects.Command;
 import com.patchr.objects.User;
-import com.patchr.ui.components.ListPresenter;
+import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.ui.fragments.EntityListFragment;
 import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.ui.fragments.NearbyListFragment;
@@ -63,10 +62,11 @@ import com.patchr.utilities.UI;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SuppressLint("Registered")
-public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEntitiesHandler {
+public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectEntitiesHandler {
 
 	protected Number  pauseDate;
 	protected Boolean configuredForAuthenticated;
@@ -274,10 +274,6 @@ public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEnti
 		drawerLayout.closeDrawer(drawerLeft);
 	}
 
-	public void onFabButtonClick(View view) {
-		Patchr.router.route(this, Command.NEW_PATCH, null, null);
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
@@ -415,7 +411,7 @@ public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEnti
 		fragmentNotifications.layoutResId = R.layout.notification_list_fragment;
 		fragmentNotifications.injectEntitiesHandler = this;
 		fragmentNotifications.listItemResId = R.layout.temp_listitem_notification;
-		fragmentNotifications.emptyMessageResId = R.string.label_notifications_empty;
+		fragmentNotifications.emptyMessageResId = R.string.empty_notifications;
 		fragmentNotifications.query = NotificationsQueryEvent.build(ActionType.ACTION_GET_NOTIFICATIONS, UserManager.userId);
 
 		if (drawerRight != null) {
@@ -556,12 +552,12 @@ public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEnti
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void injectEntities(ArrayAdapter adapter, ActionType actionType) {
+	@Override public void injectEntities(List<Entity> entities, ActionType actionType) {
 		if (actionType == ActionType.ACTION_GET_NOTIFICATIONS) {
 			/* Nearby notifications are local only so inject them */
 			for (Map.Entry<String, Notification> entry : NotificationManager.getInstance().getNotifications().entrySet()) {
 				if (entry.getValue().getTriggerCategory().equals(Notification.TriggerCategory.NEARBY)) {
-					this.fragmentNotifications.listPresenter.entities.add(entry.getValue());
+					entities.add(entry.getValue());
 				}
 			}
 		}
@@ -578,29 +574,23 @@ public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEnti
 			fragment = fragments.get(fragmentType);
 		}
 		else {
-
-			/* Nearby */
-
 			if (fragmentType.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
 
 				fragment = new NearbyListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
 				listFragment.listItemResId = R.layout.temp_listitem_patch;
-				listFragment.emptyMessageResId = R.string.label_nearby_empty;
+				listFragment.emptyMessageResId = R.string.empty_nearby;
 				listFragment.titleResId = R.string.form_title_nearby;
-				listFragment.headerView = LayoutInflater.from(this).inflate(R.layout.widget_list_header_nearby, null);
+				listFragment.headerView = LayoutInflater.from(this).inflate(R.layout.nearby_header_view, null);
 			}
-
-			/* Watching */
-
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_WATCH)) {
 
 				fragment = new EntityListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
 				listFragment.listItemResId = R.layout.temp_listitem_patch;
-				listFragment.emptyMessageResId = R.string.label_member_of_empty;
+				listFragment.emptyMessageResId = R.string.empty_member_of;
 				listFragment.titleResId = R.string.form_title_watch;
 				listFragment.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
 						, Maps.asMap("enabled", true)
@@ -609,16 +599,13 @@ public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEnti
 						, Constants.SCHEMA_ENTITY_PATCH
 						, UserManager.shared().authenticated() ? UserManager.currentUser.id : null);
 			}
-
-			/* Owner */
-
-			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_CREATE)) {
+			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_OWNER)) {
 
 				fragment = new EntityListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
 				listFragment.listItemResId = R.layout.temp_listitem_patch;
-				listFragment.emptyMessageResId = R.string.label_owner_of_empty;
+				listFragment.emptyMessageResId = R.string.empty_owner_of;
 				listFragment.titleResId = R.string.form_title_create;
 				listFragment.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
 						, Maps.asMap("enabled", true)
@@ -627,9 +614,6 @@ public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEnti
 						, Constants.SCHEMA_ENTITY_PATCH
 						, UserManager.shared().authenticated() ? UserManager.currentUser.id : null);
 			}
-
-			/* Trending active */
-
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_TREND_ACTIVE)) {
 
 				fragment = new EntityListFragment();
@@ -644,28 +628,23 @@ public class MainScreen extends BaseScreen implements ListPresenter.OnInjectEnti
 						, Constants.SCHEMA_ENTITY_PATCH
 						, Constants.TYPE_LINK_CONTENT);
 			}
-
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_SETTINGS)) {
 
 				nextFragmentTag = currentFragmentTag;
 				Patchr.router.route(this, Command.SETTINGS, null, null);
 				return;
 			}
-
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_FEEDBACK)) {
 
 				nextFragmentTag = currentFragmentTag;
 				Patchr.router.route(this, Command.FEEDBACK, null, null);
 				return;
 			}
-
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
 
 				fragment = new MapListFragment();
 			}
-
 			else {
-
 				return;
 			}
 

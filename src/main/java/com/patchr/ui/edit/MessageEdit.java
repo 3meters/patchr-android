@@ -3,7 +3,6 @@ package com.patchr.ui.edit;
 import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -44,7 +43,6 @@ import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Picasso.LoadedFrom;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -154,30 +152,6 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 		if (toMode == ToMode.SINGLE && recipients.size() == 0) {
 			animatorTo.setDisplayedChild(0);
 		}
-	}
-
-	@Override public void onError(final String reason) {
-		super.onError(reason);
-		/*
-		 * ImageChooser error trying to pick or take a photo
-		 */
-		bindPhoto();
-	}
-
-	@Override public void onBitmapLoaded(Bitmap bitmap, LoadedFrom loadedFrom) {
-		super.onBitmapLoaded(bitmap, loadedFrom);
-
-		animatorPhoto.setInAnimation(MessageEdit.this, R.anim.slide_in_bottom_long);
-		animatorPhoto.requestLayout();
-		animatorPhoto.setDisplayedChild(1);
-		animatorPhoto.setInAnimation(MessageEdit.this, R.anim.fade_in_medium);
-	}
-
-	@Override public void onBitmapFailed(Drawable arg0) {
-		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
-		onCancelPhotoButtonClick(null);
-		bindPhoto();
-		this.processing = false;
 	}
 
 	protected void onPhotoCanceled() {
@@ -511,7 +485,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 				share.addView(messageView);
 			}
 			else {
-				buttonPhotoDelete.setVisibility(View.GONE);
+				photoEditView.setVisibility(View.GONE);
 			}
 
 			if (shareSchema.equals(Constants.SCHEMA_ENTITY_PATCH)

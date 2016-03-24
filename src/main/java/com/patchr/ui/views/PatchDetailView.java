@@ -83,7 +83,7 @@ public class PatchDetailView extends FrameLayout implements View.OnClickListener
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void databind(Entity entity) {
+	public void bind(Entity entity) {
 
 		synchronized (lock) {
 

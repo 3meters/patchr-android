@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
-import com.patchr.R;
 import com.patchr.components.ActivityRecognitionManager.ActivityState;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.events.ActivityStateEvent;
@@ -282,7 +281,6 @@ public class ProximityController {
 
 		/* Cursor */
 		Cursor cursor = new Cursor()
-				.setLimit(Patchr.applicationContext.getResources().getInteger(R.integer.limit_patches_radar))
 				.setSort(Maps.asMap("modifiedDate", -1))
 				.setSkip(0);
 

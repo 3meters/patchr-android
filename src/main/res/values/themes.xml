@@ -189,4 +189,14 @@
 		<item name="android:backgroundDimEnabled">false</item>
 	</style>
 
+	<!-- Semi translucent theme versions -->
+
+	<style name="patchr_theme_semi_transparent" parent="patchr_theme">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowIsTranslucent">true</item>
+		<item name="android:windowBackground">@android:color/transparent</item>
+		<item name="android:backgroundDimEnabled">true</item>
+		<item name="android:backgroundDimAmount">0.4</item>
+	</style>
+
 </resources>

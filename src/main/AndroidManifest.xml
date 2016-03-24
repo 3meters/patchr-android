@@ -303,6 +303,12 @@
 			android:label="@string/form_title_patch_list"
 			android:windowSoftInputMode="stateHidden" />
 
+		<activity
+			android:name=".ui.MemberListScreen"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/form_title_patch_list"
+			android:windowSoftInputMode="stateHidden" />
+
 		<!-- Editing -->
 
 		<!-- MessageEdit Note: label setting is used in android share picker -->
@@ -390,9 +396,9 @@
 
 		<!-- Theme setting required to get dialog treatment for all theming -->
 		<activity
-			android:name=".ui.helpers.PhotoPicker"
+			android:name=".ui.PhotoPicker"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/patchr_theme_dialog"
+			android:theme="@style/patchr_theme_semi_transparent"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity

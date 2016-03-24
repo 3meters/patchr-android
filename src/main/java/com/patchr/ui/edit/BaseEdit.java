@@ -1,12 +1,9 @@
 package com.patchr.ui.edit;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,10 +14,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.kbeanie.imagechooser.api.ChooserType;
-import com.kbeanie.imagechooser.api.ChosenImage;
-import com.kbeanie.imagechooser.api.ImageChooserListener;
-import com.kbeanie.imagechooser.api.ImageChooserManager;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -45,7 +38,7 @@ import com.patchr.service.ServiceResponse;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.SimpleTextWatcher;
-import com.patchr.ui.views.ImageLayout;
+import com.patchr.ui.views.PhotoEditView;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
@@ -53,23 +46,18 @@ import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseEdit extends BaseScreen implements ImageChooserListener, Target {
+public abstract class BaseEdit extends BaseScreen {
 
-	protected ImageLayout         photoView;
-	protected TextView            name;
-	protected TextView            description;
-	protected View                buttonPhotoDelete;
-	protected View                buttonPhotoEdit;
-	protected View                buttonPhotoSet;
-	protected String              photoSource;
-	protected ImageChooserManager imageChooserManager;
-	protected AsyncTask           taskService;
+	protected PhotoEditView photoEditView;
+	protected TextView      name;
+	protected TextView      description;
+	protected String        photoSource;
+	protected AsyncTask     taskService;
 
 	protected Boolean brokenLink        = false;
 	protected Boolean proximityDisabled = false;
@@ -94,58 +82,6 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
-
-		final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
-		UI.showDrawableInImageView(bitmapDrawable, photoView.imageView, true);
-
-		this.processing = false;
-
-		UI.setVisibility(buttonPhotoEdit, View.VISIBLE);
-		UI.setVisibility(buttonPhotoDelete, View.VISIBLE);
-
-		photoView.showLoading(false);
-	}
-
-	@Override public void onBitmapFailed(Drawable arg0) {
-		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
-		bindPhoto();
-		this.processing = false;
-	}
-
-	@Override public void onPrepareLoad(Drawable drawable) { }
-
-	@Override public void onImageChosen(final ChosenImage image) {
-		runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				if (image != null) {
-					Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_used_from_device", null, 0);
-					final Uri photoUri = Uri.parse("file://" + image.getFilePathOriginal());
-					MediaManager.scanMedia(photoUri);
-					Photo photo = new Photo()
-							.setPrefix(photoUri.toString())
-							.setSource(Photo.PhotoSource.file);
-					onPhotoSelected(photo);
-				}
-			}
-		});
-	}
-
-	@Override public void onError(final String reason) {
-	    /*
-	     * Error trying to pick or take a photo
-		 */
-		runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				UI.showToastNotification(reason, Toast.LENGTH_SHORT);
-			}
-		});
-	}
-
 	@Override protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		/*
 		 * Called before onResume. If we are returning from the market app, we get a zero result code whether the user
@@ -153,56 +89,16 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 		 */
 		if (resultCode != Activity.RESULT_CANCELED) {
 
-			if (requestCode == Constants.ACTIVITY_PICTURE_SOURCE_PICK) {
+			if (requestCode == Constants.ACTIVITY_PHOTO_PICK) {
 
 				if (intent != null && intent.getExtras() != null) {
 					final Bundle extras = intent.getExtras();
-					final String photoSource = extras.getString(Constants.EXTRA_PHOTO_SOURCE);
-
-					if (!TextUtils.isEmpty(photoSource)) {
-						this.photoSource = photoSource;
-						switch (photoSource) {
-							case Constants.PHOTO_ACTION_SEARCH:
-								String defaultSearch = null;
-								if (entity.name != null) {
-									defaultSearch = entity.name.trim();
-								}
-								photoSearch(defaultSearch);
-								break;
-							case Constants.PHOTO_ACTION_GALLERY:
-								photoFromGallery();
-								break;
-							case Constants.PHOTO_ACTION_CAMERA:
-								photoFromCamera();
-								break;
-							case Constants.PHOTO_ACTION_DEFAULT:
-							case Constants.PHOTO_ACTION_WEBSITE_THUMBNAIL:
-								usePhotoDefault();
-								break;
-						}
-					}
-				}
-			}
-			else if (requestCode == Constants.ACTIVITY_PHOTO_SEARCH) {
-
-				Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_select_using_search", null, 0);
-				if (intent != null && intent.getExtras() != null) {
-
-					final Bundle extras = intent.getExtras();
-					final String json = extras.getString(Constants.EXTRA_PHOTO);
-					if (json != null) {
-						final Photo photo = (Photo) Json.jsonToObject(json, Json.ObjectType.PHOTO);
+					final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
+					if (jsonPhoto != null) {
+						final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
 						onPhotoSelected(photo);
 					}
 				}
-			}
-			else if (requestCode == ChooserType.REQUEST_PICK_PICTURE) {
-
-				imageChooserManager.submit(requestCode, intent);
-			}
-			else if (requestCode == ChooserType.REQUEST_CAPTURE_PICTURE) {
-
-				imageChooserManager.submit(requestCode, intent);
 			}
 			else if (requestCode == Constants.ACTIVITY_PHOTO_EDIT) {
 
@@ -221,36 +117,19 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 				}
 			}
 		}
-		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	public void onEditPhotoButtonClick(View view) {
-
-		/* Ensure photo logic has the latest property values */
-		gather();
-
-		/* Route it - editor loads image directly from s3 skipping imgix service  */
-		if (entity.photo != null) {
-			final String jsonPhoto = Json.objectToJson(entity.photo);
-			Bundle bundle = new Bundle();
-			bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.router.route(this, Command.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
+	public void onClick(View view) {
+		if (view.getId() == R.id.photo_set_button || view.getId() == R.id.photo_button) {
+			gather();
+			Patchr.router.route(this, Command.PHOTO_PICK, entity, null);
 		}
-	}
-
-	public void onChangePhotoButtonClick(View view) {
-
-		/* Ensure photo logic has the latest property values */
-		gather();
-
-		/* Route it */
-		Patchr.router.route(this, Command.PHOTO_SOURCE, entity, null);
-	}
-
-	public void onDeletePhotoButtonClick(View view) {
-		dirty = (editing);
-		entity.photo = null;
-		bindPhoto();
+		else if (view.getId() == R.id.photo_edit_button) {
+			editPhotoAction();
+		}
+		else if (view.getId() == R.id.photo_delete_button) {
+			deletePhotoAction();
+		}
 	}
 
 	public void onPhotoSelected(Photo photo) {
@@ -300,10 +179,7 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 
 		name = (TextView) findViewById(R.id.name);
 		description = (TextView) findViewById(R.id.description);
-		photoView = (ImageLayout) findViewById(R.id.photo);
-		buttonPhotoSet = findViewById(R.id.photo_set_button);
-		buttonPhotoEdit = findViewById(R.id.photo_edit_button);
-		buttonPhotoDelete = findViewById(R.id.photo_delete_button);
+		photoEditView = (PhotoEditView) findViewById(R.id.photo_edit);
 
 		if (name != null) {
 			name.addTextChangedListener(new SimpleTextWatcher() {
@@ -330,10 +206,6 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 					}
 				}
 			});
-		}
-
-		if (photoView != null) {
-			photoView.target = this;
 		}
 
 		/* Make new entity if we are not editing */
@@ -392,6 +264,26 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 		}
 	}
 
+	public void editPhotoAction() {
+
+		/* Ensure photo logic has the latest property values */
+		gather();
+
+		/* Route it - editor loads image directly from s3 skipping imgix service  */
+		if (entity.photo != null) {
+			final String jsonPhoto = Json.objectToJson(entity.photo);
+			Bundle bundle = new Bundle();
+			bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
+			Patchr.router.route(this, Command.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
+		}
+	}
+
+	public void deletePhotoAction() {
+		dirty = (editing);
+		entity.photo = null;
+		bindPhoto();
+	}
+
 	public void bind() {
 
 		if (this.entity != null) {
@@ -407,36 +299,7 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 	}
 
 	protected void bindPhoto() {
-
-		/* Can be called from main or background thread. */
-		runOnUiThread(
-				new Runnable() {
-					@Override public void run() {
-						if (photoView != null) {
-
-							/* Photo adornments */
-							UI.setVisibility(buttonPhotoSet, View.GONE);
-							UI.setVisibility(buttonPhotoEdit, View.GONE);
-							UI.setVisibility(buttonPhotoDelete, View.GONE);
-
-							if (entity.photo == null) {
-								UI.setVisibility(buttonPhotoSet, View.VISIBLE);
-							}
-							else {
-								UI.setVisibility(buttonPhotoEdit, View.VISIBLE);
-								UI.setVisibility(buttonPhotoDelete, View.VISIBLE);
-							}
-
-							if (entity.photo == null) {
-								photoView.imageView.setImageDrawable(null);
-							}
-							else {
-								processing = true;                             // So user can't post while we a trying to fetch the photo
-								photoView.setImageWithPhoto(entity.photo);    // Only place we try to load a photo
-							}
-						}
-					}
-				});
+		photoEditView.bind(entity.photo);
 	}
 
 	protected void beforeInsert(Entity entity, List<Link> links) {
@@ -715,14 +578,6 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 		entity.type = type;
 	}
 
-	protected void usePhotoDefault() {
-		/*
-		 * Setting the photo to null will trigger correct default handling.
-		 */
-		Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_set_to_default", null, 0);
-		onPhotoSelected(null);
-	}
-
 	protected void confirmDirtyExit() {
 
 		final AlertDialog dialog = Dialogs.alertDialog(null
@@ -752,63 +607,6 @@ public abstract class BaseEdit extends BaseScreen implements ImageChooserListene
 	/*--------------------------------------------------------------------------------------------
 	 * Pickers
 	 *--------------------------------------------------------------------------------------------*/
-
-	@SuppressLint("InlinedApi") protected void photoFromGallery() {
-
-		try {
-			String directory = MediaManager.getTempDirectory(MediaManager.tempDirectoryName);
-			if (directory != null) {
-				//noinspection deprecation
-				imageChooserManager = new ImageChooserManager(this
-						, ChooserType.REQUEST_PICK_PICTURE
-						, false);
-				imageChooserManager.setImageChooserListener((BaseEdit) this);
-				imageChooserManager.choose();
-			}
-			else {
-				UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
-			}
-		}
-		catch (Exception e) {
-			Reporting.logMessage("Image chooser failed to handle photo from device");
-			Reporting.logException(e);
-		}
-	}
-
-	protected void photoFromCamera() {
-		try {
-			String directory = MediaManager.getPhotoDirectory();
-			if (directory != null) {
-				//noinspection deprecation
-				imageChooserManager = new ImageChooserManager(this
-						, ChooserType.REQUEST_CAPTURE_PICTURE
-						, directory
-						, false);
-
-				imageChooserManager.setImageChooserListener((BaseEdit) this);
-				imageChooserManager.choose();
-			}
-			else {
-				UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
-			}
-		}
-		catch (IllegalArgumentException e) {
-			Reporting.logException(new IllegalArgumentException("Image chooser failed to handle photo from camera", e));
-		}
-		catch (Exception e) {
-			Reporting.logException(new Exception("Image chooser failed to handle photo from camera", e));
-		}
-	}
-
-	protected void photoSearch(String defaultSearch) {
-		Bundle extras = new Bundle();
-		extras.putString(Constants.EXTRA_SEARCH_PHRASE, defaultSearch);
-		Patchr.router.route(this, Command.PHOTO_SEARCH, null, extras);
-	}
-
-	protected void photoFromPlace(Entity entity) {
-		Patchr.router.route(this, Command.PHOTO_PLACE_SEARCH, entity, null);
-	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Services

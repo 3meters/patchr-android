@@ -621,6 +621,10 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
+	public Long idAsLong() {
+		return Long.parseLong(this.id.replaceAll("[^0-9]", "").substring(1));
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/

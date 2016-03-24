@@ -3,6 +3,7 @@ package com.patchr.ui.components;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
@@ -12,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Filter;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -140,6 +140,7 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 			});
 		}
 		else if (searchView != null && listView != null) {
+			listView.setLayoutManager(new LinearLayoutManager(context));
 			listView.setAdapter(adapter);
 			searchView.setOnQueryTextListener(this);
 		}
@@ -218,12 +219,12 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 
 	private class SuggestArrayAdapter extends RecyclerView.Adapter<ViewHolder> {
 
-		private Filter         filter;
-		private List<Entity>   seedEntities;
+		private List<Entity>   entities;
 		private LayoutInflater inflater;
 
-		private SuggestArrayAdapter(List<Entity> seedEntities) {
-			this.seedEntities = seedEntities;
+		private SuggestArrayAdapter(List<Entity> entities) {
+			this.entities = entities;
+			this.inflater = LayoutInflater.from(context);
 		}
 
 		@Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -232,12 +233,12 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 		}
 
 		@Override public void onBindViewHolder(ViewHolder holder, int position) {
-			Entity entity = entities.get(position);
+			Entity entity = this.entities.get(position);
 			holder.bind(entity);
 		}
 
 		@Override public int getItemCount() {
-			return entities.size();
+			return this.entities.size();
 		}
 	}
 

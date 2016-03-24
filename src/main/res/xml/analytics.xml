@@ -60,7 +60,7 @@
 	<!-- Builders -->
 
 	<screenName name="com.patchr.ui.helpers.LocationPicker">LocationPicker</screenName>
-	<screenName name="com.patchr.ui.helpers.PhotoPicker">PhotoPicker</screenName>
+	<screenName name="com.patchr.ui.PhotoPicker">PhotoPicker</screenName>
 	<screenName name="com.patchr.ui.helpers.PhotoSourcePicker">PhotoSourcePicker</screenName>
 	<screenName name="com.patchr.ui.helpers.PrivacyBuilder">PrivacyBuilder</screenName>
 

@@ -78,7 +78,7 @@ public class NotificationView extends FrameLayout {
 
 			/* User */
 			if (notification.photo != null) {
-				this.userPhoto.setImageWithPhoto(notification.photo);
+				this.userPhoto.setImageWithPhoto(notification.photo, null);
 			}
 			else if (notification.name != null) {
 				this.userPhoto.setImageWithText(notification.name, true);
@@ -97,7 +97,7 @@ public class NotificationView extends FrameLayout {
 			UI.setVisibility(this.notificationPhoto, GONE);
 			if (notification.photoBig != null) {
 				final Photo photo = notification.photoBig;
-				this.notificationPhoto.setImageWithPhoto(photo);
+				this.notificationPhoto.setImageWithPhoto(photo, null);
 				this.notificationPhoto.setTag(photo);
 				UI.setVisibility(this.notificationPhoto, VISIBLE);
 			}

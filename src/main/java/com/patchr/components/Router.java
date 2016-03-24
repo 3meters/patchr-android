@@ -24,9 +24,12 @@ import com.patchr.ui.ListScreen;
 import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.MainScreen;
 import com.patchr.ui.MapScreen;
+import com.patchr.ui.MemberListScreen;
 import com.patchr.ui.MessageScreen;
 import com.patchr.ui.PatchScreen;
+import com.patchr.ui.PhotoPicker;
 import com.patchr.ui.PhotoScreen;
+import com.patchr.ui.PhotoSearchScreen;
 import com.patchr.ui.SearchScreen;
 import com.patchr.ui.SettingsScreen;
 import com.patchr.ui.UserScreen;
@@ -36,15 +39,13 @@ import com.patchr.ui.edit.LoginEdit;
 import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.edit.PasswordEdit;
 import com.patchr.ui.edit.PatchEdit;
+import com.patchr.ui.edit.PrivacyEdit;
 import com.patchr.ui.edit.ProximityEdit;
 import com.patchr.ui.edit.RegisterEdit;
 import com.patchr.ui.edit.ReportEdit;
 import com.patchr.ui.edit.ResetEdit;
 import com.patchr.ui.edit.UserEdit;
 import com.patchr.ui.fragments.MapListFragment;
-import com.patchr.ui.helpers.PhotoPicker;
-import com.patchr.ui.PhotoSearchScreen;
-import com.patchr.ui.edit.PrivacyEdit;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
 
@@ -374,10 +375,10 @@ public class Router {
 			}
 		}
 
-		else if (route == Command.PHOTO_SOURCE) {
+		else if (route == Command.PHOTO_PICK) {
 
 			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoPicker.class);
-			((Activity) activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PICTURE_SOURCE_PICK);
+			((Activity) activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PHOTO_PICK);
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.DIALOG_TO);
 		}
 
@@ -431,6 +432,23 @@ public class Router {
 			AnimationManager.doOverridePendingTransition((Activity) activity, transitionType);
 		}
 
+		else if (route == Command.MEMBER_LIST) {
+
+			if (entity == null) {
+				throw new IllegalArgumentException("Dispatching user list requires entity");
+			}
+
+			Integer transitionType = TransitionType.VIEW_TO;
+			if (extras != null) {
+				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
+			}
+
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, MemberListScreen.class);
+			intentBuilder.setEntityId(entity.id).addExtras(extras);
+			activity.startActivity(intentBuilder.create());
+			AnimationManager.doOverridePendingTransition((Activity) activity, transitionType);
+		}
+
 		/* Command routing: deprecated, remove asap */
 
 		else if (route == Command.SUBMIT) {
@@ -464,8 +482,6 @@ public class Router {
 			return Command.SUBMIT;
 		else if (itemId == R.id.refresh)
 			return Command.REFRESH;
-		else if (itemId == R.id.add)
-			return Command.ADD;
 		else if (itemId == R.id.invite)
 			return Command.SHARE;
 		else if (itemId == R.id.share)

@@ -1,7 +1,6 @@
 package com.patchr.ui.fragments;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -12,7 +11,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -79,15 +77,14 @@ public class NearbyListFragment extends EntityListFragment {
 		bindActionButton(); // User might have logged in/out while gone
 		Dispatcher.getInstance().register(locationHandler);
 		Dispatcher.getInstance().unregister(ProximityController.getInstance()); /* Start foreground activity recognition - stop proximity manager from background recognition */
-		super.onStart();    // Calls fetch(FetchMode.AUTO)
+		super.onStart();    // Call chain fetch(FetchMode.AUTO) -> bind()
 	}
 
 	@Override public void onStop() {
 		super.onStop();
 
-		Dispatcher.getInstance().unregister(locationHandler);
-
 		/* Stop location updates */
+		Dispatcher.getInstance().unregister(locationHandler);
 		LocationManager.getInstance().stop();
 
 		/* Start background activity recognition with proximity manager as the listener. */
@@ -265,13 +262,13 @@ public class NearbyListFragment extends EntityListFragment {
 				Logger.d(getActivity(), "Entities changed event: updating radar");
 
 				/* Point radar adapter at the updated entities */
-				final int previousCount = listPresenter.adapter.getItemCount();
+				final int previousCount = listPresenter.entities.size();
 				final List<Entity> entities = event.entities;
 
 				Logger.d(getActivity(), "Entities changed: source = " + event.source + ", count = " + String.valueOf(entities.size()));
 				listPresenter.entities.clear();
 				listPresenter.entities.addAll(entities);
-				listPresenter.adapter.notifyDataSetChanged();
+				listPresenter.bind();
 
 				if (entities.size() >= 2) {
 					listPresenter.onFetchComplete(ResponseCode.SUCCESS);
@@ -303,7 +300,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 	@Subscribe public void onLocationAllowed(final LocationAllowedEvent event) {
 		fetch(FetchMode.MANUAL);
-		listPresenter.emptyPresenter.setLabel(StringManager.getString(R.string.label_nearby_empty));
+		listPresenter.emptyPresenter.setLabel(StringManager.getString(R.string.empty_nearby));
 	}
 
 	@Subscribe public void onLocationDenied(final LocationDeniedEvent event) {
@@ -328,42 +325,37 @@ public class NearbyListFragment extends EntityListFragment {
 		 */
 		Boolean stampDirty = !DataController.getInstance().getGlobalCacheStamp().equals(cacheStamp);
 
-		if (PermissionUtil.hasSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-			/* Start location processing */
-			if (LocationManager.getInstance().isLocationAccessEnabled()) {
-				/*
-				 * If manual mode then first location available is used and not possibly
-				 * optimized out. This ensures that the location based patches will be rebuilt
-				 * even if you haven't moved an inch.
-				 */
-				if (mode == FetchMode.MANUAL || stampDirty) {
-					LocationManager.getInstance().stop();
-					LocationManager.getInstance().start(true);  // Location update triggers searchForPatches
-				}
-				else {
-					LocationManager.getInstance().start(false); // Location update triggers searchForPatches
-				}
-				return;
+		/* Start location processing */
+		if (LocationManager.getInstance().isLocationAccessEnabled()) {
+			/*
+			 * If manual mode then first location available is used and not possibly
+			 * optimized out. This ensures that the location based patches will be rebuilt
+			 * even if you haven't moved an inch.
+			 */
+			if (mode == FetchMode.MANUAL || stampDirty) {
+				LocationManager.getInstance().stop();
+				LocationManager.getInstance().start(true);  // Location update triggers searchForPatches
 			}
 			else {
-				/* Let them know that location services are disabled */
-				if (!locationDialogShot.get()) {
-					Dialogs.locationServicesDisabled(getActivity(), locationDialogShot);
-				}
-				else {
-					UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
-				}
+				LocationManager.getInstance().start(false); // Location update triggers searchForPatches
 			}
-
-			/* Start a wifi scan */
-			if (NetworkManager.getInstance().isWifiEnabled()) {
-				searchForPatches(); // Chains from wifi to near (if location locked)
-				return;
-			}
+			return;
 		}
 		else {
-			showSnackbar();
+			/* Let them know that location services are disabled */
+			if (!locationDialogShot.get()) {
+				Dialogs.locationServicesDisabled(getActivity(), locationDialogShot);
+			}
+			else {
+				UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
+				showSnackbar();
+			}
+		}
+
+		/* Start a wifi scan */
+		if (NetworkManager.getInstance().isWifiEnabled()) {
+			searchForPatches(); // Chains from wifi to near (if location locked)
+			return;
 		}
 
 		/* Location is dead to us so time for pants off */
@@ -372,19 +364,10 @@ public class NearbyListFragment extends EntityListFragment {
 	}
 
 	public void bind() {
-		Activity activity = getActivity();
-		if (activity != null && !activity.isFinishing()) {
-			activity.runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					if (listPresenter.adapter != null) {
-						listPresenter.adapter.notifyDataSetChanged();
-					}
-					bindActionButton();
-				}
-			});
+		if (listPresenter != null) {
+			listPresenter.bind();
 		}
+		bindActionButton();
 	}
 
 	public void bindActionButton() {
@@ -392,32 +375,20 @@ public class NearbyListFragment extends EntityListFragment {
 		Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled()
 				|| LocationManager.getInstance().isLocationAccessEnabled());
 
-		if (getView() != null) {
+		TextView alertButton = (TextView) headerView.findViewById(R.id.action_button);
+		if (alertButton != null) {
 
-			ViewGroup alertGroup = (ViewGroup) getView().findViewById(R.id.action_group);
+			View rule = headerView.findViewById(R.id.action_rule);
+			if (rule != null && Constants.SUPPORTS_KIT_KAT) {
+				rule.setVisibility(View.GONE);
+			}
 
-			if (alertGroup != null) {
-
-				UI.setVisibility(alertGroup, View.GONE);
-
-				TextView alertButton = (TextView) getView().findViewById(R.id.action_button);
-				if (alertButton != null) {
-
-					View rule = getView().findViewById(R.id.action_rule);
-					if (rule != null && Constants.SUPPORTS_KIT_KAT) {
-						rule.setVisibility(View.GONE);
-					}
-
-					if (!UserManager.shared().authenticated()) {
-						alertButton.setText(R.string.button_alert_radar_anonymous);
-					}
-					else {
-						Count patched = UserManager.currentUser.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
-						alertButton.setText(patched == null ? R.string.button_alert_radar_no_patch : R.string.button_alert_radar);
-					}
-
-					UI.setVisibility(alertGroup, View.VISIBLE);
-				}
+			if (!UserManager.shared().authenticated()) {
+				alertButton.setText(R.string.button_alert_radar_anonymous);
+			}
+			else {
+				Count patched = UserManager.currentUser.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
+				alertButton.setText(patched == null ? R.string.button_alert_radar_no_patch : R.string.button_alert_radar);
 			}
 		}
 	}
@@ -460,7 +431,6 @@ public class NearbyListFragment extends EntityListFragment {
 	private void showSnackbar() {
 		if (getView() != null) {
 			Snackbar snackbar = Snackbar.make(getView(), "Snackbar", Snackbar.LENGTH_LONG);
-			//snackbar.getView().setBackgroundColor(Colors.getColor(R.color.brand_accent));
 			snackbar.setActionTextColor(Colors.getColor(R.color.brand_primary));
 			snackbar.setText(R.string.alert_location_permission_denied)
 					.setAction("Settings", new View.OnClickListener() {
@@ -511,10 +481,10 @@ public class NearbyListFragment extends EntityListFragment {
 			});
 		}
 		else {
-				/*
-				 * No explanation needed, we can request the permission.
-				 * Parent activity will broadcast an event when permission request is complete.
-				 */
+			/*
+			 * No explanation needed, we can request the permission.
+			 * Parent activity will broadcast an event when permission request is complete.
+			 */
 			ActivityCompat.requestPermissions(getActivity()
 					, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
 					, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);

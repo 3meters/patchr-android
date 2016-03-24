@@ -30,6 +30,7 @@
 			<!-- User picture -->
 
 			<com.patchr.ui.views.PhotoEditView
+				android:id="@+id/photo_edit"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"/>
 

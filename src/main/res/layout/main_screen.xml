@@ -41,7 +41,7 @@
 				android:src="@drawable/ic_add_dark"
 				custom:borderWidth="0dp"
 				custom:elevation="4dp"
-				custom:rippleColor="@color/brand_primary"
+				custom:layout_behavior="com.patchr.ui.components.ScrollAwareFabBehavior"
 				custom:useCompatPadding="true"
 				tools:visibility="visible" />
 

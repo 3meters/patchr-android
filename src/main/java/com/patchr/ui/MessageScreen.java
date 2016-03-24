@@ -496,7 +496,7 @@ public class MessageScreen extends BaseScreen {
 
 					/* Photo */
 					if (linkPlace.shortcut.photo != null) {
-						patchPhotoView.setImageWithPhoto(linkPlace.shortcut.photo);
+						patchPhotoView.setImageWithPhoto(linkPlace.shortcut.photo, null);
 					}
 					else {
 						patchPhotoView.setImageWithText(linkPlace.shortcut.name, false);
@@ -673,7 +673,7 @@ public class MessageScreen extends BaseScreen {
 
 			if (entity.photo != null) {
 				final Photo photo = entity.photo;
-				photoView.setImageWithPhoto(photo);
+				photoView.setImageWithPhoto(photo, null);
 				photoView.setTag(photo);
 				UI.setVisibility(photoView, View.VISIBLE);
 			}

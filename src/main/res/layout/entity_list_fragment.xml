@@ -16,16 +16,10 @@
 			android:id="@+id/entity_list"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:layout_alignParentTop="true"
-			android:layout_centerHorizontal="true"
 			android:animationCache="false"
 			android:background="?attr/backgroundCardField"
-			android:cacheColorHint="@color/transparent"
-			android:divider="?attr/ruleColor"
-			android:dividerHeight="@dimen/rule_divider_height"
-			android:footerDividersEnabled="false"
-			android:headerDividersEnabled="false"
-			android:listSelector="@color/transparent"
+			android:paddingBottom="4dp"
+			android:paddingTop="4dp"
 			android:scrollbars="none"
 			android:scrollingCache="false" />
 
@@ -38,7 +32,7 @@
 		android:layout_height="@dimen/button_round_height"
 		android:layout_centerInParent="true"
 		android:visibility="gone"
-		tools:text="@string/label_nearby_empty"
+		tools:text="@string/empty_nearby"
 		tools:visibility="visible" />
 
 	<com.patchr.ui.widgets.AirProgressBar

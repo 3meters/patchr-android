@@ -67,12 +67,12 @@ public class PhotoSearchScreen extends BaseScreen {
 
 	private GridView                gridView;
 	private AirAutoCompleteTextView search;
-	private final List<ImageResult> images = new ArrayList<ImageResult>();
+	private List<ImageResult>       images;
 
-	private long offset = 0;
-	private String query;
-	private String defaultSearch;
-	private List<String> previousSearches = new ArrayList<String>();
+	private long                 offset;
+	private String               query;
+	private String               defaultSearch;
+	private List<String>         previousSearches;
 	private ArrayAdapter<String> searchAdapter;
 	private String               titleOptional;
 	private Integer              photoWidthPixels;
@@ -85,10 +85,11 @@ public class PhotoSearchScreen extends BaseScreen {
 
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (!isFinishing()) {
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-		}
+
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 		this.emptyPresenter = new EmptyPresenter(findViewById(R.id.form_message));
+		this.images = new ArrayList<ImageResult>();
+		this.previousSearches = new ArrayList<>();
 		bind();
 	}
 
@@ -405,8 +406,7 @@ public class PhotoSearchScreen extends BaseScreen {
 			super(new ListAdapter(list));
 		}
 
-		@Override
-		protected boolean cacheInBackground() {
+		@Override protected boolean cacheInBackground() {
 			/*
 			 * Triggered first time the adapter runs and when this function reported
 			 * more available and the special pending view is being rendered by getView.
@@ -445,7 +445,7 @@ public class PhotoSearchScreen extends BaseScreen {
 
 							@Override
 							public void run() {
-								emptyPresenter.setLabel(StringManager.getString(R.string.label_photo_picker_empty) + " " + query);
+								emptyPresenter.setLabel(StringManager.getString(R.string.empty_photo_search) + " " + query);
 								emptyPresenter.show(true);
 							}
 						});
@@ -472,8 +472,7 @@ public class PhotoSearchScreen extends BaseScreen {
 			}
 		}
 
-		@Override
-		protected View getPendingView(ViewGroup parent) {
+		@Override protected View getPendingView(ViewGroup parent) {
 			/*
 			 * Gets called when adapter is being asked for a view for the last position
 			 * and the previous call to cacheInBackground reported that more = true. Also starts
@@ -489,8 +488,7 @@ public class PhotoSearchScreen extends BaseScreen {
 			return view;
 		}
 
-		@Override
-		protected void appendCachedData() {
+		@Override protected void appendCachedData() {
 			/*
 			 * Is called immediately after cacheInBackground regardless
 			 * of whether it returned true/false.
@@ -509,8 +507,7 @@ public class PhotoSearchScreen extends BaseScreen {
 			super(PhotoSearchScreen.this, 0, list);
 		}
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		@Override public View getView(int position, View convertView, ViewGroup parent) {
 
 			View view = convertView;
 			final ViewHolder holder;
@@ -536,7 +533,7 @@ public class PhotoSearchScreen extends BaseScreen {
 				holder.photoView.setTag(itemData.getThumbnail().getUrl());
 				Thumbnail thumbnail = itemData.getThumbnail();
 				Photo photo = new Photo().setPrefix(thumbnail.getUrl()).setSource(PhotoSource.bing);
-				holder.photoView.setImageWithPhoto(photo);
+				holder.photoView.setImageWithPhoto(photo, null);
 			}
 			return view;
 		}

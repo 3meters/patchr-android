@@ -9,34 +9,26 @@
 		android:layout_height="wrap_content">
 
 		<ImageButton
+			android:id="@+id/photo_button"
 			style="@style/button_outline"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/button_height"
 			android:layout_gravity="top"
 			android:alpha="0.6"
-			android:clickable="true"
-			android:onClick="onChangePhotoButtonClick"
+			android:onClick="onClick"
 			android:src="?attr/iconPicture" />
 
 		<RelativeLayout
-			android:id="@+id/photo_edit"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal">
 
 			<com.patchr.ui.views.ImageLayout
 				android:id="@+id/photo"
-				style="@style/selectable_image"
-				android:layout_width="@dimen/image_extra_large"
-				android:layout_height="@dimen/image_extra_large"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
 				android:layout_centerHorizontal="true"
-				android:background="?attr/backgroundRoundedPlaceholder"
-				android:clickable="true"
-				android:minWidth="@dimen/image_extra_large"
-				android:onClick="onChangePhotoButtonClick"
-				custom:category="standard"
-				custom:radius="16"
-				custom:shape="rounded" />
+				android:background="?attr/backgroundRoundedPlaceholder" />
 
 			<ImageButton
 				android:id="@+id/photo_set_button"
@@ -46,8 +38,7 @@
 				android:layout_centerInParent="true"
 				android:background="@drawable/bg_round"
 				android:backgroundTint="#bbffffff"
-				android:clickable="true"
-				android:onClick="onChangePhotoButtonClick"
+				android:onClick="onClick"
 				android:src="@drawable/ic_action_camera_dark"
 				android:text="@string/button_set_picture"
 				android:textAppearance="?android:attr/textAppearance"
@@ -65,7 +56,7 @@
 				android:backgroundTint="#bbffffff"
 				android:clickable="true"
 				android:foregroundTint="@color/brand_primary"
-				android:onClick="onEditPhotoButtonClick"
+				android:onClick="onClick"
 				android:src="@drawable/ic_action_edit_dark"
 				android:textAppearance="?android:attr/textAppearance"
 				android:textColor="?attr/textColorCandiView"
@@ -84,7 +75,7 @@
 				android:backgroundTint="#bbffffff"
 				android:clickable="true"
 				android:gravity="center"
-				android:onClick="onDeletePhotoButtonClick"
+				android:onClick="onClick"
 				android:src="@drawable/ic_action_cancel_dark"
 				android:textAppearance="?android:attr/textAppearance"
 				android:textColor="?attr/textColorCandiView"

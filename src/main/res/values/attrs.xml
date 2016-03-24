@@ -127,6 +127,14 @@
 		<attr name="shape" />
 		<attr name="radius" />
 	</declare-styleable>
+	<declare-styleable name="PhotoEditView">
+		<attr name="aspectRatio" />
+		<attr name="config" />
+		<attr name="showBusy" />
+		<attr name="category" />
+		<attr name="shape" />
+		<attr name="radius" />
+	</declare-styleable>
 	<declare-styleable name="ListPreferenceMultiSelect">
 		<attr name="keyId" />
 		<attr name="checkAll" />

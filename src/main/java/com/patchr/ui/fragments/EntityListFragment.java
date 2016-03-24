@@ -26,7 +26,6 @@ import com.patchr.objects.FetchMode;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.EmptyPresenter;
-import com.patchr.ui.components.ListPresenter;
 import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.UI;
@@ -55,10 +54,10 @@ import org.greenrobot.eventbus.ThreadMode;
  */
 public class EntityListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-	public RecyclePresenter                      listPresenter;
-	public AbsEntitiesQueryEvent                 query;
-	public ListPresenter.OnInjectEntitiesHandler injectEntitiesHandler;
-	public View                                  headerView;
+	public RecyclePresenter                         listPresenter;
+	public AbsEntitiesQueryEvent                    query;
+	public RecyclePresenter.OnInjectEntitiesHandler injectEntitiesHandler;
+	public View                                     headerView;
 
 	public Integer layoutResId;
 	public Integer listItemResId;
@@ -106,13 +105,15 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 		if (getActivity() != null && !getActivity().isFinishing()) {
 			configureStandardMenuItems(((BaseScreen) getActivity()).optionMenu);
 		}
-		fetch(FetchMode.AUTO);
 	}
 
 	@Override public void onResume() {
 		super.onResume();
-		if (listPresenter != null) {
-			listPresenter.onResume();
+
+		bind();                             // Shows any data we already have
+		fetch(FetchMode.AUTO);              // Checks for data changes and binds again if needed
+		if (this.listPresenter != null) {
+			this.listPresenter.onResume();  // Update ui
 		}
 	}
 
@@ -187,6 +188,12 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 	public void fetch(FetchMode fetchMode) {
 		if (listPresenter != null) {
 			listPresenter.fetch(fetchMode);
+		}
+	}
+
+	public void bind() {
+		if (listPresenter != null) {
+			listPresenter.bind();
 		}
 	}
 

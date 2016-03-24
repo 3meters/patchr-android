@@ -110,6 +110,7 @@
 					android:ellipsize="end"
 					android:gravity="center_vertical"
 					android:maxLines="1"
+					android:onClick="onClick"
 					android:paddingBottom="2dp"
 					android:paddingLeft="8dp"
 					android:paddingRight="8dp"
@@ -134,6 +135,7 @@
 					android:ellipsize="end"
 					android:gravity="center_vertical"
 					android:maxLines="1"
+					android:onClick="onClick"
 					android:paddingBottom="2dp"
 					android:paddingLeft="8dp"
 					android:paddingRight="8dp"
@@ -153,21 +155,20 @@
 		</LinearLayout>
 
 		<android.support.design.widget.FloatingActionButton
-			android:id="@+id/edit_fab"
+			android:id="@+id/fab"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_margin="16dp"
 			android:clickable="true"
 			android:onClick="onClick"
+			android:scaleType="center"
 			android:src="@drawable/ic_edit_dark"
 			android:visibility="gone"
-			android:scaleType="center"
+			custom:borderWidth="0dp"
 			custom:elevation="4dp"
 			custom:layout_anchor="@id/card"
 			custom:layout_anchorGravity="bottom|right|end"
 			custom:useCompatPadding="true"
-			custom:borderWidth="0dp"
-			custom:rippleColor="@color/brand_primary"
 			tools:visibility="visible" />
 
 	</android.support.design.widget.CoordinatorLayout>

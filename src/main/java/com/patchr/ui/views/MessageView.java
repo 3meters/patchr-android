@@ -211,7 +211,7 @@ public class MessageView extends FrameLayout {
 		        /* Photo */
 				if (entity.photo != null) {
 					final Photo photo = entity.photo;
-					this.photoView.setImageWithPhoto(photo);
+					this.photoView.setImageWithPhoto(photo, null);
 					this.photoView.setTag(photo);
 					UI.setVisibility(this.photoView, VISIBLE);
 				}

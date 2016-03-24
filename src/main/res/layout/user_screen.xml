@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
 
+<android.support.design.widget.CoordinatorLayout
+
+	android:id="@+id/main_content"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical">
-
-	<include
-		android:id="@+id/toolbar"
-		layout="@layout/include_toolbar_actionbar" />
+	android:layout_height="match_parent">
 
 	<RelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
+		<include
+			android:id="@+id/toolbar"
+			layout="@layout/include_toolbar_actionbar" />
+
 		<com.patchr.ui.widgets.AirSwipeRefreshLayout
 			android:id="@+id/swipe"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:layout_below="@+id/toolbar"
 			android:layout_centerHorizontal="true">
 
 			<android.support.v7.widget.RecyclerView
@@ -43,7 +45,9 @@
 			android:layout_height="@dimen/button_round_height"
 			android:layout_centerInParent="true"
 			android:visibility="gone"
-			tools:text="@string/label_nearby_empty"
+			custom:layout_anchor="@+id/entity_list"
+			custom:layout_anchorGravity="center"
+			tools:text="@string/empty_nearby"
 			tools:visibility="visible" />
 
 		<com.patchr.ui.widgets.AirProgressBar
@@ -54,7 +58,9 @@
 			android:layout_centerInParent="true"
 			android:padding="8dp"
 			android:visibility="gone"
-			tools:visibility="visible" />
+			custom:layout_anchor="@+id/entity_list"
+			custom:layout_anchorGravity="center" />
 
 	</RelativeLayout>
-</LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

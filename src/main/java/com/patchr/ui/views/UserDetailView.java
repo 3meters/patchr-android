@@ -43,7 +43,7 @@ public class UserDetailView extends FrameLayout {
 	public TextView             area;
 	public TextView             buttonMember;
 	public TextView             buttonOwner;
-	public FloatingActionButton editFab;
+	public FloatingActionButton fab;
 
 	public UserDetailView(Context context) {
 		this(context, null, 0);
@@ -84,10 +84,10 @@ public class UserDetailView extends FrameLayout {
 		this.area = (TextView) layout.findViewById(R.id.area);
 		this.buttonMember = (TextView) layout.findViewById(R.id.member_of_button);
 		this.buttonOwner = (TextView) layout.findViewById(R.id.owner_of_button);
-		this.editFab = (FloatingActionButton) layout.findViewById(R.id.edit_fab);
+		this.fab = (FloatingActionButton) layout.findViewById(R.id.fab);
 	}
 
-	public void databind(Entity entity) {
+	public void bind(Entity entity) {
 
 		synchronized (lock) {
 
@@ -115,7 +115,7 @@ public class UserDetailView extends FrameLayout {
 				base.setOrGone(this.email, user.email);
 			}
 
-			this.editFab.setVisibility(this.isCurrentUser ? VISIBLE : GONE);
+			this.fab.setVisibility(this.isCurrentUser ? VISIBLE : GONE);
 
 			/* Button state */
 
