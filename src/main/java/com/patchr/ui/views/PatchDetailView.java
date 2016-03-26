@@ -41,7 +41,7 @@ public class PatchDetailView extends FrameLayout implements View.OnClickListener
 
 	public PatchDetailView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.layoutResId = R.layout.patch_detail_view;
+		this.layoutResId = R.layout.view_patch_header;
 		initialize();
 	}
 

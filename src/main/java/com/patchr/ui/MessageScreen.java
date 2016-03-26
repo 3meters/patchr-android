@@ -151,8 +151,6 @@ public class MessageScreen extends BaseScreen {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		this.optionMenu = menu;
-
 		/* Shown for owner */
 		getMenuInflater().inflate(R.menu.menu_edit, menu);
 		getMenuInflater().inflate(R.menu.menu_delete, menu);
@@ -163,7 +161,6 @@ public class MessageScreen extends BaseScreen {
 		getMenuInflater().inflate(R.menu.menu_refresh, menu);
 		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
 
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
@@ -195,7 +192,6 @@ public class MessageScreen extends BaseScreen {
 			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
 				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
 					finish();
-					AnimationManager.doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
 				}
 			}
 		}
@@ -241,19 +237,18 @@ public class MessageScreen extends BaseScreen {
 	public void likeListAction() {
 		if (entity != null) {
 			Bundle extras = new Bundle();
-			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_user);
+			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.listitem_user);
 			extras.putString(Constants.EXTRA_LIST_LINK_DIRECTION, Link.Direction.in.name());
 			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, Constants.SCHEMA_ENTITY_USER);
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_LIKE);
-			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_likes_list);
-			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
+			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.screen_title_likes_list);
 			Patchr.router.route(this, Command.ENTITY_LIST, entity, extras);
 		}
 	}
 
 	public void onFetchComplete() {
-		super.onFetchComplete();
-		bind();
+		super.onFetchComplete();            // Handles busy ui
+		supportInvalidateOptionsMenu();     // Update menus to match users relationship to message
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -265,6 +260,13 @@ public class MessageScreen extends BaseScreen {
 		if (event.actionType == ActionType.ACTION_GET_ENTITY) {
 
 			if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
+
+				if (event.error != null) {
+					onFetchComplete();
+					return;
+				}
+
+				Logger.v(this, "Data result accepted: " + event.actionType.name());
 
 				bound = true;
 				if (event.entity != null) {
@@ -278,15 +280,8 @@ public class MessageScreen extends BaseScreen {
 						Patchr.getInstance().setCurrentPatch(entity);
 					}
 				}
-						/*
-						 * Possible to hit this before options menu has been set. If so then
-						 * configureStandardMenuItems will be called in onCreateOptionsMenu.
-						 */
-				if (optionMenu != null) {
-					configureStandardMenuItems(optionMenu);
-				}
 
-						/* Ensure this is flagged as read */
+				/* Ensure this is flagged as read */
 				if (notificationId != null) {
 					if (NotificationManager.getInstance().getNotifications().containsKey(notificationId)) {
 						NotificationManager.getInstance().getNotifications().get(notificationId).read = true;
@@ -294,6 +289,7 @@ public class MessageScreen extends BaseScreen {
 				}
 
 				onFetchComplete();
+				bind();
 			}
 		}
 	}
@@ -411,7 +407,6 @@ public class MessageScreen extends BaseScreen {
 					UI.showToastNotification(StringManager.getString(R.string.alert_deleted), Toast.LENGTH_SHORT);
 					setResult(Constants.RESULT_ENTITY_DELETED);
 					finish();
-					AnimationManager.doOverridePendingTransition(MessageScreen.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
 				}
 				else {
 					Errors.handleError(MessageScreen.this, result.serviceResponse);
@@ -421,7 +416,7 @@ public class MessageScreen extends BaseScreen {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.message_screen;
+		return R.layout.screen_message;
 	}
 
 	public void fetch(final FetchMode mode) {
@@ -616,7 +611,7 @@ public class MessageScreen extends BaseScreen {
 
 				if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 					patchName.setText(StringManager.getString(R.string.label_message_invite));
-					PatchView patchView = new PatchView(this, R.layout.patch_view_attachment);
+					PatchView patchView = new PatchView(this, R.layout.view_patch_attachment);
 					patchView.bind(shareEntity);
 					CardView cardView = (CardView) shareView;
 					int padding = UI.getRawPixelsForDisplayPixels(0f);
@@ -626,7 +621,7 @@ public class MessageScreen extends BaseScreen {
 				}
 				else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 					patchName.setText(StringManager.getString(R.string.label_message_shared));
-					MessageView messageView = new MessageView(this, R.layout.message_view_attachment);
+					MessageView messageView = new MessageView(this, R.layout.view_message_attachment);
 					messageView.bind(shareEntity);
 					CardView cardView = (CardView) shareView;
 					int padding = UI.getRawPixelsForDisplayPixels(8f);
@@ -644,7 +639,7 @@ public class MessageScreen extends BaseScreen {
 				if (linkEntity.targetSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 
 					shareView.removeAllViews();
-					View blockView = LayoutInflater.from(this).inflate(R.layout.temp_button_share_message_blocked, null, false);
+					View blockView = LayoutInflater.from(this).inflate(R.layout.view_button_share_message_blocked, null, false);
 
 					Entity message = new Message();
 					message.schema = Constants.SCHEMA_ENTITY_MESSAGE;

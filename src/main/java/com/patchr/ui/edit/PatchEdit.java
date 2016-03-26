@@ -116,24 +116,21 @@ public class PatchEdit extends BaseEdit {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		this.optionMenu = menu;
-
 		if (editing) {
 			getMenuInflater().inflate(R.menu.menu_save, menu);
 			getMenuInflater().inflate(R.menu.menu_delete, menu);
 		}
 
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
 
 		if (item.getItemId() == R.id.delete) {
-			super.confirmDelete();
+			confirmDelete();
 		}
 		else if (item.getItemId() == R.id.submit) {
-			super.submitAction();
+			submitAction();
 		}
 		else {
 			return super.onOptionsItemSelected(item);
@@ -345,8 +342,7 @@ public class PatchEdit extends BaseEdit {
 			buttonPrivacy.setText(StringManager.getString(R.string.label_patch_edit_privacy) + ": " + value);
 		}
 
-		this.actionBar.setTitle(editing ? R.string.form_title_patch_edit : R.string.form_title_patch_new);
-		UI.setVisibility(findViewById(R.id.toolbar), (editing ? View.GONE : View.VISIBLE));
+		this.actionBar.setTitle(editing ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
 
 		/* Type */
 
@@ -423,7 +419,7 @@ public class PatchEdit extends BaseEdit {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.patch_edit;
+		return R.layout.edit_patch;
 	}
 
 	public void bindLocation() {

@@ -21,12 +21,6 @@ public class AnimationManager {
 		else if (transitionType == TransitionType.VIEW_BACK) {
 			activity.overridePendingTransition(R.anim.hold, R.anim.fade_out_short);
 		}
-		else if (transitionType == TransitionType.DRILL_TO) {
-			activity.overridePendingTransition(R.anim.slide_in_right, R.anim.fade_zoom_out);
-		}
-		else if (transitionType == TransitionType.DRILL_BACK) {
-			activity.overridePendingTransition(R.anim.fade_zoom_in, R.anim.slide_out_right);
-		}
 		else if (transitionType == TransitionType.FORM_TO) {
 			activity.overridePendingTransition(R.anim.slide_in_right, R.anim.fade_zoom_out);
 		}

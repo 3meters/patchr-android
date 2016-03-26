@@ -228,7 +228,7 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 		}
 
 		@Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-			View view = inflater.inflate(R.layout.temp_listitem_search, parent, false);
+			View view = inflater.inflate(R.layout.listitem_search, parent, false);
 			return new ViewHolder(view);
 		}
 

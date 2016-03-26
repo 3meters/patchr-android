@@ -175,12 +175,12 @@ public class ProximityEdit extends BaseEdit {
 			firstTune = false;
 			UI.setVisibility(buttonUntune, View.VISIBLE);
 		}
-		actionBar.setTitle(R.string.form_title_proximity_edit);
+		actionBar.setTitle(R.string.screen_title_proximity_edit);
 		title.setText(patch.name);
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.proximity_edit;
+		return R.layout.edit_proximity;
 	}
 
 	private void tuneProximity() {

@@ -94,6 +94,6 @@ public class AboutScreen extends BaseScreen {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.about_screen;
+		return R.layout.screen_about;
 	}
 }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="?attr/backgroundForm"
+	android:orientation="vertical">
+
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/include_toolbar_actionbar" />
+
+	<com.patchr.ui.widgets.AirScrollView
+		android:id="@+id/holder_body"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_gravity="center_horizontal">
+
+		<uk.co.senab.photoview.PhotoView
+			android:id="@+id/photo"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent" />
+
+	</com.patchr.ui.widgets.AirScrollView>
+
+</LinearLayout>
+
+

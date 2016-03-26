@@ -7,7 +7,6 @@ import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.events.AbsEntitiesQueryEvent;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Patch;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.NotificationView;
 import com.patchr.ui.views.PatchView;
@@ -56,8 +55,8 @@ public class ViewHolder extends RecyclerView.ViewHolder {
 		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
 			UserView userView = (UserView) entityView;
 			userView.setTag(entity);
-			if (scopingEntity instanceof Patch) {
-				userView.bind(entity, (Patch) scopingEntity);
+			if (Constants.SCHEMA_ENTITY_PATCH.equals(scopingEntity.schema)) {
+				userView.bind(entity, scopingEntity);
 				return;
 			}
 			userView.bind(entity);

@@ -22,11 +22,13 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.AnimationManager;
 import com.patchr.components.ContainerManager;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
@@ -47,7 +49,6 @@ import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.views.ImageLayout;
 import com.patchr.ui.widgets.AirAutoCompleteTextView;
-import com.patchr.ui.widgets.AirTextView;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
@@ -103,11 +104,7 @@ public class PhotoSearchScreen extends BaseScreen {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
-
-		this.optionMenu = menu;
-
 		getMenuInflater().inflate(R.menu.menu_search_start, menu);
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
@@ -129,7 +126,6 @@ public class PhotoSearchScreen extends BaseScreen {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		transitionType = TransitionType.DIALOG_TO;
 		search = (AirAutoCompleteTextView) findViewById(R.id.search_text);
 
 		if (search != null) {
@@ -221,6 +217,7 @@ public class PhotoSearchScreen extends BaseScreen {
 					intent.putExtra(Constants.EXTRA_PHOTO, jsonPhoto);
 					setResult(Activity.RESULT_OK, intent);
 					finish();
+					AnimationManager.doOverridePendingTransition(PhotoSearchScreen.this, TransitionType.DIALOG_BACK);
 				}
 			}
 		});
@@ -231,7 +228,11 @@ public class PhotoSearchScreen extends BaseScreen {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.photo_picker;
+		return R.layout.screen_photo_picker;
+	}
+
+	@Override protected int getTransitionBack(int transitionType) {
+		return TransitionType.DIALOG_BACK;
 	}
 
 	@Override public void submitAction() {
@@ -480,10 +481,10 @@ public class PhotoSearchScreen extends BaseScreen {
 			 */
 			/* If nothing to show, return something empty. */
 			if (images.size() == 0) return new View(PhotoSearchScreen.this);
-			View view = LayoutInflater.from(PhotoSearchScreen.this).inflate(R.layout.temp_picture_search_item_placeholder, null);
+			View view = LayoutInflater.from(PhotoSearchScreen.this).inflate(R.layout.view_photo_search_placeholder, null);
 			Integer nudge = getResources().getDimensionPixelSize(R.dimen.grid_item_height_kick);
 			final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(photoWidthPixels, photoWidthPixels - nudge);
-			AirTextView placeholder = (AirTextView) view.findViewById(R.id.item_image);
+			TextView placeholder = (TextView) view.findViewById(R.id.item_image);
 			placeholder.setLayoutParams(params);
 			return view;
 		}
@@ -514,7 +515,7 @@ public class PhotoSearchScreen extends BaseScreen {
 			final ImageResult itemData = images.get(position);
 
 			if (view == null) {
-				view = LayoutInflater.from(PhotoSearchScreen.this).inflate(R.layout.temp_picture_search_item, null);
+				view = LayoutInflater.from(PhotoSearchScreen.this).inflate(R.layout.listitem_photo_search, null);
 				holder = new ViewHolder();
 				holder.photoView = (ImageLayout) view.findViewById(R.id.photo);
 				Integer nudge = getResources().getDimensionPixelSize(R.dimen.grid_item_height_kick);

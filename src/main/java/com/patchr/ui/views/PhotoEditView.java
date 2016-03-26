@@ -54,7 +54,7 @@ public class PhotoEditView extends FrameLayout implements Callback {
 
 	public PhotoEditView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.layoutResId = R.layout.photo_edit_view;
+		this.layoutResId = R.layout.view_photo_edit;
 
 		this.scaleType = ImageView.ScaleType.CENTER_CROP;
 		this.shape = "auto";
@@ -157,6 +157,7 @@ public class PhotoEditView extends FrameLayout implements Callback {
 			}
 		}
 	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/

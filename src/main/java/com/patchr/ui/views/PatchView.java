@@ -49,7 +49,7 @@ public class PatchView extends FrameLayout {
 
 	public PatchView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.layoutResId = R.layout.patch_view;
+		this.layoutResId = R.layout.view_patch;
 		initialize();
 	}
 

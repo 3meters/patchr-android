@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/include_toolbar_actionbar" />
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<FrameLayout
+			android:id="@+id/fragment_holder"
+			android:layout_width="288dp"
+			android:layout_centerHorizontal="true"
+			android:layout_height="match_parent"
+			android:background="?attr/backgroundCardField" />
+
+		<!-- Only here because we don't own the fragment layout -->
+
+		<com.patchr.ui.widgets.AirProgressBar
+			android:id="@+id/form_progress"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="@dimen/progress_width"
+			android:layout_height="@dimen/progress_height"
+			android:layout_centerInParent="true"
+			android:padding="8dp"
+			android:visibility="gone"
+			tools:visibility="visible" />
+	</RelativeLayout>
+
+</LinearLayout>

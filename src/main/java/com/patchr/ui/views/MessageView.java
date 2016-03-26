@@ -59,7 +59,7 @@ public class MessageView extends FrameLayout {
 
 	public MessageView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.layoutResId = R.layout.message_view;
+		this.layoutResId = R.layout.view_message;
 		initialize();
 	}
 
@@ -154,7 +154,7 @@ public class MessageView extends FrameLayout {
 					this.shareView.removeAllViews();
 
 					if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-						PatchView patchView = new PatchView(getContext(), R.layout.patch_view_attachment);
+						PatchView patchView = new PatchView(getContext(), R.layout.view_patch_attachment);
 						patchView.bind(shareEntity);
 						CardView cardView = (CardView) this.shareView;
 						int padding = UI.getRawPixelsForDisplayPixels(0f);
@@ -164,7 +164,7 @@ public class MessageView extends FrameLayout {
 						base.setOrGone(this.patchName, StringManager.getString(R.string.label_message_invite));
 					}
 					else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-						MessageView messageView = new MessageView(getContext(), R.layout.message_view_attachment);
+						MessageView messageView = new MessageView(getContext(), R.layout.view_message_attachment);
 						messageView.bind(shareEntity);
 						CardView cardView = (CardView) this.shareView;
 						int padding = UI.getRawPixelsForDisplayPixels(8f);
@@ -183,7 +183,7 @@ public class MessageView extends FrameLayout {
 					if (linkEntity.targetSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 
 						shareView.removeAllViews();
-						View blockView = LayoutInflater.from(getContext()).inflate(R.layout.temp_button_share_message_blocked, null, false);
+						View blockView = LayoutInflater.from(getContext()).inflate(R.layout.view_button_share_message_blocked, null, false);
 
 						Entity message = new Message();
 						message.schema = Constants.SCHEMA_ENTITY_MESSAGE;

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:maxWidth="@dimen/form_max_width"
+	android:orientation="vertical"
+	tools:context=".ui.edit.ProfileEdit">
+
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/include_toolbar_actionbar" />
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_horizontal"
+		android:fillViewport="true">
+
+		<!-- Content -->
+
+		<LinearLayout
+			android:layout_width="288dp"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:layout_margin="16dp"
+			android:orientation="vertical">
+
+			<TextView
+				android:id="@+id/title"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:layout_marginBottom="16dp"
+				android:layout_marginTop="8dp"
+				android:text="@string/form_title_profile_edit"
+				android:textAppearance="?android:attr/textAppearanceLarge"
+				android:textColor="@color/brand_accent_darker"
+				android:textSize="30sp" />
+
+			<!-- User picture -->
+
+			<com.patchr.ui.views.PhotoEditView
+				android:id="@+id/photo_edit"
+				android:layout_width="150dp"
+				android:layout_height="150dp"
+				android:layout_gravity="center_horizontal"
+				android:layout_marginBottom="8dp"
+				custom:aspectRatio="1.0"
+				custom:category="profile"
+				custom:radius="24"
+				custom:shape="rounded" />
+
+			<!-- Full name -->
+
+			<LinearLayout
+				android:id="@+id/holder_body"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="8dp"
+				android:orientation="vertical">
+
+				<com.patchr.ui.widgets.AirEditText
+					android:id="@+id/name"
+					style="@style/form_edit"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/form_field_height"
+					android:drawableRight="?attr/iconClear"
+					android:hint="@string/label_fullname"
+					android:inputType="textCapWords|textPersonName|textNoSuggestions" />
+
+				<com.patchr.ui.widgets.AirEditText
+					android:id="@+id/area"
+					style="@style/form_edit"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/form_field_height"
+					android:drawableRight="?attr/iconClear"
+					android:hint="@string/label_location"
+					android:inputType="textPostalAddress|textAutoCorrect" />
+
+				<com.patchr.ui.widgets.AirEditText
+					android:id="@+id/email"
+					style="@style/form_edit"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/form_field_height"
+					android:layout_marginBottom="15dp"
+					android:drawableRight="?attr/iconClear"
+					android:hint="@string/label_email"
+					android:inputType="textEmailAddress" />
+
+				<Button
+					android:id="@+id/change_password_button"
+					style="@style/button_link"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/button_height"
+					android:layout_marginLeft="4dp"
+					android:layout_marginRight="4dp"
+					android:minWidth="200dp"
+					android:onClick="onClick"
+					android:text="@string/button_change_password" />
+			</LinearLayout>
+		</LinearLayout>
+
+	</ScrollView>
+
+</LinearLayout>

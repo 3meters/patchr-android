@@ -37,7 +37,7 @@
 			android:visibility="gone"
 			tools:visibility="gone">
 
-			<com.patchr.ui.widgets.AirTextView
+			<TextView
 				android:id="@+id/badge_count"
 				android:layout_width="@dimen/badge_height"
 				android:layout_height="@dimen/badge_height"

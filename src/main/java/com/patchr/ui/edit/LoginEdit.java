@@ -165,7 +165,7 @@ public class LoginEdit extends BaseEdit {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.login_edit;
+		return R.layout.edit_login;
 	}
 
 	@Override public void submitAction() {

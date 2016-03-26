@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/include_toolbar_actionbar" />
+
+	<LinearLayout
+		android:layout_width="288dp"
+		android:layout_height="match_parent"
+		android:layout_gravity="center_horizontal"
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/content_message"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="8dp"
+			android:background="?attr/backgroundFormSecondary"
+			android:padding="16dp" />
+
+		<!-- Title and Content -->
+
+		<com.patchr.ui.widgets.AirEditText
+			android:id="@+id/description"
+			style="@style/form_edit"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="8dp"
+			android:layout_marginLeft="8dp"
+			android:layout_marginRight="8dp"
+			android:gravity="top"
+			android:hint="@string/hint_feedback"
+			android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
+			android:isScrollContainer="true"
+			android:minLines="10" />
+
+		<LinearLayout
+			android:id="@+id/user_group"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:padding="10dp"
+			android:orientation="horizontal">
+
+			<com.patchr.ui.views.ImageLayout
+				android:id="@+id/user_photo"
+				style="@style/selectable_image"
+				android:layout_width="@dimen/image_extra_small"
+				android:layout_height="@dimen/image_extra_small"
+				android:layout_marginRight="5dp"
+				custom:category="profile"
+				custom:shape="round" />
+
+			<TextView
+				android:id="@+id/user_name"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:ellipsize="end"
+				android:singleLine="true" />
+
+		</LinearLayout>
+
+	</LinearLayout>
+</LinearLayout>

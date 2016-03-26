@@ -7,24 +7,24 @@
 
 	<!-- Images -->
 
-	<dimen name="image_super_large">500dp</dimen>
-	<dimen name="image_extra_extra_large">250dp</dimen>
-	<dimen name="image_extra_large">200dp</dimen>
-	<dimen name="image_large">150dp</dimen>
+	<dimen name="image_super_large">512dp</dimen>
+	<dimen name="image_extra_extra_large">256dp</dimen>
+	<dimen name="image_extra_large">192dp</dimen>
+	<dimen name="image_large">144dp</dimen>
 	<dimen name="image_medium_large">128dp</dimen>
-	<dimen name="image_medium">100dp</dimen>
-	<dimen name="image_medium_small">80dp</dimen>
-	<dimen name="image_small">50dp</dimen>
+	<dimen name="image_medium">96dp</dimen>
+	<dimen name="image_medium_small">72dp</dimen>
+	<dimen name="image_small">48dp</dimen>
 	<dimen name="image_combo_button">24dp</dimen>
-	<dimen name="image_extra_small">35dp</dimen>
-	<dimen name="image_tiny">20dp</dimen>
-	<dimen name="image_micro">10dp</dimen>
+	<dimen name="image_extra_small">36dp</dimen>
+	<dimen name="image_tiny">24dp</dimen>
+	<dimen name="image_micro">12dp</dimen>
 
 	<dimen name="notification_tray_large_icon_width">64dp</dimen>
 	<dimen name="notification_tray_big_picture_width">450dp</dimen>
 	<dimen name="notification_tray_big_picture_height">225dp</dimen>
 
-	<dimen name="image_picture_form">250dp</dimen>
+	<dimen name="image_picture_form">256dp</dimen>
 
 	<!-- Image categories -->
 
@@ -92,7 +92,7 @@
 
 	<!-- Padding -->
 
-	<dimen name="form_body_padding">10dp</dimen>
+	<dimen name="form_body_padding">16dp</dimen>
 	<dimen name="form_body_padding_top">10dp</dimen>
 
 	<!-- Grids -->

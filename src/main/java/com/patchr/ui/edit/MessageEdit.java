@@ -102,8 +102,6 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		this.optionMenu = menu;
-
 		if (editing) {
 			getMenuInflater().inflate(R.menu.menu_save, menu);
 			getMenuInflater().inflate(R.menu.menu_delete, menu);
@@ -112,7 +110,6 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 			getMenuInflater().inflate(R.menu.menu_send, menu);
 		}
 
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
@@ -427,8 +424,8 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 
 		to.setLineSpacing(toMode == ToMode.SINGLE ? 0 : (int) UI.getRawPixelsForDisplayPixels(5f), 1f);
 		to.setTokenLayoutResId(toMode == ToMode.SINGLE
-		                       ? R.layout.widget_token_view_single
-		                       : R.layout.widget_token_view);
+		                       ? R.layout.view_token_single
+		                       : R.layout.view_token);
 
 		entitySuggest = new EntitySuggestController(this);
 		entitySuggest.searchInput = to;
@@ -469,7 +466,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 		if (messageType.equals(MessageType.SHARE)) {
 
 			if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				PatchView patchView = new PatchView(this, R.layout.patch_view_attachment);
+				PatchView patchView = new PatchView(this, R.layout.view_patch_attachment);
 				patchView.bind(shareEntity);
 				CardView cardView = (CardView) share;
 				int padding = UI.getRawPixelsForDisplayPixels(0f);
@@ -477,7 +474,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 				share.addView(patchView);
 			}
 			else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-				MessageView messageView = new MessageView(this, R.layout.message_view_attachment);
+				MessageView messageView = new MessageView(this, R.layout.view_message_attachment);
 				messageView.bind(shareEntity);
 				CardView cardView = (CardView) share;
 				int padding = UI.getRawPixelsForDisplayPixels(8f);
@@ -626,7 +623,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.message_edit;
+		return R.layout.edit_message;
 	}
 
     /*--------------------------------------------------------------------------------------------

@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
-import com.patchr.R;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Beacon;
@@ -236,7 +234,7 @@ public class EntityStore {
 		final Bundle parameters = new Bundle();
 
 		parameters.putString("location", "object:" + Json.objectToJson(location));
-		parameters.putInt("limit", Patchr.applicationContext.getResources().getInteger(R.integer.limit_patches_radar));
+		parameters.putInt("limit", Constants.PAGE_SIZE);
 		parameters.putBoolean("rest", false);
 		parameters.putInt("radius", Constants.PATCH_NEAR_RADIUS);
 

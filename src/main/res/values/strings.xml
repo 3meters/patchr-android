@@ -3,39 +3,48 @@
 
 	<!-- Titles -->
 
-	<string name="form_title_user_form" tools:ignore="UnusedResources">Profile</string>
-	<string name="form_title_photo_form" tools:ignore="UnusedResources">Photo</string>
-	<string name="form_title_about_form" tools:ignore="UnusedResources">About Patchr</string>
-	<string name="form_title_map_form" tools:ignore="UnusedResources">Map</string>
-	<string name="form_title_search_form" tools:ignore="UnusedResources">Search</string>
-	<string name="form_title_settings_form" tools:ignore="UnusedResources">Settings</string>
+	<string name="screen_title_user_form" tools:ignore="UnusedResources">Profile</string>
+	<string name="screen_title_photo_form" tools:ignore="UnusedResources">Photo</string>
+	<string name="screen_title_about_form" tools:ignore="UnusedResources">About Patchr</string>
+	<string name="screen_title_map_form" tools:ignore="UnusedResources">Map</string>
+	<string name="screen_title_search_form" tools:ignore="UnusedResources">Search</string>
+	<string name="screen_title_settings_form" tools:ignore="UnusedResources">Settings</string>
 
-	<string name="form_title_patch_edit" tools:ignore="UnusedResources">Edit patch</string>
-	<string name="form_title_patch_new" tools:ignore="UnusedResources">New patch</string>
-	<string name="form_title_message_edit" tools:ignore="UnusedResources">Edit message</string>
-	<string name="form_title_message_new" tools:ignore="UnusedResources">Compose</string>
-	<string name="form_title_user_edit" tools:ignore="UnusedResources">Edit profile</string>
-	<string name="form_title_feedback_edit" tools:ignore="UnusedResources">Send feedback</string>
-	<string name="form_title_report_edit" tools:ignore="UnusedResources">Report a problem</string>
+	<string name="screen_title_patch_edit" tools:ignore="UnusedResources">Edit patch</string>
+	<string name="screen_title_patch_new" tools:ignore="UnusedResources">New patch</string>
+	<string name="screen_title_message_edit" tools:ignore="UnusedResources">Edit message</string>
+	<string name="screen_title_message_new" tools:ignore="UnusedResources">Compose</string>
+	<string name="screen_title_profile_edit" tools:ignore="UnusedResources">Edit profile</string>
+	<string name="screen_title_feedback_edit" tools:ignore="UnusedResources">Send feedback</string>
+	<string name="screen_title_report_edit" tools:ignore="UnusedResources">Report a problem</string>
+	<string name="screen_title_password_edit" tools:ignore="UnusedResources">Change password</string>
+	<string name="screen_title_signin_edit" tools:ignore="UnusedResources">Log in</string>
+	<string name="screen_title_register_edit" tools:ignore="UnusedResources">Join Patchr</string>
+	<string name="screen_title_reset_edit" tools:ignore="UnusedResources">Password reset</string>
+	<string name="screen_title_proximity_edit" tools:ignore="UnusedResources">Tune patch proximity</string>
+
+	<string name="screen_title_privacy_builder" tools:ignore="UnusedResources">Privacy setting</string>
+	<string name="screen_title_photo_picker" tools:ignore="UnusedResources">Add a photo</string>
+	<string name="screen_title_location_picker" tools:ignore="UnusedResources">Set patch location</string>
+
+	<string name="screen_title_patch_list" tools:ignore="UnusedResources">Patches</string>
+	<string name="screen_title_nearby" tools:ignore="UnusedResources">Nearby</string>
+	<string name="screen_title_watch" tools:ignore="UnusedResources">Member of</string>
+	<string name="screen_title_create" tools:ignore="UnusedResources">Owner of</string>
+	<string name="screen_title_like" tools:ignore="UnusedResources">Favorites</string>
+	<string name="screen_title_trends_active" tools:ignore="UnusedResources">Explore</string>
+	<string name="screen_title_notifications" tools:ignore="UnusedResources">Notifications</string>
+	<string name="screen_title_likes_list" tools:ignore="UnusedResources">Liked by</string>
+	<string name="screen_title_member_list" tools:ignore="UnusedResources">Members</string>
+
+	<string name="form_title_profile_edit" tools:ignore="UnusedResources">Profile</string>
+	<string name="form_title_profile_signup" tools:ignore="UnusedResources">Make your profile more personal</string>
+	<string name="form_title_login_edit" tools:ignore="UnusedResources">Welcome back.</string>
+	<string name="form_title_login_signup" tools:ignore="UnusedResources">Sign up for a free account to post messages, create patches, and more.</string>
 	<string name="form_title_password_edit" tools:ignore="UnusedResources">Change password</string>
-	<string name="form_title_signin_edit" tools:ignore="UnusedResources">Log in</string>
-	<string name="form_title_register_edit" tools:ignore="UnusedResources">Join Patchr</string>
-	<string name="form_title_reset_edit" tools:ignore="UnusedResources">Password reset</string>
-	<string name="form_title_proximity_edit" tools:ignore="UnusedResources">Tune patch proximity</string>
-
-	<string name="form_title_privacy_builder" tools:ignore="UnusedResources">Privacy setting</string>
-	<string name="form_title_photo_picker" tools:ignore="UnusedResources">Add a photo</string>
-	<string name="form_title_location_picker" tools:ignore="UnusedResources">Set patch location</string>
-
-	<string name="form_title_patch_list" tools:ignore="UnusedResources">Patches</string>
-	<string name="form_title_nearby" tools:ignore="UnusedResources">Nearby</string>
-	<string name="form_title_watch" tools:ignore="UnusedResources">Member of</string>
-	<string name="form_title_create" tools:ignore="UnusedResources">Owner of</string>
-	<string name="form_title_like" tools:ignore="UnusedResources">Favorites</string>
-	<string name="form_title_trends_active" tools:ignore="UnusedResources">Explore</string>
-	<string name="form_title_notifications" tools:ignore="UnusedResources">Notifications</string>
-	<string name="form_title_likes_list" tools:ignore="UnusedResources">Liked by</string>
-	<string name="form_title_member_list" tools:ignore="UnusedResources">Members</string>
+	<string name="form_title_patch_edit" tools:ignore="UnusedResources">Patch</string>
+	<string name="form_title_privacy_edit" tools:ignore="UnusedResources">Privacy</string>
+	<string name="form_title_reset_edit" tools:ignore="UnusedResources">Forgot your password?</string>
 
 	<!-- Menus -->
 
@@ -131,6 +140,7 @@
 	<string name="alert_wifi_disabled">Enable wifi for best results using Patchr.</string>
 
 	<string name="alert_deleted">Deleted</string>
+	<string name="alert_user_deleted">User %1$s erased</string>
 	<string name="alert_removed">Removed</string>
 	<string name="alert_updated">Updated</string>
 	<string name="alert_inserted">Saved</string>
@@ -306,6 +316,7 @@
 	<string name="progress_sending">Sending&#8230;</string>
 	<string name="progress_tuning">Tuning&#8230;</string>
 	<string name="progress_deleting">Deleting&#8230;</string>
+	<string name="progress_deleting_user">Erasing&#8230;</string>
 	<string name="progress_removing">Removing&#8230;</string>
 	<string name="progress_changing_password">Changing&#8230;</string>
 	<string name="progress_signing_in">Signing in&#8230;</string>
@@ -518,7 +529,7 @@
 	<string name="hint_feedback">Feedback</string>
 	<string name="hint_picture_search">Search</string>
 	<string name="hint_message_name">Subject</string>
-	<string name="hint_message_description">Message</string>
+	<string name="hint_message_description">What\'s happening?</string>
 
 	<!-- Testing (used for view previews) -->
 

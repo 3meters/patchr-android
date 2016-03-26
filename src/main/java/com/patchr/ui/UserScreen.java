@@ -26,11 +26,10 @@ import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Photo;
-import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.RecyclePresenter;
-import com.patchr.ui.edit.UserEdit;
+import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.views.UserDetailView;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Json;
@@ -82,7 +81,7 @@ public class UserScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 
 		if (view.getId() == R.id.fab) {
 			final String jsonEntity = Json.objectToJson(entity);
-			startActivity(new Intent(this, UserEdit.class).putExtra(Constants.EXTRA_ENTITY, jsonEntity));
+			startActivity(new Intent(this, ProfileEdit.class).putExtra(Constants.EXTRA_ENTITY, jsonEntity));
 		}
 		else if (view.getId() == R.id.member_of_button || view.getId() == R.id.owner_of_button) {
 			int titleResId = 0;
@@ -99,13 +98,12 @@ public class UserScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 			}
 
 			Bundle extras = new Bundle();
-			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_patch);
+			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.listitem_patch);
 			extras.putString(Constants.EXTRA_LIST_LINK_DIRECTION, Link.Direction.out.name());
 			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, linkType);
 			extras.putInt(Constants.EXTRA_LIST_EMPTY_RESID, emptyResId);
 			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, titleResId);
-			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 			Patchr.router.route(this, Command.ENTITY_LIST, this.entity, extras);
 		}
 		else if (view.getTag() != null) {
@@ -122,8 +120,6 @@ public class UserScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		this.optionMenu = menu;
-
 		/* Shown for owner */
 		getMenuInflater().inflate(R.menu.menu_logout, menu);    // base
 
@@ -131,7 +127,6 @@ public class UserScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 		getMenuInflater().inflate(R.menu.menu_refresh, menu);
 		getMenuInflater().inflate(R.menu.menu_report, menu);    // base
 
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
@@ -206,11 +201,13 @@ public class UserScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 
 		this.listPresenter = new RecyclePresenter(this);
 		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
-		this.listPresenter.listItemResId = R.layout.temp_listitem_message;
+		this.listPresenter.listItemResId = R.layout.listitem_message;
 		this.listPresenter.busyPresenter = new BusyPresenter();
 		this.listPresenter.busyPresenter.setProgressBar(this.rootView.findViewById(R.id.list_progress));
 		this.listPresenter.emptyPresenter = new EmptyPresenter(this.rootView.findViewById(R.id.list_message));
 		this.listPresenter.emptyPresenter.setLabel(StringManager.getString(R.string.empty_posted_messages));
+		this.listPresenter.emptyPresenter.positionBelow(this.header, null);
+		this.listPresenter.busyPresenter.positionBelow(this.header, null);
 		this.listPresenter.headerView = this.header;
 
 		this.listPresenter.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
@@ -235,7 +232,7 @@ public class UserScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.user_screen;
+		return R.layout.screen_profile;
 	}
 
 	public void fetch(final FetchMode mode) {

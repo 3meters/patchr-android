@@ -22,8 +22,12 @@ public class SettingsScreen extends BaseScreen {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
 	@Override protected int getLayoutId() {
-		return R.layout.settings_screen;
+		return R.layout.screen_settings;
 	}
 }
 

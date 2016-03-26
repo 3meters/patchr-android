@@ -238,7 +238,7 @@
 		<activity
 			android:name=".ui.MainScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_nearby">
+			android:label="@string/screen_title_nearby">
 			<meta-data
 				android:name="android.app.searchable"
 				android:resource="@xml/searchable" />
@@ -269,19 +269,19 @@
 		<activity
 			android:name=".ui.UserScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_user_form"
+			android:label="@string/screen_title_user_form"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.PhotoScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_photo_form"
+			android:label="@string/screen_title_photo_form"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.MapScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_map_form"
+			android:label="@string/screen_title_map_form"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
@@ -292,7 +292,7 @@
 		<activity
 			android:name=".ui.AboutScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_about_form"
+			android:label="@string/screen_title_about_form"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Lists -->
@@ -300,13 +300,13 @@
 		<activity
 			android:name=".ui.ListScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_patch_list"
+			android:label="@string/screen_title_patch_list"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.MemberListScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_patch_list"
+			android:label="@string/screen_title_patch_list"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Editing -->
@@ -329,55 +329,55 @@
 		<activity
 			android:name=".ui.edit.PatchEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_patch_edit"
+			android:label="@string/screen_title_patch_edit"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.edit.ProximityEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_proximity_edit"
+			android:label="@string/screen_title_proximity_edit"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.edit.FeedbackEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_feedback_edit"
+			android:label="@string/screen_title_feedback_edit"
 			android:windowSoftInputMode="adjustResize" />
 
 		<activity
 			android:name=".ui.edit.ReportEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_report_edit"
+			android:label="@string/screen_title_report_edit"
 			android:windowSoftInputMode="adjustResize" />
 
 		<activity
-			android:name=".ui.edit.UserEdit"
+			android:name=".ui.edit.ProfileEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_user_edit"
+			android:label="@string/screen_title_profile_edit"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.edit.LoginEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_signin_edit"
+			android:label="@string/screen_title_signin_edit"
 			android:windowSoftInputMode="adjustResize" />
 
 		<activity
 			android:name=".ui.edit.RegisterEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_register_edit"
+			android:label="@string/screen_title_register_edit"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.edit.ResetEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_reset_edit"
+			android:label="@string/screen_title_reset_edit"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.edit.PasswordEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_password_edit"
+			android:label="@string/screen_title_password_edit"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Builders/pickers -->
@@ -385,13 +385,13 @@
 		<activity
 			android:name=".ui.PhotoSearchScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_photo_picker"
+			android:label="@string/screen_title_photo_picker"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.edit.LocationEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_location_picker"
+			android:label="@string/screen_title_location_picker"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Theme setting required to get dialog treatment for all theming -->
@@ -404,7 +404,7 @@
 		<activity
 			android:name=".ui.edit.PrivacyEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_privacy_builder"
+			android:label="@string/screen_title_privacy_builder"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Misc -->
@@ -413,7 +413,7 @@
 			android:name=".ui.SettingsScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:exported="false"
-			android:label="@string/form_title_settings_form">
+			android:label="@string/screen_title_settings_form">
 			<intent-filter>
 				<action android:name="com.patchr.Preferences" />
 				<category android:name="android.intent.category.PREFERENCE" />

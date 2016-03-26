@@ -23,7 +23,6 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.objects.Command;
-import com.patchr.objects.TransitionType;
 import com.patchr.ui.LobbyScreen;
 import com.patchr.utilities.UI;
 
@@ -196,7 +195,6 @@ public class AndroidManager {
 			intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
 		}
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callMapNavigation(Context context, Double latitude, Double longitude, String address, String label) {
@@ -214,7 +212,6 @@ public class AndroidManager {
 		}
 
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callMapLocalActivity(Context context, String latitude, String longitude, String label) {
@@ -224,14 +221,12 @@ public class AndroidManager {
 				+ "(" + label + ")";
 		final Intent searchAddress = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
 		context.startActivity(searchAddress);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callDialerActivity(Context context, String phoneNumber) {
 		final String number = "tel:" + phoneNumber.trim();
 		final Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse(number));
 		context.startActivity(callIntent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callBrowserActivity(Context context, String uri) {
@@ -245,7 +240,6 @@ public class AndroidManager {
 			intent.setData(Uri.parse(uri));
 			context.startActivity(intent);
 		}
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callSendToActivity(Context context, String placeName, String emailAddress, @NonNull String subject, @NonNull String body) {
@@ -290,7 +284,6 @@ public class AndroidManager {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("https://www.twitter.com/" + twitterHandle));
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callFoursquareActivity(Context context, String venueId, String sourceUri) {
@@ -298,14 +291,12 @@ public class AndroidManager {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(sourceUri));
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callOpentableActivity(Context context, String sourceId, String sourceUri) {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(sourceUri));
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callYelpActivity(Context context, String sourceId, String sourceUri) {
@@ -314,14 +305,12 @@ public class AndroidManager {
 		String uriFixup = sourceUri.replace("//m.yelp.com", "//www.yelp.com");
 		intent.setData(Uri.parse(uriFixup));
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callGenericActivity(Context context, String sourceId) {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(sourceId));
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	private Intent findBrowserApp(Context context, String uri) {

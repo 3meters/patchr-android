@@ -19,7 +19,7 @@
 			android:layout_weight="1"
 			android:orientation="vertical">
 
-			<com.patchr.ui.widgets.AirTextLight
+			<TextView
 				android:id="@+id/name"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
 				android:text="@string/dummy_title_short"
 				tools:text="@string/dummy_title_short" />
 
-			<com.patchr.ui.widgets.AirTextView
+			<TextView
 				android:id="@+id/type"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
 				android:text="@string/dummy_category_name"
 				tools:text="@string/dummy_category_name" />
 
-			<com.patchr.ui.widgets.AirTextView
+			<TextView
 				android:id="@+id/subtitle"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"

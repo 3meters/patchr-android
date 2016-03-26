@@ -89,7 +89,7 @@ public class ListScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 			this.entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
 			this.entity = DataController.getStoreEntity(this.entityId);
 
-			this.listItemResId = extras.getInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_user);
+			this.listItemResId = extras.getInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.listitem_user);
 			this.listLinkDirection = extras.getString(Constants.EXTRA_LIST_LINK_DIRECTION, Link.Direction.in.name());
 			this.listLinkSchema = extras.getString(Constants.EXTRA_LIST_LINK_SCHEMA, Constants.SCHEMA_ENTITY_USER);
 			this.listLinkType = extras.getString(Constants.EXTRA_LIST_LINK_TYPE);
@@ -108,6 +108,7 @@ public class ListScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 		}
 
 		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
+		this.listPresenter.showIndex = false;
 		this.listPresenter.listItemResId = this.listItemResId;
 		this.listPresenter.busyPresenter = new BusyPresenter();
 		this.listPresenter.busyPresenter.setProgressBar(this.rootView.findViewById(R.id.list_progress));
@@ -139,7 +140,7 @@ public class ListScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.list_screen;
+		return R.layout.screen_list;
 	}
 
 	public void fetch(final FetchMode fetchMode) {

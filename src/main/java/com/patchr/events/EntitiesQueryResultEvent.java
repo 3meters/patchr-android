@@ -12,7 +12,7 @@ import java.util.List;
 public class EntitiesQueryResultEvent {
 
 	public ActionType           actionType;
-	public FetchMode            mode;
+	public FetchMode            fetchMode;
 	public Object               data;
 	public List<Entity>         entities;       // convenience if data = entities
 	public Entity               entity;         // convenience if data = entity
@@ -30,8 +30,8 @@ public class EntitiesQueryResultEvent {
 		return this;
 	}
 
-	public EntitiesQueryResultEvent setMode(FetchMode mode) {
-		this.mode = mode;
+	public EntitiesQueryResultEvent setFetchMode(FetchMode fetchMode) {
+		this.fetchMode = fetchMode;
 		return this;
 	}
 

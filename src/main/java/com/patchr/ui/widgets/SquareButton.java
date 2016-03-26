@@ -2,10 +2,9 @@ package com.patchr.ui.widgets;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.widget.Button;
 
-import com.patchr.components.FontManager;
-
-public class SquareButton extends AirButton {
+public class SquareButton extends Button {
 
 	public SquareButton(Context context) {
 		this(context, null);
@@ -17,10 +16,6 @@ public class SquareButton extends AirButton {
 
 	public SquareButton(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-
-		if (!isInEditMode()) {
-			FontManager.getInstance().setTypefaceLight(this);
-		}
 	}
 
 	@Override

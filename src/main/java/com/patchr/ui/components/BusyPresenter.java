@@ -16,6 +16,7 @@ import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.events.ProcessingProgressEvent;
+import com.patchr.ui.BaseScreen;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
@@ -285,6 +286,10 @@ public class BusyPresenter {
 			mProgressBar = (AirProgressBar) progressBar;
 		}
 		return this;
+	}
+
+	public void positionBelow(final View header, final Integer headerHeightProjected) {
+		BaseScreen.position(this.mProgressBar, header, headerHeightProjected);
 	}
 
 	public enum BusyAction {

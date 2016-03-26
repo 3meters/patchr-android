@@ -1,10 +1,13 @@
 package com.patchr.ui;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -15,7 +18,9 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.patchr.Constants;
@@ -49,13 +54,11 @@ public abstract class BaseScreen extends AppCompatActivity {
 	public    Toolbar       toolbar;
 	public    ActionBar     actionBar;
 	protected BusyPresenter busyPresenter;
-	public    Menu          optionMenu;
 	protected View          rootView;
 	public    Entity        entity;
 	public    String        entityId;
 	protected Fragment      currentFragment;
 
-	protected Integer transitionType = TransitionType.FORM_TO;
 	public    Boolean firstDraw      = true;
 	protected Boolean processing     = false;
 
@@ -153,12 +156,17 @@ public abstract class BaseScreen extends AppCompatActivity {
 		return true;
 	}
 
+	@Override public boolean onPrepareOptionsMenu(Menu menu) {
+		configureStandardMenuItems(menu);
+		return true;
+	}
+
 	public void submitAction() { /* Handled by child classes */}
 
 	public void cancelAction(Boolean force) {   // Chance for activity to intercept to confirm
 		setResult(Activity.RESULT_CANCELED);
 		finish();
-		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_BACK);
+		AnimationManager.doOverridePendingTransition(this, getTransitionBack(TransitionType.FORM_BACK));
 	}
 
 	public void onFetchComplete() {
@@ -173,10 +181,9 @@ public abstract class BaseScreen extends AppCompatActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void unpackIntent() {
-		final Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
-		}
+		/*
+		 * Unpack all the inputs.
+		 */
 	}
 
 	public void initialize(Bundle savedInstanceState) {
@@ -320,7 +327,6 @@ public abstract class BaseScreen extends AppCompatActivity {
 					 */
 					UI.showToastNotification(StringManager.getString(R.string.alert_deleted), Toast.LENGTH_SHORT);
 					finish();
-					AnimationManager.doOverridePendingTransition(BaseScreen.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
 				}
 				else {
 					Errors.handleError(BaseScreen.this, result.serviceResponse);
@@ -357,7 +363,6 @@ public abstract class BaseScreen extends AppCompatActivity {
 					 */
 					UI.showToastNotification(StringManager.getString(R.string.alert_removed), Toast.LENGTH_SHORT);
 					finish();
-					AnimationManager.doOverridePendingTransition(BaseScreen.this, TransitionType.FORM_TO_PAGE_AFTER_DELETE);
 				}
 				else {
 					Errors.handleError(BaseScreen.this, result.serviceResponse);
@@ -367,7 +372,48 @@ public abstract class BaseScreen extends AppCompatActivity {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
+	public static void position(final View view, final View header, final Integer headerHeightProjected) {
+
+		if (view != null && header != null) {
+
+			ViewTreeObserver vto = header.getViewTreeObserver();
+			vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+				@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+				@SuppressWarnings("deprecation")
+				@Override public void onGlobalLayout() {
+
+					if (Patchr.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+						RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(view.getLayoutParams());
+						params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+						int headerHeight = (headerHeightProjected != null)
+						                   ? headerHeightProjected
+						                   : header.getHeight();
+						params.topMargin = headerHeight + UI.getRawPixelsForDisplayPixels(24f);
+						view.setLayoutParams(params);
+					}
+					else {
+						RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(view.getLayoutParams());
+						params.addRule(RelativeLayout.CENTER_IN_PARENT);
+						view.setLayoutParams(params);
+					}
+
+					if (Constants.SUPPORTS_JELLY_BEAN) {
+						header.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+					}
+					else {
+						header.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+					}
+				}
+			});
+		}
+	}
+
 	protected int getLayoutId() {
 		return 0;
+	}
+
+	protected int getTransitionBack(int transitionType) {
+		return transitionType;
 	}
 }

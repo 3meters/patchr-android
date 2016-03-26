@@ -23,9 +23,9 @@ import com.patchr.R;
 import com.patchr.components.DataController;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
+import com.patchr.components.UserManager;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Patch;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.User;
 import com.patchr.utilities.Errors;
@@ -65,7 +65,7 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 
 	public UserView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.layoutResId = R.layout.user_view;
+		this.layoutResId = R.layout.view_user;
 		initialize();
 	}
 
@@ -121,7 +121,7 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 		bind(entity, null);
 	}
 
-	public void bind(Entity entity, Patch patch) {
+	public void bind(Entity entity, Entity patch) {
 
 		synchronized (lock) {
 
@@ -156,7 +156,7 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 				if (user.id.equals(patch.ownerId)) {
 					base.setOrGone(this.role, User.Role.OWNER);
 				}
-				else {
+				else if (UserManager.currentUser != null && UserManager.userId.equals(patch.ownerId)){
 					this.removeButton.setTag(entity);
 					this.enableSwitch.setChecked(entity.linkEnabled);
 					this.enableLabel.setText(entity.linkEnabled ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);

@@ -282,7 +282,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 		public EntityRenderer(Context context) {
 			super(context, map, clusterManager);
 			iconGenerator = new IconGenerator(context);
-			markerView = LayoutInflater.from(context).inflate(R.layout.widget_marker_view, null, false);
+			markerView = LayoutInflater.from(context).inflate(R.layout.view_map_marker, null, false);
 			iconGenerator.setBackground(null);
 			iconGenerator.setContentView(markerView);
 		}

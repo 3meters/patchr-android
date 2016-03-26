@@ -1,29 +1,23 @@
 package com.patchr.ui.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.patchr.R;
 import com.patchr.components.Dispatcher;
-import com.patchr.components.MenuManager;
-import com.patchr.components.UserManager;
 import com.patchr.events.AbsEntitiesQueryEvent;
 import com.patchr.events.NotificationReceivedEvent;
-import com.patchr.objects.Command;
-import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
-import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.RecyclePresenter;
@@ -65,11 +59,18 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 	public Integer emptyMessageResId;
 
 	public boolean entityCacheDisabled;            // true == always call service
+	public boolean fetchOnResumeDisabled;
+	public boolean pagingDisabled;
+	public boolean restartAtTop;
+
+	@Override public void onAttach(Context context) {
+		super.onAttach(context);
+	}
 
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		this.layoutResId = R.layout.entity_list_fragment;
+		this.layoutResId = R.layout.fragment_entity_list;
 
 		/* Force complete initialization if being recreated by the system */
 		boolean recreated = (savedInstanceState != null && !savedInstanceState.isEmpty());
@@ -85,6 +86,7 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 		this.listPresenter.query = this.query;
 		this.listPresenter.headerView = this.headerView;
 		this.listPresenter.entityCacheDisabled = this.entityCacheDisabled;
+		this.listPresenter.pagingDisabled = this.pagingDisabled;
 	}
 
 	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -99,19 +101,30 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 		initialize(getView());
 	}
 
+	@Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+		super.onViewStateRestored(savedInstanceState);
+
+		/* Restart at top of list */
+		if (this.restartAtTop) {
+			RecyclerView.LayoutManager layoutManager = this.listPresenter.recycleView.getLayoutManager();
+			if (layoutManager instanceof LinearLayoutManager) {
+				((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(0, 0);
+			}
+		}
+	}
+
 	@Override public void onStart() {
 		super.onStart();
 		Dispatcher.getInstance().register(this);
-		if (getActivity() != null && !getActivity().isFinishing()) {
-			configureStandardMenuItems(((BaseScreen) getActivity()).optionMenu);
-		}
 	}
 
 	@Override public void onResume() {
 		super.onResume();
 
 		bind();                             // Shows any data we already have
-		fetch(FetchMode.AUTO);              // Checks for data changes and binds again if needed
+		if (!fetchOnResumeDisabled) {
+			fetch(FetchMode.AUTO);              // Checks for data changes and binds again if needed
+		}
 		if (this.listPresenter != null) {
 			this.listPresenter.onResume();  // Update ui
 		}
@@ -195,70 +208,5 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 		if (listPresenter != null) {
 			listPresenter.bind();
 		}
-	}
-
-	public void configureStandardMenuItems(final Menu menu) {
-
-		FragmentActivity fragmentActivity = getActivity();
-		if (menu == null || fragmentActivity == null) return;
-
-		fragmentActivity.runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-
-				/* Sign-in isn't dependent on an entity for policy */
-
-				MenuItem item = menu.findItem(R.id.login);
-				if (item != null) {
-					item.setVisible(!UserManager.shared().authenticated());
-				}
-
-				/* Remove menu items per policy */
-				Entity entity = ((BaseScreen) getActivity()).entity;
-
-				if (entity == null) return;
-
-				item = menu.findItem(R.id.edit);
-				if (item != null) {
-					item.setVisible(MenuManager.canUserEdit(entity));
-				}
-
-				item = menu.findItem(R.id.delete);
-				if (item != null) {
-					item.setVisible(MenuManager.canUserDelete(entity));
-				}
-
-				item = menu.findItem(R.id.remove);
-				if (item != null) {
-					item.setVisible(MenuManager.showAction(Command.REMOVE, entity));
-				}
-
-				item = menu.findItem(R.id.share);
-				if (item != null) {
-					item.setVisible(MenuManager.canUserShare(entity));
-				}
-
-				item = menu.findItem(R.id.share_photo);
-				if (item != null) {
-					item.setVisible(MenuManager.canUserShare(entity));
-				}
-
-				item = menu.findItem(R.id.logout);
-				if (item != null) {
-					item.setVisible(MenuManager.showAction(Command.EDIT, entity));
-				}
-
-				item = menu.findItem(R.id.navigate);
-				if (item != null && UserManager.shared().authenticated()) {
-					item.setVisible(entity.getLocation() != null);
-				}
-
-				item = menu.findItem(R.id.invite);
-				if (item != null) {
-					item.setVisible(MenuManager.canUserShare(entity));
-				}
-			}
-		});
 	}
 }

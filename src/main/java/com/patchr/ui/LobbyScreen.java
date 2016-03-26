@@ -21,7 +21,6 @@ import com.patchr.components.NotificationManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.Preference;
 import com.patchr.objects.Command;
-import com.patchr.objects.TransitionType;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
 
@@ -63,7 +62,7 @@ public class LobbyScreen extends AppCompatActivity {
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-		setContentView(R.layout.lobby_screen);
+		setContentView(R.layout.screen_lobby);
 	}
 
 	@Override protected void onStart() {
@@ -150,7 +149,6 @@ public class LobbyScreen extends AppCompatActivity {
 					extras.putString(Constants.EXTRA_INVITER_NAME, (String) metadata.get("referrerName"));
 					extras.putString(Constants.EXTRA_INVITER_PHOTO_URL, (String) metadata.get("referrerPhotoUrl"));
 					extras.putBoolean(Constants.EXTRA_SHOW_INVITER_WELCOME, true);
-					extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 
 					Patchr.router.browse(LobbyScreen.this, (String) metadata.get("entityId"), extras, true);
 
@@ -253,7 +251,6 @@ public class LobbyScreen extends AppCompatActivity {
 		extras.putString(Constants.EXTRA_ENTITY_ID, entityId);
 		extras.putString(Constants.EXTRA_INVITER_NAME, referrerName);
 		extras.putString(Constants.EXTRA_INVITER_PHOTO_URL, referrerPhotoUrl);
-		extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
 		Patchr.router.browse(this, entityId, extras, true);
 	}
 

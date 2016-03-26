@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools">
+
+	<RelativeLayout
+		android:id="@+id/content_group"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="?attr/backgroundCardField"
+		android:descendantFocusability="blocksDescendants"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
+		android:padding="8dp"
+		tools:layout_height="200dp">
+
+		<android.support.v7.widget.CardView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="?attr/backgroundCard">
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:minHeight="160dp"
+				android:paddingLeft="8dp"
+				android:paddingRight="8dp"
+				android:paddingTop="8dp">
+
+				<LinearLayout
+					android:id="@+id/holder_body"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="vertical">
+
+					<TextView
+						android:id="@+id/name"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:ellipsize="end"
+						android:singleLine="true"
+						android:textAppearance="?android:attr/textAppearanceMedium"
+						android:textColor="@color/brand_accent_darker"
+						android:textSize="24sp"
+						tools:text="Tchaikovsky Forever" />
+
+					<LinearLayout
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginBottom="4dp"
+						android:gravity="center_vertical"
+						android:orientation="horizontal">
+
+						<TextView
+							android:id="@+id/type"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:ellipsize="middle"
+							android:gravity="center_vertical"
+							android:singleLine="true"
+							android:textAllCaps="true"
+							android:textAppearance="?attr/textAppearanceExtraSmall"
+							android:textColor="?attr/textColorSecondary"
+							android:textSize="14sp"
+							tools:text="Event Patch" />
+
+						<LinearLayout
+							android:id="@+id/privacy_group"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:gravity="center_vertical"
+							android:orientation="horizontal">
+
+							<ImageView
+								android:layout_width="20dp"
+								android:layout_height="20dp"
+								android:gravity="center_vertical"
+								android:maxHeight="20dp"
+								android:maxWidth="20dp"
+								android:scaleType="fitCenter"
+								android:src="@drawable/ic_action_lock_closed_dark"
+								android:tint="@color/brand_accent_dark" />
+
+							<TextView
+								android:layout_width="wrap_content"
+								android:layout_height="wrap_content"
+								android:gravity="center_vertical"
+								android:text="@string/label_patch_privacy_private"
+								android:textAllCaps="true"
+								android:textAppearance="?attr/textAppearanceExtraSmall"
+								android:textColor="?attr/textColorSecondary"
+								android:textSize="14sp"
+								tools:text="@string/label_patch_privacy_private" />
+
+						</LinearLayout>
+
+					</LinearLayout>
+
+					<TextView
+						android:id="@+id/description"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:ellipsize="end"
+						android:maxLines="@integer/max_lines_patch_description"
+						tools:text="Tchaikovsky was a leading Russian composer of the late 19th century, whose works are notable for their melodic inspiration and their orchestration. He is regarded as the master composer for classical ballet, as demonstrated by his scores for Swan Lake, The Nutcracker, and Sleeping Beauty. " />
+
+				</LinearLayout>
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_alignParentBottom="true"
+					android:layout_below="@+id/holder_body"
+					android:layout_marginBottom="8dp"
+					android:orientation="horizontal">
+
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="bottom"
+						android:layout_marginRight="2dp"
+						android:text="@string/label_owned_by"
+						tools:text="Patch owned by" />
+
+					<TextView
+						android:id="@+id/owner_name"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="bottom"
+						android:layout_weight="1"
+						android:ellipsize="end"
+						android:singleLine="true"
+						android:textColor="@color/brand_accent_darker"
+						android:text="@string/dummy_name"
+						tools:text="Jay Massena" />
+
+					<Button
+						android:id="@+id/expando_button"
+						style="@style/button_flat"
+						android:layout_width="48dp"
+						android:layout_height="24dp"
+						android:layout_gravity="bottom"
+						android:layout_marginRight="48dp"
+						android:tag="collapsed"
+						android:visibility="gone"
+						tools:text="more"
+						tools:visibility="visible" />
+
+				</LinearLayout>
+
+				<ImageView
+					android:id="@+id/next_page_button"
+					style="@style/selectable_image"
+					android:layout_width="@dimen/button_height"
+					android:layout_height="@dimen/button_height"
+					android:layout_alignParentBottom="true"
+					android:layout_alignParentRight="true"
+					android:clickable="true"
+					android:paddingBottom="8dp"
+					android:paddingTop="8dp"
+					android:scaleType="fitCenter"
+					android:src="@drawable/ic_action_overflow_dark"
+					android:tint="@color/brand_primary"
+					android:tintMode="src_atop"
+					android:visibility="gone"
+					tools:visibility="visible" />
+
+			</RelativeLayout>
+		</android.support.v7.widget.CardView>
+	</RelativeLayout>
+</merge>

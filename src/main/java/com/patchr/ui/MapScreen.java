@@ -29,13 +29,10 @@ public class MapScreen extends BaseScreen {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		this.optionMenu = menu;
 		AirLocation location = entity.getLocation();
 		if (location != null) {
 			getMenuInflater().inflate(R.menu.menu_navigate, menu);
 		}
-
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
@@ -93,7 +90,7 @@ public class MapScreen extends BaseScreen {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.map_screen;
+		return R.layout.screen_map;
 	}
 
 	public void bind() {

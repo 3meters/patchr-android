@@ -56,7 +56,6 @@ public class Constants {
 	public static final String EXTRA_SHARE_SCHEMA                = "com.patchr.EXTRA_SHARE_SCHEMA";
 	public static final String EXTRA_SHARE_PATCH                 = "com.patchr.EXTRA_SHARE_PATCH";
 	public static final String EXTRA_PRE_APPROVED                = "com.patchr.EXTRA_PRE_APPROVED";
-	public static final String EXTRA_TRANSITION_TYPE             = "com.patchr.EXTRA_TRANSITION_TYPE";
 	public static final String EXTRA_SHOW_INVITER_WELCOME        = "com.patchr.EXTRA_SHOW_INVITER_WELCOME";
 	public static final String EXTRA_INVITER_NAME                = "com.patchr.EXTRA_INVITER_WELCOME";
 	public static final String EXTRA_INVITER_PHOTO_URL           = "com.patchr.EXTRA_INVITER_PHOTO_URL";
@@ -121,7 +120,7 @@ public class Constants {
 	public static final int   INTERVAL_BUSY_MINIMUM     = 1000;
 	public static final int   INTERVAL_BUSY_DELAY       = 0;
 	public static final int   PIXEL_SCALE               = UI.getRawPixelsForDisplayPixels(1f);
-	public static final int   PAGE_SIZE                 = 50;
+	public static final int   PAGE_SIZE                 = 20;
 
 	public static final int RADAR_BEACON_SIGNAL_BUCKET_SIZE = 1;
 	/*

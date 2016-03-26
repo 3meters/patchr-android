@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.patchr.Constants;
 import com.patchr.components.AnimationManager;
+import com.patchr.ui.BaseScreen;
 
 public class EmptyPresenter {
 
@@ -74,6 +75,10 @@ public class EmptyPresenter {
 			}
 		});
 		fadeOutAnim.start();
+	}
+
+	public void positionBelow(final View header, final Integer headerHeightProjected) {
+		BaseScreen.position(this.label, header, headerHeightProjected);
 	}
 
 	public void setLabel(String label) {

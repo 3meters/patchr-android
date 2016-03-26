@@ -142,14 +142,12 @@ public class NearbyListFragment extends EntityListFragment {
 				entityModelBeaconDate = ProximityController.getInstance().getLastBeaconLockedDate();
 				taskPatchesByProximity = new AsyncTask() {
 
-					@Override
-					protected Object doInBackground(Object... params) {
+					@Override protected Object doInBackground(Object... params) {
 						Thread.currentThread().setName("AsyncGetPatchesForBeacons");
 						return ProximityController.getInstance().getEntitiesByProximity();
 					}
 
-					@Override
-					protected void onCancelled(Object result) {
+					@Override protected void onCancelled(Object result) {
 						/*
 						 * Called after exiting doInBackground() and task.cancel was called.
 						 * If using task.cancel(true) and the task is running then AsyncTask
@@ -162,8 +160,7 @@ public class NearbyListFragment extends EntityListFragment {
 						}
 					}
 
-					@Override
-					protected void onPostExecute(Object result) {
+					@Override protected void onPostExecute(Object result) {
 						final ServiceResponse serviceResponse = (ServiceResponse) result;
 						if (serviceResponse.responseCode != ResponseCode.SUCCESS) {
 							Errors.handleError(getActivity(), serviceResponse);

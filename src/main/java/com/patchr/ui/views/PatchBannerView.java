@@ -51,7 +51,7 @@ public class PatchBannerView extends FrameLayout {
 
 	public PatchBannerView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.layoutResId = R.layout.patch_banner_view;
+		this.layoutResId = R.layout.view_patch_banner;
 		initialize();
 	}
 

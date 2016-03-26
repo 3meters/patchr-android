@@ -7,7 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ViewSwitcher;
+import android.widget.ProgressBar;
 
 import com.patchr.R;
 import com.patchr.components.Dispatcher;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class RecyclePresenter implements View.OnClickListener {
+public class RecyclePresenter {
 
 	public BusyPresenter           busyPresenter;
 	public EmptyPresenter          emptyPresenter;
@@ -49,6 +49,7 @@ public class RecyclePresenter implements View.OnClickListener {
 	/* Configuration */
 	public String  listViewType;
 	public boolean entityCacheDisabled;            // true == always call service
+	public boolean pagingDisabled;
 	public Boolean showIndex = true;
 
 	/* Cached for grids */
@@ -64,6 +65,7 @@ public class RecyclePresenter implements View.OnClickListener {
 	public  boolean              bound;
 	public  String               groupTag;
 	private Context              context;
+	private boolean              processing;
 
 	/* Data binding */
 	public String                scopingEntityId;     // Used to scope the entity collection
@@ -102,26 +104,12 @@ public class RecyclePresenter implements View.OnClickListener {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void onClick(View view) {
-
-		Integer id = view.getId();
-		if (id == R.id.paging_button) {
-			ViewSwitcher switcher = (ViewSwitcher) view;
-			if (switcher.getDisplayedChild() == 0) {
-				switcher.setDisplayedChild(1);
-				fetch(FetchMode.AUTO);
-			}
-		}
-	}
-
 	public void onFetchComplete(final NetworkManager.ResponseCode responseCode) {
 		if (this.released) return;
 
-		assert responseCode != null;
-
+		this.processing = false;
 		this.busyPresenter.hide(false);
-
-		if (adapter.getItemCount() == 0 && responseCode == NetworkManager.ResponseCode.SUCCESS) {
+		if (this.entities.size() == 0 && responseCode == NetworkManager.ResponseCode.SUCCESS) {
 			this.emptyPresenter.show(true);
 		}
 		else {
@@ -154,31 +142,43 @@ public class RecyclePresenter implements View.OnClickListener {
 				if (event.entities != null) {
 
 					this.more = event.more;
-					this.entities.clear();
-					if (event.cursor != null && event.cursor.skip == 0) {
-						if (this.injectEntitiesHandler != null) {
-							this.injectEntitiesHandler.injectEntities(this.entities, event.actionType);
-						}
+
+					if (this.more && !this.pagingDisabled) {
+						this.recycleView.addOnScrollListener(new EndlessRecyclerViewScrollListener((LinearLayoutManager) recycleView.getLayoutManager()) {
+							@Override public void onLoadMore(int page, int totalItemsCount) {
+								if (!processing) {
+									recycleView.clearOnScrollListeners();
+									fetch(FetchMode.PAGING);
+								}
+							}
+						});
 					}
 
-					this.entities.addAll(event.entities);
-					Collections.sort(this.entities, new Entity.SortByPositionSortDate());
-				}
+					if (event.fetchMode == FetchMode.PAGING) {
+						Integer positionStart = adapter.getItemCount();
+						this.entities.addAll(event.entities);
+						adapter.notifyItemRangeChanged(positionStart, event.entities.size() - 1);
+					}
+					else {
+						this.entities.clear();
+						if (event.cursor != null && event.cursor.skip == 0) {
+							if (this.injectEntitiesHandler != null) {
+								this.injectEntitiesHandler.injectEntities(this.entities, event.actionType);
+							}
+						}
+						this.entities.addAll(event.entities);
+						Collections.sort(this.entities, new Entity.SortByPositionSortDate());
 
-				if (event.scopingEntity != null) {
-					this.scopingEntity = event.scopingEntity;
-				}
+						if (event.scopingEntity != null) {
+							this.scopingEntity = event.scopingEntity;
+						}
 
-				if (this.pagingControl != null) {
-					ViewSwitcher switcher = (ViewSwitcher) this.pagingControl.findViewById(R.id.paging_button);
-					if (switcher != null) {
-						switcher.setDisplayedChild(0);
+						bind();
 					}
 				}
 			}
 
 			onFetchComplete(NetworkManager.ResponseCode.SUCCESS);
-			bind();
 		}
 	}
 
@@ -199,16 +199,11 @@ public class RecyclePresenter implements View.OnClickListener {
 		assert view != null;
 
 		this.recycleView = (RecyclerView) view.findViewById(R.id.entity_list);
-		this.pagingControl = LayoutInflater.from(context).inflate(R.layout.temp_listitem_loading, null);
-		this.pagingControl.setOnClickListener(this);
 
 		if (this.emptyPresenter != null && this.emptyMessageResId != null) {
 			this.emptyPresenter.setLabel(StringManager.getString(this.emptyMessageResId));
 		}
 
-		if (this.listViewType.equals(ViewType.GRID)) {
-			recycleView.setLayoutManager(new GridLayoutManager(context, 4));
-		}
 
 		/*
 		 * Bind adapter to UI triggers view generation but we might not
@@ -234,15 +229,15 @@ public class RecyclePresenter implements View.OnClickListener {
 	}
 
 	public void fetch(final FetchMode fetchMode) {
+		if (this.processing) return;
+		if (fetchMode == FetchMode.AUTO && this.bound) return;
+
 		Logger.v(this, "Fetching: " + fetchMode.name());
 
-		this.query.cursor.skip = (fetchMode == FetchMode.AUTO && this.more) ? this.entities.size() : 0;
+		this.processing = true;
+		this.query.cursor.skip = (fetchMode == FetchMode.PAGING && this.more) ? this.entities.size() : 0;
 		this.query.tag = System.identityHashCode(this);
-
-		/* Don't allow noop first time around */
-//		if (fetchMode == FetchMode.AUTO && this.scopingEntity != null && !this.bound) {
-//			this.query.cacheStamp = this.scopingEntity.getCacheStamp();
-//		}
+		this.query.fetchMode = fetchMode;
 
 		Dispatcher.getInstance().post(this.query);
 
@@ -255,6 +250,15 @@ public class RecyclePresenter implements View.OnClickListener {
 		this.adapter.notifyDataSetChanged();
 	}
 
+	public void clear() {
+		this.busyPresenter.hide(false);
+		if (!this.entities.isEmpty()) {
+			this.entities.clear();
+			this.adapter.notifyDataSetChanged();
+		}
+		this.emptyPresenter.show(true);
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
@@ -263,6 +267,7 @@ public class RecyclePresenter implements View.OnClickListener {
 
 		private static final int TYPE_HEADER = 0;
 		private static final int TYPE_ITEM   = 1;
+		private static final int TYPE_FOOTER = 2;
 
 		private List<Entity>   entities;
 		private LayoutInflater inflater;
@@ -281,6 +286,10 @@ public class RecyclePresenter implements View.OnClickListener {
 				}
 				return new ViewHolder(headerView);
 			}
+			else if (viewType == TYPE_FOOTER) {
+				View view = inflater.inflate(R.layout.listitem_loading, parent, false);
+				return new ViewHolder(view);
+			}
 			else {
 				View view = inflater.inflate(listItemResId, parent, false);
 
@@ -297,7 +306,14 @@ public class RecyclePresenter implements View.OnClickListener {
 		}
 
 		@Override public void onBindViewHolder(ViewHolder holder, int position) {
-			if (position >= 1 || (headerView == null && position == 0)) {
+			int itemType = getItemViewType(position);
+			if (itemType == TYPE_FOOTER) {
+				ProgressBar progress = (ProgressBar) holder.entityView;
+				if (progress != null) {
+					progress.setIndeterminate(true);
+				}
+			}
+			else if (itemType == TYPE_ITEM) {
 				Entity entity = getItem(position);
 				entity.index = getIndex(position);
 				holder.bind(entity, scopingEntity, query);
@@ -305,39 +321,54 @@ public class RecyclePresenter implements View.OnClickListener {
 		}
 
 		@Override public int getItemCount() {
+			int itemCount = entities.size();
 			if (headerView != null) {
-				return 1 + entities.size();
+				itemCount++;
 			}
-			else {
-				return entities.size();
+			if (!pagingDisabled && more) {
+				itemCount++;
 			}
+			return itemCount;
 		}
 
 		@Override public long getItemId(int position) {
-			if (headerView != null && position == 0) {
-				return 1000;
+			if (headerView != null) {
+				if (position == 0) {
+					return 1000;
+				}
+				else if (!pagingDisabled && more && position == entities.size() + 1) {
+					return 2000;
+				}
 			}
-			else {
-				Entity entity = getItem(position);
-				return entity.idAsLong();
+			else if (!pagingDisabled && more && position == entities.size()) {
+				return 2000;
 			}
+
+			Entity entity = getItem(position);
+			return entity.idAsLong();
 		}
 
 		@Override public int getItemViewType(int position) {
-			if (headerView != null && position == 0) {
-				return TYPE_HEADER;
+			if (headerView != null) {
+				if (position == 0) {
+					return TYPE_HEADER;
+				}
+				else if (!pagingDisabled && more && position == entities.size() + 1) {
+					return TYPE_FOOTER;
+				}
 			}
-
+			else if (!pagingDisabled && more && position == entities.size()) {
+				return TYPE_FOOTER;
+			}
 			return TYPE_ITEM;
 		}
 
 		private Entity getItem(int position) {
+			int dataPosition = position;
 			if (headerView != null) {
-				return entities.get(position - 1);
+				dataPosition--;
 			}
-			else {
-				return entities.get(position);
-			}
+			return entities.get(dataPosition);
 		}
 
 		private Integer getIndex(int position) {

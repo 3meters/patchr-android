@@ -154,7 +154,6 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		this.optionMenu = menu;
 		getMenuInflater().inflate(R.menu.menu_login, menu);
 		getMenuInflater().inflate(R.menu.menu_view_as_map, menu);
 		getMenuInflater().inflate(R.menu.menu_view_as_list, menu);
@@ -163,7 +162,6 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 			getMenuInflater().inflate(R.menu.menu_notifications, menu);
 		}
 
-		configureStandardMenuItems(menu);   // Tweaks based on permissions, etc.
 		return true;
 	}
 
@@ -408,9 +406,10 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		 * - like/unlike entity
 		 */
 		fragmentNotifications = new EntityListFragment();
-		fragmentNotifications.layoutResId = R.layout.notification_list_fragment;
+		fragmentNotifications.fetchOnResumeDisabled = true;
+		fragmentNotifications.layoutResId = R.layout.fragment_notification_list;
 		fragmentNotifications.injectEntitiesHandler = this;
-		fragmentNotifications.listItemResId = R.layout.temp_listitem_notification;
+		fragmentNotifications.listItemResId = R.layout.listitem_notification;
 		fragmentNotifications.emptyMessageResId = R.string.empty_notifications;
 		fragmentNotifications.query = NotificationsQueryEvent.build(ActionType.ACTION_GET_NOTIFICATIONS, UserManager.userId);
 
@@ -425,7 +424,6 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	}
 
 	@Override protected void configureStandardMenuItems(Menu menu) {
-		if (menu == null) return;
 		super.configureStandardMenuItems(menu);
 
 		boolean showingMap = (currentFragment instanceof MapListFragment);
@@ -465,7 +463,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.main_screen;
+		return R.layout.screen_main;
 	}
 
 	public void bind() {
@@ -579,19 +577,22 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				fragment = new NearbyListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.listItemResId = R.layout.temp_listitem_patch;
+				listFragment.listItemResId = R.layout.listitem_patch;
 				listFragment.emptyMessageResId = R.string.empty_nearby;
-				listFragment.titleResId = R.string.form_title_nearby;
-				listFragment.headerView = LayoutInflater.from(this).inflate(R.layout.nearby_header_view, null);
+				listFragment.titleResId = R.string.screen_title_nearby;
+				listFragment.pagingDisabled = true;
+				listFragment.restartAtTop = true;
+				listFragment.headerView = LayoutInflater.from(this).inflate(R.layout.view_nearby_header, null);
 			}
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_WATCH)) {
 
 				fragment = new EntityListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.listItemResId = R.layout.temp_listitem_patch;
+				listFragment.listItemResId = R.layout.listitem_patch;
 				listFragment.emptyMessageResId = R.string.empty_member_of;
-				listFragment.titleResId = R.string.form_title_watch;
+				listFragment.titleResId = R.string.screen_title_watch;
+				listFragment.restartAtTop = true;
 				listFragment.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
 						, Maps.asMap("enabled", true)
 						, Link.Direction.out.name()
@@ -604,9 +605,10 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				fragment = new EntityListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.listItemResId = R.layout.temp_listitem_patch;
+				listFragment.listItemResId = R.layout.listitem_patch;
+				listFragment.restartAtTop = true;
 				listFragment.emptyMessageResId = R.string.empty_owner_of;
-				listFragment.titleResId = R.string.form_title_create;
+				listFragment.titleResId = R.string.screen_title_create;
 				listFragment.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
 						, Maps.asMap("enabled", true)
 						, Link.Direction.out.name()
@@ -619,10 +621,11 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				fragment = new EntityListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.listItemResId = R.layout.temp_listitem_patch;
-				listFragment.titleResId = R.string.form_title_trends_active;
+				listFragment.listItemResId = R.layout.listitem_patch;
+				listFragment.titleResId = R.string.screen_title_trends_active;
+				listFragment.restartAtTop = true;
 				listFragment.entityCacheDisabled = true;
-				listFragment.headerView = LayoutInflater.from(this).inflate(R.layout.widget_list_header_trends_active, null);
+				listFragment.headerView = LayoutInflater.from(this).inflate(R.layout.view_list_header_trends_active, null);
 				listFragment.query = TrendQueryEvent.build(ActionType.ACTION_GET_TREND
 						, Constants.SCHEMA_ENTITY_MESSAGE
 						, Constants.SCHEMA_ENTITY_PATCH
@@ -686,7 +689,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		prevFragmentTag = currentFragmentTag;
 		currentFragmentTag = fragmentType;
 		currentFragment = fragment;
-		configureStandardMenuItems(this.optionMenu);
+		supportInvalidateOptionsMenu();
 	}
 
 	public Fragment getCurrentFragment() {

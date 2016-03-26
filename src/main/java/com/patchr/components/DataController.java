@@ -26,6 +26,7 @@ import com.patchr.events.TrendQueryEvent;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.CacheStamp;
+import com.patchr.objects.Command;
 import com.patchr.objects.Cursor;
 import com.patchr.objects.Document;
 import com.patchr.objects.Entity;
@@ -73,13 +74,14 @@ import java.util.Locale;
 @SuppressWarnings("unchecked")
 public class DataController {
 
-	private Number mActivityDate;                                           // Monitored by nearby
-	private              Boolean     mRegistering = false;
-	private static final EntityStore ENTITY_STORE = new EntityStore();
+	private        Number      activityDate;     // Monitored by nearby
+	private        boolean     registering;
+	private static EntityStore ENTITY_STORE;
 
 	private DataController() {
 		try {
 			Dispatcher.getInstance().register(this);
+			ENTITY_STORE = new EntityStore();
 		}
 		catch (IllegalArgumentException ignore) { /* ignore */ }
 	}
@@ -160,6 +162,7 @@ public class DataController {
 				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
 						.setActionType(event.actionType)
 						.setCursor(event.cursor)
+						.setFetchMode(event.fetchMode)
 						.setTag(event.tag);
 
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -204,6 +207,7 @@ public class DataController {
 
 				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
 						.setCursor(event.cursor)
+						.setFetchMode(event.fetchMode)
 						.setActionType(event.actionType)
 						.setTag(event.tag);
 
@@ -237,6 +241,7 @@ public class DataController {
 
 				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
 						.setCursor(event.cursor)
+						.setFetchMode(event.fetchMode)
 						.setActionType(event.actionType)
 						.setTag(event.tag);
 
@@ -363,8 +368,8 @@ public class DataController {
 
 	@Subscribe public void onRegisterInstall(RegisterInstallEvent event) {
 
-		if (mRegistering) return;
-		mRegistering = true;
+		if (registering) return;
+		registering = true;
 
 		new AsyncTask() {
 
@@ -378,7 +383,7 @@ public class DataController {
 					Patchr.settingsEditor.putBoolean(StringManager.getString(R.string.setting_install_registered), true);
 					Patchr.settingsEditor.commit();
 				}
-				mRegistering = false;
+				registering = false;
 
 				return null;
 			}
@@ -749,6 +754,27 @@ public class DataController {
 		return result;
 	}
 
+	public ModelResult deleteUser(String userId, Object tag) {
+		ModelResult result = new ModelResult();
+
+		final ServiceRequest serviceRequest = new ServiceRequest()
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + userId + "?erase=true")
+				.setRequestType(RequestType.METHOD)
+				.setTag(tag)
+				.setParameters(new Bundle())
+				.setIgnoreResponseData(true)
+				.setResponseFormat(ResponseFormat.JSON);
+
+		/* Delete user */
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_delete", null, 0);
+		}
+
+		return result;
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Entity updates
 	 *--------------------------------------------------------------------------------------------*/
@@ -904,7 +930,7 @@ public class DataController {
 			result.data = insertedEntity;
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				mActivityDate = DateTime.nowDate().getTime();
+				activityDate = DateTime.nowDate().getTime();
 			}
 		}
 
@@ -963,7 +989,7 @@ public class DataController {
 			}
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				mActivityDate = DateTime.nowDate().getTime();
+				activityDate = DateTime.nowDate().getTime();
 			}
 		}
 
@@ -1023,7 +1049,7 @@ public class DataController {
 			}
 
 			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				mActivityDate = DateTime.nowDate().getTime();
+				activityDate = DateTime.nowDate().getTime();
 			}
 		}
 		return result;
@@ -1110,7 +1136,7 @@ public class DataController {
 		/* Reproduce the service call effect locally */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, untuning ? "patch_untune" : "patch_tune", null, 0);
-			mActivityDate = DateTime.nowDate().getTime();   // So nearby fragment picks up the change
+			activityDate = DateTime.nowDate().getTime();   // So nearby fragment picks up the change
 
 			if (beacons != null) {
 				for (Beacon beacon : beacons) {
@@ -1585,7 +1611,7 @@ public class DataController {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@NonNull public CacheStamp getGlobalCacheStamp() {
-		CacheStamp cacheStamp = new CacheStamp(mActivityDate, null);
+		CacheStamp cacheStamp = new CacheStamp(activityDate, null);
 		cacheStamp.source = CacheStamp.StampSource.ENTITY_MANAGER.name().toLowerCase(Locale.US);
 		return cacheStamp;
 	}
@@ -1654,7 +1680,7 @@ public class DataController {
 	}
 
 	public DataController setActivityDate(Number activityDate) {
-		mActivityDate = activityDate;
+		this.activityDate = activityDate;
 		return this;
 	}
 

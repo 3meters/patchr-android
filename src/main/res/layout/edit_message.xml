@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	tools:context=".ui.edit.MessageEdit">
+
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/include_toolbar_actionbar" />
+
+	<!-- Expands to fill scrollview -->
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_gravity="center_horizontal"
+		android:fillViewport="true">
+
+		<LinearLayout
+			android:layout_width="288dp"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:orientation="vertical">
+
+			<LinearLayout
+				android:id="@+id/holder_patch"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:minHeight="44dp"
+				android:orientation="horizontal"
+				android:paddingBottom="8dp"
+				android:paddingLeft="@dimen/form_body_padding"
+				android:paddingRight="@dimen/form_body_padding"
+				android:paddingTop="8dp">
+
+				<com.patchr.ui.views.ImageLayout
+					android:id="@+id/user_photo"
+					android:layout_width="@dimen/image_small"
+					android:layout_height="@dimen/image_small"
+					android:layout_marginRight="8dp"
+					custom:category="profile"
+					custom:shape="round" />
+
+				<TextView
+					android:id="@+id/patch_name"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical"
+					android:ellipsize="end"
+					android:singleLine="true"
+					android:textAppearance="@style/text_appearance_medium"
+					android:textColor="@color/brand_primary"
+					tools:text="Massena Residence" />
+
+				<!-- To -->
+
+				<ViewAnimator
+					android:id="@+id/animator_to"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="gone">
+
+					<com.patchr.ui.widgets.AirTokenCompleteTextView
+						android:id="@+id/to"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:completionHint="@string/label_share_completion_hint"
+						android:completionHintView="@layout/view_search_hint"
+						android:gravity="center_vertical"
+						android:hint="@string/label_share_to_hint"
+						android:imeOptions="flagNoExtractUi"
+						android:minHeight="65dp"
+						android:textAppearance="?attr/textAppearanceMediumLarge" />
+
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="?android:attr/editTextBackground"
+						android:cropToPadding="false"
+						android:minHeight="@dimen/form_field_height"
+						android:orientation="horizontal"
+						android:paddingLeft="10dp">
+
+						<TextView
+							android:id="@+id/entity_label"
+							android:layout_width="wrap_content"
+							android:layout_height="match_parent"
+							android:layout_marginBottom="5dp"
+							android:layout_weight="0"
+							android:background="@color/transparent"
+							android:gravity="center_vertical"
+							android:text="@string/label_message_to_prefix"
+							android:textAppearance="?attr/textAppearanceMediumLarge"
+							android:textColor="?attr/textColorSecondary" />
+
+						<ImageView
+							android:id="@+id/to_clear"
+							style="@style/button"
+							android:layout_width="@dimen/image_small"
+							android:layout_height="@dimen/image_small"
+							android:layout_gravity="center_vertical"
+							android:layout_weight="0"
+							android:clickable="true"
+							android:onClick="onEntityClearButtonClick"
+							android:padding="15dp"
+							android:scaleType="centerCrop"
+							android:src="?attr/iconCancel" />
+					</LinearLayout>
+				</ViewAnimator>
+
+			</LinearLayout>
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/rule_divider_height"
+				android:background="?attr/ruleColor" />
+
+			<!-- Title and Content -->
+
+			<com.patchr.ui.widgets.AirEditText
+				android:id="@+id/description"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="12dp"
+				android:layout_marginRight="12dp"
+				android:layout_marginTop="8dp"
+				android:drawableRight="?attr/iconClear"
+				android:gravity="top"
+				android:hint="@string/hint_message_description"
+				android:imeOptions="flagNoExtractUi"
+				android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
+				android:minLines="4"
+				android:textAppearance="?attr/textAppearanceMediumLarge"
+				android:textColorHint="?attr/textColorSecondary" />
+
+			<!-- Attachment -->
+
+			<com.patchr.ui.views.PhotoEditView
+				android:id="@+id/photo_edit"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="16dp"
+				android:layout_marginRight="16dp" />
+
+			<!-- Share: stretched (including child view) to fill remaining space -->
+
+			<RelativeLayout
+				android:id="@+id/share_holder"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="@dimen/form_body_padding"
+				android:layout_marginRight="@dimen/form_body_padding">
+
+				<android.support.v7.widget.CardView
+					android:id="@+id/share_entity"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					tools:layout_height="96dp"
+					custom:cardBackgroundColor="?attr/backgroundButtonShare"
+					custom:cardCornerRadius="3dp"
+					custom:cardElevation="2dp"
+					custom:cardUseCompatPadding="true"
+					custom:contentPadding="4dp" />
+
+			</RelativeLayout>
+
+		</LinearLayout>
+
+	</ScrollView>
+
+</LinearLayout>

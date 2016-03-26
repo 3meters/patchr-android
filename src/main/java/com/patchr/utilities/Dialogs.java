@@ -15,12 +15,10 @@ import android.view.View;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
-import com.patchr.objects.Entity;
 import com.patchr.objects.Command;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.Entity;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -135,7 +133,6 @@ public class Dialogs {
 						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
 					}
 					dialog.dismiss();
-					AnimationManager.doOverridePendingTransition(activity, TransitionType.EXTERNAL_TO);
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {
 					dialog.dismiss();
@@ -189,7 +186,6 @@ public class Dialogs {
 						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
 					}
 					dialog.dismiss();
-					AnimationManager.doOverridePendingTransition(activity, TransitionType.EXTERNAL_TO);
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {
 					dialog.dismiss();
@@ -242,7 +238,6 @@ public class Dialogs {
 						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
 					}
 					dialog.dismiss();
-					AnimationManager.doOverridePendingTransition(activity, TransitionType.EXTERNAL_TO);
 				}
 				else if (which == DialogInterface.BUTTON_NEGATIVE) {
 					dialog.dismiss();

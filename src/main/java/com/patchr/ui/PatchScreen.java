@@ -44,6 +44,7 @@ import com.patchr.components.DataController;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
+import com.patchr.components.MediaManager;
 import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
@@ -66,7 +67,7 @@ import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
-import com.patchr.objects.WatchStatus;
+import com.patchr.objects.MemberStatus;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.components.EmptyPresenter;
@@ -103,7 +104,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	protected BottomSheetLayout bottomSheetLayout;
 
 	protected String  notificationId;
-	protected Integer watchStatus;    // Set in draw
+	protected Integer memberStatus;    // Set in draw
 	private   boolean bound;
 
 	protected CallbackManager callbackManager;      // For facebook
@@ -116,7 +117,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	protected boolean         justApproved;               // Set in onMessage via notification
 
 	public PatchScreen() {
-		watchStatus = WatchStatus.NONE;
+		memberStatus = MemberStatus.NONE;
 	}
 
 	@Override protected void onStart() {
@@ -140,7 +141,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 			Patch patch = (Patch) entity;
 			if (referrerName != null) {     // Active invitation
 				if (bottomSheetLayout.isSheetShowing()) {
-					if (UserManager.shared().authenticated() && patch.watchStatus() != WatchStatus.NONE) {
+					if (UserManager.shared().authenticated() && patch.watchStatus() != MemberStatus.NONE) {
 						bottomSheetLayout.dismissSheet();
 					}
 					else if (UserManager.shared().authenticated() != authenticatedForInvite) {
@@ -155,7 +156,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 		if (autoJoin) {
 			joinAction();
-			UI.showToastNotification("You are now a member of this patch!", Toast.LENGTH_SHORT);
 			autoJoin = false;
 		}
 	}
@@ -225,8 +225,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		this.optionMenu = menu;
-
 		/* Shown for owner */
 		getMenuInflater().inflate(R.menu.menu_edit, menu);
 		getMenuInflater().inflate(R.menu.menu_delete, menu);
@@ -240,7 +238,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		getMenuInflater().inflate(R.menu.menu_map, menu);           // base
 		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
 
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
@@ -298,7 +295,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 			if (requestCode == Constants.ACTIVITY_ENTITY_EDIT) {
 				if (resultCode == Constants.RESULT_ENTITY_DELETED || resultCode == Constants.RESULT_ENTITY_REMOVED) {
 					finish();
-					AnimationManager.doOverridePendingTransition(this, TransitionType.PAGE_TO_RADAR_AFTER_DELETE);
 				}
 			}
 			else if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.shared().authenticated()) {
@@ -310,7 +306,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 					if (schema != null && schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 						Boolean hasMessaged = (entity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
 						Patch patch = (Patch) entity;
-						if (patch.watchStatus() == WatchStatus.NONE && !patch.isRestricted() && !hasMessaged) {
+						if (patch.watchStatus() == MemberStatus.NONE && !patch.isRestricted() && !hasMessaged) {
 							autoJoin = true;
 						}
 					}
@@ -350,6 +346,15 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 					this.listPresenter.scopingEntity = event.entity;
 					this.listPresenter.scopingEntityId = event.entity.id;
 					Patchr.getInstance().setCurrentPatch(entity);   // Fresh!
+					memberStatus = ((Patch) entity).watchStatus();
+
+					/* Customize empty message */
+					if (((Patch) entity).isRestricted()) {
+						listPresenter.emptyPresenter.setLabel("Only members can see messages");
+					}
+					else {
+						listPresenter.emptyPresenter.setLabel("Be the first to post a message to this patch");
+					}
 
 					if (firstBind && referrerName != null) {     // Active invitation
 						showInviteWelcome(1500);
@@ -359,7 +364,12 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 						makeBranchLink();           // Create or refresh so it's ready and correct
 					}
 
-					this.listPresenter.fetch(event.fetchMode); // Next in the chain
+					if (memberStatus == MemberStatus.NONE && ((Patch) entity).isRestricted()) {
+						this.listPresenter.clear();
+					}
+					else {
+						this.listPresenter.fetch(event.fetchMode); // Next in the chain
+					}
 				}
 
 				onFetchComplete();
@@ -388,11 +398,17 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		if (event.tag.equals(System.identityHashCode(this))
 				&& (event.entity == null || event.entity.id.equals(entityId))) {
 
-			Logger.v(this, "Data result accepted: " + event.actionType.name());
 			if (event.error == null) {
-				if (event.actionType == ActionType.ACTION_LINK_INSERT_MEMBER
-						|| event.actionType == ActionType.ACTION_LINK_DELETE_MEMBER) {
-					fetch(FetchMode.AUTO);
+				Logger.v(this, "Data result accepted: " + event.actionType.name());
+				if (event.actionType == ActionType.ACTION_LINK_INSERT_MEMBER) {
+					UI.showToastNotification("You are now a member of this patch", Toast.LENGTH_SHORT);
+					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
+					fetch(FetchMode.MANUAL);
+				}
+				else if (event.actionType == ActionType.ACTION_LINK_DELETE_MEMBER) {
+					UI.showToastNotification("You have left this patch", Toast.LENGTH_SHORT);
+					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
+					fetch(FetchMode.MANUAL);
 				}
 			}
 		}
@@ -451,7 +467,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		}
 
 		/* Cancel request */
-		if (watchStatus == WatchStatus.WATCHING) {
+		if (memberStatus == MemberStatus.WATCHING) {
 			if (((Patch) entity).isRestrictedForCurrentUser()) {
 				confirmLeave();
 			}
@@ -459,10 +475,10 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 				join(false /* delete */);
 			}
 		}
-		else if (watchStatus == WatchStatus.REQUESTED) {
+		else if (memberStatus == MemberStatus.REQUESTED) {
 			join(false /* delete */);
 		}
-		else if (watchStatus == WatchStatus.NONE) {
+		else if (memberStatus == MemberStatus.NONE) {
 			join(true /* insert */);
 		}
 	}
@@ -470,13 +486,12 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	private void memberListAction() {
 		if (entity != null) {
 			Bundle extras = new Bundle();
-			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.temp_listitem_user);
+			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.listitem_user);
 			extras.putString(Constants.EXTRA_LIST_LINK_DIRECTION, Link.Direction.in.name());
 			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, Constants.SCHEMA_ENTITY_USER);
 			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_MEMBER);
-			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.form_title_member_list);
-			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.DRILL_TO);
-			Patchr.router.route(this, Command.ENTITY_LIST, entity, extras);
+			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.screen_title_member_list);
+			Patchr.router.route(this, Command.MEMBER_LIST, entity, extras);
 		}
 	}
 
@@ -499,7 +514,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-			transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.FORM_TO);
 			notificationId = extras.getString(Constants.EXTRA_NOTIFICATION_ID);
 			referrerName = extras.getString(Constants.EXTRA_INVITER_NAME);
 			referrerPhotoUrl = extras.getString(Constants.EXTRA_INVITER_PHOTO_URL);
@@ -515,11 +529,13 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 		this.listPresenter = new RecyclePresenter(this);
 		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
-		this.listPresenter.listItemResId = R.layout.temp_listitem_message;
+		this.listPresenter.listItemResId = R.layout.listitem_message;
 		this.listPresenter.busyPresenter = new BusyPresenter();
 		this.listPresenter.busyPresenter.setProgressBar(this.rootView.findViewById(R.id.list_progress));
 		this.listPresenter.emptyPresenter = new EmptyPresenter(this.rootView.findViewById(R.id.list_message));
 		this.listPresenter.emptyPresenter.setLabel(StringManager.getString(R.string.button_list_share));
+		this.listPresenter.emptyPresenter.positionBelow(this.header, null);
+		this.listPresenter.busyPresenter.positionBelow(this.header, null);
 		this.listPresenter.headerView = this.header;
 
 		this.listPresenter.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
@@ -540,7 +556,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 			this.listPresenter.busyPresenter.setSwipeRefresh(swipeRefresh);
 		}
 
-		View footer = LayoutInflater.from(this).inflate(R.layout.widget_list_footer_message, null);
+		View footer = LayoutInflater.from(this).inflate(R.layout.view_list_footer_message, null);
 		listPresenter.footerView = footer;
 
 		this.listPresenter.initialize(this, this.rootView);        // We init after everything is setup
@@ -558,17 +574,17 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.patch_screen;
+		return R.layout.screen_patch;
 	}
 
 	@Override public void configureStandardMenuItems(final Menu menu) {
-
 		super.configureStandardMenuItems(menu);
+
 		MenuItem menuItem = menu.findItem(R.id.leave_patch);
 		if (menuItem != null) {
 			if (entity != null) {
 				Integer watchStatus = ((Patch) entity).watchStatus();
-				menuItem.setVisible(watchStatus == WatchStatus.WATCHING);
+				menuItem.setVisible(watchStatus == MemberStatus.WATCHING);
 			}
 		}
 	}
@@ -596,7 +612,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	public void bind() {
 		if (this.entity != null) {
 
-			watchStatus = ((Patch) entity).watchStatus();
 			header.bind(this.entity);
 
 			if (listPresenter != null) {
@@ -607,9 +622,10 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 			{
 				ViewGroup actionView = (ViewGroup) header.findViewById(R.id.action_group);
 
+				Patch patch = (Patch) entity;
+
 				if (actionView != null && entity != null) {
 
-					Patch patch = (Patch) entity;
 					Boolean owner = (UserManager.shared().authenticated() && patch.ownerId != null && patch.ownerId.equals(UserManager.currentUser.id));
 					Boolean hasMessaged = (entity.linkByAppUser(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE) != null);
 					Boolean isPublic = (patch.privacy != null
@@ -621,11 +637,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 					Count requestCount = entity.getCount(Constants.TYPE_LINK_MEMBER, null, false, Link.Direction.in);
 
-					if (watchStatus == WatchStatus.NONE) {
-						buttonAlert.setText(R.string.button_list_watch_request);
-						buttonAlert.setTag(R.id.join_button);
-						return;
-					}
 
 					/* Owner */
 
@@ -639,6 +650,10 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 							buttonAlert.setText(requests);
 							buttonAlert.setTag(R.id.members_button);
 						}
+						else if (memberStatus == MemberStatus.NONE) {
+							buttonAlert.setText(R.string.button_list_watch_request);
+							buttonAlert.setTag(R.id.join_button);
+						}
 						else {
 							buttonAlert.setText(StringManager.getString(R.string.button_list_share));
 							buttonAlert.setTag(R.id.invite);
@@ -648,6 +663,12 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 					/* Members */
 
 					else {
+						if (memberStatus == MemberStatus.NONE) {
+							buttonAlert.setText(R.string.button_list_watch_request);
+							buttonAlert.setTag(R.id.join_button);
+							return;
+						}
+
 						if (isPublic) {
 							if (!hasMessaged) {
 								buttonAlert.setText(StringManager.getString(R.string.button_no_message));
@@ -659,11 +680,11 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 							}
 						}
 						else {
-							if (watchStatus == WatchStatus.REQUESTED) {
+							if (memberStatus == MemberStatus.REQUESTED) {
 								buttonAlert.setText(R.string.button_list_watch_request_cancel);
 								buttonAlert.setTag(R.id.join_button);
 							}
-							else if (watchStatus == WatchStatus.WATCHING) {
+							else if (memberStatus == MemberStatus.WATCHING) {
 								if (!hasMessaged) {
 									buttonAlert.setText(StringManager.getString(R.string.button_no_message));
 									buttonAlert.setTag(R.id.fab);
@@ -835,7 +856,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 				, null
 				, StringManager.getString(R.string.alert_unwatch_message)
 				, null
-				, Patchr.applicationContext
+				, this
 				, R.string.alert_unwatch_positive
 				, android.R.string.cancel
 				, null
@@ -874,7 +895,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		final Patch patch = (Patch) entity;
 
 		/* Don't show invite if already a member */
-		if (UserManager.shared().authenticated() && patch.watchStatus() != WatchStatus.NONE) {
+		if (UserManager.shared().authenticated() && patch.watchStatus() != MemberStatus.NONE) {
 			return;
 		}
 
@@ -882,7 +903,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 			@Override public void run() {
 
-				View view = LayoutInflater.from(PatchScreen.this).inflate(R.layout.onboarding_view, null, false);
+				View view = LayoutInflater.from(PatchScreen.this).inflate(R.layout.view_onboarding, null, false);
 
 				String heading = (referrerName != null)
 				                 ? String.format("%1$s invites you to join this patch.", referrerName)

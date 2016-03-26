@@ -26,7 +26,6 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
-import com.patchr.objects.TransitionType;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
@@ -60,7 +59,6 @@ public class PhotoScreen extends BaseScreen {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		this.optionMenu = menu;
 		if (UserManager.shared().authenticated()) {
 			getMenuInflater().inflate(R.menu.menu_share_photo, menu);
 		}
@@ -110,14 +108,13 @@ public class PhotoScreen extends BaseScreen {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		transitionType = TransitionType.DRILL_TO;
 		photoView = (PhotoView) findViewById(R.id.photo);
 		photoView.setBackgroundColor(Colors.getColor(R.color.background_picture_detail));
 		actionBar.setSubtitle("double-tap to zoom");
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.photo_screen;
+		return R.layout.screen_photo;
 	}
 
 	public void bind() {

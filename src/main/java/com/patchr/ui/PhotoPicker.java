@@ -44,7 +44,7 @@ public class PhotoPicker extends AppCompatActivity implements ImageChooserListen
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		super.setContentView(R.layout.photo_action_picker);
+		super.setContentView(R.layout.screen_photo_switchboard);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		initialize(savedInstanceState);

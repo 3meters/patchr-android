@@ -74,11 +74,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickList
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
-
-		this.optionMenu = menu;
-
 		getMenuInflater().inflate(R.menu.menu_save, menu);
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
@@ -150,7 +146,11 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickList
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.location_edit;
+		return R.layout.edit_location;
+	}
+
+	@Override protected int getTransitionBack(int transitionType) {
+		return super.getTransitionBack(TransitionType.BUILDER_BACK);
 	}
 
 	@Override public void submitAction() {

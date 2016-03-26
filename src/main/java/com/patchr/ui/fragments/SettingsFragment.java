@@ -216,10 +216,9 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
+				@Override public boolean onPreferenceClick(Preference preference) {
 					if (UserManager.shared().authenticated()) {
-						Patchr.router.route(getActivity(), Command.LOGOUT, null, null);
+						UserManager.shared().signout();
 					}
 					else {
 						Patchr.router.route(getActivity(), Command.LOGIN, null, null);
@@ -240,8 +239,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 			pref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
-				@Override
-				public boolean onPreferenceChange(Preference preference, Object newValue) {
+				@Override public boolean onPreferenceChange(Preference preference, Object newValue) {
 					Boolean enabled = (Boolean) newValue;
 					enableDeveloper(enabled);
 					return true;
@@ -256,8 +254,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 					+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
 			prefTagRefresh.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
+				@Override public boolean onPreferenceClick(Preference preference) {
 					prefTagRefresh.setSummary("Refreshing...");
 					ContainerManager.getContainerHolder().refresh();
 					prefTagRefresh.setSummary("Last refresh: "

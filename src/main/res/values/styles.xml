@@ -30,6 +30,10 @@
 		<item name="android:textColor">?attr/textColor</item>
 	</style>
 
+	<style name="text_appearance_title" parent="text_appearance">
+		<item name="android:textSize">30sp</item>
+	</style>
+
 	<style name="text_appearance_extra_large" parent="text_appearance">
 		<item name="android:textSize">24sp</item>
 	</style>
@@ -231,13 +235,6 @@
 
 	<style name="button_round_glow_text" parent="button_round_glow">
 		<item name="android:padding">18dp</item>
-	</style>
-
-	<style name="button_message" parent="selectable_item">
-		<item name="android:minHeight">50dp</item>
-		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-		<item name="layout">@layout/widget_button_send_message</item>
-		<item name="android:background">?attr/backgroundForm</item>
 	</style>
 
 	<!-- Used for spinner item layout -->

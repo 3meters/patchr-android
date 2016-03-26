@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/include_toolbar_actionbar" />
+
+	<com.patchr.ui.widgets.AirScrollView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_gravity="center_horizontal"
+		android:fillViewport="true">
+
+		<!-- Content -->
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<TextView
+				android:id="@+id/content_message"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:background="?attr/backgroundFormSecondary"
+				android:gravity="center_horizontal"
+				android:padding="16dp"
+				android:text="@string/label_register_message"
+				tools:text="@string/label_register_message" />
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/content_message"
+				android:gravity="center_vertical|top"
+				android:orientation="vertical"
+				android:padding="16dp">
+
+				<!-- User picture -->
+
+				<com.patchr.ui.views.PhotoEditView
+					android:id="@+id/photo_edit"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"/>
+
+				<!-- Full name -->
+
+				<LinearLayout
+					android:id="@+id/holder_body"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_below="@+id/photo_edit"
+					android:layout_marginBottom="8dp"
+					android:orientation="vertical">
+
+					<com.patchr.ui.widgets.AirEditText
+						android:id="@+id/name"
+						style="@style/form_edit"
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/form_field_height"
+						android:drawableRight="?attr/iconClear"
+						android:hint="@string/label_fullname"
+						android:inputType="textCapWords|textPersonName|textNoSuggestions" />
+
+					<com.patchr.ui.widgets.AirEditText
+						android:id="@+id/email"
+						style="@style/form_edit"
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/form_field_height"
+						android:drawableRight="?attr/iconClear"
+						android:hint="@string/label_email"
+						android:inputType="textEmailAddress" />
+
+					<com.patchr.ui.widgets.AirEditText
+						android:id="@+id/password"
+						style="@style/form_edit"
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/form_field_height"
+						android:layout_marginBottom="4dp"
+						android:drawableRight="?attr/iconClear"
+						android:hint="@string/label_password"
+						android:inputType="textPassword" />
+
+					<CheckBox
+						android:id="@+id/chk_unmask"
+						style="@style/form_checkbox"
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/form_field_height"
+						android:layout_marginBottom="12dp"
+						android:textAppearance="?android:attr/textAppearance"
+						android:text="@string/label_password_unmask" />
+
+					<RelativeLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginBottom="16dp"
+						android:gravity="center_vertical"
+						android:orientation="horizontal"
+						android:paddingLeft="4dp"
+						android:paddingRight="4dp">
+
+						<View
+							android:layout_width="match_parent"
+							android:layout_height="@dimen/button_height"
+							android:background="@color/brand_accent" />
+
+						<Button
+							android:id="@+id/signup_button"
+							style="@style/button_link"
+							android:layout_width="match_parent"
+							android:layout_height="@dimen/button_height"
+							android:minWidth="200dp"
+							android:onClick="onClick"
+							android:text="@string/button_register"
+							android:textColor="@color/white" />
+					</RelativeLayout>
+
+					<RelativeLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginBottom="12dp"
+						android:orientation="horizontal"
+						android:paddingLeft="4dp"
+						android:paddingRight="4dp">
+
+						<TextView
+							android:id="@+id/terms"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_marginRight="1sp"
+							android:text="@string/label_terms" />
+
+						<TextView
+							android:id="@+id/terms_button"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_toRightOf="@id/terms"
+							android:clickable="true"
+							android:onClick="onClick"
+							android:textColor="?attr/textSelectorLink"
+							android:text="@string/button_terms" />
+
+					</RelativeLayout>
+				</LinearLayout>
+			</RelativeLayout>
+		</RelativeLayout>
+
+	</com.patchr.ui.widgets.AirScrollView>
+</LinearLayout>

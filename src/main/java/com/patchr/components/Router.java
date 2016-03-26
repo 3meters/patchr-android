@@ -44,7 +44,7 @@ import com.patchr.ui.edit.ProximityEdit;
 import com.patchr.ui.edit.RegisterEdit;
 import com.patchr.ui.edit.ReportEdit;
 import com.patchr.ui.edit.ResetEdit;
-import com.patchr.ui.edit.UserEdit;
+import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
@@ -58,7 +58,7 @@ public class Router {
 			newClass = PatchEdit.class;
 		}
 		else if (Constants.SCHEMA_ENTITY_USER.equals(schema)) {
-			newClass = UserEdit.class;
+			newClass = ProfileEdit.class;
 		}
 
 		IntentBuilder intentBuilder = new IntentBuilder(context, newClass);
@@ -103,7 +103,7 @@ public class Router {
 			editClass = PatchEdit.class;
 		}
 		else if (Constants.SCHEMA_ENTITY_USER.equals(entity.schema)) {
-			editClass = UserEdit.class;
+			editClass = ProfileEdit.class;
 		}
 
 		IntentBuilder intentBuilder = new IntentBuilder(context, editClass);
@@ -119,15 +119,6 @@ public class Router {
 	}
 
 	public void route(final Context activity, Integer route, Entity entity, Bundle extras) {
-
-		String schema = null;
-		if (extras != null) {
-			schema = extras.getString(Constants.EXTRA_ENTITY_SCHEMA);
-		}
-
-		if (schema == null && entity != null) {
-			schema = entity.schema;
-		}
 
 		if (route == Command.HOME) {
 
@@ -214,7 +205,7 @@ public class Router {
 			intentBuilder.setExtras(extras);
 			Intent intent = intentBuilder.create();
 			activity.startActivity(intent);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.DRILL_TO);
+			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
 		else if (route == Command.PHOTO_EDIT) {
@@ -238,7 +229,7 @@ public class Router {
 					intent.putExtra("save-on-no-changes", false);
 
 					((Activity) activity).startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);
-					AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.DRILL_TO);
+					AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 				}
 				else {
 					Dialogs.installAviary((Activity) activity);
@@ -400,53 +391,34 @@ public class Router {
 
 		else if (route == Command.SEARCH) {
 
-			Integer transitionType = TransitionType.VIEW_TO;
-			if (extras != null) {
-				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
-			}
-			else {
-				extras = new Bundle();
-			}
-			extras.putInt(Constants.EXTRA_TRANSITION_TYPE, transitionType);
-
 			IntentBuilder intentBuilder = new IntentBuilder(activity, SearchScreen.class);
 			intentBuilder.setExtras(extras);
 			((Activity) activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_SEARCH);
-			AnimationManager.doOverridePendingTransition((Activity) activity, transitionType);
+			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.VIEW_TO);
 		}
 
 		else if (route == Command.ENTITY_LIST) {
 
 			if (entity == null) {
-				throw new IllegalArgumentException("Dispatching user list requires entity");
-			}
-
-			Integer transitionType = TransitionType.VIEW_TO;
-			if (extras != null) {
-				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
+				throw new IllegalArgumentException("Dispatching entity list requires entity");
 			}
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, ListScreen.class);
 			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.create());
-			AnimationManager.doOverridePendingTransition((Activity) activity, transitionType);
+			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
 		else if (route == Command.MEMBER_LIST) {
 
 			if (entity == null) {
-				throw new IllegalArgumentException("Dispatching user list requires entity");
-			}
-
-			Integer transitionType = TransitionType.VIEW_TO;
-			if (extras != null) {
-				transitionType = extras.getInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
+				throw new IllegalArgumentException("Dispatching member list requires entity");
 			}
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, MemberListScreen.class);
 			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.create());
-			AnimationManager.doOverridePendingTransition((Activity) activity, transitionType);
+			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
 		/* Command routing: deprecated, remove asap */

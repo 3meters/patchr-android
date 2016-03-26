@@ -14,7 +14,6 @@ import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.edit.BaseEdit;
 
 @SuppressLint("Registered")
 public class PrivacyEdit extends BaseEdit {
@@ -35,11 +34,7 @@ public class PrivacyEdit extends BaseEdit {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
-
-		this.optionMenu = menu;
-
 		getMenuInflater().inflate(R.menu.menu_submit, menu);
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
@@ -95,17 +90,15 @@ public class PrivacyEdit extends BaseEdit {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.privacy_builder;
+		return R.layout.edit_privacy;
 	}
 
 	@Override public void submitAction() {
 		save();
 	}
 
-	@Override public void cancelAction(Boolean force) {
-		setResult(Activity.RESULT_CANCELED);
-		finish();
-		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
+	@Override protected int getTransitionBack(int transitionType) {
+		return super.getTransitionBack(TransitionType.BUILDER_BACK);
 	}
 
 	public void bind() {

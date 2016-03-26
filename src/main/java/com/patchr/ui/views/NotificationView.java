@@ -43,7 +43,7 @@ public class NotificationView extends FrameLayout {
 
 	public NotificationView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.layoutResId = R.layout.notification_view;
+		this.layoutResId = R.layout.view_notification;
 		initialize();
 	}
 

@@ -47,11 +47,7 @@ public class FeedbackEdit extends BaseEdit {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
-
-		this.optionMenu = menu;
-
 		getMenuInflater().inflate(R.menu.menu_send, menu);
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
@@ -153,6 +149,6 @@ public class FeedbackEdit extends BaseEdit {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.feedback_edit;
+		return R.layout.edit_feedback;
 	}
 }

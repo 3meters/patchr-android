@@ -179,7 +179,7 @@ public class RegisterEdit extends BaseEdit {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.register_edit;
+		return R.layout.edit_register;
 	}
 
 	protected void register() {

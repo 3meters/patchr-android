@@ -33,13 +33,10 @@ public class PasswordEdit extends BaseEdit {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		this.optionMenu = menu;
-
 		if (editing) {
 			getMenuInflater().inflate(R.menu.menu_save, menu);
 		}
 
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
@@ -162,6 +159,6 @@ public class PasswordEdit extends BaseEdit {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.password_edit;
+		return R.layout.edit_password;
 	}
 }

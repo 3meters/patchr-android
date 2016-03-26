@@ -14,6 +14,7 @@ import com.patchr.R;
 import com.patchr.components.DataController.SuggestScope;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Photo;
+import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.EntitySuggestController;
 
 public class SearchScreen extends BaseScreen {
@@ -47,9 +48,12 @@ public class SearchScreen extends BaseScreen {
 		/*
 		 * This is the best event to do the work of setting up the search stuff.
 		 */
-		this.optionMenu = menu;
 		getMenuInflater().inflate(R.menu.menu_search_view, menu);
-		bind();
+		final MenuItem searchItem = menu.findItem(R.id.search_view);
+		if (searchItem != null) {
+			this.searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+		}
+
 		return true;
 	}
 
@@ -75,16 +79,17 @@ public class SearchScreen extends BaseScreen {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.search_screen;
+		return R.layout.screen_search;
+	}
+
+	@Override protected int getTransitionBack(int transitionType) {
+		return TransitionType.VIEW_BACK;
 	}
 
 	public void bind() {
 
-		final MenuItem searchItem = this.optionMenu.findItem(R.id.search_view);
+		if (searchView != null) {
 
-		if (searchItem != null) {
-
-			searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
 			searchView.setIconified(false);
 			searchView.setOnCloseListener(new SearchView.OnCloseListener() {
 

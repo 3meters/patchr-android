@@ -51,11 +51,7 @@ public class ResetEdit extends BaseEdit {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
-
-		this.optionMenu = menu;
-
 		getMenuInflater().inflate(R.menu.menu_submit, menu);
-		configureStandardMenuItems(menu);   // Tweaks based on permissions
 		return true;
 	}
 
@@ -148,7 +144,7 @@ public class ResetEdit extends BaseEdit {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.reset_edit;
+		return R.layout.edit_reset;
 	}
 
 	public void resetAction() {
