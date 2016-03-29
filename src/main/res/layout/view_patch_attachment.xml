@@ -13,7 +13,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content">
 
-			<com.patchr.ui.views.ImageLayout
+			<com.patchr.ui.widgets.ImageWidget
 				android:id="@+id/photo"
 				android:layout_width="@dimen/image_medium_large"
 				android:layout_height="@dimen/image_medium_large"
@@ -44,7 +44,7 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:maxLines="3"
-				android:textAppearance="?android:attr/textAppearanceLarge"
+				android:textSize="24sp"
 				android:text="@string/dummy_title"
 				tools:text="@string/dummy_title" />
 
@@ -64,7 +64,7 @@
 					android:ellipsize="end"
 					android:singleLine="true"
 					android:textAllCaps="true"
-					android:textAppearance="?attr/textAppearanceExtraSmall"
+					android:textSize="14sp"
 					android:textColor="?attr/textColorSecondary"
 					tools:text="Chat Patch" />
 

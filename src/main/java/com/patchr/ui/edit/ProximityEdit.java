@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -271,7 +270,7 @@ public class ProximityEdit extends BaseEdit {
 
 			@Override protected void onPostExecute(Object response) {
 				busyPresenter.hide(false);
-				UI.showToastNotification(StringManager.getString(updatedResId), Toast.LENGTH_SHORT);
+				UI.toast(StringManager.getString(updatedResId));
 				setResult(Activity.RESULT_OK);
 				finish();
 				AnimationManager.doOverridePendingTransition(ProximityEdit.this, TransitionType.FORM_BACK);

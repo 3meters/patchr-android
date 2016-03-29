@@ -15,7 +15,6 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.Html;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -56,7 +55,7 @@ public class AndroidManager {
 			}
 			else {
 				Logger.w(activity, "This device is not supported by google play services");
-				UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unsupported), Toast.LENGTH_LONG);
+				UI.toast(StringManager.getString(R.string.error_google_play_services_unsupported));
 				activity.finish();
 			}
 			return false;
@@ -79,7 +78,7 @@ public class AndroidManager {
 
 					@Override
 					public void onCancel(DialogInterface dialog) {
-						UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unavailable), Toast.LENGTH_LONG);
+						UI.toast(StringManager.getString(R.string.error_google_play_services_unavailable));
 						if (!(activity instanceof LobbyScreen)) {
 							Patchr.router.route(activity, Command.LOBBY, null, null);
 						}

@@ -15,14 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.DataController;
-import com.patchr.components.DataController.SuggestScope;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.MediaManager;
 import com.patchr.components.ModelResult;
@@ -67,11 +65,11 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 	private ImageView                buttonToClear;
 	private EntitySuggestController  entitySuggest;
 
-	private List<Entity>                recipients;
-	private String                      messageType;
-	private DataController.SuggestScope suggestScope;
-	private ToMode                      toMode;
-	private Boolean                     toEditable;
+	private List<Entity> recipients;
+	private String       messageType;
+	private String       suggestScope;
+	private ToMode       toMode;
+	private Boolean      toEditable;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -134,8 +132,8 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 		}
 
 		if (toMode == ToMode.SINGLE && recipients.size() > 0) {
-//			final EntityView entityView = (EntityView) findViewById(R.id.entity_view);
-//			entityView.databind((Entity) recipients.get(0));
+			//			final EntityView entityView = (EntityView) findViewById(R.id.entity_view);
+			//			entityView.databind((Entity) recipients.get(0));
 			animatorTo.setDisplayedChild(1);
 		}
 	}
@@ -189,7 +187,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			messageType = extras.getString(Constants.EXTRA_MESSAGE_TYPE, MessageType.ROOT);
-			suggestScope = SuggestScope.values()[extras.getInt(Constants.EXTRA_SEARCH_SCOPE, SuggestScope.PATCHES.ordinal())];
+			suggestScope = extras.getString(Constants.EXTRA_SEARCH_SCOPE, DataController.Suggest.Patches);
 			toMode = ToMode.values()[extras.getInt(Constants.EXTRA_TO_MODE, ToMode.SINGLE.ordinal())];
 			toEditable = extras.getBoolean(Constants.EXTRA_TO_EDITABLE, true);
 		}
@@ -239,7 +237,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 		if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEND)) {
 
 			messageType = MessageType.SHARE;
-			suggestScope = DataController.SuggestScope.USERS;
+			suggestScope = DataController.Suggest.Users;
 			shareSchema = Constants.SCHEMA_ENTITY_PICTURE;
 			toMode = ToMode.MULTIPLE;
 			toEditable = true;
@@ -316,7 +314,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 												dirty = false;
 											}
 											else {
-												UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
+												UI.toast(StringManager.getString(R.string.error_storage_unmounted));
 											}
 										}
 										catch (FileNotFoundException e) {
@@ -389,7 +387,7 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 										onPhotoSelected(photo); // mDirty gets set in this method
 									}
 									else {
-										UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
+										UI.toast(StringManager.getString(R.string.error_storage_unmounted));
 									}
 								}
 								catch (FileNotFoundException e) {
@@ -422,10 +420,8 @@ public class MessageEdit extends BaseEdit implements TokenCompleteTextView.Token
 			}
 		}
 
-		to.setLineSpacing(toMode == ToMode.SINGLE ? 0 : (int) UI.getRawPixelsForDisplayPixels(5f), 1f);
-		to.setTokenLayoutResId(toMode == ToMode.SINGLE
-		                       ? R.layout.view_token_single
-		                       : R.layout.view_token);
+		to.setLineSpacing((int) UI.getRawPixelsForDisplayPixels(5f), 1f);
+		to.setTokenLayoutResId(R.layout.view_token);
 
 		entitySuggest = new EntitySuggestController(this);
 		entitySuggest.searchInput = to;

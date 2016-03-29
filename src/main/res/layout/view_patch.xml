@@ -13,7 +13,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content">
 
-			<com.patchr.ui.views.ImageLayout
+			<com.patchr.ui.widgets.ImageWidget
 				android:id="@+id/photo"
 				android:layout_width="@dimen/image_medium_large"
 				android:layout_height="@dimen/image_medium_large"
@@ -31,7 +31,8 @@
 					android:layout_width="@dimen/image_medium_large"
 					android:layout_height="wrap_content"
 					android:padding="8dp"
-					android:textAppearance="?android:attr/textAppearanceSmall"
+					android:textSize="14sp"
+					android:fontFamily="sans-serif"
 					android:textColor="?attr/textColorCandiView"
 					tools:text="0.8 mi" />
 
@@ -44,7 +45,8 @@
 				android:layout_margin="4dp"
 				android:background="@drawable/bg_round_scrim"
 				android:gravity="center"
-				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:textSize="14sp"
+				android:fontFamily="sans-serif"
 				android:textColor="@color/white"
 				tools:text="999" />
 
@@ -73,7 +75,7 @@
 					android:layout_height="wrap_content"
 					android:ellipsize="end"
 					android:maxLines="2"
-					android:textAppearance="?android:attr/textAppearanceLarge"
+					android:textSize="20sp"
 					android:text="@string/dummy_title"
 					tools:text="@string/dummy_title" />
 
@@ -92,7 +94,7 @@
 						android:ellipsize="end"
 						android:singleLine="true"
 						android:textAllCaps="true"
-						android:textAppearance="?attr/textAppearanceExtraSmall"
+						android:textSize="14sp"
 						android:textColor="?attr/textColorSecondary"
 						tools:text="Chat Patch" />
 
@@ -150,7 +152,7 @@
 						android:layout_marginTop="-5dp"
 						android:text="@string/label_message_count"
 						android:textAllCaps="true"
-						android:textAppearance="?attr/textAppearanceTiny"
+						android:textSize="12sp"
 						android:textColor="?attr/textColorSecondary"
 						tools:text="messages" />
 				</LinearLayout>
@@ -185,7 +187,7 @@
 						android:layout_marginTop="-5dp"
 						android:text="@string/label_watch_count"
 						android:textAllCaps="true"
-						android:textAppearance="?attr/textAppearanceTiny"
+						android:textSize="12sp"
 						android:textColor="?attr/textColorSecondary"
 						tools:text="watching" />
 				</LinearLayout>

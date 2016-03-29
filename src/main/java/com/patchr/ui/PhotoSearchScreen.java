@@ -47,7 +47,7 @@ import com.patchr.service.ServiceRequest;
 import com.patchr.service.ServiceRequest.AuthType;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.EmptyPresenter;
-import com.patchr.ui.views.ImageLayout;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.AirAutoCompleteTextView;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
@@ -517,7 +517,7 @@ public class PhotoSearchScreen extends BaseScreen {
 			if (view == null) {
 				view = LayoutInflater.from(PhotoSearchScreen.this).inflate(R.layout.listitem_photo_search, null);
 				holder = new ViewHolder();
-				holder.photoView = (ImageLayout) view.findViewById(R.id.photo);
+				holder.photoView = (ImageWidget) view.findViewById(R.id.photo);
 				Integer nudge = getResources().getDimensionPixelSize(R.dimen.grid_item_height_kick);
 				final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(photoWidthPixels, photoWidthPixels - nudge);
 				holder.photoView.setLayoutParams(params);
@@ -541,7 +541,7 @@ public class PhotoSearchScreen extends BaseScreen {
 	}
 
 	public static class ViewHolder {
-		public ImageLayout photoView;
+		public ImageWidget photoView;
 		public ImageResult data; // NO_UCD (unused code)
 	}
 }

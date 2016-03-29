@@ -8,7 +8,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
-		<com.patchr.ui.views.ImageLayout
+		<com.patchr.ui.widgets.ImageWidget
 			android:id="@+id/user_photo"
 			android:layout_width="@dimen/image_small"
 			android:layout_height="@dimen/image_small"
@@ -31,10 +31,10 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:maxLines="4"
-				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:textSize="16sp"
 				tools:text="Started watching: Massena Residence" />
 
-			<com.patchr.ui.views.ImageLayout
+			<com.patchr.ui.widgets.ImageWidget
 				android:id="@+id/notification_photo"
 				style="@style/selectable_image"
 				android:layout_width="match_parent"
@@ -69,7 +69,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_vertical"
-					android:textAppearance="?android:attr/textAppearanceSmall"
+					android:textSize="16sp"
 					android:textColor="?attr/textColorSecondary"
 					tools:text="10:48pm Sept 11" />
 

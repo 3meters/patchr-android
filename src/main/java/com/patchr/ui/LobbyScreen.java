@@ -21,6 +21,7 @@ import com.patchr.components.NotificationManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.Preference;
 import com.patchr.objects.Command;
+import com.patchr.ui.edit.LoginEdit;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
 
@@ -94,7 +95,7 @@ public class LobbyScreen extends AppCompatActivity {
 	}
 
 	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if (requestCode == Constants.ACTIVITY_SIGNIN) {
+		if (requestCode == Constants.ACTIVITY_LOGIN) {
 			if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.shared().authenticated()) {
 				startHomeActivity();
 			}
@@ -112,10 +113,14 @@ public class LobbyScreen extends AppCompatActivity {
 		}
 
 		if (view.getId() == R.id.login_button) {
-			Patchr.router.route(this, Command.LOGIN, null, null);
+			Bundle extras = new Bundle();
+			extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Login);
+			Patchr.router.route(this, Command.LOGIN, null, extras);
 		}
 		else if (view.getId() == R.id.signup_button) {
-			Patchr.router.route(this, Command.SIGNUP, null, null);
+			Bundle extras = new Bundle();
+			extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Signup);
+			Patchr.router.route(this, Command.LOGIN, null, extras);
 		}
 		else if (view.getId() == R.id.guest_button) {
 			startHomeActivity();
@@ -146,9 +151,9 @@ public class LobbyScreen extends AppCompatActivity {
 					Bundle extras = new Bundle();
 					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, (String) metadata.get("entitySchema"));
 					extras.putString(Constants.EXTRA_ENTITY_ID, (String) metadata.get("entityId"));
-					extras.putString(Constants.EXTRA_INVITER_NAME, (String) metadata.get("referrerName"));
-					extras.putString(Constants.EXTRA_INVITER_PHOTO_URL, (String) metadata.get("referrerPhotoUrl"));
-					extras.putBoolean(Constants.EXTRA_SHOW_INVITER_WELCOME, true);
+					extras.putString(Constants.EXTRA_REFERRER_NAME, (String) metadata.get("referrerName"));
+					extras.putString(Constants.EXTRA_REFERRER_PHOTO_URL, (String) metadata.get("referrerPhotoUrl"));
+					extras.putBoolean(Constants.EXTRA_SHOW_REFERRER_WELCOME, true);
 
 					Patchr.router.browse(LobbyScreen.this, (String) metadata.get("entityId"), extras, true);
 
@@ -249,8 +254,8 @@ public class LobbyScreen extends AppCompatActivity {
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, entitySchema);
 		extras.putString(Constants.EXTRA_ENTITY_ID, entityId);
-		extras.putString(Constants.EXTRA_INVITER_NAME, referrerName);
-		extras.putString(Constants.EXTRA_INVITER_PHOTO_URL, referrerPhotoUrl);
+		extras.putString(Constants.EXTRA_REFERRER_NAME, referrerName);
+		extras.putString(Constants.EXTRA_REFERRER_PHOTO_URL, referrerPhotoUrl);
 		Patchr.router.browse(this, entityId, extras, true);
 	}
 

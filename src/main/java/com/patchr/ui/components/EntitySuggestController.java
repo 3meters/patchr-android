@@ -53,6 +53,7 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 	private View       searchProgress;
 	private View       searchImage;
 	private boolean    suggestInProgress;
+	public  String     suggestScope;
 
 	private Integer                             watchResId;
 	private Integer                             locationResId;
@@ -62,14 +63,12 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 	private String                              prefix;
 	public  TokenCompleteTextView.TokenListener tokenListener;
 
-	public DataController.SuggestScope suggestScope;
-
 	public EntitySuggestController(Context context) {
 
 		this.context = context;
 		this.entities = new ArrayList<>();
 		this.adapter = new SuggestArrayAdapter(this.entities);
-		this.suggestScope = DataController.SuggestScope.PATCHES;
+		this.suggestScope = DataController.Suggest.Patches;
 
 		final TypedValue resourceName = new TypedValue();
 		if (context.getTheme().resolveAttribute(R.attr.iconWatch, resourceName, true)) {

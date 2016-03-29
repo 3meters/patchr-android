@@ -34,6 +34,7 @@
 	<color name="text_dark">@color/gray_20_pcnt</color>
 	<color name="text_light">@color/black</color>
 	<color name="text_secondary_light">@color/gray_50_pcnt</color>
+	<color name="text_hint">@color/gray_30_pcnt</color>
 	<color name="text_color">@color/white</color>
 
 	<!-- Borders -->
@@ -103,6 +104,7 @@
 
 	<color name="transparent">#00000000</color>
 	<color name="white">#ffffffff</color>
+	<color name="gray_03_pcnt">#fff9f9f9</color>
 	<color name="gray_05_pcnt">#fff2f2f2</color>
 	<color name="gray_10_pcnt">#ffe5e5e5</color>
 	<color name="gray_15_pcnt">#ffd8d8d8</color>

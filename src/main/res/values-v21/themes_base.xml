@@ -20,7 +20,7 @@
 	<style name="patchr_theme_notitlebar" parent="patchr_theme">
 		<item name="android:windowNoTitle">true</item>
 		<item name="android:windowTranslucentStatus">true</item>
-		<item name="android:statusBarColor">@android:color/transparent</item>
+		<item name="android:statusBarColor">@color/transparent</item>
 	</style>
 
 	<style name="base_theme_dialog" parent="Theme.AppCompat.Light.Dialog.Alert" />

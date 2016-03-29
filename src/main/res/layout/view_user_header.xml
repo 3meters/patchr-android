@@ -40,7 +40,7 @@
 						android:baselineAligned="false"
 						android:orientation="horizontal">
 
-						<com.patchr.ui.views.ImageLayout
+						<com.patchr.ui.widgets.ImageWidget
 							android:id="@+id/user_photo"
 							android:layout_width="@dimen/image_medium"
 							android:layout_height="@dimen/image_medium"
@@ -61,8 +61,8 @@
 								android:layout_height="wrap_content"
 								android:ellipsize="end"
 								android:singleLine="true"
-								android:textAppearance="?android:attr/textAppearanceLarge"
 								android:textColor="@color/brand_accent_darker"
+								android:textSize="24sp"
 								tools:text="Aliza Wenk" />
 
 							<TextView
@@ -71,8 +71,8 @@
 								android:layout_height="wrap_content"
 								android:ellipsize="end"
 								android:singleLine="true"
-								android:textAppearance="?android:attr/textAppearanceSmall"
 								android:textColor="?attr/textColorSecondary"
+								android:textSize="16sp"
 								android:visibility="gone"
 								tools:text="aliza@3meters.com"
 								tools:visibility="visible" />
@@ -84,8 +84,8 @@
 								android:ellipsize="end"
 								android:singleLine="true"
 								android:textAllCaps="true"
-								android:textAppearance="?android:attr/textAppearanceSmall"
 								android:textColor="?attr/textColorSecondary"
+								android:textSize="16sp"
 								tools:text="Seattle, WA" />
 
 						</LinearLayout>
@@ -116,8 +116,8 @@
 					android:paddingRight="8dp"
 					android:paddingTop="2dp"
 					android:tag="watch"
-					android:textAppearance="?attr/textAppearanceMediumLarge"
 					android:textColor="@color/selector_link_text"
+					android:textSize="20sp"
 					tools:text="Member: 27" />
 
 				<View
@@ -141,8 +141,8 @@
 					android:paddingRight="8dp"
 					android:paddingTop="2dp"
 					android:tag="create"
-					android:textAppearance="?attr/textAppearanceMediumLarge"
 					android:textColor="@color/selector_link_text"
+					android:textSize="20sp"
 					tools:text="Owner: 16" />
 
 				<View

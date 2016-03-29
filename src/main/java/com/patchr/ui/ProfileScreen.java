@@ -39,7 +39,7 @@ import com.patchr.utilities.UI;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class UserScreen extends BaseScreen implements SwipeRefreshLayout.OnRefreshListener {
+public class ProfileScreen extends BaseScreen implements SwipeRefreshLayout.OnRefreshListener {
 
 	private UserDetailView       header;
 	private boolean              bound;
@@ -124,21 +124,13 @@ public class UserScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 		getMenuInflater().inflate(R.menu.menu_logout, menu);    // base
 
 		/* Shown for everyone */
-		getMenuInflater().inflate(R.menu.menu_refresh, menu);
 		getMenuInflater().inflate(R.menu.menu_report, menu);    // base
 
 		return true;
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
-
-		if (item.getItemId() == R.id.refresh) {
-			onRefresh();
-		}
-		else {
-			return super.onOptionsItemSelected(item);
-		}
-		return true;
+		return super.onOptionsItemSelected(item);
 	}
 
 	public void onRefresh() {

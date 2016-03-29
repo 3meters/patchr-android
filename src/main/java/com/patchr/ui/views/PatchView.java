@@ -15,6 +15,7 @@ import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Patch;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Utils;
 
 import java.util.Locale;
@@ -30,7 +31,7 @@ public class PatchView extends FrameLayout {
 	protected Integer    layoutResId;
 
 	protected ViewGroup   layout;
-	protected ImageLayout photoView;
+	protected ImageWidget photoView;
 	protected TextView    type;
 	protected TextView    name;
 	protected TextView    index;
@@ -64,7 +65,7 @@ public class PatchView extends FrameLayout {
 		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
-		this.photoView = (ImageLayout) layout.findViewById(R.id.photo);
+		this.photoView = (ImageWidget) layout.findViewById(R.id.photo);
 		this.name = (TextView) layout.findViewById(R.id.name);
 		this.distance = (TextView) layout.findViewById(R.id.distance);
 		this.type = (TextView) layout.findViewById(R.id.type);

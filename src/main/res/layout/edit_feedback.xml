@@ -4,8 +4,10 @@
 
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:background="@color/gray_10_pcnt"
 	android:orientation="vertical">
 
 	<include
@@ -16,24 +18,27 @@
 		android:layout_width="288dp"
 		android:layout_height="match_parent"
 		android:layout_gravity="center_horizontal"
+		android:background="@color/white"
 		android:orientation="vertical">
 
 		<TextView
 			android:id="@+id/content_message"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
+			android:layout_height="48dp"
 			android:layout_marginBottom="8dp"
-			android:background="?attr/backgroundFormSecondary"
-			android:padding="16dp" />
+			android:background="@color/gray_05_pcnt"
+			android:gravity="center_vertical"
+			android:padding="12dp"
+			android:text="@string/label_feedback_message" />
 
 		<!-- Title and Content -->
 
-		<com.patchr.ui.widgets.AirEditText
+		<com.patchr.ui.widgets.ClearableEditText
 			android:id="@+id/description"
 			style="@style/form_edit"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="8dp"
+			android:layout_marginBottom="4dp"
 			android:layout_marginLeft="8dp"
 			android:layout_marginRight="8dp"
 			android:gravity="top"
@@ -46,12 +51,12 @@
 			android:id="@+id/user_group"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:padding="10dp"
+			android:layout_marginLeft="12dp"
+			android:layout_marginRight="12dp"
 			android:orientation="horizontal">
 
-			<com.patchr.ui.views.ImageLayout
+			<com.patchr.ui.widgets.ImageWidget
 				android:id="@+id/user_photo"
-				style="@style/selectable_image"
 				android:layout_width="@dimen/image_extra_small"
 				android:layout_height="@dimen/image_extra_small"
 				android:layout_marginRight="5dp"
@@ -64,7 +69,8 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_vertical"
 				android:ellipsize="end"
-				android:singleLine="true" />
+				android:singleLine="true"
+				tools:text="Aliza Wenk" />
 
 		</LinearLayout>
 

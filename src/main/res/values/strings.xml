@@ -43,21 +43,24 @@
 	<string name="form_title_login_signup" tools:ignore="UnusedResources">Sign up for a free account to post messages, create patches, and more.</string>
 	<string name="form_title_password_edit" tools:ignore="UnusedResources">Change password</string>
 	<string name="form_title_patch_edit" tools:ignore="UnusedResources">Patch</string>
+	<string name="form_title_patch_new" tools:ignore="UnusedResources">New Patch</string>
 	<string name="form_title_privacy_edit" tools:ignore="UnusedResources">Privacy</string>
 	<string name="form_title_reset_edit" tools:ignore="UnusedResources">Forgot your password?</string>
 
 	<!-- Menus -->
 
 	<string name="menu_item_add_entity">Add content</string>
+	<string name="menu_item_cancel">Cancel</string>
 	<string name="menu_item_refresh">Refresh</string>
 	<string name="menu_item_notifications">Notifications</string>
 	<string name="menu_item_edit_user">Edit profile</string>
 	<string name="menu_item_share">Share</string>
 	<string name="menu_item_search">Search</string>
 	<string name="menu_item_navigate">Directions</string>
-	<string name="menu_item_signout">Log out</string>
-	<string name="menu_item_signin">Log in</string>
+	<string name="menu_item_logout">Log out</string>
+	<string name="menu_item_login">Log in</string>
 	<string name="menu_item_send">Send</string>
+	<string name="menu_item_next">Next</string>
 	<string name="menu_item_invite">Invite</string>
 	<string name="menu_item_map">Map location</string>
 	<string name="menu_item_delete">Delete</string>
@@ -308,7 +311,7 @@
 
 	<!-- Progress -->
 
-	<string name="progress_signing_out">Signing out&#8230;</string>
+	<string name="progress_logging_out">Logging out&#8230;</string>
 	<string name="progress_saving">Saving&#8230;</string>
 	<string name="progress_saving_patch">Patching&#8230;</string>
 	<string name="progress_sharing">Sharing&#8230;</string>
@@ -319,7 +322,7 @@
 	<string name="progress_deleting_user">Erasing&#8230;</string>
 	<string name="progress_removing">Removing&#8230;</string>
 	<string name="progress_changing_password">Changing&#8230;</string>
-	<string name="progress_signing_in">Signing in&#8230;</string>
+	<string name="progress_logging_in">Logging in&#8230;</string>
 	<string name="progress_reset_verify">Verifying&#8230;</string>
 
 	<!-- Symbols -->
@@ -329,18 +332,16 @@
 
 	<!-- Buttons -->
 
-	<string name="button_set_picture">Set photo</string>
-	<string name="button_set_banner">Set banner</string>
 	<string name="button_change_password">Change password</string>
-	<string name="button_sign_in">Log in</string>
-	<string name="button_register">Sign up</string>
+	<string name="button_submit_password">Change</string>
+	<string name="button_login">Log in</string>
+	<string name="button_signup">Join</string>
 	<string name="button_reset_password">Submit</string>
 	<string name="button_cancel" tools:ignore="ButtonCase">Cancel</string>
 	<string name="button_terms">Terms of Service</string>
 	<string name="button_privacy">Privacy policy</string>
 	<string name="button_legal">Open source licenses</string>
 	<string name="button_forgot_password">Forgot password?</string>
-	<string name="button_create_patch">Create patch</string>
 
 	<string name="button_tuning_tune">I\'m here</string>
 	<string name="button_tuning_untune">I\'m not here</string>
@@ -371,9 +372,9 @@
 
 	<string name="label_fullname">Full name</string>
 	<string name="label_location">Location</string>
-	<string name="label_password">Password (6 characters or more)</string>
+	<string name="label_password">Password</string>
 	<string name="label_password_unmask">Show password</string>
-	<string name="label_terms">By joining, you agree to the</string>
+	<string name="label_terms">By joining, you agree to the Terms of Service</string>
 	<string name="label_password_old">Old password</string>
 	<string name="label_email">Email</string>
 	<string name="label_locked" tools:ignore="UnusedResources">Locked</string>
@@ -390,6 +391,8 @@
 
 	<string name="label_about_install">Install</string>
 	<string name="label_about_version">Version</string>
+
+	<string name="label_feedback_message">How can we make Patchr better?</string>
 
 	<string name="label_report_message">Why are you reporting this</string>
 	<string name="label_report_option_spam">Spam</string>

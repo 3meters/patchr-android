@@ -11,7 +11,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -162,7 +161,7 @@ public class LocationManager implements
 		}
 		if (location.hasAccuracy()) {
 			if (Patchr.getInstance().getPrefEnableDev()) {
-				UI.showToastNotification("Location accuracy: " + location.getAccuracy(), Toast.LENGTH_SHORT);
+				UI.toast("Location accuracy: " + location.getAccuracy());
 			}
 			if (location.getAccuracy() <= ACCURACY_PREFERRED) {
 				Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()

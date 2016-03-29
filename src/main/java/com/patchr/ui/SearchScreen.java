@@ -1,17 +1,15 @@
 package com.patchr.ui;
 
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 
 import com.patchr.Constants;
 import com.patchr.R;
-import com.patchr.components.DataController.SuggestScope;
+import com.patchr.components.DataController;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
@@ -20,10 +18,15 @@ import com.patchr.ui.components.EntitySuggestController;
 public class SearchScreen extends BaseScreen {
 
 	private EntitySuggestController entitySuggest;
-	private SuggestScope            suggestScope;
+	private String                  suggestScope;
 	private SearchView              searchView;
 	private String                  searchPhrase;
 	private RecyclerView            listView;
+
+	@Override public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
@@ -44,19 +47,6 @@ public class SearchScreen extends BaseScreen {
 		}
 	}
 
-	@Override public boolean onCreateOptionsMenu(Menu menu) {
-		/*
-		 * This is the best event to do the work of setting up the search stuff.
-		 */
-		getMenuInflater().inflate(R.menu.menu_search_view, menu);
-		final MenuItem searchItem = menu.findItem(R.id.search_view);
-		if (searchItem != null) {
-			this.searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-		}
-
-		return true;
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -67,15 +57,41 @@ public class SearchScreen extends BaseScreen {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			searchPhrase = extras.getString(Constants.EXTRA_SEARCH_PHRASE);
-			suggestScope = SuggestScope.values()[extras.getInt(Constants.EXTRA_SEARCH_SCOPE, SuggestScope.PATCHES.ordinal())];
+			suggestScope = extras.getString(Constants.EXTRA_SEARCH_SCOPE, DataController.Suggest.Patches);
 		}
 	}
 
 	@Override public void initialize(Bundle savedInstanceState) {
 
+		this.listView = (RecyclerView) findViewById(R.id.results_list);
+
+		this.searchView = new SearchView(this);
+		this.searchView.setIconified(false);
+		this.searchView.setFocusable(true);
+		this.searchView.requestFocusFromTouch();
+		this.searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+
+			@Override public boolean onClose() {
+				cancelAction(false);
+				return false;
+			}
+		});
+		this.actionBar.setCustomView(this.searchView);
+		this.actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+		this.actionBar.setDisplayShowTitleEnabled(false);
+
+		this.entitySuggest = new EntitySuggestController(this);
+		this.entitySuggest.searchView = this.searchView;
+		this.entitySuggest.busyPresenter = this.busyPresenter;
+		this.entitySuggest.listView = this.listView;
+		this.entitySuggest.suggestScope = this.suggestScope;
+		this.entitySuggest.initialize();
+
+		if (this.searchPhrase != null) {
+			this.searchView.setQuery(this.searchPhrase, true);
+		}
+
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-		actionBar.setDisplayShowTitleEnabled(false);
-		entitySuggest = new EntitySuggestController(this);
 	}
 
 	@Override protected int getLayoutId() {
@@ -86,30 +102,5 @@ public class SearchScreen extends BaseScreen {
 		return TransitionType.VIEW_BACK;
 	}
 
-	public void bind() {
-
-		if (searchView != null) {
-
-			searchView.setIconified(false);
-			searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-
-				@Override public boolean onClose() {
-					cancelAction(false);
-					return false;
-				}
-			});
-		}
-
-		listView = (RecyclerView) findViewById(R.id.results_list);
-
-		entitySuggest.searchView = this.searchView;
-		entitySuggest.busyPresenter = this.busyPresenter;
-		entitySuggest.listView = this.listView;
-		entitySuggest.suggestScope = this.suggestScope;
-		entitySuggest.initialize();
-
-		if (searchPhrase != null) {
-			searchView.setQuery(searchPhrase, true);
-		}
-	}
+	public void bind() { }
 }

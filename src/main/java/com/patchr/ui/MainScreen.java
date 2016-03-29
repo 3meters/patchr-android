@@ -19,12 +19,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.appevents.AppEventsLogger;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.DataController;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.FontManager;
 import com.patchr.components.Logger;
@@ -54,7 +54,7 @@ import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.ui.fragments.EntityListFragment;
 import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.ui.fragments.NearbyListFragment;
-import com.patchr.ui.views.ImageLayout;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.UI;
@@ -81,7 +81,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 
 	protected String title = StringManager.getString(R.string.name_app);
 	protected ViewGroup   userGroup;
-	protected ImageLayout userPhoto;
+	protected ImageWidget userPhoto;
 	protected TextView    userName;
 	protected TextView    userArea;
 	protected CacheStamp  cacheStamp;
@@ -179,8 +179,13 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 			}
 			return true;
 		}
-
-		return super.onOptionsItemSelected(item);
+		else if (item.getItemId() == R.id.search) {
+			searchAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
 	}
 
 	@Override public void onBackPressed() {
@@ -298,7 +303,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		this.userGroup = (ViewGroup) findViewById(R.id.user_group);
 
 		if (userGroup != null) {
-			this.userPhoto = (ImageLayout) userGroup.findViewById(R.id.user_photo);
+			this.userPhoto = (ImageWidget) userGroup.findViewById(R.id.user_photo);
 			this.userName = (TextView) userGroup.findViewById(R.id.user_name);
 			this.userArea = (TextView) userGroup.findViewById(R.id.user_area);
 			if (UserManager.shared().authenticated()) {
@@ -511,6 +516,12 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		Patchr.router.add(this, Constants.SCHEMA_ENTITY_PATCH, extras, true);
 	}
 
+	public void searchAction() {
+		Bundle extras = new Bundle();
+		extras.putString(Constants.EXTRA_SEARCH_SCOPE, DataController.Suggest.Patches);
+		Patchr.router.route(this, Command.SEARCH, null, extras);
+	}
+
 	private void tetherAlert() {
 	    /*
 	     * We alert that wifi isn't enabled. If the user ends up enabling wifi,
@@ -518,9 +529,9 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		 */
 		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
 		if (tethered || (!NetworkManager.getInstance().isWifiEnabled())) {
-			UI.showToastNotification(StringManager.getString(tethered
+			UI.toast(StringManager.getString(tethered
 			                                                 ? R.string.alert_wifi_tethered
-			                                                 : R.string.alert_wifi_disabled), Toast.LENGTH_SHORT);
+			                                                 : R.string.alert_wifi_disabled));
 		}
 	}
 

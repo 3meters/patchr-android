@@ -6,129 +6,152 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:background="@color/gray_10_pcnt"
 	android:orientation="vertical">
 
 	<include
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<LinearLayout
-		android:layout_width="288dp"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center_horizontal"
-		android:orientation="vertical">
-
-		<TextView
-			android:id="@+id/content_message"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginBottom="8dp"
-			android:background="?attr/backgroundFormSecondary"
-			android:padding="16dp" />
-
-		<!-- Title and Content -->
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:fillViewport="true">
 
 		<LinearLayout
-			android:id="@+id/holder_body"
-			style="@style/form_content_layout"
-			android:layout_width="match_parent"
+			android:layout_width="288dp"
 			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:background="@color/white"
 			android:orientation="vertical">
 
-			<RadioGroup
+			<TextView
+				android:id="@+id/content_message"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="8dp"
-				android:orientation="vertical">
+				android:background="@color/gray_05_pcnt"
+				android:padding="16dp" />
 
-				<RadioButton
-					android:id="@+id/radio_spam"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:onClick="onRadioButtonClicked"
-					android:tag="spam"
-					android:text="@string/label_report_option_spam" />
-
-				<RadioButton
-					android:id="@+id/radio_abusive"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:onClick="onRadioButtonClicked"
-					android:tag="abusive"
-					android:text="@string/label_report_option_abusive" />
-
-				<RadioButton
-					android:id="@+id/radio_porn"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:onClick="onRadioButtonClicked"
-					android:tag="obscene"
-					android:text="@string/label_report_option_porn" />
-
-				<RadioButton
-					android:id="@+id/radio_incorrect"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:onClick="onRadioButtonClicked"
-					android:tag="incorrect"
-					android:text="@string/label_report_option_incorrect" />
-
-				<RadioButton
-					android:id="@+id/radio_other"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="10dp"
-					android:onClick="onRadioButtonClicked"
-					android:tag="other"
-					android:text="@string/label_report_option_other" />
-			</RadioGroup>
-
-			<View
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/rule_divider_height"
-				android:layout_marginBottom="8dp"
-				android:layout_marginLeft="4dp"
-				android:layout_marginRight="4dp"
-				android:background="?attr/ruleColor" />
-
-			<com.patchr.ui.widgets.AirEditText
-				android:id="@+id/description"
-				style="@style/form_edit"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginBottom="8dp"
-				android:gravity="top"
-				android:hint="@string/label_report_description_hint"
-				android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
-				android:minLines="5" />
+			<!-- Title and Content -->
 
 			<LinearLayout
-				android:id="@+id/user_group"
-				android:layout_width="wrap_content"
+				android:id="@+id/holder_body"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal">
+				android:orientation="vertical">
 
-				<com.patchr.ui.views.ImageLayout
-					android:id="@+id/user_photo"
-					style="@style/selectable_image"
-					android:layout_width="@dimen/image_extra_small"
-					android:layout_height="@dimen/image_extra_small"
-					android:layout_marginRight="5dp"
-					custom:category="profile"
-					custom:shape="round" />
+				<RadioGroup
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="8dp"
+					android:layout_marginLeft="8dp"
+					android:layout_marginRight="8dp"
+					android:orientation="vertical">
 
-				<TextView
-					android:id="@+id/user_name"
+					<RadioButton
+						android:id="@+id/radio_spam"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:onClick="onRadioButtonClicked"
+						android:tag="spam"
+						android:text="@string/label_report_option_spam"
+						android:textAppearance="@style/text_appearance"
+						android:theme="@style/patchr_radio_button" />
+
+					<RadioButton
+						android:id="@+id/radio_abusive"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:onClick="onRadioButtonClicked"
+						android:tag="abusive"
+						android:text="@string/label_report_option_abusive"
+						android:textAppearance="@style/text_appearance"
+						android:theme="@style/patchr_radio_button" />
+
+					<RadioButton
+						android:id="@+id/radio_porn"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:onClick="onRadioButtonClicked"
+						android:tag="obscene"
+						android:text="@string/label_report_option_porn"
+						android:textAppearance="@style/text_appearance"
+						android:theme="@style/patchr_radio_button" />
+
+					<RadioButton
+						android:id="@+id/radio_incorrect"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:onClick="onRadioButtonClicked"
+						android:tag="incorrect"
+						android:text="@string/label_report_option_incorrect"
+						android:textAppearance="@style/text_appearance"
+						android:theme="@style/patchr_radio_button" />
+
+					<RadioButton
+						android:id="@+id/radio_other"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginBottom="10dp"
+						android:onClick="onRadioButtonClicked"
+						android:tag="other"
+						android:text="@string/label_report_option_other"
+						android:textAppearance="@style/text_appearance"
+						android:theme="@style/patchr_radio_button" />
+				</RadioGroup>
+
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/rule_divider_height"
+					android:layout_marginBottom="8dp"
+					android:layout_marginLeft="8dp"
+					android:layout_marginRight="8dp"
+					android:background="?attr/ruleColor" />
+
+				<com.patchr.ui.widgets.ClearableEditText
+					android:id="@+id/description"
+					style="@style/form_edit"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="4dp"
+					android:layout_marginLeft="8dp"
+					android:layout_marginRight="8dp"
+					android:gravity="top"
+					android:hint="@string/label_report_description_hint"
+					android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
+					android:isScrollContainer="true"
+					android:minLines="5" />
+
+				<LinearLayout
+					android:id="@+id/user_group"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_gravity="center_vertical"
-					android:ellipsize="end"
-					android:singleLine="true"
-					tools:text="Aliza Wenk" />
+					android:layout_marginLeft="12dp"
+					android:layout_marginRight="12dp"
+					android:orientation="horizontal">
 
+					<com.patchr.ui.widgets.ImageWidget
+						android:id="@+id/user_photo"
+						android:layout_width="@dimen/image_extra_small"
+						android:layout_height="@dimen/image_extra_small"
+						android:layout_marginRight="5dp"
+						custom:category="profile"
+						custom:shape="round" />
+
+					<TextView
+						android:id="@+id/user_name"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical"
+						android:ellipsize="end"
+						android:singleLine="true"
+						tools:text="Aliza Wenk" />
+
+				</LinearLayout>
 			</LinearLayout>
-		</LinearLayout>
 
-	</LinearLayout>
+		</LinearLayout>
+	</ScrollView>
 
 </LinearLayout>

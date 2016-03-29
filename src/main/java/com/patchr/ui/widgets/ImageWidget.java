@@ -1,4 +1,4 @@
-package com.patchr.ui.views;
+package com.patchr.ui.widgets;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -24,7 +24,6 @@ import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.User;
 import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.components.RoundedCornersTransformation;
-import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
@@ -34,48 +33,48 @@ import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Transformation;
 
 @SuppressWarnings("ucd")
-public class ImageLayout extends FrameLayout {
+public class ImageWidget extends FrameLayout {
 
 	public  AppCompatImageView imageView;
 	private AirProgressBar     progressBar;
 	private TextView           nameView;
 
-	private   String uri;
-	protected String uriBound;
+	private String uri;
+	private String uriBound;
 
-	public    PhotoCategory category;
-	protected float         aspectRatio;
-	protected ScaleType     scaleType;
-	public    Bitmap.Config bitmapConfig;  // Used by picasso
-	protected boolean       showBusy;
-	protected String        shape;    // auto, square, round, rounded
-	protected Integer       radius;
+	public PhotoCategory category;
+	public float         aspectRatio;
+	public ScaleType     scaleType;
+	public Bitmap.Config bitmapConfig;  // Used by picasso
+	public boolean       showBusy;
+	public String        shape;    // auto, square, round, rounded
+	public Integer       radius;
 
-	public ImageLayout(Context context) {
+	public ImageWidget(Context context) {
 		this(context, null);
 	}
 
-	public ImageLayout(Context context, AttributeSet attrs) {
+	public ImageWidget(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	public ImageLayout(Context context, AttributeSet attrs, int defStyle) {
+	public ImageWidget(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 
 		this.scaleType = ScaleType.CENTER_CROP;
 		this.shape = "auto";
 		this.radius = 8;
 
-		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ImageLayout, defStyle, 0);
+		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ImageWidget, defStyle, 0);
 
-		this.bitmapConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.ImageLayout_config, Bitmap.Config.RGB_565.ordinal())];
-		this.category = PhotoCategory.values()[ta.getInteger(R.styleable.ImageLayout_category, PhotoCategory.THUMBNAIL.ordinal())];
-		this.showBusy = ta.getBoolean(R.styleable.ImageLayout_showBusy, true);
-		this.aspectRatio = ta.getFloat(R.styleable.ImageLayout_aspectRatio, 0f);
-		this.radius = ta.getInteger(R.styleable.ImageLayout_radius, 0);
+		this.bitmapConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.ImageWidget_config, Bitmap.Config.RGB_565.ordinal())];
+		this.category = PhotoCategory.values()[ta.getInteger(R.styleable.ImageWidget_category, PhotoCategory.THUMBNAIL.ordinal())];
+		this.showBusy = ta.getBoolean(R.styleable.ImageWidget_showBusy, true);
+		this.aspectRatio = ta.getFloat(R.styleable.ImageWidget_aspectRatio, 0f);
+		this.radius = ta.getInteger(R.styleable.ImageWidget_radius, 0);
 
-		if (ta.hasValue(R.styleable.ImageLayout_shape)) {
-			this.shape = ta.getString(R.styleable.ImageLayout_shape);
+		if (ta.hasValue(R.styleable.ImageWidget_shape)) {
+			this.shape = ta.getString(R.styleable.ImageWidget_shape);
 		}
 
 		ta.recycle();
@@ -90,16 +89,40 @@ public class ImageLayout extends FrameLayout {
 		initialize();
 	}
 
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+		if (this.aspectRatio != 0) {
+
+			int w = MeasureSpec.getSize(widthMeasureSpec);
+			int h = (int) ((float) w * this.aspectRatio);
+			setMeasuredDimension(w, h);
+
+			/* We have to enforce the sizing on the child imageview */
+			int widthSpec = MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY);
+			int heightSpec = MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY);
+			if (this.imageView != null) {
+				this.imageView.measure(widthSpec, heightSpec);
+			}
+		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
 	protected void initialize() {
 
 		/* Placeholder */
 		if (this.shape.equals("round")) {
 			this.setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundRoundPlaceholder));
 		}
-		else if (this.shape.equals("rounded")) {
-			this.setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundRoundedPlaceholder));
-		}
-		else {
+		else if (this.shape.equals("auto")) {
 			this.setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundPlaceholder));
 		}
 
@@ -132,37 +155,10 @@ public class ImageLayout extends FrameLayout {
 		addView(this.progressBar);
 
 		if (isInEditMode()) {
-			Drawable dummy = ContextCompat.getDrawable(getContext(),R.drawable.img_dummy);
+			Drawable dummy = ContextCompat.getDrawable(getContext(), R.drawable.img_dummy);
 			this.imageView.setImageDrawable(dummy);
 		}
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Events
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-		if (this.aspectRatio != 0) {
-
-			int w = MeasureSpec.getSize(widthMeasureSpec);
-			int h = (int) ((float) w * this.aspectRatio);
-			setMeasuredDimension(w, h);
-
-			/* We have to enforce the sizing on the child imageview */
-			int widthSpec = MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY);
-			int heightSpec = MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY);
-			if (this.imageView != null) {
-				this.imageView.measure(widthSpec, heightSpec);
-			}
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
 
 	public void setImageWithEntity(Entity entity) {
 		if (entity.photo != null) {
@@ -181,7 +177,9 @@ public class ImageLayout extends FrameLayout {
 			if (uri.equals(this.uriBound)) return;
 		}
 
-		this.getBackground().clearColorFilter();
+		if (this.getBackground() != null) {
+			this.getBackground().clearColorFilter();
+		}
 		this.imageView.setImageDrawable(null);
 		this.imageView.setVisibility(VISIBLE);
 		this.nameView.setVisibility(GONE);
@@ -200,7 +198,9 @@ public class ImageLayout extends FrameLayout {
 
 	public void setImageWithText(String name, Boolean showText) {
 
-		this.getBackground().clearColorFilter();
+		if (this.getBackground() != null) {
+			this.getBackground().clearColorFilter();
+		}
 		this.imageView.setImageDrawable(null);
 		this.imageView.setVisibility(GONE);
 		this.nameView.setText(null);
@@ -209,7 +209,7 @@ public class ImageLayout extends FrameLayout {
 			showLoading(false);
 		}
 
-		if (!TextUtils.isEmpty(name)) {
+		if (!TextUtils.isEmpty(name) && this.getBackground() != null) {
 			long seed = Utils.numberFromName(name);
 			Integer color = Utils.randomColor(seed);
 			this.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);

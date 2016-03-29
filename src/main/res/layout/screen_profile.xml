@@ -13,10 +13,6 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<include
-			android:id="@+id/toolbar"
-			layout="@layout/include_toolbar_actionbar" />
-
 		<com.patchr.ui.widgets.AirSwipeRefreshLayout
 			android:id="@+id/swipe"
 			android:layout_width="match_parent"
@@ -40,7 +36,7 @@
 
 		<com.patchr.ui.widgets.SquareButton
 			android:id="@+id/list_message"
-			style="@style/list_message"
+			style="@style/empty_message"
 			android:layout_width="@dimen/button_round_width"
 			android:layout_height="@dimen/button_round_height"
 			android:layout_centerInParent="true"
@@ -60,6 +56,10 @@
 			android:visibility="gone"
 			custom:layout_anchor="@+id/entity_list"
 			custom:layout_anchorGravity="center" />
+
+		<include
+			android:id="@+id/toolbar"
+			layout="@layout/include_toolbar_actionbar" />
 
 	</RelativeLayout>
 

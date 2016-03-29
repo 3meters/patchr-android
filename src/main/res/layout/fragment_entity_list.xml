@@ -27,7 +27,7 @@
 
 	<com.patchr.ui.widgets.SquareButton
 		android:id="@+id/list_message"
-		style="@style/list_message"
+		style="@style/empty_message"
 		android:layout_width="@dimen/button_round_width"
 		android:layout_height="@dimen/button_round_height"
 		android:layout_centerInParent="true"
@@ -44,31 +44,5 @@
 		android:padding="8dp"
 		android:visibility="gone"
 		tools:visibility="visible" />
-
-	<RelativeLayout
-		android:id="@+id/list_fab"
-		style="@style/button_round_glow"
-		android:layout_width="@dimen/button_round_medium"
-		android:layout_height="@dimen/button_round_medium"
-		android:clickable="true"
-		android:visibility="invisible"
-		tools:visibility="visible">
-
-		<ImageView
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_margin="8dp"
-			android:background="@drawable/bg_round_accent" />
-
-		<ImageView
-			android:id="@+id/fab_image"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:padding="18dp"
-			android:scaleType="fitCenter"
-			android:src="?attr/iconAdd"
-			android:tint="@color/white" />
-
-	</RelativeLayout>
 
 </RelativeLayout>

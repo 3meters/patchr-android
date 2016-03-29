@@ -6,7 +6,7 @@
 		android:id="@+id/notifications"
 		android:orderInCategory="4"
 		android:title="@string/menu_item_notifications"
-		app:actionLayout="@layout/actionbar_notifications"
+		app:actionLayout="@layout/view_actionbar_notifications"
 		app:showAsAction="always" />
 
 </menu>

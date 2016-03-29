@@ -15,18 +15,15 @@
 
 	<ScrollView
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_gravity="center_horizontal"
+		android:layout_height="wrap_content"
 		android:fillViewport="true">
 
 		<!-- Content -->
 
 		<LinearLayout
-			style="@style/form_content_layout"
 			android:layout_width="288dp"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
-			android:layout_margin="16dp"
 			android:orientation="vertical">
 
 			<!-- Title -->
@@ -37,7 +34,7 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_horizontal"
 				android:layout_marginBottom="16dp"
-				android:layout_marginTop="8dp"
+				android:layout_marginTop="24dp"
 				android:gravity="center_horizontal"
 				android:textAppearance="?android:attr/textAppearanceMedium"
 				android:textColor="@color/brand_accent_darker"
@@ -73,7 +70,7 @@
 
 					<Button
 						android:id="@+id/tune_button"
-						style="@style/button_link"
+						style="@style/button_outlined"
 						android:layout_width="wrap_content"
 						android:layout_height="@dimen/button_height"
 						android:layout_weight="2"
@@ -83,7 +80,7 @@
 
 					<Button
 						android:id="@+id/button_untune"
-						style="@style/button_link"
+						style="@style/button_outlined"
 						android:layout_width="wrap_content"
 						android:layout_height="@dimen/button_height"
 						android:layout_marginLeft="8dp"

@@ -19,10 +19,9 @@
 		android:fillViewport="true">
 
 		<RelativeLayout
-			style="@style/form_content_layout"
 			android:layout_width="288dp"
 			android:layout_height="wrap_content"
-			android:maxWidth="@dimen/form_max_width"
+			android:layout_gravity="center_horizontal"
 			android:focusable="true">
 
 			<LinearLayout
@@ -46,19 +45,20 @@
 
 				<TextView
 					android:id="@+id/app_name"
-					android:layout_width="match_parent"
+					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
 					android:text="@string/name_app"
-					android:textAppearance="?android:attr/textAppearanceLarge"
-					android:textColor="@color/brand_accent" />
+					android:textColor="@color/brand_accent"
+					android:textSize="30sp" />
 
 				<TextView
 					android:id="@+id/version"
-					android:layout_width="match_parent"
+					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
-					android:text="@string/dummy_version" />
+					android:text="@string/dummy_version"
+					android:textSize="16sp" />
 
 				<TextView
 					android:id="@+id/copyright"
@@ -66,11 +66,12 @@
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
 					android:layout_marginBottom="30dp"
-					android:text="@string/dummy_copyright" />
+					android:text="@string/dummy_copyright"
+					android:textSize="16sp" />
 
 				<Button
 					android:id="@+id/terms_button"
-					style="@style/button_link"
+					style="@style/button_outlined"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginBottom="8dp"
@@ -79,7 +80,7 @@
 
 				<Button
 					android:id="@+id/legal_button"
-					style="@style/button_link"
+					style="@style/button_outlined"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginBottom="8dp"
@@ -88,7 +89,7 @@
 
 				<Button
 					android:id="@+id/privacy_policy_button"
-					style="@style/button_link"
+					style="@style/button_outlined"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:onClick="onClick"
@@ -160,6 +161,7 @@
 							android:textAppearance="?android:attr/textAppearanceSmall"
 							android:textColor="?attr/textColorSecondary" />
 					</TableRow>
+
 					<View
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/rule_divider_height"

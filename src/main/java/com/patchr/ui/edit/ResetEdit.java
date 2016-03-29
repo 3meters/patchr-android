@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -243,7 +242,7 @@ public class ResetEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_signing_in, ResetEdit.this);
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_logging_in, ResetEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -257,8 +256,8 @@ public class ResetEdit extends BaseEdit {
 
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in)
-							+ " " + UserManager.currentUser.name, Toast.LENGTH_SHORT);
+					UI.toast(StringManager.getString(R.string.alert_signed_in)
+							+ " " + UserManager.currentUser.name);
 
 					setResult(Constants.RESULT_USER_SIGNED_IN);
 					finish();

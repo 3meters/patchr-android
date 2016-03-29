@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -195,7 +194,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickList
 		 * here if they are not available.
 		 */
 		if (map == null) {
-			UI.showToastNotification("Map not ready", Toast.LENGTH_SHORT);
+			UI.toast("Map not ready");
 			return false;
 		}
 		return true;

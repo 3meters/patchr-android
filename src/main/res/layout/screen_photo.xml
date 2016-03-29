@@ -6,25 +6,26 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="?attr/backgroundForm"
 	android:orientation="vertical">
 
 	<include
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<com.patchr.ui.widgets.AirScrollView
+	<FrameLayout
 		android:id="@+id/holder_body"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_gravity="center_horizontal">
+		android:layout_height="match_parent">
 
 		<uk.co.senab.photoview.PhotoView
 			android:id="@+id/photo"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent" />
+			android:layout_height="match_parent"
+			android:layout_gravity="center"
+			android:background="@color/white"
+			tools:src="@drawable/img_default_place_b" />
 
-	</com.patchr.ui.widgets.AirScrollView>
+	</FrameLayout>
 
 </LinearLayout>
 

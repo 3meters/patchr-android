@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
@@ -8,31 +10,17 @@
 	android:paddingRight="8dp"
 	android:paddingTop="4dp">
 
-	<RelativeLayout
-		android:id="@+id/action_group"
+	<TextView
+		style="@style/selectable_image"
+		android:id="@+id/action_button"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:background="?attr/backgroundCard"
-		tools:ignore="UselessParent">
-
-		<Button
-			android:id="@+id/action_button"
-			style="@style/button_flat"
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/form_field_height"
-			android:gravity="center"
-			android:onClick="onClick"
-			android:padding="8dp"
-			android:textAppearance="?android:attr/textAppearance"
-			tools:text="Create a patch" />
-
-		<View
-			android:id="@+id/action_rule"
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/rule_divider_height"
-			android:layout_below="@+id/action_button"
-			android:background="?attr/ruleColor" />
-
-	</RelativeLayout>
+		android:layout_height="48dp"
+		android:gravity="center"
+		android:textAllCaps="true"
+		android:textColor="@color/brand_primary"
+		android:background="@color/white"
+		android:clickable="true"
+		android:onClick="onClick"
+		tools:text="Create a patch" />
 
 </RelativeLayout>

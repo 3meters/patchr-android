@@ -8,12 +8,12 @@
 
 	<!-- Patch context -->
 	<Button
-		style="@style/button_flat"
+		style="@style/button_link"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:duplicateParentState="false"
-		android:background="@color/transparent"
 		android:gravity="center"
+		android:textAllCaps="true"
 		android:clickable="false"
 		android:text="@string/label_message_share_blocked" />
 

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -75,11 +74,11 @@ public final class Errors {
 				});
 			}
 			else {
-				UI.showToastNotification(errorResponse.errorMessage, Toast.LENGTH_SHORT);
+				UI.toast(errorResponse.errorMessage);
 			}
 		}
 		else if (errorResponse.errorResponseType == ResponseType.TOAST) {
-			UI.showToastNotification(errorResponse.errorMessage, Toast.LENGTH_SHORT);
+			UI.toast(errorResponse.errorMessage);
 		}
 		/*
 		 * Perform any follow-up actions.

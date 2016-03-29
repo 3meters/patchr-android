@@ -166,7 +166,7 @@ dependencies {
 	compile 'com.github.machinarius:preferencefragment:0.1.1'
 	compile 'com.flipboard:bottomsheet-core:1.5.0'
 	compile 'com.flipboard:bottomsheet-commons:1.5.0'
-	compile 'com.orhanobut:dialogplus:1.11@aar'
+	compile 'com.orhanobut:dialogplus:1.11@aar'     // Used for guest guard dialog
 	compile 'org.greenrobot:eventbus:3.0.0'
 }
 

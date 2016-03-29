@@ -19,7 +19,6 @@ import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
@@ -60,7 +59,7 @@ import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.edit.MessageEdit;
-import com.patchr.ui.views.ImageLayout;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.PatchView;
 import com.patchr.utilities.Colors;
@@ -84,13 +83,13 @@ import io.branch.referral.util.LinkProperties;
 public class MessageScreen extends BaseScreen {
 
 	protected BottomSheetLayout bottomSheetLayout;
-	protected ImageLayout       photoView;
+	protected ImageWidget       photoView;
 	protected View              holderUser;
 	protected View              holderPatch;
 	protected TextView          description;
-	protected ImageLayout       patchPhotoView;
+	protected ImageWidget       patchPhotoView;
 	protected TextView          patchName;
-	protected ImageLayout       userPhotoView;
+	protected ImageWidget       userPhotoView;
 	protected TextView          userName;
 	protected TextView          createdDate;
 	protected ViewGroup         buttonHolder;
@@ -158,7 +157,6 @@ public class MessageScreen extends BaseScreen {
 
 		/* Shown for everyone */
 		getMenuInflater().inflate(R.menu.menu_share_message, menu);
-		getMenuInflater().inflate(R.menu.menu_refresh, menu);
 		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
 
 		return true;
@@ -174,9 +172,6 @@ public class MessageScreen extends BaseScreen {
 		}
 		else if (item.getItemId() == R.id.edit) {
 			editAction();
-		}
-		else if (item.getItemId() == R.id.refresh) {
-			fetch(FetchMode.MANUAL);
 		}
 		else if (item.getItemId() == R.id.share) {
 			shareAction();
@@ -404,7 +399,7 @@ public class MessageScreen extends BaseScreen {
 					/*
 					 * We either go back to a list or to radar.
 					 */
-					UI.showToastNotification(StringManager.getString(R.string.alert_deleted), Toast.LENGTH_SHORT);
+					UI.toast(StringManager.getString(R.string.alert_deleted));
 					setResult(Constants.RESULT_ENTITY_DELETED);
 					finish();
 				}
@@ -451,13 +446,13 @@ public class MessageScreen extends BaseScreen {
 		if (entity == null) return;
 		assert rootView != null;
 
-		photoView = (ImageLayout) findViewById(R.id.photo);
+		photoView = (ImageWidget) findViewById(R.id.photo);
 		holderUser = findViewById(R.id.holder_user);
 		holderPatch = findViewById(R.id.holder_patch);
 		description = (TextView) findViewById(R.id.description);
-		patchPhotoView = (ImageLayout) findViewById(R.id.patch_photo);
+		patchPhotoView = (ImageWidget) findViewById(R.id.patch_photo);
 		patchName = (TextView) findViewById(R.id.patch_name);
-		userPhotoView = (ImageLayout) findViewById(R.id.user_photo);
+		userPhotoView = (ImageWidget) findViewById(R.id.user_photo);
 		userName = (TextView) findViewById(R.id.user_name);
 		createdDate = (TextView) findViewById(R.id.created_date);
 		buttonHolder = (ViewGroup) findViewById(R.id.toolbar);
@@ -562,7 +557,7 @@ public class MessageScreen extends BaseScreen {
 						android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 						android.content.ClipData clip = android.content.ClipData.newPlainText("message", text);
 						clipboard.setPrimaryClip(clip);
-						UI.showToastNotification(StringManager.getString(R.string.alert_copied_to_clipboard), Toast.LENGTH_SHORT);
+						UI.toast(StringManager.getString(R.string.alert_copied_to_clipboard));
 					}
 
 					return true;
@@ -817,7 +812,7 @@ public class MessageScreen extends BaseScreen {
 				}
 				else {
 					bottomSheetLayout.dismissSheet();
-					UI.showToastNotification(item.getTitle().toString(), Toast.LENGTH_SHORT);
+					UI.toast(item.getTitle().toString());
 				}
 				return true;
 			}

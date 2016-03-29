@@ -27,12 +27,12 @@ import com.patchr.ui.MapScreen;
 import com.patchr.ui.MemberListScreen;
 import com.patchr.ui.MessageScreen;
 import com.patchr.ui.PatchScreen;
-import com.patchr.ui.PhotoPicker;
 import com.patchr.ui.PhotoScreen;
 import com.patchr.ui.PhotoSearchScreen;
+import com.patchr.ui.PhotoSwitchboardScreen;
+import com.patchr.ui.ProfileScreen;
 import com.patchr.ui.SearchScreen;
 import com.patchr.ui.SettingsScreen;
-import com.patchr.ui.UserScreen;
 import com.patchr.ui.edit.FeedbackEdit;
 import com.patchr.ui.edit.LocationEdit;
 import com.patchr.ui.edit.LoginEdit;
@@ -40,11 +40,10 @@ import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.edit.PasswordEdit;
 import com.patchr.ui.edit.PatchEdit;
 import com.patchr.ui.edit.PrivacyEdit;
+import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.edit.ProximityEdit;
-import com.patchr.ui.edit.RegisterEdit;
 import com.patchr.ui.edit.ReportEdit;
 import com.patchr.ui.edit.ResetEdit;
-import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
@@ -81,7 +80,7 @@ public class Router {
 			browseClass = PatchScreen.class;
 		}
 		else if (Constants.SCHEMA_ENTITY_USER.equals(schema)) {
-			browseClass = UserScreen.class;
+			browseClass = ProfileScreen.class;
 		}
 
 		IntentBuilder intentBuilder = new IntentBuilder(context, browseClass);
@@ -257,14 +256,18 @@ public class Router {
 		else if (route == Command.LOGIN) {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, LoginEdit.class);
-			((Activity) activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_SIGNIN);
+			intentBuilder.addExtras(extras);
+			Intent intent = intentBuilder.create();
+			((Activity) activity).startActivityForResult(intent, Constants.ACTIVITY_LOGIN);
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
 		else if (route == Command.SIGNUP) {
 
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, RegisterEdit.class);
-			((Activity) activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_SIGNIN);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, ProfileEdit.class);
+			intentBuilder.addExtras(extras);
+			Intent intent = intentBuilder.create();
+			((Activity) activity).startActivityForResult(intent, Constants.ACTIVITY_SIGNUP);
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
@@ -368,7 +371,7 @@ public class Router {
 
 		else if (route == Command.PHOTO_PICK) {
 
-			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoPicker.class);
+			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoSwitchboardScreen.class);
 			((Activity) activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PHOTO_PICK);
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.DIALOG_TO);
 		}
@@ -376,7 +379,7 @@ public class Router {
 		else if (route == Command.PHOTO_FROM_CAMERA) {
 
 			IntentBuilder intentBuilder = new IntentBuilder(MediaStore.ACTION_IMAGE_CAPTURE);
-			intentBuilder.setExtras(extras);
+			intentBuilder.addExtras(extras);
 			((Activity) activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_PHOTO_MAKE);
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
@@ -392,7 +395,7 @@ public class Router {
 		else if (route == Command.SEARCH) {
 
 			IntentBuilder intentBuilder = new IntentBuilder(activity, SearchScreen.class);
-			intentBuilder.setExtras(extras);
+			intentBuilder.addExtras(extras);
 			((Activity) activity).startActivityForResult(intentBuilder.create(), Constants.ACTIVITY_SEARCH);
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.VIEW_TO);
 		}
@@ -452,8 +455,6 @@ public class Router {
 			return Command.REPORT;
 		else if (itemId == R.id.submit)
 			return Command.SUBMIT;
-		else if (itemId == R.id.refresh)
-			return Command.REFRESH;
 		else if (itemId == R.id.invite)
 			return Command.SHARE;
 		else if (itemId == R.id.share)

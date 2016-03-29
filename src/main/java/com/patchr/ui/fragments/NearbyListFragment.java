@@ -12,7 +12,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -344,7 +343,7 @@ public class NearbyListFragment extends EntityListFragment {
 				Dialogs.locationServicesDisabled(getActivity(), locationDialogShot);
 			}
 			else {
-				UI.showToastNotification(StringManager.getString(R.string.alert_location_services_disabled), Toast.LENGTH_SHORT);
+				UI.toast(StringManager.getString(R.string.alert_location_services_disabled));
 				showSnackbar();
 			}
 		}

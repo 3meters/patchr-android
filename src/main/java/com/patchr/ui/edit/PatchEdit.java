@@ -15,7 +15,6 @@ import android.view.ViewTreeObserver;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -42,7 +41,7 @@ import com.patchr.objects.Command;
 import com.patchr.objects.Patch;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyPresenter;
-import com.patchr.ui.views.ImageLayout;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
@@ -55,7 +54,8 @@ public class PatchEdit extends BaseEdit {
 
 	private   TextView    buttonPrivacy;
 	private   TextView    locationLabel;
-	protected ImageLayout photoViewPlace;
+	protected ImageWidget photoViewPlace;
+	private   TextView    title;
 
 	private RadioGroup  buttonGroupType;
 	private RadioButton buttonTypeEvent;
@@ -285,9 +285,14 @@ public class PatchEdit extends BaseEdit {
 		buttonGroupType = (RadioGroup) findViewById(R.id.buttons_type);
 
 		buttonPrivacy = (TextView) findViewById(R.id.privacy_policy_button);
+		title = (TextView) findViewById(R.id.title);
 		mapView = (MapView) findViewById(R.id.mapview);
 		mapProgressBar = (AirProgressBar) findViewById(R.id.map_progress);
 		locationLabel = (TextView) findViewById(R.id.location_label);
+
+		if (!this.editing) {
+			title.setText(R.string.form_title_patch_new);
+		}
 
 		if (mapView != null) {
 
@@ -366,7 +371,7 @@ public class PatchEdit extends BaseEdit {
 	     * Only called if the insert was successful. Called on main ui thread.
 		 */
 		if (insertedResId != null && insertedResId != 0) {
-			UI.showToastNotification(StringManager.getString(insertedResId), Toast.LENGTH_SHORT);
+			UI.toast(StringManager.getString(insertedResId));
 		}
 		Patchr.router.browse(this, entity.id, null, true);
 		return true;
@@ -485,7 +490,7 @@ public class PatchEdit extends BaseEdit {
 
 			@Override protected void onPostExecute(Object response) {
 				busyPresenter.hide(false);
-				UI.showToastNotification(StringManager.getString(updatedResId), Toast.LENGTH_SHORT);
+				UI.toast(StringManager.getString(updatedResId));
 				setResult(Activity.RESULT_OK);
 				finish();
 				AnimationManager.doOverridePendingTransition(PatchEdit.this, TransitionType.FORM_BACK);

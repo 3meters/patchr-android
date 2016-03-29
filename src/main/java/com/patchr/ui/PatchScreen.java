@@ -26,7 +26,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.facebook.CallbackManager;
@@ -231,7 +230,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 		/* Shown for everyone */
 		getMenuInflater().inflate(R.menu.menu_invite, menu);
-		getMenuInflater().inflate(R.menu.menu_refresh, menu);
 		getMenuInflater().inflate(R.menu.menu_leave_patch, menu);
 
 		getMenuInflater().inflate(R.menu.menu_login, menu);         // base
@@ -251,9 +249,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		}
 		else if (item.getItemId() == R.id.invite) {
 			inviteAction();
-		}
-		else if (item.getItemId() == R.id.refresh) {
-			onRefresh();
 		}
 		else if (item.getItemId() == R.id.leave_patch) {
 			joinAction();
@@ -280,7 +275,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	}
 
 	@Override public void onNdefPushComplete(NfcEvent event) {
-		UI.showToastNotification("Patch beamed!", Toast.LENGTH_SHORT);
+		UI.toast("Patch beamed!");
 	}
 
 	@Override public void onConfigurationChanged(Configuration newConfig) {
@@ -401,12 +396,12 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 			if (event.error == null) {
 				Logger.v(this, "Data result accepted: " + event.actionType.name());
 				if (event.actionType == ActionType.ACTION_LINK_INSERT_MEMBER) {
-					UI.showToastNotification("You are now a member of this patch", Toast.LENGTH_SHORT);
+					UI.toast("You are now a member of this patch");
 					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
 					fetch(FetchMode.MANUAL);
 				}
 				else if (event.actionType == ActionType.ACTION_LINK_DELETE_MEMBER) {
-					UI.showToastNotification("You have left this patch", Toast.LENGTH_SHORT);
+					UI.toast("You have left this patch");
 					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
 					fetch(FetchMode.MANUAL);
 				}
@@ -515,8 +510,8 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		if (extras != null) {
 			entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
 			notificationId = extras.getString(Constants.EXTRA_NOTIFICATION_ID);
-			referrerName = extras.getString(Constants.EXTRA_INVITER_NAME);
-			referrerPhotoUrl = extras.getString(Constants.EXTRA_INVITER_PHOTO_URL);
+			referrerName = extras.getString(Constants.EXTRA_REFERRER_NAME);
+			referrerPhotoUrl = extras.getString(Constants.EXTRA_REFERRER_PHOTO_URL);
 		}
 	}
 
@@ -1077,12 +1072,12 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 					@Override
 					public void onSuccess(AppInviteDialog.Result result) {
-						UI.showToastNotification("Facebook invites sent", Toast.LENGTH_SHORT);
+						UI.toast("Facebook invites sent");
 					}
 
 					@Override
 					public void onCancel() {
-						UI.showToastNotification("Facebook invite cancelled", Toast.LENGTH_SHORT);
+						UI.toast("Facebook invite cancelled");
 					}
 
 					@Override

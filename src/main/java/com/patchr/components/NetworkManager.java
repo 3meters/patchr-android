@@ -13,7 +13,6 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -31,6 +30,7 @@ import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
+import com.squareup.okhttp.Response;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -140,7 +140,7 @@ public class NetworkManager {
 					boolean noConnection = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 
 					if (noConnection) {
-						UI.showToastNotification("Lost network connection", Toast.LENGTH_SHORT);
+						UI.toast("Lost network connection");
 					}
 				}
 			}
@@ -206,6 +206,10 @@ public class NetworkManager {
 			}
 		}
 		return serviceResponse;
+	}
+
+	public Response get(String path, String query) {
+		return mOkClient.get(path, query);
 	}
 
 	/*--------------------------------------------------------------------------------------------

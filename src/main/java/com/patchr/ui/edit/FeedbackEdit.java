@@ -8,7 +8,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.R;
@@ -22,7 +21,7 @@ import com.patchr.components.UserManager;
 import com.patchr.objects.Document;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.SimpleTextWatcher;
-import com.patchr.ui.views.ImageLayout;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -33,7 +32,7 @@ import java.util.HashMap;
 public class FeedbackEdit extends BaseEdit {
 
 	private Document    feedback;
-	private ImageLayout userPhoto;
+	private ImageWidget userPhoto;
 	private TextView    userName;
 	private TextView    message;
 
@@ -71,7 +70,7 @@ public class FeedbackEdit extends BaseEdit {
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
-		userPhoto = (ImageLayout) findViewById(R.id.user_photo);
+		userPhoto = (ImageWidget) findViewById(R.id.user_photo);
 		userName = (TextView) findViewById(R.id.user_name);
 
 		if (description != null) {
@@ -137,7 +136,7 @@ public class FeedbackEdit extends BaseEdit {
 
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					UI.showToastNotification(StringManager.getString(R.string.alert_feedback_sent), Toast.LENGTH_SHORT);
+					UI.toast(StringManager.getString(R.string.alert_feedback_sent));
 					finish();
 				}
 				else {

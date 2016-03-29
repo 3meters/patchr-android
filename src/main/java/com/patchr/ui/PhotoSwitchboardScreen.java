@@ -13,7 +13,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.kbeanie.imagechooser.api.ChooserType;
 import com.kbeanie.imagechooser.api.ChosenImage;
@@ -34,7 +33,7 @@ import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
-public class PhotoPicker extends AppCompatActivity implements ImageChooserListener {
+public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageChooserListener {
 
 	private   String              pendingChoice;
 	protected ImageChooserManager imageChooserManager;
@@ -157,7 +156,7 @@ public class PhotoPicker extends AppCompatActivity implements ImageChooserListen
 
 			@Override
 			public void run() {
-				UI.showToastNotification(reason, Toast.LENGTH_SHORT);
+				UI.toast(reason);
 			}
 		});
 	}
@@ -219,7 +218,7 @@ public class PhotoPicker extends AppCompatActivity implements ImageChooserListen
 							, StringManager.getString(R.string.alert_permission_storage_title)
 							, StringManager.getString(R.string.alert_permission_storage_message)
 							, null
-							, PhotoPicker.this
+							, PhotoSwitchboardScreen.this
 							, R.string.alert_permission_storage_positive
 							, R.string.alert_permission_storage_negative
 							, null
@@ -229,7 +228,7 @@ public class PhotoPicker extends AppCompatActivity implements ImageChooserListen
 								public void onClick(DialogInterface dialog, int which) {
 									if (which == DialogInterface.BUTTON_POSITIVE) {
 										if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-											ActivityCompat.requestPermissions(PhotoPicker.this
+											ActivityCompat.requestPermissions(PhotoSwitchboardScreen.this
 													, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
 													, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
 										}
@@ -267,7 +266,7 @@ public class PhotoPicker extends AppCompatActivity implements ImageChooserListen
 				imageChooserManager.choose();
 			}
 			else {
-				UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
+				UI.toast(StringManager.getString(R.string.error_storage_unmounted));
 			}
 		}
 		catch (Exception e) {
@@ -290,7 +289,7 @@ public class PhotoPicker extends AppCompatActivity implements ImageChooserListen
 				imageChooserManager.choose();
 			}
 			else {
-				UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
+				UI.toast(StringManager.getString(R.string.error_storage_unmounted));
 			}
 		}
 		catch (IllegalArgumentException e) {

@@ -61,6 +61,21 @@ public class OkHttp {
 		client.setRetryOnConnectionFailure(true);
 	}
 
+	public Response get(String path, String query) {
+		try {
+			String uri = path;
+			if (query != null) {
+				uri = uri + "?" + query;
+			}
+
+			Request request = new Request.Builder().url(uri).build();
+			Response response = client.newCall(request).execute();
+			return response;
+		}
+		catch (IOException e) { /* ignore */ }
+		return null;
+	}
+
 	@NonNull
 	public ServiceResponse request(@NonNull final ServiceRequest serviceRequest) {
 

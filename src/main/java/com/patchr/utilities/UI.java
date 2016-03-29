@@ -169,11 +169,11 @@ public class UI {
 	 * Display
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static void showToastNotification(final String message, final int duration) {
-		showToastNotification(message, duration, 0);
+	public static void toast(final String message) {
+		toast(message, Toast.LENGTH_SHORT, 0);
 	}
 
-	public static void showToastNotification(final String message, final int duration, final int gravity) {
+	public static void toast(final String message, final int duration, final int gravity) {
 		Patchr.mainThreadHandler.post(new Runnable() {
 
 			@Override

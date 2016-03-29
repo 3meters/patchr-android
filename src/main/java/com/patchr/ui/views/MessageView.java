@@ -19,6 +19,7 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Message;
 import com.patchr.objects.Photo;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 
@@ -35,8 +36,8 @@ public class MessageView extends FrameLayout {
 	protected Integer    layoutResId;
 
 	protected ViewGroup   layout;
-	protected ImageLayout userPhotoView;
-	protected ImageLayout photoView;
+	protected ImageWidget userPhotoView;
+	protected ImageWidget photoView;
 	protected TextView    patchName;
 	protected TextView    userName;
 	protected TextView    createdDate;
@@ -78,8 +79,8 @@ public class MessageView extends FrameLayout {
 		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
-		this.userPhotoView = (ImageLayout) layout.findViewById(R.id.user_photo);
-		this.photoView = (ImageLayout) layout.findViewById(R.id.photo);
+		this.userPhotoView = (ImageWidget) layout.findViewById(R.id.user_photo);
+		this.photoView = (ImageWidget) layout.findViewById(R.id.photo);
 		this.patchName = (TextView) layout.findViewById(R.id.patch_name);
 		this.userName = (TextView) layout.findViewById(R.id.user_name);
 		this.createdDate = (TextView) layout.findViewById(R.id.created_date);

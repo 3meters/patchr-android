@@ -119,7 +119,7 @@
 
 	</declare-styleable>
 
-	<declare-styleable name="ImageLayout">
+	<declare-styleable name="ImageWidget">
 		<attr name="aspectRatio" />
 		<attr name="config" />
 		<attr name="showBusy" />

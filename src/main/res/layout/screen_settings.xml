@@ -17,10 +17,9 @@
 
 		<FrameLayout
 			android:id="@+id/fragment_holder"
-			android:layout_width="288dp"
-			android:layout_centerHorizontal="true"
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:background="?attr/backgroundCardField" />
+			android:layout_centerHorizontal="true" />
 
 		<!-- Only here because we don't own the fragment layout -->
 

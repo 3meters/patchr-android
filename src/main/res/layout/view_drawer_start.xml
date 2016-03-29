@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:custom="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:clickable="true"
-              android:orientation="vertical">
+<LinearLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:clickable="true"
+	android:orientation="vertical">
 
 	<!-- Current user -->
 
@@ -18,7 +21,7 @@
 		android:onClick="onClick"
 		android:padding="8dp">
 
-		<com.patchr.ui.views.ImageLayout
+		<com.patchr.ui.widgets.ImageWidget
 			android:id="@+id/user_photo"
 			android:layout_width="48dp"
 			android:layout_height="48dp"
@@ -40,9 +43,8 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:singleLine="true"
-				android:text="@string/label_drawer_item_nearby"
-				android:textAppearance="?android:attr/textAppearance"
-				android:textColor="@color/brand_primary" />
+				android:textColor="@color/brand_primary"
+				tools:text="Aliza Wenk" />
 
 			<TextView
 				android:id="@+id/user_area"
@@ -50,7 +52,9 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:singleLine="true"
-				android:textAppearance="?android:attr/textAppearanceSmall" />
+				android:textAllCaps="true"
+				android:textSize="14sp"
+				tools:text="Seattle, WA" />
 		</LinearLayout>
 
 	</RelativeLayout>
@@ -77,10 +81,11 @@
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_vertical"
 					android:layout_marginLeft="12dp"
-					android:layout_marginTop="8dp"
+					android:layout_marginTop="16dp"
 					android:text="@string/label_drawer_section_patches"
-					android:textAppearance="?android:attr/textAppearance"
-					android:textColor="@color/brand_primary" />
+					android:textAllCaps="true"
+					android:textColor="@color/brand_primary"
+					android:textSize="16sp" />
 
 				<View
 					android:layout_width="match_parent"
@@ -115,8 +120,7 @@
 					android:layout_height="wrap_content"
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/image_patches_nearby"
-					android:text="@string/label_drawer_item_nearby"
-					android:textAppearance="?android:attr/textAppearanceMedium" />
+					android:text="@string/label_drawer_item_nearby" />
 			</RelativeLayout>
 
 			<RelativeLayout
@@ -151,8 +155,7 @@
 					android:layout_height="wrap_content"
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/image_patches_watch"
-					android:text="@string/label_drawer_item_watch"
-					android:textAppearance="?android:attr/textAppearanceMedium" />
+					android:text="@string/label_drawer_item_watch" />
 			</RelativeLayout>
 
 			<RelativeLayout
@@ -187,8 +190,7 @@
 					android:layout_height="wrap_content"
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/image_patches_own"
-					android:text="@string/label_drawer_item_create"
-					android:textAppearance="?android:attr/textAppearanceMedium" />
+					android:text="@string/label_drawer_item_create" />
 			</RelativeLayout>
 
 			<RelativeLayout
@@ -223,8 +225,7 @@
 					android:layout_height="wrap_content"
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/image_explore"
-					android:text="@string/label_drawer_item_trend_active"
-					android:textAppearance="?android:attr/textAppearanceMedium" />
+					android:text="@string/label_drawer_item_trend_active" />
 			</RelativeLayout>
 
 			<!-- More section -->
@@ -242,8 +243,9 @@
 					android:layout_marginLeft="12dp"
 					android:layout_marginTop="8dp"
 					android:text="@string/label_drawer_section_more"
-					android:textAppearance="?android:attr/textAppearance"
-					android:textColor="@color/brand_primary" />
+					android:textAllCaps="true"
+					android:textColor="@color/brand_primary"
+					android:textSize="16sp" />
 
 				<View
 					android:layout_width="match_parent"
@@ -278,8 +280,7 @@
 					android:layout_height="wrap_content"
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/image_more_settings"
-					android:text="@string/label_drawer_item_more_settings"
-					android:textAppearance="?android:attr/textAppearanceMedium" />
+					android:text="@string/label_drawer_item_more_settings" />
 			</RelativeLayout>
 
 			<RelativeLayout
@@ -313,8 +314,7 @@
 					android:layout_height="wrap_content"
 					android:layout_centerVertical="true"
 					android:layout_toRightOf="@+id/image_more_feedback"
-					android:text="@string/label_drawer_item_more_feedback"
-					android:textAppearance="?android:attr/textAppearanceMedium" />
+					android:text="@string/label_drawer_item_more_feedback" />
 			</RelativeLayout>
 
 			<View

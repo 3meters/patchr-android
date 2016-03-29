@@ -22,6 +22,7 @@ import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.User;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
@@ -37,7 +38,7 @@ public class UserDetailView extends FrameLayout {
 	protected Integer  layoutResId   = R.layout.view_user_header;
 	private   Boolean  isCurrentUser = false;
 
-	public ImageLayout          userPhoto;
+	public ImageWidget          userPhoto;
 	public TextView             name;
 	public TextView             email;
 	public TextView             area;
@@ -78,7 +79,7 @@ public class UserDetailView extends FrameLayout {
 		ListView.LayoutParams params = new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT);
 		this.setLayoutParams(params);
 
-		this.userPhoto = (ImageLayout) layout.findViewById(R.id.user_photo);
+		this.userPhoto = (ImageWidget) layout.findViewById(R.id.user_photo);
 		this.name = (TextView) layout.findViewById(R.id.name);
 		this.email = (TextView) layout.findViewById(R.id.email);
 		this.area = (TextView) layout.findViewById(R.id.area);

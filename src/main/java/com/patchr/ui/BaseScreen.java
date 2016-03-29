@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -59,8 +58,8 @@ public abstract class BaseScreen extends AppCompatActivity {
 	public    String        entityId;
 	protected Fragment      currentFragment;
 
-	public    Boolean firstDraw      = true;
-	protected Boolean processing     = false;
+	public    Boolean firstDraw  = true;
+	protected Boolean processing = false;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -325,7 +324,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 					/*
 					 * We either go back to a list or to radar.
 					 */
-					UI.showToastNotification(StringManager.getString(R.string.alert_deleted), Toast.LENGTH_SHORT);
+					UI.toast(StringManager.getString(R.string.alert_deleted));
 					finish();
 				}
 				else {
@@ -361,7 +360,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 					/*
 					 * We either go back to a list or to radar.
 					 */
-					UI.showToastNotification(StringManager.getString(R.string.alert_removed), Toast.LENGTH_SHORT);
+					UI.toast(StringManager.getString(R.string.alert_removed));
 					finish();
 				}
 				else {
@@ -415,5 +414,13 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 	protected int getTransitionBack(int transitionType) {
 		return transitionType;
+	}
+
+	public static class State {
+		public static String Editing    = "editing";
+		public static String Creating   = "creating";
+		public static String Onboarding = "onboarding";
+		public static String Sharing    = "sharing";
+		public static String Searching  = "searching";
 	}
 }

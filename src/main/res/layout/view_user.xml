@@ -9,7 +9,7 @@
 		android:baselineAligned="false"
 		android:orientation="horizontal">
 
-		<com.patchr.ui.views.ImageLayout
+		<com.patchr.ui.widgets.ImageWidget
 			android:id="@+id/user_photo"
 			style="@style/selectable_image"
 			android:layout_width="72dp"
@@ -31,7 +31,6 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:singleLine="true"
-				android:textAppearance="?android:attr/textAppearanceMedium"
 				android:textColor="@color/brand_primary"
 				tools:text="Aliza Wenk" />
 
@@ -41,7 +40,7 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:singleLine="true"
-				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:textSize="14sp"
 				android:textColor="?attr/textColorSecondary"
 				android:visibility="gone"
 				tools:text="aliza@3meters.com"
@@ -54,7 +53,7 @@
 				android:ellipsize="end"
 				android:singleLine="true"
 				android:textAllCaps="true"
-				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:textSize="14sp"
 				android:textColor="?attr/textColorSecondary"
 				tools:text="Seattle, WA" />
 
@@ -65,7 +64,7 @@
 				android:ellipsize="end"
 				android:singleLine="true"
 				android:textAllCaps="true"
-				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:textSize="14sp"
 				android:textColor="@color/brand_accent_darker"
 				android:visibility="gone"
 				tools:text="Owner"
@@ -120,7 +119,7 @@
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
 					android:text="@string/label_watcher_not_enabled"
-					android:textAppearance="?android:attr/textAppearanceSmall"
+					android:textSize="16sp"
 					android:textColor="?attr/textColorSecondary"
 					tools:text="@string/label_watcher_not_enabled" />
 

@@ -16,7 +16,6 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
-import android.widget.Toast;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.crashlytics.android.Crashlytics;
@@ -238,7 +237,7 @@ public class Patchr extends MultiDexApplication {
 				Logger.v(this, "Container refresh success");
 
 				if (Utils.devModeEnabled()) {
-					UI.showToastNotification("Container refreshed", Toast.LENGTH_SHORT);
+					UI.toast("Container refreshed");
 				}
 
 				activateContainer(containerHolder);

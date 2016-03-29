@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.R;
@@ -107,7 +106,7 @@ public class PasswordEdit extends BaseEdit {
 							+ " (" + UserManager.currentUser.id
 							+ ")");
 
-					UI.showToastNotification(StringManager.getString(R.string.alert_password_changed), Toast.LENGTH_SHORT);
+					UI.toast(StringManager.getString(R.string.alert_password_changed));
 
 					finish();
 				}

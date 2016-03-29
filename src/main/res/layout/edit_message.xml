@@ -17,8 +17,7 @@
 
 	<ScrollView
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_gravity="center_horizontal"
+		android:layout_height="wrap_content"
 		android:fillViewport="true">
 
 		<LinearLayout
@@ -38,7 +37,7 @@
 				android:paddingRight="@dimen/form_body_padding"
 				android:paddingTop="8dp">
 
-				<com.patchr.ui.views.ImageLayout
+				<com.patchr.ui.widgets.ImageWidget
 					android:id="@+id/user_photo"
 					android:layout_width="@dimen/image_small"
 					android:layout_height="@dimen/image_small"
@@ -100,7 +99,6 @@
 
 						<ImageView
 							android:id="@+id/to_clear"
-							style="@style/button"
 							android:layout_width="@dimen/image_small"
 							android:layout_height="@dimen/image_small"
 							android:layout_gravity="center_vertical"
@@ -122,7 +120,7 @@
 
 			<!-- Title and Content -->
 
-			<com.patchr.ui.widgets.AirEditText
+			<com.patchr.ui.widgets.ClearableEditText
 				android:id="@+id/description"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -144,6 +142,11 @@
 				android:id="@+id/photo_edit"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:background="@drawable/bg_rounded_placeholder"
+				custom:aspectRatio="0.75"
+				custom:category="standard"
+				custom:radius="18"
+				custom:shape="rounded"
 				android:layout_marginLeft="16dp"
 				android:layout_marginRight="16dp" />
 
@@ -153,8 +156,8 @@
 				android:id="@+id/share_holder"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginLeft="@dimen/form_body_padding"
-				android:layout_marginRight="@dimen/form_body_padding">
+				android:layout_marginLeft="14dp"
+				android:layout_marginRight="14dp">
 
 				<android.support.v7.widget.CardView
 					android:id="@+id/share_entity"

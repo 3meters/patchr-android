@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
+
 	android:id="@+id/notifications_frame"
 	style="@style/selectable_item"
 	xmlns:android="http://schemas.android.com/apk/res/android"
@@ -21,7 +22,6 @@
 
 		<ImageView
 			android:id="@+id/notifications_image"
-			style="@style/actionbar_beacons"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"

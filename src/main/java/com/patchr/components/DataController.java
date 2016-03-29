@@ -26,7 +26,6 @@ import com.patchr.events.TrendQueryEvent;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.CacheStamp;
-import com.patchr.objects.Command;
 import com.patchr.objects.Cursor;
 import com.patchr.objects.Document;
 import com.patchr.objects.Entity;
@@ -54,6 +53,7 @@ import com.patchr.utilities.Json;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -466,7 +466,7 @@ public class DataController {
 		return result;
 	}
 
-	public ModelResult suggest(String input, SuggestScope suggestScope, String userId, AirLocation location, long limit, Object tag) {
+	public ModelResult suggest(String input, String suggestScope, String userId, AirLocation location, long limit, Object tag) {
 
 		final ModelResult result = new ModelResult();
 		final Bundle parameters = new Bundle();
@@ -478,18 +478,18 @@ public class DataController {
 			parameters.putString("_user", userId); // So service can handle places the current user is watching
 		}
 
-		if (suggestScope == SuggestScope.PATCHES) {
+		if (suggestScope.equals(Suggest.Patches)) {
 			parameters.putBoolean("patches", true);
 		}
-		else if (suggestScope == SuggestScope.USERS) {
+		else if (suggestScope.equals(Suggest.Users)) {
 			parameters.putBoolean("users", true);
 		}
-		else if (suggestScope == SuggestScope.PATCHES_USERS) {
+		else {
 			parameters.putBoolean("patches", true);
 			parameters.putBoolean("users", true);
 		}
 
-		if (suggestScope != SuggestScope.USERS) {
+		if (!suggestScope.equals(Suggest.Users)) {
 			/*
 			 * Foursquare won't return anything if lat/lng isn't provided.
 			 */
@@ -521,6 +521,32 @@ public class DataController {
 	/*--------------------------------------------------------------------------------------------
 	 * user updates
 	 *--------------------------------------------------------------------------------------------*/
+
+	public ModelResult validEmail(String email, Object tag) {
+
+		ModelResult result = new ModelResult();
+
+		String emailString = Utils.encode(email);
+
+		String uri = String.format(Constants.URL_PROXIBASE_SERVICE_FIND + "/users?q[email]=%1$s", emailString);
+
+		final ServiceRequest serviceRequest = new ServiceRequest()
+				.setUri(uri)
+				.setRequestType(RequestType.GET)
+				.setTag(tag)
+				.setResponseFormat(ResponseFormat.JSON);
+
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, "email_validate", null, 0);
+			final String jsonResponse = (String) result.serviceResponse.data;
+			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
+			result.serviceResponse.data = serviceData;
+		}
+
+		return result;
+	}
 
 	public ModelResult signin(String email, String password, String activityName, Object tag) {
 		ModelResult result = new ModelResult();
@@ -1688,11 +1714,9 @@ public class DataController {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public enum SuggestScope {
-		PATCHES,
-		USERS,
-		PATCHES_USERS,
-		ALL
+	public static class Suggest {
+		public static String Patches = "patch";
+		public static String Users   = "user";
 	}
 
 	public enum FetchStrategy {

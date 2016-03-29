@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/transparent">
+	android:background="@color/transparent"
+	tools:background="#44000000">
 
 	<LinearLayout
 
@@ -18,10 +21,9 @@
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
 			android:layout_marginBottom="16dp"
-			android:fontFamily="sans-serif-light"
 			android:gravity="center"
 			android:text="@string/name_app"
-			android:textColor="@color/accent_on_light"
+			android:textColor="@color/brand_accent_darker"
 			android:textSize="36sp" />
 
 		<TextView
@@ -30,7 +32,6 @@
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
 			android:layout_marginBottom="16dp"
-			android:fontFamily="sans-serif-light"
 			android:gravity="center"
 			android:text="@string/name_app"
 			android:textColor="@color/white"
@@ -39,10 +40,10 @@
 
 		<Button
 			android:id="@+id/button_login"
+			style="@style/button_flat"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/button_height"
 			android:background="@drawable/bg_outlined_white"
-			android:fontFamily="sans-serif-light"
 			android:text="@string/splash_button_signin"
 			android:textAllCaps="true"
 			android:textColor="@color/white"
@@ -50,11 +51,11 @@
 
 		<Button
 			android:id="@+id/signup_button"
+			style="@style/button_flat"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/button_height"
 			android:layout_marginTop="8dp"
 			android:background="@drawable/bg_outlined_white"
-			android:fontFamily="sans-serif-light"
 			android:text="@string/splash_button_signup"
 			android:textAllCaps="true"
 			android:textColor="@color/white"

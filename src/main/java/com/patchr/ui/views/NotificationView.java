@@ -13,6 +13,7 @@ import com.patchr.R;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Notification;
 import com.patchr.objects.Photo;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 
@@ -26,8 +27,8 @@ public class NotificationView extends FrameLayout {
 	protected Integer  layoutResId;
 
 	protected ViewGroup   layout;
-	protected ImageLayout userPhoto;
-	protected ImageLayout notificationPhoto;
+	protected ImageWidget userPhoto;
+	protected ImageWidget notificationPhoto;
 	protected TextView    modifiedDate;
 	protected TextView    summary;
 	protected ImageView   notificationType;
@@ -57,8 +58,8 @@ public class NotificationView extends FrameLayout {
 		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
-		this.userPhoto = (ImageLayout) layout.findViewById(R.id.user_photo);
-		this.notificationPhoto = (ImageLayout) layout.findViewById(R.id.notification_photo);
+		this.userPhoto = (ImageWidget) layout.findViewById(R.id.user_photo);
+		this.notificationPhoto = (ImageWidget) layout.findViewById(R.id.notification_photo);
 		this.modifiedDate = (TextView) layout.findViewById(R.id.modified_date);
 		this.summary = (TextView) layout.findViewById(R.id.summary);
 		this.notificationType = (ImageView) layout.findViewById(R.id.notification_type);

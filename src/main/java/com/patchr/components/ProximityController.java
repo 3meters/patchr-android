@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.support.annotation.NonNull;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -165,7 +164,7 @@ public class ProximityController {
 				ProximityController.getInstance().scanForWifi(ScanReason.MONITORING);
 			}
 			if (Patchr.getInstance().getPrefEnableDev()) {
-				UI.showToastNotification("Proximity update: activity state = arriving", Toast.LENGTH_SHORT);
+				UI.toast("Proximity update: activity state = arriving");
 			}
 		}
 	}
@@ -345,7 +344,7 @@ public class ProximityController {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			mLastBeaconInstallUpdate = DateTime.nowDate().getTime();
 			if (Patchr.getInstance().getPrefEnableDev()) {
-				UI.showToastNotification("Location pushed: stopped after walking", Toast.LENGTH_SHORT);
+				UI.toast("Location pushed: stopped after walking");
 			}
 		}
 

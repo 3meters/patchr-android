@@ -99,7 +99,7 @@ public class UserManager {
 
 	public void showGuestGuard(final Context context, String message) {
 
-		View view = LayoutInflater.from(Patchr.applicationContext).inflate(R.layout.screen_guest_guard, null, false);
+		View view = LayoutInflater.from(Patchr.applicationContext).inflate(R.layout.dialog_guest_guard, null, false);
 		ViewGroup.LayoutParams params = new ViewGroup.LayoutParams((int) UI.getScreenWidthRawPixels(context), (int) UI.getScreenHeightRawPixels(context));
 		view.setLayoutParams(params);
 

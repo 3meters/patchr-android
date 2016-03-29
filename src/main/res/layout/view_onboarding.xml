@@ -26,9 +26,7 @@
 			android:layout_gravity="center_vertical"
 			android:layout_marginLeft="8dp"
 			android:layout_marginStart="8dp"
-			android:fontFamily="sans-serif-light"
 			android:textColor="@color/black"
-			android:textSize="18sp"
 			tools:text="Larissa Massena invited you to join this patch." />
 	</LinearLayout>
 
@@ -43,26 +41,24 @@
 
 		<Button
 			android:id="@+id/action1_button"
-			style="@style/button_link"
+			style="@style/button_outlined"
 			android:layout_width="110dp"
 			android:layout_height="@dimen/button_height"
 			android:layout_marginRight="4dp"
 			android:layout_marginEnd="4dp"
-			android:fontFamily="sans-serif-light"
-			android:text="@string/button_sign_in"
+			android:text="@string/button_login"
 			android:textSize="16sp"
 			tools:text="LOG IN" />
 
 		<Button
 			android:id="@+id/action2_button"
-			style="@style/button_link"
+			style="@style/button_outlined"
 			android:layout_width="110dp"
 			android:layout_height="@dimen/button_height"
 			android:layout_gravity="center_horizontal"
 			android:layout_marginLeft="4dp"
 			android:layout_marginStart="4dp"
-			android:fontFamily="sans-serif-light"
-			android:text="@string/button_register"
+			android:text="@string/button_signup"
 			android:textSize="16sp"
 			tools:text="SIGN UP" />
 	</LinearLayout>

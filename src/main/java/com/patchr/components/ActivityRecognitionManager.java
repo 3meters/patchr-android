@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -160,7 +159,7 @@ public class ActivityRecognitionManager implements
 			mDetectionMode = DetectionMode.STILL;
 			if (Patchr.getInstance().getPrefEnableDev()) {
 				MediaManager.playSound(MediaManager.SOUND_ACTIVITY_CHANGE, 1.0f, 1);
-				UI.showToastNotification("Activity recognition: slowing updates", Toast.LENGTH_SHORT);
+				UI.toast("Activity recognition: slowing updates");
 			}
 		}
 		else if ((mActivityStateCurrent == ActivityState.DEPARTING || mActivityStateCurrent == ActivityState.MOVING)
@@ -169,12 +168,12 @@ public class ActivityRecognitionManager implements
 			mDetectionMode = DetectionMode.MOVING;
 			if (Patchr.getInstance().getPrefEnableDev()) {
 				MediaManager.playSound(MediaManager.SOUND_ACTIVITY_CHANGE, 1.0f, 3);
-				UI.showToastNotification("Activity recognition: faster updates", Toast.LENGTH_SHORT);
+				UI.toast("Activity recognition: faster updates");
 			}
 		}
 
 		if (Patchr.getInstance().getPrefEnableDev()) {
-			UI.showToastNotification("Activity state: " + mActivityStateCurrent.name(), Toast.LENGTH_SHORT);
+			UI.toast("Activity state: " + mActivityStateCurrent.name());
 		}
 
 		/* Broadcast current activity state */

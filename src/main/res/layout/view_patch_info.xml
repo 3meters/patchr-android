@@ -40,7 +40,6 @@
 						android:layout_weight="1"
 						android:ellipsize="end"
 						android:singleLine="true"
-						android:textAppearance="?android:attr/textAppearanceMedium"
 						android:textColor="@color/brand_accent_darker"
 						android:textSize="24sp"
 						tools:text="Tchaikovsky Forever" />
@@ -60,7 +59,6 @@
 							android:gravity="center_vertical"
 							android:singleLine="true"
 							android:textAllCaps="true"
-							android:textAppearance="?attr/textAppearanceExtraSmall"
 							android:textColor="?attr/textColorSecondary"
 							android:textSize="14sp"
 							tools:text="Event Patch" />
@@ -88,7 +86,6 @@
 								android:gravity="center_vertical"
 								android:text="@string/label_patch_privacy_private"
 								android:textAllCaps="true"
-								android:textAppearance="?attr/textAppearanceExtraSmall"
 								android:textColor="?attr/textColorSecondary"
 								android:textSize="14sp"
 								tools:text="@string/label_patch_privacy_private" />
@@ -102,6 +99,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:ellipsize="end"
+						android:textSize="16sp"
 						android:maxLines="@integer/max_lines_patch_description"
 						tools:text="Tchaikovsky was a leading Russian composer of the late 19th century, whose works are notable for their melodic inspiration and their orchestration. He is regarded as the master composer for classical ballet, as demonstrated by his scores for Swan Lake, The Nutcracker, and Sleeping Beauty. " />
 
@@ -120,6 +118,7 @@
 						android:layout_height="wrap_content"
 						android:layout_gravity="bottom"
 						android:layout_marginRight="2dp"
+						android:textSize="16sp"
 						android:text="@string/label_owned_by"
 						tools:text="Patch owned by" />
 
@@ -131,6 +130,7 @@
 						android:layout_weight="1"
 						android:ellipsize="end"
 						android:singleLine="true"
+						android:textSize="16sp"
 						android:textColor="@color/brand_accent_darker"
 						android:text="@string/dummy_name"
 						tools:text="Jay Massena" />

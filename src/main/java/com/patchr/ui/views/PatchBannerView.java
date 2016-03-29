@@ -17,6 +17,7 @@ import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Patch;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.UI;
 
@@ -32,7 +33,7 @@ public class PatchBannerView extends FrameLayout {
 	protected Integer  layoutResId;
 
 	protected ViewGroup    layout;
-	protected ImageLayout  photoView;
+	protected ImageWidget  photoView;
 	protected TextView     name;
 	protected TextView     type;
 	protected View         privacyGroup;
@@ -66,7 +67,7 @@ public class PatchBannerView extends FrameLayout {
 		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
-		this.photoView = (ImageLayout) layout.findViewById(R.id.patch_photo);
+		this.photoView = (ImageWidget) layout.findViewById(R.id.patch_photo);
 		this.name = (TextView) layout.findViewById(R.id.name);
 		this.type = (TextView) layout.findViewById(R.id.type);
 		this.privacyGroup = (View) layout.findViewById(R.id.privacy_group);

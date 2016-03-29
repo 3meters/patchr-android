@@ -4,7 +4,7 @@
 	<!-- Base theme applied no matter what API -->
 
 	<style name="base_theme" parent="Theme.AppCompat.Light.NoActionBar" >
-		<item name="colorControlNormal">@color/gray_20_pcnt</item>
+		<item name="colorControlNormal">@color/brand_primary</item>
 		<item name="colorControlActivated">@color/brand_accent</item>
 		<item name="colorControlHighlight">@color/gray_10_pcnt</item>
 	</style>

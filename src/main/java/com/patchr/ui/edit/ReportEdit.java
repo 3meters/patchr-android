@@ -8,7 +8,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.R;
@@ -23,7 +22,7 @@ import com.patchr.objects.Document;
 import com.patchr.objects.User;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.SimpleTextWatcher;
-import com.patchr.ui.views.ImageLayout;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -35,7 +34,7 @@ public class ReportEdit extends BaseEdit {
 
 	private Document    report;
 	private String      reportType;
-	private ImageLayout userPhoto;
+	private ImageWidget userPhoto;
 	private TextView    userName;
 	private TextView    message;
 
@@ -86,7 +85,7 @@ public class ReportEdit extends BaseEdit {
 			});
 		}
 
-		this.userPhoto = (ImageLayout) findViewById(R.id.user_photo);
+		this.userPhoto = (ImageWidget) findViewById(R.id.user_photo);
 		this.userName = (TextView) findViewById(R.id.user_name);
 		this.message = (TextView) findViewById(R.id.content_message);
 
@@ -151,7 +150,7 @@ public class ReportEdit extends BaseEdit {
 
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					UI.showToastNotification(StringManager.getString(R.string.alert_report_sent), Toast.LENGTH_SHORT);
+					UI.toast(StringManager.getString(R.string.alert_report_sent));
 					finish();
 				}
 				else {

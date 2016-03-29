@@ -12,7 +12,6 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 
 import com.patchr.R;
-import com.patchr.components.FontManager;
 import com.patchr.ui.components.SimpleTextWatcher;
 
 public class AirAutoCompleteTextView extends AutoCompleteTextView {
@@ -41,10 +40,6 @@ public class AirAutoCompleteTextView extends AutoCompleteTextView {
 	}
 
 	private void initialize(Context context) {
-
-		if (!isInEditMode()) {
-			FontManager.getInstance().setTypefaceLight(this);
-		}
 
 		final Drawable[] drawables = getCompoundDrawables();
 

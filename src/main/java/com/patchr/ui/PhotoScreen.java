@@ -15,7 +15,6 @@ import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -155,7 +154,7 @@ public class PhotoScreen extends BaseScreen {
 		File file = MediaManager.copyBitmapToSharePath(bitmap);
 
 		if (file == null) {
-			UI.showToastNotification(StringManager.getString(R.string.error_storage_unmounted), Toast.LENGTH_SHORT);
+			UI.toast(StringManager.getString(R.string.error_storage_unmounted));
 			return;
 		}
 
@@ -165,7 +164,7 @@ public class PhotoScreen extends BaseScreen {
 	public void share() {
 
 		if (!PermissionUtil.hasSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-			UI.showToastNotification("Sharing a photo requires permission to read and write to storage", Toast.LENGTH_SHORT);
+			UI.toast("Sharing a photo requires permission to read and write to storage");
 			return;
 		}
 

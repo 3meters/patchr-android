@@ -29,7 +29,7 @@
 
 	<com.patchr.ui.widgets.SquareButton
 		android:id="@+id/list_message"
-		style="@style/list_message"
+		style="@style/empty_message"
 		android:layout_width="@dimen/button_round_width"
 		android:layout_height="@dimen/button_round_height"
 		android:layout_centerInParent="true"

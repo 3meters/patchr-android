@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.objects.Entity;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
@@ -23,8 +24,8 @@ public class SearchItemView extends FrameLayout {
 	protected Integer  layoutResId;
 
 	protected ViewGroup   layout;
-	private   ImageLayout userPhoto;
-	private   ImageLayout patchPhoto;
+	private   ImageWidget userPhoto;
+	private   ImageWidget patchPhoto;
 	private   TextView    name;
 	private   TextView    type;
 	private   TextView    subtitle;
@@ -39,7 +40,7 @@ public class SearchItemView extends FrameLayout {
 
 	public SearchItemView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.layoutResId = R.layout.search_item_view;
+		this.layoutResId = R.layout.view_search_item;
 		initialize();
 	}
 
@@ -61,8 +62,8 @@ public class SearchItemView extends FrameLayout {
 		ListView.LayoutParams params = new ListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		this.setLayoutParams(params);
 
-		this.userPhoto = (ImageLayout) layout.findViewById(R.id.user_photo);
-		this.patchPhoto = (ImageLayout) layout.findViewById(R.id.patch_photo);
+		this.userPhoto = (ImageWidget) layout.findViewById(R.id.user_photo);
+		this.patchPhoto = (ImageWidget) layout.findViewById(R.id.patch_photo);
 		this.name = (TextView) layout.findViewById(R.id.name);
 		this.type = (TextView) layout.findViewById(R.id.type);
 		this.subtitle = (TextView) layout.findViewById(R.id.subtitle);

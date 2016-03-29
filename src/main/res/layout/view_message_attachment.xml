@@ -16,7 +16,8 @@
 			android:layout_alignLeft="@+id/holder_content"
 			android:gravity="center_vertical"
 			android:orientation="horizontal"
-			android:visibility="gone">
+			android:visibility="gone"
+			tools:visibility="visible">
 
 			<TextView
 				android:id="@+id/patch_name"
@@ -26,12 +27,13 @@
 				android:layout_marginRight="8dp"
 				android:ellipsize="end"
 				android:singleLine="true"
-				android:textAppearance="@style/text_appearance_small"
-				android:textColor="?attr/textColorSecondary" />
+				android:textSize="16sp"
+				android:textColor="?attr/textColorSecondary"
+				tools:text="Massena Residence"/>
 
 		</LinearLayout>
 
-		<com.patchr.ui.views.ImageLayout
+		<com.patchr.ui.widgets.ImageWidget
 			android:id="@+id/user_photo"
 			android:layout_width="@dimen/image_small"
 			android:layout_height="@dimen/image_small"
@@ -68,7 +70,7 @@
 					android:minWidth="100dp"
 					android:singleLine="true"
 					android:fontFamily="sans-serif"
-					tools:text="@string/dummy_username" />
+					tools:text="Aliza Wenk" />
 
 				<TextView
 					android:id="@+id/created_date"
@@ -76,6 +78,7 @@
 					android:layout_height="wrap_content"
 					android:layout_alignParentRight="true"
 					android:layout_centerVertical="true"
+					android:textSize="16sp"
 					android:textColor="?attr/textColorSecondary"
 					tools:text="@string/dummy_timesince_short" />
 			</RelativeLayout>
@@ -86,11 +89,12 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:maxLines="5"
+				android:textSize="16sp"
 				tools:text="@string/dummy_message" />
 
 			<!-- Photo -->
 
-			<com.patchr.ui.views.ImageLayout
+			<com.patchr.ui.widgets.ImageWidget
 				android:id="@+id/photo"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"

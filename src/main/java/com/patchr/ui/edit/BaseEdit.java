@@ -9,10 +9,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -285,14 +283,9 @@ public abstract class BaseEdit extends BaseScreen {
 	}
 
 	public void bind() {
-
 		if (this.entity != null) {
-			if (name != null && !TextUtils.isEmpty(entity.name)) {
-				name.setText(entity.name);
-			}
-			if (description != null && !TextUtils.isEmpty(entity.description)) {
-				description.setText(entity.description);
-			}
+			UI.setTextView(name, entity.name);
+			UI.setTextView(description, entity.description);
 			bindPhoto();
 			firstDraw = false;
 		}
@@ -435,7 +428,7 @@ public abstract class BaseEdit extends BaseScreen {
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
 				busyPresenter.hide(true);
-				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
+				UI.toast(StringManager.getString(R.string.alert_cancelled));
 			}
 
 			@Override protected void onPostExecute(Object response) {
@@ -451,7 +444,7 @@ public abstract class BaseEdit extends BaseScreen {
 					 */
 					if (afterInsert()) { // Returns true if OK to finish
 						if (insertedResId != null && insertedResId != 0) {
-							UI.showToastNotification(StringManager.getString(insertedResId), Toast.LENGTH_SHORT);
+							UI.toast(StringManager.getString(insertedResId));
 						}
 						final Intent intent = new Intent();
 						intent.putExtra(Constants.EXTRA_ENTITY_SCHEMA, insertedEntity.schema);
@@ -540,7 +533,7 @@ public abstract class BaseEdit extends BaseScreen {
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
 				busyPresenter.hide(true);
-				UI.showToastNotification(StringManager.getString(R.string.alert_cancelled), Toast.LENGTH_SHORT);
+				UI.toast(StringManager.getString(R.string.alert_cancelled));
 			}
 
 			@Override protected void onPostExecute(Object response) {
@@ -548,7 +541,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 				if (serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 					if (afterUpdate()) {  // Primary current use is for patch to cleanup proximity links if needed
-						UI.showToastNotification(StringManager.getString(updatedResId), Toast.LENGTH_SHORT);
+						UI.toast(StringManager.getString(updatedResId));
 						finish();
 						AnimationManager.doOverridePendingTransition(BaseEdit.this, TransitionType.FORM_BACK);
 					}
@@ -562,10 +555,10 @@ public abstract class BaseEdit extends BaseScreen {
 	}
 
 	protected void gather() {
-		if (name != null) {
+		if (entity != null && name != null) {
 			entity.name = Type.emptyAsNull(name.getText().toString().trim());
 		}
-		if (description != null) {
+		if (entity != null && description != null) {
 			entity.description = Type.emptyAsNull(description.getText().toString().trim());
 		}
 	}

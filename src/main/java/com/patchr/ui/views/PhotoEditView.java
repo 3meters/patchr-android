@@ -9,13 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.patchr.R;
 import com.patchr.components.StringManager;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Callback;
 
@@ -38,7 +38,7 @@ public class PhotoEditView extends FrameLayout implements Callback {
 	protected Integer             radius;
 
 	protected ViewGroup    layout;
-	public    ImageLayout  photoView;
+	public    ImageWidget  photoView;
 	protected View         setButton;
 	protected View         editButton;
 	protected View         deleteButton;
@@ -60,16 +60,16 @@ public class PhotoEditView extends FrameLayout implements Callback {
 		this.shape = "auto";
 		this.radius = 8;
 
-		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ImageLayout, defStyle, 0);
+		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ImageWidget, defStyle, 0);
 
-		this.bitmapConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.ImageLayout_config, Bitmap.Config.RGB_565.ordinal())];
-		this.category = PhotoCategory.values()[ta.getInteger(R.styleable.ImageLayout_category, PhotoCategory.THUMBNAIL.ordinal())];
-		this.showBusy = ta.getBoolean(R.styleable.ImageLayout_showBusy, true);
-		this.aspectRatio = ta.getFloat(R.styleable.ImageLayout_aspectRatio, 0f);
-		this.radius = ta.getInteger(R.styleable.ImageLayout_radius, 0);
+		this.bitmapConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.ImageWidget_config, Bitmap.Config.RGB_565.ordinal())];
+		this.category = PhotoCategory.values()[ta.getInteger(R.styleable.ImageWidget_category, PhotoCategory.THUMBNAIL.ordinal())];
+		this.showBusy = ta.getBoolean(R.styleable.ImageWidget_showBusy, true);
+		this.aspectRatio = ta.getFloat(R.styleable.ImageWidget_aspectRatio, 0f);
+		this.radius = ta.getInteger(R.styleable.ImageWidget_radius, 0);
 
-		if (ta.hasValue(R.styleable.ImageLayout_shape)) {
-			this.shape = ta.getString(R.styleable.ImageLayout_shape);
+		if (ta.hasValue(R.styleable.ImageWidget_shape)) {
+			this.shape = ta.getString(R.styleable.ImageWidget_shape);
 		}
 
 		ta.recycle();
@@ -95,7 +95,7 @@ public class PhotoEditView extends FrameLayout implements Callback {
 		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
-		this.photoView = (ImageLayout) layout.findViewById(R.id.photo);
+		this.photoView = (ImageWidget) layout.findViewById(R.id.photo);
 		this.setButton = (View) layout.findViewById(R.id.photo_set_button);
 		this.editButton = (View) layout.findViewById(R.id.photo_edit_button);
 		this.deleteButton = (View) layout.findViewById(R.id.photo_delete_button);
@@ -106,6 +106,9 @@ public class PhotoEditView extends FrameLayout implements Callback {
 		this.photoView.aspectRatio = this.aspectRatio;
 		this.photoView.radius = this.radius;
 		this.photoView.showBusy = this.showBusy;
+
+		/* Photo edit view always provides the correct placeholder */
+		this.photoView.setBackgroundResource(0);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -122,7 +125,7 @@ public class PhotoEditView extends FrameLayout implements Callback {
 	}
 
 	@Override public void onError() {
-		UI.showToastNotification(StringManager.getString(R.string.label_photo_missing), Toast.LENGTH_SHORT);
+		UI.toast(StringManager.getString(R.string.label_photo_missing));
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -142,15 +145,15 @@ public class PhotoEditView extends FrameLayout implements Callback {
 			if (photo == null) {
 				photoView.imageView.setImageDrawable(null);
 				if (collapseIfEmpty) {
-					photoAnimator.setDisplayedChild(0);
+					photoAnimator.setDisplayedChild(1);
 				}
 				else {
-					photoAnimator.setDisplayedChild(1);
+					photoAnimator.setDisplayedChild(0);
 					UI.setVisibility(setButton, VISIBLE);
 				}
 			}
 			else {
-				photoAnimator.setDisplayedChild(1);
+				photoAnimator.setDisplayedChild(0);
 				photoView.setImageWithPhoto(photo, this);
 				UI.setVisibility(this.editButton, VISIBLE);
 				UI.setVisibility(this.deleteButton, VISIBLE);

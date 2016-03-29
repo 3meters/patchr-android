@@ -28,6 +28,7 @@ import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.User;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
 
@@ -45,7 +46,7 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 	public Boolean showEmail = false;
 
 	protected ViewGroup    layout;
-	private   ImageLayout  userPhoto;
+	private   ImageWidget  userPhoto;
 	private   TextView     name;
 	private   TextView     email;
 	private   TextView     area;
@@ -103,7 +104,7 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 		ListView.LayoutParams params = new ListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		this.setLayoutParams(params);
 
-		this.userPhoto = (ImageLayout) layout.findViewById(R.id.user_photo);
+		this.userPhoto = (ImageWidget) layout.findViewById(R.id.user_photo);
 		this.name = (TextView) layout.findViewById(R.id.name);
 		this.email = (TextView) layout.findViewById(R.id.email);
 		this.area = (TextView) layout.findViewById(R.id.area);

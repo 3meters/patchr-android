@@ -39,18 +39,20 @@
 	<dimen name="rule_highlight_height">1dp</dimen>
 	<dimen name="rule_shadow_height">1dp</dimen>
 
-	<!-- Forms -->
+	<!-- Buttons -->
 
-	<dimen name="form_field_height">48dp</dimen>
-	<dimen name="button_height">44dp</dimen>
+	<dimen name="button_height">48dp</dimen>
 	<dimen name="button_large_height">64dp</dimen>
 	<dimen name="button_small_height">24dp</dimen>
 	<dimen name="button_width_min">96dp</dimen>
 	<dimen name="button_small_width_min">48dp</dimen>
 	<dimen name="button_floating_width_min">96dp</dimen>
 	<dimen name="button_stroke_width">0.5dp</dimen>
-	<dimen name="button_corner_radius">2dp</dimen>
-	<dimen name="toast_corner_radius">24dp</dimen>
+	<dimen name="button_corner_radius">4dp</dimen>
+
+	<!-- Forms -->
+
+	<dimen name="form_field_height">48dp</dimen>
 	<dimen name="list_max_width">640dp</dimen>
 	<dimen name="form_max_width">640dp</dimen>
 	<dimen name="grid_max_width">1000dp</dimen>
@@ -60,6 +62,8 @@
 	<dimen name="button_share_padding">10dp</dimen>
 
 	<!-- Widgets -->
+
+	<dimen name="toast_corner_radius">24dp</dimen>
 
 	<dimen name="button_round_height">150dp</dimen>
 	<dimen name="button_round_width">150dp</dimen>
@@ -72,7 +76,7 @@
 	<dimen name="progress_small_height">24dp</dimen>
 	<dimen name="progress_small_width">24dp</dimen>
 
-	<dimen name="corner_radius">4dp</dimen>
+	<dimen name="photo_corner_radius">8dp</dimen>
 
 	<!--
 		This controls how much extra room is added around buttons and

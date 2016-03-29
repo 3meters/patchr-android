@@ -56,9 +56,13 @@ public class Constants {
 	public static final String EXTRA_SHARE_SCHEMA                = "com.patchr.EXTRA_SHARE_SCHEMA";
 	public static final String EXTRA_SHARE_PATCH                 = "com.patchr.EXTRA_SHARE_PATCH";
 	public static final String EXTRA_PRE_APPROVED                = "com.patchr.EXTRA_PRE_APPROVED";
-	public static final String EXTRA_SHOW_INVITER_WELCOME        = "com.patchr.EXTRA_SHOW_INVITER_WELCOME";
-	public static final String EXTRA_INVITER_NAME                = "com.patchr.EXTRA_INVITER_WELCOME";
-	public static final String EXTRA_INVITER_PHOTO_URL           = "com.patchr.EXTRA_INVITER_PHOTO_URL";
+	public static final String EXTRA_SHOW_REFERRER_WELCOME       = "com.patchr.EXTRA_SHOW_REFERRER_WELCOME";
+	public static final String EXTRA_REFERRER_NAME               = "com.patchr.EXTRA_REFERRER_NAME";
+	public static final String EXTRA_REFERRER_PHOTO_URL          = "com.patchr.EXTRA_REFERRER_PHOTO_URL";
+	public static final String EXTRA_ONBOARD_MODE                = "com.patchr.EXTRA_ONBOARD_MODE";
+	public static final String EXTRA_EMAIL                       = "com.patchr.EXTRA_EMAIL";
+	public static final String EXTRA_PASSWORD                    = "com.patchr.EXTRA_PASSWORD";
+	public static final String EXTRA_STATE                       = "com.patchr.EXTRA_STATE";
 
 	/* Activity parameters: lists */
 	public static final String EXTRA_LIST_LINK_TYPE         = "com.patchr.EXTRA_LIST_LINK_TYPE";
@@ -216,27 +220,28 @@ public class Constants {
 	public static final String PACKAGE_NAME_TRIPADVISOR = "com.tripadvisor.tripadvisor";
 	public static final String PACKAGE_NAME_YELP        = "com.yelp.android";
 
-	public static final int ACTIVITY_NONE                = 0;
-	public static final int ACTIVITY_MARKET              = 200;
-	public static final int ACTIVITY_PHOTO_PICK_DEVICE   = 300;
-	public static final int ACTIVITY_PHOTO_SEARCH        = 305;
-	public static final int ACTIVITY_PHOTO_MAKE          = 310;
-	public static final int ACTIVITY_SEARCH              = 325;
-	public static final int ACTIVITY_SIGNIN              = 400;
-	public static final int ACTIVITY_RESET_AND_SIGNIN    = 410;
-	public static final int ACTIVITY_COMMENT             = 430;
-	public static final int ACTIVITY_APPLINKS_EDIT       = 535;
-	public static final int ACTIVITY_APPLINK_EDIT        = 540;
-	public static final int ACTIVITY_APPLINK_NEW      = 545;
-	public static final int ACTIVITY_APPLICATION_PICK = 560;
-	public static final int ACTIVITY_PREFERENCES      = 600;
-	public static final int ACTIVITY_ADDRESS_EDIT     = 800;
-	public static final int ACTIVITY_LOCATION_EDIT    = 820;
-	public static final int ACTIVITY_PRIVACY_EDIT     = 830;
-	public static final int ACTIVITY_PHOTO_EDIT       = 840;
-	public static final int ACTIVITY_ENTITY_EDIT      = 900;
-	public static final int ACTIVITY_PHOTO_PICK       = 950;
-	public static final int ACTIVITY_ENTITY_INSERT    = 960;
+	public static final int ACTIVITY_NONE              = 0;
+	public static final int ACTIVITY_MARKET            = 200;
+	public static final int ACTIVITY_PHOTO_PICK_DEVICE = 300;
+	public static final int ACTIVITY_PHOTO_SEARCH      = 305;
+	public static final int ACTIVITY_PHOTO_MAKE        = 310;
+	public static final int ACTIVITY_SEARCH            = 325;
+	public static final int ACTIVITY_LOGIN             = 400;
+	public static final int ACTIVITY_SIGNUP            = 405;
+	public static final int ACTIVITY_RESET_AND_SIGNIN  = 410;
+	public static final int ACTIVITY_COMMENT           = 430;
+	public static final int ACTIVITY_APPLINKS_EDIT     = 535;
+	public static final int ACTIVITY_APPLINK_EDIT      = 540;
+	public static final int ACTIVITY_APPLINK_NEW       = 545;
+	public static final int ACTIVITY_APPLICATION_PICK  = 560;
+	public static final int ACTIVITY_PREFERENCES       = 600;
+	public static final int ACTIVITY_ADDRESS_EDIT      = 800;
+	public static final int ACTIVITY_LOCATION_EDIT     = 820;
+	public static final int ACTIVITY_PRIVACY_EDIT      = 830;
+	public static final int ACTIVITY_PHOTO_EDIT        = 840;
+	public static final int ACTIVITY_ENTITY_EDIT       = 900;
+	public static final int ACTIVITY_PHOTO_PICK        = 950;
+	public static final int ACTIVITY_ENTITY_INSERT     = 960;
 
 	public static final String FRAGMENT_TYPE_NEARBY        = "nearby";
 	public static final String FRAGMENT_TYPE_WATCH         = "watch";
@@ -303,6 +308,7 @@ public class Constants {
 	public static final String  _URL_PROXIBASE_SERVICE                           = "http://ariseditions.com:8080/v1";         // local
 	public static final String  URL_PROXIBASE_SERVICE_REST                       = serviceUrl() + "/data/";
 	public static final String  URL_PROXIBASE_SERVICE_USER                       = serviceUrl() + "/user/";
+	public static final String  URL_PROXIBASE_SERVICE_FIND                       = serviceUrl() + "/find";
 	public static final String  URL_PROXIBASE_SERVICE_ADMIN                      = serviceUrl() + "/admin/";
 	public static final String  URL_PROXIBASE_SERVICE_METHOD                     = serviceUrl() + "/do/";
 	public static final String  URL_PROXIBASE_SERVICE_STATS                      = serviceUrl() + "/stats/";

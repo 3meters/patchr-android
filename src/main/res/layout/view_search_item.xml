@@ -25,8 +25,7 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:singleLine="true"
-				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:textStyle="bold"
+				android:textSize="16sp"
 				android:text="@string/dummy_title_short"
 				tools:text="@string/dummy_title_short" />
 
@@ -37,8 +36,8 @@
 				android:ellipsize="end"
 				android:singleLine="true"
 				android:textAllCaps="true"
-				android:textAppearance="?android:attr/textAppearanceSmall"
 				android:textColor="?attr/textColorSecondary"
+				android:textSize="14sp"
 				android:visibility="gone"
 				android:text="@string/dummy_category_name"
 				tools:text="@string/dummy_category_name" />
@@ -49,13 +48,12 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:singleLine="true"
-				android:textAppearance="?android:attr/textAppearanceSmall"
 				android:textColor="?attr/textColorSecondary"
 				android:text="@string/dummy_subtitle"
 				tools:text="@string/dummy_subtitle" />
 		</LinearLayout>
 
-		<com.patchr.ui.views.ImageLayout
+		<com.patchr.ui.widgets.ImageWidget
 			android:id="@+id/user_photo"
 			style="@style/selectable_image"
 			android:layout_width="48dp"
@@ -65,7 +63,7 @@
 			custom:shape="round"
 			custom:showBusy="false" />
 
-		<com.patchr.ui.views.ImageLayout
+		<com.patchr.ui.widgets.ImageWidget
 			android:id="@+id/patch_photo"
 			style="@style/selectable_image"
 			android:layout_width="72dp"

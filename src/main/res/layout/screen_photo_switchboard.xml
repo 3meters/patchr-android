@@ -19,14 +19,13 @@
 
 		<TextView
 			android:id="@+id/title"
+			style="@style/text_appearance_large"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:fontFamily="sans-serif-light"
 			android:gravity="center_horizontal"
 			android:padding="15sp"
 			android:text="@string/screen_title_photo_picker"
-			android:textAppearance="?android:attr/textAppearanceLarge"
-			android:textColor="@color/brand_accent_darker" />
+			android:textColor="?attr/textColorSecondary" />
 
 		<View
 			android:layout_width="match_parent"
@@ -61,9 +60,7 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_vertical"
 				android:layout_marginTop="3dp"
-				android:fontFamily="sans-serif-light"
 				android:text="@string/dialog_photo_action_search"
-				android:textAppearance="@style/text_appearance_medium"
 				android:textColor="@color/brand_primary" />
 
 		</LinearLayout>
@@ -101,9 +98,7 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_vertical"
 				android:layout_marginTop="3dp"
-				android:fontFamily="sans-serif-light"
 				android:text="@string/dialog_photo_action_gallery"
-				android:textAppearance="@style/text_appearance_medium"
 				android:textColor="@color/brand_primary" />
 
 		</LinearLayout>
@@ -141,9 +136,7 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_vertical"
 				android:layout_marginTop="3dp"
-				android:fontFamily="sans-serif-light"
 				android:text="@string/dialog_photo_action_camera"
-				android:textAppearance="@style/text_appearance_medium"
 				android:textColor="@color/brand_primary" />
 
 		</LinearLayout>
@@ -161,12 +154,16 @@
 			android:layout_height="wrap_content"
 			android:gravity="center_horizontal">
 
-			<Button
+			<TextView
+				style="@style/selectable_item"
 				android:id="@+id/cancel_button"
-				style="@style/button_flat"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
+				android:layout_height="48dp"
+				android:gravity="center"
+				android:clickable="true"
 				android:onClick="onClick"
+				android:textAllCaps="true"
+				android:textSize="16sp"
 				android:text="@string/button_cancel"
 				android:textColor="?attr/textColor" />
 		</LinearLayout>

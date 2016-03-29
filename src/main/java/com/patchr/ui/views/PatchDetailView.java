@@ -27,7 +27,6 @@ public class PatchDetailView extends FrameLayout implements View.OnClickListener
 	protected ViewGroup       layout;
 	public    PatchBannerView bannerView;
 	public    PatchInfoView   infoView;
-	protected ViewGroup       actionGroup;
 	public    Button          actionButton;
 	protected ViewAnimator    headerAnimator;
 
@@ -58,7 +57,6 @@ public class PatchDetailView extends FrameLayout implements View.OnClickListener
 
 		this.bannerView = (PatchBannerView) layout.findViewById(R.id.banner_view);
 		this.infoView = (PatchInfoView) layout.findViewById(R.id.info_view);
-		this.actionGroup = (ViewGroup) layout.findViewById(R.id.action_group);
 		this.actionButton = (Button) layout.findViewById(R.id.action_button);
 		this.headerAnimator = (ViewAnimator) layout.findViewById(R.id.animator_header);
 	}
