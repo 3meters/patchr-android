@@ -1,5 +1,6 @@
 package com.patchr.components;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -380,8 +381,9 @@ public class DataController {
 				/* We register installs even if the user is anonymous. */
 				ModelResult result = registerInstall();
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Patchr.settings.edit().putBoolean(StringManager.getString(R.string.setting_install_registered), true);
-					Patchr.settings.edit().apply();
+					SharedPreferences.Editor editor = Patchr.settings.edit();
+					editor.putBoolean(StringManager.getString(R.string.setting_install_registered), true).apply();
+					editor.apply();
 				}
 				registering = false;
 

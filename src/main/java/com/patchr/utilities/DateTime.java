@@ -41,6 +41,12 @@ public class DateTime {
 		return cal.getTime();
 	}
 
+	public static Long secondsAgo(Long time) {
+		final Calendar cal = Calendar.getInstance();
+		final Long nowMilliseconds = cal.getTimeInMillis();
+		return (nowMilliseconds - time) / 1000;
+	}
+
 	@SuppressWarnings("deprecation")
 	@NonNull public static String dateStringAt(Long time) {
 		final Date date = new Date(time);

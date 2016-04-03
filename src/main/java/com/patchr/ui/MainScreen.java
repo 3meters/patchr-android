@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -90,6 +91,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	protected View                  drawerLeft;
 	protected View                  drawerRight;
 	protected ActionBarDrawerToggle drawerToggle;
+	private   FloatingActionButton  fab;
 
 	protected View     notificationsBadgeGroup;
 	protected TextView notificationsBadgeCount;
@@ -164,6 +166,13 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.view_as_map) {
+			this.fab.hide();
+		}
+		else if (item.getItemId() == R.id.view_as_list) {
+			this.fab.show();
+		}
 
 		if (item.getItemId() == android.R.id.home) {
 			if (drawerToggle != null) {
@@ -268,7 +277,6 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_own).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_explore).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_more_settings).findViewById(R.id.name));
-			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_more_feedback).findViewById(R.id.name));
 			FontManager.getInstance().setTypefaceMedium((TextView) currentNavView.findViewById(R.id.name));
 		}
 		nextFragmentTag = (String) view.getTag();
@@ -299,6 +307,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		}
 
 		this.userGroup = (ViewGroup) findViewById(R.id.user_group);
+		this.fab = (FloatingActionButton) findViewById(R.id.fab);
 
 		if (userGroup != null) {
 			this.userPhoto = (ImageWidget) userGroup.findViewById(R.id.user_photo);
@@ -316,9 +325,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 			drawerRight = null;
 		}
 
-		/*
-		 * Only called when form is created
-		 */
+		/* Only called when form is created */
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
 		if (drawerLayout != null) {

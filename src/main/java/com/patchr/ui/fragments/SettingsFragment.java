@@ -11,6 +11,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
@@ -69,7 +70,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 	@Override public void onStart() {
 		super.onStart();
-		handleAnonymous();
 	}
 
 	@Override public void onResume() {
@@ -167,19 +167,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 			});
 		}
 
-		/* Listen for feedback click */
-		pref = findPreference("Pref_Feedback");
-		if (pref != null) {
-			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					Patchr.router.route(getActivity(), Command.FEEDBACK, null, null);
-					return true;
-				}
-			});
-		}
-
 		/* Listen for signin/out click */
 		pref = findPreference("Pref_Signin_Signout");
 		if (pref != null) {
@@ -201,6 +188,27 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 					else {
 						Patchr.router.route(getActivity(), Command.LOGIN, null, null);
 					}
+					return true;
+				}
+			});
+		}
+
+		if (!UserManager.shared().authenticated()) {
+			PreferenceScreen screen = (PreferenceScreen) findPreference("Pref_Main_Screen");
+			if (screen != null) {
+				PreferenceCategory category = (PreferenceCategory) screen.findPreference("Pref_General_Category");
+				screen.removePreference(category);
+			}
+			return;
+		}
+
+		/* Listen for feedback click */
+		pref = findPreference("Pref_Feedback");
+		if (pref != null) {
+			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+
+				@Override public boolean onPreferenceClick(Preference preference) {
+					Patchr.router.route(getActivity(), Command.FEEDBACK, null, null);
 					return true;
 				}
 			});
@@ -250,15 +258,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		findPreference(com.patchr.objects.Preference.USE_STAGING_SERVICE).setEnabled(enable);
 		Picasso.with(Patchr.applicationContext).setIndicatorsEnabled(enable);
 		Picasso.with(Patchr.applicationContext).setLoggingEnabled(enable);
-	}
-
-	private void handleAnonymous() {
-		/* Hide notification item if anonymous */
-		Preference pref = findPreference("Pref_Notifications_Screen");
-		if (pref != null) {
-			pref.setShouldDisableView(true);
-			pref.setEnabled(UserManager.shared().authenticated());
-		}
 	}
 
 	private void setSummaries(PreferenceGroup prefGroup) {

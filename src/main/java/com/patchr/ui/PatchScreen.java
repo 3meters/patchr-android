@@ -224,17 +224,20 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		/* Shown for owner */
-		getMenuInflater().inflate(R.menu.menu_edit, menu);
-		getMenuInflater().inflate(R.menu.menu_delete, menu);
+		if (UserManager.shared().authenticated()) {
 
-		/* Shown for everyone */
-		getMenuInflater().inflate(R.menu.menu_invite, menu);
-		getMenuInflater().inflate(R.menu.menu_leave_patch, menu);
+			/* Shown for owner */
+			getMenuInflater().inflate(R.menu.menu_edit, menu);
+			getMenuInflater().inflate(R.menu.menu_delete, menu);
+
+			/* Shown for everyone */
+			getMenuInflater().inflate(R.menu.menu_invite, menu);
+			getMenuInflater().inflate(R.menu.menu_leave_patch, menu);
+			getMenuInflater().inflate(R.menu.menu_report, menu);        // base
+		}
 
 		getMenuInflater().inflate(R.menu.menu_login, menu);         // base
 		getMenuInflater().inflate(R.menu.menu_map, menu);           // base
-		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -355,7 +358,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 						showInviteWelcome(1500);
 					}
 
-					if (firstBind) {
+					if (firstBind && UserManager.shared().authenticated()) {
 						makeBranchLink();           // Create or refresh so it's ready and correct
 					}
 

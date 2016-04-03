@@ -2,7 +2,9 @@ package com.patchr.components;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,12 +18,13 @@ import com.orhanobut.dialogplus.ViewHolder;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.objects.Command;
 import com.patchr.objects.LinkSpec;
 import com.patchr.objects.LinkSpecFactory;
 import com.patchr.objects.LinkSpecType;
-import com.patchr.objects.Command;
 import com.patchr.objects.Session;
 import com.patchr.objects.User;
+import com.patchr.ui.edit.LoginEdit;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
@@ -77,15 +80,13 @@ public class UserManager {
 	public void signout() {
 		new AsyncTask() {
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncSignOut");
 				return DataController.getInstance().signoutComplete(NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
 			@SuppressLint("NewApi")
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				/* Set to anonymous user even if service call fails */
 				Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 			}
@@ -109,10 +110,14 @@ public class UserManager {
 				.setOnClickListener(new OnClickListener() {
 					@Override public void onClick(DialogPlus dialog, View view) {
 						if (view.getId() == R.id.button_login) {
-							Patchr.router.route(context, Command.LOGIN, null, null);
+							Bundle extras = new Bundle();
+							extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Login);
+							Patchr.router.route(context, Command.LOGIN, null, extras);
 						}
 						else if (view.getId() == R.id.signup_button) {
-							Patchr.router.route(context, Command.SIGNUP, null, null);
+							Bundle extras = new Bundle();
+							extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Signup);
+							Patchr.router.route(context, Command.LOGIN, null, extras);
 						}
 						dialog.dismiss();
 					}
@@ -146,10 +151,11 @@ public class UserManager {
 		BranchProvider.setIdentity(userId);
 		Reporting.updateCrashUser(currentUser);
 
-		Patchr.settings.edit().putString(StringManager.getString(R.string.setting_user), jsonUser);
-		Patchr.settings.edit().putString(StringManager.getString(R.string.setting_user_session), jsonSession);
-		Patchr.settings.edit().putString(StringManager.getString(R.string.setting_last_email), currentUser.email);
-		Patchr.settings.edit().apply();
+		SharedPreferences.Editor editor = Patchr.settings.edit();
+		editor.putString(StringManager.getString(R.string.setting_user), jsonUser);
+		editor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
+		editor.putString(StringManager.getString(R.string.setting_last_email), currentUser.email);
+		editor.apply();
 	}
 
 	private void discardCredentials() {
@@ -168,9 +174,10 @@ public class UserManager {
 		BranchProvider.logout();
 
 		/* Clear user settings */
-		Patchr.settings.edit().putString(StringManager.getString(R.string.setting_user), null);
-		Patchr.settings.edit().putString(StringManager.getString(R.string.setting_user_session), null);
-		Patchr.settings.edit().apply();  // Asynch
+		SharedPreferences.Editor editor = Patchr.settings.edit();
+		editor.putString(StringManager.getString(R.string.setting_user), null);
+		editor.putString(StringManager.getString(R.string.setting_user_session), null);
+		editor.apply();
 	}
 
 	/*--------------------------------------------------------------------------------------------

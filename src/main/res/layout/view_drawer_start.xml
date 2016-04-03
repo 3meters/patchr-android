@@ -283,40 +283,6 @@
 					android:text="@string/label_drawer_item_more_settings" />
 			</RelativeLayout>
 
-			<RelativeLayout
-				android:id="@+id/item_more_feedback"
-				style="@style/selectable_item"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/drawer_item_height"
-				android:clickable="true"
-				android:onClick="onDrawerItemClick"
-				android:orientation="horizontal"
-				android:tag="feedback">
-
-				<View
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/rule_divider_height"
-					android:background="?attr/ruleColor" />
-
-				<ImageView
-					android:id="@+id/image_more_feedback"
-					android:layout_width="@dimen/image_extra_small"
-					android:layout_height="@dimen/image_extra_small"
-					android:layout_centerVertical="true"
-					android:layout_marginLeft="12dp"
-					android:layout_marginRight="6dp"
-					android:focusable="false"
-					android:src="?attr/iconDrawerSend" />
-
-				<TextView
-					android:id="@id/name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_centerVertical="true"
-					android:layout_toRightOf="@+id/image_more_feedback"
-					android:text="@string/label_drawer_item_more_feedback" />
-			</RelativeLayout>
-
 			<View
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/rule_divider_height"

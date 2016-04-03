@@ -6,7 +6,6 @@ import android.net.wifi.WifiManager;
 import com.bugsnag.android.Bugsnag;
 import com.google.android.gms.analytics.HitBuilders;
 import com.patchr.Patchr;
-import com.patchr.components.AndroidManager;
 import com.patchr.components.LocationManager;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.ProximityController;
@@ -25,18 +24,17 @@ public class Reporting {
 
 		/* Identifies device/install combo */
 		Bugsnag.addToTab("device", "patchr_install_id", Patchr.getInstance().getinstallId());
-		Bugsnag.addToTab("device", "name", AndroidManager.getInstance().getDeviceName());
 
 		/* Location info */
 		Location location = LocationManager.getInstance().getLocationLocked();
 		if (location != null) {
 			Bugsnag.addToTab("location", "accuracy", location.getAccuracy());
-			Bugsnag.addToTab("location", "age_in_secs", NetworkManager.getInstance().isWifiTethered());
+			Bugsnag.addToTab("location", "age_in_secs", DateTime.secondsAgo(location.getTime()));
 			Bugsnag.addToTab("location", "provider", location.getProvider());
 		}
 		else {
-			Bugsnag.addToTab("location", "accuracy", null);
-			Bugsnag.addToTab("location", "age_in_secs", null);
+			Bugsnag.addToTab("location", "accuracy", "--");
+			Bugsnag.addToTab("location", "age_in_secs", "--");
 			Bugsnag.addToTab("location", "provider", "No locked location");
 		}
 
@@ -89,7 +87,7 @@ public class Reporting {
 			Bugsnag.setUser(user.id, user.name, user.email);
 		}
 		else {
-			Bugsnag.setUser(null, null, null);
+			Bugsnag.setUser("--", "Guest", "--");
 		}
 	}
 

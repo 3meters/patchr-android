@@ -151,14 +151,16 @@ public class MessageScreen extends BaseScreen {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		/* Shown for owner */
-		getMenuInflater().inflate(R.menu.menu_edit, menu);
-		getMenuInflater().inflate(R.menu.menu_delete, menu);
-		getMenuInflater().inflate(R.menu.menu_remove, menu);
+		if (UserManager.shared().authenticated()) {
+			/* Shown for owner */
+			getMenuInflater().inflate(R.menu.menu_edit, menu);
+			getMenuInflater().inflate(R.menu.menu_delete, menu);
+			getMenuInflater().inflate(R.menu.menu_remove, menu);
 
-		/* Shown for everyone */
-		getMenuInflater().inflate(R.menu.menu_share_message, menu);
-		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
+			/* Shown for everyone */
+			getMenuInflater().inflate(R.menu.menu_share_message, menu);
+			getMenuInflater().inflate(R.menu.menu_report, menu);        // base
+		}
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -896,5 +898,4 @@ public class MessageScreen extends BaseScreen {
 			}
 		});
 	}
-
 }

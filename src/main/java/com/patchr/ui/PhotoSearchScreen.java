@@ -3,6 +3,7 @@ package com.patchr.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -262,16 +263,17 @@ public class PhotoSearchScreen extends BaseScreen {
 		imm.hideSoftInputFromWindow(search.getWindowToken(), 0);
 
 		/* Stash query so we can restore it in the future */
-		Patchr.settings.edit().putString(StringManager.getString(R.string.setting_picture_search_last), query);
-		Patchr.settings.edit().apply();
+		SharedPreferences.Editor editor = Patchr.settings.edit();
+		editor.putString(StringManager.getString(R.string.setting_picture_search_last), query);
+		editor.apply();
 
 		/* Add query to auto complete array */
 		try {
 			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(StringManager.getString(R.string.setting_picture_searches),
 					"{}"));
 			jsonSearchMap.put(query, query);
-			Patchr.settings.edit().putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
-			Patchr.settings.edit().apply();
+			editor.putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
+			editor.apply();
 		}
 		catch (JSONException e) {
 			Reporting.logException(e);

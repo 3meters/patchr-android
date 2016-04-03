@@ -2,6 +2,7 @@ package com.patchr.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.UrlQuerySanitizer;
 import android.os.Bundle;
@@ -83,8 +84,9 @@ public class LobbyScreen extends AppCompatActivity {
 		super.onStop();
 		/* Hack to prevent false positives for deferred deep links */
 		if (Patchr.settings.getBoolean(Preference.FIRST_RUN, true)) {
-			Patchr.settings.edit().putBoolean(Preference.FIRST_RUN, false);
-			Patchr.settings.edit().apply();
+			SharedPreferences.Editor editor = Patchr.settings.edit();
+			editor.putBoolean(Preference.FIRST_RUN, false);
+			editor.apply();
 		}
 	}
 

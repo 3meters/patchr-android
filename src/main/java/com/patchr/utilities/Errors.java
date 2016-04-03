@@ -84,7 +84,8 @@ public final class Errors {
 		 * Perform any follow-up actions.
 		 */
 		if (errorResponse.signout && activity != null && UserManager.shared().authenticated()) {
-			UserManager.shared().signout();
+			UserManager.shared().setCurrentUser(null, false);
+			Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 		}
 		else if (errorResponse.splash) {
 			/*

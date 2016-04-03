@@ -77,6 +77,23 @@ public class ProfileScreen extends BaseScreen implements SwipeRefreshLayout.OnRe
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+
+		if (UserManager.shared().authenticated()) {
+			/* Shown for owner */
+			getMenuInflater().inflate(R.menu.menu_logout, menu);    // base
+
+			/* Shown for everyone */
+			getMenuInflater().inflate(R.menu.menu_report, menu);    // base
+		}
+
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+		return super.onOptionsItemSelected(item);
+	}
+
 	public void onClick(View view) {
 
 		if (view.getId() == R.id.fab) {
@@ -116,21 +133,6 @@ public class ProfileScreen extends BaseScreen implements SwipeRefreshLayout.OnRe
 				navigateToEntity(entity);
 			}
 		}
-	}
-
-	@Override public boolean onCreateOptionsMenu(Menu menu) {
-
-		/* Shown for owner */
-		getMenuInflater().inflate(R.menu.menu_logout, menu);    // base
-
-		/* Shown for everyone */
-		getMenuInflater().inflate(R.menu.menu_report, menu);    // base
-
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override public boolean onOptionsItemSelected(MenuItem item) {
-		return super.onOptionsItemSelected(item);
 	}
 
 	public void onRefresh() {

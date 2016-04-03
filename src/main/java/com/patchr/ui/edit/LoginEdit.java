@@ -45,7 +45,7 @@ public class LoginEdit extends BaseEdit {
 	private TextView          title;
 	private View              forgotPasswordButton;
 	private View              loginButton;
-	private String            onboardMode;
+	private String onboardMode = OnboardMode.Login;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
