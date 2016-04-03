@@ -34,6 +34,7 @@ import com.facebook.FacebookException;
 import com.facebook.share.model.AppInviteContent;
 import com.facebook.share.widget.AppInviteDialog;
 import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.flipboard.bottomsheet.OnSheetDismissedListener;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -61,13 +62,13 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
+import com.patchr.objects.MemberStatus;
 import com.patchr.objects.Message;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
-import com.patchr.objects.MemberStatus;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.components.EmptyPresenter;
@@ -714,29 +715,34 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		MenuSheetView menuSheetView = new MenuSheetView(this, MenuSheetView.MenuType.GRID, "Invite friends using...", new MenuSheetView.OnMenuItemClickListener() {
 
 			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				if (item.getItemId() == R.id.invite_using_patchr) {
-					/*
-					 * Go to patchr share directly but looks just like an external share
-					 */
-					final IntentBuilder intentBuilder = new IntentBuilder(activity, ShareEdit.class);
-					final Intent intent = intentBuilder.create();
-					intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.Invite);
-					intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-					intent.putExtra(Constants.EXTRA_SHARE_ID, entityId);
-					intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
-					intent.setAction(Intent.ACTION_SEND);
-					activity.startActivity(intent);
-					AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
-				}
-				else if (item.getItemId() == R.id.invite_using_facebook) {
-					FacebookProvider provider = new FacebookProvider();
-					provider.invite(title);
-				}
-				else if (item.getItemId() == R.id.invite_using_other) {
-					BranchProvider provider = new BranchProvider();
-					provider.invite(title);
-				}
+			public boolean onMenuItemClick(final MenuItem item) {
+				bottomSheetLayout.addOnSheetDismissedListener(new OnSheetDismissedListener() {
+
+					@Override public void onDismissed(BottomSheetLayout bottomSheetLayout) {
+						if (item.getItemId() == R.id.invite_using_patchr) {
+							/*
+							 * Go to patchr share directly but looks just like an external share
+							 */
+							final IntentBuilder intentBuilder = new IntentBuilder(activity, ShareEdit.class);
+							final Intent intent = intentBuilder.create();
+							intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.Invite);
+							intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+							intent.putExtra(Constants.EXTRA_SHARE_ID, entityId);
+							intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
+							intent.setAction(Intent.ACTION_SEND);
+							activity.startActivity(intent);
+							AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
+						}
+						else if (item.getItemId() == R.id.invite_using_facebook) {
+							FacebookProvider provider = new FacebookProvider();
+							provider.invite(title);
+						}
+						else if (item.getItemId() == R.id.invite_using_other) {
+							BranchProvider provider = new BranchProvider();
+							provider.invite(title);
+						}
+					}
+				});
 
 				bottomSheetLayout.dismissSheet();
 				return true;

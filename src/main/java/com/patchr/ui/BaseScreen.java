@@ -329,9 +329,6 @@ public abstract class BaseScreen extends AppCompatActivity {
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Logger.i(this, "Deleted entity: " + entity.id);
-					/*
-					 * We either go back to a list or to radar.
-					 */
 					UI.toast(StringManager.getString(R.string.alert_deleted));
 					finish();
 				}

@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.ViewAnimator;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.flipboard.bottomsheet.OnSheetDismissedListener;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -254,6 +255,14 @@ public class MessageScreen extends BaseScreen {
 
 		if (event.actionType == ActionType.ACTION_GET_ENTITY) {
 
+			if (event.entity == null) {
+				/* Swing and miss means entity no longer exists. */
+				UI.toast(StringManager.getString(R.string.alert_deleted));
+				setResult(Constants.RESULT_ENTITY_DELETED);
+				finish();
+				return;
+			}
+
 			if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
 
 				if (event.error != null) {
@@ -414,7 +423,7 @@ public class MessageScreen extends BaseScreen {
 		/*
 		 * Called on main thread.
 		 */
-		Logger.v(this, "Binding: " + mode.name().toString());
+		Logger.v(this, "Binding: " + mode.name());
 		EntityQueryEvent request = new EntityQueryEvent();
 		request.setLinkProfile(LinkSpecType.LINKS_FOR_MESSAGE)
 				.setActionType(ActionType.ACTION_GET_ENTITY)
@@ -786,30 +795,32 @@ public class MessageScreen extends BaseScreen {
 
 		MenuSheetView menuSheetView = new MenuSheetView(this, MenuSheetView.MenuType.GRID, "Share using...", new MenuSheetView.OnMenuItemClickListener() {
 
-			@Override public boolean onMenuItemClick(MenuItem item) {
-				if (item.getItemId() == R.id.share_using_patchr) {
-					/*
-					 * Go to patchr share directly but looks just like an external share
-					 */
-					bottomSheetLayout.dismissSheet();
-					final IntentBuilder intentBuilder = new IntentBuilder(activity, ShareEdit.class);
-					final Intent intent = intentBuilder.create();
-					intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, MessageType.Share);
-					intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-					intent.putExtra(Constants.EXTRA_SHARE_ID, entityId);
-					intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-					intent.setAction(Intent.ACTION_SEND);
-					activity.startActivity(intent);
-					AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
-				}
-				else if (item.getItemId() == R.id.share_using_other) {
-					bottomSheetLayout.dismissSheet();
-					showBuiltInSharePicker(title);
-				}
-				else {
-					bottomSheetLayout.dismissSheet();
-					UI.toast(item.getTitle().toString());
-				}
+			@Override public boolean onMenuItemClick(final MenuItem item) {
+
+				bottomSheetLayout.addOnSheetDismissedListener(new OnSheetDismissedListener() {
+
+					@Override public void onDismissed(BottomSheetLayout bottomSheetLayout) {
+						if (item.getItemId() == R.id.share_using_patchr) {
+							/*
+							 * Go to patchr share directly but looks just like an external share
+							 */
+							final IntentBuilder intentBuilder = new IntentBuilder(activity, ShareEdit.class);
+							final Intent intent = intentBuilder.create();
+							intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, MessageType.Share);
+							intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+							intent.putExtra(Constants.EXTRA_SHARE_ID, entityId);
+							intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+							intent.setAction(Intent.ACTION_SEND);
+							activity.startActivity(intent);
+							AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
+						}
+						else if (item.getItemId() == R.id.share_using_other) {
+							showBuiltInSharePicker(title);
+						}
+					}
+				});
+
+				bottomSheetLayout.dismissSheet();
 				return true;
 			}
 		});

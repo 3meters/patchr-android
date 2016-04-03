@@ -1,7 +1,6 @@
 package com.patchr.ui;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.view.View;
@@ -64,6 +63,7 @@ public class SearchScreen extends BaseScreen {
 
 		SearchView searchView = new SearchView(this);
 		searchView.setIconified(false);
+		searchView.setQueryHint("Search...");
 		searchView.setFocusable(true);
 		searchView.requestFocusFromTouch();
 		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
@@ -74,7 +74,9 @@ public class SearchScreen extends BaseScreen {
 			}
 		});
 		this.actionBar.setCustomView(searchView);
-		this.actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+		this.actionBar.setDisplayShowCustomEnabled(true);
+		this.actionBar.setDisplayShowHomeEnabled(true);
+		this.actionBar.setDefaultDisplayHomeAsUpEnabled(true);
 		this.actionBar.setDisplayShowTitleEnabled(false);
 
 		EntitySuggestController entitySuggest = new EntitySuggestController(this);

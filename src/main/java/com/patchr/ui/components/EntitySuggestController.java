@@ -2,6 +2,8 @@ package com.patchr.ui.components;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,6 +27,7 @@ import com.patchr.ui.widgets.RecipientsCompletionView;
 import com.patchr.utilities.UI;
 import com.tokenautocomplete.TokenCompleteTextView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,7 +37,9 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 	/*
 	 * Used by SearchForm and MessageEdit.
 	 */
-	private static Integer LIMIT = 10;
+	private static       Integer LIMIT                      = 10;
+	private static final int     MESSAGE_TEXT_CHANGED       = 1337;
+	private static final int     DEFAULT_AUTOCOMPLETE_DELAY = 750;
 
 	private List<Entity>         entities;
 	private RecyclerView.Adapter adapter;
@@ -53,6 +58,10 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 	private String                              suggestInput;
 	private String                              prefix;
 	public  TokenCompleteTextView.TokenListener tokenListener;
+
+	private int mAutoCompleteDelay = DEFAULT_AUTOCOMPLETE_DELAY;
+
+	private final Handler handler = new SuggestHandler(this);
 
 	public EntitySuggestController(Context context) {
 
@@ -100,7 +109,7 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 
 			searchInput.addTextChangedListener(new SimpleTextWatcher() {
 				@Override public void afterTextChanged(@NonNull Editable s) {
-					textChanged(((RecipientsCompletionView)searchInput).currentCompletionText());
+					textChanged(((RecipientsCompletionView) searchInput).currentCompletionText());
 				}
 			});
 		}
@@ -119,8 +128,9 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 	}
 
 	public void textChanged(@NonNull String input) {
-		if (!TextUtils.isEmpty(input) && input.length() >= 3) {
-			suggestCall(input);
+		if (!TextUtils.isEmpty(input) && input.length() >= 2) {
+			handler.removeMessages(MESSAGE_TEXT_CHANGED);
+			handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_TEXT_CHANGED, input), DEFAULT_AUTOCOMPLETE_DELAY);
 		}
 		else {
 			entities.clear();
@@ -235,6 +245,21 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 					return 1;
 				else
 					return 0;
+			}
+		}
+	}
+
+	private static class SuggestHandler extends Handler {
+		private final WeakReference<EntitySuggestController> suggestController;
+
+		private SuggestHandler(EntitySuggestController suggestController) {
+			this.suggestController = new WeakReference<EntitySuggestController>(suggestController);
+		}
+
+		@Override public void handleMessage(Message msg) {
+			EntitySuggestController suggestController = this.suggestController.get();
+			if (suggestController != null) {
+				suggestController.suggestCall((String) msg.obj);
 			}
 		}
 	}
