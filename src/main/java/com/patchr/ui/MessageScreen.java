@@ -58,7 +58,7 @@ import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.InsetViewTransformer;
-import com.patchr.ui.edit.MessageEdit;
+import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.PatchView;
@@ -159,7 +159,7 @@ public class MessageScreen extends BaseScreen {
 		getMenuInflater().inflate(R.menu.menu_share_message, menu);
 		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
 
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -270,10 +270,6 @@ public class MessageScreen extends BaseScreen {
 					if (parentId != null) {
 						entity.toId = parentId;
 					}
-
-					if (entity instanceof Patch) {
-						Patchr.getInstance().setCurrentPatch(entity);
-					}
 				}
 
 				/* Ensure this is flagged as read */
@@ -349,7 +345,7 @@ public class MessageScreen extends BaseScreen {
 	@Override public void confirmDelete() {
 
 		String message = StringManager.getString(R.string.alert_delete_message_message_no_name);
-		if (entity.type.equals(MessageType.ROOT)) {
+		if (entity.type.equals(MessageType.Post)) {
 			Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
 			if (linkPlace != null) {
 				message = String.format(StringManager.getString(R.string.alert_delete_message_message), linkPlace.shortcut.name);
@@ -386,7 +382,7 @@ public class MessageScreen extends BaseScreen {
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncDeleteEntity");
-				String seedParentId = entity.type.equals(MessageType.ROOT) ? entity.patchId : null;
+				String seedParentId = entity.type.equals(MessageType.Post) ? entity.patchId : null;
 				return ((DataController) DataController.getInstance()).deleteMessage(entity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
@@ -455,7 +451,7 @@ public class MessageScreen extends BaseScreen {
 		userPhotoView = (ImageWidget) findViewById(R.id.user_photo);
 		userName = (TextView) findViewById(R.id.user_name);
 		createdDate = (TextView) findViewById(R.id.created_date);
-		buttonHolder = (ViewGroup) findViewById(R.id.toolbar);
+		buttonHolder = (ViewGroup) findViewById(R.id.button_toolbar);
 
 		shareHolder = (ViewGroup) findViewById(R.id.share_holder);
 		shareView = (ViewGroup) findViewById(R.id.share_entity);
@@ -677,11 +673,11 @@ public class MessageScreen extends BaseScreen {
 
 		/* We don't support like/watch for users */
 		if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-			UI.setVisibility(findViewById(R.id.toolbar), View.GONE);
+			UI.setVisibility(findViewById(R.id.button_toolbar), View.GONE);
 			return;
 		}
 
-		UI.setVisibility(findViewById(R.id.toolbar), View.VISIBLE);
+		UI.setVisibility(findViewById(R.id.button_toolbar), View.VISIBLE);
 
 		/* Like button coloring */
 		ViewAnimator like = (ViewAnimator) findViewById(R.id.like_button);
@@ -790,15 +786,15 @@ public class MessageScreen extends BaseScreen {
 
 		MenuSheetView menuSheetView = new MenuSheetView(this, MenuSheetView.MenuType.GRID, "Share using...", new MenuSheetView.OnMenuItemClickListener() {
 
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
+			@Override public boolean onMenuItemClick(MenuItem item) {
 				if (item.getItemId() == R.id.share_using_patchr) {
 					/*
 					 * Go to patchr share directly but looks just like an external share
 					 */
 					bottomSheetLayout.dismissSheet();
-					final IntentBuilder intentBuilder = new IntentBuilder(activity, MessageEdit.class);
+					final IntentBuilder intentBuilder = new IntentBuilder(activity, ShareEdit.class);
 					final Intent intent = intentBuilder.create();
+					intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, MessageType.Share);
 					intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
 					intent.putExtra(Constants.EXTRA_SHARE_ID, entityId);
 					intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);

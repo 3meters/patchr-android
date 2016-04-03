@@ -8,35 +8,29 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.DataController;
 import com.patchr.components.LocationManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
-import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.Entity;
-import com.patchr.ui.widgets.AirTokenCompleteTextView;
-import com.patchr.ui.widgets.TokenCompleteTextView;
-import com.patchr.utilities.Json;
-import com.patchr.utilities.Reporting;
-
-import org.json.JSONException;
+import com.patchr.ui.widgets.RecipientsCompletionView;
+import com.patchr.utilities.UI;
+import com.tokenautocomplete.TokenCompleteTextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class EntitySuggestController implements SearchView.OnQueryTextListener, TokenCompleteTextView.TokenListener {
+public class EntitySuggestController implements SearchView.OnQueryTextListener {
 	/*
 	 * Used by SearchForm and MessageEdit.
 	 */
@@ -55,9 +49,6 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 	private boolean    suggestInProgress;
 	public  String     suggestScope;
 
-	private Integer                             watchResId;
-	private Integer                             locationResId;
-	private Integer                             userResId;
 	private SimpleTextWatcher                   textWatcher;
 	private String                              suggestInput;
 	private String                              prefix;
@@ -69,17 +60,6 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 		this.entities = new ArrayList<>();
 		this.adapter = new SuggestArrayAdapter(this.entities);
 		this.suggestScope = DataController.Suggest.Patches;
-
-		final TypedValue resourceName = new TypedValue();
-		if (context.getTheme().resolveAttribute(R.attr.iconWatch, resourceName, true)) {
-			watchResId = resourceName.resourceId;
-		}
-		if (context.getTheme().resolveAttribute(R.attr.iconLocation, resourceName, true)) {
-			locationResId = resourceName.resourceId;
-		}
-		if (context.getTheme().resolveAttribute(R.attr.iconUser, resourceName, true)) {
-			userResId = resourceName.resourceId;
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -96,25 +76,6 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 		return false;
 	}
 
-	@Override public void onTokenAdded(Object o) {
-		Entity entity = (Entity) o;
-
-		/* Add patch to auto complete array */
-		try {
-			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(
-					StringManager.getString(R.string.setting_patch_searches), "{}"));
-			final String jsonEntity = Json.objectToJson(entity);
-			jsonSearchMap.put(entity.id, jsonEntity);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_patch_searches), jsonSearchMap.toString());
-			Patchr.settingsEditor.commit();
-		}
-		catch (JSONException e) {
-			Reporting.logException(e);
-		}
-	}
-
-	@Override public void onTokenRemoved(Object o) {}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -122,19 +83,24 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 	public void initialize() {
 
 		/* Bind to adapter */
-		if (searchInput instanceof AirTokenCompleteTextView) {
-			AirTokenCompleteTextView input = (AirTokenCompleteTextView) searchInput;
-			input.allowDuplicates(false);
-			input.setDeletionStyle(TokenCompleteTextView.TokenDeleteStyle.Clear);
-			input.setTokenClickStyle(TokenCompleteTextView.TokenClickStyle.Select);
-			input.setTokenListener(tokenListener != null ? tokenListener : this);
+		if (searchInput instanceof RecipientsCompletionView) {
+			RecipientsCompletionView recipientsField = (RecipientsCompletionView) searchInput;
+			recipientsField.allowDuplicates(false);
+			recipientsField.setDeletionStyle(TokenCompleteTextView.TokenDeleteStyle.Clear);
+			recipientsField.setTokenClickStyle(TokenCompleteTextView.TokenClickStyle.Select);
 		}
 
 		if (searchInput instanceof EditText && listView != null) {
-			((RecyclerView) listView).setAdapter(adapter);
+			listView.setLayoutManager(new LinearLayoutManager(context));
+			listView.setAdapter(adapter);
+
+			final ViewGroup.LayoutParams params = listView.getLayoutParams();
+			params.height = 0;
+			listView.setLayoutParams(params);
+
 			searchInput.addTextChangedListener(new SimpleTextWatcher() {
 				@Override public void afterTextChanged(@NonNull Editable s) {
-					textChanged(s.toString());
+					textChanged(((RecipientsCompletionView)searchInput).currentCompletionText());
 				}
 			});
 		}
@@ -143,6 +109,13 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 			listView.setAdapter(adapter);
 			searchView.setOnQueryTextListener(this);
 		}
+	}
+
+	public void bindDropdown() {
+		final ViewGroup.LayoutParams params = listView.getLayoutParams();
+		params.height = (int) adapter.getItemCount() * UI.getRawPixelsForDisplayPixels(56f);
+		listView.setLayoutParams(params);
+		listView.setVisibility(adapter.getItemCount() > 0 ? View.VISIBLE : View.GONE);
 	}
 
 	public void textChanged(@NonNull String input) {
@@ -158,9 +131,7 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 	public void suggestCall(final String chars) {
 
 		if (!suggestInProgress) {
-
 			suggestInProgress = true;
-
 			new AsyncTask() {
 
 				@Override protected void onPreExecute() {
@@ -204,12 +175,18 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener, 
 						entities.addAll(suggestions);
 						Collections.sort(entities, new SortByScoreAndDistance());
 						adapter.notifyDataSetChanged();
+						bindDropdown();
 					}
 
 					suggestInProgress = false;
 				}
 			}.executeOnExecutor(Constants.EXECUTOR);
 		}
+	}
+
+	public void clear() {
+		this.entities.clear();
+		this.bindDropdown();
 	}
 
 	/*--------------------------------------------------------------------------------------------

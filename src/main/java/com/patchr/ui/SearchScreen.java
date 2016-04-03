@@ -17,11 +17,8 @@ import com.patchr.ui.components.EntitySuggestController;
 
 public class SearchScreen extends BaseScreen {
 
-	private EntitySuggestController entitySuggest;
 	private String                  suggestScope;
-	private SearchView              searchView;
 	private String                  searchPhrase;
-	private RecyclerView            listView;
 
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -63,32 +60,32 @@ public class SearchScreen extends BaseScreen {
 
 	@Override public void initialize(Bundle savedInstanceState) {
 
-		this.listView = (RecyclerView) findViewById(R.id.results_list);
+		RecyclerView listView = (RecyclerView) findViewById(R.id.results_list);
 
-		this.searchView = new SearchView(this);
-		this.searchView.setIconified(false);
-		this.searchView.setFocusable(true);
-		this.searchView.requestFocusFromTouch();
-		this.searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+		SearchView searchView = new SearchView(this);
+		searchView.setIconified(false);
+		searchView.setFocusable(true);
+		searchView.requestFocusFromTouch();
+		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
 
 			@Override public boolean onClose() {
 				cancelAction(false);
 				return false;
 			}
 		});
-		this.actionBar.setCustomView(this.searchView);
+		this.actionBar.setCustomView(searchView);
 		this.actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 		this.actionBar.setDisplayShowTitleEnabled(false);
 
-		this.entitySuggest = new EntitySuggestController(this);
-		this.entitySuggest.searchView = this.searchView;
-		this.entitySuggest.busyPresenter = this.busyPresenter;
-		this.entitySuggest.listView = this.listView;
-		this.entitySuggest.suggestScope = this.suggestScope;
-		this.entitySuggest.initialize();
+		EntitySuggestController entitySuggest = new EntitySuggestController(this);
+		entitySuggest.searchView = searchView;
+		entitySuggest.busyPresenter = this.busyPresenter;
+		entitySuggest.listView = listView;
+		entitySuggest.suggestScope = this.suggestScope;
+		entitySuggest.initialize();
 
 		if (this.searchPhrase != null) {
-			this.searchView.setQuery(this.searchPhrase, true);
+			searchView.setQuery(this.searchPhrase, true);
 		}
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);

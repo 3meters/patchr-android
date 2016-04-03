@@ -21,13 +21,11 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.objects.Command;
 import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.TransitionType;
@@ -40,8 +38,6 @@ import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Picasso;
-
-import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 
@@ -62,16 +58,6 @@ public class ProfileEdit extends BaseEdit {
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		bind();
-	}
-
-	@Override protected void onStart() {
-		super.onStart();
-		Dispatcher.getInstance().register(this);
-	}
-
-	@Override protected void onStop() {
-		Dispatcher.getInstance().unregister(this);
-		super.onStop();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -99,8 +85,7 @@ public class ProfileEdit extends BaseEdit {
 			getMenuInflater().inflate(R.menu.menu_save, menu);
 			getMenuInflater().inflate(R.menu.menu_delete, menu);
 		}
-
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -118,16 +103,6 @@ public class ProfileEdit extends BaseEdit {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Notifications
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Subscribe public void onCancelEvent(ProcessingCanceledEvent event) {
-		if (taskService != null) {
-			taskService.cancel(true);
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
@@ -142,7 +117,6 @@ public class ProfileEdit extends BaseEdit {
 	}
 
 	@Override public void initialize(Bundle savedInstanceState) {
-		entitySchema = Constants.SCHEMA_ENTITY_USER;
 		super.initialize(savedInstanceState);   // handles name/photo
 
 		title = (TextView) findViewById(R.id.title);
@@ -212,7 +186,7 @@ public class ProfileEdit extends BaseEdit {
 		if (inputState.equals(State.Onboarding)) {
 			UI.setTextView(email, inputEmail);
 			email.setEnabled(false);
-			photoEditView.bind(null);
+			photoEditWidget.bind(null);
 		}
 		else {
 			User user = (User) entity;
@@ -408,6 +382,10 @@ public class ProfileEdit extends BaseEdit {
 				processing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	@Override protected String getEntitySchema() {
+		return Constants.SCHEMA_ENTITY_USER;
 	}
 
 	@Override protected int getLayoutId() {

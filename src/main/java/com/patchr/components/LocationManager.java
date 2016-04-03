@@ -160,7 +160,7 @@ public class LocationManager implements
 			Patchr.stopwatch2.segmentTime("Lock location: update: accuracy = " + (location.hasAccuracy() ? location.getAccuracy() : "none"));
 		}
 		if (location.hasAccuracy()) {
-			if (Patchr.getInstance().getPrefEnableDev()) {
+			if (Patchr.getInstance().prefEnableDev) {
 				UI.toast("Location accuracy: " + location.getAccuracy());
 			}
 			if (location.getAccuracy() <= ACCURACY_PREFERRED) {

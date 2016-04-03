@@ -1,15 +1,22 @@
 package com.patchr.components;
 
 import com.patchr.Constants;
+import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Link.Direction;
+import com.patchr.objects.Message;
 import com.patchr.objects.Patch;
-import com.patchr.objects.Command;
 
 public class MenuManager {
 
 	public static Boolean canUserEdit(Entity entity) {
+		if (entity instanceof Message) {
+			Message message = (Message) entity;
+			if (message.type != null && message.type.equals("share")) {
+				return false;
+			}
+		}
 		return UserManager.shared().authenticated() && entity != null && (entity.isOwnedByCurrentUser());
 	}
 
@@ -46,6 +53,13 @@ public class MenuManager {
 		 */
 		if (!UserManager.shared().authenticated()) return false;
 		if (entity == null) return false;
+
+		if (entity instanceof Message) {
+			Message message = (Message) entity;
+			if (message.type.equals("share")) {
+				return false;
+			}
+		}
 
 		if (!(entity instanceof Patch)) {
 			return true;

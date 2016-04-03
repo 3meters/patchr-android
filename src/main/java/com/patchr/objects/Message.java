@@ -62,7 +62,8 @@ public class Message extends Entity implements Cloneable, Serializable {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static class MessageType {
-		public static String ROOT  = "root";
-		public static String SHARE = "share";
+		public static String Post   = "post";
+		public static String Share  = "share";
+		public static String Invite = "invite";
 	}
 }

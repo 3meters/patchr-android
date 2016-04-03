@@ -113,7 +113,6 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		 * OnResume gets called after OnCreate (always) and whenever the activity is being brought back to the
 		 * foreground. Not guaranteed but is usually called just before the activity receives focus.
 		 */
-		Patchr.getInstance().setCurrentPatch(null);
 		if (pauseDate != null) {
 			final Long interval = DateTime.nowDate().getTime() - pauseDate.longValue();
 			if (interval > Constants.INTERVAL_TETHER_ALERT) {
@@ -161,8 +160,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		if (UserManager.shared().authenticated()) {
 			getMenuInflater().inflate(R.menu.menu_notifications, menu);
 		}
-
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -507,13 +505,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 			return;
 		}
 
-		Bundle extras = new Bundle();
-
-		if (!extras.containsKey(Constants.EXTRA_ENTITY_SCHEMA)) {
-			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
-		}
-
-		Patchr.router.add(this, Constants.SCHEMA_ENTITY_PATCH, extras, true);
+		Patchr.router.add(this, Constants.SCHEMA_ENTITY_PATCH, null, true);
 	}
 
 	public void searchAction() {
@@ -530,8 +522,8 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
 		if (tethered || (!NetworkManager.getInstance().isWifiEnabled())) {
 			UI.toast(StringManager.getString(tethered
-			                                                 ? R.string.alert_wifi_tethered
-			                                                 : R.string.alert_wifi_disabled));
+			                                 ? R.string.alert_wifi_tethered
+			                                 : R.string.alert_wifi_disabled));
 		}
 	}
 
@@ -679,7 +671,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		}
 
 		if (fragment instanceof EntityListFragment) {
-			this.actionBar.setTitle(StringManager.getString(((EntityListFragment) fragment).titleResId));
+			this.actionBarTitle.setText(StringManager.getString(((EntityListFragment) fragment).titleResId));
 		}
 
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

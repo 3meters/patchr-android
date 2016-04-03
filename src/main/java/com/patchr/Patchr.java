@@ -1,14 +1,12 @@
 // $codepro.audit.disable fileComment
 package com.patchr;
 
-import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -43,7 +41,6 @@ import com.patchr.components.Stopwatch;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.RegisterInstallEvent;
-import com.patchr.objects.Entity;
 import com.patchr.objects.Preference;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
@@ -61,56 +58,36 @@ public class Patchr extends MultiDexApplication {
 
 	public static Intent sendIntent;  // Used when we are started to handle a send intent
 
-	public static Context                  applicationContext;
-	public static PackageManager           packageManager;
-	public static SharedPreferences        settings;
-	public static SharedPreferences.Editor settingsEditor;
+	public static Context           applicationContext;
+	public static SharedPreferences settings;
 
-	@NonNull
-	public static Handler                        mainThreadHandler         = new Handler(Looper.getMainLooper());
-	@NonNull
-	public static Router                         router                    = new Router();
-	@NonNull
-	public static Stopwatch                      stopwatch1                = new Stopwatch(); // $codepro.audit.disable stringLiterals;
-	@NonNull
-	public static Stopwatch                      stopwatch2                = new Stopwatch(); // $codepro.audit.disable stringLiterals;
-	@NonNull
-	public static Boolean                        debug                     = false;
-	@NonNull
-	public static Boolean                        applicationUpdateRequired = false;
+	public static Handler   mainThreadHandler         = new Handler(Looper.getMainLooper());
+	public static Router    router                    = new Router();
+	public static Stopwatch stopwatch1                = new Stopwatch();
+	public static Stopwatch stopwatch2                = new Stopwatch();
+	public static Boolean   debug                     = false;
+	public static Boolean   applicationUpdateRequired = false;
 
 	public static BasicAWSCredentials awsCredentials = null;
 
 	/* Container values */
-	@NonNull
 	public static String AWS_ACCESS_KEY  = "aws-access-key";
-	@NonNull
 	public static String AWS_SECRET_KEY  = "aws-secret-key";
-	@NonNull
 	public static String BING_ACCESS_KEY = "bing-access-key";
-	@NonNull
 	public static String USER_SECRET     = "user-secret";
 
-	private Tracker mTracker;
-
-	/* Current objects */
-	private Entity   mCurrentPatch;
-
-	/* Dev preferences */
-	private Boolean mPrefEnableDev;
-	private String  mPrefTestingBeacons;
-
-	/* Install id components */
-	private String mUniqueId;
-	private Long   mUniqueDate;
-	private String mUniqueType;
+	private Tracker tracker;
+	public  Boolean prefEnableDev;
+	public  String  prefTestingBeacons;
+	private String  uniqueId;
+	private Long    uniqueDate;
+	private String  uniqueType;
 
 	public static Patchr getInstance() {
 		return instance;
 	}
 
-	@Override
-	public void onCreate() {
+	@Override public void onCreate() {
 		/*
 		 * Application starts for all basic cases but also when not running and
 		 * a broadcast receiver is activated.
@@ -127,14 +104,11 @@ public class Patchr extends MultiDexApplication {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@SuppressLint("CommitPrefEdits")
 	protected void initializeInstance() {
 
 		/* Must have this so activity rerouting works. */
 		applicationContext = getApplicationContext();
-		packageManager = applicationContext.getPackageManager();
 		settings = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-		settingsEditor = settings.edit();
 
 		Logger.i(this, "First run configuration");
 
@@ -205,8 +179,8 @@ public class Patchr extends MultiDexApplication {
 	}
 
 	public void snapshotPreferences() {
-		mPrefEnableDev = settings.getBoolean(Preference.ENABLE_DEV, false);
-		mPrefTestingBeacons = settings.getString(Preference.TESTING_BEACONS, "natural");
+		prefEnableDev = settings.getBoolean(Preference.ENABLE_DEV, false);
+		prefTestingBeacons = settings.getString(Preference.TESTING_BEACONS, "natural");
 	}
 
 	public void openContainer(String containerId) {
@@ -244,7 +218,7 @@ public class Patchr extends MultiDexApplication {
 
 				containerHolder.setContainerAvailableListener(new ContainerHolder.ContainerAvailableListener() {
 					@Override
-					public void onContainerAvailable(@NonNull ContainerHolder containerHolder, String s) {
+					public void onContainerAvailable(ContainerHolder containerHolder, String s) {
 						activateContainer(containerHolder);
 					}
 				});
@@ -254,7 +228,7 @@ public class Patchr extends MultiDexApplication {
 		Logger.v(this, "Container set using default");
 	}
 
-	private void activateContainer(@NonNull ContainerHolder containerHolder) {
+	private void activateContainer(ContainerHolder containerHolder) {
 		ContainerManager.setContainerHolder(containerHolder);
 		Container container = containerHolder.getContainer();
 		if (!container.isDefault()) {
@@ -264,49 +238,46 @@ public class Patchr extends MultiDexApplication {
 		}
 	}
 
-	@NonNull
 	public synchronized String getInstallType() {
-		return mUniqueType;
+		return uniqueType;
 	}
 
-	@NonNull
 	public synchronized Long getInstallDate() {
-		return mUniqueDate;
+		return uniqueDate;
 	}
 
-	@NonNull
 	public synchronized String getinstallId() {
-		if (mUniqueId == null) {
+		if (uniqueId == null) {
 			initializeInstallInfo();
 		}
-		return mUniqueId;
+		return uniqueId;
 	}
 
 	private void initializeInstallInfo() {
-		mUniqueId = settings.getString(StringManager.getString(R.string.setting_unique_id), null);
-		mUniqueDate = settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
-		mUniqueType = settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
-		if (mUniqueId == null || mUniqueType == null) {
+		uniqueId = settings.getString(StringManager.getString(R.string.setting_unique_id), null);
+		uniqueDate = settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
+		uniqueType = settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
+		if (uniqueId == null || uniqueType == null) {
 			if (Build.SERIAL != null && !Build.SERIAL.equals("unknown")) {
-				mUniqueId = Build.SERIAL;
-				mUniqueType = Constants.INSTALL_TYPE_SERIAL;
+				uniqueId = Build.SERIAL;
+				uniqueType = Constants.INSTALL_TYPE_SERIAL;
 			}
 			else {
 				String androidId = Settings.Secure.getString(applicationContext.getContentResolver(), Settings.Secure.ANDROID_ID);
 				if (androidId != null) {
-					mUniqueId = androidId;
-					mUniqueType = Constants.INSTALL_TYPE_ANDROID_ID;
+					uniqueId = androidId;
+					uniqueType = Constants.INSTALL_TYPE_ANDROID_ID;
 				}
 				else {
-					mUniqueId = UUID.randomUUID().toString();
-					mUniqueType = Constants.INSTALL_TYPE_RANDOM;
+					uniqueId = UUID.randomUUID().toString();
+					uniqueType = Constants.INSTALL_TYPE_RANDOM;
 				}
 			}
-			mUniqueDate = DateTime.nowDate().getTime();
-			settingsEditor.putString(StringManager.getString(R.string.setting_unique_id_type), mUniqueType);
-			settingsEditor.putString(StringManager.getString(R.string.setting_unique_id), mUniqueId);
-			settingsEditor.putLong(StringManager.getString(R.string.setting_unique_id_date), mUniqueDate);
-			settingsEditor.commit();
+			uniqueDate = DateTime.nowDate().getTime();
+			settings.edit().putString(StringManager.getString(R.string.setting_unique_id_type), uniqueType);
+			settings.edit().putString(StringManager.getString(R.string.setting_unique_id), uniqueId);
+			settings.edit().putLong(StringManager.getString(R.string.setting_unique_id_date), uniqueDate);
+			settings.edit().apply();
 		}
 	}
 
@@ -314,11 +285,10 @@ public class Patchr extends MultiDexApplication {
 	 * Statics
 	 *--------------------------------------------------------------------------------------------*/
 
-	@NonNull
-	public static String getVersionName(@NonNull Context context, @NonNull Class cls) {
+	public static String getVersionName(Context context, Class cls) {
 		try {
 			final ComponentName comp = new ComponentName(context, cls);
-			final PackageInfo pinfo = packageManager.getPackageInfo(comp.getPackageName(), 0);
+			final PackageInfo pinfo = applicationContext.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
 			return pinfo.versionName;
 		}
 		catch (android.content.pm.PackageManager.NameNotFoundException e) {
@@ -327,11 +297,10 @@ public class Patchr extends MultiDexApplication {
 		throw new IllegalArgumentException("Failed to get version name");
 	}
 
-	@NonNull
-	public static Integer getVersionCode(@NonNull Context context, @NonNull Class cls) {
+	public static Integer getVersionCode(Context context, Class cls) {
 		try {
 			final ComponentName comp = new ComponentName(context, cls);
-			final PackageInfo pinfo = packageManager.getPackageInfo(comp.getPackageName(), 0);
+			final PackageInfo pinfo = applicationContext.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
 			return pinfo.versionCode;
 		}
 		catch (android.content.pm.PackageManager.NameNotFoundException e) {
@@ -344,14 +313,9 @@ public class Patchr extends MultiDexApplication {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void setCurrentPatch(Entity currentPatch) {
-		mCurrentPatch = currentPatch;
-		Logger.v(this, "Setting current patch to: " + currentPatch);
-	}
-
 	synchronized public Tracker getTracker() {
 		/* Setup the analytics tracker */
-		if (mTracker == null) {
+		if (tracker == null) {
 			GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
 			/*
 			 * Set how often auto dispatch gets fired in seconds.
@@ -359,22 +323,8 @@ public class Patchr extends MultiDexApplication {
 			 * going to be a bit aggresive and make it one minute for ship.
 			 */
 			analytics.setLocalDispatchPeriod(Constants.TIME_ONE_MINUTE);
-			mTracker = analytics.newTracker(R.xml.analytics);
+			tracker = analytics.newTracker(R.xml.analytics);
 		}
-		return mTracker;
-	}
-
-	@NonNull
-	public Boolean getPrefEnableDev() {
-		return mPrefEnableDev;
-	}
-
-	@NonNull
-	public String getPrefTestingBeacons() {
-		return mPrefTestingBeacons;
-	}
-
-	public Entity getCurrentPatch() {
-		return mCurrentPatch;
+		return tracker;
 	}
 }

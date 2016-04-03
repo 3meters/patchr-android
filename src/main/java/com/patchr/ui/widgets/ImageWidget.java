@@ -274,6 +274,10 @@ public class ImageWidget extends FrameLayout {
 
 				if (transform != null) {
 					creator.transform(transform);
+					if (this.shape.equals("rounded")) {
+						creator.centerCrop();
+						creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
+					}
 				}
 				creator.into(this.imageView);
 			}
@@ -289,6 +293,10 @@ public class ImageWidget extends FrameLayout {
 
 			if (transform != null) {
 				creator.transform(transform);
+				if (this.shape.equals("rounded")) {
+					creator.centerCrop();
+					creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
+				}
 			}
 			creator.into(this.imageView, callback);
 		}

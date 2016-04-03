@@ -61,7 +61,7 @@ public class PhotoScreen extends BaseScreen {
 		if (UserManager.shared().authenticated()) {
 			getMenuInflater().inflate(R.menu.menu_share_photo, menu);
 		}
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {

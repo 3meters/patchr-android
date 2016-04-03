@@ -4,6 +4,7 @@
 	android:id="@+id/item_row"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
+	android:background="@color/white"
 	android:layout_height="wrap_content">
 
 	<com.patchr.ui.views.SearchItemView

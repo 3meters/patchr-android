@@ -52,6 +52,9 @@
 	<color name="background_button_round">#eeffffff</color>
 	<color name="background_refresh">@color/white</color>
 
+	<color name="background_screen">@color/gray_10_pcnt</color>
+	<color name="background_form">@color/white</color>
+
 	<!-- Backgrounds all -->
 
 	<color name="background_pressed">#64999999</color>

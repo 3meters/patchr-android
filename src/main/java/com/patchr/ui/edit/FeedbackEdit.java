@@ -6,7 +6,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.patchr.Constants;
@@ -47,7 +46,7 @@ public class FeedbackEdit extends BaseEdit {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu_send, menu);
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -68,10 +67,7 @@ public class FeedbackEdit extends BaseEdit {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-
-		userPhoto = (ImageWidget) findViewById(R.id.user_photo);
-		userName = (TextView) findViewById(R.id.user_name);
+		this.actionBarTitle.setText(R.string.screen_title_feedback_edit);
 
 		if (description != null) {
 			description.addTextChangedListener(new SimpleTextWatcher() {
@@ -82,6 +78,9 @@ public class FeedbackEdit extends BaseEdit {
 				}
 			});
 		}
+
+		userPhoto = (ImageWidget) findViewById(R.id.user_photo);
+		userName = (TextView) findViewById(R.id.user_name);
 
 		this.feedback = new Document();
 		this.feedback.type = "feedback";

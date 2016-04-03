@@ -62,6 +62,14 @@ public class LobbyScreen extends AppCompatActivity {
 	 */
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (!isTaskRoot()
+				&& getIntent().hasCategory(Intent.CATEGORY_LAUNCHER)
+				&& getIntent().getAction() != null
+				&& getIntent().getAction().equals(Intent.ACTION_MAIN)) {
+
+			finish();
+			return;
+		}
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		setContentView(R.layout.screen_lobby);
 	}
@@ -75,8 +83,8 @@ public class LobbyScreen extends AppCompatActivity {
 		super.onStop();
 		/* Hack to prevent false positives for deferred deep links */
 		if (Patchr.settings.getBoolean(Preference.FIRST_RUN, true)) {
-			Patchr.settingsEditor.putBoolean(Preference.FIRST_RUN, false);
-			Patchr.settingsEditor.commit();
+			Patchr.settings.edit().putBoolean(Preference.FIRST_RUN, false);
+			Patchr.settings.edit().apply();
 		}
 	}
 

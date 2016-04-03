@@ -17,12 +17,14 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
+import com.patchr.components.Dispatcher;
 import com.patchr.components.MediaManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.ProximityController;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
@@ -36,7 +38,7 @@ import com.patchr.service.ServiceResponse;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.SimpleTextWatcher;
-import com.patchr.ui.views.PhotoEditView;
+import com.patchr.ui.widgets.PhotoEditWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
@@ -45,20 +47,22 @@ import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BaseEdit extends BaseScreen {
 
-	protected PhotoEditView photoEditView;
-	protected TextView      name;
-	protected TextView      description;
-	protected String        photoSource;
-	protected AsyncTask     taskService;
+	protected PhotoEditWidget photoEditWidget;
+	protected TextView        name;
+	protected TextView        description;
+	protected String          photoSource;
+	protected AsyncTask       taskService;
 
 	protected Boolean brokenLink        = false;
-	protected Boolean proximityDisabled = false;
+	protected Boolean proximityDisabled = false;        // Patch is only using location
 
 	protected Integer insertProgressResId = R.string.progress_saving;
 	protected Integer updateProgressResId = R.string.progress_updating;
@@ -67,6 +71,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 	/* Inputs */
 	public String parentId;
+	public String parentName;
 	public String entitySchema;
 
 	public Boolean editing = false;
@@ -75,6 +80,16 @@ public abstract class BaseEdit extends BaseScreen {
 	protected Integer dirtyExitTitleResId    = R.string.alert_dirty_exit_title;
 	protected Integer dirtyExitMessageResId  = R.string.alert_dirty_exit_message;
 	protected Integer dirtyExitPositiveResId = R.string.alert_dirty_save;
+
+	@Override protected void onStart() {
+		super.onStart();
+		Dispatcher.getInstance().register(this);
+	}
+
+	@Override protected void onStop() {
+		Dispatcher.getInstance().unregister(this);
+		super.onStop();
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
@@ -118,7 +133,7 @@ public abstract class BaseEdit extends BaseScreen {
 	}
 
 	public void onClick(View view) {
-		if (view.getId() == R.id.photo_set_button || view.getId() == R.id.photo_button) {
+		if (view.getId() == R.id.photo_set_button) {
 			gather();
 			Patchr.router.route(this, Command.PHOTO_PICK, entity, null);
 		}
@@ -146,6 +161,16 @@ public abstract class BaseEdit extends BaseScreen {
 		}
 	}
 
+    /*--------------------------------------------------------------------------------------------
+     * Notifications
+     *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe public void onCancelEvent(ProcessingCanceledEvent event) {
+		if (taskService != null) {
+			taskService.cancel(true);
+		}
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -166,8 +191,9 @@ public abstract class BaseEdit extends BaseScreen {
 			}
 
 			this.entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
+			this.entitySchema = extras.getString(Constants.EXTRA_ENTITY_SCHEMA);    // Used by support like reporting
 			this.parentId = extras.getString(Constants.EXTRA_ENTITY_PARENT_ID);
-			this.entitySchema = extras.getString(Constants.EXTRA_ENTITY_SCHEMA);
+			this.parentName = extras.getString(Constants.EXTRA_ENTITY_PARENT_NAME);
 		}
 		this.editing = (this.entity != null);
 	}
@@ -177,7 +203,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 		name = (TextView) findViewById(R.id.name);
 		description = (TextView) findViewById(R.id.description);
-		photoEditView = (PhotoEditView) findViewById(R.id.photo_edit);
+		photoEditWidget = (PhotoEditWidget) findViewById(R.id.photo_edit);
 
 		if (name != null) {
 			name.addTextChangedListener(new SimpleTextWatcher() {
@@ -207,15 +233,15 @@ public abstract class BaseEdit extends BaseScreen {
 		}
 
 		/* Make new entity if we are not editing */
-		if (!editing && this.entity == null && entitySchema != null) {
+		if (!editing && this.entity == null && getEntitySchema() != null) {
 
-			if (entitySchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+			if (getEntitySchema().equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				this.entity = Message.build();
 			}
-			else if (entitySchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+			else if (getEntitySchema().equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				this.entity = Patch.build();
 			}
-			else if (entitySchema.equals(Constants.SCHEMA_ENTITY_USER)) {
+			else if (getEntitySchema().equals(Constants.SCHEMA_ENTITY_USER)) {
 				this.entity = User.build();
 			}
 
@@ -223,15 +249,6 @@ public abstract class BaseEdit extends BaseScreen {
 				entity.creator = UserManager.currentUser;
 				entity.creatorId = UserManager.currentUser.id;
 			}
-		}
-	}
-
-	@Override public void cancelAction(Boolean force) {
-		if (!force && dirty) {
-			confirmDirtyExit();
-		}
-		else {
-			super.cancelAction(force);
 		}
 	}
 
@@ -262,6 +279,28 @@ public abstract class BaseEdit extends BaseScreen {
 		}
 	}
 
+	@Override public void cancelAction(Boolean force) {
+		if (!force && dirty) {
+			confirmDirtyExit();
+		}
+		else {
+			super.cancelAction(force);
+		}
+	}
+
+	public void bind() {
+		if (this.entity != null) {
+			UI.setTextView(name, entity.name);
+			UI.setTextView(description, entity.description);
+			bindPhoto();
+			firstDraw = false;
+		}
+	}
+
+	protected void bindPhoto() {
+		photoEditWidget.bind(entity.photo);
+	}
+
 	public void editPhotoAction() {
 
 		/* Ensure photo logic has the latest property values */
@@ -280,19 +319,6 @@ public abstract class BaseEdit extends BaseScreen {
 		dirty = (editing);
 		entity.photo = null;
 		bindPhoto();
-	}
-
-	public void bind() {
-		if (this.entity != null) {
-			UI.setTextView(name, entity.name);
-			UI.setTextView(description, entity.description);
-			bindPhoto();
-			firstDraw = false;
-		}
-	}
-
-	protected void bindPhoto() {
-		photoEditView.bind(entity.photo);
 	}
 
 	protected void beforeInsert(Entity entity, List<Link> links) {
@@ -567,8 +593,8 @@ public abstract class BaseEdit extends BaseScreen {
 		return null;
 	}
 
-	protected void setEntityType(String type) {
-		entity.type = type;
+	protected String getEntitySchema() {
+		return null;
 	}
 
 	protected void confirmDirtyExit() {

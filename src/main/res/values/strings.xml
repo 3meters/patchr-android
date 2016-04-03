@@ -9,13 +9,15 @@
 	<string name="screen_title_map_form" tools:ignore="UnusedResources">Map</string>
 	<string name="screen_title_search_form" tools:ignore="UnusedResources">Search</string>
 	<string name="screen_title_settings_form" tools:ignore="UnusedResources">Settings</string>
+	<string name="screen_title_invite" tools:ignore="UnusedResources">Invite to patch</string>
+	<string name="screen_title_share" tools:ignore="UnusedResources">Share</string>
 
 	<string name="screen_title_patch_edit" tools:ignore="UnusedResources">Edit patch</string>
 	<string name="screen_title_patch_new" tools:ignore="UnusedResources">New patch</string>
 	<string name="screen_title_message_edit" tools:ignore="UnusedResources">Edit message</string>
 	<string name="screen_title_message_new" tools:ignore="UnusedResources">Compose</string>
 	<string name="screen_title_profile_edit" tools:ignore="UnusedResources">Edit profile</string>
-	<string name="screen_title_feedback_edit" tools:ignore="UnusedResources">Send feedback</string>
+	<string name="screen_title_feedback_edit" tools:ignore="UnusedResources">Feedback</string>
 	<string name="screen_title_report_edit" tools:ignore="UnusedResources">Report a problem</string>
 	<string name="screen_title_password_edit" tools:ignore="UnusedResources">Change password</string>
 	<string name="screen_title_signin_edit" tools:ignore="UnusedResources">Log in</string>
@@ -149,6 +151,7 @@
 	<string name="alert_inserted">Saved</string>
 	<string name="alert_inserted_patch">Patch activated</string>
 	<string name="alert_shared">Shared</string>
+	<string name="alert_invited">Invited</string>
 	<string name="alert_cancelled">Cancelled</string>
 	<string name="alert_signed_in">Signed in as</string>
 	<string name="alert_password_changed">You have been automatically signed in with your new password</string>
@@ -187,6 +190,7 @@
 	<!-- Alerts: confirm dirty -->
 
 	<string name="alert_dirty_save">Save</string>
+	<string name="alert_dirty_invite">Invite</string>
 	<string name="alert_dirty_share">Share</string>
 	<string name="alert_dirty_discard">Discard</string>
 	<string name="alert_dirty_exit_title">Editing</string>
@@ -196,6 +200,11 @@
 
 	<string name="alert_dirty_share_exit_title">Sharing</string>
 	<string name="alert_dirty_share_exit_message">Do you want to share this?</string>
+
+	<!-- Alerts: confirm dirty invite -->
+
+	<string name="alert_dirty_invite_exit_title">Patch invite</string>
+	<string name="alert_dirty_invite_exit_message">Do you want to invite to this patch?</string>
 
 	<!-- Alerts: confirm delete -->
 
@@ -305,9 +314,9 @@
 	<string name="error_service_file_not_found">File couldn\'t be found.</string>
 	<string name="error_service_unhandled_request_error">Unhandled request error</string>
 
-	<string name="error_missing_message_to">Select a patch for this message.</string>
 	<string name="error_missing_message_content">Select a photo or enter a message.</string>
 	<string name="error_missing_share_to">Select at least one user to share with.</string>
+	<string name="error_missing_invite_to">Select at least one user to invite.</string>
 
 	<!-- Progress -->
 
@@ -315,6 +324,7 @@
 	<string name="progress_saving">Saving&#8230;</string>
 	<string name="progress_saving_patch">Patching&#8230;</string>
 	<string name="progress_sharing">Sharing&#8230;</string>
+	<string name="progress_inviting">Inviting&#8230;</string>
 	<string name="progress_updating">Updating&#8230;</string>
 	<string name="progress_sending">Sending&#8230;</string>
 	<string name="progress_tuning">Tuning&#8230;</string>
@@ -459,7 +469,7 @@
 
 	<string name="label_photo_share_subject">Photo shared by %1$s</string>
 	<string name="label_photo_share_subject_guest">Photo shared from Patchr</string>
-	<string name="label_photo_share_body_self">"Check out this Patchr photo! %1$s \n"</string>
+	<string name="label_photo_share_body_self">"Check out this Patchr photo!\n"</string>
 
 	<!-- Labels: Empty -->
 
@@ -533,6 +543,8 @@
 	<string name="hint_picture_search">Search</string>
 	<string name="hint_message_name">Subject</string>
 	<string name="hint_message_description">What\'s happening?</string>
+	<string name="hint_invite_description">Add a message to your invite…</string>
+	<string name="hint_share_description">Add a message…</string>
 
 	<!-- Testing (used for view previews) -->
 

@@ -85,12 +85,14 @@ public class PhotoSearchScreen extends BaseScreen {
 	private static final String QUERY_DEFAULT = "wallpaper unusual places";
 
 	@Override public void onCreate(Bundle savedInstanceState) {
+
+		this.images = new ArrayList<ImageResult>();
+		this.previousSearches = new ArrayList<>();
+
 		super.onCreate(savedInstanceState);
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 		this.emptyPresenter = new EmptyPresenter(findViewById(R.id.form_message));
-		this.images = new ArrayList<ImageResult>();
-		this.previousSearches = new ArrayList<>();
 		bind();
 	}
 
@@ -105,7 +107,7 @@ public class PhotoSearchScreen extends BaseScreen {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu_search_start, menu);
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -260,16 +262,16 @@ public class PhotoSearchScreen extends BaseScreen {
 		imm.hideSoftInputFromWindow(search.getWindowToken(), 0);
 
 		/* Stash query so we can restore it in the future */
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_picture_search_last), query);
-		Patchr.settingsEditor.commit();
+		Patchr.settings.edit().putString(StringManager.getString(R.string.setting_picture_search_last), query);
+		Patchr.settings.edit().apply();
 
 		/* Add query to auto complete array */
 		try {
 			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(StringManager.getString(R.string.setting_picture_searches),
 					"{}"));
 			jsonSearchMap.put(query, query);
-			Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
-			Patchr.settingsEditor.commit();
+			Patchr.settings.edit().putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
+			Patchr.settings.edit().apply();
 		}
 		catch (JSONException e) {
 			Reporting.logException(e);

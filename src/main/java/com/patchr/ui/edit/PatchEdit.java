@@ -29,7 +29,6 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.LocationManager;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.PermissionUtil;
@@ -41,8 +40,8 @@ import com.patchr.objects.Command;
 import com.patchr.objects.Patch;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyPresenter;
-import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.AirProgressBar;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.UI;
@@ -73,11 +72,6 @@ public class PatchEdit extends BaseEdit {
 		bind();
 	}
 
-	@Override protected void onStart() {
-		super.onStart();
-		Dispatcher.getInstance().register(this);
-	}
-
 	@Override public void onResume() {
 		if (PermissionUtil.hasSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 			if (!editing && LocationManager.getInstance().isLocationAccessEnabled()) {
@@ -93,11 +87,6 @@ public class PatchEdit extends BaseEdit {
 			LocationManager.getInstance().stop();
 		}
 		super.onPause();
-	}
-
-	@Override protected void onStop() {
-		Dispatcher.getInstance().unregister(this);
-		super.onStop();
 	}
 
 	@Override public void onDestroy() {
@@ -120,8 +109,7 @@ public class PatchEdit extends BaseEdit {
 			getMenuInflater().inflate(R.menu.menu_save, menu);
 			getMenuInflater().inflate(R.menu.menu_delete, menu);
 		}
-
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -290,9 +278,7 @@ public class PatchEdit extends BaseEdit {
 		mapProgressBar = (AirProgressBar) findViewById(R.id.map_progress);
 		locationLabel = (TextView) findViewById(R.id.location_label);
 
-		if (!this.editing) {
-			title.setText(R.string.form_title_patch_new);
-		}
+		this.actionBarTitle.setText(editing ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
 
 		if (mapView != null) {
 
@@ -347,8 +333,6 @@ public class PatchEdit extends BaseEdit {
 			buttonPrivacy.setText(StringManager.getString(R.string.label_patch_edit_privacy) + ": " + value);
 		}
 
-		this.actionBar.setTitle(editing ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
-
 		/* Type */
 
 		if (buttonGroupType != null && patch.type != null) {
@@ -367,13 +351,11 @@ public class PatchEdit extends BaseEdit {
 	}
 
 	@Override protected boolean afterInsert() {
-	    /*
-	     * Only called if the insert was successful. Called on main ui thread.
-		 */
+	    /* Only called if the insert was successful. Called on main ui thread. */
 		if (insertedResId != null && insertedResId != 0) {
 			UI.toast(StringManager.getString(insertedResId));
 		}
-		Patchr.router.browse(this, entity.id, null, true);
+		Patchr.router.browse(this, entity.id, null, true);  // Base class handles finishing this activity
 		return true;
 	}
 
@@ -417,6 +399,10 @@ public class PatchEdit extends BaseEdit {
 		}
 
 		return true;
+	}
+
+	@Override protected String getEntitySchema() {
+		return Constants.SCHEMA_ENTITY_PATCH;
 	}
 
 	@Override protected String getLinkType() {

@@ -4,10 +4,9 @@ buildscript {
 		maven { url 'https://maven.fabric.io/public' }
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:2.0.0-beta7'
+		classpath 'com.android.tools.build:gradle:2.0.0-rc1'
 		classpath 'io.fabric.tools:gradle:1.21.4'
 		classpath 'com.google.gms:google-services:2.0.0-beta6'
-
 	}
 }
 
@@ -168,6 +167,7 @@ dependencies {
 	compile 'com.flipboard:bottomsheet-commons:1.5.0'
 	compile 'com.orhanobut:dialogplus:1.11@aar'     // Used for guest guard dialog
 	compile 'org.greenrobot:eventbus:3.0.0'
+	compile 'com.splitwise:tokenautocomplete:2.0.7@aar'
 }
 
 apply plugin: 'com.google.gms.google-services'

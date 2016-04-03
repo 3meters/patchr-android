@@ -5,6 +5,7 @@
 		android:id="@+id/delete"
 		android:orderInCategory="10"
 		android:icon="?attr/iconActionDelete"
+		android:visible="false"
 		app:showAsAction="ifRoom"
 		android:title="@string/menu_item_delete" />
 

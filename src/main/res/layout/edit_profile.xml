@@ -40,7 +40,7 @@
 
 			<!-- User picture -->
 
-			<com.patchr.ui.views.PhotoEditView
+			<com.patchr.ui.widgets.PhotoEditWidget
 				android:id="@+id/photo_edit"
 				android:layout_width="150dp"
 				android:layout_height="150dp"

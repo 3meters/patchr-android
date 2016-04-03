@@ -20,8 +20,10 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.FontManager;
+import com.patchr.objects.Entity;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
+import com.patchr.ui.widgets.ImageWidget;
 
 @SuppressWarnings("ucd")
 public class UI {
@@ -223,6 +225,12 @@ public class UI {
 	public static void setTextView(View view, String text) {
 		if (view != null) {
 			((TextView) view).setText(text);
+		}
+	}
+
+	public static void setImageWithEntity(ImageWidget view, Entity entity) {
+		if (view != null && entity != null) {
+			view.setImageWithEntity(entity);
 		}
 	}
 

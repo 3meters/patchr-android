@@ -151,7 +151,7 @@ public class AndroidManager {
 
 	public static boolean doesPackageExist(String targetPackage) {
 		final List<ApplicationInfo> packages;
-		packages = Patchr.packageManager.getInstalledApplications(0);
+		packages = Patchr.applicationContext.getPackageManager().getInstalledApplications(0);
 		for (ApplicationInfo packageInfo : packages) {
 			if (packageInfo.packageName.equals(targetPackage)) return true;
 		}
@@ -160,7 +160,7 @@ public class AndroidManager {
 
 	public static boolean isIntentAvailable(Context context, String action) {
 		final Intent intent = new Intent(action);
-		final List<ResolveInfo> list = Patchr.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+		final List<ResolveInfo> list = Patchr.applicationContext.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 		return list.size() > 0;
 	}
 
@@ -319,7 +319,7 @@ public class AndroidManager {
 				"com.google.android.browser"};
 
 		final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-		final List<ResolveInfo> list = Patchr.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+		final List<ResolveInfo> list = Patchr.applicationContext.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 
 		String p;
 		for (String browserApp : browserApps) {
@@ -337,7 +337,7 @@ public class AndroidManager {
 	public boolean isAviaryInstalled() {
 		Intent intent = new Intent("aviary.intent.action.EDIT");
 		intent.setType("image/*");
-		List<ResolveInfo> list = Patchr.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> list = Patchr.applicationContext.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 		return list.size() > 0;
 	}
 

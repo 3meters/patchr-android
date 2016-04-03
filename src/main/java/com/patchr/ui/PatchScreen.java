@@ -61,6 +61,7 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
+import com.patchr.objects.Message;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
@@ -72,7 +73,7 @@ import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.components.RecyclePresenter;
-import com.patchr.ui.edit.MessageEdit;
+import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.views.PatchDetailView;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
@@ -126,8 +127,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 	@Override protected void onResume() {
 		super.onResume();
-
-		Patchr.getInstance().setCurrentPatch(entity);
 
 		bind();                             // Shows any data we already have
 		fetch(FetchMode.AUTO);              // Checks for data changes and binds again if needed
@@ -236,7 +235,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		getMenuInflater().inflate(R.menu.menu_map, menu);           // base
 		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
 
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -336,11 +335,11 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 					Logger.v(this, "Data result accepted: " + event.actionType.name());
 					Boolean firstBind = (this.entity == null);
+					Boolean activityDateChanged = (this.entity != null && !this.entity.activityDate.equals(event.entity.activityDate));
 
 					this.entity = event.entity;
 					this.listPresenter.scopingEntity = event.entity;
 					this.listPresenter.scopingEntityId = event.entity.id;
-					Patchr.getInstance().setCurrentPatch(entity);   // Fresh!
 					memberStatus = ((Patch) entity).watchStatus();
 
 					/* Customize empty message */
@@ -363,7 +362,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 						this.listPresenter.clear();
 					}
 					else {
-						this.listPresenter.fetch(event.fetchMode); // Next in the chain
+						this.listPresenter.fetch(activityDateChanged ? FetchMode.MANUAL : event.fetchMode); // Next in the chain
 					}
 				}
 
@@ -432,10 +431,9 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		if (entity == null) return;
 
 		if (MenuManager.canUserAdd(entity)) {
-
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, entityId);
-			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+			extras.putString(Constants.EXTRA_ENTITY_PARENT_NAME, entity.name);
 			Patchr.router.add(this, Constants.SCHEMA_ENTITY_MESSAGE, extras, true);
 		}
 	}
@@ -721,8 +719,9 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 					/*
 					 * Go to patchr share directly but looks just like an external share
 					 */
-					final IntentBuilder intentBuilder = new IntentBuilder(activity, MessageEdit.class);
+					final IntentBuilder intentBuilder = new IntentBuilder(activity, ShareEdit.class);
 					final Intent intent = intentBuilder.create();
+					intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.Invite);
 					intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
 					intent.putExtra(Constants.EXTRA_SHARE_ID, entityId);
 					intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);

@@ -6,8 +6,9 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:background="@color/background_screen"
 	android:orientation="vertical"
-	tools:context=".ui.edit.MessageEdit">
+	tools:context=".ui.edit.ShareEdit">
 
 	<include
 		android:id="@+id/toolbar"
@@ -17,13 +18,14 @@
 
 	<ScrollView
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="match_parent"
 		android:fillViewport="true">
 
-		<LinearLayout
-			android:layout_width="288dp"
+		<com.patchr.ui.widgets.AirLinearLayout
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
+			android:background="@color/background_form"
 			android:orientation="vertical">
 
 			<LinearLayout
@@ -33,6 +35,7 @@
 				android:minHeight="44dp"
 				android:orientation="horizontal"
 				android:paddingBottom="8dp"
+				android:background="@color/gray_05_pcnt"
 				android:paddingLeft="@dimen/form_body_padding"
 				android:paddingRight="@dimen/form_body_padding"
 				android:paddingTop="8dp">
@@ -41,75 +44,46 @@
 					android:id="@+id/user_photo"
 					android:layout_width="@dimen/image_small"
 					android:layout_height="@dimen/image_small"
-					android:layout_marginRight="8dp"
 					custom:category="profile"
 					custom:shape="round" />
 
-				<TextView
-					android:id="@+id/patch_name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_vertical"
-					android:ellipsize="end"
-					android:singleLine="true"
-					android:textAppearance="@style/text_appearance_medium"
-					android:textColor="@color/brand_primary"
-					tools:text="Massena Residence" />
-
 				<!-- To -->
 
-				<ViewAnimator
-					android:id="@+id/animator_to"
+				<LinearLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:visibility="gone">
+					android:layout_marginLeft="8dp"
+					android:layout_marginStart="8dp"
+					android:orientation="vertical">
 
-					<com.patchr.ui.widgets.AirTokenCompleteTextView
-						android:id="@+id/to"
+					<com.patchr.ui.widgets.RecipientsCompletionView
+						android:id="@+id/recipients"
+						style="@style/form_edit"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:completionHint="@string/label_share_completion_hint"
-						android:completionHintView="@layout/view_search_hint"
+						android:background="@color/white"
 						android:gravity="center_vertical"
-						android:hint="@string/label_share_to_hint"
 						android:imeOptions="flagNoExtractUi"
-						android:minHeight="65dp"
-						android:textAppearance="?attr/textAppearanceMediumLarge" />
+						android:padding="4dp"
+						android:minHeight="48dp" />
 
-					<LinearLayout
+					<View
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/rule_divider_height"
+						android:background="?attr/ruleColor" />
+
+					<android.support.v7.widget.RecyclerView
+						android:id="@+id/results_list"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:background="?android:attr/editTextBackground"
-						android:cropToPadding="false"
-						android:minHeight="@dimen/form_field_height"
-						android:orientation="horizontal"
-						android:paddingLeft="10dp">
-
-						<TextView
-							android:id="@+id/entity_label"
-							android:layout_width="wrap_content"
-							android:layout_height="match_parent"
-							android:layout_marginBottom="5dp"
-							android:layout_weight="0"
-							android:background="@color/transparent"
-							android:gravity="center_vertical"
-							android:text="@string/label_message_to_prefix"
-							android:textAppearance="?attr/textAppearanceMediumLarge"
-							android:textColor="?attr/textColorSecondary" />
-
-						<ImageView
-							android:id="@+id/to_clear"
-							android:layout_width="@dimen/image_small"
-							android:layout_height="@dimen/image_small"
-							android:layout_gravity="center_vertical"
-							android:layout_weight="0"
-							android:clickable="true"
-							android:onClick="onEntityClearButtonClick"
-							android:padding="15dp"
-							android:scaleType="centerCrop"
-							android:src="?attr/iconCancel" />
-					</LinearLayout>
-				</ViewAnimator>
+						android:animationCache="false"
+						android:cacheColorHint="@color/transparent"
+						android:divider="@null"
+						android:footerDividersEnabled="false"
+						android:headerDividersEnabled="false"
+						android:listSelector="@color/transparent"
+						android:scrollingCache="false" />
+				</LinearLayout>
 
 			</LinearLayout>
 
@@ -127,9 +101,10 @@
 				android:layout_marginLeft="12dp"
 				android:layout_marginRight="12dp"
 				android:layout_marginTop="8dp"
+				android:drawableEnd="?attr/iconClear"
 				android:drawableRight="?attr/iconClear"
 				android:gravity="top"
-				android:hint="@string/hint_message_description"
+				android:hint="@string/hint_share_description"
 				android:imeOptions="flagNoExtractUi"
 				android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
 				android:minLines="4"
@@ -138,17 +113,17 @@
 
 			<!-- Attachment -->
 
-			<com.patchr.ui.views.PhotoEditView
+			<com.patchr.ui.widgets.PhotoEditWidget
 				android:id="@+id/photo_edit"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_marginLeft="16dp"
+				android:layout_marginRight="16dp"
 				android:background="@drawable/bg_rounded_placeholder"
 				custom:aspectRatio="0.75"
 				custom:category="standard"
 				custom:radius="18"
-				custom:shape="rounded"
-				android:layout_marginLeft="16dp"
-				android:layout_marginRight="16dp" />
+				custom:shape="rounded" />
 
 			<!-- Share: stretched (including child view) to fill remaining space -->
 
@@ -163,16 +138,16 @@
 					android:id="@+id/share_entity"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					tools:layout_height="96dp"
 					custom:cardBackgroundColor="?attr/backgroundButtonShare"
 					custom:cardCornerRadius="3dp"
 					custom:cardElevation="2dp"
 					custom:cardUseCompatPadding="true"
-					custom:contentPadding="4dp" />
+					custom:contentPadding="4dp"
+					tools:layout_height="96dp" />
 
 			</RelativeLayout>
 
-		</LinearLayout>
+		</com.patchr.ui.widgets.AirLinearLayout>
 
 	</ScrollView>
 

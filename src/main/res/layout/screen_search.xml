@@ -6,20 +6,22 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:background="@color/background_screen"
 	android:orientation="vertical">
 
 	<include
 		android:id="@+id/toolbar"
 		layout="@layout/include_toolbar_actionbar" />
 
-	<RelativeLayout
+	<com.patchr.ui.widgets.AirRelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
+		android:background="@color/white"
 		android:layout_gravity="center_horizontal">
 
 		<android.support.v7.widget.RecyclerView
 			android:id="@+id/results_list"
-			android:layout_width="288dp"
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_centerHorizontal="true"
 			android:animationCache="false"
@@ -40,6 +42,6 @@
 			android:visibility="gone"
 			tools:visibility="visible" />
 
-	</RelativeLayout>
+	</com.patchr.ui.widgets.AirRelativeLayout>
 
 </LinearLayout>

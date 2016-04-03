@@ -74,7 +74,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickList
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu_save, menu);
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {

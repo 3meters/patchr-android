@@ -401,7 +401,7 @@ public class NearbyListFragment extends EntityListFragment {
 					listPresenter.busyPresenter.show(BusyPresenter.BusyAction.Scanning_Empty);
 					listPresenter.emptyPresenter.hide(true);
 				}
-				if (Patchr.getInstance().getPrefEnableDev()) {
+				if (Patchr.getInstance().prefEnableDev) {
 					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
 				}
 			}

@@ -146,10 +146,10 @@ public class UserManager {
 		BranchProvider.setIdentity(userId);
 		Reporting.updateCrashUser(currentUser);
 
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), currentUser.email);
-		Patchr.settingsEditor.commit();
+		Patchr.settings.edit().putString(StringManager.getString(R.string.setting_user), jsonUser);
+		Patchr.settings.edit().putString(StringManager.getString(R.string.setting_user_session), jsonSession);
+		Patchr.settings.edit().putString(StringManager.getString(R.string.setting_last_email), currentUser.email);
+		Patchr.settings.edit().apply();
 	}
 
 	private void discardCredentials() {
@@ -168,9 +168,9 @@ public class UserManager {
 		BranchProvider.logout();
 
 		/* Clear user settings */
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), null);
-		Patchr.settingsEditor.commit();  // Asynch
+		Patchr.settings.edit().putString(StringManager.getString(R.string.setting_user), null);
+		Patchr.settings.edit().putString(StringManager.getString(R.string.setting_user_session), null);
+		Patchr.settings.edit().apply();  // Asynch
 	}
 
 	/*--------------------------------------------------------------------------------------------

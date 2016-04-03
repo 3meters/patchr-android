@@ -163,7 +163,7 @@ public class ProximityController {
 			if (PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				ProximityController.getInstance().scanForWifi(ScanReason.MONITORING);
 			}
-			if (Patchr.getInstance().getPrefEnableDev()) {
+			if (Patchr.getInstance().prefEnableDev) {
 				UI.toast("Proximity update: activity state = arriving");
 			}
 		}
@@ -343,7 +343,7 @@ public class ProximityController {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			mLastBeaconInstallUpdate = DateTime.nowDate().getTime();
-			if (Patchr.getInstance().getPrefEnableDev()) {
+			if (Patchr.getInstance().prefEnableDev) {
 				UI.toast("Location pushed: stopped after walking");
 			}
 		}

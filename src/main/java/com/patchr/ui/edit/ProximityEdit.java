@@ -14,7 +14,6 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
@@ -23,7 +22,6 @@ import com.patchr.components.ProximityController;
 import com.patchr.components.ProximityController.ScanReason;
 import com.patchr.components.StringManager;
 import com.patchr.events.BeaconsLockedEvent;
-import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.events.QueryWifiScanReceivedEvent;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.Patch;
@@ -54,18 +52,42 @@ public class ProximityEdit extends BaseEdit {
 		bind();
 	}
 
-	@Override protected void onStart() {
-		super.onStart();
-		Dispatcher.getInstance().register(this);
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	public void onTuneButtonClick(View view) {
+		if (!tuned) {
+			untuning = false;
+			busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
+			if (NetworkManager.getInstance().isWifiEnabled()
+					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
+				tuningInProcess = true;
+				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
+			}
+			else {
+				tuneProximity();
+			}
+		}
 	}
 
-	@Override protected void onStop() {
-		Dispatcher.getInstance().unregister(this);
-		super.onStop();
+	public void onUntuneButtonClick(View view) {
+		if (!untuned) {
+			untuning = true;
+			busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
+			if (NetworkManager.getInstance().isWifiEnabled()
+					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
+				tuningInProcess = true;
+				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
+			}
+			else {
+				tuneProximity();
+			}
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Events
+	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe public void onQueryWifiScanReceived(final QueryWifiScanReceivedEvent event) {
@@ -112,42 +134,6 @@ public class ProximityEdit extends BaseEdit {
 					tuneProximity();
 				}
 			});
-		}
-	}
-
-	@Subscribe public void onCancelEvent(ProcessingCanceledEvent event) {
-		if (taskService != null) {
-			taskService.cancel(true);
-		}
-	}
-
-	public void onTuneButtonClick(View view) {
-		if (!tuned) {
-			untuning = false;
-			busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
-			if (NetworkManager.getInstance().isWifiEnabled()
-					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
-				tuningInProcess = true;
-				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
-			}
-			else {
-				tuneProximity();
-			}
-		}
-	}
-
-	public void onUntuneButtonClick(View view) {
-		if (!untuned) {
-			untuning = true;
-			busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
-			if (NetworkManager.getInstance().isWifiEnabled()
-					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
-				tuningInProcess = true;
-				ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
-			}
-			else {
-				tuneProximity();
-			}
 		}
 	}
 

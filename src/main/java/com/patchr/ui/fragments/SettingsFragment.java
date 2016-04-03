@@ -151,30 +151,8 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 	private void initialize() {
 
-		/* Listen for theme change */
-		Preference pref = findPreference(StringManager.getString(R.string.pref_theme));
-		if (pref != null) {
-			pref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-
-				@Override
-				public boolean onPreferenceChange(Preference preference, Object newValue) {
-					Patchr.settingsEditor.putString(StringManager.getString(R.string.pref_theme), (String) newValue);
-					Patchr.settingsEditor.commit();
-					/*
-					 * Restarts this activity using the same intent as used for the previous start.
-					 */
-					Intent originalIntent = getActivity().getIntent();
-					originalIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-					getActivity().finish();
-					getActivity().overridePendingTransition(0, 0);
-					startActivity(originalIntent);
-					return false;
-				}
-			});
-		}
-
 		/* Listen for about click */
-		pref = findPreference("Pref_About");
+		Preference pref = findPreference("Pref_About");
 		if (pref != null) {
 			pref.setTitle("Version: " + Patchr.getVersionName(getActivity(), SettingsFragment.class));
 			pref.setSummary("Terms of Service, Privacy Policy, Licenses");

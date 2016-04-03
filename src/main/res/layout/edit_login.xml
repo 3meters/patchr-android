@@ -66,6 +66,7 @@
 				android:id="@+id/submit_button"
 				style="@style/button_featured"
 				android:layout_width="match_parent"
+				android:theme="@style/button_primary_overlay"
 				android:layout_height="56dp"
 				android:onClick="onClick"
 				android:text="@string/button_login" />

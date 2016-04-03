@@ -126,7 +126,7 @@ public class ProfileScreen extends BaseScreen implements SwipeRefreshLayout.OnRe
 		/* Shown for everyone */
 		getMenuInflater().inflate(R.menu.menu_report, menu);    // base
 
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -159,10 +159,11 @@ public class ProfileScreen extends BaseScreen implements SwipeRefreshLayout.OnRe
 
 				if (!event.noop) {
 					Boolean firstBind = (entity == null);
+					Boolean activityDateChanged = (this.entity != null && !this.entity.activityDate.equals(event.entity.activityDate));
 					this.entity = event.entity;
 					this.listPresenter.scopingEntity = event.entity;
 					this.listPresenter.scopingEntityId = event.entity.id;
-					this.listPresenter.fetch(event.fetchMode); // Next in the chain
+					this.listPresenter.fetch(activityDateChanged ? FetchMode.MANUAL : event.fetchMode); // Next in the chain
 				}
 				onFetchComplete();
 				bind();

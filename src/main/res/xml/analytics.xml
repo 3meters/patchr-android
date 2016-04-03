@@ -48,6 +48,7 @@
 
 	<screenName name="com.patchr.ui.edit.FeedbackEdit">FeedbackEdit</screenName>
 	<screenName name="com.patchr.ui.edit.MessageEdit">MessageEdit</screenName>
+	<screenName name="com.patchr.ui.edit.PostEdit">PostEdit</screenName>
 	<screenName name="com.patchr.ui.edit.PasswordEdit">PasswordEdit</screenName>
 	<screenName name="com.patchr.ui.edit.PatchEdit">PatchEdit</screenName>
 	<screenName name="com.patchr.ui.edit.ProximityEdit">ProximityEdit</screenName>

@@ -33,7 +33,7 @@ public class MapScreen extends BaseScreen {
 		if (location != null) {
 			getMenuInflater().inflate(R.menu.menu_navigate, menu);
 		}
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {

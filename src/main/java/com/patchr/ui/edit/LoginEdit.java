@@ -64,8 +64,7 @@ public class LoginEdit extends BaseEdit {
 		else {
 			getMenuInflater().inflate(R.menu.menu_login, menu);
 		}
-
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {

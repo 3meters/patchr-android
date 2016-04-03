@@ -35,8 +35,7 @@ public class PasswordEdit extends BaseEdit {
 		if (editing) {
 			getMenuInflater().inflate(R.menu.menu_save, menu);
 		}
-
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {

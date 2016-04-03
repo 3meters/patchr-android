@@ -6,6 +6,7 @@
 		android:icon="?attr/iconActionEdit"
 		android:orderInCategory="30"
 		app:showAsAction="always"
+		android:visible="false"
 		android:title="@string/menu_item_edit_message" />
 
 </menu>

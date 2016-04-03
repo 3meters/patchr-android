@@ -380,8 +380,8 @@ public class DataController {
 				/* We register installs even if the user is anonymous. */
 				ModelResult result = registerInstall();
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Patchr.settingsEditor.putBoolean(StringManager.getString(R.string.setting_install_registered), true);
-					Patchr.settingsEditor.commit();
+					Patchr.settings.edit().putBoolean(StringManager.getString(R.string.setting_install_registered), true);
+					Patchr.settings.edit().apply();
 				}
 				registering = false;
 

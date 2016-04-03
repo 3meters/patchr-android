@@ -64,7 +64,7 @@
 
 			<!-- Public Image -->
 
-			<com.patchr.ui.views.PhotoEditView
+			<com.patchr.ui.widgets.PhotoEditWidget
 				android:id="@+id/photo_edit"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"

@@ -157,7 +157,7 @@ public class ActivityRecognitionManager implements
 				&& mDetectionMode == DetectionMode.MOVING) {
 			startUpdates(Constants.TIME_TWO_MINUTES, Constants.TIME_TEN_SECONDS);  // Transition to moving is fast
 			mDetectionMode = DetectionMode.STILL;
-			if (Patchr.getInstance().getPrefEnableDev()) {
+			if (Patchr.getInstance().prefEnableDev) {
 				MediaManager.playSound(MediaManager.SOUND_ACTIVITY_CHANGE, 1.0f, 1);
 				UI.toast("Activity recognition: slowing updates");
 			}
@@ -166,13 +166,13 @@ public class ActivityRecognitionManager implements
 				&& mDetectionMode == DetectionMode.STILL) {
 			startUpdates(Constants.TIME_ONE_MINUTE, Constants.TIME_TWO_MINUTES);    // Transition to still takes more time
 			mDetectionMode = DetectionMode.MOVING;
-			if (Patchr.getInstance().getPrefEnableDev()) {
+			if (Patchr.getInstance().prefEnableDev) {
 				MediaManager.playSound(MediaManager.SOUND_ACTIVITY_CHANGE, 1.0f, 3);
 				UI.toast("Activity recognition: faster updates");
 			}
 		}
 
-		if (Patchr.getInstance().getPrefEnableDev()) {
+		if (Patchr.getInstance().prefEnableDev) {
 			UI.toast("Activity state: " + mActivityStateCurrent.name());
 		}
 

@@ -36,14 +36,15 @@ import com.patchr.ui.SettingsScreen;
 import com.patchr.ui.edit.FeedbackEdit;
 import com.patchr.ui.edit.LocationEdit;
 import com.patchr.ui.edit.LoginEdit;
-import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.edit.PasswordEdit;
 import com.patchr.ui.edit.PatchEdit;
+import com.patchr.ui.edit.PostEdit;
 import com.patchr.ui.edit.PrivacyEdit;
 import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.edit.ProximityEdit;
 import com.patchr.ui.edit.ReportEdit;
 import com.patchr.ui.edit.ResetEdit;
+import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
@@ -51,8 +52,10 @@ import com.patchr.utilities.Json;
 public class Router {
 
 	public Intent add(Context context, String schema, Bundle extras, Boolean start) {
-
-		Class<?> newClass = MessageEdit.class;
+		/*
+		 * Not used to route when creating an invite or share.
+		 */
+		Class<?> newClass = PostEdit.class;
 		if (Constants.SCHEMA_ENTITY_PATCH.equals(schema)) {
 			newClass = PatchEdit.class;
 		}
@@ -97,12 +100,15 @@ public class Router {
 
 	public Intent edit(Context context, Entity entity, Bundle extras, Boolean start) {
 
-		Class<?> editClass = MessageEdit.class;
+		Class<?> editClass = PostEdit.class;
 		if (Constants.SCHEMA_ENTITY_PATCH.equals(entity.schema)) {
 			editClass = PatchEdit.class;
 		}
 		else if (Constants.SCHEMA_ENTITY_USER.equals(entity.schema)) {
 			editClass = ProfileEdit.class;
+		}
+		else if (Constants.SCHEMA_ENTITY_MESSAGE.equals(entity.schema) && entity.type.equals("share")) {
+			editClass = ShareEdit.class;
 		}
 
 		IntentBuilder intentBuilder = new IntentBuilder(context, editClass);

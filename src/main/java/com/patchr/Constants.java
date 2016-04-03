@@ -28,10 +28,11 @@ public class Constants {
 	public static final String EXTRA_ENTITIES         = "com.patchr.EXTRA_ENTITIES";
 	public static final String EXTRA_ENTITY           = "com.patchr.EXTRA_ENTITY";        // Only used to pass entities to map form->map fragment
 
-	public static final String EXTRA_NOTIFICATION_ID = "com.patchr.EXTRA_NOTIFICATION_ID";
-	public static final String EXTRA_PATCH           = "com.patchr.EXTRA_PATCH";
-	public static final String EXTRA_PATCH_ID        = "com.patchr.EXTRA_PATCH_ID";
-	public static final String EXTRA_URI             = "com.patchr.EXTRA_URI";
+	public static final String EXTRA_NOTIFICATION_ID    = "com.patchr.EXTRA_NOTIFICATION_ID";
+	public static final String EXTRA_PATCH              = "com.patchr.EXTRA_PATCH";
+	public static final String EXTRA_PATCH_ID           = "com.patchr.EXTRA_PATCH_ID";
+	public static final String EXTRA_ENTITY_PARENT_NAME = "com.patchr.EXTRA_PATCH_NAME";
+	public static final String EXTRA_URI                = "com.patchr.EXTRA_URI";
 
 	public static final String EXTRA_MESSAGE_TYPE = "com.patchr.EXTRA_MESSAGE_TYPE";
 
@@ -133,8 +134,8 @@ public class Constants {
 	 * 1007K to 152K.
 	 */
 	public static final int IMAGE_QUALITY_S3                = 70;
-	public static final int MAX_WIDTH_LIST                  = 640;
-	public static final int MAX_WIDTH_FORM                  = 640;
+	public static final int MAX_WIDTH_LIST                  = 480;
+	public static final int MAX_WIDTH_FORM                  = 480;
 	public static final int MAX_WIDTH_GRID                  = 1000;
 	/*
 	 * Consistent with 5 megapixel sampled by two.

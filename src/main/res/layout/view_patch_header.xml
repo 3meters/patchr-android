@@ -31,18 +31,17 @@
 			android:id="@+id/action_group"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/white"
-			android:layout_below="@+id/animator_header">
+			android:layout_below="@+id/animator_header"
+			android:background="@color/white">
 
 			<Button
 				android:id="@+id/action_button"
-				style="@style/button_flat"
+				style="@style/button_featured"
 				android:layout_width="match_parent"
-				android:layout_height="@dimen/form_field_height"
-				android:clickable="true"
-				android:gravity="center"
+				android:layout_height="56dp"
 				android:onClick="onClick"
-				android:padding="8dp"
+				android:textColor="@color/white"
+				android:theme="@style/button_primary_overlay"
 				tools:text="Create a patch" />
 
 			<View

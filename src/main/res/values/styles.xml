@@ -30,7 +30,6 @@
 
 	<style name="text_appearance" parent="base_text_appearance">
 		<item name="android:textSize">16sp</item>
-		<item name="android:textColor">@color/black</item>
 	</style>
 
 	<style name="text_appearance_title" parent="text_appearance">
@@ -69,6 +68,11 @@
 
 	<style name="text_appearance_tiny" parent="text_appearance">
 		<item name="android:textSize">11sp</item>
+	</style>
+
+	<style name="text_appearance_menu_item" parent="text_appearance">
+		<item name="android:textSize">14sp</item>
+		<item name="android:textAllCaps">true</item>
 	</style>
 
 	<!-- App wide styles -->

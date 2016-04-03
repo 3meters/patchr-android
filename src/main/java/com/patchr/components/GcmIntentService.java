@@ -10,7 +10,6 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Notification;
-import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Json;
@@ -36,7 +35,7 @@ public class GcmIntentService extends GcmListenerService {
 			 * from a web console among other methods. They have a different format than the ones sent by
 			 * the service.
 			 */
-			String data = extras.getString("message");
+			String data = extras.getString("data");
 			if (isEntity(data)) {
 
 				@SuppressWarnings("ConstantConditions") Notification notification = (Notification) Json.jsonToObject(data, Json.ObjectType.ENTITY);

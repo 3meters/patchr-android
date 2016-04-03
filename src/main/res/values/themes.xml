@@ -31,6 +31,8 @@
 		<!-- Default overrides -->
 		<item name="android:editTextStyle">@style/form_edit</item>
 		<item name="android:textViewStyle">@style/text_view</item>
+		<item name="android:actionMenuTextAppearance">@style/text_appearance_menu_item</item>
+		<item name="android:actionMenuTextColor">@color/brand_primary</item>
 
 		<item name="android:textColorPrimary">@color/text_light</item>
 		<item name="android:textAppearance">@style/text_appearance</item>
@@ -147,6 +149,13 @@
 
 	<style name="patchr_radio_button" parent="Widget.AppCompat.CompoundButton.RadioButton">
 		<item name="colorControlActivated">@color/brand_primary</item>
+	</style>
+
+	<!-- Action bar -->
+
+	<style name="patchr_theme_action_bar" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+		<item name="colorControlNormal">@color/brand_primary</item>
+		<item name="android:background">@color/gray_05_pcnt</item>
 	</style>
 
 	<!-- Dialog Themes -->

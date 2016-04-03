@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -43,6 +44,8 @@ import com.patchr.objects.Notification;
 import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.MenuTint;
+import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
@@ -51,6 +54,7 @@ import com.patchr.utilities.UI;
 public abstract class BaseScreen extends AppCompatActivity {
 
 	public    Toolbar       toolbar;
+	public    TextView      actionBarTitle;
 	public    ActionBar     actionBar;
 	protected BusyPresenter busyPresenter;
 	protected View          rootView;
@@ -81,15 +85,16 @@ public abstract class BaseScreen extends AppCompatActivity {
 		this.busyPresenter = new BusyPresenter();
 		this.busyPresenter.setProgressBar(findViewById(R.id.form_progress));
 
-		this.toolbar = (Toolbar) this.rootView.findViewById(R.id.toolbar);
+		this.toolbar = (Toolbar) this.rootView.findViewById(R.id.actionbar_toolbar);
 		if (this.toolbar != null) {
 			super.setSupportActionBar(toolbar);
 			this.actionBar = super.getSupportActionBar();
+			this.actionBarTitle = (TextView) this.toolbar.findViewById(R.id.toolbar_title);
 			/*
 			 * By default we show the nav indicator and the title.
 			 */
 			if (this.actionBar != null) {
-				this.actionBar.setDisplayShowTitleEnabled(true);
+				this.actionBar.setDisplayShowTitleEnabled(false);
 				this.actionBar.setDisplayHomeAsUpEnabled(true);
 			}
 
@@ -134,6 +139,11 @@ public abstract class BaseScreen extends AppCompatActivity {
 		else {
 			cancelAction(false);
 		}
+	}
+
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+		MenuTint.on(menu).setMenuItemIconColor(Colors.getColor(R.color.brand_primary)).apply(this);
+		return true;
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
@@ -245,9 +255,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 		menuItem = menu.findItem(R.id.share);
 		if (menuItem != null) {
-			if (this instanceof PhotoScreen) {
-				menuItem.setVisible(MenuManager.showAction(Command.SHARE, entity));
-			}
+			menuItem.setVisible(MenuManager.showAction(Command.SHARE, entity));
 		}
 	}
 
