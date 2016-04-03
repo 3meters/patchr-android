@@ -411,7 +411,7 @@ public abstract class BaseEdit extends BaseScreen {
 						}
 						catch (OutOfMemoryError err) {
 							/* Give up and log it */
-							Reporting.logMessage("OutOfMemoryError: uri: " + entity.photo.uriDirect());
+							Reporting.breadcrumb("OutOfMemoryError: uri: " + entity.photo.uriDirect());
 							throw err;
 						}
 						catch (IOException ignore) { }

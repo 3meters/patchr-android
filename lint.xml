@@ -13,9 +13,6 @@
     <issue id="MissingPrefix" severity="ignore" />
     <issue id="MissingTranslation" severity="ignore" />
     <issue id="UnusedAttribute" severity="ignore" />
-	<issue id="TypographyDashes">
-		<ignore path="src/main/res/values/com_crashlytics_export_strings.xml" />
-	</issue>
     <issue id="UnusedResources">
 	    <ignore path="src/main/res/drawable-nodpi/img_user_generic_dark.png" />
 	    <ignore path="src/main/res/drawable-nodpi/img_user_generic_light.png" />
@@ -25,6 +22,5 @@
         <ignore path="src/main/res/values/colors.xml" />
 	    <ignore path="src/main/res/anim/*.*" />
         <ignore path="src/main/res/values/dimens.xml" />
-	    <ignore path="src/main/res/values/com_crashlytics_export_strings.xml" />
     </issue>
 </lint>

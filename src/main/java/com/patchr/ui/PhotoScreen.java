@@ -132,7 +132,7 @@ public class PhotoScreen extends BaseScreen {
 					bitmap = Picasso.with(Patchr.applicationContext).load(url).get();
 				}
 				catch (IOException e) {
-					Reporting.logMessage("Picasso failed to load bitmap");
+					Reporting.breadcrumb("Picasso failed to load bitmap");
 					Reporting.logException(new IOException("Picasso failed to load bitmap", e));
 				}
 

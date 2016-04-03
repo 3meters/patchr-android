@@ -150,7 +150,7 @@ public class OkHttp {
 					String contentType = getContentType(response, airRequest);
 					try {
 						Long contentLength = response.body().contentLength();
-						Reporting.logMessage("OutOfMemoryError: success response:"
+						Reporting.breadcrumb("OutOfMemoryError: success response:"
 								+ " contentType: " + contentType
 								+ " contentLength: " + String.valueOf(contentLength));
 					}

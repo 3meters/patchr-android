@@ -297,7 +297,7 @@ public class NetworkManager {
 		else {
 			/* We assume a failure means most likely not a walled garden */
 			String message = "Walled garden check: failed with exception " + serviceResponse.exception;
-			Reporting.logMessage(message);
+			Reporting.breadcrumb(message);
 			return false;
 		}
 	}

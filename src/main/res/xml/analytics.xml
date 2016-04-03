@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="TypographyDashes">
+<resources xmlns:tools="http://schemas.android.com/tools"
+	tools:ignore="TypographyDashes">
 	<!--
 		By default, the reported app name and version come from the package.
 		Every aircandi application has a unique tracking id
@@ -11,7 +12,7 @@
 	-->
 	<bool name="ga_autoActivityTracking">true</bool>
 	<!--
-		We send crashes to Crashlytics.
+		We send crashes to Bugsnag.
 	-->
 	<bool name="ga_reportUncaughtExceptions">false</bool>
 	<!--
@@ -25,38 +26,38 @@
 
 	<!-- The screen names that will appear in the reporting -->
 
-	<screenName name="com.patchr.ui.AboutForm">AboutForm</screenName>
-	<screenName name="com.patchr.ui.AircandiForm">AircandiForm</screenName>
-	<screenName name="com.patchr.ui.MapForm">MapForm</screenName>
-	<screenName name="com.patchr.ui.MessageForm">MessageForm</screenName>
-	<screenName name="com.patchr.ui.PatchForm">PatchForm</screenName>
-	<screenName name="com.patchr.ui.PatchList">PatchList</screenName>
-	<screenName name="com.patchr.ui.PhotoForm">PhotoForm</screenName>
-	<screenName name="com.patchr.ui.PlaceForm">PlaceForm</screenName>
-	<screenName name="com.patchr.ui.SearchForm">SearchForm</screenName>
-	<screenName name="com.patchr.ui.SettingsForm">SettingsForm</screenName>
-	<screenName name="com.patchr.ui.SplashForm">SplashForm</screenName>
-	<screenName name="com.patchr.ui.UserForm">UserForm</screenName>
-	<screenName name="com.patchr.ui.WatcherList">WatcherList</screenName>
+	<screenName name="com.patchr.ui.AboutScreen">AboutScreen</screenName>
+	<screenName name="com.patchr.ui.ListScreen">ListScreen</screenName>
+	<screenName name="com.patchr.ui.LobbyScreen">LobbyScreen</screenName>
+	<screenName name="com.patchr.ui.MainScreen">MainScreen</screenName>
+	<screenName name="com.patchr.ui.MapScreen">MapScreen</screenName>
+	<screenName name="com.patchr.ui.MemberListScreen">MemberListScreen</screenName>
+	<screenName name="com.patchr.ui.MessageScreen">MessageScreen</screenName>
+	<screenName name="com.patchr.ui.PatchScreen">PatchScreen</screenName>
+	<screenName name="com.patchr.ui.PhotoScreen">PhotoScreen</screenName>
+	<screenName name="com.patchr.ui.PhotoSearchScreen">PhotoSearchScreen</screenName>
+	<screenName name="com.patchr.ui.PhotoSwitchboardScreen">PhotoSwitchboardScreen</screenName>
+	<screenName name="com.patchr.ui.ProfileScreen">ProfileScreen</screenName>
+	<screenName name="com.patchr.ui.SearchScreen">SearchScreen</screenName>
+	<screenName name="com.patchr.ui.SettingsScreen">SettingsScreen</screenName>
 
 	<screenName name="com.patchr.ui.fragments.MapListFragment">MapList</screenName>
 	<screenName name="com.patchr.ui.fragments.NearbyListFragment">NearbyList</screenName>
 	<screenName name="com.patchr.ui.fragments.EntityListFragment">PatchList</screenName>
-	<screenName name="com.patchr.ui.fragments.TrendListFragment">TrendList</screenName>
 
 	<!-- Edit -->
 
 	<screenName name="com.patchr.ui.edit.FeedbackEdit">FeedbackEdit</screenName>
-	<screenName name="com.patchr.ui.edit.MessageEdit">MessageEdit</screenName>
+	<screenName name="com.patchr.ui.edit.ShareEdit">ShareEdit</screenName>
 	<screenName name="com.patchr.ui.edit.PostEdit">PostEdit</screenName>
 	<screenName name="com.patchr.ui.edit.PasswordEdit">PasswordEdit</screenName>
 	<screenName name="com.patchr.ui.edit.PatchEdit">PatchEdit</screenName>
 	<screenName name="com.patchr.ui.edit.ProximityEdit">ProximityEdit</screenName>
-	<screenName name="com.patchr.ui.edit.RegisterEdit">RegisterEdit</screenName>
+	<screenName name="com.patchr.ui.edit.ProfileEdit">ProfileEdit</screenName>
 	<screenName name="com.patchr.ui.edit.ReportEdit">ReportEdit</screenName>
 	<screenName name="com.patchr.ui.edit.ResetEdit">ResetEdit</screenName>
-	<screenName name="com.patchr.ui.edit.SignInEdit">SigninEdit</screenName>
-	<screenName name="com.patchr.ui.edit.UserEdit">UserEdit</screenName>
+	<screenName name="com.patchr.ui.edit.LoginEdit">LoginEdit</screenName>
+	<screenName name="com.patchr.ui.edit.LocationEdit">LocationEdit</screenName>
 
 	<!-- Builders -->
 

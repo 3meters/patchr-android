@@ -179,11 +179,11 @@ public class Json {
 			}
 		}
 		catch (ParseException e) {
-			Reporting.logMessage(json);
+			Reporting.breadcrumb(json);
 			Reporting.logException(e);
 		}
 		catch (Exception e) {
-			Reporting.logMessage(json);
+			Reporting.breadcrumb(json);
 			Reporting.logException(e);
 		}
 		throw new IllegalArgumentException("Unable to deserialize json: " + objectType.toString());

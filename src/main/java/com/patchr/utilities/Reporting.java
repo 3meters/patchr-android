@@ -2,63 +2,62 @@ package com.patchr.utilities;
 
 import android.location.Location;
 import android.net.wifi.WifiManager;
-import android.support.annotation.NonNull;
-import android.util.Log;
 
+import com.bugsnag.android.Bugsnag;
+import com.google.android.gms.analytics.HitBuilders;
 import com.patchr.Patchr;
 import com.patchr.components.AndroidManager;
 import com.patchr.components.LocationManager;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.ProximityController;
 import com.patchr.objects.User;
-import com.crashlytics.android.Crashlytics;
-import com.google.android.gms.analytics.HitBuilders;
 
 import java.util.Locale;
 
 public class Reporting {
 
 	public static void updateCrashKeys() {
-		Crashlytics.setBool("airplane_mode", NetworkManager.isAirplaneMode(Patchr.applicationContext));
-		Crashlytics.setBool("connected", NetworkManager.getInstance().isConnected());
-		Crashlytics.setString("network_type", NetworkManager.getInstance().getNetworkType().toLowerCase(Locale.US));
-		Crashlytics.setBool("wifi_tethered", NetworkManager.getInstance().isWifiTethered());
-		Crashlytics.setFloat("beacons_visible", ProximityController.getInstance().getWifiList().size());
-		Crashlytics.setString("device_name", AndroidManager.getInstance().getDeviceName());
 
-		/* Memory info */
-		Crashlytics.setFloat("memory_max_mb", Utils.maxMemoryMB());
-		Crashlytics.setFloat("memory_total_mb", Utils.totalMemoryMB());
-		Crashlytics.setFloat("memory_free_mb", Utils.freeMemoryMB());
+		Bugsnag.addToTab("network", "airplane_mode", NetworkManager.isAirplaneMode(Patchr.applicationContext));
+		Bugsnag.addToTab("network", "connected", NetworkManager.getInstance().isConnected());
+		Bugsnag.addToTab("network", "network_type", NetworkManager.getInstance().getNetworkType().toLowerCase(Locale.US));
+		Bugsnag.addToTab("network", "wifi_tethered", NetworkManager.getInstance().isWifiTethered());
 
 		/* Identifies device/install combo */
-		Crashlytics.setString("install_id", Patchr.getInstance().getinstallId());
+		Bugsnag.addToTab("device", "patchr_install_id", Patchr.getInstance().getinstallId());
+		Bugsnag.addToTab("device", "name", AndroidManager.getInstance().getDeviceName());
 
+		/* Location info */
 		Location location = LocationManager.getInstance().getLocationLocked();
 		if (location != null) {
-			Crashlytics.setFloat("location_accurary", location.getAccuracy());
-			Crashlytics.setString("location_provider", location.getProvider());
+			Bugsnag.addToTab("location", "accuracy", location.getAccuracy());
+			Bugsnag.addToTab("location", "age_in_secs", NetworkManager.getInstance().isWifiTethered());
+			Bugsnag.addToTab("location", "provider", location.getProvider());
 		}
 		else {
-			Crashlytics.setFloat("location_accurary", 0);
-			Crashlytics.setString("location_provider", "no locked location");
+			Bugsnag.addToTab("location", "accuracy", null);
+			Bugsnag.addToTab("location", "age_in_secs", null);
+			Bugsnag.addToTab("location", "provider", "No locked location");
 		}
+
+		/* Proximity */
+		Bugsnag.addToTab("proximity", "beacons_visible", ProximityController.getInstance().getWifiList().size());
 
 		/* Wifi state */
 
 		Integer wifiState = NetworkManager.getInstance().getWifiState();
 		if (wifiState != null) {
 			if (wifiState == WifiManager.WIFI_STATE_DISABLED) {
-				Crashlytics.setString("wifi_state", "disabled");
+				Bugsnag.addToTab("wifi", "wifi_state", "disabled");
 			}
 			else if (wifiState == WifiManager.WIFI_STATE_ENABLED) {
-				Crashlytics.setString("wifi_state", "enabled");
+				Bugsnag.addToTab("wifi", "wifi_state", "enabled");
 			}
 			else if (wifiState == WifiManager.WIFI_STATE_ENABLING) {
-				Crashlytics.setString("wifi_state", "enabling");
+				Bugsnag.addToTab("wifi", "wifi_state", "enabling");
 			}
 			else if (wifiState == WifiManager.WIFI_STATE_DISABLING) {
-				Crashlytics.setString("wifi_state", "disabling");
+				Bugsnag.addToTab("wifi", "wifi_state", "disabling");
 			}
 		}
 
@@ -67,56 +66,39 @@ public class Reporting {
 		NetworkManager.WIFI_AP_STATE wifiApState = NetworkManager.getInstance().getWifiApState();
 		if (wifiApState != null) {
 			if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLED) {
-				Crashlytics.setString("wifi_ap_state", "disabled");
+				Bugsnag.addToTab("wifi", "wifi_ap_state", "disabled");
 			}
 			else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLED) {
-				Crashlytics.setString("wifi_ap_state", "enabled");
+				Bugsnag.addToTab("wifi", "wifi_ap_state", "enabled");
 			}
 			else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLING) {
-				Crashlytics.setString("wifi_ap_state", "enabling");
+				Bugsnag.addToTab("wifi", "wifi_ap_state", "enabling");
 			}
 			else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLING) {
-				Crashlytics.setString("wifi_ap_state", "disabling");
+				Bugsnag.addToTab("wifi", "wifi_ap_state", "disabling");
 			}
 		}
+
+		Bugsnag.addToTab("memory", "memory_max_mb", Utils.maxMemoryMB());
+		Bugsnag.addToTab("memory", "memory_total_mb", Utils.totalMemoryMB());
+		Bugsnag.addToTab("memory", "memory_free_mb", Utils.freeMemoryMB());
 	}
 
 	public static void updateCrashUser(User user) {
 		if (user != null) {
-			Crashlytics.setUserIdentifier(user.id);
-			Crashlytics.setUserName(user.name);
-			Crashlytics.setUserEmail(user.email);
+			Bugsnag.setUser(user.id, user.name, user.email);
 		}
 		else {
-			Crashlytics.setUserIdentifier(null);
-			Crashlytics.setUserName(null);
-			Crashlytics.setUserEmail(null);
+			Bugsnag.setUser(null, null, null);
 		}
 	}
 
 	public static void logException(Exception exception) {
-		/*
-		 * Gets sent to crashlytics as a non-fatal exception with all the
-		 * standard logging info. Batched and sent only when the appliction
-		 * restarts. Splash has init logic to restart crashlytics so that
-		 * might force the send even though the app hasn't restarted.
-		 */
-		Crashlytics.logException(exception);
+		Bugsnag.notify(exception);
 	}
 
-	public static void logMessage(String message) {
-		/*
-		 * Will be included with the next crash report send to crashlytics.
-		 */
-		Crashlytics.log(message);
-	}
-
-	public static void logStacktrace(Exception e) {
-		/*
-		 * Will be included with the next crash report send to crashlytics.
-		 */
-		String stacktrace = Log.getStackTraceString(e);
-		Crashlytics.log(stacktrace);
+	public static void breadcrumb(String message) {
+		Bugsnag.leaveBreadcrumb(message);
 	}
 
 	public static void sendEvent(String category, String action, String target, long value) {
@@ -158,17 +140,11 @@ public class Reporting {
 	}
 
 	public static class TrackerCategory {
-		@NonNull
 		public static String UX          = "ux";
-		@NonNull
 		public static String SYSTEM      = "system";
-		@NonNull
 		public static String EDIT        = "editing";
-		@NonNull
 		public static String LINK        = "linking";
-		@NonNull
 		public static String USER        = "user";
-		@NonNull
 		public static String PERFORMANCE = "performance";
 	}
 }

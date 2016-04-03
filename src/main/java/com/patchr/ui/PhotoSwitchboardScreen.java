@@ -270,7 +270,7 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 			}
 		}
 		catch (Exception e) {
-			Reporting.logMessage("Image chooser failed to handle photo from device");
+			Reporting.breadcrumb("Image chooser failed to handle photo from device");
 			Reporting.logException(e);
 		}
 	}

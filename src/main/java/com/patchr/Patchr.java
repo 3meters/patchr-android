@@ -16,7 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.crashlytics.android.Crashlytics;
+import com.bugsnag.android.Bugsnag;
 import com.facebook.FacebookSdk;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
@@ -50,7 +50,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.branch.referral.Branch;
-import io.fabric.sdk.android.Fabric;
 
 public class Patchr extends MultiDexApplication {
 
@@ -122,7 +121,7 @@ public class Patchr extends MultiDexApplication {
 		initializeInstallInfo();
 
 		/* Turn on crash reporting */
-		Fabric.with(this, new Crashlytics());
+		Bugsnag.init(this);
 
 		/* Turn on facebook */
 		FacebookSdk.sdkInitialize(this);

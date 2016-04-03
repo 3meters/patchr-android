@@ -77,9 +77,6 @@
 			android:name="com.google.android.maps.v2.API_KEY"
 			android:value="AIzaSyCF9Nlm-CGETdgwP1ktNyAoKVgcUGuMzTA" />
 		<meta-data
-			android:name="com.crashlytics.ApiKey"
-			android:value="3f03e3891f0d0c56c4bc1c393db5efe2aa0f90c7" />
-		<meta-data
 			android:name="com.google.android.gms.version"
 			android:value="@integer/google_play_services_version" />
 		<meta-data
@@ -94,6 +91,9 @@
 		<meta-data
 			android:name="io.branch.sdk.TestMode"
 			android:value="false" />
+		<meta-data
+			android:name="com.bugsnag.android.API_KEY"
+			android:value="0534f3bc03870084ba38d79ed1d5abea"/>
 
 		<!-- Misc data -->
 
