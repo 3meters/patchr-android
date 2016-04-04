@@ -381,7 +381,7 @@ public class ShareEdit extends BaseEdit {
 			}
 			else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				MessageView messageView = new MessageView(this, R.layout.view_message_attachment);
-				messageView.bind(shareEntity);
+				messageView.bind(shareEntity, null);
 				CardView cardView = (CardView) shareEntityView;
 				int padding = UI.getRawPixelsForDisplayPixels(8f);
 				cardView.setContentPadding(padding, padding, padding, padding);

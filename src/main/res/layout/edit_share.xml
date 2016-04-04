@@ -29,7 +29,7 @@
 			android:orientation="vertical">
 
 			<LinearLayout
-				android:id="@+id/holder_patch"
+				android:id="@+id/patch_group"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:minHeight="44dp"

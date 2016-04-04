@@ -86,7 +86,9 @@ import com.squareup.picasso.Picasso;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
@@ -536,7 +538,11 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 		this.header = new PatchDetailView(this);
 
+		Map options = new HashMap<String, Object>();
+		options.put("hide_patch_name", true);
+
 		this.listPresenter = new RecyclePresenter(this);
+		this.listPresenter.options = options;
 		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
 		this.listPresenter.listItemResId = R.layout.listitem_message;
 		this.listPresenter.busyPresenter = new BusyPresenter();

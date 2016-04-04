@@ -418,7 +418,7 @@ public class MessageScreen extends BaseScreen {
 
 		photoView = (ImageWidget) findViewById(R.id.photo);
 		holderUser = findViewById(R.id.holder_user);
-		holderPatch = findViewById(R.id.holder_patch);
+		holderPatch = findViewById(R.id.patch_group);
 		description = (TextView) findViewById(R.id.description);
 		patchPhotoView = (ImageWidget) findViewById(R.id.patch_photo);
 		patchName = (TextView) findViewById(R.id.patch_name);
@@ -587,7 +587,7 @@ public class MessageScreen extends BaseScreen {
 				else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 					patchName.setText(StringManager.getString(R.string.label_message_shared));
 					MessageView messageView = new MessageView(this, R.layout.view_message_attachment);
-					messageView.bind(shareEntity);
+					messageView.bind(shareEntity, null);
 					CardView cardView = (CardView) shareView;
 					int padding = UI.getRawPixelsForDisplayPixels(8f);
 					cardView.setContentPadding(padding, padding, padding, padding);

@@ -5,7 +5,6 @@ import android.view.View;
 
 import com.patchr.Constants;
 import com.patchr.R;
-import com.patchr.events.AbsEntitiesQueryEvent;
 import com.patchr.objects.Entity;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.NotificationView;
@@ -13,6 +12,8 @@ import com.patchr.ui.views.PatchView;
 import com.patchr.ui.views.SearchItemView;
 import com.patchr.ui.views.UserDetailView;
 import com.patchr.ui.views.UserView;
+
+import java.util.Map;
 
 public class ViewHolder extends RecyclerView.ViewHolder {
 	public View entityView;
@@ -26,7 +27,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
 		bind(entity, null, null);
 	}
 
-	public void bind(Entity entity, Entity scopingEntity, AbsEntitiesQueryEvent query) {
+	public void bind(Entity entity, Entity scopingEntity, Map options) {
 
 		if (entityView instanceof SearchItemView) {
 			SearchItemView view = (SearchItemView) entityView;
@@ -45,7 +46,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
 		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 			MessageView messageView = (MessageView) entityView;
 			messageView.setTag(entity);
-			messageView.bind(entity);
+			messageView.bind(entity, options);
 		}
 		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
 			NotificationView notificationView = (NotificationView) entityView;

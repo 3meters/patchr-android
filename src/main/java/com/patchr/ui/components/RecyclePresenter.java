@@ -28,6 +28,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class RecyclePresenter {
 
@@ -50,6 +51,7 @@ public class RecyclePresenter {
 	public String  listViewType;
 	public boolean entityCacheDisabled;            // true == always call service
 	public boolean pagingDisabled;
+	public Map     options;
 	public Boolean showIndex = true;
 
 	/* Cached for grids */
@@ -316,7 +318,7 @@ public class RecyclePresenter {
 			else if (itemType == TYPE_ITEM) {
 				Entity entity = getItem(position);
 				entity.index = getIndex(position);
-				holder.bind(entity, scopingEntity, query);
+				holder.bind(entity, scopingEntity, options);
 			}
 		}
 

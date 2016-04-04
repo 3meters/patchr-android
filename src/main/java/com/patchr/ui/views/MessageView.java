@@ -24,6 +24,7 @@ import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("ucd")
 public class MessageView extends FrameLayout {
@@ -34,6 +35,7 @@ public class MessageView extends FrameLayout {
 	protected CacheStamp cacheStamp;
 	protected BaseView   base;
 	protected Integer    layoutResId;
+	public    boolean    hidePatchName;
 
 	protected ViewGroup   layout;
 	protected ImageWidget userPhotoView;
@@ -49,6 +51,8 @@ public class MessageView extends FrameLayout {
 	protected ViewGroup   shareHolder;
 	protected ViewGroup   shareView;
 	protected ViewGroup   shareRecipientsHolder;
+	protected View        footerGroup;
+	protected View        patchGroup;
 
 	public MessageView(Context context) {
 		this(context, null, 0);
@@ -93,27 +97,40 @@ public class MessageView extends FrameLayout {
 		this.shareView = (ViewGroup) layout.findViewById(R.id.share_entity);
 		this.shareRecipientsHolder = (ViewGroup) layout.findViewById(R.id.share_recipients_holder);
 		this.shareRecipients = (TextView) layout.findViewById(R.id.share_recipients);
+		this.footerGroup = layout.findViewById(R.id.footer_group);
+		this.patchGroup = layout.findViewById(R.id.patch_group);
 	}
 
-	public void bind(Entity entity) {
+	public void bind(Entity entity, Map options) {
 
 		synchronized (lock) {
 
 			this.entity = entity;
 			this.cacheStamp = entity.getCacheStamp();
 
+			/* Options */
+			if (options != null) {
+				if (options.containsKey("hide_patch_name")) {
+					this.hidePatchName = (Boolean) options.get("hide_patch_name");
+				}
+			}
+
 			Boolean share = (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE));
 
 			/* Patch context */
+			patchGroup.setVisibility(GONE);
 			if (!share) {
-				Entity parentEntity = entity.patch;
-				if (parentEntity == null) {
-					if (entity.patchId != null) {
-						parentEntity = DataController.getStoreEntity(entity.patchId);
+				if (!hidePatchName) {
+					Entity parentEntity = entity.patch;
+					if (parentEntity == null) {
+						if (entity.patchId != null) {
+							parentEntity = DataController.getStoreEntity(entity.patchId);
+						}
 					}
-				}
-				if (parentEntity != null) {
-					base.setOrGone(this.patchName, parentEntity.name);
+					if (parentEntity != null) {
+						base.setOrGone(this.patchName, parentEntity.name);
+						patchGroup.setVisibility(VISIBLE);
+					}
 				}
 			}
 
@@ -134,6 +151,7 @@ public class MessageView extends FrameLayout {
 			UI.setVisibility(this.photoView, GONE);
 			UI.setVisibility(this.shareHolder, GONE);
 			UI.setVisibility(this.shareRecipientsHolder, GONE);
+			UI.setVisibility(this.footerGroup, GONE);
 
 			if (share) {
 
@@ -166,7 +184,7 @@ public class MessageView extends FrameLayout {
 					}
 					else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 						MessageView messageView = new MessageView(getContext(), R.layout.view_message_attachment);
-						messageView.bind(shareEntity);
+						messageView.bind(shareEntity, null);
 						CardView cardView = (CardView) this.shareView;
 						int padding = UI.getRawPixelsForDisplayPixels(8f);
 						cardView.setContentPadding(padding, padding, padding, padding);
@@ -218,6 +236,7 @@ public class MessageView extends FrameLayout {
 				}
 
 		        /* Likes */
+				UI.setVisibility(this.footerGroup, VISIBLE);
 				UI.setVisibility(this.likesButton, GONE);
 
 				Count count = entity.getCount(Constants.TYPE_LINK_LIKE, null, null, Link.Direction.in);

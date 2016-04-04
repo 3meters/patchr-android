@@ -11,7 +11,7 @@
 		<!-- Patch context -->
 
 		<LinearLayout
-			android:id="@+id/holder_patch"
+			android:id="@+id/patch_group"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignLeft="@+id/holder_content"
@@ -46,7 +46,7 @@
 			android:id="@+id/holder_content"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_below="@+id/holder_patch"
+			android:layout_below="@+id/patch_group"
 			android:layout_toRightOf="@+id/user_photo"
 			android:orientation="vertical">
 
@@ -161,7 +161,7 @@
 			<!-- Footer -->
 
 			<RelativeLayout
-				android:id="@+id/footer_holder"
+				android:id="@+id/footer_group"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="5dp">
