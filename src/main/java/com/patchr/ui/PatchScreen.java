@@ -14,7 +14,6 @@ import android.nfc.NfcEvent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ShareCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -29,10 +28,6 @@ import android.widget.TextView;
 import android.widget.ViewAnimator;
 
 import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.share.model.AppInviteContent;
-import com.facebook.share.widget.AppInviteDialog;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.flipboard.bottomsheet.OnSheetDismissedListener;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
@@ -40,8 +35,10 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
+import com.patchr.components.BranchProvider;
 import com.patchr.components.DataController;
 import com.patchr.components.Dispatcher;
+import com.patchr.components.FacebookProvider;
 import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
@@ -66,7 +63,6 @@ import com.patchr.objects.MemberStatus;
 import com.patchr.objects.Message;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
-import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyPresenter;
@@ -80,7 +76,6 @@ import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.UI;
-import com.patchr.utilities.Utils;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -332,15 +327,8 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 			if (event.actionType == ActionType.ACTION_GET_ENTITY) {
 
-				if (event.entity == null) {
-					/* Swing and miss means entity no longer exists. */
-					UI.toast(StringManager.getString(R.string.alert_deleted));
-					setResult(Constants.RESULT_ENTITY_DELETED);
-					finish();
-					return;
-				}
-
 				if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
+
 					if (event.error != null) {
 						onFetchComplete();
 						return;
@@ -735,8 +723,8 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 		MenuSheetView menuSheetView = new MenuSheetView(this, MenuSheetView.MenuType.GRID, "Invite friends using...", new MenuSheetView.OnMenuItemClickListener() {
 
-			@Override
-			public boolean onMenuItemClick(final MenuItem item) {
+			@Override public boolean onMenuItemClick(final MenuItem item) {
+
 				bottomSheetLayout.addOnSheetDismissedListener(new OnSheetDismissedListener() {
 
 					@Override public void onDismissed(BottomSheetLayout bottomSheetLayout) {
@@ -756,11 +744,11 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 						}
 						else if (item.getItemId() == R.id.invite_using_facebook) {
 							FacebookProvider provider = new FacebookProvider();
-							provider.invite(title);
+							provider.invite(title, entity, PatchScreen.this, callbackManager);
 						}
 						else if (item.getItemId() == R.id.invite_using_other) {
 							BranchProvider provider = new BranchProvider();
-							provider.invite(title);
+							provider.invite(title, entity, PatchScreen.this);
 						}
 					}
 				});
@@ -897,7 +885,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	private void makeBranchLink() {
 
 		BranchProvider provider = new BranchProvider();
-		BranchUniversalObject applink = provider.buildApplink();
+		BranchUniversalObject applink = provider.buildApplink(this.entity);
 		LinkProperties linkProperties = new LinkProperties()
 				.setChannel("patchr-android")
 				.setFeature(Branch.FEATURE_TAG_INVITE);
@@ -976,143 +964,5 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 				handler.removeCallbacks(this);
 			}
 		}, delay);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
-
-	public class BranchProvider {
-
-		public BranchUniversalObject buildApplink() {
-
-			final String patchName = (entity.name != null) ? entity.name : StringManager.getString(R.string.container_singular_lowercase);
-			final String referrerName = UserManager.currentUser.name;
-			final String referrerId = UserManager.currentUser.id;
-			final String ownerName = entity.owner.name;
-			final String path = "patch/" + entityId;
-
-			BranchUniversalObject applink = new BranchUniversalObject()
-					.setCanonicalIdentifier(path)
-					.setTitle(String.format("Invite by %1$s to the %2$s patch", referrerName, patchName)) // $og_title
-					.addContentMetadata("entityId", entityId)
-					.addContentMetadata("entitySchema", Constants.SCHEMA_ENTITY_PATCH)
-					.addContentMetadata("referrerName", referrerName)
-					.addContentMetadata("referrerId", referrerId)
-					.addContentMetadata("ownerName", ownerName)
-					.addContentMetadata("patchName", patchName);
-
-			if (UserManager.currentUser.photo != null) {
-				Photo photo = UserManager.currentUser.photo;
-				applink.addContentMetadata("referrerPhotoUrl", photo.uri(PhotoCategory.PROFILE));
-			}
-
-			if (entity.photo != null) {
-				Photo photo = entity.photo;
-				String settings = "h=500&crop&fit=crop&q=50";
-				String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
-				applink.setContentImageUrl(photoUrl);  // $og_image_url
-			}
-
-			if (entity.description != null) {
-				applink.setContentDescription(entity.description); // $og_description
-			}
-
-			return applink;
-		}
-
-		public void invite(final String title) {
-
-			final String patchName = (entity.name != null) ? entity.name : StringManager.getString(R.string.container_singular_lowercase);
-			final String referrerName = UserManager.currentUser.name;
-
-			BranchUniversalObject applink = buildApplink();
-
-			LinkProperties linkProperties = new LinkProperties()
-					.setChannel("patchr-android")
-					.setFeature(Branch.FEATURE_TAG_INVITE);
-
-			applink.generateShortUrl(PatchScreen.this, linkProperties, new Branch.BranchLinkCreateListener() {
-
-				@Override
-				public void onLinkCreate(String url, BranchError error) {
-
-					if (error == null) {
-						ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(PatchScreen.this);
-						builder.setChooserTitle(title);
-						builder.setType("text/plain");
-					/*
-					 * subject: Invitation to the \'%1$s\' patch
-					 * body: %1$s has invited you to the %2$s patch! %3$s
-					 */
-						builder.setSubject(String.format(StringManager.getString(R.string.label_patch_share_subject), patchName));
-						builder.setText(String.format(StringManager.getString(R.string.label_patch_share_body), referrerName, patchName, url));
-
-						builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-						builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, entityId);
-						builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
-
-						builder.startChooser();
-					}
-				}
-			});
-		}
-	}
-
-	public class FacebookProvider {
-
-		public void invite(final String title) {
-
-			AppInviteDialog inviteDialog = new AppInviteDialog(PatchScreen.this);
-
-			if (AppInviteDialog.canShow()) {
-
-				String patchName = (entity.name != null) ? entity.name : StringManager.getString(R.string.container_singular_lowercase);
-				String patchPhotoUrl = null;
-				String referrerNameEncoded = Utils.encode(UserManager.currentUser.name);
-				String referrerPhotoUrl = "";
-
-				if (UserManager.currentUser.photo != null) {
-					Photo photo = UserManager.currentUser.photo;
-					String photoUrlEncoded = Utils.encode(photo.uri(PhotoCategory.PROFILE));
-					referrerPhotoUrl = String.format("&referrerPhotoUrl=%1$s", photoUrlEncoded);
-				}
-
-				String queryString = String.format("entityId=%1$s&entitySchema=%2$s&referrerName=%3$s%4$s", entity.id, entity.schema, referrerNameEncoded, referrerPhotoUrl);
-				Uri applink = Uri.parse(String.format("https://fb.me/934234473291708?%1$s", queryString));
-
-				if (entity.photo != null) {
-					Photo photo = entity.photo;
-					String patchNameEncoded = Utils.encode(patchName);
-					String settings = "w=1200&h=628&crop&fit=crop&q=25&txtsize=96&txtalign=left,bottom&txtcolor=fff&txtshad=5&txtpad=60&txtfont=Helvetica%20Neue%20Light";
-					patchPhotoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s&txt=%3$s", photo.prefix, settings, patchNameEncoded);
-				}
-
-				AppInviteContent.Builder builder = new AppInviteContent.Builder();
-				builder.setApplinkUrl(applink.toString());
-				if (patchPhotoUrl != null) {
-					builder.setPreviewImageUrl(patchPhotoUrl);
-				}
-
-				inviteDialog.registerCallback(callbackManager, new FacebookCallback<AppInviteDialog.Result>() {
-
-					@Override
-					public void onSuccess(AppInviteDialog.Result result) {
-						UI.toast("Facebook invites sent");
-					}
-
-					@Override
-					public void onCancel() {
-						UI.toast("Facebook invite cancelled");
-					}
-
-					@Override
-					public void onError(FacebookException error) {
-						Logger.w(this, String.format("Facebook invite error: %1$s", error.toString()));
-					}
-				});
-				AppInviteDialog.show(PatchScreen.this, builder.build());
-			}
-		}
 	}
 }

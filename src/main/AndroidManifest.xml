@@ -4,9 +4,9 @@
 	in build.gradle
 -->
 <manifest package="com.patchr"
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          android:installLocation="auto">
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:installLocation="auto">
 
 	<uses-feature
 		android:glEsVersion="0x00020000"
@@ -93,7 +93,7 @@
 			android:value="false" />
 		<meta-data
 			android:name="com.bugsnag.android.API_KEY"
-			android:value="0534f3bc03870084ba38d79ed1d5abea"/>
+			android:value="0534f3bc03870084ba38d79ed1d5abea" />
 
 		<!-- Misc data -->
 
@@ -301,6 +301,11 @@
 
 		<activity
 			android:name=".ui.AboutScreen"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:windowSoftInputMode="stateHidden" />
+
+		<activity
+			android:name=".ui.InviteScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 

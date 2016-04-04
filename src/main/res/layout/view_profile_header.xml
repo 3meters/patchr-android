@@ -44,6 +44,7 @@
 							android:id="@+id/user_photo"
 							android:layout_width="@dimen/image_medium"
 							android:layout_height="@dimen/image_medium"
+							custom:showBusy="false"
 							custom:category="profile"
 							custom:shape="round" />
 

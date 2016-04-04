@@ -37,8 +37,10 @@ import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Command;
+import com.patchr.objects.Entity;
 import com.patchr.objects.Patch;
 import com.patchr.objects.TransitionType;
+import com.patchr.ui.InviteScreen;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.ui.widgets.ImageWidget;
@@ -108,6 +110,9 @@ public class PatchEdit extends BaseEdit {
 		if (editing) {
 			getMenuInflater().inflate(R.menu.menu_save, menu);
 			getMenuInflater().inflate(R.menu.menu_delete, menu);
+		}
+		else {
+			getMenuInflater().inflate(R.menu.menu_next, menu);
 		}
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -279,6 +284,7 @@ public class PatchEdit extends BaseEdit {
 		locationLabel = (TextView) findViewById(R.id.location_label);
 
 		this.actionBarTitle.setText(editing ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
+		this.title.setText(editing ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
 
 		if (mapView != null) {
 
@@ -350,13 +356,20 @@ public class PatchEdit extends BaseEdit {
 		}
 	}
 
-	@Override protected boolean afterInsert() {
+	@Override protected boolean afterInsert(Entity insertedEntity) {
+
 	    /* Only called if the insert was successful. Called on main ui thread. */
 		if (insertedResId != null && insertedResId != 0) {
 			UI.toast(StringManager.getString(insertedResId));
 		}
-		Patchr.router.browse(this, entity.id, null, true);  // Base class handles finishing this activity
-		return true;
+
+		Bundle extras = new Bundle();
+		final String jsonEntity = Json.objectToJson(insertedEntity);
+		extras.putString(Constants.EXTRA_ENTITY, jsonEntity);
+		startActivity(new Intent(this, InviteScreen.class).putExtras(extras));
+		finish();
+
+		return false;       // We are handling the finish
 	}
 
 	@Override protected boolean afterUpdate() {

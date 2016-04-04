@@ -34,6 +34,7 @@ import com.patchr.ui.views.PatchView;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.RecipientsCompletionView;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Picasso;
@@ -49,6 +50,7 @@ public class ShareEdit extends BaseEdit {
 	private String inputShareEntitySchema;
 	private String inputShareSource;        // Package name of the sharing host app
 	private String inputShareType;          // Share or invite
+	private Entity inputShareEntity;
 
 	private Entity shareEntity;
 	private String descriptionDefault;
@@ -126,6 +128,10 @@ public class ShareEdit extends BaseEdit {
 
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
+			String shareJson = extras.getString(Constants.EXTRA_SHARE_PATCH);
+			if (shareJson != null) {
+				this.inputShareEntity = (Entity) Json.jsonToObject(shareJson, Json.ObjectType.ENTITY);
+			}
 			this.inputShareType = extras.getString(Constants.EXTRA_MESSAGE_TYPE);
 			this.inputShareEntityId = extras.getString(Constants.EXTRA_SHARE_ID);
 			this.inputShareEntitySchema = extras.getString(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
@@ -194,7 +200,12 @@ public class ShareEdit extends BaseEdit {
 			switch (this.inputShareEntitySchema) {
 
 				case Constants.SCHEMA_ENTITY_PATCH:
-					this.shareEntity = DataController.getStoreEntity(this.inputShareEntityId);
+					if (this.inputShareEntity != null) {
+						this.shareEntity = this.inputShareEntity;
+					}
+					else {
+						this.shareEntity = DataController.getStoreEntity(this.inputShareEntityId);
+					}
 					this.descriptionDefault = String.format("%1$s invited you to the \'%2$s\' patch.", UserManager.userName, this.shareEntity.name);
 					UI.setVisibility(shareHolder, View.VISIBLE);
 					break;
@@ -439,7 +450,7 @@ public class ShareEdit extends BaseEdit {
 		}
 	}
 
-	@Override protected boolean afterInsert() {
+	@Override protected boolean afterInsert(Entity entity) {
 		return true;
 	}
 

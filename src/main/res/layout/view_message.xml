@@ -39,6 +39,7 @@
 			android:layout_alignTop="@+id/holder_content"
 			android:layout_marginRight="10dp"
 			android:layout_marginTop="2dp"
+			custom:showBusy="false"
 			custom:category="profile"
 			custom:shape="round" />
 

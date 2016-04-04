@@ -27,6 +27,7 @@
 			android:layout_height="48dp"
 			android:layout_alignParentLeft="true"
 			android:layout_marginRight="10dp"
+			custom:showBusy="false"
 			custom:category="profile"
 			custom:shape="round" />
 

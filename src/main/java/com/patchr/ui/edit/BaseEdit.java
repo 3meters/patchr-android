@@ -330,7 +330,7 @@ public abstract class BaseEdit extends BaseScreen {
 		}
 	}
 
-	protected boolean afterInsert() {
+	protected boolean afterInsert(Entity entity) {
 		return true;
 	}
 
@@ -463,12 +463,10 @@ public abstract class BaseEdit extends BaseScreen {
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 					Entity insertedEntity = (Entity) result.data;
 					entity.id = insertedEntity.id;
-
-
 					/*
 					 * In case a derived class needs to do something after a successful insert
 					 */
-					if (afterInsert()) { // Returns true if OK to finish
+					if (afterInsert(insertedEntity)) { // Returns true if OK to finish
 						if (insertedResId != null && insertedResId != 0) {
 							UI.toast(StringManager.getString(insertedResId));
 						}

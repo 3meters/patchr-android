@@ -35,7 +35,7 @@ public class UserDetailView extends FrameLayout {
 	protected ViewGroup  layout;
 
 	protected BaseView base          = new BaseView();
-	protected Integer  layoutResId   = R.layout.view_user_header;
+	protected Integer  layoutResId   = R.layout.view_profile_header;
 	private   Boolean  isCurrentUser = false;
 
 	public ImageWidget          userPhoto;

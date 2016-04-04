@@ -75,6 +75,8 @@ public class ReportEdit extends BaseEdit {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
+		this.actionBarTitle.setText(R.string.screen_title_report_edit);
+
 		if (description != null) {
 			description.addTextChangedListener(new SimpleTextWatcher() {
 

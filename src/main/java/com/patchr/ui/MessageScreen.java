@@ -252,14 +252,6 @@ public class MessageScreen extends BaseScreen {
 
 			if (event.actionType == ActionType.ACTION_GET_ENTITY) {
 
-				if (event.entity == null) {
-					/* Swing and miss means entity no longer exists. */
-					UI.toast(StringManager.getString(R.string.alert_deleted));
-					setResult(Constants.RESULT_ENTITY_DELETED);
-					finish();
-					return;
-				}
-
 				if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
 
 					if (event.error != null) {
@@ -267,9 +259,10 @@ public class MessageScreen extends BaseScreen {
 						return;
 					}
 
+					bound = true;
+
 					Logger.v(this, "Data result accepted: " + event.actionType.name());
 
-					bound = true;
 					if (event.entity != null) {
 						entity = event.entity;
 
@@ -278,7 +271,7 @@ public class MessageScreen extends BaseScreen {
 						}
 					}
 
-				/* Ensure this is flagged as read */
+					/* Ensure this is flagged as read */
 					if (notificationId != null) {
 						if (NotificationManager.getInstance().getNotifications().containsKey(notificationId)) {
 							NotificationManager.getInstance().getNotifications().get(notificationId).read = true;

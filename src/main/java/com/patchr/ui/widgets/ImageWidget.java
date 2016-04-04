@@ -147,12 +147,14 @@ public class ImageWidget extends FrameLayout {
 		addView(this.nameView);
 
 		/* Activity indicator - last added is in front */
-		params = new FrameLayout.LayoutParams(72, 72);
-		params.gravity = Gravity.CENTER;
-		this.progressBar = new AirProgressBar(getContext(), null, android.R.attr.progressBarStyle);
-		this.progressBar.setLayoutParams(params);
-		this.progressBar.hide();
-		addView(this.progressBar);
+		if (showBusy) {
+			params = new FrameLayout.LayoutParams(72, 72);
+			params.gravity = Gravity.CENTER;
+			this.progressBar = new AirProgressBar(getContext(), null, android.R.attr.progressBarStyle);
+			this.progressBar.setLayoutParams(params);
+			this.progressBar.hide();
+			addView(this.progressBar);
+		}
 
 		if (isInEditMode()) {
 			Drawable dummy = ContextCompat.getDrawable(getContext(), R.drawable.img_dummy);
@@ -184,6 +186,10 @@ public class ImageWidget extends FrameLayout {
 		this.imageView.setVisibility(VISIBLE);
 		this.nameView.setVisibility(GONE);
 
+		if (!showBusy) {
+			showLoading(false);
+		}
+
 		if (shape.equals("round")) {
 			loadImageView(photo, new CircleTransform(), callback);
 		}
@@ -204,10 +210,6 @@ public class ImageWidget extends FrameLayout {
 		this.imageView.setImageDrawable(null);
 		this.imageView.setVisibility(GONE);
 		this.nameView.setText(null);
-
-		if (showBusy) {
-			showLoading(false);
-		}
 
 		if (!TextUtils.isEmpty(name) && this.getBackground() != null) {
 			long seed = Utils.numberFromName(name);

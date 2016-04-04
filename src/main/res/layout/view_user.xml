@@ -15,7 +15,8 @@
 			android:layout_width="72dp"
 			android:layout_height="72dp"
 			custom:category="profile"
-			custom:shape="round" />
+			custom:shape="round"
+			custom:showBusy="false" />
 
 		<LinearLayout
 			android:layout_width="wrap_content"
@@ -40,8 +41,8 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:singleLine="true"
-				android:textSize="14sp"
 				android:textColor="?attr/textColorSecondary"
+				android:textSize="14sp"
 				android:visibility="gone"
 				tools:text="aliza@3meters.com"
 				tools:visibility="visible" />
@@ -53,8 +54,8 @@
 				android:ellipsize="end"
 				android:singleLine="true"
 				android:textAllCaps="true"
-				android:textSize="14sp"
 				android:textColor="?attr/textColorSecondary"
+				android:textSize="14sp"
 				tools:text="Seattle, WA" />
 
 			<TextView
@@ -64,8 +65,8 @@
 				android:ellipsize="end"
 				android:singleLine="true"
 				android:textAllCaps="true"
-				android:textSize="14sp"
 				android:textColor="@color/brand_accent_darker"
+				android:textSize="14sp"
 				android:visibility="gone"
 				tools:text="Owner"
 				tools:visibility="visible" />
@@ -119,8 +120,8 @@
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
 					android:text="@string/label_watcher_not_enabled"
-					android:textSize="16sp"
 					android:textColor="?attr/textColorSecondary"
+					android:textSize="16sp"
 					tools:text="@string/label_watcher_not_enabled" />
 
 			</LinearLayout>
