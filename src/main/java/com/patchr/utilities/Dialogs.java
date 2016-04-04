@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Dialogs {
 
-	@NonNull
 	public static AlertDialog alertDialog(Integer iconResource // $codepro.audit.disable largeNumberOfParameters
 			, String titleText
 			, String message
@@ -78,6 +77,30 @@ public class Dialogs {
 		return alert;
 	}
 
+	public static void alert(Integer resId, Activity activity) {
+		/* Can only be called on the main thread! */
+		Dialogs.alert(StringManager.getString(resId), activity, null);
+	}
+
+	public static void alert(Integer resId, Activity activity, OnClickListener listener) {
+		/* Can only be called on the main thread! */
+		Dialogs.alert(StringManager.getString(resId), activity, listener);
+	}
+
+	public static void alert(String message, Activity activity) {
+		/* Can only be called on the main thread! */
+		Dialogs.alert(message, activity, null);
+	}
+
+	public static void alert(String message, Activity activity, OnClickListener listener) {
+		/* Can only be called on the main thread! */
+		final AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.patchr_theme_dialog);
+		builder.setMessage(message);
+		builder.setPositiveButton(R.string.dialog_ok, listener);
+		Dialog dialog = builder.create();
+		dialog.show();
+	}
+
 	public static void alertDialogSimple(@NonNull final Activity activity, final String titleText, final String message) {
 		if (!activity.isFinishing()) {
 			activity.runOnUiThread(new Runnable() {
@@ -111,43 +134,43 @@ public class Dialogs {
 				, null
 				, new DialogInterface.OnClickListener() {
 
-			@SuppressWarnings("deprecation")
-			@Override
-			public void onClick(@NonNull DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_POSITIVE) {
-					try {
-						Reporting.sendEvent(Reporting.TrackerCategory.UX, "patchr_update_button_click", "com.patchr", 0);
-						Logger.d(this, "Update: navigating to market install/update page");
-						final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update)));
-						intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-						activity.startActivity(intent);
-					}
-					catch (Exception e) {
+					@SuppressWarnings("deprecation")
+					@Override
+					public void onClick(@NonNull DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							try {
+								Reporting.sendEvent(Reporting.TrackerCategory.UX, "patchr_update_button_click", "com.patchr", 0);
+								Logger.d(this, "Update: navigating to market install/update page");
+								final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update)));
+								intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+								intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+								activity.startActivity(intent);
+							}
+							catch (Exception e) {
 								/*
 								 * In case the market app isn't installed on the phone
 								 */
-						Logger.d(this, "Install: navigating to play website install page");
-						final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update_web)));
-						intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
+								Logger.d(this, "Install: navigating to play website install page");
+								final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update_web)));
+								intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+								activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
+							}
+							dialog.dismiss();
+						}
+						else if (which == DialogInterface.BUTTON_NEGATIVE) {
+							dialog.dismiss();
+							activity.finish();
+						}
 					}
-					dialog.dismiss();
 				}
-				else if (which == DialogInterface.BUTTON_NEGATIVE) {
-					dialog.dismiss();
-					activity.finish();
-				}
-			}
-		}
 				, new DialogInterface.OnCancelListener() {
 
-			@Override
-			public void onCancel(DialogInterface dialog) {
+					@Override
+					public void onCancel(DialogInterface dialog) {
 						/* Back button can trigger this */
-				activity.finish();
-			}
-		});
+						activity.finish();
+					}
+				});
 		updateDialog.setCanceledOnTouchOutside(false);
 		updateDialog.show();
 	}
@@ -164,43 +187,43 @@ public class Dialogs {
 				, null
 				, new DialogInterface.OnClickListener() {
 
-			@SuppressWarnings("deprecation")
-			@Override
-			public void onClick(@NonNull DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_POSITIVE) {
-					try {
-						Reporting.sendEvent(Reporting.TrackerCategory.UX, "patchr_update_button_click", "com.patchr", 0);
-						Logger.d(this, "Update: navigating to market install/update page");
-						final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update)));
-						intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-						activity.startActivity(intent);
-					}
-					catch (Exception e) {
+					@SuppressWarnings("deprecation")
+					@Override
+					public void onClick(@NonNull DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							try {
+								Reporting.sendEvent(Reporting.TrackerCategory.UX, "patchr_update_button_click", "com.patchr", 0);
+								Logger.d(this, "Update: navigating to market install/update page");
+								final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update)));
+								intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+								intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+								activity.startActivity(intent);
+							}
+							catch (Exception e) {
 								/*
 								 * In case the market app isn't installed on the phone
 								 */
-						Logger.d(this, "Install: navigating to play website install page");
-						final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update_web)));
-						intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
+								Logger.d(this, "Install: navigating to play website install page");
+								final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update_web)));
+								intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+								activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
+							}
+							dialog.dismiss();
+						}
+						else if (which == DialogInterface.BUTTON_NEGATIVE) {
+							dialog.dismiss();
+							activity.finish();
+						}
 					}
-					dialog.dismiss();
 				}
-				else if (which == DialogInterface.BUTTON_NEGATIVE) {
-					dialog.dismiss();
-					activity.finish();
-				}
-			}
-		}
 				, new DialogInterface.OnCancelListener() {
 
-			@Override
-			public void onCancel(DialogInterface dialog) {
+					@Override
+					public void onCancel(DialogInterface dialog) {
 						/* Back button can trigger this */
-				activity.finish();
-			}
-		});
+						activity.finish();
+					}
+				});
 		updateDialog.setCanceledOnTouchOutside(false);
 		updateDialog.show();
 	}
@@ -217,40 +240,40 @@ public class Dialogs {
 				, null
 				, new DialogInterface.OnClickListener() {
 
-			@SuppressWarnings("deprecation")
-			@Override
-			public void onClick(@NonNull DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_POSITIVE) {
-					try {
-						Reporting.sendEvent(Reporting.TrackerCategory.UX, "aviary_install_button_click", "com.patchr", 0);
-						Logger.d(this, "Update: navigating to aviary install/update page");
-						final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_aviary_install)));
-						intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-						activity.startActivity(intent);
-					}
-					catch (Exception e) {
+					@SuppressWarnings("deprecation")
+					@Override
+					public void onClick(@NonNull DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							try {
+								Reporting.sendEvent(Reporting.TrackerCategory.UX, "aviary_install_button_click", "com.patchr", 0);
+								Logger.d(this, "Update: navigating to aviary install/update page");
+								final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_aviary_install)));
+								intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+								activity.startActivity(intent);
+							}
+							catch (Exception e) {
 						/*
 						 * In case the market app isn't installed on the phone
 						 */
-						Logger.d(this, "Install: navigating to play website install page");
-						final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update_web)));
-						intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-						activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
+								Logger.d(this, "Install: navigating to play website install page");
+								final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update_web)));
+								intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+								activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
+							}
+							dialog.dismiss();
+						}
+						else if (which == DialogInterface.BUTTON_NEGATIVE) {
+							dialog.dismiss();
+						}
 					}
-					dialog.dismiss();
 				}
-				else if (which == DialogInterface.BUTTON_NEGATIVE) {
-					dialog.dismiss();
-				}
-			}
-		}
 				, new DialogInterface.OnCancelListener() {
 
-			@Override
-			public void onCancel(DialogInterface dialog) {
+					@Override
+					public void onCancel(DialogInterface dialog) {
 				/* Back button can trigger this */
-			}
-		});
+					}
+				});
 		updateDialog.setCanceledOnTouchOutside(false);
 		updateDialog.show();
 	}
@@ -267,19 +290,19 @@ public class Dialogs {
 				, null
 				, new DialogInterface.OnClickListener() {
 
-			@Override
-			public void onClick(@NonNull DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_POSITIVE) {
-					Reporting.sendEvent(Reporting.TrackerCategory.UX, "patchr_location_settings_button_click", "com.patchr", 0);
-					Patchr.router.route(activity, Command.SETTINGS_LOCATION, null, null);
-					dialog.dismiss();
-				}
-				else if (which == DialogInterface.BUTTON_NEGATIVE) {
-					shot.set(true);
-					dialog.dismiss();
-				}
-			}
-		}, null);
+					@Override
+					public void onClick(@NonNull DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							Reporting.sendEvent(Reporting.TrackerCategory.UX, "patchr_location_settings_button_click", "com.patchr", 0);
+							Patchr.router.route(activity, Command.SETTINGS_LOCATION, null, null);
+							dialog.dismiss();
+						}
+						else if (which == DialogInterface.BUTTON_NEGATIVE) {
+							shot.set(true);
+							dialog.dismiss();
+						}
+					}
+				}, null);
 		updateDialog.setCanceledOnTouchOutside(false);
 		updateDialog.show();
 	}

@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AlertDialog;
@@ -28,13 +27,9 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.DataController;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
-import com.patchr.components.ModelResult;
-import com.patchr.components.NetworkManager;
-import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
@@ -57,16 +52,14 @@ import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.edit.ShareEdit;
-import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.PatchView;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -255,45 +248,49 @@ public class MessageScreen extends BaseScreen {
 
 	@Subscribe(threadMode = ThreadMode.MAIN) public void onEntityResult(final EntityQueryResultEvent event) {
 
-		if (event.actionType == ActionType.ACTION_GET_ENTITY) {
+		if (event.tag.equals(System.identityHashCode(this))) {
 
-			if (event.entity == null) {
-				/* Swing and miss means entity no longer exists. */
-				UI.toast(StringManager.getString(R.string.alert_deleted));
-				setResult(Constants.RESULT_ENTITY_DELETED);
-				finish();
-				return;
-			}
+			if (event.actionType == ActionType.ACTION_GET_ENTITY) {
 
-			if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
-
-				if (event.error != null) {
-					onFetchComplete();
+				if (event.entity == null) {
+					/* Swing and miss means entity no longer exists. */
+					UI.toast(StringManager.getString(R.string.alert_deleted));
+					setResult(Constants.RESULT_ENTITY_DELETED);
+					finish();
 					return;
 				}
 
-				Logger.v(this, "Data result accepted: " + event.actionType.name());
+				if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
 
-				bound = true;
-				if (event.entity != null) {
-					entity = event.entity;
-
-					if (parentId != null) {
-						entity.toId = parentId;
+					if (event.error != null) {
+						onFetchComplete();
+						return;
 					}
-				}
+
+					Logger.v(this, "Data result accepted: " + event.actionType.name());
+
+					bound = true;
+					if (event.entity != null) {
+						entity = event.entity;
+
+						if (parentId != null) {
+							entity.toId = parentId;
+						}
+					}
 
 				/* Ensure this is flagged as read */
-				if (notificationId != null) {
-					if (NotificationManager.getInstance().getNotifications().containsKey(notificationId)) {
-						NotificationManager.getInstance().getNotifications().get(notificationId).read = true;
+					if (notificationId != null) {
+						if (NotificationManager.getInstance().getNotifications().containsKey(notificationId)) {
+							NotificationManager.getInstance().getNotifications().get(notificationId).read = true;
+						}
 					}
-				}
 
-				onFetchComplete();
-				bind();
+					onFetchComplete();
+					bind();
+				}
 			}
 		}
+
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN) public void onDataQueryResult(final DataQueryResultEvent event) {
@@ -381,40 +378,6 @@ public class MessageScreen extends BaseScreen {
 				}
 				, null);
 		dialog.setCanceledOnTouchOutside(false);
-	}
-
-	@Override protected void delete() {
-
-		new AsyncTask() {
-
-			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_deleting, MessageScreen.this);
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncDeleteEntity");
-				String seedParentId = entity.type.equals(MessageType.Post) ? entity.patchId : null;
-				return ((DataController) DataController.getInstance()).deleteMessage(entity.id, false, seedParentId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				busyPresenter.hide(true);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Logger.i(this, "Deleted entity: " + entity.id);
-					/*
-					 * We either go back to a list or to radar.
-					 */
-					UI.toast(StringManager.getString(R.string.alert_deleted));
-					setResult(Constants.RESULT_ENTITY_DELETED);
-					finish();
-				}
-				else {
-					Errors.handleError(MessageScreen.this, result.serviceResponse);
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	@Override protected int getLayoutId() {

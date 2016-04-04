@@ -175,53 +175,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void onClick(View view) {
-		/*
-		 * Base activity broadcasts view clicks that target onViewClick. There are actions
-		 * that should be handled at the activity level like add a new entity.
-		 */
-		if (processing) return;
-
-		processing = true;
-		Integer id = view.getId();
-
-		/* Action button redirects based on tag */
-		if (id == R.id.action_button) {
-			id = (Integer) view.getTag();
-		}
-
-		if (id == R.id.fab) {
-			addAction();
-		}
-		else if (id == R.id.invite) {
-			inviteAction();
-		}
-		else if (id == R.id.join_button) {
-			joinAction();
-		}
-		else if (id == R.id.members_button) {
-			memberListAction();
-		}
-		else if (id == R.id.tune_button) {
-			tuneAction();
-		}
-		else if (id == R.id.mute_button) {
-			muteAction();
-		}
-		else if (view.getTag() != null) {
-			if (view.getTag() instanceof Photo) {
-				Photo photo = (Photo) view.getTag();
-				navigateToPhoto(photo);
-			}
-			else if (view.getTag() instanceof Entity) {
-				final Entity entity = (Entity) view.getTag();
-				navigateToEntity(entity);
-			}
-		}
-
-		processing = false;
-	}
-
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
 		if (UserManager.shared().authenticated()) {
@@ -295,7 +248,7 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 					finish();
 				}
 			}
-			else if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.shared().authenticated()) {
+			else if (resultCode == Constants.RESULT_USER_LOGGED_IN && UserManager.shared().authenticated()) {
 				onRefresh();
 			}
 			else if (requestCode == Constants.ACTIVITY_ENTITY_INSERT) {
@@ -315,6 +268,53 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
+	public void onClick(View view) {
+		/*
+		 * Base activity broadcasts view clicks that target onViewClick. There are actions
+		 * that should be handled at the activity level like add a new entity.
+		 */
+		if (processing) return;
+
+		processing = true;
+		Integer id = view.getId();
+
+		/* Action button redirects based on tag */
+		if (id == R.id.action_button) {
+			id = (Integer) view.getTag();
+		}
+
+		if (id == R.id.fab) {
+			addAction();
+		}
+		else if (id == R.id.invite) {
+			inviteAction();
+		}
+		else if (id == R.id.join_button) {
+			joinAction();
+		}
+		else if (id == R.id.members_button) {
+			memberListAction();
+		}
+		else if (id == R.id.tune_button) {
+			tuneAction();
+		}
+		else if (id == R.id.mute_button) {
+			muteAction();
+		}
+		else if (view.getTag() != null) {
+			if (view.getTag() instanceof Photo) {
+				Photo photo = (Photo) view.getTag();
+				navigateToPhoto(photo);
+			}
+			else if (view.getTag() instanceof Entity) {
+				final Entity entity = (Entity) view.getTag();
+				navigateToEntity(entity);
+			}
+		}
+
+		processing = false;
+	}
+
 	public void onFetchComplete() {
 		super.onFetchComplete();            // Handles busy ui
 		supportInvalidateOptionsMenu();     // In case user authenticated
@@ -326,52 +326,64 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 	@Subscribe(threadMode = ThreadMode.MAIN) public void onEntityResult(final EntityQueryResultEvent event) {
 
-		if (event.actionType == ActionType.ACTION_GET_ENTITY) {
-			if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
-				if (event.error != null) {
-					onFetchComplete();
+		if (event.tag.equals(System.identityHashCode(this))) {
+
+			if (event.actionType == ActionType.ACTION_GET_ENTITY) {
+
+				if (event.entity == null) {
+					/* Swing and miss means entity no longer exists. */
+					UI.toast(StringManager.getString(R.string.alert_deleted));
+					setResult(Constants.RESULT_ENTITY_DELETED);
+					finish();
 					return;
 				}
 
-				this.bound = true;
+				if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
+					if (event.error != null) {
+						onFetchComplete();
+						return;
+					}
 
-				if (!event.noop) {
+					this.bound = true;
 
-					Logger.v(this, "Data result accepted: " + event.actionType.name());
-					Boolean firstBind = (this.entity == null);
-					Boolean activityDateChanged = (this.entity != null && !this.entity.activityDate.equals(event.entity.activityDate));
+					if (!event.noop) {
 
-					this.entity = event.entity;
-					this.listPresenter.scopingEntity = event.entity;
-					this.listPresenter.scopingEntityId = event.entity.id;
-					memberStatus = ((Patch) entity).watchStatus();
+						Logger.v(this, "Data result accepted: " + event.actionType.name());
+						Boolean firstBind = (this.entity == null);
+						Boolean activityDateChanged = (this.entity != null && !this.entity.activityDate.equals(event.entity.activityDate));
+
+						this.entity = event.entity;
+						this.listPresenter.scopingEntity = event.entity;
+						this.listPresenter.scopingEntityId = event.entity.id;
+						memberStatus = ((Patch) entity).watchStatus();
 
 					/* Customize empty message */
-					if (((Patch) entity).isRestricted()) {
-						listPresenter.emptyPresenter.setLabel("Only members can see messages");
-					}
-					else {
-						listPresenter.emptyPresenter.setLabel("Be the first to post a message to this patch");
+						if (((Patch) entity).isRestricted()) {
+							listPresenter.emptyPresenter.setLabel("Only members can see messages");
+						}
+						else {
+							listPresenter.emptyPresenter.setLabel("Be the first to post a message to this patch");
+						}
+
+						if (firstBind && referrerName != null) {     // Active invitation
+							showInviteWelcome(1500);
+						}
+
+						if (firstBind && UserManager.shared().authenticated()) {
+							makeBranchLink();           // Create or refresh so it's ready and correct
+						}
+
+						if (memberStatus == MemberStatus.NONE && ((Patch) entity).isRestricted()) {
+							this.listPresenter.clear();
+						}
+						else {
+							this.listPresenter.fetch(activityDateChanged ? FetchMode.MANUAL : event.fetchMode); // Next in the chain
+						}
 					}
 
-					if (firstBind && referrerName != null) {     // Active invitation
-						showInviteWelcome(1500);
-					}
-
-					if (firstBind && UserManager.shared().authenticated()) {
-						makeBranchLink();           // Create or refresh so it's ready and correct
-					}
-
-					if (memberStatus == MemberStatus.NONE && ((Patch) entity).isRestricted()) {
-						this.listPresenter.clear();
-					}
-					else {
-						this.listPresenter.fetch(activityDateChanged ? FetchMode.MANUAL : event.fetchMode); // Next in the chain
-					}
+					onFetchComplete();
+					bind();
 				}
-
-				onFetchComplete();
-				bind();
 			}
 		}
 	}

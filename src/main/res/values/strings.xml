@@ -3,7 +3,7 @@
 
 	<!-- Titles -->
 
-	<string name="screen_title_user_form" tools:ignore="UnusedResources">Profile</string>
+	<string name="screen_title_profile" tools:ignore="UnusedResources">Profile</string>
 	<string name="screen_title_photo_form" tools:ignore="UnusedResources">Photo</string>
 	<string name="screen_title_about_form" tools:ignore="UnusedResources">About Patchr</string>
 	<string name="screen_title_map_form" tools:ignore="UnusedResources">Map</string>
@@ -47,7 +47,9 @@
 	<string name="form_title_patch_edit" tools:ignore="UnusedResources">Patch</string>
 	<string name="form_title_patch_new" tools:ignore="UnusedResources">New Patch</string>
 	<string name="form_title_privacy_edit" tools:ignore="UnusedResources">Privacy</string>
-	<string name="form_title_reset_edit" tools:ignore="UnusedResources">Forgot your password?</string>
+	<string name="form_title_reset_validate_email" tools:ignore="UnusedResources">Enter the email address associated with your account.</string>
+	<string name="form_title_reset_request_reset" tools:ignore="UnusedResources">Email verified!</string>
+	<string name="form_title_reset_reset_password" tools:ignore="UnusedResources">Welcome back! Enter your new password</string>
 
 	<!-- Menus -->
 
@@ -153,10 +155,11 @@
 	<string name="alert_shared">Shared</string>
 	<string name="alert_invited">Invited</string>
 	<string name="alert_cancelled">Cancelled</string>
-	<string name="alert_signed_in">Signed in as</string>
+	<string name="alert_logged_in">Logged in as</string>
 	<string name="alert_password_changed">You have been automatically signed in with your new password</string>
 	<string name="alert_feedback_sent">Thank you for the feedback!</string>
 	<string name="alert_report_sent">Your report has been sent. Thank you!</string>
+	<string name="alert_reset_expired">Password reset has expired or is invalid. Request password reset again.</string>
 
 	<string name="alert_signed_out">Signed out.</string>
 	<string name="alert_copied_to_clipboard">Copied to clipboard</string>
@@ -270,7 +273,7 @@
 	<string name="error_change_password_unauthorized">Old password is invalid.</string>
 	<string name="error_whitelist_unauthorized" tools:ignore="UnusedResources">This is an invitation-only beta. Only invited users are able to register user accounts.</string>
 	<string name="error_unverified_unauthorized" tools:ignore="UnusedResources">The email address for the account has not been verified.</string>
-	<string name="error_invalid_email">Email address is invalid.</string>
+	<string name="error_invalid_email">Enter a valid email address.</string>
 	<string name="error_session_expired_title">Session expired</string>
 	<string name="error_session_expired">Your session expired. Please log in again.</string>
 	<string name="error_session_invalid">Your session is invalid. Please log in again.</string>
@@ -294,6 +297,8 @@
 	<string name="error_missing_report_option">Choose a reason.</string>
 	<string name="error_missing_patch_name">Enter a name for the patch.</string>
 	<string name="error_missing_patch_type">Select a patch type.</string>
+	<string name="error_reset_missing_password">Enter a new password with six characters or more.</string>
+	<string name="error_reset_missing_email">Enter the email address associated with your account.</string>
 
 	<!-- Errors: connectivity -->
 
@@ -545,6 +550,8 @@
 	<string name="hint_message_description">What\'s happening?</string>
 	<string name="hint_invite_description">Add a message to your invite…</string>
 	<string name="hint_share_description">Add a message…</string>
+	<string name="hint_reset_password">New password</string>
+
 
 	<!-- Testing (used for view previews) -->
 

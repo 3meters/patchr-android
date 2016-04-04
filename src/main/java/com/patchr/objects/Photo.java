@@ -48,6 +48,11 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		this.source = source;
 	}
 
+	public Photo(@NonNull String prefix, @NonNull String source) {
+		this.prefix = prefix;
+		this.source = source;
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/

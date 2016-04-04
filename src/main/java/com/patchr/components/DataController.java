@@ -122,6 +122,7 @@ public class DataController {
 						.setTag(event.tag);
 
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+
 					ServiceData serviceData = (ServiceData) serviceResponse.data;
 					final List<Entity> entities = (List<Entity>) serviceData.data;
 
@@ -524,32 +525,6 @@ public class DataController {
 	 * user updates
 	 *--------------------------------------------------------------------------------------------*/
 
-	public ModelResult validEmail(String email, Object tag) {
-
-		ModelResult result = new ModelResult();
-
-		String emailString = Utils.encode(email);
-
-		String uri = String.format(Constants.URL_PROXIBASE_SERVICE_FIND + "/users?q[email]=%1$s", emailString);
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(uri)
-				.setRequestType(RequestType.GET)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, "email_validate", null, 0);
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
-			result.serviceResponse.data = serviceData;
-		}
-
-		return result;
-	}
-
 	public ModelResult signin(String email, String password, String activityName, Object tag) {
 		ModelResult result = new ModelResult();
 
@@ -655,7 +630,32 @@ public class DataController {
 		return result;
 	}
 
+	public ModelResult validateEmail(String email, Object tag) {
+
+		ModelResult result = new ModelResult();
+
+		String uri = String.format(Constants.URL_PROXIBASE_SERVICE_FIND + "/users?q[email]=%1$s", Utils.encode(email));
+
+		final ServiceRequest serviceRequest = new ServiceRequest()
+				.setUri(uri)
+				.setRequestType(RequestType.GET)
+				.setTag(tag)
+				.setResponseFormat(ResponseFormat.JSON);
+
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, "email_validate", null, 0);
+			final String jsonResponse = (String) result.serviceResponse.data;
+			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
+			result.serviceResponse.data = serviceData;
+		}
+
+		return result;
+	}
+
 	public ModelResult requestPasswordReset(String email, Object tag) {
+
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -663,7 +663,7 @@ public class DataController {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "reqresetpw")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "pw/reqreset")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -671,33 +671,24 @@ public class DataController {
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, "request_password_reset", null, 0);
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
-			User user = serviceData.user;
-			user.session = serviceData.session;
-			result.data = user;
-		}
-
 		return result;
 	}
 
-	public ModelResult resetPassword(String password, User tempUser, Object tag) {
+	public ModelResult resetPassword(String password, String token, Object tag) {
+
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("password", password);
+		parameters.putString("token", token);
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "resetpw")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "pw/reset")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
-
-		serviceRequest.setSession(tempUser.session);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -706,6 +697,7 @@ public class DataController {
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "password_reset", null, 0);
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
+
 			User user = serviceData.user;
 			user.session = serviceData.session;
 			UserManager.shared().setCurrentUser(user, true);
@@ -717,14 +709,15 @@ public class DataController {
 		return result;
 	}
 
-	public ModelResult registerUser(User user, Bitmap bitmap, Object tag) {
+	public ModelResult registerUser(User newUser, Bitmap bitmap, Object tag) {
+
 		ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("secret", ContainerManager.getContainerHolder().getContainer().getString(Patchr.USER_SECRET));
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 		parameters.putBoolean("getEntities", true);
-		user.id = null; // remove temp id we assigned
+		newUser.id = null; // remove temp id we assigned
 		/*
 		 * Call to user/create internally calls auth/signin after creating the user. The final
 		 * response comes from auth/signin. New users don't have any links yet so we don't
@@ -733,7 +726,7 @@ public class DataController {
 		ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "create")
 				.setRequestType(RequestType.INSERT)
-				.setRequestBody(Json.objectToJson(user, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
+				.setRequestBody(Json.objectToJson(newUser, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
 				.setParameters(parameters)
 				.setTag(tag)
 				.setUseSecret(true)
@@ -747,15 +740,16 @@ public class DataController {
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_register", null, 0);
 			String jsonResponse = (String) result.serviceResponse.data;
 			ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
-			User registeredUser = serviceData.user;
-			registeredUser.session = serviceData.session;
-			result.data = registeredUser;
+
+			User user = serviceData.user;
+			user.session = serviceData.session;
+			result.data = user;
 			/*
 			 * Put image to S3 if we have one. Handles setting up the photo object on user
 			 */
 			if (bitmap != null && !bitmap.isRecycled()) {
 
-				result.serviceResponse = storeImageAtS3(null, registeredUser, bitmap);
+				result.serviceResponse = storeImageAtS3(null, user, bitmap);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					/*
@@ -766,13 +760,13 @@ public class DataController {
 					 * registration operation a success.
 					 */
 					serviceRequest = new ServiceRequest()
-							.setUri(registeredUser.getEntryUri())
+							.setUri(user.getEntryUri())
 							.setRequestType(RequestType.UPDATE)
-							.setRequestBody(Json.objectToJson(registeredUser, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
+							.setRequestBody(Json.objectToJson(user, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
 							.setResponseFormat(ResponseFormat.JSON);
 
 					if (UserManager.shared().authenticated()) {
-						serviceRequest.setSession(user.session);
+						serviceRequest.setSession(newUser.session);
 					}
 					NetworkManager.getInstance().request(serviceRequest);
 				}

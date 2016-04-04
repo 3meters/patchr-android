@@ -64,6 +64,9 @@ public class Constants {
 	public static final String EXTRA_EMAIL                       = "com.patchr.EXTRA_EMAIL";
 	public static final String EXTRA_PASSWORD                    = "com.patchr.EXTRA_PASSWORD";
 	public static final String EXTRA_STATE                       = "com.patchr.EXTRA_STATE";
+	public static final String EXTRA_RESET_TOKEN                 = "com.patchr.EXTRA_RESET_TOKEN";
+	public static final String EXTRA_RESET_USER_NAME             = "com.patchr.EXTRA_RESET_USER_NAME";
+	public static final String EXTRA_RESET_USER_PHOTO            = "com.patchr.EXTRA_RESET_USER_PHOTO";
 
 	/* Activity parameters: lists */
 	public static final String EXTRA_LIST_LINK_TYPE         = "com.patchr.EXTRA_LIST_LINK_TYPE";
@@ -267,7 +270,7 @@ public class Constants {
 	public static final int RESULT_ENTITY_EDITED          = 130;
 	public static final int RESULT_COMMENT_INSERTED       = 200;
 	public static final int RESULT_PROFILE_UPDATED        = 310;
-	public static final int RESULT_USER_SIGNED_IN         = 400;
+	public static final int RESULT_USER_LOGGED_IN         = 400;
 
 	public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION  = 100;
 	public static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 200;

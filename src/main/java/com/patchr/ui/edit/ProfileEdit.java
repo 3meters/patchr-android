@@ -336,9 +336,9 @@ public class ProfileEdit extends BaseEdit {
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 
 					Logger.i(ProfileEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
-					UI.toast(StringManager.getString(R.string.alert_signed_in) + " " + UserManager.currentUser.name
+					UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name
 					);
-					setResult(Constants.RESULT_USER_SIGNED_IN);
+					setResult(Constants.RESULT_USER_LOGGED_IN);
 					finish();
 					AnimationManager.doOverridePendingTransition(ProfileEdit.this, TransitionType.FORM_BACK);
 				}
@@ -350,7 +350,7 @@ public class ProfileEdit extends BaseEdit {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override protected void delete() {
+	protected void deleteUser() {
 
 		final String userName = entity.name;
 
@@ -368,7 +368,9 @@ public class ProfileEdit extends BaseEdit {
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
+				processing = false;
 				busyPresenter.hide(true);
+
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 					Logger.i(this, "Deleted user: " + entity.id);
 					UserManager.shared().setCurrentUser(null, false);
@@ -379,7 +381,6 @@ public class ProfileEdit extends BaseEdit {
 				else {
 					Errors.handleError(ProfileEdit.this, result.serviceResponse);
 				}
-				processing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
@@ -411,7 +412,7 @@ public class ProfileEdit extends BaseEdit {
 		builder.setMessage(R.string.alert_delete_account_message);
 		builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 			@Override public void onClick(DialogInterface dialog, int which) {
-				delete();
+				deleteUser();
 			}
 		});
 

@@ -56,7 +56,7 @@ public class MenuManager {
 
 		if (entity instanceof Message) {
 			Message message = (Message) entity;
-			if (message.type.equals("share")) {
+			if (message.type != null && message.type.equals("share")) {
 				return false;
 			}
 		}

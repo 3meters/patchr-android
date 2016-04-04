@@ -59,7 +59,7 @@
 			tools:visibility="visible" />
 
 		<Button
-			android:id="@+id/signup_button"
+			android:id="@+id/submit_button"
 			style="@style/button_raised"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/button_height"

@@ -20,9 +20,10 @@ import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.Preference;
 import com.patchr.objects.Command;
+import com.patchr.objects.Preference;
 import com.patchr.ui.edit.LoginEdit;
+import com.patchr.ui.edit.ResetEdit;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
 
@@ -106,7 +107,7 @@ public class LobbyScreen extends AppCompatActivity {
 
 	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (requestCode == Constants.ACTIVITY_LOGIN) {
-			if (resultCode == Constants.RESULT_USER_SIGNED_IN && UserManager.shared().authenticated()) {
+			if (resultCode == Constants.RESULT_USER_LOGGED_IN && UserManager.shared().authenticated()) {
 				startHomeActivity();
 			}
 		}
@@ -127,7 +128,7 @@ public class LobbyScreen extends AppCompatActivity {
 			extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Login);
 			Patchr.router.route(this, Command.LOGIN, null, extras);
 		}
-		else if (view.getId() == R.id.signup_button) {
+		else if (view.getId() == R.id.submit_button) {
 			Bundle extras = new Bundle();
 			extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Signup);
 			Patchr.router.route(this, Command.LOGIN, null, extras);
@@ -153,11 +154,22 @@ public class LobbyScreen extends AppCompatActivity {
 
 		Branch.getInstance(Patchr.applicationContext).initSession(new Branch.BranchUniversalReferralInitListener() {
 
-			@Override
-			public void onInitFinished(BranchUniversalObject branchUniversalObject, LinkProperties linkProperties, BranchError error) {
+			@Override public void onInitFinished(BranchUniversalObject branchUniversalObject, LinkProperties linkProperties, BranchError error) {
 
 				if (branchUniversalObject != null) {
+
 					Map metadata = branchUniversalObject.getMetadata();
+
+					if (linkProperties.getFeature().equals("reset_password")) {
+						Bundle extras = new Bundle();
+						extras.putString(Constants.EXTRA_RESET_TOKEN, (String) metadata.get("token"));
+						extras.putString(Constants.EXTRA_RESET_USER_NAME, (String) metadata.get("userName"));
+						extras.putString(Constants.EXTRA_RESET_USER_PHOTO, (String) metadata.get("userPhoto"));
+						startActivity(new Intent(LobbyScreen.this, ResetEdit.class).putExtras(extras));
+						finish();
+						return;
+					}
+
 					Bundle extras = new Bundle();
 					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, (String) metadata.get("entitySchema"));
 					extras.putString(Constants.EXTRA_ENTITY_ID, (String) metadata.get("entityId"));
@@ -203,6 +215,7 @@ public class LobbyScreen extends AppCompatActivity {
 			else {
 				AppLinkData.fetchDeferredAppLinkData(this,
 						new AppLinkData.CompletionHandler() {
+
 							@Override public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
 								if (appLinkData != null) {
 									String targetUrlString = appLinkData.getArgumentBundle().getString("target_url");
@@ -230,6 +243,7 @@ public class LobbyScreen extends AppCompatActivity {
 		runOnUiThread(new Runnable() {
 
 			@Override public void run() {
+
 				/* Always reset the entity cache */
 				DataController.getInstance().clearStore();
 				LocationManager.getInstance().stop();
@@ -290,7 +304,7 @@ public class LobbyScreen extends AppCompatActivity {
 
 	private void showButtons() {
 		UI.setVisibility(findViewById(R.id.login_button), View.VISIBLE);
-		UI.setVisibility(findViewById(R.id.signup_button), View.VISIBLE);
+		UI.setVisibility(findViewById(R.id.submit_button), View.VISIBLE);
 		UI.setVisibility(findViewById(R.id.guest_button), View.VISIBLE);
 	}
 

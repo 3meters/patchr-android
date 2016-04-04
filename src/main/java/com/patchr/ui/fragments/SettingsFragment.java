@@ -89,7 +89,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (requestCode == Constants.ACTIVITY_LOGIN) {
-			if (resultCode == Constants.RESULT_USER_SIGNED_IN) {
+			if (resultCode == Constants.RESULT_USER_LOGGED_IN) {
 				/*
 				 * Restarts this activity using the same intent as used for the previous start.
 				 */

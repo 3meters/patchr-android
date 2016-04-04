@@ -176,8 +176,8 @@ public class LoginEdit extends BaseEdit {
 
 		if (requestCode == Constants.ACTIVITY_LOGIN
 				|| requestCode == Constants.ACTIVITY_RESET_AND_SIGNIN) {
-			if (resultCode == Constants.RESULT_USER_SIGNED_IN) {
-				setResult(Constants.RESULT_USER_SIGNED_IN);
+			if (resultCode == Constants.RESULT_USER_LOGGED_IN) {
+				setResult(Constants.RESULT_USER_LOGGED_IN);
 				finish();
 				AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
 			}
@@ -223,7 +223,7 @@ public class LoginEdit extends BaseEdit {
 
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					UI.toast(StringManager.getString(R.string.alert_signed_in) + " " + UserManager.currentUser.name);
+					UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
 					didLogin();
 				}
 				else {
@@ -280,7 +280,7 @@ public class LoginEdit extends BaseEdit {
 	}
 
 	private void didLogin() {
-		setResult(Constants.RESULT_USER_SIGNED_IN);
+		setResult(Constants.RESULT_USER_LOGGED_IN);
 		finish();
 		AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
 	}

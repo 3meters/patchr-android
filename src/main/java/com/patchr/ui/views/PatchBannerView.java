@@ -33,7 +33,7 @@ public class PatchBannerView extends FrameLayout {
 	protected Integer  layoutResId;
 
 	protected ViewGroup    layout;
-	protected ImageWidget  photoView;
+	public    ImageWidget  photoView;
 	protected TextView     name;
 	protected TextView     type;
 	protected View         privacyGroup;

@@ -326,16 +326,18 @@ public abstract class BaseScreen extends AppCompatActivity {
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
+				processing = false;
 				busyPresenter.hide(true);
+
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Logger.i(this, "Deleted entity: " + entity.id);
 					UI.toast(StringManager.getString(R.string.alert_deleted));
+					setResult(Constants.RESULT_ENTITY_DELETED);
 					finish();
 				}
 				else {
 					Errors.handleError(BaseScreen.this, result.serviceResponse);
 				}
-				processing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}

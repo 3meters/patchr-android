@@ -191,6 +191,8 @@ public class ProfileScreen extends BaseScreen implements SwipeRefreshLayout.OnRe
 
 		assert this.rootView != null;
 
+		this.actionBarTitle.setText(R.string.screen_title_profile);
+
 		this.fab = (FloatingActionButton) findViewById(R.id.fab);
 		this.header = new UserDetailView(this);
 

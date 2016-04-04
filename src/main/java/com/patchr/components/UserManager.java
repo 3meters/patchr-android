@@ -114,7 +114,7 @@ public class UserManager {
 							extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Login);
 							Patchr.router.route(context, Command.LOGIN, null, extras);
 						}
-						else if (view.getId() == R.id.signup_button) {
+						else if (view.getId() == R.id.submit_button) {
 							Bundle extras = new Bundle();
 							extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Signup);
 							Patchr.router.route(context, Command.LOGIN, null, extras);
