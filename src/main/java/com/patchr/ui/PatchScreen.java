@@ -14,8 +14,6 @@ import android.nfc.NfcEvent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.AppBarLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -66,15 +64,12 @@ import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.CircleTransform;
-import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.components.ListScrollListener;
 import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.views.PatchDetailView;
-import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.UI;
@@ -93,8 +88,7 @@ import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
 
 @SuppressLint("Registered")
-public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefreshListener
-		, NfcAdapter.CreateNdefMessageCallback
+public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMessageCallback
 		, NfcAdapter.OnNdefPushCompleteCallback {
 
 	private final Handler handler = new Handler();
@@ -130,9 +124,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 
 		bind();                             // Shows any data we already have
 		fetch(FetchMode.AUTO);              // Checks for data changes and binds again if needed
-		if (this.listPresenter != null) {
-			this.listPresenter.onResume();  // Update ui
-		}
 
 		/* Check for invitation */
 		if (entity != null && entity instanceof Patch) {
@@ -155,13 +146,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		if (autoJoin) {
 			joinAction();
 			autoJoin = false;
-		}
-	}
-
-	@Override protected void onPause() {
-		super.onPause();
-		if (this.listPresenter != null) {
-			this.listPresenter.onPause();
 		}
 	}
 
@@ -265,12 +249,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 			callbackManager.onActivityResult(requestCode, resultCode, intent);
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
-	}
-
-	@Override public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
-		if (this.listPresenter.busyPresenter != null && this.listPresenter.busyPresenter.swipeRefreshLayout != null) {
-			this.listPresenter.busyPresenter.swipeRefreshLayout.setEnabled(i == 0);
-		}
 	}
 
 	public void onClick(View view) {
@@ -541,9 +519,8 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		this.listPresenter.options = options;
 		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
 		this.listPresenter.listItemResId = R.layout.listitem_message;
-		this.listPresenter.busyPresenter = new BusyPresenter();
-		this.listPresenter.busyPresenter.setProgressBar(this.rootView.findViewById(R.id.list_progress));
-		this.listPresenter.emptyPresenter = new EmptyPresenter(this.rootView.findViewById(R.id.list_message));
+		this.listPresenter.busyPresenter = this.busyPresenter;
+		this.listPresenter.emptyPresenter = this.emptyPresenter;
 		this.listPresenter.emptyPresenter.setLabel(StringManager.getString(R.string.button_list_share));
 		this.listPresenter.emptyPresenter.positionBelow(this.header, null);
 		this.listPresenter.busyPresenter.positionBelow(this.header, null);
@@ -560,17 +537,6 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 				, Constants.TYPE_LINK_CONTENT
 				, Constants.SCHEMA_ENTITY_MESSAGE
 				, this.entityId);
-
-		/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
-		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) this.rootView.findViewById(R.id.swipe);
-		if (swipeRefresh != null) {
-			swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
-			swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(this, R.attr.refreshColorBackground));
-			swipeRefresh.setOnRefreshListener(this);
-			swipeRefresh.setRefreshing(false);
-			swipeRefresh.setEnabled(true);
-			this.listPresenter.busyPresenter.setSwipeRefresh(swipeRefresh);
-		}
 
 		View footer = LayoutInflater.from(this).inflate(R.layout.view_list_footer_message, null);
 		listPresenter.footerView = footer;

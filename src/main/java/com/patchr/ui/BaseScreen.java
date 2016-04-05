@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -40,30 +41,37 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
+import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.Notification;
 import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.MenuTint;
+import com.patchr.ui.fragments.EntityListFragment;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.UI;
 
-public abstract class BaseScreen extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener {
+public abstract class BaseScreen extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener
+		, SwipeRefreshLayout.OnRefreshListener {
 
-	public    Toolbar       toolbar;
-	public    TextView      actionBarTitle;
-	public    ActionBar     actionBar;
-	public    View          actionBarGroup;
-	public    AppBarLayout  appBarLayout;
-	protected BusyPresenter busyPresenter;
-	protected View          rootView;
-	public    Entity        entity;
-	public    String        entityId;
-	protected Fragment      currentFragment;
+	public    Toolbar            toolbar;
+	public    TextView           actionBarTitle;
+	public    ActionBar          actionBar;
+	public    View               actionBarGroup;
+	public    AppBarLayout       appBarLayout;
+	public    SwipeRefreshLayout swipeRefresh;
+	protected BusyPresenter      busyPresenter;
+	protected EmptyPresenter     emptyPresenter;
+
+	protected View     rootView;
+	public    Entity   entity;
+	public    String   entityId;
+	public    Fragment currentFragment;
 
 	public    Boolean firstDraw  = true;
 	protected Boolean processing = false;
@@ -85,8 +93,20 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 
 		NfcManager.pushUri(Uri.parse("http://patchr.com"), this);   // Default
 
+		/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
+		swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe);
+		if (swipeRefresh != null) {
+			swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
+			swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(this, R.attr.refreshColorBackground));
+			swipeRefresh.setOnRefreshListener(this);
+			swipeRefresh.setRefreshing(false);
+			swipeRefresh.setEnabled(true);
+		}
+
+		this.emptyPresenter = new EmptyPresenter(findViewById(R.id.list_message));
 		this.busyPresenter = new BusyPresenter();
-		this.busyPresenter.setProgressBar(findViewById(R.id.form_progress));
+		this.busyPresenter.setProgressBar(findViewById(R.id.list_progress));
+		this.busyPresenter.swipeRefreshLayout = this.swipeRefresh;
 
 		this.toolbar = (Toolbar) this.rootView.findViewById(R.id.actionbar_toolbar);
 		this.actionBarGroup = this.rootView.findViewById(R.id.toolbar);
@@ -145,6 +165,10 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Override public void onRefresh() {
+		((EntityListFragment) this.currentFragment).fetch(FetchMode.MANUAL);
+	}
+
 	@Override public void onBackPressed() {
 		if (BaseScreen.this instanceof MainScreen) {
 			super.onBackPressed();
@@ -184,8 +208,8 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 	}
 
 	@Override public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
-		if (this.busyPresenter != null && this.busyPresenter.swipeRefreshLayout != null) {
-			this.busyPresenter.swipeRefreshLayout.setEnabled(i == 0);
+		if (this.swipeRefresh != null) {
+			this.swipeRefresh.setEnabled(i == 0);
 		}
 	}
 

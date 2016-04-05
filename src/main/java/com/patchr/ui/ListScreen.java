@@ -1,7 +1,6 @@
 package com.patchr.ui;
 
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -15,15 +14,11 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.Photo;
-import com.patchr.ui.components.BusyPresenter;
-import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.RecyclePresenter;
-import com.patchr.utilities.Colors;
 import com.patchr.utilities.Maps;
-import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
-public class ListScreen extends BaseScreen implements SwipeRefreshLayout.OnRefreshListener {
+public class ListScreen extends BaseScreen {
 	/*
 	 * Thin wrapper around a list fragment.
 	 */
@@ -43,22 +38,16 @@ public class ListScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 		if (!isFinishing()) {
 			bind();                             // Shows any data we already have
 			fetch(FetchMode.AUTO);              // Checks for data changes and binds again if needed
-			if (this.listPresenter != null) {
-				this.listPresenter.onResume();  // Update ui
-			}
-		}
-	}
-
-	@Override public void onPause() {
-		super.onPause();
-		if (this.listPresenter != null) {
-			this.listPresenter.onPause();
 		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void onRefresh() {
+		fetch(FetchMode.MANUAL);
+	}
 
 	public void onClick(View view) {
 		if (view.getTag() != null) {
@@ -71,10 +60,6 @@ public class ListScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 				navigateToEntity(entity);
 			}
 		}
-	}
-
-	@Override public void onRefresh() {
-		fetch(FetchMode.MANUAL);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -110,9 +95,8 @@ public class ListScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
 		this.listPresenter.showIndex = false;
 		this.listPresenter.listItemResId = this.listItemResId;
-		this.listPresenter.busyPresenter = new BusyPresenter();
-		this.listPresenter.busyPresenter.setProgressBar(this.rootView.findViewById(R.id.list_progress));
-		this.listPresenter.emptyPresenter = new EmptyPresenter(this.rootView.findViewById(R.id.list_message));
+		this.listPresenter.busyPresenter = this.busyPresenter;
+		this.listPresenter.emptyPresenter = this.emptyPresenter;
 		this.listPresenter.emptyPresenter.setLabel(StringManager.getString(this.listEmptyMessageResId));
 		this.listPresenter.scopingEntity = this.entity;
 
@@ -123,17 +107,6 @@ public class ListScreen extends BaseScreen implements SwipeRefreshLayout.OnRefre
 					, this.listLinkType
 					, this.listLinkSchema
 					, this.entityId);
-		}
-
-		/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
-		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) this.rootView.findViewById(R.id.swipe);
-		if (swipeRefresh != null) {
-			swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
-			swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(this, R.attr.refreshColorBackground));
-			swipeRefresh.setOnRefreshListener(this);
-			swipeRefresh.setRefreshing(false);
-			swipeRefresh.setEnabled(true);
-			this.listPresenter.busyPresenter.setSwipeRefresh(swipeRefresh);
 		}
 
 		this.listPresenter.initialize(this, this.rootView);        // We init after everything is setup

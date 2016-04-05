@@ -57,7 +57,7 @@
 			android:scrollingCache="false" />
 
 		<com.patchr.ui.widgets.AirProgressBar
-			android:id="@+id/form_progress"
+			android:id="@+id/list_progress"
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="@dimen/progress_width"
 			android:layout_height="@dimen/progress_height"

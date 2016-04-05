@@ -18,11 +18,8 @@ import com.patchr.components.Dispatcher;
 import com.patchr.events.AbsEntitiesQueryEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.FetchMode;
-import com.patchr.ui.components.BusyPresenter;
-import com.patchr.ui.components.EmptyPresenter;
+import com.patchr.ui.components.ListScrollListener;
 import com.patchr.ui.components.RecyclePresenter;
-import com.patchr.utilities.Colors;
-import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -80,7 +77,6 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 			startActivity(intent);
 		}
 
-		this.listPresenter = new RecyclePresenter(getContext());
 		this.listPresenter.listItemResId = this.listItemResId;
 		this.listPresenter.emptyMessageResId = this.emptyMessageResId;
 		this.listPresenter.query = this.query;
@@ -124,16 +120,6 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 		bind();                             // Shows any data we already have
 		if (!fetchOnResumeDisabled) {
 			fetch(FetchMode.AUTO);              // Checks for data changes and binds again if needed
-		}
-		if (this.listPresenter != null) {
-			this.listPresenter.onResume();  // Update ui
-		}
-	}
-
-	@Override public void onPause() {
-		super.onPause();
-		if (listPresenter != null) {
-			listPresenter.onPause();
 		}
 	}
 
@@ -180,21 +166,13 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 		assert view != null;
 
 		this.listPresenter.recycleView = (RecyclerView) view.findViewById(R.id.entity_list);
-		this.listPresenter.emptyPresenter = new EmptyPresenter(view.findViewById(R.id.list_message));
-		this.listPresenter.busyPresenter = new BusyPresenter();
-		this.listPresenter.busyPresenter.setProgressBar(view.findViewById(R.id.list_progress));
-
-		/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
-		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe);
-		if (swipeRefresh != null) {
-			swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
-			swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(getContext(), R.attr.refreshColorBackground));
-			swipeRefresh.setOnRefreshListener(this);
-			swipeRefresh.setRefreshing(false);
-			swipeRefresh.setEnabled(true);
-			this.listPresenter.busyPresenter.setSwipeRefresh(swipeRefresh);
-		}
-
+		this.listPresenter.recycleView.addOnScrollListener(new ListScrollListener() {
+			@Override public void onMoved(int distance) {
+				if (listPresenter.busyPresenter.swipeRefreshLayout != null) {
+					listPresenter.busyPresenter.swipeRefreshLayout.setEnabled(distance == 0);
+				}
+			}
+		});
 		this.listPresenter.initialize(getContext(), view);        // We init after everything is setup
 	}
 

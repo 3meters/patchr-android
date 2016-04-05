@@ -85,18 +85,6 @@ public class RecyclePresenter {
 		Dispatcher.getInstance().register(this);
 	}
 
-	public void onResume() {
-		if (this.busyPresenter != null) {
-			this.busyPresenter.onResume();
-		}
-	}
-
-	public void onPause() {
-		if (this.busyPresenter != null) {
-			this.busyPresenter.onPause();
-		}
-	}
-
 	public void onDestroy() {
 		Dispatcher.getInstance().unregister(this);
 		this.released = true;
@@ -149,7 +137,7 @@ public class RecyclePresenter {
 						this.recycleView.addOnScrollListener(new EndlessRecyclerViewScrollListener((LinearLayoutManager) recycleView.getLayoutManager()) {
 							@Override public void onLoadMore(int page, int totalItemsCount) {
 								if (!processing) {
-									recycleView.clearOnScrollListeners();
+									recycleView.removeOnScrollListener(this);
 									fetch(FetchMode.PAGING);
 								}
 							}

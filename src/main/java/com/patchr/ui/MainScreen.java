@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,11 +52,15 @@ import com.patchr.objects.Link;
 import com.patchr.objects.Notification;
 import com.patchr.objects.Photo;
 import com.patchr.objects.User;
+import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.EmptyPresenter;
+import com.patchr.ui.components.ListScrollListener;
 import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.ui.fragments.EntityListFragment;
 import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.ui.fragments.NearbyListFragment;
 import com.patchr.ui.widgets.ImageWidget;
+import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.UI;
@@ -67,7 +72,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressLint("Registered")
-public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectEntitiesHandler {
+public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectEntitiesHandler, SwipeRefreshLayout.OnRefreshListener {
 
 	protected Number  pauseDate;
 	protected Boolean configuredForAuthenticated;
@@ -101,6 +106,10 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	protected String currentFragmentTag;
 
 	protected View currentNavView;
+
+	public    SwipeRefreshLayout swipeRefreshNotifications;
+	protected BusyPresenter      busyPresenterNotifications;
+	protected EmptyPresenter     emptyPresenterNotifications;
 
 	@Override protected void onStart() {
 		super.onStart();
@@ -193,6 +202,10 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 			return super.onOptionsItemSelected(item);
 		}
 		return true;
+	}
+
+	@Override public void onRefresh() {
+		((EntityListFragment) this.currentFragment).fetch(FetchMode.MANUAL);
 	}
 
 	@Override public void onBackPressed() {
@@ -415,7 +428,26 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		 * - delete link
 		 * - like/unlike entity
 		 */
+
+		/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
+		swipeRefreshNotifications = (SwipeRefreshLayout) findViewById(R.id.notifications_swipe);
+		if (swipeRefreshNotifications != null) {
+			swipeRefreshNotifications.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
+			swipeRefreshNotifications.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(this, R.attr.refreshColorBackground));
+			swipeRefreshNotifications.setRefreshing(false);
+			swipeRefreshNotifications.setEnabled(true);
+		}
+
+		this.emptyPresenterNotifications = new EmptyPresenter(findViewById(R.id.notifications_list_message));
+		this.busyPresenterNotifications = new BusyPresenter();
+		this.busyPresenterNotifications.setProgressBar(findViewById(R.id.notifications_list_progress));
+		this.busyPresenterNotifications.swipeRefreshLayout = this.swipeRefreshNotifications;
+
 		fragmentNotifications = new EntityListFragment();
+		swipeRefreshNotifications.setOnRefreshListener(fragmentNotifications);
+		fragmentNotifications.listPresenter = new RecyclePresenter(this);
+		fragmentNotifications.listPresenter.busyPresenter = this.busyPresenterNotifications;
+		fragmentNotifications.listPresenter.emptyPresenter = this.emptyPresenterNotifications;
 		fragmentNotifications.fetchOnResumeDisabled = true;
 		fragmentNotifications.layoutResId = R.layout.fragment_notification_list;
 		fragmentNotifications.injectEntitiesHandler = this;
@@ -426,7 +458,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		if (drawerRight != null) {
 			getSupportFragmentManager()
 					.beginTransaction()
-					.replace(R.id.fragment_holder_notifications, fragmentNotifications)
+					.replace(R.id.notifications_fragment_holder, fragmentNotifications)
 					.commit();
 		}
 
@@ -503,6 +535,14 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				UI.setVisibility(findViewById(R.id.item_own), View.GONE);
 			}
 		}
+
+		fragmentNotifications.listPresenter.recycleView.addOnScrollListener(new ListScrollListener() {
+			@Override public void onMoved(int distance) {
+				if (swipeRefreshNotifications != null) {
+					swipeRefreshNotifications.setEnabled(distance == 0);
+				}
+			}
+		});
 	}
 
 	public void addAction() {
@@ -587,6 +627,9 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				fragment = new NearbyListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
+				listFragment.listPresenter = new RecyclePresenter(this);
+				listFragment.listPresenter.busyPresenter = this.busyPresenter;
+				listFragment.listPresenter.emptyPresenter = this.emptyPresenter;
 				listFragment.listItemResId = R.layout.listitem_patch;
 				listFragment.emptyMessageResId = R.string.empty_nearby;
 				listFragment.titleResId = R.string.screen_title_nearby;
@@ -599,6 +642,9 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				fragment = new EntityListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
+				listFragment.listPresenter = new RecyclePresenter(this);
+				listFragment.listPresenter.busyPresenter = this.busyPresenter;
+				listFragment.listPresenter.emptyPresenter = this.emptyPresenter;
 				listFragment.listItemResId = R.layout.listitem_patch;
 				listFragment.emptyMessageResId = R.string.empty_member_of;
 				listFragment.titleResId = R.string.screen_title_watch;
@@ -615,6 +661,9 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				fragment = new EntityListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
+				listFragment.listPresenter = new RecyclePresenter(this);
+				listFragment.listPresenter.busyPresenter = this.busyPresenter;
+				listFragment.listPresenter.emptyPresenter = this.emptyPresenter;
 				listFragment.listItemResId = R.layout.listitem_patch;
 				listFragment.restartAtTop = true;
 				listFragment.emptyMessageResId = R.string.empty_owner_of;
@@ -631,6 +680,9 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				fragment = new EntityListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
+				listFragment.listPresenter = new RecyclePresenter(this);
+				listFragment.listPresenter.busyPresenter = this.busyPresenter;
+				listFragment.listPresenter.emptyPresenter = this.emptyPresenter;
 				listFragment.listItemResId = R.layout.listitem_patch;
 				listFragment.titleResId = R.string.screen_title_trends_active;
 				listFragment.restartAtTop = true;

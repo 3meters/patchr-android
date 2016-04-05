@@ -3,7 +3,6 @@ package com.patchr.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,20 +25,16 @@ import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Photo;
-import com.patchr.ui.components.BusyPresenter;
-import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.views.UserDetailView;
-import com.patchr.utilities.Colors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Maps;
-import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class ProfileScreen extends BaseScreen implements SwipeRefreshLayout.OnRefreshListener {
+public class ProfileScreen extends BaseScreen {
 
 	private UserDetailView       header;
 	private boolean              bound;
@@ -56,16 +51,6 @@ public class ProfileScreen extends BaseScreen implements SwipeRefreshLayout.OnRe
 
 		bind();
 		fetch(FetchMode.AUTO);
-		if (this.listPresenter != null) {
-			this.listPresenter.onResume();
-		}
-	}
-
-	@Override public void onPause() {
-		super.onPause();
-		if (this.listPresenter != null) {
-			this.listPresenter.onPause();
-		}
 	}
 
 	@Override protected void onStop() {
@@ -199,9 +184,8 @@ public class ProfileScreen extends BaseScreen implements SwipeRefreshLayout.OnRe
 		this.listPresenter = new RecyclePresenter(this);
 		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
 		this.listPresenter.listItemResId = R.layout.listitem_message;
-		this.listPresenter.busyPresenter = new BusyPresenter();
-		this.listPresenter.busyPresenter.setProgressBar(this.rootView.findViewById(R.id.list_progress));
-		this.listPresenter.emptyPresenter = new EmptyPresenter(this.rootView.findViewById(R.id.list_message));
+		this.listPresenter.busyPresenter = this.busyPresenter;
+		this.listPresenter.emptyPresenter = this.emptyPresenter;
 		this.listPresenter.emptyPresenter.setLabel(StringManager.getString(R.string.empty_posted_messages));
 		this.listPresenter.emptyPresenter.positionBelow(this.header, null);
 		this.listPresenter.busyPresenter.positionBelow(this.header, null);
@@ -213,17 +197,6 @@ public class ProfileScreen extends BaseScreen implements SwipeRefreshLayout.OnRe
 				, Constants.TYPE_LINK_CREATE
 				, Constants.SCHEMA_ENTITY_MESSAGE
 				, this.entityId);
-
-		/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
-		SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) this.rootView.findViewById(R.id.swipe);
-		if (swipeRefresh != null) {
-			swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
-			swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(this, R.attr.refreshColorBackground));
-			swipeRefresh.setOnRefreshListener(this);
-			swipeRefresh.setRefreshing(false);
-			swipeRefresh.setEnabled(true);
-			this.listPresenter.busyPresenter.setSwipeRefresh(swipeRefresh);
-		}
 
 		this.listPresenter.initialize(this, this.rootView);        // We init after everything is setup
 	}

@@ -95,10 +95,6 @@ public class NearbyListFragment extends EntityListFragment {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void onRefresh() {
-		fetch(FetchMode.MANUAL);
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Fetching notification sequence
 	 *--------------------------------------------------------------------------------------------*/
@@ -359,7 +355,7 @@ public class NearbyListFragment extends EntityListFragment {
 		listPresenter.onFetchComplete(ResponseCode.SUCCESS);
 	}
 
-	public void bind() {
+	@Override public void bind() {
 		if (listPresenter != null) {
 			listPresenter.bind();
 		}
