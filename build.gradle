@@ -4,7 +4,7 @@ buildscript {
 		maven { url 'https://maven.fabric.io/public' }
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:1.5.0'
+		classpath 'com.android.tools.build:gradle:2.0.0-rc1'
 		classpath 'io.fabric.tools:gradle:1.21.4'
 		classpath 'com.google.gms:google-services:2.0.0-beta6'
 	}
@@ -38,8 +38,8 @@ android {
 		applicationId 'com.patchr.android'
 		minSdkVersion 15        // ICS 4.0.3 and up
 		targetSdkVersion 23     // Marshmallow
-		versionCode 109
-		versionName '1.1.7'
+		versionCode 111
+		versionName '1.1.9'
 	}
 
 	lintOptions {
