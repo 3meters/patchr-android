@@ -87,10 +87,8 @@ public class GcmIntentService extends GcmListenerService {
 							Bundle extrasOut = new Bundle();
 							extrasOut.putBoolean(Constants.EXTRA_REFRESH_FROM_SERVICE, true);
 							extrasOut.putString(Constants.EXTRA_NOTIFICATION_ID, notification.id);
-							String parentId = (notification.parentId != null) ? notification.parentId : null;
 							notification.intent = Patchr.router.browse(Patchr.applicationContext, notification.targetId, extrasOut, false);
 						}
-
 					    /*
 					     * Send notification - includes sound notification
 					     */

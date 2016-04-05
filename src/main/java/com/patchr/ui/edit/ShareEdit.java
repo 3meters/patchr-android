@@ -24,7 +24,6 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
-import com.patchr.objects.Message;
 import com.patchr.objects.Message.MessageType;
 import com.patchr.objects.Photo;
 import com.patchr.objects.Recipient;
@@ -97,8 +96,6 @@ public class ShareEdit extends BaseEdit {
 	}
 
 	public void onClick(View view) {
-		Integer id = view.getId();
-
 		if (view.getTag() != null) {
 			if (view.getTag() instanceof Entity) {
 				final Entity entity = (Entity) view.getTag();
@@ -411,7 +408,6 @@ public class ShareEdit extends BaseEdit {
 	@Override protected boolean validate() {
 
 		gather();
-		Message message = (Message) this.entity;
 
 		if (this.recipientsField.getObjects().size() == 0) {
 

@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -85,7 +86,7 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 		}
 	}
 
-	@Override public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+	@Override public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
 		switch (requestCode) {
 			case Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
 				if (PermissionUtil.verifyPermissions(grantResults)) {

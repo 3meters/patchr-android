@@ -145,7 +145,6 @@ public class ProfileScreen extends BaseScreen {
 				this.bound = true;
 
 				if (!event.noop) {
-					Boolean firstBind = (entity == null);
 					Boolean activityDateChanged = (this.entity != null && !this.entity.activityDate.equals(event.entity.activityDate));
 					this.entity = event.entity;
 					this.listPresenter.scopingEntity = event.entity;

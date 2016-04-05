@@ -45,11 +45,9 @@ public class PasswordEditText extends AppCompatEditText {
 
 			setCompoundDrawablesWithIntrinsicBounds(null, null, unmaskDrawable, null);
 			setOnTouchListener(new View.OnTouchListener() {
+
 				@Override public boolean onTouch(View v, MotionEvent event) {
-					final int DRAWABLE_LEFT = 0;
-					final int DRAWABLE_TOP = 1;
 					final int DRAWABLE_RIGHT = 2;
-					final int DRAWABLE_BOTTOM = 3;
 
 					if (event.getAction() == MotionEvent.ACTION_UP) {
 						if (event.getRawX() >= (getRight() - getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {

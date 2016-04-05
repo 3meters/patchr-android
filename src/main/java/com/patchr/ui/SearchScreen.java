@@ -29,8 +29,6 @@ public class SearchScreen extends BaseScreen {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void onClick(View view) {
-		Integer id = view.getId();
-
 		if (view.getTag() != null) {
 			if (view.getTag() instanceof Photo) {
 				Photo photo = (Photo) view.getTag();

@@ -2,9 +2,6 @@ package com.patchr.ui;
 
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -29,7 +26,6 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.DataController;
 import com.patchr.components.Dispatcher;
-import com.patchr.components.FontManager;
 import com.patchr.components.Logger;
 import com.patchr.components.MapManager;
 import com.patchr.components.NetworkManager;
@@ -299,11 +295,6 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		View view = findViewById(R.id.item_nearby);
-		if (view != null) {
-			FontManager.getInstance().setTypefaceMedium((TextView) view.findViewById(R.id.name));
-		}
-
 		this.fab = (FloatingActionButton) findViewById(R.id.fab);
 
 		drawerLeft = (NavigationView) findViewById(R.id.left_drawer);
@@ -443,33 +434,33 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		 * - like/unlike entity
 		 */
 
-		/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
-		swipeRefreshNotifications = (SwipeRefreshLayout) findViewById(R.id.notifications_swipe);
-		if (swipeRefreshNotifications != null) {
-			swipeRefreshNotifications.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
-			swipeRefreshNotifications.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(this, R.attr.refreshColorBackground));
-			swipeRefreshNotifications.setRefreshing(false);
-			swipeRefreshNotifications.setEnabled(true);
-		}
-
-		this.emptyPresenterNotifications = new EmptyPresenter(findViewById(R.id.notifications_list_message));
-		this.busyPresenterNotifications = new BusyPresenter();
-		this.busyPresenterNotifications.setProgressBar(findViewById(R.id.notifications_list_progress));
-		this.busyPresenterNotifications.swipeRefreshLayout = this.swipeRefreshNotifications;
-
-		fragmentNotifications = new EntityListFragment();
-		swipeRefreshNotifications.setOnRefreshListener(fragmentNotifications);
-		fragmentNotifications.listPresenter = new RecyclePresenter(this);
-		fragmentNotifications.listPresenter.busyPresenter = this.busyPresenterNotifications;
-		fragmentNotifications.listPresenter.emptyPresenter = this.emptyPresenterNotifications;
-		fragmentNotifications.fetchOnResumeDisabled = true;
-		fragmentNotifications.layoutResId = R.layout.fragment_notification_list;
-		fragmentNotifications.injectEntitiesHandler = this;
-		fragmentNotifications.listItemResId = R.layout.listitem_notification;
-		fragmentNotifications.emptyMessageResId = R.string.empty_notifications;
-		fragmentNotifications.query = NotificationsQueryEvent.build(ActionType.ACTION_GET_NOTIFICATIONS, UserManager.userId);
-
 		if (drawerRight != null) {
+			/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
+			swipeRefreshNotifications = (SwipeRefreshLayout) findViewById(R.id.notifications_swipe);
+			if (swipeRefreshNotifications != null) {
+				swipeRefreshNotifications.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
+				swipeRefreshNotifications.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(this, R.attr.refreshColorBackground));
+				swipeRefreshNotifications.setRefreshing(false);
+				swipeRefreshNotifications.setEnabled(true);
+			}
+
+			this.emptyPresenterNotifications = new EmptyPresenter(findViewById(R.id.notifications_list_message));
+			this.busyPresenterNotifications = new BusyPresenter();
+			this.busyPresenterNotifications.setProgressBar(findViewById(R.id.notifications_list_progress));
+			this.busyPresenterNotifications.swipeRefreshLayout = this.swipeRefreshNotifications;
+
+			fragmentNotifications = new EntityListFragment();
+			swipeRefreshNotifications.setOnRefreshListener(fragmentNotifications);
+			fragmentNotifications.listPresenter = new RecyclePresenter(this);
+			fragmentNotifications.listPresenter.busyPresenter = this.busyPresenterNotifications;
+			fragmentNotifications.listPresenter.emptyPresenter = this.emptyPresenterNotifications;
+			fragmentNotifications.fetchOnResumeDisabled = true;
+			fragmentNotifications.layoutResId = R.layout.fragment_notification_list;
+			fragmentNotifications.injectEntitiesHandler = this;
+			fragmentNotifications.listItemResId = R.layout.listitem_notification;
+			fragmentNotifications.emptyMessageResId = R.string.empty_notifications;
+			fragmentNotifications.query = NotificationsQueryEvent.build(ActionType.ACTION_GET_NOTIFICATIONS, UserManager.userId);
+
 			getSupportFragmentManager()
 					.beginTransaction()
 					.replace(R.id.notifications_fragment_holder, fragmentNotifications)
@@ -533,30 +524,30 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				this.userName.setText(user.name);
 				this.userArea.setText(user.area);
 				this.drawerLeftHeader.setTag(user);
-				UI.setVisibility(findViewById(R.id.item_watch), View.VISIBLE);
-				UI.setVisibility(findViewById(R.id.item_own), View.VISIBLE);
+				drawerLeft.getMenu().findItem(R.id.item_member).setVisible(true);
+				drawerLeft.getMenu().findItem(R.id.item_own).setVisible(true);
 				cacheStamp = UserManager.currentUser.getCacheStamp();
 			}
 			else {
 				configuredForAuthenticated = false;
-				Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img_default_user_light);
-				final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
-				UI.showDrawableInImageView(bitmapDrawable, this.userPhoto.imageView, Constants.ANIMATE_IMAGES);
+				UI.setVisibility(this.userPhoto, View.GONE);
+				UI.setVisibility(this.userArea, View.GONE);
 				this.userName.setText("Guest");
-				this.userArea.setText(null);
 				this.drawerLeftHeader.setTag(null);
-				UI.setVisibility(findViewById(R.id.item_watch), View.GONE);
-				UI.setVisibility(findViewById(R.id.item_own), View.GONE);
+				drawerLeft.getMenu().findItem(R.id.item_member).setVisible(false);
+				drawerLeft.getMenu().findItem(R.id.item_own).setVisible(false);
 			}
 		}
 
-		fragmentNotifications.listPresenter.recycleView.addOnScrollListener(new ListScrollListener() {
-			@Override public void onMoved(int distance) {
-				if (swipeRefreshNotifications != null) {
-					swipeRefreshNotifications.setEnabled(distance == 0);
+		if (fragmentNotifications != null) {
+			fragmentNotifications.listPresenter.recycleView.addOnScrollListener(new ListScrollListener() {
+				@Override public void onMoved(int distance) {
+					if (swipeRefreshNotifications != null) {
+						swipeRefreshNotifications.setEnabled(distance == 0);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	public void addAction() {

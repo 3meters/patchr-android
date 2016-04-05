@@ -747,7 +747,6 @@ public class MessageScreen extends BaseScreen {
 
 	public void share() {
 
-		final String entityName = (entity.name != null) ? entity.name : StringManager.getString(R.string.container_singular_lowercase);
 		final String title = StringManager.getString(R.string.label_message_share_title);
 		final Activity activity = this;
 

@@ -79,6 +79,7 @@ public class MenuTint {
 			}
 		}
 		try {
+			assert nativeIsActionButton != null;
 			return (boolean) nativeIsActionButton.invoke(item, (Object[]) null);
 		}
 		catch (Exception e) { /* ignore */ }

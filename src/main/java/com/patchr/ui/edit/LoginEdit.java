@@ -234,8 +234,8 @@ public class LoginEdit extends BaseEdit {
 	}
 
 	private void validateEmail() {
+
 		final String email = this.email.getText().toString().toLowerCase(Locale.US);
-		final String password = this.password.getText().toString();
 
 		new AsyncTask() {
 

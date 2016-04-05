@@ -18,13 +18,13 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true"
-		android:orientation="horizontal">
+		android:orientation="horizontal"
+		tools:ignore="UselessParent">
 
 		<com.patchr.ui.widgets.ImageWidget
 			android:id="@+id/user_photo"
 			android:layout_width="56dp"
 			android:layout_height="56dp"
-			android:layout_marginRight="10dp"
 			custom:category="profile"
 			custom:shape="round"
 			custom:showBusy="false" />
@@ -33,6 +33,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
+			android:layout_marginLeft="8dp"
 			android:orientation="vertical">
 
 			<TextView

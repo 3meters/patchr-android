@@ -364,9 +364,6 @@ public class NearbyListFragment extends EntityListFragment {
 
 	public void bindActionButton() {
 
-		Boolean proximityCapable = (NetworkManager.getInstance().isWifiEnabled()
-				|| LocationManager.getInstance().isLocationAccessEnabled());
-
 		TextView alertButton = (TextView) headerView.findViewById(R.id.action_button);
 		if (alertButton != null) {
 
