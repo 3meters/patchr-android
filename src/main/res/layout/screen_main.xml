@@ -1,79 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.v4.widget.DrawerLayout
 
+	android:id="@+id/drawer_layout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical"
-	tools:context=".ui.MainScreen">
+	android:layout_height="match_parent">
 
-	<include
-		android:id="@+id/toolbar"
-		layout="@layout/include_toolbar_actionbar" />
-
-	<android.support.v4.widget.DrawerLayout
-		android:id="@+id/drawer_layout"
+	<android.support.design.widget.CoordinatorLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<android.support.design.widget.CoordinatorLayout
+		<android.support.design.widget.AppBarLayout
+			android:id="@+id/appbar_layout"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
+			android:layout_height="wrap_content"
+			android:background="@color/transparent">
 
-			<FrameLayout
-				android:id="@+id/fragment_holder"
+			<android.support.v7.widget.Toolbar
+
+				android:id="@+id/actionbar_toolbar"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:layout_centerHorizontal="true"
-				android:background="?attr/backgroundCardField" />
-
-			<android.support.design.widget.FloatingActionButton
-				android:id="@+id/fab"
-				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_gravity="end|bottom"
-				android:layout_margin="16dp"
-				android:clickable="true"
-				android:onClick="onClick"
-				android:scaleType="center"
-				android:src="@drawable/ic_add_dark"
-				custom:borderWidth="0dp"
-				custom:elevation="4dp"
-				custom:layout_behavior="com.patchr.ui.components.ScrollAwareFabBehavior"
-				custom:useCompatPadding="true"
-				tools:visibility="visible" />
+				android:minHeight="?attr/actionBarSize"
+				android:theme="@style/patchr_theme_action_bar"
+				custom:layout_scrollFlags="scroll|enterAlways"
+				custom:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
-		</android.support.design.widget.CoordinatorLayout>
+				<TextView
+					android:id="@+id/toolbar_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="left"
+					android:textSize="18sp"
+					tools:text="Title" />
 
-		<!-- Navigation drawer -->
+			</android.support.v7.widget.Toolbar>
+
+		</android.support.design.widget.AppBarLayout>
 
 		<FrameLayout
-			android:id="@+id/left_drawer"
-			android:layout_width="240dp"
+			android:id="@+id/fragment_holder"
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:layout_gravity="left|start"
-			android:background="?attr/backgroundForm">
+			android:layout_centerHorizontal="true"
+			android:background="?attr/backgroundCardField"
+			custom:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-			<include layout="@layout/view_drawer_start" />
-		</FrameLayout>
+		<android.support.design.widget.FloatingActionButton
+			android:id="@+id/fab"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="end|bottom"
+			android:layout_margin="16dp"
+			android:clickable="true"
+			android:onClick="onClick"
+			android:scaleType="center"
+			android:src="@drawable/ic_add_dark"
+			custom:borderWidth="0dp"
+			custom:elevation="4dp"
+			custom:layout_behavior="com.patchr.ui.components.ScrollAwareFabBehavior"
+			custom:useCompatPadding="true"
+			tools:visibility="visible" />
 
-		<!-- Notifications drawer -->
+	</android.support.design.widget.CoordinatorLayout>
 
-		<RelativeLayout
-			android:id="@+id/right_drawer"
-			android:layout_width="320dp"
-			android:layout_height="match_parent"
-			android:layout_gravity="end"
-			android:background="?attr/backgroundForm">
+	<!-- Navigation drawer -->
 
-			<FrameLayout
-				android:id="@+id/fragment_holder_notifications"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent" />
+	<FrameLayout
+		android:id="@+id/left_drawer"
+		android:layout_width="240dp"
+		android:layout_height="match_parent"
+		android:layout_gravity="left|start"
+		android:background="?attr/backgroundForm">
 
-		</RelativeLayout>
+		<include layout="@layout/view_drawer_start" />
+	</FrameLayout>
 
-	</android.support.v4.widget.DrawerLayout>
-</LinearLayout>
+	<!-- Notifications drawer -->
+
+	<RelativeLayout
+		android:id="@+id/right_drawer"
+		android:layout_width="320dp"
+		android:layout_height="match_parent"
+		android:layout_gravity="end"
+		android:background="?attr/backgroundForm">
+
+		<FrameLayout
+			android:id="@+id/fragment_holder_notifications"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent" />
+
+	</RelativeLayout>
+
+</android.support.v4.widget.DrawerLayout>

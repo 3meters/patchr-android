@@ -1,19 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.design.widget.CoordinatorLayout
 
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical">
 
-	<include
-		android:id="@+id/toolbar"
-		layout="@layout/include_toolbar_actionbar" />
+	<android.support.design.widget.AppBarLayout
+		android:id="@+id/appbar_layout"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/transparent">
+
+		<android.support.v7.widget.Toolbar
+
+			android:id="@+id/actionbar_toolbar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:minHeight="?attr/actionBarSize"
+			android:theme="@style/patchr_theme_action_bar"
+			custom:layout_scrollFlags="scroll|enterAlways"
+			custom:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+			<TextView
+				android:id="@+id/toolbar_title"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="left"
+				android:textSize="18sp"
+				tools:text="Title" />
+
+		</android.support.v7.widget.Toolbar>
+
+	</android.support.design.widget.AppBarLayout>
 
 	<RelativeLayout
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+		android:layout_height="match_parent"
+		custom:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 		<LinearLayout
 			android:id="@+id/search_group"
@@ -73,4 +99,4 @@
 			tools:visibility="visible" />
 
 	</RelativeLayout>
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -51,11 +52,13 @@ import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.UI;
 
-public abstract class BaseScreen extends AppCompatActivity {
+public abstract class BaseScreen extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener {
 
 	public    Toolbar       toolbar;
 	public    TextView      actionBarTitle;
 	public    ActionBar     actionBar;
+	public    View          actionBarGroup;
+	public    AppBarLayout  appBarLayout;
 	protected BusyPresenter busyPresenter;
 	protected View          rootView;
 	public    Entity        entity;
@@ -86,6 +89,9 @@ public abstract class BaseScreen extends AppCompatActivity {
 		this.busyPresenter.setProgressBar(findViewById(R.id.form_progress));
 
 		this.toolbar = (Toolbar) this.rootView.findViewById(R.id.actionbar_toolbar);
+		this.actionBarGroup = this.rootView.findViewById(R.id.toolbar);
+		this.appBarLayout = (AppBarLayout) this.rootView.findViewById(R.id.appbar_layout);
+
 		if (this.toolbar != null) {
 			super.setSupportActionBar(toolbar);
 			this.actionBar = super.getSupportActionBar();
@@ -113,6 +119,10 @@ public abstract class BaseScreen extends AppCompatActivity {
 	@Override protected void onResume() {
 		super.onResume();
 
+		if (this.appBarLayout != null) {
+			this.appBarLayout.addOnOffsetChangedListener(this);
+		}
+
 		busyPresenter.onResume();
 		processing = false;
 		/*
@@ -125,6 +135,9 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 	@Override protected void onPause() {
 		busyPresenter.onPause();
+		if (this.appBarLayout != null) {
+			this.appBarLayout.removeOnOffsetChangedListener(this);
+		}
 		super.onPause();
 	}
 
@@ -168,6 +181,12 @@ public abstract class BaseScreen extends AppCompatActivity {
 	@Override public boolean onPrepareOptionsMenu(Menu menu) {
 		configureStandardMenuItems(menu);
 		return true;
+	}
+
+	@Override public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
+		if (this.busyPresenter != null && this.busyPresenter.swipeRefreshLayout != null) {
+			this.busyPresenter.swipeRefreshLayout.setEnabled(i == 0);
+		}
 	}
 
 	public void submitAction() { /* Handled by child classes */}

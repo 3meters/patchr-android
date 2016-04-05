@@ -129,6 +129,8 @@ public class PhotoSearchScreen extends BaseScreen {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
+		actionBarTitle.setText(R.string.screen_title_photo_picker);
+
 		search = (AirAutoCompleteTextView) findViewById(R.id.search_text);
 
 		if (search != null) {

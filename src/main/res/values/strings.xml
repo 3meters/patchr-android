@@ -26,7 +26,7 @@
 	<string name="screen_title_proximity_edit" tools:ignore="UnusedResources">Tune patch proximity</string>
 
 	<string name="screen_title_privacy_builder" tools:ignore="UnusedResources">Privacy setting</string>
-	<string name="screen_title_photo_picker" tools:ignore="UnusedResources">Add a photo</string>
+	<string name="screen_title_photo_picker" tools:ignore="UnusedResources">Photo search</string>
 	<string name="screen_title_location_picker" tools:ignore="UnusedResources">Set patch location</string>
 
 	<string name="screen_title_patch_list" tools:ignore="UnusedResources">Patches</string>

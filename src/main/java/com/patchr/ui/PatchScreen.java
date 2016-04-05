@@ -14,6 +14,7 @@ import android.nfc.NfcEvent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -69,6 +70,7 @@ import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.components.EmptyPresenter;
 import com.patchr.ui.components.InsetViewTransformer;
+import com.patchr.ui.components.ListScrollListener;
 import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.views.PatchDetailView;
@@ -263,6 +265,12 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 			callbackManager.onActivityResult(requestCode, resultCode, intent);
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
+	}
+
+	@Override public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
+		if (this.listPresenter.busyPresenter != null && this.listPresenter.busyPresenter.swipeRefreshLayout != null) {
+			this.listPresenter.busyPresenter.swipeRefreshLayout.setEnabled(i == 0);
+		}
 	}
 
 	public void onClick(View view) {
@@ -540,6 +548,11 @@ public class PatchScreen extends BaseScreen implements SwipeRefreshLayout.OnRefr
 		this.listPresenter.emptyPresenter.positionBelow(this.header, null);
 		this.listPresenter.busyPresenter.positionBelow(this.header, null);
 		this.listPresenter.headerView = this.header;
+		this.listPresenter.recycleView.setOnScrollListener(new ListScrollListener() {
+			@Override public void onMoved(int distance) {
+				header.bannerView.photoView.imageView.setTranslationY(distance / 2);
+			}
+		});
 
 		this.listPresenter.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
 				, Maps.asMap("enabled", true)

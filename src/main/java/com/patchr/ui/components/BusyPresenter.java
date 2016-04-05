@@ -26,18 +26,18 @@ import org.greenrobot.eventbus.Subscribe;
 
 public class BusyPresenter {
 
-	private Runnable           mRunnableHide;
-	private Runnable           mRunnableShow;
-	private Long               mBusyStartedTime;
-	private SwipeRefreshLayout mSwipeRefreshLayout;
-	private ProgressDialog     mProgressDialog;
-	private AirProgressBar     mProgressBar;
+	private Runnable           runnableHide;
+	private Runnable           runnableShow;
+	private Long               busyStartedTime;
+	public  SwipeRefreshLayout swipeRefreshLayout;
+	private ProgressDialog     progressDialog;
+	private AirProgressBar     progressBar;
 
-	private ObjectAnimator mFadeInAnim  = ObjectAnimator.ofFloat(null, "alpha", 1f);
-	private ObjectAnimator mFadeOutAnim = ObjectAnimator.ofFloat(null, "alpha", 0f);
+	private ObjectAnimator fadeInAnim  = ObjectAnimator.ofFloat(null, "alpha", 1f);
+	private ObjectAnimator fadeOutAnim = ObjectAnimator.ofFloat(null, "alpha", 0f);
 
 	public BusyPresenter() {
-		mRunnableHide = new Runnable() {
+		runnableHide = new Runnable() {
 			@Override
 			public void run() {
 				hide(false);
@@ -67,10 +67,10 @@ public class BusyPresenter {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
-		Patchr.mainThreadHandler.removeCallbacks(mRunnableShow);
-		Patchr.mainThreadHandler.removeCallbacks(mRunnableHide);
+		Patchr.mainThreadHandler.removeCallbacks(runnableShow);
+		Patchr.mainThreadHandler.removeCallbacks(runnableHide);
 
-		mRunnableShow = new Runnable() {
+		runnableShow = new Runnable() {
 
 			@Override
 			public void run() {
@@ -128,7 +128,7 @@ public class BusyPresenter {
 						}
 					}
 
-					mBusyStartedTime = DateTime.nowDate().getTime();
+					busyStartedTime = DateTime.nowDate().getTime();
 				}
 				catch (BadTokenException e) {
 					/*
@@ -140,17 +140,17 @@ public class BusyPresenter {
 			}
 		};
 
-		Patchr.mainThreadHandler.postDelayed(mRunnableShow, (busyAction == BusyAction.Refreshing_Empty) ? Constants.INTERVAL_BUSY_DELAY : 0);
+		Patchr.mainThreadHandler.postDelayed(runnableShow, (busyAction == BusyAction.Refreshing_Empty) ? Constants.INTERVAL_BUSY_DELAY : 0);
 	}
 
 	public void showProgressDialog(final Context context) {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
-		Patchr.mainThreadHandler.removeCallbacks(mRunnableShow);
-		Patchr.mainThreadHandler.removeCallbacks(mRunnableHide);
+		Patchr.mainThreadHandler.removeCallbacks(runnableShow);
+		Patchr.mainThreadHandler.removeCallbacks(runnableHide);
 
-		mRunnableShow = new Runnable() {
+		runnableShow = new Runnable() {
 
 			@Override
 			public void run() {
@@ -178,29 +178,29 @@ public class BusyPresenter {
 
 						progressDialog.show();
 					}
-					mBusyStartedTime = DateTime.nowDate().getTime();
+					busyStartedTime = DateTime.nowDate().getTime();
 				}
 
 				catch (BadTokenException ignore) {}
 			}
 		};
 
-		Patchr.mainThreadHandler.postDelayed(mRunnableShow, 0);
+		Patchr.mainThreadHandler.postDelayed(runnableShow, 0);
 	}
 
 	public void hide(Boolean noDelay) {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
-		Patchr.mainThreadHandler.removeCallbacks(mRunnableShow);
-		Patchr.mainThreadHandler.removeCallbacks(mRunnableHide);
+		Patchr.mainThreadHandler.removeCallbacks(runnableShow);
+		Patchr.mainThreadHandler.removeCallbacks(runnableHide);
 		/*
 		 * We delay to enforce a minimum display length for busy if start has been set.
 		 */
-		if (!noDelay && mBusyStartedTime != null) {
-			Long busyDuration = DateTime.nowDate().getTime() - mBusyStartedTime;
+		if (!noDelay && busyStartedTime != null) {
+			Long busyDuration = DateTime.nowDate().getTime() - busyStartedTime;
 			if (busyDuration < Constants.INTERVAL_BUSY_MINIMUM) {
-				Patchr.mainThreadHandler.postDelayed(mRunnableHide, Constants.INTERVAL_BUSY_MINIMUM - busyDuration);
+				Patchr.mainThreadHandler.postDelayed(runnableHide, Constants.INTERVAL_BUSY_MINIMUM - busyDuration);
 				return;
 			}
 		}
@@ -219,44 +219,44 @@ public class BusyPresenter {
 	}
 
 	public void startProgressBar() {
-		if (mProgressBar != null) {
-			mProgressBar.show();
+		if (progressBar != null) {
+			progressBar.show();
 		}
 	}
 
 	public void startSwipeRefreshIndicator() {
-		if (mSwipeRefreshLayout != null && !mSwipeRefreshLayout.isRefreshing()) {
-			mSwipeRefreshLayout.setEnabled(false);
-			mSwipeRefreshLayout.setRefreshing(true);
+		if (swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing()) {
+			swipeRefreshLayout.setEnabled(false);
+			swipeRefreshLayout.setRefreshing(true);
 		}
 	}
 
 	public void stopProgressBar() {
-		if (mProgressBar != null) {
-			mProgressBar.hide();
+		if (progressBar != null) {
+			progressBar.hide();
 		}
 	}
 
 	public void stopSwipeRefreshIndicator() {
-		if (mSwipeRefreshLayout != null && mSwipeRefreshLayout.isRefreshing()) {
-			mSwipeRefreshLayout.setRefreshing(false);
-			mSwipeRefreshLayout.setEnabled(true);
+		if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+			swipeRefreshLayout.setRefreshing(false);
+			swipeRefreshLayout.setEnabled(true);
 		}
 	}
 
 	public void stopProgressDialog() {
-		Dialogs.dismiss(mProgressDialog);
+		Dialogs.dismiss(progressDialog);
 	}
 
 	private ProgressDialog getProgressDialog(Context context) {
 
-		if (mProgressDialog == null) {
-			mProgressDialog = new ProgressDialog(context);
-			mProgressDialog.setIndeterminate(true);
-			mProgressDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+		if (progressDialog == null) {
+			progressDialog = new ProgressDialog(context);
+			progressDialog.setIndeterminate(true);
+			progressDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 		}
 
-		return mProgressDialog;
+		return progressDialog;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -264,9 +264,9 @@ public class BusyPresenter {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe public void onProgressEvent(ProcessingProgressEvent event) {
-		if (mProgressDialog != null && mProgressDialog.isShowing() && !mProgressDialog.isIndeterminate()) {
+		if (progressDialog != null && progressDialog.isShowing() && !progressDialog.isIndeterminate()) {
 			Logger.v(this, "Progress event: " + event.percent + "%");
-			mProgressDialog.setProgress((int) event.percent);
+			progressDialog.setProgress((int) event.percent);
 		}
 	}
 
@@ -276,20 +276,20 @@ public class BusyPresenter {
 
 	public BusyPresenter setSwipeRefresh(View swipeRefreshLayout) {
 		if (swipeRefreshLayout != null && swipeRefreshLayout instanceof SwipeRefreshLayout) {
-			mSwipeRefreshLayout = (SwipeRefreshLayout) swipeRefreshLayout;
+			this.swipeRefreshLayout = (SwipeRefreshLayout) swipeRefreshLayout;
 		}
 		return this;
 	}
 
 	public BusyPresenter setProgressBar(View progressBar) {
 		if (progressBar != null && progressBar instanceof AirProgressBar) {
-			mProgressBar = (AirProgressBar) progressBar;
+			this.progressBar = (AirProgressBar) progressBar;
 		}
 		return this;
 	}
 
 	public void positionBelow(final View header, final Integer headerHeightProjected) {
-		BaseScreen.position(this.mProgressBar, header, headerHeightProjected);
+		BaseScreen.position(this.progressBar, header, headerHeightProjected);
 	}
 
 	public enum BusyAction {
