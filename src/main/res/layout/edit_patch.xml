@@ -6,6 +6,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:background="@color/background_form"
 	android:orientation="vertical"
 	tools:context=".ui.edit.PatchEdit">
 
@@ -99,8 +100,7 @@
 				custom:aspectRatio="0.56"
 				custom:category="standard"
 				custom:radius="18"
-				custom:shape="rounded"
-				/>
+				custom:shape="rounded" />
 
 			<!-- Privacy -->
 

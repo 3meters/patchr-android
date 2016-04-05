@@ -159,7 +159,8 @@ public class Patchr extends MultiDexApplication {
 		ActivityRecognitionManager.getInstance().initialize(applicationContext);
 
 		/* Ensure install is registered. */
-		Boolean registered = Patchr.settings.getBoolean(StringManager.getString(R.string.setting_install_registered), false);
+		String key = StringManager.getString(R.string.setting_install_registered);
+		Boolean registered = Patchr.settings.getBoolean(key, false);
 		if (!registered) {
 			Dispatcher.getInstance().post(new RegisterInstallEvent());
 		}

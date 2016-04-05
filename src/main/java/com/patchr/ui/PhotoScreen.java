@@ -2,6 +2,7 @@ package com.patchr.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -184,6 +185,7 @@ public class PhotoScreen extends BaseScreen {
 		builder.startChooser();
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	private void requestPermissions() {
 		/* Sharing a photo requires external storage permission on api 16+ */
 		if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {

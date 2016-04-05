@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+
+	android:id="@+id/user_group"
+	style="@style/selectable_item"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="112dp"
+	android:background="@drawable/bg_drawer_header"
+	android:clickable="true"
+	android:padding="16dp"
+	android:onClick="onClick"
+>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:orientation="horizontal">
+
+		<com.patchr.ui.widgets.ImageWidget
+			android:id="@+id/user_photo"
+			android:layout_width="56dp"
+			android:layout_height="56dp"
+			android:layout_marginRight="10dp"
+			custom:category="profile"
+			custom:shape="round"
+			custom:showBusy="false" />
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical"
+			android:orientation="vertical">
+
+			<TextView
+				android:id="@+id/user_name"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:fontFamily="sans-serif"
+				android:ellipsize="end"
+				android:singleLine="true"
+				android:textSize="18sp"
+				android:textColor="@color/white"
+				tools:text="Aliza Wenk" />
+
+			<TextView
+				android:id="@+id/user_area"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:ellipsize="end"
+				android:singleLine="true"
+				android:textAllCaps="true"
+				android:textColor="@color/white"
+				android:textSize="14sp"
+				tools:text="Seattle, WA" />
+		</LinearLayout>
+
+	</LinearLayout>
+
+</RelativeLayout>

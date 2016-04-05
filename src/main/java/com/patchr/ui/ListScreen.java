@@ -92,6 +92,8 @@ public class ListScreen extends BaseScreen {
 			this.listPresenter = new RecyclePresenter(this);
 		}
 
+		this.actionBarTitle.setText(this.listTitleResId);
+
 		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
 		this.listPresenter.showIndex = false;
 		this.listPresenter.listItemResId = this.listItemResId;

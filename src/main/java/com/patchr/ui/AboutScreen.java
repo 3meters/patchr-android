@@ -64,6 +64,7 @@ public class AboutScreen extends BaseScreen {
 
 	public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
+		this.actionBarTitle.setText(R.string.screen_title_about_form);
 		version = (TextView) findViewById(R.id.version);
 		copyright = (TextView) findViewById(R.id.copyright);
 	}

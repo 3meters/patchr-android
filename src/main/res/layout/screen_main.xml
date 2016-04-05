@@ -6,7 +6,8 @@
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:fitsSystemWindows="true">
 
 	<android.support.design.widget.CoordinatorLayout
 		android:layout_width="match_parent"
@@ -102,15 +103,18 @@
 
 	<!-- Navigation drawer -->
 
-	<FrameLayout
+	<android.support.design.widget.NavigationView
 		android:id="@+id/left_drawer"
-		android:layout_width="240dp"
+		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
-		android:layout_gravity="left|start"
-		android:background="?attr/backgroundForm">
-
-		<include layout="@layout/view_drawer_start" />
-	</FrameLayout>
+		android:layout_gravity="start"
+		android:background="@color/background_form"
+		android:fitsSystemWindows="true"
+		custom:itemTextAppearance="@style/text_appearance_drawer_menu_item"
+		custom:itemIconTint="@color/color_drawer_item"
+		custom:itemBackground="?android:attr/selectableItemBackground"
+		custom:headerLayout="@layout/view_drawer_header"
+		custom:menu="@menu/menu_drawer" />
 
 	<!-- Notifications drawer -->
 

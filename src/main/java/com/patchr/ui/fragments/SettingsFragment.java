@@ -4,7 +4,9 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -20,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.github.machinarius.preferencefragment.PreferenceFragment;
 import com.patchr.Constants;
@@ -30,6 +33,7 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.Command;
 import com.patchr.ui.widgets.ListPreferenceMultiSelect;
+import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
@@ -138,7 +142,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		super.onPreferenceTreeClick(preferenceScreen, preference);
 
 		/* If the user has clicked on a preference screen, set up the action bar */
-		if (preference instanceof PreferenceScreen) {
+		if (preference instanceof PreferenceScreen) {   // Notifications screen
 			configureScreen((PreferenceScreen) preference);
 		}
 
@@ -305,6 +309,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		if (dialog != null) {
 
 			ViewGroup root = (ViewGroup) dialog.getWindow().getDecorView().getRootView();
+			root.setBackgroundColor(Colors.getColor(R.color.white));
 
 			/* Configure dividers to the thickness we want */
 			ListView list = (ListView) root.findViewById(android.R.id.list);
@@ -314,9 +319,14 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 			/* Insert toolbar at the top */
 			ViewGroup target = (ViewGroup) root.getChildAt(0);
-			Toolbar toolbar = (Toolbar) LayoutInflater.from(getActivity()).inflate(R.layout.include_toolbar_actionbar, target, false);
-			toolbar.setTitle(preferenceScreen.getTitle());
-			toolbar.setNavigationIcon(R.drawable.ic_arrow_back_dark);
+			Toolbar toolbar = (Toolbar) LayoutInflater.from(getActivity()).inflate(R.layout.view_actionbar_toolbar, target, false);
+			TextView actionBarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+			actionBarTitle.setText(preferenceScreen.getTitle());
+			@SuppressWarnings("deprecation") Drawable backArrow = getResources().getDrawable(R.drawable.ic_arrow_back_light);
+			if (backArrow != null) {
+				backArrow.setColorFilter(Colors.getColor(R.color.brand_primary), PorterDuff.Mode.SRC_ATOP);
+				toolbar.setNavigationIcon(backArrow);
+			}
 			target.addView(toolbar, 0); // insert at top
 
 			toolbar.setNavigationOnClickListener(new View.OnClickListener() {

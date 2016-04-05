@@ -9,57 +9,6 @@
 	android:clickable="true"
 	android:orientation="vertical">
 
-	<!-- Current user -->
-
-	<RelativeLayout
-		android:id="@+id/user_group"
-		style="@style/selectable_image"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:background="?attr/backgroundFormSecondary"
-		android:clickable="true"
-		android:onClick="onClick"
-		android:padding="8dp">
-
-		<com.patchr.ui.widgets.ImageWidget
-			android:id="@+id/user_photo"
-			android:layout_width="48dp"
-			android:layout_height="48dp"
-			android:layout_alignParentLeft="true"
-			android:layout_marginRight="10dp"
-			custom:showBusy="false"
-			custom:category="profile"
-			custom:shape="round" />
-
-		<LinearLayout
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerVertical="true"
-			android:layout_toRightOf="@+id/user_photo"
-			android:orientation="vertical">
-
-			<TextView
-				android:id="@+id/user_name"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:ellipsize="end"
-				android:singleLine="true"
-				android:textColor="@color/brand_primary"
-				tools:text="Aliza Wenk" />
-
-			<TextView
-				android:id="@+id/user_area"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:ellipsize="end"
-				android:singleLine="true"
-				android:textAllCaps="true"
-				android:textSize="14sp"
-				tools:text="Seattle, WA" />
-		</LinearLayout>
-
-	</RelativeLayout>
-
 	<com.patchr.ui.widgets.AirScrollView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">

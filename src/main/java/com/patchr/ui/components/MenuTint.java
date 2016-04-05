@@ -81,9 +81,8 @@ public class MenuTint {
 		try {
 			return (boolean) nativeIsActionButton.invoke(item, (Object[]) null);
 		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+		catch (Exception e) { /* ignore */ }
+
 		return true;
 	}
 
@@ -350,7 +349,7 @@ public class MenuTint {
 		});
 	}
 
-	private void colorOverflowMenuItem(ImageView overflow) {
+	@SuppressWarnings("deprecation") private void colorOverflowMenuItem(ImageView overflow) {
 		if (overflow != null) {
 			if (overflowDrawableId != null) {
 				overflow.setImageResource(overflowDrawableId);

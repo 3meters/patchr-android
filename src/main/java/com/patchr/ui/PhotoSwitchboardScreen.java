@@ -1,6 +1,7 @@
 package com.patchr.ui;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.view.WindowManager;
 
 import com.kbeanie.imagechooser.api.ChooserType;
 import com.kbeanie.imagechooser.api.ChosenImage;
+import com.kbeanie.imagechooser.api.ChosenImages;
 import com.kbeanie.imagechooser.api.ImageChooserListener;
 import com.kbeanie.imagechooser.api.ImageChooserManager;
 import com.patchr.Constants;
@@ -130,14 +132,14 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	@Override public void onImageChosen(final ChosenImage image) {
+	@Override public void onImageChosen(final ChosenImage chosenImage) {
 		runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
-				if (image != null) {
+				if (chosenImage != null) {
 					Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_used_from_device", null, 0);
-					final Uri photoUri = Uri.parse("file://" + image.getFilePathOriginal());
+					final Uri photoUri = Uri.parse("file://" + chosenImage.getFilePathOriginal());
 					MediaManager.scanMedia(photoUri);
 					Photo photo = new Photo()
 							.setPrefix(photoUri.toString())
@@ -157,6 +159,24 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 			@Override
 			public void run() {
 				UI.toast(reason);
+			}
+		});
+	}
+
+	@Override public void onImagesChosen(final ChosenImages chosenImages) {
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				if (chosenImages != null && chosenImages.size() > 0) {
+					Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_used_from_device", null, 0);
+					final Uri photoUri = Uri.parse("file://" + chosenImages.getImage(0).getFilePathOriginal());
+					MediaManager.scanMedia(photoUri);
+					Photo photo = new Photo()
+							.setPrefix(photoUri.toString())
+							.setSource(Photo.PhotoSource.file);
+					submitAction(photo);
+				}
 			}
 		});
 	}
@@ -207,6 +227,7 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	private void requestPermissions() {
 
 		if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {

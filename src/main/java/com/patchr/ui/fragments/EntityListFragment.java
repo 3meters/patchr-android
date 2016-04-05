@@ -70,7 +70,7 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 		this.layoutResId = R.layout.fragment_entity_list;
 
 		/* Force complete initialization if being recreated by the system */
-		boolean recreated = (savedInstanceState != null && !savedInstanceState.isEmpty());
+		boolean recreated = (this.listPresenter == null || this.listItemResId == null || (savedInstanceState != null && !savedInstanceState.isEmpty()));
 		if (recreated) {
 			Intent intent = getActivity().getIntent();
 			getActivity().finish();

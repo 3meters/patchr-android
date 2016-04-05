@@ -8,6 +8,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -86,17 +87,18 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	protected Boolean rightDrawerOpen = false;
 
 	protected String title = StringManager.getString(R.string.name_app);
-	protected ViewGroup   userGroup;
 	protected ImageWidget userPhoto;
 	protected TextView    userName;
 	protected TextView    userArea;
 	protected CacheStamp  cacheStamp;
 
 	protected DrawerLayout          drawerLayout;
-	protected View                  drawerLeft;
-	protected View                  drawerRight;
 	protected ActionBarDrawerToggle drawerToggle;
-	private   FloatingActionButton  fab;
+	protected NavigationView        drawerLeft;
+	protected View                  drawerLeftHeader;
+	protected View                  drawerRight;
+
+	private FloatingActionButton fab;
 
 	protected View     notificationsBadgeGroup;
 	protected TextView notificationsBadgeCount;
@@ -279,23 +281,6 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		}
 	}
 
-	public void onDrawerItemClick(View view) {
-
-		String tag = (String) view.getTag();
-		if (!tag.equals(Constants.FRAGMENT_TYPE_SETTINGS)
-				&& !tag.equals(Constants.FRAGMENT_TYPE_FEEDBACK)) {
-			currentNavView = view;
-			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_nearby).findViewById(R.id.name));
-			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_watch).findViewById(R.id.name));
-			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_own).findViewById(R.id.name));
-			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_explore).findViewById(R.id.name));
-			FontManager.getInstance().setTypefaceLight((TextView) findViewById(R.id.item_more_settings).findViewById(R.id.name));
-			FontManager.getInstance().setTypefaceMedium((TextView) currentNavView.findViewById(R.id.name));
-		}
-		nextFragmentTag = (String) view.getTag();
-		drawerLayout.closeDrawer(drawerLeft);
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
@@ -319,19 +304,48 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 			FontManager.getInstance().setTypefaceMedium((TextView) view.findViewById(R.id.name));
 		}
 
-		this.userGroup = (ViewGroup) findViewById(R.id.user_group);
 		this.fab = (FloatingActionButton) findViewById(R.id.fab);
 
-		if (userGroup != null) {
-			this.userPhoto = (ImageWidget) userGroup.findViewById(R.id.user_photo);
-			this.userName = (TextView) userGroup.findViewById(R.id.user_name);
-			this.userArea = (TextView) userGroup.findViewById(R.id.user_area);
+		drawerLeft = (NavigationView) findViewById(R.id.left_drawer);
+		drawerLeft.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+
+			@Override public boolean onNavigationItemSelected(MenuItem item) {
+
+				if (item.getItemId() == R.id.item_nearby) {
+					nextFragmentTag = "nearby";
+				}
+				else if (item.getItemId() == R.id.item_member) {
+					nextFragmentTag = "watch";
+				}
+				else if (item.getItemId() == R.id.item_own) {
+					nextFragmentTag = "create";
+				}
+				else if (item.getItemId() == R.id.item_explore) {
+					nextFragmentTag = "trend_active";
+				}
+				else if (item.getItemId() == R.id.item_settings) {
+					nextFragmentTag = "settings";
+				}
+
+				if (item.getItemId() != R.id.item_settings) {
+					item.setChecked(true);
+				}
+
+				drawerLayout.closeDrawers();
+				return true;
+			}
+		});
+
+		this.drawerLeftHeader = drawerLeft.getHeaderView(0);
+		if (this.drawerLeftHeader != null) {
+			this.userPhoto = (ImageWidget) this.drawerLeftHeader.findViewById(R.id.user_photo);
+			this.userName = (TextView) this.drawerLeftHeader.findViewById(R.id.user_name);
+			this.userArea = (TextView) this.drawerLeftHeader.findViewById(R.id.user_area);
 			if (UserManager.shared().authenticated()) {
-				userGroup.setTag(UserManager.currentUser);
+				this.drawerLeftHeader.setTag(UserManager.currentUser);
 			}
 		}
 
-		drawerLeft = findViewById(R.id.left_drawer);
 		drawerRight = findViewById(R.id.right_drawer);
 		if (!UserManager.shared().authenticated()) {
 			((ViewGroup) drawerRight.getParent()).removeView(drawerRight);
@@ -511,14 +525,14 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	public void bind() {
 
 		/* In case the user was edited from the drawer */
-		if (userGroup != null) {
+		if (drawerLeft.getHeaderView(0) != null) {
 			if (UserManager.shared().authenticated()) {
 				configuredForAuthenticated = true;
 				User user = UserManager.currentUser;
 				this.userPhoto.setImageWithEntity(user);
 				this.userName.setText(user.name);
 				this.userArea.setText(user.area);
-				this.userGroup.setTag(user);
+				this.drawerLeftHeader.setTag(user);
 				UI.setVisibility(findViewById(R.id.item_watch), View.VISIBLE);
 				UI.setVisibility(findViewById(R.id.item_own), View.VISIBLE);
 				cacheStamp = UserManager.currentUser.getCacheStamp();
@@ -530,7 +544,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				UI.showDrawableInImageView(bitmapDrawable, this.userPhoto.imageView, Constants.ANIMATE_IMAGES);
 				this.userName.setText("Guest");
 				this.userArea.setText(null);
-				this.userGroup.setTag(null);
+				this.drawerLeftHeader.setTag(null);
 				UI.setVisibility(findViewById(R.id.item_watch), View.GONE);
 				UI.setVisibility(findViewById(R.id.item_own), View.GONE);
 			}

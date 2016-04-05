@@ -22,13 +22,13 @@
 
 	<style name="patchr_theme" parent="base_theme">
 
-		<item name="android:windowBackground">@color/background</item>
 		<item name="colorPrimary">@color/brand_primary</item>
 		<item name="colorPrimaryDark">@color/brand_primary_dark</item>
 		<item name="colorButtonNormal">@color/transparent</item>
 		<item name="colorAccent">@color/brand_accent</item>
 
 		<!-- Default overrides -->
+		<item name="android:windowBackground">@color/background_window</item>
 		<item name="android:editTextStyle">@style/form_edit</item>
 		<item name="android:textViewStyle">@style/text_view</item>
 		<item name="android:actionMenuTextAppearance">@style/text_appearance_menu_item</item>

@@ -525,7 +525,7 @@ public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMess
 		this.listPresenter.emptyPresenter.positionBelow(this.header, null);
 		this.listPresenter.busyPresenter.positionBelow(this.header, null);
 		this.listPresenter.headerView = this.header;
-		this.listPresenter.recycleView.setOnScrollListener(new ListScrollListener() {
+		this.listPresenter.recycleView.addOnScrollListener(new ListScrollListener() {
 			@Override public void onMoved(int distance) {
 				header.bannerView.photoView.imageView.setTranslationY(distance / 2);
 			}

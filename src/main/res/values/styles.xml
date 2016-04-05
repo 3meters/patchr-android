@@ -75,6 +75,11 @@
 		<item name="android:textAllCaps">true</item>
 	</style>
 
+	<style name="text_appearance_drawer_menu_item" parent="text_appearance">
+		<item name="android:textSize">18sp</item>
+		<item name="android:textColor">@color/color_drawer_item</item>
+	</style>
+
 	<!-- App wide styles -->
 
 	<style name="list_view" parent="Widget.AppCompat.ListView">
