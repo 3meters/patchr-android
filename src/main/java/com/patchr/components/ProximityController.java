@@ -8,11 +8,9 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.support.annotation.NonNull;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
-import com.patchr.R;
 import com.patchr.components.ActivityRecognitionManager.ActivityState;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.events.ActivityStateEvent;
@@ -34,7 +32,8 @@ import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.squareup.otto.Subscribe;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -154,9 +153,7 @@ public class ProximityController {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe
-	@SuppressWarnings("ucd")
-	public void onActivityStateEvent(final ActivityStateEvent event) {
+	@Subscribe public void onActivityStateEvent(final ActivityStateEvent event) {
 		/*
 		 * Activity manager is checking for activity every thirty seconds and filters
 		 * out tilting and unknowns.
@@ -166,8 +163,8 @@ public class ProximityController {
 			if (PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				ProximityController.getInstance().scanForWifi(ScanReason.MONITORING);
 			}
-			if (Patchr.getInstance().getPrefEnableDev()) {
-				UI.showToastNotification("Proximity update: activity state = arriving", Toast.LENGTH_SHORT);
+			if (Patchr.getInstance().prefEnableDev) {
+				UI.toast("Proximity update: activity state = arriving");
 			}
 		}
 	}
@@ -283,7 +280,6 @@ public class ProximityController {
 
 		/* Cursor */
 		Cursor cursor = new Cursor()
-				.setLimit(Patchr.applicationContext.getResources().getInteger(R.integer.limit_patches_radar))
 				.setSort(Maps.asMap("modifiedDate", -1))
 				.setSkip(0);
 
@@ -347,8 +343,8 @@ public class ProximityController {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			mLastBeaconInstallUpdate = DateTime.nowDate().getTime();
-			if (Patchr.getInstance().getPrefEnableDev()) {
-				UI.showToastNotification("Location pushed: stopped after walking", Toast.LENGTH_SHORT);
+			if (Patchr.getInstance().prefEnableDev) {
+				UI.toast("Location pushed: stopped after walking");
 			}
 		}
 

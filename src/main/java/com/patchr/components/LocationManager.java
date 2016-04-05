@@ -3,7 +3,6 @@ package com.patchr.components;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -12,7 +11,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -26,8 +24,8 @@ import com.patchr.objects.AirLocation;
 import com.patchr.objects.Preference;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
-import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 
 import java.io.IOException;
 import java.util.List;
@@ -120,18 +118,6 @@ public class LocationManager implements
 					mGoogleApiClient.connect();
 				}
 			}
-			else {
-				/* Display a dialog to the user with the error. */
-				AndroidManager.showPlayServicesErrorDialog(result.getErrorCode()
-						, Patchr.getInstance().getCurrentActivity()
-						, new DialogInterface.OnDismissListener() {
-					@Override
-					public void onDismiss(DialogInterface dialog) {
-						mResolvingError = false;
-					}
-				});
-				mResolvingError = true;
-			}
 		}
 	}
 
@@ -174,8 +160,8 @@ public class LocationManager implements
 			Patchr.stopwatch2.segmentTime("Lock location: update: accuracy = " + (location.hasAccuracy() ? location.getAccuracy() : "none"));
 		}
 		if (location.hasAccuracy()) {
-			if (Patchr.getInstance().getPrefEnableDev()) {
-				UI.showToastNotification("Location accuracy: " + location.getAccuracy(), Toast.LENGTH_SHORT);
+			if (Patchr.getInstance().prefEnableDev) {
+				UI.toast("Location accuracy: " + location.getAccuracy());
 			}
 			if (location.getAccuracy() <= ACCURACY_PREFERRED) {
 				Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
@@ -205,10 +191,7 @@ public class LocationManager implements
 		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
 
 		/* Developers can turn on high accuracy processing */
-		if (Constants.DEV_ENABLED
-				&& UserManager.getInstance().authenticated()
-				&& Type.isTrue(UserManager.getInstance().getCurrentUser().developer)
-				&& Patchr.settings.getBoolean(Preference.ENABLE_LOCATION_HIGH_ACCURACY, false)) {
+		if (Utils.devModeEnabled() && Patchr.settings.getBoolean(Preference.ENABLE_LOCATION_HIGH_ACCURACY, false)) {
 			mLocationRequest = LocationRequest.create()
 					.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 					.setSmallestDisplacement(MIN_DISPLACEMENT)

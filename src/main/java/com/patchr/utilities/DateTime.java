@@ -31,7 +31,6 @@ public class DateTime {
 		return sdf.format(cal.getTime());
 	}
 
-	@SuppressWarnings("ucd")
 	public static String dateString(Long time, @NonNull String pattern) {
 		final SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
 		return sdf.format(time);
@@ -42,9 +41,14 @@ public class DateTime {
 		return cal.getTime();
 	}
 
-	@NonNull
-	@SuppressWarnings({"ucd", "deprecation"})
-	public static String dateStringAt(Long time) {
+	public static Long secondsAgo(Long time) {
+		final Calendar cal = Calendar.getInstance();
+		final Long nowMilliseconds = cal.getTimeInMillis();
+		return (nowMilliseconds - time) / 1000;
+	}
+
+	@SuppressWarnings("deprecation")
+	@NonNull public static String dateStringAt(Long time) {
 		final Date date = new Date(time);
 
 		SimpleDateFormat datePart = new SimpleDateFormat((date.getYear() != DateTime.nowDate().getYear())
@@ -63,8 +67,7 @@ public class DateTime {
 				+ datePart.format(time);
 	}
 
-	@SuppressWarnings("deprecation")
-	public static String interval(Long oldDateMs, Long newDateMs, IntervalContext context) {
+	@SuppressWarnings("deprecation") public static String interval(Long oldDateMs, Long newDateMs, IntervalContext context) {
 
 		final Date dateOld = new Date(oldDateMs);
 
@@ -115,8 +118,7 @@ public class DateTime {
 		return interval;
 	}
 
-	@SuppressWarnings({"deprecation", "ucd"})
-	public static String intervalCompact(Long oldDateMs, Long newDateMs, IntervalContext context) {
+	@SuppressWarnings("deprecation") public static String intervalCompact(Long oldDateMs, Long newDateMs, IntervalContext context) {
 
 		final Long diff = newDateMs - oldDateMs;
 
@@ -157,8 +159,7 @@ public class DateTime {
 		return interval;
 	}
 
-	@SuppressWarnings("ucd")
-	public static enum IntervalContext {
+	public enum IntervalContext {
 		PAST,
 		FUTURE
 	}

@@ -8,12 +8,9 @@ import android.os.Vibrator;
 import com.google.android.gms.gcm.GcmListenerService;
 import com.patchr.Constants;
 import com.patchr.Patchr;
-import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Notification;
-import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
-import com.patchr.ui.base.BaseActivity;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Json;
 
@@ -38,12 +35,12 @@ public class GcmIntentService extends GcmListenerService {
 			 * from a web console among other methods. They have a different format than the ones sent by
 			 * the service.
 			 */
-			String data = extras.getString("message");
+			String data = extras.getString("data");
 			if (isEntity(data)) {
 
 				@SuppressWarnings("ConstantConditions") Notification notification = (Notification) Json.jsonToObject(data, Json.ObjectType.ENTITY);
 
-				User currentUser = UserManager.getInstance().getCurrentUser();
+				User currentUser = UserManager.currentUser;
 				if (notification.userId != null && currentUser != null && currentUser.id.equals(notification.userId))
 					return;
 
@@ -70,8 +67,7 @@ public class GcmIntentService extends GcmListenerService {
 				 * BACKGROUND, NEARBY, OR TARGET NOT VISIBLE
 				 */
 
-				Boolean background = (Patchr.getInstance().getCurrentActivity() == null);
-
+				Boolean background = Foreground.get().isBackground();
 				/*
 				 * Notifications associated with unmuted patches are priority.ONE
 				 * Notifications associated with muted patches are priority.TWO with the following exceptions:
@@ -88,21 +84,11 @@ public class GcmIntentService extends GcmListenerService {
 						 *   intent again.
 						 */
 						if (targetSchema != null) {
-							IEntityController controller = Patchr.getInstance().getControllerForSchema(targetSchema);
 							Bundle extrasOut = new Bundle();
 							extrasOut.putBoolean(Constants.EXTRA_REFRESH_FROM_SERVICE, true);
-							extrasOut.putInt(Constants.EXTRA_TRANSITION_TYPE, TransitionType.VIEW_TO);
 							extrasOut.putString(Constants.EXTRA_NOTIFICATION_ID, notification.id);
-							String parentId = (notification.parentId != null) ? notification.parentId : null;
-							notification.intent = controller.view(Patchr.applicationContext
-									, null
-									, notification.targetId
-									, parentId
-									, null
-									, extrasOut
-									, false);
+							notification.intent = Patchr.router.browse(Patchr.applicationContext, notification.targetId, extrasOut, false);
 						}
-
 					    /*
 					     * Send notification - includes sound notification
 					     */
@@ -140,14 +126,6 @@ public class GcmIntentService extends GcmListenerService {
 			if (map.get("schema") != null) {
 				return true;
 			}
-		}
-		return false;
-	}
-
-	protected Boolean showingEntity(String entityId) {
-		android.app.Activity currentActivity = Patchr.getInstance().getCurrentActivity();
-		if (currentActivity != null && currentActivity instanceof BaseActivity) {
-			return ((BaseActivity) currentActivity).related(entityId);
 		}
 		return false;
 	}

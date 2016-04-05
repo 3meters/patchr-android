@@ -2,6 +2,9 @@ package com.patchr.objects;
 
 import android.support.annotation.NonNull;
 
+import com.patchr.Constants;
+import com.patchr.utilities.DateTime;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -34,19 +37,23 @@ public class Message extends Entity implements Cloneable, Serializable {
 		return entity;
 	}
 
-	@NonNull
-	public Boolean isOwnerAccess() {
+	public static Entity build() {
+		Message entity = new Message();
+		entity.schema = Constants.SCHEMA_ENTITY_MESSAGE;
+		entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME); // Temporary
+		return entity;
+	}
+
+	@NonNull public Boolean isOwnerAccess() {
 		return true;
 	}
 
-	@Override
-	public Message clone() {
+	@Override public Message clone() {
 		final Message clone = (Message) super.clone();
 		return clone;
 	}
 
-	@Override
-	public String getCollection() {
+	@Override public String getCollection() {
 		return collectionId;
 	}
 
@@ -55,7 +62,8 @@ public class Message extends Entity implements Cloneable, Serializable {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static class MessageType {
-		public static String ROOT  = "root";
-		public static String SHARE = "share";
+		public static String Post   = "post";
+		public static String Share  = "share";
+		public static String Invite = "invite";
 	}
 }

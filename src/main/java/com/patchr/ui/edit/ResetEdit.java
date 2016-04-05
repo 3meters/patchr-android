@@ -1,19 +1,20 @@
 package com.patchr.ui.edit;
 
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
@@ -21,243 +22,350 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.interfaces.IBusy.BusyAction;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.Command;
+import com.patchr.objects.Photo;
+import com.patchr.objects.ServiceData;
 import com.patchr.objects.User;
-import com.patchr.ui.base.BaseEdit;
+import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
-import java.net.HttpURLConnection;
 import java.util.Locale;
 
 public class ResetEdit extends BaseEdit {
 
-	private EditText mEmail;
-	private EditText mPassword;
-	private Boolean mEmailConfirmed = false;
-	private TextView mMessage;
-	private User     mUser;
+	private User user;
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
+	private String  inputToken;
+	private String  inputUserName;
+	private String  inputUserPhoto;
+	private boolean resetActive;
 
-		mMessage = (TextView) findViewById(R.id.content_message);
-		mEmail = (EditText) findViewById(R.id.email);
-		mPassword = (EditText) findViewById(R.id.password);
+	private boolean emailValidated;
+	private boolean resetRequested;
 
-		mPassword.setImeOptions(EditorInfo.IME_ACTION_GO);
-		mPassword.setOnEditorActionListener(new OnEditorActionListener() {
+	private TextView    title;
+	private EditText    emailField;
+	private EditText    passwordField;
+	private ImageWidget userPhoto;
+	private TextView    userName;
+	private Button      submitButton;
 
-			@Override
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if (actionId == EditorInfo.IME_ACTION_GO) {
-					onResetButtonClick(null);
-					return true;
-				}
-				return false;
-			}
-		});
-
-		final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
-		if (email != null) {
-			mEmail.setText(email);
-		}
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@SuppressWarnings("ucd")
-	public void onResetButtonClick(View view) {
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu_submit, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
 
-		if (mProcessing) return;
-		mProcessing = true;
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
 
-		if (!mEmailConfirmed) {
-			if (validate()) {
-				requestReset();
-			}
-			else {
-				mProcessing = false;
-			}
+		if (item.getItemId() == R.id.submit) {
+			submitAction();
 		}
 		else {
-			if (validate()) {
-				resetAndSignin();
-			}
-			else {
-				mProcessing = false;
-			}
+			return super.onOptionsItemSelected(item);
 		}
+		return true;
+	}
+
+	public void onClick(View view) {
+		submitAction();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	/*--------------------------------------------------------------------------------------------
-	 * Services
-	 *--------------------------------------------------------------------------------------------*/
+	@Override public void unpackIntent() {
+		super.unpackIntent();
 
-	@Override
-	protected boolean validate() {
-		if (!mEmailConfirmed) {
-			if (mEmail.getText().length() == 0) {
-				Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-						, null
-						, StringManager.getString(R.string.error_missing_email)
-						, null
-						, this
-						, android.R.string.ok
-						, null, null, null, null);
+		final Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			inputToken = extras.getString(Constants.EXTRA_RESET_TOKEN);
+			inputUserName = extras.getString(Constants.EXTRA_RESET_USER_NAME);
+			inputUserPhoto = extras.getString(Constants.EXTRA_RESET_USER_PHOTO);
+		}
+	}
+
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+
+		if (inputToken != null) {
+			resetActive = true;
+		}
+
+		actionBarTitle.setText(R.string.screen_title_reset_edit);
+
+		title = (TextView) findViewById(R.id.title);
+		emailField = (EditText) findViewById(R.id.email);
+		passwordField = (EditText) findViewById(R.id.password);
+		userPhoto = (ImageWidget) findViewById(R.id.user_photo);
+		userName = (TextView) findViewById(R.id.user_name);
+		submitButton = (Button) findViewById(R.id.submit_button);
+
+		passwordField.setVisibility(View.GONE);
+		emailField.setVisibility(View.GONE);
+		userName.setVisibility(View.GONE);
+		userPhoto.setVisibility(View.GONE);
+
+		if (!resetActive) {
+			title.setText(R.string.form_title_reset_validate_email);
+			title.setMinLines(3);
+			emailField.setVisibility(View.VISIBLE);
+			emailField.setImeOptions(EditorInfo.IME_ACTION_GO);
+			emailField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+				@Override
+				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+					if (actionId == EditorInfo.IME_ACTION_GO) {
+						submitAction();
+						return true;
+					}
+					return false;
+				}
+			});
+			submitButton.setText("Verify");
+		}
+		else {
+			title.setText(R.string.form_title_reset_reset_password);
+			title.setMinLines(1);
+			userName.setVisibility(View.VISIBLE);
+			userPhoto.setVisibility(View.VISIBLE);
+			passwordField.setVisibility(View.VISIBLE);
+			passwordField.setImeOptions(EditorInfo.IME_ACTION_GO);
+			passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+				@Override
+				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+					if (actionId == EditorInfo.IME_ACTION_GO) {
+						submitAction();
+						return true;
+					}
+					return false;
+				}
+			});
+			submitButton.setText("Reset");
+		}
+	}
+
+	@Override public void bind() {
+
+		if (resetActive) {
+			if (inputUserPhoto != null) {
+				Photo photo = new Photo(inputUserPhoto, Photo.PhotoSource.aircandi_images);
+				userPhoto.setImageWithPhoto(photo, null);
+			}
+			else if (inputUserName != null) {
+				userPhoto.setImageWithText(inputUserName, true);
+			}
+			userName.setText(inputUserName);
+		}
+		else {
+			final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
+			if (email != null) {
+				this.emailField.setText(email);
+			}
+		}
+	}
+
+	@Override protected boolean validate() {
+
+		if (!resetActive) {
+			if (emailField.getText().length() == 0) {
+				Dialogs.alert(R.string.error_reset_missing_email, this);
 				return false;
 			}
-			if (!Utils.validEmail(mEmail.getText().toString())) {
-				Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-						, null
-						, StringManager.getString(R.string.error_invalid_email)
-						, null
-						, this
-						, android.R.string.ok
-						, null, null, null, null);
+
+			if (!Utils.validEmail(emailField.getText().toString())) {
+				Dialogs.alert(R.string.error_invalid_email, this);
 				return false;
 			}
 		}
 		else {
-			if (mPassword.getText().length() < 6) {
-				Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-						, null
-						, StringManager.getString(R.string.error_missing_password)
-						, null
-						, this
-						, android.R.string.ok
-						, null, null, null, null);
+			if (passwordField.getText().length() < 6) {
+				Dialogs.alert(R.string.error_reset_missing_password, this);
 				return false;
 			}
 		}
+
 		return true;
 	}
 
-	protected void requestReset() {
+	@Override protected int getLayoutId() {
+		return R.layout.edit_reset;
+	}
 
-		Logger.d(this, "Verifying email and install for password reset");
+	public void submitAction() {
 
-		final String email = mEmail.getText().toString().trim().toLowerCase(Locale.US);
+		if (this.processing) return;
+
+		if (validate()) {
+			if (!resetActive) {
+				if (!emailValidated) {
+					validateEmail();
+				}
+				else if (!resetRequested) {
+					resetEmail();
+				}
+				else {
+					cancelAction(true);
+				}
+			}
+			else {
+				resetPassword();
+			}
+		}
+	}
+
+	protected void validateEmail() {
+		if (this.processing) return;
+		this.processing = true;
+
+		Logger.d(this, "Verifying email for password reset");
+
+		final String email = this.emailField.getText().toString().trim().toLowerCase(Locale.US);
 
 		new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
-				UI.hideSoftInput(mEmail);
+			@Override protected void onPreExecute() {
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
+				UI.hideSoftInput(ResetEdit.this.emailField);
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRequestPasswordReset");
+				ModelResult result = DataController.getInstance().validateEmail(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				return result;
+			}
 
+			@Override protected void onPostExecute(Object response) {
+				final ModelResult result = (ModelResult) response;
+
+				processing = false;
+				busyPresenter.hide(false);
+
+				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
+					Errors.handleError(ResetEdit.this, result.serviceResponse);
+				}
+				else {
+					ServiceData serviceData = (ServiceData) result.serviceResponse.data;
+					if (serviceData.count != 0) {
+						title.setText(R.string.form_title_reset_request_reset);
+						submitButton.setText("Send password reset email");
+						emailField.setEnabled(false);
+						emailValidated = true;
+					}
+					else {
+						Dialogs.alert("Email address not found.", ResetEdit.this);
+					}
+				}
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	protected void resetEmail() {
+
+		if (this.processing) return;
+		this.processing = true;
+
+		Logger.d(this, "Requesting password reset email");
+
+		final String email = this.emailField.getText().toString().trim().toLowerCase(Locale.US);
+
+		new AsyncTask() {
+
+			@Override protected void onPreExecute() {
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
+				UI.hideSoftInput(ResetEdit.this.emailField);
+			}
+
+			@Override protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncRequestPasswordReset");
 				ModelResult result = DataController.getInstance().requestPasswordReset(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mUiController.getBusyController().hide(false);
+				processing = false;
+				busyPresenter.hide(false);
+
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-					mEmailConfirmed = false;
-					if (result.serviceResponse.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+					Errors.handleError(ResetEdit.this, result.serviceResponse);
+				}
+				else {
+					resetRequested = true;
+					title.setText("An email has been sent to your account\'s email address. Please check your email to continue.");
+					submitButton.setText("Finished");
+				}
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
 
-						/* No such email */
-						Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-								, null
-								, StringManager.getString(R.string.error_email_not_found)
-								, null
-								, ResetEdit.this
-								, android.R.string.ok
-								, null, null, null, null);
+	protected void resetPassword() {
 
-					}
-					else if (result.serviceResponse.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+		if (this.processing) return;
+		this.processing = true;
 
-						/* No successful signin on this install */
-						Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-								, null
-								, StringManager.getString(R.string.error_install_not_found)
-								, null
-								, ResetEdit.this
-								, android.R.string.ok
-								, null, null, null, null);
+		Logger.d(this, "Resetting password for: " + inputUserName);
+
+		final String password = this.passwordField.getText().toString();
+
+		new AsyncTask() {
+
+			@Override protected void onPreExecute() {
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_logging_in, ResetEdit.this);
+			}
+
+			@Override protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncResetPassword");
+				ModelResult result = DataController.getInstance().resetPassword(password, inputToken, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				return result;
+			}
+
+			@Override protected void onPostExecute(Object response) {
+				final ModelResult result = (ModelResult) response;
+
+				processing = false;
+				busyPresenter.hide(true);
+
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					navigateToMain();
+				}
+				else {
+					if (result.serviceResponse.statusCodeService != null
+							&& result.serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
+						Dialogs.alert(R.string.alert_reset_expired, ResetEdit.this, new DialogInterface.OnClickListener() {
+							@Override public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								Patchr.router.route(ResetEdit.this, Command.PASSWORD_RESET, null, null);
+								finish();
+							}
+						});
 					}
 					else {
 						Errors.handleError(ResetEdit.this, result.serviceResponse);
 					}
 				}
-				else {
-					mUser = (User) result.data;
-					mEmailConfirmed = true;
-					mEmail.setVisibility(View.GONE);
-					mPassword.setVisibility(View.VISIBLE);
-					mMessage.setText(StringManager.getString(R.string.label_reset_message_password));
-				}
-				mProcessing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	protected void resetAndSignin() {
-
-		Logger.d(this, "Resetting password for: " + mUser.email);
-
-		final String password = mPassword.getText().toString();
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in, ResetEdit.this);
-			}
-
-			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncResetPassword");
-				ModelResult result = DataController.getInstance().resetPassword(password, mUser, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				mUiController.getBusyController().hide(true);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in)
-							+ " " + UserManager.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
-
-					setResultCode(Constants.RESULT_USER_SIGNED_IN);
-					finish();
-					AnimationManager.doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_BACK);
-				}
-				else {
-					Errors.handleError(ResetEdit.this, result.serviceResponse);
-				}
-				mProcessing = false;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	protected int getLayoutId() {
-		return R.layout.reset_edit;
+	protected void navigateToMain() {
+		UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
+		Patchr.router.route(this, Command.HOME, null, null);
+		finish();
 	}
 }

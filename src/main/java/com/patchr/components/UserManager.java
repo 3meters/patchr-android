@@ -2,7 +2,9 @@ package com.patchr.components;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,36 +18,37 @@ import com.orhanobut.dialogplus.ViewHolder;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.objects.Command;
 import com.patchr.objects.LinkSpec;
 import com.patchr.objects.LinkSpecFactory;
 import com.patchr.objects.LinkSpecType;
-import com.patchr.objects.Route;
 import com.patchr.objects.Session;
 import com.patchr.objects.User;
+import com.patchr.ui.edit.LoginEdit;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
 public class UserManager {
 
-	protected User   currentUser;
-	protected String userName;
-	protected String userId;
-	protected String sessionKey;
-	protected String jsonUser;
-	protected String jsonSession;
+	public static User   currentUser;
+	public static String userName;      // convenience
+	public static String userId;        // convenience
+	public static String sessionKey;
+	public static String jsonUser;
+	public static String jsonSession;
 
 	static class UserManagerHolder {
 		public static final UserManager instance = new UserManager();
 	}
 
-	public static UserManager getInstance() {
+	public static UserManager shared() {
 		return UserManagerHolder.instance;
 	}
 
 	private UserManager() {
-		this.jsonUser = Patchr.settings.getString(StringManager.getString(R.string.setting_user), null);
-		this.jsonSession = Patchr.settings.getString(StringManager.getString(R.string.setting_user_session), null);
+		jsonUser = Patchr.settings.getString(StringManager.getString(R.string.setting_user), null);
+		jsonSession = Patchr.settings.getString(StringManager.getString(R.string.setting_user_session), null);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -60,34 +63,32 @@ public class UserManager {
 		/*
 		 * Gets called on app create.
 		 */
-		if (this.jsonUser != null && this.jsonSession != null) {
+		if (jsonUser != null && jsonSession != null) {
 			Logger.i(this, "Auto log in using cached user...");
 
-			final User user = (User) Json.jsonToObject(this.jsonUser, Json.ObjectType.ENTITY);
-			user.session = (Session) Json.jsonToObject(this.jsonSession, Json.ObjectType.SESSION);
+			final User user = (User) Json.jsonToObject(jsonUser, Json.ObjectType.ENTITY);
+			user.session = (Session) Json.jsonToObject(jsonSession, Json.ObjectType.SESSION);
 
 			setCurrentUser(user, false);  // Does not block because of 'false', also updates persisted user
 		}
 	}
 
 	public Boolean authenticated() {
-		return (this.userId != null && this.sessionKey != null);
+		return (userId != null && sessionKey != null);
 	}
 
 	public void signout() {
 		new AsyncTask() {
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncSignOut");
 				return DataController.getInstance().signoutComplete(NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
 			@SuppressLint("NewApi")
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				/* Set to anonymous user even if service call fails */
-				Patchr.router.route(Patchr.applicationContext, Route.SPLASH, null, null);
+				Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
@@ -99,7 +100,7 @@ public class UserManager {
 
 	public void showGuestGuard(final Context context, String message) {
 
-		View view = LayoutInflater.from(Patchr.applicationContext).inflate(R.layout.guest_guard_view, null, false);
+		View view = LayoutInflater.from(Patchr.applicationContext).inflate(R.layout.dialog_guest_guard, null, false);
 		ViewGroup.LayoutParams params = new ViewGroup.LayoutParams((int) UI.getScreenWidthRawPixels(context), (int) UI.getScreenHeightRawPixels(context));
 		view.setLayoutParams(params);
 
@@ -109,10 +110,14 @@ public class UserManager {
 				.setOnClickListener(new OnClickListener() {
 					@Override public void onClick(DialogPlus dialog, View view) {
 						if (view.getId() == R.id.button_login) {
-							Patchr.router.route(context, Route.LOGIN, null, null);
+							Bundle extras = new Bundle();
+							extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Login);
+							Patchr.router.route(context, Command.LOGIN, null, extras);
 						}
-						else if (view.getId() == R.id.button_signup) {
-							Patchr.router.route(context, Route.SIGNUP, null, null);
+						else if (view.getId() == R.id.submit_button) {
+							Bundle extras = new Bundle();
+							extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Signup);
+							Patchr.router.route(context, Command.LOGIN, null, extras);
 						}
 						dialog.dismiss();
 					}
@@ -136,30 +141,31 @@ public class UserManager {
 	private void captureCredentials(User user) {
 
 		/* Update settings */
-		this.jsonUser = Json.objectToJson(user);
-		this.jsonSession = Json.objectToJson(user.session);
-		this.userName = user.name;
-		this.userId = user.id;
-		this.sessionKey = user.session.key;
-		this.currentUser = user;
+		jsonUser = Json.objectToJson(user);
+		jsonSession = Json.objectToJson(user.session);
+		userName = user.name;
+		userId = user.id;
+		sessionKey = user.session.key;
+		currentUser = user;
 
-		BranchProvider.setIdentity(this.userId);
-		Reporting.updateCrashUser(this.currentUser);
+		BranchProvider.setIdentity(userId);
+		Reporting.updateCrashUser(currentUser);
 
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), this.jsonUser);
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), this.jsonSession);
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_last_email), this.currentUser.email);
-		Patchr.settingsEditor.commit();
+		SharedPreferences.Editor editor = Patchr.settings.edit();
+		editor.putString(StringManager.getString(R.string.setting_user), jsonUser);
+		editor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
+		editor.putString(StringManager.getString(R.string.setting_last_email), currentUser.email);
+		editor.apply();
 	}
 
 	private void discardCredentials() {
 
-		this.currentUser = null;
-		this.userName = null;
-		this.userId = null;
-		this.sessionKey = null;
-		this.jsonSession = null;
-		this.jsonUser = null;
+		currentUser = null;
+		userName = null;
+		userId = null;
+		sessionKey = null;
+		jsonSession = null;
+		jsonUser = null;
 
 		/* Cancel any current notifications in the status bar */
 		NotificationManager.getInstance().cancelAllNotifications();
@@ -168,18 +174,15 @@ public class UserManager {
 		BranchProvider.logout();
 
 		/* Clear user settings */
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user), null);
-		Patchr.settingsEditor.putString(StringManager.getString(R.string.setting_user_session), null);
-		Patchr.settingsEditor.commit();  // Asynch
+		SharedPreferences.Editor editor = Patchr.settings.edit();
+		editor.putString(StringManager.getString(R.string.setting_user), null);
+		editor.putString(StringManager.getString(R.string.setting_user_session), null);
+		editor.apply();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-
-	public User getCurrentUser() {
-		return this.currentUser;
-	}
 
 	@NonNull public Boolean setCurrentUser(User user, @NonNull Boolean refreshUser) {
 

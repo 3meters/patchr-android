@@ -4,9 +4,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.Toast;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.patchr.Constants;
 import com.patchr.R;
@@ -17,12 +17,10 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.interfaces.IBusy.BusyAction;
 import com.patchr.objects.Document;
-import com.patchr.ui.base.BaseEntityEdit;
+import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.SimpleTextWatcher;
-import com.patchr.ui.widgets.AirEditText;
-import com.patchr.ui.widgets.UserView;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -30,67 +28,79 @@ import com.patchr.utilities.UI;
 
 import java.util.HashMap;
 
-public class FeedbackEdit extends BaseEntityEdit {
+public class FeedbackEdit extends BaseEdit {
 
-	private Document mFeedback;
+	private Document    feedback;
+	private ImageWidget userPhoto;
+	private TextView    userName;
+	private TextView    message;
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-		/*
-		 * Feedback are not really an entity type so we handle
-		 * all the expected initialization.
-		 */
-		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
+	}
 
-		mDescription = (AirEditText) findViewById(R.id.description);
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
 
-		if (mDescription != null) {
-			mDescription.addTextChangedListener(new SimpleTextWatcher() {
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu_send, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
 
-				@Override
-				public void afterTextChanged(Editable s) {
-					mDirty = !TextUtils.isEmpty(s);
-				}
-			});
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.submit) {
+			super.submitAction();
 		}
-	}
-
-	@Override
-	public void bind(BindingMode mode) {
-		/*
-		 * Not a real entity so we completely override databind.
-		 */
-		mFeedback = new Document();
-		mFeedback.type = "feedback";
-		mFeedback.name = "patchr";
-		mFeedback.data = new HashMap<String, Object>();
-		draw(null);
-	}
-
-	@Override
-	public void draw(View view) {
-		((UserView) findViewById(R.id.created_by)).databind(UserManager.getInstance().getCurrentUser(), null);
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	protected String getLinkType() {
-		return null;
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+
+		this.actionBarTitle.setText(R.string.screen_title_feedback_edit);
+
+		if (description != null) {
+			description.addTextChangedListener(new SimpleTextWatcher() {
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					dirty = !TextUtils.isEmpty(s);
+				}
+			});
+		}
+
+		userPhoto = (ImageWidget) findViewById(R.id.user_photo);
+		userName = (TextView) findViewById(R.id.user_name);
+
+		this.feedback = new Document();
+		this.feedback.type = "feedback";
+		this.feedback.name = "patchr";
+		this.feedback.data = new HashMap<String, Object>();
 	}
 
-	@Override
-	protected void gather() {
-		mFeedback.data.put("message", mDescription.getText().toString().trim());
+	@Override public void bind() {
+		this.userPhoto.setImageWithEntity(UserManager.currentUser);
+		this.userName.setText(UserManager.currentUser.name);
 	}
 
-	@Override
-	protected boolean validate() {
-		if (!super.validate()) return false;
-		if (mDescription.getText().length() == 0) {
+	@Override protected void gather() {
+		feedback.data.put("message", description.getText().toString().trim());
+	}
+
+	@Override protected boolean validate() {
+
+		gather();
+		if (description.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_message)
@@ -103,45 +113,40 @@ public class FeedbackEdit extends BaseEntityEdit {
 		return true;
 	}
 
-	@Override
-	protected void insert() {
+	@Override protected void insert() {
 
 		Logger.i(this, "Insert feedback");
 
 		new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_sending, FeedbackEdit.this);
+			@Override protected void onPreExecute() {
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_sending, FeedbackEdit.this);
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertFeedback");
-				mFeedback.createdDate = DateTime.nowDate().getTime();
-				final ModelResult result = DataController.getInstance().insertDocument(mFeedback, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				feedback.createdDate = DateTime.nowDate().getTime();
+				final ModelResult result = DataController.getInstance().insertDocument(feedback, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				mUiController.getBusyController().hide(true);
+				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					UI.showToastNotification(StringManager.getString(R.string.alert_feedback_sent), Toast.LENGTH_SHORT);
+					UI.toast(StringManager.getString(R.string.alert_feedback_sent));
 					finish();
 				}
 				else {
 					Errors.handleError(FeedbackEdit.this, result.serviceResponse);
 				}
-				mProcessing = false;
+				processing = false;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override
-	protected int getLayoutId() {
-		return R.layout.feedback_edit;
+	@Override protected int getLayoutId() {
+		return R.layout.edit_feedback;
 	}
 }

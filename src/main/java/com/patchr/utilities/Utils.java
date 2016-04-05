@@ -9,12 +9,15 @@ import android.support.annotation.NonNull;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
+import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
+import com.patchr.components.UserManager;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 import java.util.Random;
 import java.util.regex.Pattern;
 
@@ -76,6 +79,53 @@ public class Utils {
 			accum += (int) character;
 		}
 		return accum;
+	}
+
+	public static String distanceFormatted(Float distance) {
+		String info = "here";
+		/*
+		 * If distance = -1 then we don't have the location info
+		 * yet needed to correctly determine distance.
+		 */
+		if (distance == null) {
+			info = "--";
+		}
+		else {
+			if (distance == -1f) { // $codepro.audit.disable floatComparison
+				info = "--";
+			}
+			else {
+				final float miles = distance * LocationManager.MetersToMilesConversion;
+				final float feet = distance * LocationManager.MetersToFeetConversion;
+				final float yards = distance * LocationManager.MetersToYardsConversion;
+
+				if (feet >= 0) {
+					if (miles >= 0.1) {
+						info = String.format(Locale.US, "%.1f mi", miles);
+					}
+					else if (feet >= 50) {
+						info = String.format(Locale.US, "%.0f yds", yards);
+					}
+					else {
+						info = String.format(Locale.US, "%.0f ft", feet);
+					}
+				}
+				if (feet <= 60) {
+					info = "here";
+				}
+			}
+		}
+		return info;
+	}
+
+	public static Boolean devModeEnabled() {
+		return (isDev() && Constants.DEV_ENABLED);
+	}
+
+	public static Boolean isDev() {
+		return (UserManager.shared().authenticated()
+				&& UserManager.currentUser.developer != null
+				&& UserManager.currentUser.developer);
 	}
 
 	public static int randomColor(long seed) {

@@ -2,11 +2,6 @@ package com.patchr.components;
 
 import android.graphics.Bitmap;
 
-import com.patchr.Patchr;
-import com.patchr.components.NetworkManager.ResponseCode;
-import com.patchr.events.ProcessingCanceledEvent;
-import com.patchr.events.ProcessingProgressEvent;
-import com.patchr.service.ServiceResponse;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.event.ProgressEvent;
@@ -15,7 +10,13 @@ import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.squareup.otto.Subscribe;
+import com.patchr.Patchr;
+import com.patchr.components.NetworkManager.ResponseCode;
+import com.patchr.events.ProcessingCanceledEvent;
+import com.patchr.events.ProcessingProgressEvent;
+import com.patchr.service.ServiceResponse;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -90,8 +91,7 @@ public class S3 {
 		}
 	}
 
-	@Subscribe
-	public void onCancelEvent(ProcessingCanceledEvent event) {
+	@Subscribe public void onCancelEvent(ProcessingCanceledEvent event) {
 		if (mUpload != null) {
 			mUpload.abort();
 			Logger.v(this, "Image upload aborted");

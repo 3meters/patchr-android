@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 	The package element below is used internally only: R class, activity/service registrations.
 	The	official application id used in the app .apk and in the Google Play store is specified
 	in build.gradle
 -->
-<manifest
-	package="com.patchr"
+<manifest package="com.patchr"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:installLocation="auto">
@@ -66,9 +64,9 @@
 
 	<application
 		android:name=".Patchr"
+		android:allowBackup="false"
 		android:hardwareAccelerated="true"
 		android:icon="@drawable/ic_launcher"
-		android:allowBackup="false"
 		android:label="@string/name_app"
 		android:theme="@style/patchr_theme"
 		tools:replace="label, allowBackup">
@@ -79,9 +77,6 @@
 			android:name="com.google.android.maps.v2.API_KEY"
 			android:value="AIzaSyCF9Nlm-CGETdgwP1ktNyAoKVgcUGuMzTA" />
 		<meta-data
-			android:name="com.crashlytics.ApiKey"
-			android:value="3f03e3891f0d0c56c4bc1c393db5efe2aa0f90c7" />
-		<meta-data
 			android:name="com.google.android.gms.version"
 			android:value="@integer/google_play_services_version" />
 		<meta-data
@@ -89,19 +84,22 @@
 			android:value="6f4074ec11634bd78eb00909102844ec" />
 		<meta-data
 			android:name="com.facebook.sdk.ApplicationId"
-			android:value="@string/facebook_app_id"/>
+			android:value="@string/facebook_app_id" />
 		<meta-data
 			android:name="io.branch.sdk.BranchKey"
 			android:value="key_live_aabKfhL9u6piQ93E2lzVslklzraKnSc3" />
 		<meta-data
 			android:name="io.branch.sdk.TestMode"
 			android:value="false" />
+		<meta-data
+			android:name="com.bugsnag.android.API_KEY"
+			android:value="0534f3bc03870084ba38d79ed1d5abea" />
 
 		<!-- Misc data -->
 
 		<meta-data
 			android:name="com.parse.push.notification_icon"
-			android:resource="@drawable/ic_stat_notification"/>
+			android:resource="@drawable/ic_stat_notification" />
 
 		<!-- Services -->
 
@@ -114,11 +112,9 @@
 			android:exported="false"
 			android:label="@string/name_app" />
 
-		<service
-			android:name="com.parse.PushService" />
+		<service android:name="com.parse.PushService" />
 
-		<service
-			android:name="com.google.android.gms.analytics.CampaignTrackingService" />
+		<service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
 
 		<!-- Receivers -->
 
@@ -155,9 +151,10 @@
 			</intent-filter>
 		</receiver>
 
-		<service android:name="com.google.android.gms.analytics.AnalyticsService"
+		<service
+			android:name="com.google.android.gms.analytics.AnalyticsService"
 			android:enabled="true"
-			android:exported="false"/>
+			android:exported="false" />
 
 		<!--
 			Optionally, register CampaignTrackingReceiver and CampaignTrackingService to enable
@@ -180,6 +177,7 @@
 			<intent-filter>
 				<action android:name="com.google.android.c2dm.intent.RECEIVE" />
 				<action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
 				<category android:name="${applicationId}" />
 			</intent-filter>
 		</receiver>
@@ -204,11 +202,11 @@
 		<!-- Forms -->
 
 		<activity
-			android:name=".ui.LobbyForm"
+			android:name=".ui.LobbyScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/patchr_theme_notitlebar"
-			android:screenOrientation="portrait"
 			android:launchMode="singleTask"
+			android:screenOrientation="portrait"
+			android:theme="@style/patchr_theme_notitlebar"
 			android:windowSoftInputMode="stateHidden">
 
 			<intent-filter>
@@ -219,207 +217,203 @@
 			<!-- Old school deep linking -->
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
+
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="patchr" android:host="open" />
+
+				<data
+					android:host="open"
+					android:scheme="patchr" />
 			</intent-filter>
 
-			<!-- AppLink config -->
+			<!-- AppLink config: autoVerify means Google will make a verification call to the
+				 applink provider to confirm that there is an association with the app by
+				 producing our SHA256 cert fingerprint -->
 			<intent-filter android:autoVerify="true">
 				<action android:name="android.intent.action.VIEW" />
+
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="https" android:host="bnc.lt" android:pathPrefix="/cdud" />    <!-- live -->
-				<data android:scheme="https" android:host="bnc.lt" android:pathPrefix="/b2dc" />    <!-- test -->
+
+				<data
+					android:host="bnc.lt"
+					android:pathPrefix="/cdud"
+					android:scheme="https" />    <!-- live -->
+				<data
+					android:host="bnc.lt"
+					android:pathPrefix="/b2dc"
+					android:scheme="https" />    <!-- test -->
 			</intent-filter>
 
 		</activity>
 
 		<activity
-			android:name=".ui.AircandiForm"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_nearby">
+			android:name=".ui.MainScreen"
+			android:configChanges="orientation|keyboardHidden|screenSize">
 			<meta-data
 				android:name="android.app.searchable"
 				android:resource="@xml/searchable" />
 		</activity>
 
 		<activity
-			android:name=".ui.PatchForm"
+			android:name=".ui.PatchScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:parentActivityName=".ui.AircandiForm"
+			android:parentActivityName=".ui.MainScreen"
 			android:windowSoftInputMode="stateHidden">
 			<!-- The meta-data element is needed for versions lower than 4.1 -->
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.AircandiForm" />
+				android:value=".ui.MainScreen" />
 		</activity>
 
 		<activity
-			android:name=".ui.MessageForm"
+			android:name=".ui.MessageScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:parentActivityName=".ui.AircandiForm"
+			android:parentActivityName=".ui.MainScreen"
 			android:windowSoftInputMode="stateHidden">
 			<!-- The meta-data element is needed for versions lower than 4.1 -->
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".ui.AircandiForm" />
+				android:value=".ui.MainScreen" />
 		</activity>
 
 		<activity
-			android:name=".ui.UserForm"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_user_form"
-			android:windowSoftInputMode="stateHidden" />
-
-		<activity
-			android:name=".ui.PhotoForm"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_photo_form"
-			android:windowSoftInputMode="stateHidden" />
-
-		<activity
-			android:name=".ui.MapForm"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_map_form"
-			android:windowSoftInputMode="stateHidden" />
-
-		<activity
-			android:name=".ui.SearchForm"
+			android:name=".ui.ProfileScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.AboutForm"
+			android:name=".ui.PhotoScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_about_form"
+			android:label="@string/screen_title_photo_form"
+			android:windowSoftInputMode="stateHidden" />
+
+		<activity
+			android:name=".ui.MapScreen"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:label="@string/screen_title_map_form"
+			android:windowSoftInputMode="stateHidden" />
+
+		<activity
+			android:name=".ui.SearchScreen"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:windowSoftInputMode="stateHidden" />
+
+		<activity
+			android:name=".ui.AboutScreen"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:windowSoftInputMode="stateHidden" />
+
+		<activity
+			android:name=".ui.InviteScreen"
+			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Lists -->
 
 		<activity
-			android:name=".ui.UserList"
+			android:name=".ui.ListScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_watching_list"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.PatchList"
+			android:name=".ui.MemberListScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_patch_list"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Editing -->
 
 		<!-- MessageEdit Note: label setting is used in android share picker -->
 		<activity
-			android:name=".ui.edit.MessageEdit"
+			android:name=".ui.edit.ShareEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:icon="@drawable/img_logo"
-			android:label="@string/name_app"
 			android:windowSoftInputMode="stateHidden">
 			<intent-filter>
 				<action android:name="android.intent.action.SEND" />
 				<category android:name="android.intent.category.DEFAULT" />
+
 				<data android:mimeType="text/plain" />
 				<data android:mimeType="image/*" />
 			</intent-filter>
 		</activity>
 
 		<activity
+			android:name=".ui.edit.PostEdit"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:windowSoftInputMode="stateHidden" />
+
+		<activity
 			android:name=".ui.edit.PatchEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_patch_edit"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.edit.ProximityEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_proximity_edit"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.edit.FeedbackEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_feedback_edit"
 			android:windowSoftInputMode="adjustResize" />
 
 		<activity
 			android:name=".ui.edit.ReportEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_report_edit"
 			android:windowSoftInputMode="adjustResize" />
 
 		<activity
-			android:name=".ui.edit.UserEdit"
+			android:name=".ui.edit.ProfileEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_user_edit"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.edit.LoginEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_signin_edit"
 			android:windowSoftInputMode="adjustResize" />
-
-		<activity
-			android:name=".ui.edit.RegisterEdit"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_register_edit"
-			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.edit.ResetEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_reset_edit"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
 			android:name=".ui.edit.PasswordEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_password_edit"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Builders/pickers -->
 
 		<activity
-			android:name=".ui.helpers.PhotoPicker"
+			android:name=".ui.PhotoSearchScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_photo_picker"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.helpers.LocationPicker"
+			android:name=".ui.edit.LocationEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_location_picker"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Theme setting required to get dialog treatment for all theming -->
 		<activity
-			android:name=".ui.helpers.PhotoActionPicker"
+			android:name=".ui.PhotoSwitchboardScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/patchr_theme_dialog"
+			android:theme="@style/patchr_theme_semi_transparent"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.helpers.PrivacyBuilder"
+			android:name=".ui.edit.PrivacyEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:label="@string/form_title_privacy_builder"
-			android:windowSoftInputMode="stateHidden" />
-
-		<activity
-			android:name=".ui.helpers.QrcodeDialog"
-			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:theme="@style/patchr_theme_dialog"
 			android:windowSoftInputMode="stateHidden" />
 
 		<!-- Misc -->
 
 		<activity
-			android:name=".ui.SettingsForm"
+			android:name=".ui.SettingsScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:exported="false"
-			android:label="@string/form_title_settings_form">
+			android:label="@string/screen_title_settings_form">
 			<intent-filter>
 				<action android:name="com.patchr.Preferences" />
 				<category android:name="android.intent.category.PREFERENCE" />

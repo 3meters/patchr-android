@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/transparent"
+	tools:background="@color/gray_20_pcnt">
+
+	<LinearLayout
+		android:layout_width="288dp"
+		android:layout_height="wrap_content"
+		android:layout_centerInParent="true"
+		android:background="?attr/backgroundForm"
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/title"
+			style="@style/text_appearance_large"
+			android:layout_width="match_parent"
+			android:layout_height="64dp"
+			android:gravity="center_vertical|left"
+			android:paddingLeft="32dp"
+			android:text="@string/screen_title_photo_picker"
+			android:textColor="@color/brand_accent_darker" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_header_height"
+			android:background="?attr/ruleColor" />
+
+		<TextView
+			android:id="@+id/photo_search_button"
+			style="@style/selectable_item"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:clickable="true"
+			android:drawableLeft="@drawable/ic_action_search_light"
+			android:drawablePadding="4dp"
+			android:gravity="center_vertical"
+			android:minHeight="48dp"
+			android:onClick="onClick"
+			android:paddingLeft="24dp"
+			android:paddingRight="24dp"
+			android:text="@string/dialog_photo_action_search"
+			android:textColor="@color/brand_primary"
+			android:textSize="18sp" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_divider_height"
+			android:background="?attr/ruleColor" />
+
+		<TextView
+			android:id="@+id/gallery_button"
+			style="@style/selectable_item"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:clickable="true"
+			android:drawableLeft="@drawable/ic_action_tiles_large_light"
+			android:drawablePadding="4dp"
+			android:gravity="center_vertical"
+			android:minHeight="48dp"
+			android:onClick="onClick"
+			android:paddingLeft="24dp"
+			android:paddingRight="24dp"
+			android:text="@string/dialog_photo_action_gallery"
+			android:textColor="@color/brand_primary"
+			android:textSize="18sp" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_divider_height"
+			android:background="?attr/ruleColor" />
+
+		<TextView
+			android:id="@+id/camera_button"
+			style="@style/selectable_item"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:clickable="true"
+			android:drawableLeft="@drawable/ic_action_camera_light"
+			android:drawablePadding="4dp"
+			android:gravity="center_vertical"
+			android:minHeight="48dp"
+			android:onClick="onClick"
+			android:paddingLeft="24dp"
+			android:paddingRight="24dp"
+			android:text="@string/dialog_photo_action_camera"
+			android:textColor="@color/brand_primary"
+			android:textSize="18sp" />
+
+		<!-- Footer -->
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_divider_height"
+			android:background="?attr/ruleColor" />
+
+		<LinearLayout
+			android:id="@+id/form_footer"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_horizontal">
+
+			<TextView
+				android:id="@+id/cancel_button"
+				style="@style/selectable_item"
+				android:layout_width="match_parent"
+				android:layout_height="48dp"
+				android:clickable="true"
+				android:gravity="center_vertical|right"
+				android:onClick="onClick"
+				android:paddingRight="24dp"
+				android:text="@string/button_cancel"
+				android:textAllCaps="true"
+				android:textColor="?attr/textColorSecondary"
+				android:textSize="16sp" />
+		</LinearLayout>
+
+	</LinearLayout>
+
+</RelativeLayout>

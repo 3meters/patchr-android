@@ -15,16 +15,14 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.Html;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.objects.Route;
-import com.patchr.objects.TransitionType;
-import com.patchr.ui.LobbyForm;
+import com.patchr.objects.Command;
+import com.patchr.ui.LobbyScreen;
 import com.patchr.utilities.UI;
 
 import java.util.List;
@@ -46,6 +44,8 @@ public class AndroidManager {
 
 	public static boolean checkPlayServices(Activity activity) {
 
+		assert activity != null;
+
 		GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
 
 		int status = googleAPI.isGooglePlayServicesAvailable(Patchr.applicationContext);
@@ -55,7 +55,7 @@ public class AndroidManager {
 			}
 			else {
 				Logger.w(activity, "This device is not supported by google play services");
-				UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unsupported), Toast.LENGTH_LONG);
+				UI.toast(StringManager.getString(R.string.error_google_play_services_unsupported));
 				activity.finish();
 			}
 			return false;
@@ -65,38 +65,34 @@ public class AndroidManager {
 
 	public static void showPlayServicesErrorDialog(final int status, final Activity activity, final DialogInterface.OnDismissListener dismissListener) {
 
-		final Activity activityTemp = (activity != null) ? activity : Patchr.getInstance().getCurrentActivity();
-		if (activityTemp != null) {
+		activity.runOnUiThread(new Runnable() {
 
-			activityTemp.runOnUiThread(new Runnable() {
+			GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+			Dialog dialog = googleAPI.getErrorDialog(activity, status, PLAY_SERVICES_RESOLUTION_REQUEST);
 
-				GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
-				Dialog dialog = googleAPI.getErrorDialog(activityTemp, status, PLAY_SERVICES_RESOLUTION_REQUEST);
+			@Override
+			public void run() {
+				dialog.setCancelable(true);
+				dialog.setCanceledOnTouchOutside(false);
+				dialog.setOnCancelListener(new OnCancelListener() {
 
-				@Override
-				public void run() {
-					dialog.setCancelable(true);
-					dialog.setCanceledOnTouchOutside(false);
-					dialog.setOnCancelListener(new OnCancelListener() {
-
-						@Override
-						public void onCancel(DialogInterface dialog) {
-							UI.showToastNotification(StringManager.getString(R.string.error_google_play_services_unavailable), Toast.LENGTH_LONG);
-							if (!(activity instanceof LobbyForm)) {
-								Patchr.router.route(activity, Route.SPLASH, null, null);
-							}
-							else {
-								activity.finish();
-							}
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						UI.toast(StringManager.getString(R.string.error_google_play_services_unavailable));
+						if (!(activity instanceof LobbyScreen)) {
+							Patchr.router.route(activity, Command.LOBBY, null, null);
 						}
-					});
-					if (dismissListener != null) {
-						dialog.setOnDismissListener(dismissListener);
+						else {
+							activity.finish();
+						}
 					}
-					dialog.show();
+				});
+				if (dismissListener != null) {
+					dialog.setOnDismissListener(dismissListener);
 				}
-			});
-		}
+				dialog.show();
+			}
+		});
 	}
 
 	public static Boolean appExists(String app) {
@@ -155,7 +151,7 @@ public class AndroidManager {
 
 	public static boolean doesPackageExist(String targetPackage) {
 		final List<ApplicationInfo> packages;
-		packages = Patchr.packageManager.getInstalledApplications(0);
+		packages = Patchr.applicationContext.getPackageManager().getInstalledApplications(0);
 		for (ApplicationInfo packageInfo : packages) {
 			if (packageInfo.packageName.equals(targetPackage)) return true;
 		}
@@ -164,7 +160,7 @@ public class AndroidManager {
 
 	public static boolean isIntentAvailable(Context context, String action) {
 		final Intent intent = new Intent(action);
-		final List<ResolveInfo> list = Patchr.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+		final List<ResolveInfo> list = Patchr.applicationContext.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 		return list.size() > 0;
 	}
 
@@ -198,7 +194,6 @@ public class AndroidManager {
 			intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
 		}
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callMapNavigation(Context context, Double latitude, Double longitude, String address, String label) {
@@ -216,7 +211,6 @@ public class AndroidManager {
 		}
 
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callMapLocalActivity(Context context, String latitude, String longitude, String label) {
@@ -226,14 +220,12 @@ public class AndroidManager {
 				+ "(" + label + ")";
 		final Intent searchAddress = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
 		context.startActivity(searchAddress);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callDialerActivity(Context context, String phoneNumber) {
 		final String number = "tel:" + phoneNumber.trim();
 		final Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse(number));
 		context.startActivity(callIntent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callBrowserActivity(Context context, String uri) {
@@ -247,7 +239,6 @@ public class AndroidManager {
 			intent.setData(Uri.parse(uri));
 			context.startActivity(intent);
 		}
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callSendToActivity(Context context, String placeName, String emailAddress, @NonNull String subject, @NonNull String body) {
@@ -292,7 +283,6 @@ public class AndroidManager {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("https://www.twitter.com/" + twitterHandle));
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callFoursquareActivity(Context context, String venueId, String sourceUri) {
@@ -300,14 +290,12 @@ public class AndroidManager {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(sourceUri));
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callOpentableActivity(Context context, String sourceId, String sourceUri) {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(sourceUri));
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callYelpActivity(Context context, String sourceId, String sourceUri) {
@@ -316,14 +304,12 @@ public class AndroidManager {
 		String uriFixup = sourceUri.replace("//m.yelp.com", "//www.yelp.com");
 		intent.setData(Uri.parse(uriFixup));
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	public void callGenericActivity(Context context, String sourceId) {
 		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(sourceId));
 		context.startActivity(intent);
-		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.EXTERNAL_TO);
 	}
 
 	private Intent findBrowserApp(Context context, String uri) {
@@ -333,7 +319,7 @@ public class AndroidManager {
 				"com.google.android.browser"};
 
 		final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-		final List<ResolveInfo> list = Patchr.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+		final List<ResolveInfo> list = Patchr.applicationContext.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 
 		String p;
 		for (String browserApp : browserApps) {
@@ -351,7 +337,7 @@ public class AndroidManager {
 	public boolean isAviaryInstalled() {
 		Intent intent = new Intent("aviary.intent.action.EDIT");
 		intent.setType("image/*");
-		List<ResolveInfo> list = Patchr.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> list = Patchr.applicationContext.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 		return list.size() > 0;
 	}
 

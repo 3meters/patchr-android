@@ -3,163 +3,143 @@ package com.patchr.ui.edit;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
-import com.patchr.components.FontManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.interfaces.IBusy.BusyAction;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
+import com.patchr.objects.ServiceData;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.base.BaseEdit;
+import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.widgets.ClearableEditText;
+import com.patchr.ui.widgets.PasswordEditText;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
+import com.patchr.utilities.Json;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
+import com.squareup.okhttp.Response;
 
+import java.io.IOException;
 import java.util.Locale;
 
 public class LoginEdit extends BaseEdit {
 
-	private EditText mEmail;
-	private EditText mPassword;
-	private CheckBox mPasswordUnmask;
+	private ClearableEditText email;
+	private PasswordEditText  password;
+	private TextView          title;
+	private View              forgotPasswordButton;
+	private View              loginButton;
+	private String onboardMode = OnboardMode.Login;
 
-	@Override
-	public void initialize(Bundle savedInstanceState) {
-		super.initialize(savedInstanceState);
-
-		mEmail = (EditText) findViewById(R.id.email);
-		mPassword = (EditText) findViewById(R.id.password);
-		mPasswordUnmask = (CheckBox) findViewById(R.id.chk_unmask);
-
-		mPasswordUnmask.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (isChecked) {
-					mPassword.setInputType(InputType.TYPE_CLASS_TEXT
-							| InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-							| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-					FontManager.getInstance().setTypefaceDefault(mPassword);
-				}
-				else {
-					mPassword.setInputType(InputType.TYPE_CLASS_TEXT
-							| InputType.TYPE_TEXT_VARIATION_PASSWORD
-							| InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-					FontManager.getInstance().setTypefaceDefault(mPassword);
-				}
-			}
-		});
-
-		mPassword.setImeOptions(EditorInfo.IME_ACTION_GO);
-		mPassword.setOnEditorActionListener(new OnEditorActionListener() {
-
-			@Override
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if (actionId == EditorInfo.IME_ACTION_GO) {
-					signin();
-					return true;
-				}
-				return false;
-			}
-		});
-	}
-
-	@Override
-	public void draw(View view) {
-		final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
-		if (email != null) {
-			mEmail.setText(email);
-			mPassword.requestFocus();
-		}
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-	@SuppressWarnings("ucd")
-	public void onForgotPasswordButtonClick(View view) {
-		Patchr.router.route(this, Route.PASSWORD_RESET, null, null);
+
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+
+		if (onboardMode.equals(OnboardMode.Signup)) {
+			getMenuInflater().inflate(R.menu.menu_next, menu);
+		}
+		else {
+			getMenuInflater().inflate(R.menu.menu_login, menu);
+		}
+		return super.onCreateOptionsMenu(menu);
 	}
 
-	@SuppressWarnings("ucd")
-	public void onLoginButtonClick(View view) {
-		if (validate()) {
-			signin();
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.submit) {
+			submitAction();
+		}
+		else if (item.getItemId() == R.id.login) {
+			submitAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
+	}
+
+	public void onClick(View view) {
+		if (view.getId() == R.id.submit_button) {
+			submitAction();
+		}
+		else if (view.getId() == R.id.forgot_password_button) {
+			Patchr.router.route(this, Command.PASSWORD_RESET, null, null);
 		}
 	}
 
-	@SuppressWarnings("ucd")
-	public void onSignupButtonClick(View view) {
-		Patchr.router.route(this, Route.SIGNUP, null, null);
-	}
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
 
-	@Override
-	public void onAccept() {
-		if (validate()) {
-			signin();
+	@Override public void unpackIntent() {
+		super.unpackIntent();
+		final Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			this.onboardMode = extras.getString(Constants.EXTRA_ONBOARD_MODE, OnboardMode.Login);
 		}
 	}
 
-	private void signin() {
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
 
-		final String email = mEmail.getText().toString().toLowerCase(Locale.US);
-		final String password = mPassword.getText().toString();
-
-		new AsyncTask() {
-
-			@Override
-			protected void onPreExecute() {
-				mUiController.getBusyController().show(BusyAction.ActionWithMessage, R.string.progress_signing_in, LoginEdit.this);
-			}
+		title = (TextView) findViewById(R.id.title);
+		loginButton = findViewById(R.id.submit_button);
+		forgotPasswordButton = findViewById(R.id.forgot_password_button);
+		email = (ClearableEditText) findViewById(R.id.email);
+		password = (PasswordEditText) findViewById(R.id.password);
+		password.setOnEditorActionListener(new OnEditorActionListener() {
 
 			@Override
-			protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncSignIn");
-				ModelResult result = DataController.getInstance().signin(email, password, LoginEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				mUiController.getBusyController().hide(true);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					UI.showToastNotification(StringManager.getString(R.string.alert_signed_in) + " " + UserManager.getInstance().getCurrentUser().name, Toast.LENGTH_SHORT);
-					setResultCode(Constants.RESULT_USER_SIGNED_IN);
-					finish();
-					AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_GO) {
+					login();
+					return true;
 				}
-				else {
-					Errors.handleError(LoginEdit.this, result.serviceResponse);
-				}
+				return false;
 			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+		});
+
+		if (onboardMode.equals(OnboardMode.Signup)) {
+			title.setText(R.string.form_title_login_signup);
+			loginButton.setVisibility(View.GONE);
+			forgotPasswordButton.setVisibility(View.GONE);
+		}
 	}
 
-	@Override
-	protected boolean validate() {
-		if (mPassword.getText().length() == 0) {
+	@Override public void bind() {
+		final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
+		if (email != null) {
+			this.email.setText(email);
+			password.requestFocus();
+		}
+	}
+
+	@Override protected boolean validate() {
+
+		if (password.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_password)
@@ -169,7 +149,7 @@ public class LoginEdit extends BaseEdit {
 					, null, null, null, null);
 			return false;
 		}
-		if (mPassword.getText().length() < 6) {
+		if (password.getText().length() < 6) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_password_weak)
@@ -179,7 +159,7 @@ public class LoginEdit extends BaseEdit {
 					, null, null, null, null);
 			return false;
 		}
-		if (!Utils.validEmail(mEmail.getText().toString())) {
+		if (!Utils.validEmail(email.getText().toString())) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_invalid_email)
@@ -192,13 +172,12 @@ public class LoginEdit extends BaseEdit {
 		return true;
 	}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
-		if (requestCode == Constants.ACTIVITY_SIGNIN
+		if (requestCode == Constants.ACTIVITY_LOGIN
 				|| requestCode == Constants.ACTIVITY_RESET_AND_SIGNIN) {
-			if (resultCode == Constants.RESULT_USER_SIGNED_IN) {
-				setResultCode(Constants.RESULT_USER_SIGNED_IN);
+			if (resultCode == Constants.RESULT_USER_LOGGED_IN) {
+				setResult(Constants.RESULT_USER_LOGGED_IN);
 				finish();
 				AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
 			}
@@ -207,12 +186,115 @@ public class LoginEdit extends BaseEdit {
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	/*--------------------------------------------------------------------------------------------
-	 * Misc
-	 *--------------------------------------------------------------------------------------------*/
+	@Override protected int getLayoutId() {
+		return R.layout.edit_login;
+	}
 
-	@Override
-	protected int getLayoutId() {
-		return R.layout.login_edit;
+	@Override public void submitAction() {
+		if (validate()) {
+			if (onboardMode.equals(OnboardMode.Login)) {
+				login();
+			}
+			else if (onboardMode.equals(OnboardMode.Signup)) {
+				validateEmail();
+			}
+		}
+	}
+
+	private void login() {
+
+		final String email = this.email.getText().toString().toLowerCase(Locale.US);
+		final String password = this.password.getText().toString();
+
+		new AsyncTask() {
+
+			@Override protected void onPreExecute() {
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_logging_in, LoginEdit.this);
+			}
+
+			@Override protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncLogin");
+				ModelResult result = DataController.getInstance().signin(email, password, LoginEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				return result;
+			}
+
+			@Override protected void onPostExecute(Object response) {
+				final ModelResult result = (ModelResult) response;
+
+				busyPresenter.hide(true);
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
+					didLogin();
+				}
+				else {
+					Errors.handleError(LoginEdit.this, result.serviceResponse);
+				}
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	private void validateEmail() {
+
+		final String email = this.email.getText().toString().toLowerCase(Locale.US);
+
+		new AsyncTask() {
+
+			@Override protected void onPreExecute() {
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_reset_verify, LoginEdit.this);
+			}
+
+			@Override protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncEmailVerify");
+				ModelResult result = new ModelResult();
+				Response response = NetworkManager.getInstance().get(Constants.URL_PROXIBASE_SERVICE_FIND + "/users", String.format("q[email]=%1$s", email));
+				if (!response.isSuccessful()) {
+					result.serviceResponse.responseCode = ResponseCode.FAILED;
+				}
+				try {
+					String jsonResponse = response.body().string();
+					final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
+					result.data = serviceData;
+				}
+				catch (IOException e) {
+					UI.toast(e.toString());
+				}
+				return result;
+			}
+
+			@Override protected void onPostExecute(Object modelResult) {
+				final ModelResult result = (ModelResult) modelResult;
+
+				busyPresenter.hide(true);
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					Reporting.sendEvent(Reporting.TrackerCategory.USER, "email_validate", null, 0);
+					ServiceData serviceData = (ServiceData) result.data;
+					if (serviceData.count == 0) {
+						didValidate();
+					}
+					else {
+						UI.toast("Email has already been used.");
+					}
+				}
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
+	}
+
+	private void didLogin() {
+		setResult(Constants.RESULT_USER_LOGGED_IN);
+		finish();
+		AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
+	}
+
+	private void didValidate() {
+		Bundle extras = new Bundle();
+		extras.putString(Constants.EXTRA_STATE, State.Onboarding);
+		extras.putString(Constants.EXTRA_EMAIL, email.getText().toString());
+		extras.putString(Constants.EXTRA_PASSWORD, password.getText().toString());
+		Patchr.router.route(this, Command.SIGNUP, null, extras);
+	}
+
+	public static class OnboardMode {
+		public static String Login  = "login";
+		public static String Signup = "signup";
 	}
 }

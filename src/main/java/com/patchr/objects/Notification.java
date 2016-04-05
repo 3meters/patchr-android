@@ -1,7 +1,6 @@
 package com.patchr.objects;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
 
 import com.patchr.service.Expose;
 
@@ -9,10 +8,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Jayma
- */
-@SuppressWarnings("ucd")
 public class Notification extends Entity implements Cloneable, Serializable {
 
 	private static final long   serialVersionUID = 4362288672244719348L;
@@ -52,7 +47,6 @@ public class Notification extends Entity implements Cloneable, Serializable {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@NonNull
 	public String getTriggerCategory() {
 		if (this.trigger.contains("nearby")) return TriggerCategory.NEARBY;
 		if (this.trigger.contains("watch")) return TriggerCategory.WATCH;
@@ -60,7 +54,6 @@ public class Notification extends Entity implements Cloneable, Serializable {
 		return TriggerCategory.NONE;
 	}
 
-	@NonNull
 	public String getEventCategory() {
 		if (this.event.contains("share")) return EventCategory.SHARE;
 		if (this.event.contains("insert")) return EventCategory.INSERT;
@@ -92,13 +85,11 @@ public class Notification extends Entity implements Cloneable, Serializable {
 		return entity;
 	}
 
-	@Override
 	public Notification clone() {
 		final Notification clone = (Notification) super.clone();
 		return clone;
 	}
 
-	@Override
 	public String getCollection() {
 		return collectionId;
 	}

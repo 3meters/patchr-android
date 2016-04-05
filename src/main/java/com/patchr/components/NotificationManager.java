@@ -13,8 +13,8 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.Notification;
-import com.patchr.objects.PhotoSizeCategory;
-import com.patchr.ui.AircandiForm;
+import com.patchr.objects.PhotoCategory;
+import com.patchr.ui.MainScreen;
 import com.patchr.utilities.Reporting;
 import com.squareup.picasso.Picasso;
 
@@ -35,10 +35,6 @@ public class NotificationManager {
 	private NotificationManager() {
 		mNotificationService = (android.app.NotificationManager) Patchr.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
 		mSoundUri = Uri.parse("android.resource://" + Patchr.applicationContext.getPackageName() + "/" + R.raw.notification_activity);
-		try {
-			Dispatcher.getInstance().register(this);
-		}
-		catch (IllegalArgumentException ignore) { /* ignore */ }
 	}
 
 	private static class NotificationManagerHolder {
@@ -74,7 +70,7 @@ public class NotificationManager {
 
 		PendingIntent pendingIntent = TaskStackBuilder
 				.create(Patchr.applicationContext)
-				.addNextIntent(new Intent(Patchr.applicationContext, AircandiForm.class))
+				.addNextIntent(new Intent(Patchr.applicationContext, MainScreen.class))
 				.addNextIntent(notification.intent)
 				.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -102,7 +98,7 @@ public class NotificationManager {
 
 		/* Large icon */
 		if (notification.photo != null) {
-			String url = notification.photo.getUri(PhotoSizeCategory.PROFILE);
+			String url = notification.photo.uri(PhotoCategory.PROFILE);
 
 			try {
 				@SuppressWarnings("SuspiciousNameCombination")
@@ -115,7 +111,7 @@ public class NotificationManager {
 				builder.setLargeIcon(bitmap);
 			}
 			catch (IOException e) {
-				Reporting.logMessage("Picasso failed to load bitmap");
+				Reporting.breadcrumb("Picasso failed to load bitmap");
 				Reporting.logException(e);
 			}
 		}
@@ -140,7 +136,7 @@ public class NotificationManager {
 
 	public void useBigPicture(final NotificationCompat.Builder builder, final Notification notification) {
 
-		final String url = notification.photoBig.getUri(PhotoSizeCategory.STANDARD);
+		final String url = notification.photoBig.uri(PhotoCategory.STANDARD);
 
 		try {
 			Bitmap bitmap = Picasso.with(Patchr.applicationContext)
@@ -159,7 +155,7 @@ public class NotificationManager {
 			mNotificationService.notify(tag, 0, builder.build());
 		}
 		catch (IOException e) {
-			Reporting.logMessage("Picasso failed to load bitmap");
+			Reporting.breadcrumb("Picasso failed to load bitmap");
 			Reporting.logException(new IOException("Picasso failed to load bitmap", e));
 		}
 	}

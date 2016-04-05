@@ -86,13 +86,6 @@ public class IntentBuilder {
 		return this;
 	}
 
-	public IntentBuilder setEntityType(String entityType) {
-		if (entityType != null) {
-			mExtras.putString(Constants.EXTRA_ENTITY_TYPE, entityType);
-		}
-		return this;
-	}
-
 	public IntentBuilder setEntityParentId(String entityParentId) {
 		if (entityParentId != null) {
 			mExtras.putString(Constants.EXTRA_ENTITY_PARENT_ID, entityParentId);

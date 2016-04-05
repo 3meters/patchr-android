@@ -19,10 +19,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-public class OkHttp extends BaseConnection {
+public class OkHttp {
 	/*
 	 * Seems to throw SocketTimeout for everything
 	 *
@@ -59,8 +61,22 @@ public class OkHttp extends BaseConnection {
 		client.setRetryOnConnectionFailure(true);
 	}
 
+	public Response get(String path, String query) {
+		try {
+			String uri = path;
+			if (query != null) {
+				uri = uri + "?" + query;
+			}
+
+			Request request = new Request.Builder().url(uri).build();
+			Response response = client.newCall(request).execute();
+			return response;
+		}
+		catch (IOException e) { /* ignore */ }
+		return null;
+	}
+
 	@NonNull
-	@Override
 	public ServiceResponse request(@NonNull final ServiceRequest serviceRequest) {
 
 		ServiceResponse serviceResponse = new ServiceResponse();
@@ -74,7 +90,7 @@ public class OkHttp extends BaseConnection {
 
 			/* Build okttp request */
 
-			airRequest = BaseConnection.buildHttpRequest(serviceRequest);
+			airRequest = buildHttpRequest(serviceRequest);
 			builder.url(airRequest.uri);
 
 			for (AirHttpRequest.Header header : airRequest.headers) {
@@ -134,7 +150,7 @@ public class OkHttp extends BaseConnection {
 					String contentType = getContentType(response, airRequest);
 					try {
 						Long contentLength = response.body().contentLength();
-						Reporting.logMessage("OutOfMemoryError: success response:"
+						Reporting.breadcrumb("OutOfMemoryError: success response:"
 								+ " contentType: " + contentType
 								+ " contentLength: " + String.valueOf(contentLength));
 					}
@@ -178,7 +194,7 @@ public class OkHttp extends BaseConnection {
 		serviceResponse.activityName = serviceRequest.getActivityName();
 		Request.Builder builder = new Request.Builder().tag(serviceRequest.getTag());
 
-		final AirHttpRequest airRequest = BaseConnection.buildHttpRequest(serviceRequest);
+		final AirHttpRequest airRequest = buildHttpRequest(serviceRequest);
 		builder.url(airRequest.uri);
 
 		for (AirHttpRequest.Header header : airRequest.headers) {
@@ -277,5 +293,104 @@ public class OkHttp extends BaseConnection {
 			}
 		}
 		return contentType.toString();
+	}
+
+	@NonNull protected static AirHttpRequest buildHttpRequest(@NonNull final ServiceRequest serviceRequest) {
+
+		AirHttpRequest airHttpRequest = new AirHttpRequest();
+		airHttpRequest.uri = serviceRequest.getUriWithQuery();
+		airHttpRequest.responseFormat = serviceRequest.getResponseFormat();
+		addHeaders(airHttpRequest, serviceRequest);
+
+		/* Construct the request */
+		airHttpRequest.requestType = serviceRequest.getRequestType();
+		if (serviceRequest.getRequestType() == RequestType.GET || serviceRequest.getRequestType() == RequestType.DELETE) {
+			return airHttpRequest;
+		}
+
+		StringBuilder requestBody = new StringBuilder(5000);
+
+		requestBody.append('{');
+
+		if (serviceRequest.getRequestType() == RequestType.INSERT) {
+			if (serviceRequest.getRequestBody() != null) {
+				requestBody.append("\"data\":" + serviceRequest.getRequestBody() + ",");
+			}
+		}
+		else if (serviceRequest.getRequestType() == RequestType.UPDATE) {
+			if (serviceRequest.getRequestBody() != null) {
+				requestBody.append("\"data\":" + serviceRequest.getRequestBody() + ",");
+			}
+		}
+
+		/* Method parameters */
+		if (serviceRequest.getParameters() != null && serviceRequest.getParameters().size() != 0) {
+
+			for (String key : serviceRequest.getParameters().keySet()) {
+				if (serviceRequest.getParameters().get(key) != null) {
+
+					requestBody.append("\"" + key + "\":");
+
+					/* String arrays */
+					if (serviceRequest.getParameters().get(key) instanceof ArrayList<?>) {
+
+						List<String> items = serviceRequest.getParameters().getStringArrayList(key);
+						if (items == null || items.size() == 0) {
+							requestBody.append("[],");
+						}
+						else {
+							requestBody.append('[');
+							for (String itemString : items) {
+								if (itemString.startsWith("object:")) {
+									requestBody.append(itemString.substring(7) + ",");
+								}
+								else {
+									requestBody.append("\"" + itemString + "\",");
+								}
+							}
+							requestBody.replace(requestBody.length() - 1, requestBody.length(), "],");
+						}
+					}
+
+					/* Strings and objects */
+					else if (serviceRequest.getParameters().get(key) instanceof String) {
+						//noinspection ConstantConditions
+						String value = serviceRequest.getParameters().get(key).toString();
+						if (value.startsWith("object:")) {
+							requestBody.append(value.substring(7) + ",");
+						}
+						else {
+							requestBody.append("\"" + value + "\",");
+						}
+					}
+
+					/* Numbers and booleans */
+					else {
+						//noinspection ConstantConditions
+						requestBody.append(serviceRequest.getParameters().get(key).toString() + ",");
+					}
+				}
+			}
+		}
+
+		/* We assume there is always a trailing comma */
+		requestBody.replace(requestBody.length() - 1, requestBody.length(), "");
+		requestBody.append('}');
+
+		airHttpRequest.requestBody = requestBody.toString();
+
+		return airHttpRequest;
+	}
+
+	private static void addHeaders(@NonNull AirHttpRequest airHttpRequest, @NonNull ServiceRequest serviceRequest) {
+		if (serviceRequest.getRequestType() != RequestType.GET) {
+			airHttpRequest.headers.add(new AirHttpRequest.Header("Content-Type", "application/json"));
+		}
+		if (serviceRequest.getResponseFormat() == ResponseFormat.JSON) {
+			airHttpRequest.headers.add(new AirHttpRequest.Header("Accept", "application/json"));
+		}
+		if (serviceRequest.getAuthType() == ServiceRequest.AuthType.BASIC) {
+			airHttpRequest.headers.add(new AirHttpRequest.Header("Authorization", "Basic " + serviceRequest.getPasswordBase64()));
+		}
 	}
 }

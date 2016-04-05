@@ -1,27 +1,29 @@
 package com.patchr.components;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import com.parse.ParseInstallation;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.NetworkManager.ResponseCode;
-import com.patchr.events.DataErrorEvent;
-import com.patchr.events.DataNoopEvent;
-import com.patchr.events.DataResultEvent;
-import com.patchr.events.EntitiesRequestEvent;
-import com.patchr.events.EntityRequestEvent;
+import com.patchr.events.DataQueryResultEvent;
+import com.patchr.events.EntitiesQueryEvent;
+import com.patchr.events.EntitiesQueryResultEvent;
+import com.patchr.events.EntityQueryEvent;
+import com.patchr.events.EntityQueryResultEvent;
 import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.LinkMuteEvent;
-import com.patchr.events.NotificationsRequestEvent;
+import com.patchr.events.NotificationsQueryEvent;
 import com.patchr.events.RegisterInstallEvent;
 import com.patchr.events.ShareCheckEvent;
-import com.patchr.events.TrendRequestEvent;
+import com.patchr.events.TrendQueryEvent;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.CacheStamp;
@@ -46,14 +48,15 @@ import com.patchr.service.RequestType;
 import com.patchr.service.ResponseFormat;
 import com.patchr.service.ServiceRequest;
 import com.patchr.service.ServiceResponse;
-import com.patchr.ui.AircandiForm;
+import com.patchr.ui.MainScreen;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.parse.ParseInstallation;
-import com.squareup.otto.Subscribe;
+import com.patchr.utilities.Utils;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -72,13 +75,14 @@ import java.util.Locale;
 @SuppressWarnings("unchecked")
 public class DataController {
 
-	private Number mActivityDate;                                           // Monitored by nearby
-	private              Boolean     mRegistering = false;
-	private static final EntityStore ENTITY_STORE = new EntityStore();
+	private        Number      activityDate;     // Monitored by nearby
+	private        boolean     registering;
+	private static EntityStore ENTITY_STORE;
 
 	private DataController() {
 		try {
 			Dispatcher.getInstance().register(this);
+			ENTITY_STORE = new EntityStore();
 		}
 		catch (IllegalArgumentException ignore) { /* ignore */ }
 	}
@@ -95,20 +99,9 @@ public class DataController {
 	 * Data request events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe
-	public void onEntityRequest(final EntityRequestEvent event) {
+	@Subscribe public void onEntityRequest(final EntityQueryEvent event) {
 
 		/* Called on main thread */
-
-		/* Provide cache entity if available */
-		final Entity entity = ENTITY_STORE.getStoreEntity(event.entityId);
-		if (entity != null) {
-			DataResultEvent data = new DataResultEvent()
-					.setActionType(event.actionType)
-					.setEntity(entity)
-					.setTag(event.tag);
-			Dispatcher.getInstance().post(data);
-		}
 
 		/* Check service for fresher version of the entity */
 		new AsyncTask() {
@@ -123,41 +116,34 @@ public class DataController {
 
 				ServiceResponse serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, links, event.cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
+				EntityQueryResultEvent data = new EntityQueryResultEvent()
+						.setActionType(event.actionType)
+						.setFetchMode(event.fetchMode)
+						.setTag(event.tag);
+
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+
 					ServiceData serviceData = (ServiceData) serviceResponse.data;
 					final List<Entity> entities = (List<Entity>) serviceData.data;
+
 					if (entities.size() > 0) {
-						Entity entity = entities.get(0);
-						DataResultEvent data = new DataResultEvent()
-								.setActionType(event.actionType)
-								.setMode(event.mode)
-								.setEntity(entity)
-								.setTag(event.tag);
-						Dispatcher.getInstance().post(data);
+						data.entity = entities.get(0);
 					}
 					else {
-						/*
-						 * We can't tell the difference between an entity missing because of the where criteria
-						 * or because of no match on the entity id. We treat both cases as a no-op.
-						 */
-						DataNoopEvent noop = new DataNoopEvent().setActionType(event.actionType).setTag(event.tag);
-						Dispatcher.getInstance().post(noop);
+						data.noop = true; // Could be missing because of criteria or no match on entity id.
 					}
 				}
 				else {
-					DataErrorEvent error = new DataErrorEvent(serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setMode(event.mode)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
+					data.error = serviceResponse.errorResponse;
 				}
+				Dispatcher.getInstance().post(data);
+
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onEntitiesRequest(final EntitiesRequestEvent event) {
+	@Subscribe public void onEntitiesRequest(final EntitiesQueryEvent event) {
 
 		/* Called on main thread */
 
@@ -175,49 +161,42 @@ public class DataController {
 
 				ServiceResponse serviceResponse = ENTITY_STORE.loadEntitiesForEntity(event.entityId, options, event.cursor, event.cacheStamp, null, event.tag);
 
+				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
+						.setActionType(event.actionType)
+						.setCursor(event.cursor)
+						.setFetchMode(event.fetchMode)
+						.setTag(event.tag);
+
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+
 					ServiceData serviceData = (ServiceData) serviceResponse.data;
+					data.more = serviceData.more;
+					data.scopingEntity = serviceData.entity;  // Entity straight from db and not processed by getEntities
+					data.entities = (List<Entity>) serviceData.data;
 					/*
 					 * The parent entity is always returned unless we pass a cache stamp and it does
 					 * not have a fresher cache stamp.
                      */
 					if (event.cacheStamp != null && serviceData.entity == null) {
-						DataNoopEvent noop = new DataNoopEvent().setActionType(event.actionType).setTag(event.tag);
-						Dispatcher.getInstance().post(noop);
-					}
-					else {
-						DataResultEvent data = new DataResultEvent()
-								.setEntities((List<Entity>) serviceData.data)
-								.setMore(serviceData.more)
-								.setActionType(event.actionType)
-								.setMode(event.mode)
-								.setCursor(event.cursor)
-								.setScopingEntity(serviceData.entity)  // Entity straight from db and not processed by getEntities
-								.setTag(event.tag);
-						Dispatcher.getInstance().post(data);
+						data.noop = true;
 					}
 				}
 				else {
-					DataErrorEvent error = new DataErrorEvent(serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setMode(event.mode)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
+					data.error = serviceResponse.errorResponse;
 				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onTrendRequest(final TrendRequestEvent event) {
+	@Subscribe public void onTrendRequest(final TrendQueryEvent event) {
 
 		/* Called on main thread */
 
 		new AsyncTask() {
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncGetTrend");
 				/*
 				 * By default returns sorted by rank in ascending order.
@@ -225,32 +204,31 @@ public class DataController {
 				ModelResult result = getTrending(event.toSchema
 						, event.fromSchema
 						, event.linkType
+						, event.cursor
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+
+				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
+						.setCursor(event.cursor)
+						.setFetchMode(event.fetchMode)
+						.setActionType(event.actionType)
+						.setTag(event.tag);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (result.data != null) {
-						DataResultEvent data = new DataResultEvent()
-								.setEntities((List<Entity>) result.data)
-								.setActionType(event.actionType)
-								.setMode(event.mode)
-								.setTag(event.tag);
-						Dispatcher.getInstance().post(data);
+						data.entities = (List<Entity>) result.data;
+						data.more = ((ServiceData) result.serviceResponse.data).more;
 					}
 				}
 				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setMode(event.mode)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
+					data.error = result.serviceResponse.errorResponse;
 				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onNotificationsRequest(final NotificationsRequestEvent event) {
+	@Subscribe public void onNotificationsRequest(final NotificationsQueryEvent event) {
 
 		/* Called on main thread */
 
@@ -263,32 +241,28 @@ public class DataController {
 						, event.cursor
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
+				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
+						.setCursor(event.cursor)
+						.setFetchMode(event.fetchMode)
+						.setActionType(event.actionType)
+						.setTag(event.tag);
+
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (result.data != null) {
-						DataResultEvent data = new DataResultEvent()
-								.setEntities((List<Entity>) result.data)
-								.setCursor(event.cursor)
-								.setActionType(event.actionType)
-								.setMode(event.mode)
-								.setMore(((ServiceData) result.serviceResponse.data).more)
-								.setTag(event.tag);
-						Dispatcher.getInstance().post(data);
+						data.entities = (List<Entity>) result.data;
+						data.more = ((ServiceData) result.serviceResponse.data).more;
 					}
 				}
 				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setMode(event.mode)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
+					data.error = result.serviceResponse.errorResponse;
 				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onLinkInsert(final LinkInsertEvent event) {
+	@Subscribe public void onLinkInsert(final LinkInsertEvent event) {
 
 		new AsyncTask() {
 
@@ -304,25 +278,19 @@ public class DataController {
 						, event.toShortcut, event.actionEvent, event.skipCache, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, event.fromShortcut
 				);
 
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataResultEvent data = new DataResultEvent()
-							.setActionType(event.actionType)
-							.setTag(event.tag);
-					Dispatcher.getInstance().post(data);
+				DataQueryResultEvent data = new DataQueryResultEvent()
+						.setActionType(event.actionType)
+						.setTag(event.tag);
+				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
+					data.error = result.serviceResponse.errorResponse;
 				}
-				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
-				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onLinkMute(final LinkMuteEvent event) {
+	@Subscribe public void onLinkMute(final LinkMuteEvent event) {
 
 		new AsyncTask() {
 
@@ -332,25 +300,19 @@ public class DataController {
 
 				ModelResult result = muteLink(event.linkId, event.mute, event.actionEvent);
 
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataResultEvent data = new DataResultEvent()
-							.setActionType(event.actionType)
-							.setTag(event.tag);
-					Dispatcher.getInstance().post(data);
+				DataQueryResultEvent data = new DataQueryResultEvent()
+						.setActionType(event.actionType)
+						.setTag(event.tag);
+				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
+					data.error = result.serviceResponse.errorResponse;
 				}
-				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
-				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onLinkDelete(final LinkDeleteEvent event) {
+	@Subscribe public void onLinkDelete(final LinkDeleteEvent event) {
 
 		new AsyncTask() {
 
@@ -366,25 +328,19 @@ public class DataController {
 						, event.actionEvent
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataResultEvent data = new DataResultEvent()
-							.setActionType(event.actionType)
-							.setTag(event.tag);
-					Dispatcher.getInstance().post(data);
+				DataQueryResultEvent data = new DataQueryResultEvent()
+						.setActionType(event.actionType)
+						.setTag(event.tag);
+				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
+					data.error = result.serviceResponse.errorResponse;
 				}
-				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
-				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onShareCheck(final ShareCheckEvent event) {
+	@Subscribe public void onShareCheck(final ShareCheckEvent event) {
 
 		new AsyncTask() {
 
@@ -396,29 +352,26 @@ public class DataController {
 						, event.userId
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
+				DataQueryResultEvent data = new DataQueryResultEvent()
+						.setActionType(event.actionType)
+						.setTag(event.tag);
+
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					DataResultEvent data = new DataResultEvent()
-							.setActionType(event.actionType)
-							.setData(result.data)
-							.setTag(event.tag);
-					Dispatcher.getInstance().post(data);
+					data.data = result.data;
 				}
 				else {
-					DataErrorEvent error = new DataErrorEvent(result.serviceResponse.errorResponse);
-					error.setActionType(event.actionType)
-					     .setTag(event.tag);
-					Dispatcher.getInstance().post(error);
+					data.error = result.serviceResponse.errorResponse;
 				}
+				Dispatcher.getInstance().post(data);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Subscribe
-	public void onRegisterInstall(RegisterInstallEvent event) {
+	@Subscribe public void onRegisterInstall(RegisterInstallEvent event) {
 
-		if (mRegistering) return;
-		mRegistering = true;
+		if (registering) return;
+		registering = true;
 
 		new AsyncTask() {
 
@@ -429,10 +382,11 @@ public class DataController {
 				/* We register installs even if the user is anonymous. */
 				ModelResult result = registerInstall();
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Patchr.settingsEditor.putBoolean(StringManager.getString(R.string.setting_install_registered), true);
-					Patchr.settingsEditor.commit();
+					SharedPreferences.Editor editor = Patchr.settings.edit();
+					editor.putBoolean(StringManager.getString(R.string.setting_install_registered), true).apply();
+					editor.apply();
 				}
-				mRegistering = false;
+				registering = false;
 
 				return null;
 			}
@@ -515,7 +469,7 @@ public class DataController {
 		return result;
 	}
 
-	public ModelResult suggest(String input, SuggestScope suggestScope, String userId, AirLocation location, long limit, Object tag) {
+	public ModelResult suggest(String input, String suggestScope, String userId, AirLocation location, long limit, Object tag) {
 
 		final ModelResult result = new ModelResult();
 		final Bundle parameters = new Bundle();
@@ -527,18 +481,18 @@ public class DataController {
 			parameters.putString("_user", userId); // So service can handle places the current user is watching
 		}
 
-		if (suggestScope == SuggestScope.PATCHES) {
+		if (suggestScope.equals(Suggest.Patches)) {
 			parameters.putBoolean("patches", true);
 		}
-		else if (suggestScope == SuggestScope.USERS) {
+		else if (suggestScope.equals(Suggest.Users)) {
 			parameters.putBoolean("users", true);
 		}
-		else if (suggestScope == SuggestScope.PATCHES_USERS) {
+		else {
 			parameters.putBoolean("patches", true);
 			parameters.putBoolean("users", true);
 		}
 
-		if (suggestScope != SuggestScope.USERS) {
+		if (!suggestScope.equals(Suggest.Users)) {
 			/*
 			 * Foursquare won't return anything if lat/lng isn't provided.
 			 */
@@ -601,10 +555,10 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			UserManager.getInstance().setCurrentUser(user, true);
+			UserManager.shared().setCurrentUser(user, true);
 
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signin", null, 0);
-			Logger.i(this, "User signed in: " + UserManager.getInstance().getCurrentUser().name);
+			Logger.i(this, "User signed in: " + UserManager.currentUser.name);
 		}
 		return result;
 	}
@@ -623,8 +577,8 @@ public class DataController {
 				.setResponseFormat(ResponseFormat.JSON);
 
 		/* Leave this because we are using GET */
-		if (UserManager.getInstance().authenticated()) {
-			serviceRequest.setSession(UserManager.getInstance().getCurrentUser().session);
+		if (UserManager.shared().authenticated()) {
+			serviceRequest.setSession(UserManager.currentUser.session);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -634,11 +588,11 @@ public class DataController {
 		Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signout", null, 0);
 
 		if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-			Logger.w(this, "User sign out but service call failed: " + UserManager.getInstance().getCurrentUser().id);
+			Logger.w(this, "User sign out but service call failed: " + UserManager.currentUser.id);
 		}
 
 		/* Set to anonymous user */
-		UserManager.getInstance().setCurrentUser(null, false);
+		UserManager.shared().setCurrentUser(null, false);
 
 		return result;
 	}
@@ -668,15 +622,40 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			UserManager.getInstance().setCurrentUser(user, true);
+			UserManager.shared().setCurrentUser(user, true);
 
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "password_change", null, 0);
-			Logger.i(this, "User changed password: " + UserManager.getInstance().getCurrentUser().name);
+			Logger.i(this, "User changed password: " + UserManager.currentUser.name);
 		}
 		return result;
 	}
 
+	public ModelResult validateEmail(String email, Object tag) {
+
+		ModelResult result = new ModelResult();
+
+		String uri = String.format(Constants.URL_PROXIBASE_SERVICE_FIND + "/users?q[email]=%1$s", Utils.encode(email));
+
+		final ServiceRequest serviceRequest = new ServiceRequest()
+				.setUri(uri)
+				.setRequestType(RequestType.GET)
+				.setTag(tag)
+				.setResponseFormat(ResponseFormat.JSON);
+
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, "email_validate", null, 0);
+			final String jsonResponse = (String) result.serviceResponse.data;
+			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
+			result.serviceResponse.data = serviceData;
+		}
+
+		return result;
+	}
+
 	public ModelResult requestPasswordReset(String email, Object tag) {
+
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -684,7 +663,7 @@ public class DataController {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "reqresetpw")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "pw/reqreset")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
@@ -692,33 +671,24 @@ public class DataController {
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, "request_password_reset", null, 0);
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
-			User user = serviceData.user;
-			user.session = serviceData.session;
-			result.data = user;
-		}
-
 		return result;
 	}
 
-	public ModelResult resetPassword(String password, User tempUser, Object tag) {
+	public ModelResult resetPassword(String password, String token, Object tag) {
+
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("password", password);
+		parameters.putString("token", token);
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "resetpw")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "pw/reset")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)
 				.setResponseFormat(ResponseFormat.JSON);
-
-		serviceRequest.setSession(tempUser.session);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -727,25 +697,27 @@ public class DataController {
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "password_reset", null, 0);
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
+
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			UserManager.getInstance().setCurrentUser(user, true);
+			UserManager.shared().setCurrentUser(user, true);
 
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signin", null, 0);
-			Logger.i(this, "Password reset and user signed in: " + UserManager.getInstance().getCurrentUser().name);
+			Logger.i(this, "Password reset and user signed in: " + UserManager.currentUser.name);
 		}
 
 		return result;
 	}
 
-	public ModelResult registerUser(User user, Bitmap bitmap, Object tag) {
+	public ModelResult registerUser(User newUser, Bitmap bitmap, Object tag) {
+
 		ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("secret", ContainerManager.getContainerHolder().getContainer().getString(Patchr.USER_SECRET));
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 		parameters.putBoolean("getEntities", true);
-		user.id = null; // remove temp id we assigned
+		newUser.id = null; // remove temp id we assigned
 		/*
 		 * Call to user/create internally calls auth/signin after creating the user. The final
 		 * response comes from auth/signin. New users don't have any links yet so we don't
@@ -754,7 +726,7 @@ public class DataController {
 		ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "create")
 				.setRequestType(RequestType.INSERT)
-				.setRequestBody(Json.objectToJson(user, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
+				.setRequestBody(Json.objectToJson(newUser, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
 				.setParameters(parameters)
 				.setTag(tag)
 				.setUseSecret(true)
@@ -768,15 +740,16 @@ public class DataController {
 			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_register", null, 0);
 			String jsonResponse = (String) result.serviceResponse.data;
 			ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
-			User registeredUser = serviceData.user;
-			registeredUser.session = serviceData.session;
-			result.data = registeredUser;
+
+			User user = serviceData.user;
+			user.session = serviceData.session;
+			result.data = user;
 			/*
 			 * Put image to S3 if we have one. Handles setting up the photo object on user
 			 */
 			if (bitmap != null && !bitmap.isRecycled()) {
 
-				result.serviceResponse = storeImageAtS3(null, registeredUser, bitmap);
+				result.serviceResponse = storeImageAtS3(null, user, bitmap);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					/*
@@ -787,17 +760,38 @@ public class DataController {
 					 * registration operation a success.
 					 */
 					serviceRequest = new ServiceRequest()
-							.setUri(registeredUser.getEntryUri())
+							.setUri(user.getEntryUri())
 							.setRequestType(RequestType.UPDATE)
-							.setRequestBody(Json.objectToJson(registeredUser, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
+							.setRequestBody(Json.objectToJson(user, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
 							.setResponseFormat(ResponseFormat.JSON);
 
-					if (UserManager.getInstance().authenticated()) {
-						serviceRequest.setSession(user.session);
+					if (UserManager.shared().authenticated()) {
+						serviceRequest.setSession(newUser.session);
 					}
 					NetworkManager.getInstance().request(serviceRequest);
 				}
 			}
+		}
+
+		return result;
+	}
+
+	public ModelResult deleteUser(String userId, Object tag) {
+		ModelResult result = new ModelResult();
+
+		final ServiceRequest serviceRequest = new ServiceRequest()
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + userId + "?erase=true")
+				.setRequestType(RequestType.METHOD)
+				.setTag(tag)
+				.setParameters(new Bundle())
+				.setIgnoreResponseData(true)
+				.setResponseFormat(ResponseFormat.JSON);
+
+		/* Delete user */
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_delete", null, 0);
 		}
 
 		return result;
@@ -945,20 +939,20 @@ public class DataController {
 			 * Optimization: Add soft 'create' link so user entity doesn't have to be refetched
 			 */
 			if (!entity.synthetic) {
-				if (UserManager.getInstance().authenticated()) {
-					UserManager.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-					ENTITY_STORE.fixupAddLink(UserManager.getInstance().getCurrentUser().id
+				if (UserManager.shared().authenticated()) {
+					UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
+					ENTITY_STORE.fixupAddLink(UserManager.currentUser.id
 							, insertedEntity.id
 							, Constants.TYPE_LINK_CREATE
 							, null
-							, UserManager.getInstance().getCurrentUser().getAsShortcut(), insertedEntity.getAsShortcut());
+							, UserManager.currentUser.getAsShortcut(), insertedEntity.getAsShortcut());
 				}
 			}
 
 			result.data = insertedEntity;
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				mActivityDate = DateTime.nowDate().getTime();
+				activityDate = DateTime.nowDate().getTime();
 			}
 		}
 
@@ -1017,7 +1011,7 @@ public class DataController {
 			}
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				mActivityDate = DateTime.nowDate().getTime();
+				activityDate = DateTime.nowDate().getTime();
 			}
 		}
 
@@ -1071,13 +1065,13 @@ public class DataController {
 			 * FIXME: This needs to be generalized to hunt down all links that have
 			 * this entity at either end and clean them up including any counts.
 			 */
-			if (UserManager.getInstance().authenticated()) {
-				UserManager.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
-				ENTITY_STORE.fixupRemoveLink(UserManager.getInstance().getCurrentUser().id, entityId, Constants.TYPE_LINK_CREATE, null);
+			if (UserManager.shared().authenticated()) {
+				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
+				ENTITY_STORE.fixupRemoveLink(UserManager.currentUser.id, entityId, Constants.TYPE_LINK_CREATE, null);
 			}
 
 			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				mActivityDate = DateTime.nowDate().getTime();
+				activityDate = DateTime.nowDate().getTime();
 			}
 		}
 		return result;
@@ -1164,7 +1158,7 @@ public class DataController {
 		/* Reproduce the service call effect locally */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, untuning ? "patch_untune" : "patch_tune", null, 0);
-			mActivityDate = DateTime.nowDate().getTime();   // So nearby fragment picks up the change
+			activityDate = DateTime.nowDate().getTime();   // So nearby fragment picks up the change
 
 			if (beacons != null) {
 				for (Beacon beacon : beacons) {
@@ -1383,8 +1377,8 @@ public class DataController {
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			Reporting.sendEvent(Reporting.TrackerCategory.LINK, "entity_remove", schema, 0);
-			if (UserManager.getInstance().authenticated()) {
-				UserManager.getInstance().getCurrentUser().activityDate = DateTime.nowDate().getTime();
+			if (UserManager.shared().authenticated()) {
+				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
 			}
 			ENTITY_STORE.fixupRemoveLink(fromId, toId, type, null);
 		}
@@ -1396,25 +1390,29 @@ public class DataController {
 	 * Reports
 	 *--------------------------------------------------------------------------------------------*/
 
-	public ModelResult getTrending(String toSchema, String fromSchema, String trendType, Object tag) {
+	public ModelResult getTrending(String toSchema, String fromSchema, String trendType, Cursor cursor, Object tag) {
 		ModelResult result = new ModelResult();
 
-		final User currentUser = UserManager.getInstance().getCurrentUser();
+		final User currentUser = UserManager.currentUser;
 
 		LinkSpec links = new LinkSpec().setActive(new ArrayList<LinkSpecItem>());
 		links.shortcuts = false;
 
-		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_WATCH, Constants.SCHEMA_ENTITY_USER, true, true, 1
-				, UserManager.getInstance().authenticated() ? Maps.asMap("_from", currentUser.id) : null)
+		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_USER, true, true, 1
+				, UserManager.shared().authenticated() ? Maps.asMap("_from", currentUser.id) : null)
 				.setDirection(Direction.in));
 		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
-				, UserManager.getInstance().authenticated() ? Maps.asMap("_creator", currentUser.id) : null)
+				, UserManager.shared().authenticated() ? Maps.asMap("_creator", currentUser.id) : null)
 				.setDirection(Direction.in));
 
 		final Bundle parameters = new Bundle();
 		parameters.putBoolean("getEntities", true);
 		parameters.putInt("limit", 50);
 		parameters.putString("links", "object:" + Json.objectToJson(links));
+
+		if (cursor != null) {
+			parameters.putString("cursor", "object:" + Json.objectToJson(cursor));
+		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
 				.setUri(Constants.URL_PROXIBASE_SERVICE_PATCHES + "interesting")
@@ -1430,6 +1428,7 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
 			final List<Entity> entities = (List<Entity>) serviceData.data;
 			Collections.sort(entities, new Entity.SortByRank());
+			result.serviceResponse.data = serviceData;
 			result.data = entities;
 		}
 		return result;
@@ -1447,12 +1446,12 @@ public class DataController {
 			throw new IllegalStateException("parseInstallId cannot be null");
 		}
 
-		Install install = new Install(UserManager.getInstance().authenticated() ? UserManager.getInstance().getCurrentUser().id : null
+		Install install = new Install(UserManager.shared().authenticated() ? UserManager.currentUser.id : null
 				, parseInstallId
 				, Patchr.getInstance().getinstallId());
 
-		install.clientVersionName = Patchr.getVersionName(Patchr.applicationContext, AircandiForm.class);
-		install.clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
+		install.clientVersionName = Patchr.getVersionName(Patchr.applicationContext, MainScreen.class);
+		install.clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
 		install.clientPackageName = Patchr.applicationContext.getPackageName();
 		install.deviceName = AndroidManager.getInstance().getDeviceName();
 		install.deviceType = "android";
@@ -1545,7 +1544,7 @@ public class DataController {
 		 * Push it to S3. It is always formatted/compressed as a jpeg.
 		 */
 		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
-		final String imageKey = String.valueOf((user != null) ? user.id : UserManager.getInstance().getCurrentUser().id) + "_" + stringDate + ".jpg";
+		final String imageKey = String.valueOf((user != null) ? user.id : UserManager.currentUser.id) + "_" + stringDate + ".jpg";
 		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3);
 
 		/* Update the photo object for the entity or user */
@@ -1633,9 +1632,8 @@ public class DataController {
 	 * Other fetch routines
 	 *--------------------------------------------------------------------------------------------*/
 
-	@NonNull
-	public CacheStamp getGlobalCacheStamp() {
-		CacheStamp cacheStamp = new CacheStamp(mActivityDate, null);
+	@NonNull public CacheStamp getGlobalCacheStamp() {
+		CacheStamp cacheStamp = new CacheStamp(activityDate, null);
 		cacheStamp.source = CacheStamp.StampSource.ENTITY_MANAGER.name().toLowerCase(Locale.US);
 		return cacheStamp;
 	}
@@ -1704,7 +1702,7 @@ public class DataController {
 	}
 
 	public DataController setActivityDate(Number activityDate) {
-		mActivityDate = activityDate;
+		this.activityDate = activityDate;
 		return this;
 	}
 
@@ -1712,25 +1710,14 @@ public class DataController {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public enum SuggestScope {
-		PATCHES,
-		USERS,
-		PATCHES_USERS,
-		ALL
+	public static class Suggest {
+		public static String Patches = "patch";
+		public static String Users   = "user";
 	}
 
-	public enum ActionType {
-		ACTION_GET_ENTITY,
-		ACTION_GET_ENTITIES,
-		ACTION_GET_TREND,
-		ACTION_GET_NOTIFICATIONS,
-		ACTION_LINK_INSERT_LIKE,
-		ACTION_LINK_DELETE_LIKE,
-		ACTION_LINK_INSERT_WATCH,
-		ACTION_LINK_DELETE_WATCH,
-		ACTION_LINK_MUTE_WATCH,
-		ACTION_ENTITY_INSERT,
-		ACTION_SHARE_CHECK,
-		ACTION_VIEW_CLICK
+	public enum FetchStrategy {
+		UseCache,
+		UseCacheAndVerify,
+		IgnoreCache
 	}
 }

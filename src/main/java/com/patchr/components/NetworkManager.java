@@ -13,7 +13,6 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -21,17 +20,17 @@ import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.NoNetworkException;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.User;
-import com.patchr.service.BaseConnection;
 import com.patchr.service.OkHttp;
 import com.patchr.service.RequestType;
 import com.patchr.service.ResponseFormat;
 import com.patchr.service.ServiceRequest;
 import com.patchr.service.ServiceResponse;
-import com.patchr.ui.AircandiForm;
+import com.patchr.ui.MainScreen;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
+import com.squareup.okhttp.Response;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -93,7 +92,7 @@ public class NetworkManager {
 	private WifiManager         mWifiManager;
 	private ConnectivityManager mConnectivityManager;
 	private ConnectedState mConnectedState = ConnectedState.NORMAL;
-	private BaseConnection mOkClient;
+	private OkHttp mOkClient;
 
 	public static final String EXTRA_WIFI_AP_STATE          = "wifi_state";
 	public static final String WIFI_AP_STATE_CHANGED_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
@@ -102,10 +101,6 @@ public class NetworkManager {
 
 	private NetworkManager() {
 		mOkClient = new OkHttp();
-		try {
-			Dispatcher.getInstance().register(this);
-		}
-		catch (IllegalArgumentException ignore) { /* ignore */ }
 	}
 
 	private static class NetworkManagerHolder {
@@ -145,7 +140,7 @@ public class NetworkManager {
 					boolean noConnection = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 
 					if (noConnection) {
-						UI.showToastNotification("Lost network connection", Toast.LENGTH_SHORT);
+						UI.toast("Lost network connection");
 					}
 				}
 			}
@@ -160,8 +155,8 @@ public class NetworkManager {
 			return new ServiceResponse(ResponseCode.FAILED, null, new NoNetworkException());
 		}
 
-		if (UserManager.getInstance().authenticated() && serviceRequest.getRequestType() != RequestType.GET) {
-			User user = UserManager.getInstance().getCurrentUser();
+		if (UserManager.shared().authenticated() && serviceRequest.getRequestType() != RequestType.GET) {
+			User user = UserManager.currentUser;
 			serviceRequest.getParameters().putString("user", user.id);
 			serviceRequest.getParameters().putString("session", user.session.key);
 		}
@@ -204,13 +199,17 @@ public class NetworkManager {
 			}
 
 			if (serviceData.clientMinVersions != null && serviceData.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
-				Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, AircandiForm.class);
+				Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
 				if ((Integer) serviceData.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode) {
 					serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
 				}
 			}
 		}
 		return serviceResponse;
+	}
+
+	public Response get(String path, String query) {
+		return mOkClient.get(path, query);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -250,8 +249,7 @@ public class NetworkManager {
 
 	@SuppressWarnings("deprecation")
 	@SuppressLint("NewApi") // We check which build version we are using.
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-	public static boolean isAirplaneMode(Context context) {
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1) public static boolean isAirplaneMode(Context context) {
 		ContentResolver cr = context.getContentResolver();
 		if (Constants.SUPPORTS_JELLY_BEAN_MR1)
 			return Settings.Global.getInt(cr, Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
@@ -264,7 +262,6 @@ public class NetworkManager {
 		return (activeNetwork != null && activeNetwork.isConnectedOrConnecting());
 	}
 
-	@SuppressWarnings("ucd")
 	public Boolean isMobileNetwork() {
 		/* Check if we're connected to a data network, and if so - if it's a mobile network. */
 		Boolean isMobileNetwork = null;
@@ -275,7 +272,6 @@ public class NetworkManager {
 		return isMobileNetwork;
 	}
 
-	@SuppressWarnings("ucd")
 	public String getNetworkType() {
 		/* Check if we're connected to a data network, and if so - if it's a mobile network. */
 		if (mConnectivityManager != null) {
@@ -301,7 +297,7 @@ public class NetworkManager {
 		else {
 			/* We assume a failure means most likely not a walled garden */
 			String message = "Walled garden check: failed with exception " + serviceResponse.exception;
-			Reporting.logMessage(message);
+			Reporting.breadcrumb(message);
 			return false;
 		}
 	}

@@ -1,6 +1,8 @@
 package com.patchr.objects;
 
+import com.patchr.Constants;
 import com.patchr.service.Expose;
+import com.patchr.utilities.DateTime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,6 +95,13 @@ public class User extends Entity {
 			}
 		}
 
+		return entity;
+	}
+
+	public static Entity build() {
+		User entity = new User();
+		entity.schema = Constants.SCHEMA_ENTITY_USER;
+		entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME); // Temporary
 		return entity;
 	}
 

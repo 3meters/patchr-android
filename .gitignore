@@ -9,10 +9,6 @@
 /build
 *.iml
 
-# Used by crashlytics
-com_crashlytics_export_strings.xml
-crashlytics-build.properties
-
 # -------------------------------------------------
 # Project files to ignore
 #--------------------------------------------------

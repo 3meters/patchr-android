@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -15,7 +14,7 @@ import com.patchr.components.UserManager;
 import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.GcmRegistrationIOException;
 import com.patchr.exceptions.ServiceException;
-import com.patchr.objects.Route;
+import com.patchr.objects.Command;
 import com.patchr.service.ServiceResponse;
 
 //import org.apache.http.NoHttpResponseException;
@@ -75,24 +74,25 @@ public final class Errors {
 				});
 			}
 			else {
-				UI.showToastNotification(errorResponse.errorMessage, Toast.LENGTH_SHORT);
+				UI.toast(errorResponse.errorMessage);
 			}
 		}
 		else if (errorResponse.errorResponseType == ResponseType.TOAST) {
-			UI.showToastNotification(errorResponse.errorMessage, Toast.LENGTH_SHORT);
+			UI.toast(errorResponse.errorMessage);
 		}
 		/*
 		 * Perform any follow-up actions.
 		 */
-		if (errorResponse.signout && activity != null && UserManager.getInstance().authenticated()) {
-			UserManager.getInstance().signout();
+		if (errorResponse.signout && activity != null && UserManager.shared().authenticated()) {
+			UserManager.shared().setCurrentUser(null, false);
+			Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 		}
 		else if (errorResponse.splash) {
 			/*
 			 * Mostly because a more current client version is required.
 			 */
 			if (activity != null && !activity.getClass().getSimpleName().equals("SplashForm")) {
-				Patchr.router.route(activity, Route.SPLASH, null, null);
+				Patchr.router.route(activity, Command.LOBBY, null, null);
 			}
 		}
 	}
@@ -215,6 +215,8 @@ public final class Errors {
 							return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_password_weak));
 						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE)
 							return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_email_taken));
+						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_FORBIDDEN)
+							return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_forbidden));
 					}
 				}
 

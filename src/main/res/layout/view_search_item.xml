@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:baselineAligned="false"
+		android:orientation="horizontal">
+
+		<LinearLayout
+			android:id="@+id/holder_body"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical"
+			android:layout_weight="1"
+			android:orientation="vertical">
+
+			<TextView
+				android:id="@+id/name"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:ellipsize="end"
+				android:singleLine="true"
+				android:textSize="16sp"
+				android:text="@string/dummy_title_short"
+				tools:text="@string/dummy_title_short" />
+
+			<TextView
+				android:id="@+id/type"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:ellipsize="end"
+				android:singleLine="true"
+				android:textAllCaps="true"
+				android:textColor="?attr/textColorSecondary"
+				android:textSize="14sp"
+				android:visibility="gone"
+				android:text="@string/dummy_category_name"
+				tools:text="@string/dummy_category_name" />
+
+			<TextView
+				android:id="@+id/subtitle"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:ellipsize="end"
+				android:singleLine="true"
+				android:textColor="?attr/textColorSecondary"
+				android:text="@string/dummy_subtitle"
+				tools:text="@string/dummy_subtitle" />
+		</LinearLayout>
+
+		<com.patchr.ui.widgets.ImageWidget
+			android:id="@+id/user_photo"
+			style="@style/selectable_image"
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:layout_weight="0"
+			custom:category="profile"
+			custom:shape="round"
+			custom:showBusy="false" />
+
+		<com.patchr.ui.widgets.ImageWidget
+			android:id="@+id/patch_photo"
+			style="@style/selectable_image"
+			android:layout_width="72dp"
+			android:layout_height="48dp"
+			android:layout_weight="0"
+			custom:category="thumbnail"
+			custom:showBusy="false" />
+
+	</LinearLayout>
+
+</merge>

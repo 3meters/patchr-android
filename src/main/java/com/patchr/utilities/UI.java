@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -21,14 +20,10 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.FontManager;
+import com.patchr.objects.Entity;
 import com.patchr.objects.Photo;
-import com.patchr.objects.PhotoSizeCategory;
-import com.patchr.ui.widgets.AirPhotoView;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
-import com.squareup.picasso.Transformation;
-
-;
+import com.patchr.objects.PhotoCategory;
+import com.patchr.ui.widgets.ImageWidget;
 
 @SuppressWarnings("ucd")
 public class UI {
@@ -37,79 +32,7 @@ public class UI {
 	 * Photos
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static void drawPhoto(@NonNull final AirPhotoView photoView, @NonNull final Photo photo) {
-		drawPhoto(photoView, photo, null);
-	}
-
-	public static void drawPhoto(@NonNull final AirPhotoView photoView, @NonNull final Photo photo, final Transformation transform) {
-	    /*
-	     * There are only a few places that don't use this code to display images:
-		 * - Notification icons - can't use AirImageView
-		 * - Actionbar icons - can't use AirImageView (shortcutpicker, placeform)
-		 */
-		photoView.getImageView().setImageDrawable(null);
-		photoView.setPhoto(photo);
-		loadView(photoView, photo, transform);
-	}
-
-	private static void loadView(@NonNull final AirPhotoView photoView, @NonNull final Photo photo, final Transformation transform) {
-		/*
-		 * This is the only patch in the code that turns on proxy handling.
-		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
-		 * Fit on photo is used when target size is desired and known only after view layout.
-		 */
-		PhotoSizeCategory category = photoView.getSizeCategory();
-
-		if (photo.source.equals(Photo.PhotoSource.resource)) {
-
-			Integer drawableId = photo.getResId();
-			if (drawableId != null) {
-				RequestCreator creator = Picasso
-						.with(Patchr.applicationContext)
-						.load(drawableId)
-						.centerCrop()   // Needed so resize() keeps aspect ratio
-						.resize(photoView.getWidth(), photoView.getHeight())
-						.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
-
-				if (transform != null) {
-					creator.transform(transform);
-				}
-				creator.into(photoView.getImageView());
-			}
-		}
-		else if (photo.source.equals(Photo.PhotoSource.file)) {
-
-			RequestCreator creator = Picasso
-					.with(Patchr.applicationContext)
-					.load(photo.getDirectUri())
-					.centerCrop()   // Needed so resize() keeps aspect ratio
-					.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
-
-			if (transform != null) {
-				creator.transform(transform);
-			}
-			creator.into(photoView.getImageView());
-		}
-		else {  /* url */
-
-			String url = UI.url(photo.prefix, photo.source, category);
-			RequestCreator creator = Picasso
-					.with(Patchr.applicationContext)
-					.load(url)
-					.config(photoView.getConfig() != null ? photoView.getConfig() : Config.RGB_565);
-
-			if (transform != null) {
-				creator.transform(transform);
-			}
-			creator.into(photoView.getImageView());
-		}
-
-		/* Final step */
-		photoView.getImageView().setBackgroundResource(0);
-	}
-
-	public static String url(String prefix, String source, PhotoSizeCategory category) {
+	public static String uri(String prefix, String source, PhotoCategory category) {
 		/*
 		 * If category is null then will return a straight conversion of prefix.
 		 */
@@ -126,11 +49,11 @@ public class UI {
 			}
 
 			if (source.equals(Photo.PhotoSource.aircandi_images)) {
-				Integer width = (category == PhotoSizeCategory.STANDARD) ? 400 : 100;
-				if (category == PhotoSizeCategory.NONE) {
+				Integer width = (category == PhotoCategory.STANDARD) ? 400 : 100;
+				if (category == PhotoCategory.NONE) {
 					path = "http://aircandi-images.s3.amazonaws.com/" + prefix;
 				}
-				else if (category == PhotoSizeCategory.PROFILE) {
+				else if (category == PhotoCategory.PROFILE) {
 					path = "https://3meters-images.imgix.net/" + prefix
 							+ "?w=" + String.valueOf(width)
 							+ "&dpr=" + String.valueOf(Constants.PIXEL_SCALE)
@@ -248,11 +171,11 @@ public class UI {
 	 * Display
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static void showToastNotification(final String message, final int duration) {
-		showToastNotification(message, duration, 0);
+	public static void toast(final String message) {
+		toast(message, Toast.LENGTH_SHORT, 0);
 	}
 
-	public static void showToastNotification(final String message, final int duration, final int gravity) {
+	public static void toast(final String message, final int duration, final int gravity) {
 		Patchr.mainThreadHandler.post(new Runnable() {
 
 			@Override
@@ -296,6 +219,18 @@ public class UI {
 	public static void setVisibility(View view, Integer visibility) {
 		if (view != null) {
 			view.setVisibility(visibility);
+		}
+	}
+
+	public static void setTextView(View view, String text) {
+		if (view != null) {
+			((TextView) view).setText(text);
+		}
+	}
+
+	public static void setImageWithEntity(ImageWidget view, Entity entity) {
+		if (view != null && entity != null) {
+			view.setImageWithEntity(entity);
 		}
 	}
 

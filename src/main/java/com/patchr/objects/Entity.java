@@ -3,11 +3,9 @@ package com.patchr.objects;
 import android.support.annotation.NonNull;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.components.DataController;
 import com.patchr.components.LocationManager;
 import com.patchr.components.UserManager;
-import com.patchr.interfaces.IEntityController;
 import com.patchr.objects.CacheStamp.StampSource;
 import com.patchr.objects.Link.Direction;
 import com.patchr.service.Expose;
@@ -75,9 +73,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@Expose(serialize = false, deserialize = true)
 	public Boolean linkEnabled;                                       // Used to update the link used to include this entity in a set
 
-	@Expose(serialize = false, deserialize = true)
-	public List<Entity> entities;
-
 	/* Patch (synthesized for the client) */
 
 	@Expose(serialize = false, deserialize = true)
@@ -128,7 +123,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@NonNull
 	public Shortcut getAsShortcut() {
 		Shortcut shortcut = new Shortcut()
 				.setAppId(id)
@@ -145,29 +139,20 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return shortcut;
 	}
 
-	@NonNull
 	public CacheStamp getCacheStamp() {
 		CacheStamp cacheStamp = new CacheStamp(this.activityDate, this.modifiedDate);
 		cacheStamp.source = StampSource.ENTITY.name().toLowerCase(Locale.US);
 		return cacheStamp;
 	}
 
-	@NonNull
 	public Boolean isTempId() {
 		return (id != null && id.substring(0, 5).equals("temp:"));
 	}
 
-	@NonNull
 	public Boolean isOwnedByCurrentUser() {
 		Boolean owned = (ownerId != null
-				&& UserManager.getInstance().authenticated()
-				&& ownerId.equals(UserManager.getInstance().getCurrentUser().id));
-		return owned;
-	}
-
-	@NonNull
-	public Boolean isOwnedBySystem() {
-		Boolean owned = (ownerId != null && ownerId.equals(Constants.ADMIN_USER_ID));
+				&& UserManager.shared().authenticated()
+				&& ownerId.equals(UserManager.currentUser.id));
 		return owned;
 	}
 
@@ -180,7 +165,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return Type.equal(this.id, other.id)
 				&& Type.equal(this.name, other.name)
 				&& Type.equal(this.description, other.description)
-				&& this.getPhoto().getDirectUri().equals(other.getPhoto().getDirectUri())
+				&& this.photo.uri(PhotoCategory.NONE).equals(other.photo.uri(PhotoCategory.NONE))
 				&& !(this.linksIn != null && other.linksIn != null && this.linksIn.size() != other.linksIn.size())
 				&& !(this.linksOut != null && other.linksOut != null && this.linksOut.size() != other.linksOut.size());
 	}
@@ -344,7 +329,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	@NonNull
 	public List<? extends Entity> getLinkedEntitiesByLinkTypeAndSchema(List<String> types, List<String> schemas, Direction direction, Boolean traverse) {
 	    /*
 	     * Currently only called by EntityCache.removeEntityTree
@@ -414,7 +398,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	@NonNull
 	public Boolean hasActiveProximity() {
 		if (linksOut != null) {
 			for (Link link : linksOut) {
@@ -462,7 +445,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	@NonNull
 	public List<Link> getLinks(String type, String targetSchema, String targetId, Direction direction) {
 		List<Link> links = new ArrayList<Link>();
 		List<Link> tempLinks = linksIn;
@@ -501,7 +483,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	@NonNull
 	public List<Shortcut> getShortcuts(@NonNull ShortcutSettings settings, Comparator<ServiceBase> linkSorter, Comparator<Shortcut> shortcutSorter) {
 
 		List<Shortcut> shortcuts = new ArrayList<Shortcut>();
@@ -575,12 +556,12 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public Link linkFromAppUser(String linkType) {
-		if (UserManager.getInstance().authenticated()) {
+		if (UserManager.shared().authenticated()) {
 			if (linksIn != null) {
 				for (Link link : linksIn) {
 					if (link.type != null
 							&& link.type.equals(linkType)
-							&& link.fromId.equals(UserManager.getInstance().getCurrentUser().id))
+							&& link.fromId.equals(UserManager.currentUser.id))
 						return link;
 				}
 			}
@@ -589,13 +570,13 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	}
 
 	public Link linkByAppUser(String linkType, String schema) {
-		if (UserManager.getInstance().authenticated()) {
+		if (UserManager.shared().authenticated()) {
 			if (linksIn != null) {
 				for (Link link : linksIn) {
 					if (link.type != null
 							&& link.type.equals(linkType)
 							&& link.targetSchema.equals(schema)
-							&& link.creatorId.equals(UserManager.getInstance().getCurrentUser().id))
+							&& link.creatorId.equals(UserManager.currentUser.id))
 						return link;
 				}
 			}
@@ -604,7 +585,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 					if (link.type != null
 							&& link.type.equals(linkType)
 							&& link.targetSchema.equals(schema)
-							&& link.creatorId.equals(UserManager.getInstance().getCurrentUser().id))
+							&& link.creatorId.equals(UserManager.currentUser.id))
 						return link;
 				}
 			}
@@ -638,6 +619,10 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			return Constants.SCHEMA_ENTITY_NOTIFICATION;
 		}
 		return null;
+	}
+
+	public Long idAsLong() {
+		return Long.parseLong(this.id.replaceAll("[^0-9]", "").substring(1));
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -715,18 +700,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 				final List<LinkedHashMap<String, Object>> countMaps = (List<LinkedHashMap<String, Object>>) map.get("linksOutCounts");
 				for (Map<String, Object> countMap : countMaps) {
 					entity.linksOutCounts.add(Count.setPropertiesFromMap(new Count(), countMap, nameMapping));
-				}
-			}
-
-			if (map.get("entities") != null) {
-				entity.entities = new ArrayList<Entity>();
-				synchronized (entity.entities) {
-					final List<LinkedHashMap<String, Object>> childMaps = (List<LinkedHashMap<String, Object>>) map.get("entities");
-					for (Map<String, Object> childMap : childMaps) {
-						String schema = (String) childMap.get("schema");
-						IEntityController controller = Patchr.getInstance().getControllerForSchema(schema);
-						entity.entities.add(controller.makeFromMap(map, nameMapping));
-					}
 				}
 			}
 		}

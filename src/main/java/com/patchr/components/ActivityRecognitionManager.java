@@ -3,23 +3,21 @@ package com.patchr.components;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.DetectedActivity;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.events.ActivityStateEvent;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.DetectedActivity;
 
 @SuppressWarnings("ucd")
 public class ActivityRecognitionManager implements
@@ -111,19 +109,6 @@ public class ActivityRecognitionManager implements
 					mGoogleApiClient.connect();
 				}
 			}
-			else {
-			/* Display a dialog to the user with the error. */
-				AndroidManager.showPlayServicesErrorDialog(result.getErrorCode()
-						, Patchr.getInstance().getCurrentActivity()
-						, new DialogInterface.OnDismissListener() {
-
-					@Override
-					public void onDismiss(DialogInterface dialog) {
-						mResolvingError = false;
-					}
-				});
-				mResolvingError = true;
-			}
 		}
 	}
 
@@ -172,23 +157,23 @@ public class ActivityRecognitionManager implements
 				&& mDetectionMode == DetectionMode.MOVING) {
 			startUpdates(Constants.TIME_TWO_MINUTES, Constants.TIME_TEN_SECONDS);  // Transition to moving is fast
 			mDetectionMode = DetectionMode.STILL;
-			if (Patchr.getInstance().getPrefEnableDev()) {
+			if (Patchr.getInstance().prefEnableDev) {
 				MediaManager.playSound(MediaManager.SOUND_ACTIVITY_CHANGE, 1.0f, 1);
-				UI.showToastNotification("Activity recognition: slowing updates", Toast.LENGTH_SHORT);
+				UI.toast("Activity recognition: slowing updates");
 			}
 		}
 		else if ((mActivityStateCurrent == ActivityState.DEPARTING || mActivityStateCurrent == ActivityState.MOVING)
 				&& mDetectionMode == DetectionMode.STILL) {
 			startUpdates(Constants.TIME_ONE_MINUTE, Constants.TIME_TWO_MINUTES);    // Transition to still takes more time
 			mDetectionMode = DetectionMode.MOVING;
-			if (Patchr.getInstance().getPrefEnableDev()) {
+			if (Patchr.getInstance().prefEnableDev) {
 				MediaManager.playSound(MediaManager.SOUND_ACTIVITY_CHANGE, 1.0f, 3);
-				UI.showToastNotification("Activity recognition: faster updates", Toast.LENGTH_SHORT);
+				UI.toast("Activity recognition: faster updates");
 			}
 		}
 
-		if (Patchr.getInstance().getPrefEnableDev()) {
-			UI.showToastNotification("Activity state: " + mActivityStateCurrent.name(), Toast.LENGTH_SHORT);
+		if (Patchr.getInstance().prefEnableDev) {
+			UI.toast("Activity state: " + mActivityStateCurrent.name());
 		}
 
 		/* Broadcast current activity state */

@@ -25,14 +25,14 @@ public class Constants {
 	public static final String EXTRA_ENTITY_FOR_ID    = "com.patchr.EXTRA_ENTITY_FOR_ID";
 	public static final String EXTRA_ENTITY_ID        = "com.patchr.EXTRA_ENTITY_ID";
 	public static final String EXTRA_ENTITY_SCHEMA    = "com.patchr.EXTRA_ENTITY_SCHEMA";
-	public static final String EXTRA_ENTITY_TYPE      = "com.patchr.EXTRA_ENTITY_TYPE";
 	public static final String EXTRA_ENTITIES         = "com.patchr.EXTRA_ENTITIES";
 	public static final String EXTRA_ENTITY           = "com.patchr.EXTRA_ENTITY";        // Only used to pass entities to map form->map fragment
 
-	public static final String EXTRA_NOTIFICATION_ID = "com.patchr.EXTRA_NOTIFICATION_ID";
-	public static final String EXTRA_PATCH           = "com.patchr.EXTRA_PATCH";
-	public static final String EXTRA_PATCH_ID        = "com.patchr.EXTRA_PATCH_ID";
-	public static final String EXTRA_URI             = "com.patchr.EXTRA_URI";
+	public static final String EXTRA_NOTIFICATION_ID    = "com.patchr.EXTRA_NOTIFICATION_ID";
+	public static final String EXTRA_PATCH              = "com.patchr.EXTRA_PATCH";
+	public static final String EXTRA_PATCH_ID           = "com.patchr.EXTRA_PATCH_ID";
+	public static final String EXTRA_ENTITY_PARENT_NAME = "com.patchr.EXTRA_PATCH_NAME";
+	public static final String EXTRA_URI                = "com.patchr.EXTRA_URI";
 
 	public static final String EXTRA_MESSAGE_TYPE = "com.patchr.EXTRA_MESSAGE_TYPE";
 
@@ -57,10 +57,16 @@ public class Constants {
 	public static final String EXTRA_SHARE_SCHEMA                = "com.patchr.EXTRA_SHARE_SCHEMA";
 	public static final String EXTRA_SHARE_PATCH                 = "com.patchr.EXTRA_SHARE_PATCH";
 	public static final String EXTRA_PRE_APPROVED                = "com.patchr.EXTRA_PRE_APPROVED";
-	public static final String EXTRA_TRANSITION_TYPE             = "com.patchr.EXTRA_TRANSITION_TYPE";
-	public static final String EXTRA_SHOW_INVITER_WELCOME        = "com.patchr.EXTRA_SHOW_INVITER_WELCOME";
-	public static final String EXTRA_INVITER_NAME                = "com.patchr.EXTRA_INVITER_WELCOME";
-	public static final String EXTRA_INVITER_PHOTO_URL           = "com.patchr.EXTRA_INVITER_PHOTO_URL";
+	public static final String EXTRA_SHOW_REFERRER_WELCOME       = "com.patchr.EXTRA_SHOW_REFERRER_WELCOME";
+	public static final String EXTRA_REFERRER_NAME               = "com.patchr.EXTRA_REFERRER_NAME";
+	public static final String EXTRA_REFERRER_PHOTO_URL          = "com.patchr.EXTRA_REFERRER_PHOTO_URL";
+	public static final String EXTRA_ONBOARD_MODE                = "com.patchr.EXTRA_ONBOARD_MODE";
+	public static final String EXTRA_EMAIL                       = "com.patchr.EXTRA_EMAIL";
+	public static final String EXTRA_PASSWORD                    = "com.patchr.EXTRA_PASSWORD";
+	public static final String EXTRA_STATE                       = "com.patchr.EXTRA_STATE";
+	public static final String EXTRA_RESET_TOKEN                 = "com.patchr.EXTRA_RESET_TOKEN";
+	public static final String EXTRA_RESET_USER_NAME             = "com.patchr.EXTRA_RESET_USER_NAME";
+	public static final String EXTRA_RESET_USER_PHOTO            = "com.patchr.EXTRA_RESET_USER_PHOTO";
 
 	/* Activity parameters: lists */
 	public static final String EXTRA_LIST_LINK_TYPE         = "com.patchr.EXTRA_LIST_LINK_TYPE";
@@ -122,6 +128,7 @@ public class Constants {
 	public static final int   INTERVAL_BUSY_MINIMUM     = 1000;
 	public static final int   INTERVAL_BUSY_DELAY       = 0;
 	public static final int   PIXEL_SCALE               = UI.getRawPixelsForDisplayPixels(1f);
+	public static final int   PAGE_SIZE                 = 20;
 
 	public static final int RADAR_BEACON_SIGNAL_BUCKET_SIZE = 1;
 	/*
@@ -130,6 +137,9 @@ public class Constants {
 	 * 1007K to 152K.
 	 */
 	public static final int IMAGE_QUALITY_S3                = 70;
+	public static final int MAX_WIDTH_LIST                  = 480;
+	public static final int MAX_WIDTH_FORM                  = 480;
+	public static final int MAX_WIDTH_GRID                  = 1000;
 	/*
 	 * Consistent with 5 megapixel sampled by two.
 	 */
@@ -173,7 +183,7 @@ public class Constants {
 	/* Entity types */
 
 	public static final String TYPE_LINK_PROXIMITY = "proximity";
-	public static final String TYPE_LINK_WATCH     = "watch";
+	public static final String TYPE_LINK_MEMBER    = "watch";
 	public static final String TYPE_LINK_LIKE      = "like";
 	public static final String TYPE_LINK_CONTENT   = "content";
 	public static final String TYPE_LINK_CREATE    = "create";
@@ -214,32 +224,33 @@ public class Constants {
 	public static final String PACKAGE_NAME_TRIPADVISOR = "com.tripadvisor.tripadvisor";
 	public static final String PACKAGE_NAME_YELP        = "com.yelp.android";
 
-	public static final int ACTIVITY_NONE                = 0;
-	public static final int ACTIVITY_MARKET              = 200;
-	public static final int ACTIVITY_PHOTO_PICK_DEVICE   = 300;
-	public static final int ACTIVITY_PHOTO_SEARCH        = 305;
-	public static final int ACTIVITY_PHOTO_MAKE          = 310;
-	public static final int ACTIVITY_SEARCH              = 325;
-	public static final int ACTIVITY_SIGNIN              = 400;
-	public static final int ACTIVITY_RESET_AND_SIGNIN    = 410;
-	public static final int ACTIVITY_COMMENT             = 430;
-	public static final int ACTIVITY_APPLINKS_EDIT       = 535;
-	public static final int ACTIVITY_APPLINK_EDIT        = 540;
-	public static final int ACTIVITY_APPLINK_NEW         = 545;
-	public static final int ACTIVITY_APPLICATION_PICK    = 560;
-	public static final int ACTIVITY_PREFERENCES         = 600;
-	public static final int ACTIVITY_ADDRESS_EDIT        = 800;
-	public static final int ACTIVITY_LOCATION_EDIT       = 820;
-	public static final int ACTIVITY_PRIVACY_EDIT        = 830;
-	public static final int ACTIVITY_PHOTO_EDIT          = 840;
-	public static final int ACTIVITY_ENTITY_EDIT         = 900;
-	public static final int ACTIVITY_PICTURE_SOURCE_PICK = 950;
-	public static final int ACTIVITY_ENTITY_INSERT       = 960;
+	public static final int ACTIVITY_NONE              = 0;
+	public static final int ACTIVITY_MARKET            = 200;
+	public static final int ACTIVITY_PHOTO_PICK_DEVICE = 300;
+	public static final int ACTIVITY_PHOTO_SEARCH      = 305;
+	public static final int ACTIVITY_PHOTO_MAKE        = 310;
+	public static final int ACTIVITY_SEARCH            = 325;
+	public static final int ACTIVITY_LOGIN             = 400;
+	public static final int ACTIVITY_SIGNUP            = 405;
+	public static final int ACTIVITY_RESET_AND_SIGNIN  = 410;
+	public static final int ACTIVITY_COMMENT           = 430;
+	public static final int ACTIVITY_APPLINKS_EDIT     = 535;
+	public static final int ACTIVITY_APPLINK_EDIT      = 540;
+	public static final int ACTIVITY_APPLINK_NEW       = 545;
+	public static final int ACTIVITY_APPLICATION_PICK  = 560;
+	public static final int ACTIVITY_PREFERENCES       = 600;
+	public static final int ACTIVITY_ADDRESS_EDIT      = 800;
+	public static final int ACTIVITY_LOCATION_EDIT     = 820;
+	public static final int ACTIVITY_PRIVACY_EDIT      = 830;
+	public static final int ACTIVITY_PHOTO_EDIT        = 840;
+	public static final int ACTIVITY_ENTITY_EDIT       = 900;
+	public static final int ACTIVITY_PHOTO_PICK        = 950;
+	public static final int ACTIVITY_ENTITY_INSERT     = 960;
 
 	public static final String FRAGMENT_TYPE_NEARBY        = "nearby";
 	public static final String FRAGMENT_TYPE_WATCH         = "watch";
 	public static final String FRAGMENT_TYPE_LIKE          = "like";
-	public static final String FRAGMENT_TYPE_CREATE        = "create";
+	public static final String FRAGMENT_TYPE_OWNER         = "create";
 	public static final String FRAGMENT_TYPE_TREND_POPULAR = "trend_popular";
 	public static final String FRAGMENT_TYPE_TREND_ACTIVE  = "trend_active";
 	public static final String FRAGMENT_TYPE_SETTINGS      = "settings";
@@ -259,7 +270,7 @@ public class Constants {
 	public static final int RESULT_ENTITY_EDITED          = 130;
 	public static final int RESULT_COMMENT_INSERTED       = 200;
 	public static final int RESULT_PROFILE_UPDATED        = 310;
-	public static final int RESULT_USER_SIGNED_IN         = 400;
+	public static final int RESULT_USER_LOGGED_IN         = 400;
 
 	public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION  = 100;
 	public static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 200;
@@ -301,6 +312,7 @@ public class Constants {
 	public static final String  _URL_PROXIBASE_SERVICE                           = "http://ariseditions.com:8080/v1";         // local
 	public static final String  URL_PROXIBASE_SERVICE_REST                       = serviceUrl() + "/data/";
 	public static final String  URL_PROXIBASE_SERVICE_USER                       = serviceUrl() + "/user/";
+	public static final String  URL_PROXIBASE_SERVICE_FIND                       = serviceUrl() + "/find";
 	public static final String  URL_PROXIBASE_SERVICE_ADMIN                      = serviceUrl() + "/admin/";
 	public static final String  URL_PROXIBASE_SERVICE_METHOD                     = serviceUrl() + "/do/";
 	public static final String  URL_PROXIBASE_SERVICE_STATS                      = serviceUrl() + "/stats/";
