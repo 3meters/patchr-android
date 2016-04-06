@@ -29,8 +29,8 @@ android {
 		applicationId 'com.patchr.android'
 		minSdkVersion 15        // ICS 4.0.3 and up
 		targetSdkVersion 23     // Marshmallow
-		versionCode 111
-		versionName '1.1.9'
+		versionCode 112
+		versionName '1.1.10'
 	}
 
 	sourceSets {
