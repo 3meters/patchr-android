@@ -21,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
@@ -882,23 +881,23 @@ public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMess
 
 		final Patch patch = (Patch) entity;
 
-		/* Don't show invite if already a member */
-		if (UserManager.shared().authenticated() && patch.watchStatus() != MemberStatus.NONE) {
-			return;
-		}
-
 		handler.postDelayed(new Runnable() {
 
 			@Override public void run() {
 
 				View view = LayoutInflater.from(PatchScreen.this).inflate(R.layout.view_onboarding, null, false);
 
+				View buttonGroup = view.findViewById(R.id.buttons);
+				TextView button1 = (TextView) view.findViewById(R.id.action1_button);
+				TextView button2 = (TextView) view.findViewById(R.id.action2_button);
+				TextView member = (TextView) view.findViewById(R.id.member);
+				TextView message = (TextView) view.findViewById(R.id.message);
+				ImageView imageView = (ImageView) view.findViewById(R.id.user_photo);
+
 				String heading = (referrerName != null)
 				                 ? String.format("%1$s invites you to join this patch.", referrerName)
 				                 : "A friend invites you to join this patch.";
-				((TextView) view.findViewById(R.id.message)).setText(heading);
-
-				ImageView imageView = (ImageView) view.findViewById(R.id.user_photo);
+				message.setText(heading);
 
 				if (referrerPhotoUrl != null) {
 					Picasso.with(Patchr.applicationContext)
@@ -914,31 +913,44 @@ public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMess
 				if (UserManager.shared().authenticated()) {
 
 					authenticatedForInvite = true;
-					((TextView) view.findViewById(R.id.action2_button)).setVisibility(View.GONE);
-					((TextView) view.findViewById(R.id.action1_button)).setText("JOIN");
-					((Button) view.findViewById(R.id.action1_button)).setOnClickListener(new View.OnClickListener() {
-						@Override public void onClick(View view) {
-							bottomSheetLayout.dismissSheet();
-							joinAction();
-						}
-					});
+					if (memberStatus == MemberStatus.WATCHING) {
+						buttonGroup.setVisibility(View.GONE);
+						member.setText("You are a member of this patch!");
+					}
+					else if (memberStatus == MemberStatus.REQUESTED) {
+						buttonGroup.setVisibility(View.GONE);
+						member.setText("Requested");
+					}
+					else {
+						member.setVisibility(View.GONE);
+						button2.setVisibility(View.GONE);
+						button1.setText("JOIN");
+						button1.setOnClickListener(new View.OnClickListener() {
+							@Override public void onClick(View view) {
+								bottomSheetLayout.dismissSheet();
+								joinAction();
+							}
+						});
+					}
 				}
 				else {
 					authenticatedForInvite = false;
-					((TextView) view.findViewById(R.id.action1_button)).setText("LOG IN");
-					((Button) view.findViewById(R.id.action1_button)).setOnClickListener(new View.OnClickListener() {
+					member.setVisibility(View.GONE);
+					button1.setText("LOG IN");
+					button1.setOnClickListener(new View.OnClickListener() {
 						@Override public void onClick(View v) {
 							Patchr.router.route(PatchScreen.this, Command.LOGIN, null, null);
 						}
 					});
-					((TextView) view.findViewById(R.id.action2_button)).setText("SIGN UP");
-					((Button) view.findViewById(R.id.action2_button)).setOnClickListener(new View.OnClickListener() {
+					button2.setText("SIGN UP");
+					button2.setOnClickListener(new View.OnClickListener() {
 						@Override public void onClick(View v) {
 							Patchr.router.route(PatchScreen.this, Command.SIGNUP, null, null);
 						}
 					});
 				}
 
+				bottomSheetLayout.setPeekOnDismiss(true);
 				bottomSheetLayout.showWithSheetView(view, new InsetViewTransformer(0.2f, 0.95f));
 				handler.removeCallbacks(this);
 			}

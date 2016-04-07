@@ -4,23 +4,20 @@
 
 	android:id="@+id/bottomsheet"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:fitsSystemWindows="true">
+	android:layout_height="match_parent">
 
 	<android.support.design.widget.CoordinatorLayout
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:fitsSystemWindows="true">
+		android:layout_height="match_parent">
 
 		<android.support.design.widget.AppBarLayout
 			android:id="@+id/appbar_layout"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/transparent"
-			android:fitsSystemWindows="true">
+			android:background="@color/transparent">
 
 			<android.support.v7.widget.Toolbar
 
@@ -29,8 +26,8 @@
 				android:layout_height="wrap_content"
 				android:minHeight="?attr/actionBarSize"
 				android:theme="@style/patchr_theme_action_bar"
-				custom:layout_scrollFlags="scroll|enterAlways"
-				custom:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+				app:layout_scrollFlags="scroll|enterAlways"
+				app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
 				<TextView
 					android:id="@+id/toolbar_title"
@@ -48,7 +45,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:background="@color/white"
-			custom:layout_behavior="@string/appbar_scrolling_view_behavior">
+			app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 			<com.patchr.ui.widgets.AirSwipeRefreshLayout
 				android:id="@+id/swipe"
@@ -102,11 +99,11 @@
 			android:onClick="onClick"
 			android:scaleType="center"
 			android:src="@drawable/ic_add_dark"
-			custom:borderWidth="0dp"
-			custom:elevation="4dp"
-			custom:layout_behavior="com.patchr.ui.components.ScrollAwareFabBehavior"
-			custom:rippleColor="@color/brand_primary"
-			custom:useCompatPadding="true"
+			app:borderWidth="0dp"
+			app:elevation="4dp"
+			app:layout_behavior="com.patchr.ui.components.ScrollAwareFabBehavior"
+			app:rippleColor="@color/brand_primary"
+			app:useCompatPadding="true"
 			tools:visibility="visible" />
 
 	</android.support.design.widget.CoordinatorLayout>
