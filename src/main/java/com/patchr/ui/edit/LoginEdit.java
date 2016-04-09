@@ -254,16 +254,22 @@ public class LoginEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncEmailVerify");
 				ModelResult result = new ModelResult();
 				Response response = NetworkManager.getInstance().get(Constants.URL_PROXIBASE_SERVICE_FIND + "/users", String.format("q[email]=%1$s", email));
-				if (!response.isSuccessful()) {
+				if (response == null) {
+					/* If response is null then call failed most likely with an ioexception */
 					result.serviceResponse.responseCode = ResponseCode.FAILED;
 				}
-				try {
-					String jsonResponse = response.body().string();
-					final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
-					result.data = serviceData;
-				}
-				catch (IOException e) {
-					UI.toast(e.toString());
+				else {
+					if (!response.isSuccessful()) {
+						result.serviceResponse.responseCode = ResponseCode.FAILED;
+					}
+					try {
+						String jsonResponse = response.body().string();
+						final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
+						result.data = serviceData;
+					}
+					catch (IOException e) {
+						UI.toast(e.toString());
+					}
 				}
 				return result;
 			}
