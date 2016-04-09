@@ -155,7 +155,9 @@ public class NetworkManager {
 			return new ServiceResponse(ResponseCode.FAILED, null, new NoNetworkException());
 		}
 
-		if (UserManager.shared().authenticated() && serviceRequest.getRequestType() != RequestType.GET) {
+		if (UserManager.shared().authenticated()
+				&& (serviceRequest.getRequestType() != RequestType.GET
+				&& serviceRequest.getRequestType() != RequestType.DELETE)) {
 			User user = UserManager.currentUser;
 			serviceRequest.getParameters().putString("user", user.id);
 			serviceRequest.getParameters().putString("session", user.session.key);

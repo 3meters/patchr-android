@@ -779,11 +779,12 @@ public class DataController {
 	public ModelResult deleteUser(String userId, Object tag) {
 		ModelResult result = new ModelResult();
 
+		String path = Constants.URL_PROXIBASE_SERVICE_USER + userId;
+		String query = String.format("?erase=true&session=%1$s&user=%2$s", UserManager.sessionKey, UserManager.userId);
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + userId + "?erase=true")
-				.setRequestType(RequestType.METHOD)
+				.setUri(path + query)
+				.setRequestType(RequestType.DELETE)
 				.setTag(tag)
-				.setParameters(new Bundle())
 				.setIgnoreResponseData(true)
 				.setResponseFormat(ResponseFormat.JSON);
 
