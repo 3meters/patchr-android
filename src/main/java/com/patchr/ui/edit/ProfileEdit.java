@@ -127,6 +127,9 @@ public class ProfileEdit extends BaseEdit {
 		changePasswordButton = (Button) findViewById(R.id.change_password_button);
 
 		if (inputState.equals(State.Onboarding)) {
+			this.entity = User.build();
+			((User)this.entity).email = this.inputEmail;
+			((User)this.entity).password = this.inputPassword;
 			title.setText(R.string.form_title_profile_signup);
 			area.setVisibility(View.GONE);
 			submitButton.setVisibility(View.VISIBLE);

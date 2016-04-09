@@ -7,7 +7,6 @@ import com.patchr.components.Logger;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.utilities.Reporting;
 import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.ConnectionPool;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -18,7 +17,6 @@ import com.squareup.okhttp.Response;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -186,75 +184,6 @@ public class OkHttp {
 			}
 		}
 		return serviceResponse;
-	}
-
-	public void requestAsync(@NonNull final ServiceRequest serviceRequest) throws MalformedURLException {
-
-		final ServiceResponse serviceResponse = new ServiceResponse();
-		serviceResponse.activityName = serviceRequest.getActivityName();
-		Request.Builder builder = new Request.Builder().tag(serviceRequest.getTag());
-
-		final AirHttpRequest airRequest = buildHttpRequest(serviceRequest);
-		builder.url(airRequest.uri);
-
-		for (AirHttpRequest.Header header : airRequest.headers) {
-			builder.addHeader(header.key, header.value);
-		}
-
-		if (airRequest.requestType == RequestType.INSERT
-				|| airRequest.requestType == RequestType.UPDATE
-				|| airRequest.requestType == RequestType.METHOD) {
-			RequestBody body = RequestBody.create(MEDIA_TYPE_TEXT, airRequest.requestBody);
-			builder.post(body);
-		}
-		else if (airRequest.requestType == RequestType.DELETE) {
-			builder.delete();
-		}
-
-		Request request = builder.build();
-		client.newCall(request).enqueue(new Callback() {
-
-			@Override
-			public void onFailure(Request request, IOException e) {
-				/*
-				 * Called when the request could not be executed due to cancellation, a
-				 * connectivity problem or timeout. Because networks can fail during an
-				 * exchange, it is possible that the remote server accepted the request
-				 * before the failure.
-				 */
-			}
-
-			@Override
-			public void onResponse(@NonNull Response response) throws IOException {
-					/*
-					 * Called when the HTTP response was successfully returned by the remote
-					 * server. The callback may proceed to read the response body. The response
-					 * is still live until its response body is closed with response.body().close().
-					 * The recipient of the callback may even consume the response body on another thread.
-					 *
-					 * Note that transport-layer success (receiving a HTTP response code,
-					 * headers and body) does not necessarily indicate application-layer
-					 * success: response may still indicate an unhappy HTTP response
-					 * code like 404 or 500.
-					 */
-				if (!response.isSuccessful()) {
-					throw new IOException("Unexpected code " + response);
-				}
-				else {
-
-					if (serviceRequest.getStopwatch() != null) {
-						serviceRequest.getStopwatch().segmentTime("Http service: request execute completed");
-					}
-
-					serviceResponse.statusCode = response.code();
-					serviceResponse.statusMessage = response.message();
-					serviceResponse.tag = serviceRequest.getTag();
-					serviceResponse.data = response.body().string();
-					serviceResponse.contentType = getContentType(response, airRequest);
-					serviceResponse.contentLength = response.body().contentLength();
-				}
-			}
-		});
 	}
 
 	private void logErrorResponse(@NonNull Response response) {

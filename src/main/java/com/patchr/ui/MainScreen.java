@@ -522,7 +522,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				User user = UserManager.currentUser;
 				this.userPhoto.setImageWithEntity(user);
 				this.userName.setText(user.name);
-				this.userArea.setText(user.area);
+				UI.setTextOrGone(this.userArea, user.area);
 				this.drawerLeftHeader.setTag(user);
 				drawerLeft.getMenu().findItem(R.id.item_member).setVisible(true);
 				drawerLeft.getMenu().findItem(R.id.item_own).setVisible(true);

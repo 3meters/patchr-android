@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -20,6 +21,7 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.FontManager;
+import com.patchr.components.StringManager;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
@@ -222,9 +224,26 @@ public class UI {
 		}
 	}
 
+	public static void setTextOrGone(View view, String text) {
+		if (view != null) {
+			if (!TextUtils.isEmpty(text)) {
+				((TextView) view).setText(text);
+			}
+			else {
+				view.setVisibility(View.GONE);
+			}
+		}
+	}
+
 	public static void setTextView(View view, String text) {
 		if (view != null) {
 			((TextView) view).setText(text);
+		}
+	}
+
+	public static void setTextView(View view, Integer resId) {
+		if (view != null) {
+			((TextView) view).setText(StringManager.getString(resId));
 		}
 	}
 

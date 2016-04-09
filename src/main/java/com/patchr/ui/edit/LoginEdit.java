@@ -174,7 +174,14 @@ public class LoginEdit extends BaseEdit {
 
 	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
-		if (requestCode == Constants.ACTIVITY_LOGIN
+		if (requestCode == Constants.ACTIVITY_SIGNUP) {
+			if (resultCode == Constants.RESULT_USER_LOGGED_IN) {
+				setResult(Constants.RESULT_USER_LOGGED_IN);
+				finish();
+				AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
+			}
+		}
+		else if (requestCode == Constants.ACTIVITY_LOGIN
 				|| requestCode == Constants.ACTIVITY_RESET_AND_SIGNIN) {
 			if (resultCode == Constants.RESULT_USER_LOGGED_IN) {
 				setResult(Constants.RESULT_USER_LOGGED_IN);

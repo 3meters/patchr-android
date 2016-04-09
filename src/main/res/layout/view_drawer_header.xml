@@ -53,6 +53,7 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:singleLine="true"
+				android:visibility="gone"
 				android:textAllCaps="true"
 				android:textColor="@color/white"
 				android:textSize="14sp"
