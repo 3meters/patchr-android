@@ -1,6 +1,7 @@
 package com.patchr.ui.edit;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -377,6 +378,9 @@ public class ProfileEdit extends BaseEdit {
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 					Logger.i(this, "Deleted user: " + entity.id);
 					UserManager.shared().setCurrentUser(null, false);
+					SharedPreferences.Editor editor = Patchr.settings.edit();
+					editor.putString(StringManager.getString(R.string.setting_last_email), null);
+					editor.apply();
 					Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 					UI.toast(String.format(StringManager.getString(R.string.alert_user_deleted), userName));
 					finish();

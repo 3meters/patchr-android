@@ -75,15 +75,16 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 		if (recreated) {
 			Intent intent = getActivity().getIntent();
 			getActivity().finish();
-			startActivity(intent);
 		}
 
-		this.listPresenter.listItemResId = this.listItemResId;
-		this.listPresenter.emptyMessageResId = this.emptyMessageResId;
-		this.listPresenter.query = this.query;
-		this.listPresenter.headerView = this.headerView;
-		this.listPresenter.entityCacheDisabled = this.entityCacheDisabled;
-		this.listPresenter.pagingDisabled = this.pagingDisabled;
+		if (this.listPresenter != null) {
+			this.listPresenter.listItemResId = this.listItemResId;
+			this.listPresenter.emptyMessageResId = this.emptyMessageResId;
+			this.listPresenter.query = this.query;
+			this.listPresenter.headerView = this.headerView;
+			this.listPresenter.entityCacheDisabled = this.entityCacheDisabled;
+			this.listPresenter.pagingDisabled = this.pagingDisabled;
+		}
 	}
 
 	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

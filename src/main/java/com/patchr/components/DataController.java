@@ -522,7 +522,7 @@ public class DataController {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * user updates
+	 * User updates
 	 *--------------------------------------------------------------------------------------------*/
 
 	public ModelResult signin(String email, String password, String activityName, Object tag) {
@@ -806,14 +806,7 @@ public class DataController {
 		return insertEntity(entity, null, null, null, null, waitForContent, tag);
 	}
 
-	@SuppressWarnings("ConstantConditions")
-	public ModelResult insertEntity(Entity entity
-			, List<Link> links
-			, List<Beacon> beacons
-			, Beacon primaryBeacon
-			, Bitmap bitmap
-			, Boolean waitForContent
-			, Object tag) {
+	public ModelResult insertEntity(Entity entity, List<Link> links, List<Beacon> beacons, Beacon primaryBeacon, Bitmap bitmap, Boolean waitForContent, Object tag) {
 		/*
 		 * Inserts the entity in the entity service collection and Links are created to all the included beacons. The
 		 * inserted entity is retrieved from the service and pushed into the local cache. The cached entity is returned
@@ -1226,20 +1219,11 @@ public class DataController {
 		return result;
 	}
 
-	/**
-	 * Inserts link at the service and inserts link locally if the 'from' or 'to'
-	 * entities are in the cache.
-	 */
-	public ModelResult insertLink(String linkId
-			, String fromId
-			, String toId
-			, String type
-			, Boolean enabled
-			, Shortcut toShortcut
-			, String actionEvent
-			, Boolean skipCache
-			, Object tag
-			, Shortcut fromShortcut) {
+	public ModelResult insertLink(String linkId, String fromId, String toId, String type, Boolean enabled, Shortcut toShortcut, String actionEvent, Boolean skipCache, Object tag, Shortcut fromShortcut) {
+		/*
+		 * Inserts link at the service and inserts link locally if the 'from' or 'to'
+		 * entities are in the cache.
+		 */
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -1280,17 +1264,11 @@ public class DataController {
 		return result;
 	}
 
-	/**
-	 * Deletes link at the service and deletes link locally if the 'from' or 'to'
-	 * entities are in the cache.
-	 */
-	public ModelResult deleteLink(String fromId
-			, String toId
-			, String type
-			, Boolean enabled
-			, String schema
-			, String actionEvent
-			, Object tag) {
+	public ModelResult deleteLink(String fromId, String toId, String type, Boolean enabled, String schema, String actionEvent, Object tag) {
+		/**
+		 * Deletes link at the service and deletes link locally if the 'from' or 'to'
+		 * entities are in the cache.
+		 */
 		final ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();

@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
+import com.patchr.utilities.Utils;
+
 public class BaseView {
 
 	protected void setVisibility(View view, Integer visibility) {

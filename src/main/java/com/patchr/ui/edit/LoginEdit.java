@@ -234,7 +234,13 @@ public class LoginEdit extends BaseEdit {
 					didLogin();
 				}
 				else {
-					Errors.handleError(LoginEdit.this, result.serviceResponse);
+					if (result.serviceResponse.statusCodeService != null
+							&& result.serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND) {
+						Dialogs.alert(R.string.error_signin_failed, LoginEdit.this);
+					}
+					else {
+						Errors.handleError(LoginEdit.this, result.serviceResponse);
+					}
 				}
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);

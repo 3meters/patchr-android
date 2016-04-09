@@ -139,10 +139,11 @@
 					android:linksClickable="true"
 					android:paddingLeft="@dimen/form_body_padding"
 					android:paddingRight="@dimen/form_body_padding"
-					android:visibility="gone"
-					tools:visibility="visible"
+					android:textColorLink="@color/brand_primary"
 					android:textSize="16sp"
-					tools:text="@string/dummy_message" />
+					android:visibility="gone"
+					tools:text="@string/dummy_message"
+					tools:visibility="visible" />
 
 				<RelativeLayout
 					android:layout_width="match_parent"
@@ -156,8 +157,8 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_centerVertical="true"
-						android:textSize="16sp"
 						android:textColor="?attr/textColorSecondary"
+						android:textSize="16sp"
 						tools:text="@string/dummy_timesince" />
 				</RelativeLayout>
 
@@ -234,8 +235,8 @@
 							android:layout_height="match_parent"
 							android:layout_marginRight="4dp"
 							android:gravity="center_vertical"
-							android:textSize="16sp"
 							android:textColor="@color/brand_primary"
+							android:textSize="16sp"
 							tools:text="12" />
 
 						<TextView
@@ -243,9 +244,9 @@
 							android:layout_width="wrap_content"
 							android:layout_height="match_parent"
 							android:gravity="center_vertical"
-							android:textSize="16sp"
 							android:text="@string/label_button_likes"
-							android:textColor="@color/brand_primary" />
+							android:textColor="@color/brand_primary"
+							android:textSize="16sp" />
 					</LinearLayout>
 
 				</RelativeLayout>
@@ -257,8 +258,8 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginLeft="@dimen/form_body_padding"
-					android:visibility="gone"
-					android:layout_marginRight="@dimen/form_body_padding">
+					android:layout_marginRight="@dimen/form_body_padding"
+					android:visibility="gone">
 
 					<android.support.v7.widget.CardView
 						android:id="@+id/share_entity"

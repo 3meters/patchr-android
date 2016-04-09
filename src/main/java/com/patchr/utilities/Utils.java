@@ -6,6 +6,11 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextPaint;
+import android.text.style.URLSpan;
+import android.widget.TextView;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -22,6 +27,17 @@ import java.util.Random;
 import java.util.regex.Pattern;
 
 public class Utils {
+
+	private static class URLSpanNoUnderline extends URLSpan {
+		public URLSpanNoUnderline(String url) {
+			super(url);
+		}
+
+		@Override public void updateDrawState(TextPaint ds) {
+			super.updateDrawState(ds);
+			ds.setUnderlineText(false);
+		}
+	}
 
 	public static String encode(String target) {
 		try {
@@ -55,9 +71,22 @@ public class Utils {
 				hexString.append(h);
 			}
 			return hexString.toString();
-
-		} catch (NoSuchAlgorithmException e) { /* ignore */ }
+		}
+		catch (NoSuchAlgorithmException e) { /* ignore */ }
 		return "";
+	}
+
+	public static void stripUnderlines(TextView textView) {
+		Spannable s = new SpannableString(textView.getText());
+		URLSpan[] spans = s.getSpans(0, s.length(), URLSpan.class);
+		for (URLSpan span : spans) {
+			int start = s.getSpanStart(span);
+			int end = s.getSpanEnd(span);
+			s.removeSpan(span);
+			span = new URLSpanNoUnderline(span.getURL());
+			s.setSpan(span, start, end, 0);
+		}
+		textView.setText(s);
 	}
 
 	public static String initialsFromName(String fullname) {
@@ -75,7 +104,7 @@ public class Utils {
 	public static Long numberFromName(String fullname) {
 		Logger.v(Utils.class, "User name: " + fullname);
 		Long accum = 0L;
-		for (char character: fullname.toCharArray()) {
+		for (char character : fullname.toCharArray()) {
 			accum += (int) character;
 		}
 		return accum;

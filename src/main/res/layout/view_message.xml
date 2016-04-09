@@ -87,7 +87,10 @@
 				android:id="@+id/description"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:ellipsize="end"
+				android:autoLink="web|email"
+				android:linksClickable="true"
+				android:ellipsize="middle"
+				android:textColorLink="@color/brand_primary"
 				android:maxLines="5"
 				android:textSize="16sp"
 				tools:text="@string/dummy_message" />
