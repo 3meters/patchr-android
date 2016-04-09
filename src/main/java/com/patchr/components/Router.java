@@ -48,6 +48,7 @@ import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
+import com.patchr.utilities.Utils;
 
 public class Router {
 
@@ -55,13 +56,15 @@ public class Router {
 		/*
 		 * Not used to route when creating an invite or share.
 		 */
-		Class<?> newClass = PostEdit.class;
+		Class<?> newClass = null;
 		if (Constants.SCHEMA_ENTITY_PATCH.equals(schema)) {
 			newClass = PatchEdit.class;
 		}
-		else if (Constants.SCHEMA_ENTITY_USER.equals(schema)) {
-			newClass = ProfileEdit.class;
+		else if (Constants.SCHEMA_ENTITY_MESSAGE.equals(schema)) {
+			newClass = PostEdit.class;
 		}
+
+		Utils.guard(newClass != null, "Could not set edit class for unknown schema");
 
 		IntentBuilder intentBuilder = new IntentBuilder(context, newClass);
 		intentBuilder.setEntitySchema(schema).addExtras(extras);

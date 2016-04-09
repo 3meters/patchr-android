@@ -20,6 +20,7 @@ import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.FetchMode;
 import com.patchr.ui.components.ListScrollListener;
 import com.patchr.ui.components.RecyclePresenter;
+import com.patchr.utilities.Utils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -163,7 +164,7 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 
 	public void initialize(View view) {
 
-		assert view != null;
+		Utils.guard(view != null, "View cannot be null");
 
 		this.listPresenter.recycleView = (RecyclerView) view.findViewById(R.id.entity_list);
 		this.listPresenter.recycleView.addOnScrollListener(new ListScrollListener() {

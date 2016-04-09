@@ -21,6 +21,7 @@ import com.patchr.objects.ActionType;
 import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
 import com.patchr.utilities.DateTime;
+import com.patchr.utilities.Utils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -186,7 +187,7 @@ public class RecyclePresenter {
 
 	public void initialize(Context context, View view) {
 
-		assert view != null;
+		Utils.guard(view != null, "View cannot be null");
 
 		this.recycleView = (RecyclerView) view.findViewById(R.id.entity_list);
 

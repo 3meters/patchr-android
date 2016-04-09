@@ -24,6 +24,7 @@ import com.patchr.R;
 import com.patchr.objects.Command;
 import com.patchr.ui.LobbyScreen;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class AndroidManager {
 
 	public static boolean checkPlayServices(Activity activity) {
 
-		assert activity != null;
+		Utils.guard(activity != null);
 
 		GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
 

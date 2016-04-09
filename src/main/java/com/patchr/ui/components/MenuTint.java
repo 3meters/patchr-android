@@ -34,6 +34,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SearchView;
 
+import com.patchr.utilities.Utils;
+
 import java.lang.reflect.Method;
 
 /**
@@ -79,7 +81,7 @@ public class MenuTint {
 			}
 		}
 		try {
-			assert nativeIsActionButton != null;
+			Utils.guard(nativeIsActionButton != null);
 			return (boolean) nativeIsActionButton.invoke(item, (Object[]) null);
 		}
 		catch (Exception e) { /* ignore */ }

@@ -30,6 +30,7 @@ import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.views.UserDetailView;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Maps;
+import com.patchr.utilities.Utils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -173,7 +174,7 @@ public class ProfileScreen extends BaseScreen {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		assert this.rootView != null;
+		Utils.guard(this.rootView != null, "Root view cannot be null");
 
 		this.actionBarTitle.setText(R.string.screen_title_profile);
 

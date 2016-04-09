@@ -72,6 +72,7 @@ import com.patchr.ui.views.PatchDetailView;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -507,7 +508,7 @@ public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMess
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		assert this.rootView != null;
+		Utils.guard(this.rootView != null, "Root view cannot be null");
 
 		this.header = new PatchDetailView(this);
 

@@ -61,6 +61,7 @@ import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -407,7 +408,7 @@ public class MessageScreen extends BaseScreen {
 		 * - Header views are visible by default
 		 */
 		if (entity == null) return;
-		assert rootView != null;
+		Utils.guard(this.rootView != null, "Root view cannot be null");
 
 		photoView = (ImageWidget) findViewById(R.id.photo);
 		holderUser = findViewById(R.id.holder_user);

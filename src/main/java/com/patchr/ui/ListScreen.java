@@ -16,6 +16,7 @@ import com.patchr.objects.Link;
 import com.patchr.objects.Photo;
 import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.utilities.Maps;
+import com.patchr.utilities.Utils;
 
 @SuppressWarnings("ucd")
 public class ListScreen extends BaseScreen {
@@ -86,7 +87,7 @@ public class ListScreen extends BaseScreen {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		assert this.rootView != null;
+		Utils.guard(this.rootView != null, "Root view cannot be null");
 
 		if (this.listPresenter == null) {
 			this.listPresenter = new RecyclePresenter(this);

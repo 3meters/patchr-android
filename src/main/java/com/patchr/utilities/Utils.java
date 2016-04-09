@@ -128,6 +128,16 @@ public class Utils {
 				&& UserManager.currentUser.developer);
 	}
 
+	public static void guard(Boolean condition) {
+		guard(condition, "Assertion guard failed");
+	}
+
+	public static void guard(Boolean condition, String message) {
+		if (!condition) {
+			throw new AssertionError(message);
+		}
+	}
+
 	public static int randomColor(long seed) {
 		Random generator = new Random(seed);
 		generator.nextFloat();
