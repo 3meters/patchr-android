@@ -203,7 +203,9 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	}
 
 	@Override public void onRefresh() {
-		((EntityListFragment) this.currentFragment).fetch(FetchMode.MANUAL);
+		if (this.currentFragment instanceof EntityListFragment) {
+			((EntityListFragment) this.currentFragment).fetch(FetchMode.MANUAL);
+		}
 	}
 
 	@Override public void onBackPressed() {
