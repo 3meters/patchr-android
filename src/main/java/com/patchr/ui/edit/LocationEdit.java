@@ -16,10 +16,9 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
@@ -33,8 +32,7 @@ import com.patchr.utilities.UI;
  * We often will get duplicates because the ordering of images isn't
  * guaranteed while paging.
  */
-public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickListener
-		, GoogleMap.OnMarkerDragListener {
+public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChangeListener {
 
 	protected MapView     mapView;
 	protected GoogleMap   map;
@@ -42,6 +40,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickList
 	protected String      title;
 	protected Marker      marker;
 	protected boolean     dirty;
+	protected boolean     positionDrawn = false;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -88,19 +87,6 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickList
 		return true;
 	}
 
-	@Override public void onMapClick(LatLng latLng) {
-		marker.setPosition(latLng);
-		dirty = true;
-	}
-
-	@Override public void onMarkerDragStart(Marker marker) {}
-
-	@Override public void onMarkerDrag(Marker marker) {}
-
-	@Override public void onMarkerDragEnd(Marker marker) {
-		dirty = true;
-	}
-
 	@Override protected void onSaveInstanceState(@NonNull Bundle outState) {
 		if (mapView != null) mapView.onSaveInstanceState(outState);
 		super.onSaveInstanceState(outState);
@@ -137,6 +123,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickList
 						if (originalLocation != null) {
 							map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(originalLocation.lat.doubleValue(), originalLocation.lng.doubleValue()), 17));
 						}
+						map.setOnCameraChangeListener(LocationEdit.this);
 						bind();
 					}
 				}
@@ -156,20 +143,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickList
 		save();
 	}
 
-	public void bind() {
-
-		if (originalLocation != null) {
-			marker = map.addMarker(new MarkerOptions()
-					.position(new LatLng(originalLocation.lat.doubleValue(), originalLocation.lng.doubleValue()))
-					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
-					.draggable(true));
-			marker.setAnchor(0.5f, 0.8f);
-			if (title != null) {
-				marker.setTitle(title);
-				marker.showInfoWindow();
-			}
-		}
-	}
+	public void bind() {}
 
 	private void save() {
 
@@ -179,7 +153,8 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickList
 		}
 
 		final Intent intent = new Intent();
-		AirLocation location = new AirLocation(marker.getPosition().latitude, marker.getPosition().longitude);
+		CameraPosition position = map.getCameraPosition();
+		AirLocation location = new AirLocation(position.target.latitude, position.target.longitude);
 		location.accuracy = 1;
 		String json = Json.objectToJson(location);
 		intent.putExtra(Constants.EXTRA_LOCATION, json);
@@ -204,6 +179,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickList
 
 		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		map.setLocationSource(null);
+		map.setPadding(0, UI.getRawPixelsForDisplayPixels(48f), 0, 0);
 
 		UiSettings uiSettings = map.getUiSettings();
 
@@ -217,7 +193,12 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnMapClickList
 		uiSettings.setCompassEnabled(true);
 
 		MapsInitializer.initialize(this);
-		map.setOnMapClickListener(this);
-		map.setOnMarkerDragListener(this);
+	}
+
+	@Override public void onCameraChange(CameraPosition cameraPosition) {
+		if (this.positionDrawn) {
+			this.dirty = true;
+		}
+		this.positionDrawn = true;
 	}
 }

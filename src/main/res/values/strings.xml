@@ -402,7 +402,7 @@
 	<string name="label_locked" tools:ignore="UnusedResources">Locked</string>
 	<string name="label_locked_description" tools:ignore="UnusedResources">Users can browse but not add content</string>
 	<string name="label_search_places_hint">Search patches</string>
-	<string name="label_location_edit_message">Tap or tap and hold to set the location for the patch.</string>
+	<string name="label_location_edit_message">Drag the map to set the location for the patch.</string>
 
 	<string name="label_location_provider_none">Location: None</string>
 	<string name="label_location_provider_google_new">Location: You are here</string>
