@@ -192,12 +192,7 @@ public class ProximityEdit extends BaseEdit {
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncTrackEntityProximity");
-
-				final ModelResult result = DataController.getInstance().trackEntity(entity
-						, beacons
-						, primaryBeacon
-						, untuning, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-
+				final ModelResult result = DataController.getInstance().trackEntity(entity, beacons, untuning, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -250,7 +245,7 @@ public class ProximityEdit extends BaseEdit {
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncClearEntityProximity");
-				final ModelResult result = DataController.getInstance().trackEntity(entity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				final ModelResult result = DataController.getInstance().trackEntity(entity, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 

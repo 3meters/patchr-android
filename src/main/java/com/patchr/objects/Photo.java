@@ -88,7 +88,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return UI.uri(this.prefix, this.source, category);
 	}
 
-	@NonNull public String uriDirect() {
+	@NonNull public String uriNative() {
 		return UI.uri(this.prefix, this.source, PhotoCategory.NONE);
 	}
 
@@ -138,7 +138,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		if (obj == null) return false;
 		if (!((Object) this).getClass().equals(obj.getClass())) return false;
 		final Photo other = (Photo) obj;
-		return (Type.equal(this.uriDirect(), other.uriDirect()));
+		return (Type.equal(this.uriNative(), other.uriNative()));
 	}
 
 	public static boolean same(Object obj1, Object obj2) {

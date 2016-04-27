@@ -34,26 +34,23 @@ import java.util.Locale;
 
 public final class Errors {
 
-	public static void handleError(final Activity activity, @NonNull ServiceResponse serviceResponse) {
-		ErrorResponse errorResponse = serviceResponse.errorResponse;
-		if (errorResponse == null || errorResponse.errorResponseType == null) {
-			errorResponse = new ErrorResponse(ResponseType.TOAST, "Unhandled status error: " + serviceResponse.statusCode);
-		}
-		handleError(activity, errorResponse);
-		/*
-		 * Perform any follow-up actions.
-		 */
-		if (errorResponse.track) {
-			Reporting.logException(serviceResponse.exception);
+	public static void handleError(final Activity activity, ServiceResponse serviceResponse) {
+		if (serviceResponse != null) {
+			ErrorResponse errorResponse = serviceResponse.errorResponse;
+			if (errorResponse != null && errorResponse.errorResponseType != null) {
+				handleError(activity, errorResponse);
+				if (errorResponse.report) {
+					Reporting.logException(serviceResponse.exception);
+				}
+			}
 		}
 	}
 
-	public static void handleError(final Activity activity, @NonNull ErrorResponse errorResponse) {
+	public static void handleError(final Activity activity, ErrorResponse errorResponse) {
 		/*
 		 * First show any required UI
 		 */
-		if (errorResponse.errorResponseType == ResponseType.AUTO
-				|| errorResponse.errorResponseType == ResponseType.DIALOG) {
+		if (errorResponse.errorResponseType == ResponseType.AUTO || errorResponse.errorResponseType == ResponseType.DIALOG) {
 			if (activity != null) {
 				final String errorMessage = errorResponse.errorMessage;
 				Patchr.mainThreadHandler.post(new Runnable() {
@@ -80,17 +77,14 @@ public final class Errors {
 		else if (errorResponse.errorResponseType == ResponseType.TOAST) {
 			UI.toast(errorResponse.errorMessage);
 		}
-		/*
-		 * Perform any follow-up actions.
-		 */
+
+		/* Perform any follow-up actions. */
 		if (errorResponse.signout && activity != null && UserManager.shared().authenticated()) {
 			UserManager.shared().setCurrentUser(null, false);
 			Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 		}
 		else if (errorResponse.splash) {
-			/*
-			 * Mostly because a more current client version is required.
-			 */
+			/* Mostly because a more current client version is required. */
 			if (activity != null && !activity.getClass().getSimpleName().equals("SplashForm")) {
 				Patchr.router.route(activity, Command.LOBBY, null, null);
 			}
@@ -247,14 +241,14 @@ public final class Errors {
 				 */
 				ErrorResponse errorResponse = new ErrorResponse(ResponseType.NONE, StringManager.getString(R.string.dialog_update_message));
 				Patchr.applicationUpdateRequired = true;
-				errorResponse.track = true;
+				errorResponse.report = true;
 				errorResponse.splash = true;
 				return errorResponse;
 			}
 
 			if (exception instanceof GcmRegistrationIOException) {
 				ErrorResponse errorResponse = new ErrorResponse(ResponseType.NONE, StringManager.getString(R.string.error_gcm_registration_failed));
-				errorResponse.track = true;
+				errorResponse.report = true;
 				return errorResponse;
 			}
 
@@ -291,11 +285,11 @@ public final class Errors {
 				if (Constants.ERROR_LEVEL == Log.VERBOSE) {
 					//noinspection deprecation
 					if (exception instanceof ConnectTimeoutException)
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unavailable)).setTrack(false);
+						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unavailable));
 
 					if (exception instanceof SocketTimeoutException ||
 							exception instanceof InterruptedIOException)
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_connection_poor)).setTrack(false);
+						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_connection_poor));
 
 					//noinspection deprecation
 					if (exception instanceof ConnectException)
@@ -349,7 +343,6 @@ public final class Errors {
 		return new ErrorResponse(ResponseType.NONE, null);
 	}
 
-	@NonNull
 	public static Boolean isNetworkError(@NonNull ServiceResponse serviceResponse) {
 		return (serviceResponse.statusCode == null && serviceResponse.exception != null && serviceResponse.exception instanceof IOException);
 	}
@@ -370,11 +363,11 @@ public final class Errors {
 		public String       errorMessage;
 		public String       errorTitle;
 		public ResponseType errorResponseType;
-		@NonNull
-		public Boolean signout = false;
-		@NonNull
-		public Boolean splash  = false;
-		public Boolean track   = false;
+
+		public Boolean signout    = false;
+		public Boolean splash     = false;
+		public Boolean report     = false;
+		public Boolean clearPhoto = false;
 
 		public ErrorResponse(ResponseType responseType) {
 			this(responseType, null);
@@ -388,16 +381,6 @@ public final class Errors {
 			this.errorMessage = errorMessage;
 			this.errorTitle = errorTitle;
 			this.errorResponseType = responseType;
-		}
-
-		public Boolean getTrack() {
-			return track;
-		}
-
-		@NonNull
-		public ErrorResponse setTrack(Boolean track) {
-			this.track = track;
-			return this;
 		}
 	}
 }

@@ -225,7 +225,7 @@ public class Router {
 			final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
 			if (jsonPhoto != null) {
 				final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
-				final String url = photo.uriDirect();
+				final String url = photo.uriNative();
 				Uri uri = Uri.parse(url);
 
 				if (AndroidManager.getInstance().isAviaryInstalled()) {

@@ -299,8 +299,20 @@ public class ProfileEdit extends BaseEdit {
 						catch (IOException ignore) {}
 					}
 					catch (IOException ignore) {
+						/*
+						 * This is where we are ignoring exceptions like our reset problem with picasso. This
+						 * can happen pulling an image from the network or from a local file.
+						 */
 						Reporting.logException(new IOException("Picasso failed to load bitmap", ignore));
 						if (isCancelled()) return null;
+					}
+
+					if (bitmap == null) {
+						ModelResult result = new ModelResult();
+						result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
+						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ResponseType.TOAST, StringManager.getString(R.string.error_image_unusable));
+						result.serviceResponse.errorResponse.clearPhoto = true;
+						return result;
 					}
 				}
 
@@ -313,12 +325,11 @@ public class ProfileEdit extends BaseEdit {
 				busyPresenter.hide(true);
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
-					/*
-					 * We automatically consider the user signed in.
-					 */
+					/* We automatically consider the user signed in. */
 					final User user = (User) result.data;
 					UserManager.shared().setCurrentUser(user, true);
 				}
+
 				return result;
 			}
 
@@ -338,16 +349,20 @@ public class ProfileEdit extends BaseEdit {
 				final ModelResult result = (ModelResult) response;
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
-
 					Logger.i(ProfileEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
-					UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name
-					);
+					UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
 					setResult(Constants.RESULT_USER_LOGGED_IN);
 					finish();
 					AnimationManager.doOverridePendingTransition(ProfileEdit.this, TransitionType.FORM_BACK);
 				}
 				else {
 					Errors.handleError(ProfileEdit.this, result.serviceResponse);
+					if (result.serviceResponse.errorResponse != null) {
+						if (result.serviceResponse.errorResponse.clearPhoto) {
+							entity.photo = null;
+							bindPhoto();
+						}
+					}
 				}
 				processing = false;
 			}

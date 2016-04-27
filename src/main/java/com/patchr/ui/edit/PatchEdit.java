@@ -484,7 +484,7 @@ public class PatchEdit extends BaseEdit {
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncClearEntityProximity");
-				return DataController.getInstance().trackEntity(entity, null, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				return DataController.getInstance().trackEntity(entity, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
 			@Override protected void onPostExecute(Object response) {

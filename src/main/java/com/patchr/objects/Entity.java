@@ -235,12 +235,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public Beacon getActiveBeacon(String type, Boolean primaryOnly) {
 	    /*
-	     * If an entity has more than one viable link, we choose the one
-		 * using the following priority:
-		 * 
-		 * - strongest primary
-		 * - any primary
-		 * - any non-primary
+	     * If an entity has more than one viable link, we choose the strongest one.
 		 */
 		Link activeLink = null;
 		if (linksOut != null) {
@@ -248,29 +243,12 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			Integer strongestLevel = -200;
 			for (Link link : linksOut) {
 				if (link.type != null && link.type.equals(type)) {
-					if (link.proximity != null && link.proximity.primary != null && link.proximity.primary) {
-						Entity entity = DataController.getStoreEntity(link.toId);
-						if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
-							Beacon beacon = (Beacon) entity;
-							if (beacon.signal != null && beacon.signal.intValue() > strongestLevel) {
-								strongestLink = link;
-								strongestLevel = beacon.signal.intValue();
-							}
-						}
-					}
-				}
-			}
-
-			if (strongestLink == null && !primaryOnly) {
-				for (Link link : linksOut) {
-					if (link.type != null && link.type.equals(type)) {
-						Entity entity = DataController.getStoreEntity(link.toId);
-						if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
-							Beacon beacon = (Beacon) entity;
-							if (beacon.signal != null && beacon.signal.intValue() > strongestLevel) {
-								strongestLink = link;
-								strongestLevel = beacon.signal.intValue();
-							}
+					Entity entity = DataController.getStoreEntity(link.toId);
+					if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
+						Beacon beacon = (Beacon) entity;
+						if (beacon.signal != null && beacon.signal.intValue() > strongestLevel) {
+							strongestLink = link;
+							strongestLevel = beacon.signal.intValue();
 						}
 					}
 				}
@@ -280,49 +258,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 		if (activeLink != null) {
 			Beacon beacon = (Beacon) DataController.getStoreEntity(activeLink.toId);
-			return beacon;
-		}
-		return null;
-	}
-
-	public Beacon getBeaconFromLink(String type, Boolean primaryOnly) {
-	    /*
-	     * If an entity has more than one viable link, we choose the one
-		 * using the following priority:
-		 * 
-		 * - first primary
-		 * - first non-primary
-		 */
-		Link activeLink = null;
-		if (linksOut != null) {
-			Link strongestLink = null;
-			for (Link link : linksOut) {
-				if (link.type != null && link.type.equals(type)) {
-					if (link.proximity != null && link.proximity.primary != null && link.proximity.primary) {
-						strongestLink = link;
-						break;
-					}
-				}
-			}
-
-			if (strongestLink == null && !primaryOnly) {
-				for (Link link : linksOut) {
-					if (link.type != null && link.type.equals(type)) {
-						strongestLink = link;
-						break;
-					}
-				}
-			}
-
-			activeLink = strongestLink;
-		}
-
-		if (activeLink != null) {
-			Beacon beacon = new Beacon(activeLink.shortcut.id.substring(3)
-					, activeLink.shortcut.name
-					, activeLink.shortcut.name
-					, -50
-					, false);
 			return beacon;
 		}
 
@@ -401,7 +336,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Boolean hasActiveProximity() {
 		if (linksOut != null) {
 			for (Link link : linksOut) {
-				if (link.type != null && link.type.equals(Constants.TYPE_LINK_PROXIMITY) && link.proximity != null) {
+				if (link.type != null && link.type.equals(Constants.TYPE_LINK_PROXIMITY)) {
 					Beacon beacon = (Beacon) DataController.getStoreEntity(link.toId);
 					if (beacon != null) return true;
 				}
@@ -748,7 +683,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	@Override
 	public boolean equals(Object object) {
-        /*
+	    /*
          * Object class implementation of equals uses reference but we want to compare
          * using semantic equality.
          */

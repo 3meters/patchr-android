@@ -34,7 +34,6 @@ import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
-import com.patchr.service.ServiceResponse;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.SimpleTextWatcher;
@@ -387,7 +386,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 					try {
 						bitmap = Picasso.with(Patchr.applicationContext)
-								.load(entity.photo.uriDirect())
+								.load(entity.photo.uriNative())
 								.centerInside()
 								.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 								.get();
@@ -402,7 +401,7 @@ public abstract class BaseEdit extends BaseScreen {
 						System.gc();
 						try {
 							bitmap = Picasso.with(Patchr.applicationContext)
-									.load(entity.photo.uriDirect())
+									.load(entity.photo.uriNative())
 									.centerInside()
 									.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 									.get();
@@ -411,7 +410,7 @@ public abstract class BaseEdit extends BaseScreen {
 						}
 						catch (OutOfMemoryError err) {
 							/* Give up and log it */
-							Reporting.breadcrumb("OutOfMemoryError: uri: " + entity.photo.uriDirect());
+							Reporting.breadcrumb("OutOfMemoryError: uri: " + entity.photo.uriNative());
 							throw err;
 						}
 						catch (IOException ignore) { }
@@ -423,6 +422,14 @@ public abstract class BaseEdit extends BaseScreen {
 						 */
 						Reporting.logException(new IOException("Picasso failed to load bitmap", ignore));
 						if (isCancelled()) return null;
+					}
+
+					if (bitmap == null) {
+						ModelResult result = new ModelResult();
+						result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
+						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ResponseType.TOAST, StringManager.getString(R.string.error_image_unusable));
+						result.serviceResponse.errorResponse.clearPhoto = true;
+						return result;
 					}
 				}
 
@@ -478,6 +485,12 @@ public abstract class BaseEdit extends BaseScreen {
 				}
 				else {
 					Errors.handleError(BaseEdit.this, result.serviceResponse);
+					if (result.serviceResponse.errorResponse != null) {
+						if (result.serviceResponse.errorResponse.clearPhoto) {
+							entity.photo = null;
+							bindPhoto();
+						}
+					}
 				}
 				processing = false;
 			}
@@ -499,53 +512,65 @@ public abstract class BaseEdit extends BaseScreen {
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertUpdateEntity");
-				ModelResult result = new ModelResult();
 
-				/* Update entity */
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+				/*
+				 * Entity has a photo that needs to be stored in s3. Usually either a user
+				 * photo from anywhere or a local photo from the device camera or gallery.
+				 */
+				Bitmap bitmap = null;
+				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
 
-					Bitmap bitmap = null;
-					if (entity.photo != null && Type.isTrue(entity.photo.store)) {
+					try {
+						bitmap = Picasso.with(Patchr.applicationContext)
+								.load(entity.photo.uriNative())
+								.centerInside()
+								.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+								.get();
 
-						try {
-							bitmap = Picasso.with(Patchr.applicationContext)
-									.load(entity.photo.uriDirect())
-									.centerInside()
-									.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-									.get();
-
-							if (isCancelled()) return null;
-						}
-						catch (OutOfMemoryError error) {
+						if (isCancelled()) return null;
+					}
+					catch (OutOfMemoryError error) {
 						/*
 						 * We make attempt to recover by giving the vm another chance to
 						 * garbage collect plus reduce the image size in memory by 75%.
 						 */
-							System.gc();
-							try {
-								bitmap = Picasso.with(Patchr.applicationContext)
-										.load(entity.photo.uriDirect())
-										.centerInside()
-										.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
-										.get();
+						System.gc();
+						try {
+							bitmap = Picasso.with(Patchr.applicationContext)
+									.load(entity.photo.uriNative())
+									.centerInside()
+									.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
+									.get();
 
-								if (isCancelled()) return null;
-							}
-							catch (IOException ignore) {}
-						}
-						catch (IOException ignore) {
-							Reporting.logException(new IOException("Picasso failed to load bitmap", ignore));
 							if (isCancelled()) return null;
 						}
+						catch (IOException ignore) {}
+					}
+					catch (IOException ignore) {
+						/*
+						 * This is where we are ignoring exceptions like our reset problem with picasso. This
+						 * can happen pulling an image from the network or from a local file.
+						 */
+						Reporting.logException(new IOException("Picasso failed to load bitmap", ignore));
+						if (isCancelled()) return null;
 					}
 
-					result = DataController.getInstance().updateEntity(entity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-					if (isCancelled()) return null;
-
-					/* Don't allow cancel if we made it this far */
-					busyPresenter.hide(true);
+					if (bitmap == null) {
+						ModelResult result = new ModelResult();
+						result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
+						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ResponseType.TOAST, StringManager.getString(R.string.error_image_unusable));
+						result.serviceResponse.errorResponse.clearPhoto = true;
+						return result;
+					}
 				}
-				return result.serviceResponse;
+
+				ModelResult result = DataController.getInstance().updateEntity(entity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				if (isCancelled()) return null;
+
+				/* Don't allow cancel if we made it this far */
+				busyPresenter.hide(true);
+
+				return result;
 			}
 
 			@Override protected void onCancelled(Object response) {
@@ -561,9 +586,9 @@ public abstract class BaseEdit extends BaseScreen {
 			}
 
 			@Override protected void onPostExecute(Object response) {
-				final ServiceResponse serviceResponse = (ServiceResponse) response;
+				final ModelResult result = (ModelResult) response;
 
-				if (serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 					if (afterUpdate()) {  // Primary current use is for patch to cleanup proximity links if needed
 						UI.toast(StringManager.getString(updatedResId));
 						finish();
@@ -571,7 +596,13 @@ public abstract class BaseEdit extends BaseScreen {
 					}
 				}
 				else {
-					Errors.handleError(BaseEdit.this, serviceResponse);
+					Errors.handleError(BaseEdit.this, result.serviceResponse);
+					if (result.serviceResponse.errorResponse != null) {
+						if (result.serviceResponse.errorResponse.clearPhoto) {
+							entity.photo = null;
+							bindPhoto();
+						}
+					}
 				}
 				processing = false;
 			}

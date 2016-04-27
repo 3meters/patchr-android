@@ -29,8 +29,6 @@ public class Link extends ServiceBase {
 	@SerializedName(name = "_to")
 	public String    toId;
 	@Expose
-	public Proximity proximity;
-	@Expose
 	public Boolean   enabled;
 	@Expose
 	public Boolean   mute;
@@ -144,10 +142,6 @@ public class Link extends ServiceBase {
 		link.targetSchema = (String) map.get("targetSchema");
 		link.enabled = (Boolean) map.get("enabled");
 		link.mute = (Boolean) map.get("mute");
-
-		if (map.get("proximity") != null) {
-			link.proximity = Proximity.setPropertiesFromMap(new Proximity(), (HashMap<String, Object>) map.get("proximity"), nameMapping);
-		}
 
 		if (map.get("stats") != null) {
 			final List<LinkedHashMap<String, Object>> statMaps = (List<LinkedHashMap<String, Object>>) map.get("stats");

@@ -175,7 +175,7 @@ public class ImageWidget extends FrameLayout {
 
 		/* Optimize if we already have the image */
 		if (photo.isUri() && this.uriBound != null && this.imageView.getDrawable() != null) {
-			String uri = photo.uriDirect();
+			String uri = photo.uriNative();
 			if (uri.equals(this.uriBound)) return;
 		}
 
@@ -288,7 +288,7 @@ public class ImageWidget extends FrameLayout {
 
 			RequestCreator creator = Picasso
 					.with(Patchr.applicationContext)
-					.load(photo.uriDirect())
+					.load(photo.uriNative())
 					.centerCrop()   // Needed so resize() keeps aspect ratio
 					.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 					.config(this.bitmapConfig);

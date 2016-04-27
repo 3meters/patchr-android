@@ -39,7 +39,6 @@ import com.patchr.objects.LinkSpecItem;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
-import com.patchr.objects.Proximity;
 import com.patchr.objects.ServiceBase.UpdateScope;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.Shortcut;
@@ -64,7 +63,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -1083,7 +1081,7 @@ public class DataController {
 		return result;
 	}
 
-	public ModelResult trackEntity(Entity entity, List<Beacon> beacons, Beacon primaryBeacon, Boolean untuning, Object tag) {
+	public ModelResult trackEntity(Entity entity, List<Beacon> beacons, Boolean untuning, Object tag) {
 
 		final ModelResult result = new ModelResult();
 		Logger.i(this, untuning ? "Untracking entity" : "Tracking entity");
@@ -1091,46 +1089,13 @@ public class DataController {
 		/* Construct entity, link, and observation */
 		final Bundle parameters = new Bundle();
 
-		/* Beacons */
-		if (primaryBeacon != null) {
-			parameters.putString("primaryBeaconId", primaryBeacon.id);
-		}
-
 		if (beacons != null && beacons.size() > 0) {
 
 			final List<String> beaconStrings = new ArrayList<>();
 			for (Beacon beacon : beacons) {
-				if (primaryBeacon != null && beacon.id.equals(primaryBeacon.id)) {
-					AirLocation location = LocationManager.getInstance().getAirLocationLocked();
-					if (location != null) {
-
-						beacon.location = new AirLocation();
-
-						beacon.location.lat = location.lat;
-						beacon.location.lng = location.lng;
-
-						if (location.altitude != null) {
-							beacon.location.altitude = location.altitude;
-						}
-						if (location.accuracy != null) {
-							beacon.location.accuracy = location.accuracy;
-						}
-						if (location.bearing != null) {
-							beacon.location.bearing = location.bearing;
-						}
-						if (location.speed != null) {
-							beacon.location.speed = location.speed;
-						}
-						if (location.provider != null) {
-							beacon.location.provider = location.provider;
-						}
-					}
-				}
-
 				beacon.type = Constants.TYPE_BEACON_FIXED;
 				beaconStrings.add("object:" + Json.objectToJson(beacon, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 			}
-
 			parameters.putStringArrayList("beacons", (ArrayList<String>) beaconStrings);
 		}
 
@@ -1156,50 +1121,9 @@ public class DataController {
 
 			if (beacons != null) {
 				for (Beacon beacon : beacons) {
-					Boolean primary = (primaryBeacon != null && primaryBeacon.id.equals(beacon.id));
 					Link link = entity.getLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, beacon.id, Direction.out);
-					if (link != null) {
-						if (primary) {
-							if (untuning) {
-								link.incrementStat(Constants.TYPE_COUNT_LINK_PROXIMITY_MINUS, null);
-							}
-							else {
-								link.incrementStat(Constants.TYPE_COUNT_LINK_PROXIMITY, null);
-								if (!link.proximity.primary) {
-									link.proximity.primary = true;
-								}
-							}
-							/*
-							 * If score goes to zero then the proximity links got deleted by the service.
-							 * We want to mirror that in the cache without reloading the entity.
-							 */
-							if (link.getProximityScore() <= 0) {
-								Iterator<Link> iterLinks = entity.linksOut.iterator();
-								while (iterLinks.hasNext()) {
-									Link temp = iterLinks.next();
-									if (temp == link) {
-										iterLinks.remove();
-										/*
-										 * Entity could be a clone so grab the one in the cache.
-										 */
-										Entity cacheEntity = ENTITY_STORE.getStoreEntity(entity.id);
-										if (cacheEntity != null) {
-											cacheEntity.activityDate = DateTime.nowDate().getTime();
-										}
-										break;
-									}
-								}
-							}
-						}
-					}
-					else {
+					if (link == null) {
 						link = new Link(entity.id, beacon.id, Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON);
-						link.proximity = new Proximity();
-						link.proximity.signal = beacon.signal;
-						if (primary) {
-							link.incrementStat(Constants.TYPE_COUNT_LINK_PROXIMITY, null);
-							link.proximity.primary = true;
-						}
 						if (entity.linksOut == null) {
 							entity.linksOut = new ArrayList<>();
 						}
