@@ -256,11 +256,10 @@ public class ShareEdit extends BaseEdit {
 											}
 										}
 										catch (FileNotFoundException e) {
-											Reporting.logException(new FileNotFoundException("Picasso failed to load bitmap"));
+											Reporting.breadcrumb("Picasso failed to load bitmap");
 										}
 										catch (IOException e) {
 											Reporting.breadcrumb("Picasso failed to load bitmap");
-											Reporting.logException(new IOException("Picasso failed to load bitmap", e));
 										}
 										return photo;
 									}
@@ -332,11 +331,10 @@ public class ShareEdit extends BaseEdit {
 								}
 							}
 							catch (FileNotFoundException e) {
-								Reporting.logException(new FileNotFoundException("Picasso failed to load bitmap"));
+								Reporting.breadcrumb("Picasso failed to load bitmap");
 							}
 							catch (IOException e) {
 								Reporting.breadcrumb("Picasso failed to load bitmap");
-								Reporting.logException(new IOException("Picasso failed to load bitmap", e));
 							}
 							return photo;
 						}

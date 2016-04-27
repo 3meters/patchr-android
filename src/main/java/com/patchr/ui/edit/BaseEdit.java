@@ -420,7 +420,7 @@ public abstract class BaseEdit extends BaseScreen {
 						 * This is where we are ignoring exceptions like our reset problem with picasso. This
 						 * can happen pulling an image from the network or from a local file.
 						 */
-						Reporting.logException(new IOException("Picasso failed to load bitmap", ignore));
+						Reporting.breadcrumb("Picasso failed to load bitmap");
 						if (isCancelled()) return null;
 					}
 
@@ -429,6 +429,7 @@ public abstract class BaseEdit extends BaseScreen {
 						result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
 						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ResponseType.TOAST, StringManager.getString(R.string.error_image_unusable));
 						result.serviceResponse.errorResponse.clearPhoto = true;
+						busyPresenter.hide(true);
 						return result;
 					}
 				}
@@ -551,7 +552,7 @@ public abstract class BaseEdit extends BaseScreen {
 						 * This is where we are ignoring exceptions like our reset problem with picasso. This
 						 * can happen pulling an image from the network or from a local file.
 						 */
-						Reporting.logException(new IOException("Picasso failed to load bitmap", ignore));
+						Reporting.breadcrumb("Picasso failed to load bitmap");
 						if (isCancelled()) return null;
 					}
 
@@ -560,6 +561,7 @@ public abstract class BaseEdit extends BaseScreen {
 						result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
 						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ResponseType.TOAST, StringManager.getString(R.string.error_image_unusable));
 						result.serviceResponse.errorResponse.clearPhoto = true;
+						busyPresenter.hide(true);
 						return result;
 					}
 				}

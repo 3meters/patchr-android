@@ -112,7 +112,6 @@ public class NotificationManager {
 			}
 			catch (IOException e) {
 				Reporting.breadcrumb("Picasso failed to load bitmap");
-				Reporting.logException(e);
 			}
 		}
 
@@ -156,7 +155,6 @@ public class NotificationManager {
 		}
 		catch (IOException e) {
 			Reporting.breadcrumb("Picasso failed to load bitmap");
-			Reporting.logException(new IOException("Picasso failed to load bitmap", e));
 		}
 	}
 

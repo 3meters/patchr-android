@@ -134,7 +134,6 @@ public class PhotoScreen extends BaseScreen {
 				}
 				catch (IOException e) {
 					Reporting.breadcrumb("Picasso failed to load bitmap");
-					Reporting.logException(new IOException("Picasso failed to load bitmap", e));
 				}
 
 				return bitmap;
