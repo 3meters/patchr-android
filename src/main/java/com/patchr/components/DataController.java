@@ -801,10 +801,10 @@ public class DataController {
 	 *--------------------------------------------------------------------------------------------*/
 
 	private ModelResult insertEntity(Entity entity, Boolean waitForContent, Object tag) {
-		return insertEntity(entity, null, null, null, null, waitForContent, tag);
+		return insertEntity(entity, null, null, null, waitForContent, tag);
 	}
 
-	public ModelResult insertEntity(Entity entity, List<Link> links, List<Beacon> beacons, Beacon primaryBeacon, Bitmap bitmap, Boolean waitForContent, Object tag) {
+	public ModelResult insertEntity(Entity entity, List<Link> links, List<Beacon> beacons, Bitmap bitmap, Boolean waitForContent, Object tag) {
 		/*
 		 * Inserts the entity in the entity service collection and Links are created to all the included beacons. The
 		 * inserted entity is retrieved from the service and pushed into the local cache. The cached entity is returned
@@ -843,11 +843,6 @@ public class DataController {
 				AirLocation location = LocationManager.getInstance().getAirLocationLocked();
 				if (location != null) {
 					parameters.putString("location", "object:" + Json.objectToJson(location));
-				}
-
-				/* Primary beacon id */
-				if (primaryBeacon != null) {
-					parameters.putString("primaryBeaconId", primaryBeacon.id);
 				}
 
 				if (beacons != null && beacons.size() > 0) {

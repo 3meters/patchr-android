@@ -358,7 +358,6 @@ public abstract class BaseEdit extends BaseScreen {
 				Thread.currentThread().setName("AsyncInsertUpdateEntity");
 
 				List<Beacon> beacons = null;
-				Beacon primaryBeacon = null;
 
 				/* If parent id then this is a child */
 				if (entity.linksIn != null) {
@@ -374,7 +373,6 @@ public abstract class BaseEdit extends BaseScreen {
 				/* We only send beacons if a patch is being inserted */
 				if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH) && !proximityDisabled) {
 					beacons = ProximityController.getInstance().getStrongestBeacons(Constants.PROXIMITY_BEACON_COVERAGE);
-					primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 				}
 
 				/*
@@ -439,7 +437,7 @@ public abstract class BaseEdit extends BaseScreen {
 				beforeInsert(entity, links);
 				if (isCancelled()) return null;
 
-				ModelResult result = DataController.getInstance().insertEntity(entity, links, beacons, primaryBeacon, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().insertEntity(entity, links, beacons, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */

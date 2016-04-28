@@ -182,7 +182,6 @@ public class ProximityEdit extends BaseEdit {
 		 */
 		Integer beaconMax = !untuning ? Constants.PROXIMITY_BEACON_COVERAGE : Constants.PROXIMITY_BEACON_UNCOVERAGE;
 		final List<Beacon> beacons = ProximityController.getInstance().getStrongestBeacons(beaconMax);
-		final Beacon primaryBeacon = (beacons.size() > 0) ? beacons.get(0) : null;
 
 		new AsyncTask() {
 
