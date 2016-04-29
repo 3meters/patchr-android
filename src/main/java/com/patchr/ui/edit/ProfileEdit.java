@@ -52,7 +52,7 @@ public class ProfileEdit extends BaseEdit {
 	private Button   changePasswordButton;
 	private Button   termsButton;
 
-	private String inputState;
+	private String inputState = State.Editing;
 	private String inputEmail;
 	private String inputPassword;
 
@@ -129,8 +129,8 @@ public class ProfileEdit extends BaseEdit {
 
 		if (inputState != null && inputState.equals(State.Onboarding)) {
 			this.entity = User.build();
-			((User)this.entity).email = this.inputEmail;
-			((User)this.entity).password = this.inputPassword;
+			((User) this.entity).email = this.inputEmail;
+			((User) this.entity).password = this.inputPassword;
 			title.setText(R.string.form_title_profile_signup);
 			area.setVisibility(View.GONE);
 			submitButton.setVisibility(View.VISIBLE);
