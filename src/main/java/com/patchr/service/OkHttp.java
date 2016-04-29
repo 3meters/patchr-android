@@ -6,13 +6,6 @@ import com.patchr.Constants;
 import com.patchr.components.Logger;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.utilities.Reporting;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.ConnectionPool;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,6 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.ConnectionPool;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class OkHttp {
 	/*
@@ -49,14 +50,13 @@ public class OkHttp {
 		 * If sslSocketFactory is not overridden then creates own ssl context to avoid
 		 * global conflicts. This will overwrite global ssl context customizations.
 		 */
-		client = new OkHttpClient();
-
-		/* Max connections is per host */
-		client.setConnectionPool(new ConnectionPool(5, Constants.TIME_FIVE_MINUTES));
-		client.setConnectTimeout(Constants.TIMEOUT_CONNECTION, TimeUnit.MILLISECONDS);
-		client.setReadTimeout(Constants.TIMEOUT_SOCKET_READ, TimeUnit.MILLISECONDS);
-		client.setWriteTimeout(Constants.TIMEOUT_SOCKET_WRITE, TimeUnit.MILLISECONDS);
-		client.setRetryOnConnectionFailure(true);
+		client = new OkHttpClient.Builder()
+				.connectTimeout(Constants.TIMEOUT_CONNECTION, TimeUnit.MILLISECONDS)
+				.readTimeout(Constants.TIMEOUT_SOCKET_READ, TimeUnit.MILLISECONDS)
+				.writeTimeout(Constants.TIMEOUT_SOCKET_WRITE, TimeUnit.MILLISECONDS)
+				.retryOnConnectionFailure(true)
+				.connectionPool(new ConnectionPool(5, Constants.TIME_FIVE_MINUTES, TimeUnit.MILLISECONDS)) 		/* Max connections is per host */
+				.build();
 	}
 
 	public Response get(String path, String query) {
@@ -111,8 +111,9 @@ public class OkHttp {
 			/* Execute request */
 			OkHttpClient okHttpClient = client;
 			if (!serviceRequest.getRetryOnConnectionFailure()) {
-				okHttpClient = client.clone();
-				okHttpClient.setRetryOnConnectionFailure(false);
+				okHttpClient = client.newBuilder()
+						.retryOnConnectionFailure(false)
+						.build();
 			}
 
 			call = okHttpClient.newCall(request);
@@ -146,13 +147,10 @@ public class OkHttp {
 			if (response != null) {
 				if (response.isSuccessful()) {
 					String contentType = getContentType(response, airRequest);
-					try {
-						Long contentLength = response.body().contentLength();
-						Reporting.breadcrumb("OutOfMemoryError: success response:"
-								+ " contentType: " + contentType
-								+ " contentLength: " + String.valueOf(contentLength));
-					}
-					catch (IOException ignore) {/* Ignore */}
+					Long contentLength = response.body().contentLength();
+					Reporting.breadcrumb("OutOfMemoryError: success response:"
+							+ " contentType: " + contentType
+							+ " contentLength: " + String.valueOf(contentLength));
 				}
 			}
 			throw error;

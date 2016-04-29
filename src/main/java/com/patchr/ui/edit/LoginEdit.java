@@ -33,10 +33,11 @@ import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
-import com.squareup.okhttp.Response;
 
 import java.io.IOException;
 import java.util.Locale;
+
+import okhttp3.Response;
 
 public class LoginEdit extends BaseEdit {
 

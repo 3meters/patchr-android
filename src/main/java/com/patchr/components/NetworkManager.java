@@ -30,10 +30,11 @@ import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.squareup.okhttp.Response;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import okhttp3.Response;
 
 /**
  * Designed as a singleton. The private Constructor prevents any other class from instantiating.
