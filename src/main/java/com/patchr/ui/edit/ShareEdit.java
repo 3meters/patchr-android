@@ -41,6 +41,7 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.List;
 
 public class ShareEdit extends BaseEdit {
@@ -255,11 +256,14 @@ public class ShareEdit extends BaseEdit {
 												UI.toast(StringManager.getString(R.string.error_storage_unmounted));
 											}
 										}
+										catch (ConnectException e) {
+											Reporting.breadcrumb("Picasso failed to load bitmap: connect");
+										}
 										catch (FileNotFoundException e) {
-											Reporting.breadcrumb("Picasso failed to load bitmap");
+											Reporting.breadcrumb("Picasso failed to load bitmap: file not found");
 										}
 										catch (IOException e) {
-											Reporting.breadcrumb("Picasso failed to load bitmap");
+											Reporting.breadcrumb("Picasso failed to load bitmap: io");
 										}
 										return photo;
 									}

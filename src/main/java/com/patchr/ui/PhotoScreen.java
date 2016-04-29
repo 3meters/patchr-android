@@ -35,6 +35,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.ConnectException;
 
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -132,8 +133,11 @@ public class PhotoScreen extends BaseScreen {
 				try {
 					bitmap = Picasso.with(Patchr.applicationContext).load(url).get();
 				}
+				catch (ConnectException e) {
+					Reporting.breadcrumb("Picasso failed to load bitmap: connect");
+				}
 				catch (IOException e) {
-					Reporting.breadcrumb("Picasso failed to load bitmap");
+					Reporting.breadcrumb("Picasso failed to load bitmap: io");
 				}
 
 				return bitmap;

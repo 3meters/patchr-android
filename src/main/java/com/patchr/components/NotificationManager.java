@@ -19,6 +19,7 @@ import com.patchr.utilities.Reporting;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -110,8 +111,11 @@ public class NotificationManager {
 
 				builder.setLargeIcon(bitmap);
 			}
+			catch (ConnectException e) {
+				Reporting.breadcrumb("Picasso failed to load bitmap: connect");
+			}
 			catch (IOException e) {
-				Reporting.breadcrumb("Picasso failed to load bitmap");
+				Reporting.breadcrumb("Picasso failed to load bitmap: io");
 			}
 		}
 
@@ -153,8 +157,11 @@ public class NotificationManager {
 			String tag = notification.getEventCategory().equals(Notification.EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
 			mNotificationService.notify(tag, 0, builder.build());
 		}
+		catch (ConnectException e) {
+			Reporting.breadcrumb("Picasso failed to load bitmap: connect");
+		}
 		catch (IOException e) {
-			Reporting.breadcrumb("Picasso failed to load bitmap");
+			Reporting.breadcrumb("Picasso failed to load bitmap: io");
 		}
 	}
 
