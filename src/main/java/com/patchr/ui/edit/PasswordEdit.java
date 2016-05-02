@@ -15,9 +15,11 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
@@ -100,6 +102,7 @@ public class PasswordEdit extends BaseEdit {
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
+					Reporting.track(AnalyticsCategory.EDIT, "Changed Password");
 					Logger.i(this, "User changed password: "
 							+ UserManager.currentUser.name
 							+ " (" + UserManager.currentUser.id

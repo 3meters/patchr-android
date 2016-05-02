@@ -36,6 +36,7 @@ import com.patchr.events.LocationDeniedEvent;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.events.QueryWifiScanReceivedEvent;
 import com.patchr.objects.AirLocation;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
@@ -111,7 +112,7 @@ public class NearbyListFragment extends EntityListFragment {
 			public void run() {
 				Patchr.stopwatch1.segmentTime("Wifi scan received event fired");
 
-				Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
+				Reporting.sendTiming(AnalyticsCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
 						, "wifi_scan_finished"
 						, NetworkManager.getInstance().getNetworkType());
 
@@ -177,7 +178,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 				Logger.d(getActivity(), "Entities for beacons finished event: ** done **");
 				Patchr.stopwatch1.segmentTime("Entities by proximity finished event fired");
-				Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
+				Reporting.sendTiming(AnalyticsCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
 						, "patches_by_proximity_downloaded"
 						, NetworkManager.getInstance().getNetworkType());
 
@@ -223,7 +224,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 									Logger.d(getActivity(), "Patches near location finished event: ** done **");
 									Patchr.stopwatch2.stop("Location processing: Patches near location complete");
-									Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
+									Reporting.sendTiming(AnalyticsCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
 											, "patches_near_location_downloaded"
 											, NetworkManager.getInstance().getNetworkType());
 

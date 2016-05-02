@@ -24,12 +24,14 @@ import com.patchr.components.DataController;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.UserManager;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.User;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Errors;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
@@ -175,12 +177,10 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 
 		new AsyncTask() {
 
-			@Override
-			protected void onPreExecute() {
+			@Override protected void onPreExecute() {
 			}
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncStatusUpdate");
 				return DataController.getInstance().insertLink(linkId
 						, fromId
@@ -191,12 +191,12 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 				);
 			}
 
-			@Override
-			protected void onPostExecute(Object response) {
+			@Override protected void onPostExecute(Object response) {
 				if (((Activity) getContext()).isFinishing()) return;
 				ModelResult result = (ModelResult) response;
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+					Reporting.track(AnalyticsCategory.ACTION, enabled ? "Approved Member" : "Unapproved Member");
 					entity.linkEnabled = enabled;
 				}
 				else {

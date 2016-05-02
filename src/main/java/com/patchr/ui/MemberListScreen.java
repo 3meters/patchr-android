@@ -14,10 +14,12 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.events.EntitiesQueryEvent;
 import com.patchr.objects.ActionType;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Entity;
 import com.patchr.ui.components.RecyclePresenter;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
+import com.patchr.utilities.Reporting;
 
 import static com.patchr.objects.FetchMode.AUTO;
 
@@ -115,6 +117,7 @@ public class MemberListScreen extends ListScreen {
 				if (isFinishing()) return;
 				ModelResult result = (ModelResult) response;
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+					Reporting.track(AnalyticsCategory.EDIT, "Removed Member Request");
 					fetch(AUTO);
 				}
 				else {

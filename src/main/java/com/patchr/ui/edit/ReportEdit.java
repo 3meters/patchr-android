@@ -18,6 +18,7 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Document;
 import com.patchr.objects.User;
 import com.patchr.ui.components.BusyPresenter;
@@ -26,7 +27,9 @@ import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
+import com.segment.analytics.Properties;
 
 import java.util.HashMap;
 
@@ -152,6 +155,7 @@ public class ReportEdit extends BaseEdit {
 
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					Reporting.track(AnalyticsCategory.ACTION, "Sent Report", new Properties().putValue("target", TextUtils.getCapsMode( entitySchema, 0, TextUtils.CAP_MODE_WORDS)));
 					UI.toast(StringManager.getString(R.string.alert_report_sent));
 					finish();
 				}

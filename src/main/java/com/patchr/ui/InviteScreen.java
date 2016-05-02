@@ -16,11 +16,14 @@ import com.patchr.components.BranchProvider;
 import com.patchr.components.FacebookProvider;
 import com.patchr.components.IntentBuilder;
 import com.patchr.components.StringManager;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Message;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.utilities.Json;
+import com.patchr.utilities.Reporting;
+import com.segment.analytics.Properties;
 
 public class InviteScreen extends BaseScreen {
 
@@ -90,6 +93,7 @@ public class InviteScreen extends BaseScreen {
 		}
 		else if (id == R.id.more_button) {
 			BranchProvider provider = new BranchProvider();
+			Reporting.track(AnalyticsCategory.ACTION, "Started Patch Invitation", new Properties().putValue("network", "Android"));
 			provider.invite(title, this.patch, this);
 		}
 	}

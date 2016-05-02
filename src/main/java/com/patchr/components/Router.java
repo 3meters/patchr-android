@@ -38,7 +38,7 @@ import com.patchr.ui.edit.LocationEdit;
 import com.patchr.ui.edit.LoginEdit;
 import com.patchr.ui.edit.PasswordEdit;
 import com.patchr.ui.edit.PatchEdit;
-import com.patchr.ui.edit.PostEdit;
+import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.edit.PrivacyEdit;
 import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.edit.ProximityEdit;
@@ -61,7 +61,7 @@ public class Router {
 			newClass = PatchEdit.class;
 		}
 		else if (Constants.SCHEMA_ENTITY_MESSAGE.equals(schema)) {
-			newClass = PostEdit.class;
+			newClass = MessageEdit.class;
 		}
 
 		Utils.guard(newClass != null, "Could not set edit class for unknown schema");
@@ -103,7 +103,7 @@ public class Router {
 
 	public Intent edit(Context context, Entity entity, Bundle extras, Boolean start) {
 
-		Class<?> editClass = PostEdit.class;
+		Class<?> editClass = MessageEdit.class;
 		if (Constants.SCHEMA_ENTITY_PATCH.equals(entity.schema)) {
 			editClass = PatchEdit.class;
 		}

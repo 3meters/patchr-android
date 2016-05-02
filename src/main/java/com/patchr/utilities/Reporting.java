@@ -9,6 +9,7 @@ import com.patchr.components.BranchProvider;
 import com.patchr.components.LocationManager;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.ProximityController;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.User;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Properties;
@@ -106,16 +107,35 @@ public class Reporting {
 		Bugsnag.leaveBreadcrumb(message);
 	}
 
-	public static void track(String category, String action, String target, long value) {
-		Reporting.track(category, action, target, value, false);
+	public static void track(String category, String event) {
+		Analytics.with(Patchr.applicationContext).track(event, new Properties()
+				.putValue("category", category));
 	}
 
-	public static void track(String category, String action, String target, long value, boolean nonInteratation) {
-		Analytics.with(Patchr.applicationContext).track(action, new Properties()
+	public static void track(String category, String event, Properties properties) {
+		properties.putValue("category", category);
+		Analytics.with(Patchr.applicationContext).track(event, properties);
+	}
+
+	public static void track(String category, String event, String target, long value) {
+		Analytics.with(Patchr.applicationContext).track(event, new Properties()
 				.putValue("category", category)
 				.putValue("target", target)
-				.putValue("value", value)
+				.putValue("value", value));
+	}
+
+	public static void track(String category, String event, boolean nonInteratation) {
+		Analytics.with(Patchr.applicationContext).track(event, new Properties()
+				.putValue("category", category)
 				.putValue("nonInteraction", nonInteratation));
+	}
+
+	public static void screen(String name) {
+		Reporting.screen(AnalyticsCategory.VIEW, name);
+	}
+
+	public static void screen(String category, String name) {
+		Analytics.with(Patchr.applicationContext).screen(category, name);
 	}
 
 	public static void sendTiming(String category, Long timing, String name, String label) {
@@ -123,14 +143,5 @@ public class Reporting {
 		 * Stub right now. User timings require native calls using GoogleAnalytics
 		 * segment bundle.
 		 */
-	}
-
-	public static class TrackerCategory {
-		public static String UX          = "ux";
-		public static String SYSTEM      = "system";
-		public static String EDIT        = "editing";
-		public static String LINK        = "linking";
-		public static String USER        = "user";
-		public static String PERFORMANCE = "performance";
 	}
 }

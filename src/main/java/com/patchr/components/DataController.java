@@ -25,6 +25,7 @@ import com.patchr.events.RegisterInstallEvent;
 import com.patchr.events.ShareCheckEvent;
 import com.patchr.events.TrendQueryEvent;
 import com.patchr.objects.AirLocation;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Cursor;
@@ -380,6 +381,7 @@ public class DataController {
 				/* We register installs even if the user is anonymous. */
 				ModelResult result = registerInstall();
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					Reporting.track(AnalyticsCategory.ACTION, "Registered Install");
 					SharedPreferences.Editor editor = Patchr.settings.edit();
 					editor.putBoolean(StringManager.getString(R.string.setting_install_registered), true).apply();
 					editor.apply();
@@ -548,15 +550,11 @@ public class DataController {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
 			UserManager.shared().setCurrentUser(user, true);
-
-			Reporting.track(Reporting.TrackerCategory.USER, "user_signin", null, 0);
-			Logger.i(this, "User signed in: " + UserManager.currentUser.name);
 		}
 		return result;
 	}
@@ -580,16 +578,8 @@ public class DataController {
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-		/*
-		 * We treat user as signed out even if the service call failed.
-		 */
-		Reporting.track(Reporting.TrackerCategory.USER, "user_signout", null, 0);
 
-		if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-			Logger.w(this, "User sign out but service call failed: " + UserManager.currentUser.id);
-		}
-
-		/* Set to anonymous user */
+		/* Set to anonymous user regardless of success */
 		UserManager.shared().setCurrentUser(null, false);
 
 		return result;
@@ -615,15 +605,11 @@ public class DataController {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
 			UserManager.shared().setCurrentUser(user, true);
-
-			Reporting.track(Reporting.TrackerCategory.USER, "password_change", null, 0);
-			Logger.i(this, "User changed password: " + UserManager.currentUser.name);
 		}
 		return result;
 	}
@@ -643,7 +629,6 @@ public class DataController {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.track(Reporting.TrackerCategory.USER, "email_validate", null, 0);
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
 			result.serviceResponse.data = serviceData;
@@ -692,16 +677,12 @@ public class DataController {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			Reporting.track(Reporting.TrackerCategory.USER, "password_reset", null, 0);
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 
 			User user = serviceData.user;
 			user.session = serviceData.session;
 			UserManager.shared().setCurrentUser(user, true);
-
-			Reporting.track(Reporting.TrackerCategory.USER, "user_signin", null, 0);
-			Logger.i(this, "Password reset and user signed in: " + UserManager.currentUser.name);
 		}
 
 		return result;
@@ -734,8 +715,6 @@ public class DataController {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-			Reporting.track(Reporting.TrackerCategory.USER, "user_register", null, 0);
 			String jsonResponse = (String) result.serviceResponse.data;
 			ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 
@@ -789,10 +768,6 @@ public class DataController {
 		/* Delete user */
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.track(Reporting.TrackerCategory.USER, "user_delete", null, 0);
-		}
-
 		return result;
 	}
 
@@ -816,8 +791,6 @@ public class DataController {
 		 * - custom link can be created
 		 * - create link is created from user but not followed
 		 */
-
-		Logger.i(this, "Inserting entity: " + entity.name);
 		ModelResult result = new ModelResult();
 
 		/* Upload image to S3 as needed */
@@ -914,8 +887,6 @@ public class DataController {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			String action = entity.synthetic ? "entity_upsize" : "entity_insert";
-			Reporting.track(Reporting.TrackerCategory.EDIT, action, entity.schema, 0);
 			Json.ObjectType serviceDataType = Json.ObjectType.ENTITY;
 
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -961,8 +932,6 @@ public class DataController {
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Logger.i(this, "Updating entity: " + entity.name);
-
 			/*
 			 * Construct entity, link, and observation
 			 * 
@@ -987,7 +956,6 @@ public class DataController {
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.track(Reporting.TrackerCategory.EDIT, "entity_update", entity.schema, 0);
 			/*
 			 * Optimization: We crawl entities in the cache and update embedded
 			 * user objects so we don't have to refresh all the affected entities
@@ -1013,7 +981,7 @@ public class DataController {
 		 * - like/create/watch links are not followed
 		 */
 		final ModelResult result = new ModelResult();
-		Entity entity = null;
+		Entity entity;
 
 		if (!cacheOnly) {
 			entity = ENTITY_STORE.getStoreEntity(entityId);
@@ -1025,8 +993,6 @@ public class DataController {
 			 * Delete the entity and all links and observations it is associated with. We attempt to continue even
 			 * if the call to delete the image failed.
 			 */
-			Logger.i(this, "Deleting entity: " + entity.id);
-
 			final Bundle parameters = new Bundle();
 			parameters.putString("entityId", entity.id);
 
@@ -1042,16 +1008,8 @@ public class DataController {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			if (entity != null) {
-				Reporting.track(Reporting.TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
-			}
 			entity = ENTITY_STORE.removeEntityTree(entityId);
-			/*
-			 * Remove 'create' link
-			 * 
-			 * FIXME: This needs to be generalized to hunt down all links that have
-			 * this entity at either end and clean them up including any counts.
-			 */
+			/* Remove 'create' link */
 			if (UserManager.shared().authenticated()) {
 				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
 				ENTITY_STORE.fixupRemoveLink(UserManager.currentUser.id, entityId, Constants.TYPE_LINK_CREATE, null);
@@ -1060,18 +1018,6 @@ public class DataController {
 			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				activityDate = DateTime.nowDate().getTime();
 			}
-		}
-		return result;
-	}
-
-	public ModelResult deleteMessage(String entityId, Boolean cacheOnly, String seedParentId, Object tag) {
-		/*
-		 * We sequence calls to delete the message and if the message is a seed then
-		 * we add a second call to remove any links from replies to the patch.
-		 */
-		ModelResult result = deleteEntity(entityId, cacheOnly, tag);
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS && seedParentId != null) {
-			result = removeLinks(entityId, seedParentId, Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, "remove_entity_message", tag);
 		}
 		return result;
 	}
@@ -1111,7 +1057,6 @@ public class DataController {
 
 		/* Reproduce the service call effect locally */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.track(Reporting.TrackerCategory.LINK, untuning ? "patch_untune" : "patch_tune", null, 0);
 			activityDate = DateTime.nowDate().getTime();   // So nearby fragment picks up the change
 
 			if (beacons != null) {
@@ -1177,7 +1122,6 @@ public class DataController {
 			if (!skipCache) {
 				ENTITY_STORE.fixupAddLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
 			}
-			Reporting.track(Reporting.TrackerCategory.LINK, actionEvent, Entity.getSchemaForId(toId), 0);
 		}
 
 		return result;
@@ -1208,19 +1152,6 @@ public class DataController {
 		 * We update the cache directly instead of refreshing from the service
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-			String action;
-			if (actionEvent != null) {
-				action = actionEvent;
-			}
-			else {
-				action = "entity_un" + type;
-				if (enabled != null) {
-					action += action + "_" + (enabled ? "approved" : "requested");
-				}
-			}
-
-			Reporting.track(Reporting.TrackerCategory.LINK, action, schema, 0);
 			/*
 			 * Fail could be because of Constants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
@@ -1242,10 +1173,6 @@ public class DataController {
 				.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.track(Reporting.TrackerCategory.LINK, actionEvent, null, 0);
-		}
 
 		return result;
 	}
@@ -1274,7 +1201,6 @@ public class DataController {
 		 * We update the cache directly instead of refreshing from the service
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.track(Reporting.TrackerCategory.LINK, "entity_remove", schema, 0);
 			if (UserManager.shared().authenticated()) {
 				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
 			}
@@ -1338,7 +1264,6 @@ public class DataController {
 
 	public ModelResult registerInstall() {
 
-		Logger.i(this, "Registering install with Aircandi service");
 		String parseInstallId = ParseInstallation.getCurrentInstallation().getInstallationId();
 		if (parseInstallId == null) {
 			throw new IllegalStateException("parseInstallId cannot be null");
@@ -1421,19 +1346,10 @@ public class DataController {
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.track(Reporting.TrackerCategory.USER, document.type + "_insert", document.type, 0);
-		}
-
 		return result;
 	}
 
 	private ServiceResponse storeImageAtS3(Entity entity, User user, Bitmap bitmap) {
-		/*
-		 * TODO: We are going with a garbage collection scheme for orphaned
-		 * images. We need to use an extended property on S3 items that is set to a date when collection is ok. This
-		 * allows downloaded entities to keep working even if an image for entity has changed.
-		 */
 
 		/* Make sure the bitmap is less than or equal to the maximum size we want to persist. */
 		bitmap = UI.ensureBitmapScaleForS3(bitmap);

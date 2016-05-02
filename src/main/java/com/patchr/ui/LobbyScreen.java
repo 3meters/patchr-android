@@ -20,11 +20,13 @@ import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.UserManager;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
 import com.patchr.objects.Preference;
 import com.patchr.ui.edit.LoginEdit;
 import com.patchr.ui.edit.ResetEdit;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
 import java.util.Map;
@@ -134,6 +136,7 @@ public class LobbyScreen extends AppCompatActivity {
 			Patchr.router.route(this, Command.LOGIN, null, extras);
 		}
 		else if (view.getId() == R.id.guest_button) {
+			Reporting.track(AnalyticsCategory.ACTION, "Entered as Guest");
 			startHomeActivity();
 		}
 	}

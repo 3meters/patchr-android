@@ -23,10 +23,12 @@ import com.patchr.components.ProximityController.ScanReason;
 import com.patchr.components.StringManager;
 import com.patchr.events.BeaconsLockedEvent;
 import com.patchr.events.QueryWifiScanReceivedEvent;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.Patch;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyPresenter;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -196,7 +198,12 @@ public class ProximityEdit extends BaseEdit {
 			}
 
 			@Override protected void onPostExecute(Object response) {
+				ModelResult result = (ModelResult) response;
 				busyPresenter.hide(false);
+
+				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+					Reporting.track(AnalyticsCategory.EDIT, untuning ? "Untuned Patch" : "Tuned Patch");
+				}
 
 				if (tuned || untuned) {
 				    /* Undoing a tuning */

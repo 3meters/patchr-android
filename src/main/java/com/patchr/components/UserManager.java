@@ -18,6 +18,7 @@ import com.orhanobut.dialogplus.ViewHolder;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
 import com.patchr.objects.LinkSpec;
 import com.patchr.objects.LinkSpecFactory;
@@ -87,7 +88,14 @@ public class UserManager {
 
 			@SuppressLint("NewApi")
 			@Override protected void onPostExecute(Object response) {
+				ModelResult result = (ModelResult) response;
+
 				/* Set to anonymous user even if service call fails */
+				if (result.serviceResponse.responseCode != NetworkManager.ResponseCode.SUCCESS) {
+					Logger.w(this, "User sign out but service call failed: " + UserManager.currentUser.id);
+				}
+
+				Reporting.track(AnalyticsCategory.ACTION, "Logged Out");
 				Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);

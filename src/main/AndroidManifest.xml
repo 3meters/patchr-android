@@ -339,7 +339,7 @@
 		</activity>
 
 		<activity
-			android:name=".ui.edit.PostEdit"
+			android:name=".ui.edit.MessageEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 

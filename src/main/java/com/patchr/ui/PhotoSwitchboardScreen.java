@@ -109,12 +109,8 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 		 * decided to start an install or not.
 		 */
 		if (resultCode != Activity.RESULT_CANCELED) {
-
 			if (requestCode == Constants.ACTIVITY_PHOTO_SEARCH) {
-
-				Reporting.track(Reporting.TrackerCategory.UX, "photo_select_using_search", null, 0);
 				if (intent != null && intent.getExtras() != null) {
-
 					final Bundle extras = intent.getExtras();
 					final String json = extras.getString(Constants.EXTRA_PHOTO);
 					if (json != null) {
@@ -139,7 +135,6 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 			@Override
 			public void run() {
 				if (chosenImage != null) {
-					Reporting.track(Reporting.TrackerCategory.UX, "photo_used_from_device", null, 0);
 					final Uri photoUri = Uri.parse("file://" + chosenImage.getFilePathOriginal());
 					MediaManager.scanMedia(photoUri);
 					Photo photo = new Photo()
@@ -170,7 +165,6 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 			@Override
 			public void run() {
 				if (chosenImages != null && chosenImages.size() > 0) {
-					Reporting.track(Reporting.TrackerCategory.UX, "photo_used_from_device", null, 0);
 					final Uri photoUri = Uri.parse("file://" + chosenImages.getImage(0).getFilePathOriginal());
 					MediaManager.scanMedia(photoUri);
 					Photo photo = new Photo()

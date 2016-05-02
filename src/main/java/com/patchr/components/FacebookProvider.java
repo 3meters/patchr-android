@@ -9,11 +9,14 @@ import com.facebook.FacebookException;
 import com.facebook.share.model.AppInviteContent;
 import com.facebook.share.widget.AppInviteDialog;
 import com.patchr.R;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
+import com.segment.analytics.Properties;
 
 public class FacebookProvider {
 	public void invite(final String title, Entity entity, Activity activity, CallbackManager callbackManager) {
@@ -53,6 +56,7 @@ public class FacebookProvider {
 
 				@Override
 				public void onSuccess(AppInviteDialog.Result result) {
+					Reporting.track(AnalyticsCategory.EDIT, "Sent Patch Invitation", new Properties().putValue("network", "Facebook"));
 					UI.toast("Facebook invites sent");
 				}
 

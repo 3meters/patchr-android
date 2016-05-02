@@ -22,6 +22,7 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
 import com.patchr.objects.Photo;
 import com.patchr.objects.ServiceData;
@@ -30,6 +31,7 @@ import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
@@ -342,6 +344,8 @@ public class ResetEdit extends BaseEdit {
 				busyPresenter.hide(true);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					Reporting.track(AnalyticsCategory.EDIT, "Reset Password and Logged In");
+					Logger.i(this, "Password reset and user signed in: " + UserManager.currentUser.name);
 					navigateToMain();
 				}
 				else {

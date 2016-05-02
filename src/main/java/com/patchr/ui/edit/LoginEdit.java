@@ -16,6 +16,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
+import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
@@ -30,7 +31,6 @@ import com.patchr.ui.widgets.PasswordEditText;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
-import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
@@ -231,6 +231,7 @@ public class LoginEdit extends BaseEdit {
 
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					Logger.i(this, "User signed in: " + UserManager.currentUser.name);
 					UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
 					didLogin();
 				}
@@ -286,7 +287,6 @@ public class LoginEdit extends BaseEdit {
 
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Reporting.track(Reporting.TrackerCategory.USER, "email_validate", null, 0);
 					ServiceData serviceData = (ServiceData) result.data;
 					if (serviceData.count == 0) {
 						didValidate();

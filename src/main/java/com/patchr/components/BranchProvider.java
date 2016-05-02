@@ -93,7 +93,7 @@ public class BranchProvider {
 					builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, entity.id);
 					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
 
-					builder.startChooser();
+					activity.startActivityForResult(builder.createChooserIntent(), Constants.ACTIVITY_SHARE);
 				}
 			}
 		});

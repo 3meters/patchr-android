@@ -22,6 +22,7 @@ import com.patchr.components.DataController;
 import com.patchr.components.MediaManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Message.MessageType;
@@ -36,6 +37,7 @@ import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
+import com.segment.analytics.Properties;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -449,6 +451,14 @@ public class ShareEdit extends BaseEdit {
 	}
 
 	@Override protected boolean afterInsert(Entity entity) {
+		if (inputShareType != null) {
+			if (inputShareType.equals(MessageType.Invite)) {
+				Reporting.track(AnalyticsCategory.EDIT, "Sent Patch Invitation", new Properties().putValue("network", "Patchr"));
+			}
+			else if (inputShareType.equals(MessageType.Share)) {
+				Reporting.track(AnalyticsCategory.EDIT, "Shared Message", new Properties().putValue("network", "Patchr"));
+			}
+		}
 		return true;
 	}
 

@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -25,6 +26,7 @@ import com.patchr.components.ProximityController;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.ProcessingCanceledEvent;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
@@ -44,6 +46,7 @@ import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
+import com.segment.analytics.Properties;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -108,6 +111,7 @@ public abstract class BaseEdit extends BaseScreen {
 					final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
 					if (jsonPhoto != null) {
 						final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
+						Reporting.track(AnalyticsCategory.ACTION, "Set Photo", new Properties().putValue("target", TextUtils.getCapsMode(entity.schema, 0, TextUtils.CAP_MODE_WORDS)));
 						onPhotoSelected(photo);
 					}
 				}
@@ -117,7 +121,7 @@ public abstract class BaseEdit extends BaseScreen {
 				if (intent != null && intent.getExtras() != null) {
 					Boolean changed = intent.getExtras().getBoolean("bitmap-changed", false);
 					if (changed) {
-						Reporting.track(Reporting.TrackerCategory.UX, "photo_edited", null, 0);
+						Reporting.track(AnalyticsCategory.ACTION, "Edited Photo");
 					}
 					final Uri photoUri = Uri.parse("file://" + intent.getData().toString());
 					MediaManager.scanMedia(photoUri);
@@ -467,8 +471,13 @@ public abstract class BaseEdit extends BaseScreen {
 				final ModelResult result = (ModelResult) response;
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+
 					Entity insertedEntity = (Entity) result.data;
 					entity.id = insertedEntity.id;
+
+					if (!entity.type.equals("share")) { // Shares covered in afterInsert()
+						Reporting.track(AnalyticsCategory.EDIT, "Created " + TextUtils.getCapsMode(entity.schema, 0, TextUtils.CAP_MODE_WORDS));
+					}
 					/*
 					 * In case a derived class needs to do something after a successful insert
 					 */
@@ -590,6 +599,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 					if (afterUpdate()) {  // Primary current use is for patch to cleanup proximity links if needed
+						Reporting.track(AnalyticsCategory.EDIT, "Updated " + TextUtils.getCapsMode(entity.schema, 0, TextUtils.CAP_MODE_WORDS));
 						UI.toast(StringManager.getString(updatedResId));
 						finish();
 						AnimationManager.doOverridePendingTransition(BaseEdit.this, TransitionType.FORM_BACK);

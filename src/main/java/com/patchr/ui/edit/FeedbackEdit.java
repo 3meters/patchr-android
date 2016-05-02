@@ -17,6 +17,7 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Document;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.SimpleTextWatcher;
@@ -24,6 +25,7 @@ import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
 import java.util.HashMap;
@@ -135,6 +137,7 @@ public class FeedbackEdit extends BaseEdit {
 
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					Reporting.track(AnalyticsCategory.ACTION, "Sent Feedback");
 					UI.toast(StringManager.getString(R.string.alert_feedback_sent));
 					finish();
 				}

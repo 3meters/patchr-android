@@ -246,6 +246,7 @@ public class Constants {
 	public static final int ACTIVITY_ENTITY_EDIT       = 900;
 	public static final int ACTIVITY_PHOTO_PICK        = 950;
 	public static final int ACTIVITY_ENTITY_INSERT     = 960;
+	public static final int ACTIVITY_SHARE             = 970;
 
 	public static final String FRAGMENT_TYPE_NEARBY        = "nearby";
 	public static final String FRAGMENT_TYPE_WATCH         = "watch";

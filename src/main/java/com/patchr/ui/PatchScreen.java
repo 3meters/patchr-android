@@ -41,6 +41,8 @@ import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.MenuManager;
+import com.patchr.components.ModelResult;
+import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.DataQueryResultEvent;
@@ -51,6 +53,7 @@ import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.ActionType;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
 import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
@@ -71,8 +74,10 @@ import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.views.PatchDetailView;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Maps;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
+import com.segment.analytics.Properties;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -246,6 +251,11 @@ public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMess
 					}
 				}
 			}
+			else if (requestCode == Constants.ACTIVITY_SHARE) {
+				Reporting.track(AnalyticsCategory.EDIT, "Sent Patch Invitation", new Properties().putValue("network", "Android"));
+				UI.toast("Patch invites sent");
+			}
+
 			callbackManager.onActivityResult(requestCode, resultCode, intent);
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -727,6 +737,7 @@ public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMess
 						}
 						else if (item.getItemId() == R.id.invite_using_other) {
 							BranchProvider provider = new BranchProvider();
+							Reporting.track(AnalyticsCategory.ACTION, "Started Patch Invitation", new Properties().putValue("network", "Android"));
 							provider.invite(title, entity, PatchScreen.this);
 						}
 					}
@@ -806,6 +817,10 @@ public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMess
 			}
 
 			@Override protected void onPostExecute(Object response) {
+				ModelResult result = (ModelResult) response;
+				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+					Reporting.track(AnalyticsCategory.EDIT, mute ? "Muted Patch" : "Unmuted Patch");
+				}
 				fetch(FetchMode.AUTO);
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);

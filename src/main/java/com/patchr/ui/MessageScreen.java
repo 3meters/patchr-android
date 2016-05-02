@@ -41,6 +41,7 @@ import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.ActionType;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
 import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
@@ -61,8 +62,10 @@ import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
+import com.segment.analytics.Properties;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -290,11 +293,14 @@ public class MessageScreen extends BaseScreen {
 
 	@Subscribe(threadMode = ThreadMode.MAIN) public void onDataQueryResult(final DataQueryResultEvent event) {
 
-		if (event.actionType == ActionType.ACTION_LINK_INSERT_LIKE
-				|| event.actionType == ActionType.ACTION_LINK_DELETE_LIKE) {
-			if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
-				onFetchComplete();
+		if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
+			if (event.actionType == ActionType.ACTION_LINK_INSERT_LIKE) {
+				Reporting.track(AnalyticsCategory.ACTION, "Liked Message");
 			}
+			else if (event.actionType == ActionType.ACTION_LINK_DELETE_LIKE) {
+				Reporting.track(AnalyticsCategory.ACTION, "Unliked Message");
+			}
+			onFetchComplete();
 		}
 	}
 
@@ -774,6 +780,7 @@ public class MessageScreen extends BaseScreen {
 							AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
 						}
 						else if (item.getItemId() == R.id.share_using_other) {
+							Reporting.track(AnalyticsCategory.ACTION, "Started Message Share", new Properties().putValue("network", "Android"));
 							showBuiltInSharePicker(title);
 						}
 					}

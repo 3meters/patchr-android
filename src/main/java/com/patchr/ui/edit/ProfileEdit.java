@@ -27,6 +27,7 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
 import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.TransitionType;
@@ -350,6 +351,7 @@ public class ProfileEdit extends BaseEdit {
 				final ModelResult result = (ModelResult) response;
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+					Reporting.track(AnalyticsCategory.EDIT, "Created User and Logged In");
 					Logger.i(ProfileEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
 					UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
 					setResult(Constants.RESULT_USER_LOGGED_IN);
@@ -392,7 +394,10 @@ public class ProfileEdit extends BaseEdit {
 				busyPresenter.hide(true);
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+
+					Reporting.track(AnalyticsCategory.EDIT, "Deleted User");
 					Logger.i(this, "Deleted user: " + entity.id);
+
 					UserManager.shared().setCurrentUser(null, false);
 					SharedPreferences.Editor editor = Patchr.settings.edit();
 					editor.putString(StringManager.getString(R.string.setting_last_email), null);

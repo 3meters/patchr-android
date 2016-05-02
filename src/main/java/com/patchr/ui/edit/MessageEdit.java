@@ -18,7 +18,7 @@ import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
 
-public class PostEdit extends BaseEdit {
+public class MessageEdit extends BaseEdit {
 
 	private String       inputPatchName;
 	private TextView     patchName;

@@ -8,7 +8,7 @@
 	android:layout_height="match_parent"
 	android:background="@color/background_screen"
 	android:orientation="vertical"
-	tools:context=".ui.edit.PostEdit">
+	tools:context=".ui.edit.MessageEdit">
 
 	<android.support.design.widget.AppBarLayout
 		android:id="@+id/appbar_layout"

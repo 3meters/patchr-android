@@ -21,6 +21,7 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.objects.AirLocation;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Preference;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
@@ -164,7 +165,7 @@ public class LocationManager implements
 				UI.toast("Location accuracy: " + location.getAccuracy());
 			}
 			if (location.getAccuracy() <= ACCURACY_PREFERRED) {
-				Reporting.sendTiming(Reporting.TrackerCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
+				Reporting.sendTiming(AnalyticsCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
 						, "location_accepted"
 						, NetworkManager.getInstance().getNetworkType());
 			}

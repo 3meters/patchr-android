@@ -139,7 +139,6 @@ public class Dialogs {
 					public void onClick(@NonNull DialogInterface dialog, int which) {
 						if (which == DialogInterface.BUTTON_POSITIVE) {
 							try {
-								Reporting.track(Reporting.TrackerCategory.UX, "patchr_update_button_click", "com.patchr", 0);
 								Logger.d(this, "Update: navigating to market install/update page");
 								final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update)));
 								intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -192,7 +191,6 @@ public class Dialogs {
 					public void onClick(@NonNull DialogInterface dialog, int which) {
 						if (which == DialogInterface.BUTTON_POSITIVE) {
 							try {
-								Reporting.track(Reporting.TrackerCategory.UX, "patchr_update_button_click", "com.patchr", 0);
 								Logger.d(this, "Update: navigating to market install/update page");
 								final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update)));
 								intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -245,7 +243,6 @@ public class Dialogs {
 					public void onClick(@NonNull DialogInterface dialog, int which) {
 						if (which == DialogInterface.BUTTON_POSITIVE) {
 							try {
-								Reporting.track(Reporting.TrackerCategory.UX, "aviary_install_button_click", "com.patchr", 0);
 								Logger.d(this, "Update: navigating to aviary install/update page");
 								final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_aviary_install)));
 								intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -293,7 +290,6 @@ public class Dialogs {
 					@Override
 					public void onClick(@NonNull DialogInterface dialog, int which) {
 						if (which == DialogInterface.BUTTON_POSITIVE) {
-							Reporting.track(Reporting.TrackerCategory.UX, "patchr_location_settings_button_click", "com.patchr", 0);
 							Patchr.router.route(activity, Command.SETTINGS_LOCATION, null, null);
 							dialog.dismiss();
 						}
