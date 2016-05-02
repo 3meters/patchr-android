@@ -117,7 +117,7 @@ public abstract class BaseEdit extends BaseScreen {
 				if (intent != null && intent.getExtras() != null) {
 					Boolean changed = intent.getExtras().getBoolean("bitmap-changed", false);
 					if (changed) {
-						Reporting.sendEvent(Reporting.TrackerCategory.UX, "photo_edited", null, 0);
+						Reporting.track(Reporting.TrackerCategory.UX, "photo_edited", null, 0);
 					}
 					final Uri photoUri = Uri.parse("file://" + intent.getData().toString());
 					MediaManager.scanMedia(photoUri);

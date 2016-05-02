@@ -148,8 +148,7 @@ public class UserManager {
 		sessionKey = user.session.key;
 		currentUser = user;
 
-		BranchProvider.setIdentity(userId);
-		Reporting.updateCrashUser(currentUser);
+		Reporting.updateUser(currentUser);  // Handles all frameworks
 
 		SharedPreferences.Editor editor = Patchr.settings.edit();
 		editor.putString(StringManager.getString(R.string.setting_user), jsonUser);
@@ -170,8 +169,7 @@ public class UserManager {
 		/* Cancel any current notifications in the status bar */
 		NotificationManager.getInstance().cancelAllNotifications();
 
-		Reporting.updateCrashUser(null);
-		BranchProvider.logout();
+		Reporting.updateUser(null); // Handles all frameworks
 
 		/* Clear user settings */
 		SharedPreferences.Editor editor = Patchr.settings.edit();

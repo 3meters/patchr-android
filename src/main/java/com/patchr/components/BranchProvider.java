@@ -17,11 +17,11 @@ import io.branch.referral.util.LinkProperties;
 
 public class BranchProvider {
 
-	static void logout() {
+	public static void logout() {
 		Branch.getInstance(Patchr.applicationContext).logout();
 	}
 
-	static void setIdentity(String identity) {
+	public static void setIdentity(String identity) {
 		Branch.getInstance(Patchr.applicationContext).setIdentity(identity);
 	}
 

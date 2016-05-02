@@ -286,7 +286,7 @@ public class LoginEdit extends BaseEdit {
 
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Reporting.sendEvent(Reporting.TrackerCategory.USER, "email_validate", null, 0);
+					Reporting.track(Reporting.TrackerCategory.USER, "email_validate", null, 0);
 					ServiceData serviceData = (ServiceData) result.data;
 					if (serviceData.count == 0) {
 						didValidate();

@@ -555,7 +555,7 @@ public class DataController {
 			user.session = serviceData.session;
 			UserManager.shared().setCurrentUser(user, true);
 
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signin", null, 0);
+			Reporting.track(Reporting.TrackerCategory.USER, "user_signin", null, 0);
 			Logger.i(this, "User signed in: " + UserManager.currentUser.name);
 		}
 		return result;
@@ -583,7 +583,7 @@ public class DataController {
 		/*
 		 * We treat user as signed out even if the service call failed.
 		 */
-		Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signout", null, 0);
+		Reporting.track(Reporting.TrackerCategory.USER, "user_signout", null, 0);
 
 		if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 			Logger.w(this, "User sign out but service call failed: " + UserManager.currentUser.id);
@@ -622,7 +622,7 @@ public class DataController {
 			user.session = serviceData.session;
 			UserManager.shared().setCurrentUser(user, true);
 
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, "password_change", null, 0);
+			Reporting.track(Reporting.TrackerCategory.USER, "password_change", null, 0);
 			Logger.i(this, "User changed password: " + UserManager.currentUser.name);
 		}
 		return result;
@@ -643,7 +643,7 @@ public class DataController {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, "email_validate", null, 0);
+			Reporting.track(Reporting.TrackerCategory.USER, "email_validate", null, 0);
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(jsonResponse, Json.ObjectType.ENTITY, Json.ServiceDataWrapper.TRUE);
 			result.serviceResponse.data = serviceData;
@@ -692,7 +692,7 @@ public class DataController {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, "password_reset", null, 0);
+			Reporting.track(Reporting.TrackerCategory.USER, "password_reset", null, 0);
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 
@@ -700,7 +700,7 @@ public class DataController {
 			user.session = serviceData.session;
 			UserManager.shared().setCurrentUser(user, true);
 
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_signin", null, 0);
+			Reporting.track(Reporting.TrackerCategory.USER, "user_signin", null, 0);
 			Logger.i(this, "Password reset and user signed in: " + UserManager.currentUser.name);
 		}
 
@@ -735,7 +735,7 @@ public class DataController {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_register", null, 0);
+			Reporting.track(Reporting.TrackerCategory.USER, "user_register", null, 0);
 			String jsonResponse = (String) result.serviceResponse.data;
 			ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 
@@ -790,7 +790,7 @@ public class DataController {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, "user_delete", null, 0);
+			Reporting.track(Reporting.TrackerCategory.USER, "user_delete", null, 0);
 		}
 
 		return result;
@@ -915,7 +915,7 @@ public class DataController {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 			String action = entity.synthetic ? "entity_upsize" : "entity_insert";
-			Reporting.sendEvent(Reporting.TrackerCategory.EDIT, action, entity.schema, 0);
+			Reporting.track(Reporting.TrackerCategory.EDIT, action, entity.schema, 0);
 			Json.ObjectType serviceDataType = Json.ObjectType.ENTITY;
 
 			final String jsonResponse = (String) result.serviceResponse.data;
@@ -987,7 +987,7 @@ public class DataController {
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.EDIT, "entity_update", entity.schema, 0);
+			Reporting.track(Reporting.TrackerCategory.EDIT, "entity_update", entity.schema, 0);
 			/*
 			 * Optimization: We crawl entities in the cache and update embedded
 			 * user objects so we don't have to refresh all the affected entities
@@ -1043,7 +1043,7 @@ public class DataController {
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 			if (entity != null) {
-				Reporting.sendEvent(Reporting.TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
+				Reporting.track(Reporting.TrackerCategory.EDIT, "entity_delete", entity.schema, 0);
 			}
 			entity = ENTITY_STORE.removeEntityTree(entityId);
 			/*
@@ -1111,7 +1111,7 @@ public class DataController {
 
 		/* Reproduce the service call effect locally */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.LINK, untuning ? "patch_untune" : "patch_tune", null, 0);
+			Reporting.track(Reporting.TrackerCategory.LINK, untuning ? "patch_untune" : "patch_tune", null, 0);
 			activityDate = DateTime.nowDate().getTime();   // So nearby fragment picks up the change
 
 			if (beacons != null) {
@@ -1177,7 +1177,7 @@ public class DataController {
 			if (!skipCache) {
 				ENTITY_STORE.fixupAddLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
 			}
-			Reporting.sendEvent(Reporting.TrackerCategory.LINK, actionEvent, Entity.getSchemaForId(toId), 0);
+			Reporting.track(Reporting.TrackerCategory.LINK, actionEvent, Entity.getSchemaForId(toId), 0);
 		}
 
 		return result;
@@ -1220,7 +1220,7 @@ public class DataController {
 				}
 			}
 
-			Reporting.sendEvent(Reporting.TrackerCategory.LINK, action, schema, 0);
+			Reporting.track(Reporting.TrackerCategory.LINK, action, schema, 0);
 			/*
 			 * Fail could be because of Constants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
@@ -1244,7 +1244,7 @@ public class DataController {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.LINK, actionEvent, null, 0);
+			Reporting.track(Reporting.TrackerCategory.LINK, actionEvent, null, 0);
 		}
 
 		return result;
@@ -1274,7 +1274,7 @@ public class DataController {
 		 * We update the cache directly instead of refreshing from the service
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.LINK, "entity_remove", schema, 0);
+			Reporting.track(Reporting.TrackerCategory.LINK, "entity_remove", schema, 0);
 			if (UserManager.shared().authenticated()) {
 				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
 			}
@@ -1422,7 +1422,7 @@ public class DataController {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Reporting.sendEvent(Reporting.TrackerCategory.USER, document.type + "_insert", document.type, 0);
+			Reporting.track(Reporting.TrackerCategory.USER, document.type + "_insert", document.type, 0);
 		}
 
 		return result;

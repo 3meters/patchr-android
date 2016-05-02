@@ -18,8 +18,6 @@ import android.support.multidex.MultiDexApplication;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.bugsnag.android.Bugsnag;
 import com.facebook.FacebookSdk;
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.tagmanager.Container;
@@ -45,6 +43,7 @@ import com.patchr.objects.Preference;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
+import com.segment.analytics.Analytics;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -75,7 +74,6 @@ public class Patchr extends MultiDexApplication {
 	public static String BING_ACCESS_KEY = "bing-access-key";
 	public static String USER_SECRET     = "user-secret";
 
-	private Tracker tracker;
 	public  Boolean prefEnableDev;
 	public  String  prefTestingBeacons;
 	private String  uniqueId;
@@ -119,6 +117,10 @@ public class Patchr extends MultiDexApplication {
 
 		/* Make sure unique id is initialized */
 		initializeInstallInfo();
+
+		/* Turn on segement to gather user data */
+		Analytics analytics = new Analytics.Builder(this, "81Q9wmANTOA6PLVlipPvSRHw97SJBENF").build();
+		Analytics.setSingletonInstance(analytics);
 
 		/* Turn on crash reporting */
 		Bugsnag.init(this);
@@ -254,25 +256,33 @@ public class Patchr extends MultiDexApplication {
 	}
 
 	private void initializeInstallInfo() {
+		/*
+		 * Android advertising id (AAID). Works like IFDA, device specific, unique,
+		 * resettable, may be unique per user on device
+		 */
 		uniqueId = settings.getString(StringManager.getString(R.string.setting_unique_id), null);
 		uniqueDate = settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
 		uniqueType = settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
+
 		if (uniqueId == null || uniqueType == null) {
-			if (Build.SERIAL != null && !Build.SERIAL.equals("unknown")) {
+
+			/* Try to use AAID first */
+			String androidId = Settings.Secure.getString(applicationContext.getContentResolver(), Settings.Secure.ANDROID_ID);
+			if (androidId != null) {
+				uniqueId = androidId;
+				uniqueType = Constants.INSTALL_TYPE_ANDROID_ID;
+			}
+			/* Hardware serial number */
+			else if (Build.SERIAL != null && !Build.SERIAL.equals("unknown")) {
 				uniqueId = Build.SERIAL;
 				uniqueType = Constants.INSTALL_TYPE_SERIAL;
 			}
+			/* Generate a unique number for this device */
 			else {
-				String androidId = Settings.Secure.getString(applicationContext.getContentResolver(), Settings.Secure.ANDROID_ID);
-				if (androidId != null) {
-					uniqueId = androidId;
-					uniqueType = Constants.INSTALL_TYPE_ANDROID_ID;
-				}
-				else {
-					uniqueId = UUID.randomUUID().toString();
-					uniqueType = Constants.INSTALL_TYPE_RANDOM;
-				}
+				uniqueId = UUID.randomUUID().toString();
+				uniqueType = Constants.INSTALL_TYPE_RANDOM;
 			}
+
 			uniqueDate = DateTime.nowDate().getTime();
 			settings.edit().putString(StringManager.getString(R.string.setting_unique_id_type), uniqueType);
 			settings.edit().putString(StringManager.getString(R.string.setting_unique_id), uniqueId);
@@ -312,19 +322,4 @@ public class Patchr extends MultiDexApplication {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
-
-	synchronized public Tracker getTracker() {
-		/* Setup the analytics tracker */
-		if (tracker == null) {
-			GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-			/*
-			 * Set how often auto dispatch gets fired in seconds.
-			 * Note: The default is 30 minutes which is crazy. iOS default is 2 minutes so we are
-			 * going to be a bit aggresive and make it one minute for ship.
-			 */
-			analytics.setLocalDispatchPeriod(Constants.TIME_ONE_MINUTE);
-			tracker = analytics.newTracker(R.xml.analytics);
-		}
-		return tracker;
-	}
 }

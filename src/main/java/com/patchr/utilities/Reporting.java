@@ -4,12 +4,15 @@ import android.location.Location;
 import android.net.wifi.WifiManager;
 
 import com.bugsnag.android.Bugsnag;
-import com.google.android.gms.analytics.HitBuilders;
 import com.patchr.Patchr;
+import com.patchr.components.BranchProvider;
 import com.patchr.components.LocationManager;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.ProximityController;
 import com.patchr.objects.User;
+import com.segment.analytics.Analytics;
+import com.segment.analytics.Properties;
+import com.segment.analytics.Traits;
 
 import java.util.Locale;
 
@@ -82,12 +85,16 @@ public class Reporting {
 		Bugsnag.addToTab("memory", "memory_free_mb", Utils.freeMemoryMB());
 	}
 
-	public static void updateCrashUser(User user) {
+	public static void updateUser(User user) {
 		if (user != null) {
+			BranchProvider.setIdentity(user.id);
 			Bugsnag.setUser(user.id, user.name, user.email);
+			Analytics.with(Patchr.applicationContext).identify(user.id, new Traits().putName(user.name).putEmail(user.email), null);
 		}
 		else {
-			Bugsnag.setUser("--", "Guest", "--");
+			BranchProvider.logout();
+			Bugsnag.setUser(Patchr.getInstance().getinstallId(), null, "Anonymous");
+			Analytics.with(Patchr.applicationContext).identify(Patchr.getInstance().getinstallId(), new Traits().putName("Anonymous").putEmail(null), null);
 		}
 	}
 
@@ -99,42 +106,23 @@ public class Reporting {
 		Bugsnag.leaveBreadcrumb(message);
 	}
 
-	public static void sendEvent(String category, String action, String target, long value) {
-		/*
-		 * Arguments should be free of whitespace.
-		 */
-		if (Patchr.getInstance().getTracker() != null) {
-			try {
-				Patchr.getInstance().getTracker().send(new HitBuilders.EventBuilder()
-						.setCategory(category)
-						.setAction(action)
-						.setLabel(target)
-						.setValue(value)
-						.build());
-			}
-			catch (Exception e) {
-				Reporting.logException(e);
-			}
-		}
+	public static void track(String category, String action, String target, long value) {
+		Reporting.track(category, action, target, value, false);
+	}
+
+	public static void track(String category, String action, String target, long value, boolean nonInteratation) {
+		Analytics.with(Patchr.applicationContext).track(action, new Properties()
+				.putValue("category", category)
+				.putValue("target", target)
+				.putValue("value", value)
+				.putValue("nonInteraction", nonInteratation));
 	}
 
 	public static void sendTiming(String category, Long timing, String name, String label) {
 		/*
-		 * Arguments should be free of whitespace.
+		 * Stub right now. User timings require native calls using GoogleAnalytics
+		 * segment bundle.
 		 */
-		if (Patchr.getInstance().getTracker() != null) {
-			try {
-				Patchr.getInstance().getTracker().send(new HitBuilders.TimingBuilder()
-						.setCategory(category)
-						.setValue(timing)
-						.setVariable(name)
-						.setLabel(label)
-						.build());
-			}
-			catch (Exception e) {
-				Reporting.logException(e);
-			}
-		}
 	}
 
 	public static class TrackerCategory {
