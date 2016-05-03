@@ -41,6 +41,7 @@ public class ProfileScreen extends BaseScreen {
 	private boolean              bound;
 	private RecyclePresenter     listPresenter;
 	private FloatingActionButton fab;
+	private boolean              isCurrentUser;
 
 	@Override protected void onStart() {
 		super.onStart();
@@ -180,6 +181,7 @@ public class ProfileScreen extends BaseScreen {
 
 		this.fab = (FloatingActionButton) findViewById(R.id.fab);
 		this.header = new UserDetailView(this);
+		this.isCurrentUser = UserManager.shared().authenticated() && UserManager.currentUser.id.equals(this.entityId);
 
 		this.listPresenter = new RecyclePresenter(this);
 		this.listPresenter.recycleView = (RecyclerView) this.rootView.findViewById(R.id.entity_list);
@@ -205,6 +207,10 @@ public class ProfileScreen extends BaseScreen {
 		return R.layout.screen_profile;
 	}
 
+	@Override protected String getScreenName() {
+		return this.isCurrentUser ? "ProfileScreen" : "UserScreen";
+	}
+
 	public void fetch(final FetchMode mode) {
 		/*
 		 * Called on main thread.
@@ -215,14 +221,15 @@ public class ProfileScreen extends BaseScreen {
 		Integer linkProfile = currentUser ? LinkSpecType.LINKS_FOR_USER_CURRENT : LinkSpecType.LINKS_FOR_USER;
 
 		EntityQueryEvent request = new EntityQueryEvent();
-		request.setLinkProfile(linkProfile)
-				.setActionType(ActionType.ACTION_GET_ENTITY)
-				.setFetchMode(mode)
-				.setEntityId(this.entityId)
-				.setTag(System.identityHashCode(this));
+
+		request.linkProfile = linkProfile;
+		request.actionType = ActionType.ACTION_GET_ENTITY;
+		request.fetchMode = mode;
+		request.entityId = entityId;
+		request.tag = System.identityHashCode(this);
 
 		if (this.bound && this.entity != null && mode != FetchMode.MANUAL) {
-			request.setCacheStamp(this.entity.getCacheStamp());
+			request.cacheStamp = entity.getCacheStamp();
 		}
 
 		Dispatcher.getInstance().post(request);

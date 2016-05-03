@@ -41,6 +41,7 @@ import com.patchr.events.NotificationsQueryEvent;
 import com.patchr.events.RegisterInstallEvent;
 import com.patchr.events.TrendQueryEvent;
 import com.patchr.objects.ActionType;
+import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
@@ -60,6 +61,7 @@ import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Maps;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -357,8 +359,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 					, R.string.label_drawer_open
 					, R.string.label_drawer_close) {
 
-				@Override
-				public void onDrawerClosed(View drawerView) {
+				@Override public void onDrawerClosed(View drawerView) {
 					super.onDrawerClosed(drawerView);
 
 					if (drawerView.getId() == R.id.left_drawer) {
@@ -372,8 +373,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 					}
 				}
 
-				@Override
-				public void onDrawerOpened(View drawerView) {
+				@Override public void onDrawerOpened(View drawerView) {
 					super.onDrawerOpened(drawerView);
 
 					if (drawerView.getId() == R.id.right_drawer && drawerRight != null) {
@@ -381,11 +381,11 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 						NotificationManager.getInstance().cancelAllNotifications();
 						updateNotificationIndicator(true);
 						((EntityListFragment) fragmentNotifications).fetch(FetchMode.AUTO);
+						Reporting.screen(AnalyticsCategory.VIEW, "NotificationsList");
 					}
 				}
 
-				@Override
-				public void onDrawerSlide(View drawerView, float slideOffset) {
+				@Override public void onDrawerSlide(View drawerView, float slideOffset) {
 					super.onDrawerSlide(drawerView, slideOffset);
 
 					if (drawerView.getId() == R.id.right_drawer && drawerRight != null) {
@@ -513,6 +513,10 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 
 	@Override protected int getLayoutId() {
 		return R.layout.screen_main;
+	}
+
+	@Override protected String getScreenName() {
+		return null;
 	}
 
 	public void bind() {
@@ -738,6 +742,22 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 
 		if (fragment instanceof EntityListFragment) {
 			this.actionBarTitle.setText(StringManager.getString(((EntityListFragment) fragment).titleResId));
+		}
+
+		if (fragmentType.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
+			Reporting.screen(AnalyticsCategory.VIEW, "NearbyPatchList");
+		}
+		else if (fragmentType.equals(Constants.FRAGMENT_TYPE_WATCH)) {
+			Reporting.screen(AnalyticsCategory.VIEW, "MemberOfPatchList");
+		}
+		else if (fragmentType.equals(Constants.FRAGMENT_TYPE_OWNER)) {
+			Reporting.screen(AnalyticsCategory.VIEW, "OwnerOfPatchList");
+		}
+		else if (fragmentType.equals(Constants.FRAGMENT_TYPE_TREND_ACTIVE)) {
+			Reporting.screen(AnalyticsCategory.VIEW, "ExplorePatchList");
+		}
+		else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
+			Reporting.screen(AnalyticsCategory.VIEW, "PatchListMap");
 		}
 
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

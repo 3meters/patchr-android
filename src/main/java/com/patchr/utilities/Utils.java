@@ -55,6 +55,10 @@ public class Utils {
 		return WEB_URL.matcher(webUri).matches();
 	}
 
+	public static String capitalize(String string) {
+		return string.substring(0, 1).toUpperCase(Locale.US) + string.substring(1).toLowerCase(Locale.US);
+	}
+
 	public static String md5(final String s) {
 		try {
 			// Create MD5 Hash

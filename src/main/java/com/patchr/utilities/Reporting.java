@@ -95,7 +95,7 @@ public class Reporting {
 		else {
 			BranchProvider.logout();
 			Bugsnag.setUser(Patchr.getInstance().getinstallId(), null, "Anonymous");
-			Analytics.with(Patchr.applicationContext).identify(Patchr.getInstance().getinstallId(), new Traits().putName("Anonymous").putEmail(null), null);
+			Analytics.with(Patchr.applicationContext).identify(Patchr.getInstance().getinstallId(), new Traits().putName("Anonymous"), null);
 		}
 	}
 

@@ -167,15 +167,17 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 
 		Utils.guard(view != null, "View cannot be null");
 
-		this.listPresenter.recycleView = (RecyclerView) view.findViewById(R.id.entity_list);
-		this.listPresenter.recycleView.addOnScrollListener(new ListScrollListener() {
-			@Override public void onMoved(int distance) {
-				if (listPresenter.busyPresenter.swipeRefreshLayout != null) {
-					listPresenter.busyPresenter.swipeRefreshLayout.setEnabled(distance == 0);
+		if (this.listPresenter != null) {
+			this.listPresenter.recycleView = (RecyclerView) view.findViewById(R.id.entity_list);
+			this.listPresenter.recycleView.addOnScrollListener(new ListScrollListener() {
+				@Override public void onMoved(int distance) {
+					if (listPresenter.busyPresenter.swipeRefreshLayout != null) {
+						listPresenter.busyPresenter.swipeRefreshLayout.setEnabled(distance == 0);
+					}
 				}
-			}
-		});
-		this.listPresenter.initialize(getContext(), view);        // We init after everything is setup
+			});
+			this.listPresenter.initialize(getContext(), view);        // We init after everything is setup
+		}
 	}
 
 	public void fetch(FetchMode fetchMode) {

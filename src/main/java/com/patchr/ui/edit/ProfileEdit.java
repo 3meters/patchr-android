@@ -259,7 +259,7 @@ public class ProfileEdit extends BaseEdit {
 
 			@Override protected void onPreExecute() {
 				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
-					busyPresenter.showProgressDialog(ProfileEdit.this);
+					busyPresenter.showHorizontalProgressBar(ProfileEdit.this);
 				}
 				else {
 					busyPresenter.show(BusyPresenter.BusyAction.Update);

@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -46,6 +45,7 @@ import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 import com.segment.analytics.Properties;
 import com.squareup.picasso.Picasso;
 
@@ -111,7 +111,7 @@ public abstract class BaseEdit extends BaseScreen {
 					final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
 					if (jsonPhoto != null) {
 						final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
-						Reporting.track(AnalyticsCategory.ACTION, "Set Photo", new Properties().putValue("target", TextUtils.getCapsMode(entity.schema, 0, TextUtils.CAP_MODE_WORDS)));
+						Reporting.track(AnalyticsCategory.ACTION, "Set Photo", new Properties().putValue("target", Utils.capitalize(entity.schema)));
 						onPhotoSelected(photo);
 					}
 				}
@@ -351,7 +351,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 			@Override protected void onPreExecute() {
 				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
-					busyPresenter.showProgressDialog(BaseEdit.this);
+					busyPresenter.showHorizontalProgressBar(BaseEdit.this);
 				}
 				else {
 					busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, insertProgressResId, BaseEdit.this);
@@ -476,7 +476,7 @@ public abstract class BaseEdit extends BaseScreen {
 					entity.id = insertedEntity.id;
 
 					if (!entity.type.equals("share")) { // Shares covered in afterInsert()
-						Reporting.track(AnalyticsCategory.EDIT, "Created " + TextUtils.getCapsMode(entity.schema, 0, TextUtils.CAP_MODE_WORDS));
+						Reporting.track(AnalyticsCategory.EDIT, "Created " + Utils.capitalize(entity.schema));
 					}
 					/*
 					 * In case a derived class needs to do something after a successful insert
@@ -511,7 +511,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 			@Override protected void onPreExecute() {
 				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
-					busyPresenter.showProgressDialog(BaseEdit.this);
+					busyPresenter.showHorizontalProgressBar(BaseEdit.this);
 				}
 				else {
 					busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_updating, BaseEdit.this);
@@ -599,7 +599,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 					if (afterUpdate()) {  // Primary current use is for patch to cleanup proximity links if needed
-						Reporting.track(AnalyticsCategory.EDIT, "Updated " + TextUtils.getCapsMode(entity.schema, 0, TextUtils.CAP_MODE_WORDS));
+						Reporting.track(AnalyticsCategory.EDIT, "Updated " + Utils.capitalize(entity.schema));
 						UI.toast(StringManager.getString(updatedResId));
 						finish();
 						AnimationManager.doOverridePendingTransition(BaseEdit.this, TransitionType.FORM_BACK);

@@ -39,7 +39,6 @@ import com.patchr.events.EntityQueryEvent;
 import com.patchr.events.EntityQueryResultEvent;
 import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
-import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.ActionType;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
@@ -288,34 +287,19 @@ public class MessageScreen extends BaseScreen {
 				}
 			}
 		}
-
 	}
 
 	@Subscribe(threadMode = ThreadMode.MAIN) public void onDataQueryResult(final DataQueryResultEvent event) {
 
-		if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
-			if (event.actionType == ActionType.ACTION_LINK_INSERT_LIKE) {
-				Reporting.track(AnalyticsCategory.ACTION, "Liked Message");
-			}
-			else if (event.actionType == ActionType.ACTION_LINK_DELETE_LIKE) {
-				Reporting.track(AnalyticsCategory.ACTION, "Unliked Message");
-			}
-			onFetchComplete();
+		if (event.actionType == ActionType.ACTION_LINK_INSERT_LIKE) {
+			Reporting.track(AnalyticsCategory.ACTION, "Liked Message");
+			bindLike();
 		}
-	}
-
-	@Subscribe public void onNotificationReceived(final NotificationReceivedEvent event) {
-	    /*
-	     * Refresh the form because something might have changed e.g. new likes.
-		 */
-		if ((event.notification.parentId != null && event.notification.parentId.equals(entityId))
-				|| (event.notification.targetId != null && event.notification.targetId.equals(entityId))) {
-			runOnUiThread(new Runnable() {
-				@Override public void run() {
-					//fetch(FetchMode.AUTO);
-				}
-			});
+		else if (event.actionType == ActionType.ACTION_LINK_DELETE_LIKE) {
+			Reporting.track(AnalyticsCategory.ACTION, "Unliked Message");
+			bindLike();
 		}
+		onFetchComplete();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -391,14 +375,14 @@ public class MessageScreen extends BaseScreen {
 		 */
 		Logger.v(this, "Binding: " + mode.name());
 		EntityQueryEvent request = new EntityQueryEvent();
-		request.setLinkProfile(LinkSpecType.LINKS_FOR_MESSAGE)
-				.setActionType(ActionType.ACTION_GET_ENTITY)
-				.setFetchMode(mode)
-				.setEntityId(entityId)
-				.setTag(System.identityHashCode(this));
+		request.linkProfile = LinkSpecType.LINKS_FOR_MESSAGE;
+		request.actionType = ActionType.ACTION_GET_ENTITY;
+		request.fetchMode = mode;
+		request.entityId = entityId;
+		request.tag = System.identityHashCode(this);
 
 		if (bound && entity != null && mode != FetchMode.MANUAL) {
-			request.setCacheStamp(entity.getCacheStamp());
+			request.cacheStamp = entity.getCacheStamp();
 		}
 
 		Dispatcher.getInstance().post(request);
@@ -703,8 +687,7 @@ public class MessageScreen extends BaseScreen {
 	public void like(final boolean activate) {
 
 		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
+			@Override public void run() {
 				ViewAnimator animator = (ViewAnimator) findViewById(R.id.like_button);
 				if (animator != null) {
 					animator.setDisplayedChild(1);  // Turned off in drawButtons
@@ -722,34 +705,32 @@ public class MessageScreen extends BaseScreen {
 			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
 			Shortcut toShortcut = entity.getAsShortcut();
 
-			LinkInsertEvent update = new LinkInsertEvent()
-					.setFromId(UserManager.currentUser.id)
-					.setToId(entity.id)
-					.setType(Constants.TYPE_LINK_LIKE)
-					.setEnabled(true)
-					.setFromShortcut(fromShortcut)
-					.setToShortcut(toShortcut)
-					.setActionEvent("like_entity_" + entity.schema.toLowerCase(Locale.US))
-					.setSkipCache(false);
+			LinkInsertEvent insertEvent = new LinkInsertEvent();
+			insertEvent.fromId = UserManager.currentUser.id;
+			insertEvent.toId = entity.id;
+			insertEvent.type = Constants.TYPE_LINK_LIKE;
+			insertEvent.enabled = true;
+			insertEvent.fromShortcut = fromShortcut;
+			insertEvent.toShortcut = toShortcut;
+			insertEvent.actionEvent = "like_entity_" + entity.schema.toLowerCase(Locale.US);
+			insertEvent.skipCache = false;
+			insertEvent.actionType = ActionType.ACTION_LINK_INSERT_LIKE;
+			insertEvent.tag = System.identityHashCode(this);
 
-			update.setActionType(ActionType.ACTION_LINK_INSERT_LIKE)
-					.setTag(System.identityHashCode(this));
-
-			Dispatcher.getInstance().post(update);
+			Dispatcher.getInstance().post(insertEvent);
 		}
 		else {
 
-			LinkDeleteEvent update = new LinkDeleteEvent()
-					.setFromId(UserManager.currentUser.id)
-					.setToId(entity.id)
-					.setType(Constants.TYPE_LINK_LIKE)
-					.setSchema(entity.schema)
-					.setActionEvent("unlike_entity_" + entity.schema.toLowerCase(Locale.US));
+			LinkDeleteEvent deleteEvent = new LinkDeleteEvent();
+			deleteEvent.fromId = UserManager.currentUser.id;
+			deleteEvent.toId = entity.id;
+			deleteEvent.type = Constants.TYPE_LINK_LIKE;
+			deleteEvent.schema = entity.schema;
+			deleteEvent.actionEvent = "unlike_entity_" + entity.schema.toLowerCase(Locale.US);
+			deleteEvent.actionType = ActionType.ACTION_LINK_DELETE_LIKE;
+			deleteEvent.tag = System.identityHashCode(this);
 
-			update.setActionType(ActionType.ACTION_LINK_DELETE_LIKE)
-					.setTag(System.identityHashCode(this));
-
-			Dispatcher.getInstance().post(update);
+			Dispatcher.getInstance().post(deleteEvent);
 		}
 	}
 

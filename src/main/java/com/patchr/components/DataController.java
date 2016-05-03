@@ -105,8 +105,7 @@ public class DataController {
 		/* Check service for fresher version of the entity */
 		new AsyncTask() {
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncGetEntity");
 
 				LinkSpec links = LinkSpecFactory.build(event.linkProfile);
@@ -115,10 +114,10 @@ public class DataController {
 
 				ServiceResponse serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, links, event.cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
-				EntityQueryResultEvent data = new EntityQueryResultEvent()
-						.setActionType(event.actionType)
-						.setFetchMode(event.fetchMode)
-						.setTag(event.tag);
+				EntityQueryResultEvent data = new EntityQueryResultEvent();
+				data.actionType = event.actionType;
+				data.fetchMode = event.fetchMode;
+				data.tag = event.tag;
 
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
@@ -160,30 +159,30 @@ public class DataController {
 
 				ServiceResponse serviceResponse = ENTITY_STORE.loadEntitiesForEntity(event.entityId, options, event.cursor, event.cacheStamp, null, event.tag);
 
-				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
-						.setActionType(event.actionType)
-						.setCursor(event.cursor)
-						.setFetchMode(event.fetchMode)
-						.setTag(event.tag);
+				EntitiesQueryResultEvent resultEvent = new EntitiesQueryResultEvent();
+				resultEvent.actionType = event.actionType;
+				resultEvent.cursor = event.cursor;
+				resultEvent.fetchMode = event.fetchMode;
+				resultEvent.tag = event.tag;
 
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					ServiceData serviceData = (ServiceData) serviceResponse.data;
-					data.more = serviceData.more;
-					data.scopingEntity = serviceData.entity;  // Entity straight from db and not processed by getEntities
-					data.entities = (List<Entity>) serviceData.data;
+					resultEvent.more = (serviceData.count != 0 && serviceData.more);
+					resultEvent.scopingEntity = serviceData.entity;  // Entity straight from db and not processed by getEntities
+					resultEvent.entities = (List<Entity>) serviceData.data;
 					/*
 					 * The parent entity is always returned unless we pass a cache stamp and it does
 					 * not have a fresher cache stamp.
                      */
 					if (event.cacheStamp != null && serviceData.entity == null) {
-						data.noop = true;
+						resultEvent.noop = true;
 					}
 				}
 				else {
-					data.error = serviceResponse.errorResponse;
+					resultEvent.error = serviceResponse.errorResponse;
 				}
-				Dispatcher.getInstance().post(data);
+				Dispatcher.getInstance().post(resultEvent);
 				return null;
 			}
 		}.executeOnExecutor(Constants.EXECUTOR);
@@ -206,11 +205,11 @@ public class DataController {
 						, event.cursor
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
-				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
-						.setCursor(event.cursor)
-						.setFetchMode(event.fetchMode)
-						.setActionType(event.actionType)
-						.setTag(event.tag);
+				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent();
+				data.actionType = event.actionType;
+				data.cursor = event.cursor;
+				data.fetchMode = event.fetchMode;
+				data.tag = event.tag;
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (result.data != null) {
@@ -240,11 +239,11 @@ public class DataController {
 						, event.cursor
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
-				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent()
-						.setCursor(event.cursor)
-						.setFetchMode(event.fetchMode)
-						.setActionType(event.actionType)
-						.setTag(event.tag);
+				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent();
+				data.actionType = event.actionType;
+				data.cursor = event.cursor;
+				data.fetchMode = event.fetchMode;
+				data.tag = event.tag;
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (result.data != null) {
@@ -277,9 +276,9 @@ public class DataController {
 						, event.toShortcut, event.actionEvent, event.skipCache, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, event.fromShortcut
 				);
 
-				DataQueryResultEvent data = new DataQueryResultEvent()
-						.setActionType(event.actionType)
-						.setTag(event.tag);
+				DataQueryResultEvent data = new DataQueryResultEvent();
+				data.actionType = event.actionType;
+				data.tag = event.tag;
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 					data.error = result.serviceResponse.errorResponse;
 				}
@@ -299,9 +298,10 @@ public class DataController {
 
 				ModelResult result = muteLink(event.linkId, event.mute, event.actionEvent);
 
-				DataQueryResultEvent data = new DataQueryResultEvent()
-						.setActionType(event.actionType)
-						.setTag(event.tag);
+				DataQueryResultEvent data = new DataQueryResultEvent();
+				data.actionType = event.actionType;
+				data.tag = event.tag;
+
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 					data.error = result.serviceResponse.errorResponse;
 				}
@@ -327,9 +327,10 @@ public class DataController {
 						, event.actionEvent
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
-				DataQueryResultEvent data = new DataQueryResultEvent()
-						.setActionType(event.actionType)
-						.setTag(event.tag);
+				DataQueryResultEvent data = new DataQueryResultEvent();
+				data.actionType = event.actionType;
+				data.tag = event.tag;
+
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 					data.error = result.serviceResponse.errorResponse;
 				}
@@ -351,9 +352,9 @@ public class DataController {
 						, event.userId
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
-				DataQueryResultEvent data = new DataQueryResultEvent()
-						.setActionType(event.actionType)
-						.setTag(event.tag);
+				DataQueryResultEvent data = new DataQueryResultEvent();
+				data.actionType = event.actionType;
+				data.tag = event.tag;
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					data.data = result.data;

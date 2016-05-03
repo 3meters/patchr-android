@@ -146,7 +146,7 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 
 				@Override protected void onPreExecute() {
 					if (busyPresenter != null) {
-						busyPresenter.startProgressBar();
+						busyPresenter.show(BusyPresenter.BusyAction.Scanning_Empty);
 					}
 
 					if (searchProgress != null) {
@@ -171,7 +171,7 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 					final ModelResult result = (ModelResult) response;
 
 					if (busyPresenter != null) {
-						busyPresenter.stopProgressBar();
+						busyPresenter.hide(false);
 					}
 
 					if (searchProgress != null) {

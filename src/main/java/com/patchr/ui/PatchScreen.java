@@ -588,14 +588,14 @@ public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMess
 		Logger.v(this, "Fetching: " + mode.name().toString());
 
 		EntityQueryEvent request = new EntityQueryEvent();
-		request.setLinkProfile(LinkSpecType.LINKS_FOR_PATCH)
-				.setActionType(ActionType.ACTION_GET_ENTITY)
-				.setFetchMode(mode)
-				.setEntityId(this.entityId)
-				.setTag(System.identityHashCode(this));
+		request.linkProfile = LinkSpecType.LINKS_FOR_PATCH;
+		request.actionType = ActionType.ACTION_GET_ENTITY;
+		request.fetchMode = mode;
+		request.entityId = entityId;
+		request.tag = System.identityHashCode(this);
 
 		if (this.bound && this.entity != null && mode != FetchMode.MANUAL) {
-			request.setCacheStamp(this.entity.getCacheStamp());
+			request.cacheStamp = entity.getCacheStamp();
 		}
 
 		Dispatcher.getInstance().post(request);
@@ -763,35 +763,33 @@ public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMess
 			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
 			Shortcut toShortcut = entity.getAsShortcut();
 
-			LinkInsertEvent update = new LinkInsertEvent()
-					.setFromId(UserManager.currentUser.id)
-					.setToId(entity.id)
-					.setType(Constants.TYPE_LINK_MEMBER)
-					.setEnabled(enabled)
-					.setFromShortcut(fromShortcut)
-					.setToShortcut(toShortcut)
-					.setActionEvent(((Patch) entity).isVisibleToCurrentUser() ? "watch_entity_patch" : "request_watch_entity")
-					.setSkipCache(false);
+			LinkInsertEvent insertEvent = new LinkInsertEvent();
+			insertEvent.fromId = UserManager.currentUser.id;
+			insertEvent.toId = entity.id;
+			insertEvent.type = Constants.TYPE_LINK_MEMBER;
+			insertEvent.enabled = enabled;
+			insertEvent.fromShortcut = fromShortcut;
+			insertEvent.toShortcut = toShortcut;
+			insertEvent.actionEvent = ((Patch) entity).isVisibleToCurrentUser() ? "watch_entity_patch" : "request_watch_entity";
+			insertEvent.skipCache = false;
+			insertEvent.actionType = ActionType.ACTION_LINK_INSERT_MEMBER;
+			insertEvent.tag = System.identityHashCode(this);
 
-			update.setActionType(ActionType.ACTION_LINK_INSERT_MEMBER)
-					.setTag(System.identityHashCode(this));
-
-			Dispatcher.getInstance().post(update);
+			Dispatcher.getInstance().post(insertEvent);
 		}
 		else {
 
-			LinkDeleteEvent update = new LinkDeleteEvent()
-					.setFromId(UserManager.currentUser.id)
-					.setToId(entity.id)
-					.setType(Constants.TYPE_LINK_MEMBER)
-					.setEnabled(enabled)
-					.setSchema(entity.schema)
-					.setActionEvent("unwatch_entity_" + entity.schema.toLowerCase(Locale.US));
+			LinkDeleteEvent deleteEvent = new LinkDeleteEvent();
+			deleteEvent.fromId = UserManager.currentUser.id;
+			deleteEvent.toId = entity.id;
+			deleteEvent.type = Constants.TYPE_LINK_MEMBER;
+			deleteEvent.schema = entity.schema;
+			deleteEvent.enabled = enabled;
+			deleteEvent.actionEvent = "unwatch_entity_" + entity.schema.toLowerCase(Locale.US);
+			deleteEvent.actionType = ActionType.ACTION_LINK_DELETE_MEMBER;
+			deleteEvent.tag = System.identityHashCode(this);
 
-			update.setActionType(ActionType.ACTION_LINK_DELETE_MEMBER)
-					.setTag(System.identityHashCode(this));
-
-			Dispatcher.getInstance().post(update);
+			Dispatcher.getInstance().post(deleteEvent);
 		}
 	}
 

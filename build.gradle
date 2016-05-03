@@ -133,7 +133,7 @@ dependencies {
 	compile 'com.facebook.android:facebook-android-sdk:4.10.0'
 	compile 'com.parse:parse-android:1.13.0'
 	compile 'com.segment.analytics.android:analytics:4.0.9'
-	compile 'io.branch.sdk.android:library:1.11.0'
+	compile 'io.branch.sdk.android:library:1.11.2'
 	compile 'com.google.android.gms:play-services-base:8.4.0'
 	compile 'com.google.android.gms:play-services-location:8.4.0'
 	compile 'com.google.android.gms:play-services-maps:8.4.0'

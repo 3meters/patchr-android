@@ -44,6 +44,7 @@
 				android:layout_marginLeft="2dp"
 				android:layout_marginTop="8dp"
 				android:clickable="true"
+				android:onClick="onClick"
 				custom:aspectRatio="@dimen/aspect_ratio_message_item_image"
 				custom:category="standard" />
 

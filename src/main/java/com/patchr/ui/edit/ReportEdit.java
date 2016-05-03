@@ -29,6 +29,7 @@ import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 import com.segment.analytics.Properties;
 
 import java.util.HashMap;
@@ -155,7 +156,7 @@ public class ReportEdit extends BaseEdit {
 
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Reporting.track(AnalyticsCategory.ACTION, "Sent Report", new Properties().putValue("target", TextUtils.getCapsMode( entitySchema, 0, TextUtils.CAP_MODE_WORDS)));
+					Reporting.track(AnalyticsCategory.ACTION, "Sent Report", new Properties().putValue("target", Utils.capitalize(entitySchema)));
 					UI.toast(StringManager.getString(R.string.alert_report_sent));
 					finish();
 				}

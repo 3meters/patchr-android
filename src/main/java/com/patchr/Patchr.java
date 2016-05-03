@@ -76,6 +76,7 @@ public class Patchr extends MultiDexApplication {
 
 	public  Boolean prefEnableDev;
 	public  String  prefTestingBeacons;
+	private String  advertisingId;
 	private String  uniqueId;
 	private Long    uniqueDate;
 	private String  uniqueType;
@@ -256,17 +257,14 @@ public class Patchr extends MultiDexApplication {
 	}
 
 	private void initializeInstallInfo() {
-		/*
-		 * Android advertising id (AAID). Works like IFDA, device specific, unique,
-		 * resettable, may be unique per user on device
-		 */
+
 		uniqueId = settings.getString(StringManager.getString(R.string.setting_unique_id), null);
 		uniqueDate = settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
 		uniqueType = settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
 
 		if (uniqueId == null || uniqueType == null) {
 
-			/* Try to use AAID first */
+			/* Try to use android id first */
 			String androidId = Settings.Secure.getString(applicationContext.getContentResolver(), Settings.Secure.ANDROID_ID);
 			if (androidId != null) {
 				uniqueId = androidId;

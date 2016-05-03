@@ -19,46 +19,4 @@ public abstract class AbsEntityQueryEvent {
 	public Integer              pageSize;
 	public boolean              noop;
 	public Errors.ErrorResponse error;
-
-	public AbsEntityQueryEvent() {}
-
-	public AbsEntityQueryEvent setActionType(ActionType actionType) {
-		this.actionType = actionType;
-		return this;
-	}
-
-	public AbsEntityQueryEvent setCursor(Cursor cursor) {
-		this.cursor = cursor;
-		return this;
-	}
-
-	public AbsEntityQueryEvent setPageSize(Integer pageSize) {
-		this.pageSize = pageSize;
-		return this;
-	}
-
-	public AbsEntityQueryEvent setFetchMode(FetchMode fetchMode) {
-		this.fetchMode = fetchMode;
-		return this;
-	}
-
-	public AbsEntityQueryEvent setEntityId(String entityId) {
-		this.entityId = entityId;
-		return this;
-	}
-
-	public AbsEntityQueryEvent setTag(Object tag) {
-		this.tag = tag;
-		return this;
-	}
-
-	public AbsEntityQueryEvent setCacheStamp(CacheStamp cacheStamp) {
-		this.cacheStamp = cacheStamp;
-		return this;
-	}
-
-	public AbsEntityQueryEvent setLinkProfile(Integer linkProfile) {
-		this.linkProfile = linkProfile;
-		return this;
-	}
 }

@@ -14,6 +14,7 @@ import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
+import com.patchr.components.UserManager;
 import com.patchr.events.AbsEntitiesQueryEvent;
 import com.patchr.events.EntitiesQueryResultEvent;
 import com.patchr.events.NotificationReceivedEvent;
@@ -101,7 +102,9 @@ public class RecyclePresenter {
 		this.processing = false;
 		this.busyPresenter.hide(false);
 		if (this.entities.size() == 0 && responseCode == NetworkManager.ResponseCode.SUCCESS) {
-			this.emptyPresenter.show(true);
+			if (this.scopingEntityId == null || !UserManager.shared().authenticated() || this.scopingEntityId.equals(UserManager.userId)) {
+				this.emptyPresenter.show(true);
+			}
 		}
 		else {
 			this.emptyPresenter.hide(true); // Only fades if currently visible

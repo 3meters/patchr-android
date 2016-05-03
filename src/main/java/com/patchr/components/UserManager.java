@@ -148,6 +148,8 @@ public class UserManager {
 
 	private void captureCredentials(User user) {
 
+		Boolean changed = (userId == null || !userId.equals(user.id) || !userName.equals(user.name) || !currentUser.email.equals(user.email));
+
 		/* Update settings */
 		jsonUser = Json.objectToJson(user);
 		jsonSession = Json.objectToJson(user.session);
@@ -156,7 +158,9 @@ public class UserManager {
 		sessionKey = user.session.key;
 		currentUser = user;
 
-		Reporting.updateUser(currentUser);  // Handles all frameworks
+		if (changed) {
+			Reporting.updateUser(currentUser);  // Handles all frameworks
+		}
 
 		SharedPreferences.Editor editor = Patchr.settings.edit();
 		editor.putString(StringManager.getString(R.string.setting_user), jsonUser);

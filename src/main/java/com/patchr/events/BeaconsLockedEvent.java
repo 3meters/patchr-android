@@ -1,5 +1,3 @@
 package com.patchr.events;
 
-public class BeaconsLockedEvent {
-
-}
+public class BeaconsLockedEvent {}

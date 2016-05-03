@@ -16,7 +16,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,6 +57,7 @@ import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 
 public abstract class BaseScreen extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener
 		, SwipeRefreshLayout.OnRefreshListener {
@@ -95,8 +95,6 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 		NfcManager.pushUri(Uri.parse("http://patchr.com"), this);   // Default
-
-		Reporting.screen(AnalyticsCategory.VIEW, getClass().getSimpleName());
 
 		/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
 		swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe);
@@ -139,6 +137,11 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 
 		/* Party on! */
 		initialize(savedInstanceState);
+
+		String screenName = getScreenName();
+		if (screenName != null) {
+			Reporting.screen(AnalyticsCategory.VIEW, screenName);
+		}
 	}
 
 	@Override protected void onResume() {
@@ -378,7 +381,7 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 				busyPresenter.hide(true);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Reporting.track(AnalyticsCategory.EDIT, "Deleted " + TextUtils.getCapsMode(entity.schema, 0, TextUtils.CAP_MODE_WORDS));
+					Reporting.track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(entity.schema));
 					Logger.i(this, "Deleted entity: " + entity.id);
 					UI.toast(StringManager.getString(R.string.alert_deleted));
 					setResult(Constants.RESULT_ENTITY_DELETED);
@@ -412,7 +415,7 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Reporting.track(AnalyticsCategory.EDIT, "Removed " + TextUtils.getCapsMode(entity.schema, 0, TextUtils.CAP_MODE_WORDS));
+					Reporting.track(AnalyticsCategory.EDIT, "Removed " + Utils.capitalize(entity.schema));
 					Logger.i(this, "Removed entity: " + entity.id);
 					/*
 					 * We either go back to a list or to radar.
@@ -467,6 +470,10 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 
 	protected int getLayoutId() {
 		return 0;
+	}
+
+	protected String getScreenName() {
+		return getClass().getSimpleName();
 	}
 
 	protected int getTransitionBack(int transitionType) {

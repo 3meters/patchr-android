@@ -143,51 +143,6 @@ public class BusyPresenter {
 		Patchr.mainThreadHandler.postDelayed(runnableShow, (busyAction == BusyAction.Refreshing_Empty) ? Constants.INTERVAL_BUSY_DELAY : 0);
 	}
 
-	public void showProgressDialog(final Context context) {
-		/*
-		 * Make sure there are no pending busys waiting.
-		 */
-		Patchr.mainThreadHandler.removeCallbacks(runnableShow);
-		Patchr.mainThreadHandler.removeCallbacks(runnableHide);
-
-		runnableShow = new Runnable() {
-
-			@Override
-			public void run() {
-				try {
-					/*
-					 * Making a service call and showing a message
-					 */
-					final ProgressDialog progressDialog = getProgressDialog(context);
-
-					if (!progressDialog.isShowing()) {
-						progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-						progressDialog.setProgress(0);
-						progressDialog.setMax(100);
-						progressDialog.setProgressNumberFormat(null);
-						progressDialog.setIndeterminate(false);
-						progressDialog.setCanceledOnTouchOutside(false);
-						progressDialog.setCancelable(false);
-						progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								Dispatcher.getInstance().post(new ProcessingCanceledEvent(false));
-								Dialogs.dismiss(progressDialog);
-							}
-						});
-
-						progressDialog.show();
-					}
-					busyStartedTime = DateTime.nowDate().getTime();
-				}
-
-				catch (BadTokenException ignore) {}
-			}
-		};
-
-		Patchr.mainThreadHandler.postDelayed(runnableShow, 0);
-	}
-
 	public void hide(Boolean noDelay) {
 		/*
 		 * Make sure there are no pending busys waiting.
@@ -218,33 +173,76 @@ public class BusyPresenter {
 		});
 	}
 
-	public void startProgressBar() {
+	public void showHorizontalProgressBar(final Context context) {
+		/*
+		 * Make sure there are no pending busys waiting.
+		 */
+		Patchr.mainThreadHandler.removeCallbacks(runnableShow);
+		Patchr.mainThreadHandler.removeCallbacks(runnableHide);
+
+		runnableShow = new Runnable() {
+
+			@Override public void run() {
+				try {
+					/*
+					 * Making a service call and showing a message
+					 */
+					final ProgressDialog progressDialog = getProgressDialog(context);
+
+					if (!progressDialog.isShowing()) {
+						progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+						progressDialog.setProgress(0);
+						progressDialog.setMax(100);
+						progressDialog.setProgressNumberFormat(null);
+						progressDialog.setIndeterminate(false);
+						progressDialog.setCanceledOnTouchOutside(false);
+						progressDialog.setCancelable(false);
+						progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+							@Override public void onClick(DialogInterface dialog, int which) {
+								Dispatcher.getInstance().post(new ProcessingCanceledEvent(false));
+								Dialogs.dismiss(progressDialog);
+							}
+						});
+
+						progressDialog.show();
+					}
+					busyStartedTime = DateTime.nowDate().getTime();
+				}
+
+				catch (BadTokenException ignore) {}
+			}
+		};
+
+		Patchr.mainThreadHandler.postDelayed(runnableShow, 0);
+	}
+
+	private void startProgressBar() {
 		if (progressBar != null) {
 			progressBar.show();
 		}
 	}
 
-	public void startSwipeRefreshIndicator() {
+	private void stopProgressBar() {
+		if (progressBar != null) {
+			progressBar.hide();
+		}
+	}
+
+	private void startSwipeRefreshIndicator() {
 		if (swipeRefreshLayout != null && !swipeRefreshLayout.isRefreshing()) {
 			swipeRefreshLayout.setEnabled(false);
 			swipeRefreshLayout.setRefreshing(true);
 		}
 	}
 
-	public void stopProgressBar() {
-		if (progressBar != null) {
-			progressBar.hide();
-		}
-	}
-
-	public void stopSwipeRefreshIndicator() {
+	private void stopSwipeRefreshIndicator() {
 		if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
 			swipeRefreshLayout.setRefreshing(false);
 			swipeRefreshLayout.setEnabled(true);
 		}
 	}
 
-	public void stopProgressDialog() {
+	private void stopProgressDialog() {
 		Dialogs.dismiss(progressDialog);
 	}
 
