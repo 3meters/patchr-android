@@ -34,6 +34,7 @@ import com.patchr.components.Foreground;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.NetworkManager;
+import com.patchr.components.ProximityController;
 import com.patchr.components.Router;
 import com.patchr.components.Stopwatch;
 import com.patchr.components.StringManager;
@@ -151,6 +152,9 @@ public class Patchr extends MultiDexApplication {
 
 		/* Initialize managers */
 		initializeManagers();
+
+		/* Warmup ProximityController */
+		ProximityController.getInstance();
 
 		/* Warmup DataController */
 		DataController.getInstance().warmup();

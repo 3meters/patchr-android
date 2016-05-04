@@ -80,8 +80,7 @@ public class ProximityController {
 			/*
 			 * Called from main thread.
 			 */
-			@Override
-			public void onReceive(Context context, Intent intent) {
+			@Override public void onReceive(Context context, Intent intent) {
 
 				Patchr.applicationContext.unregisterReceiver(this);
 				Patchr.stopwatch1.segmentTime("Wifi scan received from system: reason = " + mScanReason.toString());

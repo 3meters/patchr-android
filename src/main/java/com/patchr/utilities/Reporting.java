@@ -90,12 +90,14 @@ public class Reporting {
 		if (user != null) {
 			BranchProvider.setIdentity(user.id);
 			Bugsnag.setUser(user.id, user.name, user.email);
+			Analytics.with(Patchr.applicationContext).alias(user.id);
 			Analytics.with(Patchr.applicationContext).identify(user.id, new Traits().putName(user.name).putEmail(user.email), null);
 		}
 		else {
 			BranchProvider.logout();
 			Bugsnag.setUser(Patchr.getInstance().getinstallId(), null, "Anonymous");
-			Analytics.with(Patchr.applicationContext).identify(Patchr.getInstance().getinstallId(), new Traits().putName("Anonymous"), null);
+			Analytics.with(Patchr.applicationContext).flush();  // Send queued events before clearing user id
+			Analytics.with(Patchr.applicationContext).reset();  // Clear user id currently used by segmentio
 		}
 	}
 
