@@ -596,7 +596,7 @@ public class DataController {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "changepw")
+				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "pw/change")
 				.setRequestType(RequestType.METHOD)
 				.setParameters(parameters)
 				.setTag(tag)

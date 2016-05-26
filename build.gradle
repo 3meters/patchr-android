@@ -31,15 +31,14 @@ android {
 		applicationId 'com.patchr.android'
 		minSdkVersion 15        // ICS 4.0.3 and up
 		targetSdkVersion 23     // Marshmallow
-		versionCode 119
-		versionName '1.1.16'
+		versionCode 120
+		versionName '1.1.17'
+		buildConfigField 'boolean', 'ACCOUNT_KIT_ENABLED', "false"
 	}
 
 	sourceSets {
 		main {
-			res.srcDirs = [
-			        'src/main/res'
-			]
+			res.srcDirs = ['src/main/res']
 		}
 	}
 
@@ -56,17 +55,16 @@ android {
 		}
 	}
 
-	productFlavors {
+	productFlavors {    /* Stacks on top of defaultConfig */
+		demo {
+			buildConfigField 'boolean', 'ACCOUNT_KIT_ENABLED', "true"
+			minSdkVersion 15
+		}
 		dev {
-			/*
-			 * dev utilizes minSDKVersion = 21 to allow the Android gradle plugin to pre-dex
-			 * each module and produce an APK that can be tested on Android Lollipop without
-			 * time consuming dex merging processes.
-			 */
 			minSdkVersion 15
 		}
 		prod {
-			/* The actual minSdkVersion for the application. */
+			/* The actual minSdkVersion for the released application. */
 			minSdkVersion 15
 		}
 	}
@@ -121,7 +119,6 @@ android {
 		preDexLibraries false
 		javaMaxHeapSize "4g"
 	}
-	sourceSets { main { res.srcDirs = ['src/main/res', 'src/main/res/layout/screens'] } }
 }
 
 dependencies {
@@ -131,6 +128,7 @@ dependencies {
 	compile 'com.amazonaws:aws-android-sdk-core:2.1.9'
 	compile 'com.amazonaws:aws-android-sdk-s3:2.1.9'
 	compile 'com.facebook.android:facebook-android-sdk:4.10.0'
+	compile 'com.facebook.android:account-kit-sdk:4.+'
 	compile 'com.parse:parse-android:1.13.0'
 	compile 'com.segment.analytics.android:analytics:4.0.9'
 	compile 'io.branch.sdk.android:library:1.11.2'
@@ -145,10 +143,10 @@ dependencies {
 	compile 'net.minidev:json-smart:1.2'
 	compile 'com.parse.bolts:bolts-tasks:1.4.0'
 	compile 'com.parse.bolts:bolts-applinks:1.4.0'
+	compile 'com.android.support:multidex:1.0.1'
 	compile 'com.android.support:support-v4:23.3.0'
 	compile 'com.android.support:appcompat-v7:23.3.0'
 	compile 'com.android.support:cardview-v7:23.3.0'
-	compile 'com.android.support:multidex:1.0.1'
 	compile 'com.android.support:design:23.3.0'
 	compile 'com.android.support:recyclerview-v7:23.3.0'
 	compile 'com.squareup.picasso:picasso:2.6.0-SNAPSHOT'   // Switch to release 2.6.0 when available
@@ -162,6 +160,7 @@ dependencies {
 	compile 'org.greenrobot:eventbus:3.0.0'
 	compile 'com.splitwise:tokenautocomplete:2.0.7@aar'
 	compile 'com.bugsnag:bugsnag-android:3.4.0'
+	compile 'com.roughike:bottom-bar:1.3.3'
 }
 
 apply plugin: 'com.google.gms.google-services'

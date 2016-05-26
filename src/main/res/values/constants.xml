@@ -37,6 +37,7 @@
 	<!-- Facebook -->
 
 	<string name="facebook_app_id">894654857249670</string>
+	<string name="account_kit_client_token">e60846a0dabd41d45ac3aad840c595ab</string>
 
 	<!-- Tag manager -->
 
@@ -47,6 +48,8 @@
 	<string name="splash_button_signin">Log in</string>
 	<string name="splash_button_start">skip</string>
 	<string name="splash_button_signup">Sign up</string>
+	<string name="splash_button_login_email">Log in with email</string>
+	<string name="splash_button_login_phone">Log in with phone number</string>
 
 	<!-- Attribution -->
 

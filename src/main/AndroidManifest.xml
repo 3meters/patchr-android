@@ -94,6 +94,10 @@
 		<meta-data
 			android:name="com.bugsnag.android.API_KEY"
 			android:value="0534f3bc03870084ba38d79ed1d5abea" />
+		<meta-data android:name="com.facebook.accountkit.ClientToken"
+			android:value="@string/account_kit_client_token" />
+		<meta-data android:name="com.facebook.accountkit.ApplicationName"
+			android:value="@string/name_app" />
 
 		<!-- Misc data -->
 
@@ -419,6 +423,11 @@
 				<category android:name="android.intent.category.PREFERENCE" />
 			</intent-filter>
 		</activity>
+
+		<activity
+			android:name="com.facebook.accountkit.ui.AccountKitActivity"
+			android:theme="@style/patchr_theme_login"
+			tools:replace="android:theme"/>
 	</application>
 
 </manifest>

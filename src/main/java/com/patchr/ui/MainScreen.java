@@ -63,6 +63,7 @@ import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
+import com.roughike.bottombar.BottomBar;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -95,6 +96,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	protected NavigationView        drawerLeft;
 	protected View                  drawerLeftHeader;
 	protected View                  drawerRight;
+	protected BottomBar             tabbar;
 
 	private FloatingActionButton fab;
 
@@ -133,7 +135,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 
 		bind();
 
-		/* Ensure install is registered. */
+		/* Ensure install is registered in case we failed during app bootstrap. */
 		Boolean registered = Patchr.settings.getBoolean(StringManager.getString(R.string.setting_install_registered), false);
 		if (!registered) {
 			Dispatcher.getInstance().post(new RegisterInstallEvent());
@@ -300,6 +302,18 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		super.initialize(savedInstanceState);
 
 		this.fab = (FloatingActionButton) findViewById(R.id.fab);
+//		this.tabbar = BottomBar.attach(this, savedInstanceState);
+//		this.tabbar.noTopOffset();
+//		this.tabbar.setItemsFromMenu(R.menu.menu_tabbar, new OnMenuTabClickListener() {
+//
+//			@Override public void onMenuTabSelected(@IdRes int menuItemId) {
+//
+//			}
+//
+//			@Override public void onMenuTabReSelected(@IdRes int menuItemId) {
+//
+//			}
+//		});
 
 		drawerLeft = (NavigationView) findViewById(R.id.left_drawer);
 		drawerLeft.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {

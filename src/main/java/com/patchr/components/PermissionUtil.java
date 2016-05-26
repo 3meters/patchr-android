@@ -18,7 +18,6 @@ package com.patchr.components;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.support.v4.content.ContextCompat;
 
 /**
@@ -27,33 +26,17 @@ import android.support.v4.content.ContextCompat;
  */
 public abstract class PermissionUtil {
 
-    public static boolean verifyPermissions(int[] grantResults) {
-        // Verify that each required permission has been granted, otherwise return false.
-        for (int result : grantResults) {
-            if (result != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
-    }
+	public static boolean verifyPermissions(int[] grantResults) {
+		// Verify that each required permission has been granted, otherwise return false.
+		for (int result : grantResults) {
+			if (result != PackageManager.PERMISSION_GRANTED) {
+				return false;
+			}
+		}
+		return true;
+	}
 
-    public static boolean hasSelfPermission(Context context, String[] permissions) {
-        // Verify that all required permissions have been granted
-        for (String permission : permissions) {
-            if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public static boolean hasSelfPermission(Context context, String permission) {
-        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    public static boolean isMNC() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
-    }
-
+	public static boolean hasSelfPermission(Context context, String permission) {
+		return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
+	}
 }

@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 
 import com.patchr.Constants;
@@ -31,6 +32,12 @@ public class PasswordEdit extends BaseEdit {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
+
+	public void onClick(View view) {
+		if (view.getId() == R.id.submit_button) {
+			submitAction();
+		}
+	}
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -78,7 +85,7 @@ public class PasswordEdit extends BaseEdit {
 	@Override protected void update() {
 
 		final String passwordOld = this.passwordOld.getText().toString();
-		final String password = this.password.getText(). toString();
+		final String password = this.password.getText().toString();
 
 		new AsyncTask() {
 
@@ -126,7 +133,7 @@ public class PasswordEdit extends BaseEdit {
 		if (passwordOld.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
-					, StringManager.getString(R.string.error_missing_password_new)
+					, StringManager.getString(R.string.error_missing_password_old)
 					, null
 					, this
 					, android.R.string.ok

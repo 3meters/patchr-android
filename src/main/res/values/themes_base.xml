@@ -11,4 +11,6 @@
 
 	<style name="base_theme_dialog" parent="Theme.AppCompat.Light.Dialog.Alert" />
 
+	<style name="base_theme_login" parent="Theme.AccountKit" />
+
 </resources>

@@ -87,6 +87,12 @@
 	<string name="menu_item_share_using_patchr">Patchr</string>
 	<string name="menu_item_share_using_other">More</string>
 
+	<string name="menu_item_tabbar_patches">Patches</string>
+	<string name="menu_item_tabbar_notifications">Notifications</string>
+	<string name="menu_item_tabbar_search">Search</string>
+	<string name="menu_item_tabbar_profile">Me</string>
+
+
 	<!-- Popups -->
 
 	<string name="menu_item_report">Report</string>
@@ -294,6 +300,7 @@
 	<string name="error_missing_email">Enter an email address.</string>
 	<string name="error_missing_password_weak">Password must be a minimum of six characters long.</string>
 	<string name="error_missing_password_new">Enter a new password.</string>
+	<string name="error_missing_password_old">Enter your current password.</string>
 	<string name="error_missing_password">Enter a password.</string>
 	<string name="error_missing_message">Enter a message.</string>
 	<string name="error_missing_report_option">Choose a reason.</string>

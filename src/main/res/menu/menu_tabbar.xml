@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item
+		android:id="@+id/tabbar_patches"
+		android:icon="?attr/iconActionPatch"
+		android:title="@string/menu_item_tabbar_patches" />
+
+	<item
+		android:id="@+id/tabbar_notifications"
+		android:icon="?attr/iconActionNotification"
+		android:title="@string/menu_item_tabbar_notifications" />
+
+	<item
+		android:id="@+id/tabbar_search"
+		android:icon="?attr/iconActionSearch"
+		android:title="@string/menu_item_tabbar_search" />
+
+	<item
+		android:id="@+id/tabbar_profile"
+		android:icon="?attr/iconActionUser"
+		android:title="@string/menu_item_tabbar_profile" />
+</menu>

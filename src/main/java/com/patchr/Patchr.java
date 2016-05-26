@@ -18,6 +18,8 @@ import android.support.multidex.MultiDexApplication;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.bugsnag.android.Bugsnag;
 import com.facebook.FacebookSdk;
+import com.facebook.accountkit.AccessToken;
+import com.facebook.accountkit.AccountKit;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.tagmanager.Container;
@@ -129,6 +131,11 @@ public class Patchr extends MultiDexApplication {
 		/* Turn on facebook */
 		FacebookSdk.sdkInitialize(this);
 
+		/* Turn on account kit */
+		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+			AccountKit.initialize(applicationContext);
+		}
+
 		/* Turn on parse */
 		Parse.initialize(this
 				, StringManager.getString(R.string.parse_app_id)        // application id
@@ -152,24 +159,25 @@ public class Patchr extends MultiDexApplication {
 		/* Initialize managers */
 		initializeManagers();
 
-		/* Warmup ProximityController */
-		//ProximityController.getInstance();
-
 		/* Warmup DataController */
 		DataController.getInstance().warmup();
 
 		/* Must come after managers are initialized */
-		UserManager.shared().signinAuto();
+		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+			AccessToken accessToken = AccountKit.getCurrentAccessToken();
+			if (accessToken != null) {
+				UserManager.shared().signinAuto();
+			}
+		}
+		else {
+			UserManager.shared().signinAuto();
+		}
 
 		/* Start activity recognition */
 		ActivityRecognitionManager.getInstance().initialize(applicationContext);
 
-		/* Ensure install is registered. */
-		String key = StringManager.getString(R.string.setting_install_registered);
-		Boolean registered = Patchr.settings.getBoolean(key, false);
-		if (!registered) {
-			Dispatcher.getInstance().post(new RegisterInstallEvent());
-		}
+		/* Ensure install is registered. Even if already registered, this will update the metadata */
+		Dispatcher.getInstance().post(new RegisterInstallEvent());
 
 		/* Turn on branch */
 		Branch.getAutoInstance(this);

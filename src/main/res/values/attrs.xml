@@ -81,6 +81,7 @@
 		<attr name="iconLocked" format="reference" />
 		<attr name="iconMediaMessage" format="reference" />
 		<attr name="iconMessage" format="reference" />
+		<attr name="iconNotification" format="reference" />
 		<attr name="iconOverflow" format="reference" />
 		<attr name="iconPatch" format="reference" />
 		<attr name="iconPicture" format="reference" />
@@ -101,11 +102,14 @@
 		<attr name="iconActionInvite" format="reference" />
 		<attr name="iconActionList" format="reference" />
 		<attr name="iconActionMap" format="reference" />
+		<attr name="iconActionNotification" format="reference" />
+		<attr name="iconActionPatch" format="reference" />
 		<attr name="iconActionRefresh" format="reference" />
 		<attr name="iconActionSearch" format="reference" />
 		<attr name="iconActionSend" format="reference" />
 		<attr name="iconActionShare" format="reference" />
 		<attr name="iconActionSignal" format="reference" />
+		<attr name="iconActionUser" format="reference" />
 		<attr name="iconActionUsers" format="reference" />
 		<attr name="iconActionWatch" format="reference" />
 

@@ -98,6 +98,7 @@
 		<item name="iconLocked">@drawable/ic_action_lock_closed_light</item>
 		<item name="iconMediaMessage">@drawable/ic_img_media_message_light</item>
 		<item name="iconMessage">@drawable/ic_img_message_light</item>
+		<item name="iconNotification">@drawable/ic_action_alert_light</item>
 		<item name="iconOverflow">@drawable/ic_img_overflow_light</item>
 		<item name="iconPatch">@drawable/ic_img_patch_light</item>
 		<item name="iconPicture">@drawable/ic_img_picture_light</item>
@@ -119,11 +120,14 @@
 		<item name="iconActionInvite">@drawable/ic_action_person_add_dark</item>
 		<item name="iconActionList">@drawable/ic_action_list_dark</item>
 		<item name="iconActionMap">@drawable/ic_action_map_dark</item>
+		<item name="iconActionNotification">@drawable/ic_action_map_dark</item>
+		<item name="iconActionPatch">@drawable/ic_action_patch_dark</item>
 		<item name="iconActionRefresh">@drawable/ic_action_refresh_dark</item>
 		<item name="iconActionSearch">@drawable/ic_action_search_dark</item>
 		<item name="iconActionSend">@drawable/ic_action_send_dark</item>
 		<item name="iconActionShare">@drawable/ic_action_share_dark</item>
 		<item name="iconActionSignal">@drawable/ic_action_signal_dark</item>
+		<item name="iconActionUser">@drawable/ic_action_user_dark</item>
 		<item name="iconActionUsers">@drawable/ic_action_users_dark</item>
 		<item name="iconActionWatch">@drawable/ic_action_watch_dark</item>
 
@@ -182,6 +186,24 @@
 		<!-- Drawables and backgrounds -->
 
 		<item name="backgroundPictureFramed">@drawable/bg_image_framed</item>
+
+	</style>
+
+	<style name="patchr_theme_login" parent="base_theme_login">
+
+		<item name="com_accountkit_primary_color">@color/gray_05_pcnt</item>
+		<item name="com_accountkit_primary_text_color">@color/text_light</item>
+		<item name="com_accountkit_secondary_color">@color/white</item>
+		<item name="com_accountkit_secondary_text_color">@color/text_secondary_light</item>
+		<item name="com_accountkit_status_bar_color">@color/brand_primary_dark</item>
+
+		<item name="com_accountkit_input_accent_color">@color/brand_primary</item>
+		<item name="com_accountkit_input_background_color">@color/gray_05_pcnt</item>
+		<item name="com_accountkit_input_border_color">@color/transparent</item>
+
+		<item name="com_accountkit_button_background_color">@color/brand_primary</item>
+		<item name="com_accountkit_button_text_color">@color/white</item>
+		<item name="com_accountkit_button_border_color">@color/transparent</item>
 
 	</style>
 

@@ -10,7 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.facebook.accountkit.AccountKitLoginResult;
+import com.facebook.accountkit.ui.AccountKitActivity;
+import com.facebook.accountkit.ui.AccountKitConfiguration.AccountKitConfigurationBuilder;
+import com.facebook.accountkit.ui.LoginType;
 import com.facebook.applinks.AppLinkData;
+import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -108,7 +113,35 @@ public class LobbyScreen extends AppCompatActivity {
 	}
 
 	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if (requestCode == Constants.ACTIVITY_LOGIN) {
+		if (requestCode == Constants.ACTIVITY_LOGIN_ACCOUNT_KIT) {
+			if (intent != null) {
+				AccountKitLoginResult loginResult = intent.getParcelableExtra(AccountKitLoginResult.RESULT_KEY);
+				String toastMessage;
+				if (loginResult.getError() != null) {
+					toastMessage = loginResult.getError().getErrorType().getMessage();
+				}
+				else if (loginResult.wasCancelled()) {
+					toastMessage = "Login Cancelled";
+				}
+				else {
+					if (loginResult.getAccessToken() != null) {
+						toastMessage = "Success:" + loginResult.getAccessToken().getAccountId();
+					}
+					else {
+						toastMessage = String.format(
+								"Success:%s...",
+								loginResult.getAuthorizationCode().substring(0, 10));
+					}
+
+					UI.toast(toastMessage);
+				}
+				startHomeActivity();
+			}
+			else {
+				proceed();
+			}
+		}
+		else if (requestCode == Constants.ACTIVITY_LOGIN) {
 			if (resultCode == Constants.RESULT_USER_LOGGED_IN && UserManager.shared().authenticated()) {
 				startHomeActivity();
 			}
@@ -125,20 +158,26 @@ public class LobbyScreen extends AppCompatActivity {
 			return;
 		}
 
-		if (view.getId() == R.id.login_button) {
-			Bundle extras = new Bundle();
-			extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Login);
-			Patchr.router.route(this, Command.LOGIN, null, extras);
+		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+
 		}
-		else if (view.getId() == R.id.submit_button) {
-			Bundle extras = new Bundle();
-			extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Signup);
-			Patchr.router.route(this, Command.LOGIN, null, extras);
+		else {
+			if (view.getId() == R.id.login_button) {
+				Bundle extras = new Bundle();
+				extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Login);
+				Patchr.router.route(this, Command.LOGIN, null, extras);
+			}
+			else if (view.getId() == R.id.submit_button) {
+				Bundle extras = new Bundle();
+				extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Signup);
+				Patchr.router.route(this, Command.LOGIN, null, extras);
+			}
+			else if (view.getId() == R.id.guest_button) {
+				Reporting.track(AnalyticsCategory.ACTION, "Entered as Guest");
+				startHomeActivity();
+			}
 		}
-		else if (view.getId() == R.id.guest_button) {
-			Reporting.track(AnalyticsCategory.ACTION, "Entered as Guest");
-			startHomeActivity();
-		}
+
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -305,10 +344,27 @@ public class LobbyScreen extends AppCompatActivity {
 		Patchr.sendIntent = null;
 	}
 
+	private void phoneLogin() {
+
+		final Intent intent = new Intent(this, AccountKitActivity.class);
+
+		AccountKitConfigurationBuilder configurationBuilder = new AccountKitConfigurationBuilder(LoginType.PHONE, AccountKitActivity.ResponseType.CODE);
+		configurationBuilder.setFacebookNotificationsEnabled(true);
+
+		intent.putExtra(AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION, configurationBuilder.build());
+		startActivityForResult(intent, Constants.ACTIVITY_LOGIN_ACCOUNT_KIT);
+	}
+
 	private void showButtons() {
-		UI.setVisibility(findViewById(R.id.login_button), View.VISIBLE);
-		UI.setVisibility(findViewById(R.id.submit_button), View.VISIBLE);
-		UI.setVisibility(findViewById(R.id.guest_button), View.VISIBLE);
+		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+			UI.setVisibility(findViewById(R.id.login_email_button), View.VISIBLE);
+			UI.setVisibility(findViewById(R.id.login_phone_button), View.VISIBLE);
+		}
+		else {
+			UI.setVisibility(findViewById(R.id.login_button), View.VISIBLE);
+			UI.setVisibility(findViewById(R.id.submit_button), View.VISIBLE);
+			UI.setVisibility(findViewById(R.id.guest_button), View.VISIBLE);
+		}
 	}
 
 	private void updateRequired() {

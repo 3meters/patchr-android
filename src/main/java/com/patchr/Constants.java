@@ -231,6 +231,7 @@ public class Constants {
 	public static final int ACTIVITY_PHOTO_MAKE        = 310;
 	public static final int ACTIVITY_SEARCH            = 325;
 	public static final int ACTIVITY_LOGIN             = 400;
+	public static final int ACTIVITY_LOGIN_ACCOUNT_KIT = 402;
 	public static final int ACTIVITY_SIGNUP            = 405;
 	public static final int ACTIVITY_RESET_AND_SIGNIN  = 410;
 	public static final int ACTIVITY_COMMENT           = 430;
