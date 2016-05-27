@@ -65,7 +65,7 @@ public class Patchr extends MultiDexApplication {
 	public static Router    router                    = new Router();
 	public static Stopwatch stopwatch1                = new Stopwatch();
 	public static Stopwatch stopwatch2                = new Stopwatch();
-	public static Boolean   debug                     = false;
+	public static Boolean   debuggable                = false;
 	public static Boolean   applicationUpdateRequired = false;
 
 	public static BasicAWSCredentials awsCredentials = null;
@@ -92,7 +92,7 @@ public class Patchr extends MultiDexApplication {
 		 * Application starts for all basic cases but also when not running and
 		 * a broadcast receiver is activated.
 		 */
-		debug = (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE));
+		debuggable = (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE));
 
 		super.onCreate();
 		instance = this;
@@ -166,11 +166,11 @@ public class Patchr extends MultiDexApplication {
 		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
 			AccessToken accessToken = AccountKit.getCurrentAccessToken();
 			if (accessToken != null) {
-				UserManager.shared().signinAuto();
+				UserManager.shared().loginAuto();
 			}
 		}
 		else {
-			UserManager.shared().signinAuto();
+			UserManager.shared().loginAuto();
 		}
 
 		/* Start activity recognition */
@@ -205,7 +205,7 @@ public class Patchr extends MultiDexApplication {
 		 * the current version from the network.
 		 */
 		TagManager tagManager = TagManager.getInstance(this);
-		if (Patchr.debug) {
+		if (Patchr.debuggable) {
 			tagManager.setVerboseLoggingEnabled(true);
 		}
 		PendingResult<ContainerHolder> pending = tagManager.loadContainerPreferNonDefault(containerId, R.raw.gtm_default_container);

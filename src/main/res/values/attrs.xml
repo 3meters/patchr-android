@@ -74,6 +74,7 @@
 		<attr name="iconAdd" format="reference" />
 		<attr name="iconCancel" format="reference" />
 		<attr name="iconClear" format="reference" />
+		<attr name="iconEmail" format="reference" />
 		<attr name="iconFavorite" format="reference" />
 		<attr name="iconForward" format="reference" />
 		<attr name="iconLike" format="reference" />

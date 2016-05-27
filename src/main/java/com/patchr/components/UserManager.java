@@ -11,10 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.facebook.accountkit.AccountKit;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.OnBackPressListener;
 import com.orhanobut.dialogplus.OnClickListener;
 import com.orhanobut.dialogplus.ViewHolder;
+import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -60,7 +62,7 @@ public class UserManager {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void signinAuto() {
+	public void loginAuto() {
 		/*
 		 * Gets called on app create.
 		 */
@@ -78,7 +80,15 @@ public class UserManager {
 		return (userId != null && sessionKey != null);
 	}
 
-	public void signout() {
+	public void logout() {
+
+		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+			AccountKit.logOut();
+			Reporting.track(AnalyticsCategory.ACTION, "Logged Out");
+			Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
+			return;
+		}
+
 		new AsyncTask() {
 
 			@Override protected Object doInBackground(Object... params) {

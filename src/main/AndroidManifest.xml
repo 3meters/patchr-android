@@ -60,6 +60,10 @@
 
 	<uses-permission android:name="android.permission.NFC" />
 
+	<uses-permission android:name="android.permission.RECEIVE_SMS" />
+	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
+	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
 	<!-- NOTE: We don't need CAMERA permission because imagechooser lib uses intent -->
 
 	<application
@@ -83,9 +87,6 @@
 			android:name="com.aviary.android.feather.v1.API_KEY"
 			android:value="6f4074ec11634bd78eb00909102844ec" />
 		<meta-data
-			android:name="com.facebook.sdk.ApplicationId"
-			android:value="@string/facebook_app_id" />
-		<meta-data
 			android:name="io.branch.sdk.BranchKey"
 			android:value="key_live_aabKfhL9u6piQ93E2lzVslklzraKnSc3" />
 		<meta-data
@@ -94,6 +95,10 @@
 		<meta-data
 			android:name="com.bugsnag.android.API_KEY"
 			android:value="0534f3bc03870084ba38d79ed1d5abea" />
+
+		<meta-data
+			android:name="com.facebook.sdk.ApplicationId"
+			android:value="@string/facebook_app_id" />
 		<meta-data android:name="com.facebook.accountkit.ClientToken"
 			android:value="@string/account_kit_client_token" />
 		<meta-data android:name="com.facebook.accountkit.ApplicationName"
@@ -427,7 +432,13 @@
 		<activity
 			android:name="com.facebook.accountkit.ui.AccountKitActivity"
 			android:theme="@style/patchr_theme_login"
-			tools:replace="android:theme"/>
+			tools:replace="android:theme">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="@string/ak_login_protocol_scheme" />
+			</intent-filter></activity>
 	</application>
 
 </manifest>

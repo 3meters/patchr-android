@@ -21,9 +21,13 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	/*--------------------------------------------------------------------------------------------
 	 * service fields
 	 *--------------------------------------------------------------------------------------------*/
+
 	@Expose
 	@SerializedName(name = "visibility")
 	public String privacy;                                    // private|public|hidden
+
+	@Expose
+	public Boolean locked;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
@@ -72,6 +76,7 @@ public class Patch extends Entity implements Cloneable, Serializable {
 		 */
 		patch = (Patch) Entity.setPropertiesFromMap(patch, map, nameMapping);
 		patch.privacy = (String) (nameMapping ? map.get("visibility") : map.get("privacy"));
+		patch.locked = (Boolean) map.get("locked");
 
 		return patch;
 	}

@@ -38,6 +38,7 @@
 
 	<string name="facebook_app_id">894654857249670</string>
 	<string name="account_kit_client_token">e60846a0dabd41d45ac3aad840c595ab</string>
+	<string name="ak_login_protocol_scheme">ak894654857249670</string>
 
 	<!-- Tag manager -->
 

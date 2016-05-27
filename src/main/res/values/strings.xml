@@ -92,6 +92,8 @@
 	<string name="menu_item_tabbar_search">Search</string>
 	<string name="menu_item_tabbar_profile">Me</string>
 
+	<string name="menu_item_login_using_phone">Phone Number</string>
+	<string name="menu_item_login_using_email">Email</string>
 
 	<!-- Popups -->
 

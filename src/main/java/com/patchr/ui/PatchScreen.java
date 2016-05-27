@@ -134,9 +134,9 @@ public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMess
 		if (entity != null && entity instanceof Patch) {
 			Patch patch = (Patch) entity;
 			if (referrerName != null) {     // Active invitation
-				if (bottomSheetLayout.isSheetShowing()) {
+				if (this.bottomSheetLayout.isSheetShowing()) {
 					if (UserManager.shared().authenticated() && patch.watchStatus() != MemberStatus.NONE) {
-						bottomSheetLayout.dismissSheet();
+						this.bottomSheetLayout.dismissSheet();
 					}
 					else if (UserManager.shared().authenticated() != authenticatedForInvite) {
 						showInviteWelcome(1000);
@@ -553,8 +553,8 @@ public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMess
 
 		this.listPresenter.initialize(this, this.rootView);        // We init after everything is setup
 
-		bottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
-		if (bottomSheetLayout != null) bottomSheetLayout.setPeekOnDismiss(true);
+		this.bottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
+		if (this.bottomSheetLayout != null) this.bottomSheetLayout.setPeekOnDismiss(true);
 		callbackManager = CallbackManager.Factory.create();
 
 		NfcAdapter nfc = NfcAdapter.getDefaultAdapter(Patchr.applicationContext);

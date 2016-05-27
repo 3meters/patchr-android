@@ -200,7 +200,7 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 			Patchr.router.route(this, Command.REPORT, entity, null);
 		}
 		else if (item.getItemId() == R.id.logout) {
-			UserManager.shared().signout();
+			UserManager.shared().logout();
 		}
 		else {
 			/* Handles: login, browse, map */

@@ -48,6 +48,7 @@ public class User extends Entity {
 
 	public List<Count> stats;
 	public Session     session;
+	public String      phone;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods

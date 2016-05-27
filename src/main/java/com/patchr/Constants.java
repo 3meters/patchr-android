@@ -13,7 +13,7 @@ import java.util.concurrent.Executor;
 @SuppressWarnings("ucd")
 public class Constants {
 
-	public static final int      LOG_LEVEL       = Patchr.debug ? Log.VERBOSE : Log.DEBUG;
+	public static final int      LOG_LEVEL       = Patchr.debuggable ? Log.VERBOSE : Log.DEBUG;
 	public static final int      ERROR_LEVEL     = Log.VERBOSE;
 	public static final Executor EXECUTOR        = AsyncTask.SERIAL_EXECUTOR;
 	public static final String   FACEBOOK_APP_ID = "894654857249670";

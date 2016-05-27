@@ -90,6 +90,7 @@
 		<item name="iconAdd">@drawable/ic_add_light</item>
 		<item name="iconCancel">@drawable/ic_action_cancel_light</item>
 		<item name="iconClear">@drawable/ic_action_cancel_light</item>
+		<item name="iconEmail">@drawable/ic_img_email2_light</item>
 		<item name="iconFacebook">@drawable/ic_img_facebook_light</item>
 		<item name="iconFavorite">@drawable/ic_img_star_light</item>
 		<item name="iconForward">@drawable/ic_action_forward_light</item>

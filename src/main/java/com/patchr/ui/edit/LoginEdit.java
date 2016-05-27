@@ -222,7 +222,7 @@ public class LoginEdit extends BaseEdit {
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncLogin");
-				ModelResult result = DataController.getInstance().signin(email, password, LoginEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = DataController.getInstance().login(email, password, LoginEdit.class.getSimpleName(), NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 

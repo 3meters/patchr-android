@@ -526,7 +526,7 @@ public class DataController {
 	 * User updates
 	 *--------------------------------------------------------------------------------------------*/
 
-	public ModelResult signin(String email, String password, String activityName, Object tag) {
+	public ModelResult login(String email, String password, String activityName, Object tag) {
 		ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -559,6 +559,40 @@ public class DataController {
 		}
 		return result;
 	}
+
+	public ModelResult tokenLogin(String token, String activityName, Object tag) {
+		ModelResult result = new ModelResult();
+
+		final Bundle parameters = new Bundle();
+		parameters.putString("token", token);
+		parameters.putString("installId", Patchr.getInstance().getinstallId());
+		parameters.putBoolean("getEntities", true);
+
+		LinkSpec links = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
+		if (links != null) {
+			parameters.putString("links", "object:" + Json.objectToJson(links));
+		}
+
+		final ServiceRequest serviceRequest = new ServiceRequest()
+				.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "ak")
+				.setRequestType(RequestType.METHOD)
+				.setParameters(parameters)
+				.setTag(tag)
+				.setActivityName(activityName)
+				.setResponseFormat(ResponseFormat.JSON);
+
+		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
+
+		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			final String jsonResponse = (String) result.serviceResponse.data;
+			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
+			User user = serviceData.user;
+			user.session = serviceData.session;
+			UserManager.shared().setCurrentUser(user, true);
+		}
+		return result;
+	}
+
 
 	public ModelResult signoutComplete(Object tag) {
 		final ModelResult result = new ModelResult();
