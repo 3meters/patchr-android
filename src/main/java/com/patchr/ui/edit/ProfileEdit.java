@@ -47,6 +47,7 @@ public class ProfileEdit extends BaseEdit {
 
 	private EditText area;
 	private EditText email;
+	private EditText phoneNumber;
 	private TextView title;
 	private Button   submitDelete;
 	private Button   submitButton;
@@ -124,19 +125,31 @@ public class ProfileEdit extends BaseEdit {
 		title = (TextView) findViewById(R.id.title);
 		area = (EditText) findViewById(R.id.area);
 		email = (EditText) findViewById(R.id.email);
+		phoneNumber = (EditText) findViewById(R.id.phone_number);
 		submitButton = (Button) findViewById(R.id.submit_button);
 		termsButton = (Button) findViewById(R.id.terms_button);
 		changePasswordButton = (Button) findViewById(R.id.change_password_button);
 
 		if (inputState != null && inputState.equals(State.Onboarding)) {
-			this.entity = User.build();
-			((User) this.entity).email = this.inputEmail;
-			((User) this.entity).password = this.inputPassword;
-			title.setText(R.string.form_title_profile_signup);
-			area.setVisibility(View.GONE);
-			submitButton.setVisibility(View.VISIBLE);
-			termsButton.setVisibility(View.VISIBLE);
-			changePasswordButton.setVisibility(View.GONE);
+			User user = (User) entity;
+			if (user != null && user.role.equals("provisional")) {
+				area.setVisibility(View.GONE);
+				email.setVisibility(View.GONE);
+				phoneNumber.setVisibility(View.GONE);
+				submitButton.setVisibility(View.VISIBLE);
+				termsButton.setVisibility(View.VISIBLE);
+				changePasswordButton.setVisibility(View.GONE);
+			}
+			else {
+				this.entity = User.build();
+				((User) this.entity).email = this.inputEmail;
+				((User) this.entity).password = this.inputPassword;
+				title.setText(R.string.form_title_profile_signup);
+				area.setVisibility(View.GONE);
+				submitButton.setVisibility(View.VISIBLE);
+				termsButton.setVisibility(View.VISIBLE);
+				changePasswordButton.setVisibility(View.GONE);
+			}
 		}
 
 		if (area != null) {
@@ -189,9 +202,18 @@ public class ProfileEdit extends BaseEdit {
 		super.bind();
 
 		if (inputState.equals(State.Onboarding)) {
-			UI.setTextView(email, inputEmail);
-			email.setEnabled(false);
-			photoEditWidget.bind(null);
+			User user = (User) entity;
+			if (user != null && user.role.equals("provisional")) {
+				email.setEnabled(false);
+				phoneNumber.setEnabled(false);
+				UI.setTextOrGone(email, user.email);
+				UI.setTextOrGone(phoneNumber, user.phone.displayNumber());
+			}
+			else {
+				UI.setTextView(email, inputEmail);
+				email.setEnabled(false);
+				photoEditWidget.bind(null);
+			}
 		}
 		else {
 			User user = (User) entity;
@@ -205,19 +227,26 @@ public class ProfileEdit extends BaseEdit {
 	}
 
 	@Override public void submitAction() {
-		if (!inputState.equals(State.Onboarding)) {
-			super.submitAction();
-		}
-		else {
-			if (processing) return;
-			processing = true;
 
-			if (validate()) {
-				register();
+		if (inputState.equals(State.Onboarding)) {
+			User user = (User) entity;
+			if (user != null && user.role.equals("provisional")) {
+				super.submitAction();
 			}
 			else {
-				processing = false;
+				if (processing) return;
+				processing = true;
+
+				if (validate()) {
+					register();
+				}
+				else {
+					processing = false;
+				}
 			}
+		}
+		else {
+			super.submitAction();
 		}
 	}
 
@@ -401,6 +430,7 @@ public class ProfileEdit extends BaseEdit {
 					UserManager.shared().setCurrentUser(null, false);
 					SharedPreferences.Editor editor = Patchr.settings.edit();
 					editor.putString(StringManager.getString(R.string.setting_last_email), null);
+					editor.putString(StringManager.getString(R.string.setting_last_phone), null);
 					editor.apply();
 					Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 					UI.toast(String.format(StringManager.getString(R.string.alert_user_deleted), userName));

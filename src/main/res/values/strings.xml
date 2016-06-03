@@ -408,6 +408,7 @@
 	<string name="label_terms">By joining, you agree to the Terms of Service</string>
 	<string name="label_password_old">Old password</string>
 	<string name="label_email">Email</string>
+	<string name="label_phone_number">Phone number</string>
 	<string name="label_locked" tools:ignore="UnusedResources">Locked</string>
 	<string name="label_locked_description" tools:ignore="UnusedResources">Users can browse but not add content</string>
 	<string name="label_search_places_hint">Search patches</string>

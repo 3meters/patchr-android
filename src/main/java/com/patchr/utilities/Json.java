@@ -420,6 +420,7 @@ public class Json {
 		SERVICE_ACTIVITY,
 		SERVICE_MESSAGE,
 		COUNT,
-		OBJECT
+		OBJECT,
+		PHONE
 	}
 }

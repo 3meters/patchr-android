@@ -26,10 +26,13 @@
 			android:layout_width="228dp"
 			android:layout_height="wrap_content"
 			android:layout_centerInParent="true"
+			android:alpha="0"
 			android:orientation="vertical"
 			android:paddingBottom="96dp"
 			android:visibility="visible"
-			tools:ignore="UselessParent">
+			tools:alpha="1"
+			tools:ignore="UselessParent"
+			tools:visibility="visible">
 
 			<ImageView
 				android:id="@+id/logo"
@@ -58,11 +61,9 @@
 				android:layout_marginBottom="8dp"
 				android:background="@drawable/bg_outlined_white"
 				android:onClick="onClick"
-				android:text="@string/splash_button_signin"
+				android:text="@string/lobby_button_login"
 				android:textColor="@color/white"
-				android:textSize="16sp"
-				android:visibility="invisible"
-				tools:visibility="visible" />
+				android:textSize="16sp" />
 
 			<Button
 				android:id="@+id/submit_button"
@@ -72,11 +73,20 @@
 				android:layout_marginBottom="8dp"
 				android:background="@drawable/bg_outlined_white"
 				android:onClick="onClick"
-				android:text="@string/splash_button_signup"
+				android:text="@string/lobby_button_signup"
 				android:textColor="@color/white"
-				android:textSize="16sp"
-				android:visibility="invisible"
-				tools:visibility="visible" />
+				android:textSize="16sp" />
+
+			<TextView
+				android:id="@+id/message"
+				android:layout_width="match_parent"
+				android:layout_height="40dp"
+				android:gravity="center"
+				android:paddingTop="8dp"
+				android:text="@string/label_lobby_accountkit"
+				android:textColor="@color/white"
+				android:textSize="16sp" />
+
 		</LinearLayout>
 
 		<Button
@@ -89,11 +99,9 @@
 			android:layout_marginBottom="96dp"
 			android:gravity="center"
 			android:onClick="onClick"
-			android:text="@string/splash_button_start"
+			android:text="@string/lobby_button_guest"
 			android:textColor="@color/white"
-			android:textSize="18sp"
-			android:visibility="invisible"
-			tools:visibility="visible" />
+			android:textSize="18sp" />
 
 	</RelativeLayout>
 

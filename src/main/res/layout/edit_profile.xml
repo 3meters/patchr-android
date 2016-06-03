@@ -106,6 +106,15 @@
 				android:hint="@string/label_email"
 				android:inputType="textEmailAddress" />
 
+			<com.patchr.ui.widgets.ClearableEditText
+				android:id="@+id/phone_number"
+				style="@style/form_edit"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/form_field_height"
+				android:drawableRight="?attr/iconClear"
+				android:hint="@string/label_phone_number"
+				android:inputType="phone" />
+
 			<Button
 				android:id="@+id/change_password_button"
 				style="@style/button_outlined"

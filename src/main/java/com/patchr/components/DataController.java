@@ -564,8 +564,8 @@ public class DataController {
 		ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
-		parameters.putString("token", token);
-		parameters.putString("installId", Patchr.getInstance().getinstallId());
+		parameters.putString("authorization_code", token);
+		parameters.putString("install", Patchr.getInstance().getinstallId());
 		parameters.putBoolean("getEntities", true);
 
 		LinkSpec links = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
@@ -592,7 +592,6 @@ public class DataController {
 		}
 		return result;
 	}
-
 
 	public ModelResult signoutComplete(Object tag) {
 		final ModelResult result = new ModelResult();

@@ -46,11 +46,13 @@
 
 	<!-- Splash -->
 
-	<string name="splash_button_signin">Log in</string>
-	<string name="splash_button_start">skip</string>
-	<string name="splash_button_signup">Sign up</string>
-	<string name="splash_button_login_email">Log in with email</string>
-	<string name="splash_button_login_phone">Log in with phone number</string>
+	<string name="lobby_button_login">Log in</string>
+	<string name="lobby_button_login_accountkit">Start</string>
+	<string name="lobby_button_guest">skip</string>
+	<string name="lobby_button_signup">Sign up</string>
+	<string name="lobby_button_login_email">Log in with email</string>
+	<string name="lobby_button_login_phone">Log in with phone number</string>
+	<string name="label_lobby_accountkit">Log in or create an account</string>
 
 	<!-- Attribution -->
 

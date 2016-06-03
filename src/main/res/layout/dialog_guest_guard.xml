@@ -44,7 +44,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/button_height"
 			android:background="@drawable/bg_outlined_white"
-			android:text="@string/splash_button_signin"
+			android:text="@string/lobby_button_login"
 			android:textAllCaps="true"
 			android:textColor="@color/white"
 			android:textSize="16sp" />
@@ -56,7 +56,7 @@
 			android:layout_height="@dimen/button_height"
 			android:layout_marginTop="8dp"
 			android:background="@drawable/bg_outlined_white"
-			android:text="@string/splash_button_signup"
+			android:text="@string/lobby_button_signup"
 			android:textAllCaps="true"
 			android:textColor="@color/white"
 			android:textSize="16sp" />

@@ -1,5 +1,6 @@
 package com.patchr.ui;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,14 +13,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 
-import com.facebook.accountkit.AccessToken;
-import com.facebook.accountkit.Account;
-import com.facebook.accountkit.AccountKit;
-import com.facebook.accountkit.AccountKitCallback;
-import com.facebook.accountkit.AccountKitError;
 import com.facebook.accountkit.AccountKitLoginResult;
-import com.facebook.accountkit.PhoneNumber;
 import com.facebook.accountkit.ui.AccountKitActivity;
 import com.facebook.accountkit.ui.AccountKitConfiguration.AccountKitConfigurationBuilder;
 import com.facebook.accountkit.ui.LoginType;
@@ -42,6 +38,7 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
+import com.patchr.objects.PhoneNumber;
 import com.patchr.objects.Preference;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.edit.LoginEdit;
@@ -49,10 +46,10 @@ import com.patchr.ui.edit.ResetEdit;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
+import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
-import java.util.Locale;
 import java.util.Map;
 
 import bolts.AppLinks;
@@ -156,9 +153,7 @@ public class LobbyScreen extends AppCompatActivity {
 					UI.toast(toastMessage);
 				}
 				else {
-					if (loginResult.getAccessToken() != null) {
-						loginUsingToken(loginResult.getAccessToken());
-					}
+					loginUsingAuthCode(loginResult.getAuthorizationCode());
 				}
 			}
 		}
@@ -371,25 +366,31 @@ public class LobbyScreen extends AppCompatActivity {
 
 	public void login() {
 
-		MenuSheetView menuSheetView = new MenuSheetView(this, MenuSheetView.MenuType.GRID, "Login using...", new MenuSheetView.OnMenuItemClickListener() {
+		MenuSheetView menuSheetView = new MenuSheetView(this, MenuSheetView.MenuType.GRID, "Login or create an account using...", new MenuSheetView.OnMenuItemClickListener() {
 
 			@Override public boolean onMenuItemClick(final MenuItem item) {
 
 				bottomSheetLayout.addOnSheetDismissedListener(new OnSheetDismissedListener() {
 
 					@Override public void onDismissed(BottomSheetLayout bottomSheetLayout) {
+
 						if (item.getItemId() == R.id.login_using_phone) {
 							final Intent intent = new Intent(LobbyScreen.this, AccountKitActivity.class);
-							AccountKitConfigurationBuilder configurationBuilder = new AccountKitConfigurationBuilder(LoginType.PHONE, AccountKitActivity.ResponseType.TOKEN);
+							AccountKitConfigurationBuilder configurationBuilder = new AccountKitConfigurationBuilder(LoginType.PHONE, AccountKitActivity.ResponseType.CODE);
 							configurationBuilder.setFacebookNotificationsEnabled(true);
 							configurationBuilder.setReadPhoneStateEnabled(true);
 							configurationBuilder.setReceiveSMS(true);
+							final String jsonPhone = Patchr.settings.getString(StringManager.getString(R.string.setting_last_phone), null);
+							if (jsonPhone != null) {
+								PhoneNumber phone = (PhoneNumber) Json.jsonToObject(jsonPhone, Json.ObjectType.PHONE);
+								configurationBuilder.setInitialPhoneNumber(new com.facebook.accountkit.PhoneNumber(phone.countryCode, phone.phoneNumber));
+							}
 							intent.putExtra(AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION, configurationBuilder.build());
 							startActivityForResult(intent, Constants.ACTIVITY_LOGIN_ACCOUNT_KIT);
 						}
 						else if (item.getItemId() == R.id.login_using_email) {
 							final Intent intent = new Intent(LobbyScreen.this, AccountKitActivity.class);
-							AccountKitConfigurationBuilder configurationBuilder = new AccountKitConfigurationBuilder(LoginType.EMAIL, AccountKitActivity.ResponseType.TOKEN);
+							AccountKitConfigurationBuilder configurationBuilder = new AccountKitConfigurationBuilder(LoginType.EMAIL, AccountKitActivity.ResponseType.CODE);
 							configurationBuilder.setFacebookNotificationsEnabled(true);
 							final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
 							if (email != null) {
@@ -417,64 +418,58 @@ public class LobbyScreen extends AppCompatActivity {
 		bottomSheetLayout.showWithSheetView(menuSheetView, new InsetViewTransformer());
 	}
 
-	public void loginUsingToken(final AccessToken accessToken) {
+	public void loginUsingAuthCode(final String authorizationCode) {
 
-		AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
-			@Override public void onSuccess(final Account account) {
+		new AsyncTask() {
 
-				final String accountId = account.getId();
-				final String email = account.getEmail().toLowerCase(Locale.US);
-				final PhoneNumber phone = account.getPhoneNumber();
+			@Override protected void onPreExecute() {}
 
-				new AsyncTask() {
-
-					@Override protected void onPreExecute() {}
-
-					@Override protected Object doInBackground(Object... params) {
-						Thread.currentThread().setName("AsyncLogin");
-						ModelResult result = DataController.getInstance().tokenLogin(accessToken.getToken()
-								, LoginEdit.class.getSimpleName()
-								, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-						return result;
-					}
-
-					@Override protected void onPostExecute(Object response) {
-						final ModelResult result = (ModelResult) response;
-
-						if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
-							Logger.i(this, "User logged in: " + UserManager.currentUser.name);
-							UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
-							startHomeActivity();
-						}
-						else {
-							if (result.serviceResponse.statusCodeService != null
-									&& (result.serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND
-									|| result.serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS)) {
-								Dialogs.alert(R.string.error_signin_failed, LobbyScreen.this);
-							}
-							else {
-								Errors.handleError(LobbyScreen.this, result.serviceResponse);
-							}
-						}
-					}
-				}.executeOnExecutor(Constants.EXECUTOR);
+			@Override protected Object doInBackground(Object... params) {
+				Thread.currentThread().setName("AsyncLogin");
+				ModelResult result = DataController.getInstance().tokenLogin(authorizationCode
+						, LoginEdit.class.getSimpleName()
+						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				return result;
 			}
 
-			@Override public void onError(final AccountKitError error) {}
-		});
+			@Override protected void onPostExecute(Object response) {
+				final ModelResult result = (ModelResult) response;
+
+				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+					if (UserManager.currentUser.role.equals("provisional")) {
+						Bundle extras = new Bundle();
+						extras.putString(Constants.EXTRA_STATE, BaseScreen.State.Onboarding);
+						Patchr.router.route(LobbyScreen.this, Command.SIGNUP, null, extras);
+					}
+					else {
+						Logger.i(this, "User logged in: " + UserManager.currentUser.name);
+						UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
+						startHomeActivity();
+					}
+				}
+				else {
+					Errors.handleError(LobbyScreen.this, result.serviceResponse);
+				}
+			}
+		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	private void showButtons() {
 		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
-			UI.setVisibility(findViewById(R.id.login_button), View.VISIBLE);
+			Button button = (Button) findViewById(R.id.login_button);
+			UI.setTextView(button, R.string.lobby_button_login_accountkit);
 			UI.setVisibility(findViewById(R.id.submit_button), View.GONE);
 			UI.setVisibility(findViewById(R.id.guest_button), View.GONE);
+
 		}
 		else {
-			UI.setVisibility(findViewById(R.id.login_button), View.VISIBLE);
-			UI.setVisibility(findViewById(R.id.submit_button), View.VISIBLE);
-			UI.setVisibility(findViewById(R.id.guest_button), View.VISIBLE);
+			UI.setVisibility(findViewById(R.id.message), View.GONE);
 		}
+
+		View dialog = findViewById(R.id.dialog);
+		ObjectAnimator anim = ObjectAnimator.ofFloat(dialog, "alpha", 0f, 1f);
+		anim.setDuration(300);
+		anim.start();
 	}
 
 	private void updateRequired() {

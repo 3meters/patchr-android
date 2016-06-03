@@ -25,15 +25,17 @@ public class User extends Entity {
 	 * service fields
 	 *--------------------------------------------------------------------------------------------*/
 	@Expose
-	public String  email;                                        // Required
+	public String      email;
 	@Expose
-	public String  role;
+	public PhoneNumber phone;
 	@Expose
-	public String  area;
+	public String      role;
 	@Expose
-	public Boolean developer;
+	public String      area;
 	@Expose
-	public String  password;
+	public Boolean     developer;
+	@Expose
+	public String      password;
 
 	@Expose(serialize = false, deserialize = true)
 	public Number lastSignedInDate;
@@ -48,7 +50,6 @@ public class User extends Entity {
 
 	public List<Count> stats;
 	public Session     session;
-	public String      phone;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
@@ -84,6 +85,10 @@ public class User extends Entity {
 
 			if (map.get("session") != null) {
 				entity.session = Session.setPropertiesFromMap(new Session(), (HashMap<String, Object>) map.get("session"), nameMapping);
+			}
+
+			if (map.get("phone") != null) {
+				entity.phone = PhoneNumber.setPropertiesFromMap(new PhoneNumber(), (HashMap<String, Object>) map.get("phone"), nameMapping);
 			}
 
 			/* For local serialization */

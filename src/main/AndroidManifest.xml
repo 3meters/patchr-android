@@ -72,8 +72,7 @@
 		android:hardwareAccelerated="true"
 		android:icon="@drawable/ic_launcher"
 		android:label="@string/name_app"
-		android:theme="@style/patchr_theme"
-		tools:replace="label, allowBackup">
+		android:theme="@style/patchr_theme">
 
 		<!-- Service keys -->
 
@@ -213,7 +212,6 @@
 		<activity
 			android:name=".ui.LobbyScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:launchMode="singleTask"
 			android:screenOrientation="portrait"
 			android:theme="@style/patchr_theme_notitlebar"
 			android:windowSoftInputMode="stateHidden">

@@ -77,6 +77,7 @@
 -dontwarn com.fasterxml.jackson.databind.**
 -dontwarn javax.xml.stream.events.**
 -dontwarn org.codehaus.jackson.**
+-dontwarn com.amazonaws.org.apache.commons.logging.**
 -dontwarn org.apache.commons.logging.impl.**
 -dontwarn org.apache.http.conn.scheme.**
 -dontwarn org.apache.http.annotation.**

@@ -175,7 +175,16 @@ public class UserManager {
 		SharedPreferences.Editor editor = Patchr.settings.edit();
 		editor.putString(StringManager.getString(R.string.setting_user), jsonUser);
 		editor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
-		editor.putString(StringManager.getString(R.string.setting_last_email), currentUser.email);
+
+		if (currentUser.email != null) {
+			editor.putString(StringManager.getString(R.string.setting_last_email), currentUser.email);
+		}
+
+		if (currentUser.phone != null) {
+			String jsonPhone = Json.objectToJson(currentUser.phone);
+			editor.putString(StringManager.getString(R.string.setting_last_phone), jsonPhone);
+		}
+
 		editor.apply();
 	}
 

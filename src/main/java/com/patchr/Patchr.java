@@ -18,7 +18,6 @@ import android.support.multidex.MultiDexApplication;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.bugsnag.android.Bugsnag;
 import com.facebook.FacebookSdk;
-import com.facebook.accountkit.AccessToken;
 import com.facebook.accountkit.AccountKit;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -163,15 +162,7 @@ public class Patchr extends MultiDexApplication {
 		DataController.getInstance().warmup();
 
 		/* Must come after managers are initialized */
-		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
-			AccessToken accessToken = AccountKit.getCurrentAccessToken();
-			if (accessToken != null) {
-				UserManager.shared().loginAuto();
-			}
-		}
-		else {
-			UserManager.shared().loginAuto();
-		}
+		UserManager.shared().loginAuto();
 
 		/* Start activity recognition */
 		ActivityRecognitionManager.getInstance().initialize(applicationContext);
