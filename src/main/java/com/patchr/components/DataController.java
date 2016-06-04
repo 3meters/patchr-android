@@ -371,12 +371,13 @@ public class DataController {
 	@Subscribe public void onRegisterInstall(RegisterInstallEvent event) {
 
 		if (registering) return;
+
 		registering = true;
+		Logger.i(this, "Registering install");
 
 		new AsyncTask() {
 
-			@Override
-			protected Object doInBackground(Object... params) {
+			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRegisterInstall");
 
 				/* We register installs even if the user is anonymous. */
@@ -384,7 +385,9 @@ public class DataController {
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.ACTION, "Registered Install");
 					SharedPreferences.Editor editor = Patchr.settings.edit();
-					editor.putBoolean(StringManager.getString(R.string.setting_install_registered), true).apply();
+					int clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
+					editor.putBoolean(StringManager.getString(R.string.setting_install_registered), true);
+					editor.putInt(StringManager.getString(R.string.setting_install_registered_version_code), clientVersionCode);
 					editor.apply();
 				}
 				registering = false;
@@ -1312,7 +1315,7 @@ public class DataController {
 		install.clientPackageName = Patchr.applicationContext.getPackageName();
 		install.deviceName = AndroidManager.getInstance().getDeviceName();
 		install.deviceType = "android";
-		install.deviceVersionName = Build.VERSION.RELEASE;
+		install.deviceVersionName = Build.VERSION.RELEASE;      // Android version number. E.g., "1.0" or "3.4b5"
 
 		ModelResult result = new ModelResult();
 		final Bundle parameters = new Bundle();

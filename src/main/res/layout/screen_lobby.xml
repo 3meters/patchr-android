@@ -100,6 +100,8 @@
 			android:gravity="center"
 			android:onClick="onClick"
 			android:text="@string/lobby_button_guest"
+			android:visibility="invisible"
+			tools:visibility="visible"
 			android:textColor="@color/white"
 			android:textSize="18sp" />
 

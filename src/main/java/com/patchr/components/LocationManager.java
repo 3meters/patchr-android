@@ -228,7 +228,7 @@ public class LocationManager implements
 	}
 
 	public void stop() {
-		Logger.d(this, "Stopping location updates");
+		Logger.v(this, "Stopping location updates");
 		if (mGoogleApiClient != null && mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
 			LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
 			mRequestingLocationUpdates = false;
@@ -236,7 +236,7 @@ public class LocationManager implements
 	}
 
 	public void requestLocationUpdates() {
-		Logger.d(this, "Starting location updates");
+		Logger.v(this, "Starting location updates");
 
 		/* Get last known location */
 		if (ActivityCompat.checkSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {

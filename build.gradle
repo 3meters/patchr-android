@@ -31,8 +31,8 @@ android {
 		applicationId 'com.patchr.android'
 		minSdkVersion 15        // ICS 4.0.3 and up
 		targetSdkVersion 23     // Marshmallow
-		versionCode 120
-		versionName '1.1.17'
+		versionCode 121
+		versionName '1.1.18'
 		multiDexEnabled true
 		buildConfigField 'boolean', 'ACCOUNT_KIT_ENABLED', "false"
 	}

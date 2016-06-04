@@ -10,6 +10,7 @@
 	<string name="setting_last_email">[@string/id_package]_setting_last_email</string>
 	<string name="setting_last_phone">[@string/id_package]_setting_last_phone</string>
 	<string name="setting_install_registered">[@string/id_package]_setting_install_registered</string>
+	<string name="setting_install_registered_version_code">[@string/id_package]_setting_install_registered_version_code</string>
 
 	<string name="setting_unique_id">[@string/id_package]_setting_unique_id</string>
 	<string name="setting_unique_id_date">[@string/id_package]_setting_unique_id_date</string>

@@ -29,6 +29,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AndroidManager;
 import com.patchr.components.DataController;
+import com.patchr.components.Dispatcher;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
@@ -36,6 +37,7 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.events.RegisterInstallEvent;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
 import com.patchr.objects.PhoneNumber;
@@ -202,10 +204,21 @@ public class LobbyScreen extends AppCompatActivity {
 	 *--------------------------------------------------------------------------------------------*/
 
 	protected void initialize() {
-		/* Nothing to do! */
+
 		this.bottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
 		if (this.bottomSheetLayout != null)
 			this.bottomSheetLayout.setPeekOnDismiss(true);
+		/*
+		 * Ensure install is registered with service. Only done once unless something like a system update clears
+		 * the app preferences.
+		 */
+		Boolean registered = Patchr.settings.getBoolean(StringManager.getString(R.string.setting_install_registered), false);
+		Integer registeredClientVersionCode = Patchr.settings.getInt(StringManager.getString(R.string.setting_install_registered_version_code), 0);
+		Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
+
+		if (!registered || !registeredClientVersionCode.equals(clientVersionCode)) {
+			Dispatcher.getInstance().post(new RegisterInstallEvent());  // Sets install registered flag only if successful
+		}
 	}
 
 	protected void handleBranch() {
@@ -460,10 +473,10 @@ public class LobbyScreen extends AppCompatActivity {
 			UI.setTextView(button, R.string.lobby_button_login_accountkit);
 			UI.setVisibility(findViewById(R.id.submit_button), View.GONE);
 			UI.setVisibility(findViewById(R.id.guest_button), View.GONE);
-
 		}
 		else {
 			UI.setVisibility(findViewById(R.id.message), View.GONE);
+			UI.setVisibility(findViewById(R.id.guest_button), View.VISIBLE);
 		}
 
 		View dialog = findViewById(R.id.dialog);

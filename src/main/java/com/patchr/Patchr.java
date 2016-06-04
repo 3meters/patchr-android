@@ -30,7 +30,6 @@ import com.parse.ParseInstallation;
 import com.patchr.components.ActivityRecognitionManager;
 import com.patchr.components.ContainerManager;
 import com.patchr.components.DataController;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.Foreground;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
@@ -39,7 +38,6 @@ import com.patchr.components.Router;
 import com.patchr.components.Stopwatch;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.RegisterInstallEvent;
 import com.patchr.objects.Preference;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
@@ -94,9 +92,11 @@ public class Patchr extends MultiDexApplication {
 		debuggable = (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE));
 
 		super.onCreate();
-		instance = this;
-		instance.initializeInstance();
-		Logger.d(this, "Application created");
+		if (instance == null) {
+			instance = this;
+			instance.initializeInstance();
+			Logger.d(this, "Application created");
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -166,9 +166,6 @@ public class Patchr extends MultiDexApplication {
 
 		/* Start activity recognition */
 		ActivityRecognitionManager.getInstance().initialize(applicationContext);
-
-		/* Ensure install is registered. Even if already registered, this will update the metadata */
-		Dispatcher.getInstance().post(new RegisterInstallEvent());
 
 		/* Turn on branch */
 		Branch.getAutoInstance(this);

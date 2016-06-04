@@ -135,10 +135,16 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 
 		bind();
 
-		/* Ensure install is registered in case we failed during app bootstrap. */
+		/*
+		 * Ensure install is registered with service. Only done once unless something like a system update clears
+		 * the app preferences.
+		 */
 		Boolean registered = Patchr.settings.getBoolean(StringManager.getString(R.string.setting_install_registered), false);
-		if (!registered) {
-			Dispatcher.getInstance().post(new RegisterInstallEvent());
+		Integer registeredClientVersionCode = Patchr.settings.getInt(StringManager.getString(R.string.setting_install_registered_version_code), 0);
+		Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
+
+		if (!registered || !registeredClientVersionCode.equals(clientVersionCode)) {
+			Dispatcher.getInstance().post(new RegisterInstallEvent());  // Sets install registered flag only if successful
 		}
 
 		AppEventsLogger.activateApp(this);
