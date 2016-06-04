@@ -14,6 +14,7 @@ import com.patchr.objects.Link;
 import com.patchr.objects.Message;
 import com.patchr.objects.Notification;
 import com.patchr.objects.Patch;
+import com.patchr.objects.PhoneNumber;
 import com.patchr.objects.Photo;
 import com.patchr.objects.ServiceBase.UpdateScope;
 import com.patchr.objects.ServiceData;
@@ -239,6 +240,9 @@ public class Json {
 				}
 				else if (objectType == Json.ObjectType.PHOTO) {
 					list.add(Photo.setPropertiesFromMap(new Photo(), map, nameMapping));
+				}
+				else if (objectType == ObjectType.PHONE) {
+					list.add(PhoneNumber.setPropertiesFromMap(new PhoneNumber(), map, nameMapping));
 				}
 				else if (objectType == Json.ObjectType.COUNT) {
 					list.add(Count.setPropertiesFromMap(new Count(), map, nameMapping));
