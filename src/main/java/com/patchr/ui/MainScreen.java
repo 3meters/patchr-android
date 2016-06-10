@@ -48,6 +48,7 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.Notification;
+import com.patchr.objects.PhoneNumber;
 import com.patchr.objects.Photo;
 import com.patchr.objects.User;
 import com.patchr.ui.components.BusyPresenter;
@@ -88,6 +89,8 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	protected ImageWidget userPhoto;
 	protected TextView    userName;
 	protected TextView    userArea;
+	protected TextView    authIdentifierLabel;
+	protected TextView    authIdentifier;
 	protected CacheStamp  cacheStamp;
 
 	protected DrawerLayout          drawerLayout;
@@ -342,6 +345,8 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 			this.userPhoto = (ImageWidget) this.drawerLeftHeader.findViewById(R.id.user_photo);
 			this.userName = (TextView) this.drawerLeftHeader.findViewById(R.id.user_name);
 			this.userArea = (TextView) this.drawerLeftHeader.findViewById(R.id.user_area);
+			this.authIdentifier = (TextView) this.drawerLeftHeader.findViewById(R.id.auth_identifier);
+			this.authIdentifierLabel = (TextView) this.drawerLeftHeader.findViewById(R.id.auth_identifier_label);
 			if (UserManager.shared().authenticated()) {
 				this.drawerLeftHeader.setTag(UserManager.currentUser);
 			}
@@ -535,6 +540,16 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				this.userPhoto.setImageWithEntity(user);
 				this.userName.setText(user.name);
 				UI.setTextOrGone(this.userArea, user.area);
+
+				UI.setVisibility(this.authIdentifier, View.VISIBLE);
+				UI.setVisibility(this.authIdentifierLabel, View.VISIBLE);
+				if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
+					UI.setTextOrGone(this.authIdentifier, ((PhoneNumber) UserManager.authIdentifierHint).number);
+				}
+				else {
+					UI.setTextOrGone(this.authIdentifier, (String) UserManager.authIdentifierHint);
+				}
+
 				this.drawerLeftHeader.setTag(user);
 				drawerLeft.getMenu().findItem(R.id.item_member).setVisible(true);
 				drawerLeft.getMenu().findItem(R.id.item_own).setVisible(true);
@@ -544,6 +559,8 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				configuredForAuthenticated = false;
 				UI.setVisibility(this.userPhoto, View.GONE);
 				UI.setVisibility(this.userArea, View.GONE);
+				UI.setVisibility(this.authIdentifier, View.GONE);
+				UI.setVisibility(this.authIdentifierLabel, View.GONE);
 				this.userName.setText("Guest");
 				this.drawerLeftHeader.setTag(null);
 				drawerLeft.getMenu().findItem(R.id.item_member).setVisible(false);

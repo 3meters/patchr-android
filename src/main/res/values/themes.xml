@@ -101,6 +101,7 @@
 		<item name="iconMessage">@drawable/ic_img_message_light</item>
 		<item name="iconNotification">@drawable/ic_action_alert_light</item>
 		<item name="iconOverflow">@drawable/ic_img_overflow_light</item>
+		<item name="iconPassword">@drawable/ic_img_key_light</item>
 		<item name="iconPatch">@drawable/ic_img_patch_light</item>
 		<item name="iconPicture">@drawable/ic_img_picture_light</item>
 		<item name="iconSearch">@drawable/ic_action_search_light</item>

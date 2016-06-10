@@ -201,6 +201,7 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 		}
 		else if (item.getItemId() == R.id.logout) {
 			UserManager.shared().logout();
+			Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 		}
 		else {
 			/* Handles: login, browse, map */
@@ -481,10 +482,13 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 	}
 
 	public static class State {
-		public static String Editing    = "editing";
-		public static String Creating   = "creating";
-		public static String Onboarding = "onboarding";
-		public static String Sharing    = "sharing";
-		public static String Searching  = "searching";
+		public static String Editing         = "editing";
+		public static String Creating        = "creating";
+		public static String Login           = "login";
+		public static String Signup          = "signup";
+		public static String Onboarding      = "onboarding";
+		public static String CompleteProfile = "complete_profile";
+		public static String Sharing         = "sharing";
+		public static String Searching       = "searching";
 	}
 }

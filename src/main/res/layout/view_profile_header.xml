@@ -67,12 +67,28 @@
 								tools:text="Aliza Wenk" />
 
 							<TextView
-								android:id="@+id/email"
+								android:id="@+id/auth_identifier_label"
+								android:layout_width="wrap_content"
+								android:layout_height="wrap_content"
+								android:ellipsize="end"
+								android:layout_marginTop="4dp"
+								android:singleLine="true"
+								android:textAllCaps="true"
+								android:textColor="?attr/textColor"
+								android:textSize="10sp"
+								android:text="@string/label_auth_identifier"
+								android:visibility="gone"
+								tools:text="logged in using:"
+								tools:visibility="visible"
+								tools:ignore="SmallSp" />
+
+							<TextView
+								android:id="@+id/auth_identifier"
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
 								android:ellipsize="end"
 								android:singleLine="true"
-								android:textColor="?attr/textColorSecondary"
+								android:textColor="?attr/textColor"
 								android:textSize="16sp"
 								android:visibility="gone"
 								tools:text="aliza@3meters.com"
@@ -80,13 +96,13 @@
 
 							<TextView
 								android:id="@+id/area"
+								android:layout_marginTop="4dp"
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
 								android:ellipsize="end"
 								android:singleLine="true"
-								android:textAllCaps="true"
 								android:textColor="?attr/textColorSecondary"
-								android:textSize="16sp"
+								android:textSize="14sp"
 								tools:text="Seattle, WA" />
 
 						</LinearLayout>

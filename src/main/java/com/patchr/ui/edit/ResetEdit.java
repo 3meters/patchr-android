@@ -174,9 +174,8 @@ public class ResetEdit extends BaseEdit {
 			userName.setText(inputUserName);
 		}
 		else {
-			final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
-			if (email != null) {
-				this.emailField.setText(email);
+			if (UserManager.authIdentifierHint != null) {
+				this.emailField.setText((String) UserManager.authIdentifierHint);
 			}
 		}
 	}

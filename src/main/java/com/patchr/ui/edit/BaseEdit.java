@@ -256,29 +256,29 @@ public abstract class BaseEdit extends BaseScreen {
 	}
 
 	@Override public void submitAction() {
-		if (this.processing) return;
-
-		this.processing = true;
-		/*
-		 * We assume that by accepting while creating a patch, the users intention is
-		 * to commit even if nothing is dirty.
-		 */
-		if (!editing || this.dirty) {
-			if (validate()) {   // validate also gathers
-				if (editing) {
-					update();
+		if (!this.processing) {
+			this.processing = true;
+			/*
+			 * We assume that by accepting while creating a patch, the users intention is
+			 * to commit even if nothing is dirty.
+			 */
+			if (!this.editing || this.dirty) {
+				if (validate()) {   // validate also gathers
+					if (this.editing) {
+						update();
+					}
+					else {
+						insert();
+					}
 				}
 				else {
-					insert();
+					this.processing = false;
 				}
 			}
 			else {
 				this.processing = false;
+				cancelAction(false);
 			}
-		}
-		else {
-			this.processing = false;
-			cancelAction(false);
 		}
 	}
 

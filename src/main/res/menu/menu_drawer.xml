@@ -2,7 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto">
 
-	<group android:checkableBehavior="single">
+	<group
+		android:id="@+id/group_patches"
+		android:checkableBehavior="single">
 
 		<item
 			android:id="@+id/item_nearby"
@@ -28,13 +30,18 @@
 			android:icon="?attr/iconDrawerExplore"
 			android:title="@string/label_drawer_item_trend_active" />
 
+	</group>
+
+	<group
+		android:id="@+id/group_settings"
+		android:checkableBehavior="single">
+
 		<item
 			android:id="@+id/item_settings"
-			android:checked="false"
 			android:checkable="false"
+			android:checked="false"
 			android:icon="?attr/iconDrawerSettings"
 			android:title="@string/label_drawer_item_more_settings" />
 
 	</group>
-
 </menu>

@@ -1,7 +1,6 @@
 package com.patchr.ui.edit;
 
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -29,9 +29,11 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
+import com.patchr.objects.PhoneNumber;
 import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
+import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.utilities.Dialogs;
@@ -45,14 +47,16 @@ import java.io.IOException;
 
 public class ProfileEdit extends BaseEdit {
 
-	private EditText area;
-	private EditText email;
-	private EditText phoneNumber;
 	private TextView title;
-	private Button   submitDelete;
-	private Button   submitButton;
-	private Button   changePasswordButton;
-	private Button   termsButton;
+	private EditText email;
+	private EditText area;
+	public  TextView authIdentifierLabel;
+	public  TextView authIdentifier;
+
+	private Button submitDelete;
+	private Button submitButton;
+	private Button changePasswordButton;
+	private Button termsButton;
 
 	private String inputState = State.Editing;
 	private String inputEmail;
@@ -125,22 +129,32 @@ public class ProfileEdit extends BaseEdit {
 		title = (TextView) findViewById(R.id.title);
 		area = (EditText) findViewById(R.id.area);
 		email = (EditText) findViewById(R.id.email);
-		phoneNumber = (EditText) findViewById(R.id.phone_number);
+		authIdentifierLabel = (TextView) findViewById(R.id.auth_identifier_label);
+		authIdentifier = (TextView) findViewById(R.id.auth_identifier);
 		submitButton = (Button) findViewById(R.id.submit_button);
 		termsButton = (Button) findViewById(R.id.terms_button);
 		changePasswordButton = (Button) findViewById(R.id.change_password_button);
 
-		if (inputState != null && inputState.equals(State.Onboarding)) {
-			User user = (User) entity;
-			if (user != null && user.role.equals("provisional")) {
+		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+			email.setVisibility(View.GONE);
+			authIdentifierLabel.setVisibility(View.VISIBLE);
+			authIdentifier.setVisibility(View.VISIBLE);
+			changePasswordButton.setVisibility(View.GONE);
+
+			if (inputState != null && inputState.equals(State.CompleteProfile)) {
+				title.setText("Make your account more personal");
+				authIdentifierLabel.setText(R.string.label_auth_identifier_onboarding);
 				area.setVisibility(View.GONE);
-				email.setVisibility(View.GONE);
-				phoneNumber.setVisibility(View.GONE);
 				submitButton.setVisibility(View.VISIBLE);
+				submitButton.setText("Create account");
 				termsButton.setVisibility(View.VISIBLE);
-				changePasswordButton.setVisibility(View.GONE);
 			}
 			else {
+				authIdentifierLabel.setText(R.string.label_auth_identifier);
+			}
+		}
+		else {
+			if (inputState != null && inputState.equals(State.Onboarding)) {
 				this.entity = User.build();
 				((User) this.entity).email = this.inputEmail;
 				((User) this.entity).password = this.inputPassword;
@@ -149,6 +163,22 @@ public class ProfileEdit extends BaseEdit {
 				submitButton.setVisibility(View.VISIBLE);
 				termsButton.setVisibility(View.VISIBLE);
 				changePasswordButton.setVisibility(View.GONE);
+			}
+
+			if (email != null) {
+				email.addTextChangedListener(new SimpleTextWatcher() {
+
+					@Override
+					public void afterTextChanged(Editable s) {
+						if (entity != null) {
+							if (!s.toString().equals(((User) entity).email)) {
+								if (!firstDraw) {
+									dirty = true;
+								}
+							}
+						}
+					}
+				});
 			}
 		}
 
@@ -159,22 +189,6 @@ public class ProfileEdit extends BaseEdit {
 				public void afterTextChanged(Editable s) {
 					if (entity != null) {
 						if (!s.toString().equals(((User) entity).area)) {
-							if (!firstDraw) {
-								dirty = true;
-							}
-						}
-					}
-				}
-			});
-		}
-
-		if (email != null) {
-			email.addTextChangedListener(new SimpleTextWatcher() {
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					if (entity != null) {
-						if (!s.toString().equals(((User) entity).email)) {
 							if (!firstDraw) {
 								dirty = true;
 							}
@@ -201,57 +215,65 @@ public class ProfileEdit extends BaseEdit {
 	@Override public void bind() {
 		super.bind();
 
-		if (inputState.equals(State.Onboarding)) {
-			User user = (User) entity;
-			if (user != null && user.role.equals("provisional")) {
-				email.setEnabled(false);
-				phoneNumber.setEnabled(false);
-				UI.setTextOrGone(email, user.email);
-				UI.setTextOrGone(phoneNumber, user.phone.displayNumber());
+		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+			User user = (User) this.entity;
+			if (UserManager.authTypeHint != null) {
+				if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
+					authIdentifier.setText(((PhoneNumber) UserManager.authIdentifierHint).number);
+				}
+				else {
+					authIdentifier.setText((String) UserManager.authIdentifierHint);
+				}
 			}
-			else {
-				UI.setTextView(email, inputEmail);
-				email.setEnabled(false);
-				photoEditWidget.bind(null);
+
+			if (inputState == null || !inputState.equals(State.CompleteProfile)) {
+				if (this.area != null && !TextUtils.isEmpty(user.area)) {
+					this.area.setText(user.area);
+				}
 			}
 		}
 		else {
-			User user = (User) entity;
-			if (area != null && !TextUtils.isEmpty(user.area)) {
-				area.setText(user.area);
+			if (this.inputState != null && this.inputState.equals(State.Onboarding)) {
+				UI.setTextView(this.email, this.inputEmail);
+				this.email.setEnabled(false);
+				this.photoEditWidget.bind(null);
 			}
-			if (email != null && !TextUtils.isEmpty(user.email)) {
-				email.setText(user.email);
+			else {
+				User user = (User) entity;
+				if (this.area != null && !TextUtils.isEmpty(user.area)) {
+					this.area.setText(user.area);
+				}
+				if (this.email != null && !TextUtils.isEmpty(user.email)) {
+					this.email.setText(user.email);
+				}
 			}
 		}
 	}
 
 	@Override public void submitAction() {
+		if (!processing) {
 
-		if (inputState.equals(State.Onboarding)) {
-			User user = (User) entity;
-			if (user != null && user.role.equals("provisional")) {
-				super.submitAction();
-			}
-			else {
-				if (processing) return;
-				processing = true;
-
+			if (inputState != null && inputState.equals(State.CompleteProfile)) {
 				if (validate()) {
+					processing = true;
+					((User) this.entity).role = "user";
+					update();
+				}
+			}
+			else if (inputState != null && inputState.equals(State.Onboarding)) {
+				if (validate()) {
+					processing = true;
 					register();
 				}
-				else {
-					processing = false;
-				}
 			}
-		}
-		else {
-			super.submitAction();
+			else {                      // Covers both editing and profile completion
+				super.submitAction();   // Validates and updates the user (only if dirty)
+			}
 		}
 	}
 
 	@Override protected void gather() {
-		super.gather();
+		super.gather(); // Handles name and description
 
 		User user = (User) entity;
 		if (email != null) {
@@ -262,11 +284,17 @@ public class ProfileEdit extends BaseEdit {
 		}
 	}
 
+	@Override protected boolean afterUpdate() {
+		/* So our persisted user is up-to-date. Only called if update call was successful. */
+		((User) entity).session = UserManager.currentUser.session;
+		UserManager.shared().setCurrentUser((User) entity, false);  // Updates persisted user too
+		return true;
+	}
+
 	@Override protected boolean validate() {
 
 		gather();
-		User user = (User) entity;
-		if (user.name == null) {
+		if (this.entity.name == null) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_fullname)
@@ -350,18 +378,7 @@ public class ProfileEdit extends BaseEdit {
 				ModelResult result = DataController.getInstance().registerUser((User) entity
 						, (entity.photo != null) ? bitmap : null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
-				if (isCancelled()) return null;
-
-				/* Don't allow cancel if we made it this far */
-				busyPresenter.hide(true);
-
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
-					/* We automatically consider the user signed in. */
-					final User user = (User) result.data;
-					UserManager.shared().setCurrentUser(user, true);
-				}
-
-				return result;
+				return !isCancelled() ? result : null;
 			}
 
 			@Override protected void onCancelled(Object response) {
@@ -379,10 +396,18 @@ public class ProfileEdit extends BaseEdit {
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
+				busyPresenter.hide(true);
+
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+
+					/* We automatically consider the user signed in. */
+					final User user = (User) result.data;
+					UserManager.shared().setCurrentUser(user, true);
+
 					Reporting.track(AnalyticsCategory.EDIT, "Created User and Logged In");
 					Logger.i(ProfileEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
-					UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
+					UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + user.name);
+
 					setResult(Constants.RESULT_USER_LOGGED_IN);
 					finish();
 					AnimationManager.doOverridePendingTransition(ProfileEdit.this, TransitionType.FORM_BACK);
@@ -426,12 +451,8 @@ public class ProfileEdit extends BaseEdit {
 
 					Reporting.track(AnalyticsCategory.EDIT, "Deleted User");
 					Logger.i(this, "Deleted user: " + entity.id);
-
 					UserManager.shared().setCurrentUser(null, false);
-					SharedPreferences.Editor editor = Patchr.settings.edit();
-					editor.putString(StringManager.getString(R.string.setting_last_email), null);
-					editor.putString(StringManager.getString(R.string.setting_last_phone), null);
-					editor.apply();
+					UserManager.shared().discardAuthHints();
 					Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 					UI.toast(String.format(StringManager.getString(R.string.alert_user_deleted), userName));
 					finish();
@@ -452,6 +473,7 @@ public class ProfileEdit extends BaseEdit {
 	}
 
 	@Override public void confirmDelete() {
+
 		final EditText textConfirm = new EditText(this);
 		textConfirm.addTextChangedListener(new SimpleTextWatcher() {
 

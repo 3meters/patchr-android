@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.net.UrlQuerySanitizer;
 import android.os.AsyncTask;
@@ -14,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.facebook.accountkit.AccountKitLoginResult;
 import com.facebook.accountkit.ui.AccountKitActivity;
@@ -28,6 +28,7 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AndroidManager;
+import com.patchr.components.AnimationManager;
 import com.patchr.components.DataController;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.LocationManager;
@@ -40,11 +41,16 @@ import com.patchr.components.UserManager;
 import com.patchr.events.RegisterInstallEvent;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
+import com.patchr.objects.Entity;
 import com.patchr.objects.PhoneNumber;
 import com.patchr.objects.Preference;
+import com.patchr.objects.TransitionType;
+import com.patchr.ui.components.BusyPresenter;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.edit.LoginEdit;
+import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.edit.ResetEdit;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -88,7 +94,10 @@ public class LobbyScreen extends AppCompatActivity {
 	 * Running Lobby is not required to start activities.
 	 */
 	protected BottomSheetLayout bottomSheetLayout;
-	protected Boolean restart = false;
+	protected Boolean restart    = false;
+	protected String  authType   = AuthType.Password;
+	protected String  authIntent = BaseScreen.State.Login;
+	protected BusyPresenter busyPresenter;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -164,6 +173,15 @@ public class LobbyScreen extends AppCompatActivity {
 				startHomeActivity();
 			}
 		}
+		else if (requestCode == Constants.ACTIVITY_COMPLETE_PROFILE) {
+			if (!UserManager.shared().provisional()) {
+				startHomeActivity();
+			}
+			else {
+				UserManager.shared().logout();
+				proceed();
+			}
+		}
 		else if (requestCode == AndroidManager.PLAY_SERVICES_RESOLUTION_REQUEST) {
 			proceed();
 		}
@@ -178,7 +196,16 @@ public class LobbyScreen extends AppCompatActivity {
 
 		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
 			if (view.getId() == R.id.login_button) {
-				login();
+				authIntent = BaseScreen.State.Login;
+				verifyEmail(null);
+			}
+			else if (view.getId() == R.id.submit_button) {
+				authIntent = BaseScreen.State.Signup;
+				verifyEmail(null);
+			}
+			else if (view.getId() == R.id.user_button) {
+				authIntent = BaseScreen.State.Login;
+				verifyEmail((String) UserManager.authIdentifierHint);
 			}
 		}
 		else {
@@ -205,7 +232,9 @@ public class LobbyScreen extends AppCompatActivity {
 
 	protected void initialize() {
 
+		this.busyPresenter = new BusyPresenter();
 		this.bottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
+
 		if (this.bottomSheetLayout != null)
 			this.bottomSheetLayout.setPeekOnDismiss(true);
 		/*
@@ -338,7 +367,7 @@ public class LobbyScreen extends AppCompatActivity {
 				 * called again.
 				 */
 				if (AndroidManager.checkPlayServices(LobbyScreen.this)) {
-					if (UserManager.shared().authenticated()) {
+					if (UserManager.shared().authenticated() && !UserManager.shared().provisional()) {
 						startHomeActivity();
 					}
 					else {
@@ -377,6 +406,16 @@ public class LobbyScreen extends AppCompatActivity {
 		Patchr.sendIntent = null;
 	}
 
+	public void completeProfile(Entity entity) {
+
+		final String jsonEntity = Json.objectToJson(entity);
+		Intent intent = new Intent(this, ProfileEdit.class);
+		intent.putExtra(Constants.EXTRA_STATE, BaseScreen.State.CompleteProfile);
+		intent.putExtra(Constants.EXTRA_ENTITY, jsonEntity);
+		startActivityForResult(intent, Constants.ACTIVITY_COMPLETE_PROFILE);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
+	}
+
 	public void login() {
 
 		MenuSheetView menuSheetView = new MenuSheetView(this, MenuSheetView.MenuType.GRID, "Login or create an account using...", new MenuSheetView.OnMenuItemClickListener() {
@@ -388,29 +427,19 @@ public class LobbyScreen extends AppCompatActivity {
 					@Override public void onDismissed(BottomSheetLayout bottomSheetLayout) {
 
 						if (item.getItemId() == R.id.login_using_phone) {
-							final Intent intent = new Intent(LobbyScreen.this, AccountKitActivity.class);
-							AccountKitConfigurationBuilder configurationBuilder = new AccountKitConfigurationBuilder(LoginType.PHONE, AccountKitActivity.ResponseType.CODE);
-							configurationBuilder.setFacebookNotificationsEnabled(true);
-							configurationBuilder.setReadPhoneStateEnabled(true);
-							configurationBuilder.setReceiveSMS(true);
-							final String jsonPhone = Patchr.settings.getString(StringManager.getString(R.string.setting_last_phone), null);
-							if (jsonPhone != null) {
-								PhoneNumber phone = (PhoneNumber) Json.jsonToObject(jsonPhone, Json.ObjectType.PHONE);
-								configurationBuilder.setInitialPhoneNumber(new com.facebook.accountkit.PhoneNumber(phone.countryCode, phone.phoneNumber));
-							}
-							intent.putExtra(AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION, configurationBuilder.build());
-							startActivityForResult(intent, Constants.ACTIVITY_LOGIN_ACCOUNT_KIT);
+							verifyPhoneNumber();
 						}
 						else if (item.getItemId() == R.id.login_using_email) {
-							final Intent intent = new Intent(LobbyScreen.this, AccountKitActivity.class);
-							AccountKitConfigurationBuilder configurationBuilder = new AccountKitConfigurationBuilder(LoginType.EMAIL, AccountKitActivity.ResponseType.CODE);
-							configurationBuilder.setFacebookNotificationsEnabled(true);
-							final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
-							if (email != null) {
-								configurationBuilder.setInitialEmail(email);
-							}
-							intent.putExtra(AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION, configurationBuilder.build());
-							startActivityForResult(intent, Constants.ACTIVITY_LOGIN_ACCOUNT_KIT);
+							verifyEmail(null);
+						}
+						else if (item.getItemId() == R.id.login_using_password) {
+
+							authType = AuthType.Password;
+
+							Intent intent = new Intent(LobbyScreen.this, LoginEdit.class);
+							intent.putExtra(Constants.EXTRA_ONBOARD_MODE, UserManager.authTypeHint != null ? LoginEdit.OnboardMode.Login : LoginEdit.OnboardMode.Signup);
+							startActivityForResult(intent, Constants.ACTIVITY_LOGIN);
+							AnimationManager.doOverridePendingTransition(LobbyScreen.this, TransitionType.FORM_TO);
 						}
 					}
 				});
@@ -423,23 +452,62 @@ public class LobbyScreen extends AppCompatActivity {
 		menuSheetView.inflateMenu(R.menu.menu_login_sheet);
 
 		final int color = Colors.getColor(R.color.brand_primary);
-		Drawable iconPhone = menuSheetView.getMenu().getItem(0).getIcon();
-		Drawable iconEmail = menuSheetView.getMenu().getItem(1).getIcon();
-		iconPhone.setAlpha((int) (256 * 0.5));
-		iconEmail.setAlpha((int) (256 * 0.5));
+
+		menuSheetView.getMenu().getItem(0).getIcon().setAlpha((int) (256 * 0.5));
+		menuSheetView.getMenu().getItem(1).getIcon().setAlpha((int) (256 * 0.5));
+		menuSheetView.getMenu().getItem(2).getIcon().setAlpha((int) (256 * 0.5));
+
 		bottomSheetLayout.setPeekOnDismiss(true);
 		bottomSheetLayout.showWithSheetView(menuSheetView, new InsetViewTransformer());
+	}
+
+	public void verifyPhoneNumber() {
+
+		authType = AuthType.PhoneNumber;
+		final Intent intent = new Intent(LobbyScreen.this, AccountKitActivity.class);
+		AccountKitConfigurationBuilder configurationBuilder = new AccountKitConfigurationBuilder(LoginType.PHONE, AccountKitActivity.ResponseType.CODE);
+		configurationBuilder.setFacebookNotificationsEnabled(true);
+		configurationBuilder.setReadPhoneStateEnabled(true);
+		configurationBuilder.setReceiveSMS(true);
+
+		if (UserManager.authTypeHint != null && UserManager.authTypeHint.equals(AuthType.PhoneNumber)) {
+			if (UserManager.authIdentifierHint != null) {
+				PhoneNumber phoneNumber = (PhoneNumber) UserManager.authIdentifierHint;
+				configurationBuilder.setInitialPhoneNumber(new com.facebook.accountkit.PhoneNumber(phoneNumber.countryCode, phoneNumber.number));
+			}
+		}
+
+		intent.putExtra(AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION, configurationBuilder.build());
+		startActivityForResult(intent, Constants.ACTIVITY_LOGIN_ACCOUNT_KIT);
+	}
+
+	public void verifyEmail(String initialEmail) {
+
+		authType = AuthType.Email;
+		final Intent intent = new Intent(LobbyScreen.this, AccountKitActivity.class);
+		AccountKitConfigurationBuilder configurationBuilder = new AccountKitConfigurationBuilder(LoginType.EMAIL, AccountKitActivity.ResponseType.CODE);
+		configurationBuilder.setFacebookNotificationsEnabled(true);
+
+		if (initialEmail != null) {
+			configurationBuilder.setInitialEmail(initialEmail);
+		}
+
+		intent.putExtra(AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION, configurationBuilder.build());
+		startActivityForResult(intent, Constants.ACTIVITY_LOGIN_ACCOUNT_KIT);
 	}
 
 	public void loginUsingAuthCode(final String authorizationCode) {
 
 		new AsyncTask() {
 
-			@Override protected void onPreExecute() {}
+			@Override protected void onPreExecute() {
+				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_logging_in, LobbyScreen.this);
+			}
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncLogin");
 				ModelResult result = DataController.getInstance().tokenLogin(authorizationCode
+						, authType
 						, LoginEdit.class.getSimpleName()
 						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
@@ -448,16 +516,34 @@ public class LobbyScreen extends AppCompatActivity {
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
+				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
-					if (UserManager.currentUser.role.equals("provisional")) {
-						Bundle extras = new Bundle();
-						extras.putString(Constants.EXTRA_STATE, BaseScreen.State.Onboarding);
-						Patchr.router.route(LobbyScreen.this, Command.SIGNUP, null, extras);
+					if (authIntent.equals(BaseScreen.State.Login)) {
+						if (UserManager.shared().provisional()) {
+							/* User meant to login but got a new account instead. */
+							Logger.i(this, "User tried to login but got new account instead");
+							Dialogs.alertDialogSimple(LobbyScreen.this
+									, "Log in"
+									, String.format("No account exists for %1$s. Enter the same email address you entered when you created your account.", UserManager.currentUser.email));
+						}
+						else {
+							Logger.i(this, "User logged in: " + UserManager.currentUser.name);
+							UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
+							startHomeActivity();
+						}
 					}
-					else {
-						Logger.i(this, "User logged in: " + UserManager.currentUser.name);
-						UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
-						startHomeActivity();
+					else if (authIntent.equals(BaseScreen.State.Signup)) {
+						if (!UserManager.shared().provisional()) {
+							/* User meant to signup but got an existing account instead. */
+							Logger.i(this, "User tried to sign up but got an existing account instead");
+							Logger.i(this, "User logged in: " + UserManager.currentUser.name);
+							UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
+							startHomeActivity();
+							finish();
+						}
+						else {
+							completeProfile(UserManager.currentUser);
+						}
 					}
 				}
 				else {
@@ -468,15 +554,34 @@ public class LobbyScreen extends AppCompatActivity {
 	}
 
 	private void showButtons() {
+
+		ImageWidget userPhoto = (ImageWidget) findViewById(R.id.user_photo);
+		TextView userName = (TextView) findViewById(R.id.user_name);
+		View userGroup = findViewById(R.id.user_group);
+		Button authButton = (Button) findViewById(R.id.auth_button);
+		Button loginButton = (Button) findViewById(R.id.login_button);
+		Button submitButton = (Button) findViewById(R.id.submit_button);
+		Button guestButton = (Button) findViewById(R.id.guest_button);
+
 		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
-			Button button = (Button) findViewById(R.id.login_button);
-			UI.setTextView(button, R.string.lobby_button_login_accountkit);
-			UI.setVisibility(findViewById(R.id.submit_button), View.GONE);
-			UI.setVisibility(findViewById(R.id.guest_button), View.GONE);
+			UI.setVisibility(authButton, View.GONE);
+			UI.setVisibility(guestButton, View.GONE);
+			if (UserManager.authUserHint != null) {
+				if (userPhoto != null) {
+					userPhoto.setImageWithEntity(UserManager.authUserHint);
+				}
+				if (userName != null) {
+					userName.setText(String.format("Log in as %1$s", UserManager.authUserHint.name));
+				}
+			}
+			else {
+				UI.setVisibility(userGroup, View.GONE);
+			}
 		}
 		else {
-			UI.setVisibility(findViewById(R.id.message), View.GONE);
-			UI.setVisibility(findViewById(R.id.guest_button), View.VISIBLE);
+			UI.setVisibility(userGroup, View.GONE);
+			UI.setVisibility(authButton, View.GONE);
+			UI.setVisibility(guestButton, View.VISIBLE);
 		}
 
 		View dialog = findViewById(R.id.dialog);
@@ -487,5 +592,11 @@ public class LobbyScreen extends AppCompatActivity {
 
 	private void updateRequired() {
 		Dialogs.updateApp(this);
+	}
+
+	public static class AuthType {
+		public static String Password    = "password";
+		public static String PhoneNumber = "phone_number";
+		public static String Email       = "email";
 	}
 }

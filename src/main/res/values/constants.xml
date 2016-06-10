@@ -53,6 +53,7 @@
 	<string name="lobby_button_login_email">Log in with email</string>
 	<string name="lobby_button_login_phone">Log in with phone number</string>
 	<string name="label_lobby_accountkit">Log in or create an account</string>
+	<string name="lobby_button_passwordless">Not you? Get started</string>
 
 	<!-- Attribution -->
 

@@ -3,7 +3,7 @@
 
 	android:id="@+id/drawer_layout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
@@ -26,8 +26,8 @@
 				android:layout_height="wrap_content"
 				android:minHeight="?attr/actionBarSize"
 				android:theme="@style/patchr_theme_action_bar"
-				custom:layout_scrollFlags="scroll|enterAlways"
-				custom:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+				app:layout_scrollFlags="scroll|enterAlways"
+				app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
 				<TextView
 					android:id="@+id/toolbar_title"
@@ -44,7 +44,7 @@
 		<RelativeLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			custom:layout_behavior="@string/appbar_scrolling_view_behavior">
+			app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 			<com.patchr.ui.widgets.AirSwipeRefreshLayout
 				android:id="@+id/swipe"
@@ -93,10 +93,10 @@
 			android:onClick="onClick"
 			android:scaleType="center"
 			android:src="@drawable/ic_add_dark"
-			custom:borderWidth="0dp"
-			custom:elevation="4dp"
-			custom:layout_behavior="com.patchr.ui.components.ScrollAwareFabBehavior"
-			custom:useCompatPadding="true"
+			app:borderWidth="0dp"
+			app:elevation="4dp"
+			app:layout_behavior="com.patchr.ui.components.ScrollAwareFabBehavior"
+			app:useCompatPadding="false"
 			tools:visibility="visible" />
 
 	</android.support.design.widget.CoordinatorLayout>
@@ -110,11 +110,11 @@
 		android:layout_gravity="start"
 		android:background="@color/background_form"
 		android:fitsSystemWindows="true"
-		custom:itemTextAppearance="@style/text_appearance_drawer_menu_item"
-		custom:itemIconTint="@color/color_drawer_item"
-		custom:itemBackground="?android:attr/selectableItemBackground"
-		custom:headerLayout="@layout/view_drawer_header"
-		custom:menu="@menu/menu_drawer" />
+		app:itemTextAppearance="@style/text_appearance_drawer_menu_item"
+		app:itemIconTint="@color/color_drawer_item"
+		app:itemBackground="?android:attr/selectableItemBackground"
+		app:headerLayout="@layout/view_drawer_header"
+		app:menu="@menu/menu_drawer" />
 
 	<!-- Notifications drawer -->
 

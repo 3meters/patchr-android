@@ -131,9 +131,8 @@ public class LoginEdit extends BaseEdit {
 	}
 
 	@Override public void bind() {
-		final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
-		if (email != null) {
-			this.email.setText(email);
+		if (UserManager.authIdentifierHint != null) {
+			this.email.setText((String) UserManager.authIdentifierHint);
 			password.requestFocus();
 		}
 	}

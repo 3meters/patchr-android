@@ -110,7 +110,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@NonNull
 	public Boolean read             = true;                    // Used to track if the user has browsed.
 
-	public Float distance;                                      // Used to cache most recent distance calculation.
+	public Float distance;                                     // Used to cache most recent distance calculation.
 	public Number index = 0;                                   // Used to cross reference list position for mapping.
 
     /* Entity is not persisted with service, only seeing this for suggested places that

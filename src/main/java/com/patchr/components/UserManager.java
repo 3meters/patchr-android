@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,8 +24,10 @@ import com.patchr.objects.Command;
 import com.patchr.objects.LinkSpec;
 import com.patchr.objects.LinkSpecFactory;
 import com.patchr.objects.LinkSpecType;
+import com.patchr.objects.PhoneNumber;
 import com.patchr.objects.Session;
 import com.patchr.objects.User;
+import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.edit.LoginEdit;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
@@ -35,11 +36,15 @@ import com.patchr.utilities.UI;
 public class UserManager {
 
 	public static User   currentUser;
-	public static String userName;      // convenience
-	public static String userId;        // convenience
-	public static String sessionKey;
-	public static String jsonUser;
-	public static String jsonSession;
+
+	public static String sessionKey;        // promoted for convenience
+	public static String userId;            // promoted for convenience
+	public static String userName;          // promoted for convenience
+	public static String userRole;          // promoted for convenience
+
+	public static String authTypeHint;          // convenience
+	public static Object authIdentifierHint;    // convenience
+	public static User   authUserHint;          // convenience
 
 	static class UserManagerHolder {
 		public static final UserManager instance = new UserManager();
@@ -50,8 +55,30 @@ public class UserManager {
 	}
 
 	private UserManager() {
-		jsonUser = Patchr.settings.getString(StringManager.getString(R.string.setting_user), null);
-		jsonSession = Patchr.settings.getString(StringManager.getString(R.string.setting_user_session), null);
+		authTypeHint = Patchr.settings.getString(StringManager.getString(R.string.setting_last_auth_type), null);
+
+		if (authTypeHint != null) {
+			String jsonAuthUser = Patchr.settings.getString(StringManager.getString(R.string.setting_last_auth_user), null);
+			if (jsonAuthUser != null) {
+				authUserHint = (User) Json.jsonToObject(jsonAuthUser, Json.ObjectType.ENTITY);
+			}
+
+			if (authTypeHint.equals(LobbyScreen.AuthType.Email) || authTypeHint.equals(LobbyScreen.AuthType.Password)) {
+				authIdentifierHint = Patchr.settings.getString(StringManager.getString(R.string.setting_last_auth_identifier), null);
+			}
+			else if (authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
+				String jsonPhone = Patchr.settings.getString(StringManager.getString(R.string.setting_last_auth_identifier), null);
+				if (jsonPhone != null) {
+					authIdentifierHint = PhoneNumber.fromJson(jsonPhone);
+				}
+			}
+		}
+		else {
+			authIdentifierHint = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
+			if (authIdentifierHint != null) {
+				authTypeHint = LobbyScreen.AuthType.Password;
+			}
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -62,10 +89,35 @@ public class UserManager {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	public Boolean setCurrentUser(User user, Boolean refreshUser) {
+
+		ModelResult result = new ModelResult();
+
+		if (user == null) {
+			discardCredentials();
+		}
+		else {
+			/*
+			 * Password reset and update do not return a complete user so do a regular
+			 * data fetch to get a complete user.
+			 */
+			if (refreshUser) {
+				LinkSpec options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
+				result = DataController.getInstance().getEntity(user.id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+			}
+			captureCredentials(user);
+			captureAuthHints(user);
+		}
+
+		return (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS);
+	}
+
 	public void loginAuto() {
 		/*
 		 * Gets called on app create.
 		 */
+		String jsonUser = Patchr.settings.getString(StringManager.getString(R.string.setting_user), null);
+		String jsonSession = Patchr.settings.getString(StringManager.getString(R.string.setting_user_session), null);
 		if (jsonUser != null && jsonSession != null) {
 			Logger.i(this, "Auto log in using cached user...");
 
@@ -80,12 +132,16 @@ public class UserManager {
 		return (userId != null && sessionKey != null);
 	}
 
+	public Boolean provisional() {
+		return (userId != null && sessionKey != null && userRole != null && userRole.equals("provisional"));
+	}
+
 	public void logout() {
 
 		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
 			AccountKit.logOut();
+			UserManager.shared().setCurrentUser(null, false);
 			Reporting.track(AnalyticsCategory.ACTION, "Logged Out");
-			Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 			return;
 		}
 
@@ -158,44 +214,72 @@ public class UserManager {
 
 	private void captureCredentials(User user) {
 
-		Boolean changed = (userId == null || !userId.equals(user.id) || !userName.equals(user.name) || !currentUser.email.equals(user.email));
-
 		/* Update settings */
-		jsonUser = Json.objectToJson(user);
-		jsonSession = Json.objectToJson(user.session);
-		userName = user.name;
-		userId = user.id;
-		sessionKey = user.session.key;
 		currentUser = user;
+		sessionKey = user.session.key;
+		userId = user.id;
+		userName = user.name;
+		userRole = user.role;
 
-		if (changed) {
-			Reporting.updateUser(currentUser);  // Handles all frameworks
-		}
+		String jsonUser = Json.objectToJson(user);
+		String jsonSession = Json.objectToJson(user.session);
+
+		Reporting.updateUser(user);  // Handles all frameworks
 
 		SharedPreferences.Editor editor = Patchr.settings.edit();
 		editor.putString(StringManager.getString(R.string.setting_user), jsonUser);
 		editor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
 
-		if (currentUser.email != null) {
-			editor.putString(StringManager.getString(R.string.setting_last_email), currentUser.email);
-		}
+		editor.apply();
+	}
 
-		if (currentUser.phone != null) {
-			String jsonPhone = Json.objectToJson(currentUser.phone);
-			editor.putString(StringManager.getString(R.string.setting_last_phone), jsonPhone);
-		}
+	public void captureAuthHints(User user) {
 
+		if (user.authType != null) {
+
+			SharedPreferences.Editor editor = Patchr.settings.edit();
+			String jsonUser = Json.objectToJson(user);
+
+			authTypeHint = user.authType;
+			authUserHint = user;
+
+			editor.putString(StringManager.getString(R.string.setting_last_auth_type), authTypeHint);
+			editor.putString(StringManager.getString(R.string.setting_last_auth_user), jsonUser);
+			if (user.authType.equals(LobbyScreen.AuthType.Email)
+					|| user.authType.equals(LobbyScreen.AuthType.Password)) {
+				authIdentifierHint = user.email;
+				editor.putString(StringManager.getString(R.string.setting_last_auth_identifier), (String) authIdentifierHint);
+			}
+			else if (user.authType.equals(LobbyScreen.AuthType.PhoneNumber)) {
+				authIdentifierHint = user.phone;
+				editor.putString(StringManager.getString(R.string.setting_last_auth_identifier), ((PhoneNumber) authIdentifierHint).toJson());
+			}
+			editor.apply();
+		}
+	}
+
+	public void discardAuthHints() {
+		/*
+		 * Only get cleared when user account is deleted.
+		 */
+		authTypeHint = null;
+		authIdentifierHint = null;
+		authUserHint = null;
+
+		SharedPreferences.Editor editor = Patchr.settings.edit();
+		editor.putString(StringManager.getString(R.string.setting_last_auth_type), null);
+		editor.putString(StringManager.getString(R.string.setting_last_auth_identifier), null);
+		editor.putString(StringManager.getString(R.string.setting_last_auth_user), null);
 		editor.apply();
 	}
 
 	private void discardCredentials() {
 
 		currentUser = null;
-		userName = null;
-		userId = null;
 		sessionKey = null;
-		jsonSession = null;
-		jsonUser = null;
+		userId = null;
+		userName = null;
+		userRole = null;
 
 		/* Cancel any current notifications in the status bar */
 		NotificationManager.getInstance().cancelAllNotifications();
@@ -207,29 +291,6 @@ public class UserManager {
 		editor.putString(StringManager.getString(R.string.setting_user), null);
 		editor.putString(StringManager.getString(R.string.setting_user_session), null);
 		editor.apply();
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
-
-	@NonNull public Boolean setCurrentUser(User user, @NonNull Boolean refreshUser) {
-
-		ModelResult result = new ModelResult();
-
-		if (user == null) {
-			discardCredentials();
-		}
-		else {
-			/* Log in does not return a complete user so do a regular data fetch to get a complete user. */
-			if (refreshUser) {
-				LinkSpec options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
-				result = DataController.getInstance().getEntity(user.id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-			}
-			captureCredentials(user);
-		}
-
-		return (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS);
 	}
 
 	/*--------------------------------------------------------------------------------------------

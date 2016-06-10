@@ -88,10 +88,12 @@ public class Reporting {
 
 	public static void updateUser(User user) {
 		if (user != null) {
+			String userName = user.name != null ? user.name : "Provisional";
+			String userAuth = user.email != null ? user.email : user.phone != null ? user.phone.displayNumber() : "null";
 			BranchProvider.setIdentity(user.id);
-			Bugsnag.setUser(user.id, user.name, user.email);
+			Bugsnag.setUser(user.id, userName, userAuth);
 			Analytics.with(Patchr.applicationContext).alias(user.id);
-			Analytics.with(Patchr.applicationContext).identify(user.id, new Traits().putName(user.name).putEmail(user.email), null);
+			Analytics.with(Patchr.applicationContext).identify(user.id, new Traits().putName(userName).putEmail(userAuth), null);
 		}
 		else {
 			BranchProvider.logout();

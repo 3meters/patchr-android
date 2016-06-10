@@ -84,6 +84,7 @@
 		<attr name="iconMessage" format="reference" />
 		<attr name="iconNotification" format="reference" />
 		<attr name="iconOverflow" format="reference" />
+		<attr name="iconPassword" format="reference" />
 		<attr name="iconPatch" format="reference" />
 		<attr name="iconPicture" format="reference" />
 		<attr name="iconSearch" format="reference" />

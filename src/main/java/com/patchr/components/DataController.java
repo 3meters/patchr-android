@@ -558,12 +558,12 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			UserManager.shared().setCurrentUser(user, true);
+			UserManager.shared().setCurrentUser(user, false);
 		}
 		return result;
 	}
 
-	public ModelResult tokenLogin(String token, String activityName, Object tag) {
+	public ModelResult tokenLogin(String token, String authType, String activityName, Object tag) {
 		ModelResult result = new ModelResult();
 
 		final Bundle parameters = new Bundle();
@@ -590,8 +590,9 @@ public class DataController {
 			final String jsonResponse = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
+			user.authType = authType;
 			user.session = serviceData.session;
-			UserManager.shared().setCurrentUser(user, true);
+			UserManager.shared().setCurrentUser(user, false);
 		}
 		return result;
 	}

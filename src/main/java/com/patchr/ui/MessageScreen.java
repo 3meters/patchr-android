@@ -751,7 +751,7 @@ public class MessageScreen extends BaseScreen {
 							 * Go to patchr share directly but looks just like an external share
 							 */
 							final IntentBuilder intentBuilder = new IntentBuilder(activity, ShareEdit.class);
-							final Intent intent = intentBuilder.create();
+							final Intent intent = intentBuilder.build();
 							intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, MessageType.Share);
 							intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
 							intent.putExtra(Constants.EXTRA_SHARE_ID, entityId);

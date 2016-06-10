@@ -127,6 +127,7 @@ public abstract class ServiceBase extends ServiceObject {
 
 		base.id = (String) (nameMapping ? (map.get("_id") != null) ? map.get("_id") : map.get("id") : map.get("id"));
 		base.name = (String) map.get("name");
+		base.namelc = (String) map.get("namelc");
 		base.schema = (String) map.get("schema");
 		base.type = (String) map.get("type");
 		base.collection = (String) map.get("collection");

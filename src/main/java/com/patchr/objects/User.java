@@ -48,7 +48,9 @@ public class User extends Entity {
 	 * client fields
 	 *--------------------------------------------------------------------------------------------*/
 
+	/* Any field that is going to be persisted in json needs to be added to map deserializer */
 	public List<Count> stats;
+	public String      authType;
 	public Session     session;
 
 	/*--------------------------------------------------------------------------------------------
@@ -82,6 +84,7 @@ public class User extends Entity {
 			entity.lastSignedInDate = (Number) map.get("lastSignedInDate");
 			entity.validationDate = (Number) map.get("validationDate");
 			entity.validationNotifyDate = (Number) map.get("validationNotifyDate");
+			entity.authType = (String) map.get("authType");
 
 			if (map.get("session") != null) {
 				entity.session = Session.setPropertiesFromMap(new Session(), (HashMap<String, Object>) map.get("session"), nameMapping);

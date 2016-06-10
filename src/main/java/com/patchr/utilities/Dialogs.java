@@ -105,8 +105,7 @@ public class Dialogs {
 		if (!activity.isFinishing()) {
 			activity.runOnUiThread(new Runnable() {
 
-				@Override
-				public void run() {
+				@Override public void run() {
 					alertDialog(R.drawable.ic_launcher
 							, titleText
 							, message

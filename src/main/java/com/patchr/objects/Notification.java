@@ -40,7 +40,6 @@ public class Notification extends Entity implements Cloneable, Serializable {
 
 	/* client only */
 	public Intent intent;
-	public Photo  photoType;
 	public Boolean read = false;
 
 	/*--------------------------------------------------------------------------------------------

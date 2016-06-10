@@ -94,6 +94,7 @@
 
 	<string name="menu_item_login_using_phone">Phone Number</string>
 	<string name="menu_item_login_using_email">Email</string>
+	<string name="menu_item_login_using_password">Password</string>
 
 	<!-- Popups -->
 
@@ -463,6 +464,9 @@
 	<string name="label_message_share_blocked">View the message</string>
 	<string name="label_button_watching">Members</string>
 	<string name="label_button_likes">Likes</string>
+	<string name="label_auth_identifier">Logged in using:</string>
+	<string name="label_auth_identifier_onboarding">Logging in using:</string>
+
 
 	<plurals name="label_likes">
 		<item quantity="one">like</item>

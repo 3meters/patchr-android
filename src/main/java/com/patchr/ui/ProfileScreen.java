@@ -84,7 +84,7 @@ public class ProfileScreen extends BaseScreen {
 	public void onClick(View view) {
 
 		if (view.getId() == R.id.fab) {
-			final String jsonEntity = Json.objectToJson(entity);
+			final String jsonEntity = Json.objectToJson(this.entity);
 			startActivity(new Intent(this, ProfileEdit.class).putExtra(Constants.EXTRA_ENTITY, jsonEntity));
 		}
 		else if (view.getId() == R.id.member_of_button || view.getId() == R.id.owner_of_button) {

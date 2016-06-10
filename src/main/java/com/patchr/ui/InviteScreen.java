@@ -76,7 +76,7 @@ public class InviteScreen extends BaseScreen {
 			 * Go to patchr share directly but looks just like an external share
 			 */
 			final IntentBuilder intentBuilder = new IntentBuilder(this, ShareEdit.class);
-			final Intent intent = intentBuilder.create();
+			final Intent intent = intentBuilder.build();
 
 			intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.Invite);
 			intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());

@@ -4,7 +4,7 @@
 
 	android:id="@+id/main_content"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -22,8 +22,8 @@
 			android:layout_height="wrap_content"
 			android:minHeight="?attr/actionBarSize"
 			android:theme="@style/patchr_theme_action_bar"
-			custom:layout_scrollFlags="scroll|enterAlways"
-			custom:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+			app:layout_scrollFlags="scroll|enterAlways"
+			app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
 			<TextView
 				android:id="@+id/toolbar_title"
@@ -40,7 +40,7 @@
 	<RelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		custom:layout_behavior="@string/appbar_scrolling_view_behavior">
+		app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 		<com.patchr.ui.widgets.AirSwipeRefreshLayout
 			android:id="@+id/swipe"
@@ -69,8 +69,8 @@
 			android:layout_height="@dimen/button_round_height"
 			android:layout_centerInParent="true"
 			android:visibility="gone"
-			custom:layout_anchor="@+id/entity_list"
-			custom:layout_anchorGravity="center"
+			app:layout_anchor="@+id/entity_list"
+			app:layout_anchorGravity="center"
 			tools:text="@string/empty_nearby"
 			tools:visibility="visible" />
 
@@ -82,8 +82,8 @@
 			android:layout_centerInParent="true"
 			android:padding="8dp"
 			android:visibility="gone"
-			custom:layout_anchor="@+id/entity_list"
-			custom:layout_anchorGravity="center" />
+			app:layout_anchor="@+id/entity_list"
+			app:layout_anchorGravity="center" />
 
 	</RelativeLayout>
 

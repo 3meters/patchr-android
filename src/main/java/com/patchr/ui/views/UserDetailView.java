@@ -21,7 +21,9 @@ import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
+import com.patchr.objects.PhoneNumber;
 import com.patchr.objects.User;
+import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.UI;
 
@@ -39,9 +41,10 @@ public class UserDetailView extends FrameLayout {
 	private   Boolean  isCurrentUser = false;
 
 	public ImageWidget          userPhoto;
-	public TextView             name;
-	public TextView             email;
-	public TextView             area;
+	public TextView             userName;
+	public TextView             authIdentifierLabel;
+	public TextView             authIdentifier;
+	public TextView             userArea;
 	public TextView             buttonMember;
 	public TextView             buttonOwner;
 	public FloatingActionButton fab;
@@ -80,9 +83,10 @@ public class UserDetailView extends FrameLayout {
 		this.setLayoutParams(params);
 
 		this.userPhoto = (ImageWidget) layout.findViewById(R.id.user_photo);
-		this.name = (TextView) layout.findViewById(R.id.name);
-		this.email = (TextView) layout.findViewById(R.id.email);
-		this.area = (TextView) layout.findViewById(R.id.area);
+		this.userName = (TextView) layout.findViewById(R.id.name);
+		this.userArea = (TextView) layout.findViewById(R.id.area);
+		this.authIdentifier = (TextView) layout.findViewById(R.id.auth_identifier);
+		this.authIdentifierLabel = (TextView) layout.findViewById(R.id.auth_identifier_label);
 		this.buttonMember = (TextView) layout.findViewById(R.id.member_of_button);
 		this.buttonOwner = (TextView) layout.findViewById(R.id.owner_of_button);
 		this.fab = (FloatingActionButton) layout.findViewById(R.id.fab);
@@ -100,8 +104,8 @@ public class UserDetailView extends FrameLayout {
 				Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img_default_user_light);
 				final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
 				UI.showDrawableInImageView(bitmapDrawable, userPhoto.imageView, Constants.ANIMATE_IMAGES);
-				this.name.setText("Guest");
-				this.area.setText(null);
+				this.userName.setText("Guest");
+				this.userArea.setText(null);
 				return;
 			}
 
@@ -109,11 +113,18 @@ public class UserDetailView extends FrameLayout {
 			User user = (User) entity;
 
 			this.userPhoto.setImageWithEntity(user);
-			base.setOrGone(this.name, user.name);
-			base.setOrGone(this.area, user.area);
+			base.setOrGone(this.userName, user.name);
+			base.setOrGone(this.userArea, user.area);
 
+			UI.setVisibility(this.authIdentifierLabel, GONE);
 			if (this.isCurrentUser) {
-				base.setOrGone(this.email, user.email);
+				UI.setVisibility(this.authIdentifierLabel, VISIBLE);
+				if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
+					base.setOrGone(this.authIdentifier, ((PhoneNumber)UserManager.authIdentifierHint).number);
+				}
+				else {
+					base.setOrGone(this.authIdentifier, (String) UserManager.authIdentifierHint);
+				}
 			}
 
 			this.fab.setVisibility(this.isCurrentUser ? VISIBLE : GONE);

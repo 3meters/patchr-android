@@ -29,7 +29,7 @@ public class IntentBuilder {
 		mAction = action;
 	}
 
-	public Intent create() {
+	public Intent build() {
 		Intent intent = new Intent();
 
 		/* Internal intent */
@@ -113,10 +113,11 @@ public class IntentBuilder {
 		}
 	}
 
-	public void addExtras(Bundle extras) {
+	public IntentBuilder addExtras(Bundle extras) {
 		if (extras != null) {
 			mExtras.putAll(extras);
 		}
+		return this;
 	}
 
 	public String getMimeType() {
