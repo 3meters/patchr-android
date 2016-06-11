@@ -71,21 +71,6 @@ public class ProfileEdit extends BaseEdit {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void onClick(View view) {
-		if (view.getId() == R.id.change_password_button) {
-			Patchr.router.route(this, Command.PASSWORD_CHANGE, null, null);
-		}
-		else if (view.getId() == R.id.terms_button) {
-			Patchr.router.route(this, Command.TERMS, null, null);
-		}
-		else if (view.getId() == R.id.submit_button) {
-			submitAction();
-		}
-		else {
-			super.onClick(view);
-		}
-	}
-
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
 		if (editing) {
@@ -107,6 +92,21 @@ public class ProfileEdit extends BaseEdit {
 			return super.onOptionsItemSelected(item);
 		}
 		return true;
+	}
+
+	@Override public void onClick(View view) {
+		if (view.getId() == R.id.change_password_button) {
+			Patchr.router.route(this, Command.PASSWORD_CHANGE, null, null);
+		}
+		else if (view.getId() == R.id.terms_button) {
+			Patchr.router.route(this, Command.TERMS, null, null);
+		}
+		else if (view.getId() == R.id.submit_button) {
+			submitAction();
+		}
+		else {
+			super.onClick(view);
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------

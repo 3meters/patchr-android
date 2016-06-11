@@ -48,11 +48,10 @@ public abstract class ServiceBase extends ServiceObject {
 	public String type;
 	@Expose
 	public String name;
-	@Expose
-	public Number position;
-
 	@Expose(serialize = false, deserialize = true)
 	public String namelc;
+	@Expose(serialize = false, deserialize = true)
+	public Number position;
 	@Expose(serialize = false, deserialize = true)
 	public String collection;
 

@@ -49,7 +49,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public Photo       photo;
 	@Expose
 	public AirLocation location;
-	@Expose
+	@Expose(serialize = false, deserialize = true)
 	@SerializedName(name = "_acl")
 	public String      patchId;
 
@@ -71,7 +71,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	@Expose(serialize = false, deserialize = true)
 	public String  linkId;                                       // Used to update the link used to include this entity in a set
 	@Expose(serialize = false, deserialize = true)
-	public Boolean linkEnabled;                                       // Used to update the link used to include this entity in a set
+	public Boolean linkEnabled;                                  // Used to update the link used to include this entity in a set
 
 	/* Patch (synthesized for the client) */
 

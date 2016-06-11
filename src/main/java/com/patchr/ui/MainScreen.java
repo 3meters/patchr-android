@@ -75,7 +75,7 @@ import java.util.Map;
 public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectEntitiesHandler, SwipeRefreshLayout.OnRefreshListener {
 
 	protected Number  pauseDate;
-	protected Boolean configuredForAuthenticated;
+	protected Boolean configuredForAuthenticated = UserManager.shared().authenticated();
 
 	protected EntityListFragment fragmentNotifications;
 	protected String             nextFragmentTag;
@@ -535,12 +535,16 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		/* In case the user was edited from the drawer */
 		if (drawerLeft.getHeaderView(0) != null) {
 			if (UserManager.shared().authenticated()) {
+				if (!configuredForAuthenticated) {
+					supportInvalidateOptionsMenu();
+				}
+
 				configuredForAuthenticated = true;
 				User user = UserManager.currentUser;
 				this.userPhoto.setImageWithEntity(user);
 				this.userName.setText(user.name);
 				UI.setTextOrGone(this.userArea, user.area);
-
+				UI.setVisibility(this.userPhoto, View.VISIBLE);
 				UI.setVisibility(this.authIdentifier, View.VISIBLE);
 				UI.setVisibility(this.authIdentifierLabel, View.VISIBLE);
 				if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
@@ -556,6 +560,11 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				cacheStamp = UserManager.currentUser.getCacheStamp();
 			}
 			else {
+
+				if (configuredForAuthenticated) {
+					supportInvalidateOptionsMenu();
+				}
+
 				configuredForAuthenticated = false;
 				UI.setVisibility(this.userPhoto, View.GONE);
 				UI.setVisibility(this.userArea, View.GONE);

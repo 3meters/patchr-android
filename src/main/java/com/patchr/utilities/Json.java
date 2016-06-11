@@ -349,6 +349,13 @@ public class Json {
 						/*
 						 * Only add to map if has value or meets null requirements.
 						 */
+						if (useAnnotations == Json.UseAnnotations.TRUE) {
+							Expose annotation = f.getAnnotation(Expose.class);
+							if (!annotation.serializeNull() && value == null) {
+								continue;
+							}
+						}
+
 						if (value != null || !excludeNulls) {
 							/*
 							 * Handle nested objects and arrays

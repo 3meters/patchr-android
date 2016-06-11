@@ -34,7 +34,7 @@ public class User extends Entity {
 	public String      area;
 	@Expose
 	public Boolean     developer;
-	@Expose
+	@Expose(serialize = true, deserialize = false, serializeNull = false)
 	public String      password;
 
 	@Expose(serialize = false, deserialize = true)
@@ -80,7 +80,7 @@ public class User extends Entity {
 			entity.email = (String) map.get("email");
 			entity.role = (String) map.get("role");
 			entity.developer = (Boolean) map.get("developer");
-			entity.password = (String) map.get("password");
+			//entity.password = (String) map.get("password");
 			entity.lastSignedInDate = (Number) map.get("lastSignedInDate");
 			entity.validationDate = (Number) map.get("validationDate");
 			entity.validationNotifyDate = (Number) map.get("validationNotifyDate");
