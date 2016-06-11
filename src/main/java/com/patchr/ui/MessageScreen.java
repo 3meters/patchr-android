@@ -338,7 +338,7 @@ public class MessageScreen extends BaseScreen {
 	@Override public void confirmDelete() {
 
 		String message = StringManager.getString(R.string.alert_delete_message_message_no_name);
-		if (entity.type.equals(MessageType.Post)) {
+		if (entity.type != null && entity.type.equals(MessageType.Post)) {
 			Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
 			if (linkPlace != null) {
 				message = String.format(StringManager.getString(R.string.alert_delete_message_message), linkPlace.shortcut.name);

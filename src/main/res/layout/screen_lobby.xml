@@ -88,8 +88,20 @@
 						android:layout_gravity="center_horizontal"
 						android:ellipsize="end"
 						android:singleLine="true"
+						android:fontFamily="sans-serif"
 						android:textColor="@color/white"
 						tools:text="Log in as Aliza Wenk" />
+
+					<TextView
+						android:id="@+id/user_auth_identifier"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_horizontal"
+						android:ellipsize="end"
+						android:singleLine="true"
+						android:textSize="14sp"
+						android:textColor="@color/white_80_pcnt"
+						tools:text="aliza@3meters.com" />
 
 				</LinearLayout>
 

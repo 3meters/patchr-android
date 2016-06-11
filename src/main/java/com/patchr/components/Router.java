@@ -110,7 +110,7 @@ public class Router {
 		else if (Constants.SCHEMA_ENTITY_USER.equals(entity.schema)) {
 			editClass = ProfileEdit.class;
 		}
-		else if (Constants.SCHEMA_ENTITY_MESSAGE.equals(entity.schema) && entity.type.equals("share")) {
+		else if (Constants.SCHEMA_ENTITY_MESSAGE.equals(entity.schema) && entity.type != null && entity.type.equals("share")) {
 			editClass = ShareEdit.class;
 		}
 

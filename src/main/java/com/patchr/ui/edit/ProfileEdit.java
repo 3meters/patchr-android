@@ -73,10 +73,20 @@ public class ProfileEdit extends BaseEdit {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (editing) {
+		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+			if (inputState != null && inputState.equals(State.CompleteProfile)) {
+				getMenuInflater().inflate(R.menu.menu_signup, menu);
+			}
+			else if (editing) {
+				getMenuInflater().inflate(R.menu.menu_save, menu);
+				getMenuInflater().inflate(R.menu.menu_delete, menu);
+			}
+		}
+		else if (editing) {
 			getMenuInflater().inflate(R.menu.menu_save, menu);
 			getMenuInflater().inflate(R.menu.menu_delete, menu);
 		}
+
 		return super.onCreateOptionsMenu(menu);
 	}
 

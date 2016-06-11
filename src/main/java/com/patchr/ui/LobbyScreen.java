@@ -2,12 +2,14 @@ package com.patchr.ui;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.UrlQuerySanitizer;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -245,9 +247,9 @@ public class LobbyScreen extends AppCompatActivity {
 		Integer registeredClientVersionCode = Patchr.settings.getInt(StringManager.getString(R.string.setting_install_registered_version_code), 0);
 		Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
 
-		if (!registered || !registeredClientVersionCode.equals(clientVersionCode)) {
+		//if (!registered || !registeredClientVersionCode.equals(clientVersionCode)) {
 			Dispatcher.getInstance().post(new RegisterInstallEvent());  // Sets install registered flag only if successful
-		}
+		//}
 	}
 
 	protected void handleBranch() {
@@ -522,9 +524,30 @@ public class LobbyScreen extends AppCompatActivity {
 						if (UserManager.shared().provisional()) {
 							/* User meant to login but got a new account instead. */
 							Logger.i(this, "User tried to login but got new account instead");
-							Dialogs.alertDialogSimple(LobbyScreen.this
+							final AlertDialog dialog = Dialogs.alertDialog(R.drawable.ic_launcher
 									, "Log in"
-									, String.format("No account exists for %1$s. Enter the same email address you entered when you created your account.", UserManager.currentUser.email));
+									, String.format("No account exists for %1$s. Enter the same email address you entered when you created your account.", UserManager.currentUser.email)
+									, null
+									, LobbyScreen.this
+									, R.string.dialog_no_account_exists_positive
+									, R.string.dialog_no_account_exists_cancel
+									, null
+									, new DialogInterface.OnClickListener() {
+
+										@Override public void onClick(DialogInterface dialog, int which) {
+											if (which == DialogInterface.BUTTON_POSITIVE) {
+												dialog.dismiss();
+											}
+											else if (which == DialogInterface.BUTTON_NEGATIVE) {
+												completeProfile(UserManager.currentUser);
+												dialog.dismiss();
+											}
+										}
+									}
+									, null);
+
+							dialog.setCanceledOnTouchOutside(false);
+							dialog.show();
 						}
 						else {
 							Logger.i(this, "User logged in: " + UserManager.currentUser.name);
@@ -557,6 +580,7 @@ public class LobbyScreen extends AppCompatActivity {
 
 		ImageWidget userPhoto = (ImageWidget) findViewById(R.id.user_photo);
 		TextView userName = (TextView) findViewById(R.id.user_name);
+		TextView userAuthIdentifier = (TextView) findViewById(R.id.user_auth_identifier);
 		View userGroup = findViewById(R.id.user_group);
 		Button authButton = (Button) findViewById(R.id.auth_button);
 		Button loginButton = (Button) findViewById(R.id.login_button);
@@ -566,13 +590,10 @@ public class LobbyScreen extends AppCompatActivity {
 		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
 			UI.setVisibility(authButton, View.GONE);
 			UI.setVisibility(guestButton, View.GONE);
-			if (UserManager.authUserHint != null) {
-				if (userPhoto != null) {
-					userPhoto.setImageWithEntity(UserManager.authUserHint);
-				}
-				if (userName != null) {
-					userName.setText(String.format("Log in as %1$s", UserManager.authUserHint.name));
-				}
+			if (UserManager.authUserHint != null && UserManager.authUserHint.name != null) {
+				UI.setImageWithEntity(userPhoto, UserManager.authUserHint);
+				UI.setTextView(userName, String.format("Log in as %1$s", UserManager.authUserHint.name));
+				UI.setTextView(userAuthIdentifier, (String) UserManager.authIdentifierHint);
 			}
 			else {
 				UI.setVisibility(userGroup, View.GONE);

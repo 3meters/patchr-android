@@ -64,6 +64,7 @@
 	<string name="menu_item_navigate">Directions</string>
 	<string name="menu_item_logout">Log out</string>
 	<string name="menu_item_login">Log in</string>
+	<string name="menu_item_signup">"  Sign up  "</string>
 	<string name="menu_item_send">Send</string>
 	<string name="menu_item_next">Next</string>
 	<string name="menu_item_invite">Invite</string>
@@ -150,6 +151,10 @@
 	<string name="dialog_location_services_disabled_cancel">Ignore</string>
 
 	<string name="dialog_qrcode_message">Scan this code to join a patch</string>
+
+	<string name="dialog_no_account_exists_positive">OK</string>
+	<string name="dialog_no_account_exists_cancel">Sign up instead</string>
+
 
 	<!-- Alerts -->
 

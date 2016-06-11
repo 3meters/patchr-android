@@ -475,7 +475,7 @@ public abstract class BaseEdit extends BaseScreen {
 					Entity insertedEntity = (Entity) result.data;
 					entity.id = insertedEntity.id;
 
-					if (!entity.type.equals("share")) { // Shares covered in afterInsert()
+					if (entity.type == null || !entity.type.equals("share")) { // Shares covered in afterInsert()
 						Reporting.track(AnalyticsCategory.EDIT, "Created " + Utils.capitalize(entity.schema));
 					}
 					/*
