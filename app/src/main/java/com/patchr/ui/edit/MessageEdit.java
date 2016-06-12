@@ -118,6 +118,13 @@ public class MessageEdit extends BaseEdit {
 		UI.setImageWithEntity(this.userPhoto, UserManager.currentUser);
 	}
 
+	protected void bindPhoto() {
+		if (entity.photo != null) {
+			this.photoEditAnimator.setDisplayedChild(1);
+		}
+		super.bindPhoto();
+	}
+
 	@Override protected boolean validate() {
 
 		gather();
