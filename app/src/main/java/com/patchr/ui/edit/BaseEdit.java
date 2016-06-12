@@ -12,6 +12,8 @@ import android.text.Editable;
 import android.view.View;
 import android.widget.TextView;
 
+import com.adobe.creativesdk.aviary.AdobeImageIntent;
+import com.adobe.creativesdk.aviary.internal.headless.utils.MegaPixels;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -119,7 +121,7 @@ public abstract class BaseEdit extends BaseScreen {
 			else if (requestCode == Constants.ACTIVITY_PHOTO_EDIT) {
 
 				if (intent != null && intent.getExtras() != null) {
-					Boolean changed = intent.getExtras().getBoolean("bitmap-changed", false);
+					Boolean changed = intent.getExtras().getBoolean(AdobeImageIntent.EXTRA_OUT_BITMAP_CHANGED, false);
 					if (changed) {
 						Reporting.track(AnalyticsCategory.ACTION, "Edited Photo");
 					}
@@ -311,10 +313,22 @@ public abstract class BaseEdit extends BaseScreen {
 
 		/* Route it - editor loads image directly from s3 skipping imgix service  */
 		if (entity.photo != null) {
-			final String jsonPhoto = Json.objectToJson(entity.photo);
-			Bundle bundle = new Bundle();
-			bundle.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-			Patchr.router.route(this, Command.PHOTO_EDIT, null, bundle);  // Checks for aviary and offers install option
+			final String url = entity.photo.uriNative();
+			Uri imageUri = Uri.parse(url);
+
+			Intent intent = new AdobeImageIntent.Builder(this)
+					.setData(imageUri)
+					.withOutputFormat(Bitmap.CompressFormat.JPEG)
+					.withOutputQuality(90)
+					.saveWithNoChanges(false)
+					.withOutputSize(MegaPixels.Mp5)
+					.withPreviewSize((int) UI.getScreenWidthRawPixels(this) * 2)
+					.withVibrationEnabled(true)
+					.withAutoColorEnabled(true)
+					.build();
+
+			startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);
+			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 		}
 	}
 

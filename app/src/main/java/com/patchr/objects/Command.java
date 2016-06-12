@@ -36,7 +36,6 @@ public class Command {
 	public static int SEARCH            = 57;
 	public static int VIEW_AS_MAP       = 58;
 	public static int VIEW_AS_LIST      = 59;
-	public static int PHOTO_EDIT        = 60;
 	public static int ENTITY_LIST       = 61;
 	public static int MEMBER_LIST       = 62;
 }

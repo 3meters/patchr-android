@@ -57,7 +57,9 @@ public class AndroidManager {
 			else {
 				Logger.w(activity, "This device is not supported by google play services");
 				UI.toast(StringManager.getString(R.string.error_google_play_services_unsupported));
-				activity.finish();
+				if (activity != null) {
+					activity.finish();
+				}
 			}
 			return false;
 		}

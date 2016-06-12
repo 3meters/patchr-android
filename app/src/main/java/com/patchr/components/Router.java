@@ -3,7 +3,6 @@ package com.patchr.components;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -11,12 +10,10 @@ import android.provider.Settings;
 import android.support.v4.app.Fragment;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Patch;
-import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.AboutScreen;
 import com.patchr.ui.BaseScreen;
@@ -36,9 +33,9 @@ import com.patchr.ui.SettingsScreen;
 import com.patchr.ui.edit.FeedbackEdit;
 import com.patchr.ui.edit.LocationEdit;
 import com.patchr.ui.edit.LoginEdit;
+import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.edit.PasswordEdit;
 import com.patchr.ui.edit.PatchEdit;
-import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.edit.PrivacyEdit;
 import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.edit.ProximityEdit;
@@ -46,7 +43,6 @@ import com.patchr.ui.edit.ReportEdit;
 import com.patchr.ui.edit.ResetEdit;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.fragments.MapListFragment;
-import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Utils;
 
@@ -215,35 +211,6 @@ public class Router {
 			Intent intent = intentBuilder.build();
 			activity.startActivity(intent);
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-		}
-
-		else if (route == Command.PHOTO_EDIT) {
-
-			if (extras == null || !extras.containsKey(Constants.EXTRA_PHOTO)) {
-				throw new IllegalArgumentException("Valid photo in extras required for selected route");
-			}
-
-			final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
-			if (jsonPhoto != null) {
-				final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
-				final String url = photo.uriNative();
-				Uri uri = Uri.parse(url);
-
-				if (AndroidManager.getInstance().isAviaryInstalled()) {
-					Intent intent = new Intent("aviary.intent.action.EDIT");
-					intent.setDataAndType(uri, "image/*"); // required
-					intent.putExtra("app-id", Patchr.applicationContext.getPackageName()); // required ( it's your app unique package name )
-					intent.putExtra("output-format", Bitmap.CompressFormat.JPEG.name());
-					intent.putExtra("output-quality", 90);
-					intent.putExtra("save-on-no-changes", false);
-
-					((Activity) activity).startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);
-					AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-				}
-				else {
-					Dialogs.installAviary((Activity) activity);
-				}
-			}
 		}
 
 		else if (route == Command.VIEW_AS_LIST) {
