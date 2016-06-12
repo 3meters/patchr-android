@@ -261,7 +261,7 @@ public class ResetEdit extends BaseEdit {
 				}
 				else {
 					ServiceData serviceData = (ServiceData) result.serviceResponse.data;
-					if (serviceData.count != 0) {
+					if (serviceData.count.intValue() != 0) {
 						title.setText(R.string.form_title_reset_request_reset);
 						submitButton.setText("Send password reset email");
 						emailField.setEnabled(false);

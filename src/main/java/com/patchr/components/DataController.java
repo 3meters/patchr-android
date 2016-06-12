@@ -168,7 +168,7 @@ public class DataController {
 				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					ServiceData serviceData = (ServiceData) serviceResponse.data;
-					resultEvent.more = (serviceData.count != 0 && serviceData.more);
+					resultEvent.more = (serviceData.count.intValue() != 0 && serviceData.more);
 					resultEvent.scopingEntity = serviceData.entity;  // Entity straight from db and not processed by getEntities
 					resultEvent.entities = (List<Entity>) serviceData.data;
 					/*

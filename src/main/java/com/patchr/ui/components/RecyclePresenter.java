@@ -155,7 +155,7 @@ public class RecyclePresenter {
 					}
 					else {
 						this.entities.clear();
-						if (event.cursor != null && event.cursor.skip == 0) {
+						if (event.cursor != null && event.cursor.skip.intValue() == 0) {
 							if (this.injectEntitiesHandler != null) {
 								this.injectEntitiesHandler.injectEntities(this.entities, event.actionType);
 							}

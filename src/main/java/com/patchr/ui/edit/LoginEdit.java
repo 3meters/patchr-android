@@ -288,7 +288,7 @@ public class LoginEdit extends BaseEdit {
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					ServiceData serviceData = (ServiceData) result.data;
-					if (serviceData.count == 0) {
+					if (serviceData.count.intValue() == 0) {
 						didValidate();
 					}
 					else {
