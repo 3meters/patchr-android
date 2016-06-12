@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+	tools:ignore="TypographyDashes">
+	<!--
+		By default, the reported app name and version come from the package.
+		Every aircandi application has a unique tracking id
+	-->
+	<string name="ga_trackingId">UA-33660954-5</string>
+	<!--
+		 Set to true to track time spent in each Activity.
+		 Set to false to track application-level information only. Default is false.
+	-->
+	<bool name="ga_autoActivityTracking">true</bool>
+	<!--
+		We send crashes to Bugsnag.
+	-->
+	<bool name="ga_reportUncaughtExceptions">false</bool>
+	<!--
+		The amount of time (in seconds) your application can stay in the background before the 
+		session is ended. Default is 30 seconds.
+	-->
+	<integer name="ga_sessionTimeout">120</integer>
+
+	<!-- Privacy settings that strips the last octet of the IP before storage in service -->
+	<bool name="ga_anonymizeIp">false</bool>
+
+	<!-- The screen names that will appear in the reporting -->
+
+	<screenName name="com.patchr.ui.AboutScreen">AboutScreen</screenName>
+	<screenName name="com.patchr.ui.ListScreen">ListScreen</screenName>
+	<screenName name="com.patchr.ui.LobbyScreen">LobbyScreen</screenName>
+	<screenName name="com.patchr.ui.MainScreen">MainScreen</screenName>
+	<screenName name="com.patchr.ui.MapScreen">MapScreen</screenName>
+	<screenName name="com.patchr.ui.MemberListScreen">MemberListScreen</screenName>
+	<screenName name="com.patchr.ui.MessageScreen">MessageScreen</screenName>
+	<screenName name="com.patchr.ui.PatchScreen">PatchScreen</screenName>
+	<screenName name="com.patchr.ui.PhotoScreen">PhotoScreen</screenName>
+	<screenName name="com.patchr.ui.PhotoSearchScreen">PhotoSearchScreen</screenName>
+	<screenName name="com.patchr.ui.PhotoSwitchboardScreen">PhotoSwitchboardScreen</screenName>
+	<screenName name="com.patchr.ui.ProfileScreen">ProfileScreen</screenName>
+	<screenName name="com.patchr.ui.SearchScreen">SearchScreen</screenName>
+	<screenName name="com.patchr.ui.SettingsScreen">SettingsScreen</screenName>
+
+	<screenName name="com.patchr.ui.fragments.MapListFragment">MapList</screenName>
+	<screenName name="com.patchr.ui.fragments.NearbyListFragment">NearbyList</screenName>
+	<screenName name="com.patchr.ui.fragments.EntityListFragment">PatchList</screenName>
+
+	<!-- Edit -->
+
+	<screenName name="com.patchr.ui.edit.FeedbackEdit">FeedbackEdit</screenName>
+	<screenName name="com.patchr.ui.edit.ShareEdit">ShareEdit</screenName>
+	<screenName name="com.patchr.ui.edit.PostEdit">PostEdit</screenName>
+	<screenName name="com.patchr.ui.edit.PasswordEdit">PasswordEdit</screenName>
+	<screenName name="com.patchr.ui.edit.PatchEdit">PatchEdit</screenName>
+	<screenName name="com.patchr.ui.edit.ProximityEdit">ProximityEdit</screenName>
+	<screenName name="com.patchr.ui.edit.ProfileEdit">ProfileEdit</screenName>
+	<screenName name="com.patchr.ui.edit.ReportEdit">ReportEdit</screenName>
+	<screenName name="com.patchr.ui.edit.ResetEdit">ResetEdit</screenName>
+	<screenName name="com.patchr.ui.edit.LoginEdit">LoginEdit</screenName>
+	<screenName name="com.patchr.ui.edit.LocationEdit">LocationEdit</screenName>
+
+	<!-- Builders -->
+
+	<screenName name="com.patchr.ui.helpers.LocationPicker">LocationPicker</screenName>
+	<screenName name="com.patchr.ui.PhotoPicker">PhotoPicker</screenName>
+	<screenName name="com.patchr.ui.helpers.PhotoSourcePicker">PhotoSourcePicker</screenName>
+	<screenName name="com.patchr.ui.helpers.PrivacyBuilder">PrivacyBuilder</screenName>
+
+</resources>

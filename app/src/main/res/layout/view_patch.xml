@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
+
+		<FrameLayout
+			android:id="@+id/photo_group"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content">
+
+			<com.patchr.ui.widgets.ImageWidget
+				android:id="@+id/photo"
+				android:layout_width="@dimen/image_medium_large"
+				android:layout_height="@dimen/image_medium_large"
+				custom:category="thumbnail" />
+
+			<LinearLayout
+				android:layout_width="@dimen/image_medium_large"
+				android:layout_height="@dimen/image_medium_large"
+				android:background="@drawable/scrim_gradient_weak"
+				android:gravity="bottom"
+				android:orientation="vertical">
+
+				<TextView
+					android:id="@+id/distance"
+					android:layout_width="@dimen/image_medium_large"
+					android:layout_height="wrap_content"
+					android:padding="8dp"
+					android:textSize="14sp"
+					android:fontFamily="sans-serif"
+					android:textColor="?attr/textColorCandiView"
+					tools:text="0.8 mi" />
+
+			</LinearLayout>
+
+			<TextView
+				android:id="@+id/index"
+				android:layout_width="32dp"
+				android:layout_height="32dp"
+				android:layout_margin="4dp"
+				android:background="@drawable/bg_round_scrim"
+				android:gravity="center"
+				android:textSize="14sp"
+				android:fontFamily="sans-serif"
+				android:textColor="@color/white"
+				tools:text="999" />
+
+		</FrameLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:minHeight="@dimen/image_medium_large"
+			android:orientation="vertical">
+
+			<LinearLayout
+				android:id="@+id/holder_titling"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="-4dp"
+				android:layout_weight="0"
+				android:orientation="vertical"
+				android:paddingLeft="10dp"
+				android:paddingRight="10dp"
+				android:paddingTop="2dp">
+
+				<TextView
+					android:id="@+id/name"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:ellipsize="end"
+					android:maxLines="2"
+					android:textSize="20sp"
+					android:text="@string/dummy_title"
+					tools:text="@string/dummy_title" />
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal">
+
+					<TextView
+						android:id="@+id/type"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical"
+						android:layout_marginEnd="2dp"
+						android:layout_marginRight="2dp"
+						android:ellipsize="end"
+						android:singleLine="true"
+						android:textAllCaps="true"
+						android:textSize="14sp"
+						android:textColor="?attr/textColorSecondary"
+						tools:text="Chat Patch" />
+
+					<LinearLayout
+						android:id="@+id/privacy_group"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:gravity="center_vertical"
+						android:orientation="horizontal">
+
+						<ImageView
+							android:layout_width="20dp"
+							android:layout_height="20dp"
+							android:layout_marginEnd="1dp"
+							android:layout_marginRight="1dp"
+							android:maxHeight="20dp"
+							android:maxWidth="20dp"
+							android:scaleType="fitCenter"
+							android:src="@drawable/ic_action_lock_closed_dark"
+							android:tint="@color/brand_primary" />
+
+					</LinearLayout>
+
+				</LinearLayout>
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/holder_stats"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="6dp"
+				android:layout_weight="1"
+				android:orientation="horizontal">
+
+				<LinearLayout
+					android:layout_width="85dp"
+					android:layout_height="wrap_content"
+					android:layout_gravity="bottom"
+					android:orientation="vertical">
+
+					<TextView
+						android:id="@+id/message_count"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_horizontal"
+						android:textAppearance="?attr/textAppearanceExtraLarge"
+						android:textColor="@color/brand_accent"
+						android:textSize="28sp"
+						tools:text="31" />
+
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_horizontal"
+						android:layout_marginTop="-5dp"
+						android:text="@string/label_message_count"
+						android:textAllCaps="true"
+						android:textSize="12sp"
+						android:textColor="?attr/textColorSecondary"
+						tools:text="messages" />
+				</LinearLayout>
+
+				<View
+					android:id="@+id/shadow"
+					android:layout_width="@dimen/rule_divider_height"
+					android:layout_height="40dp"
+					android:layout_gravity="bottom"
+					android:background="?attr/textColorSecondary" />
+
+				<LinearLayout
+					android:layout_width="85dp"
+					android:layout_height="wrap_content"
+					android:layout_gravity="bottom"
+					android:orientation="vertical">
+
+					<TextView
+						android:id="@+id/watch_count"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_horizontal"
+						android:textAppearance="?attr/textAppearanceExtraLarge"
+						android:textColor="@color/brand_accent"
+						android:textSize="28sp"
+						tools:text="12" />
+
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_horizontal"
+						android:layout_marginTop="-5dp"
+						android:text="@string/label_watch_count"
+						android:textAllCaps="true"
+						android:textSize="12sp"
+						android:textColor="?attr/textColorSecondary"
+						tools:text="watching" />
+				</LinearLayout>
+
+			</LinearLayout>
+
+		</LinearLayout>
+
+	</LinearLayout>
+
+</merge>

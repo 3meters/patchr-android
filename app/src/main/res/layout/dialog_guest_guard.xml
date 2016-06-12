@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/transparent"
+	tools:background="#44000000">
+
+	<LinearLayout
+
+		android:id="@+id/dialog"
+		android:layout_width="228dp"
+		android:layout_height="wrap_content"
+		android:layout_centerInParent="true"
+		android:orientation="vertical">
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:layout_marginBottom="16dp"
+			android:gravity="center"
+			android:text="@string/name_app"
+			android:textColor="@color/brand_accent_darker"
+			android:textSize="36sp" />
+
+		<TextView
+			android:id="@+id/message"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:layout_marginBottom="16dp"
+			android:gravity="center"
+			android:text="@string/name_app"
+			android:textColor="@color/white"
+			android:textSize="18sp"
+			tools:text="Larissa Massena invited you to join this patch." />
+
+		<Button
+			android:id="@+id/button_login"
+			style="@style/button_flat"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/button_height"
+			android:background="@drawable/bg_outlined_white"
+			android:text="@string/lobby_button_login"
+			android:textAllCaps="true"
+			android:textColor="@color/white"
+			android:textSize="16sp" />
+
+		<Button
+			android:id="@+id/submit_button"
+			style="@style/button_flat"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/button_height"
+			android:layout_marginTop="8dp"
+			android:background="@drawable/bg_outlined_white"
+			android:text="@string/lobby_button_signup"
+			android:textAllCaps="true"
+			android:textColor="@color/white"
+			android:textSize="16sp" />
+
+	</LinearLayout>
+
+	<ImageButton
+		android:id="@+id/imageButton"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:layout_alignParentTop="true"
+		android:layout_marginTop="24dp"
+		android:background="@color/transparent"
+		android:src="@drawable/ic_action_cancel_dark" />
+
+</RelativeLayout>

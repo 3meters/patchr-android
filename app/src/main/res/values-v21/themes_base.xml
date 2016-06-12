@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<!--
+			Base application theme for API 21+. This theme replaces
+			MyTheme from resources/values/styles.xml on API 21+ devices.
+	-->
+
+	<style name="base_theme" parent="Theme.AppCompat.Light.NoActionBar">
+		<item name="android:windowContentTransitions">true</item>
+		<item name="android:windowAllowEnterTransitionOverlap">true</item>
+		<item name="android:windowAllowReturnTransitionOverlap">true</item>
+		<item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
+		<item name="android:windowSharedElementExitTransition">@android:transition/move</item>
+		<item name="colorControlNormal">@color/gray_20_pcnt</item>
+		<item name="colorControlActivated">@color/brand_accent</item>
+		<item name="colorControlHighlight">@color/gray_10_pcnt</item>
+	</style>
+
+	<style name="patchr_theme_notitlebar" parent="patchr_theme">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowTranslucentStatus">true</item>
+		<item name="android:statusBarColor">@color/transparent</item>
+	</style>
+
+	<style name="base_theme_dialog" parent="Theme.AppCompat.Light.Dialog.Alert" />
+
+</resources>

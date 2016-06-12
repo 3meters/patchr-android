@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-	<item name="join_button" type="id" />
-	<item name="login_button" type="id" />
-	<item name="guest_button" type="id" />
-</resources>

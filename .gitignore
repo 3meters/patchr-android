@@ -6,15 +6,16 @@
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
-/build
+/app/build/*
+/build/*
 *.iml
 
 # -------------------------------------------------
 # Project files to ignore
 #--------------------------------------------------
 
-/dumps
-/releases
+/app/dumps
+/app/releases
 /fastlane
 /reports
 

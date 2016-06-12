@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingBottom="0dp"
+	android:paddingLeft="4dp"
+	android:paddingRight="4dp"
+	android:paddingTop="4dp">
+
+	<Button
+		android:id="@+id/action_button"
+		style="@style/button_featured"
+		android:layout_width="match_parent"
+		android:layout_height="56dp"
+		android:onClick="onClick"
+		android:textColor="@color/white"
+		android:theme="@style/button_primary_overlay"
+		tools:text="Create a patch" />
+
+	<!--
+	<TextView
+		style="@style/selectable_image"
+		android:id="@+id/action_button"
+		android:layout_width="match_parent"
+		android:layout_height="48dp"
+		android:gravity="center"
+		android:textAllCaps="true"
+		android:textColor="@color/brand_primary"
+		android:background="@color/white"
+		android:clickable="true"
+		android:onClick="onClick"
+		tools:text="Create a patch" />-->
+
+</RelativeLayout>
