@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -97,8 +98,7 @@ public class UserDetailView extends FrameLayout {
 		synchronized (lock) {
 
 			this.entity = entity;
-			this.isCurrentUser = UserManager.shared().authenticated()
-					&& UserManager.currentUser.id.equals(entity.id);
+			this.isCurrentUser = (UserManager.shared().authenticated() && UserManager.currentUser.id.equals(entity.id));
 
 			if (entity == null) {
 				Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img_default_user_light);
@@ -119,11 +119,17 @@ public class UserDetailView extends FrameLayout {
 			UI.setVisibility(this.authIdentifierLabel, GONE);
 			if (this.isCurrentUser) {
 				UI.setVisibility(this.authIdentifierLabel, VISIBLE);
-				if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
-					base.setOrGone(this.authIdentifier, ((PhoneNumber)UserManager.authIdentifierHint).number);
+
+				if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+					if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
+						base.setOrGone(this.authIdentifier, ((PhoneNumber)UserManager.authIdentifierHint).number);
+					}
+					else {
+						base.setOrGone(this.authIdentifier, (String) UserManager.authIdentifierHint);
+					}
 				}
 				else {
-					base.setOrGone(this.authIdentifier, (String) UserManager.authIdentifierHint);
+					base.setOrGone(this.authIdentifier, user.email);
 				}
 			}
 

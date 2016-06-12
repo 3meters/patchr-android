@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.facebook.appevents.AppEventsLogger;
+import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -547,11 +548,17 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				UI.setVisibility(this.userPhoto, View.VISIBLE);
 				UI.setVisibility(this.authIdentifier, View.VISIBLE);
 				UI.setVisibility(this.authIdentifierLabel, View.VISIBLE);
-				if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
-					UI.setTextOrGone(this.authIdentifier, ((PhoneNumber) UserManager.authIdentifierHint).number);
+
+				if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+					if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
+						UI.setTextOrGone(this.authIdentifier, ((PhoneNumber) UserManager.authIdentifierHint).number);
+					}
+					else {
+						UI.setTextOrGone(this.authIdentifier, (String) UserManager.authIdentifierHint);
+					}
 				}
 				else {
-					UI.setTextOrGone(this.authIdentifier, (String) UserManager.authIdentifierHint);
+					UI.setTextOrGone(this.authIdentifier, user.email);
 				}
 
 				this.drawerLeftHeader.setTag(user);

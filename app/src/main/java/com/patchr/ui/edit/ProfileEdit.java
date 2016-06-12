@@ -412,7 +412,7 @@ public class ProfileEdit extends BaseEdit {
 
 					/* We automatically consider the user signed in. */
 					final User user = (User) result.data;
-					UserManager.shared().setCurrentUser(user, true);
+					UserManager.shared().setCurrentUser(user, false);
 
 					Reporting.track(AnalyticsCategory.EDIT, "Created User and Logged In");
 					Logger.i(ProfileEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
