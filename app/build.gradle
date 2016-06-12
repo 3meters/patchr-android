@@ -15,8 +15,8 @@ android {
 
 		minSdkVersion 16        // ICS 4.1 and up: Jelly Bean
 		targetSdkVersion 23     // Marshmallow
-		versionCode 121
-		versionName '1.1.18'
+		versionCode 122
+		versionName '1.2.0'
 
 		multiDexEnabled true
 		buildConfigField 'boolean', 'ACCOUNT_KIT_ENABLED', "false"
