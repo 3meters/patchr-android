@@ -26,7 +26,6 @@
 			android:layout_width="56dp"
 			android:layout_height="56dp"
 			android:layout_gravity="center_vertical"
-			android:elevation="4dp"
 			app:category="profile"
 			app:shape="round"
 			app:showBusy="false" />

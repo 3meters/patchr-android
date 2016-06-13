@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -167,6 +168,12 @@ public class UI {
 
 	public static Integer getDimension(Integer dimenResId) {
 		return Patchr.applicationContext.getResources().getDimensionPixelSize(dimenResId);
+	}
+
+	public static Drawable setTint(Drawable drawable, int colorId) {
+		Drawable wrappedDrawable = DrawableCompat.wrap(drawable);
+		DrawableCompat.setTint(wrappedDrawable, Colors.getColor(colorId));
+		return wrappedDrawable;
 	}
 
 	/*--------------------------------------------------------------------------------------------

@@ -25,10 +25,12 @@ import java.util.concurrent.CancellationException;
 
 public class S3 {
 
+	@SuppressWarnings("deprecation")
 	private TransferManager mManager;
+	@SuppressWarnings("deprecation")
 	private Upload          mUpload;
 
-	private S3() {
+	@SuppressWarnings("deprecation") private S3() {
 		mManager = new TransferManager(Patchr.awsCredentials);
 		try {
 			Dispatcher.getInstance().register(this);

@@ -121,6 +121,10 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 		this.deleteButton = (View) layout.findViewById(R.id.photo_delete_button);
 		this.photoGroup = (ViewGroup) layout.findViewById(R.id.photo_group);
 
+		this.deleteButton.setBackground(UI.setTint(this.deleteButton.getBackground(), R.color.white_80_pcnt));
+		this.editButton.setBackground(UI.setTint(this.deleteButton.getBackground(), R.color.white_80_pcnt));
+		this.setButton.setBackground(UI.setTint(this.deleteButton.getBackground(), R.color.white_80_pcnt));
+
 		this.imageWidget.category = this.category;
 		this.imageWidget.shape = this.shape;
 		this.imageWidget.aspectRatio = this.aspectRatio;

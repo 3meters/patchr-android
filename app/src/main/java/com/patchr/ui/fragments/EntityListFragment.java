@@ -1,7 +1,6 @@
 package com.patchr.ui.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -73,7 +72,6 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 		/* Force complete initialization if being recreated by the system */
 		boolean recreated = (this.listPresenter == null || this.listItemResId == null || (savedInstanceState != null && !savedInstanceState.isEmpty()));
 		if (recreated) {
-			Intent intent = getActivity().getIntent();
 			getActivity().finish();
 		}
 
@@ -167,7 +165,7 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 
 		Utils.guard(view != null, "View cannot be null");
 
-		if (this.listPresenter != null) {
+		if (this.listPresenter != null && view != null) {
 			this.listPresenter.recycleView = (RecyclerView) view.findViewById(R.id.entity_list);
 			this.listPresenter.recycleView.addOnScrollListener(new ListScrollListener() {
 				@Override public void onMoved(int distance) {

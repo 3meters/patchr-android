@@ -113,7 +113,6 @@
 				android:layout_marginLeft="4dp"
 				android:layout_marginRight="4dp"
 				android:drawableRight="?attr/iconForward"
-				android:drawableTint="@color/brand_primary"
 				android:gravity="left|center_vertical"
 				android:onClick="onPrivacyBuilderClick"
 				android:padding="8dp"

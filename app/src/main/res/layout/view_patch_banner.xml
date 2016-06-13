@@ -116,7 +116,6 @@
 				android:scaleType="fitCenter"
 				android:src="@drawable/ic_action_signal_dark"
 				android:tint="@color/brand_primary"
-				android:tintMode="src_atop"
 				android:visibility="gone"
 				tools:visibility="visible" />
 

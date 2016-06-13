@@ -893,8 +893,6 @@ public class PatchScreen extends BaseScreen implements NfcAdapter.CreateNdefMess
 
 	private void showInviteWelcome(int delay) {
 
-		final Patch patch = (Patch) entity;
-
 		handler.postDelayed(new Runnable() {
 
 			@Override public void run() {

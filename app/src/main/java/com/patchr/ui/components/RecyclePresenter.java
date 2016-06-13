@@ -192,7 +192,9 @@ public class RecyclePresenter {
 
 		Utils.guard(view != null, "View cannot be null");
 
-		this.recycleView = (RecyclerView) view.findViewById(R.id.entity_list);
+		if (view != null) {
+			this.recycleView = (RecyclerView) view.findViewById(R.id.entity_list);
+		}
 
 		if (this.emptyPresenter != null && this.emptyMessageResId != null) {
 			this.emptyPresenter.setLabel(StringManager.getString(this.emptyMessageResId));

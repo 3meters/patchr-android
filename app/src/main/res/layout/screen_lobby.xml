@@ -58,8 +58,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="8dp"
-				android:background="@drawable/bg_outlined_translucent"
-				app:elevation="4dp">
+				android:background="@drawable/bg_outlined_translucent">
 
 				<LinearLayout
 					android:id="@+id/user_button"

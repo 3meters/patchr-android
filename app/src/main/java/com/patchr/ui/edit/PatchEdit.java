@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -282,6 +283,10 @@ public class PatchEdit extends BaseEdit {
 		mapView = (MapView) findViewById(R.id.mapview);
 		mapProgressBar = (AirProgressBar) findViewById(R.id.map_progress);
 		locationLabel = (TextView) findViewById(R.id.location_label);
+
+		Drawable originalDrawable = buttonPrivacy.getCompoundDrawables()[2];
+		Drawable chevron = UI.setTint(originalDrawable, R.color.brand_primary);
+		buttonPrivacy.setCompoundDrawables(null, null, chevron, null);
 
 		this.actionBarTitle.setText(editing ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
 		this.title.setText(editing ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);

@@ -149,7 +149,7 @@
 
 				</LinearLayout>
 
-				<ImageView
+				<android.support.v7.widget.AppCompatImageView
 					android:id="@+id/next_page_button"
 					style="@style/selectable_image"
 					android:layout_width="@dimen/button_height"
@@ -162,7 +162,6 @@
 					android:scaleType="fitCenter"
 					android:src="@drawable/ic_action_overflow_dark"
 					android:tint="@color/brand_primary"
-					android:tintMode="src_atop"
 					android:visibility="gone"
 					tools:visibility="visible" />
 

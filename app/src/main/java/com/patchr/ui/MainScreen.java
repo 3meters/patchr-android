@@ -149,7 +149,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 			Dispatcher.getInstance().post(new RegisterInstallEvent());  // Sets install registered flag only if successful
 		}
 
-		AppEventsLogger.activateApp(this);
+		AppEventsLogger.activateApp(getApplication());
 	}
 
 	@Override protected void onPause() {
@@ -160,7 +160,6 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		 */
 		pauseDate = DateTime.nowDate().getTime();
 		super.onPause();
-		AppEventsLogger.deactivateApp(this);
 	}
 
 	@Override protected void onStop() {

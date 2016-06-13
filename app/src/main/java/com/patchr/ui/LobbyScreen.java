@@ -53,7 +53,6 @@ import com.patchr.ui.edit.LoginEdit;
 import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.edit.ResetEdit;
 import com.patchr.ui.widgets.ImageWidget;
-import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
@@ -247,9 +246,9 @@ public class LobbyScreen extends AppCompatActivity {
 		Integer registeredClientVersionCode = Patchr.settings.getInt(StringManager.getString(R.string.setting_install_registered_version_code), 0);
 		Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
 
-		//if (!registered || !registeredClientVersionCode.equals(clientVersionCode)) {
+		if (!registered || !registeredClientVersionCode.equals(clientVersionCode)) {
 			Dispatcher.getInstance().post(new RegisterInstallEvent());  // Sets install registered flag only if successful
-		//}
+		}
 	}
 
 	protected void handleBranch() {
@@ -453,8 +452,6 @@ public class LobbyScreen extends AppCompatActivity {
 
 		menuSheetView.inflateMenu(R.menu.menu_login_sheet);
 
-		final int color = Colors.getColor(R.color.brand_primary);
-
 		menuSheetView.getMenu().getItem(0).getIcon().setAlpha((int) (256 * 0.5));
 		menuSheetView.getMenu().getItem(1).getIcon().setAlpha((int) (256 * 0.5));
 		menuSheetView.getMenu().getItem(2).getIcon().setAlpha((int) (256 * 0.5));
@@ -578,16 +575,14 @@ public class LobbyScreen extends AppCompatActivity {
 
 	private void showButtons() {
 
-		ImageWidget userPhoto = (ImageWidget) findViewById(R.id.user_photo);
-		TextView userName = (TextView) findViewById(R.id.user_name);
-		TextView userAuthIdentifier = (TextView) findViewById(R.id.user_auth_identifier);
 		View userGroup = findViewById(R.id.user_group);
 		Button authButton = (Button) findViewById(R.id.auth_button);
-		Button loginButton = (Button) findViewById(R.id.login_button);
-		Button submitButton = (Button) findViewById(R.id.submit_button);
 		Button guestButton = (Button) findViewById(R.id.guest_button);
 
 		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+			ImageWidget userPhoto = (ImageWidget) findViewById(R.id.user_photo);
+			TextView userName = (TextView) findViewById(R.id.user_name);
+			TextView userAuthIdentifier = (TextView) findViewById(R.id.user_auth_identifier);
 			UI.setVisibility(authButton, View.GONE);
 			UI.setVisibility(guestButton, View.GONE);
 			if (UserManager.authUserHint != null && UserManager.authUserHint.name != null) {
