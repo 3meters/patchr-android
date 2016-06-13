@@ -70,12 +70,11 @@ public class Patchr extends MultiDexApplication implements IAviaryClientCredenti
 	public static BasicAWSCredentials awsCredentials = null;
 
 	/* Container values */
-	public static        String AWS_ACCESS_KEY             = "aws-access-key";
-	public static        String AWS_SECRET_KEY             = "aws-secret-key";
-	public static        String BING_ACCESS_KEY            = "bing-access-key";
-	public static        String USER_SECRET                = "user-secret";
-	private static final String CREATIVE_SDK_CLIENT_ID     = "6f4074ec11634bd78eb00909102844ec";
-	private static final String CREATIVE_SDK_CLIENT_SECRET = "7af6a808-0568-477e-88c2-63fa6e8ef617";
+	public static  String AWS_ACCESS_KEY             = "aws-access-key";
+	public static  String AWS_SECRET_KEY             = "aws-secret-key";
+	public static  String BING_ACCESS_KEY            = "bing-access-key";
+	public static  String USER_SECRET                = "user-secret";
+	private static String CREATIVE_SDK_CLIENT_SECRET = "creative-sdk-client-secret";
 
 	public  Boolean prefEnableDev;
 	public  String  prefTestingBeacons;
@@ -173,9 +172,6 @@ public class Patchr extends MultiDexApplication implements IAviaryClientCredenti
 
 		/* Turn on branch */
 		Branch.getAutoInstance(this);
-
-		/* Init Creative Sdk */
-		AdobeCSDKFoundation.initializeCSDKFoundation(getApplicationContext());
 	}
 
 	protected void initializeManagers() {
@@ -193,11 +189,11 @@ public class Patchr extends MultiDexApplication implements IAviaryClientCredenti
 	}
 
 	@Override public String getClientID() {
-		return CREATIVE_SDK_CLIENT_ID;
+		return StringManager.getString(R.string.creative_sdk_client_id);
 	}
 
 	@Override public String getClientSecret() {
-		return CREATIVE_SDK_CLIENT_SECRET;
+		return ContainerManager.getContainerHolder().getContainer().getString(Patchr.CREATIVE_SDK_CLIENT_SECRET);
 	}
 
 	@Override public String getBillingKey() {
@@ -212,15 +208,18 @@ public class Patchr extends MultiDexApplication implements IAviaryClientCredenti
 		 * the current version from the network.
 		 */
 		TagManager tagManager = TagManager.getInstance(this);
-		if (Patchr.debuggable) {
-			tagManager.setVerboseLoggingEnabled(true);
-		}
-		PendingResult<ContainerHolder> pending = tagManager.loadContainerPreferNonDefault(containerId, R.raw.gtm_default_container);
+		tagManager.setVerboseLoggingEnabled(false);
 
+		PendingResult<ContainerHolder> pending = tagManager.loadContainerPreferNonDefault(containerId, R.raw.gtm_default_container);
+		/*
+		 * The onResult method will be called as soon as one of the following happens:
+		 *  1. a saved container is loaded
+		 *  2. if there is no saved container, a network container is loaded
+		 *  3. the 2-second timeout occurs
+		 */
 		pending.setResultCallback(new ResultCallback<ContainerHolder>() {
 
-			@Override
-			public void onResult(@NonNull ContainerHolder containerHolder) {
+			@Override public void onResult(@NonNull ContainerHolder containerHolder) {
 
 				if (!containerHolder.getStatus().isSuccess()) {
 					// Called when a refresh failed for the given refresh type.
@@ -238,8 +237,7 @@ public class Patchr extends MultiDexApplication implements IAviaryClientCredenti
 				activateContainer(containerHolder);
 
 				containerHolder.setContainerAvailableListener(new ContainerHolder.ContainerAvailableListener() {
-					@Override
-					public void onContainerAvailable(ContainerHolder containerHolder, String s) {
+					@Override public void onContainerAvailable(ContainerHolder containerHolder, String s) {
 						activateContainer(containerHolder);
 					}
 				});
@@ -250,12 +248,18 @@ public class Patchr extends MultiDexApplication implements IAviaryClientCredenti
 	}
 
 	private void activateContainer(ContainerHolder containerHolder) {
+
 		ContainerManager.setContainerHolder(containerHolder);
 		Container container = containerHolder.getContainer();
+
 		if (!container.isDefault()) {
+
 			String accessKey = container.getString(AWS_ACCESS_KEY);
 			String secretKey = container.getString(AWS_SECRET_KEY);
 			awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+
+			/* Init Creative Sdk */
+			AdobeCSDKFoundation.initializeCSDKFoundation(getApplicationContext());
 		}
 	}
 

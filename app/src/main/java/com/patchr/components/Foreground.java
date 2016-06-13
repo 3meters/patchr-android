@@ -1,12 +1,12 @@
 /**
  * Copyright 2015 Steve Liles
- * <p/>
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p/>
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -145,8 +145,7 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
 
 	public static Foreground get() {
 		if (instance == null) {
-			throw new IllegalStateException(
-					"Foreground is not initialised - first invocation must use parameterised init/get");
+			throw new IllegalStateException("Foreground is not initialised - first invocation must use parameterised init/get");
 		}
 		return instance;
 	}
@@ -194,11 +193,8 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
 		// check if we're becoming foreground and notify listeners
 		if (!foreground && (activity != null && !activity.isChangingConfigurations())) {
 			foreground = true;
-			Log.w(TAG, "became foreground");
+			Logger.d(this, "Move to foreground");
 			listeners.each(becameForeground);
-		}
-		else {
-			Log.i(TAG, "still foreground");
 		}
 	}
 
@@ -223,15 +219,9 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
 		if (foreground) {
 			if ((activity == current) && (activity != null && !activity.isChangingConfigurations())) {
 				foreground = false;
-				Log.w(TAG, "went background");
+				Logger.d(this, "Move to background");
 				listeners.each(becameBackground);
 			}
-			else {
-				Log.i(TAG, "still foreground");
-			}
-		}
-		else {
-			Log.i(TAG, "still background");
 		}
 	}
 }

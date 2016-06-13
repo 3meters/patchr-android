@@ -27,44 +27,23 @@ public class MediaManager {
 	public static Integer SOUND_DEBUG_POP;
 	public static Integer SOUND_ACTIVITY_CHANGE;
 
-	public static SoundPool    soundPool;
 	public static AudioManager audioManager;
+	public static SoundPool    soundPool;
+	public static boolean      loaded;
 	public static  Integer streamType        = AudioManager.STREAM_SYSTEM;
 	private static String  shareFileName     = "photo.jpeg";
 	public static  String  tempDirectoryName = ".Patchr";
-
-	/*
-	 * Sharing Management
-	 * ------------------
-	 * 
-	 * MessageEdit: If intent has image stream we pull the bitmap from it and copy it to our
-	 * pinned share file. The uri string to the file is used as the photo.prefix. Later when
-	 * the message is stored, the bitmap is loaded and sent to S3.
-	 * 
-	 * PhotoForm: If user shares photo we copy to pinned share file and pass uri pointer to
-	 * the app shared to.
-	 * 
-	 * MessageForm: If user shares message with photo, we copy the photo to pinned share file
-	 * and pass uri pointer to the app shared to.
-	 * 
-	 * PatchForm: If user shares patch with photo, we copy the photo to pinned share file
-	 * and pass uri pointer to the app shared to.
-	 * 
-	 * Photo Management
-	 * ------------------
-	 * 
-	 * This covers photos that are created using our application. If a user selects a photo
-	 * from for instance the Instragram album, we don't want to create a copy in Pictures/Candigram.
-	 * 
-	 * We call ImageChooser and pass in the folder to use for storage. We want to use our standard
-	 * temp/share folder for photos choosen that already exist. We use Pictures/Patchr for photos
-	 * created using the camera.
-	 */
 
 	static {
 		/* Called first time a static member is accessed */
 		//noinspection deprecation
 		soundPool = new SoundPool(4, streamType, 0); // New SoundPool.Builder requires API 21
+		soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+			@Override public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+				loaded = true;
+			}
+		});
+
 		audioManager = (AudioManager) Patchr.applicationContext.getSystemService(Context.AUDIO_SERVICE);
 
 		SOUND_ACTIVITY_NEW = soundPool.load(Patchr.applicationContext, R.raw.notification_activity, 1);
@@ -74,7 +53,7 @@ public class MediaManager {
 	}
 
 	public static void playSound(Integer soundResId, Float multiplier, Integer loops) {
-		if (soundPool != null) {
+		if (soundPool != null && loaded) {
 			if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_sound_effects)
 					, Booleans.getBoolean(R.bool.pref_sound_effects_default))) {
 

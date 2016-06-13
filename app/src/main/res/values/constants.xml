@@ -40,6 +40,10 @@
 	<string name="account_kit_client_token">e60846a0dabd41d45ac3aad840c595ab</string>
 	<string name="ak_login_protocol_scheme">ak894654857249670</string>
 
+	<!-- Adobe Creative Sdk -->
+
+	<string name="creative_sdk_client_id">6f4074ec11634bd78eb00909102844ec</string>
+
 	<!-- Tag manager -->
 
 	<string name="id_container">GTM-MV8KBB</string>

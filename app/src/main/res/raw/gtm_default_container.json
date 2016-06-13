@@ -1,7 +1,7 @@
 {
-  "aws-access-key": "empty",
-  "aws-secret-key": "empty",  
-  "bing-access-key": "empty",  
-  "candigrams-enabled": true,
-  "user-secret":"empty"
+    "aws-access-key": "empty",
+    "aws-secret-key": "empty",
+    "bing-access-key": "empty",
+    "user-secret":"empty",
+	"creative-sdk-client-secret":"empty"
 }
