@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.facebook.appevents.AppEventsLogger;
 import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -39,7 +38,6 @@ import com.patchr.events.LocationAllowedEvent;
 import com.patchr.events.LocationDeniedEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.events.NotificationsQueryEvent;
-import com.patchr.events.RegisterInstallEvent;
 import com.patchr.events.TrendQueryEvent;
 import com.patchr.objects.ActionType;
 import com.patchr.objects.AnalyticsCategory;
@@ -136,20 +134,6 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		}
 
 		bind();
-
-		/*
-		 * Ensure install is registered with service. Only done once unless something like a system update clears
-		 * the app preferences.
-		 */
-		Boolean registered = Patchr.settings.getBoolean(StringManager.getString(R.string.setting_install_registered), false);
-		Integer registeredClientVersionCode = Patchr.settings.getInt(StringManager.getString(R.string.setting_install_registered_version_code), 0);
-		Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
-
-		if (!registered || !registeredClientVersionCode.equals(clientVersionCode)) {
-			Dispatcher.getInstance().post(new RegisterInstallEvent());  // Sets install registered flag only if successful
-		}
-
-		AppEventsLogger.activateApp(getApplication());
 	}
 
 	@Override protected void onPause() {
